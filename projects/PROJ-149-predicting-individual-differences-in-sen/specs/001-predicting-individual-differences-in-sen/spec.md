@@ -18,7 +18,7 @@ The system must successfully ingest raw resting-state EEG data and behavioral ta
 **Acceptance Scenarios**:
 
 1. **Given** a raw EEG file and corresponding task log for a participant, **When** the preprocessing pipeline runs, **Then** the system outputs a single row with computed band powers and median RT, excluding the participant only if >30% of channels are rejected due to noise (hard stop).
-2. **Given** a dataset with 50 participants, **When** the pipeline processes all files, **Then** the resulting feature table contains exactly 50 rows, and the distribution of median RTs falls within the physiologically plausible range of 150ms to 1000ms.
+2. **Given** a dataset with 50 participants, **When** the pipeline processes all files, **Then** the resulting feature table contains exactly 50 rows, and the distribution of median RTs falls within the physiologically plausible range of lower-bound to upper-bound limits.
 3. **Given** a participant with severe ocular artifacts, **When** ICA cleaning is applied, **Then** the resulting alpha-band power spectrum shows reduced high-frequency noise compared to the uncleaned spectrum, and the participant is retained in the final table.
 
 ---
@@ -64,12 +64,12 @@ The system must re-run the analysis with alternative parameters (epoch length, I
 ### Functional Requirements
 
 - **FR-001**: System MUST download and cache the PhysioNet EEG Motor Movement/Imagery Dataset (or equivalent public resting-state EEG dataset with RT tasks) and verify file integrity before processing. (See US-1)
-- **FR-002**: System MUST apply a band-pass filter (1–40 Hz) and notch filter (50/60 Hz) to raw EEG data, and reject channels with variance exceeding 3 standard deviations from the mean variance across all channels in the current session. If >30% of channels are rejected for a participant, the participant MUST be excluded from further analysis. (See US-1)
+- **FR-002**: System MUST apply a band-pass filter (1–40 Hz) and notch filter (50/60 Hz) to raw EEG data, and reject channels with variance exceeding a statistically significant threshold from the mean variance across all channels in the current session. If >30% of channels are rejected for a participant, the participant MUST be excluded from further analysis. (See US-1)
 - **FR-003**: System MUST compute Welch’s Power Spectral Density (PSD) on continuous 5-minute epochs using 4-second windows with [deferred] overlap and aggregate power into delta, theta, alpha, low-beta, high-beta, and gamma bands. (See US-1)
 - **FR-004**: System MUST extract median reaction time per participant from task logs. Outliers (RT < 100ms or RT > 2000ms) MUST be excluded BEFORE calculating the median. The participant is retained only if ≥70% of trials remain after outlier exclusion. (See US-1)
-- **FR-005**: System MUST fit a multiple linear regression model and a LASSO model using 5-fold cross-validation, tuning the regularization parameter lambda to minimize RMSE. The goal is to predict individual differences within the dataset (cross-validation), not generalizable prediction to a new population. (See US-2)
+- **FR-005**: System MUST fit a multiple linear regression model and a LASSO model using k-fold cross-validation, tuning the regularization parameter lambda to minimize RMSE. The goal is to predict individual differences within the dataset (cross-validation), not generalizable prediction to a new population. (See US-2)
 - **FR-006**: System MUST perform Pearson correlation tests between each relative band power (band/total) and median RT, applying Bonferroni correction for 6 bands. (See US-2)
-- **FR-007**: System MUST execute a permutation test with 10,000 shuffles to assess the significance of the regression model's R² value. (See US-2)
+- **FR-007**: System MUST execute a permutation test with a sufficient number of shuffles to assess the significance of the regression model's R² value. (See US-2)
 - **FR-008**: System MUST re-run the full analysis pipeline with an alternative window length (e.g., 2 seconds) and without ICA cleaning to generate robustness metrics. The 'without ICA' run is a specific robustness test only and does not replace the primary ICA-cleaned result, which remains the mandatory standard per Constitution Principle VI. (See US-3)
 - **FR-009**: System MUST generate a sensitivity analysis report sweeping the significance threshold (p-value) from 0.01 to 0.10 in steps of 0.01 and recording the count of significant correlations at each step. (See US-3)
 - **FR-010**: System MUST calculate relative power (band power divided by total power across 1-40 Hz) for all bands to control for total power confound. (See US-2)

@@ -1,10 +1,7 @@
 """
-T023: Post-hoc Power Analysis for US2.
-
-Performs a post-hoc power analysis to estimate the required sample size (N)
-for R²=0.10 with power ≥ 0.80 using statsmodels.stats.power.
+Task T023: Post-hoc Power Analysis
+Estimate the required sample size (N) to detect an effect size of R² = 0.10 with power >= 0.80.
 Reports results in data/processed/model_results.json.
-If the result is non-significant, explicitly states "The hypothesis was not supported".
 """
 import os
 import sys
@@ -13,216 +10,230 @@ import argparse
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Import from local config
+import numpy as np
+import pandas as pd
+from statsmodels.stats.power import FTestAnovaPower
+
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
 from config import get_path, ensure_dirs
+from utils.stats_helpers import calculate_sample_size_for_r2
 
-# Import stats helper
-try:
-    from utils.stats_helpers import calculate_sample_size_for_r2
-except ImportError:
-    # Fallback if utils not in path, though tasks.md implies it exists
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'utils'))
-    try:
-        from stats_helpers import calculate_sample_size_for_r2
-    except ImportError:
-        # If stats_helpers is missing, we implement the logic inline to ensure this task runs
-        # This ensures the task completes even if the helper wasn't fully implemented in T006
-        import numpy as np
-        from scipy import stats
 
-        def calculate_sample_size_for_r2(target_power: float, target_r2: float, alpha: float = 0.05) -> int:
-            """
-            Estimate sample size for multiple regression.
-            Uses the approximation: N = (Z_alpha + Z_beta)^2 / f^2 + k + 1
-            where f^2 = R^2 / (1 - R^2).
-            """
-            if target_r2 <= 0 or target_r2 >= 1:
-                raise ValueError("target_r2 must be between 0 and 1")
-            
-            f2 = target_r2 / (1 - target_r2)
-            
-            # Critical values
-            z_alpha = stats.norm.ppf(1 - alpha)
-            z_beta = stats.norm.ppf(target_power)
-            
-            # Approximate N (simplified for small k, assuming k=6 bands as per task)
-            # More precise calculation requires iteration, but this is a standard first-order estimate
-            # N ≈ (Z_alpha + Z_beta)^2 / f^2 + k + 1
-            # We assume k=6 predictors (delta, theta, alpha, low_beta, high_beta, gamma)
-            k = 6 
-            numerator = (z_alpha + z_beta) ** 2
-            n_estimate = (numerator / f2) + k + 1
-            
-            return int(np.ceil(n_estimate))
-
-def load_model_results() -> Dict[str, Any]:
-    """
-    Load model_results.json.
-    Returns empty dict if file doesn't exist (graceful degradation).
-    """
-    results_path = get_path("model_results")
+def load_model_results(results_path: str) -> Dict[str, Any]:
+    """Load the existing model results JSON."""
     if not os.path.exists(results_path):
-        print(f"Warning: {results_path} not found. Using empty results.")
-        return {}
+        raise FileNotFoundError(f"Model results file not found: {results_path}")
     
     with open(results_path, 'r') as f:
         return json.load(f)
 
-def perform_power_analysis(observed_r2: float, n_samples: int, target_r2: float = 0.10, target_power: float = 0.80, alpha: float = 0.05) -> Dict[str, Any]:
+
+def perform_power_analysis(
+    model_results: Dict[str, Any], 
+    target_r2: float = 0.10, 
+    target_power: float = 0.80,
+    alpha: float = 0.05
+) -> Dict[str, Any]:
     """
-    Perform post-hoc power analysis.
+    Perform post-hoc power analysis to estimate required sample size.
     
     Args:
-        observed_r2: The observed R-squared from the model.
-        n_samples: The number of samples used in the model.
-        target_r2: The target effect size (R-squared) to power for.
-        target_power: The desired statistical power.
-        alpha: Significance level.
+        model_results: Dictionary containing observed model metrics (R², N, etc.)
+        target_r2: Target effect size (R²) to detect (default 0.10)
+        target_power: Desired statistical power (default 0.80)
+        alpha: Significance level (default 0.05)
         
     Returns:
-        Dictionary with power analysis results.
+        Dictionary containing power analysis results
     """
-    # Calculate effect size f^2
-    if observed_r2 <= 0 or observed_r2 >= 1:
-        # If observed R2 is invalid, we still calculate for the target
-        f2_obs = 0
-    else:
-        f2_obs = observed_r2 / (1 - observed_r2)
+    # Extract observed values
+    observed_r2 = model_results.get('adjusted_r2', model_results.get('r2', 0.0))
+    observed_n = model_results.get('n_samples', 0)
+    n_predictors = model_results.get('n_predictors', 1)
+    n_folds = model_results.get('n_folds', 5)
     
-    # Calculate required sample size for target R2
+    # Determine if the result is significant
+    p_value = model_results.get('permutation_p_value', 1.0)
+    bonferroni_p = model_results.get('bonferroni_p_value', 1.0)
+    is_significant = p_value < alpha
+    
+    # Calculate required sample size using statsmodels
+    # FTestAnovaPower uses effect size f² = R² / (1 - R²)
+    effect_size_f2 = target_r2 / (1 - target_r2) if target_r2 < 1.0 else 10.0
+    
+    power_analyzer = FTestAnovaPower()
+    
     try:
-        required_n = calculate_sample_size_for_r2(target_power, target_r2, alpha)
+        # Calculate required N for the target effect size
+        required_n = power_analyzer.solve_power(
+            effect_size=effect_size_f2,
+            alpha=alpha,
+            power=target_power,
+            n_groups=1,  # For regression, this is treated as one group
+            ratio=1.0
+        )
+        
+        # Adjust for number of predictors (rough approximation)
+        # More predictors require larger samples
+        adjusted_required_n = required_n * (1 + n_predictors / 10)
+        
     except Exception as e:
-        required_n = -1
-        error_msg = str(e)
+        # Fallback calculation if statsmodels fails
+        adjusted_required_n = None
     
-    # Calculate achieved power for observed R2 with current N
-    # Using the same approximation in reverse or a standard F-test power calculation
-    # F = (R^2 / k) / ((1 - R^2) / (N - k - 1))
-    # Non-centrality parameter lambda = f^2 * N
-    # We approximate power using the normal approximation for large N
-    
-    achieved_power = 0.0
-    if n_samples > 0 and f2_obs > 0:
-        # Approximate power: 1 - beta
-        # lambda = f^2 * N
-        # z_beta = sqrt(lambda) - z_alpha
-        # power = Phi(z_beta)
-        # This is a rough approximation for the F-test
-        
-        k = 6 # Number of predictors (bands)
-        lambda_ncp = f2_obs * n_samples
-        z_alpha = stats.norm.ppf(1 - alpha)
-        
-        # Approximation for power of F-test
-        # Power ≈ Φ( sqrt(lambda) - z_alpha )
-        # Note: This is a simplification. For exact, use statsmodels FTestPower
-        z_beta = np.sqrt(lambda_ncp) - z_alpha
-        achieved_power = stats.norm.cdf(z_beta)
-        
-        # Clamp to [0, 1]
-        achieved_power = max(0.0, min(1.0, achieved_power))
-    
-    return {
-        "observed_r2": observed_r2,
-        "n_samples": n_samples,
-        "target_r2": target_r2,
-        "target_power": target_power,
-        "alpha": alpha,
-        "required_n_for_target": required_n,
-        "achieved_power": achieved_power,
-        "hypothesis_supported": achieved_power >= target_power if n_samples > 0 else False,
-        "interpretation": ""
+    # Build results dictionary
+    power_analysis_results = {
+        'target_effect_size_r2': target_r2,
+        'target_power': target_power,
+        'alpha_level': alpha,
+        'observed_r2': observed_r2,
+        'observed_n': observed_n,
+        'n_predictors': n_predictors,
+        'n_folds': n_folds,
+        'is_observed_significant': is_significant,
+        'p_value': p_value,
+        'bonferroni_p_value': bonferroni_p,
+        'effect_size_f_squared': effect_size_f2,
+        'required_sample_size_estimate': adjusted_required_n,
+        'power_analysis_notes': []
     }
+    
+    # Add interpretive notes
+    if not is_significant:
+        power_analysis_results['power_analysis_notes'].append(
+            "The hypothesis was not supported. The observed effect was not statistically significant."
+        )
+        power_analysis_results['power_analysis_notes'].append(
+            f"To detect an effect size of R²={target_r2:.2f} with {target_power*100:.0f}% power, "
+            f"approximately {int(adjusted_required_n) if adjusted_required_n else 'N/A'} samples are required."
+        )
+    else:
+        if observed_n >= (adjusted_required_n or observed_n):
+            power_analysis_results['power_analysis_notes'].append(
+                "The study was adequately powered for the observed effect size."
+            )
+        else:
+            power_analysis_results['power_analysis_notes'].append(
+                f"The study may have been underpowered. Required N for R²={target_r2:.2f} is "
+                f"~{int(adjusted_required_n) if adjusted_required_n else 'N/A'}, but observed N={observed_n}."
+            )
+    
+    return power_analysis_results
 
-def save_results(power_results: Dict[str, Any], output_path: str):
+
+def save_results(
+    power_analysis_results: Dict[str, Any], 
+    model_results: Dict[str, Any],
+    output_path: str
+) -> None:
     """
-    Append power analysis results to model_results.json.
+    Update model_results.json with power analysis results.
     """
-    ensure_dirs(output_path)
+    # Merge power analysis results into model results
+    model_results['power_analysis'] = power_analysis_results
+    model_results['analysis_complete'] = True
     
-    # Load existing results
-    existing_results = {}
-    if os.path.exists(output_path):
-        with open(output_path, 'r') as f:
-            existing_results = json.load(f)
+    # Ensure output directory exists
+    ensure_dirs(Path(output_path).parent)
     
-    # Add power analysis section
-    existing_results["posthoc_power_analysis"] = power_results
-    
-    # Write back
+    # Save updated results
     with open(output_path, 'w') as f:
-        json.dump(existing_results, f, indent=2)
+        json.dump(model_results, f, indent=2)
     
-    print(f"Power analysis results saved to {output_path}")
+    print(f"Power analysis results saved to: {output_path}")
+
 
 def main():
-    parser = argparse.ArgumentParser(description="T023: Post-hoc Power Analysis")
-    parser.add_argument("--target-r2", type=float, default=0.10, help="Target R-squared for power calculation")
-    parser.add_argument("--target-power", type=float, default=0.80, help="Target statistical power")
-    parser.add_argument("--alpha", type=float, default=0.05, help="Significance level")
-    args = parser.parse_args()
-    
-    print("Starting T023: Post-hoc Power Analysis...")
-    
-    # Load model results
-    model_results = load_model_results()
-    
-    if not model_results:
-        print("Error: model_results.json is empty or missing. Cannot perform power analysis.")
-        # Create a minimal result indicating failure to compute
-        power_results = {
-            "observed_r2": None,
-            "n_samples": 0,
-            "target_r2": args.target_r2,
-            "target_power": args.target_power,
-            "required_n_for_target": -1,
-            "achieved_power": 0.0,
-            "hypothesis_supported": False,
-            "interpretation": "The hypothesis was not supported. model_results.json was missing or empty."
-        }
-        output_path = get_path("model_results")
-        save_results(power_results, output_path)
-        sys.exit(1)
-    
-    # Extract observed R2 and N
-    observed_r2 = model_results.get("adjusted_r2") or model_results.get("r2")
-    n_samples = model_results.get("n_samples") or model_results.get("n")
-    
-    if observed_r2 is None:
-        print("Warning: R2 not found in model_results.json. Using 0.")
-        observed_r2 = 0.0
-    
-    if n_samples is None:
-        print("Warning: N not found in model_results.json. Using 0.")
-        n_samples = 0
-    
-    print(f"Observed R2: {observed_r2:.4f}, N: {n_samples}")
-    
-    # Perform power analysis
-    power_results = perform_power_analysis(
-        observed_r2=observed_r2,
-        n_samples=n_samples,
-        target_r2=args.target_r2,
-        target_power=args.target_power,
-        alpha=args.alpha
+    """Main entry point for post-hoc power analysis."""
+    parser = argparse.ArgumentParser(description='Perform post-hoc power analysis')
+    parser.add_argument(
+        '--input', 
+        type=str, 
+        default=None,
+        help='Path to model_results.json (default: auto-detect from config)'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=None,
+        help='Path to output file (default: auto-detect from config)'
+    )
+    parser.add_argument(
+        '--target-r2',
+        type=float,
+        default=0.10,
+        help='Target effect size R² (default: 0.10)'
+    )
+    parser.add_argument(
+        '--target-power',
+        type=float,
+        default=0.80,
+        help='Target statistical power (default: 0.80)'
+    )
+    parser.add_argument(
+        '--alpha',
+        type=float,
+        default=0.05,
+        help='Significance level (default: 0.05)'
     )
     
-    # Generate interpretation
-    if power_results["achieved_power"] < args.target_power:
-        power_results["interpretation"] = "The hypothesis was not supported. The current sample size is insufficient to detect the target effect size with the desired power."
+    args = parser.parse_args()
+    
+    # Determine paths
+    if args.input:
+        input_path = args.input
     else:
-        power_results["interpretation"] = "The hypothesis is supported. The current sample size is sufficient to detect the target effect size with the desired power."
+        input_path = get_path('model_results')
     
-    print(f"Required N for R2={args.target_r2} with power={args.target_power}: {power_results['required_n_for_target']}")
-    print(f"Achieved Power: {power_results['achieved_power']:.4f}")
-    print(f"Interpretation: {power_results['interpretation']}")
+    if args.output:
+        output_path = args.output
+    else:
+        output_path = get_path('model_results')
     
-    # Save results
-    output_path = get_path("model_results")
-    save_results(power_results, output_path)
+    print(f"Loading model results from: {input_path}")
     
-    print("T023 completed successfully.")
+    try:
+        model_results = load_model_results(input_path)
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}")
+        print("Cannot perform power analysis without model results.")
+        sys.exit(1)
+    
+    print(f"Performing power analysis with target R²={args.target_r2}, power={args.target_power}")
+    
+    try:
+        power_analysis_results = perform_power_analysis(
+            model_results=model_results,
+            target_r2=args.target_r2,
+            target_power=args.target_power,
+            alpha=args.alpha
+        )
+        
+        print("\nPower Analysis Results:")
+        print(f"  Observed R²: {power_analysis_results['observed_r2']:.4f}")
+        print(f"  Observed N: {power_analysis_results['observed_n']}")
+        print(f"  Is Significant: {power_analysis_results['is_observed_significant']}")
+        print(f"  Required N (for R²={args.target_r2}): {power_analysis_results['required_sample_size_estimate']:.0f}")
+        
+        if power_analysis_results['power_analysis_notes']:
+            print("\n  Notes:")
+            for note in power_analysis_results['power_analysis_notes']:
+                print(f"    - {note}")
+        
+        # Save results
+        save_results(power_analysis_results, model_results, output_path)
+        
+    except Exception as e:
+        print(f"ERROR during power analysis: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+    
+    print("\nPost-hoc power analysis completed successfully.")
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

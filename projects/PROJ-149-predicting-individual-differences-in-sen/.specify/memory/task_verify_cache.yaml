@@ -9,19 +9,19 @@ T008a:
 T012:
   c: false
   h: fcfd36d03335e47de2d64a592f7dc1e3d84d96d13976c920291f3bf2d7e4e994
-  r: "The provided `code/03_extract_features.py` is truncated (e.g., undefined `pid`\
-    \ variable) and raises a `FileNotFoundError` when `exclusion_log.csv` is absent,\
-    \ contrary to the requirement to handle a missing/empty exclusion log gracefully.\
-    \ Moreover, the required output file `data/interim/eeg_psd.csv` does not exist,\
-    \ and the exclusion log itself is missing. The script therefore does not fulfill\
-    \ the task\u2019s specifications."
+  r: "The provided `code/03_extract_features.py` is truncated and never reaches the\
+    \ processing or CSV\u2011writing steps; it even raises a `FileNotFoundError` if\
+    \ `exclusion_log.csv` is absent, contrary to the requirement to handle a missing/empty\
+    \ file gracefully. Moreover, both `data/interim/exclusion_log.csv` and the required\
+    \ output `data/interim/eeg_psd.csv` are absent. The task\u2019s core functionality\
+    \ and outputs are therefore not delivered."
 T017:
   c: false
-  h: 3f05e69d9e8b59732dae511425aed391342ed20ae06d7b07ab8bd08361703ef5
-  r: "The repository contains `code/04_modeling.py`, but the required input `data/processed/features_clr.csv`\
-    \ is absent, and the script never produced the declared outputs `data/interim/split_indices.json`\
-    \ and `data/processed/model_results.json`. Without these files the modeling step\
-    \ cannot be executed, so the task\u2019s requirements are not met."
+  h: 4475e12fa76d8364c7771d8d370a3012793881d3cd63dad04c954fe1a8eee9c1
+  r: "The required output files `data/interim/split_indices.json` and `data/processed/model_results.json`\
+    \ are not present, and the provided `code/04_modeling.py` is truncated before\
+    \ any logic that would generate or save these files (or fully implement the chunked\u2011\
+    processing requirement). The task\u2019s deliverables are therefore not satisfied."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,8 +33,8 @@ T019:
   c: false
   h: 08bdb69e445545bdca4e8601b5b770b3e4e6453dbf22fd9ebbc5aa7fd816af49
   r: "The required output file `data/processed/model_results.json` is missing, so\
-    \ no Adjusted R\xB2 or optimal lambda values have been logged. The task\u2019\
-    s primary artifact does not exist, indicating the work is not done."
+    \ the Adjusted R\xB2 and optimal lambda were not calculated and logged as specified.\
+    \ The task therefore lacks the essential artifact."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

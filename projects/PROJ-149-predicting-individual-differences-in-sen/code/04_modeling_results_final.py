@@ -1,11 +1,3 @@
-"""
-T019: Calculate Adjusted R² and Optimal Lambda, update model_results.json.
-
-This script loads the results from the modeling phase (T017/T018), calculates
-the Adjusted R² metric to account for the number of predictors, identifies the
-optimal lambda value from LASSO tuning, and appends these to the existing
-model_results.json file.
-"""
 import os
 import sys
 import json
@@ -15,157 +7,155 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Import from local config
-from config import get_path, ensure_dirs
+# Import from config
+from config import get_path, ensure_dirs, get_cv_folds
 
+# Import from utils
+from utils.stats_helpers import calculate_sample_size_for_r2
 
 def load_json_safe(path: str) -> Optional[Dict[str, Any]]:
-    """Safely load a JSON file, returning None if it doesn't exist or is invalid."""
+    """Load a JSON file safely, returning None if not found or invalid."""
     try:
         with open(path, 'r') as f:
             return json.load(f)
-    except FileNotFoundError:
-        print(f"Warning: File not found: {path}")
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        print(f"Error loading {path}: {e}")
         return None
-    except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON in {path}: {e}")
-        return None
-
 
 def calculate_adjusted_r2(r2: float, n_samples: int, n_features: int) -> float:
     """
-    Calculate Adjusted R².
-
-    Formula: 1 - (1 - R²) * (n - 1) / (n - p - 1)
-    where n is sample count and p is number of predictors.
-
-    Args:
-        r2: The raw R² score.
-        n_samples: Number of samples used in the model.
-        n_features: Number of features (predictors) used in the model.
-
-    Returns:
-        The Adjusted R² value.
+    Calculate Adjusted R-squared.
+    Formula: 1 - (1 - R^2) * (n - 1) / (n - p - 1)
+    where n is samples and p is predictors (features).
     """
     if n_samples <= n_features + 1:
         # Avoid division by zero or negative denominator
-        return 0.0
+        return float('-inf')
+    
+    return 1 - (1 - r2) * (n_samples - 1) / (n_samples - n_features - 1)
 
-    adj_r2 = 1 - (1 - r2) * (n_samples - 1) / (n_samples - n_features - 1)
-    return float(adj_r2)
-
+def update_model_results(
+    results_path: str, 
+    features_df: pd.DataFrame, 
+    optimal_lambda: Optional[float] = None,
+    lasso_r2: Optional[float] = None,
+    lasso_rmse: Optional[float] = None,
+    linear_r2: Optional[float] = None,
+    linear_rmse: Optional[float] = None
+) -> Dict[str, Any]:
+    """
+    Update model_results.json with Adjusted R² and optimal lambda.
+    
+    Args:
+        results_path: Path to model_results.json
+        features_df: DataFrame containing features (to get n_samples, n_features)
+        optimal_lambda: Optimal lambda from LASSO (if available)
+        lasso_r2: R² from LASSO model (if available)
+        lasso_rmse: RMSE from LASSO model (if available)
+        linear_r2: R² from Linear Regression (if available)
+        linear_rmse: RMSE from Linear Regression (if available)
+        
+    Returns:
+        Updated results dictionary
+    """
+    # Load existing results if they exist
+    results = load_json_safe(results_path)
+    if results is None:
+        results = {}
+    
+    # Ensure 'models' key exists
+    if 'models' not in results:
+        results['models'] = {}
+    
+    n_samples = len(features_df)
+    # Exclude target column from feature count if present
+    feature_cols = [c for c in features_df.columns if c != 'median_rt']
+    n_features = len(feature_cols)
+    
+    # Calculate Adjusted R² for LASSO if we have R²
+    if lasso_r2 is not None:
+        adj_r2_lasso = calculate_adjusted_r2(lasso_r2, n_samples, n_features)
+        results['models']['lasso'] = results['models'].get('lasso', {})
+        results['models']['lasso']['adjusted_r2'] = float(adj_r2_lasso)
+        if optimal_lambda is not None:
+            results['models']['lasso']['optimal_lambda'] = float(optimal_lambda)
+        if lasso_rmse is not None:
+            results['models']['lasso']['rmse'] = float(lasso_rmse)
+    
+    # Calculate Adjusted R² for Linear Regression if we have R²
+    if linear_r2 is not None:
+        adj_r2_linear = calculate_adjusted_r2(linear_r2, n_samples, n_features)
+        results['models']['linear_regression'] = results['models'].get('linear_regression', {})
+        results['models']['linear_regression']['adjusted_r2'] = float(adj_r2_linear)
+        if linear_rmse is not None:
+            results['models']['linear_regression']['rmse'] = float(linear_rmse)
+    
+    # Add metadata
+    results['metadata'] = results.get('metadata', {})
+    results['metadata']['n_samples'] = n_samples
+    results['metadata']['n_features'] = n_features
+    results['metadata']['n_cv_folds'] = get_cv_folds()
+    
+    return results
 
 def save_results(results: Dict[str, Any], output_path: str) -> None:
-    """Save the results dictionary to a JSON file."""
+    """Save results dictionary to JSON file."""
     ensure_dirs(output_path)
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
     print(f"Results saved to {output_path}")
 
-
 def main():
-    parser = argparse.ArgumentParser(description="Calculate Adjusted R² and Optimal Lambda for T019.")
-    parser.add_argument("--input", type=str, default=None,
-                        help="Path to input model_results.json. Defaults to config path.")
-    parser.add_argument("--output", type=str, default=None,
-                        help="Path to output model_results.json. Defaults to config path.")
+    parser = argparse.ArgumentParser(description="Calculate Adjusted R² and optimal lambda for model results.")
+    parser.add_argument('--features', type=str, default='data/processed/features_clr.csv',
+                        help='Path to features CSV file')
+    parser.add_argument('--results', type=str, default='data/processed/model_results.json',
+                        help='Path to model results JSON file')
+    parser.add_argument('--lasso-lambda', type=float, default=None,
+                        help='Optimal lambda from LASSO (optional)')
+    parser.add_argument('--lasso-r2', type=float, default=None,
+                        help='R² from LASSO model (optional)')
+    parser.add_argument('--lasso-rmse', type=float, default=None,
+                        help='RMSE from LASSO model (optional)')
+    parser.add_argument('--linear-r2', type=float, default=None,
+                        help='R² from Linear Regression (optional)')
+    parser.add_argument('--linear-rmse', type=float, default=None,
+                        help='RMSE from Linear Regression (optional)')
     args = parser.parse_args()
 
-    # Determine paths
-    if args.input:
-        input_path = args.input
-    else:
-        input_path = get_path("data/processed/model_results.json")
-
-    if args.output:
-        output_path = args.output
-    else:
-        output_path = get_path("data/processed/model_results.json")
-
-    print(f"Loading model results from: {input_path}")
-    results = load_json_safe(input_path)
-
-    if results is None:
-        # If file doesn't exist or is empty, create a base structure
-        print("Input file missing or invalid. Creating new results structure.")
-        results = {
-            "model_type": "Linear/LASSO",
-            "metrics": {},
-            "hyperparameters": {},
-            "validation": {}
-        }
-
-    # Ensure metrics and hyperparameters sections exist
-    if "metrics" not in results:
-        results["metrics"] = {}
-    if "hyperparameters" not in results:
-        results["hyperparameters"] = {}
-    if "validation" not in results:
-        results["validation"] = {}
-
-    # Extract necessary values
-    # We assume the 'metrics' section contains 'r2' from cross-validation
-    # and 'n_samples' and 'n_features' might be present or need to be inferred.
-    # If not present, we attempt to infer from the data if available, or use placeholders.
-
-    r2 = results["metrics"].get("r2")
-    n_samples = results["metrics"].get("n_samples")
-    n_features = results["metrics"].get("n_features")
-
-    # If n_samples or n_features are missing, we might need to load the data to count them
-    # or assume they were set during the modeling phase (T017/T018).
-    # For robustness, if missing, we try to load the features file to count rows/cols.
-    if r2 is not None and (n_samples is None or n_features is None):
-        features_path = get_path("data/processed/features_clr.csv")
-        if os.path.exists(features_path):
-            df = pd.read_csv(features_path)
-            if n_samples is None:
-                n_samples = len(df)
-            if n_features is None:
-                # Exclude non-feature columns like 'participant_id' or 'median_rt'
-                # Assuming the last column is the target 'median_rt' and first is ID
-                # A safer approach is to check the modeling script's feature list.
-                # For now, we assume all numeric columns except target are features.
-                numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-                # Remove 'median_rt' if present
-                if 'median_rt' in numeric_cols:
-                    numeric_cols.remove('median_rt')
-                n_features = len(numeric_cols)
-                print(f"Inferred n_features: {n_features} from features file.")
-        else:
-            print("Warning: Could not infer n_samples/n_features. Using defaults (0).")
-            n_samples = 0
-            n_features = 0
-
-    # Calculate Adjusted R²
-    if r2 is not None and n_samples and n_features:
-        adj_r2 = calculate_adjusted_r2(r2, n_samples, n_features)
-        results["metrics"]["adjusted_r2"] = adj_r2
-        print(f"Calculated Adjusted R²: {adj_r2:.4f} (R²={r2:.4f}, n={n_samples}, p={n_features})")
-    else:
-        print("Warning: Could not calculate Adjusted R². Missing r2, n_samples, or n_features.")
-        results["metrics"]["adjusted_r2"] = None
-
-    # Identify Optimal Lambda
-    # The modeling script (T018) should have stored the optimal lambda in hyperparameters
-    optimal_lambda = results["hyperparameters"].get("optimal_lambda")
+    # Load features
+    if not os.path.exists(args.features):
+        print(f"Error: Features file not found: {args.features}")
+        sys.exit(1)
     
-    # If not present, but we have LassoCV results stored, we might need to extract it.
-    # Assuming T018 stored it. If not, we check if 'lasso_lambda' exists.
-    if optimal_lambda is None:
-        optimal_lambda = results["hyperparameters"].get("lasso_lambda")
-    
-    if optimal_lambda is not None:
-        results["hyperparameters"]["optimal_lambda"] = optimal_lambda
-        print(f"Optimal Lambda identified: {optimal_lambda}")
-    else:
-        print("Warning: Optimal lambda not found in hyperparameters.")
-        results["hyperparameters"]["optimal_lambda"] = None
+    features_df = pd.read_csv(args.features)
+    print(f"Loaded features: {len(features_df)} samples, {len(features_df.columns)} columns")
+
+    # Update model results
+    updated_results = update_model_results(
+        results_path=args.results,
+        features_df=features_df,
+        optimal_lambda=args.lasso_lambda,
+        lasso_r2=args.lasso_r2,
+        lasso_rmse=args.lasso_rmse,
+        linear_r2=args.linear_r2,
+        linear_rmse=args.linear_rmse
+    )
 
     # Save updated results
-    save_results(results, output_path)
-    print("T019 completed successfully.")
+    save_results(updated_results, args.results)
+    
+    # Print summary
+    if 'models' in updated_results:
+        print("\nModel Summary:")
+        for model_name, model_data in updated_results['models'].items():
+            print(f"  {model_name}:")
+            if 'adjusted_r2' in model_data:
+                print(f"    Adjusted R²: {model_data['adjusted_r2']:.4f}")
+            if 'optimal_lambda' in model_data:
+                print(f"    Optimal Lambda: {model_data['optimal_lambda']:.4f}")
+            if 'rmse' in model_data:
+                print(f"    RMSE: {model_data['rmse']:.4f}")
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

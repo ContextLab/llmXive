@@ -1,16 +1,13 @@
 """
-Statistical helper functions for the EEG analysis pipeline.
-
-Provides utilities for:
-- Bonferroni correction
-- Permutation tests
-- Power analysis (MDES, sample size calculation)
-- F-test comparisons
+Statistical helper functions for EEG analysis pipeline.
+Includes power analysis utilities, permutation tests, and effect size calculations.
 """
 import numpy as np
 from scipy import stats
 from typing import List, Dict, Tuple, Optional
 import warnings
+from statsmodels.stats.power import FTestAnovaPower
+
 
 def bonferroni_correct(p_values: List[float], alpha: float = 0.05) -> Tuple[List[float], List[bool]]:
     """
@@ -21,169 +18,187 @@ def bonferroni_correct(p_values: List[float], alpha: float = 0.05) -> Tuple[List
         alpha: Significance level (default 0.05)
         
     Returns:
-        Tuple of (adjusted p-values, boolean significance flags)
+        Tuple of (corrected_p_values, significant_flags)
     """
     n_tests = len(p_values)
     if n_tests == 0:
         return [], []
     
-    adjusted_p_values = [min(p * n_tests, 1.0) for p in p_values]
-    significant = [p < (alpha / n_tests) for p in p_values]
+    # Bonferroni correction: alpha / n_tests
+    corrected_alpha = alpha / n_tests
+    corrected_p_values = [min(p * n_tests, 1.0) for p in p_values]
+    significant_flags = [p < corrected_alpha for p in corrected_p_values]
     
-    return adjusted_p_values, significant
+    return corrected_p_values, significant_flags
+
 
 def permutation_test(
-    X: np.ndarray,
-    y: np.ndarray,
-    statistic: callable,
-    n_permutations: int = 1000,
+    X: np.ndarray, 
+    y: np.ndarray, 
+    n_permutations: int = 10000, 
     random_state: Optional[int] = None
-) -> Tuple[float, float, np.ndarray]:
+) -> Tuple[float, np.ndarray]:
     """
-    Perform a permutation test for a given statistic.
+    Perform a permutation test to assess significance of a relationship.
     
     Args:
-        X: Predictor matrix (n_samples, n_features)
-        y: Outcome vector (n_samples,)
-        statistic: Function that computes the statistic of interest (e.g., R²)
-        n_permutations: Number of permutations (default 1000)
+        X: Feature matrix (n_samples, n_features)
+        y: Target vector (n_samples,)
+        n_permutations: Number of permutations
         random_state: Random seed for reproducibility
         
     Returns:
-        Tuple of (observed statistic, p-value, null distribution)
+        Tuple of (observed_statistic, null_distribution)
     """
     if random_state is not None:
         np.random.seed(random_state)
     
     n_samples = len(y)
-    observed_stat = statistic(X, y)
     
+    # Calculate observed statistic (R² from simple linear regression)
+    from sklearn.linear_model import LinearRegression
+    model = LinearRegression()
+    model.fit(X, y)
+    observed_r2 = model.score(X, y)
+    
+    # Generate null distribution
     null_distribution = np.zeros(n_permutations)
     for i in range(n_permutations):
+        # Shuffle y
         y_permuted = np.random.permutation(y)
-        null_distribution[i] = statistic(X, y_permuted)
+        model.fit(X, y_permuted)
+        null_distribution[i] = model.score(X, y_permuted)
     
-    # Calculate p-value (two-tailed)
-    p_value = np.mean(np.abs(null_distribution) >= np.abs(observed_stat))
-    
-    return observed_stat, p_value, null_distribution
+    return observed_r2, null_distribution
+
 
 def calculate_medes(
-    effect_size: float,
-    alpha: float = 0.05,
+    effect_size: float, 
+    alpha: float = 0.05, 
     power: float = 0.80,
-    test_type: str = "t-test"
+    n_groups: int = 2
 ) -> int:
     """
-    Calculate Minimum Detectable Effect Size (MDES).
+    Calculate Minimum Detectable Effect Size (MDES) for a given sample size.
     
     Args:
-        effect_size: Expected effect size (Cohen's d for t-test, f² for regression)
+        effect_size: Expected effect size (Cohen's d or f²)
         alpha: Significance level
         power: Desired statistical power
-        test_type: Type of test ("t-test", "regression", etc.)
+        n_groups: Number of groups (for ANOVA)
         
     Returns:
-        Minimum sample size required
+        Minimum required sample size per group
     """
-    if test_type == "t-test":
-        # Using scipy's power analysis approximation
-        # n = 2 * (Z_alpha + Z_beta)^2 / d^2
-        z_alpha = stats.norm.ppf(1 - alpha / 2)
-        z_beta = stats.norm.ppf(power)
-        n = 2 * ((z_alpha + z_beta) ** 2) / (effect_size ** 2)
-        return int(np.ceil(n))
+    # Use statsmodels for power calculation
+    from statsmodels.stats.power import TTestIndPower, FTestAnovaPower
     
-    elif test_type == "regression":
-        # For regression, effect_size is f²
-        # n = (L / f²) + u + 1
-        # L depends on alpha and power
-        # Approximate L for alpha=0.05, power=0.80
-        L = 7.85
-        u = 1 # Number of predictors (simplified)
-        n = (L / effect_size) + u + 1
-        return int(np.ceil(n))
-    
+    if n_groups == 2:
+        analyzer = TTestIndPower()
+        n = analyzer.solve_power(
+            effect_size=effect_size,
+            alpha=alpha,
+            power=power,
+            ratio=1.0
+        )
     else:
-        raise ValueError(f"Unsupported test type: {test_type}")
+        analyzer = FTestAnovaPower()
+        n = analyzer.solve_power(
+            effect_size=effect_size,
+            alpha=alpha,
+            power=power,
+            n_groups=n_groups,
+            ratio=1.0
+        )
+    
+    return int(np.ceil(n))
+
 
 def calculate_sample_size_for_r2(
-    effect_size_f2: float,
+    target_r2: float,
+    n_predictors: int,
     alpha: float = 0.05,
-    power: float = 0.80,
-    num_predictors: int = 6
+    power: float = 0.80
 ) -> int:
     """
-    Calculate the required sample size for a multiple regression given a target R².
-    
-    Effect size f² = R² / (1 - R²)
+    Calculate required sample size to detect a target R² effect size.
     
     Args:
-        effect_size_f2: Cohen's f² effect size
-        alpha: Significance level (default 0.05)
-        power: Desired statistical power (default 0.80)
-        num_predictors: Number of predictors (k)
+        target_r2: Target R² value (0 to 1)
+        n_predictors: Number of predictors in the model
+        alpha: Significance level
+        power: Desired statistical power
         
     Returns:
-        Required sample size (n)
+        Required sample size
     """
-    # Using the approximation from Cohen (1988)
-    # n = (L / f²) + u + 1
-    # where L is the non-centrality parameter based on alpha and power
-    # For alpha=0.05, power=0.80, L ≈ 7.85
+    # Convert R² to f² (Cohen's f²)
+    # f² = R² / (1 - R²)
+    if target_r2 >= 1.0:
+        target_r2 = 0.99  # Avoid division by zero
     
-    # More precise calculation using non-central F distribution if statsmodels is available
+    effect_size_f2 = target_r2 / (1 - target_r2)
+    
+    # Use F-test power analysis
+    analyzer = FTestAnovaPower()
+    
     try:
-        from statsmodels.stats.power import FTestPower
-        ftest = FTestPower()
-        n = ftest.solve_power(
+        # For regression, n_groups=1 is used as a placeholder
+        # The actual calculation accounts for predictors through effect size
+        required_n = analyzer.solve_power(
             effect_size=effect_size_f2,
             alpha=alpha,
             power=power,
-            nobs1=None,
-            df_num=num_predictors
+            n_groups=1,
+            ratio=1.0
         )
-        return int(np.ceil(n))
-    except ImportError:
-        # Fallback to Cohen's approximation
-        L = 7.85 # Approximate for alpha=0.05, power=0.80
-        n = (L / effect_size_f2) + num_predictors + 1
-        return int(np.ceil(n))
+        
+        # Adjust for number of predictors (rough approximation)
+        # More predictors typically require larger samples
+        adjusted_n = required_n * (1 + n_predictors / 10)
+        
+        return int(np.ceil(adjusted_n))
+        
+    except Exception as e:
+        warnings.warn(f"Power calculation failed: {e}. Using fallback estimate.")
+        # Fallback: rule of thumb (10-20 samples per predictor)
+        return max(30, n_predictors * 20)
+
 
 def f_test_comparison(
     r2_reduced: float,
     r2_full: float,
-    n: int,
-    k_reduced: int,
-    k_full: int
+    n_predictors_reduced: int,
+    n_predictors_full: int,
+    n_samples: int
 ) -> Tuple[float, float]:
     """
-    Perform an F-test to compare two nested regression models.
+    Perform F-test to compare two nested models.
     
     Args:
         r2_reduced: R² of the reduced model
         r2_full: R² of the full model
-        n: Sample size
-        k_reduced: Number of predictors in reduced model
-        k_full: Number of predictors in full model
+        n_predictors_reduced: Number of predictors in reduced model
+        n_predictors_full: Number of predictors in full model
+        n_samples: Number of samples
         
     Returns:
         Tuple of (F-statistic, p-value)
     """
-    # F = ((R²_full - R²_reduced) / (k_full - k_reduced)) / ((1 - R²_full) / (n - k_full - 1))
-    df1 = k_full - k_reduced
-    df2 = n - k_full - 1
+    # F = [(R²_full - R²_reduced) / (df_full - df_reduced)] / [(1 - R²_full) / df_error]
+    # df_full - df_reduced = n_predictors_full - n_predictors_reduced
+    # df_error = n_samples - n_predictors_full - 1
     
-    if df2 <= 0:
-        raise ValueError("Sample size too small for F-test with given predictors.")
-    
-    numerator = (r2_full - r2_reduced) / df1
-    denominator = (1 - r2_full) / df2
+    numerator = (r2_full - r2_reduced) / (n_predictors_full - n_predictors_reduced)
+    denominator = (1 - r2_full) / (n_samples - n_predictors_full - 1)
     
     if denominator == 0:
-        return float('inf'), 0.0
+        return 0.0, 1.0
     
     f_stat = numerator / denominator
+    df1 = n_predictors_full - n_predictors_reduced
+    df2 = n_samples - n_predictors_full - 1
+    
     p_value = 1 - stats.f.cdf(f_stat, df1, df2)
     
     return f_stat, p_value
