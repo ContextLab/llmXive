@@ -13,7 +13,7 @@ This project implements a randomized controlled experiment to test whether incre
 **Primary Dependencies**: `streamlit` (experiment interface), `pandas`, `numpy`, `scipy`, `statsmodels`, `pingouin`, `pytest`, `pandas`  
 **Storage**: Local CSV files in `data/raw/` (participant data) and `data/processed/` (analysis-ready data)  
 **Testing**: `pytest` with `pytest-cov` for coverage; synthetic data generators for unit tests  
-**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPUs, 7GB RAM, no GPU)  
+**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPUs, ample RAM, no GPU)  
 **Project Type**: computational-experiment  
 **Performance Goals**: Analysis pipeline completes within 6 hours on free-tier; data collection interface responsive (<200ms interactions)  
 **Constraints**: No GPU/CUDA; all statistical methods must run on CPU; data subset to fit available RAM; no external API dependencies for core analysis  
@@ -94,7 +94,7 @@ The plan enforces the following computational task ordering to ensure data integ
 
 1. **Phase 0: Research** → 
    - Dataset verification (self-collected).
-   - **Reference Validation**: Run Reference-Validator Agent on Lee & See (n.d.) and Langer (1975) citations.
+   - **Reference Validation**: Run Reference-Validator Agent on Lee & See (n.d.) and Langer (n.d.) citations.
    - Power analysis.
    - Literature review.
 2. **Phase 1: Design** → Data model contracts, experimental interface design, analysis pipeline specification.
@@ -115,7 +115,7 @@ The plan enforces the following computational task ordering to ensure data integ
 | ID | Type | Plan Element |
 |----|------|--------------|
 | FR-001 | Functional | `code/experiment/randomization.py` implements randomized assignment to High/Low/Control conditions. |
-| FR-002 | Functional | `code/experiment/app.py` captures adherence rate (percentage scale), Lee & See (2004) trust scale items, and Perceived Agency manipulation check. Validated against `participant.schema.yaml`. |
+| FR-002 | Functional | `code/experiment/app.py` captures adherence rate (percentage scale), Lee & See trust scale items, and Perceived Agency manipulation check. Validated against `participant.schema.yaml`. |
 | FR-003 | Functional | `code/analysis/contrasts.py` executes One-Way ANOVA and planned directional contrasts (High vs. Low, (High+Low) vs. Control). |
 | FR-004 | Functional | `code/analysis/effect_sizes.py` computes Cohen's d for all pairwise comparisons. |
 | FR-005 | Functional | `code/analysis/pairwise.py` applies Tukey HSD correction for family-wise error rate. |
@@ -123,7 +123,7 @@ The plan enforces the following computational task ordering to ensure data integ
 | SC-001 | Success | `code/analysis/contrasts.py` tests primary outcome (High vs. Low trust) against null hypothesis (α = 0.05). |
 | SC-002 | Success | `code/analysis/power_analysis.py` generates pre-study report confirming ≥0.80 power for f=0.25 (ANOVA). |
 | SC-003 | Success | `code/analysis/sensitivity.py` measures robustness via threshold sweep (attention/completion) and reports p-value/effect size variation. |
-| SC-004 | Success | Trust scale items in `code/experiment/app.py` match Lee & See (2004) verbatim; validated against `participant.schema.yaml` contract. |
+| SC-004 | Success | Trust scale items in `code/experiment/app.py` match Lee & See () verbatim; validated against `participant.schema.yaml` contract. |
 | SC-005 | Success | Tukey HSD correction in `code/analysis/pairwise.py` controls Type I error across multiple pairwise comparisons. |
 
 ## Compute Feasibility

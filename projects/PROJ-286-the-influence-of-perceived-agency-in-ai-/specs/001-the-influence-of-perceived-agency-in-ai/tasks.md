@@ -24,19 +24,22 @@
 
 **Purpose**: Verify citations, execute power analysis, and generate research artifacts before implementation begins.
 
-**⚠️ CRITICAL**: No implementation can begin until Phase 0 is complete. Tasks MUST run in strict sequence: T000aa -> T000ab -> T000ac -> T000ad -> T000b -> T000c -> T001a -> T002 -> T001b -> T008.
+**⚠️ CRITICAL**: No implementation can begin until Phase 0 is complete. Tasks MUST run in strict sequence: T000 -> T000b -> T000c -> (T001a, T002 in parallel) -> T001b -> T003 -> T008.
 
-- [ ] T000aa Create the citation validation script skeleton `code/research/validate_citations.py`. **Input**: List of BibTeX or inline citations. **Output**: JSON object with validation status. **Logic**: Prepare structure for Crossref API calls. **Args**: `--citations "Lee & See (2004) [UNRESOLVED-CLAIM: c_f2828481 — status=not_enough_info], Langer (1975) [UNRESOLVED-CLAIM: c_44a41984 — status=not_enough_info] "`. **Error Handling**: Setup error handling framework. **Dependency**: None.
-- [ ] T000ab Implement Crossref API logic and Title-token-overlap calculation in `code/research/validate_citations.py`. **Logic**: Use Crossref API (`https://api.crossref.org/works?query.title={title}`) to search by title, retrieve DOIs, and calculate Title-token-overlap score. **Requirement**: Overlap score must be calculated as the Jaccard similarity of title tokens. **Output Schema**: JSON object with keys: `title` (string), `doi` (string), `overlap_score` (float), `status` (string: "valid" if overlap >= 0.7, else "invalid"). **Dependency**: T000aa.
-- [ ] T000ac Implement error handling and output formatting in `code/research/validate_citations.py`. **Logic**: If API fails or no DOI found, raise explicit error; do not fallback to synthetic. Ensure output JSON matches schema. **Dependency**: T000ab.
-- [ ] T000ad Finalize `code/research/validate_citations.py` with all logic integrated. **Dependency**: T000ac.
-- [X] T000b Execute `code/research/validate_citations.py` with arguments `--citations "Lee & See (2004) [UNRESOLVED-CLAIM: c_f2828481 — status=not_enough_info], Langer (1975) [UNRESOLVED-CLAIM: c_44a41984 — status=not_enough_info] "`. **Output**: `research/validation_report.json` containing status for each citation. **Dependency**: T000ad.
+- [ ] T000 [P] [FR-001] [SC-004] Implement and execute the citation validation pipeline in `code/research/validate_citations.py`. **Input**: Raw citation strings sourced from `spec.md` and `plan.md` (e.g., "Lee & See (2004)", "Langer (1975)"). **Logic**: 
+  1. Define function `fetch_doi(title: str) -> str | None` using Crossref API (`https://api.crossref.org/works?query.title={title}`).
+  2. Define function `calculate_jaccard_similarity(set1: set, set2: set) -> float`.
+  3. For each citation, extract title, fetch DOI, tokenize title and API result, calculate Jaccard similarity.
+  4. If overlap_score >= 0.7, mark status="valid"; else status="invalid".
+  5. If API fails or no DOI found, raise explicit `RuntimeError` (NO synthetic fallback).
+  **Output**: `research/validation_report.json` containing a list of objects with keys: `title` (string), `doi` (string), `overlap_score` (float), `status` (string). **Execution**: Run script with `--citations "Lee & See (2004), Langer (1975)"`. **Dependency**: None.
+- [X] T000b Execute `code/research/validate_citations.py` with arguments `--citations "Lee & See (2004), Langer (1975)"`. **Output**: `research/validation_report.json` containing status for each citation. **Dependency**: T000.
 - [ ] T000c Parse `research/validation_report.json` and verify all citations are valid. **Logic**: Check that `overlap_score >= 0.7` for all entries. **Action**: If any fail, log error to `research/citation_verification_log.md`. **Deliverable**: `research/citation_verification_log.md` with status="valid" if all pass. **Dependency**: T000b.
-- [ ] T001a Create the `research.md` template file at `specs/001-perceived-agency-trust/research.md`. **Schema**: Markdown table with columns: `| Effect Size | Alpha | Target Power | Required N | Calculated N |`. **Action**: Ensure exact column headers are present. **Dependency**: T000c.
-- [X] T002 Execute pre-study power analysis calculation using Python `statsmodels`. **Script**: `code/research/power_analysis.py`. **Args**: `--effect_size 0.25 --alpha 0.05 --power 0.80 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)) --test_type anova`. **Output**: `research/power_calculation.json` (machine-readable data) AND `research/power_report.md` (formal report with sections: Method, Parameters, Result, Conclusion). **Dependency**: T001a (template ready).
+- [ ] T001a Create the `research.md` template file at `specs/001-perceived-agency-trust/research.md`. **Schema**: Markdown table with exact columns: `| Effect Size | Alpha | Target Power | Required N | Calculated N |`. **Row Order**: 1) Effect Size, 2) Alpha, 3) Target Power, 4) Required N, 5) Calculated N. **Action**: Ensure exact column headers are present. **Dependency**: T000c.
+- [X] T002 Execute pre-study power analysis calculation using Python `statsmodels`. **Script**: `code/research/power_analysis.py`. **Args**: Read `effect_size` (0.25), `alpha` (0.05), `power` (0.80) from `research/power_calculation.json` or config (NOT hardcoded). **Output**: `research/power_calculation.json` (machine-readable data) AND `research/power_report.md` (formal report with sections: Method, Parameters, Result, Conclusion). **Dependency**: T000c.
 - [ ] T001b Populate `specs/001-perceived-agency-trust/research.md` with literature review findings and power analysis targets. **Input**: `research/validation_report.json`, `research/citation_verification_log.md`, and `research/power_calculation.json`. **Action**: Read `research/power_calculation.json` and populate the summary table in `research.md` with the calculated values. **Dependency**: T000c, T001a, T002.
 - [ ] T003 Validate `research.md` and `research/power_calculation.json` against `plan.md` Phase 0 requirements. **Dependency**: T001b.
-- [ ] T008 Setup environment configuration management by creating `code/experiment/config.yaml`. **Structure**: YAML with keys: `sample_size` (read from `research/power_calculation.json`), `alpha_level` (default 0.05), `seed` (default 42), `data_path` (default `data/raw/`). **Mechanism**: Script or manual step to read `research/power_calculation.json` and write value to `config.yaml`. **Dependency**: Must run AFTER T002 completes.
+- [ ] T008 Setup environment configuration management by creating `code/experiment/config.yaml`. **Structure**: YAML with keys: `sample_size` (read from `research/power_calculation.json` at key `results.sample_size`), `alpha_level` (default 0.05), `seed` (default 42), `data_path` (default `data/raw/`). **Mechanism**: Python script to read JSON and write YAML. **Dependency**: T002.
 
 ---
 
@@ -45,16 +48,16 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T004 Create project directory structure. **Command**: `mkdir -p code/experiment code/experiment/tests code/analysis code/analysis/tests data/raw data/processed docs specs/001-perceived-agency-trust/contracts`. **Files**: Create `__init__.py` in all `code/` subdirectories and `tests/` subdirectories.
-- [X] T005 [P] Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (streamlit, pandas, numpy, scipy, statsmodels, pingouin, pytest).
+- [X] T005 [P] Initialize Python project with pinned dependencies in `requirements.txt` (streamlit, pandas, numpy, scipy, statsmodels, pingouin, pytest).
 - [ ] T006 [P] Configure linting (flake8/black) and formatting tools. **Deliverables**: Create `.flake8` with specific rules (e.g., max-line-length=88) and `pyproject.toml` for black configuration. **Verification**: Run `black --check.` and ensure exit code 0.
 - [ ] T007a Create data schema contracts for `participant.schema.yaml` in `specs/001-perceived-agency-trust/contracts/`. **Content**: Define fields: `participant_id` (string, UUID), `condition` (enum: High, Low, Control), `adherence_rate` (float, 0-100), `trust_score` (float, 1-5), `attention_check` (boolean). **Dependency**: T004.
 - [ ] T007b Create data schema contracts for `analysis_output.schema.yaml` in `specs/001-perceived-agency-trust/contracts/`. **Content**: Define fields for ANOVA results, contrasts, and effect sizes. **Dependency**: T004.
 - [ ] T007c Create data schema contracts for `power_analysis.schema.yaml` in `specs/001-perceived-agency-trust/contracts/`. **Content**: Define fields for power analysis parameters and results. **Dependency**: T004.
-- [ ] T007d Define the Trust Scale schema in `specs/001-perceived-agency-trust/contracts/participant.schema.yaml`. **Requirement**: Define schema structure (keys: `trust_item_1` to `trust_item_12`, type: integer 1-5, minimum: 1, maximum: 5). **Action**: Append to existing schema from T007a. **Dependency**: T007a, T007c.
-- [ ] T007e Create `docs/trust_scale_items.md` containing the verbatim 12-item Lee & See (2004) [UNRESOLVED-CLAIM: c_f2828481 — status=not_enough_info] scale. **Items**: 1) I trust this system, 2) I feel confident in this system, 3) I believe this system is reliable, 4) I feel this system is competent, 5) I feel this system is predictable, 6) I feel this system is safe, 7) I feel this system is honest, 8) I feel this system is benevolent, 9) I feel this system is capable, 10) I feel this system is useful, 11) I feel this system is accurate, 12) I feel this system is effective. Use a Likert scale ranging from Strongly Disagree to Strongly Agree. **Dependency**: T000c (citation validation).
-- [ ] T007f Map the 12-item Lee & See (2004) [UNRESOLVED-CLAIM: c_f2828481 — status=not_enough_info] scale from `docs/trust_scale_items.md` to `participant.schema.yaml`. **Action**: Explicitly list the 12 items in the schema description or a companion file. **Dependency**: T007e, T007d.
-- [ ] T007g Perform explicit verification of the Trust Scale items against the source instrument. **Script**: `code/research/verify_trust_scale.py`. **Input**: `docs/trust_scale_items.md` and `research/validation_report.json`. **Output**: `research/trust_scale_verification_report.md` with status="verified" if items match. **Action**: If verification fails, exit with code 1 (Hard Stop) to block downstream tasks. **Dependency**: T007f, T007e.
-- [ ] T007h Generate `quickstart.md` in `docs/`. **Content**: Step-by-step instructions for local setup, running the experiment interface, and executing the analysis pipeline. **Dependency**: T004.
+- [ ] T007d Define the Trust Scale schema in `specs/001-perceived-agency-trust/contracts/participant.schema.yaml`. **Requirement**: Define schema structure (keys: `trust_item_1` to `trust_item_12`, type: integer 1-5, minimum: 1, maximum: 5). **Action**: Append to existing schema from T007a using YAML merge keys. **Dependency**: T007a.
+- [ ] T007e Create `docs/trust_scale_items.md` containing the verbatim 12-item Lee & See (2004) scale. **Items**: 1) I trust this system, 2) I feel confident in this system, 3) I believe this system is reliable, 4) I feel this system is competent, 5) I feel this system is predictable, 6) I feel this system is safe, 7) I feel this system is honest, 8) I feel this system is benevolent, 9) I feel this system is capable, 10) I feel this system is useful, 11) I feel this system is accurate, 12) I feel this system is effective. Use a Likert scale ranging from Strongly Disagree to Strongly Agree. **Dependency**: T000c (citation validation).
+- [ ] T007f Map the 12-item Lee & See (2004) scale from `docs/trust_scale_items.md` to `participant.schema.yaml`. **Action**: Explicitly list the 12 items in the schema description or a companion file. **Dependency**: T007e, T007d.
+- [ ] T007g Perform explicit verification of the Trust Scale items against the source instrument. **Script**: `code/research/verify_trust_scale.py`. **Input**: `docs/trust_scale_items.md` (from T007e) and `research/validation_report.json`. **Output**: `research/trust_scale_verification_report.md` with status="verified" if items match. **Action**: If verification fails, exit with code 1 (Hard Stop) to block downstream tasks. **Dependency**: T007f, T007e.
+- [ ] T007h Generate `quickstart.md` in `docs/`. **Content**: Step-by-step instructions for local setup, running the experiment interface, and executing the analysis pipeline. **Dependency**: T004, T007i, T007g.
 - [ ] T007i Generate `data-model.md` in `docs/`. **Content**: Description of data entities (Participant, Condition, Result) and their relationships, referencing `contracts/`. **Dependency**: T007a.
 
 ---
@@ -65,7 +68,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T009 [P] Implement randomization logic in `code/experiment/randomization.py` (assigns High/Low/Control with fixed seed for reproducibility).
+- [ ] T009 [P] [FR-001] [SC-001] Implement randomization logic in `code/experiment/randomization.py` (assigns High/Low/Control with fixed seed for reproducibility). **Requirement**: Explicitly implement randomized assignment to ensure independent variable manipulation (FR-001) for the primary outcome test (SC-001). **Dependency**: T004.
 - [ ] T010 [P] Create base data processing utilities in `code/analysis/data_utils.py`. **Functions**: `load_csv(path)`, `compute_checksum(path, algorithm="sha256")`, `scan_pii(df)`. **Logic**: Implement SHA-256 checksumming and PII scanning rules (e.g., flag columns with "email", "name"). **Dependency**: T004.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel. **Note**: Ensure T007g is complete before proceeding to T016.
@@ -83,9 +86,9 @@
 - [ ] T011 [P] [US1] Implement "High Agency" condition interface in `code/experiment/app.py` (functional sliders that do NOT alter AI output). **Dependency**: T009, T010.
 - [ ] T012 [P] [US1] Implement "Low Agency" condition interface in `code/experiment/app.py` (restricted controls). **Dependency**: T009, T010.
 - [ ] T013 [P] [US1] Implement "Control" condition interface in `code/experiment/app.py` (static AI display). **Dependency**: T009, T010.
-- [ ] T014 [US1] Implement adherence tracking logic in `code/experiment/app.py`. **Formula**: `adherence_rate = (number_of_ai_recommendations_followed / total_recommendations) * 100`. **Variable**: `adherence_rate` (float). **Dependency**: T009, T010.
+- [ ] T014 [US1] [FR-002] Implement adherence tracking logic in `code/experiment/app.py`. **Requirement**: Capture behavioral adherence as a percentage. **Formula**: `adherence_rate = (number_of_ai_recommendations_followed / total_recommendations) * 100`. **Variable**: `adherence_rate` (float). **Dependency**: T009, T010.
 - [ ] T015 [US1] Implement attention check questions and straight-lining detection in `code/experiment/app.py`. **Questions**: Include standard attention checks. (e.g., "Select 'Strongly Agree'"). **Logic**: Flag if a consecutive sequence of responses is identical. **Output**: `attention_check_status` (boolean). **Dependency**: T009, T010.
-- [ ] T016 [US1] Implement Lee & See (2004) [UNRESOLVED-CLAIM: c_f2828481 — status=not_enough_info] Trust Scale items in `code/experiment/app.py` survey section. **Requirement**: Read verbatim items from `docs/trust_scale_items.md` at runtime. **Action**: If file is missing, raise explicit error and halt execution. **UI**: Use `st.radio` with `options=['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']` mapping to 1-5 integers. **Variable Names**: `trust_item_1` through `trust_item_12`. **Dependency**: Must run after T007g completes.
+- [ ] T016 [US1] [FR-002] [SC-004] Implement Lee & See (2004) Trust Scale items in `code/experiment/app.py` survey section. **Requirement**: Read verbatim 12-item scale from `docs/trust_scale_items.md` at runtime. **Format**: JSON array of strings. **Parsing**: Map items to `trust_item_1` through `trust_item_12`. **Action**: If file is missing, raise explicit error and halt execution. **UI**: Use `st.radio` with `options=['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']` mapping to 1-5 integers. **Variable Names**: `trust_item_1` through `trust_item_12`. **Dependency**: Must run after T007g completes.
 - [ ] T017 [US1] Implement data export logic to `data/raw/` with checksum generation and filename timestamping. **Dependency**: T009, T010.
 - [ ] T018 [US1] Implement manipulation check question for "Perceived Agency". **Question**: "To what extent did you feel you had control over the AI's recommendations?" **Scale**: 1-7 Likert. **Variable**: `perceived_agency_score`. **Dependency**: T009, T010.
 
@@ -107,12 +110,12 @@
 ### Implementation for User Story 2
 
 - [ ] T021 [P] [US2] Implement data cleaning pipeline in `code/analysis/data_cleaning.py` (handle missing values, flag attention check failures).
-- [ ] T022 [US2] Implement One-Way ANOVA and **Planned Directional Contrasts** in `code/analysis/contrasts.py`. **Requirement**: Explicitly implement orthogonal contrast vectors with coefficients:) High vs. Low (coefficients: [1, -1, 0]), 2) (High+Low) vs. Control (coefficients: [1, 1, -2]). **Output**: Summary tables with t-statistics, p-values, degrees of freedom. **Dependency**: T021.
-- [ ] T023 [US2] Implement Tukey HSD post-hoc tests in `code/analysis/pairwise.py` with family-wise error rate adjustment.
-- [ ] T024 [US2] Implement Cohen's d effect size calculation in `code/analysis/effect_sizes.py` for all pairwise comparisons.
+- [ ] T022 [US2] [FR-003] [SC-001] Implement One-Way ANOVA and **Planned Directional Contrasts** in `code/analysis/contrasts.py`. **Requirement**: Explicitly implement orthogonal contrast vectors with coefficients:) High vs. Low (coefficients: [1, -1, 0]), 2) (High+Low) vs. Control (coefficients: [1, 1, -2]). **Library**: Use `pingouin.anova` or `statsmodels`. **Output**: Summary tables with t-statistics, p-values, degrees of freedom. **Dependency**: T021.
+- [ ] T023 [US2] [FR-005] [SC-005] Implement Tukey HSD post-hoc tests in `code/analysis/pairwise.py` with family-wise error rate adjustment. **Requirement**: Explicitly state 'family-wise error rate adjustment' in output. **Dependency**: T022.
+- [ ] T024 [US2] [FR-004] Implement Cohen's d effect size calculation in `code/analysis/effect_sizes.py` for all pairwise comparisons. **Requirement**: Explicitly compute for all pairwise comparisons. **Dependency**: T023.
 - [ ] T025 [US2] Create synthetic data generator in `code/analysis/synthetic_data.py` for testing the pipeline without real data.
 - [ ] T026 [US2] Integrate all analysis steps into a main runner script `code/analysis/run_analysis.py`.
-- [ ] T027 [US2] Analyze manipulation check data from T018. **Logic**: Calculate mean perceived agency score. **Test**: One-sample t-test against a predetermined threshold. **Output**: Write `manipulation_check_status` ("valid"/"invalid"), `mean_score`, and `achieved_power` to the final report JSON. **Power Analysis**: Check sample size against target from T002. **If** sample size < target OR manipulation check invalid, calculate achieved power for the *primary trust outcome* using `statsmodels.stats.power.FTestAnovaPower` and report null result. **DO NOT halt the pipeline.** **Dependency**: Must run after T018 completes.
+- [ ] T027 [US2] Analyze manipulation check data from T018. **Logic**: Calculate mean perceived agency score. **Test**: One-sample t-test against a predetermined threshold. **Output**: Write `manipulation_check_status` ("valid"/"invalid"), `mean_score`, and `achieved_power` to the final report JSON. **Power Analysis**: Check sample size against target from T002 (`research/power_calculation.json`). **If** sample size < target OR manipulation check invalid, calculate achieved power for the *primary trust outcome* using `statsmodels.stats.power.FTestAnovaPower` and report null result. **DO NOT halt the pipeline.** **Dependency**: T018, T002.
 
 ### Tests for User Story 2
 
@@ -133,8 +136,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement sensitivity analysis in `code/analysis/sensitivity.py`. **Requirement**: Sweep participant exclusion thresholds for attention check pass rate (range starting from a lower bound, step 0.05), straight-lining thresholds, AND completion time outliers. **Output**: CSV table with columns `threshold_type`, `threshold_value`, `p_value_primary`, `effect_size_primary`. **Dependency**: Must run after Phase 4 (T022, T023) completes.
-- [ ] T031 [US3] Implement final report generation in `code/analysis/report.py`. **Requirement**: Compile ANOVA, contrasts, post-hoc, effect sizes, pre-study power results from T002 (`research/power_report.md`), and sensitivity analysis. **Dependency**: Must wait for T002 (Power Analysis) and Phase 4 completion. **Output**: Markdown report at `docs/report.md`.
+- [ ] T030 [US3] Implement sensitivity analysis in `code/analysis/sensitivity.py`. **Requirement**: Sweep participant exclusion thresholds for attention check pass rate (range lower bound to a high threshold, step 0.05), straight-lining thresholds, AND completion time outliers. **Output**: CSV table with columns `threshold_type`, `threshold_value`, `p_value_primary`, `effect_size_primary`. **Dependency**: Must run after Phase 4 (T022, T023) completes.
+- [ ] T031 [US3] Implement final report generation in `code/analysis/report.py`. **Requirement**: Compile ANOVA, contrasts, post-hoc, effect sizes, pre-study power results from T002 (`research/power_report.md`), and sensitivity analysis. **Dependency**: Must wait for T002 (Power Analysis), Phase 4 completion, and T030 (Sensitivity analysis). **Output**: Markdown report at `docs/report.md`.
 - [ ] T032 [US3] Add null result handling logic in `code/analysis/report.py` (explicitly report null findings and observed effect sizes).
 
 ### Tests for User Story 3
@@ -161,7 +164,7 @@
 
 ### Phase Dependencies
 
-- **Phase 0 (Research)**: T000aa -> T000ab -> T000ac -> T000ad -> T000b -> T000c -> T001a -> T002 -> T001b -> T008. **Note**: T002 must complete before T001b and T008.
+- **Phase 0 (Research)**: T000 -> T000b -> T000c -> (T001a, T002 in parallel) -> T001b -> T003 -> T008. **Note**: T002 must complete before T001b and T008. T001a is independent of T002.
 - **Setup (Phase 1)**: Depends on Phase 0 completion.
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion.
@@ -251,5 +254,5 @@ With multiple developers:
 - **Data Integrity**: Ensure `data/raw/` is never modified in-place. All cleaning must write to `data/processed/`.
 - **Compute Feasibility**: All statistical tasks (ANOVA, contrasts, sensitivity) are CPU-tractable and fit within GitHub Actions free-tier limits.
 - **Fabrication Guard**: Do NOT use `random.*` to generate input data for the analysis pipeline unless explicitly testing with synthetic data generators. Real analysis must use real CSV exports from `data/raw/`.
-- **Gate Tasks**: T000/T001 (Reference Validation) is a mandatory gate. T026 is now a reporting step, not a gate.
-- **Critical Dependencies**: T002 must complete before T001b. T008 depends on T002. T016 depends on T007g. T027 depends on T018. T030 depends on Phase 4. T031 depends on T002 and Phase 4.
+- **Gate Tasks**: T000 (Reference Validation) is a mandatory gate. T026 is now a reporting step, not a gate.
+- **Critical Dependencies**: T002 must complete before T001b. T008 depends on T002. T016 depends on T007g. T027 depends on T018 and T002. T030 depends on Phase 4. T031 depends on T002, Phase 4, and T030.
