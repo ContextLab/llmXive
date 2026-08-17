@@ -1,8 +1,6 @@
 """
-Main CLI entry point for the Plant Disease Resistance Prediction Pipeline.
-
-Orchestrates the full pipeline: Fetch -> Preprocess -> Split -> Select -> Train -> Validate.
-Includes data integrity checks and handles Simulation Mode exceptions.
+Main CLI entry point for the plant disease resistance prediction pipeline.
+Orchestrates: Fetch -> Preprocess -> Split -> Select -> Train -> Validate.
 """
 import os
 import sys
@@ -11,145 +9,221 @@ import argparse
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Project imports matching the API surface
-from config import load_config, get_path
-from utils.logging import setup_logger, log_pipeline_step, log_config_summary
-from utils.exceptions import PipelineException, EX_DATA_INTEGRITY, EX_POWER_INSUFFICIENT
-from data.manifest import ManifestLoader, get_manifest_source_type
-from data.download import download_or_generate
-from data.preprocess import preprocess_pipeline
-from data.split import split_pipeline
-from analysis.feature_selection import feature_selection_pipeline
-from analysis.modeling import modeling_pipeline
+# Local imports from project structure
+from config import get_data_path, get_artifacts_path, get_reports_path
+from data.manifest import load_manifest, get_source_type
+from utils.exceptions import EX_DATA_INTEGRITY, EX_POWER_INSUFFICIENT, PipelineError
+from utils.logging import get_logger, log_pipeline_step, log_error_context
+from data.download import run_download_pipeline
+from data.preprocess import process_pipeline
+from data.split import run_split_pipeline
+from analysis.feature_selection import run_feature_selection_pipeline
+from analysis.modeling import run_modeling_pipeline
 from analysis.validation import run_validation_pipeline
+from analysis.permutation_test import permutation_test_pipeline
+from analysis.holdout_report import generate_holdout_report_pipeline
+from analysis.success_criteria_check import check_success_criteria, write_success_report
+from analysis.biomarker_report import generate_biomarker_report
 
-def check_data_integrity(manifest_data: Dict[str, Any], source_type: str, logger: logging.Logger) -> None:
+# Initialize logger
+logger = get_logger(__name__)
+
+def check_data_integrity(manifest_path: str) -> Dict[str, Any]:
     """
-    Check data integrity and power constraints.
+    Check data integrity and power requirements based on source type.
     
-    Rules:
-    1. If source_type != SIMULATED:
-       - If aligned samples < 100 OR missing modalities -> EX_DATA_INTEGRITY (02)
-       - If samples < 100 -> EX_POWER_INSUFFICIENT (03)
-    2. If source_type == SIMULATED:
-       - Bypass all halts (Simulation Mode exception)
-    
-    Priority: FR-008 (Power) then FR-007 (Integrity) with unified message.
+    Args:
+        manifest_path: Path to data_manifest.yaml
+        
+    Returns:
+        Dictionary with validation results and counts
+        
+    Raises:
+        EX_DATA_INTEGRITY: If data integrity checks fail for real data
+        EX_POWER_INSUFFICIENT: If sample size is insufficient for real data
     """
-    if source_type == "SIMULATED":
-        logger.info("Simulation Mode detected. Bypassing data integrity and power checks.")
-        return
-
-    # Extract sample counts from manifest if available, otherwise default to 0
-    # The manifest structure is assumed to have 'statistics' or 'samples' count
-    total_samples = manifest_data.get('statistics', {}).get('total_samples', 0)
-    aligned_samples = manifest_data.get('statistics', {}).get('aligned_samples', total_samples)
-    has_missing_modalities = manifest_data.get('statistics', {}).get('missing_modalities', 0) > 0
-
-    error_messages = []
-
-    # Check Power (FR-008) first - requires at least 100 samples
+    logger.info("Starting data integrity check...")
+    
+    # Load manifest
+    manifest = load_manifest(manifest_path)
+    source_type = get_source_type(manifest)
+    
+    # Get counts from manifest
+    total_samples = 0
+    missing_modalities = 0
+    
+    if 'datasets' in manifest:
+        for dataset in manifest['datasets']:
+          if 'samples' in dataset:
+              total_samples += dataset['samples']
+          if 'missing_modalities' in dataset:
+              missing_modalities += dataset['missing_modalities']
+    
+    # Check source type
+    is_simulated = (source_type == "SIMULATED")
+    
+    logger.info(f"Source type: {source_type}, Total samples: {total_samples}, Missing modalities: {missing_modalities}")
+    
+    # Bypass checks for simulated data
+    if is_simulated:
+        logger.info("Simulation Mode detected - bypassing data integrity and power checks")
+        return {
+            "source_type": source_type,
+            "total_samples": total_samples,
+            "missing_modalities": missing_modalities,
+            "passed": True,
+            "reason": "Simulation Mode"
+        }
+    
+    # Real data checks
+    # Priority 1: Power (FR-008) - Check sample size first
     if total_samples < 100:
-        error_messages.append(f"Insufficient power: {total_samples} samples found (requirement: >= 100).")
+        error_msg = f"Insufficient power: {total_samples} samples found. Minimum required: 100 (FR-008)"
+        logger.error(error_msg)
+        raise EX_POWER_INSUFFICIENT(error_msg)
+    
+    # Priority 2: Integrity (FR-007) - Check missing modalities
+    if missing_modalities > 0:
+        error_msg = f"Data integrity issue: {missing_modalities} samples missing modalities (FR-007)"
+        logger.error(error_msg)
+        raise EX_DATA_INTEGRITY(error_msg)
+    
+    logger.info("Data integrity and power checks passed")
+    return {
+        "source_type": source_type,
+        "total_samples": total_samples,
+        "missing_modalities": missing_modalities,
+        "passed": True,
+        "reason": "All checks passed"
+    }
 
-    # Check Integrity (FR-007) - requires >= 100 aligned samples and no missing modalities
-    if aligned_samples < 100 or has_missing_modalities:
-        reasons = []
-        if aligned_samples < 100:
-            reasons.append(f"only {aligned_samples} aligned samples")
-        if has_missing_modalities:
-            reasons.append("missing modalities detected")
-        error_messages.append(f"Data integrity compromised: {', '.join(reasons)}.")
-
-    if error_messages:
-        # Prioritize Power error if both exist, otherwise Integrity
-        if total_samples < 100 and (aligned_samples < 100 or has_missing_modalities):
-            # Both conditions met, prioritize Power per spec
-            raise PipelineException(
-                code=EX_POWER_INSUFFICIENT,
-                message=f"Power check failed: {total_samples} total samples. "
-                        f"Also failed integrity check: {aligned_samples} aligned samples, missing modalities: {has_missing_modalities}."
-            )
-        elif total_samples < 100:
-            raise PipelineException(
-                code=EX_POWER_INSUFFICIENT,
-                message=error_messages[0]
-            )
-        else:
-            raise PipelineException(
-                code=EX_DATA_INTEGRITY,
-                message=error_messages[0]
-            )
-
-def run_pipeline(config: Dict[str, Any], logger: logging.Logger) -> None:
+def run_pipeline(args: argparse.Namespace) -> None:
     """
-    Execute the full pipeline steps in order.
+    Execute the full prediction pipeline.
+    
+    Args:
+        args: Command line arguments
     """
-    logger.info("Starting Pipeline Execution")
-    
-    # 1. Fetch / Generate Data
-    log_pipeline_step(logger, "Step 1: Fetching/Generating Data")
-    download_or_generate(config, logger)
-    
-    # 2. Preprocess
-    log_pipeline_step(logger, "Step 2: Preprocessing Data")
-    preprocess_pipeline(config, logger)
-    
-    # 3. Split
-    log_pipeline_step(logger, "Step 3: Splitting Data")
-    split_pipeline(config, logger)
-    
-    # 4. Feature Selection
-    log_pipeline_step(logger, "Step 4: Feature Selection")
-    feature_selection_pipeline(config, logger)
-    
-    # 5. Modeling
-    log_pipeline_step(logger, "Step 5: Training Models")
-    modeling_pipeline(config, logger)
-    
-    # 6. Validation
-    log_pipeline_step(logger, "Step 6: Validation")
-    run_validation_pipeline(config, logger)
-    
-    logger.info("Pipeline completed successfully.")
-
-def main():
-    parser = argparse.ArgumentParser(description="Plant Disease Resistance Prediction Pipeline")
-    parser.add_argument('--config', type=str, default='data/data_manifest.yaml',
-                        help='Path to the data manifest/config file')
-    parser.add_argument('--log-level', type=str, default='INFO',
-                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
-                        help='Logging level')
-    args = parser.parse_args()
-
-    # Setup Logger
-    logger = setup_logger(level=args.log_level)
+    logger.info("Starting plant disease resistance prediction pipeline")
     
     try:
-        # Load Config/Manifest
-        config = load_config(args.config)
-        log_config_summary(logger, config)
+        # 1. Check data integrity
+        manifest_path = args.manifest or str(get_data_path() / "data_manifest.yaml")
+        integrity_result = check_data_integrity(manifest_path)
+        logger.info(f"Integrity check result: {integrity_result['reason']}")
         
-        # Determine Source Type
-        source_type = get_manifest_source_type(args.config)
-        logger.info(f"Data Source Type: {source_type}")
+        # 2. Fetch/Generate data
+        logger.info("Step 1/7: Fetching or generating data...")
+        download_result = run_download_pipeline(args)
         
-        # Load full manifest for integrity checks
-        manifest_loader = ManifestLoader(args.config)
-        manifest_data = manifest_loader.load()
+        # 3. Preprocess data
+        logger.info("Step 2/7: Preprocessing data...")
+        preprocess_result = process_pipeline(args)
         
-        # Check Integrity/Power BEFORE running pipeline
-        check_data_integrity(manifest_data, source_type, logger)
+        # 4. Split data
+        logger.info("Step 3/7: Splitting data...")
+        split_result = run_split_pipeline(args)
         
-        # Run Pipeline
-        run_pipeline(config, logger)
+        # 5. Feature selection
+        logger.info("Step 4/7: Performing feature selection...")
+        selection_result = run_feature_selection_pipeline(args)
         
-    except PipelineException as e:
-        logger.error(f"Pipeline halted: {e}")
-        sys.exit(e.code)
+        # 6. Model training and validation
+        logger.info("Step 5/7: Training and validating models...")
+        modeling_result = run_modeling_pipeline(args)
+        
+        # 7. Permutation testing on hold-out set
+        logger.info("Step 6/7: Running permutation testing on hold-out set...")
+        permutation_result = permutation_test_pipeline(args)
+        
+        # 8. Generate reports
+        logger.info("Step 7/7: Generating reports...")
+        
+        # Generate hold-out report with permutation p-value
+        generate_holdout_report_pipeline(args)
+        
+        # Generate biomarker report
+        generate_biomarker_report(args)
+        
+        # Check success criteria
+        check_success_criteria(args)
+        write_success_report(args)
+        
+        logger.info("Pipeline completed successfully")
+        
+    except EX_DATA_INTEGRITY as e:
+        logger.error(f"Data integrity check failed: {str(e)}")
+        log_error_context(e)
+        raise
+    except EX_POWER_INSUFFICIENT as e:
+        logger.error(f"Power check failed: {str(e)}")
+        log_error_context(e)
+        raise
     except Exception as e:
-        logger.exception(f"Unexpected error during pipeline execution: {e}")
-        sys.exit(1)
+        logger.error(f"Pipeline execution failed: {str(e)}")
+        log_error_context(e)
+        raise
+
+def main():
+    """Main entry point for the CLI."""
+    parser = argparse.ArgumentParser(
+        description="Plant Disease Resistance Prediction Pipeline",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    
+    parser.add_argument(
+        "--manifest",
+        type=str,
+        default=None,
+        help="Path to data manifest file (default: data/data_manifest.yaml)"
+    )
+    
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=None,
+        help="Output directory for artifacts (default: artifacts/)"
+    )
+    
+    parser.add_argument(
+        "--train-test-split",
+        type=float,
+        default=0.8,
+        help="Proportion of data to use for training (default: 0.8)"
+    )
+    
+    parser.add_argument(
+        "--feature-selection-threshold",
+        type=float,
+        default=0.05,
+        help="Threshold for feature selection (default: 0.05)"
+    )
+    
+    parser.add_argument(
+        "--permutation-iterations",
+        type=int,
+        default=1000,
+        help="Number of permutation iterations (default: 1000)"
+    )
+    
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Enable verbose logging"
+    )
+    
+    args = parser.parse_args()
+    
+    # Configure logging level
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.INFO)
+    
+    # Run the pipeline
+    log_pipeline_step("Pipeline Started", "main.py")
+    run_pipeline(args)
+    log_pipeline_step("Pipeline Completed", "main.py")
 
 if __name__ == "__main__":
     main()

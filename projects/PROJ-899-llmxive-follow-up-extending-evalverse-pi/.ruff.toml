@@ -1,28 +1,3 @@
-# Ruff configuration file (alternative to pyproject.toml)
-# This file is provided for environments that prefer explicit config files
-# over pyproject.toml sections.
-#
-# If both exist, ruff typically prioritizes pyproject.toml, but having this
-# ensures explicit configuration is available in the root.
-#
-# See tool.ruff in pyproject.toml for the actual settings.
-target-version = "py311"
-line-length = 88
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
-]
-ignore = ["E501", "B008"]
-exclude = [
-    ".git",
-    ".venv",
-    "build",
-    "dist",
-    "__pycache__",
-    ".mypy_cache",
-]
+# Ruff configuration for llmxive-feature-distillation
+# This file mirrors settings in pyproject.toml for editor compatibility
+extend = "pyproject.toml"

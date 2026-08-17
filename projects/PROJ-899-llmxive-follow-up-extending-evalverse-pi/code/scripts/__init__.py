@@ -1,1 +1,1 @@
-# Scripts Package
+"""Executable scripts."""

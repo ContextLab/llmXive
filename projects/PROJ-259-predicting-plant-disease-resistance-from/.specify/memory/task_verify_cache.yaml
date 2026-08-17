@@ -16,19 +16,20 @@ T011:
     \ is absent, so the mandated logging of dropped samples is not satisfied."
 T019:
   c: false
-  h: 2d673eeffffd561106fbd311f66408458e7b61633b7aa33e08e975c7723f2f6e
-  r: "The provided `code/main.py` is truncated (the `check_data_integrity` function\
-    \ ends mid\u2011logic and no CLI `if __name__ == \"__main__\"` or orchestration\
-    \ code is shown), and the required `data_manifest.yaml` file is absent, so the\
-    \ script cannot read `source_type` or enforce the specified halt behavior. The\
-    \ task\u2019s core requirements are therefore not met."
+  h: fb091e3a1f5b9cec8ce096ee4d2c73d153810ebabd4186d3f6ba49164cfae216
+  r: "The provided `code/main.py` is present but the required `data_manifest.yaml`\
+    \ file is missing, so the integrity\u2011checking logic cannot be exercised. Moreover,\
+    \ the truncated implementation does not clearly show the unified error handling\
+    \ or the exact conditional order mandated by the task. The missing manifest file\
+    \ must be added (with appropriate fields) and the script verified to raise the\
+    \ specified error codes in the correct priority order."
 T027:
   c: false
-  h: 05f568960489a781c3c742b8ab75d7da037c76c06f5c406d7841b417e1a93d18
-  r: "The repository contains a partially\u2011implemented `biomarker_report.py` (the\
-    \ file is truncated and never writes a CSV), and the required output `artifacts/reports/top_features.csv`\
-    \ does not exist. Consequently the task of generating the top\u2011features report\
-    \ with p\u2011values and effect sizes has not been fulfilled."
+  h: b136c284ad5b8b25225b788558f64b4298980a0c5a25c588f74bb0c6e1a8c4e6
+  r: "The required output file `artifacts/reports/top_features.csv` does not exist,\
+    \ and the provided `code/analysis/biomarker_report.py` is incomplete (truncated\
+    \ mid\u2011function) with no code that writes the CSV. Consequently the task of\
+    \ generating the report with p\u2011values and effect sizes has not been fulfilled."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

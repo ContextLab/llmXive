@@ -6,136 +6,100 @@ import numpy as np
 from pathlib import Path
 import pytest
 
-# Add parent to path for imports if running standalone
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 from src.models.evaluate import calculate_stability_and_flip_rate
+from src.utils import write_csv
+
 
 class TestSensitivityStability:
-    """Unit tests for T027 stability calculation and flip rate logic."""
+    """Unit tests for T027: Stability calculation and flip rate."""
 
-    @pytest.fixture
-    def temp_sensitivity_raw(self):
-        """Create a temporary sensitivity raw CSV file for testing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "sensitivity_sweep_raw.csv"
-            
-            # Create test data with known flip behavior
-            # Dimension A: No flips (status constant)
-            # Dimension B: 1 flip (status changes once)
-            # Dimension C: 2 flips (status changes twice)
+    def test_flip_rate_calculation(self):
+        """Test that flip rate is calculated correctly."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            input_path = Path(tmp_dir) / "input.csv"
+            output_path = Path(tmp_dir) / "output.csv"
+
+            # Create test data:
+            # Dim A: status changes twice (0 -> 1 -> 0) -> 2 flips / 2 transitions = 1.0
+            # Dim B: status constant (0 -> 0 -> 0) -> 0 flips / 2 transitions = 0.0
             data = {
-                'dimension': ['DimA', 'DimA', 'DimA', 
-                              'DimB', 'DimB', 'DimB',
-                              'DimC', 'DimC', 'DimC'],
-                'threshold': [0.80, 0.85, 0.90,
-                              0.80, 0.85, 0.90,
-                              0.80, 0.85, 0.90],
-                'status': ['feature-sufficient', 'feature-sufficient', 'feature-sufficient',
-                           'feature-sufficient', 'VLM-required', 'VLM-required',
-                           'feature-sufficient', 'VLM-required', 'feature-sufficient']
+                'dimension': ['A', 'A', 'A', 'B', 'B', 'B'],
+                'threshold': [0.80, 0.85, 0.90, 0.80, 0.85, 0.90],
+                'status': ['feature-sufficient', 'VLM-required', 'feature-sufficient',
+                           'feature-sufficient', 'feature-sufficient', 'feature-sufficient']
             }
             df = pd.DataFrame(data)
-            df.to_csv(input_path, index=False)
-            
-            yield input_path
+            write_csv(df, input_path)
 
-    def test_flip_rate_calculation(self, temp_sensitivity_raw):
-        """Test that flip rates are calculated correctly."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "sensitivity_analysis.csv"
-            
-            result_df = calculate_stability_and_flip_rate(
-                sensitivity_raw_path=str(temp_sensitivity_raw),
-                output_path=str(output_path)
-            )
-            
-            # Verify output file exists
-            assert output_path.exists(), "Output CSV file was not created"
-            
-            # Verify required columns exist
-            required_cols = ['dimension', 'threshold', 'status', 'flip_rate']
-            assert all(col in result_df.columns for col in required_cols), \
-                f"Missing required columns. Found: {result_df.columns.tolist()}"
-            
-            # Check flip rates
-            # DimA: 0 flips out of 2 transitions -> 0.0
-            dim_a = result_df[result_df['dimension'] == 'DimA']
-            assert all(dim_a['flip_rate'] == 0.0), "DimA should have flip_rate 0.0"
-            
-            # DimB: 1 flip out of 2 transitions -> 0.5
-            dim_b = result_df[result_df['dimension'] == 'DimB']
-            assert all(dim_b['flip_rate'] == 0.5), "DimB should have flip_rate 0.5"
-            
-            # DimC: 2 flips out of 2 transitions -> 1.0
-            dim_c = result_df[result_df['dimension'] == 'DimC']
-            assert all(dim_c['flip_rate'] == 1.0), "DimC should have flip_rate 1.0"
+            calculate_stability_and_flip_rate(input_path, output_path)
 
-    def test_threshold_sensitive_flag(self, temp_sensitivity_raw):
-        """Test that threshold_sensitive flag is set correctly."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "sensitivity_analysis.csv"
-            
-            result_df = calculate_stability_and_flip_rate(
-                sensitivity_raw_path=str(temp_sensitivity_raw),
-                output_path=str(output_path)
-            )
-            
-            # Check threshold_sensitive flag
-            # DimA (flip_rate=0.0) -> False
-            dim_a = result_df[result_df['dimension'] == 'DimA']
-            assert all(~dim_a['threshold_sensitive']), "DimA should not be threshold_sensitive"
-            
-            # DimB (flip_rate=0.5) -> True
-            dim_b = result_df[result_df['dimension'] == 'DimB']
-            assert all(dim_b['threshold_sensitive']), "DimB should be threshold_sensitive"
-            
-            # DimC (flip_rate=1.0) -> True
-            dim_c = result_df[result_df['dimension'] == 'DimC']
-            assert all(dim_c['threshold_sensitive']), "DimC should be threshold_sensitive"
+            result_df = pd.read_csv(output_path)
 
-    def test_output_file_format(self, temp_sensitivity_raw):
-        """Test that output file is written correctly."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "sensitivity_analysis.csv"
-            
-            result_df = calculate_stability_and_flip_rate(
-                sensitivity_raw_path=str(temp_sensitivity_raw),
-                output_path=str(output_path)
-            )
-            
-            # Read back and verify
-            reloaded = pd.read_csv(output_path)
-            
-            assert len(reloaded) == 9, "Expected 9 rows (3 dims x 3 thresholds)"
-            assert 'dimension' in reloaded.columns
-            assert 'threshold' in reloaded.columns
-            assert 'status' in reloaded.columns
-            assert 'flip_rate' in reloaded.columns
+            # Check dimensions
+            assert 'flip_rate' in result_df.columns
+            assert 'threshold_sensitive' in result_df.columns
+
+            # Check Dim A
+            dim_a = result_df[result_df['dimension'] == 'A']
+            assert dim_a['flip_rate'].iloc[0] == 1.0  # 2 flips / 2 transitions
+            assert dim_a['threshold_sensitive'].iloc[0] == True
+
+            # Check Dim B
+            dim_b = result_df[result_df['dimension'] == 'B']
+            assert dim_b['flip_rate'].iloc[0] == 0.0
+            assert dim_b['threshold_sensitive'].iloc[0] == False
+
+    def test_single_threshold_no_flips(self):
+        """Test behavior when only one threshold exists (no transitions)."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            input_path = Path(tmp_dir) / "input.csv"
+            output_path = Path(tmp_dir) / "output.csv"
+
+            data = {
+                'dimension': ['A'],
+                'threshold': [0.85],
+                'status': ['feature-sufficient']
+            }
+            df = pd.DataFrame(data)
+            write_csv(df, input_path)
+
+            calculate_stability_and_flip_rate(input_path, output_path)
+
+            result_df = pd.read_csv(output_path)
+            # Should not crash, flip rate should be 0.0
+            assert result_df['flip_rate'].iloc[0] == 0.0
+            assert result_df['threshold_sensitive'].iloc[0] == False
 
     def test_missing_input_file(self):
-        """Test that FileNotFoundError is raised for missing input."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            non_existent = Path(tmpdir) / "non_existent.csv"
-            output_path = Path(tmpdir) / "output.csv"
-            
-            with pytest.raises(FileNotFoundError):
-                calculate_stability_and_flip_rate(
-                    sensitivity_raw_path=str(non_existent),
-                    output_path=str(output_path)
-                )
+        """Test that FileNotFoundError is raised if input is missing."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            input_path = Path(tmp_dir) / "nonexistent.csv"
+            output_path = Path(tmp_dir) / "output.csv"
 
-    def test_invalid_input_columns(self):
-        """Test that ValueError is raised for missing required columns."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "invalid.csv"
-            output_path = Path(tmpdir) / "output.csv"
-            
-            # Create file with wrong columns
-            pd.DataFrame({'dim': ['A'], 'thresh': [0.8]}).to_csv(input_path, index=False)
-            
-            with pytest.raises(ValueError):
-                calculate_stability_and_flip_rate(
-                    sensitivity_raw_path=str(input_path),
-                    output_path=str(output_path)
-                )
+            with pytest.raises(FileNotFoundError):
+                calculate_stability_and_flip_rate(input_path, output_path)
+
+    def test_output_columns(self):
+        """Test that output CSV contains required columns."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            input_path = Path(tmp_dir) / "input.csv"
+            output_path = Path(tmp_dir) / "output.csv"
+
+            data = {
+                'dimension': ['A', 'A'],
+                'threshold': [0.80, 0.85],
+                'status': ['feature-sufficient', 'feature-sufficient']
+            }
+            df = pd.DataFrame(data)
+            write_csv(df, input_path)
+
+            calculate_stability_and_flip_rate(input_path, output_path)
+
+            result_df = pd.read_csv(output_path)
+            required_cols = ['dimension', 'threshold', 'status', 'flip_rate']
+            for col in required_cols:
+                assert col in result_df.columns

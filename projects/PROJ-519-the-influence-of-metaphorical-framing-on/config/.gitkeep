@@ -1,0 +1,4 @@
+# This directory contains configuration files for the project.
+# Do not commit sensitive data (API keys, passwords) here.
+# Use .env for secrets and simulation_config.yaml for parameters.
+.

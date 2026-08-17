@@ -1289,3 +1289,371 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T23:18:25Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Phi-3-mini model used for monolithic baseline and dual-track generator
+  claim_id: c_96062d72
+  context: 'Implement code/agent/monolithic.py (direct SLM prompt) using the local
+    model. Logic: Define the prompt template and generation parameters for the monolithic
+    baseline (Phi-3-mini).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses the Phi-3-mini model for the monolithic baseline and
+    dual-track agent generator.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:32:01Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: ResourceLimitExceeded raised if CPU > 90% or RAM > 6.5GB
+  claim_id: c_b40b798a
+  context: 'Fail-fast mechanism: Raise ResourceLimitExceeded exception immediately
+    if CPU > 90% or RAM > 6.5GB, aborting the run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The resource monitor wrapper raises a ResourceLimitExceeded exception
+    immediately if CPU usage exceeds 90% or RAM usage exceeds 6.5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:32:01Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Power analysis targets effect size 0.15, alpha 0.05, 2 groups
+  claim_id: c_275137d6
+  context: "Calculate the achieved power for the GLMM given: groups=2 (monolithic\
+    \ vs dual-track), alpha=0.05, effect_size=0.15 (Cohen's f\xB2 target)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis targets an effect size of 0.15 (Cohen's f\xB2) with\
+    \ an alpha of 0.05 and 2 groups."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:32:19Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if calculated power < 0.80
+  claim_id: c_a982f3c1
+  context: If calculated_power < 0.80, raise a PowerInsufficientError exception and
+    halt execution to satisfy FR-011's requirement to confirm sufficiency.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_calculated_power_%3C_0.80
+  kind: magnitude
+  raw_text: The power analysis halts execution if the calculated power is less than
+    0.80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:32:44Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Human annotation sample size at least 50 or all available
+  claim_id: c_9a1d541d
+  context: The total sample size must be at least 50, or all available if < 50.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_annotation_sample_size_at_least_50_or_all_available
+  kind: magnitude
+  raw_text: The human annotation sample must include at least 50 tasks or all available
+    tasks if fewer than 50 exist.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:32:59Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Adherence verification Wilson lower bound threshold > 0.85
+  claim_id: c_d7c9ff39
+  context: Compare against the SC-004 threshold of >85%. Calculate the Wilson score
+    interval lower bound. Generate data/processed/adherence_verification.json with
+    threshold_passed (bool, true if wilson_lower_bound > 0.85).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adherence verification calculates the Wilson score interval lower
+    bound and checks if it exceeds 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:33:27Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Execution log schema requires task_id, constraint_count, generated_plan,
+    violation_boolean, violation_reason, violation_status, final_score
+  claim_id: c_785955c5
+  context: 'Full Schema Content: type: object properties: task_id: { type: string
+    } ... required: [task_id, constraint_count, generated_plan, violation_boolean,
+    violation_reason, violation_status, final_score]'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execution_log_schema_requires_task_id,_constraint_count,_gen
+  kind: entity_fact
+  raw_text: The execution log schema requires fields for task_id, constraint_count,
+    generated_plan, violation_boolean, violation_reason, violation_status, and final_score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:33:59Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Dataset filtering selects tasks with >= 5 progressive constraints
+  claim_id: c_6e143a81
+  context: "Implement filtering logic in code/dataset/loader.py to select tasks with\
+    \ \u22655 progressive constraint reveals and write to data/processed/filtered_tasks.csv."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset filtering logic selects tasks with 5 or more progressive constraint
+    reveals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:34:07Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 2
+  canonical: 'Resource limit thresholds: CPU 90%, RAM 6.5GB'
+  claim_id: c_737effff
+  context: 'Fail-fast mechanism: Raise ResourceLimitExceeded exception immediately
+    if CPU > 90% or RAM > 6.5GB, aborting the run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise ResourceLimitExceeded exception immediately if CPU > 90% or RAM
+    > 6.5GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:37:41Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Filter tasks with 5 or more progressive constraints
+  claim_id: c_25c8b962
+  context: "Implement filtering logic in code/dataset/loader.py to select tasks with\
+    \ \u22655 progressive constraint reveals and write to data/processed/filtered_tasks.csv."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Select tasks with \u22655 progressive constraint reveals"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:37:41Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Power analysis effect size 0.15
+  claim_id: c_e0b69710
+  context: "Calculate the achieved power for the GLMM given: groups=2 (monolithic\
+    \ vs dual-track), alpha=0.05, effect_size=0.15 (Cohen's f\xB2 target)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Effect size target is 0.15 (Cohen's f\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:38:14Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Power analysis alpha 0.05
+  claim_id: c_ec01bf25
+  context: 'Calculate the achieved power for the GLMM given: groups=2 (monolithic
+    vs dual-track), alpha=0.05, effect_size=0.15'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Alpha level is 0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T21:38:20Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Power analysis threshold 0.80
+  claim_id: c_fc16f2bc
+  context: If calculated_power < 0.80, raise a PowerInsufficientError exception and
+    halt execution to satisfy FR-011's requirement to confirm sufficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis requires calculated power < 0.80 to raise PowerInsufficientError
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:38:20Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Power analysis groups 2
+  claim_id: c_d9f6dc12
+  context: 'Calculate the achieved power for the GLMM given: groups=2 (monolithic
+    vs dual-track)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Groups count is 2 for power analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:38:25Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Monolithic baseline model Phi-3-mini
+  claim_id: c_93c7108b
+  context: Define the prompt template and generation parameters for the monolithic
+    baseline (Phi-3-mini).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model used for the monolithic baseline is Phi-3-mini
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:38:28Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Human annotation sample size minimum 50
+  claim_id: c_5e0b5a9b
+  context: The total sample size must be at least 50, or all available if < 50.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_annotation_sample_size_minimum_50
+  kind: magnitude
+  raw_text: The total sample size for human annotation must be at least 50
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:38:33Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Stratified sampling bins 5, 6, 7+
+  claim_id: c_46f8be2f
+  context: 'Use stratified sampling by constraint_count (from T013) with bins: [5,
+    6, 7+] where 7+ includes ALL tasks with constraint_count >= 7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified sampling bins for constraint_count are [5, 6, 7+]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:38:39Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Adherence rate threshold 85%
+  claim_id: c_d138c85f
+  context: Compare against the SC-004 threshold of >85%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Adherence threshold is >85%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:38:40Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Adherence verification Wilson score interval
+  claim_id: c_4d051002
+  context: Calculate the Wilson score interval lower bound. Generate data/processed/adherence_verification.json
+    with adherence_rate, wilson_lower_bound, and threshold_passed.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adherence_verification_Wilson_score_interval
+  kind: entity_fact
+  raw_text: Adherence verification uses Wilson score interval lower bound
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:38:49Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Wilson lower bound threshold 0.85
+  claim_id: c_1d065d64
+  context: threshold_passed (bool, true if wilson_lower_bound > 0.85).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold passed is true if wilson_lower_bound > 0.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:38:49Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: CI validation time limit 6 hours
+  claim_id: c_2baf4a62
+  context: Run quickstart.md validation and ensure all steps complete within 6 hours
+    on CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All steps must complete within 6 hours on CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:38:53Z'

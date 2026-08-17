@@ -9,8 +9,8 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T004** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T005** — No evidence of the required `data/raw`, `data/processed`, and `data/derived` directories or accompanying `.gitkeep` files is present; the implementer’s claim is not substantiated by any provided artifacts. The task remains undone until the directory structure with placeholder files is created in the repository.
 - **T008** — No .env file, dotenv loading code, or documentation of environment variable usage is present; the implementer provided no tangible artifact demonstrating that configuration management for API keys and paths has been set up. The required setup is therefore missing.
-- **T012** — declared artifact(s) missing/empty/invalid: src/data_ingestion.py
-- **T013** — declared artifact(s) missing/empty/invalid: src/experiment_runner.py, data/raw/simulated_participants.csv, data/raw/survey_responses.json, data/processed/experimental_assignments.csv
-- **T013b** — declared artifact(s) missing/empty/invalid: src/survey_interface.py, src/data_collection.py, data/processed/experimental_assignments.csv, data/raw/survey_responses.json
-- **T014** — declared artifact(s) missing/empty/invalid: src/cami_scoring.py, data/raw/survey_responses.json, data/processed/cami_scores.csv
-- **T014a** — declared artifact(s) missing/empty/invalid: src/data_ingestion.py, data/raw/survey_responses.json
+- **T013b** — The required implementation files `src/survey_interface.py` (or `src/data_collection.py`) are absent, so no code exists to administer the surveys or to transform the input CSV into the JSON output. The presence of `data/raw/survey_responses.json` does not satisfy the task’s requirement for a functional implementation.
+- **T014** — The `data/processed/cami_scores.csv` file does not exist, and the provided `src/cami_scoring.py` is incomplete (truncated and contains no logic to read the JSON, compute CAMI or Likert scores, or write a CSV). The required output artifact is missing, so the task is not satisfied.
+- **T016** — declared artifact(s) missing/empty/invalid: data/processed/experimental_results.csv, data/processed/experimental_results.csv.sha256
+- **T017** — No code, configuration, or documentation was provided that adds logic to detect and flag attention‑check failures or identical participant responses for exclusion. The claim lacks any artifact (e.g., script, function, test, or description) demonstrating the required edge‑case handling, so the task is not satisfied.
+- **T017a** — declared artifact(s) missing/empty/invalid: src/data_validation.py

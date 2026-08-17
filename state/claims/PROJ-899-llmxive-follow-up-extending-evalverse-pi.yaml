@@ -214,3 +214,20 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T07:29:08Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/IMPLEMENTATION_SUMMARY.md
+  attempts: 1
+  canonical: Pipeline runs within 7GB RAM and projects under 6 hours for 10k clips
+  claim_id: c_40cad1c0
+  context: 'Validation Results: US2: Pipeline confirmed to run within 7GB RAM and
+    project < 6 hours for 10k clips.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline confirmed to run within 7GB RAM and project < 6 hours for 10k
+    clips.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T22:06:02Z'

@@ -1,20 +1,18 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Discourse Data Schema
-description: |
-  Schema for observational mental health discourse data (e.g., from Reddit/Pushshift).
-  Includes text content, metadata, and computed linguistic features.
+description: >
+  Schema for the observational mental health discourse corpus.
+  Includes raw text, metadata, and derived metaphor/sentiment features.
 type: object
 required:
   - post_id
   - text
   - timestamp
   - metadata
-  - linguistic_features
 properties:
   post_id:
     type: string
-    description: Unique identifier for the post (e.g., Reddit post ID).
-    pattern: "^[a-zA-Z0-9]{6,}$"
+    description: Unique identifier for the discourse post.
   text:
     type: string
     minLength: 1
@@ -22,96 +20,70 @@ properties:
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of when the post was created.
+    description: ISO 8601 timestamp of the post creation.
   metadata:
     type: object
-    description: Platform-specific metadata.
-    required:
-      - upvotes
-      - comment_count
-      - subreddit
+    description: Platform-specific metadata (e.g., Reddit upvotes, comments).
     properties:
       upvotes:
         type: integer
         minimum: 0
-        description: Number of upvotes or positive reactions.
-      comment_count:
+      comments:
         type: integer
         minimum: 0
-        description: Number of comments on the post.
-      subreddit:
-        type: string
-        description: Name of the subreddit or forum source.
       author_id:
         type: string
-        nullable: true
-        description: Anonymized or hashed author identifier.
-  linguistic_features:
+        description: Anonymous author hash.
+      platform:
+        type: string
+        enum:
+          - reddit
+          - twitter
+          - forum
+          - other
+  derived_metrics:
     type: object
-    description: Computed features from text analysis.
-    required:
-      - metaphor_counts
-      - sentiment_scores
-      - word_count
+    description: Metrics calculated by the analysis pipeline.
     properties:
-      metaphor_counts:
-        type: object
-        description: Counts of specific metaphor keywords found in the text.
-        required:
-          - battle
-          - journey
-          - burden
-        properties:
-          battle:
-            type: integer
-            minimum: 0
-            description: Count of battle-related metaphors.
-          journey:
-            type: integer
-            minimum: 0
-            description: Count of journey-related metaphors.
-          burden:
-            type: integer
-            minimum: 0
-            description: Count of burden-related metaphors.
-          total_metaphors:
-            type: integer
-            minimum: 0
-            description: Total count of all tracked metaphors.
-      sentiment_scores:
-        type: object
-        description: VADER sentiment analysis scores.
-        required:
-          - compound
-          - positive
-          - neutral
-          - negative
-        properties:
-          compound:
-            type: number
-            minimum: -1
-            maximum: 1
-            description: Normalized compound sentiment score.
-          positive:
-            type: number
-            minimum: 0
-            maximum: 1
-            description: Proportion of positive sentiment.
-          neutral:
-            type: number
-            minimum: 0
-            maximum: 1
-            description: Proportion of neutral sentiment.
-          negative:
-            type: number
-            minimum: 0
-            maximum: 1
-            description: Proportion of negative sentiment.
-      word_count:
+      metaphor_count:
         type: integer
-        minimum: 1
-        description: Total number of words in the post.
+        minimum: 0
+        description: Total count of metaphor keywords found.
       metaphor_density:
         type: number
-        minimum: 0
-        description: Ratio of metaphor count to word count.
+        minimum: 0.0
+        description: Metaphor count normalized by text length.
+      metaphor_types:
+        type: array
+        items:
+          type: string
+          enum:
+            - battle
+            - journey
+            - burden
+        description: List of unique metaphor types detected.
+      vader_sentiment:
+        type: object
+        properties:
+          neg:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          neu:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          pos:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          compound:
+            type: number
+            minimum: -1.0
+            maximum: 1.0
+        description: VADER sentiment analysis scores.
+      text_length:
+        type: integer
+        minimum: 1
+        description: Character count of the post text.
+additionalProperties: false

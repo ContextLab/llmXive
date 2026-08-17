@@ -1,187 +1,165 @@
-"""
-Data Ingestion Module for the Metaphorical Framing Study.
-
-This module handles the loading and validation of real participant data
-from survey responses, as well as experimental assignment data.
-"""
-
 import json
 import os
 import csv
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
-# Constants for file paths relative to project root
-SURVEY_RESPONSES_PATH = "data/raw/survey_responses.json"
-ASSIGNMENTS_PATH = "data/processed/experimental_assignments.csv"
-
-# Expected schema keys for real participant data
-REQUIRED_KEYS = {"participant_id", "condition", "raw_responses"}
-
-
 class DataIngestionError(Exception):
     """Custom exception for data ingestion failures."""
     pass
 
-
-def load_real_participant_data(file_path: Optional[str] = None) -> List[Dict[str, Any]]:
+def load_real_participant_data(input_path: str) -> List[Dict[str, Any]]:
     """
-    Load real participant data from the survey responses JSON file.
-
-    This function implements the logic for FR-002 and US-1 to handle
-    actual survey data. It strictly validates the schema and fails loudly
-    if the data is missing or malformed.
-
+    Load real participant data from a JSON file.
+    
+    Expected schema:
+    {
+        "responses": [
+            {
+                "participant_id": str,
+                "age": int,
+                "gender": str,
+                "condition": str,
+                "raw_responses": {
+                    "CAMI_1": int, ... "CAMI_20": int,
+                    "help_seeking": int,
+                    "attention_check": str
+                }
+            }
+        ]
+    }
+    
     Args:
-        file_path: Optional path to the survey responses file. Defaults to
-                   data/raw/survey_responses.json.
-
+        input_path: Path to the JSON file containing survey responses.
+        
     Returns:
-        A list of dictionaries, where each dictionary represents a participant's
-        response data with keys: participant_id, condition, raw_responses.
-
+        List of dictionaries containing participant data.
+        
     Raises:
-        DataIngestionError: If the file does not exist, is empty, or does not
-                            conform to the required schema.
+        DataIngestionError: If the file does not exist, is not valid JSON,
+                            or does not match the expected schema.
     """
-    target_path = file_path or SURVEY_RESPONSES_PATH
-
-    if not os.path.exists(target_path):
-        raise DataIngestionError(
-            f"Real participant data file not found: {target_path}. "
-            "Please ensure survey responses have been collected and saved."
-        )
-
+    if not os.path.exists(input_path):
+        raise DataIngestionError(f"Input file not found: {input_path}")
+    
     try:
-        with open(target_path, 'r', encoding='utf-8') as f:
+        with open(input_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
-        raise DataIngestionError(f"Invalid JSON format in {target_path}: {e}")
-
-    if not isinstance(data, list):
-        raise DataIngestionError(
-            f"Expected a list of participant records in {target_path}, got {type(data)}."
-        )
-
-    if len(data) == 0:
-        raise DataIngestionError(
-            f"The survey responses file {target_path} is empty. "
-            "No real participant data to process."
-        )
-
-    # Validate schema for each record
-    for i, record in enumerate(data):
-        if not isinstance(record, dict):
-            raise DataIngestionError(
-                f"Record at index {i} is not a dictionary."
-            )
-
-        missing_keys = REQUIRED_KEYS - set(record.keys())
+        raise DataIngestionError(f"Invalid JSON in {input_path}: {e}")
+    
+    if "responses" not in data:
+        raise DataIngestionError(f"Missing 'responses' key in {input_path}")
+    
+    responses = data["responses"]
+    if not isinstance(responses, list):
+        raise DataIngestionError(f"'responses' must be a list in {input_path}")
+    
+    if len(responses) == 0:
+        raise DataIngestionError(f"No responses found in {input_path}")
+    
+    # Validate schema for each response
+    required_keys = {"participant_id", "age", "gender", "condition", "raw_responses"}
+    for i, resp in enumerate(responses):
+        if not isinstance(resp, dict):
+            raise DataIngestionError(f"Response at index {i} is not a dictionary")
+        
+        missing_keys = required_keys - set(resp.keys())
         if missing_keys:
             raise DataIngestionError(
-                f"Record at index {i} is missing required keys: {missing_keys}. "
-                f"Expected schema: {REQUIRED_KEYS}"
-            )
-
-        # Optional: Validate types
-        if not isinstance(record["participant_id"], (str, int)):
-            raise DataIngestionError(
-                f"Record at index {i}: 'participant_id' must be a string or int."
+                f"Response at index {i} missing required keys: {missing_keys}"
             )
         
-        if not isinstance(record["condition"], str):
+        if not isinstance(resp["raw_responses"], dict):
             raise DataIngestionError(
-                f"Record at index {i}: 'condition' must be a string."
+                f"'raw_responses' at index {i} must be a dictionary"
             )
-
-        if not isinstance(record["raw_responses"], dict):
+        
+        # Check for CAMI items and help seeking
+        raw = resp["raw_responses"]
+        if "help_seeking" not in raw:
             raise DataIngestionError(
-                f"Record at index {i}: 'raw_responses' must be a dictionary."
+                f"Missing 'help_seeking' in raw_responses for participant {resp['participant_id']}"
             )
+        
+        cami_keys = [f"CAMI_{i}" for i in range(1, 21)]
+        missing_cami = set(cami_keys) - set(raw.keys())
+        if missing_cami:
+            raise DataIngestionError(
+                f"Missing CAMI items {missing_cami} for participant {resp['participant_id']}"
+            )
+    
+    return responses
 
-    return data
-
-
-def load_assignments(file_path: Optional[str] = None) -> List[Dict[str, Any]]:
+def load_assignments(assignment_path: str) -> List[Dict[str, Any]]:
     """
-    Load experimental assignments from the CSV file.
-
+    Load experimental assignments from a CSV file.
+    
     Args:
-        file_path: Optional path to the assignments CSV. Defaults to
-                   data/processed/experimental_assignments.csv.
-
+        assignment_path: Path to the CSV file.
+        
     Returns:
-        A list of assignment dictionaries.
-
-    Raises:
-        DataIngestionError: If file is missing or malformed.
+        List of dictionaries containing assignment data.
     """
-    target_path = file_path or ASSIGNMENTS_PATH
-
-    if not os.path.exists(target_path):
-        raise DataIngestionError(
-            f"Assignment file not found: {target_path}. "
-            "Run T013 (experiment_runner) first to generate assignments."
-        )
-
+    if not os.path.exists(assignment_path):
+        raise DataIngestionError(f"Assignment file not found: {assignment_path}")
+    
     assignments = []
-    try:
-        with open(target_path, 'r', encoding='utf-8', newline='') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                assignments.append(row)
-    except Exception as e:
-        raise DataIngestionError(f"Failed to read assignments from {target_path}: {e}")
-
-    if not assignments:
-        raise DataIngestionError(f"Assignment file {target_path} contains no data rows.")
-
+    with open(assignment_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            assignments.append(row)
+    
     return assignments
 
-
 def main():
-    """
-    CLI entry point to test loading real participant data.
-    """
+    """Main entry point for data ingestion script."""
     import argparse
-
-    parser = argparse.ArgumentParser(description="Load and validate real participant data.")
+    
+    parser = argparse.ArgumentParser(description="Load real participant data")
     parser.add_argument(
-        "--file",
+        "--input",
         type=str,
-        default=SURVEY_RESPONSES_PATH,
-        help=f"Path to survey_responses.json (default: {SURVEY_RESPONSES_PATH})"
+        default="data/raw/survey_responses.json",
+        help="Path to the input JSON file"
     )
     parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Print detailed validation info"
+        "--output",
+        type=str,
+        default="data/processed/validated_responses.json",
+        help="Path to the output validated JSON file"
     )
-
+    
     args = parser.parse_args()
-
+    
     try:
-        print(f"Loading real participant data from: {args.file}")
-        data = load_real_participant_data(args.file)
+        responses = load_real_participant_data(args.input)
         
-        print(f"✓ Successfully loaded {len(data)} participant records.")
+        # Create output directory if it doesn't exist
+        output_dir = os.path.dirname(args.output)
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
         
-        if args.verbose and data:
-            print("\nSample record structure:")
-            sample = data[0]
-            for key, value in sample.items():
-                if key == "raw_responses" and isinstance(value, dict):
-                    print(f"  {key}: dict with keys {list(value.keys())}")
-                else:
-                    print(f"  {key}: {value}")
-
+        # Write validated data
+        output_data = {
+            "validated_at": datetime.now().isoformat(),
+            "source": args.input,
+            "response_count": len(responses),
+            "responses": responses
+        }
+        
+        with open(args.output, 'w', encoding='utf-8') as f:
+            json.dump(output_data, f, indent=2)
+        
+        print(f"Successfully loaded and validated {len(responses)} responses")
+        print(f"Output written to: {args.output}")
+        
     except DataIngestionError as e:
-        print(f"✗ Data Ingestion Error: {e}")
+        print(f"Data ingestion error: {e}")
         exit(1)
     except Exception as e:
-        print(f"✗ Unexpected Error: {e}")
+        print(f"Unexpected error: {e}")
         exit(1)
-
 
 if __name__ == "__main__":
     main()

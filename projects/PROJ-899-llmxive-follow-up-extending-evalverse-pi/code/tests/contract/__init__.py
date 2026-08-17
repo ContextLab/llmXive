@@ -1,1 +1,1 @@
-# Contract Tests Package
+"""Contract tests."""

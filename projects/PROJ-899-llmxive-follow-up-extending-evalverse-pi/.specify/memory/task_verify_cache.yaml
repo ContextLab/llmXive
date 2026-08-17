@@ -1,17 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`src/`, `tests/`, `specs/`) is provided;
-    the claim lacks any artifact showing that the project structure has been created.
-    The implementer must add and show these folders (with at least placeholder files)
-    to satisfy the task.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `ruff.toml`, or CI scripts invoking `ruff`/`black`)
-    were presented, nor any evidence that these tools are installed or run. The required
-    artifacts to demonstrate that linting and formatting are configured are missing.
 T019:
   c: false
   h: 1c108a94b17272796a8f9bb78a5fe64cc82eb2760dff7639d8cc36b003a564ac
@@ -27,30 +13,6 @@ T021:
   r: "The required artifact `tests/unit/test_profiles.py` does not exist in the repository,\
     \ so no unit test for the memory profiling logic is present. The task\u2019s core\
     \ deliverable is missing."
-T023b:
-  c: false
-  h: 19e43a8120058d3436554c67ee365c31b1c5aedf1221da4004809acaa4d98acc
-  r: "The `src/data/profiles.py` file is incomplete (the `save_profiling_results`\
-    \ function is truncated and never writes to `data/profiling_logs.json`), and the\
-    \ required output file `data/profiling_logs.json` does not exist. Consequently,\
-    \ the task\u2019s requirement to log exact CPU time and memory peak to a JSON\
-    \ file is not fulfilled."
-T024:
-  c: false
-  h: 585d0ff5bb4fd36b32e33239096751cd53a350cec93b89ac15ea183d3b25437d
-  r: "The repository contains a partially\u2011implemented `src/models/evaluate.py`\
-    \ (the `calculate_inference_time_projection` function is truncated and no code\
-    \ writes `timing_profile.csv`). Moreover, the required output file `data/timing_profile.csv`\
-    \ does not exist. Consequently the per\u2011clip inference time calculation and\
-    \ projected total\u2011hours output are not actually produced."
-T026#1:
-  c: false
-  h: da4c6190ce6a489a478d9035bfff30b36067b44d43e619250481ff0f88911669
-  r: "The `src/models/metrics.py` file ends abruptly inside `run_threshold_sweep`\
-    \ and does not contain the full threshold\u2011sweep implementation, nor does\
-    \ it write any CSV. Moreover, the required `data/sensitivity_sweep_raw.csv` file\
-    \ is absent. Both the code artifact and the output file needed by the task are\
-    \ missing."
 T027:
   c: false
   h: 54f557fc812f43ed3cbb0ec83766b39910b823a4551a0a99d3dd682718948048
@@ -66,3 +28,25 @@ T029:
     \ list is empty, so we cannot confirm that any documentation changes were made\
     \ to reflect the specification. The implementer must add the revised documentation\
     \ files (e.g., markdown or reStructuredText) and ensure they are non\u2011empty."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, refactored scripts, benchmark results, or any other artifact were supplied;\
+    \ the only information present is the specification text, which does not demonstrate\
+    \ that any cleanup or CPU\u2011only optimization work was actually performed.\
+    \ The required deliverables (e.g., cleaned source files, profiling logs showing\
+    \ <7\u202FGB RAM and <6\u202Fh runtime, or documentation of the refactoring) are\
+    \ missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of new unit test files or code under `tests/unit/` was provided;\
+    \ the claim lacks any actual test artifacts (e.g., test files covering all\u2011\
+    black frames or missing audio). Without concrete test files, the requirement is\
+    \ not satisfied."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation output, logs, or report showing that `quickstart.md` was executed
+    on a local CPU environment and that all tasks passed. The required artifact (evidence
+    of successful validation) is missing, so the claim cannot be confirmed.

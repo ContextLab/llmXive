@@ -1,1 +1,1 @@
-# Integration Tests Package
+"""Integration tests."""

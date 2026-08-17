@@ -3,9 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-follow-up-extending-evalverse-pi"
+name = "llmxive-feature-distillation"
 version = "0.1.0"
 description = "Automated science pipeline for EvalVerse feature distillation"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "opencv-python>=4.8.0",
@@ -17,6 +18,7 @@ dependencies = [
     "numpy>=1.24.0",
     "scipy>=1.11.0",
     "requests>=2.31.0",
+    "tqdm>=4.65.0",
 ]
 
 [project.optional-dependencies]
@@ -27,80 +29,51 @@ dev = [
     "pytest-cov>=4.1.0",
 ]
 
-[tool.ruff]
-target-version = "py311"
-line-length = 88
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-[tool.ruff.per-file-ignores]
-"tests/*" = ["S101", "ANN"] # assertions allowed in tests, no type annotations required
-
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.bzr
-    | \.direnv
-    | \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
-    | \.nox
-    | \.pants.d
-    | \.ruff_cache
-    | \.svn
     | \.tox
     | \.venv
-    | __pypackages__
     | _build
     | buck-out
     | build
     | dist
-    | node_modules
-    | venv
 )/
 '''
 
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+]
+ignore = [
+    "E501", # line-too-long (handled by black)
+    "B008", # do-not-assert-function-call-arg (common in tests)
+]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["S101", "D100", "D101", "D102", "D103"] # Allow asserts in tests, skip docstrings
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["code"]
+python_files = ["test_*.py"]
 addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "unit: marks tests as unit tests",
+    "integration: marks tests as integration tests",
 ]

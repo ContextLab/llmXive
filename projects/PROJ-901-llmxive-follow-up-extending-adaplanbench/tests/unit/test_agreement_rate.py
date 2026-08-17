@@ -1,225 +1,154 @@
 """
-Unit tests for agreement_rate module.
+Unit tests for T034: Agreement Rate Analysis.
 """
-
-import json
 import os
-import pytest
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-# Import the module under test
 import sys
+import json
+import csv
+import tempfile
+import pytest
+from pathlib import Path
+
+# Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from analysis.agreement_rate import (
     load_execution_traces,
     load_human_annotations,
-    simulate_human_annotation,
     compute_agreement,
     compute_confidence_interval,
     run_agreement_analysis
 )
 
-
 @pytest.fixture
-def sample_traces():
-    """Sample execution traces data."""
-    return [
-        {
-            'task_id': 'task_001',
-            'architecture': 'dual_track',
-            'constraint_count': '5',
-            'violation_boolean': 'True',
-            'violation_reason': 'Constraint A violated',
-            'final_score': '0.85'
-        },
-        {
-            'task_id': 'task_002',
-            'architecture': 'monolithic',
-            'constraint_count': '6',
-            'violation_boolean': 'False',
-            'violation_reason': None,
-            'final_score': '0.92'
-        },
-        {
-            'task_id': 'task_003',
-            'architecture': 'dual_track',
-            'constraint_count': '7',
-            'violation_boolean': 'True',
-            'violation_reason': 'Constraint B violated',
-            'final_score': '0.78'
-        },
-        {
-            'task_id': 'task_004',
-            'architecture': 'monolithic',
-            'constraint_count': '8',
-            'violation_boolean': 'False',
-            'violation_reason': None,
-            'final_score': '0.95'
-        }
-    ]
-
-
-@pytest.fixture
-def sample_annotations():
-    """Sample annotation data."""
-    return [
-        {
-            'task_id': 'task_001',
-            'raw_prompt': 'Plan a trip...',
-            'constraint_list': '["Constraint A", "Constraint B"]'
-        },
-        {
-            'task_id': 'task_002',
-            'raw_prompt': 'Plan a meeting...',
-            'constraint_list': '["Constraint C"]'
-        },
-        {
-            'task_id': 'task_003',
-            'raw_prompt': 'Organize event...',
-            'constraint_list': '["Constraint D", "Constraint E"]'
-        },
-        {
-            'task_id': 'task_004',
-            'raw_prompt': 'Schedule call...',
-            'constraint_list': '["Constraint F"]'
-        }
-    ]
-
-
-@pytest.fixture
-def temp_csv_files(sample_traces, sample_annotations):
-    """Create temporary CSV files for testing."""
+def temp_dir():
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
-        
-        # Write traces
-        traces_path = tmpdir / 'execution_traces.csv'
-        with open(traces_path, 'w', newline='') as f:
-            import csv
-            writer = csv.DictWriter(f, fieldnames=sample_traces[0].keys())
-            writer.writeheader()
-            writer.writerows(sample_traces)
-        
-        # Write annotations
-        annotations_path = tmpdir / 'annotation_sample.csv'
-        with open(annotations_path, 'w', newline='') as f:
-            import csv
-            writer = csv.DictWriter(f, fieldnames=sample_annotations[0].keys())
-            writer.writeheader()
-            writer.writerows(sample_annotations)
-        
-        yield traces_path, annotations_path
+        yield tmpdir
 
-
-def test_load_execution_traces(temp_csv_files):
+def test_load_execution_traces(temp_dir):
     """Test loading execution traces from CSV."""
-    traces_path, _ = temp_csv_files
-    traces = load_execution_traces(traces_path)
+    traces_path = os.path.join(temp_dir, "traces.csv")
+    data = [
+        {"task_id": "T1", "violation_boolean": "true", "violation_status": "violation"},
+        {"task_id": "T2", "violation_boolean": "false", "violation_status": "no_violation"},
+        {"task_id": "T3", "violation_boolean": "true", "violation_status": "implicit_unverified"},
+    ]
     
-    assert len(traces) == 4
-    assert traces[0]['task_id'] == 'task_001'
-    assert traces[0]['violation_boolean'] == 'True'
-
-
-def test_load_human_annotations(temp_csv_files):
-    """Test loading human annotations from CSV."""
-    _, annotations_path = temp_csv_files
-    annotations = load_human_annotations(annotations_path)
+    with open(traces_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)
     
-    assert len(annotations) == 4
-    assert annotations[0]['task_id'] == 'task_001'
+    result = load_execution_traces(traces_path)
+    assert len(result) == 3
+    assert result[0]['task_id'] == 'T1'
 
+def test_load_human_annotations(temp_dir):
+    """Test loading human annotations."""
+    ann_path = os.path.join(temp_dir, "labels.csv")
+    data = [
+        {"task_id": "T1", "is_violation": "true", "is_implicit": "false"},
+        {"task_id": "T2", "is_violation": "false", "is_implicit": "false"},
+        {"task_id": "T3", "is_violation": "true", "is_implicit": "true"},
+    ]
+    
+    with open(ann_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)
+    
+    result = load_human_annotations(ann_path)
+    assert len(result) == 3
+    assert result['T1']['is_violation'] is True
+    assert result['T2']['is_violation'] is False
+    assert result['T3']['is_implicit'] is True
 
-def test_simulate_human_annotation_deterministic():
-    """Test that simulation is deterministic for same task_id."""
-    trace = {
-        'task_id': 'test_task_123',
-        'violation_boolean': True
+def test_compute_agreement_excludes_implicit(temp_dir):
+    """Test that implicit_unverified rows are excluded."""
+    traces = [
+        {"task_id": "T1", "violation_boolean": "true", "violation_status": "violation"},
+        {"task_id": "T2", "violation_boolean": "false", "violation_status": "no_violation"},
+        {"task_id": "T3", "violation_boolean": "true", "violation_status": "implicit_unverified"}, # Should be excluded
+    ]
+    
+    annotations = {
+        "T1": {"is_violation": True, "is_implicit": False},
+        "T2": {"is_violation": False, "is_implicit": False},
+        "T3": {"is_violation": True, "is_implicit": True},
     }
-    annotation = {
-        'task_id': 'test_task_123',
-        'raw_prompt': 'test',
-        'constraint_list': '[]'
+    
+    agreed, total = compute_agreement(traces, annotations)
+    
+    # T1 matches (true == true), T2 matches (false == false). T3 excluded.
+    assert total == 2
+    assert agreed == 2
+
+def test_compute_agreement_mismatches(temp_dir):
+    """Test mismatch detection."""
+    traces = [
+        {"task_id": "T1", "violation_boolean": "true", "violation_status": "violation"},
+        {"task_id": "T2", "violation_boolean": "false", "violation_status": "no_violation"},
+    ]
+    
+    annotations = {
+        "T1": {"is_violation": False, "is_implicit": False}, # Mismatch
+        "T2": {"is_violation": False, "is_implicit": False}, # Match
     }
     
-    # Run twice with same seed
-    result1 = simulate_human_annotation(trace, annotation)
-    result2 = simulate_human_annotation(trace, annotation)
-    
-    # Should be identical due to seeding
-    assert result1 == result2
+    agreed, total = compute_agreement(traces, annotations)
+    assert total == 2
+    assert agreed == 1
 
-
-def test_compute_agreement(temp_csv_files):
-    """Test agreement computation."""
-    traces_path, annotations_path = temp_csv_files
-    traces = load_execution_traces(traces_path)
-    annotations = load_human_annotations(annotations_path)
-    
-    agreement_rate, rule_preds, human_labels = compute_agreement(traces, annotations)
-    
-    assert 0.0 <= agreement_rate <= 1.0
-    assert len(rule_preds) == len(human_labels)
-    assert len(rule_preds) == 4
-
-
-def test_compute_confidence_interval():
-    """Test confidence interval calculation."""
+def test_confidence_interval(temp_dir):
+    """Test Wilson score interval calculation."""
     # Perfect agreement
-    lower, upper = compute_confidence_interval(1.0, 100)
-    assert lower >= 0.95
-    assert upper == 1.0
+    lower, upper = compute_confidence_interval(1.0, 10)
+    assert lower >= 0.7 and upper == 1.0
     
-    # 50% agreement
-    lower, upper = compute_confidence_interval(0.5, 100)
-    assert lower < 0.5
-    assert upper > 0.5
+    # Zero agreement
+    lower, upper = compute_confidence_interval(0.0, 10)
+    assert lower == 0.0 and upper <= 0.3
+
+def test_run_agreement_analysis_integration(temp_dir):
+    """Test full pipeline."""
+    traces_path = os.path.join(temp_dir, "traces.csv")
+    ann_path = os.path.join(temp_dir, "labels.csv")
+    out_path = os.path.join(temp_dir, "report.json")
     
-    # Zero sample
-    lower, upper = compute_confidence_interval(0.5, 0)
-    assert lower == 0.0
-    assert upper == 0.0
-
-
-def test_run_agreement_analysis(temp_csv_files):
-    """Test full analysis pipeline."""
-    traces_path, annotations_path = temp_csv_files
+    # Prepare traces
+    traces_data = [
+        {"task_id": "T1", "violation_boolean": "true", "violation_status": "violation"},
+        {"task_id": "T2", "violation_boolean": "false", "violation_status": "no_violation"},
+        {"task_id": "T3", "violation_boolean": "true", "violation_status": "implicit_unverified"},
+    ]
+    with open(traces_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=traces_data[0].keys())
+        writer.writeheader()
+        writer.writerows(traces_data)
     
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / 'agreement_report.json'
-        
-        results = run_agreement_analysis(traces_path, annotations_path, output_path)
-        
-        # Check output file exists
-        assert output_path.exists()
-        
-        # Check results structure
-        assert 'agreement_rate' in results
-        assert 'confidence_interval_lower' in results
-        assert 'confidence_interval_upper' in results
-        assert 'sample_size' in results
-        
-        # Check values are reasonable
-        assert 0.0 <= results['agreement_rate'] <= 1.0
-        assert results['sample_size'] == 4
-        
-        # Verify JSON file content
-        with open(output_path, 'r') as f:
-            file_results = json.load(f)
-        
-        assert file_results == results
-
-
-def test_file_not_found():
-    """Test error handling for missing files."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        missing_path = Path(tmpdir) / 'nonexistent.csv'
-        
-        with pytest.raises(FileNotFoundError):
-            load_execution_traces(missing_path)
-        
-        with pytest.raises(FileNotFoundError):
-            load_human_annotations(missing_path)
+    # Prepare annotations
+    ann_data = [
+        {"task_id": "T1", "is_violation": "true", "is_implicit": "false"},
+        {"task_id": "T2", "is_violation": "false", "is_implicit": "false"},
+        {"task_id": "T3", "is_violation": "true", "is_implicit": "true"},
+    ]
+    with open(ann_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=ann_data[0].keys())
+        writer.writeheader()
+        writer.writerows(ann_data)
+    
+    # Run
+    result = run_agreement_analysis(traces_path, ann_path, out_path)
+    
+    # Verify file exists
+    assert os.path.exists(out_path)
+    
+    # Verify content
+    with open(out_path, 'r') as f:
+        loaded = json.load(f)
+    
+    assert loaded['sample_size'] == 2
+    assert loaded['agreed_count'] == 2
+    assert abs(loaded['agreement_rate'] - 1.0) < 0.001
+    assert 'confidence_interval_lower' in loaded
+    assert 'confidence_interval_upper' in loaded

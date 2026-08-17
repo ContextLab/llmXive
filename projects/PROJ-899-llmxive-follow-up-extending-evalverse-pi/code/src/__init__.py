@@ -1,1 +1,1 @@
-# llmXive Source Package
+"""llmXive Feature Distillation Package."""

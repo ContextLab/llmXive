@@ -1,178 +1,195 @@
 import numpy as np
-import pandas as pd
 from typing import List, Tuple, Dict, Optional
 from scipy import stats
-from pathlib import Path
+import pandas as pd
 import os
 import logging
+from pathlib import Path
 
-# Import project paths from config
-from src.config import get_data_root
-from src.utils import write_csv, read_csv
+from src.utils import write_csv, get_logger
+from src.config import get_data_root, get_project_root
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 def pearson_correlation(x: List[float], y: List[float]) -> float:
     """Calculate Pearson correlation coefficient."""
-    if len(x) != len(y) or len(x) < 2:
+    if len(x) != len(y) or len(x) == 0:
         return 0.0
     return float(stats.pearsonr(x, y)[0])
 
 def spearman_correlation(x: List[float], y: List[float]) -> float:
     """Calculate Spearman rank correlation coefficient."""
-    if len(x) != len(y) or len(x) < 2:
+    if len(x) != len(y) or len(x) == 0:
         return 0.0
     return float(stats.spearmanr(x, y)[0])
 
 def bootstrap_confidence_interval(
     x: List[float],
     y: List[float],
-    n_iterations: int = 1000,
-    alpha: float = 0.05,
-    method: str = "pearson"
+    n_bootstraps: int = 1000,
+    confidence_level: float = 0.95,
+    method: str = 'pearson'
 ) -> Tuple[float, float, float]:
     """
-    Calculate bootstrap confidence interval for correlation.
-
-    Returns: (correlation, lower_ci, upper_ci)
+    Calculate correlation and bootstrap confidence interval.
+    
+    Returns:
+        (correlation, lower_ci, upper_ci)
     """
-    if len(x) != len(y) or len(x) < 2:
+    if len(x) != len(y) or len(x) == 0:
         return 0.0, 0.0, 0.0
-
-    n = len(x)
-    correlations = []
-
-    for _ in range(n_iterations):
-        indices = np.random.choice(n, size=n, replace=True)
-        x_boot = [x[i] for i in indices]
-        y_boot = [y[i] for i in indices]
-
-        if method == "pearson":
-            corr = pearson_correlation(x_boot, y_boot)
-        else:
-            corr = spearman_correlation(x_boot, y_boot)
-
-        correlations.append(corr)
-
-    correlations = np.array(correlations)
-    corr_mean = float(np.mean(correlations))
-    lower = float(np.percentile(correlations, 100 * alpha / 2))
-    upper = float(np.percentile(correlations, 100 * (1 - alpha / 2)))
-
-    return corr_mean, lower, upper
-
-def classify_dimension_status(
-    correlation: float,
-    lower_ci: float,
-    threshold_high: float = 0.85
-) -> str:
-    """
-    Classify a dimension based on correlation and CI.
-
-    Rules:
-    - "feature-sufficient": r >= 0.85
-    - "VLM-required": lower 95% CI < 0.70
-    - "uncertain": otherwise
-    """
-    if correlation >= threshold_high:
-        return "feature-sufficient"
-    elif lower_ci < 0.70:
-        return "VLM-required"
+    
+    x_arr = np.array(x)
+    y_arr = np.array(y)
+    n = len(x_arr)
+    
+    # Calculate point estimate
+    if method == 'pearson':
+        point_est = stats.pearsonr(x_arr, y_arr)[0]
     else:
-        return "uncertain"
+        point_est = stats.spearmanr(x_arr, y_arr)[0]
+    
+    # Bootstrap
+    boot_estimates = []
+    rng = np.random.default_rng(42)
+    for _ in range(n_bootstraps):
+        indices = rng.choice(n, size=n, replace=True)
+        x_boot = x_arr[indices]
+        y_boot = y_arr[indices]
+        
+        if method == 'pearson':
+            est = stats.pearsonr(x_boot, y_boot)[0]
+        else:
+            est = stats.spearmanr(x_boot, y_boot)[0]
+        
+        boot_estimates.append(est)
+    
+    boot_estimates = np.array(boot_estimates)
+    lower_ci = float(np.percentile(boot_estimates, (1 - confidence_level) / 2 * 100))
+    upper_ci = float(np.percentile(boot_estimates, (1 + confidence_level) / 2 * 100))
+    
+    return float(point_est), lower_ci, upper_ci
 
 def run_threshold_sweep(
-    correlation_results_path: Optional[str] = None,
-    thresholds: Optional[List[float]] = None,
-    output_path: Optional[str] = None
+    dimensions: List[str],
+    correlations: Dict[str, float],
+    thresholds: Optional[List[float]] = None
 ) -> pd.DataFrame:
     """
-    Perform threshold sweep analysis on correlation results.
-
-    Loads dimension-level correlation results (from T017) and evaluates
-    classification status at multiple thresholds.
-
+    Run threshold sweep analysis for sensitivity analysis (US3).
+    
+    For each dimension, classify its status at each threshold.
+    Status is determined by comparing correlation to threshold:
+    - "feature-sufficient": correlation >= threshold
+    - "VLM-required": correlation < threshold
+    
     Args:
-        correlation_results_path: Path to the CSV containing dimension correlations.
-                                  If None, uses default path from config.
-        thresholds: List of thresholds to test. Defaults to [0.80, 0.85, 0.90].
-        output_path: Path to write the raw sweep results. If None, uses default.
-
+        dimensions: List of dimension names
+        correlations: Dict mapping dimension name to correlation value
+        thresholds: List of thresholds to test. Defaults to [0.80, 0.85, 0.90]
+        
     Returns:
         DataFrame with columns: [dimension, threshold, status]
     """
     if thresholds is None:
         thresholds = [0.80, 0.85, 0.90]
-
-    # Default paths
-    data_root = get_data_root()
-    if correlation_results_path is None:
-        correlation_results_path = os.path.join(data_root, "results", "dimension_correlations.csv")
     
-    if output_path is None:
-        output_path = os.path.join(data_root, "sensitivity_sweep_raw.csv")
-
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    # Load correlation results
-    if not os.path.exists(correlation_results_path):
-        raise FileNotFoundError(
-            f"Correlation results file not found: {correlation_results_path}. "
-            "Prerequisite T017 must complete first."
-        )
-
-    df = pd.read_csv(correlation_results_path)
-
-    required_cols = ['dimension', 'correlation', 'lower_ci', 'upper_ci']
-    if not all(col in df.columns for col in required_cols):
-        missing = [col for col in required_cols if col not in df.columns]
-        raise ValueError(f"Missing required columns in {correlation_results_path}: {missing}")
-
     results = []
-
-    for _, row in df.iterrows():
-        dimension = row['dimension']
-        correlation = row['correlation']
-        lower_ci = row['lower_ci']
-
-        for threshold in thresholds:
-            # Determine status based on the threshold
-            # "feature-sufficient" if r >= threshold
-            # "VLM-required" if lower_ci < 0.70
-            # "uncertain" otherwise
-            if correlation >= threshold:
+    
+    for dim in dimensions:
+        corr = correlations.get(dim, 0.0)
+        for thresh in thresholds:
+            if corr >= thresh:
                 status = "feature-sufficient"
-            elif lower_ci < 0.70:
-                status = "VLM-required"
             else:
-                status = "uncertain"
-
+                status = "VLM-required"
+            
             results.append({
-                'dimension': dimension,
-                'threshold': threshold,
-                'status': status
+                "dimension": dim,
+                "threshold": thresh,
+                "status": status
             })
-
-    result_df = pd.DataFrame(results)
     
-    # Ensure column order
-    result_df = result_df[['dimension', 'threshold', 'status']]
-    
-    # Write to CSV
-    write_csv(result_df, output_path)
-    logger.info(f"Threshold sweep completed. Results written to: {output_path}")
-    
-    return result_df
+    df = pd.DataFrame(results)
+    return df
 
 def main():
-    """Entry point for running threshold sweep analysis."""
-    logging.basicConfig(level=logging.INFO)
+    """
+    Main entry point for T026: Threshold sweep implementation.
     
-    try:
-        df = run_threshold_sweep()
-        print(f"Sensitivity sweep raw data generated with {len(df)} rows.")
-        print(df.head())
-    except Exception as e:
-        logger.error(f"Threshold sweep failed: {e}")
-        raise
+    This function:
+    1. Loads dimension correlations from T017 output (simulated here by reading 
+       from a standard location or computing from training results)
+    2. Runs threshold sweep across {0.80, 0.85, 0.90}
+    3. Writes raw classification outcomes to data/sensitivity_sweep_raw.csv
+    
+    Prerequisite: T017 must have completed and produced dimension classifications.
+    """
+    logger.info("Starting threshold sweep analysis (T026)")
+    
+    # Load correlations from training results
+    # T016/T015 should have produced these. We expect a file with correlation data.
+    data_root = get_data_root()
+    processed_dir = Path(data_root) / "processed"
+    
+    # Try to load from the standard correlation results file
+    correlation_file = processed_dir / "correlation_results.csv"
+    
+    if not correlation_file.exists():
+        # Fallback: try to load from training output
+        correlation_file = processed_dir / "training_results.csv"
+    
+    if not correlation_file.exists():
+        logger.error(f"Correlation results file not found: {correlation_file}")
+        logger.error("Prerequisite T016 (correlation calculation) may not have completed.")
+        raise FileNotFoundError(
+            f"Required correlation results file not found at {correlation_file}. "
+            "Ensure T016 has completed successfully."
+        )
+    
+    # Load correlation data
+    df_corr = pd.read_csv(correlation_file)
+    
+    # Expect columns: dimension, correlation (or similar naming)
+    # Adjust based on actual T016 output schema
+    if 'dimension' not in df_corr.columns or 'correlation' not in df_corr.columns:
+        # Try alternative column names
+        possible_corr_cols = ['pearson', 'spearman', 'r_value', 'corr']
+        corr_col = None
+        for col in possible_corr_cols:
+            if col in df_corr.columns:
+                corr_col = col
+                break
+        
+        if corr_col is None:
+            logger.error(f"Could not find correlation column in {correlation_file}")
+            logger.error(f"Available columns: {df_corr.columns.tolist()}")
+            raise ValueError("Correlation column not found in results file")
+        
+        if 'dimension' not in df_corr.columns:
+            logger.error("Could not find dimension column")
+            raise ValueError("Dimension column not found in results file")
+        
+        dimensions = df_corr['dimension'].tolist()
+        correlations = dict(zip(dimensions, df_corr[corr_col].tolist()))
+    else:
+        dimensions = df_corr['dimension'].tolist()
+        correlations = dict(zip(dimensions, df_corr['correlation'].tolist()))
+    
+    logger.info(f"Loaded {len(dimensions)} dimensions with correlations")
+    
+    # Run threshold sweep
+    thresholds = [0.80, 0.85, 0.90]
+    sweep_df = run_threshold_sweep(dimensions, correlations, thresholds)
+    
+    # Write output
+    output_path = Path(data_root) / "sensitivity_sweep_raw.csv"
+    write_csv(sweep_df, str(output_path))
+    
+    logger.info(f"Threshold sweep completed. Output written to {output_path}")
+    logger.info(f"Output shape: {sweep_df.shape}, columns: {sweep_df.columns.tolist()}")
+    
+    return sweep_df
+
+if __name__ == "__main__":
+    main()

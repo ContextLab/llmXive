@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T21:05:25.279389Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-899-llmxive-follow-up-extending-evalverse-pi
-last_run_id: a66b95ce-41d3-46ab-a9d9-f056e1ef1381
+last_run_id: bd3f9519-412f-4b86-abcd-7538a8b1564e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi
 title: 'llmXive follow-up: extending "EvalVerse: Pipeline-Aware and Expert-Calibrated
   Benchmarking for Profe"'
-updated_at: '2026-08-01T18:02:42.312451Z'
+updated_at: '2026-08-17T22:10:06.797833Z'

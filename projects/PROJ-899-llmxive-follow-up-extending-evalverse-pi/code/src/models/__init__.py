@@ -1,1 +1,1 @@
-# Models Package
+"""Model training and evaluation module."""

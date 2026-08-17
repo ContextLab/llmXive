@@ -1,8 +1,7 @@
-"""
-llmXive Research Pipeline - Metaphorical Framing Study
-"""
+# src package
+# This file ensures the src directory is treated as a Python package.
+# It also imports the base logger as per T007.
+from .utils.logger import setup_logger, get_logger
+from .utils.config_loader import load_config, ConfigError, get_config_value
 
-from .utils.logger import get_logger, setup_logging
-
-__version__ = "0.1.0"
-__all__ = ["get_logger", "setup_logging"]
+__all__ = ['setup_logger', 'get_logger', 'load_config', 'ConfigError', 'get_config_value']

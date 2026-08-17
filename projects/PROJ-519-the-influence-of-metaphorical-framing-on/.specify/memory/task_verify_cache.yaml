@@ -38,3 +38,24 @@ T008:
     is present; the implementer provided no tangible artifact demonstrating that configuration
     management for API keys and paths has been set up. The required setup is therefore
     missing.
+T013b:
+  c: false
+  h: 5e4a772dcf9cfd17842297b1f9607fce272bb8d603d25542ff482c91152fc5f6
+  r: "The required implementation files `src/survey_interface.py` (or `src/data_collection.py`)\
+    \ are absent, so no code exists to administer the surveys or to transform the\
+    \ input CSV into the JSON output. The presence of `data/raw/survey_responses.json`\
+    \ does not satisfy the task\u2019s requirement for a functional implementation."
+T014:
+  c: false
+  h: 80e53bce1b6661c321f4ee6a175d72ff442fe8139bc7c171819c2d5b75f78e36
+  r: The `data/processed/cami_scores.csv` file does not exist, and the provided `src/cami_scoring.py`
+    is incomplete (truncated and contains no logic to read the JSON, compute CAMI
+    or Likert scores, or write a CSV). The required output artifact is missing, so
+    the task is not satisfied.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation was provided that adds logic to detect\
+    \ and flag attention\u2011check failures or identical participant responses for\
+    \ exclusion. The claim lacks any artifact (e.g., script, function, test, or description)\
+    \ demonstrating the required edge\u2011case handling, so the task is not satisfied."

@@ -1,2 +1,2 @@
-# This directory stores processed, cleaned data files.
-# Intermediate results and derived datasets live here.
+# Intermediate processed data (e.g., cleaned CSVs, assignments).
+# Do not commit large data files here.

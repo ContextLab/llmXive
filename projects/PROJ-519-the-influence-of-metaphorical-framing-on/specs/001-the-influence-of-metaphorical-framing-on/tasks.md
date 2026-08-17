@@ -85,11 +85,11 @@
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Create `src/vignette_engine.py` with FR-001: Generate three distinct vignette texts (Battle, Journey, Medical) with constant clinical details and varying metaphors
-- [ ] T012 [US1] Implement `src/data_ingestion.py` (Experimental Module) for loading vignette templates from `data/raw/vignettes/`
-- [ ] T013 [US1] Create `src/experiment_runner.py` to assign participants to conditions (Battle, Journey, Medical). **Input**: `data/raw/simulated_participants.csv` (if simulating) or `data/raw/survey_responses.json` (if real). **Output**: `data/processed/experimental_assignments.csv`
+- [X] T012 [US1] Implement `src/data_ingestion.py` (Experimental Module) for loading vignette templates from `data/raw/vignettes/`
+- [X] T013 [US1] Create `src/experiment_runner.py` to assign participants to conditions (Battle, Journey, Medical). **Input**: `data/raw/simulated_participants.csv` (if simulating) or `data/raw/survey_responses.json` (if real). **Output**: `data/processed/experimental_assignments.csv`
 - [ ] T013b [US1] Implement `src/survey_interface.py` (or `src/data_collection.py`): Create the mechanism to administer the CAMI scale and help-seeking Likert scale to human participants immediately after vignette exposure (FR-002). This may involve integrating with Qualtrics/Prolific APIs or creating a local web interface. **Input**: `data/processed/experimental_assignments.csv`. **Output**: `data/raw/survey_responses.json`.
 - [ ] T014 [US1] Implement `src/cami_scoring.py` to administer CAMI scale and help-seeking Likert scale immediately after exposure (FR-002). **Input**: `data/raw/survey_responses.json` (raw survey data). **Output**: `data/processed/cami_scores.csv`
-- [ ] T014a [US1] Implement `src/data_ingestion.py` (Real Participant Loader): Create logic to load real participant data from `data/raw/survey_responses.json` (schema: participant_id, condition, raw_responses). This task ensures the system can handle actual survey data as required by FR-002 and US-1.
+- [X] T014a [US1] Implement `src/data_ingestion.py` (Real Participant Loader): Create logic to load real participant data from `data/raw/survey_responses.json` (schema: participant_id, condition, raw_responses). This task ensures the system can handle actual survey data as required by FR-002 and US-1.
 - [ ] T016 [US1] Implement data export logic to write raw experimental results to `data/processed/experimental_results.csv` with SHA-256 checksums saved to `data/processed/experimental_results.csv.sha256`
 - [ ] T017 [US1] Add logic to flag attention check failures and identical responses for exclusion (Edge Case)
 - [ ] T017a [US1] Implement `src/data_validation.py` to validate real participant data integrity before analysis (Edge Case).

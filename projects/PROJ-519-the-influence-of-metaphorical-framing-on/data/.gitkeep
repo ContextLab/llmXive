@@ -1,2 +1,2 @@
-# This directory is part of the llmXive research pipeline.
-# It serves as the root for the data storage structure.
+# This directory stores processed and derived data.
+# Do not commit large data files here.

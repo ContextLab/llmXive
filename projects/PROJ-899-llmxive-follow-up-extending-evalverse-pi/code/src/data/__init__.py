@@ -1,1 +1,1 @@
-# Data Package
+"""Data handling module."""

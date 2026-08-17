@@ -1,0 +1,2 @@
+# Explicit ruff configuration for IDE integration if pyproject.toml is not detected
+extend = "pyproject.toml"

@@ -1,42 +1,43 @@
-# Architecture Decision Records (ADR)
+# Architecture: llmXive Feature Distillation Pipeline
 
-## ADR-001: CPU-First Feature Extraction
+## Design Principles
+1. **Reproducibility**: All data sources and random seeds are explicitly configured.
+2. **CPU-First**: No GPU dependencies; optimized for multi-core CPU execution.
+3. **Modularity**: Distinct phases for data, features, models, and reports.
+4. **Gate-Driven**: Validation gates (T040, T041, T021) enforce quality before proceeding.
 
-**Status**: Accepted
-**Context**: The project targets CPU-tractable analysis for 10k video clips within 6 hours, with a strict memory cap of 7GB.
-**Decision**: We use OpenCV (CPU) for optical flow and HOG, and Librosa for audio features. No GPU-accelerated libraries (e.g., PyTorch CUDA) are used in the core feature extraction pipeline.
-**Consequence**: Feature extraction is slower per clip than GPU equivalents but ensures accessibility and deterministic resource usage. Memory usage is managed via chunked processing in `src/cli/run_pipeline.py`.
+## Component Overview
 
-## ADR-002: Validation Gate Strategy
+### Data Layer (`code/src/data/`)
+- **download.py**: Fetches and verifies EvalVerse dataset from Zenodo.
+- **preprocess.py**: Extracts optical flow, HOG, and audio features (Librosa/OpenCV).
+- **models.py**: Data structures (`VideoClip`, `FeatureVector`, `DimensionScore`).
+- **profiles.py**: Memory and timing profiling using `psutil`.
 
-**Status**: Accepted
-**Context**: To prevent wasted compute on invalid data or poor proxies, we enforce strict gates.
-**Decision**:
-- **T040**: Calculate global error rate. If > 5%, exclude bad samples but continue.
-- **T041**: Correlate VLM proxy scores with human scores. If r < 0.70, exit with code 1.
-- **T021**: Profile memory/time. If peak > 7GB or projected time > 6h, exit with code 1.
-**Consequence**: The pipeline may fail early, but this prevents generating misleading results from bad data or infeasible configurations.
+### Model Layer (`code/src/models/`)
+- **train.py**: Ridge, Lasso, and XGBoost training pipelines.
+- **metrics.py**: Pearson/Spearman correlation, bootstrapping, permutation tests.
+- **evaluate.py**: Baseline comparisons, scaling validation, sensitivity analysis.
 
-## ADR-003: Sensitivity Analysis Methodology
+### Report Layer (`code/src/reports/`)
+- **generate.py**: Produces JSON/CSV reports from analysis results.
 
-**Status**: Accepted
-**Context**: Decision boundaries (e.g., r ≥ 0.85) must be robust.
-**Decision**: We perform a threshold sweep over {0.80, 0.85, 0.90} for every dimension. We calculate "flip rates" to identify dimensions where small threshold changes alter the classification (feature-sufficient vs. VLM-required).
-**Consequence**: This adds computational overhead (T026) but provides critical methodological verification (SC-004).
+### CLI Layer (`code/src/cli/` & `code/scripts/`)
+- **run_pipeline.py**: Orchestrates the full pipeline.
+- **generate_*.py**: Specialized scripts for timing and sensitivity reports.
 
-## ADR-004: Data Model Serialization
+## Data Flow
+1. **Fetch**: Raw data downloaded to `data/raw/`.
+2. **Preprocess**: Features extracted to `data/processed/`.
+3. **Train**: Models trained on processed features.
+4. **Evaluate**: Correlations calculated, baselines compared.
+5. **Profile**: Memory/time metrics collected and projected.
+6. **Report**: Final artifacts written to `reports/` and `data/`.
 
-**Status**: Accepted
-**Context**: Intermediate data must be stored efficiently and reproducibly.
-**Decision**:
-- Raw data: Original format (e.g., TAR/ZIP).
-- Processed features: CSV/Parquet (via `pandas`).
-- Configuration/State: JSON.
-**Consequence**: Ensures human readability for debugging and standard library compatibility for portability.
+## Gate Logic
+- **T040 (Quality Gate)**: Excludes samples with error rate > 5%.
+- **T041 (Validation Gate)**: Halts if VLM proxy correlation < 0.70.
+- **T021 (Feasibility Gate)**: Halts if peak memory > 7GB or projected time > 6h.
 
-## ADR-005: Error Handling in Feature Extraction
-
-**Status**: Accepted
-**Context**: Video clips may have missing audio tracks or corrupted frames.
-**Decision**: `src/data/preprocess.py` catches exceptions per clip, returns null/zero vectors, logs a warning, and continues. The sample is not discarded entirely unless the error rate exceeds the T040 threshold.
-**Consequence**: Robustness against noisy real-world data, with explicit logging for auditability.
+## Extensibility
+New feature extractors or models can be added by implementing the corresponding interface in `preprocess.py` or `train.py` and updating the pipeline script.

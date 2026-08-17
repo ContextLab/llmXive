@@ -1,44 +1,29 @@
-T008a:
-  c: false
-  h: 1df00d7bfc472c8bbf6c3cb9c6cd44a1b1b5a35384dafda4d6dcb11b5ad7874a
-  r: The provided `code/main.py` is truncated and contains errors (e.g., `metrics.cp`
-    instead of `metrics.cpu_percent`) and does not define the required `resource_monitor_context`
-    context manager. Consequently the test suite cannot pass, and the logging/exception
-    behavior required by the task is not implemented. The missing/incorrect parts
-    must be completed for the task to be considered done.
 T012b:
   c: false
-  h: bc61937762a76f3ee1925fc5013a9e54c87aee84acdb650c32316e510e73a0ab
-  r: "The repository does not contain the required output files (`data/raw/synthetic_proxy.jsonl`\
-    \ or `data/raw/adaplanbench.jsonl`), and the test `test_dataset_fetch_or_proxy`\
-    \ is not present in `tests/unit/test_filter.py`. Moreover, the `loader.py` implementation\
-    \ is truncated and does not show the full fetch\u2011or\u2011proxy logic nor the\
-    \ saving of the dataset to the specified paths. The task\u2019s core requirement\
-    \ is therefore unmet."
+  h: 0a09232e68af8882e484eb32e155252864422bd2ecebf1627117558c96583ba8
+  r: "The `loader.py` file is truncated and does not contain the full fetch\u2011\
+    or\u2011proxy workflow (no function that calls `fetch_dataset_from_url`, checks\
+    \ `verify_progressive_constraints`, and writes either `data/raw/adaplanbench.jsonl`\
+    \ or `data/raw/synthetic_proxy.jsonl`). Moreover, the required output files `data/raw/synthetic_proxy.jsonl`\
+    \ and `data/raw/adaplanbench.jsonl` are absent, so the verification test cannot\
+    \ succeed. The missing orchestration logic and data files must be added to satisfy\
+    \ the task."
 T013:
   c: false
-  h: 3920dfa18007863151bd16f7c5b3e7b8b261eab116f5e4e9fde4db84db53a9e4
-  r: The repository lacks the required `data/processed/filtered_tasks.csv` file, and
-    the shown portion of `code/dataset/loader.py` does not contain implementations
-    of `filter_progressive_constraints` or `save_filtered_dataset` (the functions
-    the tests import). Consequently the filtering logic and CSV output are not present.
-T030:
+  h: 41103c277d7e99369175b026df4d618d4855c2bfe24770a77565c9a412dbe0db
+  r: "The repository lacks the required `data/processed/filtered_tasks.csv` file,\
+    \ and `code/dataset/loader.py` does not contain implementations of `filter_progressive_constraints`\
+    \ or `save_filtered_dataset` (the file is truncated and ends mid\u2011definition).\
+    \ Consequently the filtering logic and CSV output are not present, so the task\u2019\
+    s requirements are unmet."
+T033b:
   c: false
-  h: ca964bd581c7b02524dbf50133ae3eac33eee49b805194af28dd18a1e5ea2817
-  r: The required input `data/processed/filtered_tasks.csv` does not exist, so the
-    script cannot derive the sample size. Moreover, the generated output `data/processed/power_report.json`
-    is missing, and the provided `power.py` file is truncated and does not contain
-    the logic to write the JSON report or raise `PowerInsufficientError` when power
-    is below 0.80. These essential artifacts are absent, so the task is not genuinely
-    completed.
-T033:
-  c: false
-  h: a46cafaccdcc3c3fa997b61c3d83272054b25aea5c963f1f2db1bb8d115d99b4
-  r: "The repository lacks the required data files (`data/processed/filtered_tasks.csv`\
-    \ and the generated `annotation_sample.csv`). Moreover, `code/dataset/annotator.py`\
-    \ is truncated (ends at `def save_a`) and does not contain a CLI entry point or\
-    \ logic to write the sampled data with the exact columns `task_id, raw_prompt,\
-    \ constraint_list`. Consequently the task\u2019s specifications are not met."
+  h: 04e32838dcc665288206de9043ae102ab5d6e4f8f14112dcaf675f93cccf7613
+  r: The script `code/dataset/generate_ground_truth.py` is present and correctly implements
+    the placeholder columns, but the required output file `data/processed/annotation_labels.csv`
+    does not exist, so the verification step (existence of the CSV with correct rows)
+    fails. The implementer must run the script (or otherwise create the CSV) so that
+    the file is present with the placeholder columns.
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
