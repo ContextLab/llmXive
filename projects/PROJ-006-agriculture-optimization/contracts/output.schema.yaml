@@ -1,257 +1,249 @@
-%YAML 1.2
----
-# Contract for Regression Output Structure
-# Task: T008 - Define the schema for statistical analysis results
-# This file defines the expected structure of `data/processed/regression_results.json`
-# produced by `src/analysis/run_regression.py`.
-#
-# Validation is enforced by `src/cli/validate.py` via `validate_json_artifact`.
-# The schema aligns with `src/config/schemas.py` (RegressionOutput, SensitivityResult).
-
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Output Schema"
+description: |
+  Defines the expected structure of regression analysis results produced by
+  src/analysis/run_regression.py. This schema validates coefficients, p-values,
+  VIF scores, and diagnostic metadata for both Model 1 (Yield Stability) and
+  Model 2 (Food Security).
 type: object
 required:
   - metadata
   - models
   - diagnostics
-  - sensitivity
-
 properties:
   metadata:
     type: object
-    description: "Provenance and execution context"
+    description: "Execution and configuration metadata"
     required:
       - timestamp
-      - pipeline_version
-      - data_source_hash
-      - parameters
+      - script_version
+      - cloud_cover_threshold
+      - sample_size
+      - clustering_variable
     properties:
       timestamp:
         type: string
         format: date-time
-        description: "ISO 8601 timestamp of execution"
-      pipeline_version:
+        description: "ISO 8601 timestamp of when the analysis was run"
+      script_version:
         type: string
-        description: "Git commit hash or version tag of the pipeline code"
-      data_source_hash:
+        description: "Version identifier of the analysis script"
+      cloud_cover_threshold:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Cloud cover threshold used for satellite data filtering"
+      sample_size:
+        type: integer
+        minimum: 1
+        description: "Number of observations used in the regression"
+      clustering_variable:
         type: string
-        description: "SHA-256 checksum of the input `analysis_dataset.csv`"
-      parameters:
-        type: object
-        description: "Hyperparameters and flags used during execution"
-        properties:
-          robust_se:
-            type: boolean
-            description: "Whether Huber-White robust standard errors were used"
-          bonferroni_alpha:
-            type: number
-            format: float
-            description: "Adjusted significance threshold (e.g., 0.0167)"
-          cloud_thresholds:
-            type: array
-            items:
-              type: number
-              format: float
-            description: "List of cloud cover thresholds swept in sensitivity"
+        description: "Variable name used for clustering standard errors (e.g., village_id)"
+      bonferroni_alpha:
+        type: number
+        description: "Bonferroni-corrected significance threshold (default: 0.0167)"
+      model_formula_1:
+        type: string
+        description: "R-style formula string for Model 1"
+      model_formula_2:
+        type: string
+        description: "R-style formula string for Model 2"
 
   models:
     type: object
-    description: "Results for each regression model fitted"
+    description: "Regression results for each dependent variable"
     required:
       - model_1_stability
       - model_2_food_security
     properties:
       model_1_stability:
         type: object
-        description: "Regression: Stability_Score ~ CSA_Index + HFIAS + Controls"
+        description: "Results for Model 1: Stability_Score ~ CSA_Index + Controls"
         required:
-          - formula
-          - fit_stats
+          - dependent_variable
           - coefficients
+          - summary
+          - vif_scores
         properties:
-          formula:
+          dependent_variable:
             type: string
-            description: "R-style formula string used"
-          fit_stats:
-            type: object
-            required:
-              - rsquared
-              - rsquared_adj
-              - f_statistic
-              - f_pvalue
-              - n_obs
-            properties:
-              rsquared:
-                type: number
-                format: float
-              rsquared_adj:
-                type: number
-                format: float
-              f_statistic:
-                type: number
-                format: float
-              f_pvalue:
-                type: number
-                format: float
-              n_obs:
-                type: integer
+            const: "Stability_Score"
           coefficients:
             type: array
-            description: "List of variable coefficients and stats"
+            description: "List of coefficient estimates with statistics"
             items:
               type: object
               required:
                 - term
-                - coef
-                - std_err
-                - pvalue
-                - pvalue_adj
-                - vif
+                - estimate
+                - std_error
+                - t_stat
+                - p_value
+                - p_value_bonferroni
+                - significant
               properties:
                 term:
                   type: string
-                  description: "Variable name (e.g., 'CSA_Index', 'HFIAS')"
-                coef:
+                  description: "Variable name (e.g., Intercept, CSA_Index, HFIAS)"
+                estimate:
                   type: number
-                  format: float
-                  description: "Estimated coefficient"
-                std_err:
+                  description: "Estimated coefficient value"
+                std_error:
                   type: number
-                  format: float
-                  description: "Robust standard error"
-                pvalue:
+                  description: "Cluster-robust standard error"
+                t_stat:
                   type: number
-                  format: float
+                  description: "T-statistic"
+                p_value:
+                  type: number
+                  minimum: 0.0
+                  maximum: 1.0
                   description: "Raw p-value"
-                pvalue_adj:
+                p_value_bonferroni:
                   type: number
-                  format: float
+                  minimum: 0.0
+                  maximum: 1.0
                   description: "Bonferroni-adjusted p-value"
-                vif:
-                  type: number
-                  format: float
-                  description: "Variance Inflation Factor"
+                significant:
+                  type: boolean
+                  description: "True if p_value_bonferroni < alpha_threshold"
+          summary:
+            type: object
+            description: "Model-level summary statistics"
+            required:
+              - r_squared
+              - adj_r_squared
+              - f_statistic
+              - f_p_value
+              - n_obs
+              - n_clusters
+            properties:
+              r_squared:
+                type: number
+                minimum: 0.0
+                maximum: 1.0
+              adj_r_squared:
+                type: number
+                minimum: 0.0
+                maximum: 1.0
+              f_statistic:
+                type: number
+              f_p_value:
+                type: number
+              n_obs:
+                type: integer
+                minimum: 1
+              n_clusters:
+                type: integer
+                minimum: 1
+          vif_scores:
+            type: object
+            description: "Variance Inflation Factor scores for all predictors"
+            additionalProperties:
+              type: number
+              minimum: 1.0
+              description: "VIF score for each predictor variable"
 
       model_2_food_security:
         type: object
-        description: "Regression: HFIAS ~ CSA_Index + Controls"
+        description: "Results for Model 2: HFIAS ~ CSA_Index + Controls"
         required:
-          - formula
-          - fit_stats
+          - dependent_variable
           - coefficients
+          - summary
+          - vif_scores
         properties:
-          formula:
+          dependent_variable:
             type: string
-          fit_stats:
-            type: object
-            required:
-              - rsquared
-              - rsquared_adj
-              - f_statistic
-              - f_pvalue
-              - n_obs
-            properties:
-              rsquared:
-                type: number
-                format: float
-              rsquared_adj:
-                type: number
-                format: float
-              f_statistic:
-                type: number
-                format: float
-              f_pvalue:
-                type: number
-                format: float
-              n_obs:
-                type: integer
+            const: "HFIAS"
           coefficients:
             type: array
             items:
               type: object
               required:
                 - term
-                - coef
-                - std_err
-                - pvalue
-                - pvalue_adj
-                - vif
+                - estimate
+                - std_error
+                - t_stat
+                - p_value
+                - p_value_bonferroni
+                - significant
               properties:
                 term:
                   type: string
-                coef:
+                estimate:
                   type: number
-                  format: float
-                std_err:
+                std_error:
                   type: number
-                  format: float
-                pvalue:
+                t_stat:
                   type: number
-                  format: float
-                pvalue_adj:
+                p_value:
                   type: number
-                  format: float
-                vif:
+                p_value_bonferroni:
                   type: number
-                  format: float
+                significant:
+                  type: boolean
+          summary:
+            type: object
+            required:
+              - r_squared
+              - adj_r_squared
+              - f_statistic
+              - f_p_value
+              - n_obs
+              - n_clusters
+            properties:
+              r_squared:
+                type: number
+              adj_r_squared:
+                type: number
+              f_statistic:
+                type: number
+              f_p_value:
+                type: number
+              n_obs:
+                type: integer
+              n_clusters:
+                type: integer
+          vif_scores:
+            type: object
+            additionalProperties:
+              type: number
 
   diagnostics:
     type: object
-    description: "Collinearity and model health diagnostics"
+    description: "Collinearity and robustness diagnostics"
     required:
-      - max_vif
-      - condition_number
-      - heteroskedasticity_test
+      - multicollinearity_check
+      - heteroskedasticity_check
     properties:
-      max_vif:
-        type: number
-        format: float
-        description: "Maximum VIF across all predictors in both models"
-      condition_number:
-        type: number
-        format: float
-        description: "Condition number of the design matrix"
-      heteroskedasticity_test:
+      multicollinearity_check:
         type: object
-        description: "Breusch-Pagan or White test results"
+        required:
+          - max_vif
+          - flagged_variables
         properties:
+          max_vif:
+            type: number
+            description: "Maximum VIF score across all predictors"
+          flagged_variables:
+            type: array
+            description: "Variables with VIF > 5"
+            items:
+              type: string
+      heteroskedasticity_check:
+        type: object
+        description: "Results of heteroskedasticity tests (e.g., Breusch-Pagan)"
+        properties:
+          test_name:
+            type: string
           statistic:
             type: number
-            format: float
-          pvalue:
+          p_value:
             type: number
-            format: float
-          rejected_null:
-            type: boolean
-            description: "True if heteroskedasticity is detected"
+          conclusion:
+            type: string
+            description: "Interpretation of the test result"
 
-  sensitivity:
-    type: array
-    description: "Results from sensitivity analysis across cloud cover thresholds"
-    items:
-      type: object
-      required:
-        - cloud_threshold
-        - model_1_csa_coef
-        - model_1_csa_pvalue
-        - model_2_csa_coef
-        - model_2_csa_pvalue
-      properties:
-        cloud_threshold:
-          type: number
-          format: float
-          description: "Cloud cover threshold used (e.g., 0.6, 0.7)"
-        model_1_csa_coef:
-          type: number
-          format: float
-          description: "CSA_Index coefficient in Stability model"
-        model_1_csa_pvalue:
-          type: number
-          format: float
-        model_2_csa_coef:
-          type: number
-          format: float
-          description: "CSA_Index coefficient in Food Security model"
-        model_2_csa_pvalue:
-          type: number
-          format: float
 additionalProperties: false

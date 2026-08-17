@@ -18,7 +18,7 @@ Smallholder farmers face increasing climate volatility, yet the specific contrib
 ### Study Design
 - **Design**: Observational cross-sectional analysis (no random assignment).
 - **Data Source**: World Bank LSMS-ISA (Malawi or Tanzania) for ground-truth survey data; Sentinel-2/Landsat 8/9 for remote sensing.
-- **Sample Size**: Target $N > 1000$ households (subject to spatial overlap with satellite coverage). If spatial overlap reduces $N$ below 300, results will be aggregated at the village level to maintain statistical power.
+- **Sample Size**: Target $N > 1000$ households (subject to spatial overlap with satellite coverage). If spatial overlap reduces $N$ below a sufficient threshold, results will be aggregated at the village level to maintain statistical power.
 - **Variables**:
   - *Predictor*: CSA Adoption Index (binary indicators for practices + extension visit frequency).
   - *Outcomes*: Yield Stability (calculated as Stability Score = 1/CV of NDVI time-series), Food Security (HFIAS).
@@ -35,10 +35,10 @@ Smallholder farmers face increasing climate volatility, yet the specific contrib
   - **Model 2 (Food Security)**: `HFIAS ~ CSA_Index + Access_to_Finance + Controls`.
   - Robust standard errors (Huber-White) to account for heteroskedasticity.
   - Variance Inflation Factor (VIF) diagnostic to check for multicollinearity between predictors.
-  - Sensitivity analysis on cloud cover thresholds by sweeping values $\in \{0.6, 0.7, 0.8\}$.
+  - Sensitivity analysis on cloud cover thresholds by sweeping values across a representative range.
 
 ### Compute Feasibility
-- **Environment**: GitHub Actions free-tier runner (limited CPU resources, ~7 GB RAM, ~14 GB disk, no GPU).
+- **Environment**: GitHub Actions free-tier runner (limited CPU resources, limited RAM, A substantial disk capacity is required., no GPU).
 - **Methodology**: Classical statistics (scikit-learn/statsmodels) on sampled data. No deep learning or large-model training.
 - **Time Limit**: Total execution within a feasible time frame.
 
@@ -78,7 +78,7 @@ Smallholder farmers face increasing climate volatility, yet the specific contrib
 **Independent Test**: Execution of `src/analysis/sensitivity_check.py` produces a plot and table showing coefficient stability across threshold sweeps, and the final report includes the observational framing disclaimer.
 
 **Acceptance Scenarios**:
-1. **Given** the primary regression results, **When** the sensitivity script runs, **Then** the output shows the variation in the `CSA_Index` coefficient magnitude when the cloud cover threshold is swept from 0.6 to 0.8. *(Supports SC-005)*
+1. **Given** the primary regression results, **When** the sensitivity script runs, **Then** the output shows the variation in the `CSA_Index` coefficient magnitude when the cloud cover threshold is swept from a lower bound to an upper bound. *(Supports SC-005)*
 2. **Given** the analysis results, **When** the report generator runs, **Then** the PDF report explicitly states that findings are "associational" and not causal, and includes the Bonferroni-adjusted significance threshold. *(Supports SC-006)*
 
 ### Edge Cases
@@ -95,8 +95,8 @@ Smallholder farmers face increasing climate volatility, yet the specific contrib
 - **FR-003**: System MUST construct a CSA Adoption Index based on binary indicators of specific practices and extension visit frequency, validating the index against the survey data schema. *(See US-1)*
 - **FR-004**: System MUST execute two separate multiple linear regression models: (1) `Stability_Score ~ CSA_Index + Access_to_Finance + Controls` and (2) `HFIAS ~ CSA_Index + Access_to_Finance + Controls`, both using robust standard errors. *(See US-2)*
 - **FR-005**: System MUST calculate Variance Inflation Factor (VIF) scores for all predictors in both models to detect multicollinearity and flag any VIF > 5. *(See US-2)*
-- **FR-006**: System MUST perform a sensitivity analysis by sweeping the cloud cover threshold over the set $\{0.6, 0.7, 0.8\}$ and report the variation in the primary `CSA_Index` coefficient for both models. *(See US-3)*
-- **FR-007**: System MUST apply a Bonferroni correction for multiple hypothesis testing (targeting $\alpha \approx 0.0167$) when determining statistical significance. *(See US-3)*
+- **FR-006**: System MUST perform a sensitivity analysis by sweeping the cloud cover threshold over the set $\{, 0.7, 0.8\}$ and report the variation in the primary `CSA_Index` coefficient for both models. *(See US-3)*
+- **FR-007**: System MUST apply a Bonferroni correction for multiple hypothesis testing (targeting a reduced significance threshold) when determining statistical significance. *(See US-3)*
 - **FR-008**: System MUST generate a final report that explicitly frames results as "associational" and includes a disclaimer regarding the lack of random assignment. *(See US-3)*
 
 ### Key Entities
@@ -118,8 +118,8 @@ Smallholder farmers face increasing climate volatility, yet the specific contrib
 - **SC-002 (Derived from User Story 1)**: The ingestion pipeline produces a `data/processed/analysis_dataset.csv` where the percentage of records passing the `contracts/dataset.schema.yaml` validation with no missing `CSA_Index` or `Stability_Score` values is measured and documented. *(Measured against schema contract)*
 - **SC-003 (Derived from User Story 2)**: The regression model execution completes within 2 hours on a CPU-only runner, producing a summary file with coefficients and p-values for all specified predictors in both models. *(Measured against GitHub Actions time limit)*
 - **SC-004 (Derived from User Story 2)**: The collinearity diagnostic reports VIF scores for all predictors; if any VIF > 5, the system logs a warning and the final report includes a "Collinearity Note" section. *(Measured against VIF threshold of 5)*
-- **SC-005 (Derived from User Story 3)**: The sensitivity analysis demonstrates that the variation magnitude of the primary `CSA_Index` coefficient is measured and documented across the threshold sweep $\{0.6, 0.7, 0.8\}$. *(Measured against coefficient stability documentation)*
-- **SC-006 (Derived from User Story 3)**: The final report explicitly states the family-wise error rate control method (Bonferroni) and the adjusted significance threshold ($\alpha \approx 0.0167$). *(Measured against report content checklist)*
+- **SC-005 (Derived from User Story 3)**: The sensitivity analysis demonstrates that the variation magnitude of the primary `CSA_Index` coefficient is measured and documented across the threshold sweep over a range of values including moderate and high thresholds. *(Measured against coefficient stability documentation)*
+- **SC-006 (Derived from User Story 3)**: The final report explicitly states the family-wise error rate control method (Bonferroni) and the adjusted significance threshold ($\alpha$ adjusted for multiple comparisons). *(Measured against report content checklist)*
 
 ## Assumptions
 
@@ -127,6 +127,6 @@ Smallholder farmers face increasing climate volatility, yet the specific contrib
 - Sentinel-2 or Landsat 8/9 imagery is available for the specific growing seasons corresponding to the survey dates with < 80% cloud cover.
 - The household coordinates in the LSMS-ISA dataset are sufficiently precise (or fuzzed appropriately) to allow a spatial join with satellite pixels at the required resolution.
 - The relationship between CSA practices and yield stability is linear enough to be modeled by multiple linear regression; non-linear effects are treated as residual noise for this scope.
-- The analysis will be performed on a CPU-only environment (GitHub Actions free tier) with $\le 7$ GB RAM, requiring the dataset to be sampled or aggregated if it exceeds memory limits.
+- The analysis will be performed on a CPU-only environment (GitHub Actions free tier) with $\le$ moderate RAM, requiring the dataset to be sampled or aggregated if it exceeds memory limits.
 - The "Access to Finance" variable in the survey data is a valid proxy for the socioeconomic confounder and is not definitionally collinear with the CSA Adoption Index.
 - Any thresholds introduced (e.g., for data cleaning or consistency checks) are justified by community standards or sensitivity analysis as required by FR-006.

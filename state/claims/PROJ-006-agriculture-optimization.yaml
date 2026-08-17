@@ -719,3 +719,188 @@
   source_type: external
   status: verified
   updated_at: '2026-08-14T22:57:00Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Aggregated dataset must have effective sample size greater than or equal
+    to 300
+  claim_id: c_96574102
+  context: 'T021a [US1] Implement verification step in src/data/processing/feature_engineering.py
+    to confirm that the aggregated dataset meets statistical power requirements: verify
+    effective sample size >= 300.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Aggregated_dataset_must_have_effective_sample_size_greater_t
+  kind: magnitude
+  raw_text: verify effective sample size >= 300
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T01:12:43Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Regression analysis execution time is within 60 minutes on CPU
+  claim_id: c_be91dae2
+  context: 'Independent Test: Execution of src/analysis/run_regression.py produces
+    a summary file containing regression coefficients, p-values, and VIF scores for
+    both Yield Stability and Food Security models, completing within 60 minutes on
+    CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution of src/analysis/run_regression.py produces a summary file containing
+    regression coefficients, p-values, and VIF scores for both Yield Stability and
+    Food Security models, completing within 60 minutes on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T01:12:55Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for flagging collinearity is 5
+  claim_id: c_eccfaf2b
+  context: T025 [US2] Implement src/analysis/run_regression.py to fit Model 1 (Stability_Score)
+    and Model 2 (HFIAS) using statsmodels. ... Calculate VIF scores for all predictors
+    and flag VIF > 5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag VIF > 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T01:12:56Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha level is 0.0167
+  claim_id: c_03c2c647
+  context: T025 [US2] Implement src/analysis/run_regression.py to fit Model 1 (Stability_Score)
+    and Model 2 (HFIAS) using statsmodels. ... Apply Bonferroni correction (alpha=0.0167).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction (alpha=0.0167)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T01:13:06Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Cloud cover thresholds swept are 0.6, 0.7, and 0.8
+  claim_id: c_2edfacb2
+  context: T030 [US3] Implement src/analysis/sensitivity_check.py to sweep cloud cover
+    thresholds {0.6, 0.7, 0.8}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep cloud cover thresholds {0.6, 0.7, 0.8}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T01:13:20Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sentinel-2 imagery filter uses cloud cover less than 0.8
+  claim_id: c_bc1db3de
+  context: 'T016 [US1] Implement src/data/collectors/remote_sensing_collector.py to
+    fetch Sentinel-2 L2A (S2MSI2A) imagery from the Copernicus Data Space Ecosystem
+    API. Specifics: Use requests with OAuth2, filter by cloud_cover < 0.8...'
+  evidence:
+    candidates:
+    - - ''
+      - 0.8
+    - - ''
+      - -2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Sentinel-2_imagery_filter_uses_cloud_cover_less_than_0.8
+  kind: magnitude
+  raw_text: filter by cloud_cover < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-17T01:13:31Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Linting and formatting tools configured are black, flake8, and isort
+  claim_id: c_349a32c2
+  context: T003 [P] Configure linting and formatting tools (black, flake8, isort)
+    and .gitignore
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linting_and_formatting_tools_configured_are_black,_flake8,_a
+  kind: entity_fact
+  raw_text: Configure linting and formatting tools (black, flake8, isort)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T01:13:36Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Cloud cover thresholds in constants are 0.6, 0.7, and 0.8
+  claim_id: c_6d56c6db
+  context: T004 Create src/config/constants.py with random seeds, paths, and cloud
+    cover thresholds {0.6, 0.7, 0.8}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create src/config/constants.py with random seeds, paths, and cloud cover
+    thresholds {0.6, 0.7, 0.8}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T01:13:42Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Analysis dataset must contain more than 300 records
+  claim_id: c_b41f2915
+  context: 'T041b [US1] Verify Data Artifacts: Confirm data/processed/analysis_dataset.csv
+    exists, has >300 records, and passes contracts/dataset.schema.yaml validation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_dataset_must_contain_more_than_300_records
+  kind: magnitude
+  raw_text: Confirm data/processed/analysis_dataset.csv exists, has >300 records,
+    and passes contracts/dataset.schema.yaml validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T01:18:46Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Target sample size justification is for N greater than 1000
+  claim_id: c_a7a3032d
+  context: 'T053b [P] Sample Size Justification: Add power analysis or sample-size
+    justification in data-model.md for the target N > 1000 (or village aggregation
+    logic).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_sample_size_justification_is_for_N_greater_than_1000
+  kind: magnitude
+  raw_text: target N > 1000 (or village aggregation logic)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T01:18:54Z'

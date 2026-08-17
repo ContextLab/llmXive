@@ -1,14 +1,7 @@
-T003:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting/formatting configuration files (e.g., `pyproject.toml`, `.flake8`,
-    `isort.cfg`) or a `.gitignore` were presented, and there is no evidence of these
-    artifacts existing in the repository. The implementer therefore has not provided
-    the required setup for black, flake8, isort, or the `.gitignore` file.
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no concrete evidence that the `data/raw/`, `data/processed/`,
-    or `data/logs/` directories have been created; no file listings, screenshots,
-    or code confirming their creation are present. The required directory structure
-    is therefore missing.
+  r: The response provides no evidence that the required directories (`src/`, `tests/`,
+    `contracts/`, `data/`) actually exist or contain any files; no directory listing
+    or file contents were shown. Consequently, we cannot verify that the project structure
+    was created as specified.

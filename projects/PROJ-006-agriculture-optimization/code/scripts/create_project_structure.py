@@ -1,71 +1,53 @@
 """
-Script to create the project directory structure for llmXive PROJ-006.
-Creates src/, tests/, contracts/, data/, and subdirectories as per plan.md.
+Script to create the initial project directory structure for llmXive research projects.
+Creates standard directories: src/, tests/, contracts/, data/ (with subdirs).
 """
 import os
 from pathlib import Path
 
 def ensure_dir(path: Path) -> None:
-    """Create directory if it does not exist."""
+    """Create directory if it doesn't exist."""
     path.mkdir(parents=True, exist_ok=True)
 
 def main() -> None:
-    """Create the full project structure."""
-    # Determine project root (parent of scripts/)
-    project_root = Path(__file__).resolve().parent.parent
+    """Create the standard project structure."""
+    # Determine project root (assuming this script is in code/scripts/)
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
 
-    # Define directory structure
+    # Define required directories
     directories = [
-        "src",
-        "src/cli",
-        "src/config",
-        "src/data",
-        "src/data/collectors",
-        "src/data/processing",
-        "src/utils",
-        "src/analysis",
-        "src/services",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        "contracts",
-        "data",
-        "data/raw",
-        "data/processed",
-        "data/logs",
-        "data/remote-sensing",
-        "reports",
-        "figures",
-        "docs",
-        "specs",
+        project_root / "src",
+        project_root / "src" / "cli",
+        project_root / "src" / "config",
+        project_root / "src" / "data",
+        project_root / "src" / "data" / "collectors",
+        project_root / "src" / "data" / "generators",
+        project_root / "src" / "data" / "processing",
+        project_root / "src" / "models",
+        project_root / "src" / "services",
+        project_root / "src" / "analysis",
+        project_root / "src" / "utils",
+        project_root / "tests",
+        project_root / "tests" / "contract",
+        project_root / "tests" / "integration",
+        project_root / "tests" / "unit",
+        project_root / "contracts",
+        project_root / "data",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "logs",
+        project_root / "data" / "remote-sensing",
+        project_root / "reports",
+        project_root / "specs",
+        project_root / "docs",
     ]
 
-    for dir_path in directories:
-        ensure_dir(project_root / dir_path)
+    for directory in directories:
+        ensure_dir(directory)
+        print(f"Created: {directory.relative_to(project_root)}")
 
-    # Create __init__.py files for Python packages
-    package_dirs = [
-        "src",
-        "src/cli",
-        "src/config",
-        "src/data",
-        "src/data/collectors",
-        "src/data/processing",
-        "src/utils",
-        "src/analysis",
-        "src/services",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-    ]
-
-    for dir_path in package_dirs:
-        init_file = project_root / dir_path / "__init__.py"
-        init_file.touch(exist_ok=True)
-
-    print(f"Project structure created at: {project_root}")
+    print(f"\nProject structure created successfully in: {project_root}")
 
 if __name__ == "__main__":
     main()

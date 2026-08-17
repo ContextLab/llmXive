@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-006-agriculture-optimization",
+  "tasks": [
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "No linting/formatting configuration files (e.g., `pyproject.toml`, `.flake8`, `isort.cfg`) or a `.gitignore` were presented, and there is no evidence of these artifacts existing in the repository. The implementer therefore has not provided the required setup for black, flake8, isort, or the `.gitignore` file.",
+      "first_seen": "2026-08-17T01:18:58.390659+00:00",
+      "last_seen": "2026-08-17T01:18:58.390659+00:00"
+    },
+    {
+      "task_key": "T007",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-08-17T01:18:58.391965+00:00",
+      "last_seen": "2026-08-17T01:18:58.391965+00:00"
+    },
+    {
+      "task_key": "T008",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-08-17T01:18:58.392925+00:00",
+      "last_seen": "2026-08-17T01:18:58.392925+00:00"
+    },
+    {
+      "task_key": "T011",
+      "reject_count": 1,
+      "last_reason": "The claim provides no concrete evidence that the `data/raw/`, `data/processed/`, or `data/logs/` directories have been created; no file listings, screenshots, or code confirming their creation are present. The required directory structure is therefore missing.",
+      "first_seen": "2026-08-17T01:18:58.394159+00:00",
+      "last_seen": "2026-08-17T01:18:58.394159+00:00"
+    }
+  ],
+  "updated_at": "2026-08-17T01:18:58.394159+00:00"
+}
