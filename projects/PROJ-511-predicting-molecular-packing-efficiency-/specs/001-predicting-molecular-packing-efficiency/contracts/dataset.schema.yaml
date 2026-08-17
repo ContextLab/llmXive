@@ -1,5 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Dataset Schema"
+description: "Schema for the processed dataset CSV (data/processed/dataset.csv)"
 type: "object"
 properties:
   cod_id:
@@ -7,62 +8,66 @@ properties:
     description: "Unique COD identifier"
   smiles:
     type: "string"
-    description: "Canonical SMILES string"
+    description: "Canonical SMILES string (generated from 2D graph)"
   smiles_source:
     type: "string"
     enum:
       - "extracted"
       - "generated"
-    description: "Source of the SMILES string"
+    description: "Origin of the SMILES string"
   unit_cell_volume:
     type: "number"
-    description: "Unit cell volume in Angstroms cubed"
-  vdw_volume_sum:
+    description: "Unit cell volume in Angstroms^3"
+  sum_vdw_volume:
     type: "number"
-    description: "Sum of Bondi van der Waals volumes"
-  packing_coefficient:
+    description: "Sum of Van der Waals volumes in Angstroms^3"
+  pc_raw:
     type: "number"
-    description: "Raw packing coefficient"
+    description: "Raw packing coefficient (Target)"
+  n_atoms:
+    type: "integer"
+    description: "Number of non-hydrogen atoms"
+  mean_atomic_volume:
+    type: "number"
+    description: "Mean atomic volume (Covariate)"
   cape:
     type: "number"
-    description: "Composition-Adjusted Packing Efficiency"
-  num_non_hydrogen_atoms:
-    type: "integer"
-    description: "Count of non-hydrogen atoms"
+    description: "Composition-Adjusted Packing Efficiency (Diagnostic)"
   radius_of_gyration:
     type: "number"
-    description: "Radius of gyration in Angstroms"
+    description: "Radius of gyration (from experimental coords)"
   asphericity:
     type: "number"
-    description: "Asphericity descriptor"
+    description: "Asphericity of the molecule (from experimental coords)"
   principal_moments:
     type: "string"
-    description: "Principal moments of inertia as comma-separated string"
+    description: "Comma-separated principal moments of inertia (from experimental coords)"
   lattice_system:
     type: "string"
-    description: "Crystal system"
+    description: "Crystal lattice system"
   temperature_K:
     type: ["number", "null"]
     description: "Measurement temperature in Kelvin"
   has_solvent:
     type: "boolean"
-    description: "Flag for solvent presence"
-  atom_type_counts:
+    description: "Presence of solvent molecules"
+  atom_counts:
     type: "string"
-    description: "Comma-separated counts of each atom type"
+    description: "Comma-separated counts of each element (e.g., C:10,N:1,O:2)"
 required:
-  - cod_id
-  - smiles
-  - smiles_source
-  - unit_cell_volume
-  - vdw_volume_sum
-  - packing_coefficient
-  - cape
-  - num_non_hydrogen_atoms
-  - radius_of_gyration
-  - asphericity
-  - principal_moments
-  - lattice_system
-  - has_solvent
-  - atom_type_counts
+  - "cod_id"
+  - "smiles"
+  - "smiles_source"
+  - "unit_cell_volume"
+  - "sum_vdw_volume"
+  - "pc_raw"
+  - "n_atoms"
+  - "mean_atomic_volume"
+  - "cape"
+  - "radius_of_gyration"
+  - "asphericity"
+  - "principal_moments"
+  - "lattice_system"
+  - "has_solvent"
+  - "atom_counts"
 additionalProperties: false

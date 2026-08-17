@@ -1,37 +1,56 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Checkpoint Schema"
+title: "Model Schema"
+description: "Schema for the trained model checkpoint (results/model.pt)"
 type: "object"
 properties:
   architecture:
     type: "string"
-    description: "Description of the model architecture (e.g., '2-layer MLP')"
-  num_params:
+    description: "Model architecture name"
+    const: "SMILES_MLP"
+  parameters:
+    type: "object"
+    properties:
+      hidden_layers:
+        type: "array"
+        items:
+          type: "integer"
+        description: "Number of units in each hidden layer"
+      input_dim:
+        type: "integer"
+      output_dim:
+        type: "integer"
+    required:
+      - "hidden_layers"
+      - "input_dim"
+      - "output_dim"
+  total_params:
     type: "integer"
+    description: "Total trainable parameters (must be <= 100000)"
     maximum: 100000
-    description: "Total number of trainable parameters"
+  training_config:
+    type: "object"
+    properties:
+      seed:
+        type: "integer"
+      epochs:
+        type: "integer"
+      learning_rate:
+        type: "number"
+      l2_penalty:
+        type: "number"
+      dropout_rate:
+        type: "number"
+    required:
+      - "seed"
+      - "epochs"
+      - "learning_rate"
   frozen_transformer:
-    type: "boolean"
-    description: "Whether the SMILES transformer is frozen"
-  input_dim:
-    type: "integer"
-    description: "Input feature dimension"
-  hidden_dims:
-    type: "array"
-    items:
-      type: "integer"
-    description: "Hidden layer dimensions"
-  output_dim:
-    type: "integer"
-    description: "Output dimension (should be 1)"
-  training_seed:
-    type: "integer"
-    description: "Random seed used for training"
+    type: "string"
+    description: "Name of the frozen transformer used"
 required:
-  - architecture
-  - num_params
-  - frozen_transformer
-  - input_dim
-  - hidden_dims
-  - output_dim
-  - training_seed
+  - "architecture"
+  - "parameters"
+  - "total_params"
+  - "training_config"
+  - "frozen_transformer"
 additionalProperties: false

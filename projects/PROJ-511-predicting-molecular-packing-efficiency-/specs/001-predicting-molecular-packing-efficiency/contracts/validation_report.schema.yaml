@@ -1,51 +1,114 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Validation Report Schema"
+description: "Schema for the validation report (results/validation_report.md)"
 type: "object"
 properties:
-  mae:
-    type: "number"
-    description: "Mean Absolute Error"
-  pearson_r:
-    type: "number"
-    description: "Pearson correlation coefficient"
-  spearman_rho:
-    type: "number"
-    description: "Spearman rank correlation coefficient"
-  shapiro_wilk_p:
-    type: "number"
-    description: "p-value from Shapiro-Wilk normality test on residuals"
-  permutation_test_p:
-    type: "number"
-    description: "Two-sided p-value from 10,000 shuffle permutation test"
-  vif_flags:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of feature names with VIF > 5"
-  partial_corr:
-    type: "number"
-    description: "Partial correlation coefficient controlling for composition"
-  sensitivity_analysis:
+  metrics:
     type: "object"
     properties:
-      thresholds:
-        type: "array"
-        items:
-          type: "number"
-        description: "List of thresholds tested"
-      pearson_r_variation:
+      mae:
         type: "number"
-        description: "Variation in Pearson r across thresholds"
-      bonferroni_corrected_p:
+        description: "Mean Absolute Error"
+      pearson_r:
+        type: "number"
+        description: "Pearson correlation coefficient"
+      spearman_rho:
+        type: "number"
+        description: "Spearman rank correlation"
+      shapiro_wilk_p:
+        type: "number"
+        description: "Shapiro-Wilk p-value for residuals"
+    required:
+      - "mae"
+      - "pearson_r"
+      - "spearman_rho"
+      - "shapiro_wilk_p"
+  permutation_test:
+    type: "object"
+    properties:
+      n_shuffles:
+        type: "integer"
+        const: 10000
+      p_value:
+        type: "number"
+        description: "Two-sided p-value"
+      corrected_p_value:
         type: "number"
         description: "Bonferroni corrected p-value"
+    required:
+      - "n_shuffles"
+      - "p_value"
+      - "corrected_p_value"
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+          enum: [0.5, 0.6, 0.7]
+        pearson_r:
+          type: "number"
+        mae:
+          type: "number"
+        p_value:
+          type: "number"
+      required:
+        - "threshold"
+        - "pearson_r"
+        - "mae"
+        - "p_value"
+  vif_diagnostics:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        vif:
+          type: "number"
+        flagged:
+          type: "boolean"
+          description: "True if VIF > 5"
+      required:
+        - "feature_name"
+        - "vif"
+        - "flagged"
+  partial_correlation:
+    type: "object"
+    properties:
+      adjusted_pearson_r:
+        type: "number"
+        description: "Correlation controlling for atom-type composition"
+      controls:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of controlled variables (e.g., atom counts)"
+    required:
+      - "adjusted_pearson_r"
+      - "controls"
+  incremental_signal:
+    type: "object"
+    properties:
+      r_squared_baseline:
+        type: "number"
+        description: "R-squared of geometry-only model"
+      r_squared_full:
+        type: "number"
+        description: "R-squared of full model (geometry + SMILES)"
+      delta_r_squared:
+        type: "number"
+        description: "Incremental R-squared (SMILES contribution)"
+    required:
+      - "r_squared_baseline"
+      - "r_squared_full"
+      - "delta_r_squared"
 required:
-  - mae
-  - pearson_r
-  - spearman_rho
-  - shapiro_wilk_p
-  - permutation_test_p
-  - vif_flags
-  - partial_corr
-  - sensitivity_analysis
+  - "metrics"
+  - "permutation_test"
+  - "sensitivity_analysis"
+  - "vif_diagnostics"
+  - "partial_correlation"
+  - "incremental_signal"
 additionalProperties: false

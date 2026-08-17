@@ -1,81 +1,82 @@
-# Quickstart: Predicting Molecular Packing Efficiency in Crystals
+# Quickstart: Predicting Molecular Packing Efficiency
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip`
-- Access to the internet (for downloading COD data and packages)
+-   Python 3.11+
+-   Git
+-   Sufficient free disk space (for dataset and dependencies)
+-   Internet access (to download datasets and models)
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repo-url>
- cd PROJ-511-predicting-molecular-packing-efficiency
- ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-511-predicting-molecular-packing-efficiency-/
+    ```
 
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
 ## Running the Pipeline
 
-The pipeline is executed via the `main.py` script, which orchestrates all phases.
+The pipeline is executed via a single entry point script.
 
-```bash
-python src/main.py
-```
+1.  **Run the full pipeline**:
+    ```bash
+    python code/run_pipeline.py
+    ```
+    This script performs the following steps in order:
+    -   Downloads and filters the COD dataset (official source).
+    -   Generates SMILES **from 2D connectivity graphs** (strictly avoiding leakage from experimental 3D coordinates).
+    -   Computes 3D descriptors **from experimental CIF coordinates**.
+    -   Trains the baseline geometry model and the full topology+geometry model.
+    -   Runs a permutation test with a sufficient number of shuffles to ensure stable p-value estimation.
+    -   Generates the HTML report.
 
-This command performs the following steps automatically:
-1. **Download**: Fetches COD CIF files (filtered for organic molecules ≤50 atoms).
-2. **Process**: Generates SMILES, calculates CAPE, and creates `data/dataset.csv`.
-3. **Train**: Trains the 2-layer MLP model.
-4. **Evaluate**: Runs metrics and permutation tests.
-5. **Report**: Generates `results/report.html`.
+2.  **Output Locations**:
+    -   Raw Data: `data/raw/`
+    -   Processed Data: `data/processed/dataset.csv`
+    -   Model: `results/model.pt`
+    -   Report: `results/report.html`
+    -   Metrics: `results/validation_report.md`
 
-### Manual Steps (Optional)
+## Verification
 
-If you wish to run steps individually:
+To verify the results:
 
-1. **Download & Parse**:
- ```bash
- python src/data/download_cif.py
- python src/data/parse_cif.py
- ```
-2. **Train**:
- ```bash
- python src/training/train.py
- ```
-3. **Evaluate**:
- ```bash
- python src/training/evaluate.py
- ```
-4. **Sensitivity**:
- ```bash
- python src/training/sensitivity.py
- ```
-5. **Report**:
- ```bash
- python src/utils/report.py
- ```
+1.  **Check Dataset Size**:
+    ```bash
+    wc -l data/processed/dataset.csv
+    # Should be >= 501 (including header)
+    ```
 
-## Output Files
+2.  **Check Metrics**:
+    Open `results/validation_report.md` and verify:
+    -   Pearson $r \ge 0.4$ (or $r < 0.2$ with $p \ge 0.05$).
+    -   Permutation test with statistical significance (Bonferroni corrected).
+    -   VIF diagnostics (no values > 5, or flagged).
+    -   Incremental $R^2$ (SMILES contribution) is reported.
+    -   Partial correlation controlling for elemental composition is reported.
 
-- `data/dataset.csv`: The processed dataset.
-- `models/mlp.pt`: Trained model weights.
-- `results/validation_report.json`: Statistical metrics.
-- `results/sensitivity_report.csv`: Threshold analysis.
-- `results/report.html`: Final HTML report.
+3.  **Reproducibility**:
+    ```bash
+    # Run again to ensure identical results (due to pinned seeds)
+    python code/run_pipeline.py
+    # Compare checksums of results/model.pt and results/validation_report.md
+    ```
 
 ## Troubleshooting
 
-- **Missing COD Data**: Ensure you have internet access. The script downloads directly from ` via FTP.
-- **RAM Issues**: If running out of memory, reduce the number of CIFs processed by adjusting the `MAX_RECORDS` constant in `src/config.py`.
-- **SMILES Generation Failures**: Check `data/parsing_errors.log` for records that failed RDKit parsing.
+-   **Runtime Error: "Not enough records"**: The COD filter returned <500 valid entries. Check `data/raw/download.log` for filtering statistics.
+-   **Memory Error**: Ensure you are not loading the full COD dump. The script uses streaming. If local memory is <7 GB, reduce `MAX_RECORDS` in `code/config.py`.
+-   **SMILES Generation Failed**: Check `data/processed/dataset.csv` for rows where `smiles_source` is "generated" but the SMILES string is empty. These rows are excluded.
+-   **2D-Only Entries**: The pipeline excludes 2D-only entries without valid SMILES. If the dataset is too small, this may be the cause.
