@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project implements a computational model to test whether hippocampal-like pattern separation and prefrontal-like executive control improve narrative structure alignment with human fMRI data compared to standard architectures. The approach involves: (1) ingesting OpenNeuro ds000208 fMRI data (Narratives) and ROCStories text data; (2) aligning event boundaries via semantic similarity; (3) building a custom PyTorch model with a sparse autoencoder (pattern separation) and a gating module (executive control); (4) generating narratives and computing Representational Similarity Analysis (RSA) against human BOLD signals for the *common stimulus subset*; and (5) validating significance via a label-shuffling permutation test. All operations are constrained to CPU-only execution on GitHub Actions free-tier resources.
+This project implements a computational model to test whether hippocampal-like pattern separation and prefrontal-like executive control improve narrative structure alignment with human fMRI data compared to standard architectures. The approach involves: (1) ingesting OpenNeuro fMRI data (Narratives) and ROCStories text data; (2) aligning event boundaries via semantic similarity; (3) building a custom PyTorch model with a sparse autoencoder (pattern separation) and a gating module (executive control); (4) generating narratives and computing Representational Similarity Analysis (RSA) against human BOLD signals for the *common stimulus subset*; and (5) validating significance via a label-shuffling permutation test. All operations are constrained to CPU-only execution on GitHub Actions free-tier resources.
 
 ## Technical Context
 

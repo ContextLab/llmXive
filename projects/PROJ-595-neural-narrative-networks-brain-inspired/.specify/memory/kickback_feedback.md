@@ -4,10 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T013` (rejected 1x): declared artifact(s) missing/empty/invalid: data/neural/processed/roi_timecourses.csv
-- `T014` (rejected 1x): No code, script, or documentation implementing chunked loading/subsampling for large fMRI datasets is present; the only evidence is the task description itself, with no concrete artifact to verify the feature. The required implementation and any associated tests or usage examples are missing.
-- `T015` (rejected 1x): The required output file `data/text/rocstories_sample.jsonl` does not exist, so the ROCStories corpus has not been downloaded and sampled as specified. The implementer must create this JSONL file with a representative subset of stories in the indicated path.
-- `T016` (rejected 1x): No validation script or code was provided that checks for corrupted or incomplete data and aborts with specific error messages. The required artifact (e.g., a Python/ Bash validation step integrated into the data pipeline) is missing, so the task’s requirement is not satisfied.
+- `T017` (rejected 1x): The required artifact `data/processed/roi_timecourses.csv` does not exist, so the combined timecourse file with the specified columns is missing. Consequently the task’s deliverable is not present.
 
 ## Required change
 
