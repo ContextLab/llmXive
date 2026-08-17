@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plant-disease-susceptibility"
+version = "0.1.0"
+description = "Predicting plant disease susceptibility from genomic and environmental data"
+requires-python = ">=3.11"
+dependencies = [
+    "pysam",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "requests",
+    "h5py",
+    "matplotlib",
+    "statsmodels",
+    "pytest",
+    "ruff",
+    "black",
+    "pyyaml",
+    "seaborn"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

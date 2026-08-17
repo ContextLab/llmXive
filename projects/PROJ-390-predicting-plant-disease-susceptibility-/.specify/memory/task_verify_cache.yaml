@@ -1,0 +1,29 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,\
+    \ `pyproject.toml` with Black settings, or pre\u2011commit hook definitions) were\
+    \ provided, nor any evidence that ruff/flake8 and Black have been installed or\
+    \ integrated into the project. The required artifacts are missing, so the task\
+    \ is not satisfied."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `src/models/` directory or the required `Sample`, `Model`, and
+    `Feature` entity files was provided; the claim lacks any actual code artifacts
+    to verify. The task remains undone until those model definitions exist and contain
+    appropriate data model implementations.
+T007:
+  c: true
+  h: ac88e2df6282a84190896bc065594f41d29aa0067f4fe5abd4c78d82546ca01b
+  r: "All four required schema files exist in `data/contracts/`, are non\u2011empty,\
+    \ and contain plausible JSON\u2011Schema definitions for feature matrix, model\
+    \ output, linkage method, and variance decomposition as the task requested."
+T015b:
+  c: false
+  h: 31c5741dd50d728d6c44a7e056257e47140f9152e94d98fd3f740377a7d5f218
+  r: The `tests/contract/test_linkage_method.py` file exists but is truncated (e.g.,
+    the `test_schema_validates_example` function ends abruptly and contains a syntax
+    error). Moreover, the required `linkage_method.yaml` file is missing, so the contract
+    test cannot be run successfully. The implementation needs a complete, syntactically
+    correct test file and the corresponding schema/YAML artifact.

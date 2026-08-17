@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a** — No evidence was presented showing that the required directories (`src/`, `tests/`, `data/raw/`, `data/processed/`, `models/`, `templates/`) actually exist or contain any files; the claim is unsubstantiated. The implementer must provide a directory listing or screenshots confirming the creation of these folders.
+- **T003** — No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings, or pre‑commit hook definitions) were provided, nor any evidence that ruff/flake8 and Black have been installed or integrated into the project. The required artifacts are missing, so the task is not satisfied.
+- **T006** — No evidence of a `src/models/` directory or the required `Sample`, `Model`, and `Feature` entity files was provided; the claim lacks any actual code artifacts to verify. The task remains undone until those model definitions exist and contain appropriate data model implementations.
+- **T015b** — The `tests/contract/test_linkage_method.py` file exists but is truncated (e.g., the `test_schema_validates_example` function ends abruptly and contains a syntax error). Moreover, the required `linkage_method.yaml` file is missing, so the contract test cannot be run successfully. The implementation needs a complete, syntactically correct test file and the corresponding schema/YAML artifact.

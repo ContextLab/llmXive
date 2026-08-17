@@ -18,23 +18,23 @@
 - **Single project**: `src/`, `tests/` at repository root
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -42,10 +42,10 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create directory structure: `src/`, `tests/`, `data/raw/`, `data/processed/`, `models/`, `templates/`
-- [ ] T001b [P] Initialize core config files: `requirements.txt`, `.gitignore`, `pyproject.toml`
+- [X] T001b [P] Initialize core config files: `requirements.txt`, `.gitignore`, `pyproject.toml`
 
-- [ ] T002a [P] Initialize Python 3.11 project with `requirements.txt` (pysam, scikit-learn, pandas, numpy, requests, h5py, matplotlib, statsmodels). **Note: minimap2 and bcftools are system binaries and handled in T002b.**
-- [ ] T002b [P] Setup system dependencies: Install `minimap2` and `bcftools` via `apt-get` in `Dockerfile` or CI config (e.g., `ubuntu-latest` runner setup). **Must run before T011-T013.**
+- [X] T002a [P] Initialize Python 3.11 project with `requirements.txt` (pysam, scikit-learn, pandas, numpy, requests, h5py, matplotlib, statsmodels). **Note: minimap2 and bcftools are system binaries and handled in T002b.**
+- [X] T002b [P] Setup system dependencies: Install `minimap2` and `bcftools` via `apt-get` in `Dockerfile` or CI config (e.g., `ubuntu-latest` runner setup). **Must run before T011-T013.**
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -56,11 +56,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup configuration management in `src/utils/config.py` (paths, seeds=42, species lists)
-- [ ] T005 [P] Implement logging infrastructure in `src/utils/logger.py` (structured logs, error tracking)
+- [X] T004 Setup configuration management in `src/utils/config.py` (paths, seeds=42, species lists)
+- [X] T005 [P] Implement logging infrastructure in `src/utils/logger.py` (structured logs, error tracking)
 - [ ] T006 Create base data models/entities in `src/models/` (Sample, Model, Feature)
-- [ ] T007 Setup schema validation contracts (`data/contracts/feature_matrix.schema.yaml`, `data/contracts/model_output.schema.yaml`, `data/contracts/linkage_method.schema.yaml`, `data/contracts/variance_decomposition.schema.yaml`)
-- [ ] T008 Implement retry logic with exponential backoff in `src/utils/retry.py` (for NCBI/ERA5 rate limits)
+- [X] T007 Setup schema validation contracts (`data/contracts/feature_matrix.schema.yaml`, `data/contracts/model_output.schema.yaml`, `data/contracts/linkage_method.schema.yaml`, `data/contracts/variance_decomposition.schema.yaml`)
+- [X] T008 Implement retry logic with exponential backoff in `src/utils/retry.py` (for NCBI/ERA5 rate limits)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,21 +74,21 @@
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T009 [P] [US1] Contract test for `feature_matrix` schema in `tests/contract/test_schema_validation.py`
-- [ ] T010 [P] [US1] Integration test for ingestion pipeline on 10-sample subset in `tests/integration/test_ingestion_pipeline.py`
+- [X] T009 [P] [US1] Contract test for `feature_matrix` schema in `tests/contract/test_schema_validation.py`
+- [X] T010 [P] [US1] Integration test for ingestion pipeline on 10-sample subset in `tests/integration/test_ingestion_pipeline.py`
 - [ ] T015b [P] [US1] Contract test for `linkage_method.yaml` schema in `tests/contract/test_linkage_method.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `src/ingestion/download_sra.py`: Fetch SRA reads for wheat, rice, maize, tomato, soybean using E-utilities/wget. Handle rate limits (**max 3 retries** with exponential backoff). **FAIL LOUDLY** if download fails (no synthetic fallback). **Ensure atomic writes and file locking for `data/raw/` to prevent race conditions.**
+- [X] T011 [US1] Implement `src/ingestion/download_sra.py`: Fetch SRA reads for wheat, rice, maize, tomato, soybean using E-utilities/wget. Handle rate limits (**max 3 retries** with exponential backoff). **FAIL LOUDLY** if download fails (no synthetic fallback). **Ensure atomic writes and file locking for `data/raw/` to prevent race conditions.**
 - [ ] T012 [US1] Implement `src/ingestion/download_env.py`: Fetch ERA5-Land data via Python script wrapping `curl` (subprocess) using coordinates/date. **Explicitly reuse retry logic from `src/utils/retry.py` (max 3 retries, exponential backoff)** for the ERA5 fetch. Fallback to NOAA if ERA5 fails. **Log fallback action** with level WARNING and message "Falling back to NOAA API for location X on date Y". **FAIL LOUDLY** if both fail. **Ensure atomic writes and file locking for `data/raw/` to prevent race conditions.**
 - [ ] T013 [US1] Implement `src/ingestion/align_and_call.py`: Align SRA reads to reference genomes using minimap2. Call SNPs with bcftools. Output variant frequency vectors.
-  - **Reference Genomes (Exact Accession IDs)**:
-    - Wheat: RefSeq GCA_000003205.5
-    - Rice: Ensembl GCA_001433935.2
-    - Maize: RefSeq GCA_000005005.4
-    - Tomato: Sol Genomics Network SL4.0 (GCA_000188115.5)
-    - Soybean: Phytozome Wm82.a2.v1 (GCA_000004195.3)
+ - **Reference Genomes (Exact Accession IDs)**:
+ - Wheat: RefSeq GCA_000003205.5
+ - Rice: Ensembl GCA_001433935.2
+ - Maize: RefSeq GCA_000005005.4
+ - Tomato: Sol Genomics Network SL4.0 (GCA_000188115.5)
+ - Soybean: Phytozome Wm82.a2.v1 (GCA_000004195.3)
 - [ ] T015 [US1] Implement `src/ingestion/validate_labels.py`: Verify 'disease susceptibility' labels come from independent phenotypic sources (FR-010). **Input**: `data/processed/sample_metadata.csv` (output of T011/T012). **Validation Logic**: Check `phenotype_source` field in metadata against a whitelist of independent sources (e.g., field-trial-db, pathology-archive). Log linkage method. **Generate `data/processed/linkage_method.yaml` documenting the method and source.** Exclude ambiguous samples.
 - [ ] T014 [US1] Implement `src/ingestion/merge_features.py`: Merge genomic variant vectors with environmental data. **Input**: `data/processed/sample_metadata.csv` (for coordinates) to calculate distances. **Apply k-NN imputation (sklearn.impute.KNNImputer, n_neighbors=5) per Constitution Principle VI (Override of FR-004). See Plan: Constitution Check Table VI.** Exclude samples with no environmental neighbors within 50km (log action). **Note: This task implements the Constitution VI override of FR-004; see T037 for spec update.**
 - [ ] T016 [US1] Generate `data/processed/feature_matrix.csv` and `data/processed/label_validation.log`
@@ -147,7 +147,7 @@
 **Purpose**: Improvements that affect multiple user stories and final reporting
 
 - [ ] T029 [P] Generate `final_report.md` using `templates/final_report.md`. **Required Sections**: AUC-ROC (from `model_performance.json`), p-value (from `validation_report.json`), Variance Decomposition (from `variance_decomposition.json`), Linkage Method (from `linkage_method.yaml`). **Read values directly from these source files.**
-- [ ] T030a [P] Run `ruff check --fix` and `black .` on all source files.
+- [ ] T030a [P] Run `ruff check --fix` and `black.` on all source files.
 - [ ] T030b [P] Remove all debug prints and temporary variables; ensure clean logging.
 - [ ] T031 [P] Run `pytest` suite to ensure all tests pass.
 - [ ] T032 [P] Validate `quickstart.md` instructions work end-to-end.
@@ -165,8 +165,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -219,11 +219,11 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Pipeline - Critical Path)
-   - Developer B: Prepare US2/US3 test scaffolds (T009-T024, T015b, T034, T036)
+ - Developer A: User Story 1 (Data Pipeline - Critical Path)
+ - Developer B: Prepare US2/US3 test scaffolds (T009-T024, T015b, T034, T036)
 3. Once US1 data is ready:
-   - Developer A: US2 (Modeling)
-   - Developer B: US3 (Validation)
+ - Developer A: US2 (Modeling)
+ - Developer B: US3 (Validation)
 
 ---
 

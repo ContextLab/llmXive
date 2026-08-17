@@ -1,0 +1,14 @@
+# Existing dependencies from T002a
+pysam
+scikit-learn
+pandas
+numpy
+requests
+h5py
+matplotlib
+statsmodels
+pytest
+ruff
+black
+# New dependencies for T006 (Data Models)
+# No new external dependencies required for dataclasses and standard typing

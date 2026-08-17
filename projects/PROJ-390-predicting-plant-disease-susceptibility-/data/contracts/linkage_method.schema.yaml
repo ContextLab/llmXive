@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Linkage Method Schema
+description: Schema for validating linkage_method.yaml produced by T015.
+type: object
+required:
+  - method_name
+  - source_type
+  - validation_status
+  - timestamp
+properties:
+  method_name:
+    type: string
+    description: Name of the linkage method used (e.g., 'independent_phenotype_verification').
+  source_type:
+    type: string
+    description: Type of independent source used for verification.
+    enum:
+      - field-trial-db
+      - pathology-archive
+  validation_status:
+    type: string
+    description: Status of the sample linkage validation.
+    enum:
+      - verified
+      - ambiguous
+      - excluded
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the validation was performed.
+  excluded_samples_count:
+    type: integer
+    description: Number of samples excluded due to ambiguous linkage.
+  total_samples_processed:
+    type: integer
+    description: Total number of samples processed.
+additionalProperties: false

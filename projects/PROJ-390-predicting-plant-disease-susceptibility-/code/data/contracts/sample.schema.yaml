@@ -1,0 +1,53 @@
+# Schema definition for Sample entity (T006)
+# Used for validating JSON representations of samples during pipeline processing
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sample"
+description: "Represents a single biological sample with genomic and environmental data."
+type: "object"
+required:
+  - sample_id
+  - species
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample (e.g., SRA accession)."
+  species:
+    type: "string"
+    enum:
+      - "wheat"
+      - "rice"
+      - "maize"
+      - "tomato"
+      - "soybean"
+    description: "The plant species of the sample."
+  genomic_features:
+    type: "object"
+    description: "Dictionary mapping SNP IDs to allele frequencies or genotypes."
+    additionalProperties:
+      type: "number"
+  environmental_features:
+    type: "object"
+    description: "Dictionary mapping environmental variable names to values."
+    additionalProperties:
+      type: "number"
+  disease_status:
+    type: ["integer", "null"]
+    description: "Binary label (1 for susceptible, 0 for resistant/healthy)."
+    minimum: 0
+    maximum: 1
+  latitude:
+    type: ["number", "null"]
+    description: "Geographic latitude of sample collection."
+  longitude:
+    type: ["number", "null"]
+    description: "Geographic longitude of sample collection."
+  collection_date:
+    type: ["string", "null"]
+    description: "Date of sample collection (YYYY-MM-DD)."
+  phenotype_source:
+    type: ["string", "null"]
+    description: "Source of the disease susceptibility label."
+  metadata:
+    type: "object"
+    description: "Additional arbitrary metadata."
+    additionalProperties: true

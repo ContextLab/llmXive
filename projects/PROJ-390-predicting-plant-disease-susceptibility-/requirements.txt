@@ -1,0 +1,14 @@
+# Existing dependencies
+pysam
+scikit-learn
+pandas
+numpy
+requests
+h5py
+matplotlib
+statsmodels
+pytest
+pyyaml
+
+# New dependency for schema validation (T007)
+jsonschema
