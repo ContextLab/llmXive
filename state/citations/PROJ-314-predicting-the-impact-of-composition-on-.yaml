@@ -1,4 +1,4 @@
-- artifact_hash: 5a7aa45dc25349fe9bf999dd212198dd2ca940eec3f8a4af888c497b4b574111
+- artifact_hash: 3774d07a1cd54d3f14c96a9adcb0b38fe5015e736182d8f55ce6663a61b7ced8
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,65 +8,21 @@
   value: https://example.com
   verification_status: pending
   verified_against_url: https://example.com
-  verified_at: '2026-08-16T11:03:42.816569Z'
-- artifact_hash: 5a7aa45dc25349fe9bf999dd212198dd2ca940eec3f8a4af888c497b4b574111
+  verified_at: '2026-08-17T13:13:15.888121Z'
+- artifact_hash: 3774d07a1cd54d3f14c96a9adcb0b38fe5015e736182d8f55ce6663a61b7ced8
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: url
-  value: https://github.com/materials-science/ceramic-weibull-data/raw/main/data.csv`
+  kind: doi
+  value: 10.5281/zenodo.7964353
   verification_status: mismatch
-  verified_against_url: https://github.com/materials-science/ceramic-weibull-data/raw/main/data.csv
-  verified_at: '2026-08-16T11:03:42.816569Z'
-- artifact_hash: 5a7aa45dc25349fe9bf999dd212198dd2ca940eec3f8a4af888c497b4b574111
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.7964353
+  verified_at: '2026-08-17T13:13:15.888121Z'
+- artifact_hash: 3774d07a1cd54d3f14c96a9adcb0b38fe5015e736182d8f55ce6663a61b7ced8
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://materialsdata.nist.gov/bitstream/handle/11111/12345/ceramic_weibull.csv`
-  verification_status: mismatch
-  verified_against_url: https://materialsdata.nist.gov/bitstream/handle/11111/12345/ceramic_weibull.csv
-  verified_at: '2026-08-16T11:03:42.816569Z'
-- artifact_hash: 5a7aa45dc25349fe9bf999dd212198dd2ca940eec3f8a4af888c497b4b574111
-  artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://materialsdata.nist.gov/handle/11111/12345`
-  verification_status: mismatch
-  verified_against_url: https://materialsdata.nist.gov/handle/11111/12345
-  verified_at: '2026-08-16T11:03:42.816569Z'
-- artifact_hash: 5a7aa45dc25349fe9bf999dd212198dd2ca940eec3f8a4af888c497b4b574111
-  artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-005
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.1234567
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
-  verified_at: '2026-08-16T11:03:42.816569Z'
-- artifact_hash: 5a7aa45dc25349fe9bf999dd212198dd2ca940eec3f8a4af888c497b4b574111
-  artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-006
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.9876543
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.9876543
-  verified_at: '2026-08-16T11:03:42.816569Z'
-- artifact_hash: 5a7aa45dc25349fe9bf999dd212198dd2ca940eec3f8a4af888c497b4b574111
-  artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-007
   cited_authors: []
   cited_title: null
   fetched_title: "Fluoride\u2010mediately solvothermal synthesis and tunable photocatalytic\
@@ -76,4 +32,4 @@
   value: 10.1111/jace.18342
   verification_status: pending
   verified_against_url: https://doi.org/10.1111/jace.18342
-  verified_at: '2026-08-16T11:03:42.816569Z'
+  verified_at: '2026-08-17T13:13:15.888121Z'

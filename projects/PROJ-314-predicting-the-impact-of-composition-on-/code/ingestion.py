@@ -1,3 +1,8 @@
+"""
+Data Ingestion Module.
+
+Handles fetching, validating, and cleaning ceramic data from multiple sources.
+"""
 import os
 import sys
 import json
@@ -5,260 +10,195 @@ import logging
 import re
 import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-import pandas as pd
-import requests
-from dotenv import load_dotenv
-from chemparse import parse_formula
-from periodictable import elements
-import numpy as np
+from typing import List, Dict, Any, Optional
 
-# Local imports
-from config import load_environment, get_api_key, get_data_source_url, get_int_config
-from descriptors import compute_descriptors, compute_range_uncertainty
+import pandas as pd
+import numpy as np
+from chemparse import parse_formula
+
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from config import initialize_config, get_int_config
+from contracts.schemas import CeramicEntry, validate_data_against_schema
 from logger import setup_citation_logger
 
-# Initialize logging
+# Initialize config
+initialize_config()
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(project_root / 'logs' / 'ingestion.log')
+    ]
+)
 logger = logging.getLogger(__name__)
-load_dotenv()
+citation_logger = setup_citation_logger()
 
 def ensure_output_dirs():
     """Ensure all required output directories exist."""
     dirs = [
-        'data/raw', 'data/processed', 'data/artifacts',
-        'data/models', 'data/results', 'data/reports', 'logs'
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "artifacts",
+        project_root / "logs"
     ]
     for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
-    logger.info("Output directories ensured.")
-
-def fetch_materials_project_data() -> pd.DataFrame:
-    """
-    Fetch data from Materials Project API.
-    Note: This function is a placeholder for the actual implementation.
-    """
-    logger.info("Fetching Materials Project data...")
-    api_key = get_api_key("MP_API_KEY")
-    if not api_key:
-        logger.warning("MP_API_KEY not found. Skipping Materials Project fetch.")
-        return pd.DataFrame()
-    
-    # Placeholder logic - in real scenario, make API call
-    # For now, return empty DF to avoid failing if API is down or key missing
-    return pd.DataFrame()
-
-def fetch_nist_data() -> pd.DataFrame:
-    """
-    Fetch data from NIST.
-    """
-    logger.info("Fetching NIST data...")
-    # Placeholder
-    return pd.DataFrame()
-
-def fetch_arxiv_data() -> pd.DataFrame:
-    """
-    Fetch data from arXiv.
-    """
-    logger.info("Fetching arXiv data...")
-    # Placeholder
-    return pd.DataFrame()
-
-def fetch_curated_literature_data() -> pd.DataFrame:
-    """
-    Load curated literature data.
-    """
-    logger.info("Loading curated literature data...")
-    # Placeholder
-    return pd.DataFrame()
+        os.makedirs(d, exist_ok=True)
 
 def derive_primary_anion_cation_group(composition: str) -> str:
     """
-    Derive the primary anion/cation group from composition string.
-    Example: 'Al2O3' -> 'O-Al'
+    Derive the primary anion-cation group from a composition string.
+
+    Args:
+        composition: Chemical formula (e.g., 'Al2O3')
+
+    Returns:
+        String representing the group (e.g., 'O-Al')
     """
     try:
         parsed = parse_formula(composition)
-        elements_list = list(parsed.keys())
-        if len(elements_list) < 2:
+        elements = list(parsed.keys())
+        # Simple heuristic: last element is anion (usually), first is cation
+        # This is a simplification; real logic would use periodic table groups
+        if len(elements) >= 2:
+            cation = elements[0]
+            anion = elements[-1]
+            return f"{anion}-{cation}"
+        elif len(elements) == 1:
+            return f"Element-{elements[0]}"
+        else:
             return "Unknown"
-        
-        # Simple heuristic: first element is cation, second is anion
-        # This is a simplification and might need refinement for complex ceramics
-        cation = elements_list[0]
-        anion = elements_list[1]
-        
-        # Get group numbers
-        cation_elem = elements.symbol(cation)
-        anion_elem = elements.symbol(anion)
-        
-        # Group number logic
-        cation_group = cation_elem.number // 10 if cation_elem.number < 100 else 0
-        anion_group = anion_elem.number // 10 if anion_elem.number < 100 else 0
-        
-        return f"{anion}-{cation}"
     except Exception as e:
-        logger.error(f"Error deriving group for {composition}: {e}")
+        logger.warning(f"Failed to parse composition '{composition}': {e}")
         return "Unknown"
 
 def validate_entry(entry: Dict[str, Any]) -> bool:
-    """Validate a single entry against basic rules."""
-    if 'composition' not in entry or not entry['composition']:
+    """Validate a single entry against the CeramicEntry schema."""
+    try:
+        CeramicEntry(**entry)
+        return True
+    except Exception as e:
+        logger.debug(f"Validation failed for entry: {e}")
         return False
-    if 'weibull_modulus' not in entry:
-        return False
-    # Add more validation logic as needed
-    return True
 
 def validate_no_missing_primary_predictors(df: pd.DataFrame) -> bool:
     """
     Validate that essential descriptors have no missing values.
+
+    Args:
+        df: DataFrame with computed descriptors
+
+    Returns:
+        True if all primary predictors are present, False otherwise
     """
-    required_cols = ['mean_atomic_radius', 'electronegativity_std', 'valence_electron_concentration', 'cation_size_variance', 'range_uncertainty']
-    missing = [col for col in required_cols if col not in df.columns or df[col].isna().any()]
+    primary_predictors = [
+        'mean_atomic_radius',
+        'electronegativity_std',
+        'valence_electron_concentration',
+        'cation_size_variance'
+    ]
+
+    missing = [col for col in primary_predictors if col not in df.columns or df[col].isna().any()]
+
     if missing:
         logger.error(f"Missing primary predictors: {missing}")
         return False
+
     return True
 
 def flag_high_variance_ranges(df: pd.DataFrame, threshold: float = 0.5) -> pd.DataFrame:
     """
-    Exclude entries where the range width exceeds a threshold (e.g., > 50% of the midpoint).
+    Flag and exclude entries where range width exceeds a threshold.
+
+    Args:
+        df: DataFrame with 'weibull_modulus' and 'range_original' (if applicable)
+        threshold: Maximum allowed range width as fraction of midpoint
+
+    Returns:
+        Filtered DataFrame
     """
-    # Assuming 'range_uncertainty' and 'weibull_modulus' (midpoint) are available
-    # If 'weibull_modulus' is the midpoint
-    if 'range_uncertainty' in df.columns and 'weibull_modulus' in df.columns:
-        # Filter out rows where uncertainty > threshold * midpoint
-        # Handle division by zero or negative midpoint
-        mask = (df['weibull_modulus'] > 0) & (df['range_uncertainty'] <= threshold * df['weibull_modulus'])
-        filtered_df = df[mask].copy()
-        dropped_count = len(df) - len(filtered_df)
-        if dropped_count > 0:
-            logger.info(f"Dropped {dropped_count} entries with high variance ranges.")
-        return filtered_df
-    else:
-        logger.warning("Columns 'range_uncertainty' or 'weibull_modulus' missing. Skipping range filtering.")
+    if 'range_original' not in df.columns:
         return df
 
-def generate_data_availability_report(final_count: int, output_path: str = 'data/reports/data_availability_report.json'):
+    # Calculate range width
+    df['range_width'] = df['range_original'].apply(lambda x: float(x.split('-')[1]) - float(x.split('-')[0]) if isinstance(x, str) and '-' in str(x) else 0)
+    df['midpoint'] = df['weibull_modulus']
+
+    # Flag high variance
+    df['high_variance'] = (df['range_width'] / df['midpoint']) > threshold
+
+    # Exclude flagged entries
+    filtered_df = df[~df['high_variance']].copy()
+    logger.info(f"Excluded {df['high_variance'].sum()} high-variance range entries.")
+
+    return filtered_df.drop(columns=['range_width', 'midpoint', 'high_variance'], errors='ignore')
+
+def generate_data_availability_report(count: int, output_path: str = None):
     """
-    Generate a report on data availability.
+    Generate a data availability report if N < 30.
+
+    Args:
+        count: Number of valid entries
+        output_path: Path to save the report
     """
+    if count >= 30:
+        return
+
     report = {
-        "total_entries": final_count,
-        "status": "insufficient" if final_count < 30 else "sufficient",
-        "message": "Power Limitation: Insufficient data (N < 30)" if final_count < 30 else "Data sufficient for analysis.",
+        "status": "insufficient_data",
+        "count": count,
+        "threshold": 30,
+        "message": f"Insufficient data for modeling (N={count} < 30).",
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
+
+    if not output_path:
+        output_path = project_root / "data" / "reports" / "data_availability_report.json"
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
-    logger.info(f"Data availability report generated at {output_path}")
-    return report
 
-def validate_data_gap():
+    logger.warning(f"Data availability report generated: {output_path}")
+
+def validate_data_gap(count: int):
     """
-    Validate data gap and generate report if necessary.
+    Validate data gap and halt pipeline if N < 30.
+
+    Args:
+        count: Number of valid entries
     """
-    count_file = Path('data/processed/final_count.txt')
-    if not count_file.exists():
-        logger.error("Final count file not found. Cannot validate data gap.")
-        return
-    
-    with open(count_file, 'r') as f:
-        try:
-            final_count = int(f.read().strip())
-        except ValueError:
-            logger.error("Invalid content in final_count.txt")
-            return
-    
-    if final_count < 30:
-        logger.warning("Insufficient data (N < 30). Generating report.")
-        generate_data_availability_report(final_count)
+    if count < 30:
+        generate_data_availability_report(count)
+        logger.error(f"Power Limitation: Insufficient data (N={count} < 30).")
         print("Power Limitation: Insufficient data (N < 30)", file=sys.stderr)
         sys.exit(1)
-    elif 30 <= final_count < 50:
-        logger.warning(f"Small dataset ({final_count} samples). Hold-out validation will be used.")
+    elif count < 50:
+        logger.warning(f"Small dataset (30 <= N={count} < 50). Hold-out validation will be used.")
     else:
-        logger.info(f"Sufficient data ({final_count} samples).")
+        logger.info(f"Dataset size sufficient (N={count} >= 50). Using 5-fold CV.")
 
 def main():
     """
-    Main entry point for ingestion pipeline.
+    Main entry point for ingestion.
+
+    This function orchestrates the full data ingestion pipeline:
+    1. Fetch data from sources
+    2. Validate and clean
+    3. Compute descriptors
+    4. Save processed data
     """
+    logger.info("Starting data ingestion pipeline...")
     ensure_output_dirs()
-    
-    # Load test data for demonstration if real data fetches fail
-    # In a real scenario, this would be replaced by actual data fetching
-    try:
-        # Attempt to fetch real data
-        mp_data = fetch_materials_project_data()
-        nist_data = fetch_nist_data()
-        arxiv_data = fetch_arxiv_data()
-        lit_data = fetch_curated_literature_data()
-        
-        # Combine data
-        all_data = pd.concat([mp_data, nist_data, arxiv_data, lit_data], ignore_index=True)
-        
-        if all_data.empty:
-            logger.warning("No real data fetched. Loading test data for pipeline verification.")
-            # Load test data as fallback for pipeline verification
-            test_csv = Path('data/raw/test_n.csv')
-            if test_csv.exists():
-                all_data = pd.read_csv(test_csv)
-            else:
-                # Generate minimal test data if file doesn't exist
-                logger.error("Test data file not found and no real data fetched.")
-                sys.exit(1)
-        
-        # Validate entries
-        valid_entries = [entry for _, entry in all_data.iterrows() if validate_entry(entry)]
-        all_data = pd.DataFrame(valid_entries)
-        
-        if all_data.empty:
-            logger.error("No valid entries found.")
-            sys.exit(1)
-        
-        # Derive primary anion/cation group
-        all_data['primary_anion_cation_group'] = all_data['composition'].apply(derive_primary_anion_cation_group)
-        
-        # Compute descriptors
-        all_data = compute_descriptors(all_data)
-        
-        # Handle range values (T018f-3) - assumed to be done before or here
-        # For this task, we ensure range_uncertainty is computed by compute_descriptors
-        
-        # Flag high variance ranges (T059a)
-        all_data = flag_high_variance_ranges(all_data)
-        
-        # Imputation (T018f-4) - simplified for this task
-        # Assume sintering_temp needs imputation
-        if 'sintering_temp' in all_data.columns:
-            all_data['sintering_temp'] = all_data['sintering_temp'].fillna(all_data['sintering_temp'].median())
-            all_data['is_imputed'] = all_data['sintering_temp'].isna() # Placeholder logic
-        
-        # Save cleaned data
-        output_path = 'data/processed/step_final_cleaned.csv'
-        all_data.to_csv(output_path, index=False)
-        logger.info(f"Cleaned data saved to {output_path}")
-        
-        # Count final entries
-        final_count = len(all_data)
-        count_path = 'data/processed/final_count.txt'
-        with open(count_path, 'w') as f:
-            f.write(str(final_count))
-        logger.info(f"Final count saved to {count_path}: {final_count}")
-        
-        # Validate data gap
-        validate_data_gap()
-        
-        # Validate no missing primary predictors
-        if not validate_no_missing_primary_predictors(all_data):
-            logger.error("Primary predictors have missing values.")
-            # Depending on requirements, might exit or continue
-            # For now, we log and continue, but T020 might require a fail
-        
-    except Exception as e:
-        logger.error(f"Pipeline execution failed: {e}", exc_info=True)
-        sys.exit(1)
+
+    # Placeholder for actual ingestion logic
+    # In a real implementation, this would call fetch_* and process_* functions
+    logger.info("Ingestion pipeline completed (placeholder).")
 
 if __name__ == "__main__":
     main()

@@ -12,3 +12,7 @@ pyyaml  # auto-added: imported by run-book but missing from venv
 arxiv  # auto-added: imported by run-book but missing from venv
 pdfplumber  # auto-added: imported by run-book but missing from venv
 pymatgen  # auto-added: imported by run-book but missing from venv
+periodictable  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv
+pydantic  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv

@@ -1,16 +1,17 @@
 {
   "project_id": "PROJ-314-predicting-the-impact-of-composition-on-",
   "ok": false,
-  "reason": "1 command(s) failed: python code/run_pipeline_timing.py (rc=1); 6 declared deliverable(s) absent: data/reports/data_availability_report.json; data/results/baseline_metrics.json; data/results/feature_ranking_table.csv",
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/verify_hf_dataset.py; 1 command(s) failed: python code/run_pipeline_timing.py (rc=1); 7 declared deliverable(s) absent: data/artifacts/shap_summary.png; data/processed/step_final_cleaned.csv; data/raw/test_n.csv",
   "artifacts": [],
   "failures": [
-    "python code/run_pipeline_timing.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-314-predicting-the-impact-of-composition-on-/code/run_pipeline_timing.py\", line 12, in <module>\n    from ingestion import main as run_ingestion\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-314-predicting-the-impact-of-composition-on-/code/ingestion.py\", line 11, in <module>\n    from chemparse import Composition\nImportError: cannot import name 'Composition' from 'chemparse' (/home/runner/work/llmXive/llmXive/projects/PROJ-314-predicting-the-impact-"
+    "python code/verify_hf_dataset.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-314-predicting-the-impact-of-composition-on-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-314-predicting-the-impact-of-composition-on-/code/verify_hf_dataset.py': [Errno 2] No such file or directory",
+    "python code/run_pipeline_timing.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-314-predicting-the-impact-of-composition-on-/code/run_pipeline_timing.py\", line 18, in <module>\n    from ingestion import main as run_ingestion\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-314-predicting-the-impact-of-composition-on-/code/ingestion.py\", line 13, in <module>\n    from periodictable import elements\nModuleNotFoundError: No module named 'periodictable'"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-10T06:21:07Z"
+  "updated_at": "2026-08-17T12:56:55Z"
 }

@@ -1,6 +1,8 @@
 """
-Script to generate a small test dataset for T017c (Data Gap Validation).
-Creates data/raw/test_n.csv with exactly 29 rows to trigger the <30 threshold in T017b.
+Create Test Dataset with Specific Sample Count (N).
+
+This script generates a test dataset with a controlled number of rows
+to test data gap validation logic (specifically for N < 30 cases).
 """
 import os
 import sys
@@ -8,90 +10,100 @@ import logging
 import pandas as pd
 from pathlib import Path
 
-# Add parent directory to path for imports if running as script
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
+from config import initialize_config
+
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(project_root / 'logs' / 'test_data_generation.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def generate_test_dataset(output_path: str, num_rows: int = 29) -> None:
+# Initialize config
+initialize_config()
+
+# Valid compositions as per task T017c
+VALID_COMPOSITIONS = [
+    'Al2O3', 'ZrO2', 'SiC', 'Si3N4', 'MgO',
+    'TiC', 'HfC', 'B4C', 'WC', 'AlN'
+]
+
+def generate_test_dataset(num_rows: int = 29, output_path: str = None) -> pd.DataFrame:
     """
-    Generate a test dataset with specific compositions repeated cyclically.
-    
+    Generate a test dataset with a specific number of rows.
+
     Args:
-        output_path: Full path to the output CSV file.
-        num_rows: Number of rows to generate (default 29 to test <30 threshold).
+        num_rows: Number of rows to generate (default 29 for T017c)
+        output_path: Optional path to save the dataset
+
+    Returns:
+        Generated DataFrame
     """
     logger.info(f"Generating test dataset with {num_rows} rows...")
-    
-    # Fixed list of valid compositions as per task requirements
-    compositions = [
-        'Al2O3', 'ZrO2', 'SiC', 'Si3N4', 'MgO', 
-        'TiC', 'HfC', 'B4C', 'WC', 'AlN'
-    ]
-    
-    # Generate data rows
-    data = []
-    for i in range(num_rows):
-        comp = compositions[i % len(compositions)]
-        
-        # Create representative but varied data
-        # Weibull modulus: float between 5.0 and 25.0
-        weibull = 5.0 + (i * 2.0) % 20.0
-        
-        # Sample count: int >= 30 (valid per T018f-1)
-        # This ensures the <30 check is on TOTAL ROWS, not individual sample counts
-        sample_count = 30 + (i % 50)
-        
-        # Sintering temp: float between 1000.0 and 2000.0
-        sintering_temp = 1000.0 + (i * 30.0) % 1000.0
-        
-        # Primary anion/cation group: Derived from composition
-        # For simplicity, we map based on the primary anion
-        if 'O' in comp:
-            primary_group = 'O-Metal'
-        elif 'C' in comp:
-            primary_group = 'C-Metal'
-        elif 'N' in comp:
-            primary_group = 'N-Metal'
-        else:
-            primary_group = 'Unknown'
-        
-        data.append({
-            'composition': comp,
-            'weibull_modulus': round(weibull, 2),
-            'sample_count': sample_count,
-            'sintering_temp': round(sintering_temp, 1),
-            'primary_anion_cation_group': primary_group
-        })
-    
-    # Create DataFrame
-    df = pd.DataFrame(data)
-    
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    
-    logger.info(f"Successfully generated {len(df)} rows at {output_path}")
-    logger.info(f"Columns: {list(df.columns)}")
-    logger.info(f"Sample data:\n{df.head()}")
+
+    # Cycle through compositions to ensure variety
+    compositions = [VALID_COMPOSITIONS[i % len(VALID_COMPOSITIONS)] for i in range(num_rows)]
+
+    # Generate synthetic but realistic values
+    # Weibull modulus typically ranges from 2 to 30 for ceramics
+    import numpy as np
+    np.random.seed(42)  # Reproducibility
+
+    weibull_modulus = np.random.uniform(5.0, 25.0, num_rows)
+    sample_count = np.random.randint(30, 100, num_rows)  # N >= 30 for valid entries
+    sintering_temp = np.random.uniform(1000.0, 1800.0, num_rows)
+
+    # Primary anion/cation group (derived from composition)
+    # Simplified mapping for test data
+    def get_group(comp):
+        if 'O' in comp: return 'O-Metal'
+        if 'N' in comp: return 'N-Metal'
+        if 'C' in comp: return 'C-Metal'
+        return 'Other'
+
+    primary_groups = [get_group(c) for c in compositions]
+
+    df = pd.DataFrame({
+        'composition': compositions,
+        'weibull_modulus': weibull_modulus,
+        'sample_count': sample_count,
+        'sintering_temp': sintering_temp,
+        'primary_anion_cation_group': primary_groups
+    })
+
+    if output_path:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Test dataset saved to {output_path}")
+    else:
+        logger.warning("No output path provided; dataset not saved.")
+
+    return df
 
 def main():
-    """Main entry point for the script."""
-    # Define output path relative to project root
-    project_root = Path(__file__).parent.parent.parent
+    """Main entry point."""
+    # Default to 29 rows as per T017c requirement
+    num_rows = 29
     output_path = project_root / "data" / "raw" / "test_n.csv"
-    
-    # Generate 29 rows to trigger the <30 threshold in T017b
-    generate_test_dataset(str(output_path), num_rows=29)
-    
-    logger.info("Test dataset generation complete.")
+
+    logger.info("Starting test dataset generation...")
+    df = generate_test_dataset(num_rows=num_rows, output_path=str(output_path))
+
+    # Verify row count
+    if len(df) != num_rows:
+        logger.error(f"Row count mismatch: expected {num_rows}, got {len(df)}")
+        sys.exit(1)
+
+    logger.info(f"Successfully generated {len(df)} rows.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
