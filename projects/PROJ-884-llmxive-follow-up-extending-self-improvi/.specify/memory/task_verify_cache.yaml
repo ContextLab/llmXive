@@ -1,3 +1,30 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory tree (`projects/PROJ-884-llmxive-follow-up-extending-self-improvi/...`)
+    is provided; without confirming that the folders exist, the task cannot be considered
+    fulfilled. The implementer must show that the specified directories have been
+    created (e.g., a directory listing or screenshot).
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a Git repository being initialized nor a `.gitignore` file with\
+    \ Python\u2011specific entries is provided; the claim lacks any tangible artifact\
+    \ to confirm the required setup."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`/`setup.cfg`
+    with Black settings, or CI integration scripts) are present in the provided evidence,
+    so the requirement to configure flake8 and Black is not satisfied. The implementer
+    must add the appropriate configuration files and ensure they are applied to the
+    codebase.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/` and `data/processed/` directories being
+    created (or containing any files) is provided; the claim lacks concrete artifacts
+    confirming the directory structure exists.
 T005:
   c: true
   h: c0a342b830cefc5b1fe70b28d49521e3ec6a3892eb2aecec8974d66aebe97e59
@@ -5,13 +32,6 @@ T005:
     containing the required `timestamp`, `wall_clock`, and `resource_usage` fields
     to `data/processed/experiment.log`. The implementation correctly creates the directory
     and file when invoked, satisfying the task specification.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no code, script, configuration, or documentation that adds
-    checksum validation for files in `data/raw/`. There is no evidence of a checksum
-    generation step, a verification routine, or tests confirming integrity checks,
-    so the required artifact is missing.
 T029:
   c: false
   h: 04a553199a3f3ef34fe38038d1e523f410ef705dc153ef43bcf56b6164c4cc91

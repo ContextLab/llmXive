@@ -1,331 +1,389 @@
 """
 Symbolic Parser Module for llmXive BES Pipeline.
 
-Converts puzzle constraints from the dataset format into a formal language
-parseable by the symbolic planner (code/symbolic/planner.py).
-
-Handles:
-- Parsing JSON puzzle instances
-- Detecting malformed structures (raising PARSE_FAILURE)
-- Detecting logical contradictions in constraints (raising CONTRADICTION_DETECTED)
-- Generating a formal representation string for the planner
+This module implements the conversion of puzzle constraints into a formal language
+parseable by the symbolic planner. It handles parsing of dataset files, validation
+of constraint formats, and conversion to internal formal constraint objects.
 """
 
 import json
 import re
 from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
+from dataclasses import dataclass, field
+from enum import Enum
 
-# Import custom exceptions from the project's exception module
 from code.exceptions import PARSE_FAILURE, CONTRADICTION_DETECTED, raise_parse_failure, raise_contradiction
+from code.utils.logger import log
 
 
+class FormalConstraintType(Enum):
+    """Enumeration of formal constraint types supported by the planner."""
+    EQUALITY = "equality"
+    INEQUALITY = "inequality"
+    EXISTENCE = "existence"
+    UNIQUENESS = "uniqueness"
+    ORDERING = "ordering"
+    PATH = "path"
+    BLOCKING = "blocking"
+    VALUE_RANGE = "value_range"
+
+
+@dataclass
 class FormalConstraint:
-    """Represents a single parsed constraint in the formal language."""
-    def __init__(self, constraint_type: str, variables: List[str], value: Any, raw_desc: str):
-        self.constraint_type = constraint_type
-        self.variables = variables
-        self.value = value
-        self.raw_desc = raw_desc
+    """
+    Represents a formal constraint in the internal representation.
 
-    def __repr__(self):
-        return f"FormalConstraint({self.constraint_type}, {self.variables}, {self.value})"
+    Attributes:
+        constraint_id: Unique identifier for this constraint instance.
+        constraint_type: The type of constraint (equality, inequality, etc.).
+        operands: List of operands involved in the constraint (variables, values).
+        operator: The logical operator used (==, !=, <, >, etc.).
+        metadata: Additional metadata for the constraint (source, confidence, etc.).
+        raw_text: The original text representation of this constraint.
+    """
+    constraint_id: str
+    constraint_type: FormalConstraintType
+    operands: List[Any] = field(default_factory=list)
+    operator: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    raw_text: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the constraint to a dictionary representation."""
+        return {
+            "constraint_id": self.constraint_id,
+            "constraint_type": self.constraint_type.value,
+            "operands": self.operands,
+            "operator": self.operator,
+            "metadata": self.metadata,
+            "raw_text": self.raw_text
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "FormalConstraint":
+        """Create a FormalConstraint from a dictionary."""
+        return cls(
+            constraint_id=data["constraint_id"],
+            constraint_type=FormalConstraintType(data["constraint_type"]),
+            operands=data.get("operands", []),
+            operator=data.get("operator"),
+            metadata=data.get("metadata", {}),
+            raw_text=data.get("raw_text")
+        )
 
 
 class PuzzleParser:
     """
-    Parses puzzle instances into a formal language representation.
+    Parser for converting puzzle instances into formal constraints.
 
-    Supported formal language constructs (internal representation):
-    - EQUALS(var, value)
-    - NOT_EQUALS(var, value)
-    - IN_SET(var, [val1, val2, ...])
-    - UNIQUE(var_list)
-    - ADJACENT(var1, var2)
-    - SUM_EQUALS(var_list, value)
+    This class handles the translation of puzzle data (from JSON schema) into
+    a formal language that the symbolic planner can understand and process.
     """
 
-    def __init__(self):
-        self.errors = []
-        self.warnings = []
-
-    def parse_puzzle_instance(self, instance: Dict[str, Any]) -> Tuple[List[FormalConstraint], Dict[str, Any]]:
+    def __init__(self, constraint_id_prefix: str = "C"):
         """
-        Parses a dictionary representation of a puzzle instance into formal constraints.
+        Initialize the parser.
 
         Args:
-            instance: A dictionary representing a puzzle instance (from data/raw/).
+            constraint_id_prefix: Prefix for generated constraint IDs.
+        """
+        self.constraint_id_prefix = constraint_id_prefix
+        self.constraint_counter = 0
+        self._log = log
+
+    def _generate_constraint_id(self) -> str:
+        """Generate a unique constraint ID."""
+        self.constraint_counter += 1
+        return f"{self.constraint_id_prefix}_{self.constraint_counter:04d}"
+
+    def parse_puzzle_constraints(self, puzzle_instance: Dict[str, Any]) -> List[FormalConstraint]:
+        """
+        Parse constraints from a single puzzle instance.
+
+        Args:
+            puzzle_instance: A dictionary representing a puzzle instance
+                             with constraints, initial state, and target state.
 
         Returns:
-            A tuple of (list of FormalConstraint objects, metadata dict).
+            A list of FormalConstraint objects representing the parsed constraints.
 
         Raises:
-            PARSE_FAILURE: If the structure is malformed or missing required keys.
-            CONTRADICTION_DETECTED: If constraints logically contradict each other.
+            PARSE_FAILURE: If the puzzle instance cannot be parsed.
+            CONTRADICTION_DETECTED: If contradictory constraints are detected.
         """
-        if not isinstance(instance, dict):
-            raise_parse_failure("Input instance must be a dictionary.")
+        if not isinstance(puzzle_instance, dict):
+            raise_parse_failure("Puzzle instance must be a dictionary")
 
-        # Validate required keys
-        required_keys = ['id', 'constraints', 'variables']
-        for key in required_keys:
-            if key not in instance:
-                raise_parse_failure(f"Missing required key in puzzle instance: '{key}'")
-
-        puzzle_id = instance['id']
-        variables = instance['variables']
-        raw_constraints = instance['constraints']
-
-        if not isinstance(variables, list):
-            raise_parse_failure("'variables' must be a list of variable names.")
+        constraints = []
+        raw_constraints = puzzle_instance.get("constraints", [])
 
         if not isinstance(raw_constraints, list):
-            raise_parse_failure("'constraints' must be a list of constraint objects.")
+            raise_parse_failure("Constraints field must be a list")
 
-        formal_constraints = []
-        parsed_vars = set()
-
-        # Parse variables to ensure uniqueness
-        for var in variables:
-            if not isinstance(var, str):
-                raise_parse_failure(f"Variable name must be a string, got: {type(var)}")
-            parsed_vars.add(var)
-
-        # Parse constraints
         for idx, raw_constraint in enumerate(raw_constraints):
-            if not isinstance(raw_constraint, dict):
-                raise_parse_failure(f"Constraint at index {idx} is not a dictionary.")
+            try:
+                constraint = self._parse_single_constraint(raw_constraint, idx)
+                if constraint:
+                    constraints.append(constraint)
+            except (PARSE_FAILURE, CONTRADICTION_DETECTED):
+                raise
+            except Exception as e:
+                raise_parse_failure(f"Failed to parse constraint {idx}: {str(e)}")
 
-            constraint_type = raw_constraint.get('type')
-            if not constraint_type:
-                raise_parse_failure(f"Constraint at index {idx} missing 'type' field.")
+        # Validate for contradictions
+        self._validate_constraint_set(constraints)
 
-            # Map high-level types to internal formal types
-            formal_type = self._map_constraint_type(constraint_type)
-            if not formal_type:
-                raise_parse_failure(f"Unknown constraint type '{constraint_type}' at index {idx}.")
+        return constraints
 
-            # Extract variables and values based on type
-            parsed_vars_in_constraint, value = self._extract_constraint_data(
-                formal_type, raw_constraint, parsed_vars, idx
-            )
+    def _parse_single_constraint(self, raw_constraint: Any, index: int) -> Optional[FormalConstraint]:
+        """
+        Parse a single constraint from raw data.
 
-            # Check for contradictions immediately
-            self._check_contradictions(formal_constraints, FormalConstraint(
-                formal_type, parsed_vars_in_constraint, value, str(raw_constraint)
-            ), idx)
+        Args:
+            raw_constraint: The raw constraint data (dict or string).
+            index: The index of the constraint in the list.
 
-            formal_constraints.append(FormalConstraint(
-                formal_type, parsed_vars_in_constraint, value, str(raw_constraint)
-            ))
+        Returns:
+            A FormalConstraint object or None if the constraint is empty.
+        """
+        if isinstance(raw_constraint, str):
+            return self._parse_string_constraint(raw_constraint, index)
+        elif isinstance(raw_constraint, dict):
+            return self._parse_dict_constraint(raw_constraint, index)
+        else:
+            raise_parse_failure(f"Constraint at index {index} must be string or dict, got {type(raw_constraint)}")
 
-        return formal_constraints, {'id': puzzle_id, 'variable_count': len(parsed_vars)}
+    def _parse_string_constraint(self, constraint_str: str, index: int) -> FormalConstraint:
+        """
+        Parse a constraint from a string representation.
 
-    def _map_constraint_type(self, type_str: str) -> Optional[str]:
-        """Maps dataset constraint types to internal formal language types."""
-        type_map = {
-            'equals': 'EQUALS',
-            'not_equals': 'NOT_EQUALS',
-            'in_set': 'IN_SET',
-            'unique': 'UNIQUE',
-            'adjacent': 'ADJACENT',
-            'sum_equals': 'SUM_EQUALS',
-            'range': 'RANGE'
+        Supports formats like:
+        - "A == B"
+        - "X > 5"
+        - "path_from_start_to_end"
+        - "unique_row_1"
+        """
+        constraint_str = constraint_str.strip()
+        if not constraint_str:
+            raise_parse_failure(f"Empty constraint string at index {index}")
+
+        # Pattern matching for different constraint types
+        patterns = {
+            FormalConstraintType.EQUALITY: r"(\w+)\s*==\s*(\w+)",
+            FormalConstraintType.INEQUALITY: r"(\w+)\s*(!=|<|>|<=|>=)\s*(\w+)",
+            FormalConstraintType.VALUE_RANGE: r"(\w+)\s*in\s*\(([^)]+)\)",
+            FormalConstraintType.ORDERING: r"(\w+)\s*<\s*(\w+)",  # Overlaps with inequality
         }
-        return type_map.get(type_str.lower())
 
-    def _extract_constraint_data(self, formal_type: str, raw: Dict, valid_vars: set, idx: int) -> Tuple[List[str], Any]:
-        """Extracts variables and values from a raw constraint dict."""
-        vars_list = []
-        value = None
+        # Check for path constraint
+        if constraint_str.startswith("path_"):
+            parts = constraint_str.split("_")
+            if len(parts) >= 3:
+                return FormalConstraint(
+                    constraint_id=self._generate_constraint_id(),
+                    constraint_type=FormalConstraintType.PATH,
+                    operands=parts[1:],
+                    operator="path",
+                    raw_text=constraint_str
+                )
 
-        if formal_type == 'EQUALS' or formal_type == 'NOT_EQUALS':
-            vars_list = [raw.get('variable')]
-            value = raw.get('value')
-            if not vars_list[0] or vars_list[0] not in valid_vars:
-                raise_parse_failure(f"Invalid variable '{vars_list[0]}' in constraint at index {idx}.")
-            if value is None:
-                raise_parse_failure(f"Missing 'value' in constraint at index {idx}.")
+        # Check for uniqueness constraint
+        if constraint_str.startswith("unique_"):
+            parts = constraint_str.split("_")
+            if len(parts) >= 2:
+                return FormalConstraint(
+                    constraint_id=self._generate_constraint_id(),
+                    constraint_type=FormalConstraintType.UNIQUENESS,
+                    operands=parts[1:],
+                    operator="unique",
+                    raw_text=constraint_str
+                )
 
-        elif formal_type == 'IN_SET':
-            vars_list = [raw.get('variable')]
-            value = raw.get('possible_values', [])
-            if not isinstance(value, list):
-                raise_parse_failure(f"'possible_values' must be a list in constraint at index {idx}.")
-            if not vars_list[0] or vars_list[0] not in valid_vars:
-                raise_parse_failure(f"Invalid variable '{vars_list[0]}' in constraint at index {idx}.")
+        # Try pattern matching
+        for ctype, pattern in patterns.items():
+            match = re.match(pattern, constraint_str)
+            if match:
+                groups = match.groups()
+                operator = "==" if ctype == FormalConstraintType.EQUALITY else (groups[1] if len(groups) > 1 else None)
+                return FormalConstraint(
+                    constraint_id=self._generate_constraint_id(),
+                    constraint_type=ctype,
+                    operands=list(groups),
+                    operator=operator,
+                    raw_text=constraint_str
+                )
 
-        elif formal_type == 'UNIQUE':
-            vars_list = raw.get('variables', [])
-            if not isinstance(vars_list, list) or len(vars_list) < 2:
-                raise_parse_failure(f"'variables' must be a list of at least 2 items in constraint at index {idx}.")
-            for v in vars_list:
-                if v not in valid_vars:
-                    raise_parse_failure(f"Invalid variable '{v}' in constraint at index {idx}.")
+        raise_parse_failure(f"Could not parse constraint string: {constraint_str}")
 
-        elif formal_type == 'ADJACENT':
-            vars_list = raw.get('variables', [])
-            if len(vars_list) != 2:
-                raise_parse_failure(f"ADJACENT constraint requires exactly 2 variables at index {idx}.")
-            for v in vars_list:
-                if v not in valid_vars:
-                    raise_parse_failure(f"Invalid variable '{v}' in constraint at index {idx}.")
-
-        elif formal_type == 'SUM_EQUALS':
-            vars_list = raw.get('variables', [])
-            value = raw.get('target_sum')
-            if not isinstance(vars_list, list):
-                raise_parse_failure(f"'variables' must be a list in constraint at index {idx}.")
-            if value is None:
-                raise_parse_failure(f"Missing 'target_sum' in constraint at index {idx}.")
-            for v in vars_list:
-                if v not in valid_vars:
-                    raise_parse_failure(f"Invalid variable '{v}' in constraint at index {idx}.")
-
-        elif formal_type == 'RANGE':
-            vars_list = [raw.get('variable')]
-            value = (raw.get('min'), raw.get('max'))
-            if not vars_list[0] or vars_list[0] not in valid_vars:
-                raise_parse_failure(f"Invalid variable '{vars_list[0]}' in constraint at index {idx}.")
-            if value[0] is None or value[1] is None:
-                raise_parse_failure(f"Missing 'min' or 'max' in RANGE constraint at index {idx}.")
-
-        return vars_list, value
-
-    def _check_contradictions(self, existing: List[FormalConstraint], new: FormalConstraint, idx: int):
+    def _parse_dict_constraint(self, constraint_dict: Dict[str, Any], index: int) -> FormalConstraint:
         """
-        Checks if the new constraint contradicts any existing constraints.
-        Raises CONTRADICTION_DETECTED if a contradiction is found.
+        Parse a constraint from a dictionary representation.
+
+        Expected format:
+        {
+            "type": "equality",
+            "operands": ["A", "B"],
+            "operator": "==",
+            "metadata": {...}
+        }
         """
-        # Simple contradiction checks for EQUALS vs NOT_EQUALS
-        for existing_c in existing:
-            # Check for direct variable conflict
-            if existing_c.constraint_type == 'EQUALS' and new.constraint_type == 'NOT_EQUALS':
-                if set(existing_c.variables) == set(new.variables):
-                    if existing_c.value == new.value:
-                        raise_contradiction(
-                            f"Contradiction at constraint {idx}: Variable {existing_c.variables} cannot be "
-                            f"equal to {existing_c.value} and NOT equal to {new.value} simultaneously."
-                        )
+        required_fields = ["type", "operands"]
+        for field_name in required_fields:
+            if field_name not in constraint_dict:
+                raise_parse_failure(f"Constraint at index {index} missing required field: {field_name}")
 
-            if existing_c.constraint_type == 'NOT_EQUALS' and new.constraint_type == 'EQUALS':
-                if set(existing_c.variables) == set(new.variables):
-                    if existing_c.value == new.value:
-                        raise_contradiction(
-                            f"Contradiction at constraint {idx}: Variable {existing_c.variables} cannot be "
-                            f"NOT equal to {existing_c.value} and equal to {new.value} simultaneously."
-                        )
+        try:
+            ctype = FormalConstraintType(constraint_dict["type"])
+        except ValueError:
+            raise_parse_failure(f"Unknown constraint type: {constraint_dict['type']}")
 
-            # Check for unique constraint conflicts
-            if existing_c.constraint_type == 'UNIQUE' and new.constraint_type == 'EQUALS':
-                if len(existing_c.variables) > 1 and new.variables[0] in existing_c.variables:
-                    # If we have a unique constraint on [A, B] and later an EQUALS(A, 1),
-                    # and another EQUALS(B, 1) appears later, that would be a contradiction.
-                    # We can't fully check this here without looking ahead, but we can flag
-                    # if a UNIQUE constraint is violated by an existing EQUALS on the same value.
-                    pass # Defer full check to planner or more complex analysis
+        operands = constraint_dict["operands"]
+        if not isinstance(operands, list) or len(operands) < 2:
+            raise_parse_failure(f"Constraint operands must be a list with at least 2 elements")
 
-    def to_formal_string(self, constraints: List[FormalConstraint]) -> str:
+        return FormalConstraint(
+            constraint_id=self._generate_constraint_id(),
+            constraint_type=ctype,
+            operands=operands,
+            operator=constraint_dict.get("operator"),
+            metadata=constraint_dict.get("metadata", {}),
+            raw_text=json.dumps(constraint_dict)
+        )
+
+    def _validate_constraint_set(self, constraints: List[FormalConstraint]) -> None:
         """
-        Converts a list of FormalConstraint objects into a string representation
-        suitable for the symbolic planner.
+        Validate a set of constraints for contradictions.
+
+        Args:
+            constraints: List of constraints to validate.
+
+        Raises:
+            CONTRADICTION_DETECTED: If contradictory constraints are found.
         """
-        lines = []
-        for c in constraints:
-            if c.constraint_type == 'EQUALS':
-                lines.append(f"EQUALS({c.variables[0]}, {c.value})")
-            elif c.constraint_type == 'NOT_EQUALS':
-                lines.append(f"NOT_EQUALS({c.variables[0]}, {c.value})")
-            elif c.constraint_type == 'IN_SET':
-                lines.append(f"IN_SET({c.variables[0]}, {c.value})")
-            elif c.constraint_type == 'UNIQUE':
-                lines.append(f"UNIQUE({', '.join(c.variables)})")
-            elif c.constraint_type == 'ADJACENT':
-                lines.append(f"ADJACENT({c.variables[0]}, {c.variables[1]})")
-            elif c.constraint_type == 'SUM_EQUALS':
-                lines.append(f"SUM_EQUALS({', '.join(c.variables)}, {c.value})")
-            elif c.constraint_type == 'RANGE':
-                lines.append(f"RANGE({c.variables[0]}, {c.value[0]}, {c.value[1]})")
-            else:
-                lines.append(f"# UNKNOWN_TYPE: {c.raw_desc}")
+        # Simple contradiction detection for equality constraints
+        equality_pairs = {}
+        for constraint in constraints:
+            if constraint.constraint_type == FormalConstraintType.EQUALITY:
+                if len(constraint.operands) >= 2:
+                    a, b = constraint.operands[0], constraint.operands[1]
+                    # Normalize pair order
+                    pair = tuple(sorted([a, b]))
+                    if pair in equality_pairs:
+                        # Already have this equality, skip
+                        pass
+                    else:
+                        equality_pairs[pair] = constraint
 
-        return "\n".join(lines)
+            elif constraint.constraint_type == FormalConstraintType.INEQUALITY:
+                if len(constraint.operands) >= 2:
+                    a, b = constraint.operands[0], constraint.operands[1]
+                    if constraint.operator == "!=":
+                        pair = tuple(sorted([a, b]))
+                        if pair in equality_pairs:
+                            raise_contradiction(
+                                f"Contradiction: {a} == {b} and {a} != {b} detected"
+                            )
+
+        # Additional validation logic can be added here for more complex contradictions
+
+    def parse_dataset_file(self, dataset_path: Path) -> List[FormalConstraint]:
+        """
+        Parse all constraints from a dataset file.
+
+        Args:
+            dataset_path: Path to the JSON dataset file.
+
+        Returns:
+            A flat list of all FormalConstraint objects from all puzzles in the file.
+
+        Raises:
+            PARSE_FAILURE: If the file cannot be read or parsed.
+        """
+        if not dataset_path.exists():
+            raise_parse_failure(f"Dataset file not found: {dataset_path}")
+
+        try:
+            with open(dataset_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except json.JSONDecodeError as e:
+            raise_parse_failure(f"Invalid JSON in dataset file: {str(e)}")
+        except Exception as e:
+            raise_parse_failure(f"Failed to read dataset file: {str(e)}")
+
+        all_constraints = []
+
+        if isinstance(data, list):
+            puzzles = data
+        elif isinstance(data, dict) and "puzzles" in data:
+            puzzles = data["puzzles"]
+        else:
+            raise_parse_failure("Dataset must be a list of puzzles or a dict with 'puzzles' key")
+
+        for idx, puzzle in enumerate(puzzles):
+            try:
+                puzzle_constraints = self.parse_puzzle_constraints(puzzle)
+                all_constraints.extend(puzzle_constraints)
+                log(f"Parsed {len(puzzle_constraints)} constraints from puzzle {idx}")
+            except (PARSE_FAILURE, CONTRADICTION_DETECTED) as e:
+                log(f"Warning: Failed to parse puzzle {idx}: {str(e)}")
+                # Continue with other puzzles rather than failing the entire dataset
+
+        return all_constraints
 
 
-def parse_dataset_file(input_path: str, output_path: str) -> None:
+def parse_dataset_file(dataset_path: str | Path) -> List[FormalConstraint]:
     """
-    Reads a JSON file of puzzle instances, parses them, and writes the formal
-    representation to an output file.
+    Convenience function to parse a dataset file.
 
     Args:
-        input_path: Path to the input JSON file (e.g., data/raw/puzzles.json).
-        output_path: Path to write the formal representation (e.g., data/processed/puzzles_formal.txt).
+        dataset_path: Path to the dataset file.
+
+    Returns:
+        List of FormalConstraint objects.
     """
     parser = PuzzleParser()
-
-    try:
-        with open(input_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        raise_parse_failure(f"Input file not found: {input_path}")
-    except json.JSONDecodeError as e:
-        raise_parse_failure(f"Invalid JSON in input file: {e}")
-
-    if not isinstance(data, list):
-        data = [data]
-
-    formal_output_lines = []
-    metadata = []
-
-    for idx, instance in enumerate(data):
-        try:
-            constraints, info = parser.parse_puzzle_instance(instance)
-            formal_str = parser.to_formal_string(constraints)
-            formal_output_lines.append(f"--- PUZZLE_ID: {info['id']} ---")
-            formal_output_lines.append(formal_str)
-            formal_output_lines.append("")
-            metadata.append({
-                'id': info['id'],
-                'variable_count': info['variable_count'],
-                'constraint_count': len(constraints),
-                'status': 'PARSED'
-            })
-        except (PARSE_FAILURE, CONTRADICTION_DETECTED) as e:
-            metadata.append({
-                'id': instance.get('id', f'UNKNOWN_{idx}'),
-                'status': 'FAILED',
-                'error': str(e)
-            })
-            formal_output_lines.append(f"--- PUZZLE_ID: {instance.get('id', f'UNKNOWN_{idx}')} ---")
-            formal_output_lines.append(f"# PARSE_ERROR: {e}")
-            formal_output_lines.append("")
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write("\n".join(formal_output_lines))
-
-    # Write metadata log
-    meta_path = output_path.replace('.txt', '_meta.json')
-    with open(meta_path, 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, indent=2)
+    return parser.parse_dataset_file(Path(dataset_path))
 
 
 def main():
-    """Main entry point for the parser script."""
+    """
+    Main entry point for testing the parser.
+
+    This function demonstrates the parser by loading a sample dataset
+    and printing the parsed constraints.
+    """
     import sys
-    from code.config import load_config
 
-    config = load_config()
-    input_path = config.get('dataset_path', 'data/raw/puzzles.json')
-    output_path = config.get('formal_output_path', 'data/processed/puzzles_formal.txt')
+    if len(sys.argv) < 2:
+        print("Usage: python -m code.symbolic.parser <dataset_path>")
+        sys.exit(1)
 
-    print(f"Parsing dataset from: {input_path}")
+    dataset_path = Path(sys.argv[1])
+
+    if not dataset_path.exists():
+        print(f"Error: Dataset file not found: {dataset_path}")
+        sys.exit(1)
+
     try:
-        parse_dataset_file(input_path, output_path)
-        print(f"Formal representation written to: {output_path}")
+        parser = PuzzleParser()
+        constraints = parser.parse_dataset_file(dataset_path)
+
+        print(f"Successfully parsed {len(constraints)} constraints:")
+        for constraint in constraints:
+            print(f"  {constraint.constraint_id}: {constraint.constraint_type.value} "
+                  f"{constraint.operands} {constraint.operator}")
+
+    except PARSE_FAILURE as e:
+        print(f"Parse failure: {str(e)}")
+        sys.exit(1)
+    except CONTRADICTION_DETECTED as e:
+        print(f"Contradiction detected: {str(e)}")
+        sys.exit(1)
     except Exception as e:
-        print(f"Fatal error during parsing: {e}")
+        print(f"Unexpected error: {str(e)}")
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

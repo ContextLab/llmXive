@@ -1,6 +1,8 @@
 """
-Main entry point for the BES (Bidirectional Evolutionary Search) experiment.
-Orchestrates the comparison between Symbolic-guided BES and Neural-verifier Baseline.
+Main BES (Bidirectional Evolutionary Search) Loop Orchestrator.
+
+Orchestrates the forward (LLM) and backward (Symbolic) steps across
+the full complexity scaling range (N=10..500) to generate data for analysis.
 """
 import os
 import sys
@@ -10,273 +12,328 @@ import random
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 
-# Project imports based on API surface
-from config import load_config, save_config, get_experiment_id, initialize_experiment
+# Import from existing API surface
+from config import load_config, get_experiment_id, initialize_experiment
 from utils.seed import set_seed, get_seed
 from utils.logger import setup_logging, log, log_experiment_entry
-from dataset.generator import PuzzleGenerator, PuzzleType
-from dataset.verifier import verify_solution, SolutionResult
-from bes.population import Population, Individual
-from bes.forward_step import ForwardStep
+from dataset.verifier import PuzzleVerifier, SolutionResult, ErrorCodes
+from dataset.generator import PuzzleGenerator, PuzzleInstance
+from bes.forward_step import ForwardStep, ForwardStepResult
 from bes.backward_step import BackwardStep, BackwardStepResult
-from symbolic.parser import PuzzleParser
+from bes.population import Population, Individual
 from symbolic.planner import SymbolicPlanner
-from analysis.metrics import ExperimentMetrics, calculate_metrics_from_logs, save_metrics_to_csv
-from analysis.stats import two_proportion_z_test, ZTestResult
-from exceptions import PARSE_FAILURE, CONTRADICTION_DETECTED, VERIFIER_ERROR
+from exceptions import BaseResearchException, PARSE_FAILURE, CONTRADICTION_DETECTED, VERIFIER_ERROR
 
 @dataclass
 class BESRunResult:
-    """Container for the results of a single BES run (Symbolic or Neural)."""
-    run_type: str  # 'symbolic' or 'neural_baseline'
+    """Container for the results of a single BES run."""
     experiment_id: str
+    puzzle_id: str
+    complexity_n: int
     population_size: int
     generations: int
-    total_puzzles: int
-    successful_puzzles: int
-    success_rate: float
+    success: bool
+    final_score: float
     total_time_seconds: float
-    avg_time_per_puzzle_seconds: float
-    log_path: str
-    metrics_path: str
+    forward_calls: int
+    backward_calls: int
+    failure_reasons: List[str] = field(default_factory=list)
+    log_entries: List[Dict[str, Any]] = field(default_factory=list)
 
 class BESOrchestrator:
     """
-    Orchestrates the full experiment: running Symbolic BES and Neural Baseline,
-    collecting metrics, and performing statistical analysis.
+    Orchestrates the Bidirectional Evolutionary Search loop.
+    
+    Coordinates the forward step (LLM) and backward step (Symbolic Planner)
+    over a population of solutions for a given puzzle instance.
     """
-
-    def __init__(self, config_path: str = "code/config.yaml"):
-        self.config_path = Path(config_path)
-        self.config = load_config(self.config_path)
-        self.seed = self.config.get("seed", 42)
-        set_seed(self.seed)
+    
+    def __init__(self, config: Dict[str, Any], seed: int):
+        self.config = config
+        self.seed = seed
+        self.experiment_id = get_experiment_id()
+        self.logger = logging.getLogger("BESOrchestrator")
         
-        # Setup logging
-        log_dir = Path("data/processed")
-        log_dir.mkdir(parents=True, exist_ok=True)
-        self.log_path = log_dir / f"experiment_{get_experiment_id()}.log"
-        setup_logging(self.log_path)
-
-        # Initialize components
-        self.puzzle_generator = PuzzleGenerator()
-        self.verifier = None # Loaded per puzzle
-        self.forward_step = ForwardStep(self.config)
-        self.symbolic_planner = SymbolicPlanner()
-        self.parser = PuzzleParser()
+        # Initialize components based on config
+        self.forward_step = ForwardStep(
+            model_name=config.get('forward_model', 'distilbert-base-uncased'),
+            device='cpu',
+            temperature=config.get('temperature', 0.7)
+        )
         
-        # Results storage
-        self.results: List[BESRunResult] = []
-        self.log_entries: List[Dict[str, Any]] = []
+        self.backward_step = BackwardStep(
+            planner=SymbolicPlanner(),
+            verifier=PuzzleVerifier()
+        )
+        
+        self.population_size = config.get('population_size', 20)
+        self.generations = config.get('generations', 50)
+        
+        set_seed(seed)
 
-    def _run_single_bes_loop(self, run_type: str, puzzles: List[Dict[str, Any]]) -> BESRunResult:
+    def run_single_puzzle(self, puzzle: PuzzleInstance) -> BESRunResult:
         """
-        Executes the BES loop for a specific configuration (Symbolic or Neural).
+        Execute the BES loop for a single puzzle instance.
+        
+        Args:
+            puzzle: The puzzle instance to solve.
+            
+        Returns:
+            BESRunResult containing execution statistics and outcome.
         """
         start_time = time.time()
-        population_size = self.config.get("population_size", 20)
-        generations = self.config.get("generations", 50)
+        log_entries = []
+        failure_reasons = []
+        forward_calls = 0
+        backward_calls = 0
         
-        log(f"Starting {run_type} BES loop with {len(puzzles)} puzzles.")
-        
-        successes = 0
-        puzzle_durations = []
-        
-        for idx, puzzle in enumerate(puzzles):
-            puzzle_start = time.time()
-            
-            # Initialize population for this puzzle
-            population = Population(
-                size=population_size,
-                puzzle=puzzle,
-                seed=get_seed()
-            )
-            
-            solved = False
-            best_individual = None
-            
-            for gen in range(generations):
-                if solved:
-                    break
-                
-                # Forward Step (LLM Trajectory Generation)
-                # Note: In Neural Baseline, backward step is also neural (simulated here by random/verifier check)
-                # In Symbolic, backward step uses planner.
-                
-                # 1. Evaluate current population
-                for ind in population.individuals:
-                    if not ind.fitness_evaluated:
-                        result = verify_solution(puzzle, ind.solution)
-                        ind.fitness = 1.0 if result.is_valid else 0.0
-                        ind.fitness_evaluated = True
-                        if result.is_valid:
-                            solved = True
-                            best_individual = ind
-                            break
-                
-                if solved:
-                    successes += 1
-                    break
-                
-                # 2. Backward Step / Selection
-                if run_type == "symbolic":
-                    # Use symbolic planner to guide backward step
-                    try:
-                        subgoals = self.symbolic_planner.decompose(puzzle)
-                        population.evolve_backward(subgoals)
-                    except (PARSE_FAILURE, CONTRADICTION_DETECTED) as e:
-                        log(f"Symbolic planner failed for puzzle {puzzle['id']}: {e}. Falling back to random.")
-                        population.evolve_backward(None) # Fallback to random mutation
-                else:
-                    # Neural Baseline: Standard evolutionary step without symbolic guidance
-                    population.evolve_backward(None)
-                
-                # 3. Forward Step (Recombination/Generation)
-                population.evolve_forward(self.forward_step)
-                
-                # 4. Elitism / Replacement
-                population.replace()
-                
-                # Log generation progress occasionally
-                if gen % 10 == 0:
-                    log(f"Gen {gen} | Pop Fitness: {population.avg_fitness:.4f}")
+        self.logger.info(f"Starting BES for puzzle {puzzle.id} (N={puzzle.complexity_n})")
+        log_experiment_entry({
+            "type": "bes_start",
+            "puzzle_id": puzzle.id,
+            "complexity": puzzle.complexity_n,
+            "population_size": self.population_size,
+            "generations": self.generations
+        })
 
-            puzzle_end = time.time()
-            puzzle_durations.append(puzzle_end - puzzle_start)
+        # Initialize population
+        population = Population(
+            size=self.population_size,
+            puzzle=puzzle,
+            seed=self.seed
+        )
+        
+        generation_results = []
+        
+        for gen in range(self.generations):
+            gen_start = time.time()
             
-            if not solved:
-                log(f"Puzzle {puzzle['id']} not solved within {generations} generations.")
+            # 1. Evaluate current population
+            current_best_score = -1.0
+            current_best_individual = None
+            
+            for ind in population.individuals:
+                result = self.backward_step.verify(ind.solution, puzzle)
+                if result.is_valid:
+                    current_best_score = 1.0
+                    current_best_individual = ind
+                    break
+                else:
+                    # Track failure reasons for analysis
+                    if result.error_code:
+                        failure_reasons.append(result.error_code.value)
+                
+                if result.score > current_best_score:
+                    current_best_score = result.score
+                    current_best_individual = ind
+            
+            # Check for early success
+            if current_best_score >= 1.0:
+                self.logger.info(f"Solution found at generation {gen}")
+                log_experiment_entry({
+                    "type": "solution_found",
+                    "generation": gen,
+                    "puzzle_id": puzzle.id
+                })
+                break
+            
+            # 2. Forward Step: Recombine/Generate new candidates guided by sub-goals
+            # Extract sub-goals from the best individual or puzzle structure
+            sub_goals = []
+            if current_best_individual:
+                sub_goals = self.backward_step.extract_subgoals(
+                    current_best_individual.solution, 
+                    puzzle
+                )
+            
+            new_candidates = self.forward_step.step(
+                population=population,
+                sub_goals=sub_goals,
+                puzzle=puzzle
+            )
+            forward_calls += len(new_candidates)
+            
+            # 3. Backward Step: Filter and refine candidates
+            refined_candidates = []
+            for candidate in new_candidates:
+                # Attempt to refine using symbolic planner
+                try:
+                    refined = self.backward_step.refine(
+                        candidate_solution=candidate,
+                        puzzle=puzzle,
+                        sub_goals=sub_goals
+                    )
+                    if refined.is_valid or refined.score > 0.0:
+                        refined_candidates.append(refined)
+                        backward_calls += 1
+                except BaseResearchException as e:
+                    # Log and exclude
+                    failure_reasons.append(str(type(e).__name__))
+                    log_experiment_entry({
+                        "type": "backward_step_failure",
+                        "reason": str(e),
+                        "generation": gen
+                    })
+            
+            # 4. Update population
+            if refined_candidates:
+                population.evolve(refined_candidates)
+            
+            gen_time = time.time() - gen_start
+            generation_results.append({
+                "generation": gen,
+                "best_score": current_best_score,
+                "time": gen_time,
+                "population_size": len(population.individuals)
+            })
+            
+            log_experiment_entry({
+                "type": "generation_complete",
+                "generation": gen,
+                "best_score": current_best_score,
+                "time": gen_time
+            })
 
         total_time = time.time() - start_time
-        avg_time = total_time / len(puzzles) if puzzles else 0.0
-        success_rate = successes / len(puzzles) if puzzles else 0.0
-
-        # Save logs
-        log_entry = {
-            "run_type": run_type,
-            "timestamp": time.time(),
-            "total_time": total_time,
-            "successes": successes,
-            "total": len(puzzles),
-            "success_rate": success_rate,
-            "avg_time_per_puzzle": avg_time
-        }
-        self.log_entries.append(log_entry)
         
-        # Write detailed log to file
-        with open(self.log_path, "a") as f:
-            f.write(json.dumps(log_entry) + "\n")
+        # Final verification
+        final_success = False
+        final_score = 0.0
+        if current_best_individual:
+            final_result = self.backward_step.verify(current_best_individual.solution, puzzle)
+            final_success = final_result.is_valid
+            final_score = final_result.score
 
-        return BESRunResult(
-            run_type=run_type,
-            experiment_id=get_experiment_id(),
-            population_size=population_size,
-            generations=generations,
-            total_puzzles=len(puzzles),
-            successful_puzzles=successes,
-            success_rate=success_rate,
+        result = BESRunResult(
+            experiment_id=self.experiment_id,
+            puzzle_id=puzzle.id,
+            complexity_n=puzzle.complexity_n,
+            population_size=self.population_size,
+            generations=self.generations,
+            success=final_success,
+            final_score=final_score,
             total_time_seconds=total_time,
-            avg_time_per_puzzle_seconds=avg_time,
-            log_path=str(self.log_path),
-            metrics_path="" # Will be set later
+            forward_calls=forward_calls,
+            backward_calls=backward_calls,
+            failure_reasons=list(set(failure_reasons)), # Deduplicate
+            log_entries=log_entries
         )
+        
+        self.logger.info(
+            f"Finished puzzle {puzzle.id}: Success={final_success}, "
+            f"Score={final_score:.4f}, Time={total_time:.2f}s"
+        )
+        
+        return result
 
-    def run_experiment(self):
+    def run_full_scaling_analysis(self, output_path: Path) -> List[BESRunResult]:
         """
-        Runs the full experiment: Symbolic vs Neural Baseline.
+        Execute the BES loop across the full complexity scaling range (N=10..500).
+        
+        Args:
+            output_path: Directory path to save results.
+            
+        Returns:
+            List of BESRunResult objects.
         """
-        log("Initializing full experiment.")
+        output_path.mkdir(parents=True, exist_ok=True)
+        results_file = output_path / "bes_scaling_results.json"
         
-        # Load or generate dataset
-        data_path = Path("data/raw/puzzles.json")
-        if not data_path.exists():
-            log("Dataset not found. Generating a small set for the experiment.")
-            # Generate a deterministic small set for the experiment run
-            self.puzzle_generator.generate(
-                output_path=data_path,
-                count=10,
-                difficulty_range=(10, 50) # Small complexity for demo
-            )
-        
-        # Load puzzles
-        with open(data_path, "r") as f:
-            puzzles = json.load(f)
-        
-        if not puzzles:
-            raise ValueError("No puzzles loaded. Experiment cannot proceed.")
+        self.logger.info(f"Starting full scaling analysis (N=10..500)")
+        log_experiment_entry({
+            "type": "scaling_analysis_start",
+            "range": "10-500",
+            "output_path": str(results_file)
+        })
 
-        log(f"Loaded {len(puzzles)} puzzles.")
-
-        # Run Symbolic BES
-        log("=== Starting Symbolic BES Run ===")
-        symbolic_result = self._run_single_bes_loop("symbolic", puzzles)
-        self.results.append(symbolic_result)
+        results = []
         
-        # Run Neural Baseline BES
-        log("=== Starting Neural Baseline BES Run ===")
-        neural_result = self._run_single_bes_loop("neural_baseline", puzzles)
-        self.results.append(neural_result)
-
-        # Calculate Metrics
-        metrics = ExperimentMetrics()
-        for res in self.results:
-            metrics.add_run(res)
+        # Define complexity range as per task constraint
+        # Using a subset for demonstration if 500 is too large for quick testing,
+        # but the code supports the full range.
+        # To strictly follow "N=10..500", we iterate all integers.
+        # For performance in a real run, we might step by 10 or 50.
+        # Here we implement the full range as requested.
+        n_values = list(range(10, 501))
         
-        # Save metrics to CSV
-        metrics_path = Path("data/processed/metrics.csv")
-        metrics.save_to_csv(metrics_path)
+        # Generate or load puzzles for these complexities
+        # We use the generator to create puzzles on the fly to ensure real data
+        generator = PuzzleGenerator(seed=self.seed)
         
-        # Update results with metrics path
-        for res in self.results:
-            res.metrics_path = str(metrics_path)
-
-        # Statistical Analysis
-        if len(self.results) == 2:
-            s_res = next(r for r in self.results if r.run_type == "symbolic")
-            n_res = next(r for r in self.results if r.run_type == "neural_baseline")
+        for n in n_values:
+            self.logger.info(f"Processing complexity N={n}")
             
-            z_test_result = two_proportion_z_test(
-                successes_1=s_res.successful_puzzles,
-                n1=s_res.total_puzzles,
-                successes_2=n_res.successful_puzzles,
-                n2=n_res.total_puzzles
-            )
-            
-            log(f"Z-Test Result: p-value = {z_test_result.p_value:.4f}, significant = {z_test_result.is_significant}")
-            
-            # Append to log
-            with open(self.log_path, "a") as f:
-                f.write(json.dumps({
-                    "analysis": "z_test",
-                    "p_value": z_test_result.p_value,
-                    "is_significant": z_test_result.is_significant,
-                    "symbolic_rate": s_res.success_rate,
-                    "neural_rate": n_res.success_rate
-                }) + "\n")
+            try:
+                # Generate a real puzzle instance
+                puzzle = generator.generate_puzzle(
+                    puzzle_type="logic",
+                    complexity_n=n
+                )
+                
+                # Run BES
+                result = self.run_single_puzzle(puzzle)
+                results.append(result)
+                
+                # Save intermediate results to avoid data loss on crash
+                with open(results_file, 'w') as f:
+                    json.dump([asdict(r) for r in results], f, indent=2)
+                    
+            except Exception as e:
+                self.logger.error(f"Failed to process N={n}: {e}", exc_info=True)
+                # Continue to next N to ensure we get data for other complexities
+                failure_result = BESRunResult(
+                    experiment_id=self.experiment_id,
+                    puzzle_id=f"unknown_{n}",
+                    complexity_n=n,
+                    population_size=self.population_size,
+                    generations=self.generations,
+                    success=False,
+                    final_score=0.0,
+                    total_time_seconds=0.0,
+                    forward_calls=0,
+                    backward_calls=0,
+                    failure_reasons=[str(e)]
+                )
+                results.append(failure_result)
+                with open(results_file, 'w') as f:
+                    json.dump([asdict(r) for r in results], f, indent=2)
 
-        log("Experiment complete.")
-        return self.results
+        self.logger.info(f"Scaling analysis complete. Results saved to {results_file}")
+        log_experiment_entry({
+            "type": "scaling_analysis_complete",
+            "total_puzzles": len(results),
+            "output_path": str(results_file)
+        })
+
+        return results
+
 
 def main():
-    """Entry point for the script."""
-    try:
-        orchestrator = BESOrchestrator()
-        results = orchestrator.run_experiment()
-        
-        print("\n=== Experiment Summary ===")
-        for r in results:
-            print(f"{r.run_type}: Success Rate = {r.success_rate:.2%} ({r.successful_puzzles}/{r.total_puzzles}), "
-                  f"Avg Time = {r.avg_time_per_puzzle_seconds:.2f}s")
-        
-        print(f"\nResults saved to: {results[0].metrics_path}")
-        print(f"Logs saved to: {results[0].log_path}")
-        
-    except Exception as e:
-        log(f"Experiment failed with error: {e}", level=logging.ERROR)
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+    """Entry point for the BES pipeline."""
+    # Setup
+    config = load_config()
+    seed = get_seed()
+    setup_logging()
+    
+    orchestrator = BESOrchestrator(config, seed)
+    
+    # Determine output path
+    output_dir = Path(config.get('output_dir', 'data/processed'))
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Run the full scaling analysis
+    results = orchestrator.run_full_scaling_analysis(output_dir)
+    
+    # Print summary
+    success_count = sum(1 for r in results if r.success)
+    total_count = len(results)
+    print(f"Scaling Analysis Complete: {success_count}/{total_count} successes")
+    print(f"Results saved to: {output_dir / 'bes_scaling_results.json'}")
+
+    return results
+
 
 if __name__ == "__main__":
     main()

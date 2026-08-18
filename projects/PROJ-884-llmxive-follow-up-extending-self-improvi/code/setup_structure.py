@@ -3,63 +3,46 @@ import sys
 from pathlib import Path
 from typing import List
 
-PROJECT_ROOT = Path(__file__).parent.parent
-PROJECT_NAME = "PROJ-884-llmxive-follow-up-extending-self-improvi"
-PROJECT_PATH = PROJECT_ROOT / "projects" / PROJECT_NAME
-
-def setup_data_directories() -> None:
+def setup_data_directories() -> List[str]:
     """
-    Creates the project directory structure as defined in T001a.
+    Creates the project directory structure as specified in the implementation plan.
     
-    Structure:
-    projects/PROJ-884-llmxive-follow-up-extending-self-improvi/
-    ├── data/
-    │   ├── raw/
-    │   └── processed/
-    ├── code/
-    │   ├── dataset/
-    │   ├── symbolic/
-    │   ├── bes/
-    │   ├── analysis/
-    │   └── utils/
-    └── tests/
-        ├── unit/
-        └── integration/
+    Returns a list of created directory paths.
     """
-    directories: List[Path] = [
-        PROJECT_PATH / "data" / "raw",
-        PROJECT_PATH / "data" / "processed",
-        PROJECT_PATH / "code" / "dataset",
-        PROJECT_PATH / "code" / "symbolic",
-        PROJECT_PATH / "code" / "bes",
-        PROJECT_PATH / "code" / "analysis",
-        PROJECT_PATH / "code" / "utils",
-        PROJECT_PATH / "tests" / "unit",
-        PROJECT_PATH / "tests" / "integration",
+    # Define the project root based on the task requirement
+    project_root = Path("projects/PROJ-884-llmxive-follow-up-extending-self-improvi")
+    
+    # Define the directory structure to create
+    directories = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "code" / "dataset",
+        project_root / "code" / "symbolic",
+        project_root / "code" / "bes",
+        project_root / "code" / "analysis",
+        project_root / "code" / "utils",
+        project_root / "tests" / "unit",
+        project_root / "tests" / "integration",
     ]
-
-    created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {directory}")
+    
+    created_dirs = []
+    for dir_path in directories:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(str(dir_path))
         else:
-            print(f"Directory already exists: {directory}")
+            created_dirs.append(str(dir_path))
+    
+    return created_dirs
 
-    print(f"Setup complete. Created {created_count} new directories.")
-
-def main() -> int:
-    """Entry point for CLI execution."""
-    try:
-        setup_data_directories()
-        return 0
-    except PermissionError as e:
-        print(f"Permission denied: {e}", file=sys.stderr)
-        return 1
-    except Exception as e:
-        print(f"Error creating directories: {e}", file=sys.stderr)
-        return 1
+def main():
+    """Main entry point for the script."""
+    print("Creating project directory structure...")
+    created = setup_data_directories()
+    print(f"Successfully created {len(created)} directories:")
+    for d in created:
+        print(f"  - {d}")
+    print("Done.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

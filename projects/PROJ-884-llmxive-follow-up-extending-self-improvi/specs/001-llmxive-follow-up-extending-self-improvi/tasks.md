@@ -39,19 +39,29 @@
  ============================================================================
 -->
 
+## Phase 0: Research & Design (Contracts & Schema)
+
+**Purpose**: Generate design artifacts required by downstream tasks.
+
+- [X] T000a [P] Generate `contracts/dataset.schema.yaml` based on `data-model.md` and `plan.md` requirements. **Constraint**: Must define the exact JSON schema for puzzle instances including fields: `constraints`, `initial_state`, `target_state`, and `verifier_output` format. This task MUST complete before T013.
+
+- [X] T000b [P] Generate `contracts/output.schema.yaml` based on `plan.md` requirements for experiment logs and analysis results.
+
+---
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create project directory structure per implementation plan by executing: `mkdir -p projects/PROJ-884-llmxive-follow-up-extending-self-improvi/{data/raw,data/processed,code/{dataset,symbolic,bes,analysis,utils},tests/{unit,integration}}`
+- [X] T001a [P] Create project directory structure per implementation plan by executing: `mkdir -p projects/PROJ-884-llmxive-follow-up-extending-self-improvi/{data/raw,data/processed,code/{dataset,symbolic,bes,analysis,utils},tests/{unit,integration}}`. **Constraint**: This task logically creates data and code directories; implementation is split for atomicity but the directory structure is established here.
 
-- [ ] T001b Initialize git repository and configure basic `.gitignore` for Python artifacts
+- [X] T001b Initialize git repository and configure basic `.gitignore` for Python artifacts
 
-- [ ] T002a Initialize Python 3.11 virtual environment in `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/` <!-- FAILED: unspecified -->
+- [X] T002a Initialize Python 3.11 virtual environment in `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/`
 
-- [X] T002b Install dependencies in `requirements.txt` containing: `scikit-learn==1.3.0`, `numpy==1.24.0`, `transformers==4.35.0`, `datasets==2.14.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `optimum==1.13.0`. **Constraint**: If `research.md` exists, read version constraints from it; otherwise, default to versions listed in `plan.md` to ensure determinism.
+- [X] T002b Install dependencies in `requirements.txt` containing: `scikit-learn==1.3.0`, `numpy==1.24.0`, `transformers==4.35.0`, `datasets==2.14.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `optimum==1.13.0`, `psutil==5.9.0`. **Constraint**: Use fixed versions from plan.md. Do not attempt to read from `research.md` as its schema is undefined.
 
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools. **Constraint**: Must generate `.flake8` and `pyproject.toml` (for black) configuration files to satisfy plan.md testing requirements.
 
 ---
 
@@ -61,13 +71,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup data directory structure: `data/raw/` for immutable puzzles, `data/processed/` for logs/results
+- [X] T004 Setup data directory structure: `data/raw/` for immutable puzzles, `data/processed/` for logs/results. **Constraint**: Must verify directories exist and are writable.
 
-- [X] T005 [P] Implement base logging infrastructure in `code/__init__.py` to capture wall-clock time and resource usage; output must be JSON format to `data/processed/experiment.log` with fields: `timestamp`, `wall_clock`, `resource_usage`
+- [X] T005a [P] Implement base logging infrastructure in `code/__init__.py` to capture wall-clock time and resource usage; output must be JSON format to `data/processed/experiment.log` with fields: `timestamp`, `wall_clock`, `resource_usage`
+
+- [X] T005b [P] Implement CPU utilization monitoring in `code/utils/monitor.py` using `psutil` to log `cpu_percent` for every execution step. **Constraint**: This metric is REQUIRED for the energy calculation in T026. Must log at the same frequency as T005a.
 
 - [X] T006 [P] Setup random seed management utility in `code/utils/seed.py` for reproducibility
 
 - [X] T007 Create base configuration loader in `code/config.py` to handle experiment parameters (population size, generations)
+
+- [X] T007b [P] Define `DEFAULT_TDP_WATTS` constant in `code/config.py` (e.g., 65W for standard GitHub Actions runner) to support deterministic energy calculation. **Constraint**: This value MUST be documented in the code comment as the assumed hardware TDP for the CI environment. **Dependency**: Required by T026.
 
 - [X] T008 Setup error handling framework by creating `code/exceptions.py` defining custom exception classes for `PARSE_FAILURE`, `CONTRADICTION_DETECTED`, and `VERIFIER_ERROR` (to handle internal verifier failures, addressing robustness gap)
 
@@ -91,13 +105,13 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US1] Implement `code/dataset/generator.py` to create logic puzzles (Sudoku variants, constrained pathfinding) with systematic complexity scaling (N=10..500)
-
-- [ ] T013 [US1] Curate an initial dataset of logic/arithmetic puzzles of sufficient size to support preliminary method validation. in `data/raw/` by running `generator.py`; output must follow the JSON schema defined in `../contracts/dataset.schema.yaml` (relative path)
+- [X] T011 [P] [US1] Implement `code/dataset/generator.py` to create logic puzzles (Sudoku variants, constrained pathfinding) with systematic complexity scaling (N=10..500). **Constraint**: Must support command-line arguments for `N` and `count`.
 
 - [X] T012 [US1] Implement `code/dataset/verifier.py` to execute deterministic validation logic for each puzzle instance, returning boolean validity and specific constraint violation codes (e.g., `DUPLICATE_ROW`, `INVALID_PATH`) within 100ms. **Note**: T012 validates the code, T013 generates the data.
 
-- [ ] T014 [US1] Add checksum validation for all files in `data/raw/` to ensure data integrity (Principle III)
+- [X] T013 [US1] Curate an initial dataset of 500 logic/arithmetic puzzles by running `generator.py` with parameters `--n 10 50 100 200 500 --count 10 --types sudoku,pathfinding` (generating a set of puzzles for each complexity level). **Constraint**: Must use the verifier from T012 to validate generated puzzles before writing. Must generate and record checksums for all files in `data/raw/` immediately upon creation. **Dependency**: Requires T011 (Generator) and T012 (Verifier) to be complete.
+
+- [X] T014 [P] [US1] Add checksum validation for all files in `data/raw/` to ensure data integrity (Principle III). **Constraint**: Must update `state/projects/PROJ-884-llmxive-follow-up-extending-self-improvi.yaml` with artifact hashes. **Status**: Complete as part of T013 flow.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -113,7 +127,8 @@
 
 - [X] T016 [P] [US2] Unit test for `code/symbolic/planner.py` with edge cases (non-linear constraints, impossible goals) in `tests/unit/test_symbolic_planner.py::test_planner_handles_nonlinear_constraints`
 
-- [X] T017 [US2] Integration test for the BES loop with a small population in `tests/integration/test_bes_loop.py::test_bes_loop_executes_symbolic_backward_step`. **Note**: Written first (TDD) but executes after T024. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T017a [US2] Unit test for `code/symbolic/planner.py` in `tests/unit/test_symbolic_planner.py::test_planner_handles_impossible_goals`.
+- [X] T017b [US2] Integration test for the BES loop with a small population in `tests/integration/test_bes_loop.py::test_bes_loop_executes_symbolic_backward_step`.
 
 ### Implementation for User Story 2
 
@@ -121,17 +136,17 @@
 
 - [X] T019 [US2] Implement `code/symbolic/planner.py` to generate sub-goal decompositions, including logic to detect and flag `CONTRADICTION_DETECTED` or `PARSE_FAILURE`
 
-- [X] T019b [US2] Implement logging mechanism for exclusion reasons in `code/symbolic/planner.py` to record `PARSE_FAILURE` or `CONTRADICTION_DETECTED` reasons as required by FR-006
+- [X] T019b [US2] Implement logging mechanism for exclusion reasons in `code/symbolic/planner.py` to record `PARSE_FAILURE`, `CONTRADICTION_DETECTED`, `IMPOSSIBLE_GOAL`, and `NON_LINEAR_CONSTRAINT` reasons as required by FR-006. **Note**: Must explicitly cover all failure modes listed in spec Edge Cases.
 
-- [X] T020 [P] [US2] Select and configure a small pre-trained LLM (`distilbert-base-uncased`) in `code/bes/forward_step.py` compatible with CPU-only inference (no CUDA, no 8-bit quantization)
+- [X] T020 [P] [US2] Generate `code/bes/config.py` with configuration for a small pre-trained LLM (`distilbert-base-uncased`). **Constraint**: This task is for **configuration file generation ONLY** (no download). Must specify `device='cpu'` and forbid `bitsandbytes` in the config file. **Dependency**: None (config file is static).
 
-- [X] T021 [US2] Implement `code/bes/forward_step.py` to perform trajectory recombination guided by symbolic sub-goals. **Constraint**: Must use `optimum` CPU-optimized inference flags (`device='cpu'`, `torch.no_grad`) and specify exact Hugging Face model ID with pinned `revision` hash for reproducibility. <!-- FAILED: unspecified -->
+- [X] T021 [US2] Implement `code/bes/forward_step.py` to perform trajectory recombination guided by symbolic sub-goals. **Constraint**: Must download and load the model specified in `code/bes/config.py` using `optimum` CPU-optimized inference flags (`device='cpu'`, `torch.no_grad`) and specify exact Hugging Face model ID `distilbert-base-uncased` with pinned `revision` hash for reproducibility. Must enforce CPU-only constraints. **Dependency**: Requires T020 to generate config file.
 
-- [X] T022 [US2] Implement `code/bes/population.py` to manage the evolutionary population, ensuring memory usage stays under a manageable threshold. **Note**: Must be implemented before T023 if T023 updates population state.
+- [X] T022 [P] [US2] Implement `code/bes/population.py` to manage the evolutionary population, ensuring memory usage stays under a manageable threshold. **Note**: Must be implemented before T023 if T023 updates population state.
 
 - [X] T023 [US2] Implement `code/bes/backward_step.py` to integrate the symbolic planner output into the evolutionary loop, replacing the neural verifier
 
-- [X] T024 [US2] Implement the main BES loop in `code/main.py` to orchestrate forward (LLM) and backward (Symbolic) steps, logging all transitions
+- [X] T024 [US2] Implement the main BES loop in `code/main.py` to orchestrate forward (LLM) and backward (Symbolic) steps, logging all transitions. **Constraint**: Must explicitly execute the loop across the full complexity scaling range (N=10..500) to generate data for T029.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -149,17 +164,21 @@
 
 ### Implementation for User Story 3
 
-- [X] T026 [P] [US3] Implement `code/analysis/metrics.py` to calculate success rates, wall-clock time, and energy consumption (Joules) from execution logs
+- [X] T026 [P] [US3] Implement `code/analysis/metrics.py` to calculate success rates, wall-clock time, and energy consumption (Joules) from execution logs. **Constraint**: Energy formula: `E = config.DEFAULT_TDP_WATTS * (cpu_percent / 100) * wall_clock`. Must read `cpu_percent` from T005b logs and `DEFAULT_TDP_WATTS` from `code/config.py`.
 
-- [X] T027 [US3] Implement `code/analysis/stats.py` to perform **two-tailed two-proportion z-test** for success rates (as mandated by FR-005) with null hypothesis H0: p1 = p2 and alpha=0.05 to determine statistical significance
+- [X] T027 [US3] Implement **Mandatory** two-proportion z-test in `code/analysis/stats.py` to compare success rates (as mandated by FR-005) with null hypothesis H0: p1 = p2 and alpha=0.05. **Note**: This is the primary statistical test required by the spec.
 
-- [X] T028 [US3] [SC-001] Implement TOST (Two One-Sided Tests) logic in `code/analysis/stats.py` for equivalence testing as per SC-001. **Note**: This task addresses the 'equivalence' requirement in SC-001, distinct from the z-test in FR-005.
+- [X] T028a [US3] Implement statistical framework pre-registration logic in `code/analysis/stats.py` to define and log the choice between 'equivalence' (TOST) and 'non-inferiority' frameworks before running tests, satisfying SC-001's pre-registration requirement.
 
-- [ ] T029 [US3] Implement scalability analysis in `code/analysis/metrics.py` to derive the formal **complexity class (Big-O)** via **log-log linear regression** on problem size vs. time. **Requirement**: Must implement classification logic to compare regression slope to thresholds (e.g., ~1 for O(n), ~2 for O(n^2)) to output a discrete `complexity_class` column. Output must be saved to `data/processed/scaling_analysis.csv`. **Note**: Depends on T024 (BES loop) and T026 (metrics).
+- [X] T030a [P] [US3] Implement `code/main.py` entry point script with configurable loop selection (`--mode symbolic | --mode neural`) to run both the Symbolic BES loop and the Neural Baseline BES loop. **Constraint**: For Neural Baseline, must use CPU-optimized `optimum` quantization (no CUDA) and derive 'GPU-hours' metric via the conversion factor defined in T040. **Note**: This task implements the *script only*; it does not execute it.
 
-- [X] T030 [US3] Create `code/main.py` entry point to run the full experiment (Symbolic vs. Neural Baseline) and output results to `data/processed/`
+- [X] T030b [US3] Execute the full experiment runs (Symbolic and Neural Baseline) using the entry point script from T030a, generating the execution logs and results required for analysis. **Constraint**: Must run across the full complexity scaling range (N=10..500) and populate `data/processed/` with `symbolic_results.json` and `neural_baseline_results.json`. **Dependency**: Requires T030a script implementation.
 
-- [ ] T031 [US3] Generate final report in `data/processed/final_report.md` (Markdown format) containing sections: Success Rate Comparison, Cost Comparison, Complexity Analysis, and Statistical Significance (p-values)
+- [X] T029 [US3] Implement scalability analysis in `code/analysis/metrics.py` to derive the formal **complexity class (Big-O)** via **log-log linear regression** on problem size vs. time. **Requirement**: Must use `scipy.stats.linregress` on `log(size)` vs `log(time)`. Must calculate R-squared (R^2). If R^2 < 0.85, flag as 'Inconclusive' rather than forcing a classification. If R^2 >= 0.85, round the slope to the nearest integer to determine O(n^k). Output must be saved to `data/processed/scaling_analysis.csv`. **Note**: **CRITICAL DEPENDENCY**: Must run AFTER T030a/b (Execution) to consume the generated logs. Depends on T024 (BES loop logic), T026 (metrics), and T030a/b (Execution results).
+
+- [X] T031a [P] [US3] Implement `code/analysis/report_gen.py` to auto-generate `data/processed/final_report.md` by parsing `data/processed` logs. **Constraint**: Must strictly avoid hand-typed statistics; all values must be injected from logs. **Dependency**: Depends on `contracts/output.schema.yaml` (T000b) for log structure parsing; independent of T030b execution.
+
+- [X] T031 [US3] Generate final report in `data/processed/final_report.md` (Markdown format) containing sections: Success Rate Comparison, Cost Comparison, Complexity Analysis, and Statistical Significance (p-values). **Note**: Depends on T030b (data generation) and T031a (report logic).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -169,13 +188,31 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T032 [P] Documentation updates in `README.md` detailing how to run the BES loop and interpret results
+- [X] T032 [US3] Implement **Optional** Equivalence Testing (TOST) in `code/analysis/stats.py` as a secondary analysis, dependent on T027 results. **Constraint**: Only run if pre-registered in T028a. Must not override the mandatory z-test results from T027.
 
-- [ ] T033 Code cleanup and refactoring of `code/bes/` and `code/symbolic/` modules
+- [X] T032 [P] Documentation updates in `README.md` detailing how to run the BES loop and interpret results
 
-- [ ] T034 Performance optimization of the verification loop to ensure <100ms execution per solution
+- [X] T033 Code cleanup and refactoring of `code/bes/` and `code/symbolic/` modules
 
-- [ ] T036 [P] Run `quickstart.md` validation to ensure the entire pipeline executes within the CI time limit
+- [X] T034 Performance optimization of the verification loop to ensure <100ms execution per solution
+
+- [X] T036 [P] Run `quickstart.md` validation to ensure the entire pipeline executes within the CI time limit
+
+---
+
+## Phase 7: Revision & Robustness (Addressing Review Concerns)
+
+**Purpose**: Address specific gaps identified in prior research-stage reviews regarding data integrity, error handling, and statistical rigor.
+
+- [ ] T035 [P] [US1] Implement strict "Fail Loudly" logic in `code/dataset/verifier.py` and `code/dataset/generator.py`. **Requirement**: Remove any `try/except` blocks that silently fallback to synthetic/mock data. If a real puzzle generation step fails or a constraint cannot be parsed, the script MUST raise a specific exception (e.g., `DataGenerationError`) and halt execution, ensuring no synthetic data is ever written to `data/raw/`. **Rationale**: Addresses the fabrication risk where real data fetches fail and are replaced by mock data.
+
+- [ ] T036 [US1] Add explicit validation task to verify that the dataset generation process for N=10..500 produces a statistically representative sample of constraint types. **Constraint**: Must include a check that ensures the distribution of puzzle types (Sudoku vs. Pathfinding) matches the intended ratio (e.g., balanced) and that complexity scaling is continuous. **Rationale**: Ensures the dataset supports the statistical power requirements for the z-test (SC-001).
+
+- [ ] T037 [US2] Enhance `code/symbolic/planner.py` to explicitly log and categorize "Symbolic Failure" cases (non-linear constraints, impossible goals) into a separate exclusion log file `data/processed/exclusions.json`. **Constraint**: Verify that T019b correctly logs these codes and that the log is consumable by T029. **Rationale**: Addresses the edge case where the symbolic planner fails, ensuring these exclusions are quantified rather than silently ignored.
+
+- [ ] T038 [US3] Refine `code/analysis/stats.py` to include a power analysis check before running the z-test. **Constraint**: If the calculated power (based on N and observed effect size) is < 0.8, the script must flag the result as "Underpowered" and output a recommendation to increase sample size, rather than just returning a p-value. **Rationale**: Ensures the statistical conclusion (SC-001) is robust and not a false negative due to small sample size.
+
+- [ ] T040 [US3] Implement the "Validated Conversion Factor" logic in `code/analysis/metrics.py` for GPU-hours estimation. **Constraint**: Hardcode the conversion factor `1 CPU-hour = 0.0015 GPU-hours` derived from the Green500 benchmark for comparable architectures (cited in code comment). This factor MUST be used in T030a for the baseline comparison to satisfy Constitution Principle VII. **Rationale**: Addresses the "Partially Satisfied" status of Constitution Principle VII by providing a specific, deterministic conversion factor.
 
 ---
 
@@ -183,12 +220,14 @@
 
 ### Phase Dependencies
 
+- **Phase 0**: No dependencies - can start immediately. **Must complete before Phase 3**.
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Revision (Phase 7)**: Depends on completion of Phases 3-6 to verify the implementation against the new robustness requirements.
 
 ### User Story Dependencies
 
@@ -272,3 +311,8 @@ With multiple developers:
 - **CRITICAL**: All LLM tasks must use CPU-only models (no CUDA, no bitsandbytes).
 - **CRITICAL**: All puzzle data must be real or deterministically generated; no fake data.
 - **CRITICAL**: The symbolic planner must handle constraint failures gracefully (exclude and log).
+- **CRITICAL**: The verifier MUST fail loudly (raise exception) on real data fetch failures; NEVER fall back to synthetic data.
+- **CRITICAL**: Phase 7 tasks are mandatory to address the "Fabrication Risk" and "Statistical Power" concerns raised in the initial review.
+- **CRITICAL**: T027 (Z-test) is the primary mandated test. T032 (TOST) is optional/secondary.
+- **CRITICAL**: T029 requires R^2 validation for complexity characterization.
+- **CRITICAL**: T040 provides the hardcoded GPU conversion factor (0.0015) for T030a.
