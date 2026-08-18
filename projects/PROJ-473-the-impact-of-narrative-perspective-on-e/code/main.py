@@ -6,281 +6,278 @@ import argparse
 import sys
 from pathlib import Path
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from config import get_config, PRIMARY_MATCHING_THRESHOLD
+# Import project modules using the public API surface
 from extraction import extract_perspective_features
-from matching import build_tfidf_vectors, find_top_matches
-from data_loader import fetch_gutenberg_stories, fetch_moral_foundations_twitter
+from data_loader import fetch_gutenberg_stories
+from matching import run_sensitivity_analysis_pipeline
+from data_collection import run_aggregation_pipeline
+from analysis import run_analysis_pipeline
+from config import get_config
 from utils import compute_artifact_hash
 
-def setup_logging(log_file):
-    """Configure logging to file and console."""
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    return logging.getLogger(__name__)
+# Configure logging
+def setup_logging(log_file: str = "data/logs/extraction.log") -> logging.Logger:
+    """Setup logging to both file and console."""
+    log_dir = os.path.dirname(log_file)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
+    
+    logger = logging.getLogger("pipeline")
+    logger.setLevel(logging.INFO)
+    
+    # Clear existing handlers to avoid duplicates in re-runs
+    logger.handlers.clear()
+    
+    # File handler
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.INFO)
+    
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    
+    # Formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+    
+    return logger
 
-def run_extraction_step(input_dir, output_path, log_file):
-    """Run the perspective extraction pipeline."""
-    logger = setup_logging(log_file)
-    logger.info(f"Starting extraction from {input_dir}")
+def run_extraction_step(input_dir: str, output_path: str, logger: logging.Logger) -> bool:
+    """
+    Run the perspective feature extraction pipeline.
+    
+    Args:
+        input_dir: Directory containing story text files (.txt)
+        output_path: Path to save the JSON output
+        logger: Logger instance
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    logger.info(f"Starting extraction on corpus: {input_dir}")
+    
+    if not os.path.isdir(input_dir):
+        logger.error(f"Input directory does not exist: {input_dir}")
+        return False
     
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     results = []
-    # Find all text files
-    pattern = os.path.join(input_dir, "*.txt")
-    files = glob.glob(pattern)
+    skipped_count = 0
+    processed_count = 0
     
-    if not files:
-        logger.warning(f"No text files found in {input_dir}")
+    # Find all .txt files
+    story_files = glob.glob(os.path.join(input_dir, "*.txt"))
+    
+    if not story_files:
+        logger.warning(f"No .txt files found in {input_dir}")
         # Write empty list if no files
-        with open(output_path, 'w') as f:
-            json.dump([], f, indent=2)
-        return results
-
-    for file_path in files:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump([], f)
+        return True
+    
+    for file_path in story_files:
         try:
-            record = extract_perspective_features(file_path)
-            if record:
-                results.append(record)
-                logger.info(f"Processed: {os.path.basename(file_path)}")
+            result = extract_perspective_features(file_path)
+            if result is None:
+                skipped_count += 1
+                continue
+            
+            results.append(result)
+            processed_count += 1
+            
         except Exception as e:
-            logger.error(f"Failed to process {file_path}: {e}")
+            logger.error(f"Error processing {file_path}: {str(e)}")
             continue
     
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    # Write results to JSON
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
     
-    logger.info(f"Extraction complete. Wrote {len(results)} records to {output_path}")
-    return results
+    logger.info(f"Extraction complete. Processed: {processed_count}, Skipped: {skipped_count}")
+    logger.info(f"Output written to: {output_path}")
+    
+    return True
 
-def run_matching_step(input_path, target_path, output_path, log_file):
+def run_matching_step(input_path: str, target_path: str, output_path: str, logger: logging.Logger) -> bool:
     """
-    Run the matching validation step.
+    Run the text similarity matching step.
     
-    Loads perspective features, builds TF-IDF vectors, matches against the target
-    dataset (moral_judgement_dataset) using the primary threshold, and outputs
-    results to matching_results.json.
-    
-    CRITICAL: This command does NOT run regression analysis. It only outputs match data.
+    Args:
+        input_path: Path to perspective features JSON
+        target_path: Path to target moral judgement dataset CSV
+        output_path: Path to save matching results JSON
+        logger: Logger instance
+        
+    Returns:
+        True if successful, False otherwise
     """
-    logger = setup_logging(log_file)
-    logger.info(f"Starting matching step")
-    logger.info(f"Input features: {input_path}")
-    logger.info(f"Target dataset: {target_path}")
-    logger.info(f"Output: {output_path}")
+    logger.info("Starting matching step")
     
-    # Ensure directories exist
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    os.makedirs(os.path.dirname(target_path), exist_ok=True)
-    
-    # 1. Load perspective features
     if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        # If input doesn't exist, we cannot proceed.
-        # Write empty results to avoid crash, but log error.
-        with open(output_path, 'w') as f:
-            json.dump([], f, indent=2)
-        return []
-    
-    with open(input_path, 'r') as f:
-        perspective_features = json.load(f)
-    
-    logger.info(f"Loaded {len(perspective_features)} perspective feature records")
-    
-    if not perspective_features:
-        logger.warning("No perspective features found. Writing empty results.")
-        with open(output_path, 'w') as f:
-            json.dump([], f, indent=2)
-        return []
-
-    # 2. Fetch or load the target dataset (moral_judgement_dataset)
-    # The target is expected to be a CSV with columns: story_id, text, empathy_score, moral_judgement_score
-    # If it doesn't exist, we try to fetch it.
+        logger.error(f"Input file does not exist: {input_path}")
+        return False
+        
     if not os.path.exists(target_path):
-        logger.info(f"Target dataset not found at {target_path}. Attempting to fetch...")
-        # Try to fetch from HuggingFace
-        try:
-            # Using the function from data_loader that fetches moral foundations data
-            # Note: The task description mentions 'moral_judgement_dataset.csv', 
-            # but the real source is 'moral-foundation/twitter' via fetch_moral_foundations_twitter.
-            # We will fetch and save it to the target path.
-            df = fetch_moral_foundations_twitter()
-            if df is not None:
-                # Ensure required columns exist
-                required_cols = ['story_id', 'text', 'empathy_score', 'moral_judgement_score']
-                if not all(col in df.columns for col in required_cols):
-                    logger.error(f"Dataset missing required columns. Found: {df.columns.tolist()}")
-                    # Fallback: write empty results
-                    with open(output_path, 'w') as f:
-                        json.dump([], f, indent=2)
-                    return []
-                
-                df.to_csv(target_path, index=False)
-                logger.info(f"Saved target dataset to {target_path}")
-            else:
-                logger.error("Failed to fetch target dataset.")
-                with open(output_path, 'w') as f:
-                    json.dump([], f, indent=2)
-                return []
-        except Exception as e:
-            logger.error(f"Error fetching target dataset: {e}")
-            with open(output_path, 'w') as f:
-                json.dump([], f, indent=2)
-            return []
-    else:
-        logger.info(f"Loading existing target dataset from {target_path}")
+        logger.error(f"Target file does not exist: {target_path}")
+        return False
     
-    import pandas as pd
-    target_df = pd.read_csv(target_path)
-    logger.info(f"Loaded {len(target_df)} target records")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    # 3. Build TF-IDF vectors for both perspective features and target
-    # Extract texts from perspective features
-    query_texts = [feat.get('raw_text', '') for feat in perspective_features]
-    # Extract texts from target dataset
-    target_texts = target_df['text'].tolist()
-    target_ids = target_df['story_id'].tolist()
+    try:
+        # Run matching logic
+        results = run_sensitivity_analysis_pipeline(input_path, target_path, output_path, logger)
+        logger.info(f"Matching complete. Results saved to: {output_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Matching failed: {str(e)}")
+        return False
+
+def run_aggregation_step(features_path: str, responses_path: str, output_path: str, logger: logging.Logger) -> bool:
+    """
+    Run the data aggregation step.
     
-    if not query_texts or not target_texts:
-        logger.warning("No texts found for vectorization.")
-        with open(output_path, 'w') as f:
-            json.dump([], f, indent=2)
-        return []
-    
-    # Build vectors
-    logger.info("Building TF-IDF vectors...")
-    query_vectors, target_vectors = build_tfidf_vectors(query_texts, target_texts, exclude_pronouns=True)
-    
-    # 4. Find top matches for each query
-    results = []
-    threshold = PRIMARY_MATCHING_THRESHOLD
-    logger.info(f"Using matching threshold: {threshold}")
-    
-    for i, query_vec in enumerate(query_vectors):
-        story_id = perspective_features[i].get('story_id', f"unknown_{i}")
+    Args:
+        features_path: Path to perspective features JSON
+        responses_path: Path to aligned reader response CSV
+        output_path: Path to save aggregated dataset CSV
+        logger: Logger instance
         
-        matches = find_top_matches(
-            query_vec, 
-            target_vectors, 
-            k=3, 
-            threshold=threshold
-        )
+    Returns:
+        True if successful, False otherwise
+    """
+    logger.info("Starting aggregation step")
+    
+    if not os.path.exists(features_path):
+        logger.error(f"Features file does not exist: {features_path}")
+        return False
         
-        for rank, (match_idx, score) in enumerate(matches, 1):
-            match_id = target_ids[match_idx]
-            results.append({
-                'story_id': story_id,
-                'match_id': match_id,
-                'similarity_score': float(score),
-                'rank': rank
-            })
+    if not os.path.exists(responses_path):
+        logger.error(f"Responses file does not exist: {responses_path}")
+        return False
     
-    # 5. Write results
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    logger.info(f"Matching complete. Wrote {len(results)} matches to {output_path}")
-    return results
+    try:
+        run_aggregation_pipeline(features_path, responses_path, output_path, logger)
+        logger.info(f"Aggregation complete. Output saved to: {output_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Aggregation failed: {str(e)}")
+        return False
 
-def run_aggregation_step(features_path, responses_path, output_path, log_file):
-    """Run the data aggregation step."""
-    logger = setup_logging(log_file)
-    logger.info(f"Starting aggregation")
+def run_analysis_step(input_path: str, output_path: str, logger: logging.Logger) -> bool:
+    """
+    Run the statistical analysis step.
     
-    # Implementation would go here (T032)
-    # For now, placeholder to satisfy CLI structure
-    logger.warning("Aggregation step not fully implemented in this task.")
-    return []
-
-def run_analysis_step(input_path, output_path, log_file):
-    """Run the analysis step."""
-    logger = setup_logging(log_file)
-    logger.info(f"Starting analysis")
+    Args:
+        input_path: Path to aligned dataset CSV
+        output_path: Path to save analysis results JSON
+        logger: Logger instance
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    logger.info("Starting analysis step")
     
-    # Implementation would go here (T041)
-    # For now, placeholder to satisfy CLI structure
-    logger.warning("Analysis step not fully implemented in this task.")
-    return {}
+    if not os.path.exists(input_path):
+        logger.error(f"Input file does not exist: {input_path}")
+        return False
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    try:
+        results = run_analysis_pipeline(input_path, output_path, logger)
+        logger.info(f"Analysis complete. Results saved to: {output_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Analysis failed: {str(e)}")
+        return False
 
-def run_all_pipeline(log_file):
-    """Run the entire pipeline end-to-end."""
-    logger = setup_logging(log_file)
+def run_all_pipeline(logger: logging.Logger) -> bool:
+    """
+    Run the entire pipeline end-to-end.
+    
+    Args:
+        logger: Logger instance
+        
+    Returns:
+        True if all steps successful, False otherwise
+    """
     logger.info("Starting full pipeline")
     
     config = get_config()
-    paths = config['paths']
     
-    # 1. Extraction
-    extraction_output = os.path.join(paths['data_processed'], 'perspective_features.json')
-    run_extraction_step(
-        input_dir=paths['data_raw'],
-        output_path=extraction_output,
-        log_file=log_file
-    )
+    # Step 1: Fetch data (if needed) - assumed already done by T007
+    gutenberg_dir = config.get('GUTENBERG_STORIES_DIR', 'data/raw/gutenberg_stories')
     
-    # 2. Matching
-    target_path = os.path.join(paths['data_raw'], 'moral_judgement_dataset.csv')
-    matching_output = os.path.join(paths['data_processed'], 'matching_results.json')
-    run_matching_step(
-        input_path=extraction_output,
-        target_path=target_path,
-        output_path=matching_output,
-        log_file=log_file
-    )
+    # Step 2: Extraction
+    features_output = config.get('FEATURES_OUTPUT', 'data/processed/perspective_features.json')
+    if not run_extraction_step(gutenberg_dir, features_output, logger):
+        logger.error("Extraction step failed")
+        return False
     
-    # 3. Aggregation
-    responses_path = os.path.join(paths['data_processed'], 'reader_response.csv')
-    aggregated_output = os.path.join(paths['data_processed'], 'aligned_dataset.csv')
-    run_aggregation_step(
-        features_path=extraction_output,
-        responses_path=responses_path,
-        output_path=aggregated_output,
-        log_file=log_file
-    )
+    # Step 3: Matching
+    # Check if target data exists, if not, skip or generate mock
+    target_path = config.get('MORAL_JUDGEMENT_DATASET', 'data/raw/moral_judgement_dataset.csv')
+    matching_output = config.get('MATCHING_OUTPUT', 'data/processed/matching_results.json')
     
-    # 4. Analysis
-    analysis_output = os.path.join(paths['data_processed'], 'analysis_results.json')
-    run_analysis_step(
-        input_path=aggregated_output,
-        output_path=analysis_output,
-        log_file=log_file
-    )
+    if os.path.exists(target_path):
+        if not run_matching_step(features_output, target_path, matching_output, logger):
+            logger.error("Matching step failed")
+            return False
+    else:
+        logger.warning(f"Target dataset not found at {target_path}. Skipping matching step.")
     
-    logger.info("Full pipeline complete")
+    # Step 4: Aggregation
+    responses_path = config.get('READER_RESPONSE_PATH', 'data/processed/aligned_reader_response.csv')
+    aggregated_output = config.get('AGGREGATED_OUTPUT', 'data/processed/aligned_dataset.csv')
+    
+    if os.path.exists(responses_path):
+        if not run_aggregation_step(features_output, responses_path, aggregated_output, logger):
+            logger.error("Aggregation step failed")
+            return False
+    else:
+        logger.warning(f"Reader response data not found at {responses_path}. Skipping aggregation step.")
+    
+    # Step 5: Analysis
+    analysis_output = config.get('ANALYSIS_OUTPUT', 'data/processed/analysis_results.json')
+    if os.path.exists(aggregated_output):
+        if not run_analysis_step(aggregated_output, analysis_output, logger):
+            logger.error("Analysis step failed")
+            return False
+    else:
+        logger.warning(f"Aggregated dataset not found at {aggregated_output}. Skipping analysis step.")
+    
+    logger.info("Full pipeline completed successfully")
+    return True
 
 def main():
-    parser = argparse.ArgumentParser(description='Narrative Perspective Research Pipeline')
+    """Main entry point for the pipeline CLI."""
+    parser = argparse.ArgumentParser(description="Narrative Perspective Analysis Pipeline")
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
     
     # Extract command
-    extract_parser = subparsers.add_parser('extract', help='Run perspective extraction')
-    extract_parser.add_argument('--input-dir', required=True, help='Input directory with text files')
-    extract_parser.add_argument('--output', required=True, help='Output JSON path')
+    extract_parser = subparsers.add_parser('extract', help='Run perspective feature extraction')
+    extract_parser.add_argument('--input-dir', required=True, help='Directory containing story .txt files')
+    extract_parser.add_argument('--output', required=True, help='Output JSON file path')
     
-    # Match command (T025)
-    match_parser = subparsers.add_parser('match', help='Run matching validation')
+    # Match command
+    match_parser = subparsers.add_parser('match', help='Run text similarity matching')
     match_parser.add_argument('--input', required=True, help='Input perspective features JSON')
-    match_parser.add_argument('--target', required=True, help='Target dataset CSV path')
+    match_parser.add_argument('--target', required=True, help='Target moral judgement dataset CSV')
     match_parser.add_argument('--output', required=True, help='Output matching results JSON')
     
     # Aggregate command
-    agg_parser = subparsers.add_parser('aggregate', help='Run data aggregation')
-    agg_parser.add_argument('--features', required=True, help='Features JSON path')
-    agg_parser.add_argument('--responses', required=True, help='Responses CSV path')
-    agg_parser.add_argument('--output', required=True, help='Output aligned dataset CSV')
+    aggregate_parser = subparsers.add_parser('aggregate', help='Run data aggregation')
+    aggregate_parser.add_argument('--features', required=True, help='Input perspective features JSON')
+    aggregate_parser.add_argument('--responses', required=True, help='Input aligned reader response CSV')
+    aggregate_parser.add_argument('--output', required=True, help='Output aggregated dataset CSV')
     
     # Analyze command
     analyze_parser = subparsers.add_parser('analyze', help='Run statistical analysis')
@@ -288,27 +285,31 @@ def main():
     analyze_parser.add_argument('--output', required=True, help='Output analysis results JSON')
     
     # All command
-    all_parser = subparsers.add_parser('all', help='Run full pipeline')
+    all_parser = subparsers.add_parser('all', help='Run the entire pipeline')
     
     args = parser.parse_args()
     
-    # Default log file
-    log_file = 'data/logs/pipeline.log'
-    os.makedirs('data/logs', exist_ok=True)
-    
-    if args.command == 'extract':
-        run_extraction_step(args.input_dir, args.output, log_file)
-    elif args.command == 'match':
-        run_matching_step(args.input, args.target, args.output, log_file)
-    elif args.command == 'aggregate':
-        run_aggregation_step(args.features, args.responses, args.output, log_file)
-    elif args.command == 'analyze':
-        run_analysis_step(args.input, args.output, log_file)
-    elif args.command == 'all':
-        run_all_pipeline(log_file)
-    else:
+    if not args.command:
         parser.print_help()
         sys.exit(1)
+    
+    # Setup logging
+    logger = setup_logging()
+    
+    success = False
+    
+    if args.command == 'extract':
+        success = run_extraction_step(args.input_dir, args.output, logger)
+    elif args.command == 'match':
+        success = run_matching_step(args.input, args.target, args.output, logger)
+    elif args.command == 'aggregate':
+        success = run_aggregation_step(args.features, args.responses, args.output, logger)
+    elif args.command == 'analyze':
+        success = run_analysis_step(args.input, args.output, logger)
+    elif args.command == 'all':
+        success = run_all_pipeline(logger)
+    
+    sys.exit(0 if success else 1)
 
 if __name__ == '__main__':
     main()

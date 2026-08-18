@@ -1,20 +1,9 @@
 T004:
   c: true
-  h: 233058ef94986bcd28a061b08b091bcc011c5a2a2f79783c6b6a89d6881f559c
-  r: "The provided `code/config.py` is present, non\u2011empty, defines `PRIMARY_MATCHING_THRESHOLD\
-    \ = 0.30`, sets `GOLD_STANDARD_ANNOTATIONS_PATH = 'data/raw/gold_standard_annotations.csv'`,\
-    \ includes path definitions, calls `np.random.seed(42)`, and supplies hyperparameter\
-    \ values as required. The absence of the CSV file does not violate the task, which\
-    \ only asked for the constant definition."
-T016:
-  c: false
-  h: 3c1ffd4bd03098fbcda3e7f48f8035024ba0804a41d98fd40fa6821e52d5c0fb
-  r: "The repository contains a `code/main.py` file, but it is truncated and does\
-    \ not show the required CLI (`extract` subcommand) or the logic that enforces\
-    \ the short\u2011text skip\u2011and\u2011log behavior. Moreover, the expected\
-    \ output file `data/processed/perspective_features.json` is absent, so the pipeline\u2019\
-    s result cannot be verified. The missing output and unclear CLI implementation\
-    \ mean the task is not fully satisfied."
+  h: 4cd3bc101d949f38f3c5ce3dfcdd8a583a0826d257c4558cd83db3f9c5dff9f1
+  r: "The provided `code/config.py` is present, non\u2011empty, and defines the required\
+    \ path constant, seed initialization, and hyperparameters (including `PRIMARY_MATCHING_THRESHOLD\
+    \ = 0.30`). The missing CSV file is not part of the task\u2019s deliverable."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -24,6 +13,28 @@ T018:
     \ is not satisfied. The next implementer must add and commit the logging implementation\
     \ (e.g., a log statement in the extraction script and a sample log file) and provide\
     \ the corresponding artifact."
+T024:
+  c: false
+  h: 7756c4fe701e407317ec777701abde46069a4f64d3ac21a691187acd7643d09d
+  r: The repository lacks the required `data/processed/thresholds.json` file, and
+    the provided `code/data_loader.py` excerpt does not contain a `prepare_sensitivity_thresholds()`
+    implementation (or any evidence it writes the specified JSON). Both the function
+    and its output are missing, so the task is not satisfied.
+T025:
+  c: false
+  h: bbd753c0674d844cec4f303d66cbf88fd65776b5dacf62a3973ca1d554c4130e
+  r: The repository lacks the required `generate_mock_moral_judgement_data` function
+    in `code/data_loader.py` (the shown file only contains other imports and a `fetch_external_reader_data`
+    stub, and the file is truncated). Additionally, the expected output file `data/raw/moral_judgement_dataset.csv`
+    does not exist. Both the implementation and the generated CSV are missing.
+T025#1:
+  c: false
+  h: 3720c9603c2f0da8ec269e27e5b4ac776be65c24c1aa3aa8fd5a10a2617e5b4b
+  r: "The provided `code/main.py` is truncated, contains no implementation of a `match`\
+    \ sub\u2011command, and does not show the TF\u2011IDF matching logic or use of\
+    \ `PRIMARY_MATCHING_THRESHOLD`. Moreover, the required output file `data/processed/matching_results.json`\
+    \ (and its input files) are missing. The task\u2019s core functionality is therefore\
+    \ not present."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,6 +50,14 @@ T027:
     \ artifact (e.g., function, unit test, or example output) to demonstrate that\
     \ the rule has been added to the similarity matcher. The required implementation\
     \ is therefore missing."
+T030:
+  c: false
+  h: e508b35b7f3123ae05f5fe7ade78a70516e27405ed31672a11b468c6103c9bb9
+  r: "The `fetch_external_reader_data` function is only partially implemented, contains\
+    \ placeholder dataset names, does not create or save a CSV, and the required `data/processed/reader_response.csv`\
+    \ file is missing. The implementation also lacks verification of a `story_id`\
+    \ column and does not ensure real human\u2011annotated scores are written to the\
+    \ output."
 T032:
   c: false
   h: db22158a27250a343a2e64baf0b909ceee794071a9cc06f8f60825f33062a67c
@@ -47,12 +66,3 @@ T032:
     \ Moreover, `aggregate_reader_scores` is only partially implemented (no CSV writing\
     \ logic) and the surrounding CLI in `code/main.py` does not invoke it. The task\u2019\
     s core deliverable is therefore missing."
-T042:
-  c: false
-  h: c80ee2992351d8d23d719d343253a5187dcc977ac4001fdab20250148414eece
-  r: "The repository lacks the required `data/processed/aligned_dataset.csv` file,\
-    \ so the pipeline cannot be run on the intended dataset. Moreover, the provided\
-    \ `code/main.py` is truncated and does not contain a complete CLI sub\u2011command\
-    \ (e.g., an `if __name__ == \"__main__\":` block with argparse handling) that\
-    \ would invoke the full analysis pipeline on that CSV. Both the essential data\
-    \ artifact and the full command implementation are missing."
