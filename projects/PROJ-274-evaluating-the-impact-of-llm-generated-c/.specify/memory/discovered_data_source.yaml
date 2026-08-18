@@ -1,18 +1,18 @@
 status: none
-intent: GHTorrent GitHub repository metadata and documentation status dataset python
-  package
+intent: downloadable onboarding experiment participant logs dataset python package
+  dataset
 required_fields:
 - participant_id
 - condition
-- repository_id
+- task_id
 - task_start_timestamp
 - task_end_timestamp
 - clarification_question_timestamp
-- clarification_question_content
+- clarification_question_text
 - moderator_action_timestamp
 - moderator_action_type
 - total_elapsed_time
-- subjective_helpfulness_score
-cache_key: 1ecf8245f1fdc381cb172566fe73214ac0d02f8392ee3541b972e66a22aeee72
-searched_at: '2026-08-14T20:37:44.102473+00:00'
+- helpfulness_survey_responses
+cache_key: b9099bb89401299b6ca8fc04858dfa01900c95a4ae2e6aa02f1bfba4cba4a1b0
+searched_at: '2026-08-18T13:24:26.662447+00:00'
 retry_count: 1

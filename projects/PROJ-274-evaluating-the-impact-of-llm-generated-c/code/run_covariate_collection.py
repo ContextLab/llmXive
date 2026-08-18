@@ -1,48 +1,73 @@
 """
-Script to generate repo_covariates.json from repo_metrics.json and repo_matching_report.json.
-This prepares the covariate data for ANCOVA analysis.
+Task T021g: ANCOVA Covariate Preparation
+
+This script aggregates LOC, CC, and Doc Quality scores into a single covariate dataset.
+It performs normalization/centering to prepare data for ANCOVA.
+
+Output: data/raw/repo_covariates.json
 """
 import json
 import os
 import sys
+import logging
+from pathlib import Path
+
+# Add project root to path for imports if run as script
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 from validation import generate_covariates_json
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def main():
     """
-    Main entry point to generate covariates.
-    Reads:
-      - data/raw/repo_metrics.json (from T021c)
-      - data/raw/repo_matching_report.json (from T021d)
-    Writes:
-      - data/raw/repo_covariates.json
+    Main entry point for T021g.
+    Aggregates metrics and doc quality into covariates, centers them, and saves.
     """
-    # Define paths relative to project root
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    metrics_path = os.path.join(project_root, "data", "raw", "repo_metrics.json")
-    matching_path = os.path.join(project_root, "data", "raw", "repo_matching_report.json")
-    output_path = os.path.join(project_root, "data", "raw", "repo_covariates.json")
+    logger.info("Starting ANCOVA Covariate Preparation (T021g)...")
 
-    # Check input files exist
-    if not os.path.exists(metrics_path):
-        print(f"Error: Input file not found: {metrics_path}", file=sys.stderr)
-        print("Please ensure T021c has been executed successfully.", file=sys.stderr)
-        sys.exit(1)
-
-    if not os.path.exists(matching_path):
-        print(f"Error: Input file not found: {matching_path}", file=sys.stderr)
-        print("Please ensure T021d has been executed successfully.", file=sys.stderr)
-        sys.exit(1)
+    # Define paths
+    metrics_path = project_root / "data" / "raw" / "repo_metrics.json"
+    doc_quality_path = project_root / "data" / "raw" / "doc_quality_scores.json"
+    output_path = project_root / "data" / "raw" / "repo_covariates.json"
 
     # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Generate covariates
-    try:
-        generate_covariates_json(metrics_path, matching_path, output_path)
-        print(f"Successfully generated covariates: {output_path}")
-    except Exception as e:
-        print(f"Error generating covariates: {e}", file=sys.stderr)
+    # Check dependencies
+    if not metrics_path.exists():
+        logger.error(f"Required input missing: {metrics_path}. Run T021c first.")
         sys.exit(1)
+    
+    if not doc_quality_path.exists():
+        logger.error(f"Required input missing: {doc_quality_path}. Run T021f first.")
+        sys.exit(1)
+
+    logger.info(f"Loading metrics from {metrics_path}")
+    with open(metrics_path, 'r') as f:
+        metrics_data = json.load(f)
+
+    logger.info(f"Loading doc quality scores from {doc_quality_path}")
+    with open(doc_quality_path, 'r') as f:
+        doc_quality_data = json.load(f)
+
+    # Call the core logic from validation module
+    # This function aggregates the data and performs centering
+    covariates = generate_covariates_json(metrics_data, doc_quality_data)
+
+    # Write output
+    logger.info(f"Writing covariates to {output_path}")
+    with open(output_path, 'w') as f:
+        json.dump(covariates, f, indent=2)
+
+    logger.info("T021g completed successfully.")
+    print(f"Output written to: {output_path}")
 
 if __name__ == "__main__":
     main()

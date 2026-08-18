@@ -1,19 +1,19 @@
 {
   "project_id": "PROJ-274-evaluating-the-impact-of-llm-generated-c",
   "ok": false,
-  "reason": "4 run-book script(s) missing (plan/impl path mismatch): python code/experiment/experiment.py --mode mock --participants 3; python code/generation/doc_pipeline.py  --repo  --commit abc123def456  --output data/processed/docs/repo_docs.md; python code/analysis/stats_runner.py  --input data/processed/task_logs_anon.json  --output data/processed/analysis_results.json; 6 declared deliverable(s) absent: data/processed/cleaned_dataset.csv; data/processed/validation_report.json; data/raw/participant_logs.json",
+  "reason": "4 command(s) failed: python code/experiment/experiment.py --mode mock --participants 3 (rc=1); python code/generation/doc_pipeline.py  --repo  --commit abc123def456  --output data/processed/docs/repo_docs.md (rc=1); python code/analysis/stats_runner.py  --input data/processed/task_logs_anon.json  --output data/processed/analysis_results.json (rc=1); 10 declared deliverable(s) absent: data/processed/centered_covariates.json; data/processed/cleaned_dataset.csv; data/processed/validation_report.json",
   "artifacts": [],
   "failures": [
-    "python code/experiment/experiment.py --mode mock --participants 3 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/experiment/experiment.py': [Errno 2] No such file or directory",
-    "python code/generation/doc_pipeline.py  --repo  --commit abc123def456  --output data/processed/docs/repo_docs.md -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/generation/doc_pipeline.py': [Errno 2] No such file or directory",
-    "python code/analysis/stats_runner.py  --input data/processed/task_logs_anon.json  --output data/processed/analysis_results.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/analysis/stats_runner.py': [Errno 2] No such file or directory",
-    "python code/utils/logging.py --track  --command \"python code/analysis/stats_runner.py...\" -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/utils/logging.py': [Errno 2] No such file or directory"
+    "python code/experiment/experiment.py --mode mock --participants 3 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/experiment/experiment.py\", line 24, in <module>\n    from data_collection import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/data_collection.py\", line 17, in <module>\n    logging.FileHandler('data/logs/data_collection.log')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181",
+    "python code/generation/doc_pipeline.py  --repo  --commit abc123def456  --output data/processed/docs/repo_docs.md -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/generation/doc_pipeline.py\", line 36, in <module>\n    logging.FileHandler(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'logs', 'doc_pipeline.log'))\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n             ",
+    "python code/analysis/stats_runner.py  --input data/processed/task_logs_anon.json  --output data/processed/analysis_results.json -> rc=1\n    2026-08-18 13:23:40,403 - ERROR - Secondary path execution failed: Input data file not found: data/processed/task_logs_anon.json. Ensure T032 (cleaning pipeline) has run.",
+    "python code/utils/logging.py --track  --command \"python code/analysis/stats_runner.py...\" -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/utils/logging.py\", line 15, in <module>\n    import logging\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/utils/logging.py\", line 21, in <module>\n    from code.utils.monitor import ActiveMonitor\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/co"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-14T20:37:29Z"
+  "updated_at": "2026-08-18T13:23:41Z"
 }

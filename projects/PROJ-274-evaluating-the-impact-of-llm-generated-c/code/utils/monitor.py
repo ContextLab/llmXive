@@ -6,10 +6,27 @@ import psutil
 from typing import Optional, Dict, Any
 from pathlib import Path
 
-# Configure logging for the monitor module
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Avoid circular import by configuring logger without basicConfig if 'logging' module is shadowed
+# We use a safe initialization pattern that works even if a local 'logging.py' exists
+try:
+    # If this module is imported correctly, the standard library 'logging' is available
+    # We check for the attribute to ensure we aren't shadowed by a local file
+    if not hasattr(logging, 'basicConfig'):
+        # Fallback: try to re-import the standard library explicitly if shadowed
+        import importlib
+        logging = importlib.reload(logging)
+except Exception:
+    pass
 
+# Configure logging for the monitor module
+# Using a specific logger name to avoid conflicts
+logger = logging.getLogger(__name__)
+# Only configure if not already configured to avoid "Already configured" warnings in some runners
+if not logging.getLogger().handlers:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
 class ActiveMonitor:
     """
@@ -41,6 +58,7 @@ class ActiveMonitor:
         self.sampling_interval = sampling_interval
         self.is_monitoring = False
         self.metrics: Dict[str, Any] = {}
+        self._thread = None
 
     def _sample_memory(self):
         """Continuously sample memory usage until monitoring stops."""
@@ -76,7 +94,7 @@ class ActiveMonitor:
         self.is_monitoring = False
         
         # Wait for the sampling thread to finish
-        if hasattr(self, '_thread'):
+        if self._thread is not None:
             self._thread.join(timeout=1.0)
         
         # Calculate elapsed time

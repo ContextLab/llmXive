@@ -6,22 +6,20 @@ T020:
     \ in `checksums.txt`. The constants point to the required path, satisfying the\
     \ export and checksum requirements. (The output file itself need not exist until\
     \ the function is invoked.)"
-T021f:
+T021b:
   c: false
-  h: 53fcbf2ea4ea60dd699b032f1b79d896d272d95a1fd675c4887b9170b28b0528
-  r: "The provided `code/validation.py` contains only metric\u2011analysis utilities\
-    \ and shows no implementation for detecting Setup, API, or Architecture sections,\
-    \ computing a \u201CHuman Doc Quality Score\u201D, or writing `data/raw/doc_quality_scores.json`.\
-    \ Moreover, the required JSON output file is absent. The task\u2019s core functionality\
-    \ and output are therefore not delivered."
-T021h:
+  h: 850b4feebab3fbe437a4a2a22053139836208c7e1961fbf96bdb74f97edd1a03
+  r: "The required file `data/raw/repo_selection_rubric.json` is missing, and the\
+    \ checksum entry in `data/checksums.txt` does not reference that JSON (it only\
+    \ contains a hash for `data/llm_config.yaml`). Consequently the task\u2019s core\
+    \ outputs and verification steps are not satisfied."
+T021c:
   c: false
-  h: a0b41ecfb33c3ac58c234a6f338fc5f587cd142e6f468294c040cb9e2b9cd399
-  r: "The repository contains `code/analysis/ancova_strategy.py`, but the required\
-    \ output file `data/raw/ancova_strategy_config.json` does not exist. Consequently\
-    \ the task\u2019s primary deliverable\u2014producing the ANCOVA strategy configuration\
-    \ JSON\u2014is missing. The implementation must be extended to actually write\
-    \ this file (and ensure it is non\u2011empty) to satisfy the requirement."
+  h: 3b4a07b55b2fb991d038303a7f0500b2300a384e979aef40f0f527f42da0e1c2
+  r: "The repository contains the metric\u2011calculation functions in `code/validation.py`,\
+    \ but there is no code that writes the results to `data/raw/repo_metrics.json`,\
+    \ and that file is absent from the project. Consequently the required output artifact\
+    \ does not exist."
 T033:
   c: false
   h: afbd3c7a3c82f0345097f313e4b17a97c8976f42c93c5c5f19098703a573f99f

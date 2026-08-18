@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "data_file": "data/processed/task_logs_anon.json",
+    "required": []
+  }
+]

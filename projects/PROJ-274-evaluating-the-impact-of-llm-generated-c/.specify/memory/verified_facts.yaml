@@ -1,0 +1,5 @@
+'|check code execute f401 identify import remove ruff select them unused':
+  quote: 'P528: F401.6.'
+  source_id: Q117200645
+  url: https://www.wikidata.org/wiki/Q117200645
+  value: F401.6.
