@@ -875,3 +875,134 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T22:13:50Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: "mean framewise displacement \u22640.2 mm for preprocessed data quality"
+  claim_id: c_c5e2de93
+  context: "Independent Test: Verify that downloaded and preprocessed data files exist\
+    \ with expected dimensions and quality metrics (mean FD \u22640.2 mm)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that downloaded and preprocessed data files exist with expected\
+    \ dimensions and quality metrics (mean FD \u22640.2 mm)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T12:32:12Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: exclude subjects with mean framewise displacement >0.5 mm
+  claim_id: c_ee02af60
+  context: 'Implement exclusion logic: Filter subjects with mean FD >0.5 mm, log the
+    exclusion count, and proceed'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter subjects with mean FD >0.5 mm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T12:32:12Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: efficiency metrics computed for at least 95 percent of subjects
+  claim_id: c_570c79ec
+  context: "Independent Test: Verify efficiency metrics are computed for efficiency\
+    \ metrics are computed for \u226595% of subjects and stored with expected ranges"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Efficiency_metrics_computed_for_at_least_95_percent_of_subje
+  kind: magnitude
+  raw_text: "Verify efficiency metrics are computed for \u226595% of subjects"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T12:32:37Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: graph density within 1 percent of target
+  claim_id: c_6161c89a
+  context: "verify graph density is within graph density is within \xB11% of target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify graph density is within \xB11% of target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T12:32:37Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: permutation count adjustment if elapsed time exceeds 5.5 hours with 6
+    hour limit
+  claim_id: c_5001ef7c
+  context: If t_elapsed > 5.5h, set permutations = max(1000, floor((6h - t_elapsed)
+    / avg_perm_time)).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If t_elapsed > 5.5h, set permutations = max(1000, floor((6h - t_elapsed)
+    / avg_perm_time))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T12:32:37Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: sample dataset to 500 subjects or fewer when dataset exceeds 500 subjects
+  claim_id: c_961bc718
+  context: "If dataset >500 subjects and time is critical, sample to \u2264500 subjects\
+    \ dynamically."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sample to \u2264500 subjects dynamically"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T12:32:37Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: analysis completion on CPU within 6 hours
+  claim_id: c_dccf224d
+  context: 'Critical Constraint: All analysis must complete on CPU within 6 hours;
+    use sampling if necessary.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All analysis must complete on CPU within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T12:32:51Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: streaming data to stay below 7 GB RAM
+  claim_id: c_adda78cb
+  context: Performance optimization (streaming data to stay <7GB RAM)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: streaming data to stay <7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T12:32:52Z'

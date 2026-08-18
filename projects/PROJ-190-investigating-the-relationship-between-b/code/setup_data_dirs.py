@@ -3,56 +3,49 @@ from pathlib import Path
 from typing import List
 from utils.logging import get_logger, info, warning, error
 
+# Import ensure_directories from config to maintain API consistency
+from config import ensure_directories
+
 logger = get_logger(__name__)
 
-def create_data_directories(base_path: Optional[Path] = None) -> List[Path]:
+def create_data_directories() -> None:
     """
-    Creates the required directory structure for the project data:
-    - data/raw/
-    - data/processed/
-    - data/results/
-
-    Args:
-        base_path: Optional base path. Defaults to project root (parent of code/).
-
-    Returns:
-        List of created Path objects.
+    Create the required directory structure for data storage.
+    
+    Creates:
+      - data/raw/          : For raw downloaded data (HCP fMRI, scores)
+      - data/processed/    : For preprocessed time series and metrics
+      - data/results/      : For final analysis results and reports
     """
-    if base_path is None:
-        # Infer project root as the parent of the code directory
-        current_file = Path(__file__).resolve()
-        base_path = current_file.parent.parent
-
-    data_root = base_path / "data"
-    directories = [
-        data_root / "raw",
-        data_root / "processed",
-        data_root / "results"
+    # Define the relative paths required by the project
+    # These match the paths specified in tasks.md T007
+    required_dirs: List[Path] = [
+        Path("data/raw"),
+        Path("data/processed"),
+        Path("data/results"),
     ]
 
-    created_paths = []
-    for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path}")
-            created_paths.append(dir_path)
+    # Use the existing ensure_directories utility from config.py
+    # to create these paths, ensuring consistent behavior with
+    # the rest of the project's configuration handling.
+    ensure_directories(required_dirs)
+    
+    for dir_path in required_dirs:
+        full_path = Path.cwd() / dir_path
+        if full_path.exists():
+            info(f"Directory created or already exists: {full_path}")
         else:
-            logger.debug(f"Directory already exists: {dir_path}")
-            created_paths.append(dir_path)
+            error(f"Failed to create directory: {full_path}")
+            raise RuntimeError(f"Directory creation failed for {full_path}")
 
-    return created_paths
-
-def main():
-    """Entry point for directory creation script."""
-    logger.info("Starting data directory setup...")
+def main() -> None:
+    """
+    Entry point for the directory setup script.
+    """
+    logger.info("Starting data directory setup (T007)...")
     try:
-        dirs = create_data_directories()
-        logger.info(f"Successfully ensured {len(dirs)} data directories.")
-        for d in dirs:
-            info(f"  - {d}")
+        create_data_directories()
+        logger.info("Data directory structure successfully created.")
     except Exception as e:
-        error(f"Failed to create data directories: {e}")
+        logger.error(f"Directory setup failed: {e}")
         raise
-
-if __name__ == "__main__":
-    main()

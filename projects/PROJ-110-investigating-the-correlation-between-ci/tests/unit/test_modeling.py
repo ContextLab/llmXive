@@ -6,7 +6,13 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from analysis.modeling import prepare_model_features
+from analysis.modeling import (
+    prepare_model_features,
+    run_cross_validation,
+    train_logistic_regression,
+    extract_odds_ratios,
+    check_collinearity,
+)
 
 
 @pytest.fixture
@@ -100,3 +106,101 @@ def test_prepare_model_features_target_separation(sample_data):
     assert 'MetS_Status' not in X.columns
     assert 'target' in metadata
     pd.testing.assert_series_equal(metadata['target'], sample_data['MetS_Status'])
+
+
+def test_logistic_regression_training_auc(sample_data):
+    """Test that logistic regression training yields an AUC >= 0.5."""
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import roc_auc_score
+    from analysis.modeling import train_logistic_regression, prepare_model_features
+
+    # Prepare features and target
+    X, metadata = prepare_model_features(
+        sample_data,
+        target_col='MetS_Status',
+        categorical_cols=['Tissue', 'Sex'],
+        numerical_cols=['Age'],
+        gene_cols=['Gene_PER1', 'Gene_CRY1']
+    )
+    y = metadata['target']
+
+    # Simple train‑test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.4, random_state=42, stratify=y
+    )
+
+    # Train logistic regression
+    model = train_logistic_regression(X_train, y_train)
+
+    # Predict probabilities for the positive class
+    probs = model.predict_proba(X_test)[:, 1]
+
+    # Compute AUC
+    auc = roc_auc_score(y_test, probs)
+
+    # The model should achieve at least random performance
+    assert auc >= 0.5
+
+
+def test_cross_validation_loop(sample_data):
+    """Test that cross‑validation returns a valid AUC mean and confidence interval."""
+    X, metadata = prepare_model_features(
+        sample_data,
+        target_col='MetS_Status',
+        categorical_cols=['Tissue', 'Sex'],
+        numerical_cols=['Age'],
+        gene_cols=['Gene_PER1', 'Gene_CRY1']
+    )
+    y = metadata['target']
+
+    cv_result = run_cross_validation(X, y, n_splits=3, random_state=0)
+
+    # Ensure result contains expected keys
+    assert 'mean_auc' in cv_result
+    assert 'ci_lower' in cv_result
+    assert 'ci_upper' in cv_result
+    assert 'auc_scores' in cv_result
+
+    # AUC values should be between 0 and 1
+    for auc in cv_result['auc_scores']:
+        assert 0.0 <= auc <= 1.0
+
+    # Confidence interval should enclose the mean
+    assert cv_result['ci_lower'] <= cv_result['mean_auc'] <= cv_result['ci_upper']
+
+
+def test_odds_ratio_extraction_collinearity(sample_data):
+    """Verify that odds‑ratio extraction works and that collinearity detection flags high VIF."""
+    # Introduce a perfectly collinear predictor (Age duplicated)
+    df = sample_data.copy()
+    df['Age_dup'] = df['Age'] * 2  # linear combination of Age
+    
+    X, metadata = prepare_model_features(
+        df,
+        target_col='MetS_Status',
+        categorical_cols=['Tissue', 'Sex'],
+        numerical_cols=['Age', 'Age_dup'],
+        gene_cols=['Gene_PER1', 'Gene_CRY1']
+    )
+
+    # Train logistic regression model
+    model = train_logistic_regression(X, metadata['target'])
+
+    # Run collinearity check – expect a dict containing VIF values
+    col_report = check_collinearity(X)
+    assert isinstance(col_report, dict), "Collinearity report should be a dict"
+
+    # The report should contain a mapping of feature names to VIF scores
+    vif_dict = col_report.get('vif')
+    assert isinstance(vif_dict, dict), "VIF values should be provided in a dict under the key 'vif'"
+
+    # At least one VIF should exceed the threshold of 5 due to the duplicated column
+    high_vif_exists = any(v > 5 for v in vif_dict.values())
+    assert high_vif_exists, "Expected at least one feature with VIF > 5 indicating collinearity"
+
+    # Extract odds ratios – expect a DataFrame with an odds_ratio column
+    odds_df = extract_odds_ratios(model, metadata['feature_names'])
+    assert isinstance(odds_df, pd.DataFrame), "Odds ratio extraction should return a pandas DataFrame"
+    assert 'odds_ratio' in odds_df.columns, "Returned DataFrame must contain an 'odds_ratio' column"
+    # The number of rows should match the number of features used in the model
+    assert len(odds_df) == len(metadata['feature_names']), "Odds ratio DataFrame should have one row per feature"

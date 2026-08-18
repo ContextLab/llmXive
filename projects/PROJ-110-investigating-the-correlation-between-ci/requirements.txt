@@ -6,5 +6,6 @@ statsmodels
 matplotlib
 seaborn
 pyyaml
-datasets  # huggingface datasets for streaming GTEx access
-# No new third‑party packages were added beyond those already declared.
+joblib
+datasets
+# other dependencies already listed in the project ...

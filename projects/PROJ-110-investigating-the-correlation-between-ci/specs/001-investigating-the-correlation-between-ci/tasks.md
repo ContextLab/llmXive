@@ -256,7 +256,7 @@ description: "Task list template for feature implementation"
  - **Output**: Write `docs/heatmap.png`.
  - **Depends on**: T025, T026.
 
-- [ ] T056 [US2] Add a unit test `tests/unit/test_correlation_method.py::test_method_selection` that checks Pearson is chosen only when Shapiro‑Wilk p > 0.05 on synthetic normal data.
+- [X] T056 [US2] Add a unit test `tests/unit/test_correlation_method.py::test_method_selection` that checks Pearson is chosen only when Shapiro‑Wilk p > 0.05 on synthetic normal data.
 
 **Checkpoint**: Correlation analysis and DE FDR complete
 
@@ -270,37 +270,37 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 (Mandatory) ⚠️
 
-- [ ] T031 [P] [US3] Add `tests/unit/test_modeling.py::test_logistic_regression_training_auc` to verify model training and AUC calculation.
-- [ ] T032 [P] [US3] Add `tests/unit/test_modeling.py::test_cross_validation_loop` to verify k‑fold cross‑validation.
-- [ ] T033 [P] [US3] Add `tests/unit/test_modeling.py::test_odds_ratio_extraction_collinearity` to verify OR extraction and VIF check.
+- [X] T031 [P] [US3] Add `tests/unit/test_modeling.py::test_logistic_regression_training_auc` to verify model training and AUC calculation.
+- [X] T032 [P] [US3] Add `tests/unit/test_modeling.py::test_cross_validation_loop` to verify k‑fold cross‑validation.
+- [X] T033 [P] [US3] Add `tests/unit/test_modeling.py::test_odds_ratio_extraction_collinearity` to verify OR extraction and VIF check.
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Implement `prepare_model_features` in `code/analysis/modeling.py` to encode categorical variables (Tissue, Sex) and scale features.
-- [ ] T035 [US3] Implement `train_logistic_regression` in `code/analysis/modeling.py` fitting `MetS ~ Gene_Expression + Age + Sex + Tissue + PMI + Time_of_Death`.
+- [X] T034 [US3] Implement `prepare_model_features` in `code/analysis/modeling.py` to encode categorical variables (Tissue, Sex) and scale features.
+- [X] T035 [US3] Implement `train_logistic_regression` in `code/analysis/modeling.py` fitting `MetS ~ Gene_Expression + Age + Sex + Tissue + PMI + Time_of_Death`.
  - **Constraint**: MUST include `PMI` and `Time_of_Death` as covariates as per FR‑005.
  - **Output**: Trained model object.
  - **Depends on**: T014, T034.
 
-- [ ] T052 [US3] Implement robust handling of missing `time_of_death` in `code/analysis/modeling.py`.
+- [X] T052 [US3] Implement robust handling of missing `time_of_death` in `code/analysis/modeling.py`.
  - **Logic**: If `time_of_death` is missing for a sample:
  1. **Use `PMI` (Post-Mortem Interval) as a proxy** for the missing `time_of_death` value.
  2. Log a WARNING indicating the substitution was made.
  3. Do NOT exclude the sample unless `PMI` is also missing.
  - **Depends on**: T014.
 
-- [ ] T061 [US3] Implement `train_severity_score_model` in `code/analysis/modeling.py` to fit a model where the outcome is the **continuous severity score** (sum of 5 ATP-III criteria).
+- [X] T061 [US3] Implement `train_severity_score_model` in `code/analysis/modeling.py` to fit a model where the outcome is the **continuous severity score** (sum of 5 ATP-III criteria).
  - **Logic**: Fit `Severity_Score ~ Gene_Expression + Age + Sex + Tissue + PMI + Time_of_Death`.
  - **Output**: Trained model object and results (coefficients, p-values) for the severity score outcome.
  - **Rationale**: Satisfies FR-005 requirement for an alternative outcome variable (continuous severity score).
  - **Depends on**: T014, T034.
 
-- [ ] T036 [US3] Implement `run_cross_validation` in `code/analysis/modeling.py` performing k‑fold CV and calculating mean AUC with 95 % confidence intervals.
-- [ ] T037 [US3] Implement `extract_odds_ratios` in `code/analysis/modeling.py` to compute OR, SE, and p‑values for predictors (Gene Expression + Covariates).
+- [X] T036 [US3] Implement `run_cross_validation` in `code/analysis/modeling.py` performing k‑fold CV and calculating mean AUC with 95 % confidence intervals.
+- [X] T037 [US3] Implement `extract_odds_ratios` in `code/analysis/modeling.py` to compute OR, SE, and p‑values for predictors (Gene Expression + Covariates).
  - **Output**: Write `data/processed/odds_ratios_main.csv` with ORs for genes and covariates.
  - **Depends on**: T035.
 
-- [ ] T047 [US3] Implement `extract_trait_odds_ratios` in `code/analysis/modeling.py` to run separate models for individual metabolic traits.
+- [X] T047 [US3] Implement `extract_trait_odds_ratios` in `code/analysis/modeling.py` to run separate models for individual metabolic traits.
  - **Logic**:
  1. For each metabolic trait (BMI, Glucose, TG, HDL, BP), fit a separate logistic regression model: `MetS ~ Gene_Expression + Age + Sex + Tissue + PMI + Time_of_Death + Trait`.
  2. Extract the Odds Ratio for the specific trait variable.
@@ -308,7 +308,7 @@ description: "Task list template for feature implementation"
  - **Constraint**: This task specifically addresses FR‑009 to distinguish prediction targets.
  - **Depends on**: T014, T034.
 
-- [ ] T038 [US3] Implement `check_collinearity` in `code/analysis/modeling.py` to calculate VIF and flag issues if VIF > 5 (FR‑005).
+- [X] T038 [US3] Implement `check_collinearity` in `code/analysis/modeling.py` to calculate VIF and flag issues if VIF > 5 (FR‑005). <!-- FAILED: unspecified -->
  - **Output**: Write `data/processed/collinearity_report.json` with VIF values and flags.
  - **Depends on**: T035.
 

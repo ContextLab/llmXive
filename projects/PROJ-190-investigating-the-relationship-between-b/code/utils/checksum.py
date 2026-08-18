@@ -1,8 +1,6 @@
 """
-Checksum utility module for data integrity verification.
-
-Provides functions to compute, save, load, and verify SHA-256 checksums
-for files and directories to ensure data integrity throughout the pipeline.
+Utility module for SHA-256 checksumming of data files and directories.
+Implements T008: Setup checksumming utility.
 """
 import hashlib
 import os
@@ -12,239 +10,164 @@ from typing import Dict, List, Optional, Union
 
 from .logging import get_logger
 
-# Configure logger
 logger = get_logger(__name__)
 
-CHUNK_SIZE = 8192  # 8KB chunks for reading files
 
 def compute_file_sha256(file_path: Union[str, Path]) -> str:
     """
-    Compute the SHA-256 checksum of a single file.
-    
+    Compute the SHA-256 hash of a file.
+
     Args:
-        file_path: Path to the file to compute checksum for.
-        
+        file_path: Path to the file.
+
     Returns:
         Hexadecimal string of the SHA-256 hash.
-        
+
     Raises:
         FileNotFoundError: If the file does not exist.
-        PermissionError: If the file cannot be read.
+        IOError: If the file cannot be read.
     """
     file_path = Path(file_path)
-    
     if not file_path.exists():
-        logger.error(f"File not found: {file_path}")
         raise FileNotFoundError(f"File not found: {file_path}")
-        
-    if not file_path.is_file():
-        logger.error(f"Path is not a file: {file_path}")
-        raise ValueError(f"Path is not a file: {file_path}")
-        
+
     sha256_hash = hashlib.sha256()
-    
     try:
         with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(CHUNK_SIZE), b""):
-                sha256_hash.update(chunk)
-    except PermissionError as e:
-        logger.error(f"Permission denied reading file: {file_path}")
-        raise
-        
-    result = sha256_hash.hexdigest()
-    logger.debug(f"Computed SHA-256 for {file_path}: {result}")
-    return result
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        raise IOError(f"Error reading file {file_path}: {e}")
 
-def compute_directory_checksums(
-    directory_path: Union[str, Path],
-    recursive: bool = True,
-    extensions: Optional[List[str]] = None
-) -> Dict[str, str]:
+
+def compute_directory_checksums(dir_path: Union[str, Path], recursive: bool = True) -> Dict[str, str]:
     """
-    Compute SHA-256 checksums for all files in a directory.
-    
+    Compute SHA-256 hashes for all files in a directory.
+
     Args:
-        directory_path: Path to the directory.
-        recursive: If True, include files in subdirectories.
-        extensions: Optional list of file extensions to include (e.g., ['.csv', '.nii']).
-                   If None, all files are included.
-                   
+        dir_path: Path to the directory.
+        recursive: If True, scan subdirectories.
+
     Returns:
-        Dictionary mapping relative file paths to their SHA-256 checksums.
-        
-    Raises:
-        NotADirectoryError: If the path is not a directory.
+        Dictionary mapping relative file paths to their SHA-256 hashes.
     """
-    directory_path = Path(directory_path)
-    
-    if not directory_path.exists():
-        logger.error(f"Directory not found: {directory_path}")
-        raise FileNotFoundError(f"Directory not found: {directory_path}")
-        
-    if not directory_path.is_dir():
-        logger.error(f"Path is not a directory: {directory_path}")
-        raise NotADirectoryError(f"Path is not a directory: {directory_path}")
-        
+    dir_path = Path(dir_path)
+    if not dir_path.is_dir():
+        raise NotADirectoryError(f"Not a directory: {dir_path}")
+
     checksums = {}
+    files = []
     
     if recursive:
-        file_iterator = directory_path.rglob("*")
+        files = list(dir_path.rglob("*"))
     else:
-        file_iterator = directory_path.glob("*")
-        
-    for file_path in file_iterator:
-        if not file_path.is_file():
-            continue
-            
-        # Filter by extension if specified
-        if extensions is not None:
-            if file_path.suffix not in extensions:
-                continue
-                
-        # Compute checksum
-        try:
-            checksum = compute_file_sha256(file_path)
-            # Store relative path for portability
-            relative_path = str(file_path.relative_to(directory_path))
-            checksums[relative_path] = checksum
-            logger.debug(f"Added checksum for {relative_path}")
-        except (FileNotFoundError, PermissionError) as e:
-            logger.warning(f"Skipping file {file_path} due to error: {e}")
-            
-    logger.info(f"Computed checksums for {len(checksums)} files in {directory_path}")
+        files = list(dir_path.glob("*"))
+
+    for file_path in files:
+        if file_path.is_file():
+            try:
+                rel_path = file_path.relative_to(dir_path)
+                checksums[str(rel_path)] = compute_file_sha256(file_path)
+            except Exception as e:
+                logger.warning(f"Skipping {file_path} due to error: {e}")
+
     return checksums
 
-def verify_checksum(
-    file_path: Union[str, Path],
-    expected_checksum: str
-) -> bool:
-    """
-    Verify a file's checksum against an expected value.
-    
-    Args:
-        file_path: Path to the file to verify.
-        expected_checksum: Expected SHA-256 checksum (hex string).
-        
-    Returns:
-        True if checksums match, False otherwise.
-    """
-    file_path = Path(file_path)
-    
-    if not file_path.exists():
-        logger.error(f"File not found for verification: {file_path}")
-        return False
-        
-    actual_checksum = compute_file_sha256(file_path)
-    
-    if actual_checksum.lower() == expected_checksum.lower():
-        logger.info(f"Checksum verified for {file_path}")
-        return True
-    else:
-        logger.error(
-            f"Checksum mismatch for {file_path}. "
-            f"Expected: {expected_checksum}, Got: {actual_checksum}"
-        )
-        return False
 
-def save_checksums(
-    checksums: Dict[str, str],
-    output_path: Union[str, Path]
-) -> None:
+def verify_checksum(file_path: Union[str, Path], expected_hash: str) -> bool:
     """
-    Save checksums to a JSON file.
-    
+    Verify a file's SHA-256 hash against an expected value.
+
     Args:
-        checksums: Dictionary of relative paths to checksums.
+        file_path: Path to the file.
+        expected_hash: Expected SHA-256 hex string.
+
+    Returns:
+        True if hashes match, False otherwise.
+    """
+    actual_hash = compute_file_sha256(file_path)
+    return actual_hash.lower() == expected_hash.lower()
+
+
+def save_checksums(checksums: Dict[str, str], output_path: Union[str, Path]) -> None:
+    """
+    Save a dictionary of checksums to a JSON file.
+
+    Args:
+        checksums: Dictionary of {relative_path: hash}.
         output_path: Path to the output JSON file.
     """
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Add metadata
-    output_data = {
-        "version": "1.0",
-        "algorithm": "sha256",
-        "checksums": checksums
-    }
-    
-    try:
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(output_data, f, indent=2)
-        logger.info(f"Saved checksums to {output_path}")
-    except IOError as e:
-        logger.error(f"Failed to save checksums to {output_path}: {e}")
-        raise
+    with open(output_path, "w") as f:
+        json.dump(checksums, f, indent=2)
+    logger.info(f"Checksums saved to {output_path}")
+
 
 def load_checksums(input_path: Union[str, Path]) -> Dict[str, str]:
     """
     Load checksums from a JSON file.
-    
+
     Args:
-        input_path: Path to the input JSON file.
-        
+        input_path: Path to the JSON file.
+
     Returns:
-        Dictionary of relative paths to checksums.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
+        Dictionary of {relative_path: hash}.
     """
     input_path = Path(input_path)
-    
     if not input_path.exists():
-        logger.error(f"Checksum file not found: {input_path}")
         raise FileNotFoundError(f"Checksum file not found: {input_path}")
-        
-    try:
-        with open(input_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            
-        if "checksums" not in data:
-            logger.error(f"Invalid checksum file format: {input_path}")
-            raise ValueError(f"Invalid checksum file format: {input_path}")
-            
-        logger.info(f"Loaded {len(data['checksums'])} checksums from {input_path}")
-        return data["checksums"]
-        
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in checksum file {input_path}: {e}")
-        raise
+
+    with open(input_path, "r") as f:
+        return json.load(f)
+
 
 def verify_directory_against_checksums(
-    directory_path: Union[str, Path],
-    checksums: Dict[str, str]
-) -> Dict[str, bool]:
+    dir_path: Union[str, Path],
+    checksum_file: Union[str, Path],
+    strict: bool = True
+) -> bool:
     """
-    Verify all files in a directory against stored checksums.
-    
+    Verify all files in a directory against a saved checksum manifest.
+
     Args:
-        directory_path: Base directory path.
-        checksums: Dictionary of relative paths to expected checksums.
-        
+        dir_path: Root directory to verify.
+        checksum_file: Path to the JSON file containing expected checksums.
+        strict: If True, fail if any file is missing or hash mismatch. 
+               If False, log warnings but return False only on critical failure.
+
     Returns:
-        Dictionary mapping relative file paths to verification status (True/False).
+        True if all files match, False otherwise.
     """
-    directory_path = Path(directory_path)
-    results = {}
-    
-    for relative_path, expected_checksum in checksums.items():
-        full_path = directory_path / relative_path
+    dir_path = Path(dir_path)
+    checksums = load_checksums(checksum_file)
+    all_good = True
+
+    for rel_path, expected_hash in checksums.items():
+        file_path = dir_path / rel_path
         
-        if not full_path.exists():
-            logger.warning(f"File missing during verification: {full_path}")
-            results[relative_path] = False
+        if not file_path.exists():
+            logger.error(f"Missing file: {rel_path}")
+            all_good = False
+            if strict:
+                return False
             continue
-            
-        is_valid = verify_checksum(full_path, expected_checksum)
-        results[relative_path] = is_valid
-        
-    # Summary
-    total = len(results)
-    valid = sum(1 for v in results.values() if v)
-    invalid = total - valid
-    
-    logger.info(
-        f"Verification complete: {valid}/{total} files valid, {invalid} invalid"
-    )
-    
-    return results
+
+        try:
+            actual_hash = compute_file_sha256(file_path)
+            if actual_hash != expected_hash:
+                logger.error(f"Hash mismatch for {rel_path}: expected {expected_hash}, got {actual_hash}")
+                all_good = False
+                if strict:
+                    return False
+            else:
+                logger.debug(f"Verified: {rel_path}")
+        except Exception as e:
+            logger.error(f"Error verifying {rel_path}: {e}")
+            all_good = False
+            if strict:
+                return False
+
+    return all_good

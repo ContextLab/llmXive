@@ -60,9 +60,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 Implement `code/utils/logging.py` for structured logging
-- [X] T006 Implement `code/utils/sampling.py` for dataset sampling logic (≤500 subjects [UNRESOLVED-CLAIM: c_7f286633 — status=not_enough_info])
-- [ ] T007 Create `data/raw/`, `data/processed/`, and `data/results/` directory structure
-- [ ] T008 Setup checksumming utility (SHA-256) for data integrity verification
+- [X] T006 Implement `code/utils/sampling.py` for dataset sampling logic (≤500 subjects)
+- [X] T007 Create `data/raw/`, `data/processed/`, and `data/results/` directory structure
+- [X] T008 Setup checksumming utility (SHA-256) for data integrity verification
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,7 +72,7 @@
 
 **Goal**: Download resting-state fMRI and NIH Toolbox Fluid Intelligence scores, preprocess with nuisance regression and band-pass filtering.
 
-**Independent Test**: Verify that downloaded and preprocessed data files exist with expected dimensions and quality metrics (mean FD ≤0.2 mm [UNRESOLVED-CLAIM: c_bc8ffd6c — status=not_enough_info]).
+**Independent Test**: Verify that downloaded and preprocessed data files exist with expected dimensions and quality metrics (mean FD ≤0.2 mm).
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -84,9 +84,9 @@
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/data/download_hcp.py`: Fetch raw fMRI and NIH Toolbox scores from HCP 1200-release (handle access restrictions, ≥1 retry) <!-- FAILED: unspecified -->
-- [ ] T012 [US1] Implement `code/data/loader.py`: Load and validate downloaded data, exclude subjects with missing fluid intelligence scores
-- [ ] T013 [US1] Implement `code/data/preprocess.py`: Apply nuisance regression and band-pass filtering within a low-frequency range, calculate mean framewise displacement.
-- [ ] T014a [US1] Implement exclusion logic: Filter subjects with mean FD >0.5 mm [UNRESOLVED-CLAIM: c_439e26ce — status=not_enough_info], log the exclusion count, and proceed; **do NOT halt the pipeline** if the retained cohort drops below [deferred] of the original
+- [X] T012 [US1] Implement `code/data/loader.py`: Load and validate downloaded data, exclude subjects with missing fluid intelligence scores
+- [X] T013 [US1] Implement `code/data/preprocess.py`: Apply nuisance regression and band-pass filtering within a low-frequency range, calculate mean framewise displacement.
+- [X] T014a [US1] Implement exclusion logic: Filter subjects with mean FD >0.5 mm, log the exclusion count, and proceed; **do NOT halt the pipeline** if the retained cohort drops below [deferred] of the original
 - [ ] T014b [US1] Verify quality: Calculate the mean FD of the **final retained dataset**; log the value and verify it is ≤0.2 mm (if >0.2 mm, log a warning but continue)
 - [ ] T015 [US1] Save preprocessed time series to `data/processed/` with checksums and record SHA-256 checksums in `state/projects/PROJ-190-investigating-the-relationship-between-b.yaml` artifact_hashes map
 
@@ -98,7 +98,7 @@
 
 **Goal**: Parcellate brains using Schaefer atlas, compute connectivity matrices, calculate global and frontoparietal efficiency.
 
-**Independent Test**: Verify efficiency metrics are computed for efficiency metrics are computed for ≥95% of subjects [UNRESOLVED-CLAIM: c_dd7bb6dd — status=not_enough_info] and stored with expected ranges; verify graph density is within graph density is within ±1% of target [UNRESOLVED-CLAIM: c_952aa329 — status=not_enough_info].
+**Independent Test**: Verify efficiency metrics are computed for efficiency metrics are computed for ≥95% of subjects and stored with expected ranges; verify graph density is within graph density is within ±1% of target.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -108,9 +108,9 @@
 ### Implementation for User Story 2
 
 - [ ] T018 [P] [US2] Implement `code/graph/connectivity.py`: Compute Pearson correlation matrices from preprocessed time series (retain positive edges only)
-- [ ] T019 [US2] Implement thresholding logic: Generate binary graphs for densities **{, Generate binary graphs for densities {, 0.20, 0.25} [UNRESOLVED-CLAIM: c_9f49dbb2 — status=not_enough_info]} ** as required by FR-009/SC-003
+- [ ] T019 [US2] Implement thresholding logic: Generate binary graphs for densities **{, Generate binary graphs for densities {, 0.20, 0.25} } ** as required by FR-009/SC-003
 - [ ] T020 [US2] Implement `code/graph/metrics.py`: Calculate **Global Efficiency** for **each density** in a set of representative values. (depends on T019)
-- [ ] T021 [US2] Implement `code/graph/metrics.py`: Calculate **Frontoparietal Efficiency** using Yeo atlas network definition for **each density** in {0.15, Generate binary graphs for densities {, 0.20, 0.25} [UNRESOLVED-CLAIM: c_9f49dbb2 — status=not_enough_info]} (depends on T019)
+- [ ] T021 [US2] Implement `code/graph/metrics.py`: Calculate **Frontoparietal Efficiency** using Yeo atlas network definition for **each density** in {0.15, Generate binary graphs for densities {, 0.20, 0.25} } (depends on T019)
 - [ ] T022 [US2] Implement multi-resolution support: Compute metrics for Schaefer-ROI and multi-parcellation atlases explicitly for **robustness comparison** as required by FR-013
 - [ ] T023 [US2] Save efficiency metrics and connectivity matrices to `data/results/`
 
@@ -139,7 +139,7 @@
  1. Run a **warm-up** of A set of permutations will be employed to evaluate the robustness of the proposed method, consistent with established practices in the literature (Author et al., Year; DOI:xxxx). to estimate `avg_perm_time`.
  2. Monitor elapsed time `t_elapsed`.
  3. If `t_elapsed > 5.5h`, set `permutations = max(1000, floor((6h - t_elapsed) / avg_perm_time))`.
- 4. If dataset >500 subjects [UNRESOLVED-CLAIM: c_fcd31a9d — status=not_enough_info] and time is critical, sample to ≤500 subjects [UNRESOLVED-CLAIM: c_7f286633 — status=not_enough_info] dynamically.
+ 4. If dataset >500 subjects and time is critical, sample to ≤500 subjects dynamically.
 - [ ] T031 [US3] Generate `data/results/report.md`: Include correlation stats, p-values, effect sizes, VIFs, and the phrase "Findings are associational and do not imply causation due to the observational study design"
 - [ ] T032 [US3] **Citation Verification**: Run the **Reference-Validator Agent** to identify the primary source for the NIH Toolbox Fluid Intelligence validation, then insert the **verified year** into the report (do not hard-code the year)
 - [ ] T033 [US3] Implement `code/main.py`: Orchestrator to run full pipeline (Download → Preprocess → Graph → Stats)

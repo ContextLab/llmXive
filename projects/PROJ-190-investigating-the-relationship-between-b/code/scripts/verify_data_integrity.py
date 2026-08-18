@@ -1,177 +1,90 @@
-"""
-Script to verify data integrity using SHA-256 checksums.
-
-This script can be used to:
-1. Generate checksums for a directory of files
-2. Save checksums to a JSON file
-3. Verify files against stored checksums
-4. Generate a report of verification results
-"""
 import argparse
 import sys
 from pathlib import Path
 import json
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from utils.checksum import (
     compute_directory_checksums,
     save_checksums,
     load_checksums,
-    verify_directory_against_checksums
+    verify_directory_against_checksums,
 )
 from utils.logging import setup_logging, get_logger, info, error, warning
 
+logger = get_logger(__name__)
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Verify data integrity using SHA-256 checksums"
+        description="Verify data integrity using SHA-256 checksums."
     )
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    
-    # Generate command
-    gen_parser = subparsers.add_parser(
-        "generate",
-        help="Generate checksums for files in a directory"
+    parser.add_argument(
+        "action",
+        choices=["create", "verify"],
+        help="Action to perform: create checksums or verify against existing.",
     )
-    gen_parser.add_argument(
-        "directory",
-        type=str,
-        help="Directory containing files to checksum"
-    )
-    gen_parser.add_argument(
-        "--output", "-o",
+    parser.add_argument(
+        "--path",
         type=str,
         required=True,
-        help="Output path for checksum JSON file"
+        help="Path to the directory to process.",
     )
-    gen_parser.add_argument(
-        "--recursive", "-r",
-        action="store_true",
-        default=True,
-        help="Include subdirectories (default: True)"
-    )
-    gen_parser.add_argument(
-        "--extensions", "-e",
+    parser.add_argument(
+        "--output",
         type=str,
-        nargs="+",
-        help="File extensions to include (e.g., .csv .nii)"
+        help="Path for the checksum JSON file (required for 'create').",
     )
-    
-    # Verify command
-    verify_parser = subparsers.add_parser(
-        "verify",
-        help="Verify files against stored checksums"
-    )
-    verify_parser.add_argument(
-        "directory",
+    parser.add_argument(
+        "--input",
         type=str,
-        help="Directory containing files to verify"
+        help="Path to the checksum JSON file (required for 'verify').",
     )
-    verify_parser.add_argument(
-        "--checksums", "-c",
-        type=str,
-        required=True,
-        help="Path to checksum JSON file"
-    )
-    verify_parser.add_argument(
-        "--report", "-r",
-        type=str,
-        help="Optional path to save verification report (JSON)"
-    )
-    
+
     args = parser.parse_args()
-    
+
     # Setup logging
     setup_logging(level="INFO")
-    logger = get_logger(__name__)
-    
-    if args.command == "generate":
-        directory = Path(args.directory)
-        if not directory.exists():
-            error(f"Directory not found: {directory}")
-            sys.exit(1)
-            
-        logger.info(f"Generating checksums for: {directory}")
-        
-        extensions = None
-        if args.extensions:
-            # Ensure extensions start with a dot
-            extensions = [
-                ext if ext.startswith(".") else f".{ext}"
-                for ext in args.extensions
-            ]
-            
-        checksums = compute_directory_checksums(
-            directory,
-            recursive=args.recursive,
-            extensions=extensions
-        )
-        
-        if not checksums:
-            warning("No files found to checksum")
-            sys.exit(0)
-            
-        save_checksums(checksums, args.output)
-        info(f"Successfully generated checksums for {len(checksums)} files")
-        
-    elif args.command == "verify":
-        directory = Path(args.directory)
-        checksums_path = Path(args.checksums)
-        
-        if not directory.exists():
-            error(f"Directory not found: {directory}")
-            sys.exit(1)
-            
-        if not checksums_path.exists():
-            error(f"Checksum file not found: {checksums_path}")
-            sys.exit(1)
-            
-        logger.info(f"Verifying files in: {directory}")
-        logger.info(f"Using checksums from: {checksums_path}")
-        
-        try:
-            checksums = load_checksums(checksums_path)
-        except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
-            error(f"Failed to load checksums: {e}")
-            sys.exit(1)
-            
-        results = verify_directory_against_checksums(directory, checksums)
-        
-        # Calculate summary
-        total = len(results)
-        valid = sum(1 for v in results.values() if v)
-        invalid = total - valid
-        
-        if invalid == 0:
-            info(f"✓ All {total} files verified successfully")
-        else:
-            error(f"✗ {invalid}/{total} files failed verification")
-            
-            # List failed files
-            failed_files = [k for k, v in results.items() if not v]
-            for f in failed_files:
-                warning(f"  - {f}")
-                
-        # Save report if requested
-        if args.report:
-            report = {
-                "directory": str(directory),
-                "checksums_file": str(checksums_path),
-                "total_files": total,
-                "valid": valid,
-                "invalid": invalid,
-                "results": results
-            }
-            with open(args.report, "w") as f:
-                json.dump(report, f, indent=2)
-            info(f"Verification report saved to: {args.report}")
-            
-        sys.exit(0 if invalid == 0 else 1)
-        
-    else:
-        parser.print_help()
+
+    dir_path = Path(args.path)
+    if not dir_path.exists():
+        error(f"Directory does not exist: {dir_path}")
         sys.exit(1)
+
+    if args.action == "create":
+        if not args.output:
+            error("Output path (--output) is required for 'create' action.")
+            sys.exit(1)
+
+        info(f"Creating checksums for {dir_path}...")
+        try:
+            checksums = compute_directory_checksums(dir_path, recursive=True)
+            save_checksums(checksums, args.output)
+            info(f"Successfully created {len(checksums)} checksums.")
+        except Exception as e:
+            error(f"Failed to create checksums: {e}")
+            sys.exit(1)
+
+    elif args.action == "verify":
+        if not args.input:
+            error("Input path (--input) is required for 'verify' action.")
+            sys.exit(1)
+
+        input_path = Path(args.input)
+        if not input_path.exists():
+            error(f"Checksum file does not exist: {input_path}")
+            sys.exit(1)
+
+        info(f"Verifying {dir_path} against {input_path}...")
+        try:
+            success = verify_directory_against_checksums(dir_path, input_path)
+            if success:
+                info("Verification successful.")
+                sys.exit(0)
+            else:
+                error("Verification failed. Data integrity compromised.")
+                sys.exit(1)
+        except Exception as e:
+            error(f"Verification error: {e}")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2202.09061",
+  "judged_at": "2026-08-18T12:29:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"why can't i open my drawer? mitigating object-driven shortcuts in zero\" computer science",
+  "rationale": "The paper is a general survey on Vision-Language Pre-training (VLP) architectures and datasets, which does not address the specific mechanism of \"object-driven shortcuts\" or the \"Why Can't I Open My Drawer?\" phenomenon mentioned in the user's question. While it covers the broad domain of multi-modal models, it lacks the specific focus on the failure mode (object-driven shortcuts) or the mitigation strategies required to be considered a canonical reference for this specific research gap.",
+  "relevant": false
+}
