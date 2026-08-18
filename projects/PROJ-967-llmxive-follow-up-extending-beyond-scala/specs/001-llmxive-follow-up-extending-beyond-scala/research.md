@@ -2,9 +2,9 @@
 
 ## Verified datasets
 
-- **Dataset ID**: z-reward/z-reward-v1
- - **Status**: Failed
- - **Error**: datasets library not installed
-- **Dataset ID**: z-reward/z-reward-v2
- - **Status**: Failed
- - **Error**: datasets library not installed
+verified_datasets:
+ - dataset_id: string
+ title_token_overlap: float (Jaccard similarity >= 0.7)
+ checksum: string (SHA-256)
+ verification_date: ISO8601
+ source_type: "real" | "synthetic"

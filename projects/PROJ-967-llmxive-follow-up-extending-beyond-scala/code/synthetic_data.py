@@ -1,12 +1,11 @@
 """
 Synthetic Data Generator for llmXive Follow-up Project.
 
-This module generates schema-compliant synthetic data for testing and
-development purposes when real data is unavailable. It strictly adheres
-to the provisional schema defined in contracts/dataset.schema.yaml.
+Generates a schema-compliant synthetic dataset matching the provisional
+schema defined in T001d (contracts/dataset.schema.yaml).
 
-Usage:
-    python code/synthetic_data.py --n-samples 1000 --seed 42 --output data/raw/synthetic_z_reward.parquet
+This generator is used for unit testing and development when real data
+is unavailable (T037b), but MUST NOT be used for hypothesis validation.
 """
 import argparse
 import json
@@ -14,6 +13,8 @@ import logging
 import os
 import sys
 from pathlib import Path
+import random
+import hashlib
 
 import numpy as np
 import pandas as pd
@@ -21,164 +22,161 @@ import pandas as pd
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants for synthetic data generation
-DIMENSIONS = ['Alignment', 'Realism', 'Aesthetics', 'Plausibility']
-PROMPT_TEMPLATES = [
-    "Generate a realistic image of {subject} in {style} style.",
-    "Create an {adjective} visualization of {concept}.",
-    "Produce an image showing {subject} with {attribute}.",
-    "Render a {style} depiction of {subject}.",
-    "Create an image that captures the essence of {concept}."
+# Constants matching T001d schema
+RUBRIC_DIMENSIONS = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+SAMPLE_PROMPTS = [
+    "Explain the concept of quantum entanglement to a 5-year-old.",
+    "Write a poem about a robot learning to paint.",
+    "Summarize the key events of the French Revolution.",
+    "Generate a Python script to sort a list of dictionaries.",
+    "Describe the process of photosynthesis in simple terms.",
+    "Create a dialogue between two aliens discussing Earth's weather.",
+    "Explain how blockchain technology works.",
+    "Write a short story about a time traveler who forgets their watch.",
+    "Describe the benefits of a plant-based diet.",
+    "Analyze the impact of social media on modern communication."
 ]
-SUBJECTS = ['mountains', 'ocean', 'forest', 'cityscape', 'abstract pattern', 'human face', 'animal', 'vehicle']
-STYLES = ['photorealistic', 'impressionist', 'surreal', 'minimalist', 'cyberpunk', 'watercolor']
-ADJECTIVES = ['vibrant', 'mysterious', 'serene', 'chaotic', 'elegant', 'dynamic']
-CONCEPTS = ['harmony', 'balance', 'innovation', 'tradition', 'future', 'nature']
-ATTRIBUTES = ['warm lighting', 'cool tones', 'high contrast', 'soft focus']
 
-def generate_synthetic_prompt(rng: np.random.Generator) -> str:
-    """Generate a synthetic prompt string."""
-    template = rng.choice(PROMPT_TEMPLATES)
-    return template.format(
-        subject=rng.choice(SUBJECTS),
-        style=rng.choice(STYLES),
-        adjective=rng.choice(ADJECTIVES),
-        concept=rng.choice(CONCEPTS),
-        attribute=rng.choice(ATTRIBUTES)
-    )
+def generate_synthetic_prompt(seed: int, index: int) -> str:
+    """Generate a deterministic synthetic prompt."""
+    # Use seed + index to ensure determinism across runs
+    rng = random.Random(seed + index)
+    base_prompt = SAMPLE_PROMPTS[index % len(SAMPLE_PROMPTS)]
+    # Add variation
+    suffix = f" (Variant {index})"
+    return base_prompt + suffix
 
-def generate_synthetic_image_url(idx: int, rng: np.random.Generator) -> str:
-    """Generate a synthetic image URL."""
-    # Using a placeholder service for testing
-    width = rng.integers(256, 1024)
-    height = rng.integers(256, 1024)
-    return f"https://via.placeholder.com/{width}x{height}?text=Sample_{idx}"
+def generate_synthetic_image_url(seed: int, index: int) -> str:
+    """Generate a deterministic synthetic image URL."""
+    # Create a deterministic hash based on seed and index
+    hash_input = f"img-{seed}-{index}"
+    hash_val = hashlib.md5(hash_input.encode()).hexdigest()[:16]
+    return f"https://example.com/images/{hash_val}.jpg"
 
-def generate_teacher_scores(rng: np.random.Generator) -> dict:
-    """Generate synthetic teacher scores for the four dimensions."""
+def generate_teacher_scores(seed: int, index: int) -> dict:
+    """
+    Generate teacher scores for all rubric dimensions.
+    Scores are sampled from a normal distribution (mean=5, std=2)
+    as specified in T037b requirements.
+    """
+    rng = random.Random(seed + index)
     scores = {}
-    for dim in DIMENSIONS:
-        # Scores sampled from normal distribution (mean=5, std=2)
-        scores[dim] = float(rng.normal(loc=5.0, scale=2.0))
+    for dim in RUBRIC_DIMENSIONS:
+        # Sample from normal distribution, clamp to reasonable range [0, 10]
+        score = rng.gauss(5, 2)
+        scores[dim] = round(max(0.0, min(10.0, score)), 2)
     return scores
 
-def generate_student_scalar(rng: np.random.Generator) -> float:
-    """Generate a synthetic student scalar score."""
-    return float(rng.normal(loc=5.0, scale=2.0))
+def generate_student_scalar(seed: int, index: int, teacher_scores: dict) -> float:
+    """
+    Generate a student scalar score.
+    This is a weighted average of teacher scores with added noise
+    to simulate student model approximation.
+    """
+    rng = random.Random(seed + index + 1000)  # Different seed offset
+    # Simple weighted average with noise
+    base_score = sum(teacher_scores.values()) / len(teacher_scores)
+    noise = rng.gauss(0, 0.5)
+    return round(max(0.0, min(10.0, base_score + noise)), 2)
 
-def generate_human_annotations(rng: np.random.Generator) -> dict:
-    """Generate synthetic human annotations for the four dimensions."""
+def generate_human_annotations(seed: int, index: int) -> dict:
+    """
+    Generate human annotations for all rubric dimensions.
+    IMPORTANT: These are MOCKS for code structure testing ONLY.
+    They are sampled independently from teacher scores with a different seed.
+    """
+    rng = random.Random(seed + index + 5000)  # Different seed offset to ensure independence
     annotations = {}
-    for dim in DIMENSIONS:
-        # Independent noise structure from teacher scores
-        annotations[dim] = float(rng.normal(loc=5.0, scale=2.0))
+    for dim in RUBRIC_DIMENSIONS:
+        # Sample from normal distribution, clamp to reasonable range [0, 10]
+        score = rng.gauss(5, 2)
+        annotations[dim] = round(max(0.0, min(10.0, score)), 2)
     return annotations
 
-def generate_primary_dimension(rng: np.random.Generator) -> str:
-    """Generate a synthetic primary dimension."""
-    return rng.choice(DIMENSIONS)
-
-def generate_synthetic_dataset(
-    n_samples: int,
-    seed: int,
-    output_path: str
-) -> None:
+def generate_primary_dimension(seed: int, index: int, prompt: str) -> str:
     """
-    Generate a synthetic dataset matching the schema.
+    Generate primary dimension based on prompt metadata rules (T014).
+    Uses a deterministic hash of the prompt text to map to one of four dimensions.
+    """
+    # Deterministic hash of prompt text
+    prompt_hash = int(hashlib.md5(prompt.encode()).hexdigest(), 16)
+    dimension_index = prompt_hash % len(RUBRIC_DIMENSIONS)
+    return RUBRIC_DIMENSIONS[dimension_index]
+
+def generate_synthetic_dataset(n_samples: int, seed: int) -> pd.DataFrame:
+    """
+    Generate a complete synthetic dataset matching the T001d schema.
 
     Args:
-        n_samples: Number of samples to generate.
-        seed: Random seed for reproducibility.
-        output_path: Path to save the output parquet file.
+        n_samples: Number of samples to generate
+        seed: Random seed for reproducibility
+
+    Returns:
+        Pandas DataFrame with schema-compliant synthetic data
     """
     logger.info(f"Generating {n_samples} synthetic samples with seed {seed}")
-    rng = np.random.default_rng(seed)
 
-    # Pre-allocate lists for efficiency
-    prompts = []
-    image_urls = []
-    teacher_scores_list = []
-    student_scalars = []
-    human_annotations_list = []
-    primary_dimensions = []
+    data = {
+        'prompt': [],
+        'image_url': [],
+        'teacher_scores': [],
+        'student_scalar': [],
+        'human_annotations': [],
+        'primary_dimension': []
+    }
 
     for i in range(n_samples):
-        # Generate prompt and image
-        prompts.append(generate_synthetic_prompt(rng))
-        image_urls.append(generate_synthetic_image_url(i, rng))
+        prompt = generate_synthetic_prompt(seed, i)
+        image_url = generate_synthetic_image_url(seed, i)
+        teacher_scores = generate_teacher_scores(seed, i)
+        student_scalar = generate_student_scalar(seed, i, teacher_scores)
+        human_annotations = generate_human_annotations(seed, i)
+        primary_dimension = generate_primary_dimension(seed, i, prompt)
 
-        # Generate scores
-        teacher_scores = generate_teacher_scores(rng)
-        teacher_scores_list.append(teacher_scores)
+        data['prompt'].append(prompt)
+        data['image_url'].append(image_url)
+        data['teacher_scores'].append(teacher_scores)
+        data['student_scalar'].append(student_scalar)
+        data['human_annotations'].append(human_annotations)
+        data['primary_dimension'].append(primary_dimension)
 
-        student_scalar = generate_student_scalar(rng)
-        student_scalars.append(student_scalar)
+    df = pd.DataFrame(data)
 
-        # Generate human annotations (independent noise)
-        human_annotations = generate_human_annotations(rng)
-        human_annotations_list.append(human_annotations)
+    # Add metadata flag to indicate this is synthetic data (T037b requirement)
+    df['IS_MOCK_DATA'] = True
 
-        # Primary dimension
-        primary_dimensions.append(generate_primary_dimension(rng))
+    logger.info(f"Generated {len(df)} samples")
+    logger.info(f"Schema columns: {list(df.columns)}")
+    logger.info(f"Sample primary dimensions: {df['primary_dimension'].value_counts().to_dict()}")
 
-    # Create DataFrame
-    df = pd.DataFrame({
-        'prompt': prompts,
-        'image_url': image_urls,
-        'teacher_scores': teacher_scores_list,
-        'student_scalar': student_scalars,
-        'human_annotations': human_annotations_list,
-        'primary_dimension': primary_dimensions
-    })
-
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-
-    # Save to parquet
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Successfully saved synthetic dataset to {output_path}")
-    logger.info(f"Dataset shape: {df.shape}")
-    logger.info(f"Columns: {list(df.columns)}")
-
-    # Log sample statistics
-    logger.info("Sample statistics:")
-    for col in ['student_scalar']:
-        logger.info(f"  {col}: mean={df[col].mean():.2f}, std={df[col].std():.2f}")
-
-    # Log teacher scores statistics
-    for dim in DIMENSIONS:
-        scores = [row[dim] for row in teacher_scores_list]
-        logger.info(f"  teacher_scores.{dim}: mean={np.mean(scores):.2f}, std={np.std(scores):.2f}")
+    return df
 
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description='Generate synthetic dataset for llmXive follow-up project.'
+        description="Generate synthetic dataset for llmXive project testing."
     )
     parser.add_argument(
-        '--n-samples',
+        "--n-samples",
         type=int,
-        default=1000,
-        help='Number of synthetic samples to generate (default: 1000)'
+        default=10000,
+        help="Number of synthetic samples to generate (default: 10000)"
     )
     parser.add_argument(
-        '--seed',
+        "--seed",
         type=int,
         default=42,
-        help='Random seed for reproducibility (default: 42)'
+        help="Random seed for reproducibility (default: 42)"
     )
     parser.add_argument(
-        '--output',
+        "--output",
         type=str,
-        default='data/raw/synthetic_z_reward.parquet',
-        help='Output path for the synthetic dataset (default: data/raw/synthetic_z_reward.parquet)'
+        default="data/raw/z_reward_synthetic.parquet",
+        help="Output file path (default: data/raw/z_reward_synthetic.parquet)"
     )
     return parser.parse_args()
 
@@ -186,16 +184,35 @@ def main():
     """Main entry point for synthetic data generation."""
     args = parse_args()
 
-    try:
-        generate_synthetic_dataset(
-            n_samples=args.n_samples,
-            seed=args.seed,
-            output_path=args.output
-        )
-        logger.info("Synthetic data generation completed successfully.")
-    except Exception as e:
-        logger.error(f"Failed to generate synthetic data: {e}", exc_info=True)
-        sys.exit(1)
+    # Ensure output directory exists
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-if __name__ == '__main__':
-    main()
+    # Generate dataset
+    df = generate_synthetic_dataset(n_samples=args.n_samples, seed=args.seed)
+
+    # Write to parquet
+    logger.info(f"Writing synthetic dataset to {output_path}")
+    df.to_parquet(output_path, index=False)
+
+    # Write a small JSON summary for verification
+    summary_path = output_path.with_suffix('.json')
+    summary = {
+        "n_samples": args.n_samples,
+        "seed": args.seed,
+        "output_file": str(output_path),
+        "is_mock_data": True,
+        "schema_columns": list(df.columns),
+        "primary_dimension_distribution": df['primary_dimension'].value_counts().to_dict()
+    }
+    with open(summary_path, 'w') as f:
+        json.dump(summary, f, indent=2)
+
+    logger.info(f"Successfully generated {args.n_samples} samples")
+    logger.info(f"Output file: {output_path}")
+    logger.info(f"Summary file: {summary_path}")
+
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

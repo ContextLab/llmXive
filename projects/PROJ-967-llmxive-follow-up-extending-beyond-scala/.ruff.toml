@@ -1,24 +1,11 @@
-# Ruff configuration for llmXive project
-# This file extends/overrides pyproject.toml if necessary, but primarily
-# ensures a dedicated config file exists as per Constitution Principle I.
-
-line-length = 88
-target-version = "py310"
-
 [lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
+select = ["E", "F", "W", "I", "D"]
+ignore = ["D100", "D104"]
+line-length = 100
 
-[lint.isort]
-known-first-party = ["code"]
-force-single-line = true
+[lint.pydocstyle]
+convention = "google"
+
+[format]
+quote-style = "double"
+indent-style = "space"

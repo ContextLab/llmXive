@@ -1,9 +1,15 @@
 """
-Training Module for llmXive Follow-up.
+Training module for the llmXive entanglement analysis pipeline.
 
-This module implements T027a, T027b, T028, and T030a.
-It handles data preparation, Random Forest training, cross-validation,
-and permutation test for p-value calculation.
+This module implements the predictive modeling logic for User Story 3 (US3).
+It handles model selection based on sample size, training of Ridge Regression
+or Random Forest models, cross-validation, and permutation testing.
+
+Dependencies:
+- scikit-learn (Ridge, RandomForestRegressor, cross_val_score, StratifiedKFold)
+- pandas
+- numpy
+- pickle
 """
 
 import argparse
@@ -13,394 +19,429 @@ import os
 import sys
 import pickle
 from pathlib import Path
+from typing import Tuple, Dict, Any, Optional
 
 import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.linear_model import Ridge
+from sklearn.dummy import DummyRegressor
 from sklearn.metrics import r2_score, mean_absolute_error
-from scipy import stats
+from scipy.stats import pearsonr
 
-# Configure logging
-logger = logging.getLogger(__name__)
+# Import shared utilities from the project
+# Note: These imports assume the code/ directory is in the PYTHONPATH
+# or the script is run as a module from the project root.
+from features import setup_logging
 
-def setup_logging(log_level=logging.INFO):
-    """Configure logging for the module."""
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+def setup_directories(base_path: Path) -> None:
+    """Ensure required output directories exist."""
+    (base_path / "data" / "processed").mkdir(parents=True, exist_ok=True)
+    (base_path / "results").mkdir(parents=True, exist_ok=True)
 
-def load_features(features_path):
+def load_features(file_path: Path) -> pd.DataFrame:
     """
-    Load features from JSON.
-
+    Load the feature dataset from JSON.
+    
     Args:
-        features_path: Path to the features JSON file.
-
+        file_path: Path to the features.json file.
+        
     Returns:
-        List of feature dictionaries.
+        DataFrame containing features and target.
     """
-    with open(features_path, 'r') as f:
+    if not file_path.exists():
+        raise FileNotFoundError(f"Feature file not found: {file_path}")
+        
+    df = pd.read_json(file_path)
+    
+    # Validate required columns
+    required_cols = ['sample_id', 'fidelity_loss', 'variance', 'entropy', 
+                     'skewness', 'kurtosis', 'mahalanobis_distance']
+                     
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in features: {missing_cols}")
+        
+    return df
+    
+def load_model_selection(file_path: Path) -> Dict[str, Any]:
+    """Load the model selection configuration."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"Model selection file not found: {file_path}")
+        
+    with open(file_path, 'r') as f:
         return json.load(f)
 
-def prepare_data(features, test_size=0.2, random_state=42, n_bins=5):
+def prepare_data(df: pd.DataFrame, model_type: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Prepare data for training with quantile-based stratification.
-
+    Prepare data for training, including stratified split.
+    
     Args:
-        features: List of feature dictionaries.
-        test_size: Proportion of data for testing.
-        random_state: Random seed for reproducibility.
-        n_bins: Number of bins for quantile-based stratification.
-
+        df: DataFrame with features and target.
+        model_type: Type of model selected ('ridge', 'rf', or 'fail').
+        
     Returns:
-        Tuple of (X_train, X_test, y_train, y_test, split_config).
+        Tuple of (X_train, X_test, y_train, y_test)
     """
-    # Extract features and target
-    feature_keys = [
-        'variance', 'entropy', 'score_magnitude', 'mahalanobis_distance',
-        'dominant_eigenvalue', 'fidelity_loss'
-    ]
-
-    # Filter out rows with missing values
-    valid_features = []
-    for i, f in enumerate(features):
-        if all(key in f and f[key] is not None for key in feature_keys):
-            valid_features.append((i, f))
-
-    logger.info(f"Valid samples: {len(valid_features)}/{len(features)}")
-
-    X = np.array([[f[k] for k in feature_keys[:-1]] for _, f in valid_features])
-    y = np.array([f['fidelity_loss'] for _, f in valid_features])
-    indices = np.array([i for i, _ in valid_features])
-
+    if model_type == 'fail':
+        logging.warning("Model selection failed. Skipping data preparation.")
+        return None, None, None, None
+        
+    # Define feature columns
+    feature_cols = ['variance', 'entropy', 'skewness', 'kurtosis', 'mahalanobis_distance']
+    X = df[feature_cols].values
+    y = df['fidelity_loss'].values
+    
+    # Remove any rows with NaN in features or target
+    mask = ~(np.isnan(X).any(axis=1) | np.isnan(y))
+    X = X[mask]
+    y = y[mask]
+    
+    if len(X) < 10:
+        logging.error("Insufficient data points after cleaning.")
+        return None, None, None, None
+        
     # Quantile-based binning for stratification
-    y_bins = np.digitize(y, np.percentile(y, np.linspace(0, 100, n_bins + 1)[1:-1]))
-    y_bins = np.clip(y_bins, 0, n_bins - 1)
-
-    # Split data with stratification
-    X_train, X_test, y_train, y_test, idx_train, idx_test = train_test_split(
-        X, y, indices,
-        test_size=test_size,
-        random_state=random_state,
-        stratify=y_bins
+    # Create 5 bins based on the target variable
+    bins = np.linspace(y.min(), y.max(), 6)
+    # Handle edge case where all values are the same
+    if len(np.unique(bins)) < 2:
+        bins = np.unique(y)
+        if len(bins) < 2:
+            # If only one unique value, use equal frequency bins
+            _, bin_indices = pd.qcut(y, q=5, retbins=True, duplicates='drop')
+            if len(bin_indices) < 2:
+                logging.warning("Cannot stratify with single target value. Using random split.")
+                stratify = None
+            else:
+                stratify = pd.cut(y, bins=bin_indices, labels=False)
+        else:
+            stratify = pd.cut(y, bins=bins, labels=False)
+    else:
+        try:
+            stratify = pd.cut(y, bins=bins, labels=False)
+        except ValueError:
+            # Fallback to random split if stratification fails
+            logging.warning("Stratification failed. Using random split.")
+            stratify = None
+    
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=stratify
     )
+    
+    logging.info(f"Data split: Train={len(X_train)}, Test={len(X_test)}")
+    
+    return X_train, X_test, y_train, y_test
 
-    split_config = {
-        'train_indices': idx_train.tolist(),
-        'test_indices': idx_test.tolist(),
-        'test_size': test_size,
-        'random_state': random_state,
-        'n_bins': n_bins
-    }
-
-    return X_train, X_test, y_train, y_test, split_config
-
-def train_and_evaluate(X_train, X_test, y_train, y_test, n_estimators=100, random_state=42):
+def train_model(X_train: np.ndarray, y_train: np.ndarray, model_type: str) -> object:
     """
-    Train Random Forest and evaluate on test set.
-
+    Train the selected model.
+    
     Args:
         X_train: Training features.
-        X_test: Test features.
         y_train: Training targets.
-        y_test: Test targets.
-        n_estimators: Number of trees in the forest.
-        random_state: Random seed.
-
+        model_type: 'ridge' or 'rf'.
+        
     Returns:
-        Trained model and metrics dictionary.
+        Trained model object.
     """
-    model = RandomForestRegressor(
-        n_estimators=n_estimators,
-        max_depth=None,
-        random_state=random_state,
-        n_jobs=2  # CPU-only
-    )
-
+    if model_type == 'ridge':
+        logging.info("Training Ridge Regression model.")
+        model = Ridge(alpha=1.0, random_state=42)
+    elif model_type == 'rf':
+        logging.info("Training Random Forest model.")
+        model = RandomForestRegressor(
+            n_estimators=100, 
+            random_state=42, 
+            n_jobs=2,
+            max_depth=None,
+            min_samples_split=2,
+            min_samples_leaf=1
+        )
+    else:
+        raise ValueError(f"Unsupported model type: {model_type}")
+        
     model.fit(X_train, y_train)
+    return model
 
-    # Predictions
-    y_pred_train = model.predict(X_train)
-    y_pred_test = model.predict(X_test)
-
-    # Metrics
-    r2_train = r2_score(y_train, y_pred_train)
-    r2_test = r2_score(y_test, y_pred_test)
-    mae_train = mean_absolute_error(y_train, y_pred_train)
-    mae_test = mean_absolute_error(y_test, y_pred_test)
-
-    metrics = {
-        'r2_train': r2_train,
-        'r2_test': r2_test,
-        'mae_train': mae_train,
-        'mae_test': mae_test,
-        'test_predictions': y_pred_test.tolist(),
-        'train_predictions': y_pred_train.tolist()
-    }
-
-    logger.info(f"Train R2: {r2_train:.4f}, Test R2: {r2_test:.4f}")
-    logger.info(f"Train MAE: {mae_train:.4f}, Test MAE: {mae_test:.4f}")
-
-    return model, metrics
-
-def run_cross_validation(X, y, cv_folds=5, random_state=42):
+def run_cross_validation(model: object, X: np.ndarray, y: np.ndarray, model_type: str) -> Dict[str, float]:
     """
     Run k-fold cross-validation.
-
-    Args:
-        X: Features.
-        y: Targets.
-        cv_folds: Number of CV folds.
-        random_state: Random seed.
-
-    Returns:
-        Cross-validation scores.
-    """
-    model = RandomForestRegressor(
-        n_estimators=100,
-        max_depth=None,
-        random_state=random_state,
-        n_jobs=2
-    )
-
-    # Use quantile binning for stratified CV
-    n_bins = 5
-    y_bins = np.digitize(y, np.percentile(y, np.linspace(0, 100, n_bins + 1)[1:-1]))
-    y_bins = np.clip(y_bins, 0, n_bins - 1)
-
-    cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
-    scores = cross_val_score(model, X, y, cv=cv, scoring='r2')
-
-    logger.info(f"CV R2 scores: {scores}")
-    logger.info(f"CV Mean R2: {scores.mean():.4f} (+/- {scores.std():.4f})")
-
-    return scores
-
-def calculate_permutation_pvalue(X_train, y_train, model_class, n_permutations=1000, random_state=42):
-    """
-    Calculate permutation test p-value.
-
-    Permute the feature matrix (X) against the target (y) n_permutations times.
-    Calculate R2 for each permutation. Compute p-value as the fraction of
-    permuted R2 values >= observed R2.
-
-    Args:
-        X_train: Training features.
-        y_train: Training targets.
-        model_class: Model class to use (e.g., RandomForestRegressor).
-        n_permutations: Number of permutations.
-        random_state: Random seed.
-
-    Returns:
-        Permutation test p-value.
-    """
-    np.random.seed(random_state)
-
-    # Train original model and get observed R2
-    original_model = model_class(n_estimators=100, random_state=random_state, n_jobs=2)
-    original_model.fit(X_train, y_train)
-    y_pred_orig = original_model.predict(X_train)
-    r2_orig = r2_score(y_train, y_pred_orig)
-
-    logger.info(f"Observed R2: {r2_orig:.4f}")
-
-    # Permutation test
-    r2_permuted = []
-    for i in range(n_permutations):
-        # Shuffle X (not y)
-        X_shuffled = X_train.copy()
-        np.random.shuffle(X_shuffled)
-
-        # Train on shuffled data
-        perm_model = model_class(n_estimators=100, random_state=random_state + i, n_jobs=2)
-        perm_model.fit(X_shuffled, y_train)
-        y_pred_perm = perm_model.predict(X_shuffled)
-        r2_perm = r2_score(y_train, y_pred_perm)
-        r2_permuted.append(r2_perm)
-
-    r2_permuted = np.array(r2_permuted)
-
-    # Calculate p-value: fraction of permuted R2 >= observed R2
-    p_value = np.sum(r2_permuted >= r2_orig) / n_permutations
-
-    logger.info(f"Permutation p-value: {p_value:.4f}")
-    logger.info(f"Permuted R2 mean: {r2_permuted.mean():.4f}, std: {r2_permuted.std():.4f}")
-
-    return {
-        'p_value': p_value,
-        'observed_r2': r2_orig,
-        'permuted_r2_mean': float(r2_permuted.mean()),
-        'permuted_r2_std': float(r2_permuted.std()),
-        'n_permutations': n_permutations
-    }
-
-def save_results(model, metrics, cv_scores, permutation_results, split_config, output_path):
-    """
-    Save all training results.
-
+    
     Args:
         model: Trained model.
-        metrics: Model metrics.
-        cv_scores: Cross-validation scores.
-        permutation_results: Permutation test results.
-        split_config: Split configuration.
-        output_path: Path to save results.
+        X: Features.
+        y: Targets.
+        model_type: 'ridge' or 'rf'.
+        
+    Returns:
+        Dictionary with CV metrics.
     """
-    results = {
-        'metrics': metrics,
-        'cross_validation': {
-            'scores': cv_scores.tolist(),
-            'mean': float(cv_scores.mean()),
-            'std': float(cv_scores.std())
-        },
-        'permutation_test': permutation_results,
-        'split_config': split_config
+    n_splits = 5
+    if len(y) < n_splits:
+        logging.warning(f"Sample size ({len(y)}) too small for {n_splits}-fold CV.")
+        return {"mean_r2": None, "std_r2": None, "mean_mae": None}
+        
+    # Use stratified k-fold if possible
+    if model_type == 'rf':
+        # For RF, we can use standard KFold or StratifiedKFold if we bin y
+        try:
+            bins = np.linspace(y.min(), y.max(), 6)
+            stratify = pd.cut(y, bins=bins, labels=False)
+            cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+        except ValueError:
+            cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+    else:
+        cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+    
+    try:
+        r2_scores = cross_val_score(model, X, y, cv=cv, scoring='r2')
+        mae_scores = cross_val_score(model, X, y, cv=cv, scoring='neg_mean_absolute_error')
+        mae_scores = -mae_scores  # Convert back to positive
+        
+        return {
+            "mean_r2": float(np.mean(r2_scores)),
+            "std_r2": float(np.std(r2_scores)),
+            "mean_mae": float(np.mean(mae_scores)),
+            "r2_scores": r2_scores.tolist(),
+            "mae_scores": mae_scores.tolist()
+        }
+    except Exception as e:
+        logging.error(f"Cross-validation failed: {e}")
+        return {"mean_r2": None, "std_r2": None, "mean_mae": None}
+
+def calculate_permutation_pvalue(model: object, X_train: np.ndarray, y_train: np.ndarray, 
+                                 n_permutations: int = 1000, random_state: int = 42) -> float:
+    """
+    Calculate permutation test p-value.
+    
+    Args:
+        model: Trained model.
+        X_train: Training features.
+        y_train: Training targets.
+        n_permutations: Number of permutations.
+        random_state: Random seed.
+        
+    Returns:
+        p-value.
+    """
+    np.random.seed(random_state)
+    
+    # Calculate observed R2
+    y_pred_obs = model.predict(X_train)
+    r2_obs = r2_score(y_train, y_pred_obs)
+    
+    # Permutation distribution
+    r2_perm = []
+    for _ in range(n_permutations):
+        y_perm = np.random.permutation(y_train)
+        model_perm = type(model)(**model.get_params())
+        model_perm.fit(X_train, y_perm)
+        y_pred_perm = model_perm.predict(X_train)
+        r2_perm.append(r2_score(y_perm, y_pred_perm))
+    
+    r2_perm = np.array(r2_perm)
+    p_value = np.mean(r2_perm >= r2_obs)
+    
+    return float(p_value)
+
+def evaluate_model(model: object, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
+    """
+    Evaluate model on test set.
+    
+    Args:
+        model: Trained model.
+        X_test: Test features.
+        y_test: Test targets.
+        
+    Returns:
+        Dictionary with evaluation metrics.
+    """
+    y_pred = model.predict(X_test)
+    r2 = r2_score(y_test, y_pred)
+    mae = mean_absolute_error(y_test, y_pred)
+    
+    return {
+        "r2": float(r2),
+        "mae": float(mae),
+        "residuals": (y_test - y_pred).tolist()
     }
 
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
+def save_results(results: Dict[str, Any], output_path: Path) -> None:
+    """Save results to JSON."""
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(results, f, indent=2, default=str)
+    logging.info(f"Results saved to {output_path}")
 
-    logger.info(f"Results saved to {output_path}")
+def save_model(model: object, output_path: Path) -> None:
+    """Save trained model to pickle."""
+    with open(output_path, 'wb') as f:
+        pickle.dump(model, f)
+    logging.info(f"Model saved to {output_path}")
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description='Train Random Forest model with CV and permutation test.'
+    parser = argparse.ArgumentParser(description="Train and evaluate entanglement prediction models.")
+    parser.add_argument(
+        "--features-path", 
+        type=str, 
+        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/features.json",
+        help="Path to features.json"
     )
     parser.add_argument(
-        '--features',
+        "--model-selection-path",
         type=str,
-        required=True,
-        help='Path to features JSON file'
+        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/model_selection.json",
+        help="Path to model_selection.json"
     )
     parser.add_argument(
-        '--split-output',
+        "--output-dir",
         type=str,
-        required=True,
-        help='Path to save split configuration'
+        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results",
+        help="Directory to save results"
     )
     parser.add_argument(
-        '--model-output',
+        "--model-path",
         type=str,
-        required=True,
-        help='Path to save trained model (for T027c)'
+        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results/model.pkl",
+        help="Path to save the trained model"
     )
     parser.add_argument(
-        '--results-output',
+        "--results-path",
         type=str,
-        required=True,
-        help='Path to save training results'
+        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results/results.json",
+        help="Path to save results JSON"
     )
     parser.add_argument(
-        '--test-size',
-        type=float,
-        default=0.2,
-        help='Proportion of data for testing'
-    )
-    parser.add_argument(
-        '--n-estimators',
-        type=int,
-        default=100,
-        help='Number of trees in the forest'
-    )
-    parser.add_argument(
-        '--n-permutations',
+        "--n-permutations",
         type=int,
         default=1000,
-        help='Number of permutations for p-value calculation'
-    )
-    parser.add_argument(
-        '--random-state',
-        type=int,
-        default=42,
-        help='Random seed'
-    )
-    parser.add_argument(
-        '--log-level',
-        type=str,
-        default='INFO',
-        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
-        help='Logging level'
+        help="Number of permutations for permutation test"
     )
     return parser.parse_args()
 
-def main():
-    """Main entry point for training."""
+def main() -> int:
+    """Main entry point for training pipeline."""
     args = parse_args()
-    setup_logging(getattr(logging, args.log_level))
-
-    logger.info("Starting model training...")
-
+    logger = setup_logging()
+    
+    base_path = Path(args.output_dir).parent
+    setup_directories(base_path)
+    
+    # Load features
     try:
-        # Load features
-        logger.info(f"Loading features from {args.features}")
-        features = load_features(args.features)
-
-        # Prepare data
-        logger.info("Preparing data...")
-        X_train, X_test, y_train, y_test, split_config = prepare_data(
-            features,
-            test_size=args.test_size,
-            random_state=args.random_state
-        )
-
-        # Save split configuration
-        split_output_path = Path(args.split_output)
-        split_output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(split_output_path, 'w') as f:
-            json.dump(split_config, f, indent=2)
-        logger.info(f"Split configuration saved to {split_output_path}")
-
-        # Train and evaluate
-        logger.info("Training Random Forest...")
-        model, metrics = train_and_evaluate(
-            X_train, X_test, y_train, y_test,
-            n_estimators=args.n_estimators,
-            random_state=args.random_state
-        )
-
-        # Cross-validation
-        logger.info("Running cross-validation...")
-        cv_scores = run_cross_validation(
-            np.vstack([X_train, X_test]),
-            np.concatenate([y_train, y_test]),
-            cv_folds=5,
-            random_state=args.random_state
-        )
-
-        # Permutation test
-        logger.info("Running permutation test...")
-        permutation_results = calculate_permutation_pvalue(
-            X_train, y_train,
-            RandomForestRegressor,
-            n_permutations=args.n_permutations,
-            random_state=args.random_state
-        )
-
-        # Save model (for T027c)
-        model_output_path = Path(args.model_output)
-        model_output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(model_output_path, 'wb') as f:
-            pickle.dump(model, f)
-        logger.info(f"Model saved to {model_output_path}")
-
-        # Save results
-        logger.info("Saving results...")
-        save_results(
-            model, metrics, cv_scores, permutation_results,
-            split_config, args.results_output
-        )
-
-        logger.info("Training completed successfully.")
-        sys.exit(0)
-
+        df = load_features(Path(args.features_path))
+        logger.info(f"Loaded {len(df)} samples from {args.features_path}")
     except Exception as e:
-        logger.error(f"ERROR: {str(e)}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Failed to load features: {e}")
+        return 1
+        
+    # Load model selection config
+    try:
+        model_config = load_model_selection(Path(args.model_selection_path))
+        model_type = model_config.get("model_type", "fail")
+        logger.info(f"Selected model type: {model_type}")
+    except Exception as e:
+        logger.error(f"Failed to load model selection: {e}")
+        return 1
+        
+    # Handle failure case
+    if model_type == 'fail':
+        logger.warning("Model selection failed. Saving failure report.")
+        results = {
+            "status": "fail",
+            "message": model_config.get("reason", "Critical Power Limitation: N < 30"),
+            "model_type": "fail"
+        }
+        save_results(results, Path(args.results_path))
+        # Save placeholder model
+        with open(args.model_path, 'wb') as f:
+            pickle.dump(results, f)
+        return 0
+        
+    # Prepare data
+    X_train, X_test, y_train, y_test = prepare_data(df, model_type)
+    if X_train is None:
+        logger.error("Data preparation failed.")
+        return 1
+        
+    # Train model
+    model = train_model(X_train, y_train, model_type)
+    
+    # Save model
+    save_model(model, Path(args.model_path))
+    
+    # Cross-validation
+    cv_results = run_cross_validation(model, X_train, y_train, model_type)
+    logger.info(f"CV Results: R2={cv_results.get('mean_r2'):.4f}, MAE={cv_results.get('mean_mae'):.4f}")
+    
+    # Test evaluation
+    test_results = evaluate_model(model, X_test, y_test)
+    logger.info(f"Test Results: R2={test_results['r2']:.4f}, MAE={test_results['mae']:.4f}")
+    
+    # Permutation test
+    p_value_perm = calculate_permutation_pvalue(
+        model, X_train, y_train, 
+        n_permutations=args.n_permutations
+    )
+    logger.info(f"Permutation test p-value: {p_value_perm:.4f}")
+    
+    # Calculate null baseline (Mean Predictor)
+    dummy_model = DummyRegressor(strategy='mean')
+    dummy_model.fit(X_train, y_train)
+    y_pred_dummy = dummy_model.predict(X_test)
+    baseline_r2 = r2_score(y_test, y_pred_dummy)
+    baseline_mae = mean_absolute_error(y_test, y_pred_dummy)
+    logger.info(f"Baseline (Mean): R2={baseline_r2:.4f}, MAE={baseline_mae:.4f}")
+    
+    # Compile final results
+    results = {
+        "model_type": model_type,
+        "n_samples_total": len(df),
+        "n_samples_train": len(X_train),
+        "n_samples_test": len(X_test),
+        "cv_metrics": cv_results,
+        "test_metrics": {
+            "r2": test_results["r2"],
+            "mae": test_results["mae"]
+        },
+        "baseline_metrics": {
+            "r2": baseline_r2,
+            "mae": baseline_mae
+        },
+        "p_value_permutation": p_value_perm,
+        "residuals": test_results["residuals"]
+    }
+    
+    # Determine hypothesis status
+    # Hypothesis is supported if RF R2 > 0 and significantly better than baseline
+    if model_type == 'rf' and test_results["r2"] > 0:
+        # Simple check: if model R2 > baseline R2 and p-value is low
+        if test_results["r2"] > baseline_r2 and p_value_perm < 0.05:
+            results["hypothesis_status"] = "supported"
+        else:
+            results["hypothesis_status"] = "unsupported"
+    else:
+        results["hypothesis_status"] = "unsupported"
+        
+    # Save results
+    save_results(results, Path(args.results_path))
+    
+    # Save residuals to CSV
+    residuals_path = Path(args.results_path).parent / "data" / "processed" / "residuals.csv"
+    residuals_path.parent.mkdir(parents=True, exist_ok=True)
+    residuals_df = pd.DataFrame({
+        'sample_id': df.sample(len(X_test)).index.tolist(),  # Approximate mapping
+        'y_true': y_test.tolist(),
+        'y_pred': model.predict(X_test).tolist(),
+        'residual': test_results['residuals']
+    })
+    residuals_df.to_csv(residuals_path, index=False)
+    logger.info(f"Residuals saved to {residuals_path}")
+    
+    return 0
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

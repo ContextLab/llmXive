@@ -1,31 +1,49 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Virtual environments
+# Virtual Environments
 venv/
+ENV/
+env/
 .venv/
 
-# Data files (large datasets)
-data/raw/*.parquet
-data/raw/*.csv
-data/raw/*.h5
-data/raw/*.pkl
-
-# Results and models
-results/*.pkl
-results/*.json
-
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Logs
+# Project specific
+data/raw/*.parquet
+data/raw/*.zip
+data/processed/*.parquet
+data/processed/*.json
+results/*.json
+results/*.pkl
+results/*.png
+results/*.csv
 *.log
