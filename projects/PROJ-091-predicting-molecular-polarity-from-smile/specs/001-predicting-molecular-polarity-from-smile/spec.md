@@ -9,7 +9,7 @@
 
 ### User Story 1 - 2D Descriptor Generation from SMILES (Priority: P1)
 
-The system must parse raw SMILES strings from the QM9 dataset and compute a comprehensive set of 2D topological descriptors (e.g., connectivity indices, shape descriptors, atom counts) without generating 3D conformers, while explicitly excluding Topological Polar Surface Area (TPSA), TPSA_E, and direct functional group identifiers (SMARTS patterns for specific polar groups like -OH, -C=O) to prevent tautological validation or trivial lookup-table behavior.
+The system must parse raw SMILES strings from a standard molecular dataset and compute a comprehensive set of 2D topological descriptors (e.g., connectivity indices, shape descriptors, atom counts) without generating 3D conformers, while explicitly excluding Topological Polar Surface Area (TPSA), TPSA_E, and direct functional group identifiers (SMARTS patterns for specific polar groups like -OH, -C=O) to prevent tautological validation or trivial lookup-table behavior.
 
 **Why this priority**: This is the foundational data pipeline. Without a valid 2D feature matrix derived strictly from 2D topology and excluding target-redundant proxies, no model can be trained, and the core research question (2D vs. 3D information) cannot be addressed. It represents the "minimum viable" data preparation.
 
@@ -88,7 +88,7 @@ The system must apply SHAP (SHapley Additive exPlanations) to quantify the contr
 
 - **SC-001**: The variance explained (R²) by the 2D-only model is measured against the variance explained by a null model that predicts the mean dipole moment of the training set (See US-2).
 - **SC-002**: The contribution of specific 2D descriptors is measured against the SHAP value magnitude to identify the "strongest signal" features (See US-3).
-- **SC-003**: The sensitivity of the model to the feature set is measured by the Jaccard similarity of the top 10 SHAP features across 100 bootstrap resamples (See US-3).
+- **SC-003**: The sensitivity of the model to the feature set is measured by the Jaccard similarity of the top SHAP features across 100 bootstrap resamples (See US-3).
 - **SC-004**: The computational feasibility is measured by the total runtime on the GitHub Actions free-tier runner (CPU only, ≤6h) and peak memory usage (≤6 GB) (See US-1, US-2).
 - **SC-005**: The methodological validity is measured by an automated unit test that asserts no function in the pipeline calls RDKit's `EmbedMolecule` or `Get3DConformer`, verifying the absence of 3D geometry leakage (See US-1).
 
@@ -96,7 +96,7 @@ The system must apply SHAP (SHapley Additive exPlanations) to quantify the contr
 
 - The QM9 dataset is available via `wget`/`curl` from the Maxwell Institute or Zenodo without requiring authentication or paid access.
 - The QM9 dataset contains the necessary dipole moment values (target variable) and SMILES strings (source) for all molecules required for the analysis.
-- RDKit is available in the GitHub Actions environment with sufficient functionality to compute 200+ 2D descriptors without 3D conformer generation.
+- RDKit is available in the GitHub Actions environment with sufficient functionality to compute a broad suite of 2D descriptors without 3D conformer generation..
 - The GitHub Actions free-tier runner provides at least 2 CPU cores and 6 GB of RAM, sufficient for the LightGBM training on the sampled dataset.
 - The relationship between 2D topological features and dipole moments is empirically testable without requiring random assignment (observational study framing).
 - The QM9 dataset's dipole moments are calculated using a consistent quantum mechanical method, ensuring the target variable is homogeneous.

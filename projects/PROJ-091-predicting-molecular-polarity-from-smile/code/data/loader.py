@@ -3,9 +3,8 @@ import re
 import math
 from typing import Iterator, Tuple, List, Optional
 from pathlib import Path
-
 from rdkit import Chem
-from utils.validators import enforce_2d_only_imports
+
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -19,100 +18,107 @@ SMILES_REGEX = re.compile(
 
 def validate_smiles(smiles: str) -> bool:
     """
-    Validate SMILES string format using regex and RDKit.
-    
-    First performs a regex check for valid SMILES characters, then uses RDKit
-    to ensure the string can be parsed into a valid molecule.
+    Validate a SMILES string using regex and RDKit parsing.
     
     Args:
         smiles: The SMILES string to validate.
         
     Returns:
-        bool: True if the SMILES string is valid (passes regex and RDKit parsing), False otherwise.
+        bool: True if the SMILES string is valid, False otherwise.
     """
     if not smiles or not isinstance(smiles, str):
         return False
     
-    # Regex validation
+    # First check with regex
     if not SMILES_REGEX.match(smiles):
         return False
     
-    # RDKit validation
-    try:
-        mol = Chem.MolFromSmiles(smiles)
-        return mol is not None
-    except Exception:
+    # Then check with RDKit
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
         return False
-
-def iterate_smiles(filepath: Path) -> Iterator[Tuple[str, float]]:
-    """
-    Iterate over SMILES and target values from a file.
     
-    Yields tuples of (smiles, target) for valid entries.
+    return True
+
+def iterate_smiles(filepath: Path) -> Iterator[Tuple[str, Optional[float]]]:
+    """
+    Iterate over a file containing SMILES strings and optional target values.
+    
+    Expected format: One SMILES string per line, optionally followed by a tab and a target value.
+    Lines starting with '#' are treated as comments and skipped.
+    Empty lines are skipped.
     Invalid SMILES strings are logged and skipped.
     
     Args:
-        filepath: Path to the file containing SMILES and target values.
+        filepath: Path to the file containing SMILES strings.
         
     Yields:
-        Tuple[str, float]: A tuple of SMILES string and target value.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
+        Tuple of (smiles_string, target_value) where target_value is float or None.
     """
     if not filepath.exists():
-        raise FileNotFoundError(f"File not found: {filepath}")
-    
-    valid_count = 0
-    invalid_count = 0
+        logger.error(f"File not found: {filepath}")
+        return
     
     with open(filepath, "r") as f:
         for line_num, line in enumerate(f, 1):
             line = line.strip()
+            
+            # Skip empty lines and comments
             if not line or line.startswith("#"):
                 continue
             
-            parts = line.split()
-            if len(parts) >= 2:
-                smiles = parts[0]
+            # Parse SMILES and optional target
+            parts = line.split("\t")
+            smiles = parts[0].strip()
+            target = None
+            
+            if len(parts) > 1:
                 try:
-                    target = float(parts[1])
-                    if validate_smiles(smiles):
-                        valid_count += 1
-                        yield smiles, target
-                    else:
-                        invalid_count += 1
-                        logger.warning(f"Invalid SMILES at line {line_num}: {smiles}")
+                    target = float(parts[1].strip())
                 except ValueError:
-                    invalid_count += 1
                     logger.warning(f"Invalid target value at line {line_num}: {parts[1]}")
-    
-    logger.info(f"Loaded {valid_count} valid entries, skipped {invalid_count} invalid entries")
+                    continue
+            
+            # Validate SMILES
+            if not validate_smiles(smiles):
+                logger.warning(f"Invalid SMILES at line {line_num}: {smiles}")
+                continue
+            
+            yield (smiles, target)
 
-def load_batch(filepath: Path, batch_size: int) -> Iterator[List[Tuple[str, float]]]:
+def load_batch(filepath: Path, batch_size: int) -> List[Tuple[str, Optional[float]]]:
     """
-    Load batches of SMILES and targets from a file.
+    Load a batch of SMILES strings and target values from a file.
     
     Args:
-        filepath: Path to the file containing SMILES and target values.
-        batch_size: Number of entries per batch.
+        filepath: Path to the file containing SMILES strings.
+        batch_size: Number of records to load.
         
-    Yields:
-        List[Tuple[str, float]]: A list of (smiles, target) tuples.
+    Returns:
+        List of tuples containing (smiles_string, target_value).
     """
     batch = []
     for smiles, target in iterate_smiles(filepath):
         batch.append((smiles, target))
         if len(batch) >= batch_size:
-            yield batch
-            batch = []
-    if batch:
-        yield batch
+            break
+    
+    return batch
 
 def main() -> None:
-    """Main entry point for testing loader."""
-    # This is a placeholder; actual usage would require a real file
-    logger.info("Loader module loaded successfully")
+    """Main entry point for testing the loader."""
+    logger.info("Testing loader with sample file")
+    # Example usage
+    test_file = Path("data/raw/sample_smiles.txt")
+    if test_file.exists():
+        count = 0
+        for smiles, target in iterate_smiles(test_file):
+            count += 1
+            if count >= 5:
+                break
+        logger.info(f"Loaded {count} valid SMILES strings")
+    else:
+        logger.warning("Sample file not found, skipping test")
 
 if __name__ == "__main__":
     main()

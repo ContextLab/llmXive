@@ -1,165 +1,147 @@
 """
-Unit test for NaN handling in descriptor computation.
-
-This test verifies that NaN values are handled according to the 
-project's deterministic logic: >5% missing -> drop record, else impute.
+Unit tests for NaN handling logic in code/data/preprocess_2d.py.
+Tests the deterministic logic: >5% missing -> drop row, else impute with median.
 """
 import pytest
 import pandas as pd
 import numpy as np
-from typing import List, Tuple
-from utils.logging_config import get_logger
+from code.data.preprocess_2d import handle_missing_values
 
-logger = get_logger(__name__)
 
-def _apply_nan_logic(df: pd.DataFrame, threshold: float = 0.05) -> pd.DataFrame:
-    """
-    Apply the deterministic NaN handling logic to a DataFrame.
-    
-    Logic:
-    1. Calculate NaN ratio per column.
-    2. If NaN ratio > threshold (5%), drop ALL rows that have NaN in that column.
-    3. If NaN ratio <= threshold, impute NaNs in that column with the column's median.
-    
-    Args:
-        df: Input DataFrame.
-        threshold: Ratio threshold (default 0.05).
+class TestNaNHandling:
+    """Tests for the handle_missing_values function."""
+
+    def test_no_missing_values(self):
+        """Test that data with no NaNs is returned unchanged."""
+        df = pd.DataFrame({
+            'smiles': ['CC', 'CCO'],
+            'target': [1.0, 2.0],
+            'f1': [10.0, 20.0],
+            'f2': [30.0, 40.0]
+        })
+        result = handle_missing_values(df)
+        pd.testing.assert_frame_equal(result, df)
+
+    def test_impute_less_than_5_percent(self):
+        """Test imputation when missing values are <= 5% in a column."""
+        # 2 rows, 1 NaN in f1 -> 50% missing in that column? No, the rule is per column.
+        # Let's create a case where a column has <= 5% missing.
+        n_rows = 100
+        data = {
+            'smiles': [f'CC{i}' for i in range(n_rows)],
+            'target': [float(i) for i in range(n_rows)],
+            'f1': [float(i) for i in range(n_rows)]
+        }
+        df = pd.DataFrame(data)
+        # Introduce 4 NaNs (4% of 100) in f1
+        df.loc[0:3, 'f1'] = np.nan
         
-    Returns:
-        Processed DataFrame.
-    """
-    result = df.copy()
-    total_rows = len(result)
-    
-    if total_rows == 0:
-        return result
-
-    for col in result.columns:
-        if col == 'target':
-            continue
-            
-        nan_count = result[col].isna().sum()
-        nan_ratio = nan_count / total_rows
+        # The function should impute with median
+        result = handle_missing_values(df)
         
-        if nan_ratio > threshold:
-            # Drop rows with NaN in this column
-            mask = result[col].notna()
-            result = result[mask]
-            logger.debug(f"Dropped {total_rows - len(result)} rows due to NaN in {col} (ratio={nan_ratio:.2f} > {threshold})")
-        else:
-            # Impute with median
-            median_val = result[col].median()
-            if pd.isna(median_val):
-                # If all values are NaN, fill with 0.0 as fallback
-                median_val = 0.0
-            result[col] = result[col].fillna(median_val)
-            logger.debug(f"Imputed NaN in {col} with median={median_val} (ratio={nan_ratio:.2f} <= {threshold})")
-            
-    return result
+        # Check no NaNs remain
+        assert result['f1'].isna().sum() == 0
+        # Check imputed value is median
+        median_val = df['f1'].median()
+        assert result.loc[0:3, 'f1'].iloc[0] == median_val
 
-def test_nan_handling_logic_drop():
-    """
-    Test the deterministic NaN handling logic when >5% NaNs exist.
-    Rows with NaN should be dropped.
-    """
-    # Create test data with NaN values where >5% of rows are affected
-    # 1 NaN out of 5 = 20% > 5% -> Drop rows
-    data = {
-        'descriptor_1': [1.0, 2.0, np.nan, 4.0, 5.0],  # 20% NaN -> Drop rows with NaN
-        'descriptor_2': [1.0, 2.0, 3.0, 4.0, 5.0],     # 0% NaN
-        'target': [10.0, 20.0, 30.0, 40.0, 50.0]
-    }
-    df = pd.DataFrame(data)
-    
-    result = _apply_nan_logic(df, threshold=0.05)
-    
-    # Row index 2 has NaN in descriptor_1, so it should be dropped
-    # Expected indices: 0, 1, 3, 4
-    expected_indices = [0, 1, 3, 4]
-    
-    assert list(result.index) == expected_indices, f"Expected indices {expected_indices}, got {list(result.index)}"
-    assert len(result) == 4
-    assert not result['descriptor_1'].isna().any()
+    def test_drop_more_than_5_percent(self):
+        """Test row dropping when a column has >5% missing values."""
+        n_rows = 100
+        data = {
+            'smiles': [f'CC{i}' for i in range(n_rows)],
+            'target': [float(i) for i in range(n_rows)],
+            'f1': [float(i) for i in range(n_rows)]
+        }
+        df = pd.DataFrame(data)
+        # Introduce 6 NaNs (6% of 100) in f1 -> should drop these rows
+        df.loc[0:5, 'f1'] = np.nan
+        
+        original_len = len(df)
+        result = handle_missing_values(df)
+        
+        # Rows with NaN in f1 should be dropped
+        assert len(result) == original_len - 6
+        # Check the dropped rows are the ones with NaN
+        assert 0 not in result.index
+        assert 5 not in result.index
 
-def test_nan_handling_logic_impute():
-    """
-    Test median imputation for columns with <=5% NaN.
-    """
-    # 1 NaN out of 100 = 1% <= 5% -> Impute
-    data = {
-        'descriptor_1': [1.0] * 99 + [np.nan], 
-        'descriptor_2': [2.0] * 100,
-        'target': [10.0] * 100
-    }
-    df = pd.DataFrame(data)
-    
-    result = _apply_nan_logic(df, threshold=0.05)
-    
-    # No rows should be dropped
-    assert len(result) == 100
-    
-    # The NaN should be imputed with the median (which is 1.0)
-    assert result['descriptor_1'].iloc[-1] == 1.0
-    assert not result['descriptor_1'].isna().any()
+    def test_mixed_missing_levels(self):
+        """Test behavior when one column has >5% NaN and another has <5%."""
+        n_rows = 100
+        data = {
+            'smiles': [f'CC{i}' for i in range(n_rows)],
+            'target': [float(i) for i in range(n_rows)],
+            'f1': [float(i) for i in range(n_rows)],
+            'f2': [float(i) for i in range(n_rows)]
+        }
+        df = pd.DataFrame(data)
+        
+        # f1: 10% missing (10 rows) -> drop these rows
+        df.loc[0:9, 'f1'] = np.nan
+        # f2: 5% missing (5 rows) -> impute these
+        df.loc[0:4, 'f2'] = np.nan
+        
+        result = handle_missing_values(df)
+        
+        # Rows 0-9 should be dropped because of f1
+        assert len(result) == n_rows - 10
+        # Check that remaining rows have no NaNs
+        assert result.isna().sum().sum() == 0
 
-def test_mixed_nan_handling():
-    """
-    Test a scenario with mixed NaN ratios across columns.
-    """
-    data = {
-        'desc_high_nan': [1.0, np.nan, 3.0, 4.0, np.nan], # 2/5 = 40% -> Drop
-        'desc_low_nan': [1.0, 2.0, np.nan, 4.0, 5.0],     # 1/5 = 20% -> Drop (Wait, 20% > 5%, so drop)
-        'desc_ok': [1.0, 2.0, 3.0, 4.0, 5.0],             # 0% -> Keep
-        'target': [10.0, 20.0, 30.0, 40.0, 50.0]
-    }
-    df = pd.DataFrame(data)
-    
-    # Let's adjust to make one column <= 5%
-    # 1 NaN out of 20 rows = 5%
-    data = {
-        'desc_high_nan': [1.0, np.nan, 3.0, 4.0, np.nan], # 2/5 = 40% -> Drop rows with NaN
-        'desc_ok': [1.0, 2.0, 3.0, 4.0, 5.0],             # 0%
-        'target': [10.0, 20.0, 30.0, 40.0, 50.0]
-    }
-    df = pd.DataFrame(data)
-    
-    result = _apply_nan_logic(df, threshold=0.05)
-    
-    # Row 1 and 4 have NaN in desc_high_nan, so they are dropped.
-    # Remaining indices: 0, 2, 3
-    expected_indices = [0, 2, 3]
-    assert list(result.index) == expected_indices
+    def test_all_nan_column(self):
+        """Test handling of a column with 100% NaN."""
+        df = pd.DataFrame({
+            'smiles': ['CC', 'CCO'],
+            'target': [1.0, 2.0],
+            'f1': [np.nan, np.nan]
+        })
+        # f1 has 100% missing -> drop all rows? Or drop column?
+        # The task says: "If >5% missing values in a column, drop the record" (row).
+        # So every row has a missing value in f1 -> every row is dropped.
+        result = handle_missing_values(df)
+        assert len(result) == 0
 
-def test_median_imputation_calculation():
-    """
-    Verify the median calculation used for imputation.
-    """
-    data = {
-        'desc': [1.0, 2.0, 3.0, 4.0, np.nan],
-        'target': [10.0, 20.0, 30.0, 40.0, 50.0]
-    }
-    df = pd.DataFrame(data)
-    
-    # Manually calculate median for [1, 2, 3, 4] -> 2.5
-    median_val = df['desc'].median()
-    assert median_val == 2.5
-    
-    # Apply logic (1/5 = 20% > 5%, so it drops, not imputes)
-    # To test imputation, we need < 5%
-    data_impute = {
-        'desc': [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, np.nan], # 1/10 = 10% > 5% still
-        'target': list(range(10))
-    }
-    # 1/20 = 5%
-    data_impute = {
-        'desc': [float(i) for i in range(19)] + [np.nan],
-        'target': list(range(20))
-    }
-    df_impute = pd.DataFrame(data_impute)
-    result = _apply_nan_logic(df_impute, threshold=0.05)
-    
-    # Median of 0..18 is 9.0
-    assert result['desc'].iloc[-1] == 9.0
+    def test_median_imputation_correctness(self):
+        """Verify that the imputed value is exactly the median of non-NaN values."""
+        df = pd.DataFrame({
+            'smiles': ['A', 'B', 'C', 'D', 'E'],
+            'target': [1, 2, 3, 4, 5],
+            'f1': [10.0, 20.0, np.nan, 40.0, 50.0]
+        })
+        # 1 NaN out of 5 (20%) -> Drop row C? 
+        # Wait, 20% > 5%, so row C is dropped.
+        # Let's make it < 5%: 1 NaN out of 25 rows.
+        rows = 25
+        data = {'smiles': [f'R{i}' for i in range(rows)], 'target': list(range(rows)), 'f1': list(range(rows))}
+        df = pd.DataFrame(data)
+        df.loc[0, 'f1'] = np.nan # 1/25 = 4%
+        
+        result = handle_missing_values(df)
+        median = df['f1'].median()
+        assert result.loc[0, 'f1'] == median
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_logging_action(self):
+        """Verify that the function logs the action taken (dropped vs imputed)."""
+        # This is a behavioral test. We can't easily capture logs in a unit test without patching,
+        # but we can verify the outcome implies the correct path was taken.
+        # If rows are dropped, it implies >5% logic. If values are filled, it implies <5%.
+        df = pd.DataFrame({
+            'smiles': ['A', 'B', 'C'],
+            'target': [1, 2, 3],
+            'f1': [10.0, np.nan, 30.0]
+        })
+        # 1 NaN in 3 rows = 33% -> Drop row B
+        result = handle_missing_values(df)
+        assert len(result) == 2
+        assert 'B' not in result['smiles'].values
+        
+        df2 = pd.DataFrame({
+            'smiles': [f'R{i}' for i in range(100)],
+            'target': list(range(100)),
+            'f1': list(range(100))
+        })
+        df2.loc[0, 'f1'] = np.nan # 1%
+        result2 = handle_missing_values(df2)
+        assert len(result2) == 100
+        assert result2.loc[0, 'f1'] == df2['f1'].median()

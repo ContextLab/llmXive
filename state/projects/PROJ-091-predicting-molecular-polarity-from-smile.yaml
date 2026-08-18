@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T14:32:32.010125Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-091-predicting-molecular-polarity-from-smile
-last_run_id: 4a175490-94af-4bcf-9351-ec2989c302ea
+last_run_id: 8cb1e0fa-c375-402f-a1a3-1374b406fea1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-091-predicting-molecular-polarity-from-smile/specs/001-predicting-molecular-polarity-from-smile
 title: Predicting Molecular Polarity from SMILES Strings with Machine Learning
-updated_at: '2026-08-16T18:52:11.963248Z'
+updated_at: '2026-08-18T22:01:11.066449Z'

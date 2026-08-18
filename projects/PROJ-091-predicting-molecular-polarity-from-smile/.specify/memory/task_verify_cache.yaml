@@ -15,14 +15,6 @@ T022:
     \ that reads `data/processed/descriptors.parquet`, shuffles indices with a fixed\
     \ seed, creates the splits, and writes them to parquet files. The missing `descriptors.parquet`\
     \ is an input, not an artifact the task required to produce."
-T032:
-  c: false
-  h: b081350a735b5e94e27cbaee6520686f9d724fb0980da5a98af76312ab13cab7
-  r: "The `interpret.py` file exists and implements a TreeExplainer\u2011based SHAP\
-    \ analysis with cluster\u2011aware mean\u2011absolute importance, but the required\
-    \ input artifacts `data/processed/descriptors.parquet` and `data/processed/model.pkl`\
-    \ are missing, so the module cannot be executed as specified. The missing data\
-    \ files must be provided for the task to be considered complete."
 T034a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,13 +22,6 @@ T034a:
     \ similarity of the top feature clusters. The implementer supplied no artifact\
     \ (e.g., script, notebook, CSV, or figure) containing the required similarity\
     \ calculations, so the task\u2019s core requirement is unmet."
-T039b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing that unused imports were identified and removed from the
-    scripts in the `code/` directory is provided (e.g., a diff, updated files, or
-    a linting report). Without such evidence, we cannot confirm the task was actually
-    completed.
 T039c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -44,6 +29,14 @@ T039c:
     \ is present; the only material provided concerns a molecular polarity prediction\
     \ pipeline, with no code, configuration, or documentation showing a unified logging\
     \ format. Consequently the required logging standardization has not been delivered."
+T039d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest test files, code diffs, or reports are present that demonstrate unused\
+    \ imports have been removed or that logging has been standardized. The only artifacts\
+    \ shown relate to molecular descriptor generation and model training, which do\
+    \ not address the \u201Cverify unused import removal and logging standardization\u201D\
+    \ requirement. Consequently, the required evidence is missing."
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

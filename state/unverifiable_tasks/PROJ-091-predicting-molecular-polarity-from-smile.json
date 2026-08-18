@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-091-predicting-molecular-polarity-from-smile",
+  "tasks": [
+    {
+      "task_key": "T039b",
+      "reject_count": 1,
+      "last_reason": "No artifact showing that unused imports were identified and removed from the scripts in the `code/` directory is provided (e.g., a diff, updated files, or a linting report). Without such evidence, we cannot confirm the task was actually completed.",
+      "first_seen": "2026-08-18T22:01:08.573627+00:00",
+      "last_seen": "2026-08-18T22:01:08.573627+00:00"
+    }
+  ],
+  "updated_at": "2026-08-18T22:01:08.573627+00:00"
+}
