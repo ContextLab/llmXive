@@ -42,3 +42,14 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1021/j100785a001
   verified_at: '2026-08-17T11:50:05.305071Z'
+- artifact_hash: b6359bd9be0786e1b4cb7e15ceb29620c55f496d522b7448c7467ecdb27742e2
+  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-08-18T22:56:11.930690Z'

@@ -3,29 +3,48 @@ data/raw_cif/
 data/*.csv
 data/*.npy
 data/*.json
-data/*.parquet
+data/dataset*.csv
+data/features_matrix.npy
+data/targets.npy
+data/dataset_intermediate.csv
+data/dataset_with_metrics.csv
+data/dataset_filtered.csv
+data/dataset.csv
 
-# Model checkpoints and weights
+# Model checkpoints
 models/*.pt
 models/*.pth
-models/*.bin
+models/*.h5
+models/*.onnx
 
 # Python cache and environment
 __pycache__/
 *.py[cod]
+*$py.class
 .env
 .venv/
 venv/
-*.egg-info/
+ENV/
+env/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
 
 # Logs and temporary files
 *.log
-*.tmp
-results/*.html
-results/*.csv
+logs/
+tmp/
+.pytest_cache/
+.mypy_cache/
 
-# IDE and OS specific
-.idea/
-.vscode/
-.DS_Store
-Thumbs.db
+# Results and figures (optional exclusion if desired, but often kept for sharing)
+# Uncomment to exclude:
+# results/*.json
+# results/*.html
+# figures/*.png
+# figures/*.pdf
