@@ -1,37 +1,32 @@
-# llmXive Agriculture Optimization Project
+# Climate-Smart Agricultural Optimization Project (PROJ-006)
 
 ## Overview
-This project implements a correlational analysis of Climate-Smart Agricultural (CSA) practices and yield stability, independent of financial access.
+This project implements a research pipeline to analyze the correlation between
+Climate-Smart Agricultural (CSA) practices and yield stability, independent of
+financial access.
 
-## Project Structure
+## Structure
 ```
-code/
-├── src/ # Source code
-│ ├── cli/ # Command-line interfaces
-│ ├── config/ # Configuration files and constants
-│ ├── data/ # Data processing and collection
-│ ├── utils/ # Utility functions
-│ ├── analysis/ # Statistical analysis modules
-│ └── services/ # Business logic services
-├── tests/ # Test suite
-│ ├── unit/ # Unit tests
-│ ├── integration/ # Integration tests
-│ └── contract/ # Contract tests
-├── contracts/ # Schema definitions
-├── data/ # Data directories
+.
+├── code/ # Source code and scripts
+│ ├── src/ # Main application logic
+│ ├── tests/ # Test suites
+│ ├── contracts/ # Data schema contracts
+│ ├── scripts/ # Utility scripts
+│ └──...
+├── data/ # Data storage
 │ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Processed analysis data
-│ ├── logs/ # Execution logs
-│ └── remote_sensing/ # Satellite imagery
-├── scripts/ # Utility scripts
-├── figures/ # Generated plots
-└── reports/ # Final reports
+│ ├── processed/ # Cleaned/processed data
+│ └── logs/ # Execution logs
+├── reports/ # Generated reports and plots
+├── state/ # Project state and artifact hashes
+└── specs/ # Research specifications
 ```
 
 ## Quick Start
 1. Install dependencies: `pip install -r requirements.txt`
-2. Run tests: `pytest`
-3. Execute pipeline: `python scripts/run_pipeline.py`
+2. Run the pipeline: `python -m src.cli.run_pipeline`
+3. Validate outputs: `python -m src.cli.validate`
 
 ## License
 MIT

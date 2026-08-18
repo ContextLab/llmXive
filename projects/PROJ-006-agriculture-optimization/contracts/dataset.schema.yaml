@@ -1,218 +1,151 @@
 # Dataset Schema Contract for Climate-Smart Agriculture Analysis
 # Project: PROJ-006-agriculture-optimization
 # Task: T007
-# Description: Defines the expected columns and data types for the analysis-ready dataset
-#              produced by the ingestion and feature engineering pipeline.
 #
-# This schema is validated by:
-#   1. src/cli/validate.py (runtime validation)
-#   2. tests/contract/test_dataset_schema.py (contract tests)
-#   3. src/config/schemas.py (Pydantic model: AnalysisDatasetRecord)
-#
-# Source Data Provenance:
-#   - Household Survey Data: World Bank LSMS-ISA (Malawi, Tanzania, etc.)
-#   - Remote Sensing Data: Copernicus Sentinel-2 L2A (S2MSI2A)
-#   - Derived Features: Calculated via src/data/processing/feature_engineering.py
+# This schema defines the required structure for the analysis-ready dataset
+# produced by the ingestion pipeline (User Story 1). It is used by the
+# validation CLI (src/cli/validate.py) and the state manager (src/utils/state_manager.py)
+# to ensure data integrity before downstream statistical analysis.
 
-version: "1.0.0"
-last_updated: "2026-04-30"
-validation_mode: strict  # Fail on missing columns or type mismatches
+version: "1.0"
+description: >
+  Schema for the merged household-satellite dataset containing CSA practices,
+  yield stability metrics, and food security indicators.
 
 required_columns:
-  # Unique Identifier
   - name: household_id
     type: string
-    description: Unique identifier for the household
+    description: Unique identifier for the household (from LSMS-ISA)
     nullable: false
-    constraints:
-      - not_empty
-      - pattern: "^HH[0-9]{6}$"  # Example: HH000123
+    unique: true
 
-  # Geographic Identifiers
   - name: village_id
     type: string
-    description: Aggregated village identifier for clustering robust standard errors
+    description: Aggregated village/cluster identifier for random effects
     nullable: false
-    constraints:
-      - not_empty
 
   - name: country
     type: string
-    description: Country code (ISO 3166-1 alpha-3)
+    description: Country code (e.g., MWI, TZA)
     nullable: false
-    allowed_values:
-      - MWI
-      - TZA
-      - UGA
-      - ETH
 
   - name: latitude
     type: float
-    description: Household latitude (WGS84)
+    description: Household latitude (fuzzed for privacy)
     nullable: false
-    constraints:
-      - min: -90.0
-      - max: 90.0
+    min_value: -90.0
+    max_value: 90.0
 
   - name: longitude
     type: float
-    description: Household longitude (WGS84)
+    description: Household longitude (fuzzed for privacy)
     nullable: false
-    constraints:
-      - min: -180.0
-      - max: 180.0
+    min_value: -180.0
+    max_value: 180.0
 
-  # Primary Outcome Variables
-  - name: CSA_Index
-    type: float
-    description: Composite index of Climate-Smart Agriculture practice adoption
-                 (Sum of binary practice indicators, normalized 0-1)
-    nullable: false
-    constraints:
-      - min: 0.0
-      - max: 1.0
-
-  - name: Stability_Score
-    type: float
-    description: Yield stability score (1 / Coefficient of Variation of NDVI time-series)
-    nullable: false
-    constraints:
-      - min: 0.0
-      - max: 10.0  # Heuristic upper bound
-
-  - name: HFIAS
-    type: float
-    description: Household Food Insecurity Access Scale (0-27, higher = more insecure)
-    nullable: false
-    constraints:
-      - min: 0.0
-      - max: 27.0
-
-  # Financial Access Controls
-  - name: finance_access
-    type: integer
-    description: Binary indicator for access to formal financial services (0=No, 1=Yes)
-    nullable: false
-    allowed_values:
-      - 0
-      - 1
-
-  - name: credit_history
-    type: integer
-    description: Binary indicator for past credit usage (0=No, 1=Yes)
-    nullable: true
-
-  # Socio-Economic Controls
-  - name: land_size_ha
-    type: float
-    description: Total land size in hectares
-    nullable: false
-    constraints:
-      - min: 0.0
-
-  - name: education_years
-    type: float
-    description: Highest education level of household head in years
-    nullable: true
-
-  - name: household_size
-    type: integer
-    description: Number of household members
-    nullable: false
-    constraints:
-      - min: 1
-
-  # Agricultural Practice Indicators (Binary)
-  - name: practice_conservation_tillage
-    type: integer
-    description: Binary indicator for conservation tillage adoption (0/1)
-    nullable: true
-
-  - name: practice_agroforestry
-    type: integer
-    description: Binary indicator for agroforestry adoption (0/1)
-    nullable: true
-
-  - name: practice_drought_resistant_varieties
-    type: integer
-    description: Binary indicator for drought-resistant seed adoption (0/1)
-    nullable: true
-
-  - name: practice_irrigation
-    type: integer
-    description: Binary indicator for irrigation use (0/1)
-    nullable: true
-
-  # Remote Sensing Features
-  - name: ndvi_mean
-    type: float
-    description: Mean NDVI value over the growing season
-    nullable: false
-    constraints:
-      - min: -1.0
-      - max: 1.0
-
-  - name: ndvi_cv
-    type: float
-    description: Coefficient of Variation of NDVI (used to derive Stability_Score)
-    nullable: false
-    constraints:
-      - min: 0.0
-
-  - name: cloud_cover_fraction
-    type: float
-    description: Average cloud cover fraction for the satellite pixels used
-    nullable: false
-    constraints:
-      - min: 0.0
-      - max: 1.0
-
-  # Metadata
   - name: survey_year
     type: integer
     description: Year of the survey data collection
     nullable: false
-    constraints:
-      - min: 2010
-      - max: 2026
 
-  - name: data_source
-    type: string
-    description: Source of the record (e.g., "LSMS-ISA", "Synthetic")
+  # --- Derived Features (Feature Engineering) ---
+  - name: CSA_Index
+    type: float
+    description: >
+      Composite index of Climate-Smart Agriculture practice adoption.
+      Calculated as the sum of binary practice indicators (0.0 to N_practices).
+      Normalized to [0, 1] in some contexts, but raw sum stored here.
     nullable: false
 
-optional_columns:
+  - name: Stability_Score
+    type: float
+    description: >
+      Yield stability metric calculated as 1 / CV(NDVI_time_series).
+      Higher values indicate more stable yields.
+    nullable: false
+    min_value: 0.0
+
+  - name: HFIAS
+    type: float
+    description: >
+      Household Food Insecurity Access Scale score.
+      Lower values indicate better food security.
+    nullable: false
+
+  # --- Raw Survey Indicators (for verification) ---
+  - name: practice_conservation_tillage
+    type: boolean
+    description: Binary indicator for conservation tillage adoption
+    nullable: true
+
+  - name: practice_agroforestry
+    type: boolean
+    description: Binary indicator for agroforestry adoption
+    nullable: true
+
+  - name: practice_irrigation
+    type: boolean
+    description: Binary indicator for irrigation use
+    nullable: true
+
   - name: extension_visits
     type: integer
-    description: Number of extension worker visits in the last year
+    description: Number of extension officer visits in the last year
+    nullable: true
 
-  - name: fertilizer_cost_usd
+  - name: finance_access
+    type: boolean
+    description: Binary indicator for access to formal financial services
+    nullable: true
+
+  - name: land_size_ha
     type: float
-    description: Total expenditure on fertilizer in USD
+    description: Total land size in hectares
+    nullable: true
+    min_value: 0.0
 
-  - name: yield_tons_per_ha
+  - name: education_years
     type: float
-    description: Reported crop yield (if available)
+    description: Years of education of household head
+    nullable: true
 
+  # --- Satellite-Derived Features ---
+  - name: ndvi_mean
+    type: float
+    description: Mean NDVI over the growing season buffer
+    nullable: true
+
+  - name: ndvi_cv
+    type: float
+    description: Coefficient of Variation of NDVI (temporal variability)
+    nullable: true
+
+  - name: satellite_obs_count
+    type: integer
+    description: Number of valid satellite observations used in aggregation
+    nullable: false
+    min_value: 1
+
+# --- Validation Rules ---
 validation_rules:
-  # Cross-field validation rules
-  - rule: "CSA_Index must be non-negative"
-    condition: "CSA_Index >= 0.0"
-    severity: error
+  - rule: "Stability_Score > 0"
+    error_message: "Stability_Score must be strictly positive."
+  - rule: "HFIAS >= 0"
+    error_message: "HFIAS cannot be negative."
+  - rule: "land_size_ha >= 0"
+    error_message: "Land size cannot be negative."
+  - rule: "satellite_obs_count >= 3"
+    error_message: "Minimum 3 satellite observations required for robust CV calculation."
 
-  - rule: "Stability_Score must be positive"
-    condition: "Stability_Score > 0.0"
-    severity: error
-
-  - rule: "HFIAS must be within valid range"
-    condition: "0 <= HFIAS <= 27"
-    severity: error
-
-  - rule: "land_size must be positive"
-    condition: "land_size_ha > 0"
-    severity: error
-
-notes:
-  - "This schema enforces strict types to ensure compatibility with statsmodels clustering."
-  - "Null values in optional columns are permitted, but required columns must be populated."
-  - "The 'village_id' field is critical for T025 (Cluster-Robust Standard Errors)."
+# --- Metadata ---
+metadata:
+  source_data:
+    - World Bank LSMS-ISA (Malawi/Tanzania)
+    - Copernicus Sentinel-2 L2A (via Data Space Ecosystem)
+  processing_pipeline:
+    - src/data/collectors/survey_collector.py
+    - src/data/collectors/remote_sensing_collector.py
+    - src/data/processing/spatial_join.py
+    - src/data/processing/feature_engineering.py
+  expected_row_count: "> 300"
+  last_updated: "2025-10-01"

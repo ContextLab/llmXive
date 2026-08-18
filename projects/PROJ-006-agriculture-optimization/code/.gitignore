@@ -1,13 +1,35 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
 
-# Virtual environments
-venv/
+# Data
+data/raw/*.csv
+data/raw/*.parquet
+data/processed/*.csv
+data/processed/*.parquet
+data/processed/*.json
+data/logs/*.log
+data/.provenance.yaml
+
+# Reports
+reports/*.pdf
+reports/*.png
+reports/*.csv
+
+# State
+state/projects/*.yaml
+
+# Environment
+.env
 .venv/
-env/
-.env/
+venv/
 
 # IDE
 .idea/
@@ -15,30 +37,6 @@ env/
 *.swp
 *.swo
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Data (keep raw/processed in git if small, otherwise add to .gitignore)
-# data/raw/*
-# data/processed/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-!data/logs/.gitkeep
-
-# Reports and figures
-reports/*.pdf
-figures/*.png
-figures/*.jpg
-
-# Logs
-*.log
-
-# OS files
+# OS
 .DS_Store
 Thumbs.db
-
-# Temporary files
-*.tmp
-*.temp

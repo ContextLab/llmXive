@@ -2,10 +2,17 @@
 max-line-length = 88
 extend-ignore = E203, W503
 exclude =
+    .eggs,
     .git,
-    __pycache__,
+    .hg,
+    .mypy_cache,
     .tox,
     .venv,
+    _build,
+    buck-out,
     build,
     dist,
-    *.egg-info,
+    __pycache__,
+    data,
+    reports,
+    state

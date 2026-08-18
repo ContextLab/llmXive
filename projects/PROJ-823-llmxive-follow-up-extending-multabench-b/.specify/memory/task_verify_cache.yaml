@@ -9,34 +9,35 @@ T015:
     being considered fulfilled.
 T024a:
   c: false
-  h: 57757023e5e8c587cfb184b0aceb9ce0a9b1322eb4918b25b944d7ee54948dee
-  r: "The repository lacks the required output file `data/processed/metadata_stats_cardinality.csv`,\
-    \ and the provided `metadata_stats.py` is truncated (e.g., an unfinished line\
-    \ `'total': in`) with no visible implementation of a `compute_cardinality` function.\
-    \ Consequently the task\u2019s specification is not met."
+  h: 9038d6d2aa22ad2cba8f495aadb51e868812322899c92b05d6bca430d4d60913
+  r: "The repository contains a partially\u2011implemented `metadata_stats.py` (no\
+    \ `compute_cardinality` that iterates over all datasets and writes a CSV), and\
+    \ the required output file `data/processed/metadata_stats_cardinality.csv` is\
+    \ absent. The task\u2019s core requirement\u2014producing a summary CSV with `[dataset_id,\
+    \ cardinality]` for every dataset\u2014is therefore not met."
 T024b:
   c: false
-  h: a16eaeb21b086dc2a6ac19c979758f46a86c0c8cf16f27f94321c139ed229ab3
-  r: The repository lacks the required output file `data/processed/metadata_stats_missingness.csv`,
-    and the provided `metadata_stats.py` does not contain a complete implementation
-    of `compute_missingness` (the file is truncated and the function is absent). Both
-    the artifact and the functionality are missing, so the task is not satisfied.
+  h: ea248eba62bcf42be64daa326e461c49c9d404dbe91f9003b8171c23e5d7b038
+  r: "The repository contains a partial `metadata_stats.py` with helper functions\
+    \ (e.g., `compute_missingness_for_dataset`) but no top\u2011level `compute_missingness`\
+    \ that processes *all* datasets and writes the required `data/processed/metadata_stats_missingness.csv`.\
+    \ Moreover, the expected CSV file is absent from the project. The task\u2019s\
+    \ core output is therefore missing."
 T024c:
   c: false
-  h: f598aa6e4b69418fc26a977870349a7ae97c032e4f2a434d516e5bb92d46fc6c
-  r: The repository lacks the required output file `data/processed/metadata_stats_sparsity.csv`,
-    and the source `code/analysis/metadata_stats.py` does not contain a complete implementation
-    of `compute_sparsity` (the file is truncated and contains syntax errors). Consequently,
-    the task of computing sparsity for all datasets and writing the summary CSV has
-    not been fulfilled.
+  h: d28d1bbe32df9cd7df38e95a56a66e45b4e47ef6fcebc78a33f34f9a0302289f
+  r: "The repository contains a partially\u2011implemented `metadata_stats.py` that\
+    \ defines `compute_sparsity_for_dataset`, but it never aggregates sparsity across\
+    \ all datasets nor writes the required `data/processed/metadata_stats_sparsity.csv`.\
+    \ Moreover, the expected CSV file is absent from the project. The task\u2019s\
+    \ core output is missing, so the implementation is incomplete."
 T024d:
   c: false
-  h: 3945e4a9e8dc6a731d88ede82be0d3095e93dc7b1b614b2614d7eb51e6cc7ae4
-  r: "The repository lacks the required output file `data/processed/metadata_stats_variance.csv`,\
-    \ and the provided `metadata_stats.py` is truncated (e.g., the `compute_feature_stats`\
-    \ function ends abruptly and no `compute_variance` implementation is present).\
-    \ Consequently, the mean\u2011variance computation across all datasets and the\
-    \ required summary CSV are not produced."
+  h: d403a686e6d0a0cb77a52e49bf470bce04c92026f11a3a71546a89de249d4673
+  r: The provided `metadata_stats.py` does not contain a `compute_variance` function
+    (the file is truncated before any such implementation) and the required output
+    file `data/processed/metadata_stats_variance.csv` is absent. Both the core function
+    and the summary CSV are missing, so the task is not satisfied.
 T024e:
   c: false
   h: 7cea4c7551dce136c3ab6b414f4979cfebfe6ec58166e3dd883e5e530f21fd89

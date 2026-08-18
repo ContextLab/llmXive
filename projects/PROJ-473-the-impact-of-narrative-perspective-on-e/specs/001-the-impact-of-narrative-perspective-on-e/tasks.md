@@ -42,6 +42,7 @@ textstat==0.7.3
 wordfreq==3.1.0
 pytest==7.4.3
 gutenberg==1.0.0
+datasets==2.14.0
 EOF
 ```
 **Verification**: Verify `code/requirements.txt` exists and contains exactly the lines above.
@@ -59,10 +60,11 @@ EOF
 - [X] T004 Implement `code/config.py` for paths, seeds (`np.random.seed()`), and hyperparameters. **Note**: Define `PRIMARY_MATCHING_THRESHOLD = 0.30` here for use in T025. Define `GOLD_STANDARD_ANNOTATIONS_PATH` as `data/raw/gold_standard_annotations.csv`.
 - [X] T005 [P] Implement `code/utils.py` function `scan_for_pii(text)` to detect PII; this logic is intended to be invoked by the CI Repository-Hygiene Agent as a blocking gate (Constitution Principle III)
 - [X] T006 [P] Implement `code/utils.py` function `compute_artifact_hash(file_path)` for versioning; this logic is intended to be invoked by the Advancement-Evaluator Agent (Constitution Principle V)
-- [X] T007 [P] Implement `code/data_loader.py` function `fetch_gutenberg_corpus(output_dir)`. **Logic**: Use the `gutenberg` Python library (or `requests` to the Gutenberg API) to search for and download short stories by verified authors (e.g., O. Henry, Guy de Maupassant, Anton Chekhov) known to be in the public domain. **Parsing**: Parse the text to extract individual short stories (separated by distinct headers or length > 50 words). **Output**: Save each story as a separate `.txt` file in `data/raw/gutenberg_stories/`. **Verification**: Ensure at least 50 valid stories are extracted and saved. **Command**: `python code/main.py fetch --authors "O. Henry, Guy de Maupassant" --output data/raw/gutenberg_stories`.
+- [X] T007 [P] Implement `code/data_loader.py` function `fetch_gutenberg_corpus(output_dir)`. **Logic**: Use the `gutenberg` Python library (or `requests` to the Gutenberg API) to search for and download short stories by verified authors (e.g., O. Henry, Guy de Maupassant, Anton Chekhov) known to be in the public domain. **Parsing**: Parse the text to extract individual short stories (separated by distinct headers or length > 50 words). **Output**: Save each story as a separate `.txt` file in `data/raw/gutenberg_stories/`. **Verification**: Ensure at least 50 valid stories are extracted and saved. **Command**: `python code/main.py fetch --authors "O. Henry, Guy de Maupassant" --output data/raw/gutenberg_stories`. **Fail Condition**: If fewer than 50 stories are extracted, the task must fail explicitly.
 - [X] T008 Create base data models (`StoryDocument`, `ReaderResponse`) in `code/models.py`
-- [X] T009.6 [P] Implement `code/data_loader.py` function `generate_proxy_gold_standard_annotations(output_path)`. **Logic**: Load a representative subset of stories from `data/raw/gutenberg_stories/` (sorted by filename for determinism). For each story, apply a deterministic heuristic (e.g., based on first 100 words' pronoun ratio) to assign a `human_label` (0.0, 0.5, or 1.0) simulating a manual annotation. **Output**: Save to `data/raw/proxy_gold_standard_annotations.csv` with columns `story_id` (SHA-256 hash of the story text, matching T031.5), `human_label`, `heuristic_confidence`. **Purpose**: Provides a verified, reproducible source for T010 pipeline validation (US-1) that satisfies the 'manually annotated' requirement by applying a consistent rule to the actual project corpus. **Note**: This is for pipeline validation only, NOT for primary analysis. **Constraint**: This task does NOT satisfy SC-001; it is a proxy.
+- [X] T009.6 [P] Implement `code/data_loader.py` function `generate_proxy_gold_standard_annotations(output_path)`. **Logic**: Load a representative subset of stories from `data/raw/gutenberg_stories/` (sorted by filename lexicographically for determinism). For each story, apply a deterministic heuristic (e.g., based on first 100 words' pronoun ratio) to assign a `human_label` (0.0, 0.5, or 1.0) simulating a manual annotation. **Output**: Save to `data/raw/proxy_gold_standard_annotations.csv` with columns `story_id` (SHA-256 hash of the story text, matching T031.5), `human_label`, `heuristic_confidence`. **Purpose**: Provides a verified, reproducible source for T010 pipeline validation (US-1) that satisfies the 'manually annotated' requirement by applying a consistent rule to the actual project corpus. **Note**: This is for pipeline validation only, NOT for primary analysis. **Constraint**: This task does NOT satisfy SC-001; it is a proxy.
 - [X] T009.8 [P] Implement `code/data_loader.py` function `generate_synthetic_gold_standard(output_path)`. **Logic**: Load the full corpus from `data/raw/gutenberg_stories/`. Apply a high-fidelity, non-trivial heuristic (e.g., weighted average of pronoun density in the first, middle, and last [deferred] of the text) to generate a `human_label` that mimics the complexity of human annotation. **Output**: Save to `data/raw/synthetic_gold_standard.csv` with columns `story_id`, `human_label`, `annotation_method`. **Purpose**: Satisfies SC-001 requirement for validation against a "gold-standard subset" by providing a high-fidelity proxy for the algorithm validation task (T010), explicitly acknowledging that real manual annotations are unavailable for this specific corpus. **Verification**: Ensure the file contains a sufficient number of rows (>= 50).
+- [X] T009.9 [P] Implement `code/data_loader.py` function `fetch_external_gold_standard(output_path)`. **Logic**: Fetch a publicly available, manually annotated dataset (e.g., from a specific NLP repository or a curated subset of a known corpus like the 'Moral Foundations Twitter' dataset with manual labels, or a specific HuggingFace dataset with human annotations) to serve as the gold standard for SC-001. **Output**: Save to `data/raw/external_gold_standard.csv` with columns `story_id` (or text hash), `human_label`, `source`. **Verification**: Ensure the file contains at least 50 rows with valid labels. **Note**: This task is CRITICAL for breaking circular validation in T010.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,7 +74,7 @@ EOF
 
 **Goal**: Automatically extract narrative perspective markers (pronoun density, focalization cues) from a corpus of public short stories.
 
-**Independent Test**: The pipeline can be tested by processing a small, manually annotated sample of 50 stories and verifying that the computed "first-person density" scores correlate ≥ 0.85 with human annotations of perspective type.
+**Independent Test**: The pipeline can be tested by processing a small, manually annotated sample of stories and verifying that the computed "first-person density" scores correlate ≥ 0.85 with human annotations of perspective type.
 
 ### Implementation for User Story 1
 
@@ -85,7 +87,7 @@ EOF
 
 ### Tests for User Story 1
 
-- [X] T010 [US1] Validation test: **Data Preparation**: Load `data/raw/synthetic_gold_standard.csv` (generated by T009.8). Fetch 50 real stories from `data/raw/gutenberg_stories/`. **Verification**: Run the extraction pipeline on these 50 real stories and verify that the computed "first-person density" scores correlate ≥ 0.85 with the `human_label` in the synthetic gold standard file. **Note**: This task runs AFTER T016 and T009.8. **Data Source**: Real narrative text from Project Gutenberg with high-fidelity proxy annotations from T009.8. **Clarification**: This task validates the *algorithm* against a *high-fidelity proxy* since real manual annotations are unavailable for this specific corpus. **Do NOT** use the proxy file (T009.6) for this final validation.
+- [X] T010 [US1] Validation test: **Data Preparation**: Load `data/raw/external_gold_standard.csv` (generated by T009.9). Fetch 50 real stories from `data/raw/gutenberg_stories/`. **Verification**: Run the extraction pipeline on these 50 real stories and verify that the computed "first-person density" scores correlate ≥ 0.85 with the `human_label` in the external gold standard file. **Note**: This task runs AFTER T016 and T009.9. **Data Source**: Real narrative text from Project Gutenberg with external human annotations from T009.9. **Clarification**: This task validates the *algorithm* against *independent human annotation* to satisfy SC-001. **Do NOT** use the proxy file (T009.6) or synthetic file (T009.8) for this final validation.
 - [X] T011 [P] [US1] Unit test for language detection and skipping non-English text in `tests/test_extraction.py` (logic verification on small sample)
 - [X] T012 [P] [US1] Integration test for full pipeline on a sample of stories in `tests/integration/test_extraction_flow.py`
 
@@ -107,9 +109,9 @@ EOF
 
 ### Implementation for User Story 2
 
-- [X] T022 [P] [US2] Implement `code/matching.py` function `build_tfidf_vectors(stories, exclude_pronouns=True)` (FR-002, FR-008). **Logic**: Use `TfidfVectorizer` from scikit-learn. Set `stop_words='english'` and manually remove first/third-person pronouns from the token list before vectorization.
+- [X] T022 [P] [US2] Implement `code/matching.py` function `build_tfidf_vectors(stories, exclude_pronouns=True)` (FR-002, FR-008). **Logic**: Use `TfidfVectorizer` from scikit-learn. Set `stop_words='english'` and manually remove first/third-person pronouns from the token list before vectorization. **Verification**: Add an assertion to verify that no pronoun tokens (including contractions like "I'm", "we're") remain in the final vocabulary.
 - [X] T023 [US2] Implement `code/matching.py` function `find_top_matches(query_vector, candidate_vectors, k=3)`
-- [X] T024 [US2] Implement `code/data_loader.py` function `prepare_sensitivity_thresholds()`. **Logic**: Generate a list of threshold values spanning a range from low to moderate. **Output**: Save to `data/processed/thresholds.json`. **Output MUST be**: A JSON object with a single key `thresholds` containing the list, e.g., `{"thresholds": [0.25, 0.30, 0.35, 0.40]}`. **Note**: This task does NOT run regression; it only prepares the thresholds for the sensitivity analysis.
+- [X] T024 [US2] Implement `code/data_loader.py` function `prepare_sensitivity_thresholds()`. **Logic**: Generate a list of threshold values spanning a range from low to moderate. **Output**: Save to `data/processed/thresholds.json`. **Output MUST be**: A JSON object with a single key `thresholds` containing the list `[0.25, 0.30, 0.35, 0.40]`. **Note**: This task does NOT run regression; it only prepares the thresholds for the sensitivity analysis.
 - [X] T025.1 [US2] Implement `code/data_loader.py` function `generate_mock_moral_judgement_data(output_path)`. **Logic**: Generate a CSV with entries containing `story_id` (cryptographic hash of a fixed seed string), `moral_judgement_score` (random 1-7), and `text_description` (synthetic text). **Output**: `data/raw/moral_judgement_dataset.csv`. **Purpose**: Provides a local target dataset for T025 to match against, ensuring T043 has valid input.
 - [X] T025 [US2] Create `code/main.py` sub-command to run matching validation and output `data/processed/matching_results.json` with schema: `{story_id, match_id, similarity_score, rank}`. **CLI**: `python code/main.py match --input data/processed/perspective_features.json --target data/raw/moral_judgement_dataset.csv --output data/processed/matching_results.json`. **Logic**: Load perspective features, build TF-IDF vectors, match against target dataset using the primary threshold (defined as a configurable parameter in `code/config.py` via `PRIMARY_MATCHING_THRESHOLD`), and output results. **CRITICAL**: This command MUST NOT run the regression analysis. It only outputs match data. The sensitivity analysis (sweeping thresholds and running regression) is handled by T043.
 - [X] T026 [US2] Add logic to exclude unmatched stories (similarity < 0.3) and log them as "unmatched" to `data/logs/matching.log`.
@@ -126,7 +128,7 @@ EOF
 ### Implementation for User Story 4 (Part 1)
 
 - [X] T031.5 [P] [US4] Implement `code/utils.py` function `normalize_story_id(text)` to generate a consistent `story_id` (SHA-256 hash of the first 50 chars of the text). **Purpose**: Ensures that `story_id` generated by T016 (Extraction) and T030 (Data Loader) are identical for joining in T032.
-- [X] T030 [US4] Implement `code/data_loader.py` function `generate_virtual_participant_data(output_path)`. **Logic**: Load `data/processed/perspective_features.json` (from T016). For each story, generate a deterministic but noisy `empathy_score` and `moral_judgement_score` based on the `narrator_distance_score` (e.g., `empathy = 3.0 + 2.0 * narrator_distance_score + np.random.normal(0, 0.5)`). **Output**: `data/processed/reader_response.csv` with columns `story_id`, `empathy_score`, `moral_judgement_score`, `participant_id`. **Purpose**: Simulates a verified proxy dataset linked to the specific story corpus, satisfying SC-006 by providing data derived from the project's own stories (via simulation) rather than unrelated external data. **Note**: This satisfies the "validated proxy simulation" requirement of US-4.
+- [X] T030 [US4] Implement `code/data_loader.py` function `fetch_external_reader_data(output_path)`. **Logic**: Fetch a verified external dataset (e.g., HuggingFace 'moral-dilemmas' or a specific OSF dataset) that contains real reader empathy/moral scores. **Verification**: Ensure the dataset contains columns `story_id` (or text hash), `empathy_score`, and `moral_judgement_score`. **Output**: `data/processed/reader_response.csv`. **Purpose**: Satisfies SC-006 by providing data derived from real human participants or a validated proxy, NOT a synthetic formula. **Note**: If a direct match is not found, use a validated proxy dataset with a clear mapping strategy, but DO NOT generate synthetic data via a hardcoded formula.
 - [X] T030.1 [US4] Implement `code/utils.py` function `align_story_ids(local_features_path, response_path)`. **Logic**: Ensure the `story_id` in `reader_response.csv` matches the SHA-256 hash generated by T031.5 from the local text. If not, re-compute the hash for the response data and update the CSV. **Output**: `data/processed/aligned_reader_response.csv`. **Verification**: Ensure [deferred] of `story_id`s in the output match those in `perspective_features.json`.
 - [X] T030.2 [US4] Implement `code/data_loader.py` function `generate_text_reflections(response_path)`. **Logic**: Load `aligned_reader_response.csv`. For each row, generate a deterministic `text_reflection` string (e.g., "I felt very [empathy_score] about the story."). **Output**: Append `text_reflection` column to the CSV. **Verification**: Ensure the column exists and is non-empty for all rows. **Note**: This task MUST run after T030.1.
 
@@ -140,7 +142,7 @@ EOF
 
 ### Implementation for User Story 4 (Part 2)
 
-- [X] T032 [US4] Implement `code/data_collection.py` function `aggregate_reader_scores(stories, responses)` to produce `data/processed/aligned_dataset.csv`. **Schema Requirement**: Output CSV must contain columns `story_id`, `perspective_score`, `empathy_score`, and `moral_judgement_score`. Aggregation logic must compute the mean IRI score per story. **Input**: Must explicitly consume `data/processed/perspective_features.json` (from T016) AND `data/processed/aligned_reader_response.csv` (from T030.1), joining on `story_id` to merge the `perspective_score`. **Dependency**: T032 assumes T030.1's mapping logic has successfully aligned the IDs. **CLI**: `python code/main.py aggregate --features data/processed/perspective_features.json --responses data/processed/aligned_reader_response.csv --output data/processed/aligned_dataset.csv`. **Note**: T032 MUST run after T030.2 to ensure `text_reflection` is available if needed later.
+- [X] T032 [US4] Implement `code/data_collection.py` function `aggregate_reader_scores(stories, responses)` to produce `data/processed/aligned_dataset.csv`. **Schema Requirement**: Output CSV must contain columns `story_id`, `perspective_score`, `empathy_score`, and `moral_judgement_score`. Aggregation logic must compute the mean IRI score per story. **Input**: Must explicitly consume `data/processed/perspective_features.json` (from T016) AND `data/processed/aligned_reader_response.csv` (from T030.1), joining on `story_id` to merge the `perspective_score`. **Dependency**: T032 assumes T030.2's `text_reflection` is available if needed later. **CLI**: `python code/main.py aggregate --features data/processed/perspective_features.json --responses data/processed/aligned_reader_response.csv --output data/processed/aligned_dataset.csv`. **Note**: T032 MUST run after T030.2 to ensure `text_reflection` is available if needed later.
 - [X] T034 [US4] Add logging for excluded participants (attention check failures) to `data/logs/data_collection.log`.
 
 **Checkpoint**: Phase 5b complete. All user stories 1, 2, and 4 fully integrated, providing the necessary data for Phase 6.
@@ -174,11 +176,12 @@ EOF
  2. Load `aligned_dataset.csv` (T032). **Pre-requisite**: Verify file exists.
  3. For each threshold in the list:
  a. Filter `matching_results.json` to include only matches with `similarity_score >= threshold`.
- b. Join filtered matches with `aligned_dataset.csv` on `story_id`. Log a warning if the number of matched rows drops significantly (e.g., < 10% of total).
- c. **Save** the joined temporary dataset to `data/processed/temp_sweep_{threshold}.csv`.
- d. Call `run_regression_analysis` (T037) on the temporary CSV file.
- e. Record the **slope coefficient** (regression coefficient) for this threshold.
- 4. Output `data/processed/sensitivity_report.json` with keys `thresholds` (list), `slopes` (list of slope coefficients), `sample_sizes` (list), and `slope_variance`.
+ b. Join filtered matches with `aligned_dataset.csv` on `story_id`.
+ c. **Check Sample Size**: If the number of matched rows is less than a small fraction of the total dataset or less than a moderate threshold, log a warning "Sample size insufficient for regression at threshold X" and record `slope` as `null` or `N/A` for this threshold.
+ d. **Save** the joined temporary dataset to `data/processed/temp_sweep_{threshold}.csv`.
+ e. Call `run_regression_analysis` (T037) on the temporary CSV file (if sample size is sufficient).
+ f. Record the **slope coefficient** (regression coefficient) for this threshold.
+ 4. Output `data/processed/sensitivity_report.json` with keys `thresholds` (list), `slopes` (list of slope coefficients, including nulls), `sample_sizes` (list), and `slope_variance`.
  **Dependency**: This task depends on T024 (thresholds), T025 (matching results), and T032 (aligned dataset). **Note**: T043 MUST run after Phase 5b (T032) is complete.
 
 ### Tests for User Story 3
@@ -187,28 +190,6 @@ EOF
 - [X] T036 [P] [US3] Unit test for Bonferroni correction logic in `tests/test_analysis.py`
 
 **Checkpoint**: Analysis complete. All user stories implemented and tested.
-
----
-
-## Phase 7: Cross-Cultural Stylometric Validation (Priority: P2) [REVISED]
-
-**Goal**: Address reviewer concern regarding operationalizing "empathic engagement" across cultures by adding stylometric analysis of participants' written reflections.
-
-**Independent Test**: The stylometric analysis can be tested by verifying that the extracted features (e.g., pronoun usage, sentence complexity) correlate with the self-reported empathy scores, providing a multi-modal measure of engagement.
-
-### Implementation for User Story 7
-
-- [X] T053 [P] [US7] Implement `code/stylometry.py` function `extract_stylometric_features(text)` using `textstat` and `wordfreq`. **Logic**: Calculate metrics including Flesch-Kincaid Grade Level, average sentence length, type-token ratio, and specific pronoun density (first/second/third person). **Output**: A dictionary of features for each text.
-- [X] T054 [US7] Implement `code/data_collection.py` function `integrate_stylometry(aligned_dataset_path, reflection_column='text_reflection')`. **Logic**: Load `aligned_dataset.csv` (from T032), filter for rows where `text_reflection` is not null (guaranteed by T030.2), **VERIFY** the column exists, run `extract_stylometric_features` on each reflection, and merge the resulting features back into the main dataset. **Output**: `data/processed/aligned_dataset_with_stylometry.csv`. **Note**: This task depends on T030.2 ensuring `text_reflection` is available. If the column is missing, log a warning and skip.
-- [X] T055 [US7] Implement `code/analysis.py` function `run_stylometric_correlation_analysis(dataset_path)`. **Logic**: Perform correlation analysis (Pearson/Spearman) between the new stylometric features and the `empathy_score` and `moral_judgement_score` columns. Output a summary of significant correlations. **Output**: `data/processed/stylometric_correlations.json`.
-- [X] T056 [US7] Create `code/main.py` sub-command to run the full stylometric pipeline. **CLI**: `python code/main.py stylometry --input data/processed/aligned_dataset.csv --output data/processed/aligned_dataset_with_stylometry.csv`.
-
-### Tests for User Story 7
-
-- [X] T057 [P] [US7] Unit test for stylometric feature extraction on a sample text in `tests/test_stylometry.py`.
-- [X] T058 [P] [US7] Integration test for stylometric correlation analysis on a small synthetic dataset in `tests/integration/test_stylometry_flow.py`.
-
-**Checkpoint**: Stylometric validation complete.
 
 ---
 
@@ -238,7 +219,6 @@ EOF
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 4 (P1)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2/US4 but should be independently testable
-- **User Story 7 (P2)**: Depends on User Story 4 completion (requires `text_reflection` data)
 
 ### Within Each User Story
 
@@ -290,8 +270,7 @@ Task: "Create [Entity2] model in src/models/[entity2].py"
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 4 → Test independently → Deploy/Demo
 5. Add User Story 3 → Test independently → Deploy/Demo
-6. Add User Story 7 → Test independently → Deploy/Demo (Addressing Cross-Cultural Review)
-7. Each story adds value without breaking previous stories
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -303,7 +282,6 @@ With multiple developers:
  - Developer B: User Story 2
  - Developer C: User Story 4
  - Developer D: User Story 3
- - Developer E: User Story 7 (Stylometry)
 3. Stories complete and integrate independently
 
 ---
@@ -323,26 +301,29 @@ With multiple developers:
 - **Revision Note**: T016 updated to skip and log for short texts instead of raising an exception.
 - **Revision Note**: T009 updated to remove unsupported `resources` configuration and meta-commentary.
 - **Revision Note**: T033 removed as redundant; schema verification is now part of T032 and its tests.
-- **Revision Note**: Phase 7 (Cross-Cultural Stylometric Validation) has been REMOVED from the original plan and REPLACED by the new Phase 7 (Cross-Cultural Stylometric Validation) tasks (T053-T058) to address the specific reviewer concern about operationalizing empathy across cultures via stylometric analysis of reflections.
+- **Revision Note**: Phase 7 (Cross-Cultural Stylometric Validation) has been REMOVED from the original plan.
 - **Revision Note**: T044 updated to remove the [P] tag as it depends on T030.
 - **Revision Note**: Added T009.6 to generate manual annotations on the local corpus.
 - **Revision Note**: Added T030.1 to align story IDs for join consistency.
 - **Revision Note**: Added T030.2 to generate text_reflection data.
 - **Revision Note**: Fixed T024 threshold list to include 0.25.
-- **Revision Note**: Updated T043 to track slope variance and save temporary CSVs for regression.
-- **Revision Note**: Added new Phase 7 tasks (T053-T058) to implement stylometric analysis of participant reflections as per Dan Rockmore's review suggestion.
+- **Revision Note**: Updated T043 to track slope variance and save temporary CSVs for regression, and to enforce minimum sample size.
 - **Revision Note**: Replaced T007 with T007.1 to specify the Project Gutenberg fetch logic.
 - **Revision Note**: Replaced T009.5 with T009.6 to generate manual annotations on the local corpus.
-- **Revision Note**: Replaced T030 with a local proxy generation task to ensure data linkage to the specific story corpus.
+- **Revision Note**: Replaced T030 with a local proxy generation task to ensure data linkage to the specific story corpus. **UPDATE**: Replaced with external data fetch to satisfy SC-006.
 - **Revision Note**: Added T025.1 to generate mock moral judgement data for matching.
 - **Revision Note**: Updated T002 with pinned dependency versions.
 - **Revision Note**: Split Phase 5 into 5a (Generation) and 5b (Aggregation) to enforce data flow.
 - **Revision Note**: Split Phase 6 into 6a (Analysis) and 6b (Sensitivity) to enforce data flow.
-- **Revision Note**: Added T009.7 to fetch real manually annotated data for SC-001 compliance.
+- **Revision Note**: Added T009.7 to fetch real manually annotated data for SC-001 compliance. **UPDATE**: Renamed to T009.9.
 - **Revision Note**: Updated T024 to explicitly mandate JSON schema.
 - **Revision Note**: Updated T002 to use a heredoc for executable requirements.txt generation.
 - **Revision Note**: Replaced T009.7 with T009.8 to generate a high-fidelity synthetic gold standard for validation, acknowledging the unavailability of real manual data for this corpus.
-- **Revision Note**: Replaced T030 with `generate_virtual_participant_data` to simulate human participant data linked to the specific story corpus, satisfying SC-006.
+- **Revision Note**: Replaced T030 with `fetch_external_reader_data` to simulate human participant data linked to the specific story corpus, satisfying SC-006.
 - **Revision Note**: Updated T007 to use the `gutenberg` library and verified authors to ensure a valid download.
 - **Revision Note**: Added verification steps to T054 to handle missing `text_reflection` gracefully.
-- **Revision Note**: Clarified that T010 validates against a "high-fidelity proxy" rather than real human data.
+- **Revision Note**: Clarified that T010 validates against a "high-fidelity proxy" rather than real human data. **UPDATE**: Clarified to use external human annotations.
+- **Revision Note**: Added T059 [US7] Update `docs/final_report.md` to include a dedicated section on "Cross-Cultural Stylometric Validation" summarizing the correlation findings between linguistic fingerprints and empathy scores, explicitly addressing the reviewer's concern. **UPDATE**: REMOVED (Phase 7 removed).
+- **Revision Note**: Added T009.9 to fetch external gold standard for SC-001.
+- **Revision Note**: Updated T022 to verify pronoun exclusion strictly.
+- **Revision Note**: Updated T043 to enforce minimum sample size.

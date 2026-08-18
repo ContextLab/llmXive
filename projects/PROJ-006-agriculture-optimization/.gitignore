@@ -7,10 +7,11 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.Python
+.eggs/
+*.egg-info/
+dist/
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -20,8 +21,6 @@ parts/
 sdist/
 var/
 wheels/
-*.egg-info/
-.installed.cfg
 *.egg
 
 # PyInstaller
@@ -36,18 +35,26 @@ pip-delete-this-directory.txt
 htmlcov/
 .coverage
 .coverage.*
-.hypothesis/
 .tox/
 .nox/
 coverage.xml
 *.cover
+*.py,cover
+.hypothesis/
 .pytest_cache/
 
-# Transient envs
-.venv/
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
+env/
 venv/
 ENV/
-env/
+env.bak/
+venv.bak/
 
 # IDE
 .idea/
@@ -55,15 +62,6 @@ env/
 *.swp
 *.swo
 *~
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -76,8 +74,12 @@ Thumbs.db
 .dmypy.json
 dmypy.json
 
-# Ruff
-.ruff_cache/
+# Pyre type checker
+.pyre/
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Project specific
 data/raw/*
@@ -88,14 +90,7 @@ data/logs/*
 !data/logs/.gitkeep
 reports/*
 !reports/.gitkeep
-figures/*
-!figures/.gitkeep
-state/*
-!state/.gitkeep
-contracts/*
-!contracts/.gitkeep
-docs/*
-!docs/.gitkeep
-src/__pycache__/
-scripts/__pycache__/
-tests/__pycache__/
+state/
+logs/
+.pytest_cache/
+.mypy_cache/

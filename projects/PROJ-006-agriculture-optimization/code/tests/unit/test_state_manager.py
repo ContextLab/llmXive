@@ -1,5 +1,5 @@
 """
-Unit tests for src.utils.state_manager.
+Unit tests for the state_manager module.
 """
 
 import os
@@ -7,15 +7,12 @@ import tempfile
 import hashlib
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-
 import pytest
+import yaml
 
-# We need to mock the PROJECT_ROOT and state file path to avoid affecting the real project
-# or requiring the full project structure to exist for tests.
-# However, the module uses absolute paths derived from __file__.
-# To test properly, we will patch the module-level constants or use a temporary directory
-# and inject it. Since the module is already imported with specific paths,
-# we will test the logic by mocking the filesystem interactions.
+import sys
+# Ensure the code directory is in the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from src.utils.state_manager import (
     compute_file_hash,
@@ -23,171 +20,143 @@ from src.utils.state_manager import (
     load_state,
     save_state,
     update_artifact_hashes,
-    verify_artifacts,
-    STATE_FILE,
-    PROJECT_ROOT
+    verify_artifacts
 )
-from src.utils.io_helpers import FatalError
+
 
 @pytest.fixture
 def temp_dir():
+    """Create a temporary directory for test artifacts."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
-def test_compute_file_hash(temp_dir):
-    """Test SHA-256 hash computation."""
-    test_file = temp_dir / "test.txt"
-    content = b"Hello, World!"
-    test_file.write_bytes(content)
 
-    expected_hash = hashlib.sha256(content).hexdigest()
-    actual_hash = compute_file_hash(test_file)
+@pytest.fixture
+def sample_file(temp_dir):
+    """Create a sample file for hashing tests."""
+    file_path = temp_dir / "test_file.txt"
+    content = b"Hello, World! This is a test file."
+    file_path.write_bytes(content)
+    return file_path
 
+
+def test_compute_file_hash(sample_file):
+    """Test that compute_file_hash returns the correct SHA-256 hash."""
+    expected_hash = hashlib.sha256(b"Hello, World! This is a test file.").hexdigest()
+    actual_hash = compute_file_hash(sample_file)
     assert actual_hash == expected_hash
 
-def test_compute_file_hash_missing(temp_dir):
-    """Test that compute_file_hash raises FatalError for missing files."""
-    missing_file = temp_dir / "nonexistent.txt"
 
-    with pytest.raises(FatalError):
+def test_compute_file_hash_missing(temp_dir):
+    """Test that compute_file_hash raises FileNotFoundError for missing files."""
+    missing_file = temp_dir / "nonexistent.txt"
+    with pytest.raises(FileNotFoundError):
         compute_file_hash(missing_file)
 
+
 def test_scan_directory_for_artifacts(temp_dir):
-    """Test artifact scanning logic."""
-    # Create structure
-    (temp_dir / "raw").mkdir()
-    (temp_dir / "processed").mkdir()
+    """Test scanning a directory for artifacts."""
+    # Create test files
+    (temp_dir / "file1.csv").touch()
+    (temp_dir / "file2.parquet").touch()
+    (temp_dir / "file3.txt").touch()
 
-    # Create files with supported extensions
-    (temp_dir / "raw" / "data.csv").touch()
-    (temp_dir / "raw" / "info.json").touch()
-    (temp_dir / "raw" / "ignored.log").touch() # .log is supported
-    (temp_dir / "processed" / "results.parquet").touch()
-    (temp_dir / "processed" / "notes.md").touch() # .md is NOT supported
+    # Scan all files
+    all_files = scan_directory_for_artifacts(temp_dir)
+    assert len(all_files) == 3
 
-    artifacts = scan_directory_for_artifacts(temp_dir)
+    # Scan only CSV files
+    csv_files = scan_directory_for_artifacts(temp_dir, extensions=[".csv"])
+    assert len(csv_files) == 1
+    assert csv_files[0].name == "file1.csv"
 
-    # Check expected files are found
-    paths = [str(p) for p in artifacts]
-    assert str(temp_dir / "raw" / "data.csv") in paths
-    assert str(temp_dir / "raw" / "info.json") in paths
-    assert str(temp_dir / "raw" / "ignored.log") in paths
-    assert str(temp_dir / "processed" / "results.parquet") in paths
-    assert str(temp_dir / "processed" / "notes.md") not in paths
 
-def test_scan_directory_nonexistent(temp_dir):
-    """Test scanning a non-existent directory returns empty list."""
-    nonexistent = temp_dir / "does_not_exist"
-    artifacts = scan_directory_for_artifacts(nonexistent)
-    assert artifacts == []
+def test_scan_directory_nonexistent():
+    """Test scanning a non-existent directory raises an error."""
+    with pytest.raises(NotADirectoryError):
+        scan_directory_for_artifacts(Path("/nonexistent/path"))
+
 
 def test_load_state_missing_file(temp_dir):
-    """Test load_state returns default dict when file is missing."""
-    # Mock the STATE_FILE to point to a non-existent file in temp_dir
-    with patch('src.utils.state_manager.STATE_FILE', temp_dir / "missing.yaml"):
-        state = load_state()
-        assert "project_id" in state
-        assert state["project_id"] == "PROJ-006-agriculture-optimization"
-        assert state["artifacts"] == {}
+    """Test loading a missing state file returns default state."""
+    missing_path = temp_dir / "missing.yaml"
+    state = load_state(missing_path)
+    assert state["project_id"] == ""
+    assert state["artifacts"] == {}
+
 
 def test_save_state_and_load(temp_dir):
-    """Test saving and loading state."""
-    test_file = temp_dir / "test_state.yaml"
+    """Test saving and loading state preserves data."""
+    state_path = temp_dir / "test_state.yaml"
     test_state = {
         "project_id": "TEST-001",
-        "last_updated": "2023-01-01",
-        "artifacts": {"data.csv": "hash123"}
+        "artifacts": {"raw": {"file1.csv": "hash1"}},
+        "last_updated": "2023-01-01"
     }
 
-    with patch('src.utils.state_manager.STATE_FILE', test_file):
-        with patch('src.utils.state_manager.STATE_DIR', temp_dir):
-            save_state(test_state)
+    save_state(test_state, state_path)
+    loaded_state = load_state(state_path)
 
-            loaded_state = load_state()
-            assert loaded_state == test_state
+    assert loaded_state["project_id"] == "TEST-001"
+    assert loaded_state["artifacts"]["raw"]["file1.csv"] == "hash1"
 
-def test_update_artifact_hashes_integration(temp_dir, monkeypatch):
-    """
-    Integration test for update_artifact_hashes using a mock structure.
-    We patch the module's directory constants to point to our temp_dir.
-    """
-    # Setup temp structure
-    data_raw = temp_dir / "data" / "raw"
-    data_processed = temp_dir / "data" / "processed"
-    state_dir = temp_dir / "state" / "projects"
 
-    data_raw.mkdir(parents=True)
-    data_processed.mkdir(parents=True)
-    state_dir.mkdir(parents=True)
+def test_update_artifact_hashes_integration(temp_dir):
+    """Test updating artifact hashes in a state file."""
+    # Setup directories
+    raw_dir = temp_dir / "data" / "raw"
+    raw_dir.mkdir(parents=True)
+    state_path = temp_dir / "state.yaml"
 
-    # Create test files
-    test_file_raw = data_raw / "survey.csv"
-    test_file_raw.write_bytes(b"col1,col2\n1,2\n")
+    # Create a sample artifact
+    sample_file = raw_dir / "sample.csv"
+    sample_file.write_bytes(b"col1,col2\n1,2\n")
 
-    test_file_processed = data_processed / "analysis.json"
-    test_file_processed.write_bytes(b'{"key": "value"}')
+    # Update hashes
+    project_id = "TEST-UPDATE"
+    hashes = update_artifact_hashes(project_id, state_path, [raw_dir])
 
-    # Patch the module constants
-    monkeypatch.setattr('src.utils.state_manager.PROJECT_ROOT', temp_dir)
-    monkeypatch.setattr('src.utils.state_manager.STATE_DIR', state_dir)
-    monkeypatch.setattr('src.utils.state_manager.STATE_FILE', state_dir / "PROJ-006-agriculture-optimization.yaml")
-    monkeypatch.setattr('src.utils.state_manager.DATA_RAW_DIR', data_raw)
-    monkeypatch.setattr('src.utils.state_manager.DATA_PROCESSED_DIR', data_processed)
+    # Verify results
+    assert len(hashes) == 1
+    assert "data/raw/sample.csv" in hashes
 
-    # Run update
-    result = update_artifact_hashes()
+    # Verify state file content
+    with open(state_path, "r") as f:
+        state = yaml.safe_load(f)
 
-    # Verify result
-    assert len(result) == 2
-    assert "data/raw/survey.csv" in result
-    assert "data/processed/analysis.json" in result
+    assert state["project_id"] == project_id
+    assert "data/raw/sample.csv" in state["artifacts"]["raw"]
 
-    # Verify state file was created
-    state_file = state_dir / "PROJ-006-agriculture-optimization.yaml"
-    assert state_file.exists()
 
-def test_verify_artifacts(temp_dir, monkeypatch):
-    """Test verify_artifacts logic."""
+def test_verify_artifacts(temp_dir):
+    """Test verifying artifact integrity."""
     # Setup
-    data_raw = temp_dir / "data" / "raw"
-    data_raw.mkdir(parents=True)
-    test_file = data_raw / "test.csv"
-    content = b"test"
-    test_file.write_bytes(content)
-    expected_hash = hashlib.sha256(content).hexdigest()
+    raw_dir = temp_dir / "data" / "raw"
+    raw_dir.mkdir(parents=True)
+    state_path = temp_dir / "state.yaml"
 
-    state_dir = temp_dir / "state" / "projects"
-    state_dir.mkdir(parents=True)
-    state_file = state_dir / "PROJ-006-agriculture-optimization.yaml"
+    # Create a file
+    sample_file = raw_dir / "sample.csv"
+    sample_file.write_bytes(b"col1,col2\n1,2\n")
 
-    # Mock state
-    mock_state = {
-        "project_id": "PROJ-006-agriculture-optimization",
-        "last_updated": "now",
-        "artifacts": {
-            "data/raw/test.csv": expected_hash,
-            "data/raw/missing.csv": "fake_hash"
-        }
+    # Compute initial hash
+    initial_hash = compute_file_hash(sample_file)
+
+    # Save state with initial hash
+    test_state = {
+        "project_id": "TEST-VERIFY",
+        "artifacts": {"raw": {"data/raw/sample.csv": initial_hash}},
+        "last_updated": ""
     }
+    save_state(test_state, state_path)
 
-    # Patch
-    monkeypatch.setattr('src.utils.state_manager.PROJECT_ROOT', temp_dir)
-    monkeypatch.setattr('src.utils.state_manager.STATE_DIR', state_dir)
-    monkeypatch.setattr('src.utils.state_manager.STATE_FILE', state_file)
-    monkeypatch.setattr('src.utils.state_manager.DATA_RAW_DIR', data_raw)
-    monkeypatch.setattr('src.utils.state_manager.DATA_PROCESSED_DIR', temp_dir / "data" / "processed")
+    # Verify (should pass)
+    results = verify_artifacts(state_path, [raw_dir])
+    assert results["data/raw/sample.csv"] is True
 
-    # Save mock state
-    with open(state_file, "w") as f:
-        import yaml
-        yaml.dump(mock_state, f)
+    # Modify file
+    sample_file.write_bytes(b"modified content")
 
-    # Test
-    # 1. All valid (if we remove the missing one from check or ensure it exists)
-    # Let's test the missing case
-    is_valid = verify_artifacts()
-    assert is_valid is False # Because data/raw/missing.csv is missing
-
-    # 2. Verify specific existing file
-    is_valid_specific = verify_artifacts(["data/raw/test.csv"])
-    assert is_valid_specific is True
+    # Verify again (should fail)
+    results = verify_artifacts(state_path, [raw_dir])
+    assert results["data/raw/sample.csv"] is False

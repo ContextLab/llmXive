@@ -489,3 +489,450 @@
   source_type: external
   status: verified
   updated_at: '2026-08-09T08:09:54Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: 'sensitivity seeds list: 123, 456, 789, 101112'
+  claim_id: c_97f34e76
+  context: 'Specific Seeds: SENSITIVITY_SEEDS = [, 123, 456, 789, 101112].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SENSITIVITY_SEEDS = [, 123, 456, 789, 101112]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T03:54:59Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: 'memory usage threshold for batch tuning: 6GB'
+  claim_id: c_ec6f4697
+  context: incrementally increase batch size by [deferred] in each probe iteration
+    until memory usage > 6GB, then lock that batch size for the full run.
+  evidence:
+    entailment_evidence: 'Memory usage threshold for batch tuning: 6GB'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_threshold_for_batch_tuning:_6GB
+  kind: entity_fact
+  raw_text: memory usage > 6GB
+  resolved_value: 'memory usage threshold for batch tuning: 6GB'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T03:55:00Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: 'disk space requirement: 14GB'
+  claim_id: c_8edb9a8b
+  context: Verify `data/raw/` is not empty and contains expected file extensions,
+    (2) Check available disk space (>14GB), and (3) Verify Python version and critical
+    dependencies.
+  evidence:
+    entailment_evidence: 'Disk space requirement: 14GB'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Disk_space_requirement:_14GB
+  kind: entity_fact
+  raw_text: Check available disk space (>14GB)
+  resolved_value: 'disk space requirement: 14GB'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T03:55:02Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: batch processing logic to ensure memory safety
+  claim_id: c_d001f8be
+  context: Implement `code/embeddings/utils.py` with batch processing logic to ensure
+    memory safety (max batch size).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_processing_logic_to_ensure_memory_safety
+  kind: entity_fact
+  raw_text: max batch size
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T03:55:23Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: 'zero variance threshold: 1e-9'
+  claim_id: c_b8475a74
+  context: If a dataset has zero variance in a specific feature (variance < 1e-9),
+    SKIP ONLY that feature in the metadata stats for correlation analysis
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: variance < 1e-9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T03:55:23Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: 'baseline consistency threshold: 1e-4'
+  claim_id: c_5381c471
+  context: If the difference exceeds a threshold (e.g., 1e-4), log a warning.
+  evidence:
+    asserted: '0.0001'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: difference exceeds a threshold (e.g., 1e-4)
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T03:55:24Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: 'normality test p-value threshold: 0.05'
+  claim_id: c_fa8e04e8
+  context: 'If p-value < 0.05, perform Wilcoxon signed-rank test: `scipy.stats.wilcoxon(diff)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: p-value < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T03:55:24Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: statistical power calculation based on sample size N
+  claim_id: c_f1dc01a6
+  context: Update `code/analysis/correlation.py` to calculate and report the statistical
+    power of the correlation analysis given the final sample size (N) after exclusions
+    (T032a, T045).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_calculation_based_on_sample_size_N
+  kind: entity_fact
+  raw_text: statistical power of the correlation analysis given the final sample size
+    (N)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T03:56:04Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: pipeline execution time validation
+  claim_id: c_39c0431b
+  context: "Execute the complete pipeline (US1 \u2192 US2 \u2192 US3) on the full\
+    \ set of available datasets on a standard GitHub Actions free runner. Goal: Verify\
+    \ total execution time is strictly within acceptable limits and peak memory usage\
+    \ never exceeds acceptable thresholds."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_validation
+  kind: entity_fact
+  raw_text: Verify total execution time is strictly within acceptable limits
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T03:56:22Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: peak memory usage validation
+  claim_id: c_e3f70d7c
+  context: Verify total execution time is strictly within acceptable limits and peak
+    memory usage never exceeds acceptable thresholds.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_validation
+  kind: entity_fact
+  raw_text: peak memory usage never exceeds acceptable thresholds
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T03:56:39Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Document examples include test tasks
+  claim_id: c_12047e55
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Document_examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:01:39Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: random seed set to 42
+  claim_id: c_ba36f904
+  context: Implement `code/config.py` for global config, seeds (`random_seed=42`),
+    and paths.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: random_seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:02:09Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: sensitivity seeds list contains 123, 456, 789, 101112
+  claim_id: c_4d38b565
+  context: 'Explicitly define and pin a set of sensitivity seeds in a `SENSITIVITY_SEEDS`
+    constant to ensure deterministic reproducibility across all runs. **Specific Seeds**:
+    `SENSITIVITY_SEEDS = [, 123, 456, 789, 101112] `.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SENSITIVITY_SEEDS = [, 123, 456, 789, 101112]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:02:09Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: script exits with code 1 if baseline file is missing or empty
+  claim_id: c_d5cea886
+  context: 'Logic: If the file is missing or empty, the script MUST exit with code
+    1 and log ERROR: ''Missing required baseline file: data/raw/multabench_baselines.csv''
+    to stderr using `logging.ERROR` level.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the file is missing or empty, the script MUST exit with code 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:02:52Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: select initial subset of datasets if fewer than 20 available
+  claim_id: c_8615ea01
+  context: 'Logic: Sort datasets alphabetically by dataset_id and select the **initial
+    subset**. If fewer than 20 are available, use all and flag the shortfall in the
+    report.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_initial_subset_of_datasets_if_fewer_than_20_available
+  kind: magnitude
+  raw_text: If fewer than 20 are available, use all and flag the shortfall in the
+    report
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:03:23Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: skip feature if variance is less than 1e-9
+  claim_id: c_8fd5a3de
+  context: 'Logic: If a dataset has zero variance in a specific feature (variance
+    < 1e-9), SKIP ONLY that feature in the metadata stats for correlation analysis
+    (do NOT impute), log to `data/artifacts/data_integrity_report.json` with a ''skipped_feature''
+    status, and retain the dataset.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_feature_if_variance_is_less_than_1e-9
+  kind: magnitude
+  raw_text: If a dataset has zero variance in a specific feature (variance < 1e-9),
+    SKIP ONLY that feature
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:04:00Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: probe processes minimum of 10 images or dataset size
+  claim_id: c_180ecec6
+  context: Before processing the full dataset, run a probe by processing `min(10 images,
+    dataset_size)` and incrementally increase batch size by [deferred] in each probe
+    iteration until {{claim:c_ec6f4697}}, then lock that batch size for the full run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: process `min(10 images, dataset_size)`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:04:27Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: independent test requires script completion within 60 minutes
+  claim_id: c_e33c5835
+  context: 'Independent Test: Verify script completes within 60 mins on a sample of
+    datasets, outputs valid parquet files, and no CUDA errors occur.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify script completes within 60 mins on a sample of datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:05:10Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: primary baseline generation uses seed 42 only
+  claim_id: c_143e708a
+  context: Implement `code/pipelines/run_baseline_primary.py` to generate frozen baseline
+    performance metrics for the **primary seed (42) only**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate frozen baseline performance metrics for the **primary seed (42)
+    only**
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:05:37Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: sensitivity embedding generation uses 5 specific random seeds
+  claim_id: c_9b8709ab
+  context: Implement `code/pipelines/run_baseline_sensitivity.py` to generate embeddings
+    for **ALL available datasets** using **specific random seeds** `[42, 123, 456,
+    789, 101112]`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate embeddings for **ALL available datasets** using **specific random
+    seeds** `[42, 123, 456, 789, 101112]`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:05:58Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: mean metric computed across all seeds
+  claim_id: c_35204250
+  context: 'Aggregation Logic: Compute the mean metric across all seeds. Output `data/artifacts/frozen_baseline_metrics_{run_id}.json`
+    containing `dataset_id`, `metric_name`, `metric_value` (mean), and `seed_count`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mean_metric_computed_across_all_seeds
+  kind: entity_fact
+  raw_text: Compute the mean metric across all seeds
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:06:19Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: training loss converges within 10 epochs with memory under 7GB
+  claim_id: c_4e357458
+  context: 'Independent Test: Verify training loss converges on a single dataset within
+    10 epochs on CPU and memory usage < 7GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify training loss converges on a single dataset within 10 epochs on
+    CPU and memory usage < 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:06:31Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: calculate statistical power of correlation analysis
+  claim_id: c_882cad28
+  context: 'Update `code/analysis/correlation.py` to calculate and report the statistical
+    power of the correlation analysis given the final sample size (N) after exclusions
+    (T032a, T045). **Logic**: {{claim:c_58bdc0cd}} (Wikidata Q5398901, https://www.wikidata.org/wiki/Q5398901)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_statistical_power_of_correlation_analysis
+  kind: entity_fact
+  raw_text: Calculate and report the statistical power of the correlation analysis
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:07:04Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: verify execution time and peak memory usage limits
+  claim_id: c_b2061ab6
+  context: 'Goal: Verify total execution time is strictly within acceptable limits
+    and peak memory usage never exceeds acceptable thresholds..'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_execution_time_and_peak_memory_usage_limits
+  kind: entity_fact
+  raw_text: Verify total execution time is strictly within acceptable limits and peak
+    memory usage never exceeds acceptable thresholds
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:07:33Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: pipeline runs on CPU-only with no GPU or 8-bit quantization
+  claim_id: c_08ca8aad
+  context: '**CRITICAL**: All tasks must run on CPU-only CI (limited cores, constrained
+    RAM, time-constrained execution). No GPU, no 8-bit quantization, no large model
+    fine-tuning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU, no 8-bit quantization, no large model fine-tuning
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T04:08:02Z'

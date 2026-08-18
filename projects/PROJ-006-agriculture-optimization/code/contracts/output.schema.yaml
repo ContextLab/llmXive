@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Output Schema"
+description: "Schema for regression analysis results"
+type: object
+properties:
+  model_1_stability:
+    type: object
+    description: "Results for Model 1 (Stability_Score as dependent variable)"
+    properties:
+      coefficients:
+        type: object
+        additionalProperties:
+          type: number
+      p_values:
+        type: object
+        additionalProperties:
+          type: number
+      vif_scores:
+        type: object
+        additionalProperties:
+          type: number
+      cluster_se:
+        type: boolean
+        description: "Whether cluster-robust standard errors were used"
+  model_2_food_security:
+    type: object
+    description: "Results for Model 2 (HFIAS as dependent variable)"
+    properties:
+      coefficients:
+        type: object
+        additionalProperties:
+          type: number
+      p_values:
+        type: object
+        additionalProperties:
+          type: number
+      vif_scores:
+        type: object
+        additionalProperties:
+          type: number
+      cluster_se:
+        type: boolean
+  meta:
+    type: object
+    properties:
+      sample_size:
+        type: integer
+      bonferroni_alpha:
+        type: number
+        description: "Adjusted significance level"
+      timestamp:
+        type: string
+        format: date-time
+required:
+  - model_1_stability
+  - model_2_food_security
+  - meta

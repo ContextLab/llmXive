@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Dataset Schema"
+description: "Schema for the analysis-ready dataset combining survey and remote sensing data"
+type: object
+properties:
+  household_id:
+    type: string
+    description: "Unique identifier for the household"
+  village_id:
+    type: string
+    description: "Identifier for the village cluster"
+  country:
+    type: string
+    enum: ["Malawi", "Tanzania"]
+    description: "Country of the household"
+  latitude:
+    type: number
+    description: "Latitude coordinate"
+  longitude:
+    type: number
+    description: "Longitude coordinate"
+  CSA_Index:
+    type: number
+    description: "Composite index of Climate-Smart Agricultural practices adopted"
+  Stability_Score:
+    type: number
+    description: "Yield stability score (inverse of NDVI time-series CV)"
+  HFIAS:
+    type: number
+    description: "Household Food Insecurity Access Scale"
+  extension_visits:
+    type: integer
+    description: "Number of agricultural extension visits"
+  finance_access:
+    type: boolean
+    description: "Access to financial services"
+  land_size:
+    type: number
+    description: "Land size in hectares"
+  education:
+    type: number
+    description: "Years of education of head of household"
+  NDVI_mean:
+    type: number
+    description: "Mean NDVI from Sentinel-2 imagery"
+  survey_year:
+    type: integer
+    description: "Year of survey"
+required:
+  - household_id
+  - village_id
+  - country
+  - latitude
+  - longitude
+  - CSA_Index
+  - Stability_Score
+  - HFIAS

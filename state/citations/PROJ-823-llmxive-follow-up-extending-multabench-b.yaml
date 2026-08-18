@@ -31,7 +31,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-11T20:11:22.593068Z'
-- artifact_hash: 5c37da7baba3897933ff6b722338c89378b61c82e9305aa2091e0d00cc15eca6
+- artifact_hash: f35ba93d4982d21a9d5a6ae651beb985ab621c9fb7ea5d497c56d50c8c05a347
   artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://www.wikidata.org/wiki/Q5398901
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q5398901
-  verified_at: '2026-08-09T08:09:54.267803Z'
+  verified_at: '2026-08-18T04:08:02.279627Z'

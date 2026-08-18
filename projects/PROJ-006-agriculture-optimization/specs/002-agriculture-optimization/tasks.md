@@ -26,7 +26,7 @@
 
 - [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `contracts/`, `data/`)
 - [ ] T002 Create `src/utils/state_manager.py` to handle artifact hashing and update `state/projects/PROJ-006-agriculture-optimization.yaml` with content hashes for `data/raw/*` and `data/processed/*`.
-- [ ] T003 [P] Configure linting and formatting tools (black, flake8, isort) [UNRESOLVED-CLAIM: c_349a32c2 — status=not_enough_info] and `.gitignore`
+- [ ] T003 [P] Configure linting and formatting tools (black, flake8, isort) and `.gitignore`
 - [X] T004 Create `src/config/constants.py` with random seeds, paths, and cloud cover thresholds {0.6, 0.7, 0.8}
 - [X] T005 Create `src/config/schemas.py` for internal contract definitions
 - [X] T006 [P] Setup logging infrastructure in `src/utils/io_helpers.py`
@@ -60,14 +60,14 @@
 - [X] T014 [P] [US1] Write integration test skeleton for ingestion pipeline in `tests/integration/test_ingestion.py` (validates implementation of T015-T022).
 - [X] T015 [US1] [FR-001] Implement `src/data/collectors/survey_collector.py`. Specifics: Construct canonical World Bank microdata URL (Malawi/Tanzania), handle authentication, extract fields (`household_id`, `latitude`, `longitude`, `practice_*`, `extension_visits`, `finance_access`, `hlias`, `land_size`, `education`). **Include Region Selection Logic**: Resolve specific country and generate URL. **Include Caching Logic**: Check local storage, verify checksums against cache manifest, download only if missing/mismatch. Log download errors.
 - [X] T016 [US1] Implement `src/data/collectors/remote_sensing_collector.py` to fetch Sentinel-2 L2A (S2MSI2A) imagery from the Copernicus Data Space Ecosystem API. Specifics: Use `requests` with OAuth2, filter by `cloud_cover < 0.8`, download granules covering survey coordinates.
-- [ ] T017 [US1] Implement `src/data/processing/spatial_join.py` to link household coordinates to satellite pixels. Specifics: Apply a **spatial buffer** (fuzzing logic) around household coordinates to handle LSMS-ISA privacy fuzzing. Use `geopandas.sjoin` or `rasterio` to extract mean NDVI for the buffer area.
-- [ ] T017a [US1] Implement verification step in `src/data/processing/spatial_join.py` to calculate and log the percentage of households successfully joined. **Logic**: If linkage < 95% OR N < 300, immediately invoke the aggregation routine defined in T021 to trigger village-level aggregation. Log `MISSING_SATELLITE_DATA` for excluded regions.
+- [X] T017 [US1] Implement `src/data/processing/spatial_join.py` to link household coordinates to satellite pixels. Specifics: Apply a **spatial buffer** (fuzzing logic) around household coordinates to handle LSMS-ISA privacy fuzzing. Use `geopandas.sjoin` or `rasterio` to extract mean NDVI for the buffer area.
+- [X] T017a [US1] Implement verification step in `src/data/processing/spatial_join.py` to calculate and log the percentage of households successfully joined. **Logic**: If linkage < 95% OR N < 300, immediately invoke the aggregation routine defined in T021 to trigger village-level aggregation. Log `MISSING_SATELLITE_DATA` for excluded regions.
 - [ ] T018 [US1] Implement `src/data/processing/feature_engineering.py` to construct CSA_Index and Stability_Score. **Logic**: Map `survey_year` + `country` to growing season months; calculate NDVI time-series CV; compute Stability_Score (1/CV); sum binary practice indicators for CSA Index. **Ensure** `village_id` is derived or retained in the output dataset for clustering. **Validate** CSA Index construction against the "survey data schema definition" documented in `data-model.md` (not just the derived contract).
 - [ ] T019 [US1] Implement `src/cli/run_pipeline.py` to orchestrate ingestion, joining, and feature engineering, ensuring it is parameterized for sensitivity analysis sweeps.
 - [ ] T010a [US1] Implement integration wiring in `src/cli/run_pipeline.py` to enforce T010's 'fail loudly' behavior (prerequisite: T010): check for `--synthetic` flag before calling collectors; if missing and real data absent, ensure T010's synthetic generator is called automatically, not a manual error.
 - [ ] T020 [US1] Add error handling for missing coordinates and log exclusions to `data/logs/ingestion_errors.log`.
-- [ ] T021 [US1] Implement village-level aggregation fallback in `src/data/processing/feature_engineering.py` with explicit conditional logic: If triggered by T017a, aggregate to village level using 'village_id' as key and 'mean' as function for CSA_Index and Stability_Score.
-- [ ] T021a [US1] Implement verification step in `src/data/processing/feature_engineering.py` to confirm that the aggregated dataset meets statistical power requirements: verify effective sample size >= 300 [UNRESOLVED-CLAIM: c_96574102 — status=not_enough_info].
+- [ ] T021 [US1] Implement village-level aggregation fallback in `src/data/processing/feature_engineering.py` with explicit conditional logic: If triggered by T017a, aggregate to village level using 'village_id' as key and 'mean' as function for CSA_Index and Stability_Score. [UNRESOLVED-CLAIM: c_28dfe1dd — status=not_enough_info]
+- [ ] T021a [US1] Implement verification step in `src/data/processing/feature_engineering.py` to confirm that the aggregated dataset meets statistical power requirements: verify effective sample size >= 300 [UNRESOLVED-CLAIM: c_e5b278cc — status=not_enough_info].
 - [ ] T022 [US1] Generate `data/processed/analysis_dataset.csv` and validate against schema.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -84,7 +84,7 @@
 
 - [ ] T023 [P] [US2] Write contract test skeleton for regression output in `tests/contract/test_regression_output.py` (TDD).
 - [ ] T024 [P] [US2] Write integration test skeleton for model execution in `tests/integration/test_regression.py` (validates T025).
-- [ ] T025 [US2] Implement `src/analysis/run_regression.py` to fit Model 1 (Stability_Score) and Model 2 (HFIAS) using statsmodels. **Requirements**: Use Cluster-Robust Standard Errors (clustered by `village_id`) for heteroskedasticity and spatial autocorrelation. Calculate VIF scores for all predictors and flag VIF > 5. Apply Bonferroni correction (alpha=0.0167) [UNRESOLVED-CLAIM: c_03c2c647 — status=not_enough_info]. Output initial results to `data/processed/regression_results.json`.
+- [ ] T025 [US2] Implement `src/analysis/run_regression.py` to fit Model 1 (Stability_Score) and Model 2 (HFIAS) using statsmodels. **Requirements**: Use Cluster-Robust Standard Errors (clustered by `village_id`) for heteroskedasticity and spatial autocorrelation. Calculate VIF scores for all predictors and {{claim:c_0b367ab0}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917). Apply Bonferroni correction (alpha=0.0167). [UNRESOLVED-CLAIM: c_adef09aa — status=not_enough_info] Output initial results to `data/processed/regression_results.json`.
 - [ ] T026 [US2] Generate regression summary tables including coefficients, p-values, and VIF scores in `data/processed/regression_results.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -141,7 +141,7 @@
 - [ ] T051 [P] **Filesystem Hygiene Check**: Verify all files are in correct locations per `plan.md` (e.g., `specs/001-climate-smart-eval/` for specs, `src/` for code, `contracts/` for schemas).
 - [ ] T052 [P] **Data Provenance Documentation**: Create `data/raw/.provenance.yaml` documenting source URLs, download timestamps, API versions, and license/attribution for all raw data.
 - [ ] T053a [P] **Create Data Model Document**: Generate `data-model.md` with variable definitions and schema details.
-- [ ] T053b [P] **Sample Size Justification**: Add power analysis or sample-size justification in `data-model.md` for the target N > 1000 (or village aggregation logic) [UNRESOLVED-CLAIM: c_a7a3032d — status=not_enough_info].
+- [ ] T053b [P] **Sample Size Justification**: Add power analysis or sample-size justification in `data-model.md` for the target N > 1000 [UNRESOLVED-CLAIM: c_96171177 — status=not_enough_info] (or village aggregation logic).
 - [ ] T054 [P] **Missing Data Strategy**: Document missing value imputation and outlier detection strategies in `data-model.md` and implement in `src/data/processing/`.
 - [ ] T055 [P] **Final Verification**: Re-run all integration tests against the newly generated artifacts to confirm the pipeline is reproducible from a clean checkout.
 

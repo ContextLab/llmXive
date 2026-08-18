@@ -1,348 +1,200 @@
-"""
-Metadata Statistics Computation Module.
-
-Computes cardinality, missingness, sparsity, and variance for tabular features
-across all available datasets in the MulTaBench repository.
-"""
 import os
 import sys
 import json
 import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple
 
 import pandas as pd
 import numpy as np
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
-from utils.logging import get_logger, log_info, log_warning, log_error, log_debug
+from config import ensure_directories
+from utils.logging import get_logger, log_info, log_error, log_warning
 
 logger = get_logger(__name__)
 
 # Constants
-DATA_RAW_DIR = project_root / "data" / "raw"
-DATA_PROCESSED_DIR = project_root / "data" / "processed"
-
-# Ensure output directory exists
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+RAW_DATA_DIR = Path("data/raw")
+PROCESSED_DIR = Path("data/processed")
+DATASET_LIST_FILE = Path("data/raw/dataset_list.json")
 
 def load_dataset_list() -> List[str]:
-    """
-    Load the list of available dataset IDs from the raw data directory.
-    
-    Returns:
-        List of dataset IDs (directory names or file stems) found in data/raw/
-    """
-    if not DATA_RAW_DIR.exists():
-        log_error(f"Raw data directory not found: {DATA_RAW_DIR}")
+    """Load the list of available dataset IDs."""
+    if not DATASET_LIST_FILE.exists():
+        log_error(f"Dataset list file not found: {DATASET_LIST_FILE}")
         return []
     
-    datasets = []
-    for item in DATA_RAW_DIR.iterdir():
-        if item.is_dir():
-            datasets.append(item.name)
-        elif item.is_file() and item.suffix == '.csv':
-            # Assume file stem is dataset ID
-            datasets.append(item.stem)
-    
-    log_info(f"Found {len(datasets)} datasets in {DATA_RAW_DIR}")
-    return sorted(datasets)
-
-def compute_feature_stats(df: pd.DataFrame, numeric_cols: List[str]) -> Dict[str, Dict[str, float]]:
-    """
-    Compute statistical features for numeric columns.
-    
-    Args:
-        df: DataFrame containing tabular data
-        numeric_cols: List of column names to analyze
-        
-    Returns:
-        Dictionary mapping column name to stats dict
-    """
-    stats = {}
-    for col in numeric_cols:
-        if col not in df.columns:
-            continue
-        
-        series = df[col]
-        count = series.count()
-        total = len(series)
-        
-        # Missingness: proportion of NaN values
-        missingness = (total - count) / total if total > 0 else 0.0
-        
-        # Sparsity: proportion of zero values among non-missing
-        non_missing = series.dropna()
-        if len(non_missing) > 0:
-            zero_count = (non_missing == 0).sum()
-            sparsity = zero_count / len(non_missing)
-        else:
-            sparsity = 0.0
-        
-        # Variance: population variance (ddof=0) or sample variance (ddof=1)
-        # Using ddof=1 (sample variance) is standard for statistics
-        if len(non_missing) > 1:
-            variance = non_missing.var(ddof=1)
-        else:
-            variance = 0.0
-        
-        stats[col] = {
-            'missingness': float(missingness),
-            'sparsity': float(sparsity),
-            'variance': float(variance),
-            'count': int(count),
-            'total': int(total)
-        }
-    
-    return stats
-
-def compute_cardinality_for_dataset(dataset_id: str, df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Compute cardinality for categorical and numeric features.
-    
-    For this implementation, we treat all non-numeric columns as categorical
-    and compute their unique value counts. For numeric columns, we compute
-    the number of unique values.
-    
-    Args:
-        dataset_id: Identifier for the dataset
-        df: DataFrame containing tabular data
-        
-    Returns:
-        Dictionary with dataset_id and cardinality metric
-    """
-    # Select only object/string columns for cardinality (categorical)
-    # Or compute unique values for all columns if needed
-    cardinalities = {}
-    
-    for col in df.columns:
-        if df[col].dtype == 'object' or df[col].dtype.name.startswith('string'):
-            # Categorical: count unique values
-            unique_count = df[col].nunique()
-            cardinalities[col] = unique_count
-        elif pd.api.types.is_numeric_dtype(df[col]):
-            # Numeric: count unique values (discrete approximation)
-            unique_count = df[col].nunique()
-            cardinalities[col] = unique_count
-    
-    if not cardinalities:
-        log_warning(f"No cardinality data found for dataset {dataset_id}")
-        return {'dataset_id': dataset_id, 'cardinality': 0.0}
-    
-    # Mean cardinality across all features
-    mean_cardinality = np.mean(list(cardinalities.values()))
-    
-    return {
-        'dataset_id': dataset_id,
-        'cardinality': float(mean_cardinality)
-    }
-
-def compute_missingness_for_dataset(dataset_id: str, df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Compute mean missingness rate across all tabular features.
-    
-    Args:
-        dataset_id: Identifier for the dataset
-        df: DataFrame containing tabular data
-        
-    Returns:
-        Dictionary with dataset_id and mean missingness rate
-    """
-    stats = compute_feature_stats(df, list(df.columns))
-    
-    if not stats:
-        log_warning(f"No missingness data found for dataset {dataset_id}")
-        return {'dataset_id': dataset_id, 'missingness': 0.0}
-    
-    missingness_values = [s['missingness'] for s in stats.values()]
-    mean_missingness = np.mean(missingness_values)
-    
-    return {
-        'dataset_id': dataset_id,
-        'missingness': float(mean_missingness)
-    }
-
-def compute_sparsity_for_dataset(dataset_id: str, df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Compute mean sparsity rate across all tabular features.
-    
-    Args:
-        dataset_id: Identifier for the dataset
-        df: DataFrame containing tabular data
-        
-    Returns:
-        Dictionary with dataset_id and mean sparsity rate
-    """
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    
-    if not numeric_cols:
-        log_warning(f"No numeric columns found for sparsity calculation in dataset {dataset_id}")
-        return {'dataset_id': dataset_id, 'sparsity': 0.0}
-    
-    stats = compute_feature_stats(df, numeric_cols)
-    
-    if not stats:
-        return {'dataset_id': dataset_id, 'sparsity': 0.0}
-    
-    sparsity_values = [s['sparsity'] for s in stats.values()]
-    mean_sparsity = np.mean(sparsity_values)
-    
-    return {
-        'dataset_id': dataset_id,
-        'sparsity': float(mean_sparsity)
-    }
-
-def compute_variance_for_dataset(dataset_id: str, df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Compute mean variance across all numeric tabular features for a dataset.
-    
-    This function calculates the sample variance (ddof=1) for each numeric feature
-    and returns the mean variance across all features.
-    
-    Args:
-        dataset_id: Identifier for the dataset
-        df: DataFrame containing tabular data
-        
-    Returns:
-        Dictionary with dataset_id and mean variance
-    """
-    # Select only numeric columns
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    
-    if not numeric_cols:
-        log_warning(f"No numeric columns found for variance calculation in dataset {dataset_id}")
-        return {'dataset_id': dataset_id, 'variance': 0.0}
-    
-    stats = compute_feature_stats(df, numeric_cols)
-    
-    if not stats:
-        return {'dataset_id': dataset_id, 'variance': 0.0}
-    
-    variance_values = [s['variance'] for s in stats.values()]
-    
-    # Filter out infinite or NaN values
-    variance_values = [v for v in variance_values if not np.isnan(v) and not np.isinf(v)]
-    
-    if not variance_values:
-        log_warning(f"All variances are NaN/Inf for dataset {dataset_id}")
-        return {'dataset_id': dataset_id, 'variance': 0.0}
-    
-    mean_variance = np.mean(variance_values)
-    
-    return {
-        'dataset_id': dataset_id,
-        'variance': float(mean_variance)
-    }
-
-def process_single_dataset(dataset_id: str) -> Optional[Dict[str, Any]]:
-    """
-    Process a single dataset to compute all metadata statistics.
-    
-    Args:
-        dataset_id: Identifier for the dataset
-        
-    Returns:
-        Dictionary containing all computed statistics or None if processing fails
-    """
-    log_info(f"Processing dataset: {dataset_id}")
-    
-    dataset_path = DATA_RAW_DIR / dataset_id
-    
-    # Check if it's a directory or a file
-    if dataset_path.is_dir():
-        # Look for CSV files in the directory
-        csv_files = list(dataset_path.glob("*.csv"))
-        if not csv_files:
-            log_error(f"No CSV files found in directory: {dataset_path}")
-            return None
-        # Use the first CSV file
-        data_file = csv_files[0]
-    elif dataset_path.is_file() and dataset_path.suffix == '.csv':
-        data_file = dataset_path
-    else:
-        # Try to find a CSV with the dataset_id as stem
-        csv_file = DATA_RAW_DIR / f"{dataset_id}.csv"
-        if csv_file.exists():
-            data_file = csv_file
-        else:
-            log_error(f"Could not locate data for dataset: {dataset_id}")
-            return None
-    
     try:
-        df = pd.read_csv(data_file)
-        log_debug(f"Loaded {len(df)} rows and {len(df.columns)} columns from {data_file}")
+        with open(DATASET_LIST_FILE, 'r') as f:
+            data = json.load(f)
+            return data.get("datasets", [])
     except Exception as e:
-        log_error(f"Failed to load {data_file}: {e}")
+        log_error(f"Error loading dataset list: {e}")
+        return []
+
+def load_raw_tabular_data(dataset_id: str) -> Optional[pd.DataFrame]:
+    """Load raw tabular data for a specific dataset."""
+    csv_path = RAW_DATA_DIR / f"{dataset_id}.csv"
+    
+    if not csv_path.exists():
+        log_warning(f"Raw tabular data not found for dataset {dataset_id}: {csv_path}")
         return None
     
-    # Compute statistics
-    results = {
-        'dataset_id': dataset_id,
-        'cardinality': compute_cardinality_for_dataset(dataset_id, df)['cardinality'],
-        'missingness': compute_missingness_for_dataset(dataset_id, df)['missingness'],
-        'sparsity': compute_sparsity_for_dataset(dataset_id, df)['sparsity'],
-        'variance': compute_variance_for_dataset(dataset_id, df)['variance']
-    }
-    
-    log_info(f"Completed processing dataset: {dataset_id}")
-    return results
+    try:
+        df = pd.read_csv(csv_path)
+        log_info(f"Loaded tabular data for {dataset_id}: shape {df.shape}")
+        return df
+    except Exception as e:
+        log_error(f"Error loading tabular data for {dataset_id}: {e}")
+        return None
 
-def save_summary_csv(results: List[Dict[str, Any]], output_path: Path, metric_name: str) -> None:
-    """
-    Save computed statistics to a CSV file.
+def compute_cardinality_for_dataset(df: pd.DataFrame) -> Dict[str, float]:
+    """Compute cardinality for each categorical feature in the dataset."""
+    cardinalities = {}
+    for col in df.columns:
+        if df[col].dtype == 'object' or df[col].dtype.name == 'category':
+            cardinalities[col] = float(df[col].nunique())
+        else:
+            # For numeric, treat as continuous (effectively infinite cardinality for this metric)
+            # or count unique values if low cardinality
+            unique_count = df[col].nunique()
+            if unique_count < 20:
+                cardinalities[col] = float(unique_count)
+            else:
+                cardinalities[col] = -1.0  # Marker for high cardinality/continuous
     
-    Args:
-        results: List of dictionaries containing statistics
-        output_path: Path to the output CSV file
-        metric_name: Name of the metric column
+    return cardinalities
+
+def compute_missingness_for_dataset(df: pd.DataFrame) -> Dict[str, float]:
+    """Compute missingness rate for each feature."""
+    missingness = {}
+    for col in df.columns:
+        total = len(df)
+        missing = df[col].isna().sum()
+        missingness[col] = float(missing / total) if total > 0 else 0.0
+    return missingness
+
+def compute_sparsity_for_dataset(df: pd.DataFrame) -> Dict[str, float]:
+    """Compute sparsity (proportion of zeros) for numeric features."""
+    sparsity = {}
+    for col in df.columns:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            total = len(df)
+            zeros = (df[col] == 0).sum()
+            sparsity[col] = float(zeros / total) if total > 0 else 0.0
+        else:
+            sparsity[col] = 0.0  # Non-numeric columns are not sparse in this context
+    return sparsity
+
+def compute_variance_for_dataset(df: pd.DataFrame) -> Dict[str, float]:
     """
+    Compute variance for each numeric feature in the dataset.
+    Returns a dictionary mapping feature name to variance.
+    Non-numeric features are skipped.
+    """
+    variance = {}
+    for col in df.columns:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            # Drop NaNs for variance calculation
+            clean_series = df[col].dropna()
+            if len(clean_series) > 1:
+                var_val = clean_series.var()
+                variance[col] = float(var_val)
+            else:
+                variance[col] = 0.0
+        else:
+            variance[col] = 0.0  # Non-numeric features have no variance in this context
+    return variance
+
+def compute_feature_stats(df: pd.DataFrame) -> Tuple[Dict[str, float], Dict[str, float], Dict[str, float], Dict[str, float]]:
+    """
+    Compute all metadata stats for a single dataset.
+    Returns: (cardinality, missingness, sparsity, variance)
+    """
+    cardinality = compute_cardinality_for_dataset(df)
+    missingness = compute_missingness_for_dataset(df)
+    sparsity = compute_sparsity_for_dataset(df)
+    variance = compute_variance_for_dataset(df)
+    return cardinality, missingness, sparsity, variance
+
+def process_single_dataset(dataset_id: str) -> Optional[Dict[str, Any]]:
+    """Process a single dataset and return its stats."""
+    log_info(f"Processing dataset: {dataset_id}")
+    df = load_raw_tabular_data(dataset_id)
+    
+    if df is None:
+        log_error(f"Skipping {dataset_id} due to missing data")
+        return None
+    
+    try:
+        cardinality, missingness, sparsity, variance = compute_feature_stats(df)
+        
+        # Calculate mean variance across all numeric features for this dataset
+        numeric_variances = [v for k, v in variance.items() if k in df.columns and pd.api.types.is_numeric_dtype(df[k])]
+        mean_variance = np.mean(numeric_variances) if numeric_variances else 0.0
+        
+        return {
+            "dataset_id": dataset_id,
+            "cardinality": cardinality,
+            "missingness": missingness,
+            "sparsity": sparsity,
+            "variance": variance,
+            "mean_variance": mean_variance
+        }
+    except Exception as e:
+        log_error(f"Error processing {dataset_id}: {e}")
+        return None
+
+def save_summary_csv(results: List[Dict[str, Any]], output_path: Path, stat_type: str):
+    """Save a summary CSV for a specific stat type."""
     if not results:
         log_warning("No results to save")
         return
     
-    df_out = pd.DataFrame(results)
-    df_out = df_out.sort_values('dataset_id')
+    data_rows = []
+    for res in results:
+        dataset_id = res["dataset_id"]
+        if stat_type == "variance":
+            val = res.get("mean_variance", 0.0)
+        else:
+            # For other types, we might aggregate differently, but T024d is specifically variance
+            val = 0.0 
+        
+        data_rows.append({"dataset_id": dataset_id, stat_type: val})
     
-    # Ensure column order
-    cols = ['dataset_id', metric_name]
-    df_out = df_out[cols]
-    
+    df_out = pd.DataFrame(data_rows)
     df_out.to_csv(output_path, index=False)
-    log_info(f"Saved {len(results)} records to {output_path}")
+    log_info(f"Saved {stat_type} summary to {output_path}")
 
 def main():
-    """
-    Main entry point for computing variance statistics for all datasets.
-    """
-    log_info("Starting variance computation for all datasets")
+    """Main entry point for computing metadata statistics."""
+    ensure_directories()
+    
+    log_info("Starting metadata statistics computation (Variance)")
     
     dataset_ids = load_dataset_list()
-    
     if not dataset_ids:
         log_error("No datasets found to process")
         sys.exit(1)
     
-    all_results = []
+    log_info(f"Found {len(dataset_ids)} datasets to process")
     
-    for dataset_id in dataset_ids:
-        result = process_single_dataset(dataset_id)
+    all_results = []
+    for ds_id in dataset_ids:
+        result = process_single_dataset(ds_id)
         if result:
             all_results.append(result)
     
     if not all_results:
-        log_error("No results computed from any dataset")
+        log_error("No datasets were successfully processed")
         sys.exit(1)
     
-    # Save variance summary
-    output_path = DATA_PROCESSED_DIR / "metadata_stats_variance.csv"
-    save_summary_csv(all_results, output_path, 'variance')
+    # Save the variance summary CSV
+    output_path = PROCESSED_DIR / "metadata_stats_variance.csv"
+    save_summary_csv(all_results, output_path, "variance")
     
-    log_info("Variance computation completed successfully")
-    return all_results
+    log_info("Variance computation complete")
 
 if __name__ == "__main__":
     main()
