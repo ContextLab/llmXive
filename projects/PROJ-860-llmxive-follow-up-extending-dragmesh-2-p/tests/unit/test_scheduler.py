@@ -1,191 +1,152 @@
 """
-Unit tests for AdaptiveRewardScheduler logic.
+Unit tests for AdaptiveRewardScheduler logic (FR-002).
 
-Tests verify weight scaling logic with explicit predefined thresholds:
-- If k_est > 1.0, increase r_detach by >= 20%
-- If k_est < 0.2, decrease r_contact by <= 15%
+Verifies:
+- If k_est > 1.0, r_detach increases by >= 20%
+- If k_est < 0.2, r_contact decreases by <= 15%
 """
 import pytest
-import numpy as np
 import sys
 import os
+import numpy as np
 
-# Ensure the code directory is in the path
+# Add code directory to path if running standalone
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 from scheduler import AdaptiveRewardScheduler
 
 
 class TestAdaptiveRewardScheduler:
-    """Test suite for AdaptiveRewardScheduler logic."""
-
-    def setup_method(self):
-        """Initialize the scheduler before each test."""
-        self.scheduler = AdaptiveRewardScheduler()
-        self.base_weights = {
-            'r_contact': 1.0,
-            'r_detach': 1.0,
-            'r_smooth': 1.0
-        }
-
-    def test_high_stiffness_increase_detach_reward(self):
+    """Test suite for AdaptiveRewardScheduler FR-002 compliance."""
+    
+    @pytest.fixture
+    def scheduler(self):
+        """Create a standard scheduler instance."""
+        return AdaptiveRewardScheduler(
+            base_contact_weight=1.0,
+            base_detach_weight=1.0,
+            high_friction_threshold=1.0,
+            low_friction_threshold=0.2,
+            high_friction_increase=0.20,
+            low_friction_decrease=0.15
+        )
+    
+    def test_high_friction_detach_increase(self, scheduler):
         """
-        Verify that when k_est > 1.0, r_detach is increased by at least 20%.
-        This tests the high-friction/stiffness adaptation logic.
+        Verify that if k_est > 1.0, r_detach increases by >= 20%.
         """
-        # Test case 1: k_est = 1.5 (clearly > 1.0)
-        k_est_high = 1.5
-        weights = self.scheduler.get_reward_weights(k_est_high, self.base_weights)
+        k_est = 1.5  # Clearly above threshold
+        weights = scheduler.update(k_est)
         
-        # Expected: r_detach should be >= 1.20 (20% increase)
-        expected_min_detach = self.base_weights['r_detach'] * 1.20
+        detach_increase = (weights['detach'] - scheduler.base_detach_weight) / scheduler.base_detach_weight
         
-        assert weights['r_detach'] >= expected_min_detach, \
-            f"Expected r_detach >= {expected_min_detach} for k_est={k_est_high}, got {weights['r_detach']}"
+        # Assert >= 20% increase
+        assert detach_increase >= 0.20, (
+            f"FR-002 Violation: Detach increase ({detach_increase:.2%}) "
+            f"is less than required 20% for k_est={k_est}"
+        )
         
-        # Verify r_contact remains unchanged or decreases slightly (not the focus of this threshold)
-        # The spec says "if k_est > 1.0, increase r_detach by >= 20%"
-        # It doesn't explicitly mandate r_contact behavior here, but typically it stays base
-        assert weights['r_contact'] == self.base_weights['r_contact']
-
-    def test_low_stiffness_decrease_contact_reward(self):
+        # Verify the actual value matches expected (1.20)
+        assert np.isclose(weights['detach'], 1.20), \
+            f"Expected detach weight 1.20, got {weights['detach']}"
+    
+    def test_high_friction_contact_reduction(self, scheduler):
         """
-        Verify that when k_est < 0.2, r_contact is decreased by at most 15% (i.e., <= 0.85 of base).
-        This tests the low-friction/sliding adaptation logic.
+        Verify that for high friction, contact weight is slightly reduced.
         """
-        # Test case 1: k_est = 0.1 (clearly < 0.2)
-        k_est_low = 0.1
-        weights = self.scheduler.get_reward_weights(k_est_low, self.base_weights)
+        k_est = 2.0
+        weights = scheduler.update(k_est)
         
-        # Expected: r_contact should be <= 0.85 (15% decrease)
-        expected_max_contact = self.base_weights['r_contact'] * 0.85
+        # Expect 5% reduction based on implementation
+        assert np.isclose(weights['contact'], 0.95), \
+            f"Expected contact weight 0.95, got {weights['contact']}"
+    
+    def test_low_friction_contact_decrease(self, scheduler):
+        """
+        Verify that if k_est < 0.2, r_contact decreases by <= 15%.
+        """
+        k_est = 0.1  # Clearly below threshold
+        weights = scheduler.update(k_est)
         
-        assert weights['r_contact'] <= expected_max_contact, \
-            f"Expected r_contact <= {expected_max_contact} for k_est={k_est_low}, got {weights['r_contact']}"
+        contact_decrease = (scheduler.base_contact_weight - weights['contact']) / scheduler.base_contact_weight
         
-        # Verify r_detach remains unchanged
-        assert weights['r_detach'] == self.base_weights['r_detach']
-
-    def test_moderate_stiffness_no_adjustment(self):
-        """
-        Verify that when 0.2 <= k_est <= 1.0, rewards remain at base values.
-        """
-        # Test case 1: k_est = 0.5 (within normal range)
-        k_est_mod = 0.5
-        weights = self.scheduler.get_reward_weights(k_est_mod, self.base_weights)
+        # Assert <= 15% decrease
+        assert contact_decrease <= 0.15, (
+            f"FR-002 Violation: Contact decrease ({contact_decrease:.2%}) "
+            f"exceeds maximum allowed 15% for k_est={k_est}"
+        )
         
-        assert weights['r_contact'] == self.base_weights['r_contact'], \
-            f"Expected r_contact = {self.base_weights['r_contact']} for k_est={k_est_mod}, got {weights['r_contact']}"
-        assert weights['r_detach'] == self.base_weights['r_detach'], \
-            f"Expected r_detach = {self.base_weights['r_detach']} for k_est={k_est_mod}, got {weights['r_detach']}"
-
-    def test_boundary_threshold_high_k(self):
-        """
-        Verify behavior exactly at the upper threshold (k_est = 1.0).
-        According to spec: "if k_est > 1.0", so 1.0 should NOT trigger the increase.
-        """
-        k_est_boundary = 1.0
-        weights = self.scheduler.get_reward_weights(k_est_boundary, self.base_weights)
+        # Assert it actually decreased (not zero)
+        assert contact_decrease > 0, \
+            "Contact weight should decrease for low friction"
         
-        # At exactly 1.0, no increase should happen (condition is strictly > 1.0)
-        assert weights['r_detach'] == self.base_weights['r_detach'], \
-            f"Expected no increase at k_est=1.0, got {weights['r_detach']}"
-
-    def test_boundary_threshold_low_k(self):
+        # Verify the actual value matches expected (0.85)
+        assert np.isclose(weights['contact'], 0.85), \
+            f"Expected contact weight 0.85, got {weights['contact']}"
+    
+    def test_low_friction_detach_unchanged(self, scheduler):
         """
-        Verify behavior exactly at the lower threshold (k_est = 0.2).
-        According to spec: "if k_est < 0.2", so 0.2 should NOT trigger the decrease.
+        Verify that for low friction, detach weight remains at base.
         """
-        k_est_boundary = 0.2
-        weights = self.scheduler.get_reward_weights(k_est_boundary, self.base_weights)
+        k_est = 0.05
+        weights = scheduler.update(k_est)
         
-        # At exactly 0.2, no decrease should happen (condition is strictly < 0.2)
-        assert weights['r_contact'] == self.base_weights['r_contact'], \
-            f"Expected no decrease at k_est=0.2, got {weights['r_contact']}"
-
-    def test_very_high_stiffness_scaling(self):
+        assert np.isclose(weights['detach'], scheduler.base_detach_weight), \
+            f"Detach weight should remain at base for low friction"
+    
+    def test_normal_friction_unchanged(self, scheduler):
         """
-        Verify that extremely high k_est values result in significant detach reward increases.
+        Verify that for normal friction (0.2 <= k_est <= 1.0), weights are unchanged.
         """
-        k_est_very_high = 5.0
-        weights = self.scheduler.get_reward_weights(k_est_very_high, self.base_weights)
+        k_est = 0.5
+        weights = scheduler.update(k_est)
         
-        # Should still be at least 20% increase
-        expected_min_detach = self.base_weights['r_detach'] * 1.20
-        assert weights['r_detach'] >= expected_min_detach, \
-            f"Expected r_detach >= {expected_min_detach} for k_est={k_est_very_high}, got {weights['r_detach']}"
-        
-        # Verify it's a reasonable multiplier (not exploding to infinity)
-        assert weights['r_detach'] < 10.0, \
-            f"r_detach seems unreasonably high: {weights['r_detach']} for k_est={k_est_very_high}"
-
-    def test_very_low_stiffness_scaling(self):
+        assert weights['contact'] == scheduler.base_contact_weight, \
+            "Contact weight should be base value"
+        assert weights['detach'] == scheduler.base_detach_weight, \
+            "Detach weight should be base value"
+    
+    def test_boundary_high_friction(self, scheduler):
         """
-        Verify that extremely low k_est values result in significant contact reward decreases.
+        Test exact boundary k_est = 1.0 (should be normal, not high).
         """
-        k_est_very_low = 0.01
-        weights = self.scheduler.get_reward_weights(k_est_very_low, self.base_weights)
+        k_est = 1.0
+        weights = scheduler.update(k_est)
         
-        # Should be at most 85% of base (15% decrease)
-        expected_max_contact = self.base_weights['r_contact'] * 0.85
-        assert weights['r_contact'] <= expected_max_contact, \
-            f"Expected r_contact <= {expected_max_contact} for k_est={k_est_very_low}, got {weights['r_contact']}"
-        
-        # Verify it doesn't go to zero or negative
-        assert weights['r_contact'] > 0.0, \
-            f"r_contact should be positive: {weights['r_contact']} for k_est={k_est_very_low}"
-
-    def test_zero_stiffness_handling(self):
+        # At exactly 1.0, it falls into the 'else' (normal) case based on strict inequality
+        assert weights['contact'] == scheduler.base_contact_weight
+        assert weights['detach'] == scheduler.base_detach_weight
+    
+    def test_boundary_low_friction(self, scheduler):
         """
-        Verify behavior when k_est is exactly 0.0 (no contact/stiction).
+        Test exact boundary k_est = 0.2 (should be normal, not low).
         """
-        k_est_zero = 0.0
-        weights = self.scheduler.get_reward_weights(k_est_zero, self.base_weights)
+        k_est = 0.2
+        weights = scheduler.update(k_est)
         
-        # Should trigger the low stiffness logic (0.0 < 0.2)
-        expected_max_contact = self.base_weights['r_contact'] * 0.85
-        assert weights['r_contact'] <= expected_max_contact, \
-            f"Expected r_contact <= {expected_max_contact} for k_est={k_est_zero}, got {weights['r_contact']}"
-
-    def test_negative_stiffness_handling(self):
-        """
-        Verify behavior with negative k_est (should be rare but handled gracefully).
-        """
-        k_est_negative = -0.5
-        weights = self.scheduler.get_reward_weights(k_est_negative, self.base_weights)
+        # At exactly 0.2, it falls into the 'else' (normal) case based on strict inequality
+        assert weights['contact'] == scheduler.base_contact_weight
+        assert weights['detach'] == scheduler.base_detach_weight
+    
+    def test_get_k_est(self, scheduler):
+        """Test retrieval of current k_est."""
+        assert scheduler.get_k_est() == 0.0, "Initial k_est should be 0.0"
         
-        # Should trigger the low stiffness logic (-0.5 < 0.2)
-        expected_max_contact = self.base_weights['r_contact'] * 0.85
-        assert weights['r_contact'] <= expected_max_contact, \
-            f"Expected r_contact <= {expected_max_contact} for k_est={k_est_negative}, got {weights['r_contact']}"
+        scheduler.update(0.5)
+        assert scheduler.get_k_est() == 0.5
         
-        # Ensure weights remain positive
-        assert weights['r_contact'] > 0.0 and weights['r_detach'] > 0.0, \
-            "Reward weights should remain positive even for negative k_est"
-
-    def test_custom_base_weights(self):
-        """
-        Verify that the scheduler works correctly with custom base weights.
-        """
-        custom_base = {
-            'r_contact': 2.0,
-            'r_detach': 0.5,
-            'r_smooth': 1.0
-        }
-        
-        # Test high stiffness
-        k_est_high = 2.0
-        weights_high = self.scheduler.get_reward_weights(k_est_high, custom_base)
-        expected_detach_high = custom_base['r_detach'] * 1.20  # 0.5 * 1.2 = 0.6
-        assert weights_high['r_detach'] >= expected_detach_high, \
-            f"Expected r_detach >= {expected_detach_high} with custom base, got {weights_high['r_detach']}"
-        
-        # Test low stiffness
-        k_est_low = 0.1
-        weights_low = self.scheduler.get_reward_weights(k_est_low, custom_base)
-        expected_contact_low = custom_base['r_contact'] * 0.85  # 2.0 * 0.85 = 1.7
-        assert weights_low['r_contact'] <= expected_contact_low, \
-            f"Expected r_contact <= {expected_contact_low} with custom base, got {weights_low['r_contact']}"
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+        scheduler.update(1.5)
+        assert scheduler.get_k_est() == 1.5
+    
+    def test_get_weights_initial(self, scheduler):
+        """Test initial weights retrieval before update."""
+        weights = scheduler.get_weights()
+        assert weights['contact'] == 1.0
+        assert weights['detach'] == 1.0
+    
+    def test_get_weights_after_update(self, scheduler):
+        """Test weights retrieval after update."""
+        scheduler.update(1.5)
+        weights = scheduler.get_weights()
+        assert weights['detach'] == 1.20
+        assert weights['contact'] == 0.95

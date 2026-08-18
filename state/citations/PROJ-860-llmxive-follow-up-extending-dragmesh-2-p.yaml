@@ -9,3 +9,14 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/AIGeeksGroup/DragMesh-2/9699c0b64d4086eeb5c531d825e8d50a85abc460/dataset_manifest.jsonl?%2Fdatasets%2FAIGeeksGroup%2FDragMesh-2%2Fresolve%2Fmain%2Fdataset_manifest.jsonl=&etag=%22ad99bf157ba549d136168f72e6882237272ba935%22
   verified_at: '2026-07-13T01:29:11.203640Z'
+- artifact_hash: 3e7c65c64d72155e379cbd5dc24abeea657c77be3095ed4b64ddf5051f6e5821
+  artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Gaussian filter - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Gaussian_filter
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Gaussian_filter
+  verified_at: '2026-08-18T01:01:10.137357Z'

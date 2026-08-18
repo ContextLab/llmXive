@@ -14,61 +14,36 @@ lib/
 lib64/
 parts/
 sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
 venv/
 ENV/
-_build/
-binstars/
-eggs/
-*.egg-info/
-*.egg
-MANIFEST
-
-# Virtual Environment
-venv/
-.venv/
 env/
-.env/
 
-# IDEs
+# Data
+data/raw/
+data/generated/
+data/results/
+
+# Logs
+*.log
+
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Data (excluding raw data which should be in git LFS or external)
-data/raw/*
-!data/raw/.gitkeep
-data/generated/*
-!data/generated/.gitkeep
-data/results/*
-!data/results/.gitkeep
-
-# State
-state/projects/*
-!state/projects/.gitkeep
-
-# Logs
-*.log
-logs/
-
-# Jupyter
-.ipynb_checkpoints
-
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
-coverage.xml
-
-# Dependencies
-code/requirements.txt
-code/requirements*.txt
-
-# Local config
-.env.local
-config.local.json

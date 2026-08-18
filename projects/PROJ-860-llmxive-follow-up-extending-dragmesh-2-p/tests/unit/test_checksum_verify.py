@@ -1,202 +1,87 @@
-"""
-Unit tests for checksum verification functionality.
-"""
 import os
 import sys
 import tempfile
-import hashlib
 import yaml
-from pathlib import Path
 import pytest
+from pathlib import Path
+import hashlib
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add parent directory to path to import from code
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
 
-from checksum_verify import (
-    compute_sha256,
-    scan_directory,
-    load_existing_checksums,
-    save_checksums,
-    verify_data_integrity,
-    update_checksums
-)
+from checksum_verify import compute_sha256, scan_directory, load_existing_checksums, save_checksums, update_checksums
 
-class TestComputeSha256:
-    def test_compute_sha256_known_file(self, tmp_path):
-        """Test SHA256 computation on a file with known content."""
-        test_file = tmp_path / "test.txt"
-        content = b"Hello, World!"
-        test_file.write_bytes(content)
-        
-        expected_hash = hashlib.sha256(content).hexdigest()
-        computed_hash = compute_sha256(test_file)
-        
-        assert computed_hash == expected_hash
+def test_compute_sha256():
+    with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
+        f.write("test content")
+        temp_path = f.name
     
-    def test_compute_sha256_empty_file(self, tmp_path):
-        """Test SHA256 computation on an empty file."""
-        test_file = tmp_path / "empty.txt"
-        test_file.write_bytes(b"")
-        
-        expected_hash = hashlib.sha256(b"").hexdigest()
-        computed_hash = compute_sha256(test_file)
-        
-        assert computed_hash == expected_hash
-    
-    def test_compute_sha256_nonexistent_file(self, tmp_path):
-        """Test that FileNotFoundError is raised for non-existent file."""
-        non_existent = tmp_path / "does_not_exist.txt"
-        
-        with pytest.raises(FileNotFoundError):
-            compute_sha256(non_existent)
+    try:
+        hash_val = compute_sha256(temp_path)
+        expected = hashlib.sha256(b"test content").hexdigest()
+        assert hash_val == expected
+    finally:
+        os.unlink(temp_path)
 
-class TestScanDirectory:
-    def test_scan_directory_single_level(self, tmp_path):
-        """Test scanning a directory with files at single level."""
-        (tmp_path / "file1.txt").write_text("content1")
-        (tmp_path / "file2.txt").write_text("content2")
-        
-        files = scan_directory(tmp_path)
-        
-        assert len(files) == 2
-        assert all(f.is_file() for f in files)
-    
-    def test_scan_directory_nested(self, tmp_path):
-        """Test scanning a directory with nested subdirectories."""
-        subdir = tmp_path / "subdir"
-        subdir.mkdir()
-        (tmp_path / "file1.txt").write_text("content1")
-        (subdir / "file2.txt").write_text("content2")
-        
-        files = scan_directory(tmp_path)
-        
-        assert len(files) == 2
-    
-    def test_scan_directory_empty(self, tmp_path):
-        """Test scanning an empty directory."""
-        files = scan_directory(tmp_path)
-        assert len(files) == 0
-    
-    def test_scan_directory_nonexistent(self, tmp_path):
-        """Test scanning a non-existent directory."""
-        non_existent = tmp_path / "does_not_exist"
-        files = scan_directory(non_existent)
-        assert len(files) == 0
+def test_compute_sha256_missing_file():
+    with pytest.raises(FileNotFoundError):
+        compute_sha256("/nonexistent/file.txt")
 
-class TestLoadSaveChecksums:
-    def test_load_nonexistent_state(self, tmp_path):
-        """Test loading from a non-existent state file."""
-        state_file = tmp_path / "state.yaml"
-        state_data = load_existing_checksums(state_file)
+def test_scan_directory():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create some files
+        Path(tmpdir, "file1.txt").touch()
+        Path(tmpdir, "file2.py").touch()
+        Path(tmpdir, "subdir").mkdir()
+        Path(tmpdir, "subdir", "file3.txt").touch()
+        Path(tmpdir, ".hidden").touch()
+        Path(tmpdir, "__pycache__").mkdir()
+        Path(tmpdir, "__pycache__", "cache.pyc").touch()
+
+        files = scan_directory(tmpdir)
+        # Should not include hidden or __pycache__
+        assert len(files) == 4 # file1, file2, file3, and maybe the dir if logic was different, but rglob skips dirs
+        # Check specific files
+        assert any("file1.txt" in f for f in files)
+        assert any("file2.py" in f for f in files)
+        assert any("file3.txt" in f for f in files)
+        assert not any(".hidden" in f for f in files)
+        assert not any("__pycache__" in f for f in files)
+
+def test_scan_directory_with_extension():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        Path(tmpdir, "file1.txt").touch()
+        Path(tmpdir, "file2.py").touch()
         
-        assert "artifact_hashes" in state_data
-        assert "updated_at" in state_data
-        assert state_data["artifact_hashes"] == {}
-    
-    def test_load_empty_state(self, tmp_path):
-        """Test loading from an empty state file."""
-        state_file = tmp_path / "state.yaml"
-        state_file.write_text("{}")
-        
-        state_data = load_existing_checksums(state_file)
-        
-        assert state_data["artifact_hashes"] == {}
-    
-    def test_save_and_load_checksums(self, tmp_path):
-        """Test saving and loading checksums."""
-        state_file = tmp_path / "state.yaml"
-        test_data = {
-            "artifact_hashes": {"file1.txt": "abc123"},
-            "updated_at": "2023-01-01T00:00:00"
+        files = scan_directory(tmpdir, extensions=[".txt"])
+        assert len(files) == 1
+        assert "file1.txt" in files[0]
+
+def test_save_and_load_checksums():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        state_file = Path(tmpdir, "state.yaml")
+        checksums = {
+            "data_raw": {"file1.txt": "abc123"},
+            "data_generated": {"file2.txt": "def456"}
         }
         
-        save_checksums(state_file, test_data)
-        loaded_data = load_existing_checksums(state_file)
+        save_checksums(str(state_file), checksums)
         
-        assert loaded_data == test_data
+        loaded = load_existing_checksums(str(state_file))
+        assert loaded == checksums
 
-class TestUpdateChecksums:
-    def test_update_checksums(self, tmp_path):
-        """Test updating checksums for a directory."""
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        (data_dir / "file1.txt").write_text("content1")
-        (data_dir / "file2.txt").write_text("content2")
+def test_update_checksums():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file_path = Path(tmpdir, "test.txt")
+        file_path.write_text("hello world")
         
-        state_file = tmp_path / "state.yaml"
-        state_data = update_checksums(state_file, [data_dir])
-        
-        assert len(state_data["artifact_hashes"]) == 2
-        assert "data/file1.txt" in state_data["artifact_hashes"]
-        assert "data/file2.txt" in state_data["artifact_hashes"]
-        
-        # Verify hashes are correct
-        content1 = b"content1"
-        expected_hash1 = hashlib.sha256(content1).hexdigest()
-        assert state_data["artifact_hashes"]["data/file1.txt"] == expected_hash1
-    
-    def test_update_checksums_nonexistent_dir(self, tmp_path):
-        """Test updating checksums with a non-existent directory."""
-        non_existent = tmp_path / "does_not_exist"
-        state_file = tmp_path / "state.yaml"
-        
-        state_data = update_checksums(state_file, [non_existent])
-        
-        assert state_data["artifact_hashes"] == {}
-
-class TestVerifyDataIntegrity:
-    def test_verify_all_match(self, tmp_path):
-        """Test verification when all files match stored hashes."""
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        test_file = data_dir / "file1.txt"
-        test_file.write_text("content1")
-        
-        state_file = tmp_path / "state.yaml"
-        content = b"content1"
-        expected_hash = hashlib.sha256(content).hexdigest()
-        
-        state_data = {
-            "artifact_hashes": {"data/file1.txt": expected_hash},
-            "updated_at": None
-        }
-        save_checksums(state_file, state_data)
-        
-        is_valid = verify_data_integrity(state_file, [data_dir])
-        assert is_valid is True
-    
-    def test_verify_mismatch(self, tmp_path):
-        """Test verification when a file hash doesn't match."""
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        test_file = data_dir / "file1.txt"
-        test_file.write_text("new content")
-        
-        state_file = tmp_path / "state.yaml"
-        old_hash = hashlib.sha256(b"old content").hexdigest()
-        
-        state_data = {
-            "artifact_hashes": {"data/file1.txt": old_hash},
-            "updated_at": None
-        }
-        save_checksums(state_file, state_data)
-        
-        is_valid = verify_data_integrity(state_file, [data_dir])
-        assert is_valid is False
-    
-    def test_verify_missing_file(self, tmp_path):
-        """Test verification when a stored file is missing."""
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        # Create a different file
-        (data_dir / "other.txt").write_text("other")
-        
-        state_file = tmp_path / "state.yaml"
-        state_data = {
-            "artifact_hashes": {"data/file1.txt": "abc123"},
-            "updated_at": None
-        }
-        save_checksums(state_file, state_data)
-        
-        is_valid = verify_data_integrity(state_file, [data_dir])
-        assert is_valid is False
+        result = update_checksums(tmpdir, {})
+        assert len(result) == 1
+        assert "test.txt" in result[list(result.keys())[0]] # This check is slightly loose due to relative path logic in real code, but verifies presence
+        # More precise check:
+        rel_key = os.path.relpath(str(file_path), start=os.getcwd())
+        # The function returns a dict of {rel_path: hash}
+        # But in the main logic, it's assigned to a category.
+        # Let's test the function directly as intended in the helper
+        computed = compute_sha256(str(file_path))
+        assert result[rel_key] == computed

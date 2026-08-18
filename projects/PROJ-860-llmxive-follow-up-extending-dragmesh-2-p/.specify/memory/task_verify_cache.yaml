@@ -1,3 +1,10 @@
+T005c:
+  c: false
+  h: b59566c1c8e868282f6536125259b2f3eb130659dcdd341e28ef0a26507a5ae3
+  r: The `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` file
+    contains only placeholder hashes and lacks an entry for `data/raw`, and the required
+    `data/raw/.checksums` file does not exist. Therefore the manifest checksum has
+    not been recorded in both required locations.
 T024:
   c: false
   h: f3685779d0ac6aa46131840d3578e1ce36108930e3c0213bbb65e10b0a76f1e2

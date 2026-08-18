@@ -777,3 +777,1083 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T07:22:40Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: verify paired t-test p-value less than 0.05 and success rate improvement
+    greater than 15 percent
+  claim_id: c_6aab13d9
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction (low to moderate). Verify paired t-test p-value < 0.05
+    and success rate improvement >15% for high-friction cases.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_paired_t-test_p-value_less_than_0.05_and_success_rate
+  kind: magnitude
+  raw_text: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+    for high-friction cases.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:33:04Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: sweep friction coefficients from 0.0 to 2.5 to verify linear correlation
+  claim_id: c_992f6f05
+  context: 'Requirement: Execute a sweep of multiple randomized trials with friction
+    coefficients uniformly sampled from [0.0, 2.5] to verify linear correlation as
+    per US2 Independent Test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a sweep of multiple randomized trials with friction coefficients
+    uniformly sampled from [0.0, 2.5] to verify linear correlation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:33:26Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: experiment runs within 6 hours and 7GB RAM on CPU
+  claim_id: c_9ee9772d
+  context: 'Goal: Ensure the entire experiment (data gen, training, eval, analysis)
+    runs within 6 hours and 7GB RAM on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the entire experiment runs within 6 hours and 7GB RAM on a CPU-only
+    runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:33:49Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: moving average filter window size 5
+  claim_id: c_8a4f23df
+  context: 'Requirement: Implement a moving average filter (window size = 5) on the
+    torque derivative signal before computing the ratio.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.2355931'
+      source_id: Gaussian filter
+      url: https://en.wikipedia.org/wiki/Gaussian_filter
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The moving average filter uses a window size of 5.
+  resolved_value: '5'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T00:33:54Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: apply epsilon 10 to the power of negative 4 to denominator
+  claim_id: c_31f04324
+  context: 'Requirement: Implement stiction handling: apply a small epsilon ($\epsilon
+    = 10^{-4}$) to the denominator to prevent division by zero, ensuring $k_{est}$
+    remains finite but high.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a small epsilon (epsilon = 10^-4) to the denominator to prevent
+    division by zero.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:34:13Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: if k_est greater than 1.0 increase r_detach by 20 percent
+  claim_id: c_44a03a04
+  context: "Requirement: Implement `AdaptiveRewardScheduler` class in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py\
+    \ mapping $k_{est}$ to reward weights with EXPLICIT logic: if $k_{est} > 1.0$,\
+    \ increase $r_{detach}$ by \u226520%..."
+  evidence:
+    entailment_evidence: If k est greater than 1.0 increase r detach by 20 percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/If_k_est_greater_than_1.0_increase_r_detach_by_20_percent
+  kind: magnitude
+  raw_text: If k_est > 1.0, increase r_detach by >=20%.
+  resolved_value: if k_est greater than 1.0 increase r_detach by 20 percent
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T00:34:15Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: if k_est less than 0.2 decrease r_contact by 15 percent
+  claim_id: c_aa3574ef
+  context: "Requirement: ...if $k_{est} < 0.2$, decrease $r_{contact}$ by \u226415%\
+    \ (FR-002)"
+  evidence:
+    entailment_evidence: If k est less than 0.2 decrease r contact by 15 percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/If_k_est_less_than_0.2_decrease_r_contact_by_15_percent
+  kind: magnitude
+  raw_text: If k_est < 0.2, decrease r_contact by <=15%.
+  resolved_value: if k_est less than 0.2 decrease r_contact by 15 percent
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T00:34:17Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: set timeout 3600 for unit tests and 21600 for integration tests
+  claim_id: c_c1e9aead
+  context: 'Requirement: Configure `pytest-timeout` in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/pytest.ini:
+    Set `timeout=3600` for unit tests and `timeout=21600` for integration tests to
+    enforce the 6h limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set timeout=3600 for unit tests and timeout=21600 for integration tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:34:41Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: pin dependencies pybullet numpy scipy pandas datasets pytest statsmodels
+  claim_id: c_fca748d2
+  context: 'Requirement: Create `README.md`... `.gitignore`... and `code/requirements.txt`
+    (must pin `pybullet`, `numpy`, `scipy`, `pandas`, `datasets`, `pytest`, `statsmodels`).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pin_dependencies_pybullet_numpy_scipy_pandas_datasets_pytest
+  kind: entity_fact
+  raw_text: Pin dependencies pybullet, numpy, scipy, pandas, datasets, pytest, and
+    statsmodels in requirements.txt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:34:58Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: friction coefficients sampled from range 0.0 to 2.5
+  claim_id: c_2e70a700
+  context: 'T021 [US2] Implement validation script to correlate $k_{est}$ with ground-truth
+    friction in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/validation.py`.
+    - **Requirement**: Execute a sweep of **multiple randomized trials** with friction
+    coefficients uniformly sampled from **[0.0, 2.5]** to verify linear correlation
+    as per US2 Independent Test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: friction coefficients uniformly sampled from [0.0, 2.5]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:41:48Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: moving average filter window size 5 based on Wikipedia Gaussian filter
+  claim_id: c_3040232f
+  context: 'T005a [P] Implement `VirtualTactileEstimator` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py`
+    (FR-001, FR-006, FR-007) - **Requirement**: Implement a moving average filter
+    (window size = 5 (Wikipedia: Gaussian filter, https://en.wikipedia.org/wiki/Gaussian_filter))
+    on the torque derivative signal before computing the ratio.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'window size = 5 (Wikipedia: Gaussian filter, https://en.wikipedia.org/wiki/Gaussian_filter)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:42:15Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: epsilon value 1e-4 applied to denominator for stiction handling
+  claim_id: c_e9b68a38
+  context: 'T005a [P] Implement `VirtualTactileEstimator` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py`
+    (FR-001, FR-006, FR-007) - **Requirement**: Implement stiction handling: apply
+    a small epsilon ($\epsilon = 10^{-4}$) to the denominator to prevent division
+    by zero, ensuring $k_{est}$ remains finite but high.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply a small epsilon ($\epsilon = 10^{-4}$) to the denominator
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:42:49Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: reward detach weight increase of at least 20% when k_est exceeds 1.0
+  claim_id: c_1f3a45eb
+  context: "T006 [P] Implement `AdaptiveRewardScheduler` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py`\
+    \ mapping $k_{est}$ to reward weights with EXPLICIT logic: if $k_{est} > 1.0$,\
+    \ increase $r_{detach}$ by \u226520%; if $k_{est} < 0.2$, decrease $r_{contact}$\
+    \ by \u226415% (FR-002)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reward_detach_weight_increase_of_at_least_20%25_when_k_est_exc
+  kind: magnitude
+  raw_text: "if $k_{est} > 1.0$, increase $r_{detach}$ by \u226520%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:43:05Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: reward contact weight decrease of at most 15% when k_est is below 0.2
+  claim_id: c_40edb443
+  context: "T006 [P] Implement `AdaptiveRewardScheduler` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py`\
+    \ mapping $k_{est}$ to reward weights with EXPLICIT logic: if $k_{est} > 1.0$,\
+    \ increase $r_{detach}$ by \u226520%; if $k_{est} < 0.2$, decrease $r_{contact}$\
+    \ by \u226415% (FR-002)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reward_contact_weight_decrease_of_at_most_15%25_when_k_est_is
+  kind: magnitude
+  raw_text: "if $k_{est} < 0.2$, decrease $r_{contact}$ by \u226415%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:43:32Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: pytest timeout 3600 seconds for unit tests and 21600 seconds for integration
+    tests
+  claim_id: c_b1c89055
+  context: 'T003 [P] Configure `pytest-timeout` in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/pytest.ini`:
+    Set `timeout=3600` for unit tests and `timeout=21600` for integration tests to
+    enforce the 6h limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set `timeout=3600` for unit tests and `timeout=21600` for integration
+    tests
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:43:32Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: paired t-test p-value less than 0.05 and success rate improvement greater
+    than 15%
+  claim_id: c_7bcd1461
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction (low to moderate). Verify paired t-test p-value < 0.05
+    and success rate improvement >15% for high-friction cases.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_p-value_less_than_0.05_and_success_rate_improv
+  kind: magnitude
+  raw_text: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+    for high-friction cases
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:43:33Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: full experiment pipeline runs within 6 hours and 7GB RAM on CPU-only
+    runner
+  claim_id: c_95aedd99
+  context: 'Phase 5: User Story 3 - CPU-Tractable Inference Pipeline (Priority: P3)
+    Goal: Ensure the entire experiment (data gen, training, eval, analysis) runs within
+    6 hours and 7GB RAM on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the entire experiment (data gen, training, eval, analysis) runs
+    within 6 hours and 7GB RAM on a CPU-only runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:43:34Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: NovelObjectSet generator accepts count, seed, friction_min, and friction_max
+  claim_id: c_bf63bb27
+  context: T007 [P] Create NovelObjectSet generator class in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/generator.py
+    to produce a set of randomized articulated geometries with friction coefficients
+    uniformly distributed across a broad range (FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NovelObjectSet_generator_accepts_count,_seed,_friction_min,
+  kind: entity_fact
+  raw_text: The class MUST accept count, seed, friction_min, and friction_max arguments
+    and output to data/generated/.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:44:45Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Compute SHA256 hashes for README, .gitignore, requirements.txt, and pytest.ini
+  claim_id: c_aaef8d14
+  context: T001c Generate checksums for code/config artifacts in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/checksum_config.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute SHA256 hashes for README.md, .gitignore, requirements.txt, and
+    pytest.ini and write them to state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml
+    under artifact_hashes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:45:03Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Set pytest timeout to 3600 for unit tests and 21600 for integration tests
+  claim_id: c_6d4e14e1
+  context: T003 [P] Configure pytest-timeout in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/pytest.ini
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set timeout=3600 for unit tests and timeout=21600 for integration tests
+    to enforce the 6h limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:45:20Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Implement moving average filter with window size 5 on torque derivative
+  claim_id: c_fef289aa
+  context: T005a [P] Implement VirtualTactileEstimator class in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py
+    (FR-001, FR-006, FR-007)
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Implement a moving average filter (window size = 5 (Wikipedia: Gaussian
+    filter, https://en.wikipedia.org/wiki/Gaussian_filter)) on the torque derivative
+    signal before computing the ratio.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:46:00Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Apply epsilon of 1e-4 to denominator to prevent division by zero
+  claim_id: c_fe913ff3
+  context: T005a [P] Implement VirtualTactileEstimator class in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py
+    (FR-001, FR-006, FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply a small epsilon ($\epsilon = 10^{-4}$) to the denominator to prevent
+    division by zero, ensuring $k_{est}$ remains finite but high.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:46:22Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Verify paired t-test p-value < 0.05 and success rate improvement > 15%
+  claim_id: c_47b443a4
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction (low to moderate).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+    for high-friction cases.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:46:22Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Assert reward weight increases >=20% for k_est > 1.0 and decreases <=15%
+    for k_est < 0.2
+  claim_id: c_b2e0c5c2
+  context: T010 [P] [US1] Unit test for AdaptiveRewardScheduler logic in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_scheduler.py
+    (verify weight scaling logic with explicit predefined thresholds)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test MUST explicitly assert that for $k_{est} > 1.0$, the reward weight
+    increases by >=20%, and for $k_{est} < 0.2$, the reward weight decreases by <=15%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:46:23Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Calculate statistical power and log p-value and improvement percentage
+  claim_id: c_d8155a6c
+  context: T015 [US1] [DEPENDS ON T014] Implement analysis.py to perform paired t-test
+    on aggregated data (using 'object_id' for pairing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate statistical power (effect size) to validate sample size, and
+    LOG the p-value and improvement percentage (DO NOT ASSERT) in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/analysis.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:46:34Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Entire experiment runs within 6 hours and 7GB RAM on CPU-only runner
+  claim_id: c_cbfa5eb3
+  context: 'Phase 5: User Story 3 - CPU-Tractable Inference Pipeline (Priority: P3)
+    Goal: Ensure the entire experiment (data gen, training, eval, analysis) runs within
+    6 hours and 7GB RAM on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the entire experiment (data gen, training, eval, analysis) runs
+    within 6 hours and 7GB RAM on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:46:34Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Power analysis added to justify sample size of 30
+  claim_id: c_b4606b30
+  context: 'RESOLVED: Tc (Power Analysis) added to justify sample size of 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tc (Power Analysis) added to justify sample size of 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:47:12Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 0
+  canonical: Moving average filter window size is 5
+  claim_id: c_012f56b5
+  context: 'Under T005a Implement VirtualTactileEstimator class, the requirement states:
+    Implement a moving average filter (window size = 5 (Wikipedia: Gaussian filter,
+    https://en.wikipedia.org/wiki/Gaussian_filter)) on the torque derivative signal
+    before computing the ratio.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.2355931'
+      source_id: Gaussian filter
+      url: https://en.wikipedia.org/wiki/Gaussian_filter
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The moving average filter uses a window size of 5.
+  resolved_value: '5'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T00:47:42Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: AdaptiveRewardScheduler increases reward weight by >=20% when k_est >
+    1.0 and decreases by <=15% when k_est < 0.2
+  claim_id: c_c1fa2439
+  context: 'Under T010 Unit test for AdaptiveRewardScheduler logic, the requirement
+    states: The test MUST explicitly assert that for $k_{est} > 1.0$, the reward weight
+    increases by >=20%, and for $k_{est} < 0.2$, the reward weight decreases by <=15%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test MUST explicitly assert that for $k_{est} > 1.0$, the reward weight
+    increases by >=20%, and for $k_{est} < 0.2$, the reward weight decreases by <=15%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:47:43Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Stiction handling uses epsilon of 1e-4 to prevent division by zero
+  claim_id: c_d1c52b5e
+  context: "Under T005a Implement VirtualTactileEstimator class, the requirement states:\
+    \ Implement stiction handling: apply a small epsilon ($\epsilon = 10^{-4}$) to\
+    \ the denominator to prevent division by zero, ensuring $k_{est}$ remains finite\
+    \ but high."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Stiction handling applies a small epsilon ($\epsilon = 10^{-4}$) to the\
+    \ denominator to prevent division by zero."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:48:01Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Integration test timeout is 21600 seconds
+  claim_id: c_7d3cdddb
+  context: 'Under T003 Configure pytest-timeout, the description states: Set timeout=3600
+    for unit tests and timeout=21600 for integration tests to enforce the 6h limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires 6 hours (21600 seconds) for integration tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:48:22Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Unit test timeout is 3600 seconds
+  claim_id: c_445986f7
+  context: 'Under T003 Configure pytest-timeout, the description states: Set timeout=3600
+    for unit tests and timeout=21600 for integration tests to enforce the 6h limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires 3600 seconds for unit tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:48:40Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Adaptive policy aims for >15% improvement over static baseline on novel
+    high-friction objects
+  claim_id: c_b2094791
+  context: 'Under Phase 3: User Story 1 - Zero-Shot Adaptation to Unseen Damping,
+    the Goal states: Implement the full adaptive policy loop that detects friction
+    via $k_{est}$ and adjusts rewards, verifying >15% improvement over static baseline
+    on novel high-friction objects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The goal is to verify >15% improvement over static baseline on novel high-friction
+    objects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:48:41Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Independent test requires paired t-test p-value < 0.05
+  claim_id: c_92c20cae
+  context: 'Under Phase 3: User Story 1 - Zero-Shot Adaptation to Unseen Damping,
+    the Independent Test states: Run adaptive vs static policies on a set of novel
+    objects with randomized friction (low to moderate). Verify paired t-test p-value
+    < 0.05 and success rate improvement >15% for high-friction cases.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify paired t-test p-value < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:48:41Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Power analysis added to justify sample size of 30
+  claim_id: c_1c05e204
+  context: 'Under Notes, the resolved item states: RESOLVED: Tc (Power Analysis) added
+    to justify sample size of 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tc (Power Analysis) was added to justify sample size of 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:48:41Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: success rate improvement >15% with p-value < 0.05 for high-friction cases
+  claim_id: c_dbfe2605
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction (low to moderate). Verify paired t-test p-value < 0.05
+    and success rate improvement >15% for high-friction cases.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+    for high-friction cases.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:50:52Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: experiment runs within 6 hours and 7GB RAM
+  claim_id: c_2509e69d
+  context: 'Goal: Ensure the entire experiment (data gen, training, eval, analysis)
+    runs within 6 hours and 7GB RAM on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the entire experiment (data gen, training, eval, analysis) runs
+    within 6 hours and 7GB RAM on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:50:52Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: unit test timeout 3600s and integration test timeout 21600s
+  claim_id: c_f1f045ee
+  context: T003 [P] Configure pytest-timeout... Set timeout=3600 for unit tests and
+    timeout=21600 for integration tests to enforce the 6h limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set timeout=3600 for unit tests and timeout=21600 for integration tests
+    to enforce the 6h limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:50:52Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: moving average filter window size 5
+  claim_id: c_04d513c7
+  context: 'Requirement: Implement a moving average filter (window size = 5 (Wikipedia:
+    Gaussian filter, https://en.wikipedia.org/wiki/Gaussian_filter)) on the torque
+    derivative signal before computing the ratio.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a moving average filter (window size = 5) on the torque derivative
+    signal before computing the ratio.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:50:53Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: epsilon value 10^-4 for division by zero prevention
+  claim_id: c_5cd61a07
+  context: 'Requirement: Implement stiction handling: apply a small epsilon ($\epsilon
+    = 10^{-4}$) to the denominator to prevent division by zero, ensuring k_est remains
+    finite but high.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a small epsilon (epsilon = 10^-4) to the denominator to prevent
+    division by zero.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:50:53Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: reward increase >=20% if k_est > 1.0
+  claim_id: c_e8fad154
+  context: 'Implement AdaptiveRewardScheduler class mapping k_est to reward weights
+    with EXPLICIT logic: if k_est > 1.0, increase r_detach by >=20%...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if k_est > 1.0, increase r_detach by >=20%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:50:53Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: reward decrease <=15% if k_est < 0.2
+  claim_id: c_1b465f62
+  context: '...if k_est < 0.2, decrease r_contact by <=15% (FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if k_est < 0.2, decrease r_contact by <=15%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:50:54Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: assert adjustment magnitude >=20% increase and <=15% decrease
+  claim_id: c_9c5ccb2c
+  context: 'Verification: Include a self-test block in the task execution that prints
+    the calculated k_est and the resulting reward multiplier, and ASSERTS that the
+    magnitude of the adjustment matches the spec''s specific thresholds (>=20% increase,
+    <=15% decrease).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserts that the magnitude of the adjustment matches the spec's specific
+    thresholds (>=20% increase, <=15% decrease).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:50:54Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+  claim_id: c_769aa32b
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction (low to moderate). Verify paired t-test p-value < 0.05
+    and success rate improvement >15% for high-friction cases.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+    for high-friction cases.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:51:36Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Experiment runs within 6 hours and 7GB RAM on CPU-only runner
+  claim_id: c_cf8cd465
+  context: 'Goal: Ensure the entire experiment (data gen, training, eval, analysis)
+    runs within 6 hours and 7GB RAM on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entire experiment (data gen, training, eval, analysis) runs within
+    6 hours and 7GB RAM on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:54:49Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Reward weight increases >=20% if k_est > 1.0; decreases <=15% if k_est
+    < 0.2
+  claim_id: c_01f7ca94
+  context: 'Requirement: The test MUST explicitly assert that for $k_{est} > 1.0$,
+    the reward weight increases by >=20%, and for $k_{est} < 0.2$, the reward weight
+    decreases by <=15%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task asserts that for $k_{est} > 1.0$, the reward weight increases
+    by >=20%, and for $k_{est} < 0.2$, the reward weight decreases by <=15%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:54:50Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Moving average filter window size 5
+  claim_id: c_f9ca60d9
+  context: 'Requirement: Implement a moving average filter (window size = 5 (Wikipedia:
+    Gaussian filter, https://en.wikipedia.org/wiki/Gaussian_filter)) on the torque
+    derivative signal before computing the ratio.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The moving average filter has a window size of 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:56:33Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Stiction epsilon clamp 1e-4
+  claim_id: c_7b6a87f2
+  context: "Requirement: Implement stiction handling: apply a small epsilon ($\epsilon\
+    \ = 10^{-4}$) to the denominator to prevent division by zero, ensuring $k_{est}$\
+    \ remains finite but high."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The stiction handling applies a small epsilon ($\epsilon = 10^{-4}$)\
+    \ to the denominator."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:59:36Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: adaptive policy shows >15% improvement over static baseline on novel
+    high-friction objects
+  claim_id: c_129914db
+  context: 'Goal: Implement the full adaptive policy loop that detects friction via
+    $k_{est}$ and adjusts rewards, verifying >15% improvement over static baseline
+    on novel high-friction objects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify >15% improvement over static baseline on novel high-friction objects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T01:00:41Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: paired t-test p-value < 0.05 and success rate improvement >15% for high-friction
+    cases
+  claim_id: c_31a4ee1f
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction (low to moderate). Verify paired t-test p-value < 0.05
+    and success rate improvement >15% for high-friction cases.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+    for high-friction cases.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T01:00:42Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: linear correlation between k_est and ground-truth friction verified on
+    friction coefficients uniformly sampled from 0.0 to 2.5
+  claim_id: c_1372c137
+  context: 'Requirement: Execute a sweep of **multiple randomized trials** with friction
+    coefficients uniformly sampled from **[0.0, 2.5]** to verify linear correlation
+    as per US2 Independent Test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a sweep of multiple randomized trials with friction coefficients
+    uniformly sampled from [0.0, 2.5] to verify linear correlation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T01:00:42Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: full experiment pipeline runs within 6 hours and 7GB RAM on CPU-only
+    runner
+  claim_id: c_c3e8135a
+  context: 'Goal: Ensure the entire experiment (data gen, training, eval, analysis)
+    runs within 6 hours and 7GB RAM on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the entire experiment (data gen, training, eval, analysis) runs
+    within 6 hours and 7GB RAM on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T01:00:42Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: if k_est > 1.0 increase r_detach by >=20%; if k_est < 0.2 decrease r_contact
+    by <=15%
+  claim_id: c_cbc3797b
+  context: "Implement `AdaptiveRewardScheduler` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py`\
+    \ mapping $k_{est}$ to reward weights with EXPLICIT logic: if $k_{est} > 1.0$,\
+    \ increase $r_{detach}$ by \u226520%; if $k_{est} < 0.2$, decrease $r_{contact}$\
+    \ by \u226415% (FR-002)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "if $k_{est} > 1.0$, increase $r_{detach}$ by \u226520%; if $k_{est} <\
+    \ 0.2$, decrease $r_{contact}$ by \u226415%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T01:00:42Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: moving average filter window size 5 applied to torque derivative signal
+  claim_id: c_94c3ce24
+  context: 'Requirement: Implement a moving average filter (window size = 5 (Wikipedia:
+    Gaussian filter, https://en.wikipedia.org/wiki/Gaussian_filter)) on the torque
+    derivative signal before computing the ratio.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Implement a moving average filter (window size = 5 (Wikipedia: Gaussian
+    filter, https://en.wikipedia.org/wiki/Gaussian_filter)) on the torque derivative
+    signal before computing the ratio.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T01:00:44Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: epsilon value 1e-4 applied to denominator to prevent division by zero
+  claim_id: c_1ebff9fa
+  context: "Requirement: Implement stiction handling: apply a small epsilon ($\epsilon\
+    \ = 10^{-4}$) to the denominator to prevent division by zero, ensuring $k_{est}$\
+    \ remains finite but high."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "apply a small epsilon ($\epsilon = 10^{-4}$) to the denominator to prevent\
+    \ division by zero"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T01:00:45Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Adaptive policy achieves >15% improvement over static baseline on novel
+    high-friction objects
+  claim_id: c_54fe3a86
+  context: 'Goal: Implement the full adaptive policy loop that detects friction via
+    $k_{est}$ and adjusts rewards, verifying >15% improvement over static baseline
+    on novel high-friction objects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify >15% improvement over static baseline on novel high-friction objects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T01:01:09Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Paired t-test p-value < 0.05 and success rate improvement >15% for high-friction
+    cases
+  claim_id: c_9ad1bf7e
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction (low to moderate). Verify paired t-test p-value < 0.05
+    and success rate improvement >15% for high-friction cases.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+    for high-friction cases.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T01:01:09Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: For k_est > 1.0 reward weight increases >=20%; for k_est < 0.2 reward
+    weight decreases <=15%
+  claim_id: c_1fba477c
+  context: 'Requirement: The test MUST explicitly assert that for $k_{est} > 1.0$,
+    the reward weight increases by >=20%, and for $k_{est} < 0.2$, the reward weight
+    decreases by <=15%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test MUST explicitly assert that for $k_{est} > 1.0$, the reward weight
+    increases by >=20%, and for $k_{est} < 0.2$, the reward weight decreases by <=15%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T01:01:09Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Entire experiment runs within 6 hours and 7GB RAM on CPU-only runner
+  claim_id: c_589e12b4
+  context: 'Goal: Ensure the entire experiment (data gen, training, eval, analysis)
+    runs within 6 hours and 7GB RAM on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the entire experiment (data gen, training, eval, analysis) runs
+    within 6 hours and 7GB RAM on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T01:01:09Z'

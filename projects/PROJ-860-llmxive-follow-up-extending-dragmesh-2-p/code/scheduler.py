@@ -106,3 +106,66 @@ class AdaptiveRewardScheduler:
             float: Last k_est value, or 0.0 if not yet computed
         """
         return self.current_k_est if self.current_k_est is not None else 0.0
+
+
+if __name__ == "__main__":
+    """
+    Self-test block to verify FR-002 logic:
+    - If k_est > 1.0, r_detach increases by >= 20%
+    - If k_est < 0.2, r_contact decreases by <= 15%
+    """
+    import sys
+    
+    print("Running AdaptiveRewardScheduler self-test...")
+    
+    scheduler = AdaptiveRewardScheduler(
+        base_contact_weight=1.0,
+        base_detach_weight=1.0,
+        high_friction_threshold=1.0,
+        low_friction_threshold=0.2,
+        high_friction_increase=0.20,
+        low_friction_decrease=0.15
+    )
+    
+    # Test 1: High friction (k_est > 1.0)
+    print("\n--- Test 1: High Friction (k_est = 1.5) ---")
+    k_est_high = 1.5
+    weights_high = scheduler.update(k_est_high)
+    print(f"k_est: {k_est_high}")
+    print(f"Resulting weights: {weights_high}")
+    
+    detach_increase = (weights_high['detach'] - scheduler.base_detach_weight) / scheduler.base_detach_weight
+    print(f"Detach increase: {detach_increase * 100:.2f}%")
+    
+    assert detach_increase >= 0.20, f"FR-002 Violation: Detach increase ({detach_increase:.2%}) is less than required 20%"
+    print("✓ PASS: Detach reward increased by >= 20%")
+    
+    # Test 2: Low friction (k_est < 0.2)
+    print("\n--- Test 2: Low Friction (k_est = 0.1) ---")
+    k_est_low = 0.1
+    weights_low = scheduler.update(k_est_low)
+    print(f"k_est: {k_est_low}")
+    print(f"Resulting weights: {weights_low}")
+    
+    contact_decrease = (scheduler.base_contact_weight - weights_low['contact']) / scheduler.base_contact_weight
+    print(f"Contact decrease: {contact_decrease * 100:.2f}%")
+    
+    assert contact_decrease <= 0.15, f"FR-002 Violation: Contact decrease ({contact_decrease:.2%}) exceeds maximum allowed 15%"
+    # Also verify it is a decrease (non-zero)
+    assert contact_decrease > 0, "Contact reward should decrease for low friction"
+    print("✓ PASS: Contact reward decreased by <= 15%")
+    
+    # Test 3: Normal friction (0.2 <= k_est <= 1.0)
+    print("\n--- Test 3: Normal Friction (k_est = 0.5) ---")
+    k_est_normal = 0.5
+    weights_normal = scheduler.update(k_est_normal)
+    print(f"k_est: {k_est_normal}")
+    print(f"Resulting weights: {weights_normal}")
+    
+    assert weights_normal['contact'] == scheduler.base_contact_weight, "Contact weight should be base value"
+    assert weights_normal['detach'] == scheduler.base_detach_weight, "Detach weight should be base value"
+    print("✓ PASS: Weights remain at base values")
+    
+    print("\n--- All Self-Tests Passed ---")
+    print("FR-002 logic verified successfully.")
+    sys.exit(0)

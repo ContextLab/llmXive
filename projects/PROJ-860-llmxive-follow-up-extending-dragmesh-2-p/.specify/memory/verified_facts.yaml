@@ -1,0 +1,5 @@
+'|average filter moving size use window':
+  quote: '0.2355931'
+  source_id: Gaussian filter
+  url: https://en.wikipedia.org/wiki/Gaussian_filter
+  value: '5'
