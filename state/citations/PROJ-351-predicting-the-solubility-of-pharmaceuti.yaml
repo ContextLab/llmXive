@@ -20,3 +20,47 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/MKEChem/mke-novel-druglike-smiles/bb210ac2211b5deef4bd657e358526d36a6b407b/preview_100_molecules.csv?%2Fdatasets%2FMKEChem%2Fmke-novel-druglike-smiles%2Fresolve%2Fmain%2Fpreview_100_molecules.csv=&etag=%22907c505431605bb865026076d1c9a94d49c1ba0e%22
   verified_at: '2026-07-09T06:39:16.276499Z'
+- artifact_hash: ae575965e346bdbfff028197b1514833fec82c90a5d3f07fb34106ecc81c8dfc
+  artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/TESTING.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: '![CI Status'
+  fetched_title: 'CI: Passing'
+  kind: url
+  value: https://img.shields.io/badge/CI-Passing-brightgreen
+  verification_status: mismatch
+  verified_against_url: https://img.shields.io/badge/CI-Passing-brightgreen
+  verified_at: '2026-08-18T04:38:15.781791Z'
+- artifact_hash: e6fcb2283a4f36832ae67a45204c328c61670a613626d7d7cf8b4aa5feae1fa5
+  artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: '![Python'
+  fetched_title: 'Python: 3.8+'
+  kind: url
+  value: https://img.shields.io/badge/Python-3.8+-blue.svg
+  verification_status: pending
+  verified_against_url: https://img.shields.io/badge/Python-3.8+-blue.svg
+  verified_at: '2026-08-18T04:54:36.149894Z'
+- artifact_hash: e6fcb2283a4f36832ae67a45204c328c61670a613626d7d7cf8b4aa5feae1fa5
+  artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: '![License'
+  fetched_title: 'License: MIT'
+  kind: url
+  value: https://img.shields.io/badge/License-MIT-green.svg
+  verification_status: pending
+  verified_against_url: https://img.shields.io/badge/License-MIT-green.svg
+  verified_at: '2026-08-18T04:54:36.149894Z'
+- artifact_hash: e6fcb2283a4f36832ae67a45204c328c61670a613626d7d7cf8b4aa5feae1fa5
+  artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/README.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Download Python | Python.org
+  kind: url
+  value: https://www.python.org/downloads/
+  verification_status: pending
+  verified_against_url: https://www.python.org/downloads/
+  verified_at: '2026-08-18T04:54:36.149894Z'

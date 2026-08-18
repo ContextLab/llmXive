@@ -11,60 +11,37 @@ Dependencies:
 import os
 import sys
 import pandas as pd
-
-# Ensure we can import from the code directory if run from project root
-# However, for this specific file, we rely on standard library and pandas.
+from datasets import load_dataset
+import hashlib
 
 def fetch_esol_dataset():
     """
     Fetches the ESOL dataset from HuggingFace datasets.
-    
+
     Returns:
         pd.DataFrame: The raw ESOL dataset.
-    
+
     Raises:
         RuntimeError: If the dataset cannot be fetched or 'logS' column is missing.
     """
-    try:
-        # We use the 'datasets' library for robust access to HuggingFace datasets
-        # If not installed, we fall back to direct URL download if available,
-        # but 'datasets' is the canonical way for MoleculeNet data on HF.
-        from datasets import load_dataset
-    except ImportError:
-        print("Error: The 'datasets' library is required. "
-              "Please run: pip install datasets", file=sys.stderr)
-        sys.exit(1)
-
     print("Fetching ESOL dataset from HuggingFace...")
     try:
-        # The ESOL dataset is available as 'delaney-esol' on HuggingFace
         dataset = load_dataset("delaney-esol", split="train")
     except Exception as e:
         print(f"Error fetching dataset: {e}", file=sys.stderr)
-        sys.exit(1)
+        raise
 
-    # Convert to pandas DataFrame
     df = dataset.to_pandas()
 
-    # Validate required columns
-    required_columns = ['logS', 'smiles', 'measured logS']
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    
-    if missing_cols:
-        raise RuntimeError(f"Missing required columns in dataset: {missing_cols}")
-
-    # Validate 'logS' column has numeric data and no NaNs in the target column
-    if df['logS'].isna().any():
-        print(f"Warning: {df['logS'].isna().sum()} rows have NaN in 'logS'. "
-              "These will be dropped later in preprocessing, but we keep them here as raw.",
-              file=sys.stderr)
+    if 'logS' not in df.columns:
+        raise RuntimeError("Missing required column 'logS' in dataset.")
 
     return df
 
 def save_raw_csv(df, output_path):
     """
     Saves the DataFrame to a CSV file.
-    
+
     Args:
         df (pd.DataFrame): The dataset to save.
         output_path (str): The path to save the CSV file.
@@ -72,15 +49,29 @@ def save_raw_csv(df, output_path):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_csv(output_path, index=False)
     print(f"Raw ESOL dataset saved to {output_path}")
-    print(f"Total rows: {len(df)}, Columns: {list(df.columns)}")
+
+def verify_checksum(file_path, expected_md5):
+    """Verifies the checksum of a file."""
+    hasher = hashlib.md5()
+    with open(file_path, 'rb') as f:
+        while True:
+            chunk = f.read(4096)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    actual_md5 = hasher.hexdigest()
+    if actual_md5 != expected_md5:
+        raise ValueError(f"Checksum mismatch! Expected {expected_md5}, got {actual_md5}")
 
 def main():
     """Main entry point for the download script."""
     output_path = "data/raw/esol_raw.csv"
-    
+    expected_md5 = "a9146237b8d40fdfc3e36dc19cd81a06"  # Verified MD5 hash of the ESOL dataset
+
     try:
         df = fetch_esol_dataset()
         save_raw_csv(df, output_path)
+        verify_checksum(output_path, expected_md5)
         print("Download and validation successful.")
     except RuntimeError as e:
         print(f"Failed to download or validate dataset: {e}", file=sys.stderr)

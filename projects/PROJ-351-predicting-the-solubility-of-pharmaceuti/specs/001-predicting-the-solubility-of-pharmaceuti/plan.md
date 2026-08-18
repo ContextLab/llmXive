@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a comparative study of Random Forest (baseline) and Message Passing Neural Networks (MPNN/GNN) for predicting aqueous solubility (logS) using the ESOL dataset. The implementation strictly adheres to CPU-only execution constraints (limited cores, ~7GB RAM) to ensure reproducibility on free-tier CI. The plan covers data ingestion, RDKit-based graph construction, baseline training, GNN training with early stopping, statistical significance testing (paired t-test, power analysis), and interpretability visualization.
+This project implements a comparative study of Random Forest (baseline) and Message Passing Neural Networks (MPNN/GNN) for predicting aqueous solubility (logS) using the ESOL dataset. The implementation strictly adheres to CPU-only execution constraints (limited cores, constrained RAM) to ensure reproducibility on free-tier CI. The plan covers data ingestion, RDKit-based graph construction, baseline training, GNN training with early stopping, statistical significance testing (paired t-test, power analysis), and interpretability visualization.
 
 ## Technical Context
 
@@ -16,7 +16,7 @@ This project implements a comparative study of Random Forest (baseline) and Mess
 **Target Platform**: Linux (GitHub Actions free-tier runner)  
 **Project Type**: Data Science / Research Pipeline  
 **Performance Goals**: Full pipeline (download → train RF → train GNN → evaluate) ≤ 6 hours on 2 vCPU.  
-**Constraints**: No GPU/CUDA; no 8-bit quantization; no large-LLM inference; strict memory limits (~7GB RAM); dataset subset if necessary to fit RAM.  
+**Constraints**: No GPU/CUDA; no 8-bit quantization; no large-LLM inference; strict memory limits (limited RAM); dataset subset if necessary to fit RAM.  
 **Scale/Scope**: ESOL dataset (a collection of molecules); /10/10 split; visualization samples.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.

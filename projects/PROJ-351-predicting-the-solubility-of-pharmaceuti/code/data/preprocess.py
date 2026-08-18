@@ -1,312 +1,378 @@
+"""
+Preprocessing module for ESOL dataset.
+
+This module handles the conversion of raw SMILES data into graph representations
+suitable for GNN training. It processes data in chunks to ensure compatibility
+with memory-constrained environments (~7GB RAM limit).
+
+Key features:
+- Chunked processing to prevent OOM errors
+- RDKit-based molecular feature extraction
+- Logging of exclusions and processing statistics
+- Output of processed graphs in JSON format
+"""
+
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
-
-import rdkit
-from rdkit import Chem
-from rdkit.Chem import AllChem
 import pandas as pd
 import numpy as np
+from rdkit import Chem
+from rdkit.Chem import Descriptors, rdMolDescriptors
+import hashlib
 
-# Setup logging
-logger = logging.getLogger(__name__)
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# --- Feature Extraction Constants (from API surface context) ---
-# Atom features: Atomic number, degree, num_h, formal_charge, num_radical_electrons, hybridization, is_aromatic
-ATOM_FEATURES = {
-    'atomic_num': list(range(1, 120)), # 0 to 119
-    'degree': [0, 1, 2, 3, 4, 5, 6],
-    'formal_charge': [-1, -2, 1, 2, 0],
-    'num_radical_electrons': [0, 1, 2, 3, 4],
-    'hybridization': [
-        Chem.HybridizationType.SP,
-        Chem.HybridizationType.SP2,
-        Chem.HybridizationType.SP3,
-        Chem.HybridizationType.SP3D,
-        Chem.HybridizationType.SP3D2
-    ],
-    'is_aromatic': [False, True]
+from config.logging_config import setup_logger
+from config.seeds import ensure_seeded
+
+# Constants
+CHUNK_SIZE = 500  # Process 500 molecules at a time
+ATOM_FEATURES_DIM = 64
+BOND_FEATURES_DIM = 32
+
+# Atom feature mapping
+ATOM_MAP = {
+    'C': 0, 'N': 1, 'O': 2, 'F': 3, 'Cl': 4, 'Br': 5, 'I': 6, 'S': 7, 'P': 8,
+    'Si': 9, 'B': 10, 'As': 11, 'Se': 12, 'Te': 13, 'Xe': 14, 'He': 15, 'Ne': 16,
+    'Ar': 17, 'Kr': 18, 'Rn': 19, 'Hg': 20, 'Pb': 21, 'Sn': 22, 'Bi': 23, 'Zn': 24,
+    'Cu': 25, 'Fe': 26, 'Mn': 27, 'Co': 28, 'Ni': 29, 'Ti': 30, 'V': 31, 'Cr': 32,
+    'Mg': 33, 'Ca': 34, 'Na': 35, 'K': 36, 'Li': 37, 'Al': 38, 'Ag': 39, 'Au': 40,
+    'Pt': 41, 'Pd': 42, 'Rh': 43, 'Ir': 44, 'Ru': 45, 'Os': 46, 'Re': 47, 'Mo': 48,
+    'W': 49, 'Ta': 50, 'Nb': 51, 'Zr': 52, 'Hf': 53, 'Sc': 54, 'Y': 55, 'La': 56,
+    'Ce': 57, 'Pr': 58, 'Nd': 59, 'Sm': 60, 'Eu': 61, 'Gd': 62, 'Tb': 63
 }
 
-# Bond features: Bond type, conjugation, ring, stereo
-BOND_FEATURES = {
-    'bond_type': [
-        Chem.BondType.SINGLE,
-        Chem.BondType.DOUBLE,
-        Chem.BondType.TRIPLE,
-        Chem.BondType.AROMATIC
-    ],
-    'is_conjugated': [False, True],
-    'is_in_ring': [False, True],
-    'stereo': [
-        Chem.BondStereo.STEREONONE,
-        Chem.BondStereo.STEREOANY,
-        Chem.BondStereo.STEREOZ,
-        Chem.BondStereo.STEREOE,
-        Chem.BondStereo.STEREOCIS,
-        Chem.BondStereo.STEREOTRANS
-    ]
+# Bond feature mapping
+BOND_MAP = {
+    'SINGLE': 0, 'DOUBLE': 1, 'TRIPLE': 2, 'AROMATIC': 3
 }
 
-# --- Helper Functions ---
+logger = None
 
-def get_atom_features(atom: Any) -> List[int]:
+def setup_logging():
+    """Initialize logging for this module."""
+    global logger
+    logger = setup_logger('preprocess', 'data/logs/preprocess.log')
+    return logger
+
+def get_atom_features(mol: Chem.Mol, atom_idx: int) -> List[float]:
     """
-    Extracts a feature vector for a single atom.
-    Returns a list of one-hot encoded indices for each feature dimension.
+    Extract features for a single atom.
+    
+    Args:
+        mol: RDKit molecule object
+        atom_idx: Index of the atom in the molecule
+        
+    Returns:
+        List of atom features
     """
-    features = []
-
-    # Atomic Number
-    atomic_num = atom.GetAtomicNum()
-    try:
-        features.append(ATOM_FEATURES['atomic_num'].index(atomic_num))
-    except ValueError:
-        features.append(len(ATOM_FEATURES['atomic_num']) - 1) # OOV
-
+    atom = mol.GetAtomWithIdx(atom_idx)
+    features = [0.0] * ATOM_FEATURES_DIM
+    
+    # Element type
+    symbol = atom.GetSymbol()
+    if symbol in ATOM_MAP:
+        features[ATOM_MAP[symbol]] = 1.0
+    else:
+        # Unknown element - use a fallback index
+        features[63] = 1.0
+        
     # Degree
     degree = atom.GetDegree()
-    try:
-        features.append(ATOM_FEATURES['degree'].index(degree))
-    except ValueError:
-        features.append(len(ATOM_FEATURES['degree']) - 1)
-
-    # Formal Charge
-    f_charge = atom.GetFormalCharge()
-    try:
-        features.append(ATOM_FEATURES['formal_charge'].index(f_charge))
-    except ValueError:
-        features.append(len(ATOM_FEATURES['formal_charge']) - 1)
-
-    # Radical Electrons
-    rad_e = atom.GetNumRadicalElectrons()
-    try:
-        features.append(ATOM_FEATURES['num_radical_electrons'].index(rad_e))
-    except ValueError:
-        features.append(len(ATOM_FEATURES['num_radical_electrons']) - 1)
-
+    if degree < 10:
+        features[64 + degree] = 1.0
+        
     # Hybridization
-    hyb = atom.GetHybridization()
-    try:
-        features.append(ATOM_FEATURES['hybridization'].index(hyb))
-    except ValueError:
-        features.append(len(ATOM_FEATURES['hybridization']) - 1)
-
-    # Is Aromatic
-    is_arom = atom.GetIsAromatic()
-    try:
-        features.append(ATOM_FEATURES['is_aromatic'].index(is_arom))
-    except ValueError:
-        features.append(len(ATOM_FEATURES['is_aromatic']) - 1)
-
+    hybridization = atom.GetHybridization()
+    hybrid_map = {
+        Chem.rdchem.HybridizationType.SP: 0,
+        Chem.rdchem.HybridizationType.SP2: 1,
+        Chem.rdchem.HybridizationType.SP3: 2,
+        Chem.rdchem.HybridizationType.SP3D: 3,
+        Chem.rdchem.HybridizationType.SP3D2: 4,
+        Chem.rdchem.HybridizationType.OTHER: 5
+    }
+    if hybridization in hybrid_map:
+        features[74 + hybrid_map[hybridization]] = 1.0
+        
+    # Formal charge
+    charge = atom.GetFormalCharge()
+    if -5 <= charge <= 5:
+        features[80 + charge + 5] = 1.0
+        
+    # Number of hydrogens
+    num_h = atom.GetTotalNumHs()
+    if num_h < 10:
+        features[90 + num_h] = 1.0
+        
+    # Aromaticity
+    if atom.GetIsAromatic():
+        features[100] = 1.0
+        
     return features
 
-def get_bond_features(bond: Any) -> List[int]:
+def get_bond_features(mol: Chem.Mol, bond_idx: int) -> List[float]:
     """
-    Extracts a feature vector for a single bond.
+    Extract features for a single bond.
+    
+    Args:
+        mol: RDKit molecule object
+        bond_idx: Index of the bond in the molecule
+        
+    Returns:
+        List of bond features
     """
-    features = []
-
-    # Bond Type
-    b_type = bond.GetBondType()
-    try:
-        features.append(BOND_FEATURES['bond_type'].index(b_type))
-    except ValueError:
-        features.append(len(BOND_FEATURES['bond_type']) - 1)
-
+    bond = mol.GetBondWithIdx(bond_idx)
+    features = [0.0] * BOND_FEATURES_DIM
+    
+    # Bond type
+    bond_type = bond.GetBondType().name
+    if bond_type in BOND_MAP:
+        features[BOND_MAP[bond_type]] = 1.0
+    else:
+        features[4] = 1.0  # Unknown/other
+        
     # Conjugation
-    is_conj = bond.GetIsConjugated()
-    try:
-        features.append(BOND_FEATURES['is_conjugated'].index(is_conj))
-    except ValueError:
-        features.append(len(BOND_FEATURES['is_conjugated']) - 1)
-
-    # In Ring
-    in_ring = bond.IsInRing()
-    try:
-        features.append(BOND_FEATURES['is_in_ring'].index(in_ring))
-    except ValueError:
-        features.append(len(BOND_FEATURES['is_in_ring']) - 1)
-
-    # Stereo
-    stereo = bond.GetStereo()
-    try:
-        features.append(BOND_FEATURES['stereo'].index(stereo))
-    except ValueError:
-        features.append(len(BOND_FEATURES['stereo']) - 1)
-
+    if bond.GetIsConjugated():
+        features[5] = 1.0
+        
+    # In ring
+    if bond.IsInRing():
+        features[6] = 1.0
+        
     return features
 
 def process_molecule(smiles: str, logS: float) -> Optional[Dict[str, Any]]:
     """
-    Parses a SMILES string into a graph representation.
-    Returns a dictionary with node features, edge indices, edge features, and target.
-    Returns None if the SMILES is invalid.
+    Process a single molecule from SMILES string to graph representation.
+    
+    Args:
+        smiles: SMILES string of the molecule
+        logS: Experimental logS value
+        
+    Returns:
+        Dictionary containing graph data or None if invalid
     """
+    global logger
+    
+    # Parse SMILES
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
+        if logger:
+            logger.warning(f"Invalid SMILES: {smiles}")
         return None
-
-    # Ensure hydrogens are implicit (RDKit handles this, but good practice)
-    mol = Chem.AddHs(mol) # Add explicit Hs for better graph representation if needed, 
-                          # but standard GNNs often use implicit Hs. 
-                          # For ESOL, standard RDKit MolFromSmiles is usually sufficient.
-    # Revert to standard for simplicity unless explicit Hs are required by specific GNN architecture
-    # mol = Chem.MolFromSmiles(smiles) 
-
-    num_nodes = mol.GetNumAtoms()
+        
+    # Get number of atoms and bonds
+    num_atoms = mol.GetNumAtoms()
+    num_bonds = mol.GetNumBonds()
     
-    # Node Features: (N, F)
-    node_features = []
-    for atom in mol.GetAtoms():
-        node_features.append(get_atom_features(atom))
+    if num_atoms == 0:
+        if logger:
+            logger.warning(f"Molecule with no atoms: {smiles}")
+        return None
+        
+    # Extract atom features
+    atom_features = []
+    for i in range(num_atoms):
+        atom_feat = get_atom_features(mol, i)
+        atom_features.append(atom_feat)
+        
+    # Extract bond features and adjacency
+    bond_features = []
+    adjacency = np.zeros((num_atoms, num_atoms), dtype=np.int32)
     
-    node_features = np.array(node_features, dtype=np.int32)
-
-    # Edges: (2, E) and Edge Features (E, F)
-    edge_indices = []
-    edge_features = []
-
-    # Add bidirectional edges for undirected graph
-    for bond in mol.GetBonds():
-        start = bond.GetBeginAtomIdx()
-        end = bond.GetEndAtomIdx()
+    for i in range(num_bonds):
+        bond = mol.GetBondWithIdx(i)
+        bond_feat = get_bond_features(mol, i)
+        bond_features.append(bond_feat)
         
-        feat = get_bond_features(bond)
+        # Update adjacency matrix
+        atom1_idx = bond.GetBeginAtomIdx()
+        atom2_idx = bond.GetEndAtomIdx()
+        adjacency[atom1_idx, atom2_idx] = bond.GetBondType().num + 1
+        adjacency[atom2_idx, atom1_idx] = bond.GetBondType().num + 1
         
-        edge_indices.append([start, end])
-        edge_features.append(feat)
-        
-        edge_indices.append([end, start])
-        edge_features.append(feat) # Symmetric
-
-    # Handle molecules with no bonds (single atom)
-    if not edge_indices:
-        # Create a self-loop or handle as isolated node depending on GNN impl
-        # For now, create a dummy self-loop if needed, but usually GNNs handle isolated nodes
-        pass
-
-    edge_indices = np.array(edge_indices, dtype=np.int32).T # (2, E)
-    edge_features = np.array(edge_features, dtype=np.int32)
-
-    return {
+    # Create graph dictionary
+    graph_data = {
         'smiles': smiles,
         'logS': logS,
-        'num_nodes': num_nodes,
-        'node_features': node_features.tolist(),
-        'edge_index': edge_indices.tolist(),
-        'edge_features': edge_features.tolist()
+        'num_atoms': num_atoms,
+        'num_bonds': num_bonds,
+        'atom_features': atom_features,
+        'bond_features': bond_features,
+        'adjacency': adjacency.tolist()
     }
-
-def load_and_preprocess(input_path: str, output_dir: str) -> Dict[str, int]:
-    """
-    Loads the raw CSV, validates SMILES and logS, processes molecules,
-    and saves the cleaned graphs to the output directory.
-    Returns a dictionary of exclusion counts.
-    """
-    logger.info(f"Loading raw data from {input_path}")
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Raw data file not found: {input_path}")
-
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows.")
-
-    # Validate columns
-    if 'smiles' not in df.columns or 'logS' not in df.columns:
-        # ESOL dataset usually has 'smiles' and 'measured logS' or similar
-        # Check for common variations
-        cols = df.columns.tolist()
-        if 'smiles' not in cols and 'SMILES' in cols:
-            df['smiles'] = df['SMILES']
-        if 'logS' not in cols and 'measured logS' in cols:
-            df['logS'] = df['measured logS']
-        
-        if 'smiles' not in df.columns or 'logS' not in df.columns:
-            raise ValueError(f"Missing required columns. Found: {df.columns.tolist()}")
-
-    # Filter NaN logS
-    initial_count = len(df)
-    df = df.dropna(subset=['logS'])
-    nan_logS_count = initial_count - len(df)
-    logger.info(f"Excluded {nan_logS_count} rows with NaN logS.")
-
-    # Filter Invalid SMILES
-    valid_indices = []
-    invalid_smiles_count = 0
-    processed_data = []
-
-    for idx, row in df.iterrows():
-        smiles = str(row['smiles'])
-        logS = float(row['logS'])
-        
-        graph = process_molecule(smiles, logS)
-        if graph is not None:
-            processed_data.append(graph)
-            valid_indices.append(idx)
-        else:
-            invalid_smiles_count += 1
     
-    logger.info(f"Excluded {invalid_smiles_count} rows with invalid SMILES.")
-    logger.info(f"Successfully processed {len(processed_data)} molecules.")
+    return graph_data
 
+def load_and_preprocess(input_path: str, output_path: str, chunk_size: int = CHUNK_SIZE) -> Dict[str, Any]:
+    """
+    Load raw CSV and preprocess in chunks to handle large datasets.
+    
+    This function processes the ESOL dataset in chunks to avoid memory issues
+    with large files. It validates each molecule, logs exclusions, and saves
+    the processed data incrementally.
+    
+    Args:
+        input_path: Path to raw CSV file
+        output_path: Path to save processed data
+        chunk_size: Number of molecules to process at once
+        
+    Returns:
+        Dictionary containing processing statistics
+    """
+    global logger
+    if logger is None:
+        setup_logging()
+        
+    logger.info(f"Starting preprocessing: {input_path} -> {output_path}")
+    
     # Ensure output directory exists
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    # Save processed data as JSON
-    output_file = output_path / "processed_graphs.json"
-    logger.info(f"Saving processed graphs to {output_file}")
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_file, 'w') as f:
-        json.dump(processed_data, f)
-
-    return {
-        'initial_rows': initial_count,
-        'nan_logS_excluded': nan_logS_count,
-        'invalid_smiles_excluded': invalid_smiles_count,
-        'final_rows': len(processed_data)
+    # Statistics tracking
+    stats = {
+        'total_rows': 0,
+        'valid_molecules': 0,
+        'invalid_smiles': 0,
+        'excluded_logS': 0,
+        'processing_time': 0.0
     }
+    
+    start_time = time.time()
+    
+    # Process in chunks
+    processed_graphs = []
+    chunk_results = []
+    
+    try:
+        # Read CSV in chunks
+        chunk_iter = pd.read_csv(input_path, chunksize=chunk_size)
+        
+        for chunk_idx, chunk in enumerate(chunk_iter):
+            logger.info(f"Processing chunk {chunk_idx + 1}")
+            
+            for _, row in chunk.iterrows():
+                stats['total_rows'] += 1
+                
+                # Validate logS
+                logS = row.get('measured logS', row.get('logS', None))
+                if pd.isna(logS):
+                    stats['excluded_logS'] += 1
+                    continue
+                    
+                # Get SMILES
+                smiles = row.get('SMILES', row.get('smiles', None))
+                if pd.isna(smiles):
+                    stats['invalid_smiles'] += 1
+                    continue
+                    
+                # Process molecule
+                graph_data = process_molecule(str(smiles), float(logS))
+                if graph_data is not None:
+                    processed_graphs.append(graph_data)
+                    stats['valid_molecules'] += 1
+                else:
+                    stats['invalid_smiles'] += 1
+                    
+            # Save chunk to disk periodically to manage memory
+            if len(processed_graphs) >= 1000:
+                chunk_file = f"{output_path}.part_{chunk_idx}.json"
+                with open(chunk_file, 'w') as f:
+                    json.dump(processed_graphs, f)
+                chunk_results.append(chunk_file)
+                logger.info(f"Saved chunk {chunk_idx + 1} to {chunk_file}")
+                processed_graphs = []
+                
+    except Exception as e:
+        logger.error(f"Error during preprocessing: {str(e)}")
+        raise
+        
+    # Save remaining processed data
+    if processed_graphs:
+        final_chunk_file = f"{output_path}.final.json"
+        with open(final_chunk_file, 'w') as f:
+            json.dump(processed_graphs, f)
+        chunk_results.append(final_chunk_file)
+        logger.info(f"Saved final chunk to {final_chunk_file}")
+        
+    # Merge all chunks into final output
+    logger.info("Merging chunks into final output...")
+    all_graphs = []
+    for chunk_file in chunk_results:
+        try:
+            with open(chunk_file, 'r') as f:
+                all_graphs.extend(json.load(f))
+            os.remove(chunk_file)  # Clean up temporary chunk files
+        except Exception as e:
+            logger.warning(f"Error reading chunk {chunk_file}: {str(e)}")
+            
+    # Save final merged data
+    with open(output_path, 'w') as f:
+        json.dump(all_graphs, f)
+        
+    stats['processing_time'] = time.time() - start_time
+    
+    logger.info(f"Preprocessing complete. Total: {stats['total_rows']}, "
+               f"Valid: {stats['valid_molecules']}, "
+               f"Invalid SMILES: {stats['invalid_smiles']}, "
+               f"Excluded logS: {stats['excluded_logS']}")
+               
+    return stats
 
 def main():
-    """
-    Main entry point for the preprocessing script.
-    Expects raw data at data/raw/esol.csv and outputs to data/processed/
-    """
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('data/logs/preprocess.log')
-        ]
-    )
-
-    # Paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    raw_data_path = project_root / "data" / "raw" / "esol.csv"
-    processed_dir = project_root / "data" / "processed"
-
-    if not raw_data_path.exists():
-        logger.error(f"Raw data file not found at {raw_data_path}. Please run download_esol.py first.")
-        sys.exit(1)
-
+    """Main entry point for preprocessing script."""
+    import argparse
+    import time
+    
+    parser = argparse.ArgumentParser(description='Preprocess ESOL dataset')
+    parser.add_argument('--input', type=str, required=True, 
+                      help='Path to raw CSV file')
+    parser.add_argument('--output', type=str, required=True,
+                      help='Path to save processed data')
+    parser.add_argument('--chunk-size', type=int, default=CHUNK_SIZE,
+                      help='Number of molecules to process per chunk')
+    parser.add_argument('--seed', type=int, default=42,
+                      help='Random seed for reproducibility')
+                      
+    args = parser.parse_args()
+    
+    # Set seed for reproducibility
+    ensure_seeded(args.seed)
+    
+    # Setup logging
+    setup_logging()
+    
+    logger.info("Starting ESOL dataset preprocessing")
+    logger.info(f"Input: {args.input}")
+    logger.info(f"Output: {args.output}")
+    logger.info(f"Chunk size: {args.chunk_size}")
+    
+    # Run preprocessing
     try:
-        stats = load_and_preprocess(str(raw_data_path), str(processed_dir))
-        logger.info("Preprocessing completed successfully.")
-        logger.info(f"Stats: {stats}")
+        stats = load_and_preprocess(
+            args.input, 
+            args.output, 
+            chunk_size=args.chunk_size
+        )
         
-        # Log exclusion counts to the logging infrastructure if available
-        # Assuming setup_logging is configured elsewhere or we just log to file
-        with open(project_root / "data" / "logs" / "preprocessing_stats.json", 'w') as f:
+        # Save statistics
+        stats_path = args.output.replace('.json', '_stats.json')
+        with open(stats_path, 'w') as f:
             json.dump(stats, f, indent=2)
             
+        logger.info(f"Statistics saved to {stats_path}")
+        logger.info("Preprocessing completed successfully")
+        
     except Exception as e:
-        logger.error(f"Preprocessing failed: {e}", exc_info=True)
+        logger.error(f"Preprocessing failed: {str(e)}")
         sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

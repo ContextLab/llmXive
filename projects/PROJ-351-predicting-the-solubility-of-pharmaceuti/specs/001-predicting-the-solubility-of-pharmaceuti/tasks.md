@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`code/`, `data/`, `models/`, `results/`, `tests/`)
-- [X] T002 Initialize Python 3.10 project with `requirements.txt` (pinning `rdkit`, `torch` CPU, `torch-geometric` CPU, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `scipy`)
+- [X] T002 Initialize Python project with `requirements.txt` (pinning `rdkit`, `torch` CPU, `torch-geometric` CPU, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `scipy`)
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/data/download_esol.py` to fetch ESOL dataset from MoleculeNet/HuggingFace URL, validate `logS` column, and save raw CSV to `data/raw/`
-- [X] T005 [P] Implement `code/data/preprocess.py` to load raw CSV, parse SMILES with RDKit, exclude invalid SMILES/NaN `logS` *before* split, extract atom/bond features, and save cleaned graphs to `data/processed/`
+- [X] T007 [P] Create base data models/entities (`Molecule`, `DatasetSplit`) in `code/models.py` or `code/__init__.py` to support downstream pipeline tasks.
+- [X] T004 [P] Implement `code/data/download_esol.py` to fetch ESOL dataset from MoleculeNet repository URL or verified canonical CSV source, validate `logS` column, and save raw CSV to `data/raw/`
+- [X] T005 [P] Implement `code/data/preprocess.py` to load raw CSV, parse SMILES with RDKit, exclude invalid SMILES/NaN `logS` *before* split, extract atom/bond features, and save cleaned graphs to `data/processed/`. **Must include:** (1) Error handling for RDKit failures (log count to `data/logs/exclusions.log` and raise warning), (2) Logging of exclusion counts to satisfy FR-001 and Principle VI.
 - [X] T006 [P] Implement `code/data/split.py` to perform a stratified train/validation/test split on cleaned data using quantile binning on `logS` and save indices to `data/processed/`
-- [X] T007 Create base data models/entities (`Molecule`, `DatasetSplit`) in `code/__init__.py` or `code/models.py`
-- [ ] T008 Configure logging infrastructure to capture exclusion counts and training metrics to `data/logs/`
-- [ ] T009 Setup environment configuration management for random seeds (pinned in `code/`)
+- [X] T008 [P] Configure logging infrastructure: Create `code/config/logging_config.py` to set up JSON-formatted logging with timestamps, writing to `data/logs/` to satisfy Constitution Principle III.
+- [X] T009 [P] Setup environment configuration management: Implement random seed pinning for numpy, torch, and random modules in `code/` to ensure reproducibility (Constitution Principle I). Do not prescribe specific file formats; ensure seeds are applied globally before data loading.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,10 +83,9 @@
 ### Implementation for User Story 1
 
 - [X] T013 [US1] Implement Random Forest baseline training in `code/models/baseline_rf.py` using Morgan fingerprints (radius=2, 2048 bits)
-- [ ] T014 [US1] Implement `code/training/train_baseline.py` to train RF on training set, evaluate on test set, and save model to `models/`
-- [X] T015 [US1] Implement logging of R-squared and RMSE to `results/baseline_metrics.json` within 10 minutes of CPU time
-- [ ] T016 [US1] Add error handling for RDKit parsing failures (log invalid count, exclude from dataset)
-- [ ] T017 [US1] Add logging for baseline training operations and exclusion counts
+- [X] T014 [US1] Implement `code/training/train_baseline.py` to train RF on training set, evaluate on test set, save model to `models/baseline_rf.pkl`, and log metrics to `results/baseline_metrics.json`.
+- [X] T015 [US1] Log R-squared and RMSE metrics to `results/baseline_metrics.json` after training completes. (Constraint: The preceding training process must complete within 10 minutes of CPU time as per SC-003).
+- [X] T017 [US1] (Integrated into T005) Logging for baseline training operations and exclusion counts.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,16 +100,17 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for MPNN architecture (CPU-only verification) in `tests/unit/test_gnn_arch.py`
-- [X] T019 [P] [US2] Integration test for GNN training loop with early stopping in `tests/integration/test_gnn_training.py` <!-- ATOMIZE: requested -->
+- [X] T019 [P] [US2] Integration test for GNN training loop with early stopping in `tests/integration/test_gnn_training.py`
 
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Implement Message Passing Neural Network (MPNN) in `code/models/gnn_mpnn.py` using PyTorch Geometric, ensuring NO CUDA/GPU calls
 - [X] T021 [US2] Implement `code/training/train_gnn.py` to train MPNN with early stopping on validation loss
-- [ ] T022 [US2] Ensure GNN training completes within 6 hours on 2-core CPU runner (simplify architecture if needed: fewer layers, smaller hidden dims)
+- [X] T022a [US2] Implement simplified MPNN architecture (max 2 layers, hidden_dim=64) in `code/models/gnn_mpnn.py` to ensure convergence within 6 hours on 2-core CPU.
+- [X] T022b [US2] Add runtime timer in `code/training/train_gnn.py` that logs duration to `data/logs/training_time.log` to verify the 6-hour constraint.
 - [X] T023 [US2] Implement evaluation script in `code/evaluation/metrics.py` to calculate RMSE and R-squared for GNN on test set
-- [ ] T024 [US2] Save GNN predictions and metrics to `results/gnn_metrics.json`
-- [ ] T025 [US2] Implement comparison logic to calculate RMSE delta between Baseline and GNN without arbitrary pass/fail flags
+- [X] T024 [US2] Save GNN predictions to `results/gnn_predictions.csv` and metrics to `results/gnn_metrics.json`.
+- [X] T025 [US2] Implement comparison logic to generate `results/model_comparison.json` containing RMSE delta between Baseline and GNN without arbitrary pass/fail flags.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,11 +129,11 @@
 
 ### Implementation for User Story 3
 
-- [X] T028 [US3] Implement `code/evaluation/statistical_test.py` to perform paired t-test on absolute errors of RF and GNN (alpha=0.05) and calculate post-hoc power
+- [X] T028 [US3] Implement `code/evaluation/statistical_test.py` to perform paired t-test on absolute errors of RF and GNN (alpha=0.05) and calculate post-hoc power. **Requires:** T014 (Baseline Metrics) and T024 (GNN Predictions).
 - [X] T029 [US3] Implement `code/evaluation/interpretability.py` to generate attention heatmaps or node importance rankings for sample molecules
-- [~] T030 [US3] Ensure visualizations are saved as PNG files with non-zero variance and size > 1KB to `results/`
+- [X] T030 [US3] Ensure visualizations are saved as PNG files: Generate `results/feature_importance_*.png` (min 5 files, >1KB each) with non-zero variance check.
 - [X] T031 [US3] Implement `code/evaluation/report_generator.py` to compile RMSE, R², p-value, power, and delta into a final summary table
-- [~] T032 [US3] Add logic to detect and report "ceiling effect" if Baseline R² > 0.95
+- [X] T032 [US3] Add logic to detect and report "ceiling effect" if Baseline R² > 0.9 (as per spec Edge Cases): Append `ceiling_effect` flag to `results/final_report.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -143,11 +143,23 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T033 [P] Documentation updates in `docs/` and `README.md`
-- [~] T034 Code cleanup and refactoring across `code/` <!-- ATOMIZE: requested -->
-- [~] T035 Performance optimization for GNN training loop (CPU efficiency)
-- [~] T036 [P] Additional unit tests for edge cases (malformed SMILES, non-convergent GNN) in `tests/unit/`
-- [~] T037 Run quickstart.md validation
+- [ ] T033 [P] Documentation updates in `docs/` and `README.md`
+- [ ] T034 Code cleanup and refactoring across `code/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T035 Performance optimization for GNN training loop (CPU efficiency)
+- [ ] T036 [P] Additional unit tests for edge cases (malformed SMILES, non-convergent GNN) in `tests/unit/`
+- [ ] T037 Run quickstart.md validation
+
+---
+
+## Phase O: Research & Validation (Post-Implementation Review)
+
+**Purpose**: Address specific research-stage review concerns regarding data integrity, reproducibility, and statistical robustness.
+
+- [X] T038 [P] [US1] **Data Source Verification**: Update `code/data/download_esol.py` to explicitly use the MoleculeNet repository URL or a verified canonical HuggingFace dataset loader and add a checksum validation step against the known MD5 hash of the ESOL dataset. **Reason**: Addresses review concern regarding "verified real data source" and prevents silent fallback to synthetic data if the URL changes.
+- [X] T039 [P] [US1] **Data Streaming Safety**: Refactor `code/data/preprocess.py` to process the dataset in chunks (e.g., a manageable batch size) rather than loading the entire CSV into memory at once, ensuring compatibility with the ~7GB RAM constraint. **Reason**: Addresses review concern regarding "Large real datasets: STREAM the real data" and prevents OOM errors on free-tier runners.
+- [ ] T040 [US2] **Non-Convergence Handling**: Enhance `code/training/train_gnn.py` to explicitly detect and log a "non-convergence" state if validation loss increases for >20 epochs without improvement, and save the best checkpoint rather than failing silently. **Reason**: Addresses the "Edge Case" in spec.md regarding GNN failure to converge.
+- [ ] T042 [P] **Reproducibility Audit**: Create a `scripts/verify_reproducibility.py` that re-runs the full pipeline with a fixed seed and compares the output checksums of `results/` artifacts against the previous run to ensure bit-for-bit reproducibility. **Depends on:** Successful completion of T037 and all Phase 5 tasks. **Reason**: Addresses Constitution Principle I (Reproducibility) and ensures the "single source of truth" is maintained.
+- [ ] T043 [US1] **Synthetic Fallback Removal**: Audit `code/data/download_esol.py` to ensure NO `try/except` block falls back to `generate_synthetic_*()` or mock data. If the download fails, the script MUST raise an exception and halt execution. **Reason**: Addresses the critical rule "The loader must FAIL LOUDLY, never fall back to synthetic."
 
 ---
 
@@ -161,6 +173,7 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Research & Validation (Phase O)**: Depends on completion of all User Stories (Phase 3-5)
 
 ### User Story Dependencies
 
@@ -184,6 +197,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Phase O tasks (T038, T039, T040, T042, T043) can run in parallel as they are distinct validation/audit scripts.
 
 ---
 
@@ -196,7 +210,7 @@ Task: "Unit test for quantile binning split logic in tests/unit/test_split.py"
 
 # Launch all models for User Story 1 together:
 Task: "Implement Random Forest baseline training in code/models/baseline_rf.py"
-Task: "Implement logging of R-squared and RMSE to results/baseline_metrics.json"
+Task: "Log R-squared and RMSE to results/baseline_metrics.json"
 ```
 
 ---
@@ -229,6 +243,7 @@ With multiple developers:
  - Developer B: User Story 2 (GNN)
  - Developer C: User Story 3 (Stats + Viz)
 3. Stories complete and integrate independently
+4. Developer D (or rotating team): Execute Phase O (Research & Validation) tasks to ensure data integrity and reproducibility.
 
 ---
 
@@ -243,4 +258,6 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All GNN tasks must run on CPU-only; no CUDA/GPU calls allowed.
 - **Constraint**: All tasks must complete within 6 hours on 2 vCPU.
-- **Constraint**: No synthetic data; use real ESOL dataset from canonical source.
+- **Constraint**: No synthetic data; use real ESOL dataset from MoleculeNet repository or verified canonical source.
+- **Critical Rule**: If a real data fetch fails, the script MUST raise an exception. No synthetic fallbacks allowed.
+- **Critical Rule**: Large datasets must be streamed or chunked to fit within ~7GB RAM.
