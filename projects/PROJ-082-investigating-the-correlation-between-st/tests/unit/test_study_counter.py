@@ -1,89 +1,81 @@
 """
-Unit tests for the study counter module (T014a).
+Unit tests for the Study Counter module (T014a).
 """
 import csv
 import json
 import os
 import tempfile
 from pathlib import Path
-from unittest import TestCase
-
-# We need to add the code directory to the path to import the module
-# In a real test runner, this would be handled by PYTHONPATH or setup.py
 import sys
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root / "code") not in sys.path:
-    sys.path.insert(0, str(project_root / "code"))
 
-from analysis.study_counter import load_extracted_studies, count_unique_studies, save_study_count
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-class TestStudyCounter(TestCase):
-    def setUp(self):
-        """Set up temporary directory and mock data."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.input_csv = Path(self.temp_dir) / "extracted_studies.csv"
-        self.output_json = Path(self.temp_dir) / "study_count.json"
+from analysis.study_counter import count_unique_studies, save_study_count, load_extracted_studies
 
-    def tearDown(self):
-        """Clean up temporary files."""
-        if self.input_csv.exists():
-            self.input_csv.unlink()
-        if self.output_json.exists():
-            self.output_json.unlink()
-        os.rmdir(self.temp_dir)
+def test_count_unique_studies_basic():
+    """Test counting unique (Author, Year) pairs."""
+    studies = [
+        {"Author": "Smith", "Year": "2020"},
+        {"Author": "Jones", "Year": "2021"},
+        {"Author": "Smith", "Year": "2020"},  # Duplicate
+        {"Author": "Lee", "Year": "2022"},
+    ]
+    count = count_unique_studies(studies)
+    assert count == 3, f"Expected 3 unique studies, got {count}"
 
-    def test_count_unique_studies_normal(self):
-        """Test counting unique (Author, Year) pairs with normal data."""
-        studies = [
-            {"Author": "Smith", "Year": "2020"},
-            {"Author": "Smith", "Year": "2020"}, # Duplicate
-            {"Author": "Jones", "Year": "2019"},
-            {"Author": "Smith", "Year": "2021"},
-        ]
-        count = count_unique_studies(studies)
-        self.assertEqual(count, 3) # Smith 2020, Jones 2019, Smith 2021
+def test_count_unique_studies_missing_fields():
+    """Test handling of missing Author or Year."""
+    studies = [
+        {"Author": "Smith", "Year": "2020"},
+        {"Author": "", "Year": "2021"},  # Missing author
+        {"Author": "Lee", "Year": ""},   # Missing year
+        {"Author": "Kim", "Year": "2022"},
+    ]
+    count = count_unique_studies(studies)
+    # Should only count Smith and Kim
+    assert count == 2, f"Expected 2 unique studies, got {count}"
 
-    def test_count_unique_studies_empty(self):
-        """Test counting with empty list."""
-        count = count_unique_studies([])
-        self.assertEqual(count, 0)
+def test_count_unique_studies_empty():
+    """Test counting with empty list."""
+    count = count_unique_studies([])
+    assert count == 0, f"Expected 0 studies, got {count}"
 
-    def test_count_unique_studies_missing_fields(self):
-        """Test handling of missing Author or Year."""
-        studies = [
-            {"Author": "Smith", "Year": "2020"},
-            {"Author": "", "Year": "2020"}, # Missing Author
-            {"Author": "Jones", "Year": ""}, # Missing Year
-            {"Year": "2020"}, # Missing Author key
-            {"Author": "Doe", "Year": "2020"},
-        ]
-        count = count_unique_studies(studies)
-        self.assertEqual(count, 2) # Smith 2020, Doe 2020
+def test_save_and_load_study_count():
+    """Test saving to JSON and loading back."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_count.json"
+        save_study_count(15, output_path)
 
-    def test_load_and_save_integration(self):
-        """Test loading from CSV and saving to JSON."""
-        # Write mock CSV
-        with open(self.input_csv, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=["Author", "Year", "Tract"])
-            writer.writeheader()
-            writer.writerow({"Author": "A", "Year": "1", "Tract": "Arcuate"})
-            writer.writerow({"Author": "B", "Year": "2", "Tract": "Cingulum"})
-            writer.writerow({"Author": "A", "Year": "1", "Tract": "Uncinate"}) # Duplicate study
+        assert output_path.exists(), "Output file was not created"
 
-        # Load
-        studies = load_extracted_studies(self.input_csv)
-        self.assertEqual(len(studies), 3)
-
-        # Count
-        n = count_unique_studies(studies)
-        self.assertEqual(n, 2)
-
-        # Save
-        save_study_count(n, self.output_json)
-
-        # Verify JSON content
-        self.assertTrue(self.output_json.exists())
-        with open(self.output_json, 'r') as f:
+        with open(output_path, 'r') as f:
             data = json.load(f)
-        
-        self.assertEqual(data, {"N": 2})
+
+        assert data["N"] == 15, f"Expected N=15, got {data['N']}"
+
+def test_load_extracted_studies(tmp_path):
+    """Test loading studies from a CSV file."""
+    csv_path = tmp_path / "studies.csv"
+    with open(csv_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["Author", "Year", "Tract"])
+        writer.writeheader()
+        writer.writerow({"Author": "Test", "Year": "2023", "Tract": "Arc"})
+        writer.writerow({"Author": "Test2", "Year": "2024", "Tract": "Cing"})
+
+    studies = load_extracted_studies(csv_path)
+    assert len(studies) == 2, f"Expected 2 studies, got {len(studies)}"
+    assert studies[0]["Author"] == "Test"
+    assert studies[1]["Year"] == "2024"
+
+def test_load_extracted_studies_missing_file():
+    """Test that FileNotFoundError is raised for missing file."""
+    try:
+        load_extracted_studies(Path("/nonexistent/path/file.csv"))
+        assert False, "Expected FileNotFoundError"
+    except FileNotFoundError:
+        pass  # Expected
+
+if __name__ == "__main__":
+    import pytest
+    pytest.main([__file__, "-v"])

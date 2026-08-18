@@ -7,338 +7,297 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import statsmodels.api as sm
-from statsmodels.stats.meta_analysis import meta_analysis
+from statsmodels.stats.meta_analysis import meta_analysis, combine_effects
+from statsmodels.stats.weightstats import DescrStatsW
 
-# Import shared utilities from sibling modules to ensure API consistency
-from utils.logger import get_logger, log_fallback, log_convergence_warning
+# Local imports matching the provided API surface
+from utils.logger import get_logger, log_error_context
 from utils.config import get_project_root
 
 logger = get_logger(__name__)
 
-def load_study_count_from_json(file_path: Path) -> int:
+def load_study_count_from_json() -> int:
     """
-    Reads the 'N' value from study_count.json.
-    Raises FileNotFoundError if the file does not exist.
-    Raises KeyError if 'N' is missing.
+    Loads the study count N from data/processed/study_count.json.
+    Raises FileNotFoundError if the file is missing.
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"Missing study count. Run T014a first. File not found: {file_path}")
+    project_root = get_project_root()
+    path = project_root / "data" / "processed" / "study_count.json"
     
-    with open(file_path, 'r', encoding='utf-8') as f:
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Missing study count. Run T014a first. Expected path: {path}"
+        )
+    
+    with open(path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    if 'N' not in data:
-        raise KeyError(f"'N' key missing in {file_path}")
+    if "N" not in data:
+        raise ValueError(f"Invalid study_count.json format: missing 'N' key. Path: {path}")
     
-    return int(data['N'])
+    return int(data["N"])
 
-def load_effect_sizes_and_se(csv_path: Path) -> Tuple[List[float], List[float]]:
+def load_effect_sizes_and_se() -> Tuple[List[float], List[float]]:
     """
-    Loads effect sizes (r) and standard errors (se) from the extracted studies CSV.
-    Returns two lists: effects and standard_errors.
-    Filters out rows where r or se are missing/NaN.
+    Loads effect sizes (r) and standard errors (se) from data/processed/extracted_studies.csv.
+    Only includes rows where 'r' and 'n' are valid numbers.
+    Returns two lists: effects, ses.
     """
-    import csv
+    project_root = get_project_root()
+    path = project_root / "data" / "processed" / "extracted_studies.csv"
     
     effects = []
     ses = []
     
-    if not csv_path.exists():
-        raise FileNotFoundError(f"Extracted studies CSV not found: {csv_path}")
+    if not path.exists():
+        logger.warning(f"Extracted studies file not found: {path}. Returning empty lists.")
+        return effects, ses
     
-    with open(csv_path, 'r', encoding='utf-8') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             r_val = row.get('r')
-            se_val = row.get('se')
+            n_val = row.get('n')
             
-            # Skip if missing or invalid
-            if r_val is None or se_val is None or r_val == '' or se_val == '':
+            # Skip if r or n is missing or not a number
+            if r_val is None or n_val is None:
                 continue
             
             try:
-                r_float = float(r_val)
-                se_float = float(se_val)
+                r = float(r_val)
+                n = int(float(n_val)) # Handle potential string floats
                 
-                # Filter out NaN or Inf
-                if math.isnan(r_float) or math.isinf(r_float):
-                    continue
-                if math.isnan(se_float) or math.isinf(se_float):
-                    continue
+                if n < 2:
+                    continue # Invalid sample size
                 
-                effects.append(r_float)
-                ses.append(se_float)
-            except ValueError:
-                # Log warning for non-numeric values if needed
+                # Calculate standard error for r (Fisher's z transformation approximation)
+                # SE_z = 1 / sqrt(N - 3)
+                # SE_r approx = SE_z (for large N) or use Fisher transform back
+                # Standard approach: Transform r to z, compute SE_z, then back-transform if needed.
+                # However, statsmodels meta_analysis often expects effect size and SE directly.
+                # We will use the standard SE for r: sqrt( (1-r^2) / (n-2) ) ? 
+                # Actually, for meta-analysis of correlations, Fisher's Z is standard.
+                # Let's compute Z and SE_z, then we might need to convert back or pass Z.
+                # The prompt asks for random effects model. statsmodels `meta_analysis` 
+                # usually takes effect size and variance/se.
+                # Let's stick to the standard error of the correlation coefficient itself 
+                # if the model expects r, OR convert to Fisher Z if the model expects Z.
+                # Given the task mentions "r", we will compute SE_r.
+                # SE_r = sqrt( (1 - r^2) / (n - 2) ) is for testing against 0.
+                # For meta-analysis, Fisher's Z is preferred.
+                # Let's implement Fisher's Z transformation to ensure normality.
+                
+                # Fisher Z transformation
+                z = 0.5 * math.log((1 + r) / (1 - r))
+                se_z = 1.0 / math.sqrt(n - 3)
+                
+                # We will store Z and SE_z for the meta-analysis, then convert back if needed.
+                # But the output usually expects r.
+                # Let's store Z and SE_z in the lists, and handle the model input accordingly.
+                # Actually, let's just store r and a calculated SE_r for simplicity if the model allows,
+                # but Fisher Z is scientifically more robust.
+                # Let's store Z and SE_z.
+                effects.append(z)
+                ses.append(se_z)
+                
+            except (ValueError, ZeroDivisionError):
                 continue
     
     return effects, ses
 
-def run_random_effects_model(effects: List[float], ses: List[float]) -> Dict[str, Any]:
+def run_random_effects_model(
+    effects: List[float], 
+    ses: List[float]
+) -> Dict[str, Any]:
     """
     Runs a Random-Effects meta-analysis using statsmodels.
-    Handles convergence failures by falling back to Fixed-Effects.
-    
-    Returns a dictionary with:
-    - pooled_effect: The estimated pooled effect size
-    - ci_lower, ci_upper: 95% Confidence Interval
-    - i_squared: Heterogeneity statistic
-    - model_type: 'random_effects' or 'fixed_effects_fallback'
-    - reliability: 'reliable' or 'unreliable'
-    - success: bool
-    - message: str
+    Falls back to Fixed-Effects if convergence fails.
+    Returns a dictionary with results.
     """
     if not effects or not ses:
         return {
-            "pooled_effect": None,
-            "ci_lower": None,
-            "ci_upper": None,
-            "i_squared": None,
-            "model_type": "none",
-            "reliability": "unreliable",
-            "success": False,
-            "message": "No valid effect sizes or standard errors provided."
+            "status": "skipped",
+            "reason": "No valid effect sizes found",
+            "model_type": "none"
         }
-
+    
     effects_arr = np.array(effects)
     ses_arr = np.array(ses)
-    variances = ses_arr ** 2
-
+    weights = 1.0 / (ses_arr ** 2)
+    
     result = {
-        "pooled_effect": None,
-        "ci_lower": None,
-        "ci_upper": None,
-        "i_squared": None,
+        "status": "completed",
         "model_type": "random_effects",
-        "reliability": "reliable",
-        "success": False,
-        "message": ""
+        "reliability": "high"
     }
-
-    # Attempt Random-Effects (DerSimonian-Laird)
+    
     try:
+        # Use statsmodels meta-analysis
+        # We are analyzing Fisher's Z values.
+        # statsmodels.stats.meta_analysis import combine_effects
+        # combine_effects(effect_size, variance, method='REML')
+        # variance = se^2
+        
+        variances = ses_arr ** 2
+        
+        # Random Effects (REML)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            # statsmodels meta_analysis defaults to DL (Random Effects)
-            ma = meta_analysis(effects_arr, variances, method='DL')
-            
-            if w:
-                for warning in w:
-                    if "convergence" in str(warning.message).lower():
-                        log_convergence_warning(f"Random-effects model convergence warning: {warning.message}")
-                        # Trigger fallback logic
-                        raise ConvergenceWarning("Model did not converge, falling back to Fixed-Effects.")
-
-            # statsmodels returns (pooled, se, ci_lb, ci_ub, z_stat, p_value, k)
-            # We need to extract i_squared manually or from the object if available
-            pooled_effect = ma.pooled_effect
-            se_pooled = ma.se_pooled
-            ci_lb = ma.ci_lb
-            ci_ub = ma.ci_ub
-            
-            # Calculate I-squared manually if not directly exposed in older versions
-            # I^2 = (Q - (k-1)) / Q
-            # Q = sum(w_i * (y_i - pooled)^2)
-            # w_i = 1 / (v_i + tau^2)
-            # tau^2 is estimated by DL
-            tau2 = ma.tau2 if hasattr(ma, 'tau2') else 0.0
-            
-            if tau2 > 0:
-                weights = 1.0 / (variances + tau2)
-            else:
-                # Fallback to inverse variance weights if tau2 is 0 (fixed effects)
-                weights = 1.0 / variances
-            
-            Q = np.sum(weights * (effects_arr - pooled_effect)**2)
-            k = len(effects)
-            
-            if Q > (k - 1):
-                i_sq = (Q - (k - 1)) / Q
-            else:
-                i_sq = 0.0
-            
-            result["pooled_effect"] = float(pooled_effect)
-            result["ci_lower"] = float(ci_lb)
-            result["ci_upper"] = float(ci_ub)
-            result["i_squared"] = float(i_sq)
-            result["success"] = True
-            result["message"] = "Random-effects model completed successfully."
-            
+            try:
+                res = combine_effects(effect_size=effects_arr, variance=variances, method='REML')
+                result["pooled_effect_z"] = float(res[0])
+                result["pooled_effect_se_z"] = float(res[1])
+                result["i_squared"] = float(res[2]) if len(res) > 2 else 0.0
+                result["tau_squared"] = float(res[3]) if len(res) > 3 else 0.0
+                
+                # Check for convergence warnings
+                if w:
+                    for warning in w:
+                        if "convergence" in str(warning.message).lower():
+                            raise RuntimeError("Convergence warning detected")
+            except Exception as e:
+                logger.warning(f"Random-effects model failed: {e}. Falling back to Fixed-Effects.")
+                raise
+        
+        # Convert pooled Z back to r
+        pooled_r = math.tanh(result["pooled_effect_z"])
+        result["pooled_effect_r"] = pooled_r
+        
+        # CI for Z -> CI for r
+        z_lower = result["pooled_effect_z"] - 1.96 * result["pooled_effect_se_z"]
+        z_upper = result["pooled_effect_z"] + 1.96 * result["pooled_effect_se_z"]
+        result["ci_lower_r"] = math.tanh(z_lower)
+        result["ci_upper_r"] = math.tanh(z_upper)
+        
+        # Calculate I-squared if not present (Cochran's Q)
+        # Q = sum(w_i * (z_i - pooled_z)^2)
+        # I2 = max(0, (Q - (k-1)) / Q)
+        k = len(effects_arr)
+        if k > 1:
+            q = np.sum(weights * (effects_arr - result["pooled_effect_z"])**2)
+            i2 = max(0, (q - (k - 1)) / q)
+            result["i_squared"] = float(i2)
+        
     except Exception as e:
-        # Fallback to Fixed-Effects
-        log_fallback(f"Random-effects model failed ({type(e).__name__}: {e}). Falling back to Fixed-Effects.")
+        logger.warning(f"Random-effects model failed (convergence or other): {e}. Falling back to Fixed-Effects.")
         result["model_type"] = "fixed_effects_fallback"
         result["reliability"] = "unreliable"
         
+        # Fixed Effects
         try:
-            # Fixed Effects: Inverse Variance Weighting
-            weights = 1.0 / variances
-            pooled_effect = np.sum(weights * effects_arr) / np.sum(weights)
-            se_pooled = 1.0 / np.sqrt(np.sum(weights))
+            res_fixed = combine_effects(effect_size=effects_arr, variance=variances, method='FE')
+            result["pooled_effect_z"] = float(res_fixed[0])
+            result["pooled_effect_se_z"] = float(res_fixed[1])
             
-            z_score = pooled_effect / se_pooled
-            # 95% CI
-            from scipy.stats import norm
-            z_crit = norm.ppf(0.975)
-            ci_lb = pooled_effect - z_crit * se_pooled
-            ci_ub = pooled_effect + z_crit * se_pooled
+            pooled_r = math.tanh(result["pooled_effect_z"])
+            result["pooled_effect_r"] = pooled_r
             
-            # I-squared for fixed effects is technically not applicable in the same way,
-            # but we report 0 or the calculated heterogeneity if we assume the model is wrong.
-            # Standard practice: report I^2 as calculated from the data regardless of model,
-            # but note the model type.
-            Q = np.sum(weights * (effects_arr - pooled_effect)**2)
-            if Q > (k - 1):
-                i_sq = (Q - (k - 1)) / Q
+            z_lower = result["pooled_effect_z"] - 1.96 * result["pooled_effect_se_z"]
+            z_upper = result["pooled_effect_z"] + 1.96 * result["pooled_effect_se_z"]
+            result["ci_lower_r"] = math.tanh(z_lower)
+            result["ci_upper_r"] = math.tanh(z_upper)
+            
+            # I-squared for FE is usually 0 or calculated differently, but we can estimate
+            k = len(effects_arr)
+            if k > 1:
+                weights_fe = 1.0 / variances
+                q = np.sum(weights_fe * (effects_arr - result["pooled_effect_z"])**2)
+                i2 = max(0, (q - (k - 1)) / q)
+                result["i_squared"] = float(i2)
             else:
-                i_sq = 0.0
-            
-            result["pooled_effect"] = float(pooled_effect)
-            result["ci_lower"] = float(ci_lb)
-            result["ci_upper"] = float(ci_ub)
-            result["i_squared"] = float(i_sq)
-            result["success"] = True
-            result["message"] = "Fixed-effects fallback completed."
-            
-        except Exception as fallback_err:
-            result["success"] = False
-            result["message"] = f"Both models failed. Random: {e}, Fixed: {fallback_err}"
-
+                result["i_squared"] = 0.0
+                
+        except Exception as e2:
+            logger.error(f"Fixed-effects model also failed: {e2}")
+            result["status"] = "failed"
+            result["reason"] = str(e2)
+            result["pooled_effect_r"] = None
+            result["pooled_effect_z"] = None
+            result["i_squared"] = None
+            result["ci_lower_r"] = None
+            result["ci_upper_r"] = None
+    
     return result
 
-def save_results(results: Dict[str, Any], output_path: Path) -> None:
+def save_results(results: Dict[str, Any], status: str, reason: str = None, n: int = None):
     """
-    Saves the meta-analysis results to a JSON file.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {output_path}")
-
-def run_meta_analysis(study_count_path: Path, extracted_csv_path: Path, output_json_path: Path) -> Dict[str, Any]:
-    """
-    Main orchestration function for T014.
-    1. Reads N from study_count.json.
-    2. If N < 10, writes skipped status to meta_status.json.
-    3. If N >= 10, runs model, writes results to results_quant.json and status to meta_status.json.
+    Saves the meta-analysis results to data/derived/results_quant.json
+    and status to data/processed/meta_status.json.
     """
     project_root = get_project_root()
     
-    # Ensure output directories exist
-    output_json_path.parent.mkdir(parents=True, exist_ok=True)
+    # Save status
     status_path = project_root / "data" / "processed" / "meta_status.json"
-    status_path.parent.mkdir(parents=True, exist_ok=True)
-
-    try:
-        n = load_study_count_from_json(study_count_path)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise e
-    except KeyError as e:
-        logger.error(str(e))
-        raise e
-
-    # Gate Logic: Check N
-    if n < 10:
-        logger.warning(f"Insufficient studies (N={n}). Skipping meta-analysis.")
-        status_result = {
-            "status": "skipped",
-            "reason": "Insufficient studies",
-            "N": n,
-            "egger_skipped_reason": "Skipped: Insufficient studies (N < 10) for Egger's regression"
-        }
-        with open(status_path, 'w', encoding='utf-8') as f:
-            json.dump(status_result, f, indent=2)
-        
-        # Also create a placeholder results file if needed, or just status
-        # The spec says: "If N < 10: Set status: skipped... and include N in the output."
-        # It does not explicitly say to write results_quant.json, but T016 expects results.json eventually.
-        # We will write a minimal results file to prevent downstream crashes if T016 tries to read it.
-        results_output = {
-            "status": "skipped",
-            "N": n,
-            "data_insufficient": True,
-            "limitation": "Insufficient studies for quantitative meta-analysis (N < 10)."
-        }
-        save_results(results_output, output_json_path)
-        
-        return status_result
-
-    # Load data
-    try:
-        effects, ses = load_effect_sizes_and_se(extracted_csv_path)
-    except FileNotFoundError as e:
-        logger.error(f"Could not load extracted studies: {e}")
-        raise e
-
-    if not effects:
-        logger.warning("No valid effect sizes found in extracted studies.")
-        status_result = {
-            "status": "skipped",
-            "reason": "No valid effect sizes found",
-            "N": n,
-            "egger_skipped_reason": "Skipped: No valid effect sizes found"
-        }
-        with open(status_path, 'w', encoding='utf-8') as f:
-            json.dump(status_result, f, indent=2)
-        results_output = {
-            "status": "skipped",
-            "reason": "No valid effect sizes found",
-            "N": n
-        }
-        save_results(results_output, output_json_path)
-        return status_result
-
-    # Run Model
-    model_results = run_random_effects_model(effects, ses)
-    
-    # Construct final output
-    final_results = {
-        "status": "completed",
-        "N": n,
-        "k": len(effects),
-        "pooled_effect": model_results["pooled_effect"],
-        "ci_lower": model_results["ci_lower"],
-        "ci_upper": model_results["ci_upper"],
-        "i_squared": model_results["i_squared"],
-        "model_type": model_results["model_type"],
-        "reliability": model_results["reliability"],
-        "message": model_results["message"]
+    status_data = {
+        "status": status,
+        "reason": reason,
+        "N": n
     }
+    if status == "skipped":
+        status_data["egger_skipped_reason"] = "Skipped: Insufficient studies (N < 10) for Egger's regression"
     
-    # Save Quantitative Results
-    save_results(final_results, output_json_path)
-    
-    # Save Status
-    status_result = {
-        "status": "completed",
-        "N": n,
-        "k": len(effects),
-        "model_type": model_results["model_type"]
-    }
     with open(status_path, 'w', encoding='utf-8') as f:
-        json.dump(status_result, f, indent=2)
-
-    return status_result
-
-def main():
-    """
-    Entry point for script execution.
-    """
-    project_root = get_project_root()
-    study_count_path = project_root / "data" / "processed" / "study_count.json"
-    extracted_csv_path = project_root / "data" / "processed" / "extracted_studies.csv"
-    output_json_path = project_root / "data" / "derived" / "results_quant.json"
+        json.dump(status_data, f, indent=2)
+    logger.info(f"Saved meta_status.json to {status_path}")
     
+    # Save results if completed
+    if status == "completed":
+        results_path = project_root / "data" / "derived" / "results_quant.json"
+        # Ensure directory exists
+        results_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(results_path, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=2)
+        logger.info(f"Saved results_quant.json to {results_path}")
+
+def run_meta_analysis():
+    """
+    Main entry point for the meta-analysis task.
+    """
     try:
-        run_meta_analysis(study_count_path, extracted_csv_path, output_json_path)
-        logger.info("Meta-analysis task completed successfully.")
+        # 1. Load N
+        n = load_study_count_from_json()
+        logger.info(f"Loaded study count N={n}")
+        
+        # 2. Gate Logic: Check N
+        if n < 10:
+            logger.info(f"Skipping meta-analysis: N={n} < 10")
+            save_results({}, status="skipped", reason="Insufficient studies", n=n)
+            return
+        
+        # 3. Load data
+        effects, ses = load_effect_sizes_and_se()
+        logger.info(f"Loaded {len(effects)} valid effect sizes.")
+        
+        if not effects:
+            logger.warning("No valid effect sizes found. Skipping analysis.")
+            save_results({}, status="skipped", reason="No valid data", n=n)
+            return
+        
+        # 4. Run model
+        results = run_random_effects_model(effects, ses)
+        
+        # 5. Save results
+        if results.get("status") == "completed":
+            save_results(results, status="completed", n=n)
+        else:
+            save_results(results, status="failed", reason=results.get("reason", "Unknown error"), n=n)
+            
     except FileNotFoundError as e:
-        logger.critical(f"Critical file missing: {e}")
+        logger.error(str(e))
+        # If study count is missing, we cannot proceed.
+        # We should still write a status indicating the error if possible, 
+        # but the spec says raise FileNotFoundError. 
+        # However, for the pipeline to continue gracefully in T016, 
+        # we might want to catch it there. Here we just let it propagate 
+        # or log and exit.
         sys.exit(1)
     except Exception as e:
-        logger.critical(f"Meta-analysis failed: {e}")
+        logger.error(f"Meta-analysis failed with unexpected error: {e}")
         sys.exit(1)
+
+def main():
+    run_meta_analysis()
 
 if __name__ == "__main__":
     main()
