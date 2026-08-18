@@ -17,7 +17,7 @@ This project implements a simulation engine to empirically evaluate the sensitiv
 **Project Type**: Computational Research / Simulation Engine  
 **Performance Goals**: Complete [deferred] iterations for all conditions (n=5..500, 3 tests, 3 effect sizes) within 6 hours on 2 CPU cores.
 **Constraints**: No GPU usage; memory < 7 GB; disk < 14 GB; all random seeds pinned; no external API calls during core simulation (only dataset download once).  
-**Scale/Scope**: A large-scale set of simulation iterations total (multiple sample sizes * tests * 3 effects * 2 hypotheses * 10k iterations, optimized via vectorization and batch processing).
+**Scale/Scope**: A large-scale set of simulation iterations total (multiple sample sizes * tests * multiple effects * 2 hypotheses * 10k iterations, optimized via vectorization and batch processing).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

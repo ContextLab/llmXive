@@ -1,0 +1,16 @@
+T031:
+  c: false
+  h: eb4543ce48f7f9656949354030433bf3001631f3c287f0d778d71116fb0a802a
+  r: The required output file `data/simulation/real_data_pvalues.csv` does not exist,
+    and the provided `code/analysis/validator.py` is incomplete (truncated) with no
+    evidence that it actually runs the three statistical tests on real data and writes
+    the required columns. The task therefore remains unfinished.
+T047:
+  c: false
+  h: 6f22b29c0f58f99141f5f885ff3668011f6ce3063eaf352aadf61cebed7cb570
+  r: "The provided `code/main.py` is incomplete (truncated) and does not show a full\
+    \ streaming/batch processing loop over the n=5..500 grid, nor does it produce\
+    \ the required `data/simulation/metrics.json`. The metrics file is missing, so\
+    \ the memory\u2011usage and runtime verification cannot be performed. The implementer\
+    \ must supply a complete `main.py` that runs the full simulation and generate\
+    \ a non\u2011empty `metrics.json` with the required fields."

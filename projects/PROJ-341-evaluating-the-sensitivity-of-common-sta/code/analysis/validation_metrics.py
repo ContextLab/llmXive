@@ -1,9 +1,15 @@
 """
-Validation metrics calculation and saving for User Story 3.
+Validation Metrics Module (Task T034).
 
-This module computes validation metrics and KS statistics comparing
-simulated results with real-world dataset results, and saves them to
-data/simulation/validation_metrics.json.
+Aggregates results from real_data_power.json and calculates summary statistics
+to produce data/simulation/validation_metrics.json.
+
+Implements:
+- load_simulated_pvalues_for_comparison
+- calculate_real_data_power
+- calculate_validation_metrics
+- save_validation_metrics
+- main
 """
 import os
 import json
@@ -11,258 +17,174 @@ import csv
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 from scipy import stats
-from code.simulation.logging_config import get_logger, log_operation
-from code.analysis.bootstrapper import calculate_ks_distance
-from code.analysis.validator import load_p_values_to_csv_safe
-from code.analysis.aggregator import load_error_rates
-from code.simulation.output_writer import load_p_values_raw_safe
 
+# Local imports matching existing API surface
+from code.analysis.bootstrapper import calculate_ks_distance, load_real_data_pvalues
+from code.analysis.validator import load_simulation_metadata
 
-logger = get_logger(__name__)
+# Paths
+DATA_DIR = "data/simulation"
+REAL_DATA_POWER_PATH = os.path.join(DATA_DIR, "real_data_power.json")
+VALIDATION_METRICS_PATH = os.path.join(DATA_DIR, "validation_metrics.json")
+REAL_DATA_PVALUES_PATH = os.path.join(DATA_DIR, "real_data_pvalues.csv")
+P_VALUES_RAW_PATH = os.path.join(DATA_DIR, "p_values_raw.csv")
 
-
-def load_simulated_pvalues_for_comparison(
-    test_type: str,
-    alpha: float = 0.05
-) -> List[float]:
+def load_simulated_pvalues_for_comparison(sample_size: int, test_type: str) -> List[float]:
     """
-    Load simulated p-values for a specific test type and hypothesis state.
+    Load simulated p-values from p_values_raw.csv for a specific sample size and test type.
     
     Args:
-        test_type: One of 't-test', 'anova', 'chi-squared'
-        alpha: Significance level (default 0.05)
+        sample_size: The sample size to filter by.
+        test_type: The test type (e.g., 't-test', 'anova', 'chi-squared').
         
     Returns:
-        List of p-values from simulations where null hypothesis was true
+        List of p-values for the specified condition.
     """
+    if not os.path.exists(P_VALUES_RAW_PATH):
+        raise FileNotFoundError(f"Simulation results not found at {P_VALUES_RAW_PATH}")
+        
+    p_values = []
     try:
-        p_values = load_p_values_raw_safe()
-        if p_values is None:
-            logger.log("error_loading_simulated_pvalues", error="No simulated p-values found")
-            return []
-        
-        # Filter for the specific test type and null hypothesis
-        filtered = [
-            row['p_value'] for row in p_values
-            if row['test_type'] == test_type and row['hypothesis'] == 'null_true'
-        ]
-        return filtered
+        df = pd.read_csv(P_VALUES_RAW_PATH)
+        # Filter by sample_size and test_type
+        subset = df[(df['sample_size'] == sample_size) & (df['test_type'] == test_type)]
+        if not subset.empty:
+            p_values = subset['p_value'].tolist()
     except Exception as e:
-        logger.log("error_loading_simulated_pvalues", error=str(e))
-        return []
+        # If file is corrupted or empty, return empty list
+        pass
+        
+    return p_values
 
-
-def calculate_real_data_power(
-    real_p_values: List[float],
-    alpha: float = 0.05
-) -> Dict[str, Any]:
+def calculate_real_data_power(real_p_values: List[float], alpha: float = 0.05) -> float:
     """
-    Calculate power metrics from real data p-values.
+    Calculate empirical power from real data p-values.
+    Power is the proportion of tests that rejected the null hypothesis (p < alpha).
     
     Args:
-        real_p_values: List of p-values from real dataset tests
-        alpha: Significance level
+        real_p_values: List of observed p-values from real data.
+        alpha: Significance threshold.
         
     Returns:
-        Dictionary with power metrics
+        Estimated power (float between 0 and 1).
     """
     if not real_p_values:
-        return {
-            'power': 0.0,
-            'type_i_error_rate': 0.0,
-            'type_ii_error_rate': 0.0,
-            'sample_size': 0
-        }
-    
-    n = len(real_p_values)
-    significant = sum(1 for p in real_p_values if p < alpha)
-    non_significant = n - significant
-    
-    # For real data, we estimate power as the proportion of significant results
-    # (assuming most real datasets have some effect)
-    power = significant / n if n > 0 else 0.0
-    
-    # Type I error rate estimate (proportion of non-significant when we expect effects)
-    # This is a heuristic since we don't know ground truth for real data
-    type_ii_rate = non_significant / n if n > 0 else 0.0
-    
-    return {
-        'power': float(power),
-        'type_i_error_rate': float(1.0 - type_ii_rate),  # Heuristic
-        'type_ii_error_rate': float(type_ii_rate),
-        'sample_size': n,
-        'significant_count': significant,
-        'non_significant_count': non_significant
-    }
+        return 0.0
+    rejections = sum(1 for p in real_p_values if p < alpha)
+    return rejections / len(real_p_values)
 
-
-def calculate_validation_metrics(
-    simulated_power: Dict[str, Any],
-    real_data_power: Dict[str, Any],
-    ks_distance: float,
-    test_type: str,
-    effect_size: Optional[float] = None
-) -> Dict[str, Any]:
+def calculate_validation_metrics(power_results_path: str = REAL_DATA_POWER_PATH) -> Dict[str, Any]:
     """
-    Calculate comprehensive validation metrics comparing simulation and real data.
+    Aggregate results from real_data_power.json and calculate summary statistics.
+    
+    This function implements T034:
+    - Reads real_data_power.json
+    - Calculates total datasets processed
+    - Counts how many passed validation (e.g., KS distance <= 0.10)
+    - Calculates average KS distance
     
     Args:
-        simulated_power: Power metrics from simulation
-        real_data_power: Power metrics from real data
-        ks_distance: Kolmogorov-Smirnov distance between distributions
-        test_type: The statistical test being validated
-        effect_size: Effect size used in simulation (if applicable)
+        power_results_path: Path to real_data_power.json.
         
     Returns:
-        Dictionary containing all validation metrics
+        Dictionary with validation metrics:
+        - total_datasets
+        - passed_validation_count
+        - avg_ks_distance
+        - details: list of per-dataset metrics
     """
+    if not os.path.exists(power_results_path):
+        raise FileNotFoundError(f"Power results not found at {power_results_path}")
+        
+    with open(power_results_path, 'r') as f:
+        data = json.load(f)
+        
+    # Handle both list and dict formats
+    if isinstance(data, dict) and 'results' in data:
+        results = data['results']
+    elif isinstance(data, list):
+        results = data
+    else:
+        # Assume single result wrapped in dict
+        results = [data]
+        
+    total_datasets = len(results)
+    passed_count = 0
+    ks_distances = []
+    details = []
+    
+    for item in results:
+        ds_id = item.get('dataset_id', 'unknown')
+        ks_dist = item.get('ks_distance', float('inf'))
+        power_est = item.get('power_estimate', 0.0)
+        
+        # Validation passes if KS distance is <= 0.10 (as per T032 verification)
+        passed = ks_dist <= 0.10
+        if passed:
+            passed_count += 1
+            
+        ks_distances.append(ks_dist)
+        
+        details.append({
+            'dataset_id': ds_id,
+            'ks_distance': ks_dist,
+            'power_estimate': power_est,
+            'passed_validation': passed
+        })
+        
+    avg_ks = np.mean(ks_distances) if ks_distances else 0.0
+    
     metrics = {
-        'test_type': test_type,
-        'effect_size': effect_size,
-        'ks_distance': float(ks_distance),
-        'simulated_power': simulated_power.get('power', 0.0),
-        'real_data_power': real_data_power.get('power', 0.0),
-        'power_difference': abs(simulated_power.get('power', 0.0) - real_data_power.get('power', 0.0)),
-        'simulated_type_i_error': simulated_power.get('type_i_error_rate', 0.0),
-        'real_data_type_i_error': real_data_power.get('type_i_error_rate', 0.0),
-        'type_i_error_difference': abs(simulated_power.get('type_i_error_rate', 0.0) - real_data_power.get('type_i_error_rate', 0.0)),
-        'simulated_type_ii_error': simulated_power.get('type_ii_error_rate', 0.0),
-        'real_data_type_ii_error': real_data_power.get('type_ii_error_rate', 0.0),
-        'type_ii_error_difference': abs(simulated_power.get('type_ii_error_rate', 0.0) - real_data_power.get('type_ii_error_rate', 0.0)),
-        'ks_threshold_met': ks_distance <= 0.10,
-        'validation_status': 'PASSED' if ks_distance <= 0.10 else 'FAILED',
-        'timestamp': __import__('datetime').datetime.utcnow().isoformat()
+        'total_datasets': total_datasets,
+        'passed_validation_count': passed_count,
+        'avg_ks_distance': float(avg_ks),
+        'details': details,
+        'validation_timestamp': datetime.utcnow().isoformat()
     }
     
     return metrics
 
-
-def save_validation_metrics(
-    metrics_list: List[Dict[str, Any]],
-    output_path: str = 'data/simulation/validation_metrics.json'
-) -> bool:
+def save_validation_metrics(metrics: Dict[str, Any], output_path: str = VALIDATION_METRICS_PATH) -> None:
     """
-    Save validation metrics to a JSON file.
+    Save validation metrics to JSON file.
     
     Args:
-        metrics_list: List of validation metric dictionaries
-        output_path: Path to save the JSON file
-        
-    Returns:
-        True if successful, False otherwise
+        metrics: Dictionary of metrics to save.
+        output_path: Path to output JSON file.
     """
-    try:
-        # Ensure output directory exists
-        output_dir = os.path.dirname(output_path)
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-            logger.log("directory_created", path=output_dir)
-        
-        # Create metadata wrapper
-        output_data = {
-            'validation_metrics': metrics_list,
-            'summary': {
-                'total_tests': len(metrics_list),
-                'passed_count': sum(1 for m in metrics_list if m.get('validation_status') == 'PASSED'),
-                'failed_count': sum(1 for m in metrics_list if m.get('validation_status') == 'FAILED'),
-                'average_ks_distance': np.mean([m.get('ks_distance', 0.0) for m in metrics_list]) if metrics_list else 0.0
-            },
-            'timestamp': __import__('datetime').datetime.utcnow().isoformat()
-        }
-        
-        with open(output_path, 'w') as f:
-            json.dump(output_data, f, indent=2)
-        
-        logger.log("validation_metrics_saved", path=output_path, count=len(metrics_list))
-        return True
-        
-    except Exception as e:
-        logger.log("error_saving_validation_metrics", error=str(e), path=output_path)
-        return False
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
 
-
-@log_operation
-def main() -> int:
+def main():
     """
-    Main entry point for calculating and saving validation metrics.
-    
-    This function:
-    1. Loads simulated p-values for comparison
-    2. Loads real data p-values
-    3. Calculates power metrics for both
-    4. Computes KS distance between distributions
-    5. Generates validation metrics
-    6. Saves results to data/simulation/validation_metrics.json
-    
-    Returns:
-        0 on success, 1 on failure
+    Main entry point for T034.
+    Aggregates real_data_power.json and writes validation_metrics.json.
     """
-    logger.log("validation_metrics_start")
+    import pandas as pd
+    from datetime import datetime
+    
+    print("Starting T034: Calculating validation metrics...")
     
     try:
-        # Define test types to validate
-        test_types = ['t-test', 'anova', 'chi-squared']
-        alpha = 0.05
-        metrics_list = []
+        # Load power results
+        metrics = calculate_validation_metrics()
         
-        for test_type in test_types:
-            logger.log("processing_test_type", test_type=test_type)
-            
-            # Load simulated p-values for this test type
-            simulated_pvalues = load_simulated_pvalues_for_comparison(test_type, alpha)
-            if not simulated_pvalues:
-                logger.log("warning_no_simulated_data", test_type=test_type)
-                continue
-            
-            # Load real data p-values for this test type
-            real_pvalues = load_p_values_to_csv_safe(test_type)
-            if not real_pvalues:
-                logger.log("warning_no_real_data", test_type=test_type)
-                continue
-            
-            # Calculate power metrics
-            simulated_power = calculate_real_data_power(simulated_pvalues, alpha)
-            real_data_power = calculate_real_data_power(real_pvalues, alpha)
-            
-            # Calculate KS distance
-            ks_stat, ks_pvalue = stats.ks_2samp(simulated_pvalues, real_pvalues)
-            ks_distance = float(ks_stat)
-            
-            # Determine effect size (heuristic: use median absolute difference)
-            effect_size = None
-            if simulated_pvalues and real_pvalues:
-                # For simplicity, we don't have a direct effect size here
-                # In a full implementation, this would come from the simulation params
-                pass
-            
-            # Calculate validation metrics
-            metrics = calculate_validation_metrics(
-                simulated_power=simulated_power,
-                real_data_power=real_data_power,
-                ks_distance=ks_distance,
-                test_type=test_type,
-                effect_size=effect_size
-            )
-            
-            metrics_list.append(metrics)
-            logger.log("metrics_calculated", test_type=test_type, ks_distance=ks_distance, status=metrics['validation_status'])
+        # Save to file
+        save_validation_metrics(metrics)
         
-        # Save all metrics
-        output_path = 'data/simulation/validation_metrics.json'
-        if save_validation_metrics(metrics_list, output_path):
-            logger.log("validation_metrics_complete", path=output_path, total=len(metrics_list))
-            return 0
-        else:
-            logger.log("error_saving_metrics")
-            return 1
-            
+        print(f"Validation metrics saved to {VALIDATION_METRICS_PATH}")
+        print(f"  Total datasets: {metrics['total_datasets']}")
+        print(f"  Passed validation: {metrics['passed_validation_count']}")
+        print(f"  Avg KS distance: {metrics['avg_ks_distance']:.4f}")
+        
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        print("Ensure that T032 (real_data_power.json) has been completed first.")
+        raise
     except Exception as e:
-        logger.log("error_in_validation_metrics", error=str(e))
-        import traceback
-        traceback.print_exc()
-        return 1
+        print(f"Error calculating validation metrics: {e}")
+        raise
 
-
-if __name__ == '__main__':
-    import sys
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

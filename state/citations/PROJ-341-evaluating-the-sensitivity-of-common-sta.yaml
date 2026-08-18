@@ -42,7 +42,7 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-06-30T04:09:16.854430Z'
-- artifact_hash: b831f8fa569fc1fd1957ba09c9adc2ee6ccb3e562a4b226de07ffbcbaaf963d1
+- artifact_hash: 551fef1558415d865c4e73fd4dc4de53aa201f2cb344acee5640ccb013b844fb
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,50 +52,15 @@
   value: https://www.wikidata.org/wiki/Q18615098
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q18615098
-  verified_at: '2026-08-16T18:22:39.796475Z'
-- artifact_hash: b831f8fa569fc1fd1957ba09c9adc2ee6ccb3e562a4b226de07ffbcbaaf963d1
+  verified_at: '2026-08-18T20:08:05.835009Z'
+- artifact_hash: 551fef1558415d865c4e73fd4dc4de53aa201f2cb344acee5640ccb013b844fb
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: '[1405.1250] New tight approximations for Fisher&#39;s exact test'
+  fetched_title: O - Wikipedia
   kind: url
-  value: https://arxiv.org/abs/1405.1250
+  value: https://en.wikipedia.org/wiki/O
   verification_status: pending
-  verified_against_url: https://arxiv.org/abs/1405.1250
-  verified_at: '2026-08-16T18:22:39.796475Z'
-- artifact_hash: b831f8fa569fc1fd1957ba09c9adc2ee6ccb3e562a4b226de07ffbcbaaf963d1
-  artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: p-value - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/P-value
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-08-16T18:22:39.796475Z'
-- artifact_hash: b831f8fa569fc1fd1957ba09c9adc2ee6ccb3e562a4b226de07ffbcbaaf963d1
-  artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[1711.07831] On Breast Cancer Detection: An Application of Machine
-    Learning Algorithms on the Wisconsin Diagnostic Dataset'
-  kind: url
-  value: https://arxiv.org/abs/1711.07831
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/1711.07831
-  verified_at: '2026-08-16T18:22:39.796475Z'
-- artifact_hash: b831f8fa569fc1fd1957ba09c9adc2ee6ccb3e562a4b226de07ffbcbaaf963d1
-  artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  cite_id: c-005
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[1810.10076] A Statistical Approach to Adult Census Income Level
-    Prediction'
-  kind: url
-  value: https://arxiv.org/abs/1810.10076
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/1810.10076
-  verified_at: '2026-08-16T18:22:39.796475Z'
+  verified_against_url: https://en.wikipedia.org/wiki/O
+  verified_at: '2026-08-18T20:08:05.835009Z'
