@@ -1,0 +1,11 @@
+status: none
+intent: download NIST Chemistry WebBook IR NMR spectra PubChem spectral data python
+  package dataset
+required_fields:
+- compound_id
+- fingerprint_512
+- mechanism_label
+- source
+cache_key: a1ac7a2c73539cd789d2e7538296936caced341fc8eb9af5149f23832bb29ffd
+searched_at: '2026-08-18T02:38:38.366133+00:00'
+retry_count: 1

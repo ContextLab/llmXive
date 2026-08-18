@@ -1,1 +1,33 @@
-[]
+- artifact_hash: f80a691f35e1cb14801500e366dcfc68521fa613e08ab0aac2ef184d26b85d6c
+  artifact_path: projects/PROJ-088-predicting-reaction-mechanisms-from-spec/specs/001-predicting-reaction-mechanisms-from-spec/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: nmr.csv
+  kind: url
+  value: https://huggingface.co/datasets/Marshtomp/chemistry_nmr_demo/resolve/main/nmr.csv`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Marshtomp/chemistry_nmr_demo/ebe5ec9f3cfe61b0200b18b869c4d25dd6af54cb/nmr.csv?%2Fdatasets%2FMarshtomp%2Fchemistry_nmr_demo%2Fresolve%2Fmain%2Fnmr.csv=&etag=%229970dbd212cda7ad087bac11fb9ccec522abd323%22
+  verified_at: '2026-08-18T02:47:20.138426Z'
+- artifact_hash: f80a691f35e1cb14801500e366dcfc68521fa613e08ab0aac2ef184d26b85d6c
+  artifact_path: projects/PROJ-088-predicting-reaction-mechanisms-from-spec/specs/001-predicting-reaction-mechanisms-from-spec/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: NIST Chemistry WebBook
+  kind: url
+  value: https://webbook.nist.gov/chemistry/`
+  verification_status: pending
+  verified_against_url: https://webbook.nist.gov/chemistry/
+  verified_at: '2026-08-18T02:47:20.138426Z'
+- artifact_hash: f80a691f35e1cb14801500e366dcfc68521fa613e08ab0aac2ef184d26b85d6c
+  artifact_path: projects/PROJ-088-predicting-reaction-mechanisms-from-spec/specs/001-predicting-reaction-mechanisms-from-spec/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-e9b227f8c7259c8b.parquet
+  kind: url
+  value: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6312e7b5bbaa385279d3e10b/06521683174da62c0d7a38ec22d401a0ddc1b06fa0bb9dab63b4ad55428703db?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-e9b227f8c7259c8b.parquet%3B+filename%3D%22train-00000-of-00001-e9b227f8c7259c8b.parquet%22%3B&Expires=1787024840&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjMxMmU3YjViYmFhMzg1Mjc5ZDNlMTBiLzA2NTIxNjgzMTc0ZGE2MmMwZDdhMzhlYzIyZDQwMWEwZGRjMWIwNmZhMGJiOWRhYjYzYjRhZDU1NDI4NzAzZGJcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtZTliMjI3ZjhjNzI1OWM4Yi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtZTliMjI3ZjhjNzI1OWM4Yi5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODcwMjQ4NDB9fX1dfQ__&Signature=MEQCIGQVNkuoaR0PB8tkFV9e8FzwLPbsKwFvpMlf8JsT5a10AiAWk4nhAqgGKOx42ij1wMYzy7gFFaFsP%7ESdteb9%7EDYA2w__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-18T02:47:20.138426Z'

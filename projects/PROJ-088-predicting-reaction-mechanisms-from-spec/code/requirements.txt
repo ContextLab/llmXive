@@ -1,0 +1,11 @@
+# Core dependencies
+scikit-learn
+xgboost
+pandas
+numpy
+datasets
+pyyaml
+pytest
+pubchempy
+pyscf
+requests

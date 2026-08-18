@@ -1,0 +1,87 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the model training and analysis results."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - RandomForest
+      - XGBoost
+    description: "Type of model trained."
+  cross_validation:
+    type: "object"
+    properties:
+      folds:
+        type: "integer"
+        const: 5
+        description: "Number of CV folds."
+      mean_accuracy:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      std_accuracy:
+        type: "number"
+        minimum: 0
+      f1_scores:
+        type: "object"
+        properties:
+          SN1:
+            type: "number"
+            minimum: 0
+            maximum: 1
+          SN2:
+            type: "number"
+            minimum: 0
+            maximum: 1
+          E1:
+            type: "number"
+            minimum: 0
+            maximum: 1
+        required:
+          - SN1
+          - SN2
+          - E1
+    required:
+      - folds
+      - mean_accuracy
+      - std_accuracy
+      - f1_scores
+  permutation_test:
+    type: "object"
+    properties:
+      p_value:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      is_significant:
+        type: "boolean"
+        description: "True if p_value < 0.05."
+    required:
+      - p_value
+      - is_significant
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        bin_index:
+          type: "integer"
+          minimum: 0
+          maximum: 511
+        importance_score:
+          type: "number"
+          minimum: 0
+        frequency_range:
+          type: "string"
+          description: "Mapped frequency range (e.g., '1700-1750 cm-1')."
+      required:
+        - bin_index
+        - importance_score
+        - frequency_range
+    description: "Top 10 features with mapped ranges."
+required:
+  - model_type
+  - cross_validation
+  - permutation_test
+  - feature_importance

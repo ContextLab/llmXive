@@ -1,0 +1,308 @@
+# Output Schema for Reaction Mechanism Prediction
+# Defines the structure of model outputs and reports
+# Enforces FR-006 (associational framing) and SC-001 (metrics)
+
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelOutputReport
+description: >
+  Schema for model training outputs, metrics, and feature importance reports.
+  Ensures no causal language and strict associational framing.
+
+oneOf:
+  - $ref: '#/definitions/TrainingReport'
+  - $ref: '#/definitions/FeatureImportanceReport'
+  - $ref: '#/definitions/PermutationTestReport'
+
+definitions:
+  TrainingReport:
+    type: object
+    required:
+      - metadata
+      - model_info
+      - cross_validation_results
+      - metrics
+      - warnings
+    properties:
+      metadata:
+        type: object
+        required:
+          - model_type
+          - version
+          - timestamp
+          - seed
+          - dataset_checksum
+        properties:
+          model_type:
+            type: string
+            enum:
+              - RandomForest
+              - XGBoost
+              - LogisticRegression
+          version:
+            type: string
+          timestamp:
+            type: string
+            format: date-time
+          seed:
+            type: integer
+          dataset_checksum:
+            type: string
+            pattern: '^[a-f0-9]{64}$'
+
+      model_info:
+        type: object
+        properties:
+          hyperparameters:
+            type: object
+          training_time_seconds:
+            type: number
+          peak_memory_mb:
+            type: number
+
+      cross_validation_results:
+        type: array
+        minItems: 5
+        maxItems: 5
+        description: Results from 5-fold stratified CV
+        items:
+          type: object
+          required:
+            - fold_index
+            - train_size
+            - test_size
+            - metrics
+          properties:
+            fold_index:
+              type: integer
+              minimum: 0
+              maximum: 4
+            train_size:
+              type: integer
+            test_size:
+              type: integer
+            metrics:
+              type: object
+              required:
+                - accuracy
+                - f1_macro
+                - f1_weighted
+              properties:
+                accuracy:
+                  type: number
+                  minimum: 0.0
+                  maximum: 1.0
+                f1_macro:
+                  type: number
+                  minimum: 0.0
+                  maximum: 1.0
+                f1_weighted:
+                  type: number
+                  minimum: 0.0
+                  maximum: 1.0
+                confusion_matrix:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: integer
+
+      metrics:
+        type: object
+        required:
+          - mean_accuracy
+          - std_accuracy
+          - mean_f1_macro
+          - mean_f1_weighted
+        properties:
+          mean_accuracy:
+            type: number
+          std_accuracy:
+            type: number
+          mean_f1_macro:
+            type: number
+          std_f1_macro:
+            type: number
+          mean_f1_weighted:
+            type: number
+          std_f1_weighted:
+            type: number
+          per_class_f1:
+            type: object
+            additionalProperties:
+              type: number
+
+      warnings:
+        type: array
+        description: List of warnings (e.g., class imbalance)
+        items:
+          type: object
+          required:
+            - type
+            - message
+          properties:
+            type:
+              type: string
+              enum:
+                - class_imbalance
+                - data_leakage_detected
+                - edge_case
+            message:
+              type: string
+
+      framing_statement:
+        type: string
+        pattern: 'associational|correlational|predictive'
+        description: Explicit statement of non-causal framing (FR-006)
+
+  FeatureImportanceReport:
+    type: object
+    required:
+      - metadata
+      - feature_importance
+      - stability_analysis
+      - significant_features
+    properties:
+      metadata:
+        type: object
+        required:
+          - model_type
+          - timestamp
+          - seed
+        properties:
+          model_type:
+            type: string
+          timestamp:
+            type: string
+            format: date-time
+          seed:
+            type: integer
+          n_folds:
+            type: integer
+            default: 5
+
+      feature_importance:
+        type: array
+        description: Ranked list of feature importances
+        items:
+          type: object
+          required:
+            - feature_index
+            - mean_importance
+            - std_importance
+          properties:
+            feature_index:
+              type: integer
+            mean_importance:
+              type: number
+              minimum: 0.0
+            std_importance:
+              type: number
+              minimum: 0.0
+            frequency_range:
+              type: object
+              properties:
+                min_cm1:
+                  type: number
+                max_cm1:
+                  type: number
+
+      stability_analysis:
+        type: object
+        description: Variance of importance across folds (SC-002)
+        required:
+          - variance_score
+          - stability_threshold
+        properties:
+          variance_score:
+            type: number
+          stability_threshold:
+            type: number
+          is_stable:
+            type: boolean
+
+      significant_features:
+        type: array
+        description: Features passing BH correction
+        items:
+          type: object
+          required:
+            - feature_index
+            - p_value
+            - adjusted_p_value
+            - is_significant
+          properties:
+            feature_index:
+              type: integer
+            p_value:
+              type: number
+            adjusted_p_value:
+              type: number
+            is_significant:
+              type: boolean
+            method:
+              type: string
+              enum:
+                - Benjamini-Hochberg
+
+      framing_statement:
+        type: string
+        pattern: 'associational|correlational|predictive'
+        description: Explicit statement of non-causal framing (FR-006)
+
+  PermutationTestReport:
+    type: object
+    required:
+      - metadata
+      - test_results
+      - null_distribution
+    properties:
+      metadata:
+        type: object
+        required:
+          - n_permutations
+          - seed
+          - model_type
+        properties:
+          n_permutations:
+            type: integer
+            minimum: 100
+          seed:
+            type: integer
+          model_type:
+            type: string
+
+      test_results:
+        type: object
+        required:
+          - observed_score
+          - p_value
+          - is_significant
+        properties:
+          observed_score:
+            type: number
+          p_value:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          is_significant:
+            type: boolean
+          alpha:
+            type: number
+            default: 0.05
+
+      null_distribution:
+        type: object
+        properties:
+          mean:
+            type: number
+          std:
+            type: number
+          samples:
+            type: array
+            items:
+              type: number
+
+      framing_statement:
+        type: string
+        pattern: 'associational|correlational|predictive'
+        description: Explicit statement of non-causal framing (FR-006)

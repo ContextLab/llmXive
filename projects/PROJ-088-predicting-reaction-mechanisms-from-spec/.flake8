@@ -1,0 +1,13 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E501, W503, W504
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    build,
+    dist,
+    *.egg-info
+per-file-ignores =
+    tests/*:S101
+application-import-names = src, tests
