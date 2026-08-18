@@ -547,3 +547,111 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T05:04:51Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: 36 simulation configurations from 3 mechanisms, 3 rates, and 4 estimators
+  claim_id: c_93901d86
+  context: Create Monte-Carlo loop in code/main.py to iterate [deferred] times per
+    configuration (3 mechanisms x 3 rates x 4 estimators = 36 configs) as per FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3 mechanisms x 3 rates x 4 estimators = 36 configs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T18:23:26Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: Default nominal confidence level is 0.95
+  claim_id: c_b039517f
+  context: 'Implement aggregation logic in code/src/metrics/aggregation.py: Bias =
+    mean(est - true); RMSE = sqrt(mean((est - true)^2)); Coverage = mean(L <= true
+    <= U). Use nominal confidence level from config/estimation.yaml (default 0.95)
+    as per SC-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use nominal confidence level from config/estimation.yaml (default 0.95)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T18:23:46Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: Imbens-Kalyanaraman bandwidth rule fallback threshold is 0.05 times the
+    range of X
+  claim_id: c_d418df08
+  context: "Implement Na\xEFve Local-Linear RD estimator in code/src/estimators/naive_rd.py:\
+    \ Use statsmodels or custom IK implementation; fallback to 0.05 * (max(X)-min(X))\
+    \ if IK < 0.05 * range (per Plan resolution of spec [deferred])."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fallback to 0.05 * (max(X)-min(X)) if IK < 0.05 * range
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T18:24:23Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: Simulation replication time target is less than 0.2 seconds
+  claim_id: c_1808e811
+  context: 'Performance optimization: Ensure each replication runs <0.2s to meet 6-hour
+    CI limit (Vectorize loops using numpy; profile with timeit; ensure <0.2s/rep;
+    if not, refactor or flag as critical failure).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_replication_time_target_is_less_than_0.2_seconds
+  kind: magnitude
+  raw_text: ensure each replication runs <0.2s
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T18:24:48Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: Total simulation execution time must be under 6 hours
+  claim_id: c_cb169d8c
+  context: 'Run feasibility benchmark: Execute multiple replications of all 36 configs;
+    verify total time < 6 hours (scaled) before full run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify total time < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T18:24:48Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: Project dependencies include numpy 1.24.0, pandas 2.0.0, scikit-learn
+    1.3.0, statsmodels 0.14.0, seaborn 0.12.0, matplotlib 3.7.0, pyyaml 6.0, pytest
+    7.0.0
+  claim_id: c_99275c9a
+  context: Initialize Python 3.11 project with requirements.txt (numpy>=1.24.0, pandas>=2.0.0,
+    scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: initialize Python 3.11 project with requirements.txt (numpy>=1.24.0, pandas>=2.0.0,
+    scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T18:25:07Z'

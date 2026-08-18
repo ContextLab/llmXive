@@ -1,0 +1,5 @@
+# This directory is reserved for generated data artifacts.
+# Raw data will be downloaded to data/raw/
+# Processed data will be stored in data/processed/
+# Analysis artifacts will be saved to data/artifacts/
+.

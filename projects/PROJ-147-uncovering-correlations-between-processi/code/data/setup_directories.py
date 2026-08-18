@@ -1,45 +1,43 @@
 """
-Script to create the required data directory structure.
-Creates 'raw' and 'processed' subdirectories under 'data/'.
+Directory structure setup for data management.
+
+This module ensures the required directory structure for raw and processed
+data exists before any data loading or processing operations begin.
 """
 import os
 from pathlib import Path
 from code.config import ensure_dirs
 from code.utils.logging import get_logger
 
-def setup_data_directories():
-    """
-    Creates the data directory structure:
-    - data/raw/
-    - data/processed/
 
-    Uses the ensure_dirs function from config to handle creation.
+def setup_data_directories(base_path: Path) -> None:
+    """
+    Create the required directory structure for data management.
+    
+    This function creates the following directory structure under the base path:
+    - data/raw/           : For storing original, unmodified data files
+    - data/processed/     : For storing cleaned, transformed, and derived data
+    
+    Args:
+        base_path: The root directory where the data folder structure will be created.
+                   Typically this is the project root.
+    
+    Raises:
+        OSError: If directories cannot be created due to permissions or other OS issues.
     """
     logger = get_logger(__name__)
-    logger.info("Starting data directory setup...")
-
-    # Define the base data directory
-    base_dir = Path("data")
-    raw_dir = base_dir / "raw"
-    processed_dir = base_dir / "processed"
-
-    # Ensure the base directory exists
-    ensure_dirs(str(base_dir))
-
-    # Create subdirectories
-    ensure_dirs(str(raw_dir))
-    ensure_dirs(str(processed_dir))
-
-    logger.info(f"Created directory: {raw_dir}")
-    logger.info(f"Created directory: {processed_dir}")
-    logger.info("Data directory setup complete.")
-
-    return True
-
-if __name__ == "__main__":
-    success = setup_data_directories()
-    if success:
-        print("Data directories created successfully.")
-    else:
-        print("Failed to create data directories.")
-        exit(1)
+    
+    # Define the directory structure
+    data_dirs = {
+        'raw': 'data/raw',
+        'processed': 'data/processed'
+    }
+    
+    logger.info("Setting up data directory structure...")
+    
+    for name, relative_path in data_dirs.items():
+        full_path = base_path / relative_path
+        ensure_dirs(full_path)
+        logger.info(f"Created directory: {full_path}")
+    
+    logger.info("Data directory structure setup complete.")

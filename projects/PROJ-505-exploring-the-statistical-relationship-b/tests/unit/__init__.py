@@ -1,1 +1,3 @@
-# Unit tests for the llmXive science pipeline
+"""
+Unit tests for individual components.
+"""

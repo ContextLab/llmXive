@@ -1,0 +1,19 @@
+# Missingness configuration for simulation
+# Used by T018 validation logic
+
+mechanisms:
+  - MCAR
+  - MAR
+  - MNAR
+
+rates:
+  - 0.1
+  - 0.2
+  - 0.3
+
+validation:
+  alpha: 0.05
+  # For MCAR: p > alpha indicates success (independence)
+  # For MAR/MNAR: p < alpha indicates success (dependence)
+
+seed: 42

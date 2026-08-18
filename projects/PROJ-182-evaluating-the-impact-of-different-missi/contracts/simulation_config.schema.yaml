@@ -1,39 +1,39 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Simulation Config"
-description: "Configuration schema for the RD simulation parameters"
+title: "Simulation Configuration"
+description: "Schema for the simulation configuration used to generate RD data."
 type: object
+properties:
+  sample_size:
+    type: integer
+    description: "Number of observations to generate."
+    minimum: 1
+  true_effect:
+    type: number
+    description: "The true treatment effect (tau) used in data generation."
+  seed:
+    type: integer
+    description: "Random seed for reproducibility."
+  beta0:
+    type: number
+    description: "Intercept term."
+    default: 0.0
+  beta1:
+    type: number
+    description: "Slope for running variable X."
+    default: 1.0
+  beta2:
+    type: number
+    description: "Coefficient for exclusion restriction Z."
+    default: 0.5
+  sigma:
+    type: number
+    description: "Standard deviation of the error term."
+    default: 1.0
+  exclusion_restriction:
+    type: number
+    description: "Value for the exclusion restriction parameter (Z*)."
+    default: 0.0
 required:
   - sample_size
   - true_effect
   - seed
-  - exclusion_restriction
-properties:
-  sample_size:
-    type: integer
-    description: "Number of samples to generate"
-    minimum: 1
-  true_effect:
-    type: number
-    description: "The true causal effect (tau) used in data generation"
-  seed:
-    type: integer
-    description: "Random seed for reproducibility"
-  exclusion_restriction:
-    type: number
-    description: "The coefficient for the exclusion restriction variable Z* in the outcome equation"
-  beta0:
-    type: number
-    description: "Intercept term (optional, defaults to 0.0 in generator)"
-    default: 0.0
-  beta1:
-    type: number
-    description: "Coefficient for running variable X (optional, defaults to 1.0)"
-    default: 1.0
-  beta2:
-    type: number
-    description: "Coefficient for covariate Z (optional, defaults to 0.5)"
-    default: 0.5
-  sigma:
-    type: number
-    description: "Standard deviation of the error term (optional, defaults to 1.0)"
-    default: 1.0

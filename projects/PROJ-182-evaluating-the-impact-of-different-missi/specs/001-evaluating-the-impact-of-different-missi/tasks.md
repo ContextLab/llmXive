@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: `code/src/generators`, `code/src/estimators`, `code/src/metrics`, `code/src/viz`, `code/tests/unit`, `code/tests/integration`, `data/`, `results/`, `contracts/`, `config/`
-- [X] T002 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f8fe0b75 — status=not_enough_info] project with `requirements.txt` (numpy>=1.24.0 [UNRESOLVED-CLAIM: c_0b85e034 — status=not_enough_info], pandas>=2.0.0 [UNRESOLVED-CLAIM: c_5242685e — status=not_enough_info], scikit-learn>=1.3.0 [UNRESOLVED-CLAIM: c_6376c623 — status=not_enough_info], statsmodels>=0.14.0 [UNRESOLVED-CLAIM: c_463d3996 — status=not_enough_info], seaborn>=0.12.0 [UNRESOLVED-CLAIM: c_b90a1a9f — status=not_enough_info], matplotlib>=3.7.0 [UNRESOLVED-CLAIM: c_c470140b — status=not_enough_info], pyyaml>=6.0 [UNRESOLVED-CLAIM: c_1a21439e — status=not_enough_info], pytest>=7.0.0 [UNRESOLVED-CLAIM: c_74b7f55f — status=not_enough_info])
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0, pandas>=2.0.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0, pyyaml>=6.0, pytest>=7.0.0)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -66,9 +66,9 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. **NOT Parallel** with implementation.
 
-- [ ] T010 [US1] Unit test for MCAR mechanism in `code/tests/unit/test_missingness.py` (verify independence)
-- [ ] T011 [US1] Unit test for MAR mechanism in `code/tests/unit/test_missingness.py` (verify correlation with covariate)
-- [ ] T012 [US1] Unit test for MNAR mechanism in `code/tests/unit/test_missingness.py` (verify correlation with outcome)
+- [X] T010 [US1] Unit test for MCAR mechanism in `code/tests/unit/test_missingness.py` (verify independence)
+- [X] T011 [US1] Unit test for MAR mechanism in `code/tests/unit/test_missingness.py` (verify correlation with covariate)
+- [X] T012 [US1] Unit test for MNAR mechanism in `code/tests/unit/test_missingness.py` (verify correlation with outcome)
 - [ ] T044 [US1] Statistical verification task: Run Chi-square (MCAR) and Pearson correlation (MAR/MNAR) on `data/simulated_raw.csv`; assert p >= 0.05 for MCAR and p < 0.05 for MAR/MNAR.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -83,9 +83,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement Naïve Local-Linear RD estimator in `code/src/estimators/naive_rd.py`: Use statsmodels or custom IK implementation; **fallback to 0.05 * (max(X)-min(X)) if IK < 0.05 * range (per Plan resolution of spec [deferred])**.
-- [ ] T024 [P] [US2] Implement Multiple Imputation (MICE) in `code/src/estimators/multiple_imputation.py`: Use statsmodels.imputation.mice with multiple imputations and default convergence criteria; predictors: X, Z, D; Rubin's rules for pooling.
-- [ ] T025 [P] [US2] Implement Inverse-Probability Weighting in `code/src/estimators/ipw.py`: Logistic regression on observed data only (X, Z, D).
+- [X] T023 [P] [US2] Implement Naïve Local-Linear RD estimator in `code/src/estimators/naive_rd.py`: Use statsmodels or custom IK implementation; **fallback to 0.05 * (max(X)-min(X)) if IK < 0.05 * range (per Plan resolution of spec [deferred])**.
+- [X] T024 [P] [US2] Implement Multiple Imputation (MICE) in `code/src/estimators/multiple_imputation.py`: Use statsmodels.imputation.mice with multiple imputations and default convergence criteria; predictors: X, Z, D; Rubin's rules for pooling.
+- [X] T025 [P] [US2] Implement Inverse-Probability Weighting in `code/src/estimators/ipw.py`: Logistic regression on observed data only (X, Z, D).
 - [ ] T026 [P] [US2] Implement Selection-Model (Heckman) in `code/src/estimators/selection_model.py`: Use statsmodels.sandbox.regression.gmm or manual MLE; **include Z* as instrument**; catch convergence error; **check Z* presence/collinearity before fit**; return NaN if invalid.
 - [ ] T027 [US2] Create estimator orchestration in `code/src/estimators/runner.py` to apply all estimators to a single dataset
 - [ ] T028 [US2] Integrate estimators into `code/main.py` to process simulated data and save `data/estimation_results.csv`
@@ -112,7 +112,7 @@
 
 - [ ] T032 [P] [US3] Implement aggregation logic in `code/src/metrics/aggregation.py`: **Bias = mean(est - true); RMSE = sqrt(mean((est - true)^2)); Coverage = mean(L <= true <= U)**. **Use nominal confidence level from `config/estimation.yaml` (default 0.95) as per SC-001**.
 - [ ] T033 [P] [US3] Implement visualization script in `code/src/viz/heatmaps.py` (Bias and Coverage heatmaps)
-- [ ] T034 [US3] Create Monte-Carlo loop in `code/main.py` to iterate **[deferred] times** per configuration (**3 mechanisms [UNRESOLVED-CLAIM: c_a709a625 — status=not_enough_info] x 3 rates x 4 estimators [UNRESOLVED-CLAIM: c_bdb4aa17 — status=not_enough_info] = 36 configs [UNRESOLVED-CLAIM: c_d7af2f5d — status=not_enough_info] **) as per FR-006.
+- [ ] T034 [US3] Create Monte-Carlo loop in `code/main.py` to iterate **[deferred] times** per configuration (**3 mechanisms x 3 rates x 4 estimators = 36 configs **) as per FR-006.
 - [ ] T035 [US3] Integrate aggregation into `code/main.py` to save `results/metrics.csv` and `results/best_estimators.json`
 - [ ] T036 [US3] Generate final visualizations and save to `results/` (e.g., `bias_heatmap.png`, `coverage_heatmap.png`)
 - [ ] T037 [US3] Add logic to identify and report the estimator with lowest RMSE for each mechanism
@@ -136,7 +136,7 @@
 - [ ] T041 [P] Additional unit tests for edge cases (zero bandwidth, missingness rate = 0/1) in `code/tests/unit/`
 - [ ] T042 Security hardening: Validate all user inputs and configuration files against schemas
 - [ ] T043 Run quickstart.md validation to ensure end-to-end reproducibility
-- [ ] T045 [P] **Run feasibility benchmark**: Execute multiple replications of all 36 configs [UNRESOLVED-CLAIM: c_d7af2f5d — status=not_enough_info]; verify total time < 6 hours (scaled) before full run.
+- [ ] T045 [P] **Run feasibility benchmark**: Execute multiple replications of all 36 configs; verify total time < 6 hours (scaled) before full run.
 
 ---
 

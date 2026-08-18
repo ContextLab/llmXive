@@ -13,6 +13,13 @@ T003:
     `ruff.toml`, or a `pre-commit` hook) or any evidence that ruff/flake8 and black
     have been set up in the repository is present. The required artifacts to satisfy
     task T003 are missing.
+T017:
+  c: false
+  h: 6c584a37ed1bc94bfa80695616be8994d84192d55bdb8a13e38f4dfce275e0d0
+  r: "The `code/main.py` script only performs configuration validation and never invokes\
+    \ any data\u2011generation functions or writes a CSV file, and the expected output\
+    \ file `data/simulated_raw.csv` is absent from the repository. Both the required\
+    \ integration and the resulting dataset are missing."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -23,3 +30,10 @@ T018:
     \ or test results) the claim cannot be verified. The missing implementation must\
     \ be added and evidence (e.g., source file and example run showing the correct\
     \ p\u2011value thresholds) supplied."
+T044:
+  c: false
+  h: b1c6e7c8ebe52dce6ddf6974c80ef1adaf10b9dbdf03a02906f59aedad5e77cc
+  r: "The required input file `data/simulated_raw.csv` does not exist, and no statistical\
+    \ test results or assertions are provided, so the chi\u2011square and Pearson\
+    \ correlation analyses cannot have been performed. The task therefore lacks the\
+    \ essential artifact and evidence."

@@ -1,44 +1,29 @@
-"""
-Utility script to ensure all required project directories exist.
-This script is idempotent and safe to run multiple times.
-"""
 import os
 from pathlib import Path
 
-def ensure_dirs(base_path: str) -> None:
+def ensure_dirs(base_path: Path) -> None:
     """
-    Creates the directory structure for the project if it doesn't exist.
+    Creates the necessary directory structure for the project if they do not exist.
+    
+    This function implements the directory creation logic for T002, T003, T004, T005, and T006,
+    ensuring that the `code/`, `data/`, `tests/`, and their subdirectories are present.
     
     Args:
-        base_path: The root path of the project.
+        base_path: The root path of the project (e.g., 'projects/PROJ-505-exploring...').
     """
-    project_root = Path(base_path)
-    
-    # Define all required directories relative to the project root
-    directories = [
-        "code",
-        "code/ingestion",
-        "code/analysis",
-        "code/utils",
-        "data",
-        "data/raw",
-        "data/processed",
-        "data/artifacts",  # The specific target for T010
-        "tests",
-        "tests/unit",
-        "tests/integration",
+    dirs_to_create = [
+        base_path / "code",
+        base_path / "data",
+        base_path / "tests",
+        base_path / "code" / "ingestion",
+        base_path / "code" / "analysis",
+        base_path / "code" / "utils",
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "artifacts",
+        base_path / "tests" / "unit",
+        base_path / "tests" / "integration",
     ]
     
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Ensured directory: {full_path}")
-
-if __name__ == "__main__":
-    # Determine the project root based on the current file location
-    # This script is located at code/utils/mkdirs.py
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent.parent
-    
-    ensure_dirs(project_root)
-    print("All directories ensured.")
+    for dir_path in dirs_to_create:
+        dir_path.mkdir(parents=True, exist_ok=True)

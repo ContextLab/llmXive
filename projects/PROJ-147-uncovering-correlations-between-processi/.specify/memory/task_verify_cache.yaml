@@ -1,0 +1,40 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code/`, `data/`, `tests/`, `docs/`)\
+    \ is presented; the response contains only the task description and no actual\
+    \ file\u2011system artifacts, so the project structure has not been demonstrated."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/data/` directory (with `raw/` and `processed/` subfolders)
+    is provided; the response contains only the task description and no filesystem
+    artifacts. The required directory structure is missing.
+T007:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required schema files (e.g., `docs/contracts/dataset.schema.yaml`, `docs/contracts/input.schema.yaml`)
+    are missing; the only mentioned file `schema.yaml` does not exist, so no data
+    schemas have been defined as required.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main.py` file or code changes were presented, and there is no evidence that\
+    \ validation logic checking for at least 50 samples per alloy family was added.\
+    \ The required artifact (updated `main.py` containing the abort\u2011on\u2011\
+    insufficient\u2011samples check) is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or generated `predictions.csv` / `new_predictions.csv` files
+    were provided; the evidence contains only the specification text, so there is
+    no artifact demonstrating that the required saving logic has been implemented.
+    The implementer must supply the actual implementation (e.g., a Python module or
+    pipeline step) and the resulting CSV files to satisfy the task.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or `pipeline.log` file was provided to demonstrate that\
+    \ the pipeline now records all warnings and hyper\u2011parameters as required\
+    \ by FR\u2011007. The implementer\u2019s claim cannot be verified without an actual\
+    \ artifact showing the logging implementation."

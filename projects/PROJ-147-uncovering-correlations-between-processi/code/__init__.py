@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline: Uncovering Correlations Between Processing Conditions and Texture in Rolled Metals
+Core code package for the llmXive automated science pipeline.
 """

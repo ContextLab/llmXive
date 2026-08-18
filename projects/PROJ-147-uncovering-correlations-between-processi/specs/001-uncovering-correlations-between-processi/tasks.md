@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `docs/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies (`scikit-learn`, `pandas`, `numpy`, `pymtex`, `pyyaml`, `pytest`) in `requirements.txt`
+- [X] T002 Initialize Python 3.11 project with dependencies (`scikit-learn`, `pandas`, `numpy`, `pymtex`, `pyyaml`, `pytest`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
 
 ---
@@ -58,7 +58,7 @@
 - [X] T004 Create `code/config.py` for hyperparameters, paths, and random seeds
 - [X] T005 [P] Implement `code/utils/logging.py` for `pipeline.log` and structured warnings (FR-007, FR-012)
 - [ ] T006 [P] Create `code/data/` directory structure (`raw/`, `processed/`)
-- [~] T007 [P] Define data schemas in `docs/contracts/` (`dataset.schema.yaml`, `input.schema.yaml`, etc.)
+- [ ] T007 [P] Define data schemas in `docs/contracts/` (`dataset.schema.yaml`, `input.schema.yaml`, etc.)
 - [X] T008 Implement `code/utils/texture.py` wrapper for `pymtex` to compute ODF intensities ({100}, {110}, {111}) in MRD (FR-003)
 - [X] T009 Implement `code/data/synthetic.py` physics-based generator ensuring ≥50 samples/alloy family with known ground truth (FR-001, FR-011)
 - [X] T009a Implement `code/data/synthetic.py` configuration to generate at least 3 distinct alloy families with ≥50 samples each and output `ground_truth.json` validating family counts (FR-009) <!-- SKIPPED: YAML+regex parse failed (while scanning for the next token
@@ -88,9 +88,9 @@ found character '`' that cannot start any token
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `code/models/trainer.py` for multi-output RandomForestRegressor training with 5-fold CV grid search (≤30 mins) (FR-004)
+- [X] T013 [P] [US1] Implement `code/models/trainer.py` for multi-output RandomForestRegressor training with 5-fold CV grid search (≤30 mins) (FR-004)
 - [ ] T014 [US1] Implement `code/models/predictor.py` for inference logic handling out-of-range warnings (Edge Case)
-- [ ] T015 [US1] Implement `code/main.py` entry point to orchestrate: Load -> Preprocess -> Train -> Predict -> Save (FR-001, FR-004, FR-005)
+- [X] T015 [US1] Implement `code/main.py` entry point to orchestrate: Load -> Preprocess -> Train -> Predict -> Save (FR-001, FR-004, FR-005)
 - [ ] T016 [US1] Add validation logic in `main.py` to abort if <50 samples/alloy family (FR-008)
 - [ ] T017 [US1] Implement logic to save `predictions.csv` and `new_predictions.csv` (FR-005)
 - [ ] T018 [US1] Implement logic to save `pipeline.log` with all warnings and hyper-params (FR-007)
@@ -107,14 +107,14 @@ found character '`' that cannot start any token
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Create unit test `tests/test_evaluation.py` to verify metric calculations and threshold checks (FR-010)
+- [X] T019 [P] [US2] Create unit test `tests/test_evaluation.py` to verify metric calculations and threshold checks (FR-010)
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/models/evaluator.py` to compute R², MAE, RMSE per texture coefficient and per alloy family (FR-009, FR-010)
-- [ ] T021 Implement permutation importance calculation and ranking logic (FR-005)
-- [ ] T021a [US2] Implement validation logic in `code/models/evaluator.py` to check SC-002 (at least one variable importance ≥0.10 for EVERY AlloyFamily); **log failure and record metrics in the evaluation report if failed, do NOT halt the pipeline**; proceed to sensitivity analysis (FR-010, SC-002)
-- [ ] T022 [US2] Implement `importance_plot.png` generation (≤5 MB) with ranked feature list (FR-005)
+- [X] T020 [P] [US2] Implement `code/models/evaluator.py` to compute R², MAE, RMSE per texture coefficient and per alloy family (FR-009, FR-010)
+- [~] T021 Implement permutation importance calculation and ranking logic (FR-005)
+- [X] T021a [US2] Implement validation logic in `code/models/evaluator.py` to check SC-002 (at least one variable importance ≥0.10 for EVERY AlloyFamily); **log failure and record metrics in the evaluation report if failed, do NOT halt the pipeline**; proceed to sensitivity analysis (FR-010, SC-002)
+- [~] T022 [US2] Implement `importance_plot.png` generation (≤5 MB) with ranked feature list (FR-005)
 - [ ] T023 [US2] Implement `sensitivity_analysis.py` to sweep R² and importance thresholds from **0.01 to 0.50 in steps of 0.01** to report stability across low to moderate magnitudes (FR-010)
 - [ ] T024 [US2] Generate `evaluation_report.json` including `data_source_type` (Real/Synthetic); **logic: Set data_source_type to "Synthetic" if the synthetic generator was invoked or if real data count < threshold, else "Real"**; include per-family metrics and missing confounds warning (SC-004, FR-012)
 - [ ] T025 [US2] Generate `sensitivity_report.json` with threshold sweep results

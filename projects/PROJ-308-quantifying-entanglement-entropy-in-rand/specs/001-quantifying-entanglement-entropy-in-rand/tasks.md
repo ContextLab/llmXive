@@ -83,7 +83,7 @@
 - [X] T008 [P] Implement logic in `code/analysis.py` to filter out 'numerically unresolved' realizations from the dataset before bootstrap/resampling to prevent systematic bias (Plan). Verify via `test_analysis.py::test_filter_unresolved`.
 - [X] T009 [P] Implement `code/analysis.py` plotting utilities to generate `entropy_vs_l.png` (log-log plot with fit line) (FR-007). Verify via `test_analysis.py::test_plot_generation`.
 - [X] T010 [P] Implement `code/cli.py` entry point to orchestrate the workflow, handle `delta_grid.csv` input, and manage output artifacts (FR-010). Verify via `test_cli.py::test_cli_run`.
-- [ ] T011 [P] **Implement Metadata Logging**: Implement logic to log 'numerically unresolved' realizations (count and reason) to `data/raw/metadata.json` and `state/` to ensure audit trail (Constitution Principle IV). Verify via `test_state.py::test_unresolved_log`.
+- [X] T011 [P] **Implement Metadata Logging**: Implement logic to log 'numerically unresolved' realizations (count and reason) to `data/raw/metadata.json` and `state/` to ensure audit trail (Constitution Principle IV). Verify via `test_state.py::test_unresolved_log`.
 - [ ] T012 [P] Configure `state/` directory structure and `state/projects/PROJ-308-...yaml` for versioning and checksum tracking (Constitution Principle IV). Verify via `test_state.py::test_checksums`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel

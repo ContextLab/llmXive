@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/`. <!-- ATOMIZE: requested -->
+- [ ] T001 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T002 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/`.
 - [ ] T003 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/`.
 - [ ] T004 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/`.
@@ -87,18 +87,18 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T021 [US1] Implement `code/ingestion/generate_synthetic_data.py`: Create a multi-year hourly dataset mimicking ACE/WIND composition and NOAA indices distributions (seeded for reproducibility). **This task must be completed BEFORE T022 and T023 as they depend on this generator for fallback logic.**
-- [ ] T022 [US1] Implement `code/ingestion/download_ace.py`: Attempt fetch from CDAWeb; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
-- [ ] T023 [US1] Implement `code/ingestion/download_noaa.py`: Attempt fetch from NOAA Dst/Kp archives; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
-- [ ] T024 [US1] Implement `code/ingestion/align.py`: Merge real/synthetic sources, handle data gaps (>6h) via interpolation/flagging, resample to a regular hourly median, apply epsilon floor for zero-velocity/IMF ratios, and **handle instrument version transitions (e.g., ACE SWICS vs. SWICS-2) by applying calibration offsets IF available, ELSE treat them as separate cohorts**. **Include a memory check during processing; if usage > 6GB, log a warning and defer chunked processing to a future phase.**
-- [ ] T025 [US1] Add validation logic to ensure temporal offset ≤ 30 minutes and monotonically increasing timestamps (integrated into T024).
+- [ ] T021 [US1] Implement `code/ingestion/generate_synthetic_data.py`: Create a multi-year hourly dataset mimicking ACE/WIND composition and NOAA indices distributions (seeded for reproducibility). **This task must be completed BEFORE T022 and T023 as they depend on this generator for fallback logic.** <!-- FAILED: unspecified -->
+- [X] T022 [US1] Implement `code/ingestion/download_ace.py`: Attempt fetch from CDAWeb; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
+- [X] T023 [US1] Implement `code/ingestion/download_noaa.py`: Attempt fetch from NOAA Dst/Kp archives; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
+- [X] T024 [US1] Implement `code/ingestion/align.py`: Merge real/synthetic sources, handle data gaps (>6h) via interpolation/flagging, resample to a regular hourly median, apply epsilon floor for zero-velocity/IMF ratios, and **handle instrument version transitions (e.g., ACE SWICS vs. SWICS-2) by applying calibration offsets IF available, ELSE treat them as separate cohorts**. **Include a memory check during processing; if usage > 6GB, log a warning and defer chunked processing to a future phase.**
+- [~] T025 [US1] Add validation logic to ensure temporal offset ≤ 30 minutes and monotonically increasing timestamps (integrated into T024).
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests AFTER implementation to verify the logic**
 
-- [ ] T026 [US1] Unit test for data alignment logic in `tests/unit/test_ingestion.py` (verify 1-hour resampling and median aggregation).
-- [ ] T027 [US1] Unit test for synthetic data generator in `tests/unit/test_synthetic.py` (verify realistic distributions and no NaNs in critical columns).
+- [X] T026 [US1] Unit test for data alignment logic in `tests/unit/test_ingestion.py` (verify 1-hour resampling and median aggregation).
+- [X] T027 [US1] Unit test for synthetic data generator in `tests/unit/test_synthetic.py` (verify realistic distributions and no NaNs in critical columns).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,15 +112,15 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [ ] T028 [US2] Implement `code/analysis/coupling_functions.py`: Derive Akasofu epsilon, Newell function, and other bulk-parameter coupling functions from aligned data.
-- [ ] T029 [US2] Implement `code/analysis/regression.py`: Fit baseline model (coupling functions only) and full model (coupling + composition ratios); calculate coefficients, p-values, and VIF; **explicitly flag and output a warning artifact for any predictor with VIF ≥ 5**. **Prerequisite: T024 (align.py) must be complete.**
+- [X] T028 [US2] Implement `code/analysis/coupling_functions.py`: Derive Akasofu epsilon, Newell function, and other bulk-parameter coupling functions from aligned data.
+- [X] T029 [US2] Implement `code/analysis/regression.py`: Fit baseline model (coupling functions only) and full model (coupling + composition ratios); calculate coefficients, p-values, and VIF; **explicitly flag and output a warning artifact for any predictor with VIF ≥ 5**. **Prerequisite: T024 (align.py) must be complete.**
 - [ ] T030 [US2] Implement `code/analysis/cross_validation.py`: Perform 5-fold cross-validation to assess out-of-sample R² for both models and calculate ΔR². **Prerequisite: T029 (regression.py) must be complete.**
-- [ ] T031 [US2] Integrate regression results into `data/artifacts/` (CSV/JSON outputs with model metrics).
+- [~] T031 [US2] Integrate regression results into `data/artifacts/` (CSV/JSON outputs with model metrics).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T032 [US2] Unit test for coupling function derivation in `tests/unit/test_coupling.py` (verify Akasofu epsilon/Newell function calculations).
-- [ ] T033 [US2] Integration test for regression pipeline in `tests/integration/test_regression.py` (verify ΔR² calculation and VIF check).
+- [X] T032 [US2] Unit test for coupling function derivation in `tests/unit/test_coupling.py` (verify Akasofu epsilon/Newell function calculations).
+- [X] T033 [US2] Integration test for regression pipeline in `tests/integration/test_regression.py` (verify ΔR² calculation and VIF check).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
