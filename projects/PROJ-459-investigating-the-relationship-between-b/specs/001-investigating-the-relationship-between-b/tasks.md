@@ -89,8 +89,8 @@
  3. Verify the dataset source matches the Constitution's Verified Accuracy principle (check against a verified list of datasets).
  Define `check_data_integrity()`.
 - [X] T016 [P] [US1] Implement `code/data/validate.py` to check for 'musical_genre' or 'STOMP-R' in `participants.tsv`; halt with `DataValidationError` (code `ERR_DATA_MISSING`) if missing. Log specific missing field name. (Integrated into T012c logic, but kept as separate task for testability of specific validation step).
-- [ ] T017 [P] [US1] Add validation logic to exclude subjects with >10% missing behavioral data or >10% corrupted fMRI volumes. [UNRESOLVED-CLAIM: c_65b09211 — status=not_enough_info] Define `exclude_subjects_by_missing_data()`.
-- [ ] T018 [P] [US1] Add logic to flag/exclude subjects with excessive head motion (>0.5mm FD). [UNRESOLVED-CLAIM: c_8d4b8e9f — status=refuted] Define `exclude_subjects_by_motion()`.
+- [ ] T017 [P] [US1] Add validation logic to exclude subjects with >10% missing behavioral data or >10% corrupted fMRI volumes. Define `exclude_subjects_by_missing_data()`.
+- [ ] T018 [P] [US1] Add logic to flag/exclude subjects with excessive head motion (>0.5mm FD). Define `exclude_subjects_by_motion()`.
 - [X] T014 [US1] Depends: T008, T012c, T012e. Implement `code/data/preprocess.py` to run fMRIPrep (Docker) with memory limits and generate standardized BOLD/confounds. Command args: `--output-space MNI152NLin2009cAsym --confounds trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars`. Define `run_fmriprep(subject_id: str)`.
 - [X] T015 [US1] Depends: T005, T014. Implement `code/data/preprocess.py` to extract regional time courses using Schaefer-400 atlas (400 ROIs × timepoints). Define `extract_time_series(subject_id: str)`.
 
@@ -137,7 +137,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [P] [US3] Implement `code/analysis/stats.py` to perform Spearman correlations between network metrics and genre preference scores. Define `compute_spearman_correlations(metrics: pd.DataFrame, genres: pd.Series)`.
+- [X] T031 [P] [US3] Implement `code/analysis/stats.py` to perform Spearman correlations between network metrics and genre preference scores. Define `compute_spearman_correlations(metrics: pd.DataFrame, genres: pd.Series)`.
 - [ ] T032 [US3] Implement `code/analysis/stats.py` to apply Benjamini-Hochberg correction to raw p-values. Define `apply_bh_correction(p_values: list[float])`.
 - [ ] T033 [US3] Implement `code/analysis/stats.py` to perform post-hoc power analysis (target: power ≥ 0.8 for |r| ≥ 0.3). Define `compute_power(sample_size: int, effect_size: float)`.
 - [ ] T034 [US3] Implement `code/analysis/stats.py` to run null distribution validation (A large number of permutations) to verify false positive rate ≤ 0.05. Generate `data/derived/null_validation_report.json` with keys: `false_positive_rate`, `permutations_count`.

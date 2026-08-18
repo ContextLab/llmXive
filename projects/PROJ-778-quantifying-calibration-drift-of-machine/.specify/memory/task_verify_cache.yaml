@@ -1,0 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `code/`, `data/`, or `tests/` directories (or any listing of such structure)\
+    \ were provided; the evidence contains no files or folder listings to confirm\
+    \ the required project layout exists. The task\u2019s core deliverable is therefore\
+    \ missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings, or related CI scripts) were provided or
+    referenced, so the required artifact for configuring ruff/flake8 and Black is
+    missing. The task therefore remains incomplete.
+T014:
+  c: false
+  h: 51e7d6d88f46d521bef0cd041ee70abad62c2bf0d8efad7ec1d453539f73ed94
+  r: "The repository contains `code/01_data_acquisition.py`, but the `align_features`\
+    \ function is truncated and there is no evidence that it writes the intersected\
+    \ feature list to `data/processed/aligned_features.json`. Moreover, the required\
+    \ `aligned_features.json` file is missing from the `data/processed` directory.\
+    \ The task\u2019s core output is therefore not present."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data files were presented that implement the splitting of
+    yearly test data and saving it under `data/processed/`. Consequently, there is
+    no artifact to verify that the required logic exists or that any test splits were
+    actually created. The task remains unfinished.
+T024:
+  c: false
+  h: 82247182ab251acbc3335f2d11c3072a3f2f09c1b5fa2ae49f0a600fd996dfd9
+  r: The required output file `data/processed/metrics_records.json` does not exist,
+    so the metrics are not stored as specified. Additionally, without the full script
+    we cannot confirm that all listed metrics (including the various rho values and
+    their differences) are actually computed and written. The missing JSON file is
+    the concrete blocker.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, or documentation were presented that shows logic for detecting
+    missing yearly snapshots, logging a warning, and skipping processing for those
+    years. The required artifact (implementation of graceful handling of missing years)
+    is absent, so the task is not satisfied.

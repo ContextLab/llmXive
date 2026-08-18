@@ -1,3 +1,7 @@
+"""
+Preprocessing orchestration script for fmriprep.
+Handles dataset download, subject filtering, fmriprep execution, QC, and deviation logging.
+"""
 import os
 import sys
 import subprocess
@@ -7,6 +11,7 @@ import re
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 
+# Import utilities from sibling module
 from utils import (
     get_bids_subject_path,
     get_fmriprep_output_path,
@@ -15,261 +20,339 @@ from utils import (
     calculate_frame_displacement,
     check_motion_threshold,
     log_qc_metrics,
-    get_event_file_path,
-    validate_event_labels,
+    filter_subjects_by_motion
 )
-from subject_filter import load_qc_log, filter_valid_subjects, write_valid_subjects
 
 # Constants
-LOG_FILE = "data/derivatives/preprocessing.log"
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_RAW = PROJECT_ROOT / "data" / "raw"
+DATA_DERIVATIVES = PROJECT_ROOT / "data" / "derivatives"
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+LOG_FILE = PROJECT_ROOT / "data" / "processed" / "preprocessing.log"
+VALID_SUBJECTS_FILE = DATA_PROCESSED / "valid_subjects.txt"
+QC_LOG_FILE = DATA_PROCESSED / "qc_log.csv"
+EXCLUSION_LOG_FILE = DATA_PROCESSED / "excluded_subjects.log"
+
+# Motion threshold in mm
 MOTION_THRESHOLD_MM = 2.0
-SUBJECTS_FILE = "data/processed/valid_subjects.txt"
 
-def setup_logging():
-    """Configure logging to file and console."""
-    log_path = Path(LOG_FILE)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Configure root logger
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(message)s",
-        handlers=[
-            logging.FileHandler(log_path, mode="a"),
-            logging.StreamHandler(sys.stdout),
-        ],
+def setup_logging(log_file: Path) -> logging.Logger:
+    """
+    Setup logging configuration to write to both console and file.
+    
+    Args:
+        log_file: Path to the log file.
+        
+    Returns:
+        Configured logger instance.
+    """
+    # Ensure log directory exists
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create logger
+    logger = logging.getLogger("preprocessing")
+    logger.setLevel(logging.INFO)
+    
+    # Clear existing handlers to avoid duplicates
+    logger.handlers.clear()
+    
+    # File handler
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
+    file_format = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
-    return logging.getLogger(__name__)
+    file_handler.setFormatter(file_format)
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_format = logging.Formatter('%(levelname)s: %(message)s')
+    console_handler.setFormatter(console_format)
+    
+    # Add handlers
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    
+    return logger
 
-def get_subject_list(raw_dir: Path) -> List[str]:
+def get_subject_list() -> List[str]:
     """
-    Scan the BIDS raw directory for subject folders (sub-*)
-    and return a list of subject IDs (without 'sub-' prefix).
+    Get list of subjects from the raw data directory.
+    
+    Returns:
+        List of subject IDs.
     """
+    if not DATA_RAW.exists():
+        raise FileNotFoundError(f"Raw data directory not found: {DATA_RAW}")
+    
     subjects = []
-    for item in sorted(raw_dir.iterdir()):
+    for item in sorted(DATA_RAW.iterdir()):
         if item.is_dir() and item.name.startswith("sub-"):
-          subjects.append(item.name.split("sub-")[1])
+            subject_id = item.name.replace("sub-", "")
+            subjects.append(subject_id)
+    
     return subjects
 
 def run_fmriprep_for_subject(
     subject_id: str,
-    raw_dir: Path,
+    bids_root: Path,
     output_dir: Path,
-    work_dir: Path,
     logger: logging.Logger,
+    fmriprep_image: str = "nipreps/fmriprep:23.1.3"
 ) -> bool:
     """
-    Execute fmriprep for a single subject using Docker.
-    Returns True if successful, False otherwise.
+    Run fmriprep for a single subject.
+    
+    Args:
+        subject_id: Subject ID (without 'sub-' prefix).
+        bids_root: Path to the BIDS root directory.
+        output_dir: Path to the output directory.
+        logger: Logger instance.
+        fmriprep_image: Docker image tag for fmriprep.
+        
+    Returns:
+        True if successful, False otherwise.
     """
-    bids_subject = f"sub-{subject_id}"
-    bids_input = str(raw_dir)
-    bids_output = str(output_dir)
-    work_subj = work_dir / bids_subject
-
-    # Ensure work directory exists for this subject
-    work_subj.mkdir(parents=True, exist_ok=True)
-
-    # Construct docker command
-    # Note: In a real environment, this would use the specific docker-compose or docker run command
-    # defined in T008/T008b. We assume fmriprep is available via the environment or a wrapper.
-    cmd = [
-        "fmriprep",
-        bids_input,
-        bids_output,
-        "participant",
-        "--participant-label", bids_subject,
-        "--skip-bids-validation",
-        "--output-spaces", "MNI152NLin2009cAsym",
-        "--fs-license-file", os.environ.get("FS_LICENSE", "/opt/freesurfer/license.txt"),
-        "--work-dir", str(work_subj),
-        "--nthreads", "4",
-        "--omp-nthreads", "2",
-        "--mem", "4GB",
-    ]
-
-    logger.info(f"Running fmriprep for {bids_subject}...")
-    start_time = time.time()
-
-    try:
-        # In a real execution, we would run: subprocess.run(cmd, check=True)
-        # For this implementation, we simulate the execution flow to ensure logging works.
-        # The actual subprocess call is commented out to prevent failure in environments without Docker/fmriprep.
-        # subprocess.run(cmd, check=True)
-
-        # Simulate processing time
-        time.sleep(0.5)
-        logger.info(f"Completed fmriprep for {bids_subject} in {time.time() - start_time:.2f}s")
-        return True
-
-    except subprocess.CalledProcessError as e:
-        logger.error(f"fmriprep failed for {bids_subject}: {e}")
+    subject_dir = f"sub-{subject_id}"
+    bids_subject_path = bids_root / subject_dir
+    
+    if not bids_subject_path.exists():
+        logger.error(f"Subject directory not found: {bids_subject_path}")
         return False
+    
+    output_subject_dir = output_dir / subject_dir
+    output_subject_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Build fmriprep command
+    cmd = [
+        "docker", "run", "--rm",
+        "-v", f"{bids_root}:/bids:ro",
+        "-v", f"{output_dir}:/output",
+        "-v", f"{output_dir}/work:/work",
+        "--env", "OMP_NUM_THREADS=2",
+        "--env", "OPENBLAS_NUM_THREADS=2",
+        "--env", "MKL_NUM_THREADS=2",
+        "--env", "VECLIB_MAXIMUM_THREADS=2",
+        "--env", "NUMEXPR_NUM_THREADS=2",
+        fmriprep_image,
+        "/bids", "/output", "participant",
+        "--participant-label", subject_id,
+        "--skip_bids_validation",
+        "--output-spaces", "MNI152NLin2009cAsym",
+        "--fs-no-reconall",
+        "--cifti-output", "91k"
+    ]
+    
+    logger.info(f"Running fmriprep for subject {subject_id}...")
+    start_time = time.time()
+    
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        elapsed_time = time.time() - start_time
+        
+        if result.returncode != 0:
+            logger.error(f"fmriprep failed for subject {subject_id} after {elapsed_time:.2f}s")
+            logger.error(f"STDERR: {result.stderr}")
+            # Log deviation
+            logger.warning(f"DEVIATION: fmriprep execution failed for {subject_id}")
+            return False
+        else:
+            logger.info(f"fmriprep completed successfully for subject {subject_id} in {elapsed_time:.2f}s")
+            return True
+            
     except FileNotFoundError:
-        logger.error(
-            f"fmriprep command not found. Ensure Docker and fmriprep are installed and accessible. "
-            f"Refer to T008/T008b for setup instructions."
-        )
+        logger.error("Docker not found. Please install Docker and try again.")
+        logger.warning(f"DEVIATION: Docker not available for subject {subject_id}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error running fmriprep for {subject_id}: {str(e)}")
+        logger.warning(f"DEVIATION: Unexpected error during fmriprep for {subject_id}")
         return False
 
 def process_qc_and_exclude(
     subject_id: str,
+    bids_root: Path,
     output_dir: Path,
-    logger: logging.Logger,
+    logger: logging.Logger
 ) -> bool:
     """
-    Parse fmriprep logs/outputs for motion parameters.
-    Returns True if subject passes QC, False if excluded.
-    """
-    bids_subject = f"sub-{subject_id}"
-    motion_file = get_motion_file(output_dir, bids_subject)
-
-    if not motion_file.exists():
-        logger.warning(f"Motion file not found for {bids_subject}. Excluding.")
-        return False
-
-    try:
-        trans_matrix, rot_matrix = parse_motion_parameters(motion_file)
-        max_displacement = calculate_frame_displacement(trans_matrix, rot_matrix)
-        passes = check_motion_threshold(max_displacement, MOTION_THRESHOLD_MM)
-
-        if not passes:
-            logger.warning(
-                f"Subject {bids_subject} exceeds motion threshold "
-                f"(max displacement: {max_displacement:.2f}mm > {MOTION_THRESHOLD_MM}mm). Excluding."
-            )
-            return False
-        
-        logger.info(f"Subject {bids_subject} passed motion QC (max displacement: {max_displacement:.2f}mm).")
-        return True
-
-    except Exception as e:
-        logger.error(f"Error parsing motion parameters for {bids_subject}: {e}")
-        return False
-
-def log_preprocessing_deviations(
-    subject_id: str,
-    deviation_type: str,
-    details: str,
-    logger: logging.Logger,
-):
-    """
-    Log specific preprocessing deviations to the main log file.
-    This function implements Constitution Principle VI by ensuring
-    all deviations are recorded for auditability.
+    Process QC metrics and exclude subjects with excessive motion.
     
     Args:
-        subject_id: The subject identifier (e.g., '01')
-        deviation_type: Type of deviation (e.g., 'MOTION_EXCESS', 'PREPROCESS_FAIL', 'MISSING_DATA')
-        details: Human-readable description of the deviation
-        logger: The logger instance to use
+        subject_id: Subject ID.
+        bids_root: Path to the BIDS root directory.
+        output_dir: Path to the output directory.
+        logger: Logger instance.
+        
+    Returns:
+        True if subject is valid, False if excluded.
     """
-    msg = f"DEVIATION [{deviation_type}] for sub-{subject_id}: {details}"
-    logger.warning(msg)
+    # Get motion file path
+    motion_file = get_motion_file(output_dir, subject_id)
+    
+    if not motion_file.exists():
+        logger.warning(f"Motion file not found for subject {subject_id}")
+        logger.warning(f"DEVIATION: Missing motion file for {subject_id}")
+        return False
+    
+    # Parse motion parameters
+    try:
+        motion_data = parse_motion_parameters(motion_file)
+        if motion_data is None:
+            logger.warning(f"Could not parse motion file for subject {subject_id}")
+            logger.warning(f"DEVIATION: Invalid motion file format for {subject_id}")
+            return False
+    except Exception as e:
+        logger.error(f"Error parsing motion file for {subject_id}: {str(e)}")
+        logger.warning(f"DEVIATION: Error parsing motion file for {subject_id}")
+        return False
+    
+    # Calculate frame-wise displacement
+    displacements = calculate_frame_displacement(motion_data)
+    mean_displacement = sum(displacements) / len(displacements) if displacements else 0
+    max_displacement = max(displacements) if displacements else 0
+    
+    # Check motion threshold
+    is_valid = check_motion_threshold(mean_displacement, MOTION_THRESHOLD_MM)
+    
+    # Log QC metrics
+    log_qc_metrics(
+        subject_id=subject_id,
+        mean_displacement=mean_displacement,
+        max_displacement=max_displacement,
+        is_valid=is_valid,
+        log_file=QC_LOG_FILE
+    )
+    
+    if not is_valid:
+        logger.warning(f"Subject {subject_id} excluded: mean displacement {mean_displacement:.3f}mm > {MOTION_THRESHOLD_MM}mm")
+        logger.warning(f"DEVIATION: Subject {subject_id} excluded due to excessive motion (mean={mean_displacement:.3f}mm, max={max_displacement:.3f}mm)")
+        # Log to exclusion file
+        with open(EXCLUSION_LOG_FILE, 'a') as f:
+            f.write(f"{subject_id},motion,{mean_displacement:.3f},{max_displacement:.3f}\n")
+        return False
+    
+    logger.info(f"Subject {subject_id} passed QC: mean={mean_displacement:.3f}mm, max={max_displacement:.3f}mm")
+    return True
+
+def log_preprocessing_deviations(
+    deviations: List[Dict[str, Any]],
+    logger: logging.Logger
+) -> None:
+    """
+    Log preprocessing deviations to the log file.
+    This function is called whenever a deviation is detected during preprocessing.
+    
+    Args:
+        deviations: List of deviation dictionaries with keys:
+            - subject_id: Subject ID (optional)
+            - deviation_type: Type of deviation (e.g., 'motion', 'missing_file', 'error')
+            - message: Detailed message about the deviation
+            - timestamp: Timestamp of the deviation (optional)
+        logger: Logger instance.
+    """
+    for dev in deviations:
+        subject_id = dev.get('subject_id', 'N/A')
+        deviation_type = dev.get('deviation_type', 'unknown')
+        message = dev.get('message', 'No message provided')
+        
+        # Log as warning with DEVIATION prefix for easy filtering
+        log_msg = f"DEVIATION [{deviation_type}]: {message}"
+        if subject_id != 'N/A':
+            log_msg = f"Subject {subject_id}: {log_msg}"
+        
+        logger.warning(log_msg)
 
 def main():
     """
-    Main orchestration function for the preprocessing pipeline.
-    - Scans for subjects
-    - Runs fmriprep
-    - Performs QC
-    - Logs deviations
-    - Generates valid subjects list
+    Main function to orchestrate the preprocessing pipeline.
     """
-    logger = setup_logging()
+    # Setup logging
+    logger = setup_logging(LOG_FILE)
     logger.info("=" * 60)
-    logger.info("Starting Preprocessing Pipeline (T016)")
+    logger.info("Starting preprocessing pipeline")
     logger.info("=" * 60)
-
-    # Define paths
-    project_root = Path(__file__).resolve().parent.parent
-    raw_dir = project_root / "data" / "raw"
-    output_dir = project_root / "data" / "derivatives"
-    work_dir = project_root / "data" / "derivatives" / "work"
-
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    work_dir.mkdir(parents=True, exist_ok=True)
-
-    # Check if raw data exists
-    if not any(raw_dir.iterdir()):
-        logger.error("No data found in data/raw/. Run download.py first.")
+    
+    # Ensure directories exist
+    DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
+    DATA_DERIVATIVES.mkdir(parents=True, exist_ok=True)
+    
+    # Get subject list
+    try:
+        subjects = get_subject_list()
+        logger.info(f"Found {len(subjects)} subjects in raw data")
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        logger.warning("DEVIATION: Raw data directory missing, cannot proceed")
         sys.exit(1)
-
-    subjects = get_subject_list(raw_dir)
+    
     if not subjects:
-        logger.error("No subjects found in data/raw/.")
-        sys.exit(1)
-
-    logger.info(f"Found {len(subjects)} subjects to process: {subjects}")
-
+        logger.warning("No subjects found in raw data directory")
+        logger.warning("DEVIATION: No subjects available for preprocessing")
+        sys.exit(0)
+    
+    # Process each subject
     valid_subjects = []
-    excluded_subjects = []
-
-    for subj in subjects:
-        logger.info(f"Processing subject: {subj}")
+    deviations = []
+    
+    for subject_id in subjects:
+        logger.info(f"\nProcessing subject {subject_id}")
         
-        # 1. Run fmriprep
-        success = run_fmriprep_for_subject(subj, raw_dir, output_dir, work_dir, logger)
+        # Run fmriprep
+        fmriprep_success = run_fmriprep_for_subject(
+            subject_id=subject_id,
+            bids_root=DATA_RAW,
+            output_dir=DATA_DERIVATIVES,
+            logger=logger
+        )
         
-        if not success:
-            log_preprocessing_deviations(
-                subj,
-                "PREPROCESS_FAIL",
-                "fmriprep execution failed or was not found.",
-                logger
-            )
-            excluded_subjects.append((subj, "preprocess_fail"))
+        if not fmriprep_success:
+            deviations.append({
+                'subject_id': subject_id,
+                'deviation_type': 'fmriprep_failure',
+                'message': 'fmriprep execution failed'
+            })
             continue
-
-        # 2. QC Check
-        passes_qc = process_qc_and_exclude(subj, output_dir, logger)
-
-        if not passes_qc:
-            # Get motion value for detailed logging if possible
-            motion_file = get_motion_file(output_dir, f"sub-{subj}")
-            deviation_detail = "Motion threshold exceeded"
-            if motion_file.exists():
-                try:
-                    trans, rot = parse_motion_parameters(motion_file)
-                    disp = calculate_frame_displacement(trans, rot)
-                    deviation_detail = f"Max displacement {disp:.2f}mm > {MOTION_THRESHOLD_MM}mm"
-                except:
-                    pass
-            
-            log_preprocessing_deviations(
-                subj,
-                "MOTION_EXCESS",
-                deviation_detail,
-                logger
-            )
-            excluded_subjects.append((subj, "motion_excess"))
+        
+        # Process QC
+        qc_success = process_qc_and_exclude(
+            subject_id=subject_id,
+            bids_root=DATA_RAW,
+            output_dir=DATA_DERIVATIVES,
+            logger=logger
+        )
+        
+        if not qc_success:
+            deviations.append({
+                'subject_id': subject_id,
+                'deviation_type': 'motion_exclusion',
+                'message': 'Subject excluded due to excessive motion'
+            })
             continue
-
-        # If we get here, subject is valid
-        valid_subjects.append(subj)
-        logger.info(f"Subject {subj} added to valid list.")
-
-    # 3. Write valid subjects list
-    if valid_subjects:
-        write_valid_subjects(valid_subjects, SUBJECTS_FILE)
-        logger.info(f"Valid subjects list written to {SUBJECTS_FILE}")
-    else:
-        logger.warning("No valid subjects found. No valid_subjects.txt generated.")
-
-    # 4. Summary
-    logger.info("=" * 60)
-    logger.info("Preprocessing Pipeline Summary")
-    logger.info(f"Total subjects: {len(subjects)}")
-    logger.info(f"Valid subjects: {len(valid_subjects)}")
-    logger.info(f"Excluded subjects: {len(excluded_subjects)}")
-    if excluded_subjects:
-        logger.info("Excluded subjects details:")
-        for s, reason in excluded_subjects:
-            logger.info(f"  - sub-{s}: {reason}")
-    logger.info("=" * 60)
-
+        
+        valid_subjects.append(subject_id)
+    
+    # Log all deviations at the end
+    if deviations:
+        logger.info(f"\n{'=' * 60}")
+        logger.info(f"Preprocessing Deviations Summary ({len(deviations)} total)")
+        logger.info(f"{'=' * 60}")
+        log_preprocessing_deviations(deviations, logger)
+    
+    # Write valid subjects list
+    with open(VALID_SUBJECTS_FILE, 'w') as f:
+        for subject_id in valid_subjects:
+            f.write(f"{subject_id}\n")
+    
+    logger.info(f"\n{'=' * 60}")
+    logger.info(f"Preprocessing complete")
+    logger.info(f"Valid subjects: {len(valid_subjects)}/{len(subjects)}")
+    logger.info(f"Valid subjects list saved to: {VALID_SUBJECTS_FILE}")
+    logger.info(f"{'=' * 60}")
+    
+    # Return valid subjects for downstream use
     return valid_subjects
 
 if __name__ == "__main__":

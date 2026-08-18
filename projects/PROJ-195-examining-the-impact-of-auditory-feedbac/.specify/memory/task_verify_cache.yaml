@@ -13,3 +13,11 @@ T016:
     the new logging behavior, the task requirement is not satisfied. The implementer
     must add the logging implementation and supply the resulting log (or code changes)
     as evidence.
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or generated files were presented that create and write contrast\
+    \ maps for each valid subject into `data/processed/`. Without any artifact (e.g.,\
+    \ a Python module, command\u2011line script, or the resulting NIfTI contrast files)\
+    \ the claim cannot be verified. The implementer must provide the implementation\
+    \ and the saved contrast map files."

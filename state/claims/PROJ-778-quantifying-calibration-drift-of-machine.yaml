@@ -256,3 +256,111 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T12:37:58Z'
+- artifact_path: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine/tasks.md
+  attempts: 1
+  canonical: UCI Adult dataset covers years 1994 to 2022; Credit Card Default dataset
+    covers years 2005 to 2021
+  claim_id: c_5340b940
+  context: 'Implement code/01_data_acquisition.py: Download yearly snapshots for UCI
+    Adult (1994-2022) and Credit Card Default (2005-2021) as primary targets per FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download yearly snapshots for UCI Adult (1994-2022) and Credit Card Default
+    (2005-2021) as primary targets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:27:39Z'
+- artifact_path: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine/tasks.md
+  attempts: 1
+  canonical: Abort if feature intersection is less than 90% of original features
+  claim_id: c_060dba34
+  context: Save aligned feature list to data/processed/aligned_features.json. Abort
+    with error if intersection < 90% of original features.
+  evidence:
+    candidates:
+    - - ''
+      - 90.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Abort_if_feature_intersection_is_less_than_90%25_of_original_f
+  kind: magnitude
+  raw_text: Abort with error if intersection of feature columns between training and
+    test snapshots is less than 90% of original features
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-18T21:27:57Z'
+- artifact_path: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine/tasks.md
+  attempts: 1
+  canonical: Calculate Expected Calibration Error with 5, 10, and 20 bins
+  claim_id: c_8458c2d4
+  context: 'Implement code/utils/metrics.py: Calculate ECE with 5, 10, and 20 bins
+    (FR-010).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate ECE with 5, 10, and 20 bins
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:28:17Z'
+- artifact_path: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine/tasks.md
+  attempts: 1
+  canonical: Verify coefficient consistency within 0.1 across ECE binning strategies
+    of 5, 10, and 20 bins
+  claim_id: c_e4499ebe
+  context: "Verify robustness by ensuring the coefficient remains consistent (within\
+    \ \xB10.1) across ECE binning strategies of 5, 10, and 20 bins (FR-010, FR-009)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify robustness by ensuring the coefficient remains consistent within\
+    \ \xB10.1 across ECE binning strategies of 5, 10, and 20 bins"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:28:54Z'
+- artifact_path: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine/tasks.md
+  attempts: 1
+  canonical: Perform BIC-based change-point detection with alpha 0.05
+  claim_id: c_fdc743d5
+  context: Perform BIC-based change-point detection (alpha = 0.05) to identify abrupt
+    shifts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform BIC-based change-point detection with alpha = 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:29:11Z'
+- artifact_path: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine/tasks.md
+  attempts: 1
+  canonical: Assert abort on less than 90% feature overlap
+  claim_id: c_c262039f
+  context: implement test_schema_mismatch_threshold (asserts abort on <90% overlap)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_abort_on_less_than_90%25_feature_overlap
+  kind: magnitude
+  raw_text: Assert abort on less than 90% overlap in schema mismatch threshold
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:29:24Z'

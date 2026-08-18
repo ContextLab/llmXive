@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 88
+exclude = .git,__pycache__,build,dist
+ignore = E501,W503
+extend-ignore = E203
+max-complexity = 12
+per-file-ignores =
+    __init__.py:F401

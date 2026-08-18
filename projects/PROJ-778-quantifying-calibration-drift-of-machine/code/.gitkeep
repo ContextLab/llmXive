@@ -1,0 +1,2 @@
+# This directory contains the core implementation scripts for the calibration drift pipeline.
+# Files: 00_data_availability_gate.py, 01_data_acquisition.py, etc.

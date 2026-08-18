@@ -4,165 +4,212 @@ import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 import pandas as pd
-from utils.io import load_parquet, load_json, ensure_dir
-from config import get_processed_path, get_derived_path
+import numpy as np
+
+from utils.io import load_json, save_json, ensure_dir
+from config import get_data_path, get_processed_path
 
 logger = logging.getLogger(__name__)
 
 class DataValidationError(Exception):
     """Custom exception for data validation failures."""
-    def __init__(self, message: str, code: str = "ERR_DATA_MISSING"):
+    def __init__(self, message: str, code: str):
         super().__init__(message)
         self.code = code
-        self.message = message
 
-def exclude_subjects_by_motion(
-    subjects: List[str],
-    confounds_dir: Optional[Path] = None,
-    threshold_mm: float = 0.5
-) -> Tuple[List[str], Dict[str, float], Dict[str, str]]:
+def exclude_subjects_by_missing_data(
+    participants_df: pd.DataFrame,
+    missing_threshold: float = 0.10
+) -> List[str]:
     """
-    Flag/exclude subjects with excessive head motion (Mean FD > threshold_mm).
+    Identify subjects with >10% missing behavioral data.
     
     Args:
-        subjects: List of subject IDs to check.
-        confounds_dir: Directory containing confounds TSV files. Defaults to 
-                       processed space confounds directory.
-        threshold_mm: Maximum allowed mean Framewise Displacement (mm).
-    
+        participants_df: DataFrame from participants.tsv
+        missing_threshold: Fraction of missing values allowed (default 0.10)
+        
     Returns:
-        Tuple containing:
-            - List of valid subject IDs (passed motion check)
-            - Dict mapping subject_id -> mean FD
-            - Dict mapping subject_id -> exclusion reason (if excluded)
-    
-    Raises:
-        DataValidationError: If no valid subjects remain after filtering.
+        List of subject IDs to exclude
     """
-    if confounds_dir is None:
-        confounds_dir = get_processed_path() / "confounds"
+    # Identify numeric/behavioral columns (excluding subject ID and non-numeric metadata)
+    numeric_cols = participants_df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    if not numeric_cols:
+        logger.warning("No numeric behavioral columns found in participants.tsv")
+        return []
+    
+    # Calculate missing percentage per subject
+    missing_counts = participants_df[numeric_cols].isnull().sum(axis=1)
+    total_cols = len(numeric_cols)
+    missing_pct = missing_counts / total_cols
+    
+    # Filter subjects exceeding threshold
+    exclude_ids = participants_df.loc[missing_pct > missing_threshold, 'subject_id'].tolist()
+    
+    if exclude_ids:
+        logger.warning(f"Found {len(exclude_ids)} subjects with >{missing_threshold*100}% missing behavioral data")
+        for sub_id in exclude_ids:
+            pct = missing_pct[participants_df['subject_id'] == sub_id].values[0]
+            logger.debug(f"Subject {sub_id} has {pct*100:.1f}% missing data")
+    
+    return exclude_ids
+
+def check_data_integrity(
+    participants_df: pd.DataFrame,
+    min_sample_size: int = 85
+) -> Tuple[bool, str]:
+    """
+    Perform comprehensive data integrity checks.
+    
+    1. Check sample size N >= 85.
+    2. Verify 'musical_genre' or 'STOMP-R' exists.
+    
+    Args:
+        participants_df: DataFrame from participants.tsv
+        min_sample_size: Minimum required subjects
+        
+    Returns:
+        Tuple of (is_valid, message)
+    """
+    n_subjects = len(participants_df)
+    if n_subjects < min_sample_size:
+        msg = f"Sample size {n_subjects} is below minimum {min_sample_size}. ERR_UNDERPOWERED"
+        logger.error(msg)
+        return False, msg
+    
+    # Check for required behavioral variables
+    cols = participants_df.columns.tolist()
+    has_genre = 'musical_genre' in cols
+    has_stomp = 'STOMP-R' in cols or 'stomp_r' in cols
+    
+    if not has_genre and not has_stomp:
+        missing = "musical_genre" if 'musical_genre' not in cols else "STOMP-R"
+        msg = f"Required behavioral variable missing: {missing}. ERR_DATA_MISSING"
+        logger.error(msg)
+        return False, msg
+    
+    return True, "Data integrity check passed."
+
+def exclude_subjects_by_motion(
+    confounds_dir: Path,
+    fd_threshold: float = 0.5,
+    motion_fraction_threshold: float = 0.10
+) -> List[str]:
+    """
+    Flag/exclude subjects with excessive head motion.
+    
+    Criteria: Exclude if >10% of timepoints have FD > 0.5mm.
+    
+    Args:
+        confounds_dir: Path to directory containing confounds TSV files
+        fd_threshold: Framewise displacement threshold in mm (default 0.5)
+        motion_fraction_threshold: Max allowed fraction of high-motion timepoints (default 0.10)
+        
+    Returns:
+        List of subject IDs to exclude
+    """
+    exclude_ids = []
     
     if not confounds_dir.exists():
-        logger.warning(f"Confounds directory not found at {confounds_dir}. "
-                     "Skipping motion check. All subjects retained.")
-        return subjects, {s: 0.0 for s in subjects}, {}
-
-    valid_subjects = []
-    motion_stats = {}
-    exclusions = {}
-
-    for sub_id in subjects:
-        # Expected filename pattern: sub-<id>_desc-confounds_timeseries.tsv
-        confound_file = confounds_dir / f"sub-{sub_id}_desc-confounds_timeseries.tsv"
+        logger.error(f"Confounds directory not found: {confounds_dir}")
+        return exclude_ids
+    
+    # Iterate over confounds files (assuming fMRIPrep naming: sub-<id>_desc-confounds_timeseries.tsv)
+    confounds_files = list(confounds_dir.glob("*desc-confounds_timeseries.tsv"))
+    
+    if not confounds_files:
+        logger.warning("No confounds files found in directory. Check fMRIPrep output paths.")
+        return exclude_ids
+    
+    logger.info(f"Checking motion for {len(confounds_files)} subjects...")
+    
+    for fpath in confounds_files:
+        # Extract subject ID from filename (e.g., sub-01_desc-confounds_timeseries.tsv -> 01)
+        stem = fpath.stem
+        # Handle potential sub- prefix
+        if stem.startswith("sub-"):
+            sub_id = stem.split("_")[0].replace("sub-", "")
+        else:
+            sub_id = stem.split("_")[0]
         
-        if not confound_file.exists():
-            logger.warning(f"Confounds file missing for {sub_id}: {confound_file}. "
-                         "Excluding subject.")
-            exclusions[sub_id] = "missing_confounds"
-            continue
-
         try:
-            df = pd.read_csv(confound_file, sep='\t')
+            df = pd.read_csv(fpath, sep='\t', low_memory=False)
             
-            # Check if 'framewise_displacement' column exists
-            if 'framewise_displacement' not in df.columns:
-                # Try common aliases
-                fd_col = None
-                candidates = ['framewise_displacement', 'fd', 'FramewiseDisplacement']
-                for cand in candidates:
-                    if cand in df.columns:
-                        fd_col = cand
-                        break
-                
-                if fd_col is None:
-                    logger.warning(f"FD column not found in {confound_file}. "
-                                 "Excluding subject.")
-                    exclusions[sub_id] = "missing_fd_column"
-                    continue
-            else:
-                fd_col = 'framewise_displacement'
-
-            # Calculate mean FD, handling NaNs
-            fd_values = df[fd_col].dropna()
-            if len(fd_values) == 0:
-                logger.warning(f"All FD values are NaN for {sub_id}. "
-                             "Excluding subject.")
-                exclusions[sub_id] = "all_fd_nan"
+            # Identify FD column (common names: 'framewise_displacement', 'FD')
+            fd_col = None
+            candidates = ['framewise_displacement', 'FD', 'FramewiseDisplacement']
+            for cand in candidates:
+                if cand in df.columns:
+                    fd_col = cand
+                    break
+            
+            if fd_col is None:
+                logger.warning(f"FD column not found in {fpath.name}. Skipping motion check.")
                 continue
-
-            mean_fd = fd_values.mean()
-            motion_stats[sub_id] = mean_fd
-
-            if mean_fd > threshold_mm:
-                exclusions[sub_id] = f"high_motion: mean_fd={mean_fd:.3f}mm > {threshold_mm}mm"
-                logger.info(f"Excluding subject {sub_id} due to high motion: "
-                          f"mean FD = {mean_fd:.3f}mm")
+            
+            # Check for NaNs in FD column
+            if df[fd_col].isnull().any():
+                # fMRIPrep often has NaN for first timepoint; drop them for calculation
+                valid_fd = df[fd_col].dropna()
             else:
-                valid_subjects.append(sub_id)
-
+                valid_fd = df[fd_col]
+            
+            if len(valid_fd) == 0:
+                logger.warning(f"No valid FD values for {sub_id}. Skipping.")
+                continue
+            
+            # Calculate fraction of timepoints exceeding threshold
+            high_motion_mask = valid_fd > fd_threshold
+            high_motion_fraction = high_motion_mask.sum() / len(valid_fd)
+            
+            if high_motion_fraction > motion_fraction_threshold:
+                exclude_ids.append(sub_id)
+                pct = high_motion_fraction * 100
+                logger.warning(
+                    f"Subject {sub_id} excluded: {pct:.1f}% of timepoints have FD > {fd_threshold}mm"
+                )
+            
         except Exception as e:
             logger.error(f"Error processing confounds for {sub_id}: {e}")
-            exclusions[sub_id] = f"read_error: {str(e)}"
             continue
-
-    if len(valid_subjects) == 0:
-        raise DataValidationError(
-            "No subjects passed the motion exclusion threshold. "
-            f"Threshold was {threshold_mm}mm mean FD.",
-            code="ERR_UNDERPOWERED"
-        )
-
-    logger.info(f"Motion exclusion complete: {len(exclusions)} excluded, "
-              f"{len(valid_subjects)} retained.")
     
-    return valid_subjects, motion_stats, exclusions
+    if exclude_ids:
+        logger.info(f"Total subjects excluded due to motion: {len(exclude_ids)}")
+    else:
+        logger.info("No subjects excluded due to excessive head motion.")
+        
+    return exclude_ids
 
 def main():
-    """
-    CLI entry point for motion exclusion validation.
-    Reads subject list from data/derived/subject_list.json (if exists)
-    or data/raw/participants.tsv, applies motion filter, and saves results.
-    """
+    """CLI entry point for motion exclusion."""
     logging.basicConfig(level=logging.INFO)
     
-    # Try to load subject list from derived data first
-    subject_list_path = get_derived_path() / "subject_list.json"
-    if subject_list_path.exists():
-        with open(subject_list_path, 'r') as f:
-            subjects = json.load(f)
-    else:
-        # Fallback: read from raw participants file
-        raw_dir = get_processed_path().parent / "raw"
-        participants_file = raw_dir / "participants.tsv"
-        if not participants_file.exists():
-            # Try common raw location
-            participants_file = Path("data/raw/participants.tsv")
-        
-        if participants_file.exists():
-            df = pd.read_csv(participants_file, sep='\t')
-            subjects = df['participant_id'].tolist()
-        else:
-            logger.error("No subject list found. Cannot run motion exclusion.")
-            return
-
-    logger.info(f"Loaded {len(subjects)} subjects for motion check.")
+    # Load config or use defaults
+    confounds_path = get_processed_path("confounds")
     
-    valid_subjects, stats, exclusions = exclude_subjects_by_motion(subjects)
+    if not confounds_path.exists():
+        print(f"Error: Confounds directory not found at {confounds_path}")
+        print("Please run preprocessing (T014) first.")
+        return 1
     
-    # Save results
-    output_dir = get_derived_path()
-    ensure_dir(output_dir)
+    excluded = exclude_subjects_by_motion(confounds_path)
     
-    stats_path = output_dir / "motion_statistics.json"
-    with open(stats_path, 'w') as f:
-        json.dump({
-            "valid_subjects": valid_subjects,
-            "motion_stats": stats,
-            "exclusions": exclusions
-        }, f, indent=2)
+    # Save report
+    report = {
+        "excluded_subjects": excluded,
+        "count": len(excluded),
+        "threshold_mm": 0.5,
+        "fraction_threshold": 0.10
+    }
     
-    logger.info(f"Motion report saved to {stats_path}")
-    logger.info(f"Valid subjects: {len(valid_subjects)}")
+    report_path = get_data_path("processed", "motion_exclusion_report.json")
+    ensure_dir(report_path)
+    save_json(report_path, report)
+    
+    print(f"Motion exclusion complete. Excluded {len(excluded)} subjects.")
+    print(f"Report saved to {report_path}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

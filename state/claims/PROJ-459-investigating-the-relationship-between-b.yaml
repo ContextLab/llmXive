@@ -1891,3 +1891,155 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T21:55:19Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sample size N must be at least 85
+  claim_id: c_d8dd3909
+  context: 'T012c [US1] Implement code/data/validate.py to perform comprehensive data
+    integrity checks: 1. Check sample size N >= 85 (Hard Gate). If N < 85, log ERR_UNDERPOWERED
+    and halt execution unconditionally. No bypass for ''Spec Amendment'' is permitted.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_N_must_be_at_least_85
+  kind: magnitude
+  raw_text: Check sample size N >= 85 (Hard Gate). If N < 85, log ERR_UNDERPOWERED
+    and halt execution unconditionally.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:39:16Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with more than 10% missing behavioral data or corrupted
+    fMRI volumes
+  claim_id: c_936549a2
+  context: T017 [P] [US1] Add validation logic to exclude subjects with >10% missing
+    behavioral data or >10% corrupted fMRI volumes. Define exclude_subjects_by_missing_data().
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_more_than_10%25_missing_behavioral_data
+  kind: magnitude
+  raw_text: Exclude subjects with >10% missing behavioral data or >10% corrupted fMRI
+    volumes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:39:54Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with head motion greater than 0.5mm FD
+  claim_id: c_11d92a69
+  context: T018 [P] [US1] Add logic to flag/exclude subjects with excessive head motion
+    (>0.5mm FD). Define exclude_subjects_by_motion().
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_head_motion_greater_than_0.5mm_FD
+  kind: magnitude
+  raw_text: Flag/exclude subjects with excessive head motion (>0.5mm FD).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:40:10Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sliding-window dynamic connectivity uses window size of 30 TRs and step
+    of 5 TRs
+  claim_id: c_011605f7
+  context: 'T023 [US2] Implement code/analysis/metrics.py for sliding-window dynamic
+    connectivity (window=30 TRs, step=5 TRs). Define compute_dynamic_connectivity(time_series:
+    np.array, window_size: int, step: int).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sliding-window dynamic connectivity with window=30 TRs, step=5
+    TRs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:40:37Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis runs with window sizes of 30 and 40 TRs
+  claim_id: c_717efaa0
+  context: 'T026 [US2] Implement code/analysis/metrics.py to run sensitivity analysis
+    with window sizes 30, 40 TRs. Define run_sensitivity_analysis(time_series: np.array,
+    window_sizes: list[int]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run sensitivity analysis with window sizes 30, 40 TRs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:41:06Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Post-hoc power analysis targets power of at least 0.8 for effect size
+    of 0.3
+  claim_id: c_05729796
+  context: 'T033 [US3] Implement code/analysis/stats.py to perform post-hoc power
+    analysis (target: power >= 0.8 for |r| >= 0.3). Define compute_power(sample_size:
+    int, effect_size: float).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Post-hoc_power_analysis_targets_power_of_at_least_0.8_for_ef
+  kind: magnitude
+  raw_text: 'Post-hoc power analysis target: power >= 0.8 for |r| >= 0.3.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:41:37Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: False positive rate must be less than or equal to 0.05
+  claim_id: c_1010606f
+  context: 'T034 [US3] Implement code/analysis/stats.py to run null distribution validation
+    (A large number of permutations) to verify false positive rate <= 0.05. Generate
+    data/derived/null_validation_report.json with keys: false_positive_rate, permutations_count.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_positive_rate_must_be_less_than_or_equal_to_0.05
+  kind: magnitude
+  raw_text: Verify false positive rate <= 0.05 using a large number of permutations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:42:25Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Results are flagged as underpowered if power is less than 0.8
+  claim_id: c_c88c00db
+  context: 'T035 [US3] Implement code/analysis/stats.py to flag results as ''Underpowered''
+    if power < 0.8. Define flag_underpowered(power: float).'
+  evidence:
+    entailment_evidence: Results are flagged as underpowered if power is less than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Results_are_flagged_as_underpowered_if_power_is_less_than_0.
+  kind: magnitude
+  raw_text: Flag results as 'Underpowered' if power < 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-18T21:42:56Z'

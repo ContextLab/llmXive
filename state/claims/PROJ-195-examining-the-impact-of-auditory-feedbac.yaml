@@ -112,3 +112,243 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-12T18:34:36Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: auditory cortex ROI derived from Harvard-Oxford Cortical Structural Atlas
+    in MNI space
+  claim_id: c_fb3ea180
+  context: T006 [P] Create `roi_masks/auditory_cortex.nii.gz` using the Harvard-Oxford
+    Cortical Structural Atlas in standard MNI template space (specific source for
+    determinism).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Auditory_cortex_ROI_derived_from_Harvard-Oxford_Cortical_Str
+  kind: entity_fact
+  raw_text: Create `roi_masks/auditory_cortex.nii.gz` using the Harvard-Oxford Cortical
+    Structural Atlas in standard MNI template space
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:14:06Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: dataset subset size limit of 14GB
+  claim_id: c_238e5b23
+  context: T012 [US1] Implement dataset filtering logic in `code/download.py` to ensure
+    total size < 14GB (subset if necessary)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_subset_size_limit_of_14GB
+  kind: entity_fact
+  raw_text: Implement dataset filtering logic to ensure total size < 14GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:14:36Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: FDR threshold q < 0.05
+  claim_id: c_d469f9fc
+  context: T005 [P] Create `stats_config.yaml` defining GLM parameters, FDR threshold
+    (q<0.05), and ROI definitions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use FDR threshold (q<0.05) for statistical analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:14:36Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: motion exclusion threshold 2mm
+  claim_id: c_269f5af8
+  context: T007 Implement `code/utils.py` for BIDS path helpers, QC logging, and motion
+    threshold checks (>2mm exclusion logic)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Motion_exclusion_threshold_2mm
+  kind: entity_fact
+  raw_text: Apply motion exclusion logic for subjects with >2mm displacement
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:15:03Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: group analysis one-sample t-test against zero
+  claim_id: c_48369aba
+  context: T021 [US2] Implement Group-Level analysis in `code/glm_group.py` performing
+    a **one-sample t-test against zero**
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Group_analysis_one-sample_t-test_against_zero
+  kind: entity_fact
+  raw_text: Perform Group-Level analysis using a one-sample t-test against zero
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:15:18Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: voxel-wise FDR correction q < 0.05
+  claim_id: c_cd719141
+  context: T022 [US2] Apply Voxel-wise FDR correction (q < 0.05) and extract significant
+    clusters
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Voxel-wise FDR correction (q < 0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:15:18Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: Pearson correlation auditory cortex activation and learning rate
+  claim_id: c_0419500c
+  context: T030 [US3] Calculate Pearson correlation between auditory cortex activation
+    and learning rate proxy; save results to `data/processed/correlation_results.csv`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_auditory_cortex_activation_and_learning
+  kind: entity_fact
+  raw_text: Calculate Pearson correlation between auditory cortex activation and learning
+    rate proxy
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:15:56Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000246
+  claim_id: c_2068bff3
+  context: T004 Implement `code/download.py` to fetch OpenNeuro `ds000246` subset
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000246
+  kind: entity_fact
+  raw_text: Use OpenNeuro dataset ds000246
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:16:10Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: dataset total size less than 14GB
+  claim_id: c_ecbe5ea8
+  context: T012 [US1] Implement dataset filtering logic in code/download.py to ensure
+    total size < 14GB (subset if necessary) (Depends on T004; Corrected dataset source
+    ds000246)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_total_size_less_than_14GB
+  kind: magnitude
+  raw_text: Implement dataset filtering logic in code/download.py to ensure total
+    size < 14GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:22:27Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: subjects with displacement greater than 2mm flagged
+  claim_id: c_1533f072
+  context: T014 [US1] Implement motion QC extraction in code/preprocess.py to parse
+    fmriprep logs and flag subjects >2mm displacement
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_displacement_greater_than_2mm_flagged
+  kind: magnitude
+  raw_text: Implement motion QC extraction in code/preprocess.py to parse fmriprep
+    logs and flag subjects >2mm displacement
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:22:47Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: auditory cortex ROI created using Harvard-Oxford Cortical Structural
+    Atlas in MNI space
+  claim_id: c_ad12d9a2
+  context: T006 [P] Create roi_masks/auditory_cortex.nii.gz using the Harvard-Oxford
+    Cortical Structural Atlas in standard MNI template space (specific source for
+    determinism).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Auditory_cortex_ROI_created_using_Harvard-Oxford_Cortical_St
+  kind: entity_fact
+  raw_text: Create roi_masks/auditory_cortex.nii.gz using the Harvard-Oxford Cortical
+    Structural Atlas in standard MNI template space
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:22:49Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: voxel-wise FDR correction with q less than 0.05
+  claim_id: c_01160bea
+  context: T022 [US2] Apply Voxel-wise FDR correction (q < 0.05) and extract significant
+    clusters (Depends on T021)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Voxel-wise_FDR_correction_with_q_less_than_0.05
+  kind: magnitude
+  raw_text: Apply Voxel-wise FDR correction (q < 0.05) and extract significant clusters
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:23:10Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: FDR threshold set to q less than 0.05
+  claim_id: c_a33cffed
+  context: T005 [P] Create stats_config.yaml defining GLM parameters, FDR threshold
+    (q<0.05), and ROI definitions
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FDR_threshold_set_to_q_less_than_0.05
+  kind: magnitude
+  raw_text: Create stats_config.yaml defining GLM parameters, FDR threshold (q<0.05),
+    and ROI definitions
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T21:23:27Z'
