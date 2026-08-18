@@ -1,0 +1,77 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticPuzzle"
+description: "Schema for a single logical puzzle instance with topological metadata and deterministic text mapping."
+type: "object"
+required:
+  - instance_id
+  - text
+  - ground_truth
+  - ground_truth_path
+  - nesting_depth
+  - branching_factor
+  - graph_structure
+  - is_acyclic
+  - is_solvable
+  - text_generation_method
+properties:
+  instance_id:
+    type: "string"
+    pattern: "^[a-z0-9_]+$"
+    description: "Unique identifier for the puzzle instance."
+  text:
+    type: "string"
+    description: "Natural language representation of the logical puzzle (deterministically mapped)."
+  ground_truth:
+    type: "string"
+    description: "The correct solution path."
+  ground_truth_path:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of node IDs representing the valid logical path."
+  nesting_depth:
+    type: "integer"
+    minimum: 1
+    maximum: 10
+    description: "Max nesting depth of the dependency graph (longest path)."
+  branching_factor:
+    type: "number"
+    minimum: 1.0
+    maximum: 5.0
+    description: "Average in-degree of non-root nodes."
+  graph_structure:
+    type: "object"
+    description: "JSON representation of the DAG."
+    properties:
+      nodes:
+        type: "array"
+        items:
+          type: "string"
+      edges:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "string"
+  target_path_id:
+    type: "string"
+    description: "ID of the selected solution path."
+  seed:
+    type: "integer"
+    description: "Random seed used for generation."
+  is_acyclic:
+    type: "boolean"
+    const: true
+    description: "Validation flag; must be true."
+  is_solvable:
+    type: "boolean"
+    const: true
+    description: "Validation flag; must be true."
+  text_generation_method:
+    type: "string"
+    enum:
+      - template_based
+    description: "Must be 'template_based' to ensure deterministic mapping."
+  is_orthogonal:
+    type: "boolean"
+    description: "Flag indicating if the (depth, branch) pair met the orthogonality constraint (|r| < 0.2)."

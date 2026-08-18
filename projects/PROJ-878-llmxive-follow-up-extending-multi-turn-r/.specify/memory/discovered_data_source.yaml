@@ -1,0 +1,13 @@
+status: none
+intent: download CLUTRR synthetic logical reasoning dataset python package dataset
+required_fields:
+- puzzle_id
+- puzzle_text
+- nesting_depth
+- branching_factor
+- average_branching_factor
+- dependency_graph_edge_list
+- ground_truth_solution
+cache_key: 03d48c94ebf87ec7feff19c6a3d40542318ca7b55168ea754fa3939eed403c62
+searched_at: '2026-08-18T18:35:50.197718+00:00'
+retry_count: 1

@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for the aggregated statistical results using Survival Analysis and Segmented Regression."
+type: "object"
+required:
+  - cox_depth_hazard_ratio
+  - cox_depth_p_value
+  - tipping_point_depth
+  - tipping_point_slope_change
+  - failure_rates
+  - budget_exhaustion_rate
+properties:
+  cox_depth_hazard_ratio:
+    type: "number"
+    description: "Hazard ratio for nesting_depth from Cox PH model."
+  cox_depth_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the hazard ratio."
+  tipping_point_depth:
+    type: "integer"
+    description: "Depth where degradation accelerates (breakpoint)."
+  tipping_point_slope_change:
+    type: "number"
+    description: "Change in slope at the tipping point."
+  failure_rates:
+    type: "object"
+    description: "Map of threshold turns to failure rate."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  budget_exhaustion_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Percentage of 50-turn failures that converged at 1000 turns."
+  collinearity_vif:
+    type: "number"
+    description: "Variance Inflation Factor (optional)."
+    minimum: 0
+  orthogonality_check:
+    type: "object"
+    description: "Correlation check between depth and branching."
+    properties:
+      correlation_coefficient:
+        type: "number"
+        description: "Pearson correlation between depth and branching."
+      threshold:
+        type: "number"
+        description: "Target threshold (e.g., 0.2)."
+  spearman_correlation:
+    type: "number"
+    description: "Descriptive Spearman correlation (not used for inference due to censoring)."
+    minimum: -1
+    maximum: 1
