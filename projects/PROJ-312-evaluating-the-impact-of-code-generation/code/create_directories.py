@@ -3,23 +3,26 @@ from pathlib import Path
 
 def main():
     """
-    Creates the required directory structure for the project.
-    """
-    base_dir = Path("projects/PROJ-312-evaluating-the-impact-of-code-generation")
+    Create the required directory structure for the project.
     
-    dirs = [
-        "code",
+    Creates:
+    - data/raw/
+    - data/processed/
+    - data/spot_check/
+    - artifacts/
+    - tests/
+    """
+    project_root = Path(__file__).parent.parent
+    base_dirs = [
         "data/raw",
         "data/processed",
         "data/spot_check",
-        "tests",
-        "contracts",
         "artifacts",
-        "state"
+        "tests"
     ]
 
-    for dir_path in dirs:
-        full_path = base_dir / dir_path
+    for dir_path in base_dirs:
+        full_path = project_root / dir_path
         full_path.mkdir(parents=True, exist_ok=True)
         print(f"Created directory: {full_path}")
 

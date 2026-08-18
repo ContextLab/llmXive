@@ -7,4 +7,4 @@ properties:
   labels: {type: array}
   commit_messages: {type: array}
   turnaround_hours: {type: number}
-  required: [pr_id, repo_name, turnaround_hours]
+required: [pr_id, repo_name, turnaround_hours]

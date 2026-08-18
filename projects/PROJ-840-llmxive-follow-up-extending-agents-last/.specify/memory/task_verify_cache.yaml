@@ -23,28 +23,18 @@ T013:
     \ to be fulfilled."
 T015b:
   c: false
-  h: 6af89836c2dc4ed8722d8cb5f9f5f4891ebdbc28a976bb810583b5269db6b617
-  r: "The repository contains a non\u2011empty `code/data/generator.py` that imports\
-    \ `generator_logic.py` and defines a `generate_golden_fixture` function using\
-    \ seeds 42+i, but the provided excerpt does not show a CLI entry point that writes\
-    \ to `data/raw/golden_fixture.json`, nor is the required `golden_fixture.json`\
-    \ file present. Without evidence that the script actually creates the JSON at\
-    \ the specified location, the task\u2019s output requirement is not satisfied."
+  h: 98676ef5b4c710926c5e530bb9ce32016e23cecd57824ee3106be29a071fe62a
+  r: The provided `code/data/generator.py` exists but the visible portion does not
+    contain a CLI entry point or code that actually writes the generated data to `data/raw/golden_fixture.json`;
+    the file `data/raw/golden_fixture.json` is also missing. Consequently the script
+    does not demonstrably fulfill the requirement to generate and save the fixture.
 T015c:
   c: false
-  h: 6af89836c2dc4ed8722d8cb5f9f5f4891ebdbc28a976bb810583b5269db6b617
-  r: "The required artifact `data/raw/golden_fixture.json` does not exist on disk,\
-    \ so the generation step and verification (existence, non\u2011empty content,\
-    \ correct `ground_truth_label` enums) have not been fulfilled. The implementer\
-    \ must run `code/data/generator.py` to create the file and ensure it is present\
-    \ and valid."
-T015d:
-  c: false
-  h: 945a9728baabb7ee7a48b0ec8d720cbf65c7b4a480336b86cc8b3e180e48ad83
-  r: "The required spec file `specs/001-llmxive-ale-extension/spec.md` is not present\
-    \ or shown with the requested edits, and no evidence of the \u201CAssumptions\u201D\
-    \ and FR\u2011009 updates is provided. Consequently the core amendment task has\
-    \ not been demonstrated."
+  h: 98676ef5b4c710926c5e530bb9ce32016e23cecd57824ee3106be29a071fe62a
+  r: "The required artifact `data/raw/golden_fixture.json` is missing from the repository,\
+    \ so the file does not exist, cannot be non\u2011empty, and cannot be verified\
+    \ for correct contents or checksum. The implementer must run `python code/data/generator.py`\
+    \ (or otherwise generate) to create the JSON file at the specified path."
 T017:
   c: false
   h: d9608e8a8c48df43d7c624a43e72442941422c960649f8374aa52f47da695b6c

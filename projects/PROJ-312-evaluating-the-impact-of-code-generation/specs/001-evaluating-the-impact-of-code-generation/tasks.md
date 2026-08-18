@@ -129,9 +129,9 @@
 - [X] T014 [US1] Implement logic in `code/fetch_data.py` to skip repos with < 50 PRs after filtering and log warnings; ensure these repos are tracked for exclusion from final analysis (Edge Case)
 - [X] T015 [US1] Implement classification logic in `code/fetch_data.py` to label PRs as AI-assisted or non-AI-labeled based on commit messages ("copilot", "ai-generated") and labels ("ai-generated", "copilot-assisted", "llm-code") (FR-002)
 - [X] T016 [US1] Implement turnaround time calculation in `code/fetch_data.py` as total calendar hours (merged_at - created_at) (FR-003)
-- [~] T017 [US1] Calculate and log median star count and median number of contributors for selected repositories (FR-013)
-- [~] T018 [US1] Save raw data to `data/raw/` and processed data to `data/processed/` with schema validation (FR-001)
-- [~] T018b [US1] Calculate overall data quality success rate (processed/total PRs). If < 95%, raise `DataQualityError` with message "Data quality threshold not met: X%" and halt pipeline. Otherwise, log success (SC-003)
+- [ ] T017 [US1] Calculate and log median star count and median number of contributors for selected repositories (FR-013)
+- [ ] T018 [US1] Save raw data to `data/raw/` and processed data to `data/processed/` with schema validation (FR-001)
+- [ ] T018b [US1] Calculate overall data quality success rate (processed/total PRs). If < 95%, raise `DataQualityError` with message "Data quality threshold not met: X%" and halt pipeline. Otherwise, log success (SC-003)
 - [X] T019 [US1] Implement `code/validate_spot_check.py` to perform manual spot-check of a *stratified random sample* (n=50) of non-AI-labeled PRs. Stratification must be based on repository and PR size (number of files changed). Estimate false-negative rate (FR-011)
 - [X] T020 [US1] Save spot-check results to `data/spot_check/validation_report.csv`
 
@@ -153,16 +153,16 @@
 ### Implementation for User Story 2
 
 - [X] T023 [US2] Implement `code/analyze.py` to calculate descriptive statistics (mean, median, SD, quartiles) for AI and non-AI groups. **Input**: Must exclude data from repositories skipped in T014 (FR-004, Edge Case)
-- [~] T023b [US2] Calculate and log distribution characteristics (skewness, kurtosis) for both groups to validate against SC-002 (distribution characteristics)
-- [~] T023c [US2] Calculate and log Shapiro-Wilk test p-value for normality check for both groups to validate distribution shape (SC-002)
+- [ ] T023b [US2] Calculate and log distribution characteristics (skewness, kurtosis) for both groups to validate against SC-002 (distribution characteristics)
+- [ ] T023c [US2] Calculate and log Shapiro-Wilk test p-value for normality check for both groups to validate distribution shape (SC-002)
 - [X] T024 [US2] Implement IQR outlier calculation in `code/analyze.py` (Q1 - 1.5×IQR, Q3 + 1.5×IQR) calculated separately per group. **Note**: Outliers are excluded ONLY for visualization (T031) and sensitivity analysis (T028), NOT for the primary hypothesis test (Plan Phase 1)
 - [~] T024b [US2] Save outlier indices for visualization and sensitivity analysis. **Do NOT exclude outliers from the primary dataset used in T026** (FR-005, Plan Phase 1)
 - [~] T025 [US2] Log the count of outliers identified per group (FR-005)
 - [X] T026 [US2] Execute **Stratified** Mann-Whitney U test in `code/analyze.py` comparing AI vs. non-AI groups using the **FULL dataset** (from T018, not cleaned). Stratify by PR size and author activity (Plan Phase 1, FR-006). Return U statistic, p-value, and effect size (r)
-- [ ] T026b [US2] Compare the calculated p-value against the α=0.05 threshold. Log conclusion: "Significant difference found" if p < 0.05, else "No significant difference". If p >= 0.05 and power check fails, raise `SignificanceError` (SC-004)
-- [ ] T027a [US2] Implement power check in `code/analyze.py`: if AI group count < 30, flag for abort (Plan Phase 1)
-- [ ] T027b [US2] If T027a condition is met, define `class SampleSizeError(Exception): pass` and raise `SampleSizeError` with message "Sample size too small: AI group < 30" to halt pipeline execution (Plan Phase 1)
-- [ ] T028 [US2] Implement sensitivity analysis in `code/analyze.py` to apply bias-correction using spot-check error rates from T020. **Load false_negative_rate from data/spot_check/validation_report.csv**. Formula: `adjusted_p_value = p_value * (1 + false_negative_rate)`. This is a planned sensitivity check per Plan Phase 1 (FR-006, Plan Phase 1)
+- [~] T026b [US2] Compare the calculated p-value against the α=0.05 threshold. Log conclusion: "Significant difference found" if p < 0.05, else "No significant difference". If p >= 0.05 and power check fails, raise `SignificanceError` (SC-004)
+- [X] T027a [US2] Implement power check in `code/analyze.py`: if AI group count < 30, flag for abort (Plan Phase 1)
+- [~] T027b [US2] If T027a condition is met, define `class SampleSizeError(Exception): pass` and raise `SampleSizeError` with message "Sample size too small: AI group < 30" to halt pipeline execution (Plan Phase 1)
+- [X] T028 [US2] Implement sensitivity analysis in `code/analyze.py` to apply bias-correction using spot-check error rates from T020. **Load false_negative_rate from data/spot_check/validation_report.csv**. Formula: `adjusted_p_value = p_value * (1 + false_negative_rate)`. This is a planned sensitivity check per Plan Phase 1 (FR-006, Plan Phase 1)
 - [ ] T029 [US2] Save statistical results to `data/processed/statistical_results.json`, explicitly including median star count, median contributors, U statistic, p-value, effect size, and sample sizes (FR-013, FR-006)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -177,13 +177,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US3] Unit test for boxplot generation parameters (DPI, labels) in `tests/unit/test_visualize.py`
+- [X] T030 [P] [US3] Unit test for boxplot generation parameters (DPI, labels) in `tests/unit/test_visualize.py`
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `code/visualize.py` to generate boxplot comparing turnaround time distributions for AI and non-AI groups. **Use outlier-excluded data for whiskers only** (FR-007)
-- [ ] T032 [US3] Ensure boxplot axes are labeled (turnaround time in hours vs. PR type) and whiskers use IQR bounds (FR-007)
-- [ ] T033 [US3] Save visualization to `artifacts/boxplot.png` with ≥300 DPI resolution (FR-008, SC-005)
+- [X] T031 [US3] Implement `code/visualize.py` to generate boxplot comparing turnaround time distributions for AI and non-AI groups. **Use outlier-excluded data for whiskers only** (FR-007)
+- [~] T032 [US3] Ensure boxplot axes are labeled (turnaround time in hours vs. PR type) and whiskers use IQR bounds (FR-007)
+- [~] T033 [US3] Save visualization to `artifacts/boxplot.png` with ≥300 DPI resolution (FR-008, SC-005)
 - [ ] T034 [US3] Implement `code/report.py` to assemble final report including boxplot, statistical test results, key descriptive statistics, and validation summary (FR-008, SC-003)
 - [ ] T034b [US3] Load spot-check results from `data/spot_check/validation_report.csv` (T020). Calculate `false_negative_rate = count(misclassified_AI) / total_sample_size` (FR-011, FR-012)
 - [ ] T035 [US3] Implement conditional logic in `code/report.py`: **Prerequisite: T020 completion**. If `false_negative_rate` (from T034b) > 10%, inject limitation statement with text: "Limitation: False-negative rate exceeds 10% threshold, indicating potential misclassification in non-AI group." (FR-012)

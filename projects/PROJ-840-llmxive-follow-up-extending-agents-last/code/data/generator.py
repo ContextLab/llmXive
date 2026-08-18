@@ -43,12 +43,12 @@ SCENARIOS = [
 def generate_golden_fixture(seed_base: int = 42, num_tasks: int = 10, output_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Generate the golden fixture dataset containing 10 traces with ground truth labels.
-    
+
     Args:
         seed_base: The base seed for the first task. Subsequent tasks use seed_base + i.
         num_tasks: Number of tasks to generate (default 10).
         output_path: Optional path to write the JSON file. If None, returns data only.
-        
+
     Returns:
         List of dictionaries representing the execution traces with ground truth labels.
     """
@@ -59,7 +59,7 @@ def generate_golden_fixture(seed_base: int = 42, num_tasks: int = 10, output_pat
         num_tasks = 10
 
     traces = []
-    
+
     # Ensure output directory exists
     if output_path:
         output_dir = Path(output_path).parent
@@ -68,13 +68,13 @@ def generate_golden_fixture(seed_base: int = 42, num_tasks: int = 10, output_pat
     for i in range(num_tasks):
         # Calculate seed for this specific task instance
         current_seed = seed_base + i
-        
+
         # Select the scenario for this task index
         scenario = SCENARIOS[i]
-        
+
         # Set seed for reproducibility
         set_seed(current_seed)
-        
+
         # Generate the trace using the logic module
         # We pass the scenario type and description to guide generation
         trace = generate_trace(
@@ -82,7 +82,7 @@ def generate_golden_fixture(seed_base: int = 42, num_tasks: int = 10, output_pat
             scenario_description=scenario["description"],
             seed=current_seed
         )
-        
+
         # Add ground truth label based on the scenario
         trace_with_label = {
             "task_id": f"task_{i:02d}",
@@ -92,15 +92,15 @@ def generate_golden_fixture(seed_base: int = 42, num_tasks: int = 10, output_pat
             "description": scenario["description"],
             "trace": trace
         }
-        
+
         traces.append(trace_with_label)
-    
+
     # Write to file if path provided
     if output_path:
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(traces, f, indent=2, ensure_ascii=False)
         print(f"Generated golden fixture with {len(traces)} traces at {output_path}")
-        
+
         # Verify file exists and is non-empty
         if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
             print("Verification: File exists and is non-empty.")
@@ -110,7 +110,7 @@ def generate_golden_fixture(seed_base: int = 42, num_tasks: int = 10, output_pat
             print(f"Checksum (SHA256): {checksum}")
         else:
             raise RuntimeError("Verification failed: File is missing or empty.")
-    
+
     return traces
 
 def main():
@@ -119,9 +119,9 @@ def main():
     parser.add_argument("--seed", type=int, default=42, help="Base seed for generation (default: 42)")
     parser.add_argument("--num-tasks", type=int, default=10, help="Number of tasks to generate (default: 10)")
     parser.add_argument("--output", type=str, default="data/raw/golden_fixture.json", help="Output path for the JSON file")
-    
+
     args = parser.parse_args()
-    
+
     try:
         generate_golden_fixture(
             seed_base=args.seed,

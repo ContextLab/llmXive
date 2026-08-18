@@ -14,8 +14,9 @@ T010:
     a final manifest with attribution and checksums has not been fulfilled.
 T014:
   c: false
-  h: b52121aa278ec7eef4551303d3c25ff888f4ae007ee2eab7782656f628bf6ca4
-  r: "The provided `code/generate.py` is truncated and does not show a loop that iterates\
-    \ over the 30 prompts, invokes generation for the three models, and writes results;\
-    \ the required `data/failures.log` file is absent. Consequently, the task\u2019\
-    s core requirements are not demonstrably fulfilled."
+  h: 9fcc0e4247e2b6cfe5cc0c21dd1b599f3d227cd08ad70bd049df8c170a28e5ee
+  r: The required `data/prompts/manifest.json` file is absent, and `data/failures.log`
+    does not exist, so the generation loop cannot read the prompt list or record failures.
+    Additionally, the provided `code/generate.py` is truncated and does not show a
+    completed loop that processes 30 prompts and produces 90 snippets. These missing/unfinished
+    artifacts must be added for the task to be considered complete.

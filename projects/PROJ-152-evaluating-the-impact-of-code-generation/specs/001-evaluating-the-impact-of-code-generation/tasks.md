@@ -76,7 +76,7 @@
 
 - [X] T013 [P] [US1] Implement model loader in `code/generate.py` to load multiple models (StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization (bitsandbytes CPU-compatible)
 - [ ] T014 [US1] Implement generation loop in `code/generate.py` to process 30 prompts (N=90 snippets total) using `data/prompts/manifest.json`, logging failures to `data/failures.log`
-- [ ] T015 [US1] Implement scanner runner in `code/analyze.py` to pipe snippets through Bandit (Python), Semgrep (security rules), CodeQL (Java/JS)
+- [X] T015 [US1] Implement scanner runner in `code/analyze.py` to pipe snippets through Bandit (Python), Semgrep (security rules), CodeQL (Java/JS)
 - [ ] T016 [US1] Implement severity mapping in `code/metrics.py` to convert raw scanner labels to NIST-based ordinal rank using `data/mappings/nist_severity_map.yaml`
 - [ ] T017 [US1] Implement failure logging in `code/analyze.py` for empty snippets, unsupported languages, and scanner errors per Edge Cases
 - [ ] T018 [US1] Generate `data/generated/snippets.csv` with columns: snippet_id, model, prompt_id, code, line_count, timestamp (N=90 rows expected)

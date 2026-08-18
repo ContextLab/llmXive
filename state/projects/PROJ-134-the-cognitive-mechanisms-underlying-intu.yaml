@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T08:40:08.648108Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-134-the-cognitive-mechanisms-underlying-intu
-last_run_id: 01a773c7-5a93-45ba-b48f-ccd7fc63e68b
+last_run_id: 0354c26a-95a5-48e6-ae31-a7b5699dfccb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu
 title: The Cognitive Mechanisms Underlying Intuitive Moral Judgments in Virtual Environments
-updated_at: '2026-07-21T03:25:32.083317Z'
+updated_at: '2026-08-18T01:22:45.775547Z'

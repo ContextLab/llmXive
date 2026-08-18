@@ -27,12 +27,11 @@ T008:
     a directory listing or screenshots confirming the creation of these folders.
 T011:
   c: false
-  h: 1e9b8de781aa421cffe24da722d992c05cde8021d83b000c88bfe8c5574fad0e
-  r: The test file `tests/contract/test_schema_validation.py` is present, but it references
-    `contracts/pull_request.schema.yaml`, which does not exist in the repository.
-    Without the schema file, the test cannot actually validate anything, so the required
-    contract test is not functional. The missing `pull_request.schema.yaml` must be
-    added (or the path corrected) for the task to be complete.
+  h: 1f3f6258b3ecd8271b462ace8da8d9e8557f6643d3feb433bc27a82e2473962c
+  r: The test file `tests/contract/test_schema_validation.py` exists and contains
+    contract tests for `pull_request.schema.yaml`, but the required schema file `contracts/pull_request.schema.yaml`
+    is missing, so the tests cannot actually validate anything. Add the missing `pull_request.schema.yaml`
+    (and any other referenced schemas) with the correct structure.
 T012b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,3 +39,34 @@ T012b:
     \ from T012a, iterate through each PR\u2019s commits, and extract commit messages.\
     \ The required artifact (code and/or output CSV containing the commit messages)\
     \ is missing, so the task is not satisfied."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script, data file, log output, or any other artifact showing the median star
+    count and median number of contributors for the selected repositories is present.
+    The required calculations and logging are therefore missing.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of any files under `data/raw/` or `data/processed/` was presented,\
+    \ nor any schema\u2011validation implementation or logs. Without tangible artifacts\
+    \ the requirement cannot be confirmed as met."
+T018b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or configuration implementing the data\u2011quality success\u2011\
+    rate calculation, the `DataQualityError` raise, or the success logging (SC\u2011\
+    003) was found. The required artifact is missing, so the task is not satisfied."
+T023b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data file, log output, or any other artifact showing that skewness\
+    \ and kurtosis were calculated and recorded for the AI\u2011assisted and non\u2011\
+    AI PR groups was provided. Consequently the requirement to compute and log these\
+    \ distribution characteristics is not demonstrated."
+T023c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided that computes or records the Shapiro\u2011\
+    Wilk test p\u2011values for the AI\u2011assisted and non\u2011AI groups. Consequently\
+    \ the required artifact (normality\u2011check calculation and logging) is missing."

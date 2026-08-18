@@ -3,4 +3,4 @@ properties:
   repo_name: {type: string}
   stars: {type: number}
   contributors: {type: number}
-  required: [repo_name, stars]
+required: [repo_name, stars]
