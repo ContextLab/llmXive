@@ -12,14 +12,14 @@ properties:
   doc_b_id:
     type: "string"
     description: "ID of the second document"
-  similarity_score:
+  similarity:
     type: "number"
     description: "Cosine similarity between the two documents"
     minimum: 0.0
     maximum: 1.0
   is_wasted:
     type: "boolean"
-    description: "True if similarity_score > 0.95"
+    description: "True if similarity > 0.95"
   validation_status:
     type: "string"
     enum:
@@ -40,6 +40,6 @@ required:
   - pair_id
   - doc_a_id
   - doc_b_id
-  - similarity_score
+  - similarity
   - is_wasted
   - validation_status

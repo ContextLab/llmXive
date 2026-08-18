@@ -1,105 +1,86 @@
-# Data Model: llmXive follow-up: extending "Active Learners as Efficient PRP Rerankers"
+# Data Model: Active Learners as Efficient PRP Rerankers
 
 ## Overview
+This document defines the schema and flow of data artifacts for the redundancy analysis pipeline. All data is derived from real BEIR datasets or explicitly labeled synthetic injections.
 
-This document defines the data structures used throughout the pipeline, ensuring consistency between the data loader, the injection module, the ranker, and the metrics calculator. All data is stored in JSON/JSONL format for portability and versioning.
+## Input Data
 
-## Entity Definitions
+### BEIR Dataset (Raw)
+-   **Source**: HuggingFace (via `beir` library).
+-   **Format**: JSON/Parquet (converted to internal JSON).
+-   **Fields**:
+    -   `query_id`: string
+    -   `query`: string
+    -   `doc_id`: string
+    -   `document`: string
+    -   `relevance`: integer (0 or 1)
 
-### 1. Document (Raw & Processed)
-Represents a single passage from the BEIR corpus.
-- **id**: `str` (Unique identifier from BEIR, e.g., "doc_123")
-- **text**: `str` (Full text of the passage)
-- **query_id**: `str` (Optional, if part of a specific query)
-- **metadata**: `dict` (Optional, e.g., source, original length)
-- **validation_score**: `float` (Optional, cosine similarity to original for injected docs)
+## Intermediate Artifacts
 
-### 2. Candidate List
-A collection of documents associated with a specific query.
-- **query_id**: `str`
-- **documents**: `list[Document]`
-- **redundancy_level**: `float` (0.0 to 1.0, percentage of near-duplicates)
-- **injection_method**: `str` (e.g., "back_translation", "semantic_perturbation")
+### 1. Injected Datasets (`data/processed/injected_datasets.json`)
+-   **Description**: Original BEIR documents plus synthetic duplicates generated via Exact Copy Perturbation.
+-   **Source**: `code/injection.py` (FR-001).
+-   **Fields**:
+    -   `doc_id`: string (unique ID, original or synthetic).
+    -   `original_doc_id`: string (link to source, null for originals).
+    -   `document`: string (text).
+    -   `is_synthetic`: boolean.
+    -   `cluster_id`: string (assigned by MinHash-LSH).
 
-### 3. Comparison Pair
-A tuple of two documents compared by the active ranker.
-- **pair_id**: `str` (Unique hash of the pair)
-- **doc_a_id**: `str`
-- **doc_b_id**: `str`
-- **similarity_score**: `float` (Cosine similarity)
-- **is_wasted**: `bool` (True if `similarity_score > 0.95`)
-- **validation_status**: `str` ("unvalidated", "validated_llm", "validated_proxy")
-- **llm_consensus**: `str` (Optional, "agree", "disagree", "null")
+### 2. Clusters (`data/processed/clusters.json`)
+-   **Description**: Mapping of documents to MinHash-LSH clusters.
+-   **Source**: `cluster_engine.py` (FR-005).
+-   **Fields**:
+    -   `cluster_id`: string.
+    -   `members`: list of `doc_id`.
+    -   `representative`: string (first member).
+    -   `similarity_score`: float (min pairwise similarity in cluster).
 
-### 4. Cluster
-A group of near-duplicate documents identified by MinHash-LSH.
-- **cluster_id**: `str`
-- **member_ids**: `list[str]`
-- **representative_id**: `str` (The document selected for ranking)
-- **jaccard_min**: `float` (Minimum Jaccard similarity within cluster)
+### 3. Comparison Log (`data/processed/comparison_log.jsonl`)
+-   **Description**: Log of every pairwise comparison made by the active learner.
+-   **Source**: `redundancy_detector.py` (FR-004).
+-   **Fields** (per line):
+    -   `pair_id`: string.
+    -   `doc_a_id`: string.
+    -   `doc_b_id`: string.
+    -   `similarity`: float (Cosine similarity).
+    -   `is_wasted`: boolean (true if `similarity > 0.95`).
+    -   `outcome`: string (e.g., "ranked", "skipped").
 
-### 5. Metrics Snapshot
-Aggregated results for a single run.
-- **run_id**: `str` (Random seed)
-- **dataset**: `str` (e.g., "scifact")
-- **redundancy_level**: `float`
-- **total_calls**: `int`
-- **wasted_calls**: `int`
-- **wasted_ratio**: `float`
-- **ndcg_at_10**: `float`
-- **execution_time_seconds**: `float`
-- **peak_memory_mb**: `float`
-- **validation_method**: `str` ("proxy_only", "llm_consensus", "hybrid")
-- **proxy_accuracy**: `dict` (Optional, {"precision": float, "recall": float} if validated)
-- **unvalidated_flag**: `bool` (True if proxy-only due to resource constraints)
+### 4. Unique Subset (`data/processed/unique_subset.json`)
+-   **Description**: The set of unique documents (no synthetic duplicates) used for baseline.
+-   **Source**: `data_loader.py`.
+-   **Fields**: Same as `injected_datasets.json` but `is_synthetic=false` and `cluster_id=null`.
 
-### 6. Sample Config
-Configuration for the LLM consensus sample.
-- **sample_size**: `int`
-- **skip_validation**: `bool` (True if no flagged pairs or resource constraints)
-- **reason**: `str` (e.g., "zero_flagged_pairs", "ram_limit_exceeded")
+## Output Artifacts
 
-## File Schemas
+### 1. Flagged Pairs Count (`data/results/flagged_pairs_count.json`)
+-   **Description**: Count of wasted calls per seed.
+-   **Fields**:
+    -   `seed`: integer.
+    -   `total_calls`: integer.
+    -   `wasted_calls`: integer.
+    -   `wasted_ratio`: float.
 
-### `data/processed/comparison_log.jsonl`
-Each line is a `Comparison Pair` object.
-- **Format**: JSONL (one JSON object per line).
-- **Purpose**: The single source of truth for all pairwise comparisons.
+### 2. NDCG Results (`data/results/us1_baseline_ndcg.json`, `data/results/us1_redundant_ndcg.json`)
+-   **Description**: NDCG@10 scores.
+-   **Fields**:
+    -   `seed`: integer.
+    -   `ndcg_at_10`: float.
 
-### `data/processed/injected_datasets.json`
-A dictionary mapping dataset names to their injected candidate lists.
-- **Format**: JSON.
-- **Structure**: `{ "scifact": [Candidate List 1, ...], "nfcorpus": [...] }`
+### 3. Statistical Test Results (`data/results/wilcoxon_wasted_calls.json`)
+-   **Description**: Wilcoxon signed-rank test results on **Wasted Call Ratio**.
+-   **Fields**:
+    -   `statistic`: float.
+    -   `p_value`: float.
+    -   `bonferroni_adjusted_p`: float.
+    -   `significant`: boolean.
 
-### `data/processed/resource_log.json`
-Log of resource usage (RAM, time) for the entire pipeline.
-- **Format**: JSON.
-- **Structure**: `{ "max_ram_mb": float, "total_time_seconds": float, "timeout_triggered": bool }`
+### 4. Statistical Report (`data/results/statistical_report.md`)
+-   **Description**: Human-readable summary of findings.
+-   **Content**: Markdown report with tables, charts (if generated), and interpretation.
 
-### `data/results/flagged_pairs_count.json`
-Aggregated count of wasted pairs.
-- **Format**: JSON.
-- **Structure**: `{ "total_flagged": int, "total_pairs": int, "ratio": float, "validation_status": str, "unvalidated_flag": bool }`
-
-### `data/results/sample_config.json`
-Configuration for the consensus sample.
-- **Format**: JSON.
-- **Structure**: `{ "sample_size": int, "skip_validation": bool, "reason": str }`
-
-### `data/results/consensus_sample.json`
-List of pairs selected for LLM validation.
-- **Format**: JSON.
-- **Structure**: `{ "pairs": [Comparison Pair, ...] }` (Can be empty list if `skip_validation` is true).
-
-### `data/results/final_report.json`
-The final aggregated results across all seeds and datasets.
-- **Format**: JSON.
-- **Structure**: `{ "runs": [Metrics Snapshot, ...], "statistical_summary": { ... }, "threshold_sweep_results": [...] }`
-
-## Data Flow
-
-1. **Load**: `data/raw/` (BEIR) -> `data/processed/injected_datasets.json` (via `data_loader.py`).
-2. **Cluster**: `injected_datasets.json` -> `data/processed/clusters.json` (via `minhash_pipeline.py`).
-3. **Rank**: `clusters.json` -> `data/processed/comparison_log.jsonl` (via `ranker.py`).
-4. **Evaluate**: `comparison_log.jsonl` + `data/raw/qrels` -> `data/results/flagged_pairs_count.json`, `data/results/final_report.json` (via `metrics.py`).
-5. **Monitor**: `resource_log.json` written by `resource_monitor.py` at the end of the pipeline.
+## Data Integrity & Traceability
+-   **Checksums**: Every intermediate file (`injected_datasets.json`, `clusters.json`) is checksummed (SHA-256) in `state/` before downstream use (FR-008).
+-   **Traceability**: `comparison_log.jsonl` contains `pair_id` which links back to `doc_id` in `injected_datasets.json`.
+-   **No Fabrication**: All `similarity` scores are computed on-the-fly using `sentence-transformers`. No pre-computed or hardcoded values are used.

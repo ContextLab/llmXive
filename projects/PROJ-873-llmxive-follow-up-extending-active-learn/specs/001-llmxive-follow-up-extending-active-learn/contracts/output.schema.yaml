@@ -63,11 +63,11 @@ properties:
     description: "Precision and Recall of the proxy validation (if applicable)."
     properties:
       precision:
-        type: number
+        type: "number"
         minimum: 0.0
         maximum: 1.0
       recall:
-        type: number
+        type: "number"
         minimum: 0.0
         maximum: 1.0
 required:

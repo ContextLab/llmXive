@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Clusters Schema"
+description: "Schema for data/processed/clusters.json containing MinHash-LSH cluster assignments."
+type: "object"
+properties:
+  meta:
+    type: "object"
+    properties:
+      algorithm:
+        type: "string"
+        const: "MinHash-LSH"
+      num_permutations:
+        type: "integer"
+      threshold:
+        type: "number"
+        description: "Similarity threshold for clustering (e.g., 0.95)."
+      timestamp:
+        type: "string"
+        format: "date-time"
+  clusters:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "cluster_id"
+        - "members"
+      properties:
+        cluster_id:
+          type: "string"
+        members:
+          type: "array"
+          items:
+            type: "string"
+            description: "List of doc_ids in this cluster."
+        representative:
+          type: "string"
+          description: "The representative doc_id for this cluster."
+        similarity_score:
+          type: "number"
+          description: "Minimum pairwise similarity within the cluster."
+required:
+  - "meta"
+  - "clusters"

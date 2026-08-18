@@ -18,26 +18,36 @@ access_python: 'import os
 
   data_path = util.download_and_unzip(url, out_dir)
 
-  # load corpus, queries and relevance judgments (qrels)
+
+  # load corpus, queries, and relevance judgments (qrels)
 
   corpus, queries, qrels = GenericDataLoader(data_path).load(split="test")
 
-  print(f"RECORDS={len(corpus)}")
 
-  print("FIELDS=doc_id,title,text")'
-record_count: 3633
+  # count total relevance judgments (records)
+
+  record_count = sum(len(docs) for docs in qrels.values())
+
+  print(f"RECORDS={record_count}")
+
+  # fields that will be present when records are constructed
+
+  fields = ["query_id", "query", "doc_id", "document", "relevance"]
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 12334
 sample_fields:
-- doc_id
-- title
-- text
-field_coverage: 0.5
-required_fields:
-- doc_id
-- title
-- text
 - query_id
 - query
+- doc_id
+- document
 - relevance
-intent: download BEIR benchmark nfcorpus dataset python package via pip install beir
-  python package dataset
-cache_key: 4dbd762275e64d8b09c801e8c7ef0f0f14598c2210874cae171f5df863f7e58b
+field_coverage: 1.0
+required_fields:
+- query_id
+- query
+- doc_id
+- document
+- relevance
+intent: pip installable BEIR benchmark nfcorpus dataset official python package dataset
+cache_key: 84d814ea98659a692bbc8bf25ee97e27dbffe65edb420b084f4162a4434089c0

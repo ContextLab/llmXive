@@ -1,65 +1,73 @@
-# Quickstart: llmXive follow-up: extending "Active Learners as Efficient PRP Rerankers"
+# Quickstart: Active Learners as Efficient PRP Rerankers
 
 ## Prerequisites
-
-- Python 3.11+
-- `pip`
-- 7GB+ RAM available (for local testing)
-- 14GB+ disk space
+-   Python 3.11+
+-   7GB+ RAM available
+-   14GB+ Disk space
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root).
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` includes `beir`, `sentence-transformers`, `datasketch`, `scikit-learn`, `torch`, `llama-cpp-python`, `pytest`.*
+1.  **Clone and Setup**:
+    ```bash
+    cd projects/PROJ-873-llmxive-follow-up-extending-active-learn
+    python -m venv venv
+    source venv/bin/activate
+    ```
+
+2.  **Install Dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Key dependencies*: `beir`, `datasketch`, `sentence-transformers`, `scikit-learn`, `psutil`, `llama-cpp-python`.
+
+3.  **Verify Environment**:
+    ```bash
+    python code/utils.py --check-env
+    ```
 
 ## Running the Pipeline
 
-The full pipeline can be executed end-to-end via the main script. This will:
-1. Download BEIR datasets (if not present).
-2. Inject synthetic redundancy.
-3. Run MinHash-LSH clustering.
-4. Execute the active ranker.
-5. Compute metrics and statistical significance.
-
+### Full Execution (5 Seeds)
+Run the complete experiment (Data Loading -> Injection -> Clustering -> Ranking -> Stats):
 ```bash
-python code/main.py --dataset scifact --redundancy 0.4 --seeds 30
+python code/main.py --seeds 5
+```
+-   **Output**: Results will be saved in `data/results/`.
+-   **Duration**: ~2-4 hours on CPU.
+-   **Resource Watchdog**: The script will automatically abort if memory > 7GB or time > 6h.
+
+### Single Seed Debug
+To run a single seed for debugging:
+```bash
+python code/main.py --seeds 1 --seed 42
 ```
 
-### Arguments
-
-- `--dataset`: Name of the BEIR dataset (`scifact`, `nfcorpus`, `trec-covid`).
-- `--redundancy`: Target redundancy level (0.0 to 1.0).
-- `--seeds`: Number of random seeds to run for statistical significance (default: 30).
-- `--skip-llm`: (Optional) Skip the LLM consensus validation step to save time/memory (uses proxy only).
-- `--threshold-sweep`: (Optional) Run threshold sensitivity sweep (0.85, 0.90, 0.95, 0.98).
-
-## Expected Outputs
-
-After successful execution, the following files will be generated:
-
-- `data/processed/injected_datasets.json`: The synthetic datasets.
-- `data/processed/comparison_log.jsonl`: Log of all pairwise comparisons.
-- `data/processed/resource_log.json`: Resource usage log.
-- `data/results/final_report.json`: The final report with NDCG, wasted ratios, p-values, and threshold sweep results.
+### Step-by-Step Execution
+If you need to inspect intermediate artifacts:
+1.  **Load & Inject**:
+    ```bash
+    python code/injection.py --inject --output data/processed/injected_datasets.json
+    ```
+2.  **Cluster**:
+    ```bash
+    python code/cluster_engine.py --input data/processed/injected_datasets.json --output data/processed/clusters.json
+    ```
+3.  **Rank & Measure**:
+    ```bash
+    python code/ranker.py --input data/processed/injected_datasets.json --output data/results/wasted_calls.json
+    ```
 
 ## Verifying Results
-
-To verify the statistical significance:
+Check the statistical report:
 ```bash
-python -m pytest tests/integration/test_full_pipeline.py -v
+cat data/results/statistical_report.md
+```
+Verify the Wilcoxon test:
+```bash
+cat data/results/wilcoxon_wasted_calls.json
 ```
 
 ## Troubleshooting
-
-- **Memory Error**: If you encounter `MemoryError`, the LLM consensus step may have exceeded the 7GB limit. Rerun with `--skip-llm` to use the proxy-only fallback.
-- **Dataset Not Found**: Ensure you have internet access for the initial BEIR download. Subsequent runs will use the cached data in `data/raw/`.
-- **Slow Execution**: The MinHash step is CPU-bound. Ensure you are not running other heavy processes.
+-   **Memory Error**: Reduce `batch_size` in `code/config.py`.
+-   **Timeout**: Ensure the runner has sufficient CPU; the 6h limit is strict.
+-   **Dataset Download**: If `beir` fails to download, check internet connectivity or use the manual download URLs in `research.md`.

@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Results Schema"
+description: "Schema for statistical test results (wilcoxon_wasted_calls.json)."
+type: "object"
+properties:
+  meta:
+    type: "object"
+    properties:
+      test_name:
+        type: "string"
+        const: "Wilcoxon Signed-Rank Test"
+      metric:
+        type: "string"
+        const: "Wasted Call Ratio"
+      correction:
+        type: "string"
+        const: "Bonferroni"
+      seeds_used:
+        type: "integer"
+        minimum: 1
+      timestamp:
+        type: "string"
+        format: "date-time"
+  results:
+    type: "object"
+    properties:
+      statistic:
+        type: "number"
+        description: "Wilcoxon test statistic."
+      p_value:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Raw p-value."
+      bonferroni_adjusted_p:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "P-value after Bonferroni correction."
+      significant:
+        type: "boolean"
+        description: "True if adjusted p < 0.05."
+    required:
+      - "statistic"
+      - "p_value"
+      - "bonferroni_adjusted_p"
+      - "significant"
+required:
+  - "meta"
+  - "results"
