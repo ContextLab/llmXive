@@ -2593,3 +2593,1347 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T05:36:18Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'TinyLlama base model dimensions: hidden_size=2048, rank=16, num_layers=16'
+  claim_id: c_6a46fcfd
+  context: 'Generate LoRA-like weight matrices with dimensions matching the expected
+    base model (TinyLlama: hidden_size=2048, rank=16, num_layers=16) using seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base model is TinyLlama with hidden_size=2048, rank=16, and num_layers=16.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:32:41Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Runner hardware constraint: standard 2-core CPU'
+  claim_id: c_65940125
+  context: Implement src/evaluation/verify_runner.py to verify the runner's hardware
+    constraints (standard 2-core CPU).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runner_hardware_constraint:_standard_2-core_CPU
+  kind: entity_fact
+  raw_text: The runner hardware constraint is a standard 2-core CPU.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:33:43Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Base LLM size limit: < 7 GB'
+  claim_id: c_974c4290
+  context: Download and convert the base LLM to GGUF format (e.g., TinyLlama-1B-Chat).
+    Verify size < 7 GB and perform a dry-run inference.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Base_LLM_size_limit:_%3C_7_GB
+  kind: magnitude
+  raw_text: The base LLM size limit is less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:34:05Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Evaluation task timeout: 30 seconds'
+  claim_id: c_211d4e2b
+  context: Include a timeout wrapper (max 30 s) that logs a timeout failure and returns
+    False.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The evaluation timeout is 30 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:34:23Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Evaluation runs per task: N >= 5'
+  claim_id: c_a6050789
+  context: Implement loop in src/evaluation/runner.py to execute N >= 5 independent
+    runs per task (FR-008) and record binary outcomes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The evaluation requires N >= 5 independent runs per task.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:35:13Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Maximum reconstruction error threshold: 0.05'
+  claim_id: c_e4965f2c
+  context: Output mean and max error to data/results/reconstruction_error.json; flag
+    if max_error > 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum reconstruction error threshold is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:35:29Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Default OOD threshold: 0.5'
+  claim_id: c_4561eff9
+  context: 'Add default OOD threshold in src/utils/config.py: OOD_THRESHOLD = 0.5
+    (float).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default OOD threshold is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:35:43Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Minimum disk space requirement: 500 MB'
+  claim_id: c_01d12d11
+  context: Implement disk-space check in src/evaluation/runner.py before writing adapters
+    or logs (require >= 500 MB free).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum disk space requirement is 500 MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:36:35Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Transient failure retry limit: 2 retries'
+  claim_id: c_eab8f6cb
+  context: Implement retry mechanism in src/evaluation/runner.py for transient environment
+    failures (max 2 retries with exponential backoff).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retry mechanism for transient environment failures allows a maximum
+    of 2 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:36:56Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha=0.05, desired power=0.8'
+  claim_id: c_3fd02d1b
+  context: Assume alpha=0.05, desired power 0.8, effect size 0.5 if not available.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis assumes an alpha of 0.05 and a desired power of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:37:21Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Default effect size for power analysis: 0.3'
+  claim_id: c_ce2c8857
+  context: Read observed_success_rate_diff from stats_report.json (or default effect
+    size 0.3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default effect size for power analysis is 0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:37:45Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Power estimate warning threshold: < 0.8'
+  claim_id: c_cecf92b8
+  context: Log warning if estimated power < 0.8 but continue.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power estimate threshold for a warning is 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:38:03Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Virtual memory pause threshold: 90%'
+  claim_id: c_889a93d0
+  context: Pause and warn if psutil.virtual_memory().percent > 90.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The virtual memory pause threshold is 90%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:38:04Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Synthetic data generation seed: 42'
+  claim_id: c_b2ba664f
+  context: Generate LoRA-like weight matrices... using seed=42.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Seed 42
+      source_id: '2411.15484'
+      url: https://arxiv.org/abs/2411.15484
+      value: '42'
+    filled: true
+  kind: numeric
+  raw_text: The default seed for synthetic data generation is 42.
+  resolved_value: '42'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:38:19Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Vector index k value: 5'
+  claim_id: c_38ee3e34
+  context: Execute python src/retrieval/vector_db.py --input data/raw/weights.npz
+    --output data/processed/skill_index.npz --k 5.
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The default k value for the vector index is 5.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:38:19Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Code formatter line-length: 88'
+  claim_id: c_8dd03500
+  context: Create pyproject.toml with [tool.black] and [tool.ruff] sections (line-length=88,
+    target-version=py311).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The line-length configuration for black and ruff is 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:38:47Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Target Python version: 3.11'
+  claim_id: c_7d2370e8
+  context: Create pyproject.toml with [tool.black] and [tool.ruff] sections (line-length=88,
+    target-version=py311).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target Python version is 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:38:58Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned torch version: 2.1.0'
+  claim_id: c_3a29a580
+  context: 'Create requirements.txt with the following EXACT pinned versions: torch==2.1.0...'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The torch version pinned in requirements.txt is 2.1.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:38:58Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned numpy version: 1.24.0'
+  claim_id: c_ae6f165c
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...numpy==1.24.0...'
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The numpy version pinned in requirements.txt is 1.24.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:38:59Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned scikit-learn version: 1.3.0'
+  claim_id: c_3dfd7192
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...scikit-learn==1.3.0...'
+  evidence:
+    asserted: '1.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The scikit-learn version pinned in requirements.txt is 1.3.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:39:00Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned sentence-transformers version: 2.2.2'
+  claim_id: c_58c68ca8
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...sentence-transformers==2.2.2...'
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The sentence-transformers version pinned in requirements.txt is 2.2.2.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:39:00Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned transformers version: 4.35.0'
+  claim_id: c_a008091f
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...transformers==4.35.0...'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The transformers version pinned in requirements.txt is 4.35.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:39:01Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned pandas version: 2.1.0'
+  claim_id: c_133ae989
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...pandas==2.1.0...'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pandas version pinned in requirements.txt is 2.1.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:39:01Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned scipy version: 1.11.0'
+  claim_id: c_d382c7a5
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...scipy==1.11.0...'
+  evidence:
+    asserted: '1.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The scipy version pinned in requirements.txt is 1.11.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:39:02Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned llama-cpp-python version: 0.2.30'
+  claim_id: c_7804e6ed
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...llama-cpp-python==0.2.30...'
+  evidence:
+    asserted: '0.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The llama-cpp-python version pinned in requirements.txt is 0.2.30.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:39:03Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned faiss-cpu version: 1.7.4'
+  claim_id: c_0c473794
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...faiss-cpu==1.7.4...'
+  evidence:
+    asserted: '1.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The faiss-cpu version pinned in requirements.txt is 1.7.4.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:39:03Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned pyyaml version: 6.0.1'
+  claim_id: c_07eadd6b
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...pyyaml==6.0.1...'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pyyaml version pinned in requirements.txt is 6.0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:39:04Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned pytest version: 7.4.0'
+  claim_id: c_7ae7e4b6
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...pytest==7.4.0...'
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pytest version pinned in requirements.txt is 7.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:39:04Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned psutil version: 5.9.0'
+  claim_id: c_498cd7db
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...psutil==5.9.0...'
+  evidence:
+    asserted: '5.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The psutil version pinned in requirements.txt is 5.9.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:39:05Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Pinned huggingface-hub version: 0.19.0'
+  claim_id: c_33da9b66
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...huggingface-hub==0.19.0.'
+  evidence:
+    asserted: '0.19'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The huggingface-hub version pinned in requirements.txt is 0.19.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:39:05Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'HF dataset ID: latent-skills/alfworld-weights'
+  claim_id: c_1bf23627
+  context: 'Create data_sources.yaml defining the canonical URLs/IDs only for the
+    required datasets: 1. latent-skills/alfworld-weights (HF Dataset ID: latent-skills/alfworld-weights)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HF_dataset_ID:_latent-skills/alfworld-weights
+  kind: entity_fact
+  raw_text: The HuggingFace dataset ID for alfworld-weights is latent-skills/alfworld-weights.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:39:34Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'HF dataset ID: latent-skills/searchqa-weights'
+  claim_id: c_a8ea537c
+  context: 'Create data_sources.yaml defining the canonical URLs/IDs only for the
+    required datasets: 2. latent-skills/searchqa-weights (HF Dataset ID: latent-skills/searchqa-weights)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HF_dataset_ID:_latent-skills/searchqa-weights
+  kind: entity_fact
+  raw_text: The HuggingFace dataset ID for searchqa-weights is latent-skills/searchqa-weights.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:39:48Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'arXiv ID: 2606.06087'
+  claim_id: c_7ea49150
+  context: 'Create data_sources.yaml defining the canonical URLs/IDs only for the
+    required datasets: 3. arXiv:2606.06087 (Supplementary URL: )'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The arXiv ID associated with the project is 2606.06087.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:41:26Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Query vector model: all-MiniLM-L6-v2'
+  claim_id: c_81b9f627
+  context: Implement src/retrieval/query.py (FR-002) to generate query vectors using
+    all-MiniLM-L6-v2.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: The query vector generation uses the all-MiniLM-L6-v2 model.
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:41:40Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Base model for GGUF conversion: TinyLlama-1B-Chat'
+  claim_id: c_4f0e1ef6
+  context: Download and convert the base LLM to GGUF format (e.g., TinyLlama-1B-Chat).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Base_model_for_GGUF_conversion:_TinyLlama-1B-Chat
+  kind: entity_fact
+  raw_text: The base model used for GGUF conversion is TinyLlama-1B-Chat.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:42:04Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Rounding precision for observed_success_rate_diff: 4 decimal places'
+  claim_id: c_55a8ee98
+  context: observed_success_rate_diff (number, calculated as mean(strategy_success)
+    - mean(baseline_success), rounded to 4 dp)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The rounding precision for observed_success_rate_diff is 4 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:42:21Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Power estimate range: 0-1'
+  claim_id: c_b2bfa10f
+  context: power_estimate (number, 0-1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power estimate range is 0 to 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:42:44Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Fallback effect size for power analysis: 0.5'
+  claim_id: c_dfc734e9
+  context: Assume alpha=0.05, desired power 0.8, effect size 0.5 if not available.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default effect size used if not available in power analysis is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:43:08Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Validate arXiv source if HuggingFace dataset missing
+  claim_id: c_64f86263
+  context: 'Create src/validate/citation_check.py to verify dataset URLs listed in
+    data_sources.yaml. Implementation: Perform HTTP 200 checks and validate the existence
+    of weight files within the HF datasets. If the primary HF dataset is missing,
+    the script must validate the existence of the arXiv source and prepare for fallback.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_arXiv_source_if_HuggingFace_dataset_missing
+  kind: entity_fact
+  raw_text: If the primary HF dataset is missing, the script must validate the existence
+    of the arXiv source and prepare for fallback.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:44:53Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Generate synthetic proxy weights with TinyLlama dimensions hidden_size=2048
+    rank=16 num_layers=16 seed=42
+  claim_id: c_d9be76ec
+  context: 'Action: Check data/processed/data_fetch_status.json. If status == ''failed'',
+    generate LoRA-like weight matrices with dimensions matching the expected base
+    model (TinyLlama: hidden_size=2048, rank=16, num_layers=16) using seed=42 (2411.15484,
+    https://arxiv.org/abs/2411.15484).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Generate LoRA-like weight matrices with dimensions matching the expected
+    base model (TinyLlama: hidden_size=2048, rank=16, num_layers=16) using seed=42
+    (2411.15484, https://arxiv.org/abs/2411.15484).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:44:57Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Verify base LLM GGUF size < 7 GB
+  claim_id: c_175ddd1d
+  context: Download and convert the base LLM to GGUF format (e.g. TinyLlama-1B-Chat).
+    Verify size < 7 GB and perform a dry-run inference to ensure memory fits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify size < 7 GB and perform a dry-run inference to ensure memory fits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:44:58Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Include 30 second timeout wrapper for environment logic
+  claim_id: c_d88ab930
+  context: 'Implement src/evaluation/init_env_logic.py to initialize ALFWorld environment
+    and provide run_task(adapter_path: str, task_id: str) -> bool. Include a timeout
+    wrapper (max 30 s) that logs a timeout failure and returns False.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include a timeout wrapper (max 30 s) that logs a timeout failure and returns
+    False.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:45:03Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Require at least 500 MB free disk space
+  claim_id: c_ffb9894c
+  context: Implement disk-space check in src/evaluation/runner.py before writing adapters
+    or logs (require >= 500 MB free). Raise RuntimeError if insufficient.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Require_at_least_500_MB_free_disk_space
+  kind: magnitude
+  raw_text: Require >= 500 MB free disk space before writing adapters or logs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:45:11Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Implement 2 retries with exponential backoff for transient environment
+    failures
+  claim_id: c_f7242777
+  context: Implement retry mechanism in src/evaluation/runner.py for transient environment
+    failures (max 2 retries with exponential backoff). Do not retry logical failures.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement retry mechanism in src/evaluation/runner.py for transient environment
+    failures (max 2 retries with exponential backoff).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:45:13Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'TinyLlama architecture parameters: hidden_size 2048, rank 16, num_layers
+    16'
+  claim_id: c_1c9cdb76
+  context: 'If status == ''failed'', generate LoRA-like weight matrices with dimensions
+    matching the expected base model (TinyLlama: hidden_size=2048, rank=16, num_layers=16)
+    using seed=42 (2411.15484, https://arxiv.org/abs/2411.15484).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'TinyLlama: hidden_size=2048, rank=16, num_layers=16'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:48:46Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Synthetic proxy weight generation seed 42 cited as 2411.15484
+  claim_id: c_e293070c
+  context: 'If status == ''failed'', generate LoRA-like weight matrices with dimensions
+    matching the expected base model (TinyLlama: hidden_size=2048, rank=16, num_layers=16)
+    using seed=42 (2411.15484, https://arxiv.org/abs/2411.15484).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: seed=42 (2411.15484, https://arxiv.org/abs/2411.15484)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:48:54Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset ID latent-skills/alfworld-weights
+  claim_id: c_60038797
+  context: 'Create data_sources.yaml defining the canonical URLs/IDs only for the
+    required datasets: 1. latent-skills/alfworld-weights (HF Dataset ID: latent-skills/alfworld-weights)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_ID_latent-skills/alfworld-weights
+  kind: entity_fact
+  raw_text: 'latent-skills/alfworld-weights (HF Dataset ID: latent-skills/alfworld-weights)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:49:13Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset ID latent-skills/searchqa-weights
+  claim_id: c_815ee41b
+  context: 'Create data_sources.yaml defining the canonical URLs/IDs only for the
+    required datasets: 2. latent-skills/searchqa-weights (HF Dataset ID: latent-skills/searchqa-weights)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_ID_latent-skills/searchqa-weights
+  kind: entity_fact
+  raw_text: 'latent-skills/searchqa-weights (HF Dataset ID: latent-skills/searchqa-weights)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:49:30Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: arXiv source 2606.06087
+  claim_id: c_6dcee148
+  context: 'Create data_sources.yaml defining the canonical URLs/IDs only for the
+    required datasets: 3. arXiv:2606.06087 (Supplementary URL: )'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: arXiv:2606.06087
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:49:33Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model cited as 2607.07974
+  claim_id: c_18695503
+  context: Implement src/retrieval/query.py (FR-002) to generate query vectors using
+    all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974).
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:49:35Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Base LLM GGUF size requirement less than 7 GB
+  claim_id: c_8d8366ff
+  context: Download and convert the base LLM to GGUF format (e.g., TinyLlama-1B-Chat).
+    Verify size < 7 GB and perform a dry-run inference to ensure memory fits.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Base_LLM_GGUF_size_requirement_less_than_7_GB
+  kind: magnitude
+  raw_text: Verify size < 7 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:49:51Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Minimum 5 independent runs per task for evaluation
+  claim_id: c_9d92fae8
+  context: Implement loop in src/evaluation/runner.py to execute N >= 5 independent
+    runs per task (FR-008) and record binary outcomes, calculating the mean success
+    rate.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N >= 5 independent runs per task
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:50:39Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Task execution timeout of 30 seconds
+  claim_id: c_46b4b0b3
+  context: 'Implement src/evaluation/init_env_logic.py to initialize ALFWorld environment
+    and provide run_task(adapter_path: str, task_id: str) -> bool. Include a timeout
+    wrapper (max 30 s) that logs a timeout failure and returns False.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max 30 s timeout
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:51:01Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Transient environment failure retry mechanism with 2 retries
+  claim_id: c_69e86b12
+  context: Implement retry mechanism in src/evaluation/runner.py for transient environment
+    failures (max 2 retries with exponential backoff).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max 2 retries with exponential backoff
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:51:20Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Disk space requirement of 500 MB free
+  claim_id: c_2e798d2e
+  context: Implement disk-space check in src/evaluation/runner.py before writing adapters
+    or logs (require >= 500 MB free). Raise RuntimeError if insufficient.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: require >= 500 MB free
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:51:32Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha 0.05, power 0.8, effect size 0.5'
+  claim_id: c_95b4d275
+  context: Read observed_success_rate_diff from stats_report.json (or default effect
+    size 0.3). Assume alpha=0.05, desired power 0.8, effect size 0.5 if not available.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: alpha=0.05, desired power 0.8, effect size 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:52:01Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Default OOD threshold value 0.5
+  claim_id: c_8f95bb07
+  context: 'Add default OOD threshold in src/utils/config.py: OOD_THRESHOLD = 0.5
+    (float). This constant is used by src/retrieval/query.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: OOD_THRESHOLD = 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:52:16Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Reconstruction error max threshold 0.05
+  claim_id: c_834176f4
+  context: Output mean and max error to data/results/reconstruction_error.json; flag
+    if max_error > 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_error > 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:52:17Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Linearity validation max error threshold 0.05
+  claim_id: c_077fb02d
+  context: Implement src/validation/linearity_check.py to compute Pearson correlation
+    between text-space and weight-space distances, validate against SC-005 (max_error
+    < 0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_error < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:52:17Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Code formatter line length 88
+  claim_id: c_32e65bb7
+  context: Create pyproject.toml with [tool.black] and [tool.ruff] sections (line-length=88,
+    target-version=py311)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length=88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:52:39Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned torch version 2.1.0
+  claim_id: c_490651e9
+  context: 'Create requirements.txt with the following EXACT pinned versions: torch==2.1.0,
+    numpy==1.24.0...'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: torch==2.1.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:52:40Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned numpy version 1.24.0
+  claim_id: c_c9cc2bac
+  context: 'Create requirements.txt with the following EXACT pinned versions: torch==2.1.0,
+    numpy==1.24.0...'
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: numpy==1.24.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:52:41Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned scikit-learn version 1.3.0
+  claim_id: c_390d110a
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...
+    scikit-learn==1.3.0 ...'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: scikit-learn==1.3.0
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:52:45Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned sentence-transformers version 2.2.2
+  claim_id: c_c6b74bec
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...
+    sentence-transformers==2.2.2 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sentence-transformers==2.2.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:52:58Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned transformers version 4.35.0
+  claim_id: c_8216ecc3
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...
+    transformers==4.35.0 ...'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: transformers==4.35.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:52:59Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned pandas version 2.1.0
+  claim_id: c_6fb7160d
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...
+    pandas==2.1.0 ...'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pandas==2.1.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:53:00Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned scipy version 1.11.0
+  claim_id: c_3ad3e43b
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...
+    scipy==1.11.0 ...'
+  evidence:
+    asserted: '1.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: scipy==1.11.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:53:01Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned llama-cpp-python version 0.2.30
+  claim_id: c_06f20cba
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...
+    llama-cpp-python==0.2.30 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: llama-cpp-python==0.2.30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:53:19Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned faiss-cpu version 1.7.4
+  claim_id: c_26bfb502
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...
+    faiss-cpu==1.7.4 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: faiss-cpu==1.7.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:53:31Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned pyyaml version 6.0.1
+  claim_id: c_623f9def
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...
+    pyyaml==6.0.1 ...'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:53:32Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned pytest version 7.4.0
+  claim_id: c_11c72592
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...
+    pytest==7.4.0 ...'
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pytest==7.4.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:53:33Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned psutil version 5.9.0
+  claim_id: c_85d4407d
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...
+    psutil==5.9.0 ...'
+  evidence:
+    asserted: '5.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: psutil==5.9.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T23:53:33Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Pinned huggingface-hub version 0.19.0
+  claim_id: c_6a80e6ec
+  context: 'Create requirements.txt with the following EXACT pinned versions: ...
+    huggingface-hub==0.19.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: huggingface-hub==0.19.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T23:53:45Z'

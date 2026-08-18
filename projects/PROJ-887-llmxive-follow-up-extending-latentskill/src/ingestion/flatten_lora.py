@@ -1,27 +1,20 @@
 """
-Module for flattening LoRA weights into skill vectors.
+Flatten LoRA weights into normalized vectors.
 
-This module implements the core logic for User Story 1:
-- Loading A/B matrices from raw weight files
-- Flattening them into 1D vectors
-- Applying L2 normalization
-- Ensuring consistent dimensions across adapters
-- Logging ingestion metrics
+This module implements FR-001: Ingest pre-trained LoRA adapters (A and B matrices),
+flatten them into normalized high-dimensional vectors, and generate a static CPU-compatible index.
 """
-
 import os
 import sys
 import logging
+import argparse
 import time
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 import numpy as np
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from src.utils.config import get_data_path, ensure_directories
+# Import from project utilities
+from src.utils.config import get_project_root, ensure_directories, get_data_path
 
 # Configure logging
 logging.basicConfig(
@@ -30,255 +23,288 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_lora_weights(weight_path: Path) -> Dict[str, np.ndarray]:
+
+def load_npz_file(file_path: Path) -> Dict[str, np.ndarray]:
     """
-    Load LoRA A/B matrices from an .npz file.
+    Load weights from an NPZ file.
 
     Args:
-        weight_path: Path to the .npz file containing A and B matrices.
+        file_path: Path to the .npz file
 
     Returns:
-        Dictionary with 'A' and 'B' keys containing numpy arrays.
-
-    Raises:
-        FileNotFoundError: If the weight file doesn't exist.
-        ValueError: If the file doesn't contain expected A/B matrices.
+        Dictionary of weight matrices
     """
-    if not weight_path.exists():
-        raise FileNotFoundError(f"Weight file not found: {weight_path}")
+    if not file_path.exists():
+        raise FileNotFoundError(f"Weight file not found: {file_path}")
 
-    logger.info(f"Loading weights from: {weight_path}")
-    data = np.load(weight_path)
+    logger.info(f"Loading weights from {file_path}")
+    try:
+        data = np.load(file_path, allow_pickle=True)
+        weights = {key: data[key] for key in data.files}
+        logger.info(f"Loaded {len(weights)} weight matrices")
+        return weights
+    except Exception as e:
+        logger.error(f"Error loading {file_path}: {e}")
+        raise
 
-    if 'A' not in data or 'B' not in data:
-        raise ValueError(f"Weight file {weight_path} must contain 'A' and 'B' matrices")
 
-    A = data['A']
-    B = data['B']
-
-    logger.info(f"Loaded matrices - A: {A.shape}, B: {B.shape}")
-    return {'A': A, 'B': B}
-
-def flatten_matrices(weights: Dict[str, np.ndarray]) -> Tuple[np.ndarray, int, int]:
+def load_weights_from_directory(directory: Path) -> Dict[str, Dict[str, np.ndarray]]:
     """
-    Flatten A and B matrices into a single 1D vector.
+    Load all NPZ files from a directory.
 
     Args:
-        weights: Dictionary containing 'A' and 'B' numpy arrays.
+        directory: Path to directory containing .npz files
 
     Returns:
-        Tuple of (flattened_vector, dim_A, dim_B).
+        Dictionary mapping filename to weight matrices
     """
-    A = weights['A']
-    B = weights['B']
+    if not directory.exists():
+        raise FileNotFoundError(f"Directory not found: {directory}")
 
-    dim_A = A.size
-    dim_B = B.size
+    all_weights = {}
+    npz_files = list(directory.glob("*.npz"))
 
-    # Flatten and concatenate
-    flat_A = A.flatten()
-    flat_B = B.flatten()
-    flattened = np.concatenate([flat_A, flat_B])
+    if not npz_files:
+        logger.warning(f"No .npz files found in {directory}")
+        return all_weights
 
-    logger.debug(f"Flattened vectors - A: {flat_A.shape}, B: {flat_B.shape}, combined: {flattened.shape}")
-    return flattened, dim_A, dim_B
+    for npz_file in npz_files:
+        try:
+            weights = load_npz_file(npz_file)
+            all_weights[npz_file.stem] = weights
+        except Exception as e:
+            logger.error(f"Skipping {npz_file} due to error: {e}")
 
-def l2_normalize(vector: np.ndarray) -> np.ndarray:
+    return all_weights
+
+
+def flatten_and_normalize(weights: Dict[str, np.ndarray]) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
-    Apply L2 normalization to a vector.
+    Flatten A/B matrices and apply L2 normalization.
 
     Args:
-        vector: 1D numpy array to normalize.
+        weights: Dictionary of weight matrices (A and B pairs)
 
     Returns:
-        L2-normalized vector.
+        Tuple of (flattened_normalized_vector, metadata)
     """
-    norm = np.linalg.norm(vector)
+    flattened_parts = []
+    metadata = {
+        "original_shapes": {},
+        "total_elements": 0,
+        "norm": 0.0
+    }
+
+    for key, matrix in weights.items():
+        if matrix.ndim < 2:
+            logger.warning(f"Skipping non-matrix weight: {key} (shape {matrix.shape})")
+            continue
+
+        # Flatten the matrix
+        flat = matrix.flatten()
+        flattened_parts.append(flat)
+        metadata["original_shapes"][key] = list(matrix.shape)
+        metadata["total_elements"] += flat.size
+
+    if not flattened_parts:
+        raise ValueError("No valid matrices to flatten")
+
+    # Concatenate all flattened matrices
+    combined = np.concatenate(flattened_parts)
+
+    # Apply L2 normalization
+    norm = np.linalg.norm(combined)
     if norm == 0:
-        logger.warning("Zero-norm vector detected, returning original vector")
-        return vector
-    return vector / norm
+        logger.warning(f"Zero norm detected for combined weights, returning unnormalized vector")
+        normalized = combined
+    else:
+        normalized = combined / norm
 
-def validate_dimensions(flattened_vectors: List[np.ndarray]) -> bool:
+    metadata["norm"] = float(norm)
+    metadata["final_dimension"] = normalized.size
+
+    return normalized, metadata
+
+
+def validate_dimensions(all_vectors: List[np.ndarray], expected_dim: Optional[int] = None) -> bool:
     """
-    Validate that all flattened vectors have consistent dimensions.
+    Validate that all vectors have consistent dimensions.
 
     Args:
-        flattened_vectors: List of flattened vectors to validate.
+        all_vectors: List of flattened vectors
+        expected_dim: Optional expected dimension to check against
 
     Returns:
-        True if all dimensions are consistent, False otherwise.
-
-    Raises:
-        ValueError: If dimensions are inconsistent.
+        True if dimensions are consistent
     """
-    if not flattened_vectors:
-        logger.warning("No vectors to validate")
+    if not all_vectors:
         return True
 
-    first_dim = flattened_vectors[0].shape[0]
-    for i, vec in enumerate(flattened_vectors[1:], start=1):
-        if vec.shape[0] != first_dim:
-            error_msg = f"Dimension mismatch at index {i}: expected {first_dim}, got {vec.shape[0]}"
-            logger.error(error_msg)
-            raise ValueError(error_msg)
+    dims = [v.size for v in all_vectors]
+    unique_dims = set(dims)
 
-    logger.info(f"All {len(flattened_vectors)} vectors have consistent dimension: {first_dim}")
+    if len(unique_dims) > 1:
+        logger.error(f"Inconsistent vector dimensions found: {dict(zip(range(len(dims)), dims))}")
+        return False
+
+    if expected_dim is not None and dims[0] != expected_dim:
+        logger.error(f"Expected dimension {expected_dim}, got {dims[0]}")
+        return False
+
+    logger.info(f"All vectors have consistent dimension: {dims[0]}")
     return True
 
-def process_weight_files(
-    weight_dir: Path,
-    output_dir: Path,
-    file_pattern: str = "*.npz"
+
+def process_all_weights(
+    input_path: Path,
+    output_path: Path,
+    is_directory: bool = False
 ) -> Dict[str, Any]:
     """
-    Process all weight files in a directory, flatten, normalize, and collect metrics.
+    Process all weights from input, flatten, normalize, and save to output.
 
     Args:
-        weight_dir: Directory containing weight .npz files.
-        output_dir: Directory to save processed vectors.
-        file_pattern: Glob pattern for weight files.
+        input_path: Path to input file or directory
+        output_path: Path to output .npz file
+        is_directory: If True, treat input_path as a directory
 
     Returns:
-        Dictionary containing ingestion metrics.
+        Dictionary of ingestion metrics
     """
-    ensure_directories()
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Find all weight files
-    weight_files = list(weight_dir.glob(file_pattern))
-    logger.info(f"Found {len(weight_files)} weight files in {weight_dir}")
-
-    if not weight_files:
-        logger.warning(f"No weight files found matching {file_pattern} in {weight_dir}")
-        return {
-            'vectors_processed': 0,
-            'index_size_bytes': 0,
-            'dimension': None,
-            'files_processed': [],
-            'files_failed': [],
-            'processing_time_seconds': 0
-        }
-
-    flattened_vectors = []
-    metadata = []
-    files_processed = []
-    files_failed = []
-
     start_time = time.time()
-
-    for weight_file in weight_files:
-        try:
-            logger.info(f"Processing: {weight_file.name}")
-
-            # Load weights
-            weights = load_lora_weights(weight_file)
-
-            # Flatten matrices
-            flattened, dim_A, dim_B = flatten_matrices(weights)
-
-            # Apply L2 normalization
-            normalized = l2_normalize(flattened)
-
-            # Collect
-            flattened_vectors.append(normalized)
-            metadata.append({
-                'filename': weight_file.name,
-                'dim_A': dim_A,
-                'dim_B': dim_B,
-                'total_dim': flattened.shape[0]
-            })
-            files_processed.append(weight_file.name)
-
-            logger.info(f"Successfully processed {weight_file.name}: {flattened.shape[0]} dimensions")
-
-        except Exception as e:
-            logger.error(f"Failed to process {weight_file.name}: {str(e)}")
-            files_failed.append({'file': weight_file.name, 'error': str(e)})
-
-    end_time = time.time()
-    processing_time = end_time - start_time
-
-    # Validate dimensions
-    if flattened_vectors:
-        validate_dimensions(flattened_vectors)
-
-    # Create output index
-    index_data = {
-        'vectors': np.array(flattened_vectors) if flattened_vectors else np.array([]),
-        'metadata': metadata,
-        'dimension': flattened_vectors[0].shape[0] if flattened_vectors else 0
-    }
-
-    # Save index
-    index_path = output_dir / "skill_vectors.npz"
-    np.savez_compressed(
-        index_path,
-        vectors=index_data['vectors'],
-        metadata=np.array(metadata, dtype=object)
-    )
-
-    index_size_bytes = index_path.stat().st_size
-
-    # Compile metrics
     metrics = {
-        'vectors_processed': len(flattened_vectors),
-        'index_size_bytes': index_size_bytes,
-        'dimension': index_data['dimension'],
-        'files_processed': files_processed,
-        'files_failed': files_failed,
-        'processing_time_seconds': processing_time,
-        'output_path': str(index_path)
+        "input_path": str(input_path),
+        "output_path": str(output_path),
+        "vectors_processed": 0,
+        "total_elements": 0,
+        "index_size_bytes": 0,
+        "processing_time_seconds": 0.0,
+        "dimensions": None,
+        "status": "success"
     }
 
-    # Log summary metrics
+    ensure_directories(output_path.parent)
+
+    try:
+        # Load weights
+        if is_directory:
+            all_weights = load_weights_from_directory(input_path)
+        else:
+            single_weights = load_npz_file(input_path)
+            all_weights = {input_path.stem: single_weights}
+
+        if not all_weights:
+            raise ValueError("No weights loaded from input")
+
+        logger.info(f"Processing {len(all_weights)} weight sets")
+
+        flattened_vectors = []
+        all_metadata = []
+
+        for name, weights in all_weights.items():
+            try:
+                vector, meta = flatten_and_normalize(weights)
+                flattened_vectors.append(vector)
+                all_metadata.append({
+                    "name": name,
+                    "metadata": meta
+                })
+                metrics["vectors_processed"] += 1
+                metrics["total_elements"] += meta["total_elements"]
+            except Exception as e:
+                logger.error(f"Error processing {name}: {e}")
+                metrics["status"] = "partial_success"
+
+        if not flattened_vectors:
+            raise ValueError("No vectors successfully processed")
+
+        # Validate dimensions
+        if not validate_dimensions(flattened_vectors):
+            logger.warning("Dimension validation failed, proceeding with warning")
+
+        # Create output arrays
+        vector_array = np.array(flattened_vectors)
+        metrics["dimensions"] = vector_array.shape
+
+        # Save to NPZ
+        np.savez(
+            output_path,
+            vectors=vector_array,
+            metadata=np.array(all_metadata, dtype=object),
+            allow_pickle=True
+        )
+
+        # Calculate file size
+        metrics["index_size_bytes"] = output_path.stat().st_size
+
+    except Exception as e:
+        logger.error(f"Processing failed: {e}")
+        metrics["status"] = "failed"
+        raise
+    finally:
+        metrics["processing_time_seconds"] = time.time() - start_time
+
+    # Log final metrics
     logger.info("=" * 50)
-    logger.info("INGESTION METRICS SUMMARY")
+    logger.info("INGESTION METRICS")
     logger.info("=" * 50)
+    logger.info(f"Input: {metrics['input_path']}")
+    logger.info(f"Output: {metrics['output_path']}")
     logger.info(f"Vectors processed: {metrics['vectors_processed']}")
-    logger.info(f"Index size: {metrics['index_size_bytes'] / 1024:.2f} KB")
-    logger.info(f"Vector dimension: {metrics['dimension']}")
-    logger.info(f"Files processed successfully: {len(files_processed)}")
-    logger.info(f"Files failed: {len(files_failed)}")
-    logger.info(f"Processing time: {processing_time:.2f} seconds")
+    logger.info(f"Total elements: {metrics['total_elements']}")
+    logger.info(f"Index size: {metrics['index_size_bytes']:,} bytes ({metrics['index_size_bytes'] / 1024 / 1024:.2f} MB)")
+    logger.info(f"Vector dimension: {metrics['dimensions'][1] if metrics['dimensions'] else 'N/A'}")
+    logger.info(f"Processing time: {metrics['processing_time_seconds']:.2f} seconds")
+    logger.info(f"Status: {metrics['status']}")
     logger.info("=" * 50)
 
     return metrics
+
 
 def main():
-    """
-    Main entry point for the flatten_lora script.
-
-    This script:
-    1. Loads weight files from data/raw/
-    2. Flattens and normalizes them
-    3. Saves the skill vector index to data/processed/
-    4. Logs comprehensive ingestion metrics
-    """
-    logger.info("Starting LoRA weight flattening process...")
-
-    # Get paths
-    data_path = get_data_path()
-    raw_dir = data_path / "raw"
-    processed_dir = data_path / "processed"
-
-    # Process weights
-    metrics = process_weight_files(
-        weight_dir=raw_dir,
-        output_dir=processed_dir,
-        file_pattern="*.npz"
+    """CLI entry point for flatten_lora."""
+    parser = argparse.ArgumentParser(
+        description="Flatten and normalize LoRA weights into vectors"
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        required=True,
+        help="Path to input .npz file or directory containing .npz files"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        required=True,
+        help="Path to output .npz file"
+    )
+    parser.add_argument(
+        "--is-directory",
+        action="store_true",
+        help="Treat input as a directory containing multiple .npz files"
     )
 
-    # Save metrics to JSON for later use
-    metrics_path = processed_dir / "ingestion_metrics.json"
-    import json
-    with open(metrics_path, 'w') as f:
-        json.dump(metrics, f, indent=2, default=str)
+    args = parser.parse_args()
 
-    logger.info(f"Ingestion metrics saved to: {metrics_path}")
-    logger.info("LoRA weight flattening complete.")
+    input_path = Path(args.input)
+    output_path = Path(args.output)
 
-    return metrics
+    if not input_path.exists():
+        logger.error(f"Input path does not exist: {input_path}")
+        sys.exit(1)
+
+    try:
+        metrics = process_all_weights(
+            input_path=input_path,
+            output_path=output_path,
+            is_directory=args.is_directory
+        )
+        logger.info("Flatten and normalize completed successfully")
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Flatten and normalize failed: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

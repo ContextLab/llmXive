@@ -1,96 +1,78 @@
 import os
 import sys
-from pathlib import Path
-from typing import Optional
 import random
 import numpy as np
-import logging
+from pathlib import Path
+from typing import Optional, Dict, Any
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
+# Project root detection
 def get_project_root() -> Path:
-    """
-    Returns the project root directory.
-    Assumes the project root is the parent of the 'src' directory.
-    """
-    current_file = Path(__file__).resolve()
-    # Traverse up until we find 'src' directory
-    for parent in current_file.parents:
-        if (parent / 'src').exists():
-            return parent
-    # Fallback: assume current working directory is root
-    return Path.cwd()
+    """Returns the project root directory."""
+    current = Path(__file__).resolve()
+    # Traverse up until we find a marker or root
+    while current.parent != current:
+        if (current / ".git").exists() or (current / "requirements.txt").exists():
+            return current
+        current = current.parent
+    # Fallback: assume src/utils is 3 levels deep
+    return Path(__file__).resolve().parent.parent.parent
 
 def get_data_path(relative_path: Optional[str] = None) -> Path:
     """
-    Returns the data directory path.
-    If relative_path is provided, returns the path joined with it.
-    If called without arguments, returns the root data directory.
-    Compatible with both:
-      - get_data_path() -> Path
-      - get_data_path(project_root) -> Path (ignores project_root if relative_path is None)
+    Returns the data directory.
+    Compatible with:
+      1. get_data_path() -> returns root data dir
+      2. get_data_path(project_root) -> returns root data dir (ignores arg if Path)
+      3. get_data_path("raw") -> returns data/raw
     """
     root = get_project_root()
-    data_dir = root / 'data'
-    
+    data_dir = root / "data"
+
     if relative_path is None:
-        # If no relative path provided, just return data dir
-        # Handle legacy call that might pass a Path object as first arg
-        # by checking if it's a Path and ignoring it if so (backward compat)
         return data_dir
-    
+
+    if isinstance(relative_path, Path):
+        # Called with a Path object (e.g. get_data_path(project_root))
+        return data_dir
+
     return data_dir / relative_path
 
-def get_artifacts_path(relative_path: Optional[str] = None) -> Path:
-    """
-    Returns the artifacts directory path.
-    """
+def get_artifacts_path() -> Path:
+    """Returns the artifacts directory."""
     root = get_project_root()
-    artifacts_dir = root / 'artifacts'
-    
-    if relative_path is None:
-        return artifacts_dir
-    
-    return artifacts_dir / relative_path
+    return root / "artifacts"
 
-def get_results_path(relative_path: Optional[str] = None) -> Path:
-    """
-    Returns the results directory path (inside data/results).
-    """
+def get_results_path() -> Path:
+    """Returns the results directory."""
     root = get_project_root()
-    results_dir = root / 'data' / 'results'
-    
-    if relative_path is None:
-        return results_dir
-    
-    return results_dir / relative_path
+    return root / "data" / "results"
 
 def ensure_directories() -> None:
-    """
-    Ensures that all required directories exist.
-    """
+    """Ensures all required directories exist."""
     root = get_project_root()
     dirs = [
-        root / 'data' / 'raw',
-        root / 'data' / 'processed',
-        root / 'data' / 'results',
-        root / 'artifacts',
-        root / 'artifacts' / 'synthesized_adapters',
-        root / 'artifacts' / 'baseline_adapter'
+        root / "data" / "raw",
+        root / "data" / "processed",
+        root / "data" / "results",
+        root / "artifacts",
+        root / "reports" / "plots",
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Ensured directory: {d}")
 
-def set_seed(seed: int = 42) -> None:
-    """
-    Sets random seeds for reproducibility.
-    """
+def set_seed(seed: int) -> None:
+    """Sets random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    logger.info(f"Set random seed to {seed}")
+    os.environ["PYTHONHASHSEED"] = str(seed)
+
+def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """Loads a YAML configuration file if provided."""
+    if config_path is None:
+        return {}
+    import yaml
+    path = Path(config_path)
+    if not path.exists():
+        return {}
+    with open(path, "r") as f:
+        return yaml.safe_load(f) or {}

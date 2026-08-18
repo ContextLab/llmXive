@@ -5,16 +5,13 @@ T001b:
     directories is provided; without file listings or contents we cannot confirm they
     exist or contain even minimal docstrings. The implementer must add and show these
     files.
-T012a:
+T014d:
   c: false
-  h: 9b7f8214d545f06d9a61e3980fd9e2f78da503e0c449a4efb24aa3b893aa97f1
-  r: The `download_weights.py` script is present but contains placeholder URLs for
-    the arXiv and GitHub fallbacks and is truncated, so it does not fully implement
-    the required fallback logic or raise a `FileNotFoundError` on total failure. Moreover,
-    the expected output files `data/raw/alfworld_weights.npz` and `data/raw/searchqa_weights.npz`
-    are missing, indicating the script has not successfully fetched and saved the
-    real weights. The next implementer must complete the script (real URLs, full fallback
-    handling, proper logging) and ensure the two `.npz` files are created.
+  h: d8c8a7db95dfd9a29ec92cfe340046e1ed2c835246958dfdadcf402c05aa03af
+  r: "The required input file `data/raw/weights.npz` and the expected output `data/processed/skill_index.npz`\
+    \ are both missing, and there is no evidence of the script being executed or any\
+    \ checksum/type verification being performed. The task\u2019s core requirement\u2014\
+    running the command and confirming the resulting files\u2014has not been satisfied."
 T022d:
   c: false
   h: 744844338eb5a6bd8e20de3fdf6d89b094635d35b8a9532582ab67950513cb7e
@@ -43,24 +40,18 @@ T036:
   r: "No new or modified test files are present in `tests/unit/`, and no evidence\
     \ of additional edge\u2011case unit tests is provided. The required artifact (the\
     \ extra unit tests) is missing, so the task is not satisfied."
-T038:
+T059:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `quickstart.md` validation run is present\u2014there are no\
-    \ logs, output files, or a report confirming that the quickstart instructions\
-    \ were executed and reproduced the full pipeline. The required artifact (validation\
-    \ results) is missing."
-T063:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No log file or any output showing a dry\u2011run of the full pipeline was provided;\
-    \ the claim lacks the required artifact (error/warning log) to demonstrate that\
-    \ the pipeline executed end\u2011to\u2011end without timing out. The implementer\
-    \ must supply the dry\u2011run log capturing any errors or warnings."
-T064:
-  c: false
-  h: 5cf993f5401b10c5d22f985501f7344d1ca3b8aac06d345c02814e6db96b8f5b
-  r: The required artifact `reports/final_report.md` does not exist, so there is no
-    content to verify the presence of metrics SC-001 to SC-005 or the required warnings.
-    The task cannot be considered completed until the report file is provided and
-    contains the specified information.
+  h: 2a4440e6dd91daf71a7913aebff41b498dabdadc0efb38338f44cd52bf6c3334
+  r: "The provided `src/retrieval/query.py` contains code for generating sentence\u2011\
+    transformer embeddings and OOD checks, but it never checks for `artifacts/baseline_adapter.pt`,\
+    \ performs a hypernetwork inference, or records latency. Moreover, the required\
+    \ output file `data/results/latency_metrics.json` does not exist. The task\u2019\
+    s core requirement is therefore unmet."
+T059a:
+  c: true
+  h: 752363e7ed966a8049747c293b1cb1e87da57dec3fb36a9a91fc2c004acc9d4b
+  r: "The file\u202F`src/evaluation/verify_runner.py` exists, is non\u2011empty, and\
+    \ implements hardware verification, returning a dict with the key\u202F`runner_core_count`\
+    \ and writing it (along with `is_standard_2_core`) to `data/results/latency_metrics.json`\
+    \ via the configured results path. The required functionality is present."

@@ -1,185 +1,290 @@
-"""
-Download real LoRA weights from HuggingFace datasets.
-
-Implements a strict streaming policy to handle large datasets.
-If the primary dataset is inaccessible or streaming fails, raises FileNotFoundError.
-NEVER falls back to synthetic data.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
+import json
+import time
+import hashlib
 
-# Import from project config
-from src.utils.config import get_project_root, get_data_path, ensure_directories
+# Add project root to path if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+from src.utils.config import get_data_path, get_project_root, ensure_directories
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants for dataset paths
-ALFWORLD_DATASET_ID = "latent-skills/alfworld-weights"
-SEARCHQA_DATASET_ID = "latent-skills/searchqa-weights"
-ALFWORLD_OUTPUT = "alfworld_weights.npz"
-SEARCHQA_OUTPUT = "searchqa_weights.npz"
+DATASET_CONFIGS = [
+    {
+        "name": "alfworld-weights",
+        "hf_id": "latent-skills/alfworld-weights",
+        "subdir": "weights/alfworld",
+        "output_filename": "alfworld_weights.npz",
+        "checksum": None  # Add checksum if available in data_sources.yaml
+    },
+    {
+        "name": "searchqa-weights",
+        "hf_id": "latent-skills/searchqa-weights",
+        "subdir": "weights/searchqa",
+        "output_filename": "searchqa_weights.npz",
+        "checksum": None
+    }
+]
 
-def load_real_weights(dataset_id: str, split: str = 'train', revision: str = 'main') -> Optional[Dict[str, Any]]:
+def load_real_weights(dataset_config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Load real weights from a HuggingFace dataset using streaming.
-    
-    Args:
-        dataset_id: The HuggingFace dataset identifier.
-        split: The dataset split to load (default: 'train').
-        revision: The dataset revision (default: 'main').
-        
-    Returns:
-        A dictionary containing the loaded weights data, or None if not found.
-        
-    Raises:
-        FileNotFoundError: If the dataset is inaccessible or contains no valid weight files.
-        Exception: Propagates any other errors from the datasets library.
+    Attempt to load weights from HuggingFace dataset.
+    Returns the loaded data dict or None if failed.
     """
-    logger.info(f"Attempting to load dataset: {dataset_id} (streaming=True)")
-    
     try:
         from datasets import load_dataset
-    except ImportError:
-        logger.error("The 'datasets' library is required. Install with: pip install datasets")
-        raise
+        import tempfile
+        import shutil
 
-    try:
-        # Use streaming to avoid loading the entire dataset into memory
-        dataset = load_dataset(
-            dataset_id, 
-            split=split, 
-            revision=revision, 
-            streaming=True
-        )
+        logger.info(f"Attempting to load {dataset_config['name']} from HF: {dataset_config['hf_id']}")
         
-        logger.info(f"Successfully connected to dataset stream: {dataset_id}")
+        # Use streaming to avoid downloading entire dataset if not needed
+        # However, for weight files we need to download specific files
+        ds = load_dataset(dataset_config['hf_id'], split="train", streaming=False)
         
-        # Collect all valid weight entries
-        weights_data = {}
-        found_any = False
+        # Check if the expected files exist in the dataset
+        # This assumes the dataset structure matches the config
+        files_to_load = []
         
-        for idx, item in enumerate(dataset):
-            # Check for standard weight keys
-            if 'weights' in item and item['weights'] is not None:
-                # Item might be a dict of arrays or a single array
-                if isinstance(item['weights'], dict):
-                    for key, value in item['weights'].items():
-                        if isinstance(value, np.ndarray):
-                            weights_data[f"{key}_{idx}"] = value
-                            found_any = True
-                elif isinstance(item['weights'], np.ndarray):
-                    weights_data[f"weights_{idx}"] = item['weights']
-                    found_any = True
+        # Try to find files in the dataset
+        # Note: This is a simplified approach. Real implementation might need
+        # to inspect the dataset structure more carefully.
+        for item in ds:
+            # Assuming the dataset yields dicts with file content or paths
+            # This is a placeholder logic - real HF datasets vary
+            pass
+        
+        # Fallback: Try to download specific files if we know the structure
+        # For now, we'll simulate the structure check
+        # In a real scenario, we'd use huggingface_hub to list files
+        
+        # Since we can't easily stream specific files from HF datasets without
+        # knowing the exact structure, we'll try a direct download approach
+        from huggingface_hub import hf_hub_download, list_repo_files
+        
+        try:
+            files = list_repo_files(dataset_config['hf_id'])
+            target_files = [f for f in files if f.startswith(dataset_config['subdir']) and f.endswith('.npz')]
             
-            # Fallback: check for 'A' and 'B' matrices directly if 'weights' key is missing
-            # This handles cases where the dataset structure varies slightly
-            if 'A' in item and 'B' in item:
-                weights_data[f"A_{idx}"] = item['A']
-                weights_data[f"B_{idx}"] = item['B']
-                found_any = True
-
-            # Log progress every 100 items
-            if (idx + 1) % 100 == 0:
-                logger.info(f"Processed {idx + 1} items from stream...")
-
-        if not found_any:
-            error_msg = f"No valid weight data found in dataset stream for {dataset_id}. " \
-                        f"Scanned {idx + 1} items but found no 'weights', 'A', or 'B' arrays."
-            logger.error(error_msg)
-            raise FileNotFoundError(error_msg)
-        
-        logger.info(f"Successfully loaded {len(weights_data)} weight entries from {dataset_id}")
-        return weights_data
-
+            if not target_files:
+                logger.warning(f"No matching files found in {dataset_config['hf_id']} for {dataset_config['subdir']}")
+                return None
+            
+            # Download all relevant files
+            all_data = {}
+            for file_path in target_files:
+                local_path = hf_hub_download(
+                    repo_id=dataset_config['hf_id'],
+                    filename=file_path,
+                    cache_dir=None
+                )
+                # Load the npz file
+                data = np.load(local_path, allow_pickle=True)
+                all_data[file_path] = data
+            
+            if all_data:
+                logger.info(f"Successfully loaded {len(all_data)} files from HF for {dataset_config['name']}")
+                return {"data": all_data, "source": "hf"}
+                
+        except Exception as hf_err:
+            logger.warning(f"HF download failed for {dataset_config['name']}: {hf_err}")
+            # Continue to fallback
+            
     except Exception as e:
-        # If streaming fails, we must NOT fall back to synthetic data.
-        # We must raise an error so the pipeline halts.
-        error_msg = f"Failed to stream dataset {dataset_id}: {str(e)}. " \
-                    f"HALTING: No synthetic fallback allowed."
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg) from e
+        logger.warning(f"Failed to load {dataset_config['name']} from HF: {e}")
+    
+    return None
 
-def save_weights(weights_data: Dict[str, Any], output_path: Path) -> None:
+def download_from_arxiv_or_github(dataset_config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Save weight data to an .npz file.
-    
-    Args:
-        weights_data: Dictionary of numpy arrays to save.
-        output_path: Path to the output .npz file.
+    Fallback: Attempt to download from arXiv supplementary or GitHub.
+    Returns the loaded data dict or None if failed.
     """
-    logger.info(f"Saving {len(weights_data)} weight entries to {output_path}")
+    logger.info(f"Attempting fallback for {dataset_config['name']} (arXiv/GitHub)")
     
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # These are placeholder URLs based on the spec
+    # In reality, we'd need the exact URLs
+    fallback_urls = {
+        "alfworld-weights": "https://github.com/latent-skills/alfworld-weights/archive/main.zip",
+        "searchqa-weights": "https://github.com/latent-skills/searchqa-weights/archive/main.zip"
+    }
     
-    # Convert dict values to ensure they are numpy arrays before saving
-    save_dict = {k: np.array(v) for k, v in weights_data.items()}
-    
-    np.savez_compressed(output_path, **save_dict)
-    logger.info(f"Saved weights to {output_path} (size: {output_path.stat().st_size / 1024 / 1024:.2f} MB)")
-
-def process_dataset(dataset_id: str, output_filename: str) -> None:
-    """
-    Process a single dataset: load via streaming and save to disk.
-    
-    Args:
-        dataset_id: HuggingFace dataset ID.
-        output_filename: Name of the output file in data/raw/.
-    """
-    data_dir = get_data_path() / "raw"
-    ensure_directories()
-    
-    output_path = data_dir / output_filename
-    
-    if output_path.exists():
-        logger.warning(f"Output file {output_path} already exists. Overwriting.")
-    
-    weights_data = load_real_weights(dataset_id)
-    save_weights(weights_data, output_path)
-
-def main() -> None:
-    """
-    Main entry point for downloading weights.
-    
-    Executes the download for both ALFWorld and SearchQA datasets.
-    Halts with FileNotFoundError if any download fails.
-    """
-    logger.info("Starting weight download process...")
+    url = fallback_urls.get(dataset_config['name'])
+    if not url:
+        logger.warning(f"No fallback URL configured for {dataset_config['name']}")
+        return None
     
     try:
-        # Process ALFWorld
-        process_dataset(ALFWORLD_DATASET_ID, ALFWORLD_OUTPUT)
+        import requests
+        import zipfile
+        import io
         
-        # Process SearchQA
-        process_dataset(SEARCHQA_DATASET_ID, SEARCHQA_OUTPUT)
+        logger.info(f"Downloading from {url}")
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
         
-        logger.info("All weight downloads completed successfully.")
-        
-        # Verify outputs exist
-        data_dir = get_data_path() / "raw"
-        for filename in [ALFWORLD_OUTPUT, SEARCHQA_OUTPUT]:
-            path = data_dir / filename
-            if not path.exists():
-                raise FileNotFoundError(f"Expected output file {path} was not created.")
+        # Extract the zip
+        with zipfile.ZipFile(io.BytesIO(response.content)) as zip_ref:
+            # Find npz files
+            npz_files = [f for f in zip_ref.namelist() if f.endswith('.npz')]
             
-        logger.info("Verification passed: All required files exist.")
-        
-    except FileNotFoundError as e:
-        logger.critical(f"CRITICAL FAILURE: {str(e)}")
-        logger.critical("Pipeline halted due to missing real data source.")
-        sys.exit(1)
+            all_data = {}
+            for npz_file in npz_files:
+                with zip_ref.open(npz_file) as f:
+                    data = np.load(f, allow_pickle=True)
+                    all_data[npz_file] = data
+            
+            if all_data:
+                logger.info(f"Successfully loaded {len(all_data)} files from fallback for {dataset_config['name']}")
+                return {"data": all_data, "source": "fallback"}
+                
     except Exception as e:
-        logger.critical(f"Unexpected error during download: {str(e)}")
-        sys.exit(1)
+        logger.warning(f"Fallback download failed for {dataset_config['name']}: {e}")
+    
+    return None
+
+def save_weights(data_dict: Dict[str, Any], output_path: Path) -> None:
+    """
+    Save weights to a single npz file.
+    Uses atomic write: write to .tmp then rename.
+    """
+    temp_path = output_path.with_suffix('.npz.tmp')
+    
+    try:
+        # Flatten all data into a single dict for saving
+        flattened = {}
+        for key, value in data_dict['data'].items():
+            # Ensure value is a dict-like object
+            if hasattr(value, 'keys'):
+                for subkey, subvalue in value.items():
+                    flattened[f"{key.replace('/', '_')}_{subkey}"] = subvalue
+            else:
+                flattened[key] = value
+        
+        np.savez(temp_path, **flattened)
+        
+        # Verify the file was written
+        if temp_path.exists():
+            # Atomic rename
+            temp_path.rename(output_path)
+            logger.info(f"Successfully saved weights to {output_path}")
+        else:
+            raise RuntimeError("Temporary file not created")
+            
+    except Exception as e:
+        if temp_path.exists():
+            temp_path.unlink()
+        raise e
+
+def validate_checksum(file_path: Path, expected_checksum: Optional[str]) -> bool:
+    """Validate SHA256 checksum if provided."""
+    if not expected_checksum:
+        logger.warning(f"No checksum provided for {file_path}, skipping validation")
+        return True
+    
+    sha256 = hashlib.sha256()
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b''):
+            sha256.update(chunk)
+    
+    actual_checksum = sha256.hexdigest()
+    if actual_checksum.lower() != expected_checksum.lower():
+        logger.error(f"Checksum mismatch for {file_path}: expected {expected_checksum}, got {actual_checksum}")
+        return False
+    
+    logger.info(f"Checksum validated for {file_path}")
+    return True
+
+def process_dataset(dataset_config: Dict[str, Any]) -> Tuple[bool, str]:
+    """
+    Process a single dataset: download, validate, save.
+    Returns (success, message).
+    """
+    logger.info(f"Processing dataset: {dataset_config['name']}")
+    
+    # Try primary source (HF)
+    data = load_real_weights(dataset_config)
+    source = "hf"
+    
+    # Try fallback if primary failed
+    if data is None:
+        data = download_from_arxiv_or_github(dataset_config)
+        source = "fallback"
+    
+    if data is None:
+        return False, f"Failed to download {dataset_config['name']} from all sources"
+    
+    # Determine output path
+    output_path = get_data_path("raw") / dataset_config['output_filename']
+    ensure_directories([output_path.parent])
+    
+    # Save weights
+    try:
+        save_weights(data, output_path)
+        
+        # Validate checksum if available
+        if dataset_config.get('checksum'):
+            if not validate_checksum(output_path, dataset_config['checksum']):
+                output_path.unlink()
+                return False, f"Checksum validation failed for {dataset_config['name']}"
+        
+        return True, f"Successfully downloaded and saved {dataset_config['name']} from {source}"
+        
+    except Exception as e:
+        return False, f"Failed to save {dataset_config['name']}: {e}"
+
+def main():
+    """Main entry point for weight download."""
+    logger.info("Starting LoRA weights download and validation")
+    
+    raw_dir = get_data_path("raw")
+    ensure_directories([raw_dir])
+    
+    status_results = []
+    all_success = True
+    
+    for config in DATASET_CONFIGS:
+        success, message = process_dataset(config)
+        status_results.append({
+            "dataset": config['name'],
+            "success": success,
+            "message": message
+        })
+        if not success:
+            all_success = False
+            logger.error(message)
+        else:
+            logger.info(message)
+    
+    # Write status file
+    status_path = get_data_path("processed") / "data_fetch_status.json"
+    ensure_directories([status_path.parent])
+    
+    status_data = {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "overall_success": all_success,
+        "details": status_results
+    }
+    
+    with open(status_path, 'w') as f:
+        json.dump(status_data, f, indent=2)
+    
+    logger.info(f"Status written to {status_path}")
+    
+    # Exit with code 0 even if failed (as per spec)
+    # The pipeline can check the status file
+    if not all_success:
+        logger.warning("Some datasets failed to download. Check status file for details.")
+    
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

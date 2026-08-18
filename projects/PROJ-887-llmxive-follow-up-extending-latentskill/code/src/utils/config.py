@@ -1,71 +1,56 @@
-"""
-Configuration and Path Utilities.
-
-Provides project root resolution, path helpers, and configuration loading.
-Addresses API contract errors for get_data_path and get_results_path.
-"""
 import os
 import sys
-from pathlib import Path
-from typing import Optional, Dict, Any
 import random
 import numpy as np
+from pathlib import Path
+from typing import Optional, Dict, Any
 
-# Try to load from environment or default
-PROJECT_ROOT = Path(os.getenv("LLMXIVE_PROJECT_ROOT", Path(__file__).parent.parent.parent))
-CONFIG_PATH = PROJECT_ROOT / "config.yaml"
+PROJECT_ROOT: Optional[Path] = None
 
 def get_project_root() -> Path:
-    """Return the project root path."""
+    """Return the project root directory."""
+    global PROJECT_ROOT
+    if PROJECT_ROOT is None:
+        # Attempt to find project root by looking for .git or specific files
+        current = Path(__file__).resolve()
+        while current != current.parent:
+            if (current / ".git").exists() or (current / "pyproject.toml").exists():
+                PROJECT_ROOT = current
+                break
+            current = current.parent
+        if PROJECT_ROOT is None:
+            # Fallback to assuming project root is 3 levels up from utils/config.py
+            PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
     return PROJECT_ROOT
 
-def get_data_path(relative_path: Optional[str] = None) -> Path:
+def get_data_path(relative_path: Optional[str] = None, project_root: Optional[Path] = None) -> Path:
     """
-    Return the data directory path.
+    Resolve a path relative to the data directory.
     
-    Contract Fix: Must accept:
-    1. No arguments (for T012b: get_data_path() / "raw")
-    2. One argument (for T014c: get_data_path(project_root))
-    
-    If called with a Path object (project_root), it returns that Path / "data".
-    If called with no args, it returns PROJECT_ROOT / "data".
-    If called with a string, it returns PROJECT_ROOT / "data" / string.
+    Handles two calling conventions:
+    1. get_data_path() -> returns the data directory root
+    2. get_data_path("raw") -> returns data/raw
+    3. get_data_path(project_root=Path(...)) -> returns data dir for that root
+    4. get_data_path("raw", project_root=Path(...)) -> returns data/raw for that root
     """
-    base = PROJECT_ROOT / "data"
+    root = project_root or get_project_root()
+    data_dir = root / "data"
     
     if relative_path is None:
-        # Case: get_data_path()
-        return base
+        return data_dir
     
-    # Check if it's a Path object (legacy call with project_root)
-    if isinstance(relative_path, Path):
-        # If a Path is passed, assume it's the project root and we should append "data"
-        # This handles: get_data_path(project_root)
-        return relative_path / "data"
-    
-    # Case: get_data_path("raw")
-    return base / relative_path
+    return data_dir / relative_path
 
-def get_artifacts_path(relative_path: Optional[str] = None) -> Path:
-    """Return the artifacts directory path."""
-    base = PROJECT_ROOT / "artifacts"
-    if relative_path is None:
-        return base
-    return base / relative_path
+def get_artifacts_path() -> Path:
+    """Return the artifacts directory."""
+    return get_project_root() / "artifacts"
 
-def get_results_path(relative_path: Optional[str] = None) -> Path:
-    """
-    Return the results directory path.
-    
-    Contract Fix: Must be importable and usable by stats.py.
-    """
-    base = PROJECT_ROOT / "data" / "results"
-    if relative_path is None:
-        return base
-    return base / relative_path
+def get_results_path() -> Path:
+    """Return the results directory."""
+    return get_project_root() / "data" / "results"
 
-def ensure_directories(*paths: Path) -> None:
-    """Ensure the given paths exist, creating them if necessary."""
+def ensure_directories(paths: list[Path]) -> None:
+    """Ensure the given directories exist."""
     for p in paths:
         p.mkdir(parents=True, exist_ok=True)
 
@@ -73,37 +58,16 @@ def set_seed(seed: int) -> None:
     """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
 
-def load_config() -> Dict[str, Any]:
-    """
-    Load configuration from config.yaml.
-    Returns a dictionary with defaults if file is missing.
-    """
+def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
+    """Load a YAML configuration file."""
     import yaml
+    if config_path is None:
+        config_path = get_project_root() / "config.yaml"
     
-    defaults = {
-        "linearity_threshold": 0.7,
-        "embedding_model": "all-MiniLM-L6-v2",
-        "k_neighbors": 5,
-        "similarity_threshold": 0.8,
-        "random_seed": 42
-    }
+    if not config_path.exists():
+        return {}
     
-    if not CONFIG_PATH.exists():
-        # Create a default config file if it doesn't exist
-        with open(CONFIG_PATH, 'w') as f:
-            yaml.dump(defaults, f)
-        return defaults
-    
-    try:
-        with open(CONFIG_PATH, 'r') as f:
-            config = yaml.safe_load(f)
-            # Merge with defaults
-            return {**defaults, **(config or {})}
-    except Exception as e:
-        print(f"Warning: Could not load config file: {e}. Using defaults.")
-        return defaults
-
-# Ensure directories exist on import if needed (optional, can be lazy)
-# ensure_directories(PROJECT_ROOT / "data" / "raw", PROJECT_ROOT / "data" / "processed", PROJECT_ROOT / "data" / "results")
+    with open(config_path, "r") as f:
+        return yaml.safe_load(f) or {}
