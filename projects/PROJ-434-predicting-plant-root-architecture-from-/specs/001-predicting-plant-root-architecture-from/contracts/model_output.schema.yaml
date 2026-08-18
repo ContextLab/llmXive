@@ -1,109 +1,171 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Metrics Schema"
-description: "Schema for the model performance metrics and feature importance."
-type: "object"
-properties:
-  model_type:
-    type: "string"
-    description: "Type of model used (e.g., 'RandomForest')."
-  cross_validation_type:
-    type: "string"
-    description: "Type of CV used (e.g., 'Stratified5Fold', 'LOSO')."
-  model_variant:
-    type: "string"
-    description: "Model variant (e.g., 'SoilOnly', 'SoilPlusSpecies')."
-  metrics:
-    type: "object"
-    properties:
-      root_depth:
-        type: "object"
-        properties:
-          r_squared:
-            type: "number"
-            description: "Mean R² for root depth."
-          rmse:
-            type: "number"
-            description: "Mean RMSE for root depth."
-          r_squared_std:
-            type: "number"
-            description: "Standard deviation of R² across folds."
-          permutation_p_value:
-            type: "number"
-            description: "p-value from permutation test."
-        required:
-          - r_squared
-          - rmse
-          - r_squared_std
-          - permutation_p_value
-      branching_density:
-        type: "object"
-        properties:
-          r_squared:
-            type: "number"
-            description: "Mean R² for branching density."
-          rmse:
-            type: "number"
-            description: "Mean RMSE for branching density."
-          r_squared_std:
-            type: "number"
-            description: "Standard deviation of R² across folds."
-          permutation_p_value:
-            type: "number"
-            description: "p-value from permutation test."
-        required:
-          - r_squared
-          - rmse
-          - r_squared_std
-          - permutation_p_value
-    required:
-      - root_depth
-      - branching_density
-  feature_importance:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        feature:
-          type: "string"
-        importance:
-          type: "number"
-        p_value:
-          type: "number"
-        is_significant:
-          type: "boolean"
-          description: "True if p_value < 0.05."
-      required:
-        - feature
-        - importance
-        - p_value
-        - is_significant
-  sensitivity_analysis:
-    type: "object"
-    properties:
-      thresholds_tested:
-        type: "array"
-        items:
-          type: "number"
-        description: "List of p-value thresholds tested (e.g., [0.01, 0.05, 0.10])."
-      stability_report:
-        type: "string"
-        description: "Text summary of stability across thresholds."
-    required:
-      - thresholds_tested
-      - stability_report
-  execution_time_seconds:
-    type: "number"
-    description: "Total execution time in seconds."
-  data_source_note:
-    type: "string"
-    description: "Note on data source (e.g., 'Synthetic proxy used for pipeline testing only')."
+%YAML 1.2
+---
+# Model Output Schema Contract for Root Architecture Prediction
+# Defines the structure of model metrics and artifacts produced by US2 (T020-T026).
+
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelTrainingOutput
+description: >
+  Structured output containing cross-validation metrics, feature importance,
+  and validation results for the Random Forest models.
+
+type: object
 required:
-  - model_type
-  - cross_validation_type
-  - model_variant
-  - metrics
+  - metadata
+  - stratified_cv_metrics
+  - loso_metrics
+  - spatial_cv_metrics
   - feature_importance
-  - sensitivity_analysis
-  - execution_time_seconds
-  - data_source_note
-additionalProperties: false
+  - statistical_tests
+
+metadata:
+  type: object
+  required:
+    - model_type
+    - algorithm
+    - hyperparameters
+    - training_timestamp
+    - dataset_version
+  properties:
+    model_type:
+      type: string
+      enum: [SoilOnly, SoilPlusSpecies]
+    algorithm:
+      type: string
+      const: "RandomForestRegressor"
+    hyperparameters:
+      type: object
+      description: Key hyperparameters used (n_estimators, max_depth, etc.)
+    training_timestamp:
+      type: string
+      format: date-time
+    dataset_version:
+      type: string
+      description: Hash or ID of the input dataset used
+
+stratified_cv_metrics:
+  type: object
+  required:
+    - mean_r2
+    - mean_rmse
+    - std_r2
+    - std_rmse
+  properties:
+    mean_r2:
+      type: number
+      minimum: -1.0
+    mean_rmse:
+      type: number
+      minimum: 0.0
+    std_r2:
+      type: number
+      minimum: 0.0
+    std_rmse:
+      type: number
+      minimum: 0.0
+    folds:
+      type: integer
+      const: 5
+
+loso_metrics:
+  type: object
+  required:
+    - mean_r2
+    - mean_rmse
+    - sd_r2
+  properties:
+    mean_r2:
+      type: number
+    mean_rmse:
+      type: number
+    sd_r2:
+      type: number
+      description: Standard deviation of R² across left-out species
+
+spatial_cv_metrics:
+  type: object
+  required:
+    - mean_r2
+    - mean_rmse
+    - sd_r2
+  properties:
+    mean_r2:
+      type: number
+    mean_rmse:
+      type: number
+    sd_r2:
+      type: number
+      description: Standard deviation of R² across spatial folds
+
+feature_importance:
+  type: array
+  description: >
+    List of features ranked by importance.
+    Must match the order in artifacts/feature_importance.csv.
+  items:
+    type: object
+    required:
+      - feature
+      - importance
+      - std_importance
+    properties:
+      feature:
+        type: string
+      importance:
+        type: number
+        minimum: 0.0
+      std_importance:
+        type: number
+        minimum: 0.0
+
+statistical_tests:
+  type: object
+  required:
+    - permutation_test
+    - baseline_comparison
+  properties:
+    permutation_test:
+      type: object
+      required:
+        - iterations
+        - p_value_target
+        - observed_r2
+        - baseline_r2
+        - delta_r2
+      properties:
+        iterations:
+          type: integer
+          const: 1000
+        p_value_target:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        observed_r2:
+          type: number
+        baseline_r2:
+          type: number
+        delta_r2:
+          type: number
+        passed_threshold:
+          type: boolean
+          description: True if delta_r2 >= 0.05 AND p < 0.05
+    baseline_comparison:
+      type: object
+      description: Comparison against mean-prediction baseline
+      required:
+        - baseline_model
+        - model_performance
+      properties:
+        baseline_model:
+          type: string
+          const: "MeanPredictor"
+        model_performance:
+          type: string
+          enum: [better, equal, worse]
+
+# Success criteria (SC-002)
+success_criteria:
+  delta_r2_threshold: 0.05
+  p_value_threshold: 0.05
+  required_pass: true
+  description: "SC-002: Model must show significant improvement over baseline (ΔR² ≥ 0.05 AND p < 0.05)"

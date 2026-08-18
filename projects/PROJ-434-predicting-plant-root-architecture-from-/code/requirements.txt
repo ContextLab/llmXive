@@ -1,0 +1,11 @@
+scikit-learn
+pandas
+numpy
+rasterio
+geopandas
+requests
+pyyaml
+pytest
+python-dotenv
+ruff
+black

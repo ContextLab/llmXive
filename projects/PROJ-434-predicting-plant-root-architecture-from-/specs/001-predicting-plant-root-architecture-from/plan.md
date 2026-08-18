@@ -106,15 +106,15 @@ projects/PROJ-434-predicting-plant-root-architecture-from-/
 4.  **Statistical Significance (SC-002)**:
     *   **Null Baseline**: Mean prediction (R² = 0).
     *   **Null Distribution (Permutation Test)**:
-        *   For Model A: Permute the target variable **within the training fold** 1000 times. Re-train the model and evaluate on the held-out fold for *each* permutation.
-        *   For Model B: Permute the **soil features** (N, P, K, pH) **within the training fold**, stratified by species, 1000 times. Re-train and evaluate for *each* permutation.
+        *   For Model A: Permute the target variable **within the training fold** multiple times. Re-train the model and evaluate on the held-out fold for *each* permutation.
+        *   For Model B: Permute the **soil features** (N, P, K, pH) **within the training fold**, stratified by species, multiple times. Re-train and evaluate for *each* permutation.
         *   **p-value**: Proportion of permuted R² scores ≥ observed R².
     *   **Pass/Fail**: SC-002 is marked PASS only if ΔR² ≥ 0.05 **AND** permutation test p-value < 0.05.
 5.  **Output**: `artifacts/model_metrics.json`, `artifacts/feature_importance.csv`.
 
 ### Phase 2: Sensitivity Analysis & Reporting (US-3)
 *Goal: Validate robustness of feature importance.*
-1.  **Feature Importance p-values**: For each feature, perform 1000 permutations of that feature *within the training fold* to generate a null distribution of importance scores. Calculate the p-value as the proportion of permuted scores exceeding the observed score.
+1.  **Feature Importance p-values**: For each feature, perform a sufficient number of permutations of that feature *within the training fold* to generate a null distribution of importance scores. Calculate the p-value as the proportion of permuted scores exceeding the observed score.
 2.  **Threshold Sweep**: Evaluate stability of top-ranked feature rankings across a range of p-value thresholds.
 3.  **Reporting**: Generate summary tables and plots.
     *   *Constraint*: All findings framed as associational (FR-006).

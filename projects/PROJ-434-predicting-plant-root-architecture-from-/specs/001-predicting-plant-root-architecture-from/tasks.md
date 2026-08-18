@@ -20,31 +20,13 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies in `code/requirements.txt` (scikit-learn, pandas, numpy, rasterio, geopandas, requests, pyyaml, pytest)
+- [ ] T001a [P] Create directory structure: `code/`, `data/`, `data/raw`, `data/processed`, `data/logs`, `tests/`, `artifacts/`, `figures/`
+- [ ] T001b [P] Create `code/requirements.txt` with pinned dependencies (scikit-learn, pandas, numpy, rasterio, geopandas, requests, pyyaml, pytest)
+- [ ] T001c [P] Create `.gitignore` for Python and data artifacts
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -58,7 +40,8 @@
 - [ ] T004 Create `code/utils/` directory and `__init__.py`
 - [ ] T005 [P] Implement `code/utils/stats.py` with permutation test logic and metric calculation functions
 - [ ] T006 [P] Implement `code/utils/geocoding.py` for CRS alignment and coordinate validation
-- [ ] T007 Create base data schema contracts in `specs/001-predict-root-architecture/contracts/` (dataset.schema.yaml, model_output.schema.yaml)
+- [ ] T007a [P] Create `specs/001-predict-root-architecture/contracts/dataset.schema.yaml`
+- [ ] T007b [P] Create `specs/001-predict-root-architecture/contracts/model_output.schema.yaml`
 - [ ] T008 Configure error handling infrastructure (custom `DataQualityError` in `code/utils/exceptions.py`)
 - [ ] T009 Setup environment configuration management (`.env` handling for API keys if needed)
 
@@ -86,17 +69,21 @@
 - [ ] T012 [P] [US1] Implement `code/ingestion/soil_data.py`: Stream/extract SoilGrids N, P, K, pH values at specific coordinates. **MUST** reproject/resample rasters to a common CRS (WGS84) before extraction to satisfy Constitution Principle VI. **MUST** handle "No Data" or negative values by excluding the specific row and logging it, not by imputation.
 - [ ] T013 [P] [US1] Implement `code/ingestion/trait_data.py`: Load root trait tabular data (Zenodo/Dryad), validate units, and filter for physically plausible values (depth > 0, pH 3.0-9.0)
 - [ ] T014 [US1] Implement `code/ingestion/merge.py`: Join soil and trait data, apply species filter (≥10 valid observations), and log excluded species per FR-007
-- [ ] T015 [US1] Implement `code/ingestion/validation.py`: 
-    1. Calculate match proportion = (valid_rows / total_input_rows) where valid rows are those with non-null soil data.
-    2. **Flag and exclude** individual rows with missing soil data (graceful degradation) as per Spec US-1 Acceptance Scenario 2.
-    3. If the aggregate match proportion < 0.90, raise `DataQualityError` and halt. Otherwise, proceed with valid data.
-- [ ] T016 [US1] Add logging for excluded records (missing soil data, failed geocoding, low sample species)
-- [ ] T017 [US1] Generate `data/processed/merged_dataset.csv` and `data/processed/excluded_species_summary.csv`. 
-    **Logic**: 
-    1. Count valid observations per species (rows where all predictors and outcomes are non-null and physically plausible).
-    2. Filter for species with count < 10.
-    3. Generate summary CSV with columns `species_name`, `observation_count`, `reason`. 
-    **Constraint**: The `reason` column MUST contain the exact string 'observation_count < 10' for all rows. This directly implements FR-007 and validates the filtering logic used in T014.
+- [ ] T015 [US1] Implement `code/ingestion/validation.py`:
+ 1. Calculate match proportion = `count(valid_rows) / count(total_input_rows)` where valid rows are those with non-null soil data for all predictors.
+ 2. **Flag and exclude** individual rows with missing soil data (graceful degradation) as per Spec US-1 Acceptance Scenario 2.
+ 3. **Log excluded records** to `data/logs/record_exclusions.log` with columns `record_id`, `reason_code` (e.g., 'missing_soil_data', 'failed_geocoding', 'invalid_value').
+ 4. If the aggregate match proportion < 0.90, raise `DataQualityError` and write the specific failure reason to `data/logs/validation_error.log`. Otherwise, proceed with valid data.
+- [ ] T017 [US1] Generate `data/processed/merged_dataset.csv` and `data/processed/excluded_species_summary.csv`.
+ **Logic**:
+ 1. Count valid observations per species (rows where all predictors and outcomes are non-null and physically plausible).
+ 2. Filter for species with count < 10.
+ 3. Generate summary CSV with columns `species_name`, `observation_count`, `reason`.
+ **Constraint**: The `reason` column MUST contain the specific reason for exclusion (e.g., 'observation_count < 10'). Do NOT force a single string for all rows.
+- [ ] T017b [US1] Generate `data/logs/species_exclusions.log`:
+ **Logic**: For each species excluded in T017, write an entry to `data/logs/species_exclusions.log` with columns `species_name`, `reason`, `observation_count`.
+ **Dependency**: Runs after T015 and T017.
+- [ ] T016 [US1] (REMOVED: Merged into T015 and T017b)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -115,16 +102,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/modeling/train.py`: Preprocessing pipeline (encode 'Species' as categorical). **MUST** complete before T021.
-- [ ] T021 [US2] Implement `code/modeling/train.py`: Train Model A (Soil-Only) and Model B (Soil+Species) using Stratified k-Fold CV (stratified by Species).
-    **Note**: Model A is implemented as a control experiment per Plan Phase 1 Step 2 to test generalization of soil effects independent of species identity.
+- [ ] T020 [US2] Implement `code/modeling/train.py`: Preprocessing pipeline (`preprocess_data` function) to encode 'Species' as categorical. **MUST** complete before T021.
+- [ ] T021 [US2] Implement `code/modeling/train.py`: Train Model A (Soil-Only) and Model B (Soil+Species) using Stratified k-Fold CV (stratified by Species). **Note**: Model B is the primary implementation of FR-003; Model A is a control experiment. **Note**: T020 and T021 are sequential logic steps within the same file and cannot run in parallel.
 - [ ] T022 [US2] Implement `code/modeling/train.py`: Execute Leave-One-Species-Out (LOSO) cross-validation for generalization assessment. **MUST** complete before T023.
-- [ ] T022a [US2] Implement `code/modeling/train.py`: Execute **Held-Out Locations** validation (Spatial Cross-Validation) where folds are split by geographic location (not species) to satisfy Constitution Principle VII. **MUST** complete before T023.
+- [ ] T022a [US2] Implement `code/modeling/train.py`: Execute **Held-Out Locations** validation (Spatial Cross-Validation) where folds are split by geographic location using **grid-based spatial splitting** or **clustering by coordinate** to satisfy Constitution Principle VII. **MUST** complete before T023. **NOTE: Implements Constitution Principle VII; pending FR/SC update in spec.md.**
 - [ ] T023a [US2] Implement `code/modeling/train.py`: Calculate baseline R² by applying a **mean-prediction model** (predicting the mean of the training fold) on each held-out test fold. Calculate `delta_r2 = observed_r2 - baseline_r2`. **MUST** complete before T023.
-- [ ] T023 [US2] Implement `code/modeling/train.py`: Perform nested permutation tests with a sufficient number of iterations to ensure robust statistical inference. For Model A: permute target. For Model B: permute features **stratified by species**. Calculate p-values and enforce SC-002 (ΔR² ≥ 0.05 AND p < 0.05). **MUST** follow T023a.
-- [ ] T024 [US2] Implement `code/modeling/train.py`: Enforce SC-002 logic and report pass/fail status.
-- [ ] T025 [US2] Generate `artifacts/model_metrics.json` with explicit schema: `{"mean_r2": float, "mean_rmse": float, "loso_r2_sd": float, "spatial_cv_r2_sd": float, "per_target_metrics": {...}}`.
-- [ ] T026 [US2] Generate feature importance bar chart in `figures/feature_importance.png` and raw scores in `artifacts/feature_importance.csv`.
+- [ ] T023b [US2] Implement `code/modeling/train.py`: Perform nested permutation tests with **1000 iterations** to ensure robust statistical inference. For Model A: permute target. For Model B: permute features **stratified by species**. **Write** the distribution of R² scores to `artifacts/permutation_distributions.json`. **MUST** follow T023a and T022a.
+- [ ] T023c [US2] Implement `code/modeling/train.py`: **Read and validate** `artifacts/permutation_distributions.json` (must contain 1000 iterations and non-empty data). Calculate p-values and enforce SC-002 (ΔR² ≥ 0.05 AND p < 0.05). **Write** pass/fail status to `artifacts/sc002_status.json` with schema `{\"pass\": bool, \"reason\": string}`. **MUST** follow T023b.
+- [ ] T024 [US2] (REMOVED: Logic merged into T023c)
+- [ ] T025 [US2] Write `artifacts/model_metrics.json` with explicit schema: `{"mean_r2": float, "mean_rmse": float, "loso_r2_sd": float, "spatial_cv_r2_sd": float, "per_target_metrics": {...}}`.
+- [ ] T026 [US2] Generate feature importance bar chart in `figures/feature_importance.png` and raw scores in `artifacts/feature_importance.csv` with columns `feature_name`, `importance_score`. **Note**: `p_value` column will be added by T028 in Phase 5.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -142,12 +129,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `code/modeling/sensitivity.py`: Calculate p-values for each feature importance score via permutation. **Input**: MUST consume `artifacts/feature_importance.csv` from T026. **Dependency**: Cannot run in parallel with US2 tasks.
+- [ ] T028 [US3] Implement `code/modeling/sensitivity.py`: Calculate p-values for each feature importance score via permutation. **Input**: MUST consume `artifacts/feature_importance.csv` from T026. **Action**: Append `p_value` column to `artifacts/feature_importance.csv`. **Dependency**: Cannot run in parallel with US2 tasks.
 - [ ] T029 [US3] Implement `code/modeling/sensitivity.py`: Sweep p-value thresholds across a range of significance levels and track top-3 feature stability. **Dependency**: Must run after T028.
-- [ ] T030 [US3] Implement `code/modeling/sensitivity.py`: Generate sensitivity analysis report (`artifacts/sensitivity_report.md`). 
-    **MUST** explicitly include the citation: "0.05 chosen based on typical significance levels in ecological regression" as the community-standard basis for the primary threshold. 
-    **MUST** ensure this text appears verbatim in the justification section of the report to satisfy Spec US-3 Acceptance Scenario 3.
-- [ ] T031 [US3] Ensure all findings in the report are framed as associational (FR-006).
+- [ ] T030 [US3] Implement `code/modeling/sensitivity.py`: Generate sensitivity analysis report (`artifacts/sensitivity_report.md`).
+ **Structure**: Must include sections: '## Threshold Stability' (containing the stability table) and '## Justification'.
+ **Table Schema**: Columns `threshold`, `top_feature`, `rank_2`, `rank_3`, `stable`.
+ **Content**: The '## Justification' section MUST include the citation: "A significance level consistent with typical thresholds in ecological regression chosen based on typical significance levels in ecological regression".
+ **Constraint**: Ensure all findings are framed as associational (FR-006) within this report.
+- [ ] T031 [US3] (REMOVED: Merged into T030)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -172,8 +161,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -189,7 +178,10 @@
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
-- **Sequential Dependencies**: T020 -> T021 -> T022/T022a -> T023a -> T023. T028 depends on T026. T029 depends on T028.
+- **Sequential Dependencies**:
+ - T015 -> T017 -> T017b (Validation -> Summary -> Species Log)
+ - T020 -> T021 -> T022/T022a -> T023a -> T023b -> T023c
+ - T028 depends on T026. T029 depends on T028.
 
 ### Parallel Opportunities
 
@@ -240,9 +232,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -256,4 +248,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Ordering**: T020 must precede T021. T023a must precede T023. T028 must follow T026.
+- **Critical Ordering**: T015 must precede T017. T017 must precede T017b. T020 must precede T021. T023a must precede T023b. T023b must precede T023c. T028 must follow T026.
