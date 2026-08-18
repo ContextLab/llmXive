@@ -1,92 +1,43 @@
-# PROJ-205: The Influence of Visual Aesthetics on Perceived Credibility of Online Information
+# PROJ-205: The Influence of Visual Aesthetics on Perceived Credibility
 
-## Project Setup
+## Description
+This project implements an automated scientific pipeline to study how visual design affects the perceived credibility of online information.
 
-This project uses Python 3.11.
-
-### Prerequisites
-- Python 3.11 or higher
-- pip
-
-### Installation
-
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
+## Setup
+1. Ensure Python 3.11+ is installed.
 2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
+3. Set up data directories:
+ ```bash
+ python code/utils/setup_data_dirs.py
+ ```
+4. Configure IRB environment:
+ ```bash
+ export IRB_PROTOCOL_ID="YOUR_PROTOCOL_ID"
+ python code/utils/setup_env.py
+ ```
 
-### Code Quality Tools
-
-This project uses **Black** for formatting and **Ruff** for linting.
-
-To format code:
-```bash
-black code/
-```
-
-To check for linting issues:
-```bash
-ruff check code/
-```
-
-To automatically fix fixable linting issues:
-```bash
-ruff check --fix code/
-```
-
-Configuration is defined in `pyproject.toml`.
-
-### Directory Structure
-
-```
-.
-├── code/ # Source code
-│ ├── analysis/ # Statistical analysis scripts
-│ ├── stimuli/ # HTML/CSS stimuli files
-│ ├── survey/ # Streamlit survey application
-│ └── utils/ # Utility functions
-├── data/ # Data storage
-│ ├── raw/ # Raw submission data
-│ ├── processed/ # Processed analysis data
-│ └── consent/ # IRB consent documents
-├── tests/ # Test suite
-├── docs/ # Documentation
-├── pyproject.toml # Project configuration (Black, Ruff, dependencies)
-├── requirements.txt # Python dependencies
-└── README.md # This file
-```
-
-## Execution
-
-### Run the Survey
+## Running the Study
+Start the Streamlit survey app:
 ```bash
 streamlit run code/survey/app.py
 ```
 
-### Run Analysis
-1. Preprocess data:
- ```bash
- python code/analysis/01_preprocess.py
- ```
-2. Run ANOVA:
- ```bash
- python code/analysis/01_anova.py
- ```
-3. Run Pairwise tests (if significant):
- ```bash
- python code/analysis/02_pairwise.py
- ```
+## Analysis Pipeline
+Run the analysis scripts in order:
+1. Preprocessing: `python code/analysis/01_preprocess.py`
+2. ANOVA: `python code/analysis/01_anova.py`
+3. Pairwise Tests: `python code/analysis/02_pairwise.py`
+4. Report Generation: `python code/analysis/03_report.py`
+5. Robustness Check: `python code/analysis/04_mixed_effects.py`
 
-## Contributing
-
-Before committing, ensure code is formatted and passes linting:
+## Testing
+Run the test suite:
 ```bash
-black code/
-ruff check --fix code/
+pytest tests/
 ```
+
+## License
+Internal Research Use Only.

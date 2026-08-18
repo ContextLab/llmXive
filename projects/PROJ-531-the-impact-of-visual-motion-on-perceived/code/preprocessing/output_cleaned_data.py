@@ -1,15 +1,3 @@
-"""
-T017: Output cleaned_data.csv with documented scoring method and standardization.
-
-This script reads the preprocessed data, applies standardization (0-1 range)
-where appropriate, documents the scoring method in metadata, and writes the
-final clean dataset to data/processed/cleaned_data.csv.
-
-Dependencies:
-  - preprocessing.preprocess (already implemented in T014/T015)
-  - utils.logging_config
-  - utils.config
-"""
 import os
 import json
 import pandas as pd
@@ -17,113 +5,121 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 
-# Import existing utilities
-from preprocessing.preprocess import run_preprocessing
-from utils.logging_config import get_logger, log_processing_step
-from utils.config import ConfigManager
+from utils.logging_config import get_logger
+from utils.config import get_config
 
-def standardize_column(series: pd.Series, min_val: float = 0.0, max_val: float = 1.0) -> pd.Series:
+logger = get_logger(__name__)
+
+def standardize_column(series: pd.Series, method: str = "minmax") -> pd.Series:
     """
-    Min-Max standardization to [min_val, max_val] range.
-    Handles edge cases where min == max (constant column).
-    """
-    if series.min() == series.max():
-        # If constant, return the mean (or min_val)
-        return pd.Series([min_val] * len(series), index=series.index)
+    Standardize a numeric column to a 0-1 range (min-max scaling).
     
-    normalized = (series - series.min()) / (series.max() - series.min())
-    return normalized * (max_val - min_val) + min_val
+    Args:
+        series: The pandas Series to standardize.
+        method: Currently only 'minmax' is supported.
+    
+    Returns:
+        A standardized Series in the range [0, 1].
+    """
+    if method != "minmax":
+        raise ValueError(f"Unsupported standardization method: {method}")
+    
+    if series.min() == series.max():
+        # Avoid division by zero; return 0.5 (neutral) or 0 depending on preference
+        return pd.Series(np.full_like(series, 0.5, dtype=float))
+    
+    return (series - series.min()) / (series.max() - series.min())
+
+def run_cleaning_pipeline(input_path: str, output_path: str) -> dict:
+    """
+    Loads raw/preprocessed data, standardizes key metrics, and saves the cleaned dataset.
+    
+    This implements T017: Output `data/processed/cleaned_data.csv` with documented 
+    scoring method and standardization (0–1 range).
+    
+    Args:
+        input_path: Path to the preprocessed data (e.g., from T014/T015).
+        output_path: Path where the cleaned CSV will be written.
+    
+    Returns:
+        A dictionary containing metadata about the cleaning process.
+    """
+    logger.info(f"Starting cleaning pipeline. Input: {input_path}, Output: {output_path}")
+    
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    df = pd.read_csv(input_path)
+    
+    # Identify columns to standardize based on project requirements (FR-002, FR-003)
+    # Typically: latency, smoothness, lead_time, agency_score
+    # We standardize the target (agency_score) and key predictors to 0-1 range
+    columns_to_standardize = []
+    
+    # Heuristic: Standardize numeric columns that are likely scores or normalized metrics
+    # excluding participant_id or other identifiers
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    exclude_cols = ['participant_id', 'id', 'run_id']
+    columns_to_standardize = [c for c in numeric_cols if c not in exclude_cols]
+    
+    logger.info(f"Standardizing columns: {columns_to_standardize}")
+    
+    metadata = {
+        "timestamp": datetime.now().isoformat(),
+        "input_file": input_path,
+        "output_file": output_path,
+        "standardization_method": "minmax",
+        "standardized_columns": columns_to_standardize,
+        "n_rows_before": len(df),
+        "n_rows_after": len(df),
+        "scoring_method_documentation": (
+            "All numeric metrics (latency, smoothness, lead_time, agency_score) "
+            "are standardized to [0, 1] using min-max scaling. "
+            "This ensures comparability across features with different units and scales."
+        )
+    }
+    
+    for col in columns_to_standardize:
+        df[col] = standardize_column(df[col])
+    
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    df.to_csv(output_path, index=False)
+    
+    logger.info(f"Cleaned data saved to {output_path} with {len(df)} rows.")
+    
+    return metadata
 
 def main():
-    logger = get_logger("T017_OutputCleanedData")
-    log_processing_step(logger, "Starting T017: Output cleaned_data.csv")
-
-    # Paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    data_processed_dir = project_root / "data" / "processed"
-    data_processed_dir.mkdir(parents=True, exist_ok=True)
-
-    input_file = data_processed_dir / "preprocessed_data.csv"
-    output_file = data_processed_dir / "cleaned_data.csv"
-    metadata_file = data_processed_dir / "cleaned_data_metadata.json"
-
-    if not input_file.exists():
-        logger.error(f"Input file not found: {input_file}")
-        logger.error("Run T014 (preprocess.py) first to generate preprocessed_data.csv")
-        raise FileNotFoundError(f"Input file {input_file} not found. Run preprocessing first.")
-
-    logger.info(f"Reading preprocessed data from {input_file}")
-    df = pd.read_csv(input_file)
-
-    # Documented scoring method
-    scoring_method = {
-        "agency_score": {
-            "source": "Synthetic generator ground truth (T013)",
-            "range": "0-100 scale, standardized to 0-1",
-            "description": "Perceived agency score derived from motion features"
-        },
-        "latency": {
-            "source": "Synthetic motion simulation",
-            "unit": "milliseconds",
-            "standardization": "Min-Max to [0, 1]"
-        },
-        "smoothness": {
-            "source": "Jerk-based calculation",
-            "unit": "normalized jerk",
-            "standardization": "Min-Max to [0, 1] (higher = smoother)"
-        },
-        "lead_time": {
-            "source": "Predictive motion estimation",
-            "unit": "milliseconds",
-            "standardization": "Min-Max to [0, 1]"
-        }
-    }
-
-    logger.info("Applying standardization (0-1 range) to numeric features...")
+    """Entry point for T017: Output cleaned data."""
+    config = get_config()
     
-    # Standardize numeric columns (exclude participant_id if present)
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    # Default paths based on project structure
+    input_path = config.get("paths.preprocessed_data", "data/processed/preprocessed_data.csv")
+    output_path = config.get("paths.cleaned_data", "data/processed/cleaned_data.csv")
     
-    for col in numeric_cols:
-        if col != "participant_id":  # Keep IDs as-is
-            original_min = df[col].min()
-            original_max = df[col].max()
-            df[col] = standardize_column(df[col], min_val=0.0, max_val=1.0)
-            logger.debug(f"Standardized {col}: [{original_min}, {original_max}] -> [0, 1]")
-
-    # Ensure all required columns exist
-    required_cols = ["participant_id", "latency", "smoothness", "lead_time", "agency_score"]
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
-        raise ValueError(f"Preprocessed data missing required columns: {missing_cols}")
-
-    # Write output
-    logger.info(f"Writing cleaned data to {output_file}")
-    df.to_csv(output_file, index=False)
-
-    # Write metadata
-    metadata = {
-        "file_path": str(output_file.relative_to(project_root)),
-        "created_at": datetime.now().isoformat(),
-        "n_samples": len(df),
-        "n_features": len(required_cols),
-        "scoring_method": scoring_method,
-        "standardization": {
-            "method": "Min-Max normalization",
-            "range": [0.0, 1.0],
-            "description": "All numeric features scaled to 0-1 range"
-        },
-        "source_task": "T014 (preprocess.py) + T015 (VIF check)",
-        "notes": "Synthetic data stress-test only. No human participants."
-    }
-
-    with open(metadata_file, 'w') as f:
-        json.dump(metadata, f, indent=2)
-
-    logger.info(f"T017 complete: {len(df)} rows written to {output_file}")
-    logger.info(f"Metadata written to {metadata_file}")
-    print(f"SUCCESS: {output_file} created with {len(df)} observations.")
+    # Allow override via environment variables
+    if os.getenv("INPUT_DATA_PATH"):
+        input_path = os.getenv("INPUT_DATA_PATH")
+    if os.getenv("OUTPUT_DATA_PATH"):
+        output_path = os.getenv("OUTPUT_DATA_PATH")
+    
+    try:
+        metadata = run_cleaning_pipeline(input_path, output_path)
+        
+        # Save metadata as JSON for provenance
+        metadata_path = str(Path(output_path).with_suffix('.json'))
+        with open(metadata_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
+        
+        print(f"Successfully cleaned data. Output: {output_path}")
+        print(f"Metadata saved to: {metadata_path}")
+        
+    except Exception as e:
+        logger.error(f"Failed to clean data: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

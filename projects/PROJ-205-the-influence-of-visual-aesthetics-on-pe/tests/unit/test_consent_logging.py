@@ -1,110 +1,91 @@
 """
-Unit tests for consent logging functionality.
+Unit tests for consent logging functionality, specifically verifying
+that IRB_PROTOCOL_ID is captured in the log.
 """
-import pytest
 import os
-import tempfile
 import csv
+import tempfile
+import pytest
 from pathlib import Path
-from datetime import datetime
+from unittest.mock import patch, MagicMock
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in os.sys.path:
-    os.sys.path.insert(0, str(project_root))
+# Import the module under test
+from utils.helpers import log_consent_decision, get_consent_log_path
+from utils.config import ENV_VAR_NAME
 
-from utils.helpers import log_consent_decision, get_consent_log_path, generate_user_id
+@pytest.fixture
+def mock_env_and_dirs():
+    """Sets up a temporary directory for testing and mocks the env var."""
+    # Create a temporary directory structure
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        
+        # Mock the project root to be our temp dir
+        with patch('utils.config.get_project_root', return_value=tmp_path):
+            # Ensure consent directory exists
+            (tmp_path / "data" / "consent").mkdir(parents=True, exist_ok=True)
+            
+            # Set the environment variable
+            original_val = os.environ.get(ENV_VAR_NAME)
+            os.environ[ENV_VAR_NAME] = "TEST-PROTOCOL-ID-999"
+            
+            yield tmp_path
+            
+            # Restore environment
+            if original_val is None:
+                os.environ.pop(ENV_VAR_NAME, None)
+            else:
+                os.environ[ENV_VAR_NAME] = original_val
 
-def test_log_consent_decision_creates_file():
-    """Test that logging a decision creates the CSV file and directory."""
-    # Use a temporary directory for this test to avoid polluting real data
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Temporarily override the path function logic by mocking or 
-        # by setting an env var if we had one, but here we test the 
-        # core logic by patching the path locally or just ensuring 
-        # the function works with a standard path structure.
-        # Since get_consent_log_path is hardcoded relative to utils,
-        # we will test the write logic by creating a temp file directly
-        # if we were testing lower level, but for this integration
-        # we assume the directory structure exists or is created.
-        
-        # To strictly test without side effects, we mock the open call
-        # or use a monkeypatch on the path. 
-        # Here, we'll just verify the function doesn't crash and 
-        # creates a valid row if we point it to a temp dir.
-        
-        # Re-implementing the path logic for the test scope:
-        temp_log_path = Path(tmpdir) / "data" / "consent" / "consent_log.csv"
-        
-        # Monkeypatch the helper to use our temp path
-        original_get_path = None
-        
-        def mock_get_path():
-            return temp_log_path
-        
-        # We can't easily monkeypatch inside the module without import magic,
-        # so we will just call the function and check the file at the 
-        # expected location if we can control the environment.
-        # Instead, let's just verify the function signature and basic behavior
-        # by checking if it raises an exception.
-        
-        # A better approach for this specific constraint:
-        # Since we can't easily change the path logic without editing helpers.py
-        # (which we shouldn't for a test task unless necessary), 
-        # we will run the test in a way that the default path is valid 
-        # (i.e., ensure data/consent exists in the project).
-        # But the task says "Real data only", so we shouldn't rely on 
-        # pre-existing state.
-        
-        # Let's just test the logic by importing and checking if it 
-        # produces the expected CSV format string if we could capture it,
-        # but since it writes to disk, we verify the file content.
-        pass
-
-def test_log_consent_decision_content():
-    """Test the content of the consent log."""
-    # Ensure the data/consent directory exists for the test
-    log_path = get_consent_log_path()
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+def test_log_consent_includes_protocol_id(mock_env_and_dirs):
+    """
+    Test that log_consent_decision writes the IRB_PROTOCOL_ID to the CSV.
+    """
+    user_id = "user-123"
+    decision = "agreed"
     
-    # Clear existing test logs if any (optional, for clean state)
-    # In a real CI, this might be handled by a fixture.
+    # Call the function
+    log_consent_decision(user_id, decision)
     
-    test_user_id = generate_user_id()
-    test_decision = "I Agree"
-    test_protocol = "TEST_PROTO_123"
+    # Verify file exists
+    log_path = mock_env_and_dirs / "data" / "consent" / "consent_log.csv"
+    assert log_path.exists(), "Consent log file should be created."
     
-    log_consent_decision(test_user_id, test_decision, test_protocol)
-    
-    assert log_path.exists(), "Consent log file should be created"
-    
-    with open(log_path, "r", encoding="utf-8") as f:
+    # Read the file
+    with open(log_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         rows = list(reader)
-        
-        # Find the row we just added (it should be the last one if not cleared)
-        # For robustness, we check if any row matches our test data
-        found = False
-        for row in rows:
-            if row['user_id'] == test_user_id and row['decision'] == test_decision:
-                assert row['protocol_id'] == test_protocol
-                assert 'timestamp' in row
-                assert row['timestamp'] != ""
-                found = True
-                break
-        
-        assert found, f"Could not find log entry for user {test_user_id}"
+    
+    # Verify row count
+    assert len(rows) == 1, "Should have exactly one row."
+    
+    row = rows[0]
+    
+    # Verify columns
+    assert 'timestamp' in row
+    assert 'user_id' in row
+    assert 'decision' in row
+    assert 'irb_protocol_id' in row, "CSV must include 'irb_protocol_id' column."
+    
+    # Verify values
+    assert row['user_id'] == user_id
+    assert row['decision'] == decision
+    assert row['irb_protocol_id'] == "TEST-PROTOCOL-ID-999", \
+        f"Protocol ID in log must match environment variable. Got: {row['irb_protocol_id']}"
 
-def test_log_consent_decision_header():
-    """Test that the CSV header is correct."""
-    log_path = get_consent_log_path()
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+def test_log_consent_fails_without_env_var():
+    """
+    Test that log_consent_decision raises RuntimeError if IRB_PROTOCOL_ID is missing.
+    """
+    # Temporarily remove the env var
+    original_val = os.environ.pop(ENV_VAR_NAME, None)
     
-    # If file doesn't exist, write one to check header
-    if not log_path.exists():
-        log_consent_decision("dummy_id", "I Agree", "PROTO")
-    
-    with open(log_path, "r", encoding="utf-8") as f:
-        header = f.readline().strip()
-        expected_header = "timestamp,user_id,decision,protocol_id"
-        assert header == expected_header, f"Header mismatch: {header} vs {expected_header}"
+    try:
+        with pytest.raises(RuntimeError) as exc_info:
+            log_consent_decision("user-456", "agreed")
+        
+        assert ENV_VAR_NAME in str(exc_info.value)
+    finally:
+        # Restore
+        if original_val:
+            os.environ[ENV_VAR_NAME] = original_val

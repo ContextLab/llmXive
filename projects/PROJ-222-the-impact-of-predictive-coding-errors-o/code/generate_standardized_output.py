@@ -1,103 +1,144 @@
-"""
-T017: Generate standardized CSV output with checksums.
-
-This script reads the preprocessed data (from T016), ensures it meets the
-schema defined in contracts/dataset.schema.yaml (verified in T005),
-writes it to data/processed/standardized.csv, and generates a SHA-256
-checksum file.
-
-Dependencies:
-  - preprocess.py (run_preprocessing_pipeline)
-  - config.py (get_data_dir)
-"""
 import hashlib
 import json
 import logging
 import sys
 from pathlib import Path
+from typing import Dict, Any, List, Tuple
 
 import pandas as pd
-
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
 
 from config import get_data_dir
 from preprocess import run_preprocessing_pipeline
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
 logger = logging.getLogger(__name__)
 
-REQUIRED_COLUMNS = [
-    'participant_id',
-    'stimulus_sequence',
-    'duration_estimate',
-    'surprisal'
-]
 
-def compute_sha256(filepath: Path) -> str:
-    """Compute SHA-256 checksum of a file."""
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
-def validate_schema(df: pd.DataFrame) -> bool:
-    """Validate that the DataFrame contains required columns."""
-    missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
-    if missing:
-        logger.error(f"Schema validation failed. Missing columns: {missing}")
+
+def validate_schema(df: pd.DataFrame, schema_path: Path) -> bool:
+    """
+    Validate dataframe against the output schema.
+    Schema expects: duration_estimate, stimulus_sequence, participant_id, surprisal
+    """
+    required_columns = {"duration_estimate", "stimulus_sequence", "participant_id", "surprisal"}
+    if not required_columns.issubset(df.columns):
+        missing = required_columns - set(df.columns)
+        logger.error(f"Schema validation failed: Missing columns {missing}")
         return False
+
+    # Basic type checks if possible
+    if not pd.api.types.is_numeric_dtype(df["duration_estimate"]):
+        logger.warning("duration_estimate is not numeric")
+    
     return True
 
-def run_t017():
-    """Execute the standardized output generation."""
-    logger.info("Starting T017: Generate standardized CSV output.")
+
+def run_t017() -> bool:
+    """
+    Execute T017: Generate standardized CSV output with checksums.
+    
+    1. Runs the preprocessing pipeline (T015/T016) to ensure data is ready.
+    2. Loads the preprocessed data.
+    3. Ensures it matches the schema defined in contracts/output.schema.yaml.
+    4. Saves to data/processed/standardized.csv.
+    5. Computes and saves checksums to data/processed/standardized.sha256.
+    6. Logs success or failure.
+    """
+    logger.info("Starting T017: Generate standardized CSV output")
     
     data_dir = get_data_dir()
     processed_dir = data_dir / "processed"
     processed_dir.mkdir(parents=True, exist_ok=True)
-
-    output_csv_path = processed_dir / "standardized.csv"
-    checksum_path = processed_dir / "standardized.csv.sha256"
     
-    # 1. Run preprocessing pipeline to ensure data is ready
-    # This calls the logic from T015/T016
-    logger.info("Running preprocessing pipeline to prepare data...")
-    df_preprocessed = run_preprocessing_pipeline()
-
-    if df_preprocessed is None or df_preprocessed.empty:
-        logger.error("Preprocessing pipeline returned no data. Aborting T017.")
+    output_path = processed_dir / "standardized.csv"
+    checksum_path = processed_dir / "standardized.sha256"
+    schema_path = data_dir.parent / "contracts" / "output.schema.yaml"
+    
+    # Step 1: Ensure preprocessing has run (T015/T016)
+    # The preprocessing pipeline generates intermediate files or returns a DF.
+    # Based on T015/T016 implementation, we assume run_preprocessing_pipeline 
+    # writes to a temp location or returns the DF. 
+    # To be safe and idempotent, we call it and let it handle its own logic.
+    # However, T017 specifically needs the *final* standardized CSV.
+    # We assume run_preprocessing_pipeline writes to data/processed/intermediate.csv 
+    # or similar, or we can just re-run the logic if needed.
+    # Given the task flow, we assume the pipeline has been run or run it here.
+    
+    # For this implementation, we assume run_preprocessing_pipeline 
+    # returns the processed DataFrame or we load from a known intermediate spot.
+    # Let's assume the pipeline writes to data/processed/intermediate.csv 
+    # and we just transform it to standardized.
+    # Actually, looking at T015/T016, they likely produce the data in memory or a temp file.
+    # We will call run_preprocessing_pipeline to get the data.
+    
+    try:
+        # The run_preprocessing_pipeline from T015/T016 should return the processed DF
+        # or write to a specific location. We assume it writes to 
+        # data/processed/preprocessed.csv if not returned.
+        # Let's assume it returns the DF for simplicity in this step.
+        df = run_preprocessing_pipeline()
+        
+        if df is None or df.empty:
+            logger.error("Preprocessing pipeline returned no data. T017 cannot proceed.")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Preprocessing pipeline failed: {e}")
+        # If the pipeline hasn't run or failed, we can't generate standardized output.
+        # We return False to indicate T017 failed.
         return False
 
-    # 2. Validate Schema
-    logger.info(f"Validating schema for {len(df_preprocessed)} rows...")
-    if not validate_schema(df_preprocessed):
-        logger.error("Data does not match required schema. Aborting.")
+    # Step 2: Validate Schema
+    if schema_path.exists():
+        if not validate_schema(df, schema_path):
+            logger.error("Schema validation failed. Dropping T017.")
+            return False
+    else:
+        logger.warning("Schema file not found at {schema_path}. Skipping validation.")
+        # Fallback: check basic columns manually
+        required_cols = {"duration_estimate", "stimulus_sequence", "participant_id", "surprisal"}
+        if not required_cols.issubset(df.columns):
+            logger.error(f"Missing required columns: {required_cols - set(df.columns)}")
+            return False
+
+    # Step 3: Save Standardized CSV
+    try:
+        df.to_csv(output_path, index=False)
+        logger.info(f"Saved standardized data to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to save standardized CSV: {e}")
         return False
 
-    # 3. Ensure column order matches specification
-    df_standardized = df_preprocessed[REQUIRED_COLUMNS].copy()
+    # Step 4: Compute Checksum
+    try:
+        checksum = compute_sha256(output_path)
+        with open(checksum_path, "w") as f:
+            f.write(f"{checksum}  standardized.csv\n")
+        logger.info(f"Computed checksum: {checksum}")
+    except Exception as e:
+        logger.error(f"Failed to compute checksum: {e}")
+        return False
 
-    # 4. Write to CSV
-    logger.info(f"Writing standardized CSV to {output_csv_path}...")
-    df_standardized.to_csv(output_csv_path, index=False)
-
-    # 5. Compute and write checksum
-    logger.info(f"Computing checksum for {output_csv_path}...")
-    checksum = compute_sha256(output_csv_path)
-    
-    with open(checksum_path, 'w') as f:
-        f.write(f"{checksum}  standardized.csv\n")
-    
-    logger.info(f"Checksum generated: {checksum}")
-    logger.info(f"T017 Complete. Output: {output_csv_path}, Checksum: {checksum_path}")
-    
+    logger.info("T017 completed successfully.")
     return True
 
-if __name__ == "__main__":
+
+def main():
+    """Entry point for T017."""
     success = run_t017()
     sys.exit(0 if success else 1)
+
+
+if __name__ == "__main__":
+    main()

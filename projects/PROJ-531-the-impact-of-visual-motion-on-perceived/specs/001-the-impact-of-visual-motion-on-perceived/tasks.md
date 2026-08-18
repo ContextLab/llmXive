@@ -76,7 +76,7 @@
  ```
  Note: `lead_time` is intentionally excluded from the `required` list to allow for missing telemetry data.
 - [X] T005 Create analysis output schema: Generate `specs/001-visual-motion-agency/contracts/analysis_output.schema.yaml` defining `model_metrics.json` structure.
-- [ ] T006 [P] Setup `code/__init__.py` and module structure for data, preprocessing, modeling, and visualization
+- [X] T006 [P] Setup `code/__init__.py` and module structure for data, preprocessing, modeling, and visualization
 - [ ] T007 [P] Configure environment variable management for API keys (if needed) and data paths
 - [ ] T008 Create base logging infrastructure to record data provenance and processing steps
 
@@ -94,20 +94,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [US1] Unit test for data downloader: verify URL reachability and checksum validation in `tests/unit/test_download_data.py`. **Depends on**: T012 completion. <!-- FAILED: unspecified -->
-- [ ] T010 [US1] Unit test for synthetic generator: verify ground-truth correlation injection and instrument validation logic in `tests/unit/test_synthetic_generator.py`. **Depends on**: T013 completion.
-- [ ] T011 [US1] Integration test for preprocessing pipeline: verify VIF calculation and missing value handling in `tests/integration/test_preprocess.py`. **Depends on**: T014 completion.
+- [X] T009 [US1] Unit test for data downloader: verify URL reachability and checksum validation in `tests/unit/test_download_data.py`. **Depends on**: T012 completion. <!-- FAILED: unspecified -->
+- [X] T010 [US1] Unit test for synthetic generator: verify ground-truth correlation injection and instrument validation logic in `tests/unit/test_synthetic_generator.py`. **Depends on**: T013 completion.
+- [X] T011 [US1] Integration test for preprocessing pipeline: verify VIF calculation and missing value handling in `tests/integration/test_preprocess.py`. **Depends on**: T014 completion.
 
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement `code/download_data.py`: Attempt to fetch from OpenML/HuggingFace/OSF; verify instrument validity (DOI/citations) per FR-013. **Output**: `data/raw/download_status.json`. **Error Handling**: Exit with code 1 if no valid dataset found.
-- [ ] T013 [US1] Implement `code/generate_synthetic_data.py`: **Runs in parallel with T012**. Generate synthetic human-avatar interaction data with known ground-truth motion-agency relationships (FR-011) ONLY if T012 returns status "unavailable" OR "invalid". Ensure `user response trigger` is distinct from agency score (FR-012).
+- [X] T013 [US1] Implement `code/generate_synthetic_data.py`: **Runs in parallel with T012**. Generate synthetic human-avatar interaction data with known ground-truth motion-agency relationships (FR-011) ONLY if T012 returns status "unavailable" OR "invalid". Ensure `user response trigger` is distinct from agency score (FR-012).
 - [ ] T014 [US1] Implement `code/preprocess.py`: Extract motion features (latency, smoothness/jerk, lead_time) and aggregate agency scores (FR-002, FR-003).
 - [ ] T015 [US1] Implement VIF diagnostic logic in `code/preprocess.py`: Flag and exclude features with VIF ≥5 (FR-006); log collinearity issues.
 - [ ] T017 [US1] Output `data/processed/cleaned_data.csv` with documented scoring method and standardization (0–1 range if needed) (Edge Case).
 - [ ] T016 [US1] Implement power analysis and sample size check: Read `data/processed/cleaned_data.csv` from T017. Calculate N. **Logic**: If N < 80, set `abort_flag` to true in config. If 80 <= N < 100, set `max_depth` to 3. **Output**: `data/processed/modeling_config.json` containing `n_samples`, `max_depth`, `abort_flag`. **Note**: This task calculates and writes the config; it does NOT abort the process.
-- [~] T016b [US1] **Enforce N>=80 Gate**: Read `data/processed/modeling_config.json` from T016. If `abort_flag` is true, raise `SystemExit(1)` with error "Analysis aborted: Insufficient sample size (N < 80)".
-- [~] T018 [US1] Add validation logic to exclude trait/personality measures from primary regression; allow only as covariates in secondary checks (Assumption: Post-task ratings).
+- [ ] T016b [US1] **Enforce N>=80 Gate**: Read `data/processed/modeling_config.json` from T016. If `abort_flag` is true, raise `SystemExit(1)` with error "Analysis aborted: Insufficient sample size (N < 80)".
+- [ ] T018 [US1] Add validation logic to exclude trait/personality measures from primary regression; allow only as covariates in secondary checks (Assumption: Post-task ratings).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -127,7 +127,7 @@
 ### Implementation for User Story 2
 
 - [ ] T021 [US2] **Implement Multiple Linear Regression (OLS)**: Read `data/processed/modeling_config.json` from T016. Fit standard Multiple Linear Regression (not Ridge) to predict agency scores from motion features. **Output**: Standard OLS coefficients and p-values (required for FR-005).
-- [~] T021b [US2] **Implement Ridge Regression (Robustness Check)**: **Depends on T021 completion**. Fit Ridge Regression with k-fold cross-validation for comparison. Output: Ridge coefficients and feature importance.
+- [ ] T021b [US2] **Implement Ridge Regression (Robustness Check)**: **Depends on T021 completion**. Fit Ridge Regression with k-fold cross-validation for comparison. Output: Ridge coefficients and feature importance.
 - [~] T022 [US2] Implement statistical significance testing with Bonferroni or Benjamini-Hochberg correction for ≥3 features (FR-005).
 - [~] T022b [US2] **Implement Random Forest Model**: Fit a Random Forest model with k-fold cross-validation to predict agency scores. **Output**: Feature importance scores and out-of-sample performance metrics (R², RMSE) as required by FR-004 and US-2 Acceptance Scenario 2.
 - [ ] T023 [US2] Implement sensitivity analysis in `code/sensitivity_analysis.py`: **Sweep decision thresholds** (absolute regression coefficient magnitude ∈ {0.01, 0.05, 0.1}). **Logic**: For each threshold, calculate the 'significance rate' (fraction of bootstrap samples where p < 0.05). **Output**: `data/results/sensitivity_analysis.csv` with columns `threshold, significance_rate, p_value_variance`.

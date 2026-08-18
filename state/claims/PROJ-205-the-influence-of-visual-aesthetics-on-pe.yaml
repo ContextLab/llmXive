@@ -1,0 +1,36 @@
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/research.md
+  attempts: 1
+  canonical: Fogg et al. 2003 established the Halo Effect in web design linking visual
+    appeal to content credibility
+  claim_id: c_da127bc2
+  context: Theoretical Framework section describing the study's grounding.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This study is grounded in the 'Halo Effect' in web design, where users
+    generalize their perception of a site's visual appeal to its content quality and
+    credibility (Fogg et al., 2003).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T15:47:45Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/research.md
+  attempts: 1
+  canonical: Sample size of 128 required for medium effect size f=0.25 alpha=0.05
+    power=0.80 correlation=0.5
+  claim_id: c_cab8215e
+  context: Power Analysis section detailing sample size calculations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assuming a medium effect size (f = 0.25), alpha = 0.05, power = 0.80,
+    and correlation among repeated measures = 0.5, a sample size of approximately
+    128 is required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T15:48:04Z'

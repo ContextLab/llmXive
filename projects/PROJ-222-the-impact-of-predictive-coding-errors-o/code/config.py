@@ -1,21 +1,35 @@
 import os
 from pathlib import Path
 
-# Constants for convergence handling (T022b)
+# Project root
+PROJECT_ROOT = Path(__file__).parent.parent
+
+# Directories
+DATA_DIR = PROJECT_ROOT / "data"
+ANALYSIS_DIR = PROJECT_ROOT / "analysis"
+FIGURES_DIR = PROJECT_ROOT / "figures"
+
+# Random seed
+DEFAULT_SEED = 42
+
+# Convergence threshold (SC-002)
 CONVERGENCE_THRESHOLD = 0.90
 
 def get_config():
     """Return configuration dictionary."""
     return {
-        "convergence_threshold": CONVERGENCE_THRESHOLD,
-        "random_seed": 42
+        "data_dir": str(DATA_DIR),
+        "analysis_dir": str(ANALYSIS_DIR),
+        "figures_dir": str(FIGURES_DIR),
+        "seed": DEFAULT_SEED,
+        "convergence_threshold": CONVERGENCE_THRESHOLD
     }
 
 def get_data_dir():
     """Return the data directory path."""
-    return Path("data")
+    return DATA_DIR
 
-def set_seed(seed: int = 42):
+def set_seed(seed: int = DEFAULT_SEED):
     """Set random seed for reproducibility."""
     import random
     import numpy as np
@@ -24,5 +38,6 @@ def set_seed(seed: int = 42):
         torch.manual_seed(seed)
     except ImportError:
         pass
+    
     random.seed(seed)
     np.random.seed(seed)

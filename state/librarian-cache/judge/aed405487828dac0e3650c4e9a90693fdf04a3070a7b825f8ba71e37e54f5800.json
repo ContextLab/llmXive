@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.19400",
+  "judged_at": "2026-08-18T16:06:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging llms to generate unit tests from api documentation computer science",
+  "rationale": "This paper directly addresses the user's research question by presenting a specific system (CASCADE) that leverages LLMs to generate unit tests from API documentation, satisfying criteria (a) for same-mechanism evidence and (b) for measuring the exact independent and dependent variables in the specified domain.",
+  "relevant": true
+}

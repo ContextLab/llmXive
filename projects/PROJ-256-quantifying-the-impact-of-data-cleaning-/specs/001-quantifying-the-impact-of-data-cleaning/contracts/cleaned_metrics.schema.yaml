@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cleaned Metrics Schema"
+type: "object"
+allOf:
+  - $ref: "baseline_metrics.schema.yaml"
+properties:
+  cleaning_variant:
+    type: "string"
+    enum: ["outlier", "impute_mean", "impute_median", "impute_knn", "recoding"]
+    description: "Which cleaning step produced this dataset."
+  outlier_k:
+    type: ["number", "null"]
+    description: "IQR multiplier used (only for outlier variant)."
+  rows_removed:
+    type: ["integer", "null"]
+    minimum: 0
+    description: "Number of rows removed by outlier detection."
+  missing_before:
+    type: ["integer", "null"]
+    minimum: 0
+    description: "Missing cell count before imputation."
+  missing_after:
+    type: ["integer", "null"]
+    minimum: 0
+    description: "Missing cell count after imputation (must be minimal)."
+  variance_reduction:
+    type: ["number", "null"]
+    description: "Percent reduction in outcome variance after cleaning."
+  assumption_passed:
+    type: "boolean"
+    description: "True if robust fallback not needed."
+required:
+  - cleaning_variant
+additionalProperties: false

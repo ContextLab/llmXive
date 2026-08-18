@@ -1,21 +1,21 @@
+"""
+Script to run code formatting (black).
+"""
 import subprocess
 import sys
 import os
 
 def main():
-    """Run black formatting on the project."""
-    print("Running black format...")
+    """Run black formatter on the code directory."""
+    print("Running black formatter...")
     try:
-        subprocess.run(
-            ["black", "code/", "tests/"],
+        result = subprocess.run(
+            [sys.executable, "-m", "black", "code/"],
             check=True,
-            text=True,
+            capture_output=True,
+            text=True
         )
-        print("Formatting passed.")
-        sys.exit(0)
-    except subprocess.CalledProcessError:
-        print("Formatting failed.")
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"Formatting failed: {e.stderr}")
         sys.exit(1)
-
-if __name__ == "__main__":
-    main()

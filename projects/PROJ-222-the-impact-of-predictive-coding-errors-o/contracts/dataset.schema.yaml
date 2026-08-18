@@ -1,98 +1,69 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Predictive Coding Time Perception Dataset Schema
-description: |
-  Schema for time perception datasets used in the predictive coding errors study.
-  Defines required columns and data types for valid input data.
-type: object
-required:
-  - properties
-properties:
-  title:
+schema_version: "1.0.0"
+description: >
+  Schema definition for time-perception datasets used in the predictive coding study.
+  Enforces presence of critical columns required for Gate 0 validation and downstream analysis.
+
+required_columns:
+  - name: participant_id
     type: string
-    description: Human-readable name of the dataset
-  version:
+    description: >
+      Unique identifier for the participant. 
+      Used for grouping in Linear Mixed Effects models (random intercepts).
+      Must not contain NaN values.
+  - name: stimulus_sequence
     type: string
-    description: Dataset version identifier
-  required_columns:
-    type: array
-    description: List of mandatory column names that must be present in the data
-    items:
-      type: string
-    contains:
-      - "duration_estimate"
-      - "stimulus_sequence"
-      - "participant_id"
-  column_definitions:
-    type: object
-    description: Detailed definition for each required column
-    properties:
-      duration_estimate:
-        type: object
-        description: Participant's subjective time duration estimate
-        properties:
-          type:
-            type: string
-            const: numeric
-          unit:
-            type: string
-            description: Unit of measurement (e.g., 'ms', 's')
-          nullable:
-            type: boolean
-            default: false
-          description: |
-            The participant's reported duration for the stimulus interval.
-            Must be a positive numeric value.
-      stimulus_sequence:
-        type: object
-        description: The ordered sequence of stimuli presented to the participant
-        properties:
-          type:
-            type: string
-            const: categorical
-          description: |
-            A sequence identifier or categorical label representing the stimulus
-            condition. Used to compute transition probabilities and surprisal.
-          nullable:
-            type: boolean
-            default: false
-      participant_id:
-        type: object
-        description: Unique identifier for the participant
-        properties:
-          type:
-            type: string
-            const: string
-          description: |
-            Unique identifier string for the participant. Used for mixed-effects
-            modeling random intercepts.
-          nullable:
-            type: boolean
-            default: false
-  optional_columns:
-    type: array
-    description: Additional columns that may be present but are not strictly required
-    items:
-      type: string
-    example:
-      - "condition_label"
-      - "sequence_length"
-      - "modality"
-      - "trial_id"
-      - "timestamp"
-  validation_rules:
-    type: object
-    description: Rules for validating data integrity
-    properties:
-      min_rows:
-        type: integer
-        minimum: 100
-        description: Minimum number of rows required for a valid dataset
-      sequential_stimuli_required:
-        type: boolean
-        const: true
-        description: Dataset must contain sequential stimuli (not random noise)
-      predictability_manipulation_required:
-        type: boolean
-        const: true
-        description: Dataset must include conditions with varying predictability
-additionalProperties: true
+    description: >
+      Identifier or sequence string representing the order of stimuli presented.
+      Used to compute transition probabilities and Markov surprisal.
+      Must not contain NaN values.
+  - name: duration_estimate
+    type: float
+    description: >
+      The participant's subjective estimate of the duration of the stimulus.
+      This is the primary dependent variable for analysis.
+      Must be numeric.
+
+optional_columns:
+  - name: condition_label
+    type: string
+    description: >
+      Label indicating the experimental condition (e.g., 'predictable', 'random').
+      Used for fixed effects in statistical models.
+  - name: stimulus_duration
+    type: float
+    description: >
+      The actual physical duration of the stimulus presentation.
+  - name: trial_id
+    type: integer
+    description: >
+      Unique identifier for the trial within a participant.
+  - name: modality
+    type: string
+    description: >
+      Sensory modality of the stimulus (e.g., 'visual', 'auditory').
+  - name: sequence_length
+    type: integer
+    description: >
+      Length of the sequence up to the current trial.
+  - name: surprisal
+    type: float
+    description: >
+      Pre-calculated surprisal metric (information content) for the stimulus.
+      If present, it must align with the `stimulus_sequence`.
+
+validation_rules:
+  - rule: no_missing_required
+    severity: error
+    message: "Missing one or more required columns: participant_id, stimulus_sequence, duration_estimate"
+  - rule: type_check_duration
+    severity: error
+    message: "Column 'duration_estimate' must be of numeric type (float/int)"
+  - rule: no_nan_required
+    severity: error
+    message: "Required columns must not contain NaN values"
+
+file_format:
+  type: csv
+  delimiter: ","
+  encoding: utf-8
+  index: false

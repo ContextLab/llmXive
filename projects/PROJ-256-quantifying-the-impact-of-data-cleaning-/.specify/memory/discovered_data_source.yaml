@@ -1,6 +1,12 @@
 status: none
-intent: download UCI Machine Learning Repository OpenML Small Datasets HAR Shopper
-  text classification python package dataset
+intent: download UCI HAR and UCI Shopper datasets from OpenML Small Datasets python
+  package dataset
 required_fields:
-- text
-- label
+- customer_id
+- visit_duration
+- purchase_amount
+- timestamp
+- product_category
+cache_key: b63483f3d50f55db8362505b75492b3b10085c1f8250db5d9681ceb2493b3c4c
+searched_at: '2026-08-18T15:23:44.159806+00:00'
+retry_count: 1

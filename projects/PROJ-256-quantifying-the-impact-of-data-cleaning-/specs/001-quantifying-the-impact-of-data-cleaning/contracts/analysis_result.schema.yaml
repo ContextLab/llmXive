@@ -26,10 +26,10 @@ properties:
     description: "P-value rounded to 3 decimal places."
   ci_lower:
     type: "number"
-    description: "Lower bound of the 95% confidence interval."
+    description: "Lower bound of a high‑confidence interval."
   ci_upper:
     type: "number"
-    description: "Upper bound of the 95% confidence interval."
+    description: "Upper bound of the high‑confidence interval."
   effect_size:
     type: "number"
     description: "Cohen's d for t-tests or R-squared for regression."

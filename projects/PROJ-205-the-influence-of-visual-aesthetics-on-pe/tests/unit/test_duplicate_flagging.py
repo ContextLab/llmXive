@@ -1,172 +1,131 @@
 import os
+import sys
 import csv
 import tempfile
 import shutil
-import sys
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add code to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from utils.helpers import (
     check_duplicate_ip, 
     hash_ip, 
     append_to_submissions_csv, 
-    CSV_HEADER,
+    get_submissions_csv_path,
     ensure_data_dirs
 )
 
-def setup_test_environment():
-    """Create a temporary directory for test data."""
-    test_dir = tempfile.mkdtemp()
-    raw_dir = os.path.join(test_dir, "data", "raw")
-    os.makedirs(raw_dir, exist_ok=True)
-    return test_dir, raw_dir
-
-def teardown_test_environment(test_dir):
-    """Remove temporary directory."""
-    if os.path.exists(test_dir):
-        shutil.rmtree(test_dir)
-
 def test_check_duplicate_ip_no_file():
-    """Test duplicate check when no file exists."""
-    test_dir, _ = setup_test_environment()
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(test_dir)
-        # Temporarily override the path in helpers by mocking or testing logic directly
-        # Since helpers uses a hardcoded constant, we test the logic in isolation
-        # by ensuring the function returns False if file is missing
-        result = check_duplicate_ip("abc123")
-        assert result is False, "Should return False if file does not exist"
-    finally:
-        os.chdir(original_cwd)
-        teardown_test_environment(test_dir)
+    """Test that check_duplicate_ip returns False when CSV does not exist."""
+    # We cannot easily delete the real file in a test without side effects,
+    # so we mock the existence check.
+    with patch('utils.helpers.get_submissions_csv_path') as mock_path:
+        mock_path.return_value = Path("/fake/path/submissions.csv")
+        # Ensure the mock path doesn't exist
+        assert not mock_path.return_value.exists()
+        
+        result = check_duplicate_ip("fake_hash")
+        assert result is False
 
-def test_check_duplicate_ip_new_hash():
-    """Test duplicate check when hash is new."""
-    test_dir, raw_dir = setup_test_environment()
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(test_dir)
-        # Create a dummy CSV with a different hash
-        csv_path = os.path.join(raw_dir, "submissions.csv")
-        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=CSV_HEADER)
+def test_check_duplicate_ip_not_found():
+    """Test that check_duplicate_ip returns False when IP is not found."""
+    with patch('utils.helpers.get_submissions_csv_path') as mock_path:
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as tmp:
+            writer = csv.DictWriter(tmp, fieldnames=['hashed_ip', 'user_id'])
             writer.writeheader()
-            writer.writerow({
-                "ip_hash": hash_ip("1.1.1.1"),
-                "user_id": "user1",
-                "timestamp": "2023-01-01",
-                "duplicate_flag": 0,
-                "condition": "Professional",
-                "credibility_rating": 5,
-                "professionalism_rating": 5,
-                "age": 25,
-                "education_code": 1,
-                "user_agent": "test",
-                "session_timeout": "false",
-                "submission_status": "complete",
-                "rating_count": 2
-            })
-        
-        # Check for a new hash
-        new_hash = hash_ip("2.2.2.2")
-        result = check_duplicate_ip(new_hash)
-        assert result is False, "Should return False for new hash"
-    finally:
-        os.chdir(original_cwd)
-        teardown_test_environment(test_dir)
+            writer.writerow({'hashed_ip': 'hash1', 'user_id': 'user1'})
+            writer.writerow({'hashed_ip': 'hash2', 'user_id': 'user2'})
+            tmp_path = tmp.name
 
-def test_check_duplicate_ip_existing_hash():
-    """Test duplicate check when hash already exists."""
-    test_dir, raw_dir = setup_test_environment()
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(test_dir)
-        # Create a dummy CSV with a specific hash
-        csv_path = os.path.join(raw_dir, "submissions.csv")
-        existing_ip = "192.168.1.100"
-        existing_hash = hash_ip(existing_ip)
+        mock_path.return_value = Path(tmp_path)
         
-        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=CSV_HEADER)
+        result = check_duplicate_ip("non_existent_hash")
+        assert result is False
+        
+        os.unlink(tmp_path)
+
+def test_check_duplicate_ip_found():
+    """Test that check_duplicate_ip returns True when IP is found."""
+    with patch('utils.helpers.get_submissions_csv_path') as mock_path:
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as tmp:
+            writer = csv.DictWriter(tmp, fieldnames=['hashed_ip', 'user_id'])
             writer.writeheader()
-            writer.writerow({
-                "ip_hash": existing_hash,
-                "user_id": "user1",
-                "timestamp": "2023-01-01",
-                "duplicate_flag": 0,
-                "condition": "Professional",
-                "credibility_rating": 5,
-                "professionalism_rating": 5,
-                "age": 25,
-                "education_code": 1,
-                "user_agent": "test",
-                "session_timeout": "false",
-                "submission_status": "complete",
-                "rating_count": 2
-            })
-        
-        # Check for the existing hash
-        result = check_duplicate_ip(existing_hash)
-        assert result is True, "Should return True for existing hash"
-    finally:
-        os.chdir(original_cwd)
-        teardown_test_environment(test_dir)
+            writer.writerow({'hashed_ip': 'target_hash', 'user_id': 'user1'})
+            tmp_path = tmp.name
 
-def test_duplicate_flag_in_csv():
-    """Test that the duplicate flag is correctly written to CSV."""
-    test_dir, raw_dir = setup_test_environment()
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(test_dir)
-        csv_path = os.path.join(raw_dir, "submissions.csv")
+        mock_path.return_value = Path(tmp_path)
         
-        # Write first submission
-        hash1 = hash_ip("10.0.0.1")
-        row1 = {
-            "ip_hash": hash1,
-            "user_id": "user1",
-            "timestamp": "2023-01-01",
-            "duplicate_flag": 0,
-            "condition": "Professional",
-            "credibility_rating": 5,
-            "professionalism_rating": 5,
-            "age": 25,
-            "education_code": 1,
-            "user_agent": "test",
-            "session_timeout": "false",
-            "submission_status": "complete",
-            "rating_count": 2
-        }
-        append_to_submissions_csv(row1)
+        result = check_duplicate_ip("target_hash")
+        assert result is True
         
-        # Write second submission with same IP
-        row2 = {
-            "ip_hash": hash1,
-            "user_id": "user2",
-            "timestamp": "2023-01-02",
-            "duplicate_flag": 1, # Expected to be 1
-            "condition": "Minimalist",
-            "credibility_rating": 4,
-            "professionalism_rating": 4,
-            "age": 30,
-            "education_code": 2,
-            "user_agent": "test",
-            "session_timeout": "false",
-            "submission_status": "complete",
-            "rating_count": 2
-        }
-        append_to_submissions_csv(row2)
+        os.unlink(tmp_path)
+
+def test_duplicate_flag_integration():
+    """
+    Integration test: Append a row, then check if it is detected as duplicate.
+    This verifies the full flow of T023c.
+    """
+    # Create a temporary directory for this test
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        # Patch the get_submissions_csv_path to use our temp dir
+        temp_csv_path = Path(tmp_dir) / "submissions.csv"
         
-        # Verify file contents
-        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            assert len(rows) == 2
-            assert rows[0]["duplicate_flag"] == "0"
-            assert rows[1]["duplicate_flag"] == "1"
-    finally:
-        os.chdir(original_cwd)
-        teardown_test_environment(test_dir)
+        with patch('utils.helpers.get_submissions_csv_path', return_value=temp_csv_path):
+            # 1. Create the CSV with a header and one row
+            ensure_data_dirs() # This might fail if we don't patch root, but we are mocking path
+            
+            # Manually write initial data to simulate existing submissions
+            with open(temp_csv_path, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=['hashed_ip', 'user_id', 'duplicate_flag'])
+                writer.writeheader()
+                writer.writerow({'hashed_ip': 'existing_hash', 'user_id': 'existing_user', 'duplicate_flag': 'False'})
+            
+            # 2. Check for the existing hash
+            is_dup = check_duplicate_ip("existing_hash")
+            assert is_dup is True, "Should detect existing hash"
+            
+            # 3. Check for a new hash
+            is_dup_new = check_duplicate_ip("new_hash")
+            assert is_dup_new is False, "Should not detect new hash"
+
+            # 4. Append a new row with the new hash
+            row = {
+                'user_id': 'new_user',
+                'condition': 'Professional',
+                'credibility_rating': 5,
+                'professionalism_rating': 5,
+                'timestamp': '2023-01-01T00:00:00.000Z',
+                'device_info': 'Desktop',
+                'hashed_ip': 'new_hash',
+                'age': 25,
+                'education_code': 2,
+                'submission_status': 'complete',
+                'session_timeout': False,
+                'duplicate_flag': False
+            }
+            append_to_submissions_csv(row)
+            
+            # 5. Verify the file content
+            with open(temp_csv_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                
+            assert len(rows) == 2, "Should have 2 rows"
+            assert rows[1]['hashed_ip'] == 'new_hash'
+            assert rows[1]['duplicate_flag'] == 'False'
+
+            # 6. Append the SAME hash again
+            row['user_id'] = 'new_user_2'
+            row['duplicate_flag'] = check_duplicate_ip('new_hash') # Should be True now
+            append_to_submissions_csv(row)
+            
+            # 7. Verify the duplicate flag was set
+            with open(temp_csv_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                
+            assert len(rows) == 3
+            assert rows[2]['duplicate_flag'] == 'True', "Third row should be flagged as duplicate"

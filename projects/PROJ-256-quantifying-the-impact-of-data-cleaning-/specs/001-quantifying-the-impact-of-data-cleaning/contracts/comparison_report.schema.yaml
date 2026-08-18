@@ -32,7 +32,7 @@ properties:
     description: "Upper bound of the 95% bootstrap CI for the shift."
   bootstrap_iterations:
     type: "integer"
-    description: "Number of bootstrap resamples used (min 1000, or 500 if fallback triggered)."
+    description: "Number of bootstrap resamples used (minimum sufficient to ensure stable estimates, with a reduced count if fallback is triggered)."
   sensitivity_bin:
     type: "string"
     description: "Dataset size bin (e.g., 'n<50', '50-200', '>200')."

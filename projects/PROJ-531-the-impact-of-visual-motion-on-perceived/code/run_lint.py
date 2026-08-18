@@ -1,33 +1,31 @@
+"""
+Script to run linting (ruff/flake8).
+"""
 import subprocess
 import sys
 import os
 
-def run_command(command):
-    """Run a shell command and return the result."""
+def run_command(cmd: list) -> int:
+    """Run a linting command and return exit code."""
+    print(f"Running: {' '.join(cmd)}")
     try:
-        result = subprocess.run(
-            command, shell=True, check=True, text=True, capture_output=True
-        )
-        return result.returncode, result.stdout, result.stderr
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        print(result.stdout)
+        return 0
     except subprocess.CalledProcessError as e:
-        return e.returncode, e.stdout, e.stderr
+        print(f"Linting failed:\n{e.stderr}")
+        return 1
 
 def main():
-    """Run ruff linting on the project."""
-    print("Running ruff lint...")
-    returncode, stdout, stderr = run_command("ruff check code/")
-
-    if stdout:
-        print(stdout)
-    if stderr:
-        print(stderr)
-
-    if returncode != 0:
-        print("Linting failed.")
-        sys.exit(1)
-    else:
-        print("Linting passed.")
-        sys.exit(0)
-
-if __name__ == "__main__":
-    main()
+    """Run linters on the code directory."""
+    exit_code = 0
+    
+    # Try ruff first
+    exit_code = run_command([sys.executable, "-m", "ruff", "check", "code/"])
+    
+    # If ruff is not available, try flake8
+    if exit_code != 0:
+        print("Ruff not found or failed. Trying flake8...")
+        exit_code = run_command([sys.executable, "-m", "flake8", "code/"])
+    
+    sys.exit(exit_code)

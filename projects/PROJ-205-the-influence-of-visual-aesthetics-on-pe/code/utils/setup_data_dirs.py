@@ -1,35 +1,37 @@
+"""
+Utility script to initialize the project's data directory structure.
+Creates `data/raw/` and `data/processed/` directories if they do not exist.
+"""
 import os
 from pathlib import Path
 
 def main():
     """
-    Creates the required data directory structure for the project.
-    Specifically creates 'data/raw/' and 'data/processed/'.
-    
-    This script ensures that the storage locations for raw survey submissions
-    and processed analysis results exist before data collection or analysis begins.
+    Creates the required data directories relative to the project root.
     """
-    # Determine the project root based on this file's location
-    # Assuming this file is at code/utils/setup_data_dirs.py
-    current_file_path = Path(__file__).resolve()
-    project_root = current_file_path.parent.parent.parent
+    # Determine project root (assuming this script is at code/utils/setup_data_dirs.py)
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent.parent
+    data_dir = project_root / "data"
     
-    data_root = project_root / "data"
-    raw_dir = data_root / "raw"
-    processed_dir = data_root / "processed"
+    raw_dir = data_dir / "raw"
+    processed_dir = data_dir / "processed"
     
-    # Create directories if they do not exist
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    dirs_to_create = [raw_dir, processed_dir]
     
-    # Create a .gitkeep in each to ensure they are tracked by git
-    # (though git doesn't track empty directories)
-    (raw_dir / ".gitkeep").touch()
-    (processed_dir / ".gitkeep").touch()
+    created_count = 0
+    for dir_path in dirs_to_create:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {dir_path}")
     
-    print(f"Data directory structure created at: {data_root}")
-    print(f"  - Raw data: {raw_dir}")
-    print(f"  - Processed data: {processed_dir}")
+    if created_count == 0:
+        print("All required data directories already exist.")
+    else:
+        print(f"Successfully created {created_count} new directory/directories.")
 
 if __name__ == "__main__":
     main()

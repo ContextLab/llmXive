@@ -1,93 +1,67 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-proj-205"
+name = "llmxive-visual-aesthetics-credibility"
 version = "0.1.0"
-description = "The Influence of Visual Aesthetics on Perceived Credibility of Online Information"
+description = "Study on the influence of visual aesthetics on perceived credibility"
 requires-python = ">=3.11"
 dependencies = [
-    "streamlit",
-    "pandas",
-    "numpy",
-    "scipy",
-    "statsmodels",
-    "pyyaml",
+    "streamlit>=1.30.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scipy>=1.11.0",
+    "statsmodels>=0.14.0",
+    "pyyaml>=6.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["code"]
-include = ["utils", "stimuli", "survey", "analysis"]
+[tool.ruff]
+# Same as Black
+line-length = 88
+indent-width = 4
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
-  # directories
-  \.eggs
-  | \.git
+    \.git
   | \.hg
   | \.mypy_cache
   | \.tox
   | \.venv
+  | _build
+  | buck-out
   | build
   | dist
 )/
 '''
 
-[tool.ruff]
-# Same as Black.
-line-length = 88
-target-version = "py311"
-src = ["code"]
-
-[tool.ruff.lint]
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
-# Also enable isort (`I`) and flake8-annotations (`ANN`) for type hints.
-select = ["E4", "E7", "E9", "F", "I", "N", "W", "UP"]
-ignore = []
-
-# Allow autofix for all enabled rules (when `--fix` is provided).
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files/directories.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[tool.ruff.lint.per-file-ignores]
-"code/analysis/*.py" = ["N806"] # Allow non-lowercase variables in analysis scripts for math notation
-"code/survey/app.py" = ["N802"] # Allow Streamlit callbacks with mixed case
-
-[tool.ruff.lint.isort]
-known-first-party = ["utils", "stimuli", "survey", "analysis"]
-force-sort-within-sections = true
-case-sensitive = true
-lines-after-imports = 2
-order-by-type = true
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["utils", "survey", "stimuli", "analysis"]
+skip = [".git", ".venv", "build", "dist"]

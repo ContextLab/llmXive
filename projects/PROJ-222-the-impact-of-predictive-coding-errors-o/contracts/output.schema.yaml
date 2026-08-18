@@ -1,17 +1,18 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Results Schema"
-description: "Schema defining the structure of analysis results for the predictive coding time perception study."
+# Output Schema for Predictive Coding Time Perception Analysis
+# Defines the structure of analysis results written to analysis/results.json
+# Generated for task T006
 type: object
 required:
-  - metadata
+  - analysis_metadata
   - model_results
   - effect_sizes
   - sensitivity_analysis
-  - diagnostics
+  - quality_control
+
 properties:
-  metadata:
+  analysis_metadata:
     type: object
-    description: "Metadata about the analysis run."
+    description: Metadata about the analysis run
     required:
       - timestamp
       - dataset_id
@@ -20,161 +21,170 @@ properties:
       timestamp:
         type: string
         format: date-time
-        description: "ISO 8601 timestamp of the analysis run."
+        description: ISO 8601 timestamp of when the analysis was run
       dataset_id:
         type: string
-        description: "Identifier of the dataset used for this analysis."
+        description: Identifier of the dataset used (from data/README.md)
       version:
         type: string
-        description: "Version of the analysis pipeline."
+        description: Schema version (e.g., "1.0.0")
       seed:
         type: integer
-        description: "Random seed used for reproducibility."
+        description: Random seed used for reproducibility
 
   model_results:
     type: object
-    description: "Results from the Linear Mixed-Effects Model (LMM)."
+    description: Results from the Linear Mixed-Effects Model (LMM)
     required:
       - formula
+      - coefficients
       - convergence_status
-      - fixed_effects
-      - random_effects
     properties:
       formula:
         type: string
-        description: "The formula used for the LMM (e.g., 'Duration ~ Surprisal + (1|Participant_ID)')."
-      convergence_status:
-        type: boolean
-        description: "Whether the model converged successfully."
-      convergence_message:
-        type: string
-        description: "Message from the model fitting procedure regarding convergence."
-      fixed_effects:
+        description: The R-style formula used for the model
+        example: "Duration ~ Surprisal + Sequence_Length + Modality + (1 | Participant_ID)"
+      coefficients:
         type: array
-        description: "Results for fixed effects."
+        description: List of coefficient results
         items:
           type: object
           required:
             - term
             - estimate
             - std_error
-            - t_statistic
             - p_value
-            - ci_lower
-            - ci_upper
           properties:
             term:
               type: string
-              description: "Name of the predictor term."
+              description: Name of the predictor term
             estimate:
               type: number
-              description: "Estimated coefficient."
+              description: Estimated coefficient value
             std_error:
               type: number
-              description: "Standard error of the estimate."
-            t_statistic:
-              type: number
-              description: "T-statistic for the term."
+              description: Standard error of the estimate
             p_value:
               type: number
-              description: "P-value for the term."
-            ci_lower:
-              type: number
-              description: "Lower bound of the 95% confidence interval."
-            ci_upper:
-              type: number
-              description: "Upper bound of the 95% confidence interval."
-            corrected_p_value:
-              type: number
-              description: "P-value after multiple comparison correction (if applicable)."
-      random_effects:
-        type: object
-        description: "Variance components for random effects."
-        properties:
-          participant_id_variance:
-            type: number
-            description: "Variance of the random intercept for Participant_ID."
-          residual_variance:
-            type: number
-            description: "Residual variance."
+              minimum: 0
+              maximum: 1
+              description: P-value for the coefficient
+            confidence_interval:
+              type: object
+              properties:
+                lower:
+                  type: number
+                upper:
+                  type: number
+              description: 95% Confidence interval bounds
+      convergence_status:
+        type: string
+        enum: ["converged", "failed", "max_iter_reached"]
+        description: Status of model convergence
+      convergence_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Rate of convergence (proportion of successful fits)
+        required_if: multiple_datasets
 
   effect_sizes:
     type: object
-    description: "Effect size calculations (e.g., Cohen's d)."
-    required:
-      - surprisal_effect
+    description: Effect size calculations (Cohen's d) and comparisons
     properties:
       surprisal_effect:
         type: object
-        description: "Effect size for the Surprisal predictor."
-        required:
-          - cohens_d
-          - ci_lower
-          - ci_upper
+        description: Effect size for the main surprisal effect
         properties:
-          cohens_d:
+          cohen_d:
             type: number
-            description: "Cohen's d effect size."
+            description: Cohen's d effect size
           ci_lower:
             type: number
-            description: "Lower bound of the 95% CI for Cohen's d."
           ci_upper:
             type: number
-            description: "Upper bound of the 95% CI for Cohen's d."
-          method:
-            type: string
-            description: "Method used for calculation (e.g., 'pingouin')."
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          corrected_p_value:
+            type: number
+            description: P-value after multiple comparison correction
+            required_if: multiple_tests
+      correction_method:
+        type: string
+        enum: ["bonferroni", "benjamini_hochberg", "none"]
+        description: Method used for multiple comparison correction
+      num_tests:
+        type: integer
+        minimum: 1
+        description: Number of statistical tests performed
 
   sensitivity_analysis:
     type: object
-    description: "Sensitivity analysis results."
+    description: Sensitivity analysis results including MDE
     required:
       - mde
       - power
+      - alpha
     properties:
       mde:
         type: number
-        description: "Minimum Detectable Effect (MDE) for power=0.80."
+        description: Minimum Detectable Effect size for the given power and alpha
       power:
         type: number
-        description: "Target power used for MDE calculation."
-      cutoff_sweep_status:
-        type: string
-        description: "Status of cutoff-sweeping analysis if performed."
+        description: Target statistical power (e.g., 0.80)
+        example: 0.80
+      alpha:
+        type: number
+        description: Significance level (e.g., 0.05)
+        example: 0.05
+      observed_effect:
+        type: number
+        description: Observed effect size from the data
+      is_significant:
+        type: boolean
+        description: Whether observed effect exceeds MDE
+      limitation_reported:
+        type: boolean
+        description: Flag indicating if limitation was logged when effect < MDE
+
+  quality_control:
+    type: object
+    description: Quality control and validation metrics
+    required:
+      - fwer_control_status
+      - normality_check
+    properties:
       fwer_control_status:
         type: string
-        description: "Status of Family-Wise Error Rate control (e.g., 'controlled', 'not applicable')."
-
-  diagnostics:
-    type: object
-    description: "Model diagnostics and validation results."
-    required:
-      - normality_test
-      - residual_plot_path
-    properties:
-      normality_test:
+        enum: ["controlled", "not_applicable", "failed"]
+        description: Status of Family-Wise Error Rate control (α ≤ 0.05)
+      normality_check:
         type: object
-        description: "Results of the normality test on residuals."
-        required:
-          - statistic
-          - p_value
-          - is_normal
+        description: Normality test results (Shapiro-Wilk)
         properties:
           statistic:
             type: number
-            description: "Shapiro-Wilk statistic."
           p_value:
             type: number
-            description: "P-value from Shapiro-Wilk test."
           is_normal:
             type: boolean
-            description: "Whether residuals are considered normal (alpha=0.05)."
-      residual_plot_path:
-        type: string
-        description: "Relative path to the residual diagnostic plot."
-      bootstrap_ci_method:
-        type: string
-        description: "Method used for bootstrap confidence intervals (e.g., 'percentile')."
-      bootstrap_n_samples:
-        type: integer
-        description: "Number of bootstrap samples used."
+            description: True if p > 0.05 (null hypothesis not rejected)
+          test_used:
+            type: string
+            enum: ["parametric", "non_parametric"]
+            description: Which test was ultimately used based on normality
+      convergence_rate:
+        type: number
+        description: Proportion of models that converged successfully
+      bootstrap_ci:
+        type: boolean
+        description: Whether bootstrap confidence intervals were used
+
+additionalProperties: false
+description: |
+  This schema defines the expected structure of the analysis results file.
+  It ensures all required metrics (coefficients, p-values, effect sizes, MDE,
+  convergence status) are present for reproducibility and validation.
+  Used by T027 to write analysis/results.json.

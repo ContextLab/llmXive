@@ -1,15 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `plan.md` file or any directory structure under `projects/PROJ-205-.../`\
-    \ is present; the required project scaffold was not provided. The task\u2019s\
-    \ core deliverable is missing."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.flake8`, or `black` settings) or setup instructions were provided, so the requirement
-    to configure ruff/flake8 and black is not satisfied.
 T004:
   c: false
   h: df4fccaea3f53363fca8f204f5106aaf6c3d3754a10bfe3fb2689185dfd464f7
@@ -17,13 +5,6 @@ T004:
     in `code/stimuli/text_content.txt` cannot be verified as the correct neutral text.
     Moreover, the existing text appears unrelated to the expected neutral source,
     indicating the task was not fulfilled.
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the `data/raw/` and `data/processed/` directories\
-    \ actually exist in the repository (or that they contain any placeholder files).\
-    \ The implementer\u2019s claim lacks the required filesystem artifacts, so the\
-    \ directory structure setup cannot be confirmed."
 T011c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,3 +20,51 @@ T012:
     \ the actual IRB\u2011approved text. Consequently the task\u2019s core requirement\
     \ (displaying the IRB text from that file) is not satisfied. The missing consent\
     \ file must be added (and the path verified) for the implementation to be complete."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation showing that the \u201CI Do Not Agree\u201D\
+    \ button now redirects to a withdrawal page was provided; the required implementation\
+    \ artifact is missing. The task cannot be verified as completed."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or documentation was provided showing a validation check
+    that prevents form submission when fewer than eight ratings have been entered.
+    Without an artifact demonstrating this logic, the requirement is not satisfied.
+    The implementer must supply the relevant implementation (e.g., JavaScript/backend
+    validation code) and evidence (e.g., test results or screenshots) that the submission
+    is blocked under the specified condition.
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation was provided that demonstrates the\
+    \ use of Streamlit\u2019s session state for in\u2011memory tracking, the prohibition\
+    \ of `sessionStorage`/`localStorage`/cookies (except the specified edge case),\
+    \ or the required clearing of state on submission or abandonment. Consequently,\
+    \ the required client\u2011side state\u2011management implementation cannot be\
+    \ verified."
+T023f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or CSV file demonstrating the session\u2011state flagging logic\
+    \ (detecting missing timestamps or partial submissions and writing `session_timeout`\
+    \ and `submission_status` flags) was provided. Without an actual implementation\
+    \ artifact, the claim cannot be verified. The required implementation and resulting\
+    \ data output are missing."
+T024:
+  c: false
+  h: 6dc9f1661196c4a2f717342053b7f54fa3e53cfd6b9c78b8f2c508eda004f06a
+  r: "The repository contains a partially\u2011written `code/analysis/01_preprocess.py`,\
+    \ but the file is truncated (the `reshape_to_wide` function is incomplete) and\
+    \ it never writes the excluded rows to `data/processed/excluded_audit.csv`. Moreover,\
+    \ the required input file `data/raw/submissions.csv` and the output audit CSV\
+    \ are both missing. Consequently the task\u2019s specifications are not satisfied."
+T030:
+  c: false
+  h: bc5a34644df61516a37d8a5ec8b524eed2afd73798c8502022f21a540f397b35
+  r: "The `code/analysis/03_report.py` script is present and appears to generate the\
+    \ required summary fields, but the expected output file `data/processed/analysis_results.json`\
+    \ is missing, indicating the script has not been executed or does not produce\
+    \ the required artifact. The missing JSON file must be created (non\u2011empty)\
+    \ for the task to be considered complete."
