@@ -1,3 +1,24 @@
+T014:
+  c: false
+  h: fd4a4a137f5e9f7ffc3b219f98058b2b167ff93f651e84b37a7a05bf68bb9464
+  r: "The required `data/shift_validation.log` file does not exist, so the logging\
+    \ of failures and skipping logic cannot be verified. Without this artifact, the\
+    \ task\u2019s core requirement (logging and skipping environments based on the\
+    \ p\u2011value) is not satisfied."
+T015a:
+  c: false
+  h: e6b25ab86e8324d539feeaff3f5a5e526176c245e86b74255279808386d049ac
+  r: "The provided `code/main.py` does not actually invoke `generate_all_dynamic_shift_envs`\
+    \ to apply `DynamicShiftEnvironment`, and the required `data/sensitivity_report.csv`\
+    \ file is absent, causing the script\u2019s pre\u2011flight check to fail. The\
+    \ wrapper therefore does not meet the orchestration and verification requirements."
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No schema definition file (e.g., CSV header list, JSON schema, or code comment)
+    was provided; the evidence contains only the task description without any concrete
+    artifact specifying the required columns and types. The implementer must supply
+    a tangible schema definition for `sensitivity_report.csv`.
 T023:
   c: false
   h: 22044b2243b18bd166f0d59cb671d5947b4270321096ead5b6fdd183f9ca389e
@@ -6,10 +27,3 @@ T023:
     \ the file is truncated before any generation or fallback logic. Additionally,\
     \ the required `data/fallbacks.log` file is missing. The task\u2019s fallback\
     \ mechanism and logging requirements are therefore not satisfied."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration files, or documentation were supplied that implement\
-    \ the required dynamic\u2011shift environment extension or the counterfactual\
-    \ explanation module. Consequently, the artifact(s) needed to satisfy the user\
-    \ stories are missing."

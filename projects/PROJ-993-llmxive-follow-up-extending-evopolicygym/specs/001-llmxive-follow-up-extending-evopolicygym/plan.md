@@ -13,7 +13,7 @@ This project extends the **Gymnasium** suite (the verified, open-source base for
 **Primary Dependencies**: `gymnasium` (verified source: https://github.com/Farama-Foundation/Gymnasium), `transformers` (CPU-quantized), `scikit-learn`, `statsmodels`, `radon`, `pandas`, `numpy`, `pyyaml`  
 **Storage**: Local filesystem (`data/`, `code/`); JSON schemas for rules; CSV for results  
 **Testing**: `pytest` (unit/integration), `conftest.py` for seed pinning  
-**Target Platform**: Linux (GitHub Actions Free Tier: CPU, ~7GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, limited RAM)  
 **Project Type**: Research simulation framework / CLI tool  
 **Performance Goals**: Full evolutionary run (Multiple seeds x Multiple runs) within 6 hours on CPU; LLM inference <30s per failure with fallback.  
 **Constraints**: No local GPU; CPU-first inference (-bit/4-bit quantized models); strict reproducibility (seeds).  
