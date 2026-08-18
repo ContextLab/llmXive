@@ -1,0 +1,13 @@
+status: none
+intent: Synthetic Data Vault SDV OpenML controlled skewness kurtosis outlier prevalence
+  null hypothesis python package dataset
+required_fields:
+- observation_id
+- value
+- group
+- target_skewness
+- target_kurtosis
+- outlier_flag
+cache_key: 90f32b58133f66b9e686e155ccbf83ddaca92fdf90678476e6ffc73d57ddea34
+searched_at: '2026-08-18T17:22:32.348358+00:00'
+retry_count: 1

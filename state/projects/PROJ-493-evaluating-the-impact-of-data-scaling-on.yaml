@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T13:36:41.252896Z'
-current_stage: flesh_out_complete
+current_stage: clarified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-493-evaluating-the-impact-of-data-scaling-on
-last_run_id: 2c521eac-b388-4330-8f10-980820fb4393
+last_run_id: 00eacb37-5aed-495f-a54c-98d030a8be25
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-493-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on
 title: Evaluating the Impact of Data Scaling on Statistical Test Sensitivity
-updated_at: '2026-07-17T09:46:28.391663Z'
+updated_at: '2026-08-18T17:17:09.182503Z'
