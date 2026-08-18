@@ -9,7 +9,7 @@
 
 ### User Story 1 - Baseline Fidelity Measurement (Priority: P1)
 
-As a researcher, I need to generate images using the original FP CollectionLoRA adapter and a diverse set of 10 test prompts, then compute the cosine similarity between prompt embeddings and image features, so that I can establish a ground-truth baseline for concept adherence before applying any quantization.
+As a researcher, I need to generate images using the original FP CollectionLoRA adapter and a diverse set of test prompts, then compute the cosine similarity between prompt embeddings and image features., so that I can establish a ground-truth baseline for concept adherence before applying any quantization.
 
 **Why this priority**: This is the foundational control condition. Without a verified FP16 baseline, no subsequent comparison of quantization effects (INT8/INT4) is scientifically valid. It directly addresses the "Expected results" requirement to measure fidelity loss relative to the original.
 
@@ -95,7 +95,7 @@ As a researcher, I need to perform a Bayesian hierarchical model analysis to tes
 - **SC-001**: Concept adherence is measured by the cosine similarity between prompt text embeddings and generated image embeddings, referenced against the FP16 baseline values. (See FR-004, US-1)
 - **SC-002**: Pixel fidelity loss is measured by the LPIPS distance between quantized outputs and FP16 baseline outputs, referenced against the zero-difference ideal. Semantic fidelity loss is measured by the CESR (image-to-image similarity), referenced against the zero-bleeding ideal. (See FR-005, FR-011, US-2)
 - **SC-003**: Statistical significance of quantization impact is measured by the Bayesian posterior probability of effect, referenced against a conventional significance threshold. (See FR-006, US-3)
-- **SC-004**: Subspace vulnerability is measured by the Pearson correlation coefficient between the per-effect LoRA subspace rank and mean concept bleeding magnitude per effect, referenced against the null hypothesis of zero correlation (verified via 95% credible interval). (See FR-007, FR-010, US-3)
+- **SC-004**: Subspace vulnerability is measured by the Pearson correlation coefficient between the per-effect LoRA subspace rank and mean concept bleeding magnitude per effect, referenced against the null hypothesis of zero correlation (verified via a credible interval). (See FR-007, FR-010, US-3)
 - **SC-005**: Compute feasibility is measured by the total job duration on the GitHub Actions `ubuntu-latest` runner (multi-core CPU, 16GB RAM), referenced against the hard limit of ≤6 hours. (See FR-001, US-1)
 - **SC-006**: Concept bleeding is measured by the Cross-Effect Similarity Ratio (CESR), referenced against the baseline FP16 CESR values. (See FR-011, US-2)
 
@@ -104,7 +104,7 @@ As a researcher, I need to perform a Bayesian hierarchical model analysis to tes
 - **Assumption about data/environment**: The free-tier GitHub Actions runner provides sufficient RAM (≥16GB) to load the base Stable Diffusion model and the quantized LoRA adapters in CPU mode without swapping to disk.
 - **Assumption about scope boundaries**: The study assumes that "post-training quantization" implies zero-shot quantization; any requirement for re-distillation or fine-tuning after quantization is explicitly out of scope for this experiment.
 - **Assumption about target users**: The primary "user" is the research pipeline itself; the output is a statistical report, not a user-facing application interface.
-- **Assumption about model availability**: The specific CollectionLoRA adapter containing a set of effects and the corresponding base model (Stable Diffusion 1.5 or 2.1) are publicly available on HuggingFace and can be downloaded within the 6-hour job limit.
+- **Assumption about model availability**: The specific CollectionLoRA adapter containing a set of effects and the corresponding base model (Stable Diffusion or 2.1) are publicly available on HuggingFace and can be downloaded within the 6-hour job limit.
 - **Assumption about metric validity**: CLIP embeddings and LPIPS distances are accepted as valid proxies for "concept adherence" and "pixel fidelity loss" respectively. CESR (image-to-image) is accepted as a valid proxy for "concept bleeding" when comparing against FP16 ReferenceImages.
 - **Assumption about quantization backend**: The system assumes that `torch.ao.quantization` is available in the runner environment to load INT8/INT4 weights and perform the quantization step; `auto-gptq` is explicitly excluded due to CUDA requirements.
 - **Assumption about statistical power**: The sample size of a limited number of distinct prompts is acknowledged; the system MUST employ Bayesian hierarchical modeling with informative priors to mitigate low statistical power risks.

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T19:54:41.000507Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-892-llmxive-follow-up-extending-collectionlo
-last_run_id: 9754e471-e865-4253-a0a6-0936ff1d861f
+last_run_id: 9286cc51-5fa5-46ba-89c3-a5ba255dd62b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo
 title: 'llmXive follow-up: extending "CollectionLoRA: Collecting 50 Effects in 1 LoRA
   via Multi-Teacher On-P"'
-updated_at: '2026-08-16T00:32:38.407923Z'
+updated_at: '2026-08-17T23:49:18.958127Z'

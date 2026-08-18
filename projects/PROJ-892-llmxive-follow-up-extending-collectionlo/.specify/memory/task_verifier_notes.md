@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T010b** — The required `data/models/adapter_fp16.safetensors` file is absent, so the loader cannot actually load the verified FP16 adapter. Moreover, the provided `code/data_loader.py` is truncated and does not contain a complete function that loads both the adapter and the base model into CPU memory. Both the artifact and the implementation are missing/incomplete.
-- **T011** — The repository lacks the required `config.yaml` file, so the fixed prompt list and explicit seeds cannot be read, and the provided `generator.py` does not show loading the FP16 adapter nor a complete implementation of the image‑generation function (the code is truncated). Consequently the task’s core requirement is not satisfied.
-- **T014** — The provided `code/main.py` is incomplete (truncated mid‑function, missing the rest of the logic for processing images, computing metrics, and saving results). Additionally, the required `data/results.csv` file does not exist. Both the script and the results CSV are essential for the task, so the implementation is not finished.
