@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-715-physical-activity-levels-and-mood-variab",
+  "ok": false,
+  "reason": "4 command(s) failed: python code/ingest.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1); 3 declared deliverable(s) absent: data/processed/daily_aggregates.csv; data/processed/model_results.json; data/raw/bronze.parquet",
+  "artifacts": [],
+  "failures": [
+    "python code/ingest.py -> rc=1\n    2026-08-18 07:42:26,206 - INFO - Downloading https://osf.io/download/xxxx-xxxx/ to /home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/data/raw/bronze.csv\n2026-08-18 07:42:26,436 - ERROR - Download failed: 404 Client Error: Not Found for url: https://osf.io/download/xxxx-xxxx/\n2026-08-18 07:42:26,437 - ERROR - Failed to download or verify the dataset.",
+    "python code/preprocess.py -> rc=1\n    2026-08-18 07:42:26,853 - INFO - Running preprocess.py main\n2026-08-18 07:42:26,853 - INFO - Starting preprocessing pipeline\n2026-08-18 07:42:26,853 - ERROR - Preprocessing failed: get_path() takes 1 positional argument but 3 were given\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/preprocess.py\", line 215, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/preprocess.py\", line 201, in ",
+    "python code/analysis.py -> rc=1\n    2026-08-18 07:42:28,517 - INFO - Loading data...\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/analysis.py\", line 334, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/analysis.py\", line 302, in main\n    df = load_daily_aggregates()\n         ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/analysis.py\", lin",
+    "python code/report.py -> rc=1\n    WARNING:root:matplotlib not found. Some visualization features may be disabled.\nERROR:__main__:Failed to generate report: get_path() takes 1 positional argument but 3 were given\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py\", line 260, in main\n    report_path = generate_report()\n                  ^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py\", line 227, in generate_repor"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/ingest.py"
+  ],
+  "updated_at": "2026-08-18T07:42:29Z"
+}

@@ -24,7 +24,9 @@ def test_daily_aggregates_schema(daily_aggregates_path):
     """
     Test that daily_aggregates.csv exists and conforms to the schema.
     """
-    schema_path = Path(__file__).parent.parent.parent / "specs" / "001-physical-activity-mood-variability" / "contracts" / "daily_aggregates.schema.yaml"
+    # Construct the schema path relative to the project root
+    # The schema is located in specs/001-physical-activity-levels-and-mood-variability/contracts/
+    schema_path = Path(__file__).parent.parent.parent / "specs" / "001-physical-activity-levels-and-mood-variability" / "contracts" / "daily_aggregates.schema.yaml"
     
     assert daily_aggregates_path.exists(), f"File {daily_aggregates_path} does not exist."
     

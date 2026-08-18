@@ -1,0 +1,195 @@
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Bootstrap sampling loop with 1000 iterations and seed 42 for single-rating
+    sensitivity analysis
+  claim_id: c_defe90eb
+  context: 'T031c [US3] [Depends: T031a, T031b, T025] Implement code/analysis.py function
+    run_sensitivity_single_rating_bootstrap() to execute a bootstrap sampling loop
+    with exactly 1000 iterations (seed 42)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The code/analysis.py function run_sensitivity_single_rating_bootstrap()
+    executes a bootstrap sampling loop with exactly 1000 iterations (seed 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T07:45:47Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Leave-one-participant-out cross-validation retrains model N times where
+    N is the number of participants
+  claim_id: c_df5f5389
+  context: T028a [US3] [P] Implement code/analysis.py function run_lopo_cv() to retrain
+    model N times (N=participants), track total_steps coefficient sign stability,
+    and calculate the average RMSE across all LOPO folds.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Leave-one-participant-out_cross-validation_retrains_model_N
+  kind: entity_fact
+  raw_text: The code/analysis.py function run_lopo_cv() retrain model N times (N=participants).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T07:46:43Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: StudentLife dataset available via OSF DOI
+  claim_id: c_d70f6449
+  context: Create configuration module code/config.py defining paths, random seeds,
+    constants, and the specific OSF DOI string for the dataset
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/StudentLife_dataset_available_via_OSF_DOI
+  kind: entity_fact
+  raw_text: The StudentLife dataset is available via an OSF DOI.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:15:24Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: StudentLife dataset verifiable via SHA-256 checksum
+  claim_id: c_cf0a0d1b
+  context: Implement code/ingest.py to download StudentLife dataset from OSF DOI specified
+    in code/config.py, verify cryptographic checksum (SHA-256)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The StudentLife dataset can be downloaded and verified using a SHA-256
+    cryptographic checksum.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:15:55Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Minimum 2 mood ratings required for daily aggregates
+  claim_id: c_019a93d1
+  context: Filter out days with an insufficient number of valid mood ratings FIRST
+    (before any variance calculation) to satisfy FR-002
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis requires a minimum of 2 mood ratings per day to calculate
+    daily aggregates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:16:27Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Log transformation of mood_std uses 0.01 epsilon offset
+  claim_id: c_bb9ee4d5
+  context: 'Enforce the global constraint: ''No code path may use mood_std directly
+    in a log calculation without the epsilon offset of a small magnitude.'' ... ensure
+    the transformation np.log(mood_std + 0.01) is applied correctly.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The linear mixed-effects model uses a log transformation of mood standard
+    deviation with an epsilon offset of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:16:52Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: LOPO cross-validation performed for model robustness
+  claim_id: c_2eae3dad
+  context: Perform leave-one-participant-out (LOPO) cross-validation and sensitivity
+    analyses ... to ensure robustness.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LOPO_cross-validation_performed_for_model_robustness
+  kind: entity_fact
+  raw_text: Leave-one-participant-out (LOPO) cross-validation is performed to assess
+    model robustness.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:17:57Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: LOPO sign consistency threshold is 90%
+  claim_id: c_06de317e
+  context: "Verify final report contains LOPO coefficient consistency (\u226590% sign\
+    \ stability)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A sign consistency threshold of 90% is used for the LOPO cross-validation
+    results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:17:57Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Single-rating bootstrap uses 1000 iterations and seed 42
+  claim_id: c_31a5a2b8
+  context: Implement code/analysis.py function run_sensitivity_single_rating_bootstrap()
+    to execute a bootstrap sampling loop with exactly 1000 iterations (seed 42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A bootstrap sampling loop of 1000 iterations with seed 42 is used for
+    the single-rating sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:18:30Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Single-rating bootstrap consistency threshold is 80%
+  claim_id: c_138e71b1
+  context: "Write a boolean pass (true if consistency \u2265 80%) and the calculated\
+    \ percentage to model_results.json"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A consistency threshold of 80% is used to determine pass/fail status for
+    the single-rating bootstrap sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:18:30Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Full pipeline integration test duration is 6 hours
+  claim_id: c_7c7d476f
+  context: Run full pipeline integration test in tests/integration/test_full_pipeline.py
+    to verify end-to-end execution within 6 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline integration test is expected to complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:19:02Z'

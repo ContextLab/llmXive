@@ -5,130 +5,105 @@ import yaml
 from pathlib import Path
 from datetime import datetime
 
-import pandas as pd
-import jsonschema
-from jsonschema import validate, ValidationError
-
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
+sys.path.insert(0, str(Path(__file__).parent))
 from config import get_path
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_schema(schema_path: Path) -> dict:
-    """Load YAML schema file."""
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    with open(schema_path, 'r') as f:
-        return yaml.safe_load(f)
-
-def validate_dataframe(df: pd.DataFrame, schema: dict) -> bool:
-    """
-    Validate a DataFrame against a JSON Schema derived from the YAML spec.
-    Returns True if valid, False otherwise.
-    """
-    # Convert YAML schema to JSON Schema compatible dict (they are usually compatible)
-    # We need to ensure the schema describes the rows, not the file structure.
-    # Assuming the YAML defines 'properties' for the columns.
+def load_schema(schema_path):
+    """Load a YAML schema definition."""
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found at {schema_path}")
     
-    # Basic structural check
-    required_cols = schema.get('required', [])
+    with open(schema_path, 'r') as f:
+        schema = yaml.safe_load(f)
+    return schema
+
+def validate_dataframe(df, schema):
+    """
+    Validate a pandas DataFrame against a YAML schema.
+    
+    Args:
+        df: pandas DataFrame
+        schema: Dictionary loaded from a YAML schema file
+        
+    Returns:
+        bool: True if valid, raises AssertionError otherwise
+    """
+    import pandas as pd
+    
+    required_fields = schema.get('required', [])
     properties = schema.get('properties', {})
     
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
-        return False
-
-    # Check types if specified in schema
+    # Check required columns
+    for field in required_fields:
+        if field not in df.columns:
+            raise AssertionError(f"Missing required column: {field}")
+    
+    # Validate column types and constraints
     for col_name, col_schema in properties.items():
         if col_name not in df.columns:
             continue
         
-        # Simple type mapping
-        expected_type = col_schema.get('type')
-        if expected_type:
-            if expected_type == 'number':
-                if not pd.api.types.is_numeric_dtype(df[col_name]):
-                    # Allow numeric if it's object but parseable? No, strict check first.
-                    logger.warning(f"Column {col_name} is not numeric (expected {expected_type})")
-                    # For this specific task, we might be lenient if it's a string that looks like a number, 
-                    # but strict validation usually requires actual dtype.
-                    # However, JSON Schema validation on a dict representation of a row is safer.
+        col_data = df[col_name]
+        
+        # Type check
+        if 'type' in col_schema:
+            expected_type = col_schema['type']
+            if expected_type == 'string':
+                if not col_data.apply(lambda x: isinstance(x, str) or pd.isna(x)).all():
+                    raise AssertionError(f"Column {col_name} must be string type")
+            elif expected_type == 'integer':
+                if not col_data.apply(lambda x: isinstance(x, (int, float)) and pd.notna(x) or pd.isna(x)).all():
+                    # Allow nullable integers
+                    pass 
+            elif expected_type == 'float':
+                if not col_data.apply(lambda x: isinstance(x, (int, float)) and pd.notna(x) or pd.isna(x)).all():
                     pass
-            
-            # Check for nulls if not allowed
-            if col_schema.get('nullable') is False:
-                if df[col_name].isnull().any():
-                    logger.error(f"Column {col_name} contains null values but schema requires non-null.")
-                    return False
-
-    # Row-based validation using jsonschema
-    # jsonschema expects a list of objects (rows)
-    try:
-        # Convert dataframe to list of dicts
-        rows = df.to_dict(orient='records')
-        validate(instance=rows, schema=schema)
-    except ValidationError as e:
-        logger.error(f"Schema validation error: {e.message} at path: {e.absolute_path}")
-        return False
-
+            elif expected_type == 'date':
+                # Basic date check
+                if not col_data.apply(lambda x: pd.notna(x) and (isinstance(x, str) or isinstance(x, pd.Timestamp) or isinstance(x, datetime))).all():
+                    raise AssertionError(f"Column {col_name} must be date type")
+        
+        # Min/Max constraints for numeric
+        if 'min' in col_schema:
+            min_val = col_schema['min']
+            if col_data.min() < min_val:
+                raise AssertionError(f"Column {col_name} has values below minimum {min_val}")
+        
+        # Nullable check
+        if not col_schema.get('nullable', False):
+            if col_data.isna().any():
+                raise AssertionError(f"Column {col_name} cannot contain null values")
+    
     return True
 
 def main():
-    logger.info("Starting daily aggregates validation...")
+    """Main entry point for validation script."""
+    logger.info("Output validator starting...")
     
-    # Paths
-    output_path = get_path('data/processed', 'daily_aggregates.csv')
-    schema_path = get_path('specs/001-physical-activity-mood-variability/contracts', 'daily_aggregates.schema.yaml')
+    # Example usage - this would typically be driven by CLI args or config
+    schema_path = get_path("specs/001-physical-activity-mood-variability/contracts", "daily_aggregates.schema.yaml")
+    output_path = get_path("data/processed", "daily_aggregates.csv")
     
     if not os.path.exists(output_path):
-        logger.error(f"Output file not found: {output_path}. Did you run preprocess.py?")
-        return False
+        logger.error(f"Output file not found at {output_path}")
+        sys.exit(1)
     
     if not os.path.exists(schema_path):
-        logger.error(f"Schema file not found: {schema_path}")
-        return False
-
-    # Load Data
-    try:
-        df = pd.read_csv(output_path)
-        logger.info(f"Loaded {len(df)} rows from {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to load CSV: {e}")
-        return False
-
-    # Load Schema
-    try:
-        schema = load_schema(schema_path)
-        logger.info(f"Loaded schema from {schema_path}")
-    except Exception as e:
-        logger.error(f"Failed to load schema: {e}")
-        return False
-
-    # Validate
-    is_valid = validate_dataframe(df, schema)
+        logger.error(f"Schema file not found at {schema_path}")
+        sys.exit(1)
     
-    if is_valid:
-        logger.info("Validation PASSED: daily_aggregates.csv conforms to schema.")
-        # Optional: Write a validation log
-        log_path = get_path('data/processed', 'validation_log.json')
-        with open(log_path, 'w') as f:
-            json.dump({
-                "file": "daily_aggregates.csv",
-                "rows": len(df),
-                "status": "valid",
-                "timestamp": datetime.now().isoformat()
-            }, f, indent=2)
-        return True
-    else:
-        logger.error("Validation FAILED: daily_aggregates.csv does not conform to schema.")
-        return False
+    try:
+        import pandas as pd
+        df = pd.read_csv(output_path)
+        schema = load_schema(schema_path)
+        validate_dataframe(df, schema)
+        logger.info("Validation successful.")
+    except Exception as e:
+        logger.error(f"Validation failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    main()

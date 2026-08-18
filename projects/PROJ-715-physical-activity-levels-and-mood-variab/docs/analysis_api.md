@@ -1,181 +1,225 @@
 # Analysis Module API Documentation
 
-The `code/analysis.py` module provides the core statistical modeling, validation, and sensitivity analysis functionality for the Physical Activity and Mood Variability study. It implements Linear Mixed-Effects Models (LMM) to test associations between physical activity levels and mood metrics.
+This document provides the API reference for the `code/analysis.py` module, which implements the statistical modeling and validation logic for the Physical Activity and Mood Variability study.
 
-## Dependencies
+## Module Overview
 
-- `pandas`: Data manipulation
-- `statsmodels`: Statistical modeling (LMM)
-- `scipy`: Statistical tests (Shapiro-Wilk, Breusch-Pagan)
-- `numpy`: Numerical operations
-- `matplotlib`: Plotting (for diagnostics)
+The `analysis` module handles:
+- Loading and validating daily aggregate data
+- Fitting Linear Mixed-Effects Models (LMM) for mood variability and mean mood
+- Enforcing transformation constraints (log-transform with epsilon offset)
+- Running Leave-One-Participant-Out (LOPO) cross-validation
+- Performing sensitivity analyses (weekdays, active minutes, single-rating handling)
+- Extracting model coefficients and diagnostics
 
 ## Functions
 
-### `load_daily_aggregates() -> pd.DataFrame`
+### `load_daily_aggregates()`
 
-Loads the preprocessed daily aggregates dataset.
+Loads the daily aggregates dataset from disk.
 
 **Returns:**
-- `pd.DataFrame`: Contains columns `participant_id`, `date`, `total_steps`, `mean_mood`, `mood_std` (log-transformed), `sleep_duration`, `baseline_affect`, and `day_of_week`.
+- `pd.DataFrame`: The daily aggregates dataframe containing participant-day level data.
 
-**Notes:**
-- The `mood_std` column is already log-transformed as `np.log(mood_std + 0.01)` by the preprocessing step (T015b).
-- Uses `config.get_path` to locate `data/processed/daily_aggregates.csv`.
+**Raises:**
+- `FileNotFoundError`: If `data/processed/daily_aggregates.csv` does not exist.
+
+**Path:**
+- Reads from: `data/processed/daily_aggregates.csv`
 
 ---
 
-### `fit_mood_std_model(df: pd.DataFrame) -> statsmodels.regression.mixed_linear_model.MixedLMResults`
+### `validate_raw_mood_std()`
 
-Fits a Linear Mixed-Effects Model with log-transformed mood variability as the outcome.
-
-**Formula:**
-`mood_std ~ total_steps + sleep_duration + C(day_of_week) + baseline_affect`
-
-**Parameters:**
-- `df` (pd.DataFrame): The daily aggregates dataset.
+Validates that the `mood_std` column in the daily aggregates contains no negative values or NaNs.
 
 **Returns:**
-- `MixedLMResults`: The fitted model object containing coefficients, standard errors, and p-values.
+- `bool`: `True` if validation passes, `False` otherwise.
 
-**Random Effects:**
-- Random intercepts for `participant_id` to account for within-subject correlation.
+**Side Effects:**
+- Logs validation results to the module logger.
+
+**Precondition:**
+- Requires `daily_aggregates.csv` to exist and be loadable.
 
 ---
 
-### `fit_mean_mood_model(df: pd.DataFrame) -> statsmodels.regression.mixed_linear_model.MixedLMResults`
+### `enforce_transform_constraint()`
 
-Fits a Linear Mixed-Effects Model with mean mood as the outcome.
+A decorator/wrapper that enforces the global constraint: "No code path may use `mood_std` directly in a log calculation without the epsilon offset of a small magnitude."
 
-**Formula:**
-`mean_mood ~ total_steps + sleep_duration + C(day_of_week) + baseline_affect`
+**Usage:**
+- Applied to `fit_lmm_variability` and `fit_lmm_mean` to ensure the transformation `np.log(mood_std + 0.01)` is applied correctly.
 
 **Parameters:**
-- `df` (pd.DataFrame): The daily aggregates dataset.
+- `func`: The function to wrap.
 
 **Returns:**
-- `MixedLMResults`: The fitted model object.
+- Wrapped function that applies the transformation constraint.
+
+---
+
+### `fit_lmm_variability()`
+
+Fits the primary Linear Mixed-Effects Model (LMM) to test the association between physical activity and mood variability.
+
+**Model Specification:**
+- **Outcome:** `log(mood_std + 0.01)`
+- **Fixed Effects:** `total_steps`, `sleep_duration`, `baseline_affect`, `day_of_week`
+- **Random Effects:** Random intercepts for `participant_id`
+
+**Parameters:**
+- `data` (pd.DataFrame): The daily aggregates dataset.
+
+**Returns:**
+- `dict`: Model results including fixed effects, random effects, and fit statistics.
 
 **Note:**
-- This model is considered secondary to the `mood_std` model.
+- This function invokes `enforce_transform_constraint()` to apply the log transformation.
 
 ---
 
-### `extract_coefficient(model_results, variable_name: str) -> dict`
+### `fit_lmm_mean()`
 
-Extracts fixed-effect statistics for a specific predictor variable.
+Fits the secondary Linear Mixed-Effects Model (LMM) to test the association between physical activity and mean mood.
+
+**Model Specification:**
+- **Outcome:** `mean_mood`
+- **Fixed Effects:** `total_steps`, `sleep_duration`, `baseline_affect`, `day_of_week`
+- **Random Effects:** Random intercepts for `participant_id`
 
 **Parameters:**
-- `model_results`: The fitted model object.
-- `variable_name` (str): The name of the predictor (e.g., `'total_steps'`).
+- `data` (pd.DataFrame): The daily aggregates dataset.
 
 **Returns:**
-- `dict`: Contains `estimate`, `std_err`, `p_value`, and `ci_95` (lower, upper).
+- `dict`: Model results including fixed effects, random effects, and fit statistics.
 
 ---
 
-### `run_model_diagnostics(model_results) -> dict`
+### `extract_model_coefficients()`
 
-Performs residual diagnostics on the fitted model.
+Extracts fixed-effect coefficients, standard errors, p-values, and 95% confidence intervals from fitted LMM models.
 
-**Tests Performed:**
-- **Shapiro-Wilk Test**: Checks for normality of residuals.
-- **Breusch-Pagan Test**: Checks for heteroscedasticity.
+**Parameters:**
+- `model_results` (dict): The dictionary of model results from `fit_lmm_variability` or `fit_lmm_mean`.
 
 **Returns:**
-- `dict`: Contains test statistics, p-values, and a `residuals_vs_fitted` plot path.
+- `dict`: A structured dictionary of coefficients for `total_steps` and covariates.
 
 ---
 
-### `run_lopo_validation(df: pd.DataFrame) -> dict`
+### `run_model_diagnostics()`
 
-Performs Leave-One-Participant-Out (LOPO) cross-validation.
+Performs model diagnostics including Shapiro-Wilk (normality) and Breusch-Pagan (homoscedasticity) tests.
 
-**Logic:**
-1. Iterates through each participant, excluding them from the training set.
-2. Fits the primary model on the remaining data.
-3. Records the coefficient sign and RMSE for the excluded participant's data.
-4. Aggregates results to calculate sign consistency and average RMSE.
+**Parameters:**
+- `model` (statsmodels mixedlm.MixedLMResults): The fitted model object.
 
 **Returns:**
-- `dict`: Contains `lopo_average_rmse`, `sign_consistency_percentage`, and a flag indicating if consistency is >= 90%.
+- `dict`: Diagnostic test results and p-values.
+
+**Side Effects:**
+- Generates residual plots ('residuals vs. fitted') and saves them to `data/processed/`.
 
 ---
 
-### `run_sensitivity_analysis_exclude_single_ratings(df: pd.DataFrame) -> dict`
+### `run_lopo_cv()`
 
-Re-runs the primary model excluding days with only a single mood rating.
+Runs Leave-One-Participant-Out (LOPO) cross-validation to assess model robustness.
+
+**Process:**
+- Retrains the primary model N times (where N = number of participants).
+- Tracks the sign stability of the `total_steps` coefficient.
+- Calculates the average RMSE across all folds.
+
+**Parameters:**
+- `data` (pd.DataFrame): The daily aggregates dataset.
 
 **Returns:**
-- `dict`: Contains model coefficients and comparison to the full dataset model.
+- `dict`: LOPO results including sign consistency percentage and average RMSE.
 
 ---
 
-### `run_sensitivity_analysis_impute_single_ratings(df: pd.DataFrame) -> dict`
+### `run_sensitivity_weekdays()`
 
-Re-runs the primary model imputing single-rating days with the participant's median mood.
+Runs the primary model on a "weekdays only" subset of the data to test sensitivity to weekend effects.
+
+**Parameters:**
+- `data` (pd.DataFrame): The daily aggregates dataset.
 
 **Returns:**
-- `dict`: Contains model coefficients and comparison to the full dataset model.
+- `dict`: Comparison of coefficients with the full-sample model.
 
 ---
 
-### `run_bootstrap_sensitivity_analysis(df: pd.DataFrame, n_iterations: int = 1000, seed: int = 42) -> dict`
+### `run_sensitivity_active_minutes()`
 
-Performs bootstrap sampling to assess the robustness of the single-rating handling.
+Runs the primary model using "active minutes" instead of step counts to test sensitivity to the activity metric.
 
-**Logic:**
-1. For each iteration:
- - Sample the dataset with replacement.
- - Fit the exclusion model (T031a) and imputation model (T031b).
- - Compare the direction (sign) of the `total_steps` coefficient.
-2. Calculate the percentage of iterations where the direction is consistent.
+**Parameters:**
+- `data` (pd.DataFrame): The daily aggregates dataset.
 
 **Returns:**
-- `dict`: Contains `bootstrap_consistency_percentage` and a flag indicating if consistency is >= 80%.
+- `dict`: Comparison of effect direction with the step-count model.
 
 ---
 
-### `run_analysis(df: pd.DataFrame) -> dict`
+### `run_sensitivity_single_rating_bootstrap()`
 
-Orchestrates the full analysis pipeline.
+Executes a bootstrap sampling loop (1000 iterations, seed 42) to assess the robustness of results when handling single-rating days.
 
-**Steps:**
-1. Fits the primary (`mood_std`) and secondary (`mean_mood`) models.
-2. Extracts coefficients and diagnostics.
-3. Runs LOPO validation.
-4. Runs sensitivity analyses.
-5. Runs bootstrap sensitivity analysis.
+**Process:**
+- For each iteration:
+ 1. Fit the exclusion model (days with single ratings removed).
+ 2. Fit the imputation model (single ratings imputed with participant median).
+ 3. Compare coefficients to check direction consistency.
+- Calculates the percentage of iterations where the direction remains consistent.
+
+**Parameters:**
+- `data` (pd.DataFrame): The daily aggregates dataset.
 
 **Returns:**
-- `dict`: A comprehensive dictionary containing all results, ready for serialization to `model_results.json`.
+- `dict`: Bootstrap consistency percentage and pass/fail status (threshold ≥80%).
 
 ---
 
-### `run_sensitivity_analysis_exclude_single_ratings(df: pd.DataFrame) -> dict`
+### `run_analysis()`
 
-(See specific function documentation above).
+Orchestrates the full analysis pipeline: data loading, model fitting, diagnostics, validation, and sensitivity checks.
 
----
+**Returns:**
+- `dict`: Aggregated results including model coefficients, diagnostics, LOPO, and sensitivity analysis.
 
-### `run_sensitivity_analysis_impute_single_ratings(df: pd.DataFrame) -> dict`
-
-(See specific function documentation above).
+**Side Effects:**
+- Writes `data/processed/model_results.json`.
 
 ---
 
 ### `main()`
 
-Entry point for the analysis script.
+Entry point for running the analysis script.
 
-**Workflow:**
-1. Loads `daily_aggregates.csv`.
-2. Calls `run_analysis()`.
-3. Validates the results against `model_results.schema.yaml`.
-4. Saves the results to `data/processed/model_results.json`.
+**Usage:**
+```bash
+python code/analysis.py
+```
 
-## Error Handling
+**Side Effects:**
+- Executes `run_analysis()` and prints summary results.
+- Writes `data/processed/model_results.json`.
 
-- The module raises `ValueError` if the input DataFrame is missing required columns.
-- Model fitting failures (non-convergence) raise `RuntimeError` with details.
-- All statistical tests check for valid p-values and raise warnings if assumptions are violated.
+## Dependencies
+
+- `pandas`
+- `statsmodels`
+- `numpy`
+- `scipy`
+- `matplotlib` (for diagnostic plots)
+- `config` (for path utilities)
+
+## Notes
+
+- All results are explicitly labeled as "associational" to comply with FR-004.
+- The `mood_std` transformation uses a fixed epsilon of `0.01` to handle zero variability.
+- LOPO cross-validation flags results if sign consistency is below 90% but continues execution.
+- Sensitivity analysis for single-rating handling requires a consistency of ≥80% to pass.

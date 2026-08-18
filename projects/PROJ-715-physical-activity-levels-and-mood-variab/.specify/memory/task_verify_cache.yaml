@@ -1,31 +1,17 @@
-T003:
+T007:
+  c: false
+  h: 880e36c80423f8904e47eada5a0a3d53784ff7a61a27fdc7c64f73000237c38f
+  r: "The `state/projects/PROJ-715-physical-activity-levels-and-mood-variab.yaml`\
+    \ file is missing, and `code/ingest.py` does not actually use the OSF DOI from\
+    \ `config.py` nor perform a real SHA\u2011256 verification before writing the\
+    \ hash. The implementation is incomplete and does not satisfy the task requirements."
+T024b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files (e.g., `.flake8`, `pyproject.toml`, `setup.cfg`, or a
-    `black` config) or scripts setting up flake8 and black in the `code/` directory
-    were presented. Without such artifacts, the linting and formatting tools have
-    not been demonstrably configured.
-T011:
-  c: true
-  h: 676d4003c1aee5be390878aa8c6c9a39171fc531b7db68994f26f7d496553150
-  r: "The repository contains a non\u2011empty `code/preprocess.py` (7\u202FKB) that\
-    \ defines `load_bronze_data()` to read `data/raw/bronze.parquet` and `parse_step_logs()`\
-    \ which converts raw timestamps and step counts into a `total_steps` daily aggregation,\
-    \ fulfilling the stated requirement."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No report or document was provided showing that the results are framed as \u201C\
-    associational\u201D and that causal language is avoided; without the actual artifact\
-    \ we cannot verify the requirement was met. The implementer must supply the final\
-    \ report (or excerpt) containing the explicit associational statements and the\
-    \ absence of causal phrasing."
-T034b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` files were presented; there is no evidence that API documentation
-    for `analysis.py` or a Data Dictionary for `daily_aggregates.csv` were created
-    or updated. The required documentation artifacts are missing.
+  r: No `model_results.json` file is present in the provided evidence, and no content
+    consolidating fixed effects, random effects, diagnostics, LOPO results, or sensitivity
+    analysis is shown. The required aggregated JSON artifact is missing, so the task
+    is not satisfied.
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -4,4 +4,7 @@ scikit-learn
 pyyaml
 requests
 numpy
-pyarrow
+jinja2
+weasyprint
+matplotlib
+openpyxl
