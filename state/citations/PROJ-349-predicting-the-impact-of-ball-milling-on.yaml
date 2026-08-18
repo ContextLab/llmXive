@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-16T06:35:44.541285Z'
-- artifact_hash: 0537da4aa24d9a1e010592cba459a6bf8083426381bd695f646d93d7e51831a7
+- artifact_hash: b7ae74d9ae978be5a0e95cbb1491dff014347bf307524044921df33910a53da1
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -31,4 +31,4 @@
   value: https://arxiv.org/abs/2506.09162
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2506.09162
-  verified_at: '2026-08-17T13:09:10.925066Z'
+  verified_at: '2026-08-18T23:51:53.778761Z'

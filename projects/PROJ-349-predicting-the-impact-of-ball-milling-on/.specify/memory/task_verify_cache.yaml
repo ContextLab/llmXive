@@ -57,14 +57,6 @@ T014c:
   r: The required source file `src/ingest/ocr_fallback.py` and its unit test `tests/unit/test_ocr.py`
     are both absent, so no extraction logic or tests exist to satisfy the specification.
     The task must be completed by adding the implementation and corresponding tests.
-T015a:
-  c: false
-  h: aebb4ee2278a8cc858fd39f2098954a90bdd6ae04b96b46f47d8b381a0096d8e
-  r: "The provided `src/ingest/merge.py` is truncated and shows no implementation\
-    \ of the required traceability checks (`source_name`, `source_id`), the pre\u2011\
-    merge size guard, or the write to `data/raw/merged_dataset.parquet`. Moreover,\
-    \ the expected output Parquet file is absent. The task therefore lacks the necessary\
-    \ logic and artifact."
 T016e:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
