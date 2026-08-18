@@ -4,7 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T021` (rejected 1x): No code, configuration, or log files were provided that demonstrate the added error‑handling logic (logging failures, attempting upper‑limit derivation, and continuing execution). Without concrete artifacts, we cannot verify that the requirement has been implemented.
+- `T014` (rejected 1x): No evidence of a `logs/download.log` file was provided; the response contains only the task description and specifications, with no actual log file or its contents showing progress updates. The required artifact is missing.
+- `T018c` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T026` (rejected 1x): declared artifact(s) missing/empty/invalid: results/robustness_report.json
+- `T027` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/regression_results.json
 
 ## Required change
 

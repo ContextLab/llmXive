@@ -9,6 +9,6 @@ tqdm
 lifelines
 synphot
 scikit-survival
-scikit-learn
+pytest
 ruff
 black

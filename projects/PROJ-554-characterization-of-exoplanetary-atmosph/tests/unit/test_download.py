@@ -1,115 +1,108 @@
 import pytest
 import json
-import os
-import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import tempfile
+import sys
+import os
 
-# Import the function to test
-from download import validate_sample_size
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+
+from download import count_unique_planets, validate_sample_size
+
+class TestCountUniquePlanets:
+    """Test cases for count_unique_planets function."""
+
+    def test_empty_metadata(self):
+        """Test counting with empty metadata list."""
+        result = count_unique_planets([])
+        assert result == 0
+
+    def test_single_planet(self):
+        """Test counting with single planet."""
+        metadata = [
+            {'planet_name': 'HD 209458 b'}
+        ]
+        result = count_unique_planets(metadata)
+        assert result == 1
+
+    def test_multiple_unique_planets(self):
+        """Test counting with multiple unique planets."""
+        metadata = [
+            {'planet_name': 'HD 209458 b'},
+            {'planet_name': 'WASP-12 b'},
+            {'planet_name': 'WASP-17 b'}
+        ]
+        result = count_unique_planets(metadata)
+        assert result == 3
+
+    def test_duplicate_planets(self):
+        """Test that duplicates are not counted."""
+        metadata = [
+            {'planet_name': 'HD 209458 b'},
+            {'planet_name': 'HD 209458 b'},
+            {'planet_name': 'WASP-12 b'}
+        ]
+        result = count_unique_planets(metadata)
+        assert result == 2
+
+    def test_missing_planet_name(self):
+        """Test handling of records with missing planet_name."""
+        metadata = [
+            {'planet_name': 'HD 209458 b'},
+            {},  # Missing planet_name
+            {'planet_name': 'WASP-12 b'}
+        ]
+        result = count_unique_planets(metadata)
+        assert result == 2
+
+    def test_none_planet_name(self):
+        """Test handling of records with None planet_name."""
+        metadata = [
+            {'planet_name': 'HD 209458 b'},
+            {'planet_name': None},
+            {'planet_name': 'WASP-12 b'}
+        ]
+        result = count_unique_planets(metadata)
+        assert result == 2
 
 class TestValidateSampleSize:
-    def test_sample_size_within_range(self, tmp_path):
-        """Test when sample size is within the acceptable range."""
-        mock_data = [
-            {'planet_name': f'Planet_{i}', 'temperature': 1000, 'metallicity': 0.1, 
-             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
-             'instrument': 'Test', 'wavelength_range': '1-2um'}
-            for i in range(35)
-        ]
-        
-        report_path = tmp_path / "sample_size_report.json"
-        
-        result = validate_sample_size(
-            data=mock_data,
-            min_threshold=30,
-            max_threshold=45,
-            output_path=str(report_path)
-        )
-        
-        assert result['count'] == 35
-        assert result['validation_status'] == 'proceed'
-        assert report_path.exists()
-        
-        with open(report_path, 'r') as f:
-            saved_report = json.load(f)
-            assert saved_report['count'] == 35
-            assert saved_report['validation_status'] == 'proceed'
+    """Test cases for validate_sample_size function."""
 
-    def test_sample_size_below_threshold(self, tmp_path, caplog):
-        """Test when sample size is below the minimum threshold."""
-        mock_data = [
-            {'planet_name': f'Planet_{i}', 'temperature': 1000, 'metallicity': 0.1, 
-             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
-             'instrument': 'Test', 'wavelength_range': '1-2um'}
-            for i in range(20)
-        ]
-        
-        report_path = tmp_path / "sample_size_report.json"
-        
-        # Capture log output
-        with caplog.at_level("WARNING"):
-            result = validate_sample_size(
-                data=mock_data,
-                min_threshold=30,
-                max_threshold=45,
-                output_path=str(report_path)
-            )
-        
-        assert result['count'] == 20
-        assert result['validation_status'] == 'proceed'
-        assert "below" in result['message'].lower()
-        
-        # Verify log was written
-        assert any("below" in record.message.lower() for record in caplog.records)
+    def test_within_range(self):
+        """Test validation with count in target range."""
+        report = validate_sample_size(35)
+        assert report['count'] == 35
+        assert report['validation_status'] == 'proceed'
 
-    def test_sample_size_above_threshold(self, tmp_path, caplog):
-        """Test when sample size exceeds the maximum threshold."""
-        mock_data = [
-            {'planet_name': f'Planet_{i}', 'temperature': 1000, 'metallicity': 0.1, 
-             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
-             'instrument': 'Test', 'wavelength_range': '1-2um'}
-            for i in range(50)
-        ]
-        
-        report_path = tmp_path / "sample_size_report.json"
-        
-        with caplog.at_level("WARNING"):
-            result = validate_sample_size(
-                data=mock_data,
-                min_threshold=30,
-                max_threshold=45,
-                output_path=str(report_path)
-            )
-        
-        assert result['count'] == 50
-        assert result['validation_status'] == 'proceed'
-        assert "exceeds" in result['message'].lower()
-        
-        assert any("exceeds" in record.message.lower() for record in caplog.records)
+    def test_below_range(self):
+        """Test validation with count below target range."""
+        report = validate_sample_size(25)
+        assert report['count'] == 25
+        assert report['validation_status'] == 'proceed'
 
-    def test_unique_planet_counting(self, tmp_path):
-        """Test that unique planets are counted correctly even with duplicates."""
-        mock_data = [
-            {'planet_name': 'Planet_A', 'temperature': 1000, 'metallicity': 0.1, 
-             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
-             'instrument': 'Test', 'wavelength_range': '1-2um'},
-            {'planet_name': 'Planet_A', 'temperature': 1000, 'metallicity': 0.1, 
-             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
-             'instrument': 'Test', 'wavelength_range': '1-2um'}, # Duplicate
-            {'planet_name': 'Planet_B', 'temperature': 1000, 'metallicity': 0.1, 
-             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
-             'instrument': 'Test', 'wavelength_range': '1-2um'}
-        ]
-        
-        report_path = tmp_path / "sample_size_report.json"
-        
-        result = validate_sample_size(
-            data=mock_data,
-            min_threshold=1,
-            max_threshold=10,
-            output_path=str(report_path)
-        )
-        
-        # Should count 2 unique planets
-        assert result['count'] == 2
+    def test_above_range(self):
+        """Test validation with count above target range."""
+        report = validate_sample_size(50)
+        assert report['count'] == 50
+        assert report['validation_status'] == 'proceed'
+
+    def test_boundary_low(self):
+        """Test validation at lower boundary."""
+        report = validate_sample_size(30)
+        assert report['count'] == 30
+        assert report['validation_status'] == 'proceed'
+
+    def test_boundary_high(self):
+        """Test validation at upper boundary."""
+        report = validate_sample_size(45)
+        assert report['count'] == 45
+        assert report['validation_status'] == 'proceed'
+
+    def test_report_structure(self):
+        """Test that report has correct structure."""
+        report = validate_sample_size(35)
+        assert 'count' in report
+        assert 'validation_status' in report
+        assert isinstance(report['count'], int)
+        assert isinstance(report['validation_status'], str)

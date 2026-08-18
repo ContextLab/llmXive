@@ -1,3 +1,7 @@
+"""
+Utility functions for the exoplanet atmospheric analysis pipeline.
+Includes custom exceptions, retry logic, and censored data helpers.
+"""
 import logging
 import time
 import random
@@ -5,6 +9,7 @@ from functools import wraps
 from typing import Callable, Type, Optional, Tuple, Any, Union, List
 import numpy as np
 
+# Setup logger
 logger = logging.getLogger(__name__)
 
 class PipelineError(Exception):
@@ -31,16 +36,30 @@ class ConfigurationError(PipelineError):
     """Error related to configuration."""
     pass
 
-def setup_logging(level=logging.INFO):
-    """Configure logging for the pipeline."""
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler('pipeline.log')
-        ]
-    )
+def setup_logging(name: str, log_file: Optional[str] = None) -> logging.Logger:
+    """
+    Sets up logging for a specific module.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    if not logger.handlers:
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+        # Console handler
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
+        # File handler if specified
+        if log_file:
+            fh = logging.FileHandler(log_file)
+            fh.setLevel(logging.DEBUG)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+
+    return logger
 
 def retry_on_failure(max_retries: int = 3, delay: float = 1.0, exceptions: Tuple[Type[Exception], ...] = (Exception,)):
     """
@@ -49,94 +68,106 @@ def retry_on_failure(max_retries: int = 3, delay: float = 1.0, exceptions: Tuple
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
-            retries = 0
-            while retries < max_retries:
+            last_exception = None
+            for attempt in range(1, max_retries + 1):
                 try:
                     return func(*args, **kwargs)
                 except exceptions as e:
-                    retries += 1
-                    if retries == max_retries:
-                        logger.error(f"Function {func.__name__} failed after {max_retries} retries: {e}")
-                        raise
-                    logger.warning(f"Function {func.__name__} failed, retrying in {delay}s... ({retries}/{max_retries})")
-                    time.sleep(delay * random.uniform(0.5, 1.5))
+                    last_exception = e
+                    logger.warning(f"Attempt {attempt}/{max_retries} failed for {func.__name__}: {e}")
+                    if attempt < max_retries:
+                        time.sleep(delay * (2 ** (attempt - 1)) + random.uniform(0, 1))
+            logger.error(f"All {max_retries} attempts failed for {func.__name__}. Last error: {last_exception}")
+            raise last_exception
         return wrapper
     return decorator
 
-def safe_execute(func: Callable, default: Any = None, logger_name: str = __name__) -> Callable:
+def safe_execute(func: Callable, default: Any = None, exceptions: Tuple[Type[Exception], ...] = (Exception,)) -> Any:
     """
-    Decorator to safely execute a function, returning a default value on exception.
-    """
-    log = logging.getLogger(logger_name)
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e:
-            log.error(f"Error in {func.__name__}: {e}")
-            return default
-    return wrapper
-
-def is_censored_value(value: Any) -> bool:
-    """Check if a value represents a censored data point (e.g., upper limit)."""
-    if isinstance(value, (int, float)):
-        return np.isnan(value) or value == -999.0 # Common sentinel for missing/upper limit
-    return False
-
-def create_censored_series(data: List[Dict[str, Any]], value_key: str, is_censored_key: str) -> pd.Series:
-    """
-    Create a pandas Series from a list of dictionaries, handling censored values.
-    Requires pandas to be imported.
+    Safely executes a function, returning a default value on exception.
     """
     try:
-        import pandas as pd
-        values = []
-        for item in data:
-            val = item.get(value_key)
-            if item.get(is_censored_key, False):
-                # Mark as censored (e.g., use NaN or a specific marker)
-                values.append(np.nan) 
-            else:
-                values.append(val)
-        return pd.Series(values)
-    except ImportError:
-        logger.error("pandas not installed, cannot create censored series")
-        raise
+        return func()
+    except exceptions as e:
+        logger.warning(f"Function {func.__name__} failed: {e}. Returning default.")
+        return default
 
-def calculate_censored_mean(data: List[float], censored_flags: List[bool]) -> Optional[float]:
+def is_censored_value(value: Union[float, np.floating]) -> bool:
     """
-    Calculate the mean of a dataset, treating censored values appropriately.
-    For upper limits, a simple mean is not statistically valid; this is a placeholder.
-    In practice, one would use survival analysis methods (e.g., Kaplan-Meier).
+    Checks if a value is a censored value (e.g., upper limit).
     """
-    if not data or not censored_flags:
-        return None
-    
-    # Simple implementation: ignore censored values for now
-    # A proper implementation would use scikit-survival or lifelines
-    valid_values = [v for v, c in zip(data, censored_flags) if not c]
-    if not valid_values:
-        return None
-    return np.mean(valid_values)
+    return np.isnan(value) or value == -999.0
 
-def handle_non_convergent_retrieval(spectrum_id: str, error: Exception, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def create_censored_series(data: List[Dict[str, Any]], value_key: str, limit_key: str) -> pd.Series:
     """
-    Handle non-convergent retrievals by attempting to derive an upper limit.
-    Returns a dictionary with upper limit data or None if derivation also fails.
+    Creates a pandas Series handling censored data.
     """
-    logger.warning(f"Retrieval for {spectrum_id} did not converge: {error}. Attempting upper limit derivation.")
-    try:
-        # Placeholder for actual upper limit derivation logic
-        # This would typically involve analyzing the noise floor of the spectrum
-        noise_estimate = 1e-3 # Example noise estimate
-        upper_limit_value = 3.0 * noise_estimate
+    import pandas as pd
+    values = []
+    events = [] # 1 for observed, 0 for censored
+
+    for item in data:
+        val = item.get(value_key)
+        lim = item.get(limit_key)
         
-        return {
-            "log10_water_mixing_ratio": np.log10(upper_limit_value),
-            "is_upper_limit": True,
-            "censorship_status": "UPPER_LIMIT",
-            "error_message": f"Non-convergent, upper limit derived: {error}"
-        }
-    except Exception as fallback_error:
-        logger.error(f"Failed to derive upper limit for {spectrum_id} after non-convergence: {fallback_error}")
-        return None
+        if is_censored_value(val):
+            values.append(lim if lim is not None else 0)
+            events.append(0)
+        else:
+            values.append(val)
+            events.append(1)
+    
+    s = pd.Series(values)
+    s.name = value_key
+    s.attrs['event'] = pd.Series(events, name='event')
+    return s
+
+def calculate_censored_mean(series: pd.Series, event_series: pd.Series) -> float:
+    """
+    Calculates the mean of a censored dataset (simplified).
+    """
+    observed = series[event_series == 1]
+    if len(observed) == 0:
+        return np.nan
+    return observed.mean()
+
+def handle_non_convergent_retrieval(planet_name: str, error_msg: str, fallback_func: Optional[Callable] = None, fallback_args: Tuple = ()) -> Dict[str, Any]:
+    """
+    Handles non-convergent retrievals by logging the failure and attempting a fallback (e.g., upper limit derivation).
+    
+    Args:
+        planet_name: Name of the planet.
+        error_msg: The error message from the failed retrieval.
+        fallback_func: Optional function to call as a fallback.
+        fallback_args: Arguments to pass to the fallback function.
+        
+    Returns:
+        A result dictionary indicating the outcome.
+    """
+    logger.warning(f"Non-convergent retrieval for {planet_name}: {error_msg}")
+    
+    result = {
+        'planet_name': planet_name,
+        'status': 'fallback_attempted',
+        'original_error': error_msg,
+        'fallback_success': False,
+        'fallback_result': None
+    }
+
+    if fallback_func:
+        try:
+            logger.info(f"Attempting fallback for {planet_name}...")
+            fallback_result = fallback_func(*fallback_args)
+            result['fallback_success'] = True
+            result['fallback_result'] = fallback_result
+            result['status'] = 'success_via_fallback'
+            logger.info(f"Fallback successful for {planet_name}")
+        except Exception as e:
+            logger.error(f"Fallback failed for {planet_name}: {e}")
+            result['fallback_success'] = False
+            result['status'] = 'failed'
+    else:
+        logger.info(f"No fallback function provided for {planet_name}. Proceeding without result.")
+        result['status'] = 'proceed_without_result'
+
+    return result

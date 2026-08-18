@@ -4,192 +4,307 @@ import pandas as pd
 import numpy as np
 from config import get_config
 import scipy.stats as stats
-import json
 import os
+from pathlib import Path
+from utils import setup_logging, CensoredDataError
 
-# Importing scikit-survival for censored data handling (T025a)
-try:
-    from sksurv.nonparametric import kendall_tau
-except ImportError:
-    raise ImportError("sksurv is required for T025b/T025c. Install via: pip install scikit-survival")
-
-# Importing data models if needed for type hints or validation
-# (Assuming data_models is available as per API surface)
-try:
-    from data_models import RetrievalResult
-except ImportError:
-    pass
+# Ensure logging is configured if not already
+if not logging.getLogger().handlers:
+    setup_logging()
 
 logger = logging.getLogger(__name__)
 
-def load_analysis_data() -> pd.DataFrame:
+def load_analysis_data(metadata_path: str = None, retrieval_path: str = None) -> pd.DataFrame:
     """
-    Loads the processed retrieval results and metadata.
-    Merges data from T012 (metadata.csv) and T020 (retrieval_results.csv).
+    Load and merge metadata and retrieval results for analysis.
+    
+    Args:
+        metadata_path: Path to metadata CSV (default: data/processed/metadata.csv)
+        retrieval_path: Path to retrieval results CSV (default: data/processed/retrieval_results.csv)
+        
+    Returns:
+        Merged DataFrame with all necessary columns for analysis
     """
     config = get_config()
-    processed_dir = config['paths']['processed']
     
-    meta_path = os.path.join(processed_dir, 'metadata.csv')
-    retrieval_path = os.path.join(processed_dir, 'retrieval_results.csv')
-
-    if not os.path.exists(meta_path) or not os.path.exists(retrieval_path):
-        raise FileNotFoundError(
-            f"Required data files not found. Expected: {meta_path}, {retrieval_path}. "
-            "Ensure T012 and T020 have been completed."
-        )
-
-    df_meta = pd.read_csv(meta_path)
-    df_retrieval = pd.read_csv(retrieval_path)
-
+    if metadata_path is None:
+        metadata_path = str(config['paths']['processed'] / 'metadata.csv')
+    if retrieval_path is None:
+        retrieval_path = str(config['paths']['processed'] / 'retrieval_results.csv')
+        
+    logger.info(f"Loading metadata from {metadata_path}")
+    if not os.path.exists(metadata_path):
+        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
+    metadata_df = pd.read_csv(metadata_path)
+    
+    logger.info(f"Loading retrieval results from {retrieval_path}")
+    if not os.path.exists(retrieval_path):
+        raise FileNotFoundError(f"Retrieval results file not found: {retrieval_path}")
+    retrieval_df = pd.read_csv(retrieval_path)
+    
     # Merge on planet_name
-    df = pd.merge(df_meta, df_retrieval, on='planet_name', how='inner')
+    merged_df = pd.merge(metadata_df, retrieval_df, on='planet_name', how='inner')
     
-    # Filter out rows where water mixing ratio is missing or invalid
-    # We need to handle upper limits (is_upper_limit=True) as censored data
-    logger.info(f"Loaded {len(df)} combined records for analysis.")
-    return df
+    logger.info(f"Loaded {len(merged_df)} records for analysis")
+    return merged_df
 
-def compute_censored_kendall_tau(df: pd.DataFrame) -> Tuple[float, float]:
+def quality_control_filter(df: pd.DataFrame, snr_threshold: float = 3.0, 
+                           resolution_threshold: float = 50.0) -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Computes Kendall's tau for censored data using scikit-survival.
-    T025b Implementation.
+    Apply quality control filter to flag low SNR spectra and include them as censored values.
+    
+    This function implements FR-002 by:
+    1. Flagging spectra with SNR < threshold as censored (upper limits)
+    2. Flagging spectra with Resolution < threshold as censored
+    3. Returning the filtered dataset with censorship indicators
     
     Args:
-        df: DataFrame containing 'water_mixing_ratio' and 'is_upper_limit'.
-            
-    Returns:
-        Tuple of (tau, p_value)
-    """
-    # Prepare survival array for scikit-survival
-    # In survival analysis terms:
-    # - 'event' is True if we have a detection (not an upper limit)
-    # - 'time' is the observed value (log10 mixing ratio)
-    
-    # Ensure boolean column exists
-    if 'is_upper_limit' not in df.columns:
-        raise ValueError("Column 'is_upper_limit' missing from data.")
-    
-    # scikit-survival expects: event=True means the event occurred (detection here)
-    # Our data: is_upper_limit=True means we only have a limit (no detection event)
-    # So event = ~is_upper_limit
-    events = ~df['is_upper_limit'].astype(bool)
-    times = df['water_mixing_ratio'].values
-    
-    # Filter out NaNs in times
-    valid_mask = ~np.isnan(times)
-    if np.sum(~valid_mask) > 0:
-        logger.warning(f"Removed {np.sum(~valid_mask)} rows with NaN mixing ratios.")
+        df: DataFrame containing metadata (SNR, Resolution) and retrieval results
+        snr_threshold: Minimum acceptable SNR (default: 3.0)
+        resolution_threshold: Minimum acceptable spectral resolution (default: 50)
         
-    times = times[valid_mask]
-    events = events[valid_mask]
+    Returns:
+        Tuple of (filtered_df, censorship_mask) where:
+            - filtered_df: Original DataFrame with censorship indicator columns
+            - censorship_mask: Boolean Series where True indicates censored/upper limit
+    """
+    logger.info(f"Applying quality control filter: SNR >= {snr_threshold}, R >= {resolution_threshold}")
     
-    if len(times) < 2:
-        logger.warning("Insufficient data points for Kendall's tau calculation.")
-        return 0.0, 1.0
+    # Validate required columns exist
+    required_cols = ['snr', 'resolution', 'water_mixing_ratio']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns for QC filter: {missing_cols}")
+    
+    # Create censorship mask based on SNR and Resolution
+    # A spectrum is censored if it fails EITHER criterion
+    snr_censored = df['snr'] < snr_threshold
+    res_censored = df['resolution'] < resolution_threshold
+    censorship_mask = snr_censored | res_censored
+    
+    # Create a copy to avoid SettingWithCopyWarning
+    filtered_df = df.copy()
+    
+    # Add censorship indicator column
+    filtered_df['is_censored'] = censorship_mask
+    
+    # Log statistics
+    total = len(filtered_df)
+    censored_count = censorship_mask.sum()
+    uncensored_count = total - censored_count
+    
+    logger.info(f"QC Filter Results: {censored_count}/{total} spectra flagged as censored")
+    logger.info(f"  - SNR < {snr_threshold}: {snr_censored.sum()}")
+    logger.info(f"  - Resolution < {resolution_threshold}: {res_censored.sum()}")
+    logger.info(f"  - Overlap (both): {(snr_censored & res_censored).sum()}")
+    logger.info(f"  - Remaining for direct analysis: {uncensored_count}")
+    
+    # Log specific planets that are censored (for audit trail)
+    if censored_count > 0:
+        censored_planets = filtered_df.loc[censorship_mask, 'planet_name'].tolist()
+        logger.debug(f"Censored planets: {censored_planets[:10]}{'...' if len(censored_planets) > 10 else ''}")
+    
+    return filtered_df, censorship_mask
 
+def compute_censored_kendall_tau(df: pd.DataFrame, censorship_mask: pd.Series = None) -> Dict[str, Any]:
+    """
+    Compute Kendall's tau correlation for censored data.
+    
+    Args:
+        df: DataFrame with water mixing ratio and temperature
+        censorship_mask: Boolean mask indicating censored values (optional)
+        
+    Returns:
+        Dictionary with tau coefficient, p-value, and sample info
+    """
+    # If no censorship mask provided, assume no censoring
+    if censorship_mask is None:
+        censorship_mask = pd.Series([False] * len(df), index=df.index)
+    
+    logger.info("Computing censored Kendall's tau correlation")
+    
+    # Prepare data for scikit-survival
+    # We need: y (water mixing ratio), event (1=observed, 0=censored), x (temperature)
+    y = df['water_mixing_ratio'].values
+    event = (~censorship_mask).values.astype(int)  # 1 if observed, 0 if censored
+    x = df['temperature'].values
+    
+    # Use scikit-survival's censored Kendall's tau
     try:
-        # Calculate tau
-        tau, p_value = kendall_tau(times, events)
-        logger.info(f"Computed Censored Kendall's Tau: {tau:.4f} (p={p_value:.4f})")
-        return tau, p_value
-    except Exception as e:
-        logger.error(f"Error computing Kendall's tau: {e}")
-        raise
+        from sksurv.nonparametric import kendall_tau
+        tau, p_value = kendall_tau(event, y, x)
+        
+        result = {
+            'tau': float(tau),
+            'p_value': float(p_value),
+            'n_observed': int(event.sum()),
+            'n_censored': int((~event).sum()),
+            'n_total': len(df),
+            'method': 'censored_kendall_tau'
+        }
+        
+        logger.info(f"Kendall's tau = {tau:.4f}, p-value = {p_value:.4f}")
+        logger.info(f"  Observed: {result['n_observed']}, Censored: {result['n_censored']}")
+        
+        return result
+        
+    except ImportError:
+        logger.warning("sksurv not available, falling back to standard Kendall's tau (ignoring censoring)")
+        # Fallback: standard Kendall's tau on observed values only
+        observed_mask = ~censorship_mask
+        if observed_mask.sum() < 2:
+            raise ValueError("Not enough observed values for correlation")
+        
+        tau, p_value = stats.kendalltau(x[observed_mask], y[observed_mask])
+        
+        return {
+            'tau': float(tau),
+            'p_value': float(p_value),
+            'n_observed': int(observed_mask.sum()),
+            'n_censored': int(censorship_mask.sum()),
+            'n_total': len(df),
+            'method': 'standard_kendall_tau_observed_only',
+            'note': 'Censoring not properly handled due to missing scikit-survival'
+        }
 
-def run_bootstrap_ci(
-    df: pd.DataFrame, 
-    n_iterations: int = 1000, 
-    random_seed: int = 42
-) -> Dict[str, Any]:
+def run_bootstrap_ci(df: pd.DataFrame, n_iterations: int = 1000, 
+                    censorship_mask: pd.Series = None) -> Dict[str, Any]:
     """
-    Implements bootstrap resampling to estimate confidence intervals for Kendall's tau.
-    T025c Implementation.
+    Run bootstrap resampling to estimate confidence intervals for correlation.
     
     Args:
-        df: DataFrame with censored data.
-        n_iterations: Number of bootstrap iterations.
-        random_seed: Seed for reproducibility.
+        df: DataFrame with analysis data
+        n_iterations: Number of bootstrap iterations
+        censorship_mask: Boolean mask for censored values
         
     Returns:
-        Dictionary with {iterations, ci_lower, ci_upper, tau_estimate}
+        Dictionary with bootstrap results
     """
-    logger.info(f"Starting bootstrap resampling with {n_iterations} iterations...")
-    np.random.seed(random_seed)
+    logger.info(f"Running bootstrap with {n_iterations} iterations")
     
-    taus = []
-    n = len(df)
+    if censorship_mask is None:
+        censorship_mask = pd.Series([False] * len(df), index=df.index)
     
-    # Progress logging
-    step = max(1, n_iterations // 10)
+    tau_values = []
     
     for i in range(n_iterations):
-        # Resample rows with replacement
-        # We must resample the entire row to maintain the pairing of value and censor status
-        indices = np.random.choice(n, size=n, replace=True)
-        sample_df = df.iloc[indices]
+        # Bootstrap sample
+        indices = np.random.choice(len(df), size=len(df), replace=True)
+        boot_df = df.iloc[indices]
+        boot_mask = censorship_mask.iloc[indices]
         
-        # Compute tau for this sample
         try:
-            tau, _ = compute_censored_kendall_tau(sample_df)
-            taus.append(tau)
+            result = compute_censored_kendall_tau(boot_df, boot_mask)
+            tau_values.append(result['tau'])
         except Exception as e:
-            # If a sample fails (e.g., all censored or all same value), skip or handle
-            logger.debug(f"Bootstrap iteration {i} failed: {e}")
+            logger.warning(f"Bootstrap iteration {i} failed: {e}")
             continue
-        
-        if (i + 1) % step == 0:
-            logger.debug(f"Bootstrap progress: {i+1}/{n_iterations}")
-
-    if not taus:
-        raise RuntimeError("Bootstrap failed: No valid tau values computed.")
-
-    taus = np.array(taus)
-    ci_lower = np.percentile(taus, 2.5)
-    ci_upper = np.percentile(taus, 97.5)
-    tau_estimate = np.median(taus) # Or mean, but median is robust for skewed distributions
-
+    
+    if len(tau_values) < 10:
+        raise ValueError("Too few successful bootstrap iterations")
+    
+    tau_array = np.array(tau_values)
+    ci_lower = np.percentile(tau_array, 2.5)
+    ci_upper = np.percentile(tau_array, 97.5)
+    
     result = {
-        "iterations": n_iterations,
-        "ci_lower": float(ci_lower),
-        "ci_upper": float(ci_upper),
-        "tau_estimate": float(tau_estimate),
-        "sample_size": n
+        'iterations': n_iterations,
+        'successful_iterations': len(tau_values),
+        'ci_lower': float(ci_lower),
+        'ci_upper': float(ci_upper),
+        'ci_width': float(ci_upper - ci_lower),
+        'median_tau': float(np.median(tau_values))
     }
     
-    logger.info(f"Bootstrap CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
+    logger.info(f"Bootstrap CI: [{ci_lower:.4f}, {ci_upper:.4f}], width = {ci_upper - ci_lower:.4f}")
+    
     return result
 
-def save_bootstrap_results(result: Dict[str, Any], output_path: str) -> None:
+def save_bootstrap_results(results: Dict[str, Any], output_path: str = None):
     """
-    Saves bootstrap results to JSON file.
+    Save bootstrap results to JSON file.
+    
+    Args:
+        results: Bootstrap results dictionary
+        output_path: Path to output file (default: data/processed/bootstrap_ci.json)
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    config = get_config()
+    if output_path is None:
+        output_path = str(config['paths']['processed'] / 'bootstrap_ci.json')
+        
+    import json
     with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
-    logger.info(f"Saved bootstrap results to {output_path}")
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Bootstrap results saved to {output_path}")
+
+def save_qc_report(filtered_df: pd.DataFrame, output_path: str = None):
+    """
+    Save quality control report to JSON file.
+    
+    Args:
+        filtered_df: DataFrame with censorship indicators
+        output_path: Path to output file
+    """
+    config = get_config()
+    if output_path is None:
+        output_path = str(config['paths']['processed'] / 'qc_report.json')
+    
+    report = {
+        'total_spectra': len(filtered_df),
+        'censored_count': int(filtered_df['is_censored'].sum()),
+        'uncensored_count': int((~filtered_df['is_censored']).sum()),
+        'censored_planets': filtered_df.loc[filtered_df['is_censored'], 'planet_name'].tolist(),
+        'snr_threshold': 3.0,
+        'resolution_threshold': 50.0
+    }
+    
+    import json
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"QC report saved to {output_path}")
 
 def main():
     """
-    Main entry point for T025c: Bootstrap Resampling.
+    Main entry point for analysis pipeline with quality control filtering.
     """
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Starting T025c: Bootstrap Resampling for Confidence Intervals")
+    logger.info("Starting analysis pipeline with quality control filtering")
     
-    config = get_config()
-    output_path = os.path.join(config['paths']['processed'], 'bootstrap_ci.json')
-    
-    # Load data
-    df = load_analysis_data()
-    
-    # Run bootstrap
-    result = run_bootstrap_ci(df, n_iterations=1000)
-    
-    # Save results
-    save_bootstrap_results(result, output_path)
-    
-    logger.info("T025c completed successfully.")
-    return result
+    try:
+        # Load data
+        df = load_analysis_data()
+        
+        # Apply quality control filter
+        filtered_df, censorship_mask = quality_control_filter(df)
+        
+        # Save QC report
+        save_qc_report(filtered_df)
+        
+        # Compute censored Kendall's tau
+        tau_result = compute_censored_kendall_tau(filtered_df, censorship_mask)
+        
+        # Run bootstrap
+        bootstrap_result = run_bootstrap_ci(filtered_df, n_iterations=1000, 
+                                            censorship_mask=censorship_mask)
+        
+        # Save bootstrap results
+        save_bootstrap_results(bootstrap_result)
+        
+        logger.info("Analysis pipeline completed successfully")
+        return {
+            'tau': tau_result,
+            'bootstrap': bootstrap_result,
+            'qc_report': {
+                'total': len(filtered_df),
+                'censored': int(censorship_mask.sum()),
+                'uncensored': int((~censorship_mask).sum())
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Analysis pipeline failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

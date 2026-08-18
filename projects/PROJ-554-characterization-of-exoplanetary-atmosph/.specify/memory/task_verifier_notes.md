@@ -2,12 +2,15 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T013** — The repository lacks a `validate_sample_size` implementation in `code/download.py` (no such function is present in the shown code) and the required output file `data/processed/sample_size_report.json` does not exist. Both the core logic and the deliverable artifact are missing.
-- **T014** — No evidence of a `logs/download.log` file was provided; the response contains only the task description and specifications, with no actual log file or its contents showing progress updates. The required artifact is missing.
 - **T018c** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T020** — declared artifact(s) missing/empty/invalid: data/processed/retrieval_results.csv
-- **T021** — No code, configuration, or log files were provided that demonstrate the added error‑handling logic (logging failures, attempting upper‑limit derivation, and continuing execution). Without concrete artifacts, we cannot verify that the requirement has been implemented.
-- **T025c** — declared artifact(s) missing/empty/invalid: data/processed/bootstrap_ci.json
+- **T021** — No code, configuration, or log files were presented that show error handling for non‑convergent retrievals (logging the failure, attempting an upper‑limit derivation, and allowing the pipeline to continue). Without such artifacts, the requirement cannot be verified as met.
 - **T026** — declared artifact(s) missing/empty/invalid: results/robustness_report.json
 - **T027** — declared artifact(s) missing/empty/invalid: data/processed/regression_results.json
-- **T028** — No code, script, or documentation was presented that shows a Tobit regression with L2 (Ridge) regularization being invoked when variance inflation factors exceed 5, nor any evidence that L1 or Elastic Net were avoided. The required fallback implementation is missing.
+- **T029a** — declared artifact(s) missing/empty/invalid: results/plots/water_vs_temp.png
+- **T029b** — declared artifact(s) missing/empty/invalid: results/plots/residuals.png
+- **T029c** — declared artifact(s) missing/empty/invalid: results/plots/correlation_matrix.png
+- **T029d** — declared artifact(s) missing/empty/invalid: results/plots/noise_vs_signal.png
+- **T030a** — declared artifact(s) missing/empty/invalid: data/processed/correlation_stats.json
+- **T030b** — declared artifact(s) missing/empty/invalid: data/processed/regression_stats.json
+- **T030c** — declared artifact(s) missing/empty/invalid: data/processed/mdc_stats.json
+- **T031** — The repository lacks the required `results/power_analysis.json` and `results/quality_report.md` files, and the shown portion of `code/analysis.py` does not contain an implementation of `calculate_statistical_power`. Both the function and the deliverable output files are missing, so the task is not fulfilled.

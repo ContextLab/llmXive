@@ -1,0 +1,140 @@
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/results/uncertainty_summary.md
+  attempts: 1
+  canonical: Total observations for exoplanetary atmosphere analysis is 38
+  claim_id: c_23a8a2ac
+  context: Sample Size Context section stating the total number of observations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Observations (N): 38'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:18:25Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/results/uncertainty_summary.md
+  attempts: 1
+  canonical: Kendall's Tau correlation coefficient is 0.42
+  claim_id: c_c473d226
+  context: Correlation Analysis Uncertainty section listing statistical results.
+  evidence:
+    asserted: '0.42'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Kendall''s Tau: 0.42'
+  resolved_value: '6.28'
+  resolver: approximate
+  source_hash: ef61cd0bad15eb24da72ad1243f4f9fb88556d6d4a13cc4dcfd9788c7a143e38
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:18:25Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/results/uncertainty_summary.md
+  attempts: 1
+  canonical: P-value for the correlation analysis is 0.003
+  claim_id: c_65030b65
+  context: Correlation Analysis Uncertainty section listing statistical results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'P-value: 0.003'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:18:45Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/results/uncertainty_summary.md
+  attempts: 1
+  canonical: 95% confidence interval for Kendall's Tau is 0.25 to 0.58
+  claim_id: c_dc105b11
+  context: Correlation Analysis Uncertainty section listing statistical results.
+  evidence:
+    asserted: '95.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: '95% Confidence Interval: [0.25, 0.58]'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:18:45Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/results/uncertainty_summary.md
+  attempts: 1
+  canonical: Confidence interval width for Kendall's Tau is 0.33
+  claim_id: c_c2124ede
+  context: Correlation Analysis Uncertainty section listing statistical results.
+  evidence:
+    asserted: '0.33'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'CI Width: 0.33'
+  resolved_value: '6.28'
+  resolver: approximate
+  source_hash: ef61cd0bad15eb24da72ad1243f4f9fb88556d6d4a13cc4dcfd9788c7a143e38
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:18:45Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/results/uncertainty_summary.md
+  attempts: 1
+  canonical: Tobit regression coefficient for temperature is 0.15 with 95% CI 0.05
+    to 0.25
+  claim_id: c_89eb5dfb
+  context: Regression Analysis Uncertainty table showing predictor coefficients.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: temperature coefficient is 0.15 with 95% CI [0.05, 0.25]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:19:04Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/results/uncertainty_summary.md
+  attempts: 1
+  canonical: Tobit regression coefficient for metallicity is 0.08 with 95% CI -0.02
+    to 0.18
+  claim_id: c_9191b71d
+  context: Regression Analysis Uncertainty table showing predictor coefficients.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: metallicity coefficient is 0.08 with 95% CI [-0.02, 0.18]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:19:16Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/results/uncertainty_summary.md
+  attempts: 1
+  canonical: Tobit regression coefficient for mass is -0.03 with 95% CI -0.12 to 0.06
+  claim_id: c_05bd1ec2
+  context: Regression Analysis Uncertainty table showing predictor coefficients.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mass coefficient is -0.03 with 95% CI [-0.12, 0.06]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:19:57Z'

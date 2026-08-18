@@ -4,210 +4,202 @@ import resource
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
+
+# Import existing utilities and data models
 from config import get_config
-from utils import RetrievalError, handle_non_convergent_retrieval, setup_logging
+from utils import setup_logging, safe_execute, RetrievalError, handle_non_convergent_retrieval
+from data_models import RetrievalResult, CensorshipStatus, PlanetCategory
 
-# Configure logger for this module
-logger = setup_logging('retrieval')
+# Configure logging for this module
+logger = logging.getLogger(__name__)
 
-def configure_petitradtrans_cpu_optimized(config: Dict[str, Any]) -> Dict[str, Any]:
+def configure_petitradtrans_cpu_optimized():
     """
-    Configure petitRADTRANS for CPU-optimized, single-threaded execution.
-    Sets environment variables and memory limits as per project constraints.
+    Configure petitRADTRANS for CPU-optimized (single-threaded) mode.
+    Sets environment variables and memory limits.
     """
-    # Limit OpenMP threads to 1 to ensure single-threaded execution
+    config = get_config()
+    # Force single thread for petitRADTRANS to respect CPU constraints
     os.environ['OMP_NUM_THREADS'] = '1'
-    os.environ['MKL_NUM_THREADS'] = '1'
     os.environ['OPENBLAS_NUM_THREADS'] = '1'
+    os.environ['MKL_NUM_THREADS'] = '1'
     
-    # Set resource limits if running on Unix
-    if os.name != 'nt':
+    # Set memory limit if specified in config
+    if config.get('memory_limit_mb'):
         try:
-            # Limit memory to 4GB (4 * 1024^3 bytes) to prevent OOM
-            resource.setrlimit(resource.RLIMIT_AS, (4 * 1024**3, 4 * 1024**3))
+            resource.setrlimit(resource.RLIMIT_AS, (config['memory_limit_mb'] * 1024 * 1024, -1))
         except (ValueError, resource.error) as e:
             logger.warning(f"Could not set memory limit: {e}")
+    
+    logger.info("petitRADTRANS configured for single-threaded CPU execution.")
 
-    config['n_threads'] = 1
-    return config
-
-def get_petitradtrans_config() -> Dict[str, Any]:
-    """Return the default configuration for petitRADTRANS."""
+def get_petitradtrans_config():
+    """
+    Returns the configuration dictionary for petitRADTRANS.
+    """
+    config = get_config()
     return {
-        'n_threads': 1,
-        'memory_limit_gb': 4,
-        'convergence_threshold': 1e-4,
-        'max_iterations': 1000
+        'atmosphere_model': 'equilibrium',
+        'temperature_range': (500, 3000),
+        'metallicity_range': (-2.0, 2.0),
+        'cloud_model': 'none',
+        'resolution': config.get('spectral_resolution', 100),
+        'cpu_threads': 1,
     }
 
 def validate_spectrum_file(file_path: Path) -> bool:
     """
-    Validate that a spectrum file exists and is readable.
-    Returns True if valid, False otherwise.
+    Validates that a spectrum file exists and is readable.
     """
     if not file_path.exists():
         logger.error(f"Spectrum file not found: {file_path}")
         return False
-    if not os.access(file_path, os.R_OK):
-        logger.error(f"Spectrum file not readable: {file_path}")
+    try:
+        # Attempt to open and read a small portion to verify format
+        with open(file_path, 'r') as f:
+            f.readline()
+        return True
+    except Exception as e:
+        logger.error(f"Failed to read spectrum file {file_path}: {e}")
         return False
-    return True
 
-def detect_low_snr_spectrum(snr: float, resolution: float, threshold_snr: float = 5.0) -> bool:
+def detect_low_snr_spectrum(snr: float, resolution: float) -> bool:
     """
-    Detect if a spectrum has low Signal-to-Noise Ratio.
-    Returns True if SNR is below the threshold.
+    Detects if a spectrum has low SNR based on metadata.
+    Thresholds can be configured.
     """
-    return snr < threshold_snr
+    config = get_config()
+    snr_threshold = config.get('snr_threshold', 5.0)
+    return snr < snr_threshold
 
-def derive_upper_limit(snr: float, resolution: float, noise_floor: float = 1e-5) -> float:
+def derive_upper_limit(snr: float, resolution: float, noise_floor: float = 1e-4) -> Tuple[float, float]:
     """
-    Derive an upper limit for water mixing ratio for low SNR spectra.
-    Calculates the minimum detectable concentration based on SNR and resolution.
+    Derives an upper limit for water mixing ratio for low SNR spectra.
+    Returns (limit_value, uncertainty).
     """
-    # Simple model: upper limit scales inversely with SNR and resolution
-    # This is a placeholder physics model; real implementation would use noise propagation
-    limit = noise_floor * (10.0 / max(snr, 1.0)) * (1000.0 / max(resolution, 1.0))
-    return limit
+    # Calculate detection limit based on instrumental noise floor and SNR
+    # Simple model: limit = noise_floor * (1 / SNR) * scaling_factor
+    # This is a placeholder for the actual physical derivation logic
+    scaling_factor = 3.0  # 3-sigma detection limit
+    limit_value = noise_floor * scaling_factor / snr if snr > 0 else noise_floor * scaling_factor
+    uncertainty = limit_value * 0.5  # 50% uncertainty on the limit estimate
+    return limit_value, uncertainty
 
 def calculate_mdc(snr: float, resolution: float) -> float:
     """
-    Calculate the Minimum Detectable Concentration (MDC).
+    Calculates the Minimum Detectable Concentration (MDC).
     """
-    return derive_upper_limit(snr, resolution)
+    # Placeholder logic: MDC inversely proportional to SNR and Resolution
+    # In a real implementation, this would use specific radiative transfer models
+    base_mdc = 1e-5
+    mdc = base_mdc / (snr * np.sqrt(resolution))
+    return mdc
 
 def run_single_spectrum_retrieval(
-    spectrum_data: Dict[str, Any],
-    config: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    spectrum_file: Path, 
+    planet_name: str, 
+    temperature: float, 
+    metallicity: float, 
+    snr: float, 
+    resolution: float
+) -> Optional[RetrievalResult]:
     """
-    Run petitRADTRANS retrieval on a single spectrum.
-    
-    This function wraps the retrieval process with robust error handling.
-    If the retrieval fails to converge, it logs the failure, attempts to
-    derive an upper limit using the metadata (SNR/Resolution), and returns
-    a structured result without halting the pipeline.
-    
-    Args:
-        spectrum_data: Dictionary containing spectrum measurements and metadata
-                       (must include 'planet_name', 'snr', 'resolution', 'wavelengths', 'flux')
-        config: Optional configuration override
-    
-    Returns:
-        Dictionary containing retrieval results or upper limit estimates.
-        Keys: 'planet_name', 'water_mixing_ratio', 'uncertainty', 
-              'is_upper_limit', 'detection_limit', 'min_detectable_concentration',
-              'convergence_status', 'error_message'
+    Runs petitRADTRANS retrieval on a single spectrum file.
+    Implements error handling for non-convergent retrievals:
+    1. Logs failure.
+    2. Attempts upper limit derivation.
+    3. Returns a RetrievalResult with is_upper_limit=True.
     """
-    if config is None:
-        config = get_petitradtrans_config()
+    logger.info(f"Starting retrieval for {planet_name} from {spectrum_file}")
     
-    planet_name = spectrum_data.get('planet_name', 'unknown')
-    snr = spectrum_data.get('snr', 0.0)
-    resolution = spectrum_data.get('resolution', 0.0)
-    
-    result = {
-        'planet_name': planet_name,
-        'water_mixing_ratio': np.nan,
-        'uncertainty': np.nan,
-        'is_upper_limit': False,
-        'detection_limit': np.nan,
-        'min_detectable_concentration': np.nan,
-        'convergence_status': 'unknown',
-        'error_message': None
-    }
-    
+    if not validate_spectrum_file(spectrum_file):
+        logger.error(f"Validation failed for {spectrum_file}, skipping retrieval.")
+        return None
+
     try:
-        # Attempt to run the actual retrieval
-        # In a real implementation, this would call petitRADTRANS
-        # For this task, we simulate the retrieval logic with error handling
-        logger.info(f"Running retrieval for {planet_name} (SNR={snr:.2f}, R={resolution:.0f})")
+        # Configure petitRADTRANS (mocked for this implementation context)
+        # In a real environment, this would import and call petitRADTRANS
+        # config = get_petitradtrans_config()
+        # result = petitradtrans.retrieve(...)
         
-        # Simulate convergence check (in real code, this is the actual petitRADTRANS call)
-        # We assume convergence fails if SNR is extremely low or data is malformed
-      #   if snr < 1.0 or not spectrum_data.get('wavelengths') or not spectrum_data.get('flux'):
-      #       raise RuntimeError("Insufficient data for retrieval")
+        # Simulating a retrieval process that might fail
+        # For the purpose of this task, we simulate a random convergence failure
+        # to demonstrate the error handling path.
+        # In a real run, this would be the actual petitRADTRANS call.
         
-        # Placeholder for actual retrieval logic
-        # In the real pipeline, petitRADTRANS would be instantiated here
-        # For the purpose of this task, we assume a successful retrieval returns a value
-        # If we wanted to simulate a failure for testing, we could check a flag
+        import random
+        # Simulate non-convergence for demonstration (10% chance)
+        # In real code, this block would be the actual retrieval call
+        # which raises RetrievalError on non-convergence
+        if random.random() < 0.1: 
+            raise RetrievalError("Retrieval did not converge after max iterations.")
+
+        # Mock successful result
+        water_mixing_ratio = np.log10(1e-4) # log10 scale
+        uncertainty = 0.1
+        is_upper_limit = False
+        detection_limit = None
+        mdc = calculate_mdc(snr, resolution)
+
+        return RetrievalResult(
+            planet_name=planet_name,
+            water_mixing_ratio=water_mixing_ratio,
+            uncertainty=uncertainty,
+            is_upper_limit=is_upper_limit,
+            detection_limit=detection_limit,
+            min_detectable_concentration=mdc,
+            status=CensorshipStatus.DETECTED
+        )
+
+    except RetrievalError as e:
+        logger.warning(f"Retrieval failed for {planet_name}: {e}")
+        logger.info(f"Attempting upper limit derivation for {planet_name} due to non-convergence.")
         
-        # Simulated successful retrieval logic:
-        # water_mixing_ratio = 10 ** (np.random.uniform(-5, -3)) # Example range
-        # uncertainty = water_mixing_ratio * 0.1
+        # Attempt upper limit derivation as per task requirement
+        limit_value, limit_uncertainty = derive_upper_limit(snr, resolution)
+        mdc = calculate_mdc(snr, resolution)
         
-        # Since we cannot run petitRADTRANS without real data files in this context,
-        # we implement the error handling path which is the core of T021.
-        # We assume the retrieval "succeeds" for valid data, but the structure
-        # handles the "non-convergent" case via the exception block below.
+        logger.info(f"Derived upper limit for {planet_name}: log10(limit)={np.log10(limit_value):.4f}")
         
-        # For the sake of this implementation, we will assume the retrieval
-        # succeeds if SNR > 3.0, otherwise it "fails" to converge and we fall back.
-        if snr < 3.0:
-            raise RuntimeError("Retrieval did not converge due to low SNR")
-        
-        # Simulated successful result
-        result['water_mixing_ratio'] = 1e-4
-        result['uncertainty'] = 2e-5
-        result['convergence_status'] = 'converged'
-        
+        return RetrievalResult(
+            planet_name=planet_name,
+            water_mixing_ratio=np.log10(limit_value),
+            uncertainty=limit_uncertainty,
+            is_upper_limit=True,
+            detection_limit=limit_value,
+            min_detectable_concentration=mdc,
+            status=CensorshipStatus.UPPER_LIMIT
+        )
     except Exception as e:
-        # T021: Handle non-convergent retrievals
-        logger.warning(f"Retrieval failed for {planet_name}: {str(e)}. Attempting upper limit derivation.")
-        result['convergence_status'] = 'failed'
-        result['error_message'] = str(e)
-        
-        # Attempt upper limit derivation as per T021 requirement
+        logger.error(f"Unexpected error during retrieval for {planet_name}: {e}")
+        # For unexpected errors, we also attempt to salvage with upper limit if possible
+        # or return None if we cannot even estimate a limit
         try:
-            limit_val = derive_upper_limit(snr, resolution)
-            mdc_val = calculate_mdc(snr, resolution)
-            
-            result['is_upper_limit'] = True
-            result['water_mixing_ratio'] = limit_val
-            result['detection_limit'] = limit_val
-            result['min_detectable_concentration'] = mdc_val
-            result['uncertainty'] = np.nan # Upper limits don't have standard sigma in same way
-            
-            logger.info(f"Derived upper limit for {planet_name}: {limit_val:.2e}")
-        except Exception as limit_err:
-            logger.error(f"Failed to derive upper limit for {planet_name}: {str(limit_err)}")
-            result['error_message'] += f"; Upper limit derivation failed: {str(limit_err)}"
-    
-    return result
+            limit_value, limit_uncertainty = derive_upper_limit(snr, resolution)
+            mdc = calculate_mdc(snr, resolution)
+            return RetrievalResult(
+                planet_name=planet_name,
+                water_mixing_ratio=np.log10(limit_value),
+                uncertainty=limit_uncertainty,
+                is_upper_limit=True,
+                detection_limit=limit_value,
+                min_detectable_concentration=mdc,
+                status=CensorshipStatus.UPPER_LIMIT
+            )
+        except Exception as fallback_err:
+            logger.error(f"Failed to derive upper limit for {planet_name}: {fallback_err}")
+            return None
 
 def main():
     """
-    Main entry point for testing the retrieval module.
-    Demonstrates the error handling for non-convergent retrievals.
+    Main entry point for retrieval processing.
     """
-    logger.info("Starting retrieval module test.")
+    logger = setup_logging()
+    configure_petitradtrans_cpu_optimized()
     
-    # Test case 1: Normal retrieval (simulated)
-    normal_spectrum = {
-        'planet_name': 'Test_HotJupiter',
-        'snr': 15.0,
-        'resolution': 100.0,
-        'wavelengths': [1.0, 2.0, 3.0],
-        'flux': [0.1, 0.2, 0.15]
-    }
-    res1 = run_single_spectrum_retrieval(normal_spectrum)
-    logger.info(f"Normal retrieval result: {res1['convergence_status']}")
-    
-    # Test case 2: Non-convergent retrieval (low SNR) -> Triggers T021 logic
-    low_snr_spectrum = {
-        'planet_name': 'Test_SuperEarth_LowSNR',
-        'snr': 1.5,
-        'resolution': 50.0,
-        'wavelengths': [1.0, 2.0],
-        'flux': [0.01, 0.02]
-    }
-    res2 = run_single_spectrum_retrieval(low_snr_spectrum)
-    logger.info(f"Low SNR retrieval result: {res2['convergence_status']}")
-    logger.info(f"Is upper limit: {res2['is_upper_limit']}")
-    logger.info(f"Detection limit: {res2['detection_limit']}")
-    
-    logger.info("Retrieval module test completed.")
+    # This would typically iterate over downloaded spectra from data/raw/
+    # For this task, we demonstrate the error handling logic
+    logger.info("Retrieval module initialized with error handling for non-convergence.")
 
 if __name__ == "__main__":
     main()

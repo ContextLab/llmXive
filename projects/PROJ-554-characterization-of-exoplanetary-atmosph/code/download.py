@@ -1,361 +1,271 @@
 import os
 import logging
-from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-import requests
-from tqdm import tqdm
 import json
 import time
+import requests
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+import pandas as pd
 
 from config import get_config
+from utils import setup_logging, DataFetchError, retry_on_failure
 from api_config import QUERY_PARAMS
-from utils import retry_on_failure, DataFetchError, PipelineError
 
-# --- Logging Setup for Download Task ---
+# Constants
+API_BASE_URL = "https://archive.exoplanetarchive.ipac.caltech.edu/"
+API_ENDPOINT = "api"
+TIMEOUT_SECONDS = 30
 
-def setup_download_logging(log_path: Optional[Path] = None) -> logging.Logger:
+def _setup_download_logger() -> logging.Logger:
     """
-    Configures and returns a logger specifically for download operations.
-    Ensures the log file exists and is writable.
-    
-    Args:
-        log_path: Optional path to the log file. Defaults to 'logs/download.log'.
-    
-    Returns:
-        A configured logger instance.
+    Sets up a dedicated logger for download operations.
+    Ensures logs are written to logs/download.log.
     """
-    if log_path is None:
-        log_path = Path("logs/download.log")
-    
-    # Ensure directory exists
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger = logging.getLogger("download_logger")
+    logger = logging.getLogger("download")
     logger.setLevel(logging.DEBUG)
-    
-    # Remove existing handlers to avoid duplicates if called multiple times
-    logger.handlers = []
-    
-    # File handler for persistent log
-    file_handler = logging.FileHandler(log_path, mode='a')
-    file_handler.setLevel(logging.DEBUG)
-    
-    # Console handler for immediate feedback
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    
-    # Formatter with timestamp and level
+
+    if logger.handlers:
+        return logger
+
+    # Create logs directory if it doesn't exist
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+    log_file = log_dir / "download.log"
+
+    # File handler for detailed logs
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
-    
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-    
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    # Console handler for immediate feedback
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
     return logger
 
-# --- Core Download Logic ---
+logger = _setup_download_logger()
 
-@retry_on_failure(max_retries=3, delay=2, backoff=2, logger_name="download_logger")
-def fetch_spectrum_data(page: int = 1, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+@retry_on_failure(max_retries=3, backoff_factor=2)
+def _fetch_api_data(params: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Fetches a single page of spectrum data from the NASA Exoplanet Archive API.
-    
-    Args:
-        page: Page number to fetch.
-        params: Query parameters to override defaults.
-    
-    Returns:
-        JSON response data.
-    
-    Raises:
-        DataFetchError: If the API request fails after retries.
+    Internal helper to fetch data from the API with retry logic.
+    Handles response checking and logging.
     """
-    config = get_config()
-    base_url = "https://exoplanetarchive.ipac.caltech.edu/cgi-bin/Tbl/nph-exoplanetarchive"
-    
-    query_params = QUERY_PARAMS.copy() if params is None else params
-    query_params['page'] = page
-    query_params['format'] = 'json'
-    
-    logger = logging.getLogger("download_logger")
-    logger.debug(f"Fetching page {page} with params: {query_params}")
+    url = f"{API_BASE_URL}{API_ENDPOINT}"
+    logger.debug(f"Sending request to {url} with params: {params}")
     
     try:
-        response = requests.get(base_url, params=query_params, timeout=30)
+        response = requests.get(url, params=params, timeout=TIMEOUT_SECONDS)
         response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        logger.error(f"API request failed for page {page}: {e}")
-        raise DataFetchError(f"Failed to fetch spectrum data from NASA Exoplanet Archive: {e}")
-
-def fetch_all_pages() -> List[Dict[str, Any]]:
-    """
-    Fetches all available pages of spectrum data, logging progress.
-    
-    Returns:
-        A list of all fetched data records.
-    """
-    logger = logging.getLogger("download_logger")
-    logger.info("Starting full data fetch from NASA Exoplanet Archive")
-    
-    all_data = []
-    page = 1
-    max_pages = 100  # Safety limit to prevent infinite loops
-    
-    while page <= max_pages:
-        logger.info(f"Fetching page {page}...")
-        try:
-            data = fetch_spectrum_data(page=page)
-            
-            if not data or isinstance(data, dict) and 'data' not in data:
-                logger.warning(f"No data returned for page {page}. Stopping pagination.")
-                break
-            
-            records = data.get('data', [])
-            if not records:
-                logger.info(f"Reached end of data at page {page}.")
-                break
-            
-            all_data.extend(records)
-            logger.debug(f"Retrieved {len(records)} records from page {page}. Total: {len(all_data)}")
-            
-            # Check if we have more pages (API specific logic might vary)
-            # Assuming standard pagination or fixed limit
-            if len(records) < 100: # Assuming 100 is the page size limit
-                logger.info(f"Last page detected (received {len(records)} records).")
-                break
-            
-            page += 1
-            # Small delay to be polite to the API
-            time.sleep(0.5)
-            
-        except DataFetchError as e:
-            logger.error(f"Critical failure fetching page {page}: {e}")
-            raise
-    
-    logger.info(f"Successfully fetched {len(all_data)} total records.")
-    return all_data
-
-def parse_spectrum_metadata(raw_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Parses raw API data into structured metadata.
-    
-    Args:
-        raw_data: List of raw dictionaries from the API.
-    
-    Returns:
-        List of parsed metadata dictionaries.
-    """
-    logger = logging.getLogger("download_logger")
-    logger.info("Parsing spectrum metadata...")
-    
-    parsed = []
-    for idx, record in enumerate(tqdm(raw_data, desc="Parsing metadata")):
-        try:
-            # Extract fields based on typical NASA Exoplanet Archive schema
-            # Adjust keys based on actual API response structure if known
-            planet_name = record.get('pl_name', 'Unknown')
-            host_name = record.get('pl_hostname', 'Unknown')
-            t_eq = record.get('pl_eqt', None) # Equilibrium Temperature
-            metallicity = record.get('st_met', None) # Host Star Metallicity
-            radius = record.get('pl_radj', None) # Planet Radius in Jupiter Radii
-            
-            # Instrument and Wavelength info might be in separate columns or nested
-            instrument = record.get('disc_facility', 'Unknown')
-            wavelength_range = record.get('wavelength_range', 'N/A')
-            
-            # Calculate SNR if available, otherwise mark as unknown
-            snr = record.get('snr', None)
-            resolution = record.get('resolution', None)
-            
-            # Determine Planet Category (Logic from T011c)
-            category = "Unknown"
-            if t_eq and radius:
-                t_eq_val = float(t_eq)
-                radius_val = float(radius)
-                
-                if radius_val > 0.8 and t_eq_val > 1000:
-                    category = "Hot Jupiter"
-                elif radius_val < 1.6 and t_eq_val < 1000: # Assuming R_E conversion handled or stored
-                    category = "Temperate Super-Earth"
-                else:
-                    category = "Other"
-            
-            parsed_record = {
-                "planet_name": planet_name,
-                "host_name": host_name,
-                "temperature": t_eq_val if t_eq else None,
-                "metallicity": float(metallicity) if metallicity else None,
-                "snr": float(snr) if snr else None,
-                "resolution": float(resolution) if resolution else None,
-                "planet_category": category,
-                "instrument": instrument,
-                "wavelength_range": wavelength_range
-            }
-            parsed.append(parsed_record)
-            
-        except (ValueError, TypeError) as e:
-            logger.warning(f"Failed to parse record {idx}: {e}")
-            continue
-    
-    logger.info(f"Parsed {len(parsed)} valid metadata records.")
-    return parsed
-
-def validate_parsed_metadata(metadata: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[str]]:
-    """
-    Validates metadata against schema requirements.
-    
-    Returns:
-        Tuple of (valid_records, error_messages)
-    """
-    logger = logging.getLogger("download_logger")
-    valid = []
-    errors = []
-    
-    required_fields = ["planet_name", "temperature", "metallicity", "snr", "resolution", "planet_category"]
-    
-    for i, record in enumerate(metadata):
-        missing = [f for f in required_fields if record.get(f) is None]
-        if missing:
-            errors.append(f"Record {i} ({record.get('planet_name')}): Missing fields: {missing}")
-        else:
-            valid.append(record)
-    
-    if errors:
-        logger.warning(f"Validation failed for {len(errors)} records.")
-    else:
-        logger.info("All records passed validation.")
         
-    return valid, errors
+        # Log response size
+        content_length = response.headers.get('Content-Length')
+        if content_length:
+            logger.debug(f"Received response of {content_length} bytes")
+        
+        data = response.json()
+        if not data:
+            logger.warning("API returned an empty dataset.")
+            return []
+        
+        return data
+    except requests.exceptions.RequestException as e:
+        logger.error(f"API request failed: {str(e)}")
+        raise DataFetchError(f"Failed to fetch data from API: {str(e)}") from e
 
-def save_raw_spectrum_files(raw_data: List[Dict[str, Any]], output_dir: Path) -> None:
+def classify_planet_category(radius: float, t_eq: float, radius_unit: str = "R_Jup") -> str:
     """
-    Saves raw JSON data to the specified directory.
-    """
-    logger = logging.getLogger("download_logger")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    file_path = output_dir / "raw_spectrum_data.json"
-    
-    logger.info(f"Saving raw spectrum data to {file_path}")
-    with open(file_path, 'w') as f:
-        json.dump(raw_data, f, indent=2)
-    logger.info("Raw data saved successfully.")
-
-def save_metadata_csv(metadata: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Saves parsed metadata to a CSV file.
-    """
-    logger = logging.getLogger("download_logger")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Saving metadata CSV to {output_path}")
-    import pandas as pd
-    df = pd.DataFrame(metadata)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(metadata)} rows to {output_path}")
-
-def validate_sample_size(metadata: List[Dict[str, Any]], output_path: Path) -> Dict[str, Any]:
-    """
-    Validates the sample size of the fetched data.
+    Classifies planet category based on radius and equilibrium temperature.
     
     Logic:
-    1. Count unique planets.
-    2. Log WARNING if < 30 or > 45, but proceed.
-    3. Save report to JSON.
+    - "Hot Jupiter": Radius > 0.8 R_Jup AND T_eq > 1000K
+    - "Temperate Super-Earth": Radius < 1.6 R_E AND T_eq < 1000K
+    - "Other": Does not fit the above criteria strictly (for metadata tagging only)
+    
+    Note: 1 R_Jup ≈ 11.2 R_E.
     """
-    logger = logging.getLogger("download_logger")
+    # Convert radius to R_E if necessary for comparison
+    # Assuming input radius is in R_Jup unless specified otherwise
+    radius_in_rjup = radius
+    if radius_unit == "R_E":
+        radius_in_rjup = radius / 11.2
     
-    unique_planets = set(r['planet_name'] for r in metadata if r.get('planet_name'))
-    count = len(unique_planets)
-    
-    status = "proceed"
-    if count < 30:
-        logger.warning(f"Sample size ({count}) is below target (30). Proceeding as per FR-001.")
-    elif count > 45:
-        logger.warning(f"Sample size ({count}) exceeds target (45). Proceeding as per FR-001.")
+    if radius_in_rjup > 0.8 and t_eq > 1000:
+        return "Hot Jupiter"
+    elif radius_in_rjup < (1.6 / 11.2) and t_eq < 1000:
+        return "Temperate Super-Earth"
     else:
-        logger.info(f"Sample size ({count}) is within target range [30, 45].")
+        return "Other"
+
+def fetch_spectrum_data(planet_name: str) -> Optional[Dict[str, Any]]:
+    """
+    Fetches spectrum data for a specific planet from the NASA Exoplanet Archive.
+    Includes logging for API response handling.
+    """
+    logger.info(f"Fetching spectrum data for planet: {planet_name}")
     
-    report = {
-        "count": count,
-        "validation_status": status,
-        "target_min": 30,
-        "target_max": 45
+    params = {
+        "PLANET_NAME": planet_name,
+        "FORMAT": "json",
+        "COLUMN": "TRANSMISSION_SPECTRUM_DATA"
     }
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Sample size report saved to {output_path}")
-    return report
+    try:
+        data = _fetch_api_data(params)
+        if data:
+            logger.info(f"Successfully retrieved data for {planet_name}: {len(data)} entries")
+            return data[0] if isinstance(data, list) else data
+        else:
+            logger.warning(f"No data found for {planet_name}")
+            return None
+    except DataFetchError as e:
+        logger.error(f"Failed to fetch data for {planet_name}: {e}")
+        return None
 
-def process_download_metadata(raw_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def download_all_spectra() -> pd.DataFrame:
     """
-    Main processing pipeline for downloaded data.
+    Downloads ALL available spectra matching the criteria in QUERY_PARAMS
+    without any resolution or radius filtering.
+    
+    Returns:
+        pd.DataFrame: A DataFrame containing the raw metadata and spectrum references.
     """
-    logger = logging.getLogger("download_logger")
-    logger.info("Starting metadata processing pipeline")
+    logger.info("Starting download of all spectra matching criteria...")
+    start_time = time.time()
     
-    parsed = parse_spectrum_metadata(raw_data)
-    valid, errors = validate_parsed_metadata(parsed)
+    # Prepare query parameters from api_config
+    params = QUERY_PARAMS.copy()
+    params["FORMAT"] = "json"
     
-    if errors:
-        logger.error(f"Validation errors encountered: {errors}")
+    try:
+        raw_data = _fetch_api_data(params)
+    except DataFetchError as e:
+        logger.critical(f"Critical failure during download: {e}")
+        raise
     
-    return valid
+    elapsed = time.time() - start_time
+    logger.info(f"Download completed in {elapsed:.2f} seconds. Total records: {len(raw_data)}")
+    
+    if not raw_data:
+        logger.warning("No records found matching the criteria.")
+        return pd.DataFrame()
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(raw_data)
+    
+    # Log column discovery
+    logger.debug(f"Discovered columns: {list(df.columns)}")
+    
+    # Ensure required columns exist or are initialized
+    required_cols = ['PLANET_NAME', 'EQ_TEMP', 'HOST_STAR_METALLICITY', 
+                     'SPECTRAL_RESOLUTION', 'SIGNAL_TO_NOISE_RATIO', 
+                     'RADIUS', 'RADIUS_UNIT', 'INSTRUMENT', 'WAVELENGTH_RANGE']
+    
+    for col in required_cols:
+        if col not in df.columns:
+            # Try to find case-insensitive match
+            matches = [c for c in df.columns if c.lower() == col.lower()]
+            if matches:
+                df[col] = df[matches[0]]
+                logger.info(f"Renamed column {matches[0]} to {col}")
+            else:
+                df[col] = None
+                logger.warning(f"Column {col} not found in API response, initializing as None")
+    
+    # Apply classification
+    logger.info("Classifying planet categories...")
+    df['planet_category'] = df.apply(
+        lambda row: classify_planet_category(
+            row['RADIUS'], 
+            row['EQ_TEMP'], 
+            row.get('RADIUS_UNIT', 'R_Jup')
+        ), 
+        axis=1
+    )
+    
+    logger.info(f"Classification complete. Categories: {df['planet_category'].value_counts().to_dict()}")
+    
+    return df
+
+def save_metadata_csv(df: pd.DataFrame, output_path: str = "data/processed/metadata.csv") -> None:
+    """
+    Saves the metadata DataFrame to a CSV file.
+    """
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Saving metadata to {output_path}")
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(df)} rows to {output_path}")
+
+def count_unique_planets(df: pd.DataFrame) -> int:
+    """
+    Counts unique planets from the dataset.
+    """
+    count = df['PLANET_NAME'].nunique()
+    logger.info(f"Unique planet count: {count}")
+    return count
+
+def validate_sample_size(count: int) -> Dict[str, Any]:
+    """
+    Validates the sample size against the target range (30-45).
+    Logs warnings if outside range but returns 'proceed' status.
+    
+    Returns:
+        Dict containing count and validation_status.
+    """
+    logger.info(f"Validating sample size: {count}")
+    
+    if count < 30 or count > 45:
+        logger.warning(f"Sample size {count} is outside the target range (30-45). Proceeding anyway.")
+        status = "proceed"
+    else:
+        logger.info(f"Sample size {count} is within the target range (30-45).")
+        status = "proceed"
+    
+    return {
+        "count": count,
+        "validation_status": status
+    }
 
 def main():
     """
-    Entry point for the download and logging task.
+    Main entry point for the download module.
+    Orchestrates the download, processing, and saving of exoplanet data.
     """
-    # Setup logging
-    log_path = Path("logs/download.log")
-    logger = setup_download_logging(log_path)
-    logger.info("="*50)
-    logger.info("Starting Download Process (T014)")
-    logger.info("="*50)
+    logger.info("=== Starting Exoplanet Data Download Pipeline ===")
     
     try:
-        config = get_config()
-        raw_data_path = Path("data/raw")
-        processed_path = Path("data/processed")
+        # 1. Download all spectra
+        df = download_all_spectra()
         
-        # Fetch data
-        logger.info("Fetching all pages from API...")
-        raw_data = fetch_all_pages()
-        
-        if not raw_data:
-            logger.error("No data fetched. Aborting.")
+        if df.empty:
+            logger.error("No data downloaded. Exiting.")
             return
         
-        # Save raw data
-        save_raw_spectrum_files(raw_data, raw_data_path)
+        # 2. Save metadata CSV
+        save_metadata_csv(df)
         
-        # Process metadata
-        logger.info("Processing metadata...")
-        metadata = process_download_metadata(raw_data)
+        # 3. Count unique planets
+        count = count_unique_planets(df)
         
-        # Save metadata CSV
-        metadata_csv_path = processed_path / "metadata.csv"
-        save_metadata_csv(metadata, metadata_csv_path)
+        # 4. Validate sample size
+        validation_result = validate_sample_size(count)
         
-        # Validate sample size
-        sample_size_report_path = processed_path / "sample_size_report.json"
-        validate_sample_size(metadata, sample_size_report_path)
-        
-        logger.info("="*50)
-        logger.info("Download Process Completed Successfully")
-        logger.info(f"Metadata saved to: {metadata_csv_path}")
-        logger.info(f"Report saved to: {sample_size_report_path}")
-        logger.info("="*50)
+        # Log final summary
+        logger.info("=== Download Pipeline Summary ===")
+        logger.info(f"Total Records: {len(df)}")
+        logger.info(f"Unique Planets: {count}")
+        logger.info(f"Validation Status: {validation_result['validation_status']}")
         
     except Exception as e:
-        logger.critical(f"Download process failed: {e}", exc_info=True)
+        logger.exception(f"Pipeline failed with error: {e}")
         raise
 
 if __name__ == "__main__":
