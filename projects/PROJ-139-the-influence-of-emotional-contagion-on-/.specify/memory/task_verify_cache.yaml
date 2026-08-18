@@ -21,12 +21,6 @@ T025:
     \ that the full pipeline was run on 500 threads and completed within the 6\u2011\
     hour limit on a CPU\u2011only runner. Without such artifacts, the claim cannot\
     \ be verified."
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `state/projects/PROJ-139-...yaml` file (or any similarly named YAML) was presented,
-    and therefore there is no evidence that an `artifact_hashes` section containing
-    checksums was recorded. The required checksum registry is missing.
 T030:
   c: false
   h: dfe8ef5ed9689d69f191b5e3479962a9c6a78c9ea3103bab3d093d2693aea396
@@ -44,86 +38,3 @@ T036:
     \ on a free\u2011tier GitHub Actions runner. Without such evidence the requirement\
     \ to \u201Crun the full pipeline end\u2011to\u2011end on the GitHub Actions free\u2011\
     tier runner\u201D is not satisfied."
-T045:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test, or documentation artifact was provided showing that the sensitivity\
-    \ analysis grid (T023b) now checks for zero\u2011thread cases, logs a warning,\
-    \ and sets correlation to `null`. Without such evidence the claimed fix cannot\
-    \ be verified."
-T047:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, test, documentation, or logging implementation was provided to show
-    that the `external_validation_score` calculation now checks for missing `upvotes`/`downvotes`,
-    sets the score to `null`, and logs the thread ID. The required artifact is missing,
-    so the task is not satisfied.
-T049:
-  c: false
-  h: b173bd24e82698cdf3eed5f17308b327e2668e9d8c8005af7cad2c46c90c58d6
-  r: "The `code/data/download.py` script contains a `log_download_attempt` function\
-    \ that would write JSON lines with a timestamp and status code to `data/processed/download_attempts.log`,\
-    \ but the required log file does not exist on disk, so there is no evidence that\
-    \ any attempts have actually been logged. The missing `download_attempts.log`\
-    \ means the task\u2019s verification requirement is not satisfied."
-T050:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `state/final_validation.json` file or its contents were provided; consequently\
-    \ there is no `validation_details` map listing pass/fail status and reasons for\
-    \ SC\u2011001 through SC\u2011006. The required artifact is missing, so the task\
-    \ is not satisfied."
-T060:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or documentation was provided that adds a post\u2011\
-    hoc power calculation with `statsmodels.stats.power`; the repository contains\
-    \ no artifact demonstrating the enhanced power analysis, so the requirement is\
-    \ not met."
-T061:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact was supplied that demonstrates the sensitivity analysis now includes
-    a column or field reporting the number of threads contributing to each grid cell;
-    the claim is unsubstantiated. The required updated output/report is missing.
-T062:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a new validation task, test script, documentation, or test\
-    \ data) was provided; the claim contains only a textual description with no concrete\
-    \ implementation or evidence that a multilingual validation for VADER has been\
-    \ added. The required task to validate VADER on non\u2011English content is missing."
-T063:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact of the final report (T026) was provided, and there is no evidence\
-    \ that a \u201CLimitations\u201D subsection addressing the bias from excluding\
-    \ threads with\u202F<5\u202Freplies was added. The implementer\u2019s claim cannot\
-    \ be verified without the updated report."
-T064:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No visualization (e.g., correlation heatmap) or updated final report containing
-    the collinearity diagnostics is present in the provided evidence; the artifact
-    required by the task is missing.
-T065:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No simulation output, logs, or screenshots were provided to demonstrate that\
-    \ a complete data source failure was induced, that the \u201Cfail\u2011loud\u201D\
-    \ policy was triggered, and that the pipeline halted with a clear error message.\
-    \ The required artifact (evidence of the validation test) is missing."
-T067:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test, documentation, or script was provided that adds a verification\
-    \ step for T019\u2019s ground\u2011truth classification to detect threads with\
-    \ multiple accepted answers and log them as ambiguous. The required artifact is\
-    \ missing entirely."
-T068:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or documentation was provided showing that the GLMM model in
-    T020 was updated to include a convergence check and logging of diagnostic information.
-    The required artifact (modified model implementation with the specified checks)
-    is missing.

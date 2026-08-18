@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-139-the-influence-of-emotional-contagion-on-",
   "ok": false,
-  "reason": "2 command(s) failed: python code/data/download.py --source askScience --source fdr (rc=2); python code/analysis/run_pipeline.py (rc=1); 9 declared deliverable(s) absent: data/processed/all_threads_classified.csv; data/processed/collinearity_diagnostics.json; data/processed/external_validation_correlation.csv",
+  "reason": "2 command(s) failed: python code/data/download.py --source askScience --source fdr (rc=1); python code/analysis/run_pipeline.py (rc=1); 9 declared deliverable(s) absent: data/processed/all_threads_classified.csv; data/processed/collinearity_diagnostics.json; data/processed/external_validation_correlation.csv",
   "artifacts": [],
   "failures": [
-    "python code/data/download.py --source askScience --source fdr -> rc=2\n    usage: download.py [-h] [--output OUTPUT]\n                   [--subreddits SUBREDDITS [SUBREDDITS ...]] [--limit LIMIT]\n                   [--reddit-client-id REDDIT_CLIENT_ID]\n                   [--reddit-client-secret REDDIT_CLIENT_SECRET]\n                   [--reddit-user-agent REDDIT_USER_AGENT]\ndownload.py: error: unrecognized arguments: --source askScience --source fdr",
-    "python code/analysis/run_pipeline.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-139-the-influence-of-emotional-contagion-on-/code/analysis/run_pipeline.py\", line 14, in <module>\n    from data.download import download_data\nModuleNotFoundError: No module named 'data.download'"
+    "python code/data/download.py --source askScience --source fdr -> rc=1\n    -08-18 18:17:50,652 - INFO - Attempting Pushshift API...\n2026-08-18 18:17:50,842 - INFO - Attempt: https://api.pushshift.io/reddit/search/subreddit/fdr - Status: 404 - Success: False\n2026-08-18 18:17:50,843 - INFO - Pushshift failed. Attempting Reddit Official API...\n2026-08-18 18:17:50,843 - INFO - Attempt: Reddit API (OAuth) - Status: 0 - Success: False\n2026-08-18 18:17:50,843 - INFO - Reddit API failed. Attempting Internet Archive...\n2026-08-18 18:17:50,843 - WARNING - Internet Archive fallback is not fully implemente",
+    "python code/analysis/run_pipeline.py -> rc=1\n    ()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-139-the-influence-of-emotional-contagion-on-/code/data/extract.py\", line 275, in main\n    config = get_config()\n             ^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-139-the-influence-of-emotional-contagion-on-/code/config/settings.py\", line 164, in get_config\n    _config = load_config_from_env()\n              ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-139-the-influence-of-emotional-contagion-on-/code/config/settings.py\", li"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-28T00:17:50Z"
+  "updated_at": "2026-08-18T18:18:15Z"
 }
