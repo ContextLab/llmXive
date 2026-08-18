@@ -17,7 +17,7 @@ A researcher needs to generate a dataset of bi-manual manipulation episodes usin
 
 **Acceptance Scenarios**:
 
-1. **Given** a configuration for ≥ 5,000 episodes with simplified rigid bodies, **When** the generation script executes on a CPU, **Then** the output dataset contains ≥ 5,000 rows with translation vectors and a binary stability label, and execution completes within 2 hours (a hard sub-constraint of the total 6-hour pipeline budget).
+1. **Given** a configuration for ≥ 5,000 episodes with simplified rigid bodies, **When** the generation script executes on a CPU, **Then** the output dataset contains ≥ 5,000 rows with translation vectors and a binary stability label, and execution completes within 2 hours (a hard sub-constraint of the total -hour pipeline budget).
 2. **Given** an episode where the simulated object tips beyond the defined threshold, **When** the labeling logic runs, **Then** the corresponding record is marked as "failure" (0) regardless of the translation trajectory shape.
 3. **Given** the requirement to discard specific data types, **When** the dataset is inspected, **Then** no columns containing rotation quaternions, joint torques, or force sensor readings exist in the file.
 
@@ -35,7 +35,7 @@ A researcher needs to train a lightweight sequence model (constrained to <10M pa
 
 1. **Given** the synthetic dataset and the 4-layer Transformer architecture, **When** training starts on a CPU-only environment, **Then** the process utilizes <7GB RAM and completes within 6 hours.
 2. **Given** the constraint to avoid GPU-specific operations, **When** the code executes, **Then** no CUDA or bitsandbytes imports are triggered, and the model runs in default floating-point precision.
-3. **Given** the model parameters are capped at <10M, **When** the model summary is printed, **Then** the total parameter count is strictly less than 10,000,000.
+3. **Given** the model parameters are capped at <10M, **When** the model summary is printed, **Then** the total parameter count is strictly less than a threshold suitable for efficient deployment on resource-constrained devices.
 
 ---
 

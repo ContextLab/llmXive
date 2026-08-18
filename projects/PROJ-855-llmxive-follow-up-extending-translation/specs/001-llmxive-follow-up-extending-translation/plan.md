@@ -1,39 +1,36 @@
 # Implementation Plan: llmXive follow-up: extending "Translation as a Bridging Action"
 
 **Branch**: `001-gene-regulation` | **Date**: 2026-07-13 | **Spec**: `specs/001-gene-regulation/spec.md`
-**Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
+**Input**: Feature specification from `specs/001-gene-regulation/spec.md`
 
 ## Summary
 
-This feature implements a synthetic data generation and lightweight sequence modeling pipeline to test the hypothesis that "translation-only" wrist trajectories *probabilistically* encode physical stability constraints in bi-manual manipulation under controlled noise. The system generates ≥5,000 episodes using PyBullet on CPU, injects Gaussian noise into trajectories and physics parameters to break deterministic mappings, labels them based on tipping/slippage physics, trains a <10M parameter Transformer, and validates performance against a geometry-only baseline and a shuffled-translation control using McNemar's test. All components are constrained to run on a 2-core CPU, 7GB RAM GitHub Actions runner within 6 hours.
+This project implements a CPU-tractable research pipeline to validate the hypothesis that monocular wrist translation trajectories implicitly encode physical stability constraints for bi-manual manipulation, independent of explicit force sensing or rotation data. The approach involves: (1) generating a synthetic dataset of ≥5,000 episodes using PyBullet with strict data filtering (translation-only) and dynamic regime variation, (2) training a lightweight (<10M param) Transformer encoder on CPU, (3) comparing performance against a geometry-only baseline (comparable capacity MLP) and a shuffled control using McNemar's test, and (4) performing a sensitivity analysis on labeling thresholds AND physics parameters. The entire pipeline is constrained to run on a 2-core CPU, 7GB RAM environment within 6 hours.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pybullet` (physics engine), `torch` (CPU-only), `pandas`, `numpy`, `scikit-learn`, `pyyaml`  
-**Storage**: Local CSV/Parquet files in `data/` (no external database)  
-**Testing**: `pytest` (contract tests against schema, unit tests for labeling logic)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Computational research pipeline (data gen -> model train -> eval)  
-**Performance Goals**: <6h total runtime, <7GB RAM peak, <10M model params  
-**Constraints**: No GPU/CUDA, no force/torque data, strict translation-only input  
-**Scale/Scope**: A large set of synthetic episodes, 4-layer Transformer, 2 baseline comparisons (geometry, shuffled)  
-
-> *Note: All dataset generation is synthetic; no external real-world dataset URLs are cited for training data.*
+**Language/Version**: Python 3.10  
+**Primary Dependencies**: `pybullet==3.2.5` (physics), `torch` (CPU-only), `scikit-learn` (stats), `pandas`, `pyarrow` (parquet), `pytest`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`)  
+**Testing**: `pytest` with contract validation against YAML schemas  
+**Target Platform**: GitHub Actions Free Tier (Linux, 2 CPU, 7GB RAM)  
+**Project Type**: computational-research-pipeline  
+**Performance Goals**: ≤6 hours total runtime, ≤7GB RAM peak usage  
+**Constraints**: No GPU/CUDA, no rotation/force data in input, <10M model parameters  
+**Scale/Scope**: 5,000+ synthetic episodes, 1 lightweight model, 1 baseline model, 1 control model  
+**Reproducibility**: PyBullet 3.2.5, Euler integration, a high frequency of steps per second, fixed seeds.
 
 ## Constitution Check
 
-**GATE: Must pass before Phase 0 research.**
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Compliance Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ Pass | Random seeds pinned in `code/`; PyBullet deterministic mode enabled; `requirements.txt` pins all deps. |
-| **II. Verified Accuracy** | ✅ N/A | No external citations for data or methodology used; all methods (McNemar, PyBullet) implemented via standard libraries without external theoretical claims requiring citation verification. |
-| **III. Data Hygiene** | ✅ Pass | Raw generated data checksummed; derivation scripts produce new files; no PII (synthetic). |
-| **IV. Single Source of Truth** | ✅ Pass | Results stored in `data/processed/metrics_report.json` linked to `data/checksums.json`; no hand-typed stats in paper. |
-| **V. Versioning Discipline** | ✅ Pass | `state/projects/...yaml` is the authoritative record for hashes; `code/utils/data_utils.py` validates `checksums.json` against state before execution. |
-| **VI. CPU-Tractability** | ✅ Pass | <10M params; PyBullet CPU; no GPU libs; batch size tuned for 7GB RAM. |
-| **VII. Translation-Only Signal Integrity** | ✅ Pass | Runtime validation in `code/utils/data_utils.py` enforces schema exclusion of rotation/force; script exits fatally if violated. |
+- **I. Reproducibility**: The plan mandates pinned seeds, deterministic PyBullet physics (Euler integration, 1000 steps/sec), and a `requirements.txt` pinning all dependencies. The `quickstart.md` will include a full re-run command to verify results on a fresh runner.
+- **II. Verified Accuracy**: All citations regarding Transformer architectures (e.g., PyramidTNT-Ti) and physics constraints will be verified against the provided source URLs. No unverified claims will be made.
+- **III. Data Hygiene**: Raw data (`synthetic_episodes.parquet`) will be checksummed immediately upon generation. No in-place modifications; all splits and derivations produce new files. A `data/checksums.json` will track artifact hashes.
+- **IV. Single Source of Truth**: All metrics (accuracy, p-values, parameter counts) will be generated by code and written to `data/processed/metrics_report.json`. The paper/summary will read from this file, not hard-coded values.
+- **V. Versioning Discipline**: All artifacts (data, models, reports) will carry content hashes. The state file `state/projects/PROJ-855-llmxive-follow-up-extending-translation/state.yaml` will be updated on every artifact change.
+- **VI. CPU-Tractability Constraint**: The plan explicitly selects a <10M parameter Transformer and uses PyBullet in CPU mode. No CUDA libraries are imported. The `quickstart.md` will verify RAM usage and runtime.
+- **VII. Translation-Only Signal Integrity**: The data generation script will explicitly discard rotation and force columns. The `contracts/dataset.schema.yaml` will enforce this schema, and a validation step will fail if forbidden columns are present.
 
 ## Project Structure
 
@@ -47,47 +44,117 @@ specs/001-gene-regulation/
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
 │   ├── dataset.schema.yaml
-│   └── model_output.schema.yaml
-└── tasks.md             # Phase 2 output (not created here)
+│   ├── model.schema.yaml
+│   └── report.schema.yaml
+└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-855-llmxive-follow-up-extending-translation/
-├── data/
-│   ├── raw/                  # Generated synthetic episodes (parquet)
-│   ├── processed/            # Prepped for training & metrics_report.json
-│   ├── checksums.json        # Data integrity hashes
-│   └── metrics_report.json   # Final statistics linked to data checksums
 ├── code/
-│   ├── requirements.txt      # Pinned dependencies
-│   ├── generate_data.py      # PyBullet simulation, noise injection & labeling
-│   ├── train_model.py        # Lightweight Transformer training
-│   ├── evaluate.py           # Baseline comparison, McNemar's test & metrics report
-│   ├── models/
-│   │   └── transformer.py    # <10M param architecture
-│   └── utils/
-│       ├── physics_metrics.py # Tipping/slippage logic
-│       └── data_utils.py      # Schema validation, checksum verification & filtering
+│   ├── __init__.py
+│   ├── config.yaml              # Thresholds, seeds, paths
+│   ├── generate_data.py         # PyBullet simulation & labeling
+│   ├── train_model.py           # Main Transformer training
+│   ├── train_baseline.py        # Geometry-only baseline (MLP)
+│   ├── train_control.py         # Shuffled translation control
+│   ├── evaluate.py              # McNemar's test & metrics
+│   ├── sensitivity.py           # Threshold & physics sweep analysis
+│   └── utils.py                 # Helpers (RAM logging, checksums)
+├── data/
+│   ├── raw/
+│   │   ├── synthetic_episodes.parquet
+│   │   └── checksums.json
+│   ├── processed/
+│   │   ├── train.parquet
+│   │   ├── test.parquet
+│   │   ├── trained_model.pt
+│   │   ├── baseline_model.pt
+│   │   ├── control_model.pt
+│   │   ├── predictions_main.csv
+│   │   ├── predictions_baseline.csv
+│   │   └── metrics_report.json
+│   └── sweep/                   # Sensitivity analysis artifacts
+│       └── ...
 ├── tests/
 │   ├── contract/
-│   │   └── test_schemas.py   # Validates output against contracts
-│   ├── unit/
-│   │   └── test_labeling.py  # Physics metric unit tests
-│   └── integration/
-│       └── test_pipeline.py  # End-to-end CPU feasibility
-└── state/
-    └── projects/PROJ-855-llmxive-follow-up-extending-translation.yaml
+│   ├── integration/
+│   └── unit/
+└── requirements.txt
 ```
 
-**Structure Decision**: Single-project structure chosen to minimize overhead. `data/` is split into `raw` (immutable generation output) and `processed` (model-ready). `code/` is modularized by pipeline stage (gen, train, eval) to ensure strict separation of concerns and reproducibility. `metrics_report.json` ensures traceability for Principle IV.
+**Structure Decision**: A monolithic `code/` directory with distinct scripts for each phase (data, train, eval) to ensure modularity and easy debugging on the CI runner. Data is strictly separated into `raw` (immutable) and `processed` (derived). Contracts are versioned in `specs/` but copied to `code/` for runtime validation.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Synthetic Data Generation** | Real-world bi-manual manipulation data with ground-truth stability labels is unavailable; simulation is required to control variables (tipping/slippage) and ensure "translation-only" input. | Using existing datasets (e.g., MixSub) fails to provide the specific physics labels and translation-only constraint needed for the hypothesis. |
-| **Lightweight Transformer** | Must capture temporal dependencies in translation sequences; simple MLPs may miss trajectory dynamics. | Larger models (e.g., with tens of millions of parameters) would exceed 6h/7GB RAM constraints on CPU. |
-| **McNemar's Test** | Required to statistically compare paired predictions (model vs. baseline) on the same test set. | Standard t-tests assume independence, which is violated here as both models predict on identical samples. |
-| **Noise Injection** | Required to break deterministic simulation mappings and test probabilistic signal sufficiency. | A deterministic simulation would result in a tautological validation where the model simply learns the physics engine's rules. |
+No complexity violations detected. The plan adheres strictly to the CPU constraints and data hygiene principles.
+
+## Implementation Phases
+
+### Phase 1: Data Generation (FR-001, FR-002, SC-001)
+
+1.  **Environment Setup**: Initialize PyBullet 3.2.5 with Euler integration, 1000 steps/sec. Set random seed.
+2.  **Episode Generation**: Generate ≥5,000 episodes with randomized initial object poses and random translation trajectories.
+3.  **Dynamic Regime Variation**: For test set geometries, randomize mass distribution, friction coefficients, and geometric primitives to ensure novel dynamic regimes.
+4.  **Labeling Logic**: Calculate tipping angle and slippage distance. Assign binary label (1=Success if angle < 15° AND slippage < 0.02m; 0=Failure otherwise).
+5.  **Data Filtering**: Explicitly discard rotation, joint torque, and force sensor data. Retain only `translation_sequence` and `initial_bounds`.
+6.  **Schema Validation**: Validate output against `contracts/dataset.schema.yaml`. Assert no forbidden columns.
+7.  **Data Validation**: Assert ≥5,000 valid episodes. Record checksum in `data/checksums.json`.
+8.  **Output**: `data/raw/synthetic_episodes.parquet`.
+
+### Phase 2: Dataset Splitting (FR-001, SC-001)
+
+1.  **Geometry-Disjoint Split**: Split raw data by `geometry_id` into train and test sets. Ensure no geometry overlap.
+2.  **Derive Model-Ready Data**: Create `train.parquet` and `test.parquet` with required columns.
+3.  **Validation**: Assert `set(train_ids) & set(test_ids) == empty`.
+4.  **Output**: `data/processed/train.parquet`, `data/processed/test.parquet`.
+
+### Phase 3: Main Model Training (FR-003, FR-004, SC-002, SC-005)
+
+1.  **Model Architecture**: Implement 4-layer Transformer encoder (<10M params).
+2.  **Training**: Train on `train.parquet` using binary cross-entropy loss on CPU.
+3.  **Resource Monitoring**: Log RAM usage and runtime. Fail if >7GB RAM or >4 hours.
+4.  **Output**: `data/processed/trained_model.pt`.
+
+### Phase 4: Baseline & Control Training (FR-005, SC-002)
+
+1.  **Phase 4.3: Train Geometry Baseline**: Train MLP (comparable capacity) on `initial_bounds` only. Output `baseline_model.pt`.
+2.  **Phase 4.4: Train Shuffled Control**: Train on shuffled `translation_sequence` (breaks temporal causality). Output `control_model.pt`.
+3.  **Validation**: Verify model artifacts exist and are non-empty.
+
+### Phase 4.5: Model Constraint Verification (FR-003, SC-005)
+
+1.  **Parameter Count Check**: Assert parameter count < 10,000,000 for all models.
+2.  **Output**: Log parameter counts to `data/processed/model_meta.json`.
+
+### Phase 5: Sensitivity Analysis (FR-008, SC-003)
+
+1.  **Threshold Sweep**: Sweep tipping angle (±5%) and slippage (±5%).
+2.  **Physics Sweep**: Sweep friction/mass parameters (±10%).
+3.  **Re-labeling**: Re-label raw data for each sweep point.
+4.  **Re-training**: Re-train models on re-labeled/re-parameterized data (or fine-tune).
+5.  **Variance Reporting**: Calculate accuracy variance across sweeps.
+6.  **Output**: `data/sweep/variance_report.json`.
+
+### Phase 6: Statistical Validation (FR-006, SC-004)
+
+1.  **Prediction**: Generate predictions for Main, Baseline, and Control models on `test.parquet`.
+2.  **McNemar's Test**: Compare Main vs. Baseline (p < 0.05). Compare Main vs. Control.
+3.  **Accuracy Comparison**: Verify ≥5% improvement of Main over Baseline.
+4.  **Output**: `data/processed/metrics_report.json`.
+
+### Phase 7: Reporting & Associative Framing (FR-007, SC-003)
+
+1.  **Result Aggregation**: Compile all metrics into `metrics_report.json`.
+2.  **Associative Framing**: Explicitly state results are associational, not causal.
+3.  **Ambiguous Signal Reporting**: Report confusion matrix for ambiguous signals.
+4.  **Output**: Final paper/summary inputs.
+
+## Reproducibility Check
+
+To verify the entire pipeline from scratch:
+1.  Run `quickstart.md` steps.
+2.  Verify `data/processed/metrics_report.json` matches expected values (within variance).
+3.  Verify `state/projects/PROJ-855-llmxive-follow-up-extending-translation/state.yaml` is updated.

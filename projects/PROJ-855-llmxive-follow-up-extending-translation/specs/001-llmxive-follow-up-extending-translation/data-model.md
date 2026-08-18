@@ -1,93 +1,99 @@
 # Data Model: llmXive follow-up: extending "Translation as a Bridging Action"
 
-## Overview
+## 1. Entity-Relationship Overview
 
-This document defines the data structures for the synthetic generation pipeline, the training dataset, and the model outputs. All data is stored in Parquet format for efficient I/O and schema enforcement.
+The data model consists of three primary entities: `ManipulationEpisode`, `StabilityMetric`, and `PredictionResult`.
 
-## Entities
+1.  **ManipulationEpisode**: The core unit of data. Contains the raw input (translation sequence, object bounds) and the derived ground truth (stability label).
+2.  **StabilityMetric**: Derived values (tipping angle, slippage) used to compute the label. These are intermediate calculations, not stored in the final model-ready dataset, but used during generation.
+3.  **PredictionResult**: The output of the evaluation phase, containing model predictions and comparison metrics.
 
-### 1. ManipulationEpisode
-A single record representing one bi-manual manipulation attempt.
+## 2. Dataset Schema
 
-**Source**: `code/generate_data.py`  
-**Target**: `data/raw/episodes.parquet`
+### Raw Dataset: `synthetic_episodes.parquet`
+
+This file contains the raw output of the PyBullet simulation. It is **immutable** once generated.
 
 | Column Name | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `episode_id` | `string` | Unique identifier (UUID) | Unique, non-null |
-| `geometry` | `struct` | Initial object bounding box | Contains `min_x`, `min_y`, `min_z`, `max_x`, `max_y`, `max_z` |
-| `translation_sequence` | `list<list<float>>` | Sequence of 3D translation vectors | Shape: [T, 3]; T=10 (time steps) |
-| `tipping_angle` | `float` | Max deviation of COM from base (degrees) | ≥ 0.0 |
-| `slippage_distance` | `float` | Max relative displacement at contact (meters) | ≥ 0.0 |
-| `stability_label` | `int` | Binary outcome (1=Success, 0=Failure) | 0 or 1 |
-| `metadata` | `struct` | Simulation parameters | Contains `seed`, `object_mass`, `friction_coeff`, `noise_sigma` |
+|-------------|------|-------------|-------------|
+| `episode_id` | int64 | Unique identifier for the episode. | Primary Key |
+| `geometry_id` | string | Unique identifier for the object geometry. | Required for disjoint split |
+| `translation_sequence` | list[float] | Flattened sequence of relative wrist translation vectors (x, y, z). | Length = `seq_len * 3` |
+| `initial_bounds` | list[float] | Initial object bounding box coordinates [min_x, min_y, min_z, max_x, max_y, max_z]. | Length = 6 |
+| `tipping_angle` | float32 | Max tipping angle observed during the episode. | Used for labeling |
+| `slippage_distance` | float32 | Max slippage distance observed. | Used for labeling |
+| `stability_label` | int8 | Binary label: 1 (Success), 0 (Failure). | Derived from thresholds |
+| `timestamp` | string | ISO8601 timestamp of generation. | For reproducibility |
+| `mass_distribution` | float32 | Mass distribution factor (for sensitivity analysis). | Used for sensitivity |
+| `friction_coeff` | float32 | Friction coefficient (for sensitivity analysis). | Used for sensitivity |
 
-**Derived Logic**:
-*   `stability_label` = 1 if `tipping_angle` < 15.0 AND `slippage_distance` < 0.02
-*   `stability_label` = 0 otherwise
-*   **Exclusion**: No columns for rotation, torque, or force exist.
+**Forbidden Columns**: `rotation_quaternion`, `joint_torque`, `force_sensor`, `angular_velocity`.
 
-### 2. TrainingBatch
-A processed batch of episodes prepared for model input.
+### Processed Dataset: `train.parquet`, `test.parquet`
 
-**Source**: `code/utils/data_utils.py`  
-**Target**: `data/processed/train_batch_*.parquet`
+These files are derived from the raw dataset via a **geometry-disjoint split**.
 
 | Column Name | Type | Description |
-| :--- | :--- | :--- |
-| `input_translation` | `tensor` | Normalized translation sequence (T, 3) |
-| `input_geometry` | `tensor` | Normalized bounding box (6) |
-| `target_label` | `int` | Stability label |
+|-------------|------|-------------|
+| `episode_id` | int64 | Unique identifier (from raw). |
+| `geometry_id` | string | Unique identifier (from raw). |
+| `translation_sequence` | list[float] | Input feature. |
+| `initial_bounds` | list[float] | Input feature (for baseline). |
+| `stability_label` | int8 | Ground truth label. |
 
-### 3. ModelPrediction
-Output of the inference/evaluation step.
+*Note: `tipping_angle`, `slippage_distance`, `mass_distribution`, and `friction_coeff` are removed from processed files as they are not inputs to the model.*
 
-**Source**: `code/evaluate.py`  
-**Target**: `data/processed/predictions.parquet`
+## 3. Model Artifacts
 
-| Column Name | Type | Description |
-| :--- | :--- | :--- |
-| `episode_id` | `string` | Reference to original episode |
-| `model_pred_prob` | `float` | Probability of success (0.0-1.0) |
-| `model_pred_label` | `int` | Thresholded prediction (0.5) |
-| `baseline_pred_label` | `int` | Prediction from geometry-only model |
-| `shuffled_pred_label` | `int` | Prediction from shuffled-translation model |
-| `actual_label` | `int` | Ground truth |
-| `correct_model` | `bool` | True if `model_pred_label` == `actual_label` |
-| `correct_baseline` | `bool` | True if `baseline_pred_label` == `actual_label` |
-| `correct_shuffled` | `bool` | True if `shuffled_pred_label` == `actual_label` |
+### Trained Model: `trained_model.pt`
 
-### 4. MetricsReport
-Final statistics linked to data checksums for traceability (Principle IV).
+A PyTorch state dictionary containing the weights of the lightweight Transformer.
 
-**Source**: `code/evaluate.py`  
-**Target**: `data/processed/metrics_report.json`
+*   **Architecture**: 4-layer Transformer Encoder.
+*   **Input Dim**: 3 (translation vector).
+*   **Output Dim**: 1 (binary probability).
+*   **Parameter Count**: < 10,000,000.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `data_checksum` | `string` | Hash of `data/raw/episodes.parquet` from `data/checksums.json` |
-| `model_accuracy` | `float` | Accuracy of translation-only model on test set |
-| `baseline_accuracy` | `float` | Accuracy of geometry-only baseline |
-| `shuffled_accuracy` | `float` | Accuracy of shuffled-translation control |
-| `accuracy_diff_vs_baseline` | `float` | `model_accuracy` - `baseline_accuracy` |
-| `accuracy_diff_vs_shuffled` | `float` | `model_accuracy` - `shuffled_accuracy` |
-| `mcnemar_pvalue_baseline` | `float` | p-value from McNemar's test (Model vs. Baseline) |
-| `mcnemar_pvalue_shuffled` | `float` | p-value from McNemar's test (Model vs. Shuffled) |
-| `timestamp` | `string` | ISO timestamp of generation |
+### Baseline/Control Models
 
-## Data Flow
+*   `baseline_model.pt`: Weights for the geometry-only model (MLP with comparable capacity).
+*   `control_model.pt`: Weights for the shuffled-translation control model.
 
-1.  **Generation**: `generate_data.py` → `ManipulationEpisode` (Raw Parquet).
-2.  **Validation**: Schema check against `contracts/dataset.schema.yaml`; checksum recorded in `data/checksums.json`.
-3.  **State Sync**: `data/checksums.json` synchronized with `state/projects/...yaml` (Principle V).
-4.  **Preprocessing**: `data_utils.py` → `TrainingBatch` (Normalized tensors).
-5.  **Training**: `train_model.py` → Model Weights (`.pt`).
-6.  **Evaluation**: `evaluate.py` → `ModelPrediction` (Parquet) AND `MetricsReport` (JSON).
-7.  **Analysis**: `evaluate.py` → McNemar's Test Statistics (in `MetricsReport`).
+## 4. Metrics Report: `data/processed/metrics_report.json`
 
-## Constraints & Validations
+The single source of truth for all results.
 
-*   **Translation Only**: Validation script MUST fail if any column containing "rot", "quat", "torque", or "force" is detected in the raw dataset.
-*   **Label Consistency**: `tipping_angle` and `slippage_distance` MUST be re-calculated from the raw physics log if the label is missing or inconsistent.
-*   **Novelty**: Test set geometries MUST be disjoint from training set geometries (checked by hash of bounding box parameters).
-*   **Traceability**: `MetricsReport` MUST contain the `data_checksum` matching the input data to satisfy Principle IV.
+```json
+{
+  "model_accuracy": 0.85,
+  "baseline_accuracy": 0.78,
+  "control_accuracy": 0.52,
+  "accuracy_improvement": 0.07,
+  "mcnemar_p_value": 0.03,
+  "parameter_count": 4500000,
+  "sensitivity_variance": 0.02,
+  "confusion_matrix": { ... },
+  "runtime_seconds": 14000,
+  "peak_ram_gb": 6.2
+}
+```
+
+## 5. Data Flow Diagram
+
+```mermaid
+graph TD
+    A[PyBullet Simulation] -->|Raw Data| B(data/raw/synthetic_episodes.parquet)
+    B -->|Checksum| C[data/checksums.json]
+    B -->|Geometry Disjoint Split| D[data/processed/train.parquet]
+    B -->|Geometry Disjoint Split| E[data/processed/test.parquet]
+    D -->|Train| F[Trained Model]
+    D -->|Train| G[Baseline Model]
+    D -->|Train| H[Control Model]
+    F -->|Predict| I[Predictions Main]
+    G -->|Predict| J[Predictions Baseline]
+    H -->|Predict| K[Predictions Control]
+    I & J -->|McNemar Test| L[metrics_report.json]
+    I & K -->|McNemar Test| L
+    B -->|Sweep Thresholds/Physics| M[Sensitivity Analysis]
+    M --> L
+```

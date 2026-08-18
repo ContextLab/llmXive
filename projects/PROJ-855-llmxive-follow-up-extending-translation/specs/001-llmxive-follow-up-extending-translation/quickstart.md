@@ -2,87 +2,92 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Access to a GitHub Actions runner (2 CPU, 7GB RAM) or local equivalent.
-*   `git` for repository access.
+- Python 3.10+
+- A minimal CPU core configuration, 7GB RAM (GitHub Actions Free Tier compatible)
+- Disk space: sufficient capacity (for simulation and data)
 
-## Installation
+## 1. Setup Environment
 
-1.  **Clone the project**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-855-llmxive-follow-up-extending-translation
-    ```
-
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # Linux/Mac
-    # or venv\Scripts\activate  # Windows
-    ```
-
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins `torch` to a CPU-only version to ensure compatibility with the free-tier runner.*
-
-## Running the Pipeline
-
-The pipeline consists of three sequential steps: Data Generation, Model Training, and Evaluation.
-
-### Step 1: Generate Synthetic Data
-
-Generates ≥5,000 episodes using PyBullet with noise injection.
+Clone the repository and install dependencies.
 
 ```bash
-python code/generate_data.py --num_episodes 5000 --output data/raw/episodes.parquet
+cd projects/PROJ-855-llmxive-follow-up-extending-translation
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-*   **Output**: `data/raw/episodes.parquet`
-*   **Validation**: Run `python tests/unit/test_labeling.py` to verify physics metrics.
-*   **Checksum**: Automatically generated in `data/checksums.json`.
+## 2. Generate Synthetic Dataset
 
-### Step 2: Train the Model
-
-Trains the lightweight Transformer on CPU.
+Run the data generation script. This will create the raw dataset and validate the schema.
 
 ```bash
-python code/train_model.py --data data/raw/episodes.parquet --epochs 20 --batch_size 32
+python code/generate_data.py --config code/config.yaml
 ```
 
-*   **Output**: `code/models/transformer.pt`
-*   **Constraints**: If OOM occurs, reduce `--batch_size` to 16 or 8.
+*   **Output**: `data/raw/synthetic_episodes.parquet`, `data/checksums.json`
+*   **Validation**: The script asserts ≥5,000 rows, no forbidden columns, and valid schema.
 
-### Step 3: Evaluate & Validate
+## 3. Prepare Data Splits
 
-Compares the model against the geometry-only baseline and shuffled-translation control, runs McNemar's test, and generates `metrics_report.json`.
+Split the raw data into geometry-disjoint train/test sets.
 
 ```bash
-python code/evaluate.py --model code/models/transformer.pt --data data/raw/episodes.parquet
+python code/utils.py --split --input data/raw/synthetic_episodes.parquet
 ```
 
-*   **Output**: `data/processed/predictions.parquet`, `data/processed/metrics_report.json`, and console report.
-*   **Success Criteria**:
-    *   Accuracy improvement ≥ 5% over baselines.
-    *   McNemar's p-value < 0.05.
-    *   `metrics_report.json` contains valid checksums.
+*   **Output**: `data/processed/train.parquet`, `data/processed/test.parquet`
 
-## Testing
+## 4. Train Models
 
-Run the full test suite to ensure contract compliance:
+Train the main model, baseline, and control.
 
 ```bash
-pytest tests/
+# Main Translation-Only Model
+python code/train_model.py --input data/processed/train.parquet --output data/processed/trained_model.pt
+
+# Geometry-Only Baseline (MLP)
+python code/train_baseline.py --input data/processed/train.parquet --output data/processed/baseline_model.pt
+
+# Shuffled Translation Control
+python code/train_control.py --input data/processed/train.parquet --output data/processed/control_model.pt
 ```
 
-*   **Contract Tests**: Verify output schemas match `contracts/`.
-*   **Unit Tests**: Verify physics labeling logic and noise injection.
-*   **Integration Tests**: Verify end-to-end runtime < 6 hours (simulated or actual).
+*   **Validation**: Each script logs the parameter count and ensures it is <10M.
 
-## Troubleshooting
+## 5. Evaluate & Report
 
-*   **OOM Error**: Reduce `batch_size` in `train_model.py`.
-*   **Physics Crash**: Check `code/utils/physics_metrics.py` for numerical instability; the script should auto-recover and log failures.
-*   **CUDA Error**: Ensure `torch` is the CPU version (`pip uninstall torch && pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-*   **Schema Violation**: If the pipeline exits with "Rotation/Force detected", check `code/generate_data.py` to ensure noise injection did not inadvertently introduce forbidden columns.
+Run the evaluation script to compute metrics and perform statistical tests.
+
+```bash
+python code/evaluate.py \
+  --model data/processed/trained_model.pt \
+  --baseline data/processed/baseline_model.pt \
+  --control data/processed/control_model.pt \
+  --test data/processed/test.parquet \
+  --output data/processed/metrics_report.json
+```
+
+*   **Output**: `data/processed/metrics_report.json` containing accuracy, p-values, and confusion matrix.
+
+## 6. Sensitivity Analysis (Optional)
+
+Run the sensitivity sweep to check robustness.
+
+```bash
+python code/sensitivity.py --config code/config.yaml --output data/sweep/
+```
+
+## 7. Reproducibility Check
+
+To verify the entire pipeline from scratch:
+
+```bash
+rm -rf data/processed/ data/raw/synthetic_episodes.parquet
+python code/generate_data.py --config code/config.yaml
+python code/utils.py --split --input data/raw/synthetic_episodes.parquet
+python code/train_model.py --input data/processed/train.parquet --output data/processed/trained_model.pt
+python code/evaluate.py --model data/processed/trained_model.pt --test data/processed/test.parquet --output data/processed/metrics_report.json
+```
+
+Verify that the results in `metrics_report.json` match the previous run (within statistical variance).

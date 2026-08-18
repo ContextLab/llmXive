@@ -8,6 +8,10 @@ properties:
     type: number
     minimum: 0
     maximum: 1
+  control_accuracy:
+    type: number
+    minimum: 0
+    maximum: 1
   improvement:
     type: number
   mcnemar_p_value:
@@ -40,6 +44,7 @@ properties:
 required:
   - model_accuracy
   - baseline_accuracy
+  - control_accuracy
   - improvement
   - mcnemar_p_value
   - confusion_matrix

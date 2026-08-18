@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetricsReport"
+type: "object"
+properties:
+  model_accuracy: { type: "number", minimum: 0, maximum: 1, description: "Accuracy of translation-only model" }
+  baseline_accuracy: { type: "number", minimum: 0, maximum: 1, description: "Accuracy of geometry-only baseline" }
+  control_accuracy: { type: "number", minimum: 0, maximum: 1, description: "Accuracy of shuffled control" }
+  accuracy_improvement: { type: "number", description: "model_accuracy - baseline_accuracy" }
+  mcnemar_p_value: { type: "number", minimum: 0, maximum: 1, description: "p-value from McNemar's test" }
+  parameter_count: { type: "integer", maximum: 10000000, description: "Must be < 10M" }
+  sensitivity_variance: { type: "number", description: "Variance in accuracy across threshold sweep" }
+  confusion_matrix:
+    type: "object"
+    properties:
+      tp: { type: "integer" }
+      tn: { type: "integer" }
+      fp: { type: "integer" }
+      fn: { type: "integer" }
+    required: ["tp", "tn", "fp", "fn"]
+  runtime_seconds: { type: "number", description: "Total pipeline runtime" }
+  peak_ram_gb: { type: "number", description: "Peak RAM usage" }
+required: ["model_accuracy", "baseline_accuracy", "control_accuracy", "mcnemar_p_value", "parameter_count", "confusion_matrix"]
+description: "Schema for the final metrics report. Single source of truth for results."

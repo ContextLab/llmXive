@@ -1,0 +1,19 @@
+status: none
+intent: PyBullet synthetic bi-manual manipulation translation trajectories stability
+  label dataset python package dataset
+required_fields:
+- episode_id
+- timestep
+- wrist1_translation_x
+- wrist1_translation_y
+- wrist1_translation_z
+- wrist2_translation_x
+- wrist2_translation_y
+- wrist2_translation_z
+- object_bbox_xmin
+- object_bbox_ymin
+- object_bbox_zmin
+- object_bbox_xmax
+cache_key: 5cf85e0655df636c3c758f1f043aecbd388a61fef8f6de19f2b0052d02c04188
+searched_at: '2026-08-18T09:53:54.405359+00:00'
+retry_count: 1

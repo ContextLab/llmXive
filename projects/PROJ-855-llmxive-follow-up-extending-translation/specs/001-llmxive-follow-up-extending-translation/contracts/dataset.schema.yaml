@@ -1,23 +1,33 @@
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ManipulationEpisodeDataset"
+type: "object"
 properties:
-  translation_x:
-    type: number
-  translation_y:
-    type: number
-  translation_z:
-    type: number
-  initial_object_bounds:
-    type: array
+  metadata:
+    type: "object"
+    properties:
+      version: { type: "string", const: "1.0.0" }
+      generated_at: { type: "string" }
+      seed: { type: "integer" }
+    required: ["version", "generated_at", "seed"]
+  columns:
+    type: "array"
     items:
-      type: number
-    minItems: 3
-    maxItems: 3
-  stability:
-    type: integer
-    enum: [0, 1]
-required:
-  - translation_x
-  - translation_y
-  - translation_z
-  - initial_object_bounds
-  - stability
+      type: "object"
+      properties:
+        name: { type: "string" }
+        type: { type: "string", enum: ["int64", "float32", "float64", "string", "list[float]"] }
+        description: { type: "string" }
+      required: ["name", "type"]
+  forbidden_columns:
+    type: "array"
+    items: { type: "string" }
+    description: "List of columns that MUST NOT appear in the dataset"
+    default: ["rotation_quaternion", "joint_torque", "force_sensor", "angular_velocity"]
+  constraints:
+    type: "object"
+    properties:
+      min_rows: { type: "integer", minimum: 5000, description: "Minimum number of episodes" }
+      has_geometry_id: { type: "boolean", const: true, description: "Must have geometry_id for disjoint split" }
+      has_stability_label: { type: "boolean", const: true, description: "Must have binary stability label" }
+required: ["metadata", "columns", "forbidden_columns", "constraints"]
+description: "Schema for the synthetic manipulation dataset. Enforces translation-only signal integrity."
