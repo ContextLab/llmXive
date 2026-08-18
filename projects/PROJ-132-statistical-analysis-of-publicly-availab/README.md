@@ -1,14 +1,22 @@
 # Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change
 
-## Project Overview
-This project analyzes the correlation between bird migration patterns and climate change using publicly available data from eBird and Daymet.
+## Overview
+
+This project implements a statistical analysis pipeline to investigate the correlation between bird migration patterns and climate change using publicly available data.
+
+## Project Structure
+
+- `src/`: Source code for the pipeline
+- `data/`: Data storage (raw, processed, interim)
+- `tests/`: Test suite
+- `docs/`: Documentation
 
 ## Installation
 
 1. Clone the repository:
  ```bash
  git clone <repository-url>
- cd PROJ-132-statistical-analysis-of-publicly-availab
+ cd <project-directory>
  ```
 
 2. Install dependencies:
@@ -28,23 +36,29 @@ Run the full pipeline:
 python -m src.cli.run_pipeline --help
 ```
 
-## Project Structure
-- `src/`: Source code
-- `data/`: Data files (raw, processed, interim)
-- `tests/`: Test suites
-- `specs/`: Project specifications
-- `docs/`: Documentation
-
 ## Configuration
-Configuration is managed via `src/config.py`. Key parameters include:
+
+The pipeline uses configuration defined in `src/config.py`. Key parameters include:
 - `GRID_RES`: Grid resolution for spatial binning
-- `MIN_OBSERVATIONS`: Minimum observations required for data quality
-- `RANDOM_SEED`: Seed for reproducibility
-- `PERMUTATIONS`: Number of permutations for statistical tests
+- `MIN_OBSERVATIONS`: Minimum observations required for valid grid cells
+- `RANDOM_SEED`: Random seed for reproducibility
+- `PERMUTATIONS`: Number of permutation test iterations
+- `CI_WIDTH_TARGET`: Target confidence interval width in days
 
 ## Data Sources
-- eBird: Verified sample from `vvud/eb-data`
-- Daymet: Climate data from `daymet/annual`
 
-## Contributing
-Please read the contributing guidelines before submitting pull requests.
+- eBird data: Verified sample from `vvud/eb-data`
+- Climate data: Daymet (Plan deviation from NOAA/PRISM)
+
+See `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md` for details on data source deviations.
+
+## Testing
+
+Run tests:
+```bash
+pytest
+```
+
+## License
+
+[License information]

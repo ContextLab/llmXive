@@ -3722,3 +3722,923 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T18:39:43Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Moving block bootstrap with 4 week block size
+  claim_id: c_f214471c
+  context: 'T033a1 [P] **Generate Phenology Confidence Intervals**: ... Logic: Use
+    **moving block bootstrap** with **block_size=4 weeks**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use moving block bootstrap with block_size=4 weeks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:50:38Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Moving block bootstrap with 4 week block size for centroid estimation
+  claim_id: c_e5c4e2a6
+  context: 'T033a2 [P] **Generate Centroid-Based Confidence Intervals**: ... Logic:
+    Use **moving block bootstrap** with **block_size=4 weeks**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use moving block bootstrap with block_size=4 weeks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:50:39Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 500ms per chunk target for parallelized permutation tests
+  claim_id: c_5cdf9a53
+  context: 'T039b1 [P] **Parallelize permutation tests with joblib**: Target: **achieve
+    < 500ms per chunk** using a benchmark dataset of large-scale rows.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/500ms_per_chunk_target_for_parallelized_permutation_tests
+  kind: entity_fact
+  raw_text: Target < 500ms per chunk for parallelized permutation tests
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:51:19Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 1000ms per species target for parallelized trajectory permutation tests
+  claim_id: c_732fc214
+  context: 'T039b2 [P] **Parallelize trajectory permutation tests with joblib**: Target:
+    **achieve < 1000ms per species** using a benchmark dataset of a substantial number
+    of rows.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/1000ms_per_species_target_for_parallelized_trajectory_permut
+  kind: entity_fact
+  raw_text: Target < 1000ms per species for parallelized trajectory permutation tests
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:51:50Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime less than 6 hours
+  claim_id: c_9fd4cb12
+  context: "SC-005 (Runtime) \u2013 Run `src/analysis/runtime_validation.py` to ensure\
+    \ total pipeline runtime < 6 h..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Total pipeline runtime must be less than 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:52:37Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 0.90 convergence rate target
+  claim_id: c_95cca8f2
+  context: 'T043a [S] **Define Success Criteria Targets**: ... sc003_target = 0.90
+    ([deferred] convergence rate)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target convergence rate of 0.90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:53:15Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 0.95 target for cells with sufficient data
+  claim_id: c_65b65e6f
+  context: 'T043a [S] **Define Success Criteria Targets**: ... sc002_target = 0.95
+    ([deferred] cells with sufficient data)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target proportion of cells with sufficient data is 0.95
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:53:45Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 7 days CI width target
+  claim_id: c_ed6b6d9f
+  context: 'T043a [S] **Define Success Criteria Targets**: ... sc004_target = 7 (7
+    days CI width).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target CI width is 7 days
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:54:20Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Use geomstats for manifold-based trajectory statistics
+  claim_id: c_d45675de
+  context: "T031a_manifold [S] **Compute Riemannian Trajectory Statistics on S\xB2\
+    \ Manifold**: ... Requirement: Use `geomstats` for manifold operations."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_geomstats_for_manifold-based_trajectory_statistics
+  kind: entity_fact
+  raw_text: Use geomstats library for manifold-based trajectory statistics
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:55:52Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Species-year random intercepts and species-specific random slopes for
+    temperature
+  claim_id: c_99e345e2
+  context: 'T023a [S] **Fit GAMM with Species-Specific Random Slopes**: ... Random
+    Effects: Include species-year random intercepts and species-specific random slopes
+    for temperature as per Spec FR-004.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Species-year_random_intercepts_and_species-specific_random_s
+  kind: entity_fact
+  raw_text: Include species-year random intercepts and species-specific random slopes
+    for temperature
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:56:38Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: "Mandatory a priori Gaussian Process random effect with Mat\xE9rn covariance\
+    \ function nu=2.5"
+  claim_id: c_1ae3e5cd
+  context: "T023a_gp [S] **Fit GAMM with Mandatory A Priori Gaussian Process Random\
+    \ Effect**: ... enhance the fitted GAMM by adding a **mandatory a priori** Gaussian\
+    \ Process (GP) random effect with Mat\xE9rn covariance function (nu=2.5)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Include mandatory a priori Gaussian Process random effect with Mat\xE9\
+    rn covariance function (nu=2.5)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:57:30Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Use geomstats for Riemannian manifold operations
+  claim_id: c_97557e2c
+  context: "T030 [S] **Compute Weekly Migration Centroids on Riemannian S\xB2 Manifold**:\
+    \ ... Requirement: Use `geomstats` for S2 manifold operations. Do NOT use Euclidean\
+    \ distance or linear regression. This implements the Spec's requirement for Riemannian\
+    \ manifold operations (FR-006)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_geomstats_for_Riemannian_manifold_operations
+  kind: entity_fact
+  raw_text: Use geomstats library for Riemannian manifold operations
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:58:19Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Use geomstats for manifold operations
+  claim_id: c_a54fbca8
+  context: "T031a_manifold [S] **Compute Riemannian Trajectory Statistics on S\xB2\
+    \ Manifold**: ... Requirement: Use `geomstats` for manifold operations."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: learning applications. The source code is freely available under the
+        MIT license atgeomstats.ai.
+      source_id: '2004.04667'
+      url: https://arxiv.org/abs/2004.04667
+      value: geomstats.ai
+    filled: true
+  kind: entity_fact
+  raw_text: Use geomstats for manifold operations
+  resolved_value: geomstats.ai
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T05:59:08Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 5
+  canonical: Use geomstats for S2 manifold operations
+  claim_id: c_85baa32a
+  context: "T030 [S] **Compute Weekly Migration Centroids on Riemannian S\xB2 Manifold**:\
+    \ ... Requirement: Use `geomstats` for S2 manifold operations."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_geomstats_for_S2_manifold_operations
+  kind: entity_fact
+  raw_text: Use geomstats library for S2 manifold operations
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T05:59:19Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 10000 permutation shuffles for spatial shift vectors
+  claim_id: c_62b16be5
+  context: 'T025b_spatial: Execute exactly 10,000 permutation shuffles (as mandated
+    by Spec FR-005) in chunks of a fixed size using src/models/utils.run_permutation_chunked.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task requires performing exactly 10,000 permutation shuffles for the
+    spatial shift vectors test statistic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:04:49Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 10000 permutation shuffles for species-climate coefficients
+  claim_id: c_e8ecef3c
+  context: 'T025d: Execute exactly 10,000 permutation shuffles (as mandated by Spec
+    FR-005) on species-climate coefficients.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task requires performing exactly 10,000 permutation shuffles for species-climate
+    coefficients.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:06:28Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 10000 permutation shuffles for shift vectors to derive p-value
+  claim_id: c_cdeb0738
+  context: 'T031c_permutation: For each species, perform exactly 10,000 permutation
+    shuffles (as mandated by Spec FR-005) on the shift vectors generated in T031b_manifold
+    to derive the p-value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task requires performing exactly 10,000 permutation shuffles for shift
+    vectors to derive the p-value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:07:22Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: CI width target of 7 days
+  claim_id: c_829bc476
+  context: 'T043a: Use these concrete values: ... sc004_target = 7 (7 days CI width).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target for the CI width metric is 7 days.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:07:44Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Convergence rate target of 0.90
+  claim_id: c_fb3e3d93
+  context: 'T043a: Use these concrete values: ... sc003_target = 0.90 ([deferred]
+    convergence rate)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target for the convergence rate is 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:07:45Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Sufficient data proportion target of 0.95
+  claim_id: c_9eaf81c9
+  context: 'T043a: Use these concrete values: sc002_target = 0.95 ([deferred] cells
+    with sufficient data)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target for the proportion of cells with sufficient data is 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:07:45Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime constraint of 6 hours
+  claim_id: c_e2bab1c4
+  context: "T043: SC-005 (Runtime) \u2013 Run src/analysis/runtime_validation.py to\
+    \ ensure total pipeline runtime < 6 h..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_constraint_of_6_hours
+  kind: magnitude
+  raw_text: The pipeline runtime must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:07:50Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Moving block bootstrap block size of 4 weeks
+  claim_id: c_705c5d69
+  context: 'T033a1: Use moving block bootstrap with block_size=4 weeks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The moving block bootstrap must use a block size of 4 weeks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:08:27Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Moving block bootstrap block size of 4 weeks for centroid estimation
+  claim_id: c_a0ccfe97
+  context: 'T033a2: Use moving block bootstrap with block_size=4 weeks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The moving block bootstrap for centroid estimation must use a block size
+    of 4 weeks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:09:02Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Grid resolution of 0.5 degrees
+  claim_id: c_43e41093
+  context: 'T010a: Write src/config.py defining GRID_RES=0.5...'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "C-squares (acronym for the Concise Spatial QUery And REpresentation\
+        \ System) is a system of spatially unique, location-based identifiers (geocodes)\
+        \ for areas on the surface of the earth, represented as cells from a latitude-\
+        \ and longitude-based Discrete Global Grid at a hierarchical set of resolution\
+        \ steps, obtained by progressively subdividing 10\xD710 degree World Meteorological\
+        \ Organization squares; the term \"c-square\" is also available for use to\
+        \ designate any component cell of the grid. Individual cell identifiers incorporate\
+        \ literal values of latitude and longitude in an interleaved notation (producing\
+        \ grid resolutions of 10, 1, 0.1 degrees, etc.), together with additional\
+        \ digits that support intermediate grid resolutions of 5, 0.5, 0.05 degrees,\
+        \ etc."
+      source_id: C-squares
+      url: https://en.wikipedia.org/wiki/C-squares
+      value: '0.5'
+    filled: true
+  kind: numeric
+  raw_text: The grid resolution for binning is 0.5 degrees.
+  resolved_value: '0.5'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T06:09:18Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Minimum observations threshold of 10
+  claim_id: c_10b485c2
+  context: 'T010a: Write src/config.py defining ... MIN_OBSERVATIONS=10...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum number of observations required for a grid cell is 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:09:43Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Random seed of 42
+  claim_id: c_9c641a0f
+  context: 'T010a: Write src/config.py defining ... RANDOM_SEED=42...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for permutation tests is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:10:19Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 10000 permutations for benchmarking
+  claim_id: c_9cc13a46
+  context: 'T010a: Write src/config.py defining ... PERMUTATIONS=10000...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of permutations for benchmarking is 10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:10:42Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: CI width target of 7 for reporting
+  claim_id: c_9ae030f2
+  context: 'T010a: Write src/config.py defining ... CI_WIDTH_TARGET=7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target CI width for reporting is 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:11:24Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: geomstats version requirement 2.4.0
+  claim_id: c_4c299cd3
+  context: 'T003c: Append geomstats>=2.4.0 to the dependencies list in pyproject.toml...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The geomstats dependency version is 2.4.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:11:51Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Ruff target version Python
+  claim_id: c_3e22b805
+  context: 'T003a_1: Create pyproject.toml ... target-version = ["py"]...'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: a Python linter and formatter, written in Rust
+      source_id: Q115911873
+      url: https://www.wikidata.org/wiki/Q115911873
+      value: Python
+    filled: true
+  kind: entity_fact
+  raw_text: The Ruff linter target version is Python.
+  resolved_value: Python
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T06:12:09Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Black line-length of 88
+  claim_id: c_ee137445
+  context: 'T003a_1: Create pyproject.toml ... line-length = 88...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Black line-length configuration is 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:13:10Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory usage limit of 6 GB for streaming
+  claim_id: c_c28685fa
+  context: 'T051: ... ensuring memory usage < 6 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_of_6_GB_for_streaming
+  kind: magnitude
+  raw_text: The memory usage for streaming eBird data must be less than 6 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:13:53Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Fallback shuffle count calculation using 5.5 hour buffer
+  claim_id: c_9264c7ea
+  context: 'T053_fallback: ... reduce the shuffle count to N = floor(5.5*3600 / (time_per_shuffle)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback shuffle count calculation uses a 5.5 hour buffer.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:14:22Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction factor 10000 divided by adjusted shuffle count
+  claim_id: c_4114ce9d
+  context: 'T053_fallback: ... multiply p-values by (10000/N) to adjust for the reduced
+    number of shuffles.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction factor is calculated as 10000 divided by the
+    adjusted shuffle count.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:15:00Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: "Gaussian Process Mat\xE9rn covariance nu=2.5"
+  claim_id: c_7b38362c
+  context: "T023a_gp: ... adding a mandatory a priori Gaussian Process (GP) random\
+    \ effect with Mat\xE9rn covariance function (nu=2.5)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Gaussian Process random effect uses a Mat\xE9rn covariance function\
+    \ with nu=2.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:15:38Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: eBird dataset split train
+  claim_id: c_a429311f
+  context: 'T005a: ... datasets.load_dataset("vvud/eb-data", split="train", streaming=True)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EBird_dataset_split_train
+  kind: entity_fact
+  raw_text: The eBird dataset split used is 'train'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:16:14Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Imputation radius of 1.0 degree
+  claim_id: c_673acb05
+  context: 'T007: ... impute_spatial_missing(df, column, radius=1.0)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The imputation radius is 1.0 degree.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:18:13Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Longitude binning interval of 0.5 degrees
+  claim_id: c_d4651032
+  context: 'T015b: ... numpy.floor(lon / 0.5) * 0.5...'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "C-squares (acronym for the Concise Spatial QUery And REpresentation\
+        \ System) is a system of spatially unique, location-based identifiers (geocodes)\
+        \ for areas on the surface of the earth, represented as cells from a latitude-\
+        \ and longitude-based Discrete Global Grid at a hierarchical set of resolution\
+        \ steps, obtained by progressively subdividing 10\xD710 degree World Meteorological\
+        \ Organization squares; the term \"c-square\" is also available for use to\
+        \ designate any component cell of the grid. Individual cell identifiers incorporate\
+        \ literal values of latitude and longitude in an interleaved notation (producing\
+        \ grid resolutions of 10, 1, 0.1 degrees, etc.), together with additional\
+        \ digits that support intermediate grid resolutions of 5, 0.5, 0.05 degrees,\
+        \ etc."
+      source_id: C-squares
+      url: https://en.wikipedia.org/wiki/C-squares
+      value: '10'
+    filled: true
+  kind: numeric
+  raw_text: The grid cell binning for longitude uses a 0.5 degree interval.
+  resolved_value: '10'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T06:18:29Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stopover duration calculated as 90th minus 10th percentile date
+  claim_id: c_0657aeb2
+  context: 'T015b: ... stopover_duration (90th percentile date - 10th percentile date
+    of dates).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stopover_duration_calculated_as_90th_minus_10th_percentile_d
+  kind: entity_fact
+  raw_text: The phenology metric stopover duration is calculated as the difference
+    between the 90th and 10th percentile dates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:18:56Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Convergence rate target 90%
+  claim_id: c_1f2ef716
+  context: 'T043a: sc003_target = 0.90 ([deferred] convergence rate)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target for the convergence rate is 90%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:18:56Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Sufficient data proportion target 95%
+  claim_id: c_2752dc9b
+  context: 'T043a: sc002_target = 0.95 ([deferred] cells with sufficient data)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target for the sufficient data proportion is 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:18:57Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: CI width target 7 days
+  claim_id: c_d47002f2
+  context: 'T043a: sc004_target = 7 (7 days CI width)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI width target is 7 days.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:18:58Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime constraint 6 hours
+  claim_id: c_5ac8b6d0
+  context: 'T043: ... ensure total pipeline runtime < 6 h...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime constraint for the pipeline is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:19:37Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction factor 10000/N
+  claim_id: c_30ccec67
+  context: 'T053_fallback: ... multiply p-values by (10000/N) to adjust for the reduced
+    number of shuffles.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction multiplies p-values by the ratio of 10000 to
+    the adjusted shuffle count.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:20:27Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Fallback shuffle count based on 5.5 hour runtime
+  claim_id: c_c75aa580
+  context: 'T053_fallback: ... reduce the shuffle count to N = floor(5.5*3600 / (time_per_shuffle)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback mechanism reduces shuffle count based on a 5.5 hour available
+    runtime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:20:57Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: "GP Mat\xE9rn covariance nu=2.5"
+  claim_id: c_18eb8f8e
+  context: "T023a_gp: ... Mat\xE9rn covariance function (nu=2.5)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Gaussian Process random effect uses a Mat\xE9rn covariance function\
+    \ with nu=2.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:20:58Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: eBird split train
+  claim_id: c_70f94871
+  context: 'T005a: ... split="train"...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EBird_split_train
+  kind: entity_fact
+  raw_text: The eBird dataset split is 'train'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:21:13Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 2
+  canonical: Daymet variables prcp tmin tmax srad vp
+  claim_id: c_dfab3f56
+  context: 'T005c1_daymet: ... variables=["prcp", "tmin", "tmax", "srad", "vp"]...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Daymet_variables_prcp_tmin_tmax_srad_vp
+  kind: entity_fact
+  raw_text: The Daymet dataset variables include prcp, tmin, tmax, srad, and vp.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:21:20Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 2
+  canonical: Daymet years 2021 2022 2023 2024
+  claim_id: c_a3724d48
+  context: 'T005c1_daymet: ... year=["2021", "2022", "2023", "2024"]...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Daymet dataset years include 2021, 2022, 2023, and 2024.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:21:21Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 2
+  canonical: Daymet state ALL
+  claim_id: c_7a65cbca
+  context: 'T005c1_daymet: ... state="ALL"...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Daymet_state_ALL
+  kind: entity_fact
+  raw_text: The Daymet dataset state is ALL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:21:30Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Imputation radius 1.0 degree
+  claim_id: c_10d6fb48
+  context: 'T007: ... radius=1.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The imputation radius is 1.0 degree.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:21:31Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Longitude binning 0.5 degrees
+  claim_id: c_c872f949
+  context: 'T015b: ... numpy.floor(lon / 0.5) * 0.5...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The longitude binning interval is 0.5 degrees.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:22:14Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stopover duration 90th minus 10th percentile
+  claim_id: c_f5bd6ecd
+  context: 'T015b: ... stopover_duration (90th percentile date - 10th percentile date
+    of dates).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stopover_duration_90th_minus_10th_percentile
+  kind: entity_fact
+  raw_text: The stopover duration is the difference between the 90th and 10th percentile
+    dates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:22:44Z'

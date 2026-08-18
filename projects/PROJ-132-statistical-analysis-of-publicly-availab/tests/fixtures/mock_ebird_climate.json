@@ -1,0 +1,12 @@
+{
+  "records": [
+    {"species": "Zenaida macroura", "lat": 40.7128, "lon": -74.0060, "date": "2023-04-15", "count": 5, "checklist_id": "S123456789"},
+    {"species": "Zenaida macroura", "lat": 40.7200, "lon": -74.0100, "date": "2023-04-16", "count": 3, "checklist_id": "S123456790"},
+    {"species": "Zenaida macroura", "lat": 40.7300, "lon": -74.0200, "date": "2023-04-20", "count": 12, "checklist_id": "S123456791"},
+    {"species": "Turdus migratorius", "lat": 41.0000, "lon": -73.5000, "date": "2023-04-10", "count": 2, "checklist_id": "S987654321"},
+    {"species": "Turdus migratorius", "lat": 41.0500, "lon": -73.5500, "date": "2023-04-12", "count": 4, "checklist_id": "S987654322"}
+  ],
+  "climate": [
+    {"grid_cell": "40.5_-74.0", "week": 15, "mean_temperature": 12.5, "total_precipitation": 2.3}
+  ]
+}

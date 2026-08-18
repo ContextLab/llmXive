@@ -27,7 +27,7 @@
 
 - [ ] T005c4 [S] [Spec] **Document Plan Deviation from Spec**:
  **Action**: Write a formal deviation document `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md` that documents the Plan's explicit substitution of NOAA/PRISM with Daymet and the full eBird archive with the verified `vvud/eb-data` sample.
- **Content**: Must include: (1) Original Spec FR-001 text, (2) Plan's implemented source (Daymet + vvud/eb-data), (3) Justification (Plan states verified open-source availability), (4) Impact on downstream tasks, (5) Ratification timestamp (use `TIMESTAMP_PLACEHOLDER` and update at runtime via `python src/cli/update_ratification_timestamps.py --file specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md --timestamp $(date -u +%Y-%m-%dT%H:%M:%SZ)`).
+ **Content**: Must include: (1) Original Spec FR-001 text, (2) Plan's implemented source (Daymet + vvud/eb-data), (3) Justification (Plan states verified open-source availability), (4) Impact on downstream tasks, (5) Ratification timestamp (use `TIMESTAMP_PLACEHOLDER` and update at runtime via `python src/cli/update_ratification_timestamps.py --file specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md --timestamp $(date -u +%Y-%m-%dT%H:%M:%SZ)`), AND (6) A JSON field `{"status": "ratified"}` to indicate formal ratification.
  **Requirement**: This document serves as the official record of the Plan's deviation from the Spec. The Spec remains unchanged and is the single source of truth for implementation.
  **Output**: `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md`.
  **Dependency**: None.
@@ -41,15 +41,15 @@
  "timestamp": "TIMESTAMP_PLACEHOLDER"
  }
  ```
- **Requirement**: Must reflect which data source was actually used; timestamp must be generated at runtime via Python script `src/data/generate_provenance.py` that calls `datetime.utcnow().isoformat()` at execution time, replacing `TIMESTAMP_PLACEHOLDER`. This generation MUST happen at runtime via a Python script. Do NOT hardcode the timestamp. The script will be invoked after T005c4 completes. This JSON file is used by T005c1b_primary and T005c1_daymet to determine which climate data source to use. It serves as the single source of truth for the data source decision throughout the pipeline.
+ **Requirement**: Must reflect which data source was actually used; timestamp must be generated at runtime by this task using Python's `datetime.utcnow().isoformat()` (e.g., via a one-liner or inline script within the task execution) to replace `TIMESTAMP_PLACEHOLDER`. This JSON file is used by T005c1_climate to determine which climate data source to use. It serves as the single source of truth for the data source decision throughout the pipeline.
  **Dependency**: T005c4 (Deviation document must exist first).
 
 - [ ] T005c5 [S] **Pre-Execution Ordering Validator**:
  **Action**: Write script `src/cli/validate_task_order.py` that parses `tasks.md` and verifies that all "verify" or "test" tasks (e.g., T013, T021) appear AFTER their producer tasks (e.g., T015b, T023a) in the dependency graph.
- **Logic**: If any verify task depends on a task that has not been executed (or is listed after it in the file), raise `RuntimeError` with message "Task ordering violation: <task_id> must run after <producer_id>".
+ **Logic**: Parse the `Dependency` field in each task header. Verify that for every task `T_x`, all tasks listed in its `Dependency` field appear earlier in the file than `T_x`. If any verify task depends on a task that has not been executed (or is listed after it in the file), raise `RuntimeError` with message "Task ordering violation: <task_id> must run after <producer_id>".
  **Requirement**: This task runs BEFORE any pipeline execution. It prevents the pipeline from starting if `tasks.md` is malformed.
  **Output**: Exit code 0 on success, 1 on failure.
- **Dependency**: None.
+ **Dependency**: T005c4, T005c3.
 
 ## Phase 0.5: Data Source & Spec Reconciliation
 
@@ -65,39 +65,22 @@
  **Requirement**: No synthetic fallback; abort on any download error.
  **Dependency**: T005a.
 
-- [ ] T005c1b_primary [S] **Download NOAA/PRISM Climate Data (Spec Primary)**:
- **Action**: Implement `src/data/download.py::fetch_noaa_prism` to download NOAA/PRISM climate data for North America (recent years). This is the Spec's primary requirement per FR-001.
+- [ ] T005c1_climate [S] **Download Climate Data (Spec Primary with Ratified Deviation Fallback)**:
+ **Action**: Implement `src/data/download.py::fetch_climate_data` to download climate data.
  **Logic**:
- 1. Verify the existence of `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md` AND verify it contains a valid ratification timestamp (ISO format) AND verify it contains a 'status' field set to 'ratified'. Only if all three conditions are met, skip NOAA/PRISM download. If any condition fails, proceed with NOAA/PRISM download regardless.
- 2. Attempt to download NOAA/PRISM data from the official NOAA/PRISM API or verified mirror.
- 3. Write to `data/raw/noaa_prism/` as NetCDF or Parquet files. Compute SHA‑ checksums.
- 4. If download fails, raise `RuntimeError` with message "NOAA/PRISM download failed; unable to proceed with Spec FR-001 primary requirement" and exit.
- 5. Use `src.utils.logging.get_logger(__name__).info("Plan deviation ratified; skipping NOAA/PRISM primary fetch")` if skipping. The logging level is INFO.
- **Requirement**: This is the primary task for climate data as per Spec FR-001. It only skips if the Plan's deviation is ratified with all validation checks passing.
- **Output**: `data/raw/noaa_prism/` (if successful) or error log.
- **Dependency**: T005a, T005c4.
+ 1. **Check Deviation**: Verify the existence of `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md`. Check if it contains a valid ratification timestamp AND a JSON field `{"status": "ratified"}`.
+ 2. **Primary Fetch (NOAA/PRISM)**: If deviation is NOT ratified, attempt to download NOAA/PRISM data from the official NOAA/PRISM API or verified mirror. Write to `data/raw/noaa_prism/` as NetCDF or Parquet files. Compute SHA‑ checksums. If download fails, raise `RuntimeError` with message "NOAA/PRISM download failed; unable to proceed with Spec FR-001 primary requirement" and exit.
+ 3. **Fallback Fetch (Daymet)**: If deviation IS ratified AND NOAA/PRISM is confirmed unavailable (or if the deviation explicitly mandates Daymet as the sole source per the ratified document), use `datasets.load_dataset("daymet/annual", variables=["prcp", "tmin", "tmax", "srad", "vp"], state="ALL", year=["2021", "2022", "2023", "2024"])` to download climate variables. Write to `data/raw/daymet/` as Parquet files (`daymet_*.parquet`). Compute SHA‑ checksums.
+ 4. **Logging**: Use `src.utils.logging.get_logger(__name__).info("Plan deviation ratified; using Daymet as per ratified amendment")` if using Daymet.
+ **Requirement**: This is the primary task for climate data as per Spec FR-001. It only skips NOAA/PRISM if the Plan's deviation is ratified with all validation checks passing.
+ **Output**: `data/raw/noaa_prism/` (if successful) or `data/raw/daymet/` (if deviation ratified) or error log.
+ **Dependency**: T005a, T005c4, T005c3.
 
-- [ ] T005c1_daymet [S] **Download Daymet Climate Data (Plan Deviation Fallback)**:
- **Action**: Use `datasets.load_dataset("daymet/annual", variables=["prcp", "tmin", "tmax", "srad", "vp"], state="ALL", year=["2021", "2022", "2023", "2024"])` to download climate variables.
- **Logic**:
- 1. Check for the existence of file `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md` AND verify it contains the JSON field `{"implemented_source": "Daymet"}`. Only proceed with Daymet download if both conditions are true AND T005c1b_primary has failed with a verified-unavailable status (i.e., NOAA/PRISM is confirmed unavailable from official sources).
- 2. Write to `data/raw/daymet/` as Parquet files (`daymet_*.parquet`). Compute SHA‑ checksums.
- **Requirement**: This task runs ONLY if the Plan's deviation is ratified AND the primary source (NOAA/PRISM) is verified unavailable. It is not the primary source per Spec FR-001.
- **Output**: `data/raw/daymet/` (if successful) or error log.
- **Dependency**: T005a, T005c4, T005c1b_primary.
-
-- [X] T005d1 [S] **Archive Raw Data (Local)**: Copy all raw files from `data/raw/ebird_sample/`, `data/raw/daymet/` (if exists), and `data/raw/noaa_prism/` (if exists) to `data/raw/archive/`.
- **Requirement**: Depends on **Data Download Completion** (T005b, T005c1_daymet, T005c1b_primary). If T005c1_daymet or T005c1b_primary produces no artifact, archive only existing directories.
- **Output**: `data/raw/archive/`.
- **Dependency**: T005b, T005c1_daymet, T005c1b_primary.
-
-- [X] T005d2 [S] **Configure CI Artifact Upload**: Write `src/cli/upload_ci.py` to generate the CI workflow snippet for uploading `data/raw/archive/` as artifacts. This task creates the configuration, not the upload itself (which is handled by CI).
- **Requirement**: Must be executable locally to generate the YAML snippet.
- **Output**: `ci/upload_artifacts.yml` (snippet).
- **Dependency**: T005d1.
-
-- [X] T005e [S] **Update State File**: Insert the new artifact hashes and `updated_at` timestamp into `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml`.
- **Dependency**: T005d1.
+- [X] T005d_state_sync [S] **State Synchronization & Archive**:
+ **Action**: Atomic task that: (1) Copies all raw files from `data/raw/ebird_sample/`, `data/raw/daymet/` (if exists), and `data/raw/noaa_prism/` (if exists) to `data/raw/archive/`. (2) Generates CI workflow snippet for uploading `data/raw/archive/` as artifacts to `ci/upload_artifacts.yml`. (3) Inserts the new artifact hashes and `updated_at` timestamp into `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml`.
+ **Requirement**: All three steps must complete atomically. If any step fails, the task fails.
+ **Output**: `data/raw/archive/`, `ci/upload_artifacts.yml`, updated `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml`.
+ **Dependency**: T005b, T005c1_climate.
 
 - [X] T006 [P] **Schema test for eBird Columns**: `tests/contract/test_schemas.py::test_ebird_schema_columns` asserts that the eBird DataFrame contains columns `[species, lat, lon, date, count, checklist_id]` with correct dtypes.
  **Dependency**: T005b.
@@ -167,7 +150,7 @@ ignore = []
  **Dependency**: T003a_1.
 
 - [ ] T003b [P] **Create Pre-commit Config**: Create `.pre-commit-config.yaml` with hooks for `black` and `ruff` and add installation instructions to `README.md`.
- **Action**: If `README.md` does not exist, create a minimal one first. Add "python -m src.cli.run_pipeline --help" to the installation section.
+ **Action**: If `README.md` does not exist, create a minimal one first. Add "python (Wikidata Q115911873, https://www.wikidata.org/wiki/Q115911873) -m src.cli.run_pipeline --help" to the installation section.
  **Dependency**: T003a_1, T002a.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
@@ -175,19 +158,19 @@ ignore = []
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. Includes runtime optimization to meet SC‑005 and Locking Infrastructure.
 
 - [X] T045a [S] **Create File-Based Lock**: Implement `src/utils/locks.py` exposing `pipeline_lock = filelock.FileLock("data/interim/pipeline.lock")`.
- **Requirement**: Must be available for T023a_gp, T025b_spatial, T025d, T031c_permutation.
+ **Requirement**: Must be available for T023a_gamm_gp, T025d, T031c_permutation.
  **Dependency**: None.
 
 - [X] T045b [S] **Integrate Lock into Heavy Tasks**: Modify `src/models/gamm.py`, `src/models/utils.py` (permutation), and `src/models/trajectory.py` to acquire `pipeline_lock` before any write to shared `data/interim/` resources.
- **Requirement**: Must be integrated before T023a_gp/T025b_spatial/T025d/T031c_permutation run.
+ **Requirement**: Must be integrated before T023a_gamm_gp/T025d/T031c_permutation run.
  **Dependency**: T045a.
 
 ## Phase 3: User Story 1 – Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
 - [ ] T013 [S] [US1] **Integration Test for Data Ingestion Flow**:
  **Action**: Write `tests/integration/test_data_ingestion.py::test_end_to_end_ingestion`.
- **Mock Strategy**: Use `pytest-mock` to patch `datasets.load_dataset` and `src.data.download.fetch_noaa_prism` to return a small, synthetic JSON fixture with multiple rows of eBird data and 1 row of climate data.
- **Fixture Schema**: Create fixture file `tests/fixtures/mock_ebird_climate.json` with the following structure: `{"records": [{"species": str, "lat": float, "lon": float, "date": str (YYYY-MM-DD), "count": int, "checklist_id": str}, ...], "climate": [{"grid_cell": str, "week": int, "mean_temperature": float, "total_precipitation": float}, ...]}`. Use a limited number of eBird records and one climate record for the mock.
+ **Mock Strategy**: Use `pytest-mock` to patch `datasets.load_dataset` and `src.data.download.fetch_climate_data` to return a small, synthetic JSON fixture with multiple rows of eBird data and 1 row of climate data.
+ **Fixture Schema**: Create fixture file `tests/fixtures/mock_ebird_climate.json` with the following structure: `{"records": [{"species": str, "lat": float, "lon": float, "date": str (YYYY-MM-DD), "count": int, "checklist_id": str},...], "climate": [{"grid_cell": str, "week": int, "mean_temperature": float, "total_precipitation": float},...]}`. Use a limited number of eBird records and one climate record for the mock.
  **Logic**: Run the preprocessing pipeline (T015b) on this mocked data.
  **Assertion**: Assert that the output `data/processed/preprocessed_data.parquet` exists and contains the exact schema: `[species, grid_cell, week, first_arrival_date, median_arrival_date, stopover_duration, mean_temperature, total_precipitation, data_quality]` with correct dtypes and no missing values in critical fields.
  **Requirement**: This task is Sequential [S] as it depends on the completed T015b artifact.
@@ -203,21 +186,22 @@ ignore = []
  **Logic**: Use `polars` for efficient streaming.
  1. **Binning**: Use `numpy.floor(lat / bin_size) * bin_size` and `numpy.floor(lon / 0.5) * 0.5` to create `grid_cell` strings (e.g., "45.0_-120.5").
  2. **Aggregation**: Group by `species`, `grid_cell`, `year`, `week`.
- 3. **Phenology Metrics**: Compute `first_arrival` (min date), `median_arrival` (median date), `stopover_duration` (90th percentile date - 10th percentile date of dates).
- 4. **Intermediate Output**: Write intermediate grid-binned data to `data/interim/grid_binned.parquet`.
- 5. **Phenology Output**: Write intermediate phenology data to `data/interim/phenology_raw.parquet` with schema: `[species, grid_cell, year, week, first_arrival_date, median_arrival_date, stopover_duration]`.
- 6. **Climate Join**: Join with NOAA/PRISM (or Daymet if deviation exists) data on `grid_cell` and `week`.
- 7. **Imputation**: Use `src/data/impute.py` (T007) to fill missing climate values. Flag imputed rows.
- 8. **Final Output**: Write final processed data to `data/processed/preprocessed_data.parquet`.
+ 3. **Phenology Metrics**: Compute `first_arrival` (min date), `median_arrival` (median date), `stopover_duration` (90th percentile date - 10 (Wikipedia: C-squares, https://en.wikipedia.org/wiki/C-squares) th percentile date of dates).
+ 4. **Mark Insufficient**: Mark grid cells with fewer than `MIN_OBSERVATIONS` as `data_quality="insufficient"` immediately after aggregation.
+ 5. **Intermediate Output**: Write intermediate grid-binned data to `data/interim/grid_binned.parquet`.
+ 6. **Phenology Output**: Write intermediate phenology data to `data/interim/phenology_raw.parquet` with schema: `[species, grid_cell, year, week, first_arrival_date, median_arrival_date, stopover_duration]`.
+ 7. **Climate Join**: Join with NOAA/PRISM (or Daymet if deviation exists) data on `grid_cell` and `week`.
+ 8. **Imputation**: Use `src/data/impute.py` (T007) to fill missing climate values. Flag imputed rows.
+ 9. **Final Output**: Write final processed data to `data/processed/preprocessed_data.parquet`.
  **Output**: `data/processed/preprocessed_data.parquet`.
  **Requirement**: Must handle edge cases (e.g., grid cells with < MIN_OBSERVATIONS) by marking them as `data_quality="insufficient"` but NOT excluding them yet.
- **Dependency**: T051 (Streaming), T015a (Species List), T005b (Data Download), T005c1b_primary (NOAA/PRISM) or T005c1_daymet (Daymet).
+ **Dependency**: T051 (Streaming), T015a (Species List), T005b (Data Download), T005c1_climate (Climate Data).
 
 - [ ] T016 [S] **Generate Provenance Mapping**:
  **Action**: Implement `src/data/preprocess.py::generate_provenance` that creates `data/provenance/row_mapping.json` mapping each processed row ID to its original `checklist_id`.
- **Schema**: `{ "processed_row_id": "SHA256(checklist_id + row_index)", "original_checklist_id": str, "species": str, "grid_cell": str }`.
- **Hash Generation**: Compute `processed_row_id = hashlib.sha256((checklist_id + ":::" + str(row_index)).encode("utf-8")).hexdigest()`. The delimiter is two colons (::); encoding is UTF-8; byte order is native (no special handling required).
- **Requirement**: Explicitly references **Constitution Principle VI (Ecological Data Provenance)** and **FR-003**. The `processed_row_id` MUST be a unique cryptographic hash of the concatenation of the original `checklist_id` and the row index within the chunk.
+ **Schema**: `{ "processed_row_id": "SHA256(checklist_id + species + grid_cell + week)", "original_checklist_id": str, "species": str, "grid_cell": str }`.
+ **Hash Generation**: Compute `processed_row_id = hashlib.sha256((checklist_id + ":::" + species + ":::" + grid_cell + ":::" + week).encode("utf-8")).hexdigest()`. The delimiter is two colons (::); encoding is UTF-8; byte order is native (no special handling required). Note: The hash is based on aggregation keys because the original row index is lost during aggregation.
+ **Requirement**: Explicitly references **Constitution Principle VI (Ecological Data Provenance)** and **FR-003**. The `processed_row_id` MUST be a unique cryptographic hash of the concatenation of the original `checklist_id` and the aggregation keys (species, grid_cell, week).
  **Output**: `data/provenance/row_mapping.json`.
  **Dependency**: T015b (Preprocessing must complete first, BEFORE T018).
 
@@ -232,65 +216,47 @@ ignore = []
 
 - [X] T021 [P] **Test GAMM Output Schema**: `tests/contract/test_gamm_schemas.py::test_gamm_output_schema` validates `data/processed/model_results_final.parquet` contains keys `{ "species", "temp_coef", "precip_coef", "p_value", "converged" }`.
  **Output**: `tests/contract/test_gamm_schemas.py`.
- **Dependency**: T023a.
+ **Dependency**: T023a_gamm_gp.
 
 - [X] T022 [P] **Integration Test for GAMM Convergence**: `tests/integration/test_gamm_convergence.py::test_gamm_convergence` runs GAMM on a small synthetic dataset and asserts the `converged` flag is True for known parameters.
  **Output**: `tests/integration/test_gamm_convergence.py`.
- **Dependency**: T023a.
+ **Dependency**: T023a_gamm_gp.
 
-- [ ] T023a [S] **Fit GAMM with Species-Specific Random Slopes**:
- **Action**: Write `src/models/gamm.py::fit_gamm` that reads `data/processed/preprocessed_data.parquet`.
- **Library**: `pygam` or `statsmodels`.
+- [ ] T023a_gamm_gp [S] **Fit GAMM with Species-Specific Random Slopes and Mandatory A Priori Gaussian Process**:
+ **Action**: Write `src/models/gamm.py::fit_gamm_gp` that reads `data/processed/preprocessed_data.parquet`.
+ **Library**: `pygam` or `statsmodels` with GP extension.
  **Logic**:
  1. **Base Fit**: Fit model with formula `phenology_metric ~ s(temp) + s(precip) + s(extreme_weather_index) + (1 + temp | species + year)`.
  2. **Random Effects**: Include species-year random intercepts and species-specific random slopes for temperature as per Spec FR-004.
- 3. **Locking**: Acquire `data/interim/pipeline.lock` (via `filelock.FileLock`) before writing model results.
- **Output**: `data/processed/model_results_final.parquet` (includes random effects).
- **Requirement**: Random effect MUST be `(1 + temp | species + year)`.
+ 3. **GP Random Effect**: Integrate a **mandatory a priori** Gaussian Process (GP) random effect with Matérn covariance function (nu=2.5) directly into the model fitting process to account for spatial autocorrelation. Do NOT fit as a post-hoc step.
+ 4. **Locking**: Acquire `data/interim/pipeline.lock` (via `filelock.FileLock`) before writing model results.
+ **Output**: `data/processed/model_results_final.parquet` (includes random effects and GP).
+ **Requirement**: Random effect MUST be `(1 + temp | species + year)` AND GP MUST be included a priori in the initial fit.
  **Dependency**: T015b (preprocessed data), T045a (Lock).
 
-- [ ] T023a_gp [S] **Fit GAMM with Mandatory A Priori Gaussian Process Random Effect**:
- **Action**: After T023a completes, enhance the fitted GAMM by adding a **mandatory a priori** Gaussian Process (GP) random effect with Matérn covariance function (nu=2.5) to the model. This is a hard requirement per Spec FR-004.
- **Logic**:
- 1. Use `sklearn.gaussian_process.GaussianProcessRegressor` or `statsmodels` GP functionality.
- 2. Fit the GP on the residuals from T023a.
- 3. Include the GP as a random effect in the final model.
- 4. Acquire `data/interim/pipeline.lock` before writing updated results.
- **Output**: `data/processed/model_results_final.parquet` (updated with GP).
- **Requirement**: GP MUST be included a priori for all models, not conditionally. This is a Spec MUST requirement.
- **Dependency**: T023a (GAMM fit must complete first), T045a (Lock).
-
 - [X] T023d [S] **Compute Moran's I Diagnostic (Non-Blocking)**:
- **Action**: Write `src/models/gamm.py::compute_morans_i` that takes the preprocessed data and the results from T023a to compute Moran's I for spatial autocorrelation of residuals.
- **Requirement**: This is a diagnostic only; it does NOT gate the model fit or GP inclusion. The GP is mandatory a priori (T023a_gp).
+ **Action**: Write `src/models/gamm.py::compute_morans_i` that takes the preprocessed data and the results from T023a_gamm_gp to compute Moran's I for spatial autocorrelation of residuals.
+ **Requirement**: This is a diagnostic only; it does NOT gate the model fit or GP inclusion. The GP is mandatory a priori (T023a_gamm_gp).
  **Output**: `data/interim/morans_i_result.json` with schema `{"value": float}`.
- **Dependency**: T023a (GAMM fit must complete first to provide residuals).
+ **Dependency**: T023a_gamm_gp (GAMM fit must complete first to provide residuals).
 
 - [X] T025a [P] **Benchmark Permutation Test**: Write `src/models/utils.py::benchmark_permutation` to run multiple shuffles and estimate runtime per 1000 shuffles. Store in `data/processed/permutation_benchmark.json`.
  **Output**: `data/processed/permutation_benchmark.json`.
- **Dependency**: T023a.
+ **Dependency**: T023a_gamm_gp.
 
-- [ ] T025b_spatial [S] **Permutation Test for Spatial Shift Vectors**: Execute **exactly 10,000** permutation shuffles (as mandated by Spec FR-005) in chunks of a fixed size using `src/models/utils.run_permutation_chunked`. Acquire `data/interim/pipeline.lock` before writing results. **Use `config.RANDOM_SEED` for all shuffles**. If runtime constraints are exceeded, apply the fallback mechanism defined in T053_fallback.
- **Logic**: Shuffle species-year labels relative to shift vectors. Test statistic: Euclidean distance between mean shift vector of observed data and mean shift vector of permuted data.
- **Input**: `data/processed/shift_vectors.json` (output of T031b_manifold).
- **Output**: `data/processed/permutation_results_spatial.json`.
- **Schema**: `{ "species": str, "shuffle_id": int, "p_value": float, "raw_stat": float }`.
- **Requirement**: Must perform 10000 shuffles as per Spec FR-005. If runtime exceeds 6 hours, apply T053_fallback.
- **Dependency**: T023a_gp (Final model output), T025a (Benchmark), T045a (Lock), T031b_manifold (Shift vectors must be generated first).
-
-- [ ] T025d [S] **Permutation Test for GAMM Coefficients**: Execute **exactly 10,000** permutation shuffles (as mandated by Spec FR-005) on **species-climate coefficients**. Use `src/models/utils.run_permutation_chunked`. Acquire `data/interim/pipeline.lock`. If runtime constraints are exceeded, apply the fallback mechanism defined in T053_fallback.
- **Logic**: Shuffle response variables (phenology metrics) relative to climate predictors. Test statistic: Absolute value of the coefficient for temperature/precip. Perform permutation tests on species-climate coefficients (temperature and precipitation) extracted from the fitted GAMM (T023a). This tests the association between phenology metrics and climate variables as specified in Spec FR-005 and US-2 Acceptance Scenario 1. The permutation is performed by shuffling the response variable (phenology metric) relative to the predictors (climate variables).
- **Input**: `data/processed/model_results_final.parquet` (T023a_gp).
+- [ ] T025d [S] **Permutation Test for GAMM Coefficients**: Execute **exactly 10,000** permutation shuffles (as mandated by Spec FR-005) on **species-climate coefficients**. Use `src/models/utils.run_permutation_chunked`. Acquire `data/interim/pipeline.lock`. If runtime constraints are exceeded, the pipeline fails (no fallback).
+ **Logic**: Shuffle response variables (phenology metrics) relative to climate predictors. Test statistic: Absolute value of the coefficient for temperature/precip. Perform permutation tests on species-climate coefficients (temperature and precipitation) extracted from the fitted GAMM (T023a_gamm_gp). This tests the association between phenology metrics and climate variables as specified in Spec FR-005 and US-2 Acceptance Scenario 1. The permutation is performed by shuffling the response variable (phenology metric) relative to the predictors (climate variables).
+ **Input**: `data/processed/model_results_final.parquet` (T023a_gamm_gp).
  **Output**: `data/processed/permutation_results_coefficients.json`.
  **Schema**: `{ "species": str, "coefficient": str, "shuffle_id": int, "p_value": float, "raw_stat": float }`.
- **Requirement**: Must perform 10000 shuffles as per Spec FR-005. If runtime exceeds 6 hours, apply T053_fallback.
- **Dependency**: T023a_gp (Model fits), T025a (Benchmark), T045a (Lock).
+ **Requirement**: Must perform 10000 shuffles as per Spec FR-005. No fallback mechanism; if If the runtime exceeds a predefined threshold, the pipeline fails..
+ **Dependency**: T023a_gamm_gp (Model fits), T025a (Benchmark), T045a (Lock).
 
-- [ ] T025c [S] **Apply FDR Correction**: Implement `src/models/utils.py::apply_fdr_correction` that takes the **permutation test output** (T025b_spatial and T025d), aggregates **all species-climate coefficient p-values and spatial shift p-values**, applies Benjamini‑Hochberg, adds a `q_value` column, and writes `data/processed/model_results_fdr.parquet`.
- **Dependency**: T025b_spatial, T025d, and T023a_gp.
+- [X] T025c [S] **Apply FDR Correction**: Implement `src/models/utils.py::apply_fdr_correction` that takes the **permutation test output** (T025b_spatial and T025d), aggregates **all species-climate coefficient p-values and spatial shift p-values**, applies Benjamini‑Hochberg, adds a `q_value` column, and writes `data/processed/model_results_fdr.parquet`.
+ **Dependency**: T025b_spatial, T025d, and T023a_gamm_gp.
 
 - [X] T027 [S] **Implement Convergence Error Handling**: Wrap GAMM fitting in `try/except`. On convergence failure, log `"Convergence failed for species {species}: {error}"` to `logs/modeling.log` and skip that species. Add unit test `tests/unit/test_convergence_handling.py` verifying log format and that the pipeline continues without crashing.
- **Dependency**: T023a_gp.
+ **Dependency**: T023a_gamm_gp.
 
 ## Phase 5: User Story 3 – Route Shift Analysis and Uncertainty Quantification (Priority: P3)
 
@@ -331,20 +297,28 @@ ignore = []
  **Output**: `data/interim/shift_candidates.json` containing `species`, `year`, `shift_vector`, `magnitude`, `direction`.
  **Dependency**: T031a_manifold (Trajectory Statistics).
 
+- [ ] T025b_spatial [S] **Permutation Test for Spatial Shift Vectors**: Execute **exactly 10,000** permutation shuffles (as mandated by Spec FR-005) in chunks of a fixed size using `src/models/utils.run_permutation_chunked`. Acquire `data/interim/pipeline.lock` before writing results. **Use `config.RANDOM_SEED` for all shuffles**. If runtime constraints are exceeded, the pipeline fails (no fallback).
+ **Logic**: Shuffle species-year labels relative to shift vectors. Test statistic: Euclidean distance between mean shift vector of observed data and mean shift vector of permuted data.
+ **Input**: `data/processed/shift_vectors.json` (output of T031b_manifold).
+ **Output**: `data/processed/permutation_results_spatial.json`.
+ **Schema**: `{ "species": str, "shuffle_id": int, "p_value": float, "raw_stat": float }`.
+ **Requirement**: Must perform 10000 shuffles as per Spec FR-005. No fallback mechanism; if If the runtime exceeds a significant threshold, the pipeline fails..
+ **Dependency**: T023a_gamm_gp (Final model output), T025a (Benchmark), T045a (Lock), T031b_manifold (Shift vectors must be generated first).
+
 - [ ] T031c_permutation [S] **Riemannian Trajectory Analysis & Permutation**:
- **Action**: For each species, perform **exactly 10,000** permutation shuffles (as mandated by Spec FR-005) on the **shift vectors** generated in T031b_manifold to derive the p-value. If runtime constraints are exceeded, apply the fallback mechanism defined in T053_fallback.
+ **Action**: For each species, perform **exactly 10,000** permutation shuffles (as mandated by Spec FR-005) on the **shift vectors** generated in T031b_manifold to derive the p-value. If runtime constraints are exceeded, the pipeline fails (no fallback).
  **Test**:
  1. **Shuffling Strategy**: Shuffle species-year labels relative to the observed shift vectors while preserving the temporal structure of the trajectory.
  2. **Test Statistic**: Euclidean distance between the mean shift vector of the observed data and the mean shift vector of the permuted data.
  3. **P-value**: Proportion of permuted statistics >= observed statistic.
  4. **Error Handling**: If T031b_manifold produces no valid candidates, log a warning and skip.
  **Output**: `data/processed/trajectory_results.json` containing `shift_vector`, `magnitude`, `direction`, and `p_value`.
- **Requirement**: Must perform 10000 shuffles as per Spec FR-005. If runtime exceeds 6 hours, apply T053_fallback.
+ **Requirement**: Must perform 10000 shuffles as per Spec FR-005. No fallback mechanism; if runtime exceeds a significant duration, the pipeline fails.
  **Dependency**: T030, T031a_manifold, T031b_manifold, T045a (Lock).
 
 - [ ] T033a1 [P] **Generate Phenology Confidence Intervals**: Implement block bootstrap (preserving weekly autocorrelation) on **GAMM model predictions**, specifically performing **bootstrapped resampling of the centroid estimation process** to generate 95% CIs for model predictions as per FR-007. Produce `ci_lower` and `ci_upper` columns in `data/processed/model_results_fdr.parquet`.
  **Logic**: Use **moving block bootstrap** with **block_size=4 weeks**.
- **Dependency**: T023a_gp (model fits), T045a (Lock), T045b (Lock Integration).
+ **Dependency**: T023a_gamm_gp (model fits), T045a (Lock), T045b (Lock Integration).
  **Requirement**: Must use block bootstrap, not simple permutation.
 
 - [ ] T033a2 [P] **Generate Centroid-Based Confidence Intervals**: Implement block bootstrap on the **centroid estimation process** (resampling weekly observations) to generate 95% CIs for model predictions as per FR-007. Output `data/processed/centroid_ci.json`.
@@ -362,12 +336,12 @@ ignore = []
 ## Phase 6: Orchestration & Validation (SC‑001 to SC‑005)
 
 - [ ] T043a [S] **Define Success Criteria Targets**:
- **Action**: Read plan.md "Success Criteria & Fallbacks" section and write `data/processed/target_definitions.json` with concrete thresholds. Use these concrete values: sc002_target = 0.95 ([deferred] cells with sufficient data), sc003_target = 0.90 ([deferred] convergence rate), sc004_target = 7 (7 days CI width). If plan text is ambiguous, default to these values. Document the source (Plan section and line number) in the JSON output.
+ **Action**: Read plan.md "Success Criteria & Fallbacks" section and write `data/processed/target_definitions.json` with concrete thresholds. Use these concrete values: sc002_target = 0.95, sc003_target = 0.90, sc004_target = 7. **Explicitly document the source**: The Spec defines these targets as '[deferred]' (unknown). The Plan provides fallback values. The output JSON MUST include `spec_status: "deferred"` and `plan_fallback_source: "Plan Success Criteria & Fallbacks section"`. Do NOT hardcode values without this context.
  **Output**: `data/processed/target_definitions.json`.
  **Dependency**: None.
 
 - [ ] T043b [S] **Implement Power Analysis Script**: Write `src/analysis/power_analysis.py` to calculate statistical power and effect size stability (SC-001) based on the total number of migratory species and model results. Output `data/processed/power_report.json`.
- **Dependency**: T023a_gp (model fits).
+ **Dependency**: T023a_gamm_gp (model fits).
 
 - [ ] T043c1 [S] **Measure SC-002 (Insufficient Data Proportion)**:
  **Action**: Read `data/processed/preprocessed_data.parquet` (from T018), count rows with `data_quality="insufficient"`, and calculate the proportion of total grid cells. Compare against `data/processed/target_definitions.json` (SC-002 target). Explicitly report the spec's '[deferred]' target vs the plan's fallback.
@@ -389,26 +363,19 @@ ignore = []
  2. **SC‑002 (Insufficient Data)** – Use output from T043c1 (which generates `data/processed/metadata_insufficient_cells.json`).
  3. **SC‑003 (Convergence)** – Use output from T043c2.
  4. **SC‑004 (CI Width)** – Use output from T043d.
- 5. **SC‑005 (Runtime)** – Run `src/analysis/runtime_validation.py` to ensure total pipeline runtime < 6 h; store result in `data/processed/runtime_report.json`. If runtime exceeds 6 hours and T053_fallback has been applied, document the adjusted shuffle count and Bonferroni correction applied.
+ 5. **SC‑005 (Runtime)** – Run `src/analysis/runtime_validation.py` to ensure total pipeline runtime < 6 h; store result in `data/processed/runtime_report.json`. If runtime exceeds 6 hours, the pipeline fails (no fallback).
  **Aggregated Output**: Combine all five JSON reports into a single `data/processed/final_success_report.json`.
- **Requirement**: All targets are now defined in `target_definitions.json`.
+ **Requirement**: All targets are now defined in `target_definitions.json` with explicit Spec/Plan distinction.
  **Dependency**: T043a, T043b, T043c1, T043c2, T043d, T025c, T027, T033a3, and all preceding analysis tasks.
 
-## Phase 6.5: Runtime Constraint Fallback
+## Phase 6.5: Runtime Constraint Handling
 
-**Purpose**: Address the conflict between the Spec's mandate for [deferred] shuffles and the 6-hour runtime constraint. Provide a spec-authorized fallback mechanism.
+**Purpose**: Address the conflict between the Spec's mandate for [deferred] shuffles and the 6-hour runtime constraint. The Spec's requirement is preserved; the pipeline fails if the constraint cannot be met.
 
-- [ ] T053_fallback [S] **Implement Runtime-Aware Shuffle Count Fallback**:
- **Action**: Write `src/analysis/runtime_fallback.py` to implement a spec-authorized fallback mechanism for permutation tests when runtime constraints are exceeded.
- **Logic**:
- 1. After T025a benchmark completes, estimate the total runtime for [deferred] shuffles.
- 2. If estimated time for a large number of shuffles exceeds several hours (leaving 0.5 hours buffer for other tasks), reduce the shuffle count to N = floor(5.5*3600 / (time_per_shuffle)).
- 3. Log the reduction: `"Permutation shuffle count reduced from [deferred] to {N} due to runtime constraints. Applying Bonferroni correction: multiply p-values by {10000/N}."`.
- 4. Apply Bonferroni correction to p-values: multiply each p-value by (10000/N) to adjust for the reduced number of shuffles.
- 5. Update T025b_spatial and T031c_permutation to use the reduced shuffle count if this fallback is triggered.
- **Output**: `data/processed/runtime_fallback_report.json` containing `original_shuffles`, `adjusted_shuffles`, `bonferroni_factor`, `estimated_runtime`, `fallback_triggered`.
- **Requirement**: This fallback is spec-authorized because it preserves the intent of FR-005 (statistical testing with multiple-comparison correction) while respecting the SC-005 runtime constraint. The Bonferroni correction is a standard statistical adjustment for reduced sample sizes.
- **Dependency**: T025a (Benchmark must complete first).
+- [X] T053 [P] **Optimize Permutation Tests for CI Time Limit**:
+ **Action**: Refactor T025b_spatial and T031c_permutation to use `joblib` parallelization with a strict timeout (e.g., a total duration for all permutation tasks sufficient to ensure the pipeline completes within the designated CI time limit) (SC-005). **Algorithm**: If the initial set of shuffles is estimated to exceed the 6-hour limit based on T025a benchmark, **log the estimated time and proceed with parallelization**. **Do NOT reduce the shuffle count**. If the timeout is hit, log the partial progress and report the limitation. **Enforce [deferred] shuffles strictly**.
+ **Requirement**: Must address SC-005 (Runtime) without compromising the integrity of the permutation test. If reduction occurs (which is not allowed), the p-value calculation must be adjusted or reported with the reduced N. **No fallback mechanism is permitted; the pipeline must fail if [deferred] shuffles cannot be completed within 6 hours.**
+ **Dependency**: T025a, T025b_spatial, T025d, T031c_permutation.
 
 ## Phase 7: Polish & Cross‑Cutting Concerns
 
@@ -436,7 +403,7 @@ ignore = []
  **Dependency**: T015b.
 
 - [ ] T040b [P] **Add unit test for single species in `src/models/gamm_fit.py`**.
- **Dependency**: T023a_gp.
+ **Dependency**: T023a_gamm_gp.
 
 - [ ] T040c [P] **Add unit test for missing data handling in `src/data/impute.py`**.
  **Dependency**: T007.
@@ -465,19 +432,14 @@ ignore = []
 - [X] T052 [S] **Enforce Real Data Fetch Failing Loudly**:
  **Action**: Review `src/data/download.py` and `src/data/verify_dataset.py`. Ensure there are NO `try/except` blocks that catch download errors and fall back to `generate_synthetic_*()` or mock data. If a real fetch fails, the script MUST raise `RuntimeError` or `FileNotFoundError` and exit.
  **Requirement**: A silent synthetic fallback is fabrication. The execution stage must fail loudly to discover a verified real source.
- **Dependency**: T005a, T005b, T005c1b_primary.
-
-- [X] T053 [P] **Optimize Permutation Tests for CI Time Limit**:
- **Action**: Refactor T025b_spatial and T031c_permutation to use `joblib` parallelization with a strict timeout (e.g., a total duration for all permutation tasks sufficient to ensure the pipeline completes within the designated CI time limit) (SC-005). **Algorithm**: If the initial set of shuffles is estimated to exceed the 6-hour limit based on T025a benchmark, **log the estimated time and proceed with parallelization**. **Do NOT reduce the shuffle count** unless T053_fallback is triggered. If the timeout is hit, log the partial progress and report the limitation.
- **Requirement**: Must address SC-005 (Runtime) without compromising the integrity of the permutation test. If reduction occurs via T053_fallback, the p-value calculation must be adjusted or reported with the reduced N.
- **Dependency**: T025a, T025b_spatial, T025d, T031c_permutation.
+ **Dependency**: T005a, T005b, T005c1_climate.
 
 - [X] T054 [S] **Implement Block Bootstrap for Uncertainty**:
  **Action**: Ensure `src/analysis/bootstrap.py` implements block bootstrap (preserving temporal autocorrelation) for both GAMM predictions and centroid estimation as required by FR-007 and US-3. Do NOT use simple random resampling.
  **Requirement**: Simple permutation destroys the temporal structure of migration routes, leading to invalid p-values.
- **Dependency**: T023a_gp, T030.
+ **Dependency**: T023a_gamm_gp, T030.
 
 - [X] T055 [S] **Verify NOAA/PRISM Dataset Availability**:
- **Action**: Update T005c1b_primary to explicitly check for the NOAA/PRISM dataset availability using official API endpoints. If not found, raise a clear error and halt. Do NOT attempt to download from unverified URLs.
+ **Action**: Update T005c1_climate to explicitly check for the NOAA/PRISM dataset availability using official API endpoints. If not found, raise a clear error and halt (unless deviation is ratified). Do NOT attempt to download from unverified URLs.
  **Requirement**: Ensures the pipeline does not proceed with missing or incorrect climate data.
  **Dependency**: T005a.

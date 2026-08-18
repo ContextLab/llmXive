@@ -27,13 +27,6 @@ T010c:
     \ relate to the bird\u2011migration data pipeline, not to the \u201CTest Logging\u201D\
     \ task. Consequently the required log entry and its format\u2011compliance verification\
     \ are missing."
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No integration test artifacts (e.g., test scripts, execution logs, or resulting
-    CSV files) were provided, and there is no evidence that the data ingestion pipeline
-    was run and validated against the specified acceptance criteria. The required
-    test output and verification steps are missing.
 T017d:
   c: true
   h: 51dd9381e1eb53865c4eebf3987f448a27e3924a34c5584d65da38025d026fcb
@@ -77,32 +70,6 @@ T030:
     \ by the task. The implementer must provide the actual implementation and its\
     \ output (e.g., a script/notebook that calculates the centroids and a resulting\
     \ dataset or visualization)."
-T031a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or output artifacts (e.g., preprocessing scripts, GAMM\
-    \ modeling results, trajectory\u2011analysis figures or notebooks) were provided;\
-    \ therefore the required manifold\u2011based trajectory statistics and associated\
-    \ uncertainty quantification cannot be verified as completed. The implementer\
-    \ must supply the actual implementation and its outputs."
-T031b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No preprocessing scripts, GAMM modeling code, or manifold trajectory analysis\
-    \ outputs were provided; the claim lacks any tangible artifacts (e.g., CSV files,\
-    \ Python/R scripts, model result tables, figures) to demonstrate that the required\
-    \ data pipeline, statistical modeling, and route\u2011shift detection were actually\
-    \ implemented. The implementer must supply the concrete code, generated datasets,\
-    \ and analysis results that meet the specified user stories."
-T031c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No actual artifacts (scripts, datasets, model outputs, figures, or any files)\
-    \ were provided; the claim consists only of a textual description of the required\
-    \ features. Consequently, there is no evidence that the data\u2011ingestion pipeline,\
-    \ GAMM modeling, or Riemannian\u2011manifold trajectory analysis has been implemented\
-    \ or produces the specified outputs. The missing deliverables must be supplied\
-    \ for the task to be considered complete."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
