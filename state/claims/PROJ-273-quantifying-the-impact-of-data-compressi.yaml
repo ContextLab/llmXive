@@ -180,22 +180,6 @@
   updated_at: '2026-07-15T19:56:56Z'
 - artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
   attempts: 1
-  canonical: SNR degradation precision 0.1 dB
-  claim_id: c_b550adfc
-  context: "Implement src/compression/metrics.py to compute MSE and SNR degradation\
-    \ (precision \u2265 0.1 dB)"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "precision \u2265 0.1 dB"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T19:58:45Z'
-- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
-  attempts: 1
   canonical: Parameter estimation time limit 2 hours per event
   claim_id: c_cf6482e7
   context: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
@@ -2881,3 +2865,447 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T16:13:08Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: generate 15 synthetic CBC injections using LALSimulation
+  claim_id: c_0256cebb
+  context: FR-001 amendment text defining the requirement to replace public injection
+    campaigns with synthetic injections.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST generate \u226515 synthetic CBC injections into real\
+    \ GW noise segments fetched from GWOSC, using LALSimulation with known ground\
+    \ truth parameters."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:33:45Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: iterate until 12 valid events found or 20 attempts reached
+  claim_id: c_fda246f7
+  context: FR-001 amendment text specifying the loop condition and attempt limit for
+    event validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST iterate fetching noise segments and generating injections\
+    \ until \u226512 valid events with complete spin metadata are found, or a maximum\
+    \ of 20 attempts is reached."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:33:46Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: run Bilby with Dynesty on 12 events
+  claim_id: c_06c92a86
+  context: FR-005 amendment text replacing LALInference with Bilby/Dynesty for pilot
+    phase parameter estimation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST run Parameter Estimation using Bilby with Dynesty (Fast\
+    \ PE) on both original and compressed datasets for \u226512 events."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:33:46Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: apply Hilbert curve D-to-2D folding for 2D codecs on 1D strain data
+  claim_id: c_8349f422
+  context: FR-003 amendment text describing the JPEG2000 deviation for 1D-to-2D folding.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Hilbert_curve_D-to-2D_folding_for_2D_codecs_on_1D_stra
+  kind: entity_fact
+  raw_text: For wavelet-based image compression standards, a D-to-2D folding transformation
+    (Hilbert curve) is applied to adapt 2D codecs to 1D strain data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:34:35Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: fallback to paired t-tests with alpha 0.05 if ESS < 100
+  claim_id: c_74430a74
+  context: FR-007 amendment text defining the fallback statistical test conditions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If convergence fails (ESS < 100), the system MUST fallback to Paired t-tests
+    (alpha=0.05) with Benjamini-Hochberg correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:35:29Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: loop condition valid_count < 12 and attempts < 20 batch_size 1
+  claim_id: c_614b8178
+  context: Task T019.1 implementation details for the fetch loop logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The loop condition for fetching noise segments is while valid_count <
+    12 and attempts < 20 with batch_size=1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:36:02Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: proceed with available events and log warning after 20 attempts
+  claim_id: c_e31a7265
+  context: FR-001 amendment text describing the fallback behavior if the target event
+    count is not reached.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST proceed with the available events and log a warning if
+    a sufficient number of valid events are not found after 20 attempts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:36:37Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Bilby/Dynesty baseline run maxiter 500 nlive 200
+  claim_id: c_68299eca
+  context: Task T040.2c description of local baseline generation parameters to meet
+    CI time limits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reduced-iteration Bilby/Dynesty run for baseline generation must use
+    maxiter=500 and nlive=200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:36:57Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Bilby/Dynesty PE run maxiter 5000 nlive 200 dlogz_init 0.5
+  claim_id: c_2fa3ccec
+  context: Task T026 implementation details for the PE wrapper to meet h/event constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bilby/Dynesty wrapper for parameter estimation must use reduced iterations
+    of maxiter=5000, nlive=200, and dlogz_init=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:37:23Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: flag compression levels with SNR degradation > 5% as unacceptable
+  claim_id: c_cb6f1ac0
+  context: Task T023 implementation logic for classifying compression levels based
+    on SNR degradation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must flag compression levels with SNR degradation > 5% as 'unacceptable'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:37:24Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: full pipeline execution <= 6 hours
+  claim_id: c_ae551145
+  context: Task T033 performance optimization requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must ensure full pipeline execution is \u2264 6 hours due\
+    \ to CI constraints."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:37:24Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: JPEG2000 validation metric compares MSE of original vs unfolded compressed
+    to theoretical folding MSE
+  claim_id: c_5db4c1b5
+  context: Task T020.4 definition of the validation step to isolate compression error
+    from folding artifacts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/JPEG2000_validation_metric_compares_MSE_of_original_vs_unfol
+  kind: entity_fact
+  raw_text: The validation metric for JPEG2000 compares the MSE of original vs unfolded
+    compressed data against the theoretical MSE of the folding transformation alone.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:38:03Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: use statsmodels.stats.multitest.multipletests with method fdr_bh
+  claim_id: c_c055db6d
+  context: Task T027 implementation detail requiring the use of statsmodels for the
+    Benjamini-Hochberg correction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_statsmodels.stats.multitest.multipletests_with_method_fd
+  kind: entity_fact
+  raw_text: The system must use the statsmodels.stats.multitest.multipletests function
+    with method='fdr_bh' for the Benjamini-Hochberg correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:38:40Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Generate 15 synthetic CBC injections using LALSimulation
+  claim_id: c_45b4a8cb
+  context: "FR-001: System MUST generate \u226515 synthetic CBC injections into real\
+    \ GW noise segments fetched from GWOSC, using LALSimulation with known ground\
+    \ truth parameters, replacing the requirement to download public injection campaigns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST generate \u226515 synthetic CBC injections into real\
+    \ GW noise segments fetched from GWOSC, using LALSimulation with known ground\
+    \ truth parameters, replacing the requirement to download public injection campaigns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:45:37Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Iterate until 12 valid events found or 20 attempts reached
+  claim_id: c_34e7a38b
+  context: "The system MUST iterate fetching noise segments and generating injections\
+    \ until \u226512 valid events with complete spin metadata are found, or a maximum\
+    \ of 20 attempts is reached."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST iterate fetching noise segments and generating injections\
+    \ until \u226512 valid events with complete spin metadata are found, or a maximum\
+    \ of 20 attempts is reached."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:45:37Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Run Bilby Dynesty Fast PE on 12 events
+  claim_id: c_c6e14313
+  context: "FR-005: System MUST run Parameter Estimation using Bilby with Dynesty\
+    \ (Fast PE) on both original and compressed datasets for \u226512 events, replacing\
+    \ LALInference due to CI constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST run Parameter Estimation using Bilby with Dynesty (Fast\
+    \ PE) on both original and compressed datasets for \u226512 events."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:45:38Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Apply Hilbert curve D-to-2D folding for 1D strain data
+  claim_id: c_9ad67b88
+  context: 'FR-003: For wavelet-based image compression standards, a D-to-2D folding
+    transformation (Hilbert curve) is applied to adapt 2D codecs to 1D strain data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Hilbert_curve_D-to-2D_folding_for_1D_strain_data
+  kind: entity_fact
+  raw_text: A D-to-2D folding transformation (Hilbert curve) is applied to adapt 2D
+    codecs to 1D strain data for wavelet-based image compression standards.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:45:43Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Fallback to Paired t-tests if ESS < 100
+  claim_id: c_fc0b0eb6
+  context: 'FR-007: System MUST attempt hierarchical Bayesian shift tests. If convergence
+    fails (ESS < 100), the system MUST fallback to Paired t-tests (alpha=0.05) with
+    Benjamini-Hochberg correction.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If convergence fails (ESS < 100), the system MUST fallback to Paired t-tests
+    (alpha=0.05) with Benjamini-Hochberg correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:45:43Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Fetch loop batch size 1 until 12 valid events or 20 attempts
+  claim_id: c_71b430e6
+  context: "Implement the logic in src/data/fetch_loop.py to fetch noise segments\
+    \ one by one (batch_size=1) and inject/validate until \u226512 valid events with\
+    \ complete spin metadata are found or max_attempts=20 is reached."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST fetch noise segments one by one (batch_size=1) and inject/validate\
+    \ until \u226512 valid events with complete spin metadata are found or max_attempts=20\
+    \ is reached."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:46:33Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Orchestrate pipeline for 15 target events
+  claim_id: c_d49524de
+  context: "Create src/data/main.py to orchestrate the download-inject-validate pipeline\
+    \ for \u226515 target events (per Amended FR-001) and produce the validated dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline must be orchestrated to run for \u226515 target events."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:46:34Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Baseline generation maxiter 500 nlive 200
+  claim_id: c_17500c60
+  context: 'Operates under Amended FR-005 and Plan Complexity Tracking: Local Baseline.
+    MUST use reduced iterations (maxiter=500, nlive=200) to ensure completion within
+    CI time limits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline generation MUST use reduced iterations (maxiter=500, nlive=200)
+    to ensure completion within CI time limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:46:57Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 2
+  canonical: SNR degradation precision 0.1 dB
+  claim_id: c_b550adfc
+  context: "Implement src/compression/metrics.py to compute MSE and SNR degradation\
+    \ (precision \u2265 0.1 dB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "precision \u2265 0.1 dB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:46:58Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: PE run maxiter 5000 nlive 200 dlogz_init 0.5
+  claim_id: c_d76122d6
+  context: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
+    (maxiter=5000, nlive=200, dlogz_init=0.5) specifically chosen to meet the h/event
+    constraint.
+  evidence:
+    asserted: '5000.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: The PE run wrapper must use reduced iterations (maxiter=5000, nlive=200,
+    dlogz_init=0.5) specifically chosen to meet the h/event constraint.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T09:46:58Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Classify SNR degradation > 5% as unacceptable
+  claim_id: c_a542a652
+  context: Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable'
+    (FR-002, FR-003, FR-004, SC-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must classify compression levels with SNR degradation > 5%
+    as 'unacceptable'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:46:59Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: "Full pipeline execution \u2264 6 hours"
+  claim_id: c_40c48e0b
+  context: "Performance optimization to ensure full pipeline execution \u2264 6 hours\
+    \ (CI constraint)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The full pipeline execution must be optimized to ensure completion within\
+    \ \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T09:46:59Z'

@@ -1,0 +1,94 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      run_full_evaluation:
+        description: 'Run full 15-dataset evaluation (approx 6h)'
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov ruff
+      - name: PII Scan
+        run: python code/scripts/pii_scan.py
+      - name: Run Unit & Contract Tests
+        run: pytest tests/unit tests/contract -v --tb=short
+
+  data-setup:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Run Data Loader (Spectrum Selection)
+        run: python code/data_loader.py
+      - name: Cache Datasets
+        uses: actions/cache@v3
+        with:
+          path: data/raw
+          key: ${{ runner.os }}-datasets-${{ hashFiles('data/spectrum_report.json') }}
+
+  evaluation:
+    runs-on: ubuntu-latest
+    needs: data-setup
+    timeout-minutes: 360
+    if: >
+      github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')) ||
+      github.event_name == 'workflow_dispatch' && github.event.inputs.run_full_evaluation == 'true'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Restore Dataset Cache
+        uses: actions/cache@v3
+        with:
+          path: data/raw
+          key: ${{ runner.os }}-datasets-${{ hashFiles('data/spectrum_report.json') }}
+          restore-keys: |
+            ${{ runner.os }}-datasets-
+      - name: Run Full Evaluation Pipeline
+        # The main.py script includes signal handling (SIGINT, SIGTERM) from T036b
+        # to gracefully save partial results if terminated.
+        run: |
+          python code/main.py
+      - name: Upload Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: evaluation-results
+          path: |
+            results/
+            data/spectrum_report.json
+          retention-days: 7

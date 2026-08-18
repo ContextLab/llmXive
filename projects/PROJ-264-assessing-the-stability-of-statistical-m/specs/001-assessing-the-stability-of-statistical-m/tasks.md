@@ -26,10 +26,7 @@
 
 - [X] T001 Create project structure per `plan.md` by creating files: `code/__init__.py`, `code/main.py`, `data/raw/.gitkeep`, `data/processed/.gitkeep`, `tests/__init__.py`, `tests/contract/.gitkeep`, `tests/unit/.gitkeep`, `tests/integration/.gitkeep`
 - [X] T002 Initialize Python project with `requirements.txt` containing pinned versions: `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`, `openml>=0.13.0`
-- [X] T003a [P] Configure linting tool by creating `.ruff.toml` with explicit rules: `[lint]` section enabling `E`, `F`, `W`, `I` rules, setting `line-length = 88`, and enabling `D` (Pydocstyle) and `PI` (PII) rules to satisfy Constitution Principle III (Data Hygiene).
-- [X] T003b [P] Configure formatting tool by creating `pyproject.toml` with Black settings (e.g., `line-length = 88`, `target-version = ['py311']`)
-- [X] T003c [P] Implement PII scan script skeleton `code/scripts/pii_scan.py` (create file, imports, main function stub).
-- [X] T003d [P] Implement PII scan logic in `code/scripts/pii_scan.py` to run `ruff check --select=PII001,PII002 .` and fail the build if PII is detected, satisfying Constitution Principle III.
+- [X] T003 [P] Implement PII scan script `code/scripts/pii_scan.py` to run `ruff check --select=PII001,PII002.` and fail the build if PII is detected, satisfying Constitution Principle III (Data Hygiene).
 
 ---
 
@@ -44,10 +41,11 @@
  1. Fetch a candidate pool of binary classification datasets (e.g., top 50 by size or random sample) from OpenML.
  2. Validate each dataset: if `n_samples < 100`, log a warning and **skip only that specific dataset**.
  3. Perform **programmatic spectrum validation**: verify the candidate pool spans a broad sample size range (N<1k, 1k-10k, N>10k).
- 4. **Dynamic Selection**: From the valid pool, select exactly 15 datasets that best cover the required spectrum (N<1k, 1k-10k, N>10k). If the pool is insufficient to cover all bins, expand the search or log a CRITICAL error: "CRITICAL: Insufficient valid datasets to cover required spectrum. Exiting." and exit with code 1.
+ 4. **Dynamic Selection**: From the valid pool, select exactly 15 datasets that best cover the required spectrum (N<1k, 1k-10k, N>10k) by sorting by n_samples and taking the top 5 from each of the three bins. If the pool is insufficient to cover all bins, expand the search or log a CRITICAL error: "CRITICAL: Insufficient valid datasets to cover required spectrum. Exiting." and exit with code 1.
  5. **Robust Network Error Handling**: if a download fails, log the error, skip that dataset, and continue with the rest.
  6. **Checksum Verification**: Integrate checksum verification logic to ensure data integrity before use.
  7. Generate `data/spectrum_report.json` documenting the final selection and its diversity coverage.
+ 8. **Reproducibility Cache**: Save the final list of 15 dataset IDs to `data/spectrum_report.json`. Subsequent runs MUST use this cached list to ensure reproducibility (Constitution Principle I).
 - [X] T006 Implement `code/preprocessor.py` with leakage-safe imputation (median/mode) and scaling wrappers
 - [X] T007 [P] Create contract tests in `tests/contract/test_dataset_schema.py` and `tests/contract/test_evaluation_run_schema.py` to validate schemas defined in `specs/001-assessing-the-stability-of-statistical-m/contracts/`
 
@@ -122,6 +120,7 @@
  - **Output**: Append results to `results/correlation_results.csv` with `metric_type='CV'`.
  - **Constraint**: This is the **primary** analysis for SC-001 and SC-002.
 - [X] T019b [US2] **SECONDARY**: Implement **Pearson correlation** calculation in `code/analyser.py` to compute correlation coefficients between **log(CV)** (log(CV)) and dataset properties (log(n_samples), log(n_features)) as a secondary/transformative analysis (Plan 'Log-Transformed Variance' decision).
+ - **Input**: Must consume aggregated data. **Must filter out rows where CV=0** before calculating log(CV) to prevent undefined operations.
  - **Primary Output**: Pearson r and p-value on log(CV) vs log(N).
  - **Secondary**: Compute Spearman rho for robustness check.
  - **Output**: Append results to `results/correlation_results.csv` with `metric_type='LogCV'`.
@@ -129,19 +128,19 @@
  - **Additional Output**: Must also calculate and output regression coefficients (slope, intercept) for the log-log fit to `results/regression_coefficients.csv`.
 - [X] T020 [US2] **SECONDARY**: Compute **Theoretical Deviation** and residuals from log-log linear regression of **log(CV)** against log(n_samples) and log(n_features).
  - **Input**: Must consume regression coefficients (slope, intercept) from T019b output (`results/regression_coefficients.csv`).
- - **Formula**: Calculate deviation as `log(CV) - log(1/sqrt(N))`.
+ - **Formula**: Calculate deviation as `log(CV) - (slope * log(N) + intercept)`. Uses the fitted slope from T019b, not a hardcoded -0.5.
  - **Output Artifact**: Write residuals and deviation metrics to `results/theoretical_deviation.csv`.
  - **Dependency**: Must wait for T019b.
-- [X] T021 [US2] Write **final** summary tables to `results/stability_metrics.csv` and `results/correlation_results.csv`.
+- [X] T021 [US2] **Finalize and Write** summary tables to `results/stability_metrics.csv` and `results/correlation_results.csv`.
  - **Schema `stability_metrics.csv`**: `dataset_id` (int), `model_name` (str), `mean_accuracy` (float), `cv_accuracy` (float), `mean_f1` (float), `cv_f1` (float), `log_cv_accuracy` (float).
- - **Schema `correlation_results.csv`**: `dataset_id` (int), `model_name` (str), `metric_type` (str: 'CV', 'LogCV'), `pearson_r` (float), `pearson_p_value` (float), `spearman_rho` (float), `spearman_p_value` (float), `feature_count` (int), `sample_size` (int).
+ - **Schema `correlation_results.csv`**: `dataset_id` (int), `model_name` (str), `metric_type` (str: 'CV', 'LogCV'), `pearson_r` (float), `pearson_p_value` (float), `spearman_rho` (float), `spearman_p_value` (float), `feature_count` (int), `sample_size` (int), `adj_p_value_holm` (float), `significant_holm` (bool).
  - **Primary Constraint**: `pearson_r` and `pearson_p_value` for `metric_type='CV'` must be the primary columns used for decision making.
  - **Implementation Logic**:
-  1. Read `results/raw_evaluations.csv` and aggregate to compute stability metrics (mean, std, cv, log(CV)) per (dataset, model).
-  2. Write aggregated metrics to `results/stability_metrics.csv`.
-  3. Read `results/correlation_results.csv` (populated by T019a and T019b) and write final summary to `results/correlation_results.csv` (overwriting any intermediate files to ensure a single source of truth).
-  4. Ensure all required columns are populated from upstream tasks.
- - **Dependency**: Must wait for T018a, T018b, T019a, T019b, and T020.
+ 1. Read `results/raw_evaluations.csv` and aggregate to compute stability metrics (mean, std, cv, log(CV)) per (dataset, model).
+ 2. Write aggregated metrics to `results/stability_metrics.csv`.
+ 3. Read `results/correlation_results.csv` (populated by T019a, T019b, and **updated by T026 to include adjusted p-values**) and write final summary to `results/correlation_results.csv`.
+ 4. Ensure all required columns are populated from upstream tasks, preserving the adjusted p-values added by T026.
+ - **Dependency**: Must wait for T018a, T018b, T019a, T019b, T020, and **T026**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -166,17 +165,17 @@
  - **Algorithm**: **Block Permutation**: Permute entire repeat indices (0-9) as blocks, keeping fold indices within repeats intact. This preserves the dependence structure of repeated CV scores.
  - **Logic**: Generate results for **all three pairwise combinations** (LR vs RF, RF vs SVM, LR vs SVM) for each dataset.
  - **Output**: Write raw p-values for each model pair per dataset to `results/permutation_results.csv` (raw).
-- [X] T026 [US3] Implement **Multiple Comparison Correction** globally across the set of ALL hypothesis tests (correlations and Permutation Tests) performed across the full collection of datasets.
+- [X] T026 [US3] Implement **Multiple Comparison Correction** and **Final Write** globally across the set of ALL hypothesis tests (correlations and Permutation Tests) performed across the full collection of datasets.
  - **Input**: Must consume p-values from `results/correlation_results.csv` (from T019a/T019b) and `results/permutation_results.csv` (raw, from T025). **Must wait for T025 completion**.
- - **Scope**: 'ALL' tests = Union of all p-values from correlation results and permutation test results.
+ - **Scope**: 'ALL' tests = Union of all p-values from correlation results and permutation test results (225 total tests: 15 datasets * 3 models * 2 metrics for correlations + 15 datasets * 3 pairs for permutations). This single family is used for strict FWER control as required by FR-007 and SC-005.
  - **Method (FWER)**: Implement **Holm-Bonferroni** procedure (step-down) as explicitly required by Plan for strict FWER control.
- - **Output**: Append adjusted p-values to `results/correlation_results.csv` and `results/permutation_results.csv` with columns `adj_p_value_holm` and `significant_holm`.
- - **Constraint**: Must explicitly report Holm-Bonferroni adjusted p-values.
-- [X] T027 [US3] Write final permutation test results to `results/permutation_results.csv`.
- - **Schema**: `dataset_id` (int), `model_a` (str), `model_b` (str), `statistic` (float), `raw_p_value` (float), `adj_p_value_holm` (float), `significant_holm` (bool).
- - **Dependency**: Must wait for T026 to produce adjusted p-values (which are written to the file).
- - **Coverage Constraint**: Must ensure all three pairwise combinations (LR vs RF, RF vs SVM, LR vs SVM) are generated for every dataset.
-- [X] T028a [US3] Implement report generator aggregation logic in `code/report_generator.py` to aggregate `results/stability_metrics.csv`, `results/correlation_results.csv` (final, from T021/T026), and `results/permutation_results.csv` (final, from T027).
+ - **Action**: Apply correction to the union of all p-values.
+ - **Output**:
+ 1. Append/Update `results/correlation_results.csv` with columns `adj_p_value_holm` and `significant_holm`.
+ 2. Append/Update `results/permutation_results.csv` with columns `adj_p_value_holm` and `significant_holm`.
+ 3. **Finalize and Write** the final `results/permutation_results.csv` with the complete schema including adjusted p-values.
+ - **Constraint**: Must explicitly report Holm-Bonferroni adjusted p-values and ensure the final files contain the corrected values.
+- [X] T028a [US3] Implement report generator aggregation logic in `code/report_generator.py` to aggregate `results/stability_metrics.csv`, `results/correlation_results.csv` (final, from T021/T026), and `results/permutation_results.csv` (final, from T026).
  - **Input Columns**: Specify exact columns from each CSV to be used (e.g., `dataset_id`, `model_name`, `pearson_r`, `adj_p_value_holm`, etc.).
  - **Aggregation Logic**: Define grouping, filtering, and summarization steps (e.g., group by dataset, filter by significance).
  - **Output Format**: Specify the intermediate data structure (e.g., DataFrame) to be passed to the templating engine.
@@ -254,13 +253,10 @@
  - **Mock Data**: Create a mock dataset with N=50000.
  - **Assertion**: Verify that the dataset is included in the valid set.
  - **Target Function**: `validate_dataset_spectrum`
-- [X] T040a [P] **Adaptive Fold Logic Validation**: Add unit test in `tests/unit/test_evaluator.py` to verify that datasets with N < 100 are **skipped**. (Addresses Plan T004 & Spec Edge Case: Dataset Size Limit).
- - **Mock Data**: Create a mock dataset with N=50.
- - **Expected Log Message**: "Skipping dataset with n_samples=50 (< 100)."
- - **Target Function**: `evaluate_model`
-- [X] T040b [P] **Adaptive Fold Logic Validation**: Add unit test in `tests/unit/test_evaluator.py` to verify that datasets with N >= 100 use K=10. (Addresses Plan T004 & Spec Edge Case: Dataset Size Limit).
- - **Mock Data**: Create a mock dataset with N=200.
- - **Expected Parameter Values**: `n_splits=10`, `n_repeats=10`.
+- [X] T040 [P] **Adaptive Fold Logic Validation**: Add unit tests in `tests/unit/test_evaluator.py` to verify that datasets with N < 100 are **skipped** and datasets with N >= 100 use K=10. (Addresses Plan T004 & Spec Edge Case: Dataset Size Limit).
+ - **Mock Data**: Create mock datasets with N=50 and N=200.
+ - **Expected Log Message (N=50)**: "Skipping dataset with n_samples=50 (< 100)."
+ - **Expected Parameter Values (N=200)**: `n_splits=10`, `n_repeats=10`.
  - **Target Function**: `evaluate_model`
 
 ---
@@ -269,18 +265,39 @@
 
 **Purpose**: Address remaining reviewer concerns regarding statistical validity, reproducibility, and edge cases.
 
-- [ ] T047 [P] **CI Integration for Data Download**: Update `.github/workflows/ci.yml` to include a step that runs `code/data_loader.py` (created in T005) as a one-time setup before the main evaluation job, ensuring datasets are cached correctly.
+- [X] T047 [P] **CI Integration for Data Download**: Update `.github/workflows/ci.yml` to include a step that runs `code/data_loader.py` (created in T005) as a one-time setup before the main evaluation job, ensuring datasets are cached correctly.
  - **Logic**: This step should only run on `main` branch or specific tags, not on every PR, to avoid unnecessary downloads.
  - **Constraint**: Ensure that the downloaded data is cached across CI runs to save time and bandwidth.
  - **Note**: This step must also run the checksum verification logic from T005 to ensure data integrity.
-- [ ] T048 [P] **Documentation Update for Statistical Methods**: Update `docs/report_template.md` (create if missing) and `specs/001-assessing-the-stability-of-statistical-m/research.md` to explicitly describe the statistical methods used (Log-Log transformation, Block Permutation Test, Holm-Bonferroni correction) and their justification.
+- [X] T048 [P] **Documentation Update for Statistical Methods**: Update `docs/report_template.md` (create if missing) and `specs/001-assessing-the-stability-of-statistical-m/research.md` to explicitly describe the statistical methods used (Log-Log transformation, Block Permutation Test, Holm-Bonferroni correction) and their justification.
  - **Content Requirements**:
-  1. **Log-Log Transformation**: Add a section explaining that raw CV distributions are skewed and non-linear with respect to sample size. State that a log-log transformation is applied to linearize the power-law relationship (CV ~ 1/√N) and normalize residuals for Pearson correlation, citing standard statistical practice for variance stabilization.
-  2. **Block Permutation Test**: Add a section justifying the use of Block Permutation over standard permutation. Explicitly state that repeated CV scores within a single repeat are not independent; therefore, permuting individual scores would inflate Type I error. The task must describe permuting entire repeat blocks to preserve the dependence structure.
-  3. **Holm-Bonferroni Correction**: Add a section explaining that for strict Family-Wise Error Rate (FWER) control required by SC-005 and the Plan's Complexity Tracking, Holm-Bonferroni is preferred over Benjamini-Hochberg (which controls FDR) and standard Bonferroni (which is overly conservative). Justify Holm-Bonferroni as the optimal balance for this exploratory analysis.
-  4. **Template Creation**: If `docs/report_template.md` does not exist, create it with the necessary sections (Methodology, Results, Discussion) and placeholders for the statistical outputs.
+ 1. **Log-Log Transformation**: Add a section explaining that raw CV distributions are skewed and non-linear with respect to sample size. State that a log-log transformation is applied to linearize the power-law relationship (CV ~ 1/√N) and normalize residuals for Pearson correlation, citing standard statistical practice for variance stabilization.
+ 2. **Block Permutation Test**: Add a section justifying the use of Block Permutation over standard permutation. Explicitly state that repeated CV scores within a single repeat are not independent; therefore, permuting individual scores would inflate Type I error. The task must describe permuting entire repeat blocks to preserve the dependence structure.
+ 3. **Holm-Bonferroni Correction**: Add a section explaining that for strict Family-Wise Error Rate (FWER) control required by SC-005 and the Plan's Complexity Tracking, Holm-Bonferroni is preferred over Benjamini-Hochberg (which controls FDR) and standard Bonferroni (which is overly conservative). Justify Holm-Bonferroni as the optimal balance for this exploratory analysis.
+ 4. **Template Creation**: If `docs/report_template.md` does not exist, create it with the necessary sections (Methodology, Results, Discussion) and placeholders for the statistical outputs.
  - **Action**: Edit `docs/report_template.md` (or create it) to include these specific explanatory blocks in the "Methodology" section. Edit `research.md` to include the same justifications and add formal citations to the relevant statistical literature (e.g., Holm 1979 for Holm-Bonferroni, standard texts for log-transformation).
  - **Constraint**: Ensure that the documentation is clear, accessible, and directly addresses the "Why" of each method choice.
-- [ ] T049 [P] **Verification of Integrated Logic**: Verify that the logic for Checksum Verification is fully present in T005 and T047, and that the logic for Memory Profiling and Signal Handling is fully present in T031 and T036b.
+- [X] T049 [P] **Verification of Integrated Logic**: Verify that the logic for Checksum Verification is fully present in T005 and T047, and that the logic for Memory Profiling and Signal Handling is fully present in T031 and T036b.
  - **Action**: Review `code/data_loader.py` (T005) and `.github/workflows/ci.yml` (T047) to confirm checksum verification is executed. Review `code/evaluator.py` (T031) and `code/main.py` (T036b) to confirm memory management and signal handling are implemented.
  - **Output**: A verification note in the PR description confirming these integrations are complete.
+
+---
+
+## Phase Z: Final Validation & Execution Readiness
+
+**Purpose**: Ensure the pipeline is robust, reproducible, and ready for the full execution run.
+
+- [ ] T050 [P] **Final End-to-End Smoke Test**: Execute a full pipeline run on exactly 3 datasets (one from each size bin: <1k, 1k-10k, >10k) to verify the entire flow from download to final report generation without errors.
+ - **Script**: Create `scripts/run_smoke_test.py` to orchestrate this specific subset.
+ - **Validation**: Verify that `results/raw_evaluations.csv`, `results/stability_metrics.csv`, `results/correlation_results.csv`, `results/permutation_results.csv`, and `results/final_report.md` are all generated and contain valid data.
+ - **Constraint**: This task MUST pass before the full 15-dataset run is triggered in CI.
+- [ ] T051 [P] **Resource Usage Audit**: Run the smoke test (T050) with memory profiling enabled and log peak RSS memory usage to `results/memory_profile.log`.
+ - **Tool**: Use `memory_profiler` or `tracemalloc`.
+ - **Action**: Insert profiling decorators around `code/evaluator.py` and `code/analyser.py` functions.
+ - **Goal**: Confirm peak memory usage remains < 6GB with a safety margin for the 7GB limit.
+- [ ] T052 [P] **Determinism Verification**: Run the smoke test (T050) twice with the same seed and verify that the checksums of all output CSVs and the final report are identical.
+ - **Action**: Add a script `scripts/verify_determinism.py` that runs the pipeline twice, computes SHA-256 hashes of all result files, and asserts equality.
+ - **Goal**: Confirm that random seed pinning in `code/utils.py` is effective across all components.
+- [ ] T053 [P] **CI Workflow Finalization**: Update `.github/workflows/ci.yml` to trigger the full pipeline (15 datasets) only on manual dispatch or specific branch pushes, ensuring the 6-hour timeout and signal handling are active.
+ - **Action**: Add a `workflow_dispatch` trigger and configure the `evaluation` job to use the `signal_handler` from T036b.
+ - **Goal**: Ensure the CI environment is correctly configured for the long-running job.

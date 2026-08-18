@@ -35,3 +35,29 @@ T029b:
   r: No evidence of the file `specs/001-assess-model-stability/quickstart.md` or its
     contents was provided, so we cannot confirm that a dataset list was added as required.
     The implementer must supply the updated markdown file showing the dataset list.
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, output files, or reports are provided showing a full pipeline\
+    \ run on three datasets (one <1k, one 1k\u201110k, one >10k). Without concrete\
+    \ artifacts (e.g., console output, generated report, or saved results) the claim\
+    \ cannot be verified. The required evidence of the end\u2011to\u2011end smoke\
+    \ test is missing."
+T051:
+  c: false
+  h: 8ce77515c5e0ba3b9cbc53157f6ea0ea1e6c24f9d35342b3a2b87aae2a57e84a
+  r: "The required artifact `results/memory_profile.log` does not exist, so the memory\
+    \ profiling step was not performed or its output was not saved as specified. The\
+    \ task\u2019s core requirement\u2014logging peak RSS memory usage\u2014is unmet."
+T052:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the smoke test being run twice, no recorded checksums of the output
+    CSVs or final report, and no verification that they are identical. The required
+    artifact (determinism verification results) is missing.
+T053:
+  c: false
+  h: 781ce5402d362194450012439b6cac1656ddeb85801a6cf7b751394b6c31daa6
+  r: The required `.github/workflows/ci.yml` file does not exist in the repository,
+    so no workflow configuration can be verified for the specified triggers, timeout,
+    or signal handling. The implementer must add the file with the correct settings.
