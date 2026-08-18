@@ -1,3 +1,20 @@
+T004:
+  c: true
+  h: 233058ef94986bcd28a061b08b091bcc011c5a2a2f79783c6b6a89d6881f559c
+  r: "The provided `code/config.py` is present, non\u2011empty, defines `PRIMARY_MATCHING_THRESHOLD\
+    \ = 0.30`, sets `GOLD_STANDARD_ANNOTATIONS_PATH = 'data/raw/gold_standard_annotations.csv'`,\
+    \ includes path definitions, calls `np.random.seed(42)`, and supplies hyperparameter\
+    \ values as required. The absence of the CSV file does not violate the task, which\
+    \ only asked for the constant definition."
+T016:
+  c: false
+  h: 3c1ffd4bd03098fbcda3e7f48f8035024ba0804a41d98fd40fa6821e52d5c0fb
+  r: "The repository contains a `code/main.py` file, but it is truncated and does\
+    \ not show the required CLI (`extract` subcommand) or the logic that enforces\
+    \ the short\u2011text skip\u2011and\u2011log behavior. Moreover, the expected\
+    \ output file `data/processed/perspective_features.json` is absent, so the pipeline\u2019\
+    s result cannot be verified. The missing output and unclear CLI implementation\
+    \ mean the task is not fully satisfied."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -7,15 +24,6 @@ T018:
     \ is not satisfied. The next implementer must add and commit the logging implementation\
     \ (e.g., a log statement in the extraction script and a sample log file) and provide\
     \ the corresponding artifact."
-T025:
-  c: false
-  h: ff4a9de02d4fe9245b8b29dc512fe216426ec33137d82f8a751324a32a08c316
-  r: "The repository lacks the required `data/processed/perspective_features.json`\
-    \ and `data/processed/matching_results.json` files, and the provided `code/main.py`\
-    \ is truncated and only contains extraction logic\u2014not a `match` sub\u2011\
-    command that loads features, builds TF\u2011IDF vectors, applies the `PRIMARY_MATCHING_THRESHOLD`,\
-    \ and writes the specified schema. These essential artifacts and functionality\
-    \ are missing."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,19 +1,19 @@
 status: none
-intent: Project Gutenberg short stories Open Science Framework reader response Moral
-  Foundations Dictionary python package dataset
+intent: Project Gutenberg short stories corpus Open Science Framework reader responses
+  Moral Stories judgment python package dataset
 required_fields:
 - story_id
 - title
 - author
-- year
+- publication_year
 - genre
+- language
 - text
 - response_id
-- story_id
 - participant_id
+- story_id (link)
 - rating
-- comments
 - moral_judgment_score
-cache_key: 8db87e1ac1519538c6f59ed83cfed0f7e8eb3d412f46d2c6cded402c8fff1679
-searched_at: '2026-08-12T05:23:54.836267+00:00'
+cache_key: 9d705aed6ba8f3eb390d69b81c7d3b18e8ea3ffd01934ef5c2fc309986d54b91
+searched_at: '2026-08-18T00:40:51.802068+00:00'
 retry_count: 1

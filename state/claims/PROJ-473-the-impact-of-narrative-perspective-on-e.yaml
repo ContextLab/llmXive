@@ -1420,3 +1420,65 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T00:37:07Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 0
+  canonical: First-person density scores correlate >= 0.85 with human annotations
+    on 50 stories
+  claim_id: c_00d077c7
+  context: Independent test description for User Story 1 perspective feature extraction
+    pipeline.
+  evidence:
+    asserted: '50.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The pipeline can be tested by processing a small, manually annotated\
+    \ sample of 50 stories and verifying that the computed 'first-person density'\
+    \ scores correlate \u2265 0.85 with human annotations of perspective type."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T00:49:28Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: 'GitHub Actions free-tier runner constraints: 14GB disk'
+  claim_id: c_70c20880
+  context: Setup CI environment task description mentioning compatibility with free-tier
+    runners.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_runner_constraints:_14GB_disk
+  kind: entity_fact
+  raw_text: 'The workflow must be compatible with GitHub Actions free-tier runners
+    (default constraints: limited CPU cores, limited RAM, 14GB disk).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:50:48Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Text-similarity matching logic precision >= 0.9 on gold standard pairs
+  claim_id: c_6b584b01
+  context: Independent test description for User Story 2 text similarity matching
+    logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The matching logic can be tested by running it against a 'gold standard'\
+    \ a subset of manually annotated story-judgement pairs, verifying a precision\
+    \ \u2265 0.9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T00:50:48Z'
