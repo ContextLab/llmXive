@@ -15,11 +15,11 @@ As a research analyst, I need to extract effect sizes (correlation coefficients,
 
 **Why this priority**: This is the core scientific deliverable. Without the ability to extract data and perform the primary statistical synthesis, the study produces no quantitative results.
 
-**Independent Test**: Can be fully tested by running the extraction script on a small, synthetic CSV of 3 mock studies with known effect sizes and verifying the output JSON contains the correct weighted mean and confidence intervals calculated via `statsmodels` or `metafor` logic.
+**Independent Test**: Can be fully tested by running the extraction script on a small, synthetic CSV of mock studies with known effect sizes and verifying the output JSON contains the correct weighted mean and confidence intervals calculated via `statsmodels` or `metafor` logic.
 
 **Acceptance Scenarios**:
 
-1. **Given** a CSV file containing 3 mock studies with valid `r`, `n`, and `tract_name` columns, **When** the extraction and synthesis module is executed, **Then** the output JSON must contain a `weighted_mean_r` value matching the manual calculation within a tolerance of 0.001.
+1. **Given** a CSV file containing 3 mock studies with valid `r`, `n`, and `tract_name` columns, **When** the extraction and synthesis module is executed, **Then** the output JSON must contain a `weighted_mean_r` value matching the manual calculation within a specified tolerance.
 2. **Given** a dataset where one study has a missing `t-value` but a valid `r`, **When** the module processes the data, **Then** it must correctly utilize the `r` value for the meta-analysis without raising a runtime error.
 3. **Given** a dataset with fewer than 10 unique studies (defined as unique (Author, Year) pairs), **When** the system runs, **Then** it must flag the `synthesis_mode` as "narrative" and skip the quantitative aggregation step.
 
