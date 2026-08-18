@@ -5,35 +5,33 @@
 
 ## Summary
 
-This plan implements a statistical pipeline to assess the stability of three standard models (Logistic Regression, Random Forest, Linear SVM) across multiple binary classification datasets. The core approach involves executing multiple evaluations (k-fold x m repeats) per model-dataset pair to generate a distribution of performance metrics. These distributions are aggregated to calculate the Coefficient of Variation (CV), which serves as the primary stability metric. To address statistical validity, the plan mandates a **log-log transformation** of CV and dataset properties before computing Pearson correlations, linearizing the power-law relationship between variance and sample size. The plan further computes the **deviation from theoretical scaling** (observed log(CV) vs. theoretical log(1/√N)) to distinguish empirical findings from statistical definitions. Finally, it applies **Block Permutation Tests** (at the repeat level) to determine if variance differences between models are statistically significant, with all p-values corrected using the **Benjamini-Hochberg** procedure to control the False Discovery Rate (FDR).
+This feature implements a computational pipeline to assess the stability of three standard machine learning models (Logistic Regression, Random Forest, Linear SVM) across multiple binary classification datasets. The core methodology involves executing multiple evaluations (10-fold CV × 10 repeats = 100 runs) per model-dataset pair to generate a distribution of performance metrics (Accuracy, F1). The system quantifies stability via the Coefficient of Variation (CV) and correlates these metrics with dataset properties (sample size, feature count) using **Log-Log linear regression** to address non-linearity and mean-variance dependency. The hypothesis test specifically checks for deviation from the theoretical scaling slope, not zero. Finally, a **Permutation Test** (comparing variances directly) determines if variance differences between models are statistically significant, with **Holm-Bonferroni** multiple-comparison corrections applied to control the Family-Wise Error Rate (FWER).
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+  
-**Primary Dependencies**: pandas, numpy, scikit-learn, scipy, openml, joblib  
-**Storage**: Local file system (`data/` for cached datasets, `results/` for CSV outputs)  
-**Testing**: `pytest` (unit tests for statistical functions, integration tests for pipeline flow)  
-**Target Platform**: GitHub Actions `ubuntu-latest` (CPU-only, cores, ~7GB RAM)  
-**Project Type**: Data Science / Statistical Analysis Pipeline  
-**Performance Goals**: Complete 15 datasets x 3 models x 100 repeats within 6 hours; memory usage < 6GB peak.  
-**Constraints**: No GPU; no external API calls during execution (datasets must be pre-cached); strict reproducibility via pinned random seeds.  
-**Scale/Scope**: Multiple datasets (verified binary classification), A substantial number of model evaluations will be conducted., Multiple output CSVs, 1 final report.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `requests`  
+**Storage**: Local filesystem (`data/` for cached datasets, `results/` for CSV outputs)  
+**Testing**: `pytest` (unit tests for statistical functions, integration tests for pipeline)  
+**Target Platform**: GitHub Actions `ubuntu-latest` runner (CPU-only, 2 cores, ~7GB RAM)  
+**Project Type**: Data Science Pipeline / CLI  
+**Performance Goals**: Complete full pipeline (15 datasets × 3 models × 100 runs) within 6 hours. (Cites **SC-004**, **FR-006**)  
+**Constraints**: No GPU usage; datasets must be streamed or sampled if >7GB RAM; no data leakage during preprocessing.  
+**Scale/Scope**: A set of binary classification datasets (OpenML source), 3 models, [deferred] total evaluation runs.
 
-> **Note on Dataset Selection**: The plan uses a **fixed list of 15 OpenML dataset IDs** (see `research.md` and `quickstart.md`) that are pre-verified to be binary classification tasks with sample sizes of sufficient magnitude. The `download_data.py` script is a **one-time setup tool** to fetch and cache these specific datasets with checksums. The main CI execution will **not** fetch datasets dynamically; it will use the pre-cached files to ensure reproducibility and compliance with the Constitution.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*Gates determined based on `projects/PROJ-264-assessing-the-stability-of-statistical-m/.specify/memory/constitution.md`*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Evidence/Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **COMPLIANT** | `random_state` will be pinned globally in `code/utils.py`. All datasets fetched via `openml` API (canonical source) **once** by `download_data.py` and cached with checksums in `data/`. CI execution uses cached files only. |
-| **II. Verified Accuracy** | **COMPLIANT** | Citations in `research.md` will strictly reference the `openml` library documentation and the specific dataset IDs used. No fabricated URLs. |
-| **III. Data Hygiene** | **COMPLIANT** | Raw data cached in `data/` with SHA-256 checksums recorded in `state/`. No in-place modification; all preprocessing writes to `data/processed/`. |
-| **IV. Single Source of Truth** | **COMPLIANT** | All statistics in the final report (`results/final_report.md`) will be generated by `code/report_generator.py` reading directly from `results/*.csv`. No hand-typed numbers. |
-| **V. Versioning Discipline** | **COMPLIANT** | `requirements.txt` pins all versions. Artifact hashes in `state/` will be updated upon any code/data change. |
-| **VI. Statistical Power Adequacy** | **COMPLIANT** | Plan explicitly executes multiple repeats across multiple folds per pair, satisfying the "minimum of 100 resampling evaluations" requirement. |
-| **VII. Dataset Diversity** | **COMPLIANT** | The fixed list of 15 datasets (see `research.md`) was selected to cover the full range of sample sizes (ranging from moderate to large-scale) and feature dimensions. The selection strategy ensures coverage of low, medium, and high sample sizes. |
+- **I. Reproducibility**: Random seeds will be pinned in `code/`. Datasets fetched from canonical sources (verified OpenML IDs) and cached with checksums.
+- **II. Verified Accuracy**: All dataset references in `research.md` cite the specific OpenML IDs listed in the "Verified Datasets" table. These IDs serve as the canonical, verified sources for programmatic loading via `sklearn.datasets.fetch_openml`.
+- **III. Data Hygiene**: Raw data will be stored in `data/` with checksums recorded in `state/`. No in-place modification.
+- **IV. Single Source of Truth**: All results (CSVs) generated by `code/` scripts will be the sole source for `docs/report_template.md`.
+- **V. Versioning Discipline**: Artifacts will carry content hashes; `updated_at` timestamps will be managed by the Advancement-Evaluator.
+- **VI. Statistical Power Adequacy**: The plan explicitly mandates a sufficient number of resampling evaluations (Multiple folds × multiple repeats) per pair, satisfying the minimum threshold.
+- **VII. Dataset Diversity Requirements**: The dataset selection strategy targets a scalable sample size range and varying feature dimensions. **Specific OpenML IDs are listed in research.md to ensure compliance.** The datasets listed in `research.md` have been verified to span this range and are strictly binary classification tasks.
 
 ## Project Structure
 
@@ -54,18 +52,16 @@ specs/001-assess-model-stability/
 ```text
 code/
 ├── __init__.py
-├── config.py            # Global constants, seeds, dataset IDs
-├── utils.py             # Helper functions (imputation, metrics, permutation test)
-├── download_data.py     # Script to fetch and cache 15 datasets from OpenML (one-time setup)
-├── run_evaluation.py    # Main loop: 100 repeats x 3 models x 15 datasets
-├── analyze_stability.py # CV calculation, log-log correlation, permutation tests
-├── report_generator.py  # Aggregates CSVs, applies BH correction, generates final report
+├── download_data.py     # Fetches and caches datasets
+├── run_evaluation.py    # Repeated CV execution
+├── analyze_stability.py # CV, Correlation (Log-Log), Permutation tests
+├── report_generator.py  # Aggregates CSVs into final report
+├── utils.py             # Statistical helpers, seeding
 └── requirements.txt     # Pinned dependencies
 
 data/
-├── raw/                 # Cached OpenML datasets (CSV/ARFF)
-├── processed/           # Preprocessed splits (if needed)
-└── checksums.txt        # SHA-256 hashes
+├── raw/                 # Cached datasets with checksums
+└── processed/           # Imputed/scaled data (if needed)
 
 results/
 ├── stability_metrics.csv
@@ -77,15 +73,13 @@ docs/
 └── report_template.md
 ```
 
-**Structure Decision**: Single-project structure (`code/` at root) is selected. This minimizes overhead for a statistical analysis pipeline where scripts are sequential (Download -> Evaluate -> Analyze -> Report) and do not require complex service separation.
+**Structure Decision**: Single-project structure selected to minimize overhead. All data science logic resides in `code/` with clear separation between data acquisition, evaluation, analysis, and reporting.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Log-Log Transformation | Required to linearize the power-law relationship between CV and sample size, and to handle the non-normal distribution of CV. | Pearson correlation on raw CV data is statistically invalid due to skewness and non-linearity. |
-| Benjamini-Hochberg (BH) Correction | Required to control False Discovery Rate (FDR) for a set of hypothesis tests. Bonferroni is too conservative (alpha_adj ≈), likely yielding zero significant findings. | Bonferroni correction would make the exploratory analysis underpowered. BH is standard for large-scale hypothesis testing. |
-| Block Permutation Test | Required to account for the dependence structure of repeated CV scores (scores within a repeat are not independent). | Standard permutation of individual scores would violate independence assumptions and inflate Type I error rates. |
-| Fixed Dataset List | Required to ensure reproducibility and avoid dynamic selection failures. | Dynamic selection from OpenML at runtime is brittle and may result in non-binary or incompatible datasets. |
-| One-Time Caching | Required to comply with the Constitution's "MUST NOT fetch datasets dynamically during execution" rule. | Fetching datasets during CI execution violates reproducibility and data hygiene principles. |
-| Deviation from Theoretical Scaling | Required to distinguish empirical findings from the statistical identity (variance ~ 1/N). | Correlating raw CV with N is tautological; the deviation metric isolates the model-specific stability effect. |
+| Log-Log Regression | Required to linearize the relationship between CV and Sample Size (CV ∝ 1/√n) and satisfy linearity assumptions. The hypothesis tests for deviation from the theoretical slope, not zero, avoiding tautology. | Direct Pearson correlation on raw CV vs. n is mathematically tautological and violates assumptions. |
+| Holm-Bonferroni | Required by FR-007 and SC-005 to control Family-Wise Error Rate (FWER). | Benjamini-Hochberg controls FDR, which is insufficient for the strict error control required by the spec. |
+| Permutation Test on Variances | Required by FR-005 to compare variance distributions non-parametrically using a variance-difference statistic. | Standard F-test assumes normality of variance distributions which may not hold; permutation is more robust. |
+| Repeated CV (100 runs) | Required by Constitution Principle VI to distinguish algorithmic differences from sampling noise. | Single 10-fold CV is insufficient to estimate the variance of the estimator itself; 100 runs are needed for a stable CV calculation. |

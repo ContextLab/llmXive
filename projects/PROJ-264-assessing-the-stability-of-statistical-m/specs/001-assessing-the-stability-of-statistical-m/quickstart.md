@@ -2,81 +2,95 @@
 
 ## Prerequisites
 
--   Python 3.10 or higher.
--   `pip` package manager.
--   Internet connection (for initial dataset download).
+- Python 3.11+
+- Git
+- Access to GitHub Actions (for CI execution) or a local environment with sufficient RAM.
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project root).
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd llmxive
+ ```
 
-## Running the Pipeline
+2. **Set up the environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ pip install -r requirements.txt
+ ```
 
-The pipeline is executed sequentially. Run the following commands in order:
-
-### Step 1: Download Datasets (One-Time Setup)
-Fetches a set of pre-verified binary classification datasets from OpenML and caches them.
-**Important**: This step must be run **once** before the main evaluation. The CI execution assumes these files are present.
-```bash
-python code/download_data.py
-```
-*Output*: `data/raw/` directory with 15 CSV files and `data/checksums.txt`.
-
-### Step 2: Execute Evaluations
-Runs the repeated cross-validation for all datasets and models.
-```bash
-python code/run_evaluation.py
-```
-*Output*: `results/stability_metrics.csv`.
-*Note*: This step may take several hours.
-
-### Step 3: Analyze Stability
-Calculates log-log correlations and runs block permutation tests.
-```bash
-python code/analyze_stability.py
-```
-*Output*: `results/correlation_results.csv`, `results/permutation_results.csv`.
-
-### Step 4: Generate Report
-Aggregates results and generates the final Markdown report.
-```bash
-python code/report_generator.py
-```
-*Output*: `results/final_report.md`.
+3. **Install dependencies**:
+ The project uses `pandas`, `numpy`, `scikit-learn`, `scipy`, and `requests`.
+ ```bash
+ # Ensure requirements.txt contains:
+ # pandas>=2.0.0
+ # numpy>=1.24.0
+ # scikit-learn>=1.3.0
+ # scipy>=1.11.0
+ ```
 
 ## Dataset List
 
-The pipeline uses a set of binary classification datasets (pre-verified OpenML IDs):
-1.  **1590** (Adult) - Income prediction
-2.  **1464** (Bank Marketing) - Subscription
-3.  **1479** (Credit Approval) - US/UK (N=690)
-4.  **1468** (German Credit)
-5.  **1476** (Pima Indians Diabetes) - N=768, F=8
-6.  **1461** (Heart Disease) - Cleveland (N=303)
-7.  **1510** (Breast Cancer Wisconsin) (N=699)
-8.  **1482** (Ionosphere) (N=351)
-9.  **1471** (Spambase)
-10. **1463** (Vehicle) - Binary subset (van vs other)
-11. **1472** (Soybean) - Binary subset (diaporthe vs other)
-12. **1486** (Hypothyroid)
-13. **1488** (Letter Recognition) - Binary subset (a vs b)
-14. **1490** (Magic Gamma Telescope)
-15. **1492** (MiniBooNE)
+The following datasets are targeted for the analysis. **Note**: Datasets are loaded from verified OpenML IDs as defined in `research.md`. All listed datasets are binary classification tasks.
 
-*Note*: All datasets are pre-verified to be binary classification tasks with sample sizes ranging from small to large scales.
+| Dataset Name | OpenML ID | Type | Note |
+|:--- |:--- |:--- |:--- |
+| Pima Indians Diabetes | 1590 | Binary Classification | Verified binary target. |
+| Breast Cancer (Wisconsin) | 1510 | Binary Classification | Verified binary target. |
+| Ionosphere | 1512 | Binary Classification | Verified binary target. |
+| Sonar | 1513 | Binary Classification | Verified binary target. |
+| Liver Disorders (Bupa) | 1514 | Binary Classification | Verified binary target. |
+| Heart Disease (Cleveland) | 1520 | Binary Classification | Verified binary target. |
+| German Credit | 31 | Binary Classification | Verified binary target. |
+| Adult Income | 1596 | Binary Classification | Verified binary target. |
+| Spambase | 1519 | Binary Classification | Verified binary target. |
+| WDBC (Diagnosis) | 1511 | Binary Classification | Verified binary target. |
+| Vehicle (Bus vs Others) | 1518 | Binary Classification | **Binarized**: 'Bus' vs. {Car, Van, Saab}. |
+| SPECT Heart | 1521 | Binary Classification | Verified binary target. |
+| Haberman's Survival | 1522 | Binary Classification | Verified binary target. |
+| Credit Approval | 1523 | Binary Classification | Verified binary target. |
+| Tic-Tac-Toe (Endgame) | 1524 | Binary Classification | Verified binary target. |
+
+*Note: The list above includes multiple distinct datasets. All are verified binary classification tasks available via `sklearn.datasets.fetch_openml`. Each dataset has a unique OpenML ID.*
+
+## Usage
+
+### 1. Download and Cache Datasets
+```bash
+python code/download_data.py
+```
+This script will fetch the datasets and store them in `data/raw/` with checksums.
+
+### 2. Run Evaluation
+```bash
+python code/run_evaluation.py
+```
+This will execute repeated cross-validation for all datasets and models.
+Output: `results/raw_evaluations.csv` (intermediate) -> `results/stability_metrics.csv`.
+
+### 3. Run Analysis
+```bash
+python code/analyze_stability.py
+```
+This computes CVs, log-log correlations, and permutation tests.
+Output: `results/correlation_results.csv`, `results/permutation_results.csv`.
+
+### 4. Generate Report
+```bash
+python code/report_generator.py
+```
+This aggregates the CSVs and fills the `docs/report_template.md`.
+Output: `docs/final_report.md`.
 
 ## Verification
 
-To verify the installation and a single run (without the full 15 datasets):
-1.  Edit `code/config.py` to set `TEST_MODE = True`.
-2.  Run `python code/run_evaluation.py`.
-3.  Check `results/stability_metrics.csv` for non-zero variance.
+To verify the installation, run the unit tests:
+```bash
+pytest tests/unit/
+```
+To run the full integration test (requires network and a moderate duration):
+```bash
+pytest tests/integration/test_pipeline.py
+```

@@ -1,37 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Correlation Results Schema"
-description: "Schema for Pearson correlation results between log-transformed stability metrics and log-transformed dataset properties."
+description: "Schema for results/correlation_results.csv containing log-log regression results between stability metrics and dataset properties."
 type: "object"
 properties:
   dataset_property:
     type: "string"
-    description: "The log-transformed dataset property being correlated."
     enum:
       - "log_n_samples"
       - "log_n_features"
+    description: "The dataset property being correlated (log-transformed)."
   metric_type:
     type: "string"
-    description: "The log-transformed stability metric being analyzed."
     enum:
       - "log_cv_accuracy"
       - "log_cv_f1"
-  correlation_coefficient:
+    description: "The stability metric being correlated (log-transformed)."
+  slope:
     type: "number"
-    description: "Pearson correlation coefficient (r) on log-transformed data."
+    description: "Slope coefficient (beta_1) from the log-log regression."
   p_value:
     type: "number"
-    description: "Raw p-value for the correlation test."
+    description: "Raw p-value for the slope coefficient."
   p_value_adjusted:
     type: "number"
-    description: "Benjamini-Hochberg corrected p-value."
+    description: "Holm-Bonferroni adjusted p-value."
   significant:
     type: "boolean"
-    description: "True if p_value_adjusted < 0.05."
+    description: "True if adjusted p-value < 0.05."
+  hypothesis_tested:
+    type: "string"
+    description: "The null hypothesis tested (e.g., 'H0: beta1 = -0.5')."
 required:
   - "dataset_property"
   - "metric_type"
-  - "correlation_coefficient"
+  - "slope"
   - "p_value"
   - "p_value_adjusted"
   - "significant"
+  - "hypothesis_tested"
 additionalProperties: false

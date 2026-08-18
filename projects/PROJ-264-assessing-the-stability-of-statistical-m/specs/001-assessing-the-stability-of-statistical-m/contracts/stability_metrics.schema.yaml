@@ -1,36 +1,36 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Stability Metrics Schema"
-description: "Schema for the aggregated stability metrics per dataset and model."
+description: "Schema for results/stability_metrics.csv containing aggregated performance stability metrics per dataset and model."
 type: "object"
 properties:
   dataset_id:
-    type: "integer"
-    description: "OpenML dataset identifier."
+    type: "string"
+    description: "Unique identifier for the dataset."
   model_name:
     type: "string"
-    description: "Name of the model used."
     enum:
       - "LogisticRegression"
       - "RandomForest"
-      - "LinearSVC"
+      - "LinearSVM"
+    description: "Name of the machine learning model."
   mean_accuracy:
     type: "number"
-    description: "Mean accuracy over 100 repeats."
+    description: "Mean accuracy across 100 evaluation runs."
   std_accuracy:
     type: "number"
-    description: "Standard deviation of accuracy."
+    description: "Standard deviation of accuracy across 100 evaluation runs."
   cv_accuracy:
     type: "number"
     description: "Coefficient of Variation for accuracy (std/mean)."
   mean_f1:
     type: "number"
-    description: "Mean F1-score over 100 repeats."
+    description: "Mean F1-score across 100 evaluation runs."
   std_f1:
     type: "number"
-    description: "Standard deviation of F1-score."
+    description: "Standard deviation of F1-score across 100 evaluation runs."
   cv_f1:
     type: "number"
-    description: "Coefficient of Variation for F1-score."
+    description: "Coefficient of Variation for F1-score (std/mean)."
 required:
   - "dataset_id"
   - "model_name"

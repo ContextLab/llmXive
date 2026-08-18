@@ -2,111 +2,93 @@
 
 ## Overview
 
-This research phase validates the feasibility of the statistical pipeline, confirms dataset availability, and details the methodological approach for quantifying model stability. The core hypothesis is that model performance variance (instability) is correlated with dataset properties (sample size, feature count) and that certain algorithms (e.g., Random Forest) exhibit lower variance than others (e.g., Linear SVM) under repeated resampling. The analysis aims to quantify **deviations from the theoretical variance ~ 1/N relationship** across different models and datasets, rather than merely confirming the known scaling law.
+This research document defines the dataset strategy, statistical methods, and computational approach for assessing model stability. It addresses the core research question: *How does the stability of standard machine learning models (measured by the Coefficient of Variation of performance metrics) relate to dataset properties (sample size, feature count), and are some algorithms inherently more stable than others?*
 
 ## Dataset Strategy
 
-The study requires multiple binary classification datasets spanning a wide range of sample sizes. To ensure reproducibility and compliance with the Constitution (Principle I: Reproducibility), the plan uses a **fixed list of 15 OpenML dataset IDs**. These datasets are pre-verified to be binary classification tasks and meet the sample size constraints.
+The project requires multiple binary classification datasets from the OpenML repository. Per the project constraints and the "Verified datasets" block provided in the specification, we will utilize the following verified OpenML IDs. These IDs are confirmed to be binary classification tasks and span a broad required sample size range.
 
-**Selection Criteria**:
-1.  **Task Type**: Binary classification (n_classes == 2).
-2. **Sample Size**: $100 \le N \le [deferred]$.
-3.  **Feature Count**: Diverse range (low to high dimensionality).
-4.  **Availability**: Must be available on OpenML (verified by `openml` API).
-5.  **Diversity**: The list must explicitly cover the full range of sample sizes and feature dimensions.
+**Verified Datasets List (Source: OpenML Verified List)**:
+The following 15 datasets are verified binary classification tasks available via `sklearn.datasets.fetch_openml`. They span the required sample size diversity (Constitution Principle VII).
 
-**Verified Sources**:
--   **Source**: OpenML / UCI Machine Learning Repository (via `openml` Python library).
--   **Access Method**: `openml.datasets.get_dataset(dataset_id)`.
--   **Note**: The specific 15 dataset IDs are listed below. The `download_data.py` script will fetch these specific IDs and cache them locally with checksums. The main CI execution will use these cached files.
+| Dataset Name | OpenML ID | Approx. Samples | Features | Binary? | Verification Note |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Pima Indians Diabetes | [Dataset Size] | 768 | 8 | Yes | Verified binary target. |
+| Breast Cancer (Wisconsin) | A substantial number of instances | 683 | 30 | Yes | Verified binary target. |
+| Ionosphere | [Significant dataset] | 351 | 34 | Yes | Verified binary target. |
+| Sonar | | 208 | 60 | Yes | Verified binary target. |
+| Liver Disorders (Bupa) | a moderate sample size | 345 | 6 | Yes | Verified binary target. |
+| Heart Disease (Cleveland) | a substantial dataset | 303 | 13 | Yes | Verified binary target. |
+| German Credit | approximately 30 | 1000 | 20 | Yes | Verified binary target. |
+| Adult Income | [Dataset Size] | 48842 | 14 | Yes | Verified binary target. |
+| Spambase | [a subset of instances] | 4601 | 57 | Yes | Verified binary target. |
+| WDBC (Diagnosis) | large-scale dataset | 569 | 30 | Yes | Verified binary target. |
+| Vehicle (Bus vs Others) | A significant number | 846 | 18 | Yes | **Binarized**: Class 'Bus' vs. {Car, Van, Saab}. Canonical subset defined. |
+| SPECT Heart | A substantial dataset | 260 | 22 | Yes | Verified binary target. |
+| Haberman's Survival | A dataset containing a moderate number of observations and features | 306 | 3 | Yes | Verified binary target. |
+| Credit Approval | A large dataset | 690 | 15 | Yes | Verified binary target. |
+| Tic-Tac-Toe (Endgame) | a substantial dataset | 958 | 9 | Yes | Verified binary target. |
 
-**Fixed Dataset List (15 IDs)**:
-1.  **1590** (Adult) - Binary: Income >50k vs <=50k (N ~ 30k-48k)
-2.  **1464** (Bank Marketing) - Binary: Subscription (N ~ 45k)
-3.  **1479** (Credit Approval) - Binary: Approved vs Rejected (N=690) (Source: 2102.04721)
-4.  **1468** (German Credit) - Binary: Good vs Bad (N=1000)
-5.  **1476** (Pima Indians Diabetes) - Binary: Diabetes vs No Diabetes (N=768, F=8) (Source: 2509.12259)
-6.  **1461** (Heart Disease) - Binary: Disease vs No Disease (N=303)
-7.  **1510** (Breast Cancer Wisconsin) - Binary: Malignant vs Benign (N=699)
-8.  **1482** (Ionosphere) - Binary: Good vs Bad (N=351)
-9.  **1471** (Spambase) - Binary: Spam vs Not Spam (N=4601)
-10. **1463** (Vehicle) - Binary: Subset (e.g., 'van' vs 'other' classes) (N=846)
-11. **1472** (Soybean) - Binary: Subset (e.g., 'diaporthe' vs 'other') (N=683)
-12. **1486** (Hypothyroid) - Binary: Hypothyroid vs Normal (N=3772)
-13. **1488** (Letter Recognition) - Binary: Subset (e.g., 'a' vs 'b') (N=20000)
-14. **1490** (Magic Gamma Telescope) - Binary: Signal vs Background (N=19020)
-15. **1492** (MiniBooNE) - Binary: Signal vs Background (N=130064)
+**Dataset Selection Protocol**:
+1. **Primary Source**: We will load the 15 datasets listed above using `sklearn.datasets.fetch_openml(data_id=<ID>)`.
+2. **Verification**: Each dataset will be checked to ensure:
+   - Target is binary (2 classes). For ID 1518, the target is binarized to 'Bus' vs. 'Others' as a canonical subset.
+ - Sample size is between 100 and [deferred].
+   - No missing values that cannot be imputed (handled by pipeline).
+3. **Diversity**: The selected list explicitly covers the range from ~200 samples (Sonar) to [deferred] (Adult), satisfying Constitution Principle VII.
 
-**Binary Mapping Rules for Multi-Class Datasets**:
--   **Vehicle (1463)**: Classes are merged such that 'van' is class 0 and all others ('bus', 'car', 'saab') are class 1.
--   **Soybean (1472)**: Classes are merged such that 'diaporthe' is class 0 and all others are class 1.
--   **Letter Recognition (1488)**: Classes 'a' and 'b' are selected; all others are dropped.
--   **Adult (1590)**: Income >50k is class 1, <=50k is class 0.
+## Statistical Methods
 
-**Dataset Properties to be Extracted**:
--   `n_samples`: Number of instances.
--   `n_features`: Number of attributes (excluding target).
--   `n_classes`: Must be 2 (Binary).
--   `source`: "UCI" or "OpenML".
+### 1. Repeated K-Fold Cross-Validation
+- **Protocol**: 10 folds, 10 repeats = 100 evaluations per (dataset, model) pair.
+- **Models**: Logistic Regression, Random Forest (n_estimators=100), Linear SVM.
+- **Metrics**: Accuracy and F1-score recorded for every fold.
+- **Preprocessing**: Median imputation for numeric, mode for categorical. **Critical**: Imputers must be fit on the training fold only to prevent data leakage.
 
-## Methodology
+### 2. Coefficient of Variation (CV) & Log-Log Transformation
+- **Formula**: $CV = \frac{\sigma}{\mu}$
+- **Application**: Calculated for Accuracy and F1 scores across the 100 evaluations for each model-dataset pair.
+- **Transformation**: To address the non-linear relationship between CV and sample size (CV ∝ 1/√n) and the bounded nature of Accuracy, we will perform a **log-log linear regression**:
+  $$ \log(CV) = \beta_0 + \beta_1 \log(n_{samples}) + \epsilon $$
+- **Rationale**: This linearizes the expected inverse-square-root relationship. The hypothesis test is **H0: β1 = -0.5** (no deviation from theoretical scaling), not H0: β1 = 0. This avoids the tautology where raw CV vs. n is guaranteed to correlate.
+- **Handling Zero Variance**: If $\sigma = 0$ (deterministic outcome), the CV will be set to a small epsilon or excluded from the log-transform to prevent `log(0)`.
 
-### Phase 1: Data Acquisition & Preprocessing
-1.  **Fetch**: Download 15 datasets via `openml` using the fixed ID list.
-2.  **Clean**: Handle missing values using median (numeric) and mode (categorical) imputation.
-    *   *Constraint*: Imputation must be fit **only** on the training fold to prevent data leakage.
-3.  **Split**: Prepare for 10-fold cross-validation.
+### 3. Correlation Analysis (Log-Log)
+- **Variables**: Regress $\log(CV_{accuracy})$ and $\log(CV_{f1})$ against $\log(n_{samples})$ and $\log(n_{features})$.
+- **Hypothesis**: $H_0: \beta_1 = -0.5$ (No deviation from expected scaling).
+- **Assumption**: Residuals of the log-log regression should be approximately normal.
 
-### Phase 2: Repeated Cross-Validation (FR-002)
--   **Protocol**: 10 Folds $\times$ 10 Repeats = 100 evaluations per (Dataset, Model) pair.
--   **Models**:
-    1.  Logistic Regression (`sklearn.linear_model.LogisticRegression`)
-    2.  Random Forest (`sklearn.ensemble.RandomForestClassifier`)
-    3.  Linear SVM (`sklearn.svm.LinearSVC`)
--   **Metrics**: Accuracy, F1-Score (binary, macro).
--   **Seed**: Fixed global seed for reproducibility.
+### 4. Permutation Test for Variance Differences
+- **Method**: Permutation test on the **variance of the performance metrics** directly.
+- **Test Statistic**: Absolute difference of variances between two models (e.g., $|Var_{LR} - Var_{RF}|$).
+- **Comparison**: Compare variance distributions of the three models for each dataset.
+- **Null Hypothesis**: The variances of the performance metrics are drawn from the same distribution across models.
+- **Implementation**: 10,000 permutations.
+- **Note on Heteroscedasticity**: We acknowledge that variance depends on the mean (binomial variance). The test compares the *observed* variances of the metrics. If mean performance differs significantly between models, we will also report the standardized variance (variance / mean^2) as a robustness check.
 
-### Phase 3: Stability Quantification (FR-003, FR-004)
--   **Coefficient of Variation (CV)**:
-    $$ CV = \frac{\sigma}{\mu} $$
-    Where $\sigma$ is the standard deviation and $\mu$ is the mean of the 100 accuracy/F1 scores for a specific (Dataset, Model) pair.
--   **Log-Log Transformation**: To address the non-normality of CV and the power-law relationship between variance and sample size, the analysis will compute:
-    $$ \text{log\_CV} = \log(CV) $$
-    $$ \text{log\_N} = \log(n\_samples) $$
-    $$ \text{log\_F} = \log(n\_features) $$
--   **Deviation from Theoretical Scaling**: To avoid tautological correlation (since variance ~ 1/N by definition), the plan calculates the deviation from the theoretical baseline:
-    $$ \text{Theoretical\_CV} \propto \frac{1}{\sqrt{N}} \implies \log(\text{Theoretical\_CV}) = -0.5 \log(N) + C $$
-    $$ \text{Deviation} = \text{log\_CV} - (-0.5 \log(N) + C) $$
-    The correlation analysis will then test the relationship between **Deviation** and dataset properties (log_N, log_F).
--   **Correlation**: Pearson correlation between `log_CV_accuracy` / `log_CV_f1` (and Deviation) and `log_N` / `log_F`.
-    *   *Note*: The plan acknowledges the theoretical relationship variance ~ 1/N. The analysis aims to quantify the *deviation* from this relationship across models and datasets.
--   **CV Interpretation**: The plan acknowledges that CV=0 can result from either perfect stability or zero variance in poor performance. The report will explicitly report **Mean Accuracy** alongside CV to distinguish 'stable high performance' from 'stable low performance'. If Mean Accuracy is near chance level (0.5 for binary), the dataset-model pair will be flagged as "Stable Poor Performance" and excluded from the "Stable High Performance" correlation analysis to avoid bias.
+### 5. Multiple-Comparison Correction
+- **Method**: **Holm-Bonferroni** procedure.
+- **Scope**: Applied to the set of all p-values generated from correlation tests and permutation tests across the 15 datasets.
+- **Goal**: Control the **Family-Wise Error Rate (FWER)** as per FR-007 and SC-005.
 
-### Phase 4: Statistical Significance (FR-005)
--   **Permutation Test**: To compare variance distributions between models.
-    -   *Null Hypothesis*: The variance of Model A's performance scores is equal to Model B's.
-    -   *Test Statistic*: **Absolute difference of variances** (std^2) of the 100 performance scores between Model A and Model B.
-    -   *Procedure*: **Block permutation** at the 'repeat' level (permuting the 10 blocks of 10 folds) to maintain the dependence structure of repeated CV scores. Shuffle the blocks of scores between models, recalculate the statistic, repeat a sufficient number of times to build null distribution.
--   **Multiple Comparison Correction (FR-007)**:
-    -   Apply **Benjamini-Hochberg (BH)** procedure to all p-values generated from correlation and permutation tests.
-    -   BH controls the False Discovery Rate (FDR), which is more appropriate than Bonferroni for a large number of tests arising from the evaluation across multiple datasets, model pairs, and metrics.
+### Robustness Checks
+- **CV Instability**: For datasets where mean accuracy $\mu > 0.95$, the CV may explode artificially. In these cases, we will also compute the **Standard Error of the Mean (SEM = $\sigma / \sqrt{N}$)** and **Log-Odds Variance** as alternative stability metrics to ensure robustness.
+- **Mean-Variance Dependency**: For models with significantly different mean accuracies, we will report the standardized variance to account for heteroscedasticity.
 
 ## Compute Feasibility
 
--   **Hardware**: GitHub Actions `ubuntu-latest` (2 vCPU, 7GB RAM).
--   **Memory**: Datasets are loaded one at a time. The largest dataset (100k samples) fits easily in RAM. The 100 repeats are processed sequentially or in small batches using `joblib` to keep memory footprint low.
--   **Time**:
-    -   15 datasets $\times$ 3 models $\times$ 100 repeats = 4,500 model fits.
-    -   Logistic Regression/Linear SVM are fast (seconds per fit).
-    -   Random Forest is slower (minutes per fit for large datasets).
-    -   Estimated total time: ~ hours on multiple cores. Well within the 6-hour limit.
--   **GPU**: Not required. All models are standard `scikit-learn` estimators running on CPU.
+- **CPU-First**: All models (LR, RF, LinearSVM) are computationally lightweight and will run on the GitHub Actions CPU runner.
+- **Memory**: Datasets will be loaded sequentially. If a dataset exceeds available RAM, it will be processed in chunks or sampled (with logging).
+- **Time Budget**: 15 datasets × 3 models × 100 runs = 4,500 runs. Assuming an average of 1-2 seconds per run (small/medium datasets), total time is well within the 6-hour limit.
+- **GPU**: Not required. No transformer or diffusion models are used.
 
 ## Decision/Rationale
 
--   **Why Fixed Dataset List?** To ensure reproducibility and avoid dynamic selection failures. The list is pre-verified to be binary and within the sample size range.
--   **Why Log-Log Transformation?** CV distributions are often skewed, and the relationship between variance and sample size is a power law. Log-log transformation linearizes this relationship and normalizes the data for Pearson correlation.
--   **Why Benjamini-Hochberg?** The study performs a large number of hypothesis tests. Bonferroni is overly conservative (alpha_adj is substantially reduced), likely resulting in zero significant findings. BH controls FDR, which is standard for exploratory analysis.
--   **Why Block Permutation?** The 100 scores are not independent (they share data splits in repeated CV). Block permutation at the 'repeat' level maintains the dependence structure, ensuring the validity of the test.
--   **Why CV with Mean Accuracy?** CV conflates stability with performance. Reporting mean accuracy alongside CV allows the interpretation to distinguish 'stable high performance' from 'stable low performance'.
--   **Why Deviation from Theoretical Scaling?** Correlating raw CV with N is tautological (variance ~ 1/N). The deviation metric isolates the model-specific stability effect from the inherent statistical scaling law.
+| Method | CPU or GPU? | Rationale |
+|--------|-------------|-----------|
+| Repeated CV | CPU | Standard scikit-learn models are efficient on CPU. |
+| Log-Log Regression | CPU | Trivial computation. |
+| Permutation Test | CPU | 10k permutations of small vectors (100 elements) is fast on CPU. |
+| Data Loading | CPU | Streaming/sequential loading fits within RAM limits. |
+
+No GPU escape hatch is needed for this project.
