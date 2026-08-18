@@ -1,0 +1,124 @@
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: curate dataset of 500 logic arithmetic puzzles
+  claim_id: c_4e0669f2
+  context: T013 [US1] Curate an initial dataset of 500 logic/arithmetic puzzles by
+    running `generator.py` with parameters `--n 10 50 100 200 500 --count 10 --types
+    sudoku,pathfinding` (generating a set of puzzles for each complexity level).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Curate an initial dataset of 500 logic/arithmetic puzzles by running generator.py
+    with parameters --n 10 50 100 200 500 --count 10 --types sudoku,pathfinding
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T16:17:55Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: verify puzzle instances within 100ms
+  claim_id: c_e7e6bbae
+  context: T012 [US1] Implement `code/dataset/verifier.py` to execute deterministic
+    validation logic for each puzzle instance, returning boolean validity and specific
+    constraint violation codes (e.g., `DUPLICATE_ROW`, `INVALID_PATH`) within 100ms.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_puzzle_instances_within_100ms
+  kind: entity_fact
+  raw_text: Implement code/dataset/verifier.py to execute deterministic validation
+    logic for each puzzle instance, returning boolean validity and specific constraint
+    violation codes within 100ms
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T16:18:25Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: 1 cpu-hour equals 0.0015 gpu-hours conversion factor
+  claim_id: c_6f7150e0
+  context: 'T040 [US3] Implement the ''Validated Conversion Factor'' logic in `code/analysis/metrics.py`
+    for GPU-hours estimation. **Constraint**: Hardcode the conversion factor `1 CPU-hour
+    = 0.0015 GPU-hours` derived from the Green500 benchmark for comparable architectures
+    (cited in code comment).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hardcode the conversion factor 1 CPU-hour = 0.0015 GPU-hours derived from
+    the Green500 benchmark
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T16:19:08Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: flag complexity analysis inconclusive if r-squared less than 0.85
+  claim_id: c_a61ce618
+  context: 'T029 [US3] Implement scalability analysis in `code/analysis/metrics.py`
+    to derive the formal **complexity class (Big-O)** via **log-log linear regression**
+    on problem size vs. time. **Requirement**: ... If R^2 < 0.85, flag as ''Inconclusive''
+    rather than forcing a classification.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_complexity_analysis_inconclusive_if_r-squared_less_than
+  kind: magnitude
+  raw_text: If R-squared is less than 0.85, flag the complexity analysis as 'Inconclusive'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T16:19:32Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: flag statistical result underpowered if power less than 0.8
+  claim_id: c_11fc6ef3
+  context: 'T038 [US3] Refine `code/analysis/stats.py` to include a power analysis
+    check before running the z-test. **Constraint**: If the calculated power (based
+    on N and observed effect size) is < 0.8, the script must flag the result as ''Underpowered''
+    and output a recommendation to increase sample size, rather than just returning
+    a p-value.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_statistical_result_underpowered_if_power_less_than_0.8
+  kind: magnitude
+  raw_text: If the calculated power is less than 0.8, flag the statistical result
+    as 'Underpowered'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T16:20:06Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: z-test alpha threshold 0.05
+  claim_id: c_6d737805
+  context: 'T027 [US3] Implement **Mandatory** two-proportion z-test in `code/analysis/stats.py`
+    to compare success rates (as mandated by FR-005) with null hypothesis H0: p1 =
+    p2 and alpha=0.05.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Two-proportion Z-test
+      url: https://en.wikipedia.org/wiki/Two-proportion_Z-test
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Use alpha=0.05 for the two-proportion z-test comparing success rates
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T16:20:13Z'

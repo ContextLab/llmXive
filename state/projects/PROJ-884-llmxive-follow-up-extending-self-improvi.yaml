@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-884-llmxive-follow-up-extending-self-improvi
-last_run_id: a6bc9e98-68bd-47c0-980d-3757175da8a9
+last_run_id: d36786f2-0350-4a58-a2c0-23bbda46f0eb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi
 title: 'llmXive follow-up: extending "Self-Improving Language Models with Bidirectional
   Evolutionary Search"'
-updated_at: '2026-08-18T08:12:55.689580Z'
+updated_at: '2026-08-18T16:55:25.854140Z'

@@ -1,561 +1,330 @@
 """
-Deterministic puzzle solution verifier.
+Puzzle Verifier Module for llmXive.
 
-Validates solution paths against puzzle constraints without LLM involvement.
-Returns boolean validity and specific constraint violation codes.
+Executes deterministic validation logic for puzzle instances.
+Implements strict "Fail Loudly" semantics: any failure in verification
+raises an exception immediately. No silent fallbacks.
 """
+
 import json
 import time
-from typing import Dict, Any, Optional, List
-from dataclasses import dataclass
+import sys
+from typing import Dict, Any, Optional, List, Tuple
+from dataclasses import dataclass, field
 from enum import Enum
-from code.exceptions import VERIFIER_ERROR
 
+# Import custom exceptions
+from code.exceptions import BaseResearchException, VERIFIER_ERROR
+
+class DataVerificationError(BaseResearchException):
+    """
+    Raised when puzzle verification fails due to invalid input format,
+    constraint violations, or inability to parse the solution.
+    This exception halts execution immediately; no fallback is attempted.
+    """
+    pass
 
 class ErrorCodes(Enum):
-    """Specific constraint violation codes for solution validation."""
+    """Specific error codes for verification failures."""
     VALID = "VALID"
     DUPLICATE_ROW = "DUPLICATE_ROW"
-    DUPLICATE_COLUMN = "DUPLICATE_COLUMN"
-    DUPLICATE_BOX = "DUPLICATE_BOX"
+    DUPLICATE_COL = "DUPLICATE_COL"
+    DUPLICATE_BLOCK = "DUPLICATE_BLOCK"
     INVALID_PATH = "INVALID_PATH"
-    MISSING_CELL = "MISSING_CELL"
+    MISSING_CHECKPOINT = "MISSING_CHECKPOINT"
+    OBSTACLE_COLLISION = "OBSTACLE_COLLISION"
     OUT_OF_BOUNDS = "OUT_OF_BOUNDS"
-    CONSTRAINT_VIOLATION = "CONSTRAINT_VIOLATION"
-    INCORRECT_TARGET = "INCORRECT_TARGET"
-    UNREACHABLE_TARGET = "UNREACHABLE_TARGET"
-    INVALID_START_STATE = "INVALID_START_STATE"
-    SYNTAX_ERROR = "SYNTAX_ERROR"
-    INTERNAL_ERROR = "INTERNAL_ERROR"
-
+    PARSE_FAILURE = "PARSE_FAILURE"
+    VERIFIER_ERROR = "VERIFIER_ERROR"
 
 @dataclass
 class SolutionResult:
-    """Result of solution verification."""
+    """Result of verifying a solution."""
     is_valid: bool
     error_code: Optional[ErrorCodes] = None
-    error_details: Optional[str] = None
+    error_message: Optional[str] = None
     execution_time_ms: float = 0.0
-    puzzle_id: Optional[str] = None
-    solution_id: Optional[str] = None
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "is_valid": self.is_valid,
+            "error_code": self.error_code.value if self.error_code else None,
+            "error_message": self.error_message,
+            "execution_time_ms": self.execution_time_ms
+        }
 
 class PuzzleVerifier:
     """
-    Verifies solution paths for various puzzle types.
-    
-    Supports:
-    - Sudoku variants (constraint satisfaction)
-    - Pathfinding puzzles (graph traversal)
-    - Arithmetic puzzles (expression evaluation)
-    
-    All verifications must complete within 100ms.
+    Verifies solutions for Sudoku and Pathfinding puzzles.
+    Implements strict fail-loudly logic: if a solution cannot be parsed
+    or verified, an exception is raised immediately.
     """
-    
-    MAX_EXECUTION_TIME_MS = 100.0
-    
-    def __init__(self):
-        self._start_time = None
-    
-    def _check_time_limit(self) -> bool:
-        """Check if execution time exceeds limit."""
-        if self._start_time is None:
-            return False
-        elapsed_ms = (time.time() - self._start_time) * 1000
-        return elapsed_ms > self.MAX_EXECUTION_TIME_MS
-    
-    def verify_solution(self, puzzle: Dict[str, Any], solution: Dict[str, Any]) -> SolutionResult:
+
+    def verify_sudoku(self, instance: Dict[str, Any], solution: Dict[str, Any]) -> SolutionResult:
         """
-        Main entry point for solution verification.
+        Verify a Sudoku solution.
         
         Args:
-            puzzle: Puzzle instance with constraints, initial state, target
-            solution: Solution path to validate
+            instance: The puzzle instance dictionary.
+            solution: The proposed solution dictionary.
         
         Returns:
-            SolutionResult with validity status and error details
+            SolutionResult indicating validity and any errors.
+        
+        Raises:
+            DataVerificationError: If the solution format is invalid or cannot be parsed.
         """
-        self._start_time = time.time()
-        puzzle_id = puzzle.get("id", "unknown")
-        solution_id = solution.get("id", "unknown")
+        start_time = time.time()
         
         try:
-            # Validate puzzle structure
-            puzzle_type = puzzle.get("type")
-            if not puzzle_type:
-                return SolutionResult(
-                    is_valid=False,
-                    error_code=ErrorCodes.SYNTAX_ERROR,
-                    error_details="Missing puzzle type",
-                    execution_time_ms=(time.time() - self._start_time) * 1000,
-                    puzzle_id=puzzle_id,
-                    solution_id=solution_id
-                )
+            grid_size = instance["complexity_n"]
+            block_size = int(grid_size ** 0.5)
             
-            # Dispatch to type-specific verifier
-            if puzzle_type == "sudoku":
-                result = self._verify_sudoku(puzzle, solution)
-            elif puzzle_type == "pathfinding":
-                result = self._verify_pathfinding(puzzle, solution)
-            elif puzzle_type == "arithmetic":
-                result = self._verify_arithmetic(puzzle, solution)
-            else:
-                return SolutionResult(
-                    is_valid=False,
-                    error_code=ErrorCodes.SYNTAX_ERROR,
-                    error_details=f"Unknown puzzle type: {puzzle_type}",
-                    execution_time_ms=(time.time() - self._start_time) * 1000,
-                    puzzle_id=puzzle_id,
-                    solution_id=solution_id
-                )
+            # Parse solution grid
+            if "grid" not in solution:
+                raise DataVerificationError("Solution missing 'grid' key.")
             
-            result.puzzle_id = puzzle_id
-            result.solution_id = solution_id
-            result.execution_time_ms = (time.time() - self._start_time) * 1000
+            sol_grid = solution["grid"]
             
-            return result
+            if not isinstance(sol_grid, list) or len(sol_grid) != grid_size:
+                raise DataVerificationError(f"Solution grid must be a {grid_size}x{grid_size} list.")
             
-        except VERIFIER_ERROR as e:
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INTERNAL_ERROR,
-                error_details=f"Verifier error: {str(e)}",
-                execution_time_ms=(time.time() - self._start_time) * 1000,
-                puzzle_id=puzzle_id,
-                solution_id=solution_id
-            )
-        except Exception as e:
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INTERNAL_ERROR,
-                error_details=f"Unexpected error: {str(e)}",
-                execution_time_ms=(time.time() - self._start_time) * 1000,
-                puzzle_id=puzzle_id,
-                solution_id=solution_id
-            )
-    
-    def _verify_sudoku(self, puzzle: Dict[str, Any], solution: Dict[str, Any]) -> SolutionResult:
-        """Verify Sudoku variant solution."""
-        if self._check_time_limit():
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INTERNAL_ERROR,
-                error_details="Verification timeout",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        grid = solution.get("grid")
-        if not grid or not isinstance(grid, list):
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INVALID_PATH,
-                error_details="Missing or invalid grid in solution",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        # Check grid dimensions
-        n = puzzle.get("size", 9)
-        if len(grid) != n:
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INVALID_PATH,
-                error_details=f"Grid has {len(grid)} rows, expected {n}",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        # Check each row
-        for i, row in enumerate(grid):
-            if not isinstance(row, list) or len(row) != n:
-                return SolutionResult(
-                    is_valid=False,
-                    error_code=ErrorCodes.INVALID_PATH,
-                    error_details=f"Row {i} has invalid length",
-                    puzzle_id=puzzle.get("id"),
-                    solution_id=solution.get("id")
-                )
-            
-            # Check for duplicates in row
-            seen = set()
-            for val in row:
-                if val in seen:
+            # Check each row
+            for r in range(grid_size):
+                if len(sol_grid[r]) != grid_size:
+                    raise DataVerificationError(f"Row {r} has incorrect length.")
+                row_vals = sol_grid[r]
+                if len(row_vals) != len(set(row_vals)):
                     return SolutionResult(
                         is_valid=False,
                         error_code=ErrorCodes.DUPLICATE_ROW,
-                        error_details=f"Duplicate value {val} in row {i}",
-                        puzzle_id=puzzle.get("id"),
-                        solution_id=solution.get("id")
+                        error_message=f"Duplicate values in row {r}",
+                        execution_time_ms=(time.time() - start_time) * 1000
                     )
-                seen.add(val)
-        
-        # Check columns
-        for col_idx in range(n):
-            seen = set()
-            for row_idx in range(n):
-                val = grid[row_idx][col_idx]
-                if val in seen:
+                if not all(1 <= v <= grid_size for v in row_vals):
+                    raise DataVerificationError(f"Row {r} contains invalid values.")
+            
+            # Check each column
+            for c in range(grid_size):
+                col_vals = [sol_grid[r][c] for r in range(grid_size)]
+                if len(col_vals) != len(set(col_vals)):
                     return SolutionResult(
                         is_valid=False,
-                        error_code=ErrorCodes.DUPLICATE_COLUMN,
-                        error_details=f"Duplicate value {val} in column {col_idx}",
-                        puzzle_id=puzzle.get("id"),
-                        solution_id=solution.get("id")
+                        error_code=ErrorCodes.DUPLICATE_COL,
+                        error_message=f"Duplicate values in column {c}",
+                        execution_time_ms=(time.time() - start_time) * 1000
                     )
-                seen.add(val)
-        
-        # Check boxes (for standard Sudoku)
-        if n == 9:
-            box_size = 3
-            for box_row in range(3):
-                for box_col in range(3):
-                    seen = set()
-                    for i in range(box_size):
-                        for j in range(box_size):
-                            row_idx = box_row * box_size + i
-                            col_idx = box_col * box_size + j
-                            val = grid[row_idx][col_idx]
-                            if val in seen:
-                                return SolutionResult(
-                                    is_valid=False,
-                                    error_code=ErrorCodes.DUPLICATE_BOX,
-                                    error_details=f"Duplicate value {val} in box ({box_row}, {box_col})",
-                                    puzzle_id=puzzle.get("id"),
-                                    solution_id=solution.get("id")
-                                )
-                            seen.add(val)
-        
-        # Check against initial state
-        initial = puzzle.get("initial_state", [])
-        for i, row in enumerate(initial):
-            for j, val in enumerate(row):
-                if val != 0 and val != grid[i][j]:
-                    return SolutionResult(
-                        is_valid=False,
-                        error_code=ErrorCodes.CONSTRAINT_VIOLATION,
-                        error_details=f"Initial state mismatch at ({i}, {j})",
-                        puzzle_id=puzzle.get("id"),
-                        solution_id=solution.get("id")
-                    )
-        
-        return SolutionResult(
-            is_valid=True,
-            error_code=ErrorCodes.VALID,
-            puzzle_id=puzzle.get("id"),
-            solution_id=solution.get("id")
-        )
-    
-    def _verify_pathfinding(self, puzzle: Dict[str, Any], solution: Dict[str, Any]) -> SolutionResult:
-        """Verify pathfinding solution."""
-        if self._check_time_limit():
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INTERNAL_ERROR,
-                error_details="Verification timeout",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        path = solution.get("path")
-        if not path or not isinstance(path, list):
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INVALID_PATH,
-                error_details="Missing or invalid path in solution",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        grid = puzzle.get("grid", [])
-        if not grid:
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INVALID_START_STATE,
-                error_details="Missing grid in puzzle",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        rows = len(grid)
-        cols = len(grid[0]) if rows > 0 else 0
-        
-        start = puzzle.get("start")
-        end = puzzle.get("target")
-        
-        if not start or not end:
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INVALID_START_STATE,
-                error_details="Missing start or target in puzzle",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        # Check path starts at start position
-        if path[0] != start:
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INVALID_PATH,
-                error_details=f"Path does not start at {start}",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        # Check path ends at target
-        if path[-1] != end:
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INCORRECT_TARGET,
-                error_details=f"Path does not end at {end}",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        # Check each step
-        for i, pos in enumerate(path):
-            if not isinstance(pos, (list, tuple)) or len(pos) != 2:
-                return SolutionResult(
-                    is_valid=False,
-                    error_code=ErrorCodes.INVALID_PATH,
-                    error_details=f"Invalid position format at step {i}",
-                    puzzle_id=puzzle.get("id"),
-                    solution_id=solution.get("id")
-                )
             
-            x, y = pos
-            if x < 0 or x >= rows or y < 0 or y >= cols:
-                return SolutionResult(
-                    is_valid=False,
-                    error_code=ErrorCodes.OUT_OF_BOUNDS,
-                    error_details=f"Position ({x}, {y}) out of bounds",
-                    puzzle_id=puzzle.get("id"),
-                    solution_id=solution.get("id")
-                )
+            # Check each block
+            for block_r in range(block_size):
+                for block_c in range(block_size):
+                    block_vals = []
+                    for r in range(block_r * block_size, (block_r + 1) * block_size):
+                        for c in range(block_c * block_size, (block_c + 1) * block_size):
+                            block_vals.append(sol_grid[r][c])
+                    if len(block_vals) != len(set(block_vals)):
+                        return SolutionResult(
+                            is_valid=False,
+                            error_code=ErrorCodes.DUPLICATE_BLOCK,
+                            error_message=f"Duplicate values in block ({block_r}, {block_c})",
+                            execution_time_ms=(time.time() - start_time) * 1000
+                        )
             
-            if grid[x][y] == 1:  # Assuming 1 represents obstacle
-                return SolutionResult(
-                    is_valid=False,
-                    error_code=ErrorCodes.INVALID_PATH,
-                    error_details=f"Path crosses obstacle at ({x}, {y})",
-                    puzzle_id=puzzle.get("id"),
-                    solution_id=solution.get("id")
-                )
-        
-        # Check connectivity between consecutive steps
-        for i in range(len(path) - 1):
-            x1, y1 = path[i]
-            x2, y2 = path[i + 1]
-            dx = abs(x2 - x1)
-            dy = abs(y2 - y1)
-            
-            # Allow 8-directional movement (including diagonals)
-            if dx > 1 or dy > 1 or (dx == 0 and dy == 0):
-                return SolutionResult(
-                    is_valid=False,
-                    error_code=ErrorCodes.INVALID_PATH,
-                    error_details=f"Invalid move from {path[i]} to {path[i+1]}",
-                    puzzle_id=puzzle.get("id"),
-                    solution_id=solution.get("id")
-                )
-        
-        return SolutionResult(
-            is_valid=True,
-            error_code=ErrorCodes.VALID,
-            puzzle_id=puzzle.get("id"),
-            solution_id=solution.get("id")
-        )
-    
-    def _verify_arithmetic(self, puzzle: Dict[str, Any], solution: Dict[str, Any]) -> SolutionResult:
-        """Verify arithmetic puzzle solution."""
-        if self._check_time_limit():
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INTERNAL_ERROR,
-                error_details="Verification timeout",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        expression = solution.get("expression")
-        if not expression:
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INVALID_PATH,
-                error_details="Missing expression in solution",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        target = puzzle.get("target")
-        if target is None:
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.INVALID_START_STATE,
-                error_details="Missing target in puzzle",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        # Safe evaluation of arithmetic expression
-        allowed_chars = set("0123456789+-*/(). ")
-        if not all(c in allowed_chars for c in expression):
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.SYNTAX_ERROR,
-                error_details="Expression contains invalid characters",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
-        
-        try:
-            # Evaluate expression safely
-            result = eval(expression, {"__builtins__": {}}, {})
-            
-            if abs(result - target) > 1e-6:
-                return SolutionResult(
-                    is_valid=False,
-                    error_code=ErrorCodes.INCORRECT_TARGET,
-                    error_details=f"Result {result} does not match target {target}",
-                    puzzle_id=puzzle.get("id"),
-                    solution_id=solution.get("id")
-                )
+            # Check consistency with initial state
+            initial_grid = instance["initial_state"]["grid"]
+            for r in range(grid_size):
+                for c in range(grid_size):
+                    if initial_grid[r][c] != 0 and initial_grid[r][c] != sol_grid[r][c]:
+                        raise DataVerificationError(f"Solution conflicts with initial state at ({r}, {c}).")
             
             return SolutionResult(
                 is_valid=True,
-                error_code=ErrorCodes.VALID,
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
+                execution_time_ms=(time.time() - start_time) * 1000
             )
-            
-        except ZeroDivisionError:
-            return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.CONSTRAINT_VIOLATION,
-                error_details="Division by zero in expression",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
-            )
+
+        except DataVerificationError:
+            raise
         except Exception as e:
+            raise DataVerificationError(f"Unexpected error during Sudoku verification: {e}")
+
+    def verify_pathfinding(self, instance: Dict[str, Any], solution: Dict[str, Any]) -> SolutionResult:
+        """
+        Verify a Pathfinding solution.
+        
+        Args:
+            instance: The puzzle instance dictionary.
+            solution: The proposed solution dictionary.
+        
+        Returns:
+            SolutionResult indicating validity and any errors.
+        
+        Raises:
+            DataVerificationError: If the solution format is invalid or cannot be parsed.
+        """
+        start_time = time.time()
+        
+        try:
+            grid_size = instance["complexity_n"]
+            grid = instance["initial_state"]["grid"]
+            start = tuple(instance["initial_state"]["start"])
+            end = tuple(instance["initial_state"]["end"])
+            checkpoints = [tuple(cp) for cp in instance["constraints"]["checkpoints"]]
+            
+            # Parse solution path
+            if "path" not in solution:
+                raise DataVerificationError("Solution missing 'path' key.")
+            
+            path = solution["path"]
+            
+            if not isinstance(path, list) or len(path) == 0:
+                raise DataVerificationError("Solution path must be a non-empty list.")
+            
+            # Check start and end
+            if tuple(path[0]) != start:
+                return SolutionResult(
+                    is_valid=False,
+                    error_code=ErrorCodes.INVALID_PATH,
+                    error_message=f"Path does not start at {start}",
+                    execution_time_ms=(time.time() - start_time) * 1000
+                )
+            
+            if tuple(path[-1]) != end:
+                return SolutionResult(
+                    is_valid=False,
+                    error_code=ErrorCodes.INVALID_PATH,
+                    error_message=f"Path does not end at {end}",
+                    execution_time_ms=(time.time() - start_time) * 1000
+                )
+            
+            # Check path continuity and constraints
+            for i in range(len(path)):
+                r, c = path[i]
+                
+                # Check bounds
+                if not (0 <= r < grid_size and 0 <= c < grid_size):
+                    return SolutionResult(
+                        is_valid=False,
+                        error_code=ErrorCodes.OUT_OF_BOUNDS,
+                        error_message=f"Path point ({r}, {c}) is out of bounds",
+                        execution_time_ms=(time.time() - start_time) * 1000
+                    )
+                
+                # Check obstacles
+                if grid[r][c] == 1:
+                    return SolutionResult(
+                        is_valid=False,
+                        error_code=ErrorCodes.OBSTACLE_COLLISION,
+                        error_message=f"Path collides with obstacle at ({r}, {c})",
+                        execution_time_ms=(time.time() - start_time) * 1000
+                    )
+                
+                # Check continuity (except for first point)
+                if i > 0:
+                    prev_r, prev_c = path[i-1]
+                    if abs(r - prev_r) + abs(c - prev_c) != 1:
+                        return SolutionResult(
+                            is_valid=False,
+                            error_code=ErrorCodes.INVALID_PATH,
+                            error_message=f"Path jumps from ({prev_r}, {prev_c}) to ({r}, {c})",
+                            execution_time_ms=(time.time() - start_time) * 1000
+                        )
+            
+            # Check checkpoints
+            path_set = set(tuple(p) for p in path)
+            for cp in checkpoints:
+                if cp not in path_set:
+                    return SolutionResult(
+                        is_valid=False,
+                        error_code=ErrorCodes.MISSING_CHECKPOINT,
+                        error_message=f"Path does not visit checkpoint {cp}",
+                        execution_time_ms=(time.time() - start_time) * 1000
+                    )
+            
             return SolutionResult(
-                is_valid=False,
-                error_code=ErrorCodes.SYNTAX_ERROR,
-                error_details=f"Expression evaluation error: {str(e)}",
-                puzzle_id=puzzle.get("id"),
-                solution_id=solution.get("id")
+                is_valid=True,
+                execution_time_ms=(time.time() - start_time) * 1000
             )
 
+        except DataVerificationError:
+            raise
+        except Exception as e:
+            raise DataVerificationError(f"Unexpected error during Pathfinding verification: {e}")
 
-def verify_solution(puzzle: Dict[str, Any], solution: Dict[str, Any]) -> SolutionResult:
+    def verify_solution(self, instance: Dict[str, Any], solution: Dict[str, Any]) -> SolutionResult:
+        """
+        Verify a solution for any supported puzzle type.
+        
+        Args:
+            instance: The puzzle instance dictionary.
+            solution: The proposed solution dictionary.
+        
+        Returns:
+            SolutionResult indicating validity.
+        
+        Raises:
+            DataVerificationError: If the puzzle type is unsupported or verification fails.
+        """
+        puzzle_type = instance.get("puzzle_type")
+        
+        if puzzle_type == "sudoku":
+            return self.verify_sudoku(instance, solution)
+        elif puzzle_type == "pathfinding":
+            return self.verify_pathfinding(instance, solution)
+        else:
+            raise DataVerificationError(f"Unsupported puzzle type: {puzzle_type}")
+
+def verify_solution(instance: Dict[str, Any], solution: Dict[str, Any]) -> SolutionResult:
     """
     Convenience function to verify a solution.
-    
-    Args:
-        puzzle: Puzzle instance dictionary
-        solution: Solution dictionary to validate
-    
-    Returns:
-        SolutionResult indicating validity and error details
     """
     verifier = PuzzleVerifier()
-    return verifier.verify_solution(puzzle, solution)
-    
+    return verifier.verify_solution(instance, solution)
 
 def main():
-    """Test the verifier with sample puzzles and solutions."""
-    # Test Sudoku
-    sudoku_puzzle = {
-        "id": "sudoku_001",
-        "type": "sudoku",
-        "size": 9,
-        "initial_state": [
-            [5, 3, 0, 0, 7, 0, 0, 0, 0],
-            [6, 0, 0, 1, 9, 5, 0, 0, 0],
-            [0, 9, 8, 0, 0, 0, 0, 6, 0],
-            [8, 0, 0, 0, 6, 0, 0, 0, 3],
-            [4, 0, 0, 8, 0, 3, 0, 0, 1],
-            [7, 0, 0, 0, 2, 0, 0, 0, 6],
-            [0, 6, 0, 0, 0, 0, 2, 8, 0],
-            [0, 0, 0, 4, 1, 9, 0, 0, 5],
-            [0, 0, 0, 0, 8, 0, 0, 7, 9]
-        ]
-    }
+    """
+    Command-line entry point for verifying solutions.
     
-    valid_sudoku_solution = {
-        "id": "sol_001",
-        "grid": [
-            [5, 3, 4, 6, 7, 8, 9, 1, 2],
-            [6, 7, 2, 1, 9, 5, 3, 4, 8],
-            [1, 9, 8, 3, 4, 2, 5, 6, 7],
-            [8, 5, 9, 7, 6, 1, 4, 2, 3],
-            [4, 2, 6, 8, 5, 3, 7, 9, 1],
-            [7, 1, 3, 9, 2, 4, 8, 5, 6],
-            [9, 6, 1, 5, 3, 7, 2, 8, 4],
-            [2, 8, 7, 4, 1, 9, 6, 3, 5],
-            [3, 4, 5, 2, 8, 6, 1, 7, 9]
-        ]
-    }
+    Usage:
+        python -m code.dataset.verifier --instance <path> --solution <path>
     
-    result = verify_solution(sudoku_puzzle, valid_sudoku_solution)
-    print(f"Sudoku Valid: {result.is_valid}, Code: {result.error_code}, Time: {result.execution_time_ms:.2f}ms")
-    
-    # Test invalid Sudoku (duplicate in row)
-    invalid_sudoku_solution = {
-        "id": "sol_002",
-        "grid": [
-            [5, 3, 4, 6, 7, 8, 9, 1, 1],  # Duplicate 1
-            [6, 7, 2, 1, 9, 5, 3, 4, 8],
-            [1, 9, 8, 3, 4, 2, 5, 6, 7],
-            [8, 5, 9, 7, 6, 1, 4, 2, 3],
-            [4, 2, 6, 8, 5, 3, 7, 9, 1],
-            [7, 1, 3, 9, 2, 4, 8, 5, 6],
-            [9, 6, 1, 5, 3, 7, 2, 8, 4],
-            [2, 8, 7, 4, 1, 9, 6, 3, 5],
-            [3, 4, 5, 2, 8, 6, 1, 7, 9]
-        ]
-    }
-    
-    result = verify_solution(sudoku_puzzle, invalid_sudoku_solution)
-    print(f"Sudoku Invalid: {result.is_valid}, Code: {result.error_code}, Time: {result.execution_time_ms:.2f}ms")
-    
-    # Test Pathfinding
-    path_puzzle = {
-        "id": "path_001",
-        "type": "pathfinding",
-        "grid": [
-            [0, 0, 0, 0],
-            [0, 1, 1, 0],
-            [0, 0, 0, 0],
-            [0, 1, 0, 0]
-        ],
-        "start": [0, 0],
-        "target": [3, 3]
-    }
-    
-    valid_path_solution = {
-        "id": "path_sol_001",
-        "path": [[0, 0], [0, 1], [0, 2], [0, 3], [1, 3], [2, 3], [3, 3]]
-    }
-    
-    result = verify_solution(path_puzzle, valid_path_solution)
-    print(f"Path Valid: {result.is_valid}, Code: {result.error_code}, Time: {result.execution_time_ms:.2f}ms")
-    
-    # Test Arithmetic
-    arith_puzzle = {
-        "id": "arith_001",
-        "type": "arithmetic",
-        "numbers": [1, 3, 4, 6],
-        "target": 24
-    }
-    
-    valid_arith_solution = {
-        "id": "arith_sol_001",
-        "expression": "6 / (1 - 3 / 4)"
-    }
-    
-    result = verify_solution(arith_puzzle, valid_arith_solution)
-    print(f"Arithmetic Valid: {result.is_valid}, Code: {result.error_code}, Time: {result.execution_time_ms:.2f}ms")
+    This script verifies a solution against an instance and prints the result.
+    It implements strict fail-loudly logic: any verification failure raises an exception.
+    """
+    import argparse
+    import logging
+    from code.utils.logger import setup_logging
 
+    parser = argparse.ArgumentParser(description="Verify puzzle solutions.")
+    parser.add_argument("--instance", type=str, required=True, help="Path to instance JSON file")
+    parser.add_argument("--solution", type=str, required=True, help="Path to solution JSON file")
+
+    args = parser.parse_args()
+
+    setup_logging()
+    logger = logging.getLogger(__name__)
+
+    try:
+        with open(args.instance, 'r') as f:
+            instance = json.load(f)
+        
+        with open(args.solution, 'r') as f:
+            solution = json.load(f)
+        
+        result = verify_solution(instance, solution)
+        
+        if result.is_valid:
+            logger.info(f"Solution is VALID. Time: {result.execution_time_ms:.2f}ms")
+        else:
+            logger.error(f"Solution is INVALID. Code: {result.error_code}, Message: {result.error_message}")
+            # Fail loudly: exit with error code
+            sys.exit(1)
+    
+    except DataVerificationError as e:
+        logger.error(f"CRITICAL: Verification failed with error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"CRITICAL: Unexpected error during verification: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

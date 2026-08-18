@@ -25,13 +25,6 @@ T004:
   r: No evidence of the required `data/raw/` and `data/processed/` directories being
     created (or containing any files) is provided; the claim lacks concrete artifacts
     confirming the directory structure exists.
-T005:
-  c: true
-  h: c0a342b830cefc5b1fe70b28d49521e3ec6a3892eb2aecec8974d66aebe97e59
-  r: The provided `code/__init__.py` defines a logging setup that writes JSON lines
-    containing the required `timestamp`, `wall_clock`, and `resource_usage` fields
-    to `data/processed/experiment.log`. The implementation correctly creates the directory
-    and file when invoked, satisfying the task specification.
 T029:
   c: false
   h: 04a553199a3f3ef34fe38038d1e523f410ef705dc153ef43bcf56b6164c4cc91
