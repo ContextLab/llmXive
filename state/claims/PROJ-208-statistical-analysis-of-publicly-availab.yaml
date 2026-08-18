@@ -340,3 +340,249 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T21:58:29Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Tests are optional if not explicitly requested in feature specification
+  claim_id: c_cd16a8ba
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_if_not_explicitly_requested_in_feature_sp
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:46:42Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory usage stays below 7GB during streaming data load
+  claim_id: c_a007653c
+  context: Implement Streaming Data Loader in code/data/loader.py using datasets.load_dataset(...,
+    streaming=True) to process the full real dataset in chunks, ensuring memory usage
+    stays <7GB while avoiding synthetic sampling unless the full stream is impossible
+    (Plan Phase 0, Constitution Principle II)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage stays <7GB while avoiding synthetic sampling unless the full
+    stream is impossible (Plan Phase 0, Constitution Principle II).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:46:42Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Fatal error raised if unique repo count is below 100 when HuggingFace
+    dataset is invalid
+  claim_id: c_3fc371c5
+  context: "Implement Fatal Error Handler in code/collect/orchestrator.py to raise\
+    \ a FATAL ERROR ONLY if HF is invalid AND API fallback (including discovery) fails\
+    \ to reach a sufficient number of unique repos (\u2265100)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fatal error is raised ONLY if HF is invalid AND API fallback fails to\
+    \ reach a sufficient number of unique repos (\u2265100)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:46:42Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Report outlier count and percentage for MAD and IQR methods
+  claim_id: c_8b88a210
+  context: Detect and report extreme outliers using MAD-based detection (primary)
+    and IQR method (secondary) on log-transformed data as defined in Spec US-2 Acceptance
+    Scenario 3; Report the number of outliers and their percentage of the total dataset
+    for both methods.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_outlier_count_and_percentage_for_MAD_and_IQR_methods
+  kind: entity_fact
+  raw_text: Report the number of outliers and their percentage of the total dataset
+    for both methods.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:47:12Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Outlier report schema includes mad_count, iqr_count, mad_percentage,
+    iqr_percentage, and primary_method
+  claim_id: c_9ca8d4ca
+  context: 'Detect and report extreme outliers using MAD-based detection (primary)
+    and IQR method (secondary) on log-transformed data as defined in Spec US-2 Acceptance
+    Scenario 3; Report the number of outliers and their percentage of the total dataset
+    for both methods; Output to data/processed/outlier_report.json with schema {mad_count:
+    int, iqr_count: int, mad_percentage: float, iqr_percentage: float, primary_method:
+    ''MAD''}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outlier_report_schema_includes_mad_count,_iqr_count,_mad_per
+  kind: entity_fact
+  raw_text: 'Output to data/processed/outlier_report.json with schema {mad_count:
+    int, iqr_count: int, mad_percentage: float, iqr_percentage: float, primary_method:
+    ''MAD''}.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:47:26Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap uses 1000 resamples with random state 42
+  claim_id: c_5e8a5226
+  context: Implement Parametric Bootstrap Resampling Function in code/analysis/sensitivity.py
+    with n_resamples=1000, random_state=42, resampling Kruskal-Wallis statistics and
+    LME coefficients (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Parametric Bootstrap Resampling Function with n_resamples=1000,
+    random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:47:47Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stability proportions calculated for thresholds 0.01, 0.05, and 0.1
+  claim_id: c_7062032c
+  context: Implement Statistic Calculation Function in code/analysis/sensitivity.py
+    to calculate stability proportions for the specific thresholds [, 0.05, 0.1] within
+    each resample (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate stability proportions for the specific thresholds [0.01, 0.05,
+    0.1] within each resample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:47:59Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Final stability report includes proportions for thresholds 0.01, 0.05,
+    and 0.1
+  claim_id: c_25e9f3d7
+  context: 'Generate final stability proportion report in data/processed/sensitivity_report.json
+    with explicit schema: {0.01: <float>, 0.05: <float>, 0.1: <float>} representing
+    the proportion of bootstrap resamples significant for each specific threshold
+    (FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate final stability proportion report in data/processed/sensitivity_report.json
+    with explicit schema: {0.01: <float>, 0.05: <float>, 0.1: <float>}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:48:54Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Collinearity flagged when VIF is 5 or greater
+  claim_id: c_234d20f2
+  context: "Calculate VIF from full model design matrix, flag collinearity (VIF\u2265\
+    5), and enforce descriptive language for joint relationship (not independent effects)\
+    \ in code/diagnostics/collinearity.py (FR-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Flag collinearity (VIF\u22655)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:48:54Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Correlated pairs identified when absolute correlation is 0.7 or greater
+  claim_id: c_ee5dbcce
+  context: "Implement VIF Metric Extraction and Correlated Pair Identification in\
+    \ code/diagnostics/collinearity.py to extract VIF values from T024 output AND\
+    \ identify correlated pairs (threshold |r|\u22650.7) (FR-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Identify correlated pairs (threshold |r|\u22650.7)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:48:54Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Labels with less than 1 percent frequency grouped into Other category
+  claim_id: c_91416bf7
+  context: 'Update code/analysis/mixed_effects_model.py to implement Dimensionality
+    Reduction for categorical variables: group labels with <1% frequency into an ''Other''
+    category before one-hot encoding to prevent singular matrices in VIF calculation
+    (Plan Phase 2, FR-006).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Labels_with_less_than_1_percent_frequency_grouped_into_Other
+  kind: magnitude
+  raw_text: Group labels with <1% frequency into an 'Other' category before one-hot
+    encoding to prevent singular matrices in VIF calculation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:49:27Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pytest coverage target is 80 percent
+  claim_id: c_ca38647f
+  context: "Achieve pytest coverage \u226580% with coverage report."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Achieve pytest coverage \u226580% with coverage report."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:49:27Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Rate limit wait time is 60 seconds
+  claim_id: c_22263ed2
+  context: "Implement GitHub API client with rate limit handling, exponential backoff,\
+    \ and explicit wait \u226560 seconds before resuming upon rate limit hits in code/utils/api_client.py\
+    \ (FR-001, US-1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Wait \u226560 seconds before resuming upon rate limit hits."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T14:49:27Z'
