@@ -1,146 +1,100 @@
-"""
-Verification script for T005b: Runs versioning.py on a dummy artifact
-and verifies the state YAML is updated correctly.
-
-This script creates a temporary dummy file, runs the versioning logic,
-and validates the output state file.
-"""
 import os
 import sys
 import tempfile
 import yaml
+import hashlib
+import logging
 from pathlib import Path
 from datetime import datetime
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent
-sys.path.insert(0, str(project_root))
+# Add parent directory to path to allow imports from code/
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from versioning import (
-    compute_sha256,
-    load_state,
-    update_version_state
+from versioning import compute_sha256, load_state, save_state, invalidate_stale_reviews, update_version_state
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
+logger = logging.getLogger("versioning_verification")
+
+def create_dummy_artifact(path: Path, content: str = "dummy content for verification"):
+    """Creates a dummy file artifact for testing."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        f.write(content)
+    logger.info(f"Created dummy artifact at: {path}")
 
 def main():
-    """Run verification of versioning.py on a dummy artifact."""
-    print("=" * 60)
-    print("T005b Verification: Running versioning.py on dummy artifact")
-    print("=" * 60)
+    logger.info("Starting versioning verification task T005b")
     
-    # Create a temporary directory for this verification run
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        
-        # Create a dummy artifact
-        dummy_file = tmp_path / "verification_dummy.txt"
-        dummy_content = f"Dummy artifact created at {datetime.utcnow().isoformat()} for T005b verification."
-        dummy_file.write_text(dummy_content)
-        print(f"\n1. Created dummy artifact: {dummy_file}")
-        
-        # Compute expected hash
-        expected_hash = compute_sha256(dummy_file)
-        print(f"   Computed hash: {expected_hash[:32]}...")
-        
-        # Define state file location
-        state_file = tmp_path / "verification_state.yaml"
-        print(f"\n2. State file will be written to: {state_file}")
-        
-        # Run update_version_state
-        print("\n3. Running update_version_state()...")
-        try:
-            state = update_version_state(
-                targets=["verification_dummy.txt"],
-                state_file=state_file,
-                project_root=tmp_path
-            )
-            print("   ✓ update_version_state() completed successfully")
-        except Exception as e:
-            print(f"   ✗ ERROR: update_version_state() failed: {e}")
-            return False
-        
-        # Verify state file exists
+    # Define paths relative to project root
+    state_file = project_root / "state" / "projects" / "PROJ-786-multi-property-trade-offs-in-alloy-desig.yaml"
+    reviews_file = project_root / "state" / "projects" / "PROJ-786-multi-property-trade-offs-in-alloy-desig_reviews.yaml"
+    
+    # Ensure state directory exists
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    reviews_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # 1. Create a dummy artifact to hash
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as tmp:
+        tmp.write("Test content for versioning verification")
+        tmp_path = Path(tmp.name)
+    
+    try:
+        # 2. Compute hash of the dummy artifact
+        artifact_hash = compute_sha256(tmp_path)
+        logger.info(f"Computed SHA-256 for dummy artifact: {artifact_hash}")
+
+        # 3. Load current state (or initialize if missing)
         if not state_file.exists():
-            print(f"   ✗ ERROR: State file was not created at {state_file}")
-            return False
-        print(f"\n4. ✓ State file created: {state_file}")
-        
-        # Load and validate state
-        print("\n5. Validating state file contents...")
-        try:
-            with open(state_file, 'r') as f:
-                loaded_state = yaml.safe_load(f)
-        except Exception as e:
-            print(f"   ✗ ERROR: Failed to load state file: {e}")
-            return False
-        
-        # Check required fields
-        checks = [
-            ("last_updated", "Timestamp field"),
-            ("project", "Project identifier"),
-            ("artifacts", "Artifacts dictionary"),
-        ]
-        
-        all_passed = True
-        for field, description in checks:
-            if field not in loaded_state:
-                print(f"   ✗ ERROR: Missing {description} ('{field}')")
-                all_passed = False
-            else:
-                print(f"   ✓ {description} present: {field} = {str(loaded_state[field])[:50]}...")
-        
-        # Check project name
-        if loaded_state.get("project") != "PROJ-786-multi-property-trade-offs-in-alloy-desig":
-            print(f"   ✗ ERROR: Project name mismatch")
-            all_passed = False
+            logger.info(f"State file {state_file} not found. Initializing new state.")
+            current_state = {
+                "project_id": "PROJ-786-multi-property-trade-offs-in-alloy-desig",
+                "artifact_hashes": {},
+                "updated_at": None,
+                "version": 1
+            }
         else:
-            print(f"   ✓ Project name matches: PROJ-786-multi-property-trade-offs-in-alloy-desig")
+            logger.info(f"Loading existing state from {state_file}")
+            current_state = load_state(state_file)
+
+        # 4. Update state with new artifact hash
+        old_hash = current_state.get("artifact_hashes", {}).get(tmp_path.name)
+        current_state["artifact_hashes"][tmp_path.name] = artifact_hash
+        current_state["updated_at"] = datetime.utcnow().isoformat()
         
-        # Check artifact entry
-        if "verification_dummy.txt" not in loaded_state.get("artifacts", {}):
-            print(f"   ✗ ERROR: Dummy artifact not found in artifacts")
-            all_passed = False
+        # 5. Invalidate stale reviews if hash changed
+        if old_hash and old_hash != artifact_hash:
+            logger.warning(f"Hash changed for {tmp_path.name}. Invalidating stale reviews.")
+            invalidate_stale_reviews(reviews_file, tmp_path.name, old_hash)
+        elif not old_hash:
+            logger.info(f"New artifact {tmp_path.name} detected. No invalidation needed.")
         else:
-            artifact_info = loaded_state["artifacts"]["verification_dummy.txt"]
-            
-            # Verify type
-            if artifact_info.get("type") != "file":
-                print(f"   ✗ ERROR: Artifact type is not 'file'")
-                all_passed = False
-            else:
-                print(f"   ✓ Artifact type: file")
-            
-            # Verify hash
-            if artifact_info.get("hash") != expected_hash:
-                print(f"   ✗ ERROR: Hash mismatch")
-                print(f"      Expected: {expected_hash}")
-                print(f"      Got:      {artifact_info.get('hash')}")
-                all_passed = False
-            else:
-                print(f"   ✓ Hash matches computed value")
-            
-            # Verify path
-            if artifact_info.get("path") != "verification_dummy.txt":
-                print(f"   ✗ ERROR: Path mismatch")
-                all_passed = False
-            else:
-                print(f"   ✓ Path is correct")
+            logger.info(f"Hash unchanged for {tmp_path.name}.")
+
+        # 6. Save updated state
+        save_state(current_state, state_file)
+        logger.info(f"Successfully updated state file: {state_file}")
+
+        # 7. Verification: Reload and print
+        verified_state = load_state(state_file)
+        logger.info(f"Verification: State updated at {verified_state['updated_at']}")
+        logger.info(f"Verification: Artifact hash in state: {verified_state['artifact_hashes'].get(tmp_path.name)}")
         
-        # Print summary
-        print("\n" + "=" * 60)
-        if all_passed:
-            print("T005b VERIFICATION: PASSED")
-            print("  - versioning.py executed successfully")
-            print("  - Dummy artifact hashed correctly")
-            print("  - State YAML updated with valid structure")
-            print("=" * 60)
-            return True
+        if verified_state["artifact_hashes"].get(tmp_path.name) == artifact_hash:
+            logger.info("SUCCESS: Versioning verification completed. State updated correctly.")
+            return 0
         else:
-            print("T005b VERIFICATION: FAILED")
-            print("  - One or more validation checks failed")
-            print("=" * 60)
-            return False
+            logger.error("FAILURE: Hash mismatch in state file.")
+            return 1
+
+    finally:
+        # Cleanup dummy artifact
+        if tmp_path.exists():
+            tmp_path.unlink()
+            logger.info(f"Cleaned up dummy artifact: {tmp_path}")
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    sys.exit(main())

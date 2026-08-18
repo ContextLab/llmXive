@@ -1,1 +1,2 @@
-# Raw data directory placeholder
+# This file ensures the data/raw directory is tracked by git.
+# Raw data files will be downloaded or generated here.

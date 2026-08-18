@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-786-multi-property-trade-offs-in-alloy-desig
-last_run_id: deed79e5-4c46-4c17-8d88-75541dae9968
+last_run_id: 66ce8f61-9595-497a-b101-25740c9feb0a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig
 title: Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data
-updated_at: '2026-08-16T07:44:52.441055Z'
+updated_at: '2026-08-18T06:03:32.559423Z'

@@ -1,179 +1,162 @@
 """
-Convex Hull and Delaunay utilities for alloy design.
+Convex Hull and Delaunay Triangulation Utilities for Alloy Design.
 
-This module provides wrappers around scipy.spatial.ConvexHull and Delaunay
-to facilitate:
-1. Constructing a convex hull from a set of feature vectors (compositions).
-2. Testing whether new points (synthetic candidates) lie within the hull
-   (i.e., are within the convex span of the training data).
+This module provides a robust wrapper around scipy.spatial.ConvexHull and Delaunay
+to support:
+  1. Computing the convex hull of empirical alloy data points.
+  2. Testing whether synthetic candidate points lie within the convex hull.
+  3. Logging context-aware information for debugging and validation.
+
+All functions are designed to work with numpy arrays of shape (N, D), where
+N is the number of points and D is the dimensionality (feature space).
 """
 
 import numpy as np
-from typing import Tuple, Optional, List
+from typing import Tuple, Optional, List, Dict, Any
 from scipy.spatial import ConvexHull, Delaunay
 
-from utils.logging_config import log_info_with_context, log_error_with_context
+from utils.logging_config import log_info_with_context, log_error_with_context, get_logger
+
+# Initialize logger for this module
+logger = get_logger(__name__)
 
 
 class ConvexHullWrapper:
     """
-    A wrapper class for scipy.spatial.ConvexHull and Delaunay.
+    A wrapper class for scipy.spatial.ConvexHull and Delaunay to manage
+    convex hull computations and point-in-hull tests.
 
-    This class handles the construction of the hull from a set of points
-    and provides methods to test if new points lie within that hull.
+    Attributes:
+        hull (ConvexHull): The computed convex hull object.
+        delaunay (Delaunay): The Delaunay triangulation object for point testing.
+        points (np.ndarray): The original input points used to compute the hull.
+        is_valid (bool): True if the hull was successfully computed.
     """
 
-    def __init__(self, points: np.ndarray, log_context: Optional[dict] = None):
+    def __init__(self, points: np.ndarray):
         """
-        Initialize the wrapper by computing the ConvexHull and Delaunay triangulation.
+        Initialize the wrapper and compute the hull.
 
         Args:
-            points: A numpy array of shape (n_samples, n_features).
-            log_context: Optional dictionary for logging context.
+            points (np.ndarray): Input array of shape (N, D).
+
+        Raises:
+            ValueError: If input points are not a 2D numpy array or have < 3 points.
+            RuntimeError: If the convex hull computation fails (e.g., points are collinear/coplanar).
         """
-        self.log_context = log_context or {"module": "convex_hull"}
+        if not isinstance(points, np.ndarray):
+            raise ValueError("Input points must be a numpy array.")
 
         if points.ndim != 2:
-            log_error_with_context(
-                f"Points array must be 2D, got shape {points.shape}",
-                context=self.log_context
-            )
-            raise ValueError("Points array must be 2D.")
+            raise ValueError(f"Input points must be 2D (N, D), got {points.ndim}D.")
 
-        if points.shape[0] == 0:
-            log_error_with_context(
-                "Points array cannot be empty.",
-                context=self.log_context
-            )
-            raise ValueError("Points array cannot be empty.")
+        if points.shape[0] < 3:
+            raise ValueError(f"Convex hull requires at least 3 points, got {points.shape[0]}.")
 
-        if points.shape[0] < points.shape[1]:
-            # Not enough points to form a full-dimensional hull in high dimensions
-            # This is a common issue in alloy design where feature space is high-D.
-            # We proceed but note that the hull might be degenerate.
-            log_info_with_context(
-                f"Warning: Number of points ({points.shape[0]}) is less than "
-                f"dimensions ({points.shape[1]}). Hull may be degenerate.",
-                context=self.log_context
-            )
+        self.points = points
+        self.hull: Optional[ConvexHull] = None
+        self.delaunay: Optional[Delaunay] = None
+        self.is_valid = False
 
         try:
             self.hull = ConvexHull(points)
+            # Delaunay is required for efficient point-in-hull testing in higher dimensions
             self.delaunay = Delaunay(points)
-            self.points = points
+            self.is_valid = True
             log_info_with_context(
-                f"Successfully computed ConvexHull and Delaunay for {points.shape[0]} points "
-                f"in {points.shape[1]} dimensions.",
-                context=self.log_context
+                logger,
+                "ConvexHullWrapper",
+                f"Successfully computed ConvexHull and Delaunay for {points.shape[0]} points in {points.shape[1]} dimensions."
             )
         except Exception as e:
             log_error_with_context(
-                f"Failed to compute ConvexHull/Delaunay: {str(e)}",
-                context=self.log_context
+                logger,
+                "ConvexHullWrapper",
+                f"Failed to compute ConvexHull or Delaunay: {str(e)}"
             )
-            raise
-
-    def is_inside(self, new_points: np.ndarray) -> np.ndarray:
-        """
-        Check if new points lie inside the convex hull.
-
-        Args:
-            new_points: A numpy array of shape (m, n_features) or (n_features,).
-
-        Returns:
-            A boolean numpy array indicating whether each point is inside the hull.
-            Returns False for points if the hull is degenerate in a way that prevents testing.
-        """
-        if new_points.ndim == 1:
-            new_points = new_points.reshape(1, -1)
-
-        if new_points.shape[1] != self.points.shape[1]:
-            log_error_with_context(
-                f"Dimension mismatch: new_points has {new_points.shape[1]} features, "
-                f"expected {self.points.shape[1]}.",
-                context=self.log_context
-            )
-            raise ValueError("Dimension mismatch between hull points and new points.")
-
-        try:
-            # Delaunay.find_simplex returns the index of the simplex containing the point,
-            # or -1 if the point is outside.
-            indices = self.delaunay.find_simplex(new_points)
-            return indices != -1
-        except Exception as e:
-            log_error_with_context(
-                f"Error during point-in-hull test: {str(e)}",
-                context=self.log_context
-            )
-            # Fallback to False for all points on error to avoid crashing downstream
-            return np.zeros(new_points.shape[0], dtype=bool)
+            raise RuntimeError(f"Convex hull computation failed: {e}") from e
 
     def get_volume(self) -> float:
         """
-        Get the volume (or area in 2D) of the convex hull.
+        Get the volume of the convex hull.
 
         Returns:
-            The volume of the hull.
+            float: The volume of the hull.
+
+        Raises:
+            RuntimeError: If the hull is not valid.
         """
-        return self.hull.volume
+        if not self.is_valid:
+            raise RuntimeError("Hull is not valid. Cannot compute volume.")
+        return float(self.hull.volume)
 
     def get_area(self) -> float:
         """
         Get the surface area of the convex hull.
 
         Returns:
-            The surface area of the hull.
-        """
-        return self.hull.area
+            float: The surface area of the hull.
 
-    def get_vertices(self) -> np.ndarray:
+        Raises:
+            RuntimeError: If the hull is not valid.
         """
-        Get the indices of the points forming the vertices of the hull.
+        if not self.is_valid:
+            raise RuntimeError("Hull is not valid. Cannot compute area.")
+        return float(self.hull.area)
+
+    def contains(self, points: np.ndarray) -> np.ndarray:
+        """
+        Test if points lie inside the convex hull.
+
+        Uses the Delaunay triangulation to check if points are within the hull.
+        For points on the boundary, this returns True.
+
+        Args:
+            points (np.ndarray): Array of shape (M, D) to test.
 
         Returns:
-            A numpy array of vertex indices.
+            np.ndarray: Boolean array of shape (M,) indicating containment.
+
+        Raises:
+            RuntimeError: If the hull is not valid.
         """
-        return self.hull.vertices
+        if not self.is_valid:
+            raise RuntimeError("Hull is not valid. Cannot test containment.")
 
-    def get_hull_points(self) -> np.ndarray:
-        """
-        Get the actual coordinates of the hull vertices.
+        if points.ndim == 1:
+            points = points.reshape(1, -1)
 
-        Returns:
-            A numpy array of shape (n_vertices, n_features).
-        """
-        return self.points[self.hull.vertices]
+        if points.shape[1] != self.points.shape[1]:
+            raise ValueError(f"Point dimension mismatch: expected {self.points.shape[1]}, got {points.shape[1]}")
+
+        # scipy.spatial.Delaunay.contains is efficient for this
+        return self.delaunay.contains(points)
 
 
-def compute_convex_hull(
-    points: np.ndarray,
-    log_context: Optional[dict] = None
-) -> ConvexHullWrapper:
+def compute_convex_hull(points: np.ndarray) -> ConvexHullWrapper:
     """
-    Convenience function to create a ConvexHullWrapper.
+    Compute the convex hull for a given set of points.
+
+    This is a convenience function that wraps the ConvexHullWrapper initialization.
 
     Args:
-        points: Input data array (n_samples, n_features).
-        log_context: Optional logging context.
+        points (np.ndarray): Input array of shape (N, D).
 
     Returns:
-        An initialized ConvexHullWrapper instance.
+        ConvexHullWrapper: An instance containing the computed hull and utilities.
     """
-    return ConvexHullWrapper(points, log_context)
+    return ConvexHullWrapper(points)
 
 
-def test_points_in_hull(
-    wrapper: ConvexHullWrapper,
-    new_points: np.ndarray
-) -> np.ndarray:
+def test_points_in_hull(hull_wrapper: ConvexHullWrapper, points: np.ndarray) -> np.ndarray:
     """
-    Convenience function to test points against a wrapper.
+    Test if a set of points lies within a pre-computed convex hull.
 
     Args:
-        wrapper: An initialized ConvexHullWrapper.
-        new_points: Points to test.
+        hull_wrapper (ConvexHullWrapper): The wrapper containing the computed hull.
+        points (np.ndarray): Array of shape (M, D) to test.
 
     Returns:
-        Boolean array indicating inside/outside status.
+        np.ndarray: Boolean array of shape (M,) where True means the point is inside.
     """
-    return wrapper.is_inside(new_points)
+    return hull_wrapper.contains(points)

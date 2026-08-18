@@ -5,125 +5,150 @@ from typing import Dict, Any, Optional
 import pandas as pd
 from datasets import load_dataset
 
-from utils.logging_config import get_logger, log_info_with_context, log_warning_with_context, log_error_with_context
+# Ensure sibling imports work in the project context
+try:
+    from utils.logging_config import get_logger, log_info_with_context, log_warning_with_context, log_error_with_context
+except ImportError:
+    # Fallback for direct execution if path not set up
+    import code.utils.logging_config as lc
+    get_logger = lc.get_logger
+    log_info_with_context = lc.log_info_with_context
+    log_warning_with_context = lc.log_warning_with_context
+    log_error_with_context = lc.log_error_with_context
 
 logger = get_logger(__name__)
 
-def load_oqmd_data() -> pd.DataFrame:
+def load_oqmd_data(dataset_name: str = "OQMD/elastic_properties", streaming: bool = False) -> pd.DataFrame:
     """
     Fetches OQMD elastic properties data from HuggingFace.
-    Returns a DataFrame containing the raw dataset.
+    
+    Args:
+        dataset_name: The HuggingFace dataset identifier.
+        streaming: If True, streams the dataset to save memory.
+        
+    Returns:
+        A pandas DataFrame containing the raw dataset.
     """
-    log_info_with_context(logger, "Loading OQMD dataset from HuggingFace", {"dataset": "OQMD/elastic_properties"})
+    log_info_with_context(f"Loading dataset: {dataset_name}", logger)
     try:
-        # Using streaming to handle potential large size, though we filter immediately
-        dataset = load_dataset('OQMD/elastic_properties', split='train', streaming=True)
+        if streaming:
+            dataset = load_dataset(dataset_name, split="train", streaming=True)
+            # Convert streaming to DF by iterating (efficient for large data)
+            # Note: For very large datasets, this might be slow, but ensures real data fetch.
+            # We will load a reasonable chunk or all if feasible. 
+            # To ensure robustness, we load into DF. If memory is an issue, 
+            # the caller should handle chunking logic or use streaming directly in filter.
+            # For this implementation, we assume the dataset fits in memory or we stream row-by-row.
+            # Given the constraint "Large dataset? Stream the real data", we iterate.
+            records = []
+            for item in dataset:
+                records.append(item)
+                if len(records) % 10000 == 0:
+                    log_info_with_context(f"Fetched {len(records)} rows...", logger)
+            df = pd.DataFrame(records)
+        else:
+            dataset = load_dataset(dataset_name, split="train")
+            df = dataset.to_pandas()
         
-        # Convert to pandas to allow filtering and column access
-        # We iterate to ensure we have the data structure we expect
-        rows = []
-        for item in dataset:
-            rows.append(item)
-            # Stop early if we have enough to verify structure, but for full ingestion
-            # we would iterate all. For this task, we load all available to count.
-        
-        df = pd.DataFrame(rows)
-        log_info_with_context(logger, f"Successfully loaded OQMD data", {"total_rows": len(df)})
+        log_info_with_context(f"Successfully loaded {len(df)} rows from {dataset_name}", logger)
         return df
     except Exception as e:
-        log_error_with_context(logger, f"Failed to load OQMD dataset: {str(e)}", {"error_type": type(e).__name__})
+        log_error_with_context(f"Failed to load dataset: {e}", logger)
         raise
 
 def filter_valid_entries(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filters the DataFrame to keep only entries with valid Bulk and Shear Moduli.
-    Criteria: bulk_modulus > 0 AND shear_modulus > 0.
-    Also drops rows with any missing values in key columns.
+    Filters the dataframe for entries with valid Bulk and Shear Moduli.
+    Specifically: bulk_modulus > 0 and shear_modulus > 0.
+    Excludes rows with missing data in these columns.
+    
+    Args:
+        df: The raw DataFrame.
+        
+    Returns:
+        Filtered DataFrame.
     """
-    log_info_with_context(logger, "Filtering valid entries", {"initial_count": len(df)})
+    log_info_with_context("Filtering for valid Bulk and Shear Moduli entries...", logger)
     
-    key_columns = ['bulk_modulus', 'shear_modulus']
-    
-    # Ensure columns exist
-    missing_cols = [col for col in key_columns if col not in df.columns]
+    required_cols = ['bulk_modulus', 'shear_modulus']
+    missing_cols = [c for c in required_cols if c not in df.columns]
     if missing_cols:
-        raise ValueError(f"Missing required columns in dataset: {missing_cols}")
+        raise ValueError(f"Dataset missing required columns: {missing_cols}")
     
-    # Filter for positive values
-    valid_mask = (df['bulk_modulus'] > 0) & (df['shear_modulus'] > 0)
-    filtered_df = df[valid_mask].copy()
+    initial_count = len(df)
     
-    # Drop rows with any NaN in key columns (safety check)
-    filtered_df = filtered_df.dropna(subset=key_columns)
+    # Filter for non-null and positive values
+    mask = (df['bulk_modulus'].notna()) & (df['shear_modulus'].notna()) & \
+           (df['bulk_modulus'] > 0) & (df['shear_modulus'] > 0)
     
-    filtered_count = len(filtered_df)
-    log_info_with_context(logger, "Filtering complete", {
-        "initial_count": len(df),
-        "filtered_count": filtered_count,
-        "removed_count": len(df) - filtered_count
-    })
+    filtered_df = df[mask].copy()
+    final_count = len(filtered_df)
+    
+    log_info_with_context(f"Initial rows: {initial_count}, Valid rows: {final_count}", logger)
+    log_info_with_context(f"Filtered out {initial_count - final_count} invalid or missing entries.", logger)
     
     return filtered_df
 
 def save_processed_data(df: pd.DataFrame, output_path: str) -> None:
     """
     Saves the processed DataFrame to a CSV file.
+    
+    Args:
+        df: The DataFrame to save.
+        output_path: The destination path.
     """
-    log_info_with_context(logger, "Saving processed data", {"path": output_path})
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_csv(output_path, index=False)
-    log_info_with_context(logger, "Data saved successfully", {"path": output_path, "rows": len(df)})
+    log_info_with_context(f"Saved processed data to {output_path} ({len(df)} rows)", logger)
 
-def main() -> int:
+def main():
     """
     Main entry point for data ingestion.
-    Orchestrates loading, filtering, and saving.
-    Implements T017: Logging for data ingestion counts.
+    Orchestrates loading, filtering, and logging counts.
     """
+    # Configuration
+    dataset_name = "OQMD/elastic_properties"
+    output_path = "data/processed/encoded_alloys.csv" # Placeholder path, actual encoding happens later
+    # Note: T012/T013 produce the final CSV. T017 adds logging to T012's logic.
+    # We will output to a temporary processed file for this step or the final one if combined.
+    # Per tasks.md, T015 creates the final CSV. T012 produces intermediate.
+    # Let's save to data/processed/ingested_raw.csv for this step.
+    intermediate_output = "data/processed/ingested_raw.csv"
+    
+    log_info_with_context("Starting Data Ingestion Pipeline", logger)
+    
     try:
-        # 1. Load Data
-        raw_df = load_oqmd_data()
+        # 1. Load
+        # Stream if necessary to handle large datasets without OOM
+        raw_df = load_oqmd_data(dataset_name, streaming=True)
         total_fetched = len(raw_df)
         
-        # 2. Filter Data
+        # 2. Filter
         valid_df = filter_valid_entries(raw_df)
-        filtered_count = len(valid_df)
+        valid_count = len(valid_df)
         
-        # 3. Prepare for Encoding (Select columns needed for encoding)
-        # Assuming composition column exists; if not, we might need to adjust based on dataset schema
-        # For OQMD elastic, typically 'composition' or similar string exists.
-        # We prepare the dataframe for the next step.
-        encoded_count = filtered_count # In this pipeline, encoding is a separate step, so count passes through
+        # 3. Save (Intermediate step before encoding)
+        save_processed_data(valid_df, intermediate_output)
+        encoded_count = valid_count # In this step, encoding is separate, but we count valid entries as "to be encoded"
         
         # 4. Log Counts (T017 Requirement)
-        log_info_with_context(logger, "Data Ingestion Summary", {
-            "total_fetched": total_fetched,
-            "filtered_valid": filtered_count,
-            "ready_for_encoding": encoded_count
-        })
+        log_info_with_context(f"--- Data Ingestion Summary ---", logger)
+        log_info_with_context(f"Total Fetched: {total_fetched}", logger)
+        log_info_with_context(f"Filtered (Valid): {valid_count}", logger)
+        log_info_with_context(f"Encoded (Ready for encoding): {encoded_count}", logger)
+        log_info_with_context(f"-----------------------------", logger)
         
-        # 5. Check minimum threshold (US-1 Acceptance 1)
-        if filtered_count < 500:
-            log_warning_with_context(logger, "Insufficient data for statistical analysis (N < 500)", {
-                "current_count": filtered_count,
-                "required_minimum": 500
-            })
-            # Exit gracefully as per task description
-            return 0
+        # Check for minimum data requirement (T014 logic integration)
+        if encoded_count < 500:
+            log_warning_with_context(f"Insufficient data for statistical analysis (N < 500). Found: {encoded_count}", logger)
+            # Exit with 0 as per T014 spec (graceful exit with warning)
+            sys.exit(0)
         
-        # 6. Save Processed Data
-        output_dir = "data/processed"
-        os.makedirs(output_dir, exist_ok=True)
-        output_path = os.path.join(output_dir, "raw_validated.csv") # Intermediate step before encoding
-        
-        # Note: The task T015 mentions saving to encoded_alloys.csv, but that requires the encoder.
-        # We save the validated raw data here, which the encoder will consume.
-        save_processed_data(valid_df, output_path)
-        
-        return 0
+        log_info_with_context("Data ingestion completed successfully.", logger)
         
     except Exception as e:
-        log_error_with_context(logger, f"Ingestion pipeline failed: {str(e)}", {"error_type": type(e).__name__})
-        return 1
+        log_error_with_context(f"Pipeline failed: {e}", logger)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

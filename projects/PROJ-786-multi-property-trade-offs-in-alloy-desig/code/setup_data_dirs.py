@@ -1,3 +1,7 @@
+"""
+Script to setup the data directory structure for the project.
+Creates data/raw and data/processed directories with .gitkeep files.
+"""
 import os
 from pathlib import Path
 
@@ -7,31 +11,25 @@ def setup_data_directories():
     - data/raw
     - data/processed
 
-    Creates .gitkeep files in each to ensure they are tracked by git.
+    Ensures .gitkeep files are present in each directory to track them in version control.
     """
     base_dir = Path(__file__).resolve().parent.parent
     data_dir = base_dir / "data"
     raw_dir = data_dir / "raw"
     processed_dir = data_dir / "processed"
 
-    directories = [data_dir, raw_dir, processed_dir]
+    # Create directories if they don't exist
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        gitkeep = directory / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.touch()
-            print(f"Created directory: {directory}")
-            print(f"Created .gitkeep in: {directory}")
-        else:
-            print(f"Directory already exists: {directory}")
+    # Create .gitkeep files to ensure directories are tracked by git
+    (raw_dir / ".gitkeep").touch(exist_ok=True)
+    (processed_dir / ".gitkeep").touch(exist_ok=True)
 
-    return True
+    print(f"Created directory structure: {data_dir}")
+    print(f"  - {raw_dir}")
+    print(f"  - {processed_dir}")
+    print("Added .gitkeep files to ensure directories are tracked by version control.")
 
 if __name__ == "__main__":
-    success = setup_data_directories()
-    if success:
-        print("Data directory structure setup complete.")
-    else:
-        print("Failed to setup data directory structure.")
-        exit(1)
+    setup_data_directories()

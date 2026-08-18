@@ -1,22 +1,32 @@
 """
 Versioning script for llmXive pipeline.
 Computes SHA-256 hashes for data/code artifacts and updates a state YAML file.
+Implements explicit invalidation of stale review records when hashes change.
 """
 import os
 import hashlib
 import yaml
 import argparse
+import logging
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 # Default paths relative to project root
-DEFAULT_STATE_FILE = "data/processed/version_state.yaml"
+DEFAULT_STATE_FILE = "state/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig.yaml"
+DEFAULT_REVIEW_STATE_FILE = "state/reviews.yaml"
 DEFAULT_TARGETS = [
     "data/raw",
     "data/processed",
     "code",
 ]
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
@@ -31,9 +41,9 @@ def compute_directory_hash(dir_path: Path) -> Dict[str, str]:
     hashes = {}
     for file_path in sorted(dir_path.rglob("*")):
         if file_path.is_file() and not file_path.name.startswith("."):
-          # Skip hidden files
-          relative_path = file_path.relative_to(dir_path)
-          hashes[str(relative_path)] = compute_sha256(file_path)
+            # Skip hidden files
+            relative_path = file_path.relative_to(dir_path)
+            hashes[str(relative_path)] = compute_sha256(file_path)
     return hashes
 
 def load_state(state_file: Path) -> Dict[str, Any]:
@@ -49,17 +59,96 @@ def save_state(state: Dict[str, Any], state_file: Path) -> None:
     with open(state_file, "w") as f:
         yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
+def load_reviews(reviews_file: Path) -> Dict[str, Any]:
+    """Load existing reviews state file."""
+    if reviews_file.exists():
+        with open(reviews_file, "r") as f:
+            return yaml.safe_load(f) or {}
+    return {"records": []}
+
+def save_reviews(reviews: Dict[str, Any], reviews_file: Path) -> None:
+    """Save reviews state to YAML file."""
+    reviews_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(reviews_file, "w") as f:
+        yaml.dump(reviews, f, default_flow_style=False, sort_keys=False)
+
+def invalidate_stale_reviews(
+    current_hashes: Dict[str, Any],
+    previous_hashes: Dict[str, Any],
+    reviews_file: Path
+) -> List[str]:
+    """
+    Explicitly invalidate stale review records when artifact hashes change.
+    
+    Args:
+        current_hashes: Current artifact hashes
+        previous_hashes: Previous artifact hashes from state
+        reviews_file: Path to reviews state file
+        
+    Returns:
+        List of invalidated record IDs
+    """
+    invalidated_ids = []
+    
+    if not reviews_file.exists():
+        logger.info("No reviews file found. Skipping invalidation logic.")
+        return invalidated_ids
+        
+    reviews_data = load_reviews(reviews_file)
+    records = reviews_data.get("records", [])
+    
+    # Determine which artifacts have changed
+    changed_artifacts = set()
+    for artifact_name, artifact_info in current_hashes.items():
+        current_hash = artifact_info.get("hash", "")
+        prev_info = previous_hashes.get(artifact_name)
+        prev_hash = prev_info.get("hash", "") if prev_info else ""
+        
+        if current_hash != prev_hash:
+            changed_artifacts.add(artifact_name)
+            logger.info(f"Artifact changed: {artifact_name} (hash: {current_hash[:16]}... -> {prev_hash[:16]}...)")
+    
+    if not changed_artifacts:
+        logger.info("No artifacts changed. No invalidation needed.")
+        return invalidated_ids
+        
+    # Invalidate records that reference changed artifacts
+    valid_records = []
+    for record in records:
+        record_id = record.get("id", "unknown")
+        record_artifacts = set(record.get("artifacts", []))
+        
+        # Check if this record references any changed artifact
+        if record_artifacts & changed_artifacts:
+            invalidated_ids.append(record_id)
+            record["status"] = "invalidated"
+            record["invalidation_reason"] = f"Artifact hash change: {', '.join(sorted(changed_artifacts & record_artifacts))}"
+            record["invalidated_at"] = datetime.utcnow().isoformat()
+            logger.warning(f"Invalidated review record {record_id} due to artifact changes.")
+        else:
+            valid_records.append(record)
+    
+    # Update reviews file
+    reviews_data["records"] = valid_records + [r for r in records if r.get("id") in invalidated_ids]
+    save_reviews(reviews_data, reviews_file)
+    
+    logger.info(f"Explicit invalidation logic executed. {len(invalidated_ids)} record(s) invalidated.")
+    return invalidated_ids
+
 def update_version_state(
     targets: List[str],
     state_file: Optional[Path] = None,
+    reviews_file: Optional[Path] = None,
     project_root: Optional[Path] = None
 ) -> Dict[str, Any]:
     """
     Compute hashes for target paths and update state file.
+    Explicitly invalidates stale review records when hashes change.
 
     Args:
         targets: List of relative paths to hash (files or directories)
-        state_file: Path to state YAML file (default: data/processed/version_state.yaml)
+        state_file: Path to state YAML file (default: state/projects/PROJ-786-...yaml)
+        reviews_file: Path to reviews YAML file (default: state/reviews.yaml)
         project_root: Project root directory (default: current working directory)
 
     Returns:
@@ -73,21 +162,30 @@ def update_version_state(
     else:
         state_file = Path(state_file)
 
-    # Ensure state_file is relative to project_root if it isn't absolute
+    if reviews_file is None:
+        reviews_file = project_root / DEFAULT_REVIEW_STATE_FILE
+    else:
+        reviews_file = Path(reviews_file)
+
+    # Ensure paths are relative to project_root if they aren't absolute
     if not state_file.is_absolute():
         state_file = project_root / state_file
+    if not reviews_file.is_absolute():
+        reviews_file = project_root / reviews_file
 
+    # Load current state and previous hashes for comparison
     state = load_state(state_file)
+    previous_hashes = state.get("artifacts", {})
 
     # Initialize or update metadata
     state["last_updated"] = datetime.utcnow().isoformat()
     state["project"] = "PROJ-786-multi-property-trade-offs-in-alloy-desig"
-    state["artifacts"] = state.get("artifacts", {})
+    state["artifacts"] = {}
 
     for target in targets:
         target_path = project_root / target
         if not target_path.exists():
-            print(f"Warning: Target path does not exist: {target_path}")
+            logger.warning(f"Target path does not exist: {target_path}")
             continue
 
         if target_path.is_file():
@@ -115,12 +213,35 @@ def update_version_state(
                     "path": str(target_path.relative_to(project_root))
                 }
 
+    # Save updated state before invalidation (so we have the new hashes)
     save_state(state, state_file)
+    
+    # Explicitly invalidate stale review records
+    invalidated = invalidate_stale_reviews(
+        current_hashes=state["artifacts"],
+        previous_hashes=previous_hashes,
+        reviews_file=reviews_file
+    )
+    
+    # Update state with invalidation summary
+    state["last_invalidation"] = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "records_invalidated": len(invalidated),
+        "invalidated_ids": invalidated,
+        "changed_artifacts": [
+            name for name, info in state["artifacts"].items()
+            if name in previous_hashes and info.get("hash") != previous_hashes[name].get("hash")
+        ]
+    }
+    
+    # Re-save state with invalidation info
+    save_state(state, state_file)
+    
     return state
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Compute SHA-256 hashes for artifacts and update state YAML"
+        description="Compute SHA-256 hashes for artifacts, update state YAML, and invalidate stale reviews"
     )
     parser.add_argument(
         "--targets",
@@ -132,6 +253,11 @@ def main():
         "--state-file",
         default=DEFAULT_STATE_FILE,
         help="Path to state YAML file"
+    )
+    parser.add_argument(
+        "--reviews-file",
+        default=DEFAULT_REVIEW_STATE_FILE,
+        help="Path to reviews YAML file for invalidation"
     )
     parser.add_argument(
         "--project-root",
@@ -150,14 +276,33 @@ def main():
     state = update_version_state(
         targets=args.targets,
         state_file=args.state_file,
+        reviews_file=args.reviews_file,
         project_root=project_root
     )
 
+    print(f"\n{'='*60}")
+    print(f"VERSIONING UPDATE COMPLETE")
+    print(f"{'='*60}")
+    print(f"Project: {state['project']}")
+    print(f"Updated at: {state['last_updated']}")
+    print(f"Artifacts hashed: {len(state['artifacts'])}")
+    
+    if "last_invalidation" in state:
+        inv = state["last_invalidation"]
+        print(f"\nInvalidation Summary:")
+        print(f"  Timestamp: {inv['timestamp']}")
+        print(f"  Records invalidated: {inv['records_invalidated']}")
+        if inv['invalidated_ids']:
+            print(f"  Invalidated IDs: {inv['invalidated_ids']}")
+        if inv['changed_artifacts']:
+            print(f"  Changed artifacts: {inv['changed_artifacts']}")
+    
     if args.show:
+        print(f"\nFull State YAML:")
         print(yaml.dump(state, default_flow_style=False))
     else:
-        print(f"State updated successfully at {args.state_file}")
-        print(f"Hashed {len(state['artifacts'])} artifact(s)")
+        print(f"\nState updated successfully at {args.state_file}")
+        print(f"Log: Invalidation logic executed for {state.get('last_invalidation', {}).get('records_invalidated', 0)} record(s).")
 
 if __name__ == "__main__":
     main()

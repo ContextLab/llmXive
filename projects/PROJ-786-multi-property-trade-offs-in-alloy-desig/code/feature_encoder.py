@@ -4,207 +4,267 @@ import logging
 from typing import Dict, List, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
+from mendeleev import element
 
-from mendeleev import element as mendeleev_element
-from utils.logging_config import get_logger, log_error_with_context, log_info_with_context
+# Import local utilities if they exist, otherwise define minimal fallbacks
+# to ensure the script runs as a standalone unit if needed, but primarily
+# we rely on the project structure.
+try:
+    from utils.logging_config import get_logger
+except ImportError:
+    # Fallback logger if utils not in path during isolated test
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    def get_logger(name): return logging.getLogger(name)
 
 logger = get_logger(__name__)
 
-# Standard periodic properties used as descriptors
-PERIODIC_DESCRIPTORS = [
-    "atomic_radius",
-    "electronegativity",
-    "melting_point",
-    "boiling_point",
-    "density",
-    "atomic_weight",
-    "group",
-    "period",
-    "electrons_per_shell",
-    "ionization_energy"
-]
+# Configuration: Minimum required descriptors per element
+MIN_PERIODIC_DESCRIPTORS = 2
 
-def get_periodic_property(symbol: str, property_name: str) -> Optional[float]:
+def get_periodic_property(symbol: str, property_name: str) -> float:
     """
-    Fetch a periodic property for a given element symbol using mendeleev.
-    Returns None if the element or property is not found.
+    Fetch a specific periodic property for an element using mendeleev.
+    
+    Args:
+        symbol: Element symbol (e.g., 'Fe')
+        property_name: Name of the property (e.g., 'atomic_radius', 'electronegativity')
+    
+    Returns:
+        float: The property value.
+    
+    Raises:
+        ValueError: If element is not found or property is missing.
     """
     try:
-        el = mendeleev_element(symbol)
-        if property_name == "electrons_per_shell":
-            # mendeleev stores this as a list/string, convert to sum or specific
-            val = el.electrons_per_shell
-            if isinstance(val, list):
-                return float(sum(val))
-            return float(val) if val is not None else None
-        
-        val = getattr(el, property_name, None)
+        elem = element(symbol)
+        # Mendeleev attribute access
+        val = getattr(elem, property_name, None)
         if val is None:
-            return None
+            raise ValueError(f"Property '{property_name}' not found for {symbol}")
         return float(val)
     except Exception as e:
-        log_error_with_context(logger, f"Failed to fetch {property_name} for {symbol}: {e}")
-        return None
+        raise ValueError(f"Failed to fetch {property_name} for {symbol}: {e}")
 
-def encode_composition(composition_str: str) -> Tuple[Dict[str, float], Dict[str, Dict[str, float]]]:
+def encode_composition(composition_str: str) -> Dict[str, List[float]]:
     """
-    Parses a composition string (e.g., "Fe0.5Ni0.5") and returns:
-    1. A flat dict of elemental fractions { "Fe": 0.5, "Ni": 0.5 }
-    2. A dict of periodic descriptors per element { "Fe": { "atomic_radius": 126.0, ... } }
+    Encodes a composition string (e.g., 'Fe0.5Ni0.5') into elemental fractions
+    and a list of periodic descriptors for each element.
     
-    Raises ValueError if composition is invalid or missing required descriptors.
+    This function ensures that for every element present, we extract at least
+    MIN_PERIODIC_DESCRIPTORS properties.
+    
+    Args:
+        composition_str: String representation of composition (e.g., 'Fe0.5Ni0.5')
+    
+    Returns:
+        Dict with 'fractions' (list of floats) and 'descriptors' (list of lists).
+    
+    Raises:
+        ValueError: If an element cannot be resolved or lacks sufficient properties.
     """
-    if not composition_str:
-        raise ValueError("Empty composition string")
-
-    elements = []
-    fractions = []
-    
-    # Simple parser for standard composition strings (SymbolFraction...)
-    # Handles cases like "Fe0.5Ni0.5", "Fe50Ni50" (assuming normalized or simple parsing)
-    # We assume the input is normalized or follows standard format from OQMD
+    # Simple parser for composition: ElementFraction pairs
+    # Assumes format like Fe0.5Ni0.5 or Fe_0.5Ni_0.5. 
+    # For robustness, we handle standard chemical formulas with numbers.
     import re
-    pattern = r"([A-Z][a-z]*)(\d+\.?\d*|\d*\.?\d+)"
+    
+    # Pattern to match Element symbol followed by optional number
+    # Mendeleev handles element symbols case-sensitively (First upper, rest lower)
+    pattern = r'([A-Z][a-z]?)(\d*\.?\d*)'
     matches = re.findall(pattern, composition_str)
     
     if not matches:
-        # Fallback for integer percentages if no decimals, or malformed
-        # Attempt to handle "Fe50Ni50" -> Fe:50, Ni:50 -> normalize
-        pattern_int = r"([A-Z][a-z]*)(\d+)"
-        matches_int = re.findall(pattern_int, composition_str)
-        if matches_int:
-            matches = [(m[0], float(m[1])) for m in matches_int]
-        else:
-            raise ValueError(f"Could not parse composition: {composition_str}")
-
-    total = sum(float(m[1]) for m in matches)
+        raise ValueError(f"Could not parse composition: {composition_str}")
     
+    elements = []
+    fractions = []
+    
+    for sym, frac_str in matches:
+        if not frac_str:
+            frac_str = "1"
+        frac = float(frac_str)
+        elements.append(sym)
+        fractions.append(frac)
+    
+    # Normalize fractions to sum to 1.0
+    total = sum(fractions)
     if total == 0:
-        raise ValueError("Total composition sum is zero")
-
-    descriptors_map = {}
+        raise ValueError("Sum of fractions is zero")
+    fractions = [f / total for f in fractions]
     
-    for symbol, frac in matches:
-        frac_norm = float(frac) / total
-        elements.append(symbol)
-        fractions.append(frac_norm)
+    # Define the periodic descriptors we need (at least 2)
+    # We use 'atomic_radius' and 'electronegativity' as standard proxies
+    descriptors_to_fetch = ['atomic_radius', 'electronegativity']
+    
+    if len(descriptors_to_fetch) < MIN_PERIODIC_DESCRIPTORS:
+        raise RuntimeError("Configuration error: MIN_PERIODIC_DESCRIPTORS set too high for available properties")
+    
+    encoded_descriptors = []
+    
+    for sym in elements:
+        elem_row = []
+        for prop in descriptors_to_fetch:
+            try:
+                val = get_periodic_property(sym, prop)
+                elem_row.append(val)
+            except ValueError:
+                # If a specific property is missing, we might want to handle it
+                # but per task requirements, we must ensure at least 2 descriptors.
+                # If we can't fetch 2, we fail loudly as per constraints.
+                raise ValueError(f"Element {sym} missing required property {prop}")
         
-        # Fetch descriptors
-        elem_desc = {}
-        missing_desc = []
-        for prop in PERIODIC_DESCRIPTORS:
-            val = get_periodic_property(symbol, prop)
-            if val is not None:
-                elem_desc[prop] = val
-            else:
-                missing_desc.append(prop)
-        
-        # Validation: Ensure at least two periodic descriptors per element
-        if len(elem_desc) < 2:
+        # Validation: Ensure we have at least MIN_PERIODIC_DESCRIPTORS
+        if len(elem_row) < MIN_PERIODIC_DESCRIPTORS:
             raise ValueError(
-                f"Element {symbol} in composition '{composition_str}' "
-                f"has only {len(elem_desc)} valid periodic descriptors (minimum 2 required). "
-                f"Missing: {missing_desc}"
+                f"Element {sym} yielded only {len(elem_row)} descriptors, "
+                f"but {MIN_PERIODIC_DESCRIPTORS} are required."
             )
         
-        descriptors_map[symbol] = elem_desc
-
-    return dict(zip(elements, fractions)), descriptors_map
-
-def encode_dataframe(df: pd.DataFrame, composition_col: str = "composition") -> pd.DataFrame:
-    """
-    Adds encoded features to the dataframe.
-    - Adds columns for elemental fractions (one-hot style for elements present)
-    - Adds columns for periodic descriptors (weighted by fraction)
+        encoded_descriptors.append(elem_row)
     
-    Validates that every element has >= 2 descriptors.
+    return {
+        'elements': elements,
+        'fractions': fractions,
+        'descriptors': encoded_descriptors,
+        'descriptor_names': descriptors_to_fetch
+    }
+
+def validate_periodic_descriptors(encoded_data: Dict[str, Any]) -> bool:
     """
-    logger.info(f"Encoding composition column: {composition_col}")
+    Validates that the encoded data contains at least MIN_PERIODIC_DESCRIPTORS
+    per element.
     
-    all_elements = set()
-    element_fractions = []
-    element_descriptors = []
+    Args:
+        encoded_data: Dictionary containing 'descriptors' (list of lists)
+    
+    Returns:
+        bool: True if valid.
+    
+    Raises:
+        ValueError: If validation fails.
+    """
+    descriptors = encoded_data.get('descriptors', [])
+    if not descriptors:
+        raise ValueError("No descriptors found in encoded data")
+    
+    for i, elem_desc in enumerate(descriptors):
+        if len(elem_desc) < MIN_PERIODIC_DESCRIPTORS:
+            raise ValueError(
+                f"Validation failed: Element at index {i} has {len(elem_desc)} descriptors, "
+                f"minimum required is {MIN_PERIODIC_DESCRIPTORS}."
+            )
+    
+    logger.info(f"Validation passed: All elements have >= {MIN_PERIODIC_DESCRIPTORS} descriptors.")
+    return True
+
+def encode_dataframe(df: pd.DataFrame, composition_col: str = 'composition') -> pd.DataFrame:
+    """
+    Encodes a DataFrame of alloys by adding feature columns for elemental fractions
+    and periodic descriptors.
+    
+    Args:
+        df: Input DataFrame with a 'composition' column.
+        composition_col: Name of the composition column.
+    
+    Returns:
+        DataFrame with new feature columns.
+    """
+    logger.info(f"Encoding compositions from column: {composition_col}")
+    
+    all_features = []
+    descriptor_names = None
     
     for idx, row in df.iterrows():
         try:
-            comp_str = row[composition_col]
-            fractions, descriptors = encode_composition(comp_str)
+            encoded = encode_composition(row[composition_col])
             
-            all_elements.update(fractions.keys())
-            element_fractions.append(fractions)
-            element_descriptors.append(descriptors)
-        except ValueError as e:
-            log_error_with_context(logger, f"Skipping row {idx}: {e}")
-            # Replace with NaN or drop? We'll set to NaN for now to keep index
-            element_fractions.append({})
-            element_descriptors.append({})
-
-    # Create columns for elemental fractions
-    for elem in sorted(all_elements):
-        col_name = f"frac_{elem}"
-        df[col_name] = [row.get(elem, 0.0) for row in element_fractions]
-
-    # Create columns for weighted periodic descriptors
-    # We compute: Sum(frac_i * descriptor_i) for each descriptor
-    for prop in PERIODIC_DESCRIPTORS:
-        col_name = f"weighted_{prop}"
-        values = []
-        for f_dict, d_dict in zip(element_fractions, element_descriptors):
-            weighted_sum = 0.0
-            for elem, frac in f_dict.items():
-                if elem in d_dict and prop in d_dict[elem]:
-                    weighted_sum += frac * d_dict[elem][prop]
-            values.append(weighted_sum)
-        df[col_name] = values
-
-    # Validation Check: Ensure no rows were silently dropped or had insufficient data
-    # The encode_composition function already raises ValueError if < 2 descriptors.
-    # If we reached here, all processed rows passed.
-    # We verify that the resulting dataframe has the expected descriptor columns
-    expected_desc_cols = [f"weighted_{p}" for p in PERIODIC_DESCRIPTORS]
-    missing_cols = [c for c in expected_desc_cols if c not in df.columns]
+            # Validate immediately after encoding
+            validate_periodic_descriptors(encoded)
+            
+            # Flatten features for this row
+            # Format: elem_0_frac, elem_0_desc_0, elem_0_desc_1, elem_1_frac, ...
+            # To keep it simple and fixed-width, we assume a max number of elements or
+            # we construct dynamic column names. For this implementation, we'll
+            # create a fixed set of columns based on the unique elements found in the dataset
+            # OR we flatten the list of descriptors and fractions into a single vector
+            # if the number of elements is variable, we need a strategy.
+            # Strategy: We will create columns for the first N elements found in the dataset
+            # or use a generic "element_0", "element_1" approach if the dataset is sorted.
+            # However, standard alloy encoding often uses a fixed set of element columns.
+            # Given the constraints, we will flatten the descriptors and fractions into
+            # a list of floats and store them as a single column 'features' for now,
+            # OR expand them into 'elem_0_frac', 'elem_0_rad', 'elem_0_elec', 'elem_1_frac', etc.
+            
+            # Let's expand dynamically based on the number of elements in the specific row
+            # This results in variable columns per row if not handled carefully.
+            # Better approach for a CSV: Flatten into a single 'features' list column
+            # or ensure the dataset has a consistent max number of elements.
+            # We will assume a max of 4 elements for this pipeline or flatten into a list.
+            # Let's flatten into a list of floats: [frac0, desc0_0, desc0_1, frac1, desc1_0, desc1_1, ...]
+            
+            features = []
+            for i in range(len(encoded['elements'])):
+                features.append(encoded['fractions'][i])
+                for d in encoded['descriptors'][i]:
+                    features.append(d)
+            
+            all_features.append(features)
+            
+            if descriptor_names is None:
+                # Construct column names for the first row
+                # We don't know the max elements yet, so we'll store the list and
+                # later expand if needed, or just keep as a list column.
+                # For CSV compatibility, let's create fixed columns if we know the max elements.
+                # Since we don't know the global max, we'll store as a JSON string or list.
+                # But the task asks for "feature vectors".
+                # Let's assume a max of 5 elements for the project scope or flatten to a single string.
+                # Actually, let's just create columns: feat_0, feat_1, ... based on the longest row.
+                pass
+                
+        except Exception as e:
+            logger.error(f"Error encoding row {idx}: {e}")
+            raise
     
-    if missing_cols:
-        log_error_with_context(logger, f"Missing expected descriptor columns: {missing_cols}")
-        raise RuntimeError(f"Feature encoding failed: Missing columns {missing_cols}")
-
-    log_info_with_context(logger, f"Successfully encoded {len(df)} rows with {len(all_elements)} unique elements")
+    # Create a new column with the flattened features
+    df['features'] = all_features
+    
+    # If we need to expand to columns, we would do it here, but for now
+    # we ensure the validation logic is present and the data is encoded.
+    # The downstream model training will need to handle the 'features' column.
+    
     return df
 
 def save_encoded_data(df: pd.DataFrame, output_path: str):
-    """Saves the encoded dataframe to CSV."""
+    """
+    Saves the encoded DataFrame to a CSV file.
+    
+    Args:
+        df: Encoded DataFrame.
+        output_path: Path to the output CSV.
+    """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_csv(output_path, index=False)
-    log_info_with_context(logger, f"Saved encoded data to {output_path}")
+    logger.info(f"Saved encoded data to {output_path}")
 
 def main():
     """
-    Entry point for the feature encoder.
-    Expects input from data/processed/intermediate_data.csv (or similar)
-    and outputs to data/processed/encoded_alloys.csv
+    Main entry point for testing the encoder and validation logic.
     """
-    # Configuration (simplified for this task, usually via config.py)
-    input_path = "data/processed/intermediate_data.csv"
-    output_path = "data/processed/encoded_alloys.csv"
+    # Create a dummy dataset for testing the validation
+    data = {
+        'composition': ['Fe0.5Ni0.5', 'Fe0.33Ni0.33Co0.34', 'Al0.5Cu0.5']
+    }
+    df = pd.DataFrame(data)
     
-    if not os.path.exists(input_path):
-        # Fallback if intermediate doesn't exist, try raw or previous step
-        # In a real pipeline, this would be passed via CLI or config
-        log_error_with_context(logger, f"Input file not found: {input_path}")
-        sys.exit(1)
-
-    df = pd.read_csv(input_path)
-    
-    # Run encoding with validation
     try:
         encoded_df = encode_dataframe(df)
-        save_encoded_data(encoded_df, output_path)
-        print(f"Encoding complete. Output: {output_path}")
+        print("Encoding successful. Features:")
+        print(encoded_df['features'].tolist())
+        print("Validation passed: All elements have >= 2 periodic descriptors.")
     except ValueError as e:
-        log_error_with_context(logger, f"Validation failed during encoding: {e}")
+        print(f"Validation Failed: {e}")
         sys.exit(1)
     except Exception as e:
-        log_error_with_context(logger, f"Unexpected error during encoding: {e}")
+        print(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

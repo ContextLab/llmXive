@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-alloy-design"
 version = "0.1.0"
-description = "Multi-Property Trade-Offs in Alloy Design"
+description = "Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -20,60 +20,61 @@ dependencies = [
     "pyarrow",
     "pymatgen",
     "mendeleev",
+    "python-dotenv",
+    "datasets",
     "pydantic",
-    "datasets"
 ]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pre-commit>=3.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
-  \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | data
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
-
-[tool.ruff]
-# Same as Black
-line-length = 88
-target-version = "py311"
-
-# Exclude generated data and build artifacts
-extend-exclude = [
-    "data",
-    "build",
-    "dist",
-    ".venv",
-    ".tox",
-    ".mypy_cache"
-]
-
-[tool.ruff.lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "W", "I", "N", "UP"]
-ignore = [
-    "E501", # Line too long (black handles this)
-    "N806", # Variable in function should be lowercase (allowing some flexibility)
-]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow asserts in tests
-
-[tool.ruff.lint.isort]
-known-first-party = ["code", "tests"]
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v"
+addopts = "-v --tb=short"

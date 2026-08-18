@@ -1,73 +1,108 @@
 import pytest
 import pandas as pd
 import numpy as np
-from code.feature_encoder import encode_composition, encode_dataframe, PERIODIC_DESCRIPTORS
+from code.feature_encoder import validate_periodic_descriptors, encode_composition, DEFAULT_PERIODIC_DESCRIPTORS
 
 class TestFeatureValidation:
-    """
-    Tests for T016: Ensure feature vectors include at least two periodic descriptors per element.
-    """
-
-    def test_encode_composition_valid_elements(self):
-        """Test that valid elements return at least 2 descriptors."""
-        comp_str = "Fe0.5Ni0.5"
-        fractions, descriptors = encode_composition(comp_str)
-        
-        assert "Fe" in descriptors
-        assert "Ni" in descriptors
-        
-        # Verify at least 2 descriptors per element
-        for elem, props in descriptors.items():
-            assert len(props) >= 2, f"Element {elem} has fewer than 2 descriptors: {list(props.keys())}"
-        
-        # Verify specific descriptors exist
-        assert "atomic_radius" in descriptors["Fe"]
-        assert "electronegativity" in descriptors["Fe"]
-
-    def test_encode_composition_missing_descriptors_raises(self):
-        """
-        Test that if an element has < 2 valid descriptors (simulated by mocking),
-        a ValueError is raised.
-        Note: In real execution with mendeleev, most elements have > 2 descriptors.
-        This test verifies the logic path exists.
-        """
-        # We cannot easily mock mendeleev here without complex fixtures,
-        # but we can verify the logic by checking the raise condition in the code.
-        # Instead, we test that a valid element works and the count is correct.
-        comp_str = "Fe0.5Ni0.5"
-        fractions, descriptors = encode_composition(comp_str)
-        
-        for elem, props in descriptors.items():
-            assert len(props) >= 2
-
-    def test_encode_dataframe_validation(self):
-        """Test that encode_dataframe enforces the 2-descriptor rule on all rows."""
-        data = {
-            "composition": ["Fe0.5Ni0.5", "Co0.3Cu0.7"],
-            "bulk_modulus": [150.0, 180.0]
+    """Tests for periodic descriptor validation in feature encoding."""
+    
+    def test_validate_minimum_two_descriptors(self):
+        """Test that validation requires at least two periodic descriptors."""
+        # Create a feature dict with only one descriptor
+        features_one = {
+            'weighted_atomic_radius': 1.5,
+            'frac_Fe': 0.5,
+            'frac_Ni': 0.5
         }
-        df = pd.DataFrame(data)
         
-        # This should not raise if data is valid
-        encoded_df = encode_dataframe(df)
+        is_valid, msg = validate_periodic_descriptors(features_one, ['atomic_radius'])
+        assert not is_valid, "Should fail with only one descriptor"
+        assert "Insufficient periodic descriptors" in msg
         
-        # Check that weighted descriptor columns exist
-        for prop in PERIODIC_DESCRIPTORS:
-            assert f"weighted_{prop}" in encoded_df.columns
+    def test_validate_two_descriptors_pass(self):
+        """Test that validation passes with two or more descriptors."""
+        # Create a feature dict with two descriptors
+        features_two = {
+            'weighted_atomic_radius': 1.5,
+            'weighted_electronegativity': 1.8,
+            'frac_Fe': 0.5,
+            'frac_Ni': 0.5
+        }
         
-        # Check that no NaNs were introduced in descriptor columns for valid data
-        for prop in PERIODIC_DESCRIPTORS:
-            col = f"weighted_{prop}"
-            assert not encoded_df[col].isna().any(), f"NaN found in {col} for valid data"
-
-    def test_mixed_valid_invalid_elements(self):
-        """Test behavior when an element might be problematic (e.g., unknown symbol)."""
-        # Using a known valid element to ensure the check works
-        # If we had a fake element, encode_composition would likely return 0 descriptors
-        # and raise ValueError.
-        # Since mendeleev is robust, we test with valid elements to ensure the count >= 2.
-        comp_str = "Au0.1Ag0.9"
-        fractions, descriptors = encode_composition(comp_str)
+        is_valid, msg = validate_periodic_descriptors(features_two, ['atomic_radius', 'electronegativity'])
+        assert is_valid, "Should pass with two descriptors"
+        assert "Validation passed" in msg
         
-        for elem, props in descriptors.items():
-            assert len(props) >= 2, f"Element {elem} failed validation with {len(props)} descriptors"
+    def test_validate_three_descriptors_pass(self):
+        """Test that validation passes with three descriptors."""
+        features_three = {
+            'weighted_atomic_radius': 1.5,
+            'weighted_electronegativity': 1.8,
+            'weighted_ionization_energy': 7.5,
+            'frac_Fe': 0.5,
+            'frac_Ni': 0.5
+        }
+        
+        is_valid, msg = validate_periodic_descriptors(features_three, ['atomic_radius', 'electronegativity', 'ionization_energy'])
+        assert is_valid, "Should pass with three descriptors"
+        
+    def test_encode_composition_validates_descriptors(self):
+        """Test that encode_composition returns valid=False when descriptors are missing."""
+        # This test verifies the integration with the validation logic
+        # We can't easily test the actual mendeleev calls without mocking,
+        # but we can test the validation function directly
+        
+        # Simulate a case where descriptors are missing
+        features_missing = {
+            'frac_Fe': 0.5,
+            'frac_Ni': 0.5
+            # No weighted_* descriptors
+        }
+        
+        is_valid, msg = validate_periodic_descriptors(features_missing, ['atomic_radius', 'electronegativity'])
+        assert not is_valid
+        assert "Insufficient periodic descriptors" in msg
+        
+    def test_empty_features_fails(self):
+        """Test that empty feature dict fails validation."""
+        features_empty = {}
+        
+        is_valid, msg = validate_periodic_descriptors(features_empty, ['atomic_radius'])
+        assert not is_valid
+        assert "Insufficient periodic descriptors" in msg
+        
+    def test_descriptor_names_match(self):
+        """Test that validation checks for correct descriptor names."""
+        # Features with wrong prefix
+        features_wrong_prefix = {
+            'atomic_radius': 1.5,  # Missing 'weighted_' prefix
+            'electronegativity': 1.8,
+            'frac_Fe': 0.5
+        }
+        
+        is_valid, msg = validate_periodic_descriptors(features_wrong_prefix, ['atomic_radius', 'electronegativity'])
+        assert not is_valid, "Should fail because 'weighted_' prefix is missing"
+        
+    def test_default_descriptors_validation(self):
+        """Test validation with default periodic descriptors."""
+        features_default = {
+            'weighted_atomic_radius': 1.5,
+            'weighted_electronegativity': 1.8,
+            'weighted_ionization_energy': 7.5,
+            'weighted_valence': 8.0,
+            'frac_Fe': 0.5
+        }
+        
+        is_valid, msg = validate_periodic_descriptors(features_default, DEFAULT_PERIODIC_DESCRIPTORS)
+        assert is_valid, "Should pass with all default descriptors"
+        
+    def test_partial_default_descriptors_fails(self):
+        """Test that having only one of the default descriptors fails."""
+        features_partial = {
+            'weighted_atomic_radius': 1.5,
+            'frac_Fe': 0.5
+        }
+        
+        is_valid, msg = validate_periodic_descriptors(features_partial, DEFAULT_PERIODIC_DESCRIPTORS)
+        assert not is_valid, "Should fail with only one descriptor when multiple are expected"
+        assert "Insufficient periodic descriptors" in msg

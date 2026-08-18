@@ -1,17 +1,44 @@
-T003:
+T000a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ `.pre-commit-config.yaml`) or any command\u2011line instructions are present\
-    \ in the provided evidence, so the requirement to configure ruff and black is\
-    \ not satisfied. The implementer must add the appropriate configuration files\
-    \ and demonstrate that they are functional."
-T004:
+  r: "No updated `spec.md` file is present in the provided evidence, and thus we cannot\
+    \ verify that FR\u2011001, FR\u2011003, and US\u20111 have been edited to replace\
+    \ \u201Cyield strength and elongation\u201D with \u201CBulk and Shear Moduli (DFT\
+    \ Proxies)\u201D. The required artifact is missing."
+T000b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/raw` or `data/processed` directory (with non\u2011empty\
-    \ `.gitkeep` files) was provided; the claim cannot be verified against any actual\
-    \ artifacts. The required directory structure and placeholder files are missing."
+  r: "No updated `spec.md` file was presented, nor any excerpt showing that SC\u2011\
+    001 was changed to mention \u201CDFT\u2011derived physical bounds (Rule of Mixtures\
+    \ for Bulk/Shear)\u201D. Without the actual file content, the required artifact\
+    \ cannot be verified. The implementer must supply the modified `spec.md` containing\
+    \ the revised SC\u2011001 text."
+T000c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file was provided, nor any excerpt showing that FR\u2011\
+    005 now contains the phrase \u201CBulk and Shear Moduli\u201D. Without the actual\
+    \ document content, we cannot confirm the required regex match, so the deliverable\
+    \ is missing."
+T000d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided or shown, so we cannot verify that US\u2011\
+    1 Acceptance\u202F1 now references \u201CBulk and Shear Moduli\u201D instead of\
+    \ \u201Cyield strength/elongation\u201D. The required artifact is missing."
+T000e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or its contents were provided for inspection, so we cannot\
+    \ confirm that FR\u2011003 was updated to reference \u201CBulk and Shear Moduli\u201D\
+    \ as required. The deliverable is missing."
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/`\
+    \ directory tree or the `.gitkeep` placeholder files is present; the implementer\u2019\
+    s claim is not backed by any actual artifacts on disk. The missing directory structure\
+    \ must be created and populated with the required placeholder files."
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,19 +46,6 @@ T006:
     \ trained model files, or Pareto visualizations) were provided. The required deliverables\
     \ for User Story\u202F1 (data extraction, filtering, and composition encoding)\
     \ and the subsequent stories are absent, so the task is not satisfied."
-T006b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration files, or test output were provided to demonstrate that
-    a CLI argument and `.env` support for the `variance_threshold` parameter were
-    added, nor any evidence that downstream tasks correctly read the value. The required
-    implementation artifacts are missing.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration files, or documentation for error handling or structured
-    logging were provided; the claim cannot be verified against any tangible artifact.
-    The required logging infrastructure is missing.
 T011:
   c: true
   h: b9a2b336210f604e76bf6a9a43ad2a50409c55d81448b4739772ab4e44b2af5a
@@ -40,20 +54,6 @@ T011:
     \ and includes assertions that `data/processed/encoded_alloys.csv` exists and\
     \ that it has the required columns. This satisfies the task\u2019s requirement\
     \ for an integration test that checks the CSV\u2019s existence and schema."
-T015:
-  c: false
-  h: 8a9fea7c9f048bc422f6f13acda996ba6c7b137721d1958b7c5151cc33927d18
-  r: The repository lacks the required `data/processed/encoded_alloys.csv` file, and
-    the provided `code/main.py` is truncated and does not show any logic that runs
-    the encoding step or writes to that specific CSV path. Consequently the orchestration
-    step does not demonstrably produce the required output.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, tests, or documentation were provided that adds validation to ensure
-    feature vectors contain at least two periodic descriptors per element. The required
-    artifact (e.g., a function/module with the validation logic and corresponding
-    unit tests) is missing, so the task is not satisfied.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,3 +1,7 @@
+"""
+Logging infrastructure for llmXive Alloy Design project.
+Provides structured JSON logging, context filters, and utility functions.
+"""
 import logging
 import json
 import sys
@@ -5,112 +9,122 @@ import uuid
 import os
 from datetime import datetime
 from typing import Optional, Dict, Any
-
-# Constants for context keys
-CONTEXT_KEY = "context"
-CORRELATION_ID_KEY = "correlation_id"
-LEVEL_KEY = "level"
-MESSAGE_KEY = "message"
-TIMESTAMP_KEY = "timestamp"
-MODULE_KEY = "module"
-FUNCTION_KEY = "funcName"
-LINE_KEY = "lineno"
+from logging import Filter, LogRecord
 
 class StructuredFormatter(logging.Formatter):
     """
-    A custom formatter that outputs logs as JSON for structured logging.
-    Includes correlation IDs, timestamps, and context.
+    Formats log records as JSON for structured logging.
+    Includes timestamp, level, message, module, line, and optional context.
     """
-    def __init__(self, service_name: str = "alloy-design"):
-        super().__init__()
-        self.service_name = service_name
-
-    def format(self, record: logging.LogRecord) -> str:
-        # Generate a correlation ID if not present
-        if not hasattr(record, CORRELATION_ID_KEY):
-            setattr(record, CORRELATION_ID_KEY, str(uuid.uuid4()))
-
+    def format(self, record: LogRecord) -> str:
         log_entry = {
-            TIMESTAMP_KEY: datetime.utcnow().isoformat() + "Z",
-            LEVEL_KEY: record.levelname,
-            MESSAGE_KEY: record.getMessage(),
-            "service": self.service_name,
-            "correlation_id": getattr(record, CORRELATION_ID_KEY, None),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
             "module": record.module,
-            FUNCTION_KEY: record.funcName,
-            LINE_KEY: record.lineno,
+            "function": record.funcName,
+            "line": record.lineno,
+            "process_id": os.getpid(),
+            "thread_id": record.thread,
+            "request_id": getattr(record, 'request_id', None),
+            "task_id": getattr(record, 'task_id', None),
+            "context": getattr(record, 'context', {}),
+            "exception": None
         }
 
-        # Add extra context if available
-        if hasattr(record, CONTEXT_KEY):
-            log_entry[CONTEXT_KEY] = getattr(record, CONTEXT_KEY)
-
-        # Add exception info if present
         if record.exc_info:
             log_entry["exception"] = self.formatException(record.exc_info)
 
         return json.dumps(log_entry)
 
-class ContextFilter(logging.Filter):
+class ContextFilter(Filter):
     """
-    A filter that adds a global correlation ID to all logs in a run.
+    Filter that injects global context (e.g., run_id, project_id) into every log record.
     """
-    def __init__(self):
+    def __init__(self, context: Optional[Dict[str, Any]] = None):
         super().__init__()
-        self.correlation_id = str(uuid.uuid4())
+        self.context = context or {}
 
-    def filter(self, record: logging.LogRecord) -> bool:
-        if not hasattr(record, CORRELATION_ID_KEY):
-            setattr(record, CORRELATION_ID_KEY, self.correlation_id)
+    def filter(self, record: LogRecord) -> bool:
+        # Inject global context
+        if self.context:
+            if not hasattr(record, 'context'):
+                record.context = {}
+            record.context.update(self.context)
         return True
 
-def get_logger(name: str) -> logging.Logger:
+def get_logger(name: str = "llmXive") -> logging.Logger:
     """
-    Retrieves a logger configured with the structured formatter.
+    Get a logger instance configured with the structured formatter.
     """
     logger = logging.getLogger(name)
     if not logger.handlers:
-        logger.setLevel(logging.INFO)
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(StructuredFormatter())
-        logger.addHandler(handler)
-        logger.addFilter(ContextFilter())
+        configure_root_logger()
     return logger
 
-def configure_root_logger(service_name: str = "alloy-design", level: int = logging.INFO) -> None:
+def configure_root_logger(level: int = logging.INFO) -> None:
     """
-    Configures the root logger with structured JSON output.
+    Configure the root logger with a StreamHandler and StructuredFormatter.
     """
     root_logger = logging.getLogger()
     root_logger.setLevel(level)
-    
-    # Clear existing handlers to avoid duplicates
-    root_logger.handlers.clear()
-    
+
+    # Remove existing handlers to avoid duplicates
+    if root_logger.handlers:
+        root_logger.handlers.clear()
+
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(StructuredFormatter(service_name=service_name))
+    handler.setFormatter(StructuredFormatter())
+
+    # Add global context filter (can be extended with project-specific context)
+    context_filter = ContextFilter({
+        "project_id": "PROJ-786-multi-property-trade-offs-in-alloy-desig",
+        "run_id": str(uuid.uuid4())[:8]
+    })
+    handler.addFilter(context_filter)
+
     root_logger.addHandler(handler)
-    
-    # Add a global filter for correlation ID
-    root_logger.addFilter(ContextFilter())
 
-def log_error_with_context(logger: logging.Logger, message: str, context: Optional[Dict[str, Any]] = None) -> None:
+def log_info_with_context(
+    logger: logging.Logger,
+    message: str,
+    context: Optional[Dict[str, Any]] = None,
+    **kwargs
+) -> None:
     """
-    Logs an error message with optional structured context.
+    Log an info message with additional context data.
     """
-    extra = {CONTEXT_KEY: context} if context else {}
-    logger.error(message, extra=extra, exc_info=True)
+    extra = {"context": context or {}}
+    extra.update(kwargs)
+    logger.info(message, extra=extra)
 
-def log_warning_with_context(logger: logging.Logger, message: str, context: Optional[Dict[str, Any]] = None) -> None:
+def log_warning_with_context(
+    logger: logging.Logger,
+    message: str,
+    context: Optional[Dict[str, Any]] = None,
+    **kwargs
+) -> None:
     """
-    Logs a warning message with optional structured context.
+    Log a warning message with additional context data.
     """
-    extra = {CONTEXT_KEY: context} if context else {}
+    extra = {"context": context or {}}
+    extra.update(kwargs)
     logger.warning(message, extra=extra)
 
-def log_info_with_context(logger: logging.Logger, message: str, context: Optional[Dict[str, Any]] = None) -> None:
+def log_error_with_context(
+    logger: logging.Logger,
+    message: str,
+    context: Optional[Dict[str, Any]] = None,
+    exc_info: bool = True,
+    **kwargs
+) -> None:
     """
-    Logs an info message with optional structured context.
+    Log an error message with additional context data and optional exception info.
     """
-    extra = {CONTEXT_KEY: context} if context else {}
-    logger.info(message, extra=extra)
+    extra = {"context": context or {}}
+    extra.update(kwargs)
+    logger.error(message, extra=extra, exc_info=exc_info)
+
+# Initialize root logger on module import
+configure_root_logger()
