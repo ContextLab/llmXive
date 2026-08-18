@@ -3,110 +3,155 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 def load_json_file(path: Path) -> Dict[str, Any]:
-    """Load a JSON file and return its contents as a dictionary."""
-    if not path.exists():
-        raise FileNotFoundError(f"JSON file not found: {path}")
+    """Load and parse a JSON file."""
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 def read_text_file(path: Path) -> str:
-    """Read a text file and return its contents as a string."""
-    if not path.exists():
-        raise FileNotFoundError(f"Text file not found: {path}")
+    """Read the contents of a text file."""
     with open(path, 'r', encoding='utf-8') as f:
         return f.read()
 
 def validate_power_calculation_json(data: Dict[str, Any]) -> bool:
-    """Validate that the power calculation JSON has the required fields."""
-    required_fields = ['effect_size', 'alpha', 'power', 'results']
-    return all(field in data for field in required_fields)
-
-def validate_citations_json(data: List[Dict[str, Any]]) -> bool:
-    """Validate that the citations JSON has the required fields."""
-    if not data:
-        return False
-    required_fields = ['title', 'status']
-    return all(all(field in item for field in required_fields) for item in data)
-
-def validate_citation_log(data: List[Dict[str, Any]]) -> bool:
-    """Validate that the citation log has the required fields."""
-    if not data:
-        return False
-    required_fields = ['title', 'status']
-    return all(all(field in item for field in required_fields) for item in data)
-
-def populate_research_md(power_calc_data: Dict[str, Any], output_path: Path) -> None:
     """
-    Populate the research.md file with the power calculation results.
+    Validate that the power calculation JSON has the required structure.
+    Required keys:
+      - params: {effect_size, alpha, power}
+      - results: {required_n, calculated_n}
+    """
+    if 'params' not in data:
+        return False
+    params = data['params']
+    required_params = ['effect_size', 'alpha', 'power']
+    if not all(key in params for key in required_params):
+        return False
+
+    if 'results' not in data:
+        return False
+    results = data['results']
+    required_results = ['required_n', 'calculated_n']
+    if not all(key in results for key in required_results):
+        return False
+
+    return True
+
+def populate_research_md(power_calc_path: Path, output_path: Path) -> None:
+    """
+    Read power_calculation.json and populate the research.md table.
     
-    Args:
-        power_calc_data: Dictionary containing power calculation results.
-        output_path: Path to the output research.md file.
+    Schema:
+    | Effect Size | Alpha | Target Power | Required N | Calculated N |
+    |-------------|-------|--------------|------------|--------------|
+    | [effect_size] | [alpha] | [power] | [required_n] | [calculated_n] |
+    
+    Row Order:
+    1) Effect Size
+    2) Alpha
+    3) Target Power
+    4) Required N
+    5) Calculated N
     """
-    # Extract values from the power calculation data
-    effect_size = power_calc_data.get('effect_size', 'N/A')
-    alpha = power_calc_data.get('alpha', 'N/A')
-    target_power = power_calc_data.get('power', 'N/A')
-    required_n = power_calc_data.get('results', {}).get('sample_size', 'N/A')
-    calculated_n = power_calc_data.get('results', {}).get('calculated_sample_size', required_n)
+    if not power_calc_path.exists():
+        raise FileNotFoundError(f"Power calculation file not found: {power_calc_path}")
 
-    # Create the markdown content
-    markdown_content = f"""# Research Report: The Influence of Perceived Agency in AI Interactions on Trust
+    data = load_json_file(power_calc_path)
+    
+    if not validate_power_calculation_json(data):
+        raise ValueError("Invalid power calculation JSON structure")
 
-## Power Analysis Summary
+    params = data['params']
+    results = data['results']
 
-| Effect Size | Alpha | Target Power | Required N | Calculated N |
-|-------------|-------|--------------|------------|--------------|
-| {effect_size} | {alpha} | {target_power} | {required_n} | {calculated_n} |
+    # Extract values
+    effect_size = params['effect_size']
+    alpha = params['alpha']
+    target_power = params['power']
+    required_n = results['required_n']
+    calculated_n = results['calculated_n']
 
-## Notes
-
-- Effect size: Small-to-moderate magnitude (Cohen's f)
-- Alpha level: 0.05 (standard significance threshold)
-- Target power: 0.80 (80% probability of detecting an effect if it exists)
-- Required N: Minimum sample size needed to achieve target power
-- Calculated N: Actual sample size calculated based on power analysis
-
-## References
-
-This analysis is based on the power calculation performed in `research/power_calculation.json`.
-The methodology follows standard practices for one-way ANOVA power analysis using statsmodels.
-"""
-
-    # Ensure the directory exists
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write the markdown content to the file
+    # Construct the markdown table
+    # Note: The task description specifies a table with columns and rows that seem to
+    # invert the typical "row per metric" vs "column per metric" convention.
+    # The schema requested:
+    # | Effect Size | Alpha | Target Power | Required N | Calculated N |
+    # Row 1: Effect Size (value), Alpha (N/A?), ...
+    # Actually, looking at the description: "Row Order: 1) Effect Size, 2) Alpha..."
+    # This implies the table has 5 rows, one for each metric, and the columns are the metric names?
+    # Or is it a single row with 5 columns?
+    # Let's re-read: "Markdown table with exact columns: | Effect Size | Alpha | Target Power | Required N | Calculated N |"
+    # "Row Order: 1) Effect Size, 2) Alpha..."
+    # This is contradictory. A table with columns named "Effect Size" cannot have a row named "Effect Size".
+    # Interpretation: The user likely wants a table where the *first row* is the header,
+    # and the subsequent rows contain the values. But the "Row Order" instruction lists the metrics.
+    #
+    # Alternative Interpretation: The table is transposed.
+    # Columns: Metric, Value? No, the columns are explicitly listed.
+    #
+    # Let's assume the standard scientific reporting table format where the header row lists the metrics,
+    # and the data row contains the values.
+    # Header: | Effect Size | Alpha | Target Power | Required N | Calculated N |
+    # Data:   | 0.25 | 0.05 | 0.80 | 128 | 150 | (example)
+    #
+    # However, the instruction "Row Order: 1) Effect Size..." suggests 5 rows of data.
+    # Maybe the table is:
+    # | Parameter | Value |
+    # |---|---|
+    # | Effect Size | ... |
+    # | Alpha | ... |
+    #
+    # But the columns are explicitly defined as the 5 metrics.
+    # Let's try to follow the "Row Order" literally as a single row where the columns are the metrics,
+    # and the "Row Order" text is a slightly confused way of saying "The values for these columns, in this order".
+    #
+    # Wait, let's look at the "Row Order" again.
+    # "Row Order: 1) Effect Size, 2) Alpha, 3) Target Power, 4) Required N, 5) Calculated N."
+    # If these are rows, then the columns must be something else. But the columns are defined as those exact 5 names.
+    #
+    # Hypothesis: The user wants a table where the *headers* are "Parameter" and "Value", but the prompt explicitly said "exact columns: | Effect Size | Alpha | ...".
+    #
+    # Let's assume the prompt meant: "The table should have a header row with these columns, and ONE data row containing the values in that order."
+    # This is the most standard way to present this summary.
+    #
+    # Let's construct:
+    # | Effect Size | Alpha | Target Power | Required N | Calculated N |
+    # | :--- | :--- | :--- | :--- | :--- |
+    # | {effect_size} | {alpha} | {target_power} | {required_n} | {calculated_n} |
+    
+    table_content = f"""| Effect Size | Alpha | Target Power | Required N | Calculated N |
+| :--- | :--- | :--- | :--- | :--- |
+| {effect_size} | {alpha} | {target_power} | {required_n} | {calculated_n} |
+"""
+
+    # If the user strictly meant 5 rows (one for each metric), the columns would have to be different.
+    # Given the explicit column definition, I will proceed with the single data row interpretation.
+    # If the "Row Order" meant the order of columns in the header, that matches the column definition.
+
     with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(markdown_content)
+        f.write(table_content)
 
 def main():
-    """Main function to populate the research.md file."""
-    parser = argparse.ArgumentParser(description='Populate research.md with power calculation results')
+    parser = argparse.ArgumentParser(description='Populate research.md from power calculation JSON')
     parser.add_argument('--input', type=str, required=True, help='Path to power_calculation.json')
     parser.add_argument('--output', type=str, required=True, help='Path to output research.md')
     args = parser.parse_args()
 
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+
     try:
-        # Load the power calculation JSON
-        input_path = Path(args.input)
-        power_calc_data = load_json_file(input_path)
-
-        # Validate the data
-        if not validate_power_calculation_json(power_calc_data):
-            print("Error: Invalid power calculation JSON format")
-            sys.exit(1)
-
-        # Populate the research.md file
-        output_path = Path(args.output)
-        populate_research_md(power_calc_data, output_path)
+        populate_research_md(input_path, output_path)
         print(f"Successfully populated {output_path}")
-
-    except Exception as e:
-        print(f"Error: {e}")
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == '__main__':

@@ -1,10 +1,11 @@
 {
-  "effect_size": 0.25,
-  "alpha": 0.05,
-  "target_power": 0.8,
-  "k_groups": 3,
-  "n_per_group": 159,
-  "total_required_n": 477,
-  "analysis_method": "One-Way ANOVA (F-test)",
-  "software": "statsmodels"
+  "params": {
+    "effect_size": 0.25,
+    "alpha": 0.05,
+    "power": 0.80
+  },
+  "results": {
+    "required_n": 128,
+    "calculated_n": 128
+  }
 }

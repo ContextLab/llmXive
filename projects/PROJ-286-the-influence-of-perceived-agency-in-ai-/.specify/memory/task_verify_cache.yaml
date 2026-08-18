@@ -1,46 +1,17 @@
-T001:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `specs/001-perceived-agency-trust/research.md` file or its contents are presented,
-    and there is no evidence that a markdown table with the required columns and rows
-    was generated from `research/power_calculation.json`. The required artifact is
-    missing.
-T002b:
+  r: No `research/dataset_verification_report.md` file is present, nor any evidence
+    that the implementer read `plan.md` and confirmed the required variables. The
+    required verification artifact is missing, so the task is not satisfied.
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `research/power_report.md` file is provided, nor any excerpt
-    showing the required sections (Method, Parameters, Result, Conclusion) or a reference
-    to it in `research.md`. The implementer must supply the actual markdown report
-    and ensure it is linked from `research.md`.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim references `research.md`, `research/power_calculation.json`, and `plan.md`,\
-    \ but none of these files or their contents were supplied for inspection, so their\
-    \ existence and conformity to Phase\u202F0 requirements cannot be confirmed. The\
-    \ required validation artifacts are missing."
-T007a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No files or directory listings for `specs/001-perceived-agency-trust/contracts/`
-    were provided, so there is no evidence that any data schema contracts were created.
-    The required contract artifacts are missing.
-T007h:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `docs/quickstart.md` file was presented, nor any excerpt of its contents.\
-    \ The required step\u2011by\u2011step instructions for local setup, running the\
-    \ experiment interface, and executing the analysis pipeline are therefore missing.\
-    \ The implementer must add a non\u2011empty `quickstart.md` in the `docs/` directory\
-    \ that fulfills the specified content."
-T007i:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `docs/data-model.md` file was provided or described in the evidence, so the\
-    \ required artifact does not exist or is empty, and thus the task\u2019s requirement\
-    \ (a markdown description of Participant, Condition, Result entities and their\
-    \ relationships) is not satisfied. The implementer must create the `data-model.md`\
-    \ file with the specified content."
+  r: "The required output file `research/literature_review.md` is not present or its\
+    \ contents were not provided. Consequently, the literature review summary summarizing\
+    \ Lee &\u202FSee (2004) and Langer (1975) has not been delivered. The implementer\
+    \ must create a non\u2011empty markdown file at the specified path containing\
+    \ the requested summary."
 T008:
   c: false
   h: a0330bc51b5274b5450356879f28f1b22106d27ed7e607fd511a5b33e1aba4d9

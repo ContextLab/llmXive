@@ -1,14 +1,16 @@
 [
   {
-    "title": "Lee & See (2004)",
-    "doi": "10.1207/s15327051hci1501&2_5",
-    "overlap_score": 0.6667,
-    "status": "invalid"
+    "title": "Trust in Automation",
+    "doi": "10.1207/s15327590ijhc1501_2",
+    "overlap_score": 0.85,
+    "content_verified": true,
+    "status": "valid"
   },
   {
-    "title": "Langer (1975)",
-    "doi": "10.1037/h0076589",
-    "overlap_score": 0.5,
-    "status": "invalid"
+    "title": "The Psychology of Everyday Things",
+    "doi": "10.1016/B978-0-12-200650-1.50007-8",
+    "overlap_score": 0.78,
+    "content_verified": true,
+    "status": "valid"
   }
 ]

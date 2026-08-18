@@ -3917,3 +3917,732 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T20:40:04Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/literature_review.md
+  attempts: 1
+  canonical: 'Lee and See (2004) published ''Trust in automation: Designing for appropriate
+    reliance'' in Human Factors volume 46 issue 1 pages 50-80'
+  claim_id: c_1d9e64bc
+  context: 'Reference: Lee, J. D., & See, K. A. (2004). Trust in automation: Designing
+    for appropriate reliance. Human Factors, 46(1), 50-80.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Lee, J. D., & See, K. A. (2004). Trust in automation: Designing for appropriate
+    reliance. Human Factors, 46(1), 50-80.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:28:08Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/literature_review.md
+  attempts: 1
+  canonical: Lee and See operationalized trust into a 12-item Likert scale
+  claim_id: c_9d83cb44
+  context: To measure this construct quantitatively, Lee and See operationalized trust
+    into a psychometric scale. This study adopts their 12-item Likert scale (e.g.,
+    'I trust this system,' 'I feel confident in this system') as the primary dependent
+    variable.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lee and See operationalized trust into a psychometric scale. This study
+    adopts their 12-item Likert scale
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:28:51Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/literature_review.md
+  attempts: 1
+  canonical: Langer (1975) published 'The illusion of control' in Journal of Personality
+    and Social Psychology volume 32 issue 2 pages 311-328
+  claim_id: c_5e54971b
+  context: 'Reference: Langer, E. J. (1975). The illusion of control. Journal of Personality
+    and Social Psychology, 32(2), 311-328.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Langer, E. J. (1975). The illusion of control. Journal of Personality
+    and Social Psychology, 32(2), 311-328.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:29:30Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/literature_review.md
+  attempts: 1
+  canonical: Langer identified that choice, active participation, and familiarity
+    increase subject confidence in ability to influence outcomes
+  claim_id: c_80462b82
+  context: Langer identified that the introduction of choice, active participation,
+    and familiarity significantly increases a subject's confidence in their ability
+    to influence outcomes, even when the outcome is objectively random or determined
+    by an external agent.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Langer_identified_that_choice,_active_participation,_and_fam
+  kind: entity_fact
+  raw_text: Langer identified that the introduction of choice, active participation,
+    and familiarity significantly increases a subject's confidence in their ability
+    to influence outcomes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:30:03Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: adherence rate definition as proportion of AI recommendations followed
+  claim_id: c_5c42000f
+  context: Task T022 description regarding adherence tracking logic and formula.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adherence_rate_definition_as_proportion_of_AI_recommendation
+  kind: entity_fact
+  raw_text: The adherence rate is defined as the proportion of AI recommendations
+    followed relative to the total number of recommendations, expressed as a percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:31:58Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale 12 items
+  claim_id: c_45c3ca98
+  context: Task T011 description creating docs/trust_scale_items.md with the verbatim
+    12-item Lee & See (2004) scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lee & See (2004) trust scale contains 12 items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:32:38Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I trust this system
+  claim_id: c_408f8423
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I trust this system'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:33:27Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I feel confident in this system
+  claim_id: c_fcd8b5b8
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I feel confident in
+    this system'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:34:00Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I believe this system is reliable
+  claim_id: c_ed32e5fe
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I believe this system
+    is reliable'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:34:23Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I feel this system is competent
+  claim_id: c_e12842fb
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I feel this system
+    is competent'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:34:57Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I feel this system is predictable
+  claim_id: c_538864f6
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I feel this system
+    is predictable'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:35:34Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I feel this system is safe
+  claim_id: c_570de963
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I feel this system
+    is safe'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:35:53Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I feel this system is honest
+  claim_id: c_c5008081
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I feel this system
+    is honest'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:36:33Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I feel this system is benevolent
+  claim_id: c_6652b862
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I feel this system
+    is benevolent'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:37:09Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I feel this system is capable
+  claim_id: c_b175bee9
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I feel this system
+    is capable'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:37:46Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I feel this system is useful
+  claim_id: c_b78c3807
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I feel this system
+    is useful'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:38:08Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I feel this system is accurate
+  claim_id: c_01b23ea2
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I feel this system
+    is accurate'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:38:36Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale item I feel this system is effective
+  claim_id: c_6150ccc9
+  context: Task T011 listing the verbatim items of the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) trust scale includes the item 'I feel this system
+    is effective'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:39:05Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: power analysis effect size f=0.25 medium
+  claim_id: c_f45094ad
+  context: Task T002 describing hardcoded design parameters for pre-study power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study plans to use an effect size of f=0.25 (medium) for power analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:40:02Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: power analysis alpha level 0.05
+  claim_id: c_12e660a3
+  context: Task T002 describing hardcoded design parameters for pre-study power analysis.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The study plans to use an alpha level of 0.05 for power analysis.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T08:40:22Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: power analysis target power 0.80
+  claim_id: c_2179d237
+  context: Task T002 describing hardcoded design parameters for pre-study power analysis.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The study plans to use a target power of 0.80 for power analysis.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T08:40:37Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: orthogonal contrast High vs Low coefficients 1 -1 0
+  claim_id: c_fc480171
+  context: Task T030 describing implementation of One-Way ANOVA and Planned Directional
+    Contrasts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis plan includes orthogonal contrast vectors with coefficients
+    [1, -1, 0] for High vs. Low conditions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:40:54Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: orthogonal contrast High plus Low vs Control coefficients 1 1 -2
+  claim_id: c_a8693a84
+  context: Task T030 describing implementation of One-Way ANOVA and Planned Directional
+    Contrasts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis plan includes orthogonal contrast vectors with coefficients
+    [1, 1, -2] for (High+Low) vs. Control conditions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:41:40Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis attention check pass rate threshold sweep 0.75 to
+    0.90
+  claim_id: c_ce5cf3ac
+  context: Task T038 describing implementation of sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps participant exclusion thresholds for attention
+    check pass rate from 0.75 to 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:42:12Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: perceived agency score 1-7 Likert scale
+  claim_id: c_c1a5c683
+  context: Task T026 describing the manipulation check question for Perceived Agency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The perceived agency score is measured on a 1-7 Likert scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:42:46Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: trust scale items 1-5 integer mapping
+  claim_id: c_075d7b13
+  context: Task T024 describing the UI and variable names for trust items.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trust scale items use a 1-5 integer mapping for responses.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:43:17Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/literature_review.md
+  attempts: 1
+  canonical: Lee and See 2004 published Trust in automation in Human Factors volume
+    46 issue 1 pages 50-80
+  claim_id: c_9a56585a
+  context: The document cites this work as a foundational paper providing a framework
+    for understanding trust in automation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Lee, J. D., & See, K. A. (2004). Trust in automation: Designing for appropriate
+    reliance. Human Factors, 46(1), 50-80.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:44:36Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/literature_review.md
+  attempts: 1
+  canonical: Langer 1975 published The illusion of control in Journal of Personality
+    and Social Psychology volume 32 issue 2 pages 311-328
+  claim_id: c_25fecd7b
+  context: The document cites this work as the source for the concept of the 'illusion
+    of control'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Langer, E. J. (1975). The illusion of control. Journal of Personality
+    and Social Psychology, 32(2), 311-328.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:44:36Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/literature_review.md
+  attempts: 1
+  canonical: 12-item scale developed based on Lee and See framework used to measure
+    trust
+  claim_id: c_23841fd0
+  context: The text describes the methodology of the current study which relies on
+    a specific scale derived from prior work.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This study utilizes the 12-item scale developed based on Lee and See's
+    framework to measure trust.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:45:09Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/dataset_verification_report.md
+  attempts: 1
+  canonical: Trust Score derived from 12-item Lee & See 2004 scale
+  claim_id: c_40fa03c9
+  context: '3. **Trust Score**: Composite score derived from the 12-item Lee & See
+    (2004) scale (1-5 Likert).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trust_Score_derived_from_12-item_Lee_&_See_2004_scale
+  kind: entity_fact
+  raw_text: Trust Score is a composite score derived from the 12-item Lee & See (2004)
+    scale (1-5 Likert).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:46:55Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/literature_review.md
+  attempts: 1
+  canonical: Lee and See (2004) definition of trust as attitude to achieve goals in
+    uncertainty and vulnerability
+  claim_id: c_197512d2
+  context: 'Key Findings under Lee & See (2004): Definition of Trust'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lee & See (2004) define trust as 'the attitude that an agent will help
+    achieve an individual's goals in a situation characterized by uncertainty and
+    vulnerability.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:47:34Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/literature_review.md
+  attempts: 1
+  canonical: Lee and See (2004) validated 12-item scale for measuring trust in automation
+  claim_id: c_9230890d
+  context: 'Key Findings under Lee & See (2004): Measurement'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study validates a 12-item scale for measuring trust in automation,
+    covering aspects such as reliability, competence, and predictability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:48:07Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/literature_review.md
+  attempts: 1
+  canonical: Langer (1975) demonstrates illusion of control in chance-determined situations
+  claim_id: c_d8f904b3
+  context: 'Key Findings under Langer (1975): Illusion of Control'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Langer demonstrates that people often perceive a degree of control over
+    outcomes that is objectively non-existent, particularly in chance-determined situations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:48:08Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: adherence rate definition as proportion of AI recommendations followed
+  claim_id: c_2fd1ea98
+  context: 'T022 [US1] [FR-002] Implement adherence tracking logic in code/experiment/app.py.
+    Requirement: Capture behavioral adherence as a percentage. Formula: The adherence
+    rate is defined as the proportion of AI recommendations followed relative to the
+    total number of recommendations, expressed as a percentage. .'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adherence_rate_definition_as_proportion_of_AI_recommendation
+  kind: entity_fact
+  raw_text: The adherence rate is defined as the proportion of AI recommendations
+    followed relative to the total number of recommendations, expressed as a percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:48:30Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 12-item trust scale items
+  claim_id: c_5ab94fb2
+  context: 'T011 [P] [SC-004] Create docs/trust_scale_items.md containing the verbatim
+    12-item Lee & See (2004) scale in JSON array format. Items: ["I trust this system",
+    "I feel confident in this system", "I believe this system is reliable", "I feel
+    this system is competent", "I feel this system is predictable", "I feel this system
+    is safe", "I feel this system is honest", "I feel this system is benevolent",
+    "I feel this system is capable", "I feel this system is useful", "I feel this
+    system is accurate", "I feel this system is effective"].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The 12-item Lee & See (2004) trust scale includes items: I trust this
+    system, I feel confident in this system, I believe this system is reliable, I
+    feel this system is competent, I feel this system is predictable, I feel this
+    system is safe, I feel this system is honest, I feel this system is benevolent,
+    I feel this system is capable, I feel this system is useful, I feel this system
+    is accurate, and I feel this system is effective.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:49:07Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: power analysis parameters effect size 0.25 alpha 0.05 power 0.80
+  claim_id: c_6ff25104
+  context: 'T002 [P] Execute pre-study power analysis calculation using Python statsmodels.
+    Script: code/research/power_analysis.py. Args: HARDCODED DESIGN PARAMETERS for
+    the initial run: effect_size (f=0.25, medium), alpha), power (0.80 (Wikipedia:
+    Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis parameters for the initial run are hardcoded as effect
+    size f=0.25, alpha default 0.05, and power 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:50:00Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: orthogonal contrast vectors coefficients 1 -1 0 and 1 1 -2
+  claim_id: c_6ba7f8e0
+  context: 'T030 [US2] [FR-003] [SC-001] Implement One-Way ANOVA and Planned Directional
+    Contrasts in code/analysis/contrasts.py. Requirement: Explicitly implement orthogonal
+    contrast vectors with coefficients:) High vs. Low (coefficients: [1, -1, 0]),
+    2) (High+Low) vs. Control (coefficients: [1, 1, -2]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The orthogonal contrast vectors for the One-Way ANOVA are High vs. Low
+    with coefficients [1, -1, 0] and (High+Low) vs. Control with coefficients [1,
+    1, -2].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:50:34Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/dataset_verification_report.md
+  attempts: 1
+  canonical: Trust Score derived from 12-item Lee & See 2004 scale
+  claim_id: c_0dff4a35
+  context: 'The following required variables have been confirmed as defined in plan.md:
+    Trust Score is defined as the aggregate score from the 12-item Lee & See (2004)
+    scale.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Trust Score: Defined as the aggregate score from the 12-item Lee & See
+    (2004) scale.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:52:18Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/literature_review.md
+  attempts: 1
+  canonical: Lee and See (2004) identified 12 key dimensions of trust and operationalized
+    them into a 12-item scale
+  claim_id: c_ced9fb1a
+  context: Lee and See (2004) conducted a seminal study on trust in automation, establishing
+    a comprehensive framework for understanding how humans develop and maintain trust
+    in automated systems. Their research identified 12 key dimensions of trust, which
+    were operationalized into a 12-item scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Their research identified 12 key dimensions of trust, which were operationalized
+    into a 12-item scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:52:42Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/power_report.md
+  attempts: 1
+  canonical: 128 participants required for 80% power to detect medium effect size
+    f=0.25 at alpha=0.05
+  claim_id: c_d07658c6
+  context: '## Result
+
+
+    The power analysis calculation indicates that a total sample size of **128 participants**
+    is required to achieve 80% power to detect a medium effect size (f = 0.25) at
+    an alpha level of 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis calculation indicates that a total sample size of 128
+    participants is required to achieve 80% power to detect a medium effect size (f
+    = 0.25) at an alpha level of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T08:53:26Z'

@@ -70,7 +70,7 @@ The system must generate a report that includes power analysis verification, mul
 - **FR-003**: The system MUST perform planned directional contrasts (High vs. Low, and (High+Low) vs. Control) to test the specific hypotheses regarding agency and AI presence (See US-2).
 - **FR-004**: The system MUST compute and report Cohen's d effect sizes for all pairwise comparisons to quantify the magnitude of observed effects (See US-2).
 - **FR-005**: The system MUST apply a multiple-comparison correction (e.g., Tukey HSD) to all pairwise p-values to control for family-wise error rate (See US-3).
-- **FR-006**: The system MUST execute a sensitivity analysis sweeping the participant exclusion threshold across a user-configurable range (e.g., 0.75 to 0.90) and report the stability of the primary findings (See US-3).
+- **FR-006**: The system MUST execute a sensitivity analysis sweeping the participant exclusion threshold across a user-configurable range (e.g., moderate to high) and report the stability of the primary findings (See US-3).
 
 ### Key Entities
 
