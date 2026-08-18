@@ -1,19 +1,19 @@
 status: none
-intent: download Project Gutenberg short stories, reader response, and moral judgment
-  datasets python package dataset
+intent: download Project Gutenberg short stories and OSF reader response moral judgment
+  python package dataset
 required_fields:
 - story_id
 - title
 - author
-- year
+- publication_year
 - genre
 - language
-- full_text
+- text
+- reader_response_id
 - reader_id
-- response_id
-- response_score
-- response_text
-- moral_judgment_label
-cache_key: f646892299a05bf269342ecc81d978321cc6fbc37f719f647666025b0df2aa23
-searched_at: '2026-08-18T15:18:21.412396+00:00'
+- rating
+- moral_judgment_score
+- response_timestamp
+cache_key: 09c6dc0e533c809b7a07611ef5e3ee0133369fc71b396c056862deb3e101b7c4
+searched_at: '2026-08-18T21:12:50.652153+00:00'
 retry_count: 1

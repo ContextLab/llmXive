@@ -1,315 +1,166 @@
 import os
+import sys
 import json
 import glob
 import logging
 import argparse
-import sys
-from pathlib import Path
+from datetime import datetime
 
-# Import project modules using the public API surface
-from extraction import extract_perspective_features
-from data_loader import fetch_gutenberg_stories
-from matching import run_sensitivity_analysis_pipeline
-from data_collection import run_aggregation_pipeline
-from analysis import run_analysis_pipeline
+# Import from sibling modules based on provided API surface
 from config import get_config
-from utils import compute_artifact_hash
+from data_loader import fetch_gutenberg_stories, fetch_external_moral_dataset, prepare_sensitivity_thresholds
+from extraction import extract_perspective_features
+from matching import run_matching_pipeline, run_sensitivity_analysis_pipeline
+from data_collection import run_aggregation_pipeline
+from analysis import run_analysis_pipeline, run_sensitivity_sweep
 
-# Configure logging
-def setup_logging(log_file: str = "data/logs/extraction.log") -> logging.Logger:
-    """Setup logging to both file and console."""
-    log_dir = os.path.dirname(log_file)
-    if log_dir:
-        os.makedirs(log_dir, exist_ok=True)
-    
-    logger = logging.getLogger("pipeline")
-    logger.setLevel(logging.INFO)
-    
-    # Clear existing handlers to avoid duplicates in re-runs
-    logger.handlers.clear()
-    
-    # File handler
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.INFO)
-    
-    # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    
-    # Formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    
-    return logger
+def setup_logging(log_file='data/logs/pipeline.log'):
+    """Configure logging for the pipeline."""
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    return logging.getLogger(__name__)
 
-def run_extraction_step(input_dir: str, output_path: str, logger: logging.Logger) -> bool:
-    """
-    Run the perspective feature extraction pipeline.
+def run_extraction_step(args):
+    """Run the perspective feature extraction pipeline."""
+    logger = logging.getLogger(__name__)
+    logger.info("Starting extraction step...")
+    input_dir = args.input_dir or 'data/raw/gutenberg_stories'
+    output_file = args.output or 'data/processed/perspective_features.json'
     
-    Args:
-        input_dir: Directory containing story text files (.txt)
-        output_path: Path to save the JSON output
-        logger: Logger instance
-        
-    Returns:
-        True if successful, False otherwise
-    """
-    logger.info(f"Starting extraction on corpus: {input_dir}")
+    # Ensure input directory exists (fetch if needed)
+    if not os.path.exists(input_dir):
+        logger.warning(f"Input directory {input_dir} not found. Attempting to fetch Gutenberg stories...")
+        fetch_gutenberg_stories('data/raw/gutenberg_stories')
     
-    if not os.path.isdir(input_dir):
-        logger.error(f"Input directory does not exist: {input_dir}")
-        return False
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    results = []
-    skipped_count = 0
-    processed_count = 0
-    
-    # Find all .txt files
-    story_files = glob.glob(os.path.join(input_dir, "*.txt"))
-    
-    if not story_files:
-        logger.warning(f"No .txt files found in {input_dir}")
-        # Write empty list if no files
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump([], f)
-        return True
-    
-    for file_path in story_files:
-        try:
-            result = extract_perspective_features(file_path)
-            if result is None:
-                skipped_count += 1
-                continue
-            
-            results.append(result)
-            processed_count += 1
-            
-        except Exception as e:
-            logger.error(f"Error processing {file_path}: {str(e)}")
-            continue
-    
-    # Write results to JSON
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2, ensure_ascii=False)
-    
-    logger.info(f"Extraction complete. Processed: {processed_count}, Skipped: {skipped_count}")
-    logger.info(f"Output written to: {output_path}")
-    
-    return True
+    # Run extraction
+    results = extract_perspective_features(input_dir, output_file)
+    logger.info(f"Extraction complete. Results saved to {output_file}")
+    return results
 
-def run_matching_step(input_path: str, target_path: str, output_path: str, logger: logging.Logger) -> bool:
-    """
-    Run the text similarity matching step.
+def run_matching_step(args):
+    """Run the text similarity matching pipeline."""
+    logger = logging.getLogger(__name__)
+    logger.info("Starting matching step...")
+    input_file = args.input or 'data/processed/perspective_features.json'
+    target_file = args.target or 'data/raw/moral_judgement_dataset.csv'
+    output_file = args.output or 'data/processed/matching_results.json'
     
-    Args:
-        input_path: Path to perspective features JSON
-        target_path: Path to target moral judgement dataset CSV
-        output_path: Path to save matching results JSON
-        logger: Logger instance
-        
-    Returns:
-        True if successful, False otherwise
-    """
-    logger.info("Starting matching step")
+    # Ensure target data exists
+    if not os.path.exists(target_file):
+        logger.warning(f"Target file {target_file} not found. Fetching external moral dataset...")
+        fetch_external_moral_dataset(target_file)
     
-    if not os.path.exists(input_path):
-        logger.error(f"Input file does not exist: {input_path}")
-        return False
-        
-    if not os.path.exists(target_path):
-        logger.error(f"Target file does not exist: {target_path}")
-        return False
-    
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    try:
-        # Run matching logic
-        results = run_sensitivity_analysis_pipeline(input_path, target_path, output_path, logger)
-        logger.info(f"Matching complete. Results saved to: {output_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Matching failed: {str(e)}")
-        return False
+    results = run_matching_pipeline(input_file, target_file, output_file)
+    logger.info(f"Matching complete. Results saved to {output_file}")
+    return results
 
-def run_aggregation_step(features_path: str, responses_path: str, output_path: str, logger: logging.Logger) -> bool:
-    """
-    Run the data aggregation step.
+def run_aggregation_step(args):
+    """Run the data aggregation pipeline."""
+    logger = logging.getLogger(__name__)
+    logger.info("Starting aggregation step...")
+    features_file = args.features or 'data/processed/perspective_features.json'
+    responses_file = args.responses or 'data/processed/aligned_reader_response.csv'
+    output_file = args.output or 'data/processed/aligned_dataset.csv'
     
-    Args:
-        features_path: Path to perspective features JSON
-        responses_path: Path to aligned reader response CSV
-        output_path: Path to save aggregated dataset CSV
-        logger: Logger instance
-        
-    Returns:
-        True if successful, False otherwise
-    """
-    logger.info("Starting aggregation step")
-    
-    if not os.path.exists(features_path):
-        logger.error(f"Features file does not exist: {features_path}")
-        return False
-        
-    if not os.path.exists(responses_path):
-        logger.error(f"Responses file does not exist: {responses_path}")
-        return False
-    
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    try:
-        run_aggregation_pipeline(features_path, responses_path, output_path, logger)
-        logger.info(f"Aggregation complete. Output saved to: {output_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Aggregation failed: {str(e)}")
-        return False
+    results = run_aggregation_pipeline(features_file, responses_file, output_file)
+    logger.info(f"Aggregation complete. Results saved to {output_file}")
+    return results
 
-def run_analysis_step(input_path: str, output_path: str, logger: logging.Logger) -> bool:
-    """
-    Run the statistical analysis step.
+def run_analysis_step(args):
+    """Run the full statistical analysis pipeline (T041)."""
+    logger = logging.getLogger(__name__)
+    logger.info("Starting analysis step...")
+    input_file = args.input or 'data/processed/aligned_dataset.csv'
+    output_file = args.output or 'data/processed/analysis_results.json'
     
-    Args:
-        input_path: Path to aligned dataset CSV
-        output_path: Path to save analysis results JSON
-        logger: Logger instance
-        
-    Returns:
-        True if successful, False otherwise
-    """
-    logger.info("Starting analysis step")
+    # Ensure input data exists
+    if not os.path.exists(input_file):
+        raise FileNotFoundError(f"Input file {input_file} not found. Please run aggregation step first.")
     
-    if not os.path.exists(input_path):
-        logger.error(f"Input file does not exist: {input_path}")
-        return False
+    # Run analysis pipeline which returns the full results dict
+    results = run_analysis_pipeline(input_file, output_file)
     
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Ensure the output file is written
+    if not os.path.exists(output_file):
+        with open(output_file, 'w') as f:
+            json.dump(results, f, indent=2)
     
-    try:
-        results = run_analysis_pipeline(input_path, output_path, logger)
-        logger.info(f"Analysis complete. Results saved to: {output_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Analysis failed: {str(e)}")
-        return False
+    logger.info(f"Analysis complete. Results saved to {output_file}")
+    return results
 
-def run_all_pipeline(logger: logging.Logger) -> bool:
-    """
-    Run the entire pipeline end-to-end.
+def run_sensitivity_step(args):
+    """Run the sensitivity analysis pipeline."""
+    logger = logging.getLogger(__name__)
+    logger.info("Starting sensitivity step...")
+    matching_file = args.matching or 'data/processed/matching_results.json'
+    thresholds_file = args.thresholds or 'data/processed/thresholds.json'
+    dataset_file = args.dataset or 'data/processed/aligned_dataset.csv'
+    output_file = args.output or 'data/processed/sensitivity_report.json'
     
-    Args:
-        logger: Logger instance
-        
-    Returns:
-        True if all steps successful, False otherwise
-    """
-    logger.info("Starting full pipeline")
-    
-    config = get_config()
-    
-    # Step 1: Fetch data (if needed) - assumed already done by T007
-    gutenberg_dir = config.get('GUTENBERG_STORIES_DIR', 'data/raw/gutenberg_stories')
-    
-    # Step 2: Extraction
-    features_output = config.get('FEATURES_OUTPUT', 'data/processed/perspective_features.json')
-    if not run_extraction_step(gutenberg_dir, features_output, logger):
-        logger.error("Extraction step failed")
-        return False
-    
-    # Step 3: Matching
-    # Check if target data exists, if not, skip or generate mock
-    target_path = config.get('MORAL_JUDGEMENT_DATASET', 'data/raw/moral_judgement_dataset.csv')
-    matching_output = config.get('MATCHING_OUTPUT', 'data/processed/matching_results.json')
-    
-    if os.path.exists(target_path):
-        if not run_matching_step(features_output, target_path, matching_output, logger):
-            logger.error("Matching step failed")
-            return False
-    else:
-        logger.warning(f"Target dataset not found at {target_path}. Skipping matching step.")
-    
-    # Step 4: Aggregation
-    responses_path = config.get('READER_RESPONSE_PATH', 'data/processed/aligned_reader_response.csv')
-    aggregated_output = config.get('AGGREGATED_OUTPUT', 'data/processed/aligned_dataset.csv')
-    
-    if os.path.exists(responses_path):
-        if not run_aggregation_step(features_output, responses_path, aggregated_output, logger):
-            logger.error("Aggregation step failed")
-            return False
-    else:
-        logger.warning(f"Reader response data not found at {responses_path}. Skipping aggregation step.")
-    
-    # Step 5: Analysis
-    analysis_output = config.get('ANALYSIS_OUTPUT', 'data/processed/analysis_results.json')
-    if os.path.exists(aggregated_output):
-        if not run_analysis_step(aggregated_output, analysis_output, logger):
-            logger.error("Analysis step failed")
-            return False
-    else:
-        logger.warning(f"Aggregated dataset not found at {aggregated_output}. Skipping analysis step.")
-    
-    logger.info("Full pipeline completed successfully")
-    return True
+    results = run_sensitivity_sweep(matching_file, thresholds_file, dataset_file, output_file)
+    logger.info(f"Sensitivity analysis complete. Results saved to {output_file}")
+    return results
 
 def main():
-    """Main entry point for the pipeline CLI."""
-    parser = argparse.ArgumentParser(description="Narrative Perspective Analysis Pipeline")
+    parser = argparse.ArgumentParser(description='Narrative Perspective Analysis Pipeline')
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
-    
-    # Extract command
+
+    # Extraction command
     extract_parser = subparsers.add_parser('extract', help='Run perspective feature extraction')
-    extract_parser.add_argument('--input-dir', required=True, help='Directory containing story .txt files')
-    extract_parser.add_argument('--output', required=True, help='Output JSON file path')
-    
-    # Match command
+    extract_parser.add_argument('--input-dir', type=str, help='Input directory for stories')
+    extract_parser.add_argument('--output', type=str, help='Output JSON file for features')
+
+    # Matching command
     match_parser = subparsers.add_parser('match', help='Run text similarity matching')
-    match_parser.add_argument('--input', required=True, help='Input perspective features JSON')
-    match_parser.add_argument('--target', required=True, help='Target moral judgement dataset CSV')
-    match_parser.add_argument('--output', required=True, help='Output matching results JSON')
-    
-    # Aggregate command
-    aggregate_parser = subparsers.add_parser('aggregate', help='Run data aggregation')
-    aggregate_parser.add_argument('--features', required=True, help='Input perspective features JSON')
-    aggregate_parser.add_argument('--responses', required=True, help='Input aligned reader response CSV')
-    aggregate_parser.add_argument('--output', required=True, help='Output aggregated dataset CSV')
-    
-    # Analyze command
-    analyze_parser = subparsers.add_parser('analyze', help='Run statistical analysis')
-    analyze_parser.add_argument('--input', required=True, help='Input aligned dataset CSV')
-    analyze_parser.add_argument('--output', required=True, help='Output analysis results JSON')
-    
-    # All command
-    all_parser = subparsers.add_parser('all', help='Run the entire pipeline')
-    
+    match_parser.add_argument('--input', type=str, help='Input features JSON file')
+    match_parser.add_argument('--target', type=str, help='Target moral judgement dataset CSV')
+    match_parser.add_argument('--output', type=str, help='Output matching results JSON')
+
+    # Aggregation command
+    agg_parser = subparsers.add_parser('aggregate', help='Run data aggregation')
+    agg_parser.add_argument('--features', type=str, help='Input features JSON file')
+    agg_parser.add_argument('--responses', type=str, help='Input reader response CSV file')
+    agg_parser.add_argument('--output', type=str, help='Output aligned dataset CSV')
+
+    # Analysis command (T041)
+    analyze_parser = subparsers.add_parser('analyze', help='Run full statistical analysis')
+    analyze_parser.add_argument('--input', type=str, help='Input aligned dataset CSV')
+    analyze_parser.add_argument('--output', type=str, help='Output analysis results JSON')
+
+    # Sensitivity command
+    sens_parser = subparsers.add_parser('sensitivity', help='Run sensitivity analysis')
+    sens_parser.add_argument('--matching', type=str, help='Input matching results JSON')
+    sens_parser.add_argument('--thresholds', type=str, help='Input thresholds JSON')
+    sens_parser.add_argument('--dataset', type=str, help='Input aligned dataset CSV')
+    sens_parser.add_argument('--output', type=str, help='Output sensitivity report JSON')
+
     args = parser.parse_args()
-    
-    if not args.command:
-        parser.print_help()
-        sys.exit(1)
-    
+
     # Setup logging
     logger = setup_logging()
-    
-    success = False
-    
+    logger.info(f"Pipeline started at {datetime.now()}")
+    logger.info(f"Command: {args.command}")
+
     if args.command == 'extract':
-        success = run_extraction_step(args.input_dir, args.output, logger)
+        run_extraction_step(args)
     elif args.command == 'match':
-        success = run_matching_step(args.input, args.target, args.output, logger)
+        run_matching_step(args)
     elif args.command == 'aggregate':
-        success = run_aggregation_step(args.features, args.responses, args.output, logger)
+        run_aggregation_step(args)
     elif args.command == 'analyze':
-        success = run_analysis_step(args.input, args.output, logger)
-    elif args.command == 'all':
-        success = run_all_pipeline(logger)
-    
-    sys.exit(0 if success else 1)
+        run_analysis_step(args)
+    elif args.command == 'sensitivity':
+        run_sensitivity_step(args)
+    else:
+        parser.print_help()
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

@@ -1,9 +1,20 @@
 T004:
   c: true
-  h: 4cd3bc101d949f38f3c5ce3dfcdd8a583a0826d257c4558cd83db3f9c5dff9f1
-  r: "The provided `code/config.py` is present, non\u2011empty, and defines the required\
-    \ path constant, seed initialization, and hyperparameters (including `PRIMARY_MATCHING_THRESHOLD\
-    \ = 0.30`). The missing CSV file is not part of the task\u2019s deliverable."
+  h: 6cdb59581dd24ce7713a1d1b251c88b75874f4a2d621e1b44bc5921b3c640ca3
+  r: "The `code/config.py` file exists, is non\u2011empty, sets `np.random.seed`,\
+    \ defines `PRIMARY_MATCHING_THRESHOLD = 0.30`, and defines `GOLD_STANDARD_ANNOTATIONS_PATH`\
+    \ as `data/raw/gold_standard_annotations.csv` along with many other required paths\
+    \ and hyperparameters. The missing CSV file is not required by the task, which\
+    \ only asked for the path constant."
+T016:
+  c: false
+  h: 1e544c53ca598573ece852bdb8b92098b3cfebe31908e53461d14f6ca60c3641
+  r: "The required output file `data/processed/perspective_features.json` does not\
+    \ exist, so the extraction pipeline has not produced the JSON records with the\
+    \ specified schema. Additionally, the provided `code/main.py` snippet does not\
+    \ show a concrete CLI implementation for the `extract` subcommand or the edge\u2011\
+    case handling described, leaving the core task unverified. The missing artifact\
+    \ must be generated and conform to the schema for the task to be considered complete."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,28 +24,15 @@ T018:
     \ is not satisfied. The next implementer must add and commit the logging implementation\
     \ (e.g., a log statement in the extraction script and a sample log file) and provide\
     \ the corresponding artifact."
-T024:
-  c: false
-  h: 7756c4fe701e407317ec777701abde46069a4f64d3ac21a691187acd7643d09d
-  r: The repository lacks the required `data/processed/thresholds.json` file, and
-    the provided `code/data_loader.py` excerpt does not contain a `prepare_sensitivity_thresholds()`
-    implementation (or any evidence it writes the specified JSON). Both the function
-    and its output are missing, so the task is not satisfied.
-T025:
-  c: false
-  h: bbd753c0674d844cec4f303d66cbf88fd65776b5dacf62a3973ca1d554c4130e
-  r: The repository lacks the required `generate_mock_moral_judgement_data` function
-    in `code/data_loader.py` (the shown file only contains other imports and a `fetch_external_reader_data`
-    stub, and the file is truncated). Additionally, the expected output file `data/raw/moral_judgement_dataset.csv`
-    does not exist. Both the implementation and the generated CSV are missing.
 T025#1:
   c: false
-  h: 3720c9603c2f0da8ec269e27e5b4ac776be65c24c1aa3aa8fd5a10a2617e5b4b
-  r: "The provided `code/main.py` is truncated, contains no implementation of a `match`\
-    \ sub\u2011command, and does not show the TF\u2011IDF matching logic or use of\
-    \ `PRIMARY_MATCHING_THRESHOLD`. Moreover, the required output file `data/processed/matching_results.json`\
-    \ (and its input files) are missing. The task\u2019s core functionality is therefore\
-    \ not present."
+  h: 00922122919c9edef236935e9b48cc22eeef859e430da4837fd039d1b378c997
+  r: "The repository lacks the required `data/processed/matching_results.json` file,\
+    \ and `code/config.py` does not define a `PRIMARY_MATCHING_THRESHOLD` constant\
+    \ (it uses a different key). Moreover, the provided `code/main.py` is truncated\
+    \ and does not show a `match` sub\u2011command that parses the CLI arguments and\
+    \ runs only the matching logic. These missing/incorrect pieces prevent the task\
+    \ from being satisfied."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -52,17 +50,9 @@ T027:
     \ is therefore missing."
 T030:
   c: false
-  h: e508b35b7f3123ae05f5fe7ade78a70516e27405ed31672a11b468c6103c9bb9
-  r: "The `fetch_external_reader_data` function is only partially implemented, contains\
-    \ placeholder dataset names, does not create or save a CSV, and the required `data/processed/reader_response.csv`\
-    \ file is missing. The implementation also lacks verification of a `story_id`\
-    \ column and does not ensure real human\u2011annotated scores are written to the\
-    \ output."
-T032:
-  c: false
-  h: db22158a27250a343a2e64baf0b909ceee794071a9cc06f8f60825f33062a67c
-  r: "The repository lacks the required input files (`data/processed/perspective_features.json`,\
-    \ `data/processed/reader_response.csv`) and the output file `data/processed/aligned_dataset.csv`.\
-    \ Moreover, `aggregate_reader_scores` is only partially implemented (no CSV writing\
-    \ logic) and the surrounding CLI in `code/main.py` does not invoke it. The task\u2019\
-    s core deliverable is therefore missing."
+  h: 7bdeb32292fa0254896a48869a338789071f3070ac298a044695d78c6cbd991e
+  r: "The repository lacks a concrete `fetch_external_reader_data` implementation\
+    \ \u2013 the file only contains placeholder functions (`fetch_external_moral_dataset`,\
+    \ etc.) with unfinished logic, no OSF download, no SHA\u2011256 hashing, no filtering,\
+    \ and no CSV generation. Moreover, the required `data/processed/reader_response.csv`\
+    \ does not exist. The task\u2019s core requirements are therefore unmet."

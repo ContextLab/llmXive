@@ -1,10 +1,5 @@
-1|nltk:
-  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
-  source_id: pi
-  url: https://en.wikipedia.org/wiki/Pi
-  value: '3.141592653589793'
-4|numpy:
-  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
-  source_id: pi
-  url: https://en.wikipedia.org/wiki/Pi
-  value: '3.141592653589793'
+'|gold seed standard synthetic use':
+  quote: Seed 42
+  source_id: '2411.15484'
+  url: https://arxiv.org/abs/2411.15484
+  value: '42'

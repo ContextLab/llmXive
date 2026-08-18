@@ -1,19 +1,19 @@
 {
   "project_id": "PROJ-473-the-impact-of-narrative-perspective-on-e",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data_loader.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026: # Removed URL, using a dummy dataset for demonstration   \"\"\"L\u2026\u201d; 4 command(s) failed: python code/main.py --config code/config.py (rc=2); python code/main.py --step extraction (rc=2); python code/main.py --step analysis (rc=2); 5 declared deliverable(s) absent: data/processed/perspective_features.json; data/processed/reader_response.csv; data/processed/sensitivity_report.json",
+  "reason": "4 command(s) failed: python code/main.py --config code/config.py (rc=1); python code/main.py --step extraction (rc=1); python code/main.py --step analysis (rc=1); 7 declared deliverable(s) absent: data/processed/aligned_dataset.csv; data/processed/aligned_reader_response.csv; data/processed/analysis_results.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py --config code/config.py -> rc=2\n    usage: main.py [-h] {extract,match,aggregate,analyze,all} ...\nmain.py: error: argument command: invalid choice: 'code/config.py' (choose from 'extract', 'match', 'aggregate', 'analyze', 'all')",
-    "python code/main.py --step extraction -> rc=2\n    usage: main.py [-h] {extract,match,aggregate,analyze,all} ...\nmain.py: error: argument command: invalid choice: 'extraction' (choose from 'extract', 'match', 'aggregate', 'analyze', 'all')",
-    "python code/main.py --step analysis -> rc=2\n    usage: main.py [-h] {extract,match,aggregate,analyze,all} ...\nmain.py: error: argument command: invalid choice: 'analysis' (choose from 'extract', 'match', 'aggregate', 'analyze', 'all')",
+    "python code/main.py --config code/config.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 11, in <module>\n    from data_loader import fetch_gutenberg_stories\nImportError: cannot import name 'fetch_gutenberg_stories' from 'data_loader' (/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/data_loader.py)",
+    "python code/main.py --step extraction -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 11, in <module>\n    from data_loader import fetch_gutenberg_stories\nImportError: cannot import name 'fetch_gutenberg_stories' from 'data_loader' (/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/data_loader.py)",
+    "python code/main.py --step analysis -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 11, in <module>\n    from data_loader import fetch_gutenberg_stories\nImportError: cannot import name 'fetch_gutenberg_stories' from 'data_loader' (/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/data_loader.py)",
     "python -m pytest tests/contract/ -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/.venv/bin/python: No module named pytest"
   ],
-  "fix_rounds": 6,
+  "fix_rounds": 7,
   "model_tier": 0,
-  "total_attempts": 6,
+  "total_attempts": 7,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
+  "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-18T15:17:28Z"
+  "updated_at": "2026-08-18T21:12:11Z"
 }
