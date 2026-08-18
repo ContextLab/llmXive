@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:34:58.018863Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-590-cortical-column-llms-implementing-canoni
-last_run_id: 87a3bf49-3078-42a5-b693-eb8773a8eed2
+last_run_id: 1d5694a6-5661-4706-827e-2dbb420706e7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni
 title: 'Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computation'
-updated_at: '2026-08-16T19:22:48.009737Z'
+updated_at: '2026-08-18T23:03:58.116694Z'
