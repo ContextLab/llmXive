@@ -109,7 +109,7 @@ tests/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **30 Independent Runs** | Required for statistical power (paired t-test, p < 0.05) to validate long-horizon error accumulation claims (FR-006, SC-004). | A single run or small n (e.g., n=5) is insufficient to establish statistical significance for the accumulated KL-divergence metric [deferred] steps. |
+| **Independent Runs** | Required for statistical power (paired t-test, p < 0.05) to validate long-horizon error accumulation claims (FR-006, SC-004). | A single run or small n (e.g., n=5) is insufficient to establish statistical significance for the accumulated KL-divergence metric [deferred] steps. |
 | **Sensitivity Analysis** | Required to validate robustness of the epsilon floor (FR-007) and ensure numerical stability across different variance scales. | A fixed epsilon without sweep analysis risks failing on edge cases (near-zero variance) not present in the training distribution. |
 
 ## Implementation Phases

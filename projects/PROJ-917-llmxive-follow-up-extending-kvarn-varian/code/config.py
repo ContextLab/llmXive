@@ -28,10 +28,16 @@ class Config:
     ANALYSIS_DIR: str = "data/analysis"
     SIMULATION_DIR: str = "data/simulation"
     
-    # Epsilon sweep values for sensitivity analysis
+    # Epsilon sweep values for sensitivity analysis (T005b)
     EPSILON_SWEEP_VALUES: List[float] = field(default_factory=lambda: [
         1e-8, 1e-7, 1e-6, 1e-5, 1e-4
     ])
+    
+    # Pilot bounds for epsilon validation (T005a)
+    EPSILON_PILOT_BOUNDS: Dict[str, float] = field(default_factory=lambda: {
+        "min": 0.0,
+        "max": 0.1
+    })
 
 _config: Optional[Config] = None
 

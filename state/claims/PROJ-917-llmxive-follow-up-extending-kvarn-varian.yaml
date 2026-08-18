@@ -3474,3 +3474,319 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T08:04:08Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Reference to KVarN paper title
+  claim_id: c_ff6ea4c1
+  context: 'Task list template for feature implementation extending ''KVarN: Variance-Normalized
+    KV-Cache Quantization Mitigates Error Accum'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reference_to_KVarN_paper_title
+  kind: entity_fact
+  raw_text: 'The document references ''KVarN: Variance-Normalized KV-Cache Quantization
+    Mitigates Error Accum''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:29:46Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialization
+  claim_id: c_f06d46b4
+  context: Initialize Python 3.11 project with pinned requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project initializes with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:30:06Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Epsilon sweep values list
+  claim_id: c_b0fe616f
+  context: Define constant EPSILON_SWEEP_VALUES = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The epsilon sweep values are defined as [1e-8, 1e-7, 1e-6, 1e-5, 1e-4].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:31:05Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Generate 10000 synthetic attention matrices
+  claim_id: c_5e7e25b7
+  context: Must generate exactly 10,000 synthetic attention matrices with controlled
+    sparsity and outlier magnitudes
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of matrices for data generation is 10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:31:29Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Execute 30 independent simulation runs
+  claim_id: c_62fabab1
+  context: Execute batch_runner.py to generate exactly 30 independent simulation runs
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of simulation runs is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:31:55Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Target statistical power >= 0.8
+  claim_id: c_368f6f5f
+  context: 'Source for n=30: Standard statistical power analysis for paired t-tests
+    (target power >= 0.8)'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: magnitude
+  raw_text: The target statistical power for the t-test is greater than or equal to
+    0.8.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T20:32:03Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Theoretical lower bound formula Delta^2/12
+  claim_id: c_d3dfd268
+  context: Implement theoretical lower bound calculation using the analytical noise
+    model formula Delta^2/12
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical lower bound formula is Delta squared divided by 12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:33:26Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Uniform INT8 range -128 to 127
+  claim_id: c_5d26a630
+  context: based on the Uniform INT8 range (-128 to 127) defined in the simulation
+    setup
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Uniform INT8 quantization range is -128 to 127.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:33:43Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: CPU_ONLY configuration set to True
+  claim_id: c_d5db0e4f
+  context: Config dataclass containing CPU_ONLY=True
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU_ONLY_configuration_set_to_True
+  kind: entity_fact
+  raw_text: The default CPU_ONLY configuration is True.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:34:11Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Training dataset size 10000 matrices
+  claim_id: c_359d0a6c
+  context: Must generate exactly 10,000 synthetic attention matrices
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of matrices for the training dataset is 10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:34:30Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: n=30 derived from standard statistical power analysis for paired t-tests
+    with target power >= 0.8
+  claim_id: c_bab8169e
+  context: 'Requirement: The sample size ''n'' is exactly 30 (per FR-006). Requirement:
+    Source for n=30: Standard statistical power analysis for paired t-tests (target
+    power >= 0.8).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source for n=30: Standard statistical power analysis for paired t-tests
+    (target power >= 0.8).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:44:16Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: T030b produces exactly 30 simulation run files
+  claim_id: c_20f6a523
+  context: 'Crucial: T030b must produce exactly 30 files (run_001.json to run_030.json)
+    via `batch_runner.py` using seed offsets, where n=30 is mandatory.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T030b must produce exactly 30 files (run_001.json to run_030.json) via
+    batch_runner.py using seed offsets, where n=30 is mandatory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:44:31Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: T017c generates exactly 10000 synthetic attention matrices
+  claim_id: c_15908b21
+  context: 'Requirement: Must generate exactly 10,000 synthetic attention matrices
+    with controlled sparsity and outlier magnitudes. Verification: Assert count ==
+    10000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset size for T017c is exactly 10,000 synthetic attention matrices.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:44:46Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: simulation horizon is 1000 steps
+  claim_id: c_3cfbf7bd
+  context: 'Requirement: Must execute a configurable number of steps (default 1000,
+    defined in code/config.py per Constitution Principle VI).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation horizon is 1000 steps per Constitution Principle VI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:45:50Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 2
+  canonical: Uniform INT8 quantization range is -128 to 127
+  claim_id: c_1d1e9764
+  context: "Requirement: \u0394 must be calculated as (max_quantized_value - min_quantized_value)\
+    \ / (number of discrete levels in the quantization range) based on the Uniform\
+    \ INT8 range (-128 to 127) defined in the simulation setup."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uniform_INT8_quantization_range_is_-128_to_127
+  kind: entity_fact
+  raw_text: The Uniform INT8 quantization range is defined as -128 to 127.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:46:10Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: theoretical lower bound formula is delta squared divided by 12
+  claim_id: c_eccd5778
+  context: "Implement theoretical lower bound calculation using the analytical noise\
+    \ model formula \u0394\xB2/12 (where \u0394 is the quantization interval derived\
+    \ from the simulation's Uniform INT8 quantization scheme)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The theoretical lower bound formula is \u0394\xB2/12."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T20:47:29Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: target power for statistical power analysis is >= 0.8
+  claim_id: c_10d7ae6b
+  context: 'Requirement: Source for n=30: Standard statistical power analysis for
+    paired t-tests (target power >= 0.8).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The target power for the statistical power analysis is >= 0.8.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T20:47:39Z'

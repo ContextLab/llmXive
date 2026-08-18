@@ -4,82 +4,68 @@ from pathlib import Path
 import json
 import sys
 import os
-import tempfile
-import shutil
 
 # Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
+from config import get_config
 from analysis.run_pilot_sensitivity import run_pilot_analysis
 
 class TestPilotSensitivityAnalysis:
-    
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.output_path = os.path.join(self.temp_dir, "test_pilot.json")
+    """Tests for the pilot sensitivity analysis functionality."""
+
+    def test_pilot_analysis_runs(self):
+        """Test that the pilot analysis runs without errors."""
+        results = run_pilot_analysis(num_test_matrices=10, num_pilot_steps=5, seed=42)
         
-    def teardown_method(self):
-        """Clean up test fixtures."""
-        if os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
-    
-    def test_pilot_execution_creates_file(self):
-        """Test that the pilot analysis creates the output file."""
-        run_pilot_analysis(self.output_path, num_matrices=10)
-        assert os.path.exists(self.output_path), "Output file was not created"
-    
-    def test_pilot_output_structure(self):
-        """Test that the output JSON has the expected structure."""
-        run_pilot_analysis(self.output_path, num_matrices=10)
+        assert len(results) > 0, "Pilot analysis should produce results"
+        assert all(isinstance(r, dict) for r in results), "Each result should be a dict"
         
-        with open(self.output_path, 'r') as f:
-            data = json.load(f)
+        for result in results:
+            assert "epsilon" in result, "Result should contain epsilon"
+            assert "delta_kl_per_step" in result, "Result should contain delta_kl_per_step"
+            assert "status" in result, "Result should contain status"
+            assert result["status"] in ["PASS", "WARN", "FAIL"], "Status should be valid"
+
+    def test_pilot_analysis_output_schema(self):
+        """Test that the output matches the expected schema."""
+        results = run_pilot_analysis(num_test_matrices=5, num_pilot_steps=3, seed=42)
         
-        assert "num_matrices" in data
-        assert "epsilon_values" in data
-        assert "results_by_epsilon" in data
-        assert "validation_status" in data
-        assert data["num_matrices"] == 10
-    
-    def test_pilot_results_have_metrics(self):
-        """Test that results for each epsilon contain required metrics."""
-        run_pilot_analysis(self.output_path, num_matrices=10)
+        for result in results:
+            assert isinstance(result["epsilon"], (int, float)), "Epsilon should be numeric"
+            assert isinstance(result["delta_kl_per_step"], (int, float)), "Delta KL should be numeric"
+            assert isinstance(result["status"], str), "Status should be string"
+
+    def test_pilot_analysis_bounds_check(self):
+        """Test that the pilot analysis correctly identifies bounds violations."""
+        config = get_config()
+        results = run_pilot_analysis(num_test_matrices=5, num_pilot_steps=3, seed=42)
         
-        with open(self.output_path, 'r') as f:
-            data = json.load(f)
+        for result in results:
+            if result["delta_kl_per_step"] != result["delta_kl_per_step"]:  # NaN check
+                continue
+                
+            bounds = config.EPSILON_PILOT_BOUNDS
+            if bounds["min"] <= result["delta_kl_per_step"] <= bounds["max"]:
+                # Should be PASS or WARN
+                assert result["status"] in ["PASS", "WARN"], \
+                    f"Result within bounds should be PASS or WARN, got {result['status']}"
+            else:
+                # Should be FAIL
+                assert result["status"] == "FAIL", \
+                    f"Result outside bounds should be FAIL, got {result['status']}"
+
+    def test_pilot_analysis_deterministic(self):
+        """Test that the pilot analysis is deterministic with the same seed."""
+        results1 = run_pilot_analysis(num_test_matrices=5, num_pilot_steps=3, seed=42)
+        results2 = run_pilot_analysis(num_test_matrices=5, num_pilot_steps=3, seed=42)
         
-        for eps_str, result in data["results_by_epsilon"].items():
-            if "error" not in result:
-                assert "avg_kl_delta_per_step" in result
-                assert "std_kl_delta_per_step" in result
-                assert "num_convergence_failures" in result
-                assert "is_monotonic_or_within_bounds" in result
-                assert isinstance(result["avg_kl_delta_per_step"], float)
-                assert result["num_convergence_failures"] >= 0
-    
-    def test_validation_status_is_valid(self):
-        """Test that validation status is one of the expected values."""
-        run_pilot_analysis(self.output_path, num_matrices=10)
+        assert len(results1) == len(results2), "Results should have the same length"
         
-        with open(self.output_path, 'r') as f:
-            data = json.load(f)
-        
-        valid_statuses = ["passed", "flag_for_review", "unknown"]
-        assert data["validation_status"] in valid_statuses
-    
-    def test_monotonicity_check_logic(self):
-        """Test that the monotonicity check runs without error."""
-        # This is implicitly tested by the execution, but we can verify
-        # that the flag is set for at least one epsilon
-        run_pilot_analysis(self.output_path, num_matrices=20)
-        
-        with open(self.output_path, 'r') as f:
-            data = json.load(f)
-        
-        for eps_str, result in data["results_by_epsilon"].items():
-            if "error" not in result:
-                assert "is_monotonic_or_within_bounds" in result
-                assert isinstance(result["is_monotonic_or_within_bounds"], bool)
+        for r1, r2 in zip(results1, results2):
+            assert r1["epsilon"] == r2["epsilon"], "Epsilon values should match"
+            assert r1["delta_kl_per_step"] == r2["delta_kl_per_step"], \
+                "Delta KL values should match"
+            assert r1["status"] == r2["status"], "Status should match"

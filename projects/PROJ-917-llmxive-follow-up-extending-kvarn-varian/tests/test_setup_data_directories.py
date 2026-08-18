@@ -1,16 +1,15 @@
 """
-Unit tests for the setup_data_directories module.
+Tests for the data directory setup functionality.
 """
 import os
 import pytest
-import tempfile
 from pathlib import Path
+import tempfile
 import json
 import sys
 
-# Add the code directory to the path to allow imports
-code_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(code_dir))
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from setup_data_directories import (
     get_project_root,
@@ -22,96 +21,97 @@ from setup_data_directories import (
     verify_integrity
 )
 
-
 class TestDataDirectorySetup:
-    """Test cases for data directory initialization."""
+    """Test suite for data directory creation and management."""
 
-    def test_create_directories_structure(self, tmp_path):
-        """Test that the required subdirectories are created."""
-        # Create a temporary data root
-        data_root = tmp_path / 'data'
-        data_root.mkdir()
-        
-        # Mock the root_dir to be tmp_path
-        created_dirs = create_directories(tmp_path)
+    @pytest.fixture
+    def temp_project_root(self):
+        """Create a temporary project structure for testing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            # Create dummy code directory to simulate project root
+            (tmp_path / 'code').mkdir()
+            (tmp_path / 'data').mkdir()
+            yield tmp_path
+
+    def test_create_directories_structure(self, temp_project_root):
+        """Test that all required data subdirectories are created."""
+        created = create_directories(temp_project_root)
         
         expected_subdirs = ['raw', 'processed', 'models', 'simulation']
-        assert len(created_dirs) == len(expected_subdirs)
         
         for subdir in expected_subdirs:
-            dir_path = data_root / subdir
+            dir_path = temp_project_root / 'data' / subdir
             assert dir_path.exists(), f"Directory {dir_path} was not created"
             assert dir_path.is_dir(), f"{dir_path} is not a directory"
+        
+        assert len(created) == 4, f"Expected 4 directories, got {len(created)}"
 
-    def test_compute_file_checksum_file(self, tmp_path):
-        """Test checksum computation for a file."""
-        file_path = tmp_path / 'test.txt'
-        file_path.write_text("Hello, World!")
+    def test_create_directories_idempotent(self, temp_project_root):
+        """Test that creating directories again does not fail."""
+        # First creation
+        create_directories(temp_project_root)
+        # Second creation should not raise
+        create_directories(temp_project_root)
         
-        checksum1 = compute_file_checksum(file_path)
-        checksum2 = compute_file_checksum(file_path)
-        
-        assert len(checksum1) == 64  # SHA-256 hex length
-        assert checksum1 == checksum2  # Deterministic
+        # Verify all still exist
+        expected_subdirs = ['raw', 'processed', 'models', 'simulation']
+        for subdir in expected_subdirs:
+            assert (temp_project_root / 'data' / subdir).exists()
 
-    def test_compute_file_checksum_directory(self, tmp_path):
-        """Test checksum computation for a directory."""
-        dir_path = tmp_path / 'test_dir'
-        dir_path.mkdir()
-        (dir_path / 'file1.txt').write_text("Content 1")
-        (dir_path / 'file2.txt').write_text("Content 2")
+    def test_checksum_computation(self, temp_project_root):
+        """Test checksum computation on a file."""
+        test_file = temp_project_root / 'data' / 'test.txt'
+        test_file.write_text("test content")
         
-        checksum1 = compute_file_checksum(dir_path)
-        checksum2 = compute_file_checksum(dir_path)
-        
-        assert len(checksum1) == 64
-        assert checksum1 == checksum2
+        checksum = compute_file_checksum(test_file)
+        assert len(checksum) == 64, "SHA-256 checksum should be 64 hex characters"
+        assert all(c in '0123456789abcdef' for c in checksum), "Checksum should be hex"
 
-    def test_record_and_save_checksums(self, tmp_path):
-        """Test recording and saving checksums."""
+    def test_checksum_save_load(self, temp_project_root):
+        """Test saving and loading checksums."""
+        checksums = {
+            '/path/to/dir1': 'abc123',
+            '/path/to/dir2': 'def456'
+        }
+        
+        checksum_file = temp_project_root / 'data' / 'test_checksums.json'
+        save_checksums(checksums, checksum_file)
+        
+        assert checksum_file.exists(), "Checksum file was not created"
+        
+        loaded = load_checksums(checksum_file)
+        assert loaded == checksums, "Loaded checksums do not match saved"
+
+    def test_verify_integrity(self, temp_project_root):
+        """Test integrity verification."""
         # Create directories
-        created_dirs = create_directories(tmp_path)
+        created = create_directories(temp_project_root)
         
         # Record checksums
-        checksums = record_checksums(tmp_path, created_dirs)
+        checksums = {}
+        record_checksums(created, checksums)
         
-        assert isinstance(checksums, dict)
-        assert len(checksums) == 4  # raw, processed, models, simulation
-        
-        # Save to file
-        output_path = tmp_path / 'checksums.json'
-        save_checksums(checksums, output_path)
-        
-        assert output_path.exists()
-        with open(output_path) as f:
-            loaded = json.load(f)
-        
-        assert loaded == checksums
+        # Verify should pass
+        assert verify_integrity(checksums), "Integrity verification should pass for existing directories"
 
-    def test_verify_integrity(self, tmp_path):
-        """Test integrity verification."""
-        # Create directories and record checksums
-        created_dirs = create_directories(tmp_path)
-        checksums = record_checksums(tmp_path, created_dirs)
+    def test_verify_integrity_missing_dir(self, temp_project_root):
+        """Test integrity verification with missing directory."""
+        checksums = {
+            str(temp_project_root / 'data' / 'raw'): 'somehash',
+            str(temp_project_root / 'data' / 'nonexistent'): 'somehash'
+        }
         
-        # Verification should pass
-        assert verify_integrity(tmp_path, checksums) is True
+        assert not verify_integrity(checksums), "Integrity verification should fail for missing directory"
 
-    def test_verify_integrity_failure_missing_dir(self, tmp_path):
-        """Test integrity verification fails on missing directory."""
-        # Create directories
-        created_dirs = create_directories(tmp_path)
-        checksums = record_checksums(tmp_path, created_dirs)
-        
-        # Remove one directory
-        (tmp_path / 'data' / 'raw').rmdir()
-        
-        # Verification should fail
-        assert verify_integrity(tmp_path, checksums) is False
-
-    def test_load_checksums_missing_file(self, tmp_path):
-        """Test loading checksums from a non-existent file returns empty dict."""
-        non_existent = tmp_path / 'non_existent.json'
-        result = load_checksums(non_existent)
-        assert result == {}
-        assert isinstance(result, dict)
+    def test_get_project_root_detection(self, temp_project_root):
+        """Test project root detection logic."""
+        # Change to code directory
+        code_dir = temp_project_root / 'code'
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(code_dir)
+            detected = get_project_root()
+            assert detected == temp_project_root, f"Detected root {detected} != expected {temp_project_root}"
+        finally:
+            os.chdir(original_cwd)
