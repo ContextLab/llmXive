@@ -1,12 +1,12 @@
 status: none
-intent: Open Science Framework replication project dataset download csv python package
-  dataset
+intent: download Open Science Framework replication project dataset replication studies
+  metadata csv
 required_fields:
 - study_id
 - year
-- field
 - effect_size
+- effect_size_type
 - sample_size
-cache_key: 0e95965a7098b0aaf356c414068907508310d3566ca6fd387b2cce94c130670f
-searched_at: '2026-08-13T10:01:37.198968+00:00'
+cache_key: 357485bb3526f96f0be1e8d2123bbb8f3abd11dd8f024c0ad9edcf81c9c8daca
+searched_at: '2026-08-18T17:27:11.705704+00:00'
 retry_count: 1

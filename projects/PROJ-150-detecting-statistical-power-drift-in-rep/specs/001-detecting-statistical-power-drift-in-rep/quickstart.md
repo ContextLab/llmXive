@@ -2,90 +2,88 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   Access to a GitHub Actions runner (or local environment with 7GB+ RAM)
+- Python 3.11 or higher
+- `pip` or `conda`
+- Git (for repository access)
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  **Clone the Repository**:
     ```bash
-    git clone https://github.com/your-org/your-repo.git
-    cd your-repo
+    git clone <repository-url>
+    cd projects/PROJ-150-detecting-statistical-power-drift-in-rep
     ```
 
-2.  **Create a virtual environment**:
+2.  **Create Virtual Environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Install dependencies**:
+3.  **Install Dependencies**:
     ```bash
-    pip install -r src/requirements.txt
+    pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` will be generated during the implementation phase.*
+    *Note: `requirements.txt` pins versions for `pandas`, `statsmodels`, `scipy`, `huggingface_hub`, etc.*
+
+4.  **Download Data**:
+    The pipeline automatically downloads the OSF dataset from Hugging Face if `data/raw/` is empty. To manually download:
+    ```bash
+    python code/preprocess.py --download-only
+    ```
 
 ## Running the Analysis
 
-### Option 1: Full Pipeline (Recommended)
-
-Run the entire analysis from data download to final report:
-
+### Full Pipeline
+Execute the entire analysis from data cleaning to robustness checks:
 ```bash
-python -m src.cli.main run-full
+python code/main.py
 ```
-
 This will:
-1.  Download the OSF datasets from the verified HuggingFace URLs.
-2.  Calculate post-hoc power for all studies.
-3.  Fit the Linear Mixed-Effects Model (LMM).
-4.  Run the 10,000-iteration permutation test.
-5.  Generate the final JSON report and plots.
+1.  Download and clean data.
+2.  Calculate power estimates.
+3.  Perform residualization and fit the LMM.
+4.  Run permutation tests and sensitivity analysis.
+5.  Generate visualizations and JSON reports.
 
-### Option 2: Step-by-Step
+### Individual Tasks
+You can run specific components:
 
-1.  **Download Data**:
-    ```bash
-    python -m src.cli.main download-data
-    ```
-    *Output: `data/raw/osf_replication_data.csv`*
+- **Preprocessing & Power Calculation**:
+  ```bash
+  python code/preprocess.py
+  ```
+  Outputs: `data/derived/cleaned_data.csv`, `data/derived/grouping_validation.json`
 
-2.  **Calculate Power**:
-    ```bash
-    python -m src.cli.main calculate-power
-    ```
-    *Output: `data/derived/power_estimates.csv`*
+- **Residualization & Model Fitting**:
+  ```bash
+  python code/models.py
+  ```
+  Outputs: `data/derived/residuals.csv`, `results/lmm_final_summary.json`
 
-3.  **Run Drift Analysis**:
-    ```bash
-    python -m src.cli.main run-drift-analysis --permutations 10000
-    ```
-    *Output: `results/drift_report.json`, `results/null_distribution.csv`*
+- **Robustness Checks**:
+  ```bash
+  python code/robustness.py
+  ```
+  Outputs: `results/permutation_pvalue.json`, `results/sensitivity_report.json`, `results/aggregated_drift.json`
 
-4.  **Generate Visualizations**:
-    ```bash
-    python -m src.cli.main generate-plots
-    ```
-    *Output: `results/power_drift_scatter.png`, `results/null_dist_hist.png`*
+- **Visualization**:
+  ```bash
+  python code/visualize.py
+  ```
+  Outputs: `results/power_drift_plot.png`
 
-## Output Artifacts
+## Expected Outputs
 
-Upon completion, the following files will be available:
-
--   `data/derived/power_estimates.csv`: Post-hoc power for every study.
--   `data/derived/residuals.csv`: Residual power values for visualization.
--   `results/drift_report.json`: Final statistical results (slopes, p-values, confidence intervals).
--   `results/null_distribution.csv`: Permutation test results.
--   `results/power_drift_scatter.png`: Visualization of residual power vs. year.
--   `results/summary.md`: Human-readable summary of findings.
+After a successful run, the `results/` directory will contain:
+- `lmm_final_summary.json`: Primary drift slope and p-values.
+- `permutation_pvalue.json`: Empirical p-value from the permutation test.
+- `sensitivity_report.json`: Drift significance across alpha thresholds.
+- `aggregated_drift.json`: Cross-field aggregated drift estimate.
+- `power_drift_plot.png`: Visualization of residual power vs. year.
 
 ## Troubleshooting
 
--   **Memory Error**: If the permutation test runs out of memory, reduce the iteration count:
-    ```bash
-    python -m src.cli.main run-drift-analysis --permutations 1000
-    ```
--   **Dataset Download Failure**: Ensure your network allows access to `huggingface.co`. If behind a proxy, set `HTTPS_PROXY` environment variable.
--   **Missing Fields**: The script will skip rows with missing data. Check `logs/cleaning.log` for details on dropped studies.
--   **Convergence Warning**: If the LMM fails to converge, check `logs/model_fit.log` for details. The script will attempt to simplify the random effects structure automatically.
+- **Memory Error**: If you encounter OOM errors, ensure `streaming=True` is used in `code/preprocess.py` or reduce the dataset size.
+- **Permutation Timeout**: If the permutation test takes too long, the script will automatically fall back to [deferred] iterations and flag the result as "approximate".
+- **Missing Data**: Studies with missing `year`, `effect_size`, or `sample_size` are skipped and logged in `preprocess.log`.

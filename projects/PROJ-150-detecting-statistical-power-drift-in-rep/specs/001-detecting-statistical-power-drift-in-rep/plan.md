@@ -1,46 +1,48 @@
 # Implementation Plan: Detecting Statistical Power Drift in Replicated Studies
 
-**Branch**: `001-detect-power-drift` | **Date**: 2024-05-21 | **Spec**: `specs/001-detecting-statistical-power-drift-in-rep/spec.md`
+**Branch**: `001-detect-power-drift` | **Date**: 2024-05-21 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-detecting-statistical-power-drift-in-rep/spec.md`
 
 ## Summary
 
-This project investigates whether reported statistical power estimates in published replication studies exhibit a systematic temporal decline. The primary approach involves calculating post-hoc power for each study using reported effect sizes and sample sizes, then fitting a **Linear Mixed-Effects Model (LMM)** with `power_est` as the outcome, `year` as a fixed effect, and `effect_size` and `sample_size` as covariates. This model statistically isolates the temporal trend in power *after* accounting for the variance explained by changes in effect size and sample size, directly addressing the hypothesis of "residual drift" without tautology. The implementation will utilize a two-stage analytical pipeline: first, calculating power estimates; second, fitting the LMM and performing robustness checks (permutation tests, sensitivity analysis). This approach satisfies the core functional requirements (FR-002, FR-003) and Constitution Principle VII.
+This feature implements a statistical analysis pipeline to detect temporal drift in statistical power estimates within replicated studies. The core approach involves:
+1.  **Power Re-estimation**: Calculating post-hoc power for each study based on reported effect sizes and sample sizes.
+2.  **Residualization**: Removing the deterministic influence of effect size and sample size from the power estimate to create `power_residual`. This step is critical to avoid mathematical tautology.
+3.  **Drift Modeling**: Fitting a Linear Mixed-Effects Model (LMM) on `power_residual` using only `year` as a fixed effect (and random intercepts for `field` and `original_study_id`) to isolate the residual temporal trend.
+4.  **Robustness**: Validating the drift via permutation tests (shuffling `year`), input permutation tests (shuffling inputs), sensitivity analysis, and cross-field aggregation.
+
+All data processing and modeling are designed to run on a CPU-only GitHub Actions runner, with streaming capabilities for large datasets and fallback mechanisms for permutation convergence.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`  
-**Storage**: Local filesystem (CSV/Parquet inputs, derived CSV/JSON outputs)  
-**Testing**: `pytest` (unit tests for power formulas, integration tests for pipeline stages)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM)  
-**Project Type**: Data analysis pipeline / CLI  
-**Performance Goals**: Complete full pipeline (10k permutations) within 6 hours on CPU; memory usage < 6GB.  
-**Constraints**: No GPU; must handle missing data gracefully; must use only open, directly downloadable datasets.  
-**Scale/Scope**: Analysis of a large-scale set of replication studies from OSF Reproducibility Project dataset.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels` (for LMM), `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `huggingface_hub`, `jsonschema`  
+**Storage**: Local file system (`data/`, `results/`, `code/`)  
+**Testing**: `pytest` (unit tests for power calculation, integration tests for pipeline flow). **All JSON/CSV outputs are validated against schemas defined in `contracts/`** (e.g., `aggregated_drift.schema.yaml`, `field_slopes.schema.yaml`).  
+**Target Platform**: Linux (GitHub Actions Free Runner: 2 CPU, ~7 GB RAM)  
+**Project Type**: Data Analysis Pipeline / CLI  
+**Performance Goals**: Complete full pipeline (including 1,000-10,000 permutations) within 6 hours on 2 cores; memory usage < 6 GB.  
+**Constraints**: No GPU; CPU-first algorithms; streaming data ingestion to avoid OOM; strict reproducibility via pinned seeds.  
+**Scale/Scope**: Process a substantial set of replication records (OSF data); generate multiple statistical outputs and 3 visualizations.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Compliance Note |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ Pass | All random seeds will be pinned in `code/`; datasets fetched from verified OSF/HuggingFace URLs; `requirements.txt` will pin versions. |
-| **II. Verified Accuracy** | ✅ Pass | Citations in `research.md` will be limited to the verified dataset URLs provided in the prompt; no fabricated URLs. |
-| **III. Data Hygiene** | ✅ Pass | Raw data will be checksummed in `state/`; derived data written to new files in `data/derived/`. |
-| **IV. Single Source of Truth** | ✅ Pass | All figures and stats in the final report will trace to specific rows in `data/derived/` and code blocks in `code/`. |
-| **V. Versioning Discipline** | ✅ Pass | Content hashes for artifacts will be managed via the project state file; `updated_at` timestamps updated on change. |
-| **VI. Power Re-estimation Consistency** | ✅ Pass | Power estimates will be calculated post-hoc using Cohen's *d* and sample sizes with α=0.05, per the methodology. |
-| **VII. Temporal Drift Modeling Rigor** | ✅ Pass | The plan implements the **Linear Mixed-Effects Model** with `power_est` as outcome and `year` as fixed effect, supplemented by non-parametric permutation tests with a sufficient number of iterations as required. |
+- **[PRINCIPLE I: Reproducibility]**: The plan mandates pinned `requirements.txt`, explicit random seeds in `code/`, and a `data/` directory structure where raw data is checksummed and derived data is immutable. The pipeline will be tested on a fresh runner.
+- **[PRINCIPLE II: Verified Accuracy]**: All citations to power formulas (1999) and aggregation methods (DerSimonian-Laird) will be validated against primary sources before implementation. The `research.md` will cite only verified dataset URLs.
+- **[PRINCIPLE III: Data Hygiene]**: The plan explicitly includes T011a (filtering missing data) and T011d (schema validation). No in-place modifications are allowed.
+- **[PRINCIPLE IV: Single Source of Truth]**: All figures and statistics in the final report will be generated directly from `results/` JSON/CSV files produced by the code, ensuring no hand-typed numbers.
+- **[PRINCIPLE V: Versioning Discipline]**: T032 is executed at the end of **every phase** to update `state.yaml` with content hashes and timestamps for all artifacts generated in that phase.
+- **[PRINCIPLE VI: Power Re-estimation Consistency]**: The core logic (FR-001) strictly calculates post-hoc power using Cohen's *d* and sample size with α=0.05, ignoring author-reported power values.
+- **[PRINCIPLE VII: Temporal Drift Modeling Rigor]**: The plan implements the dual-approach requirement: LMM with random intercepts for `field` and `original_study`, plus a permutation test with a sufficient number of iterations to ensure statistical stability to validate the slope.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-detect-power-drift/
+specs/001-detecting-statistical-power-drift-in-rep/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
@@ -52,90 +54,119 @@ specs/001-detect-power-drift/
 ### Source Code (repository root)
 
 ```text
-src/
-├── models/
-│   ├── power_calc.py          # Power formula implementation
-│   ├── drift_model.py         # LMM implementation and LRT logic
-│   └── permutation.py         # Permutation test logic
-├── services/
-│   ├── data_loader.py         # Dataset ingestion and cleaning
-│   ├── analysis_runner.py     # Orchestration of analysis steps
-│   └── viz.py                 # Visualization generation
-├── cli/
-│   └── main.py                # Entry point for CLI commands
-└── lib/
-    └── utils.py               # Common utilities (logging, seeding)
-
-tests/
-├── contract/
-│   └── test_schemas.py        # Contract validation tests
-├── integration/
-│   └── test_pipeline.py       # End-to-end pipeline tests
-└── unit/
-    ├── test_power_calc.py
-    └── test_permutation.py
-
-data/
-├── raw/                       # Downloaded datasets (immutable)
-└── derived/                   # Calculated power, trends, results
+projects/PROJ-150-detecting-statistical-power-drift-in-rep/
+├── data/
+│   ├── raw/                 # Downloaded parquet/CSV files (gitignored)
+│   └── derived/             # Cleaned data, residuals, validation JSONs
+├── code/
+│   ├── __init__.py
+│   ├── config.py            # Paths, seeds, constants
+│   ├── preprocess.py        # T011a, T011b, T011c, T011d: Cleaning, grouping, schema validation
+│   ├── power_calc.py        # FR-001: Post-hoc power formulas
+│   ├── models.py            # T010, T012: MDES calc, LMM fitting, residual extraction
+│   ├── robustness.py        # T020, T021, T025, T026, T027, T028: Permutations, sensitivity, aggregation, non-linearity
+│   ├── visualize.py         # T013: Residual plots
+│   ├── state_manager.py     # T032: State updates
+│   └── main.py              # Pipeline orchestrator
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── results/                 # JSON/CSV outputs for reports
+├── state/
+│   └── projects/PROJ-150-detecting-statistical-power-drift-in-rep/
+│       └── state.yaml
+├── requirements.txt
+└── .gitignore
 ```
 
-**Structure Decision**: Selected Option 1 (Single project) with a modular `src/` layout. This aligns with the CLI nature of the analysis pipeline and facilitates unit testing of statistical formulas.
+**Structure Decision**: Single project structure chosen to align with the data analysis pipeline nature. The `code/` directory is split into modular scripts corresponding to the task phases (Preprocessing, Modeling, Robustness) to facilitate unit testing and parallel development. `data/` is strictly separated into `raw` (immutable) and `derived` (intermediate).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Linear Mixed-Effects Model (LMM)** | Required by FR-002 and Constitution Principle VII to statistically isolate the `year` effect on power while controlling for `effect_size` and `sample_size`. | A simple linear regression would fail to account for clustering (field, original study), violating the mixed-effects requirement. |
-| **Permutations** | Required by the spec (FR-004) and Constitution Principle VII to ensure robustness against model misspecification. | A lower iteration count (e.g., [deferred]) would provide a coarser p-value estimate, potentially failing to detect subtle drift or robustness issues. |
-| **Adaptive Weighting (DerSimonian-Laird)** | Required by FR-006 to handle heterogeneous effect-size metrics across fields. | Simple averaging would ignore field-specific variance and heterogeneity, biasing the aggregated drift estimate. |
+| Linear Mixed-Effects Model (LMM) | Required by FR-002 (revised) and Constitution Principle VII to control for `field` and `original_study` heterogeneity while testing `year` drift on residuals. | Ordinary Least Squares (OLS) would ignore clustering, inflating Type I error rates due to correlated errors within fields/studies. |
+| Non-parametric Permutation Test | Required by FR-004 and Principle VII to validate the LMM slope against model misspecification without distributional assumptions. | Relying solely on parametric p-values is insufficient for robust scientific claims in observational data. |
+| DerSimonian-Laird Aggregation | Required by FR-006 to combine field-specific estimates while accounting for heterogeneity in effect-size metrics. | Simple averaging would ignore variance differences between fields, biasing the global estimate. |
+| Residualization (T011c) | Required to break the mathematical tautology of predicting Power using its own inputs. | Directly modeling Power ~ Year + Inputs creates perfect collinearity and uninterpretable coefficients. |
 
-## Implementation Phases & Tasks
+## Implementation Tasks
 
-### Phase 0: Data Acquisition & Validation
-- **T001**: Create project structure and virtual environment.
-- **T002**: Download the OSF Reproducibility Project dataset from the verified HuggingFace URL.
-- **T003**: Validate dataset schema (presence of `year`, `effect_size`, `sample_size`, `field`).
-- **T004**: Checksum raw data and store in `data/raw/`.
+### Phase 0: Research & Feasibility
+- [x] **T001a**: Initialize project directory structure (`data/raw`, `data/derived`, `code`, `tests`, `results`, `state`).
+- [x] **T001b**: Create `.gitignore` excluding `data/raw`, `data/derived`, `__pycache__`, `.env`, and `*.pyc`.
+- [x] **T002**: Finalize `research.md` with verified dataset URLs and methodology.
 
-### Phase 1: Power Calculation & Preprocessing
-- **T010**: Implement `calculate_power()` using the non-central t-distribution formula (FR-001).
-- **T011**: Filter rows with missing `year`, `effect_size`, or `sample_size` (FR-008). Log warnings.
-- **T012**: Generate `data/derived/power_estimates.csv` with `study_id`, `year`, `field`, `effect_size`, `sample_size`, `power_est`.
+### Phase 1: Data Preparation & Pilot Analysis
+- [ ] **T011a**: **Preprocessing & Power Calculation**.
+  - Download OSF dataset (streaming if >100MB).
+  - Filter rows with missing `year`, `effect_size`, or `sample_size`. Log warnings.
+  - Calculate `power_estimate` using FR-001 formulas.
+  - **Generate `data/derived/cleaned_data.csv`**: Output the cleaned dataset with the `power_estimate` column.
+  - Output: `data/derived/cleaned_data.csv`.
+- [ ] **T011b**: **Grouping Validation**.
+  - Check unique levels of `field` and `original_study_id`.
+  - Calculate variance of `power_estimate` per group. Flag groups with zero variance.
+  - Output: `data/derived/grouping_validation.json`.
+- [ ] **T011c**: **Residualization & Model Fitting**.
+  - Fit a pilot OLS model: `power_estimate ~ year + effect_size + sample_size` to capture the deterministic relationship.
+  - Calculate `power_residual = power_estimate - predicted_power` from this pilot model.
+  - **Generate `data/derived/residuals.csv`**: Contains `study_id`, `year`, `field`, `original_study_id`, `power_residual`.
+  - Fit the primary LMM: `power_residual ~ year + (1|field) + (1|original_study_id)`.
+  - **Conditional Step**: If T011b detected significant field composition shifts, refit with `+ field_proportion`.
+  - Output: `data/derived/residuals.csv`, `results/lmm_final_summary.json`.
+- [ ] **T011d**: **Data Schema Validation**.
+  - Verify presence of `year`, `effect_size`, `sample_size`, `field` in the downloaded dataset.
+  - Halt with error if columns are missing.
+  - Output: `data/derived/schema_validation.json`.
+- [ ] **T010**: **Pilot MDES Calculation**.
+  - Calculate Minimum Detectable Effect Size (MDES) for the `year` slope based on observed residual variance from T011c.
+  - Output: `results/pilot_mdes.json`.
+- [ ] **T032**: **State Update (Phase 1)**. Update `state.yaml` with hashes of `data/derived/` and `results/`.
 
-### Phase 2: Core Drift Analysis (LMM)
-- **T013**: Implement `fit_lmm()` to fit `power_est ~ year + effect_size + sample_size + (1|field)` (FR-002).
-- **T014**: Implement Likelihood-Ratio Test (LRT) comparing full model vs. reduced model (`power_est ~ effect_size + sample_size + (1|field)`) to test the `year` coefficient (FR-003).
-- **T015**: Generate `results/lmm_summary.json` with slope, SE, p-value, and confidence intervals.
-- **T016**: Generate `data/derived/residuals.csv` containing the residuals from the LMM (observed - predicted) for visualization.
+### Phase 2: Core Modeling (Consolidated with T011c)
+- [ ] **T012**: **Model Fitting Verification**.
+  - (Note: Primary fitting logic moved to T011c for artifact flow).
+  - Verify convergence of the LMM fitted in T011c.
+  - Extract fixed effects, random effects variance, and p-values.
+  - Output: `results/lmm_final_summary.json` (validated against `contracts/drift_model_output.schema.yaml`).
 
-### Phase 3: Robustness & Validation
-- **T020**: Implement `run_permutation_test` with a sufficient number of iterations to ensure robust statistical power. (fallback to [deferred] on timeout). Shuffle `year` labels or permute residuals to generate null distribution of the `year` slope (FR-004, FR-007).
-- **T021**: Generate `results/null_distribution.csv` with the permutation results.
-- **T022**: Implement `sensitivity_analysis()` sweeping alpha {0.05, 0.1} (FR-005).
-- **T023**: Generate `results/sensitivity_report.json`.
+### Phase 3: Robustness & Aggregation
+- [ ] **T020**: **Permutation Test (Year)**.
+  - Shuffle `year` labels [deferred] times. Refit the LMM (`power_residual ~ year`).
+  - Compare observed slope to null distribution.
+  - Output: `results/permutation_pvalue.json` (validated against `contracts/permutation_result.schema.yaml`).
+- [ ] **T021**: **Sensitivity Analysis**.
+  - Read `results/lmm_final_summary.json`.
+  - Sweep alpha {, 0.05, 0.1}.
+  - Output: `results/sensitivity_report.json` (validated against `contracts/sensitivity_report.schema.yaml`).
+- [ ] **T025**: **Field-Specific Stratification**.
+  - Fit LMM separately for each `field` using `power_residual ~ year`.
+  - Output: `results/field_slopes.csv` (validated against `contracts/field_slopes.schema.yaml`).
+- [ ] **T026**: **Cross-Field Aggregation**.
+  - Read `results/field_slopes.csv`.
+  - Apply DerSimonian-Laird to combine slopes.
+  - Output: `results/aggregated_drift.json` (validated against `contracts/aggregated_drift.schema.yaml`).
+- [ ] **T027**: **Input Permutation Framework**.
+  - Read `data/derived/cleaned_data.csv`.
+  - Shuffle `effect_size` and `sample_size` (holding `year` constant) to generate a null distribution of slopes.
+  - Compare observed slope to this distribution.
+  - Output: `results/input_permutation_summary.json` (validated against `contracts/permutation_result.schema.yaml`).
+- [ ] **T028**: **Non-Linearity Check**.
+  - Fit model with `ns(year, df=3)`. Compare AIC to linear model.
+  - Output: `results/nonlinearity_check.json`.
+- [ ] **T032**: **State Update (Phase 3)**. Update `state.yaml` with hashes of all robustness outputs.
 
-### Phase 4: Cross-Field Aggregation & Visualization
-- **T026**: Implement `aggregate_fields()` using DerSimonian-Laird on field-specific `year` slopes (FR-006).
-- **T027**: Generate `results/aggregated_drift.json`.
-- **T028**: Implement `generate_plots()` to visualize residual power vs. year (FR-009).
-- **T029**: Generate `results/power_drift_scatter.png`.
+### Phase 4: Visualization & Reporting
+- [ ] **T013**: **Visualization**.
+  - Read `data/derived/residuals.csv` and `results/lmm_final_summary.json`.
+  - Generate scatter plot of `power_residual` vs. `year` with fitted line and 95% CI.
+  - Output: `results/power_drift_plot.png`.
+- [ ] **T032**: **State Update (Phase 4)**. Update `state.yaml` with hash of `results/power_drift_plot.png`.
 
-### Phase 5: Reporting & Cleanup
-- **T030**: Generate final `results/final_report.md`.
-- **T035**: Run `ruff`/`black` for code cleanup and linting; ensure all tests pass.
+## Testing Strategy
 
-## Compute Feasibility
-
-- **CPU-First**: All statistical modeling (`statsmodels`), power calculations (`scipy`), and permutations (vectorized `numpy`) are CPU-tractable.
-- **Memory**: The dataset (a moderate number of rows) fits easily in 7GB RAM. Permutation tests will use streaming or chunked processing to avoid memory spikes.
-- **Runtime**: A large number of permutations on 2 cores may take several hours. The 6-hour CI limit is sufficient.
-- **No GPU Required**: No deep learning models are involved; all methods are classical statistics.
-
-## Risk Mitigation
-
-- **Missing Data**: Rows with missing critical fields are excluded. A summary count is written to the log.
-- **Zero Variance**: If a field has only one study, the random effect is collapsed to a fixed effect or the field is excluded from the mixed model.
-- **Outliers**: Effect sizes with infinite variance or sample sizes < 2 are capped or filtered.
-- **Permutation Timeout**: If the permutation loop exceeds a time threshold, it terminates early, flags the result as "approximate", and uses the available iterations.
-- **Winner's Curse Bias**: A sensitivity analysis will be performed to assess if the drift is driven by publication bias (significant vs. non-significant results).
+- **Unit Tests**: Validate power calculation formulas, MDES logic, and schema validation.
+- **Integration Tests**: Verify data flow from `data/raw` to `results/`.
+- **Schema Validation**: All JSON/CSV outputs (`lmm_final_summary.json`, `field_slopes.csv`, `input_permutation_summary.json`, etc.) are validated against their respective schemas in `contracts/` before being accepted as final outputs.
+- **Reproducibility**: Run pipeline on a fresh runner; verify `state.yaml` hashes match.

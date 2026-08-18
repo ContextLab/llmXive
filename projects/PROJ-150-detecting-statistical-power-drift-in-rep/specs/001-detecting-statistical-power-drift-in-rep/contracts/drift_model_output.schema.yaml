@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: DriftModelOutput
+description: Schema for the output of the Linear Mixed-Effects Model fitting the power drift.
+type: object
+properties:
+  slope_year:
+    type: number
+    description: Fixed effect coefficient for the year variable.
+  se_slope:
+    type: number
+    description: Standard error of the year slope.
+  p_value_parametric:
+    type: number
+    description: p-value from the likelihood-ratio test or Wald test for the year effect.
+    minimum: 0.0
+    maximum: 1.0
+  random_effects_variance:
+    type: object
+    description: Variance components for random effects.
+    properties:
+      field:
+        type: number
+        description: Variance of the random intercept for field.
+      original_study_id:
+        type: number
+        description: Variance of the random intercept for original_study_id.
+    required:
+      - field
+      - original_study_id
+  model_formula:
+    type: string
+    description: The R-style formula used for the model.
+required:
+  - slope_year
+  - se_slope
+  - p_value_parametric
+  - random_effects_variance
+  - model_formula
+additionalProperties: false

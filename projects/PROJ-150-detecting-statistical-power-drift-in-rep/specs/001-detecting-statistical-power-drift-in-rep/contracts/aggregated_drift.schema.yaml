@@ -1,0 +1,24 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AggregatedDrift
+description: Schema for the cross-field aggregated drift estimate.
+type: object
+properties:
+  aggregated_slope:
+    type: number
+    description: The combined drift slope across fields.
+  aggregated_se:
+    type: number
+    description: Standard error of the aggregated slope.
+  heterogeneity_statistic:
+    type: number
+    description: Statistic measuring heterogeneity between fields (e.g., I-squared or Q).
+  method:
+    type: string
+    description: The aggregation method used.
+    const: DerSimonian-Laird
+required:
+  - aggregated_slope
+  - aggregated_se
+  - heterogeneity_statistic
+  - method
+additionalProperties: false

@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PermutationResult
+description: Schema for the output of the non-parametric permutation test.
+type: object
+properties:
+  iterations_run:
+    type: integer
+    description: Number of permutations actually executed.
+    minimum: 1
+  observed_statistic:
+    type: number
+    description: The observed slope from the real data.
+  null_distribution:
+    type: array
+    description: The distribution of slopes from permuted data.
+    items:
+      type: number
+  empirical_p_value:
+    type: number
+    description: Proportion of null statistics >= observed statistic.
+    minimum: 0.0
+    maximum: 1.0
+  status:
+    type: string
+    description: Status of the test execution.
+    enum:
+      - complete
+      - approximate
+required:
+  - iterations_run
+  - observed_statistic
+  - empirical_p_value
+  - status
+additionalProperties: false

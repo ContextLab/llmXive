@@ -1,70 +1,123 @@
 # Data Model: Detecting Statistical Power Drift in Replicated Studies
 
-## 1. Entity Definitions
+## Entities
 
 ### ReplicationStudy
-Represents a single replication event from the source dataset.
-- `study_id`: Unique identifier (string)
-- `year`: Calendar year of publication (integer)
-- `field`: Discipline field (string, e.g., "Psychology", "Economics")
-- `original_study_id`: ID of the original study being replicated (string)
-- `effect_size`: Reported effect size (float, Cohen's *d* or log-odds)
-- `sample_size`: Total sample size (integer)
-- `power_estimate`: Calculated post-hoc power (float, 0.0 to 1.0)
-- `missing_flag`: Boolean indicating if data was incomplete for calculation
+Represents a single replication event in the dataset.
+- `study_id` (str): Unique identifier for the replication study.
+- `year` (int): Calendar year of the replication.
+- `field` (str): Discipline/field of the study (e.g., "Psychology", "Economics").
+- `original_study_id` (str): ID of the original study being replicated.
+- `effect_size` (float): Reported effect size (Cohen's *d* or log odds ratio).
+- `sample_size` (int): Total sample size of the replication.
+- `power_estimate` (float): Post-hoc power calculated using FR-001 formulas.
+- `power_residual` (float): Residual from the pilot model (observed - predicted).
 
-### DriftModelOutput
-Aggregated results from the trend analysis.
-- `slope_year`: The estimated drift coefficient (float) - **Primary Metric**
-- `se_slope`: Standard error of the slope (float)
-- `p_value_parametric`: P-value from the parametric Likelihood-Ratio Test (float)
-- `p_value_permutation`: Empirical p-value from permutation test (float)
-- `random_effects_variance`: Variance of the random intercepts (float)
-- `model_converged`: Boolean indicating if the LMM converged successfully (bool)
+### DriftModel
+Represents the output of the Linear Mixed-Effects Model.
+- `slope_year` (float): Fixed effect coefficient for `year`.
+- `se_slope` (float): Standard error of the slope.
+- `p_value_parametric` (float): p-value from the likelihood-ratio test or Wald test.
+- `random_effects_variance` (dict): Variance components for `field` and `original_study_id`.
+- `model_formula` (str): The R-style formula used (e.g., "power_residual ~ year + (1|field) + (1|original_study_id)").
 
 ### SensitivityResult
-Results from the alpha threshold sweep.
-- `alpha_value`: The threshold used (float)
-- `drift_significant`: Boolean indicating significance at this threshold (bool)
-- `false_positive_rate`: Estimated FPR at this threshold (float)
+Represents the outcome of the alpha threshold sweep.
+- `alpha_value` (float): The significance threshold tested (e.g., 0.01, 0.05, 0.1).
+- `drift_significant` (bool): Whether the drift slope was significant at this alpha.
+- `p_value` (float): The p-value for the slope at this alpha.
 
-### ResidualPower
-Per-study residuals from the LMM.
-- `study_id`: Unique identifier (string)
-- `year`: Calendar year (integer)
-- `residual_power`: Observed power minus predicted power from the model without `year` (float)
+### PermutationResult
+Represents the output of the non-parametric permutation test.
+- `iterations_run` (int): Number of permutations actually executed.
+- `observed_statistic` (float): The observed slope from the real data.
+- `null_distribution` (list[float]): The distribution of slopes from permuted data.
+- `empirical_p_value` (float): Proportion of null statistics >= observed statistic.
+- `status` (str): "complete" or "approximate" (if fallback triggered).
 
-## 2. Data Flow Diagram
+## File Formats
 
-```mermaid
-graph TD
-    A[Raw OSF Data] -->|Download & Clean| B(Preprocessed CSV)
-    B -->|Power Calc| C[Power Estimates CSV]
-    C -->|LMM Fit| D[LMM Summary JSON]
-    C -->|Residual Calc| E[Residual Power CSV]
-    D -->|Permutation| F[Null Distribution CSV]
-    D -->|Aggregation| G[Final Drift Report JSON]
-    E -->|Visualization| H[Plots & Figures]
-    F -->|Validation| G
-    G -->|Visualization| I[Summary Report]
-```
+### Input: `data/raw/osf_replications.parquet`
+- **Format**: Apache Parquet
+- **Schema**:
+  - `study_id`: string
+  - `year`: int32
+  - `field`: string
+  - `original_study_id`: string
+  - `effect_size`: float64
+  - `sample_size`: int32
 
-## 3. Processing Logic
+### Derived: `data/derived/cleaned_data.csv`
+- **Format**: CSV
+- **Schema**: Same as input, plus `power_estimate`. Rows with missing `year`, `effect_size`, or `sample_size` are removed.
 
-1.  **Ingestion**: Load raw data from HuggingFace. Filter rows with missing `year`, `effect_size`, or `sample_size`. Log warnings for dropped rows.
-2.  **Power Calculation**: Apply the non-central t-distribution formula to every valid row. Store in `data/derived/power_estimates.csv`.
-3.  **Trend Modeling**:
-    - Fit LMM: `power_est ~ year + effect_size + sample_size + (1|field)`.
-    - Extract `year` coefficient ($\beta_1$) and perform LRT.
-4.  **Residual Calculation**: Calculate residuals from the LMM (observed - predicted) for visualization.
-5. **Permutation**: Shuffle `year` labels (or permute residuals) [deferred] times, re-fit the model (or re-calculate slope) for each shuffle, and build a null distribution.
-6.  **Aggregation**: If multiple fields exist, apply DerSimonian-Laird weighting to combine field-specific `year` slopes.
-7.  **Output**: Generate final JSON report and visualization artifacts.
+### Derived: `data/derived/residuals.csv`
+- **Format**: CSV
+- **Schema**:
+  - `study_id`: string
+  - `year`: int32
+  - `field`: string
+  - `original_study_id`: string
+  - `power_residual`: float64
+  - `predicted_power`: float64
 
-## 4. Error Handling
+### Output: `results/lmm_final_summary.json`
+- **Format**: JSON
+- **Schema**:
+  ```json
+  {
+    "slope_year": 0.0012,
+    "se_slope": 0.0005,
+    "p_value_parametric": 0.015,
+    "random_effects_variance": {
+      "field": 0.02,
+      "original_study_id": 0.005
+    },
+    "model_formula": "power_residual ~ year + (1|field) + (1|original_study_id)"
+  }
+  ```
 
--   **Missing Data**: Rows with missing critical fields are excluded. A summary count is written to the log.
--   **Zero Variance**: If a field has only one study, the random effect is collapsed to a fixed effect or the field is excluded from the mixed model.
--   **Outliers**: Effect sizes with infinite variance or sample sizes < 2 are capped or filtered.
--   **Permutation Timeout**: If the permutation loop exceeds a time threshold, it terminates early, flags the result as "approximate", and uses the available iterations.
--   **Convergence Failure**: If the LMM fails to converge, the model will be re-fitted with simplified random effects (e.g., removing `original_study_id` if present) or excluded.
+### Output: `results/permutation_pvalue.json`
+- **Format**: JSON
+- **Schema**:
+  ```json
+  {
+    "iterations_run": 10000,
+    "observed_statistic": -0.002,
+    "empirical_p_value": 0.03,
+    "status": "complete"
+  }
+  ```
+
+### Output: `results/sensitivity_report.json`
+- **Format**: JSON
+- **Schema**:
+  ```json
+  {
+    "sweep_results": [
+      {"alpha_value": 0.01, "drift_significant": false, "p_value": 0.04},
+      {"alpha_value": 0.05, "drift_significant": true, "p_value": 0.015},
+      {"alpha_value": 0.1, "drift_significant": true, "p_value": 0.015}
+    ]
+  }
+  ```
+
+### Output: `results/aggregated_drift.json`
+- **Format**: JSON
+- **Schema**:
+  ```json
+  {
+    "aggregated_slope": -0.0018,
+    "aggregated_se": 0.0006,
+    "heterogeneity_statistic": 12.5,
+    "method": "DerSimonian-Laird"
+  }
+  ```
+
+## Data Flow
+
+1.  **Ingestion**: `data/raw/osf_replications.parquet` -> `code/preprocess.py` -> `data/derived/cleaned_data.csv` (with `power_estimate` column).
+2.  **Residualization**: `data/derived/cleaned_data.csv` -> `code/models.py` -> `data/derived/residuals.csv` (with `power_residual` column).
+3.  **Modeling**: `data/derived/residuals.csv` -> `code/models.py` -> `results/lmm_final_summary.json`.
+4.  **Robustness**: `results/lmm_final_summary.json` + `data/derived/cleaned_data.csv` -> `code/robustness.py` -> `results/permutation_pvalue.json`, `results/sensitivity_report.json`, `results/aggregated_drift.json`.
+5.  **Visualization**: `data/derived/residuals.csv` + `results/lmm_final_summary.json` -> `code/visualize.py` -> `results/power_drift_plot.png`.
