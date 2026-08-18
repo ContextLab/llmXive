@@ -12,12 +12,6 @@ T016:
   r: The repository contains a `code/data/preprocess.py` script, but the required
     output file `data/processed/features.csv` is absent, so the primary artifact the
     task demands does not exist. The task is therefore not fully satisfied.
-T018:
-  c: false
-  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
-  r: "The required artifact `data/processed/features.csv` does not exist, so the assertion\
-    \ cannot be run and the null\u2011check cannot be verified. The task therefore\
-    \ remains unfinished."
 T019:
   c: false
   h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
@@ -25,17 +19,20 @@ T019:
     \ is no way to check for nulls in the `decomposition_energy` column. The implementer\
     \ must provide the CSV file (non\u2011empty) and confirm that the specified column\
     \ contains zero null values."
-T020:
+T020a:
   c: false
-  h: 402367fbb946bb35a975007038f9335946989877ec9be7bbe3d1bb523ef02424
-  r: "The provided `code/models/train.py` is incomplete \u2013 the shown excerpt stops\
-    \ mid\u2011function and never includes the GridSearchCV hyperparameter search,\
-    \ model re\u2011training, test\u2011set evaluation, RMSE logging, permutation\u2011\
-    importance analysis, or the saving of `model.pkl`, `metrics.json` (with the required\
-    \ `dft_functional: PBE` field), and `feature-importance.png`. Consequently the\
-    \ script does not demonstrably fulfill steps\u202F(3)\u2013(9) of the task. The\
-    \ required input CSV and output files are also absent. The next implementer must\
-    \ finish the script to perform the full training pipeline and ensure the specif"
+  h: 2a623eb86df46c1bb9f3489b96f2257d84942797490d8e2c682ea1fcc0ecaafb
+  r: "The provided test fixture creates a temporary `features.csv` inside a temporary\
+    \ `data/processed` directory, not the required `data/sample_features.csv`. Moreover,\
+    \ the file `data/sample_features.csv` is absent from the repository. The task\u2019\
+    s specification is not met."
+T020c:
+  c: false
+  h: 1e5913fa4a49c57f9625664dc530c0a33ec6466de912adc734dbb6045a40af9c
+  r: The required artifact `results/metrics.json` does not exist on disk, so the unit
+    test cannot verify the presence of the file nor the `test_rmse` numeric key. The
+    implementer must create the file with a valid JSON object containing a numeric
+    `test_rmse` entry.
 T021:
   c: false
   h: a75d5600bbdb7c75f73907b24764be564f02a7b8cf81c8e920d979aba669b653

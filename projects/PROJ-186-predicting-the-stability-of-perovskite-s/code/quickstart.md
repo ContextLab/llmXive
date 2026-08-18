@@ -1,59 +1,74 @@
 # Quickstart Guide
 
-This guide outlines the steps to run the full pipeline end-to-end.
-Ensure you are in the project root directory.
+This guide outlines the steps to run the full pipeline and verify artifacts.
 
 ## Prerequisites
 - Python 3.11+
-- Virtual environment activated (`.venv/bin/activate`)
+- Virtual environment activated
 - Dependencies installed (`pip install -r requirements.txt`)
 
 ## Execution Steps
 
-1. **Data Ingestion & Descriptor Generation**
+1. **Data Download**
+ Fetches real data from Materials Project and OQMD.
  ```bash
  python code/data/download.py
+ ```
+ *Output: `data/raw/mp_oqmd_combined.json` (or similar raw format)*
+
+2. **Descriptor Calculation**
+ Calculates physical descriptors (tolerance factor, octahedral factor, etc.).
+ ```bash
  python code/data/descriptors.py
  ```
+ *Output: `data/raw/descriptors_calculated.csv`*
 
-2. **Data Preprocessing**
+3. **Preprocessing**
+ Cleans data, handles nulls, and saves the final features dataset.
  ```bash
  python code/data/preprocess.py
  ```
- *This step generates `data/processed/features.csv`.*
+ *Output: `data/processed/features.csv`*
 
-3. **Model Training**
+4. **Verification (T018)**
+ Verifies that `decomposition_energy` has zero nulls.
+ ```bash
+ python code/data/verify_nulls.py
+ ```
+ *Output: Console assertion result, logs to `logs/pipeline.log`*
+
+5. **Model Training**
+ Trains the RandomForest model with grid search.
  ```bash
  python code/models/train.py
  ```
+ *Output: `results/model.pkl`, `results/metrics.json`, `results/feature-importance.png`*
 
-4. **Virtual Screening**
+6. **Virtual Screening**
+ Generates hypothetical library and predicts stability.
  ```bash
  python code/data/generate_library.py
  python code/models/predict.py
  python code/models/screening_full.py
+ ```
+ *Output: `data/processed/hypothetical_library.csv`, `results/screening_full.csv`*
+
+7. **Report Generation**
+ Generates the markdown report of top candidates.
+ ```bash
  python code/models/generate_candidates_report.py
  ```
+ *Output: `results/screening_candidates.md`*
 
-5. **Visualization**
+8. **Visualization**
+ Generates plots.
  ```bash
  python code/viz/plot.py
  ```
+ *Output: `results/predicted-vs-true.png`*
 
-6. **Validation**
- ```bash
- python code/quickstart_validate.py
- ```
-
-## Expected Artifacts
-- `data/processed/features.csv`
-- `results/model.pkl`
-- `results/metrics.json`
-- `results/screening_candidates.md`
-- `figures/predicted-vs-true.png`
-- `figures/feature-importance.png`
-
-## Troubleshooting
-- If `ModuleNotFoundError` occurs, ensure dependencies are installed.
-- If `FileNotFoundError` occurs for `raw_features.csv`, ensure `download.py` and `descriptors.py` ran successfully.
-- Check `logs/pipeline.log` for detailed error messages and exclusion reasons.
+## Validation
+Run the final validation script to ensure all artifacts are present and valid.
+```bash
+python code/quickstart_validate.py
+```

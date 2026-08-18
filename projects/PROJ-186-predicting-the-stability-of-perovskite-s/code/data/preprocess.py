@@ -6,7 +6,7 @@ This script performs the following steps:
 2. Validates the schema against `specs/001-predicting-the-stability-of-perovskite-s/contracts/data-schema.yaml`.
 3. Cleans data:
    - Drops rows where `decomposition_energy` is null.
-   - Drops rows where ANY feature column (`tolerance_factor`, `octahedral_factor`, 
+   - Drops rows where ANY feature column (`tolerance_factor`, `octahedral_factor`,
      `ionic_radius_mismatch`, `electronegativity_diff`) is null.
 4. Logs excluded rows to `logs/pipeline.log`.
 5. Saves the cleaned dataframe to `data/processed/features.csv`.

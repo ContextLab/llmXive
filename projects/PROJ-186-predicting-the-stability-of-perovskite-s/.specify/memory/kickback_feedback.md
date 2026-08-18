@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T017` (rejected 1x): The repository contains `code/data/preprocess.py` implementing the cleaning logic, but the required output file `data/processed/features.csv` does not exist. Without this CSV artifact, the task’s primary deliverable is missing.
+- `T017` (rejected 1x): The repository contains `code/data/preprocess.py`, but the required output file `data/processed/features.csv` is missing; without this CSV the verification step cannot succeed. The implementer must generate and commit the cleaned `features.csv` (or provide a way to produce it) so the task’s artifact exists.
+- `T018` (rejected 1x): The required artifact `data/processed/features.csv` does not exist, so the assertion cannot be run and the null‑check cannot be verified. The task therefore remains unfinished.
 
 ## Required change
 
