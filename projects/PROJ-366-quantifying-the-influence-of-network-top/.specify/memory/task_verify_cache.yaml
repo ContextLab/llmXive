@@ -1,11 +1,38 @@
-T007:
+T013a:
   c: false
-  h: 1ab016e3679f2ba5b623bfe10ddb425c4858f0e33e82c84722bee54a1b84e35e
-  r: The `code/ingest/validators.py` file exists and implements loading/validation
-    logic, but the required schema files (`contracts/thermal_sample.schema.yaml`,
-    `contracts/atomic_graph.schema.yaml`, `contracts/gnn_output.schema.yaml`) are
-    absent from the repository. Without these schemas the loader cannot function,
-    so the task is not fully satisfied.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the ten pre\u2011equilibrated amorphous silicon configurations\
+    \ is present\u2014no files, directories, or data listings were provided. Consequently\
+    \ the required artifact (N\u202F=\u202F10 ready\u2011to\u2011use samples) is missing,\
+    \ so the claim cannot be verified as fulfilled."
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script output, log file, or report) was provided that shows\
+    \ the ingestion module was run on ten samples, nor any evidence that the resulting\
+    \ graphs contain the correct number of nodes and valid edges. Without such data\
+    \ the claim that the sample count and validity for N\u202F=\u202F10 have been\
+    \ verified cannot be confirmed."
+T015a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or code were found in `data/processed/graphs/` (or elsewhere) that serialize
+    the constructed atomic graphs as Pickle or Parquet files, nor any implementation
+    that writes such files. The required artifact is missing, so the task is not satisfied.
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, workflow description, log files, or result data for running Green\u2011\
+    Kubo simulations on the ten samples are present. The claim lacks any tangible\
+    \ artifact demonstrating that batch execution was orchestrated and completed for\
+    \ all N\u202F=\u202F10 configurations."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the convergence detection logic\
+    \ (relative change in heat current autocorrelation <\u202F1\u202F% in the last\
+    \ portion of the trajectory) was provided. The required artifact is missing, so\
+    \ the task is not satisfied."
 T025b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

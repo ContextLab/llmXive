@@ -1,3 +1,4 @@
+# Existing dependencies
 numpy
 scipy
 pandas
@@ -8,4 +9,9 @@ statsmodels
 scikit-learn
 pyyaml
 pytest
-shap
+jsonschema
+
+# New dependencies for T013a
+# ase-lammps is part of ase, but we need to ensure ase is recent enough
+# LAMMPS itself is an external binary, not a pip package.
+# We assume the user has LAMMPS installed.

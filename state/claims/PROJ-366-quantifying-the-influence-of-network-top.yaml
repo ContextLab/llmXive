@@ -358,3 +358,198 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T15:29:36Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: generate 10 pre-equilibrated amorphous silicon samples
+  claim_id: c_f8cab394
+  context: 'T013a [US1] NEW: Generate N=10 pre-equilibrated amorphous silicon samples.
+    Action: Use code/ingest/sample_generator.py to generate 10 independent supercells.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=10 pre-equilibrated amorphous silicon samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T15:53:45Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: 10 supercells with at least 1000 atoms each
+  claim_id: c_ab45f24f
+  context: "Action: Use code/ingest/sample_generator.py to generate 10 independent\
+    \ supercells (\u22651000 atoms each) using ASE + LAMMPS."
+  evidence:
+    candidates:
+    - - Look for 10 supercells with at least
+      - 1000.0
+    - - Donate Create account Log in
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/10_supercells_with_at_least_1000_atoms_each
+  kind: magnitude
+  raw_text: Generate 10 independent supercells with at least 1000 atoms each.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-18T15:54:10Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: 3.0 Angstrom bond cutoff for atomic graph construction
+  claim_id: c_5978a104
+  context: "T012 [US1] Implement code/ingest/graph_builder.py to load XYZ files and\
+    \ construct AtomicGraph objects using ase with 3.0 \xC5 cutoff."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Construct atomic graphs using a 3.0 \xC5 cutoff."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T15:54:32Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Green-Kubo simulation using 2 CPU cores
+  claim_id: c_6dea7cf3
+  context: "Independent Test: Process a single sample, extract metrics, run Green-Kubo\
+    \ (2 cores, \u226412h)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run Green-Kubo simulations using 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T15:54:54Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Green-Kubo simulation duration limit of 12 hours
+  claim_id: c_d162e75e
+  context: "Independent Test: Process a single sample, extract metrics, run Green-Kubo\
+    \ (2 cores, \u226412h), verify conductivity falls within literature range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run Green-Kubo simulations within a maximum duration of 12 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T15:55:09Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Green-Kubo convergence threshold of 1% relative change
+  claim_id: c_9679dfff
+  context: T020 [P] [US2] Integration test for Green-Kubo convergence check (relative
+    change < 1%) in tests/integration/test_pipeline.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Green-Kubo_convergence_threshold_of_1%25_relative_change
+  kind: magnitude
+  raw_text: Verify Green-Kubo convergence with a relative change of less than 1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T15:55:57Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: outlier detection threshold of 15% atoms with coordination <3 or >6
+  claim_id: c_b50d601b
+  context: T024 [US2] Implement outlier detection for extreme topological defects
+    (>15% atoms with coord <3 or >6).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/outlier_detection_threshold_of_15%25_atoms_with_coordination_%3C
+  kind: magnitude
+  raw_text: Detect outlier defects if more than 15% of atoms have a coordination number
+    less than 3 or greater than 6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T15:56:53Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: 2-layer GNN with fewer than 1 million parameters
+  claim_id: c_408e7247
+  context: T030 [US3] Implement code/model/gnn.py (2-layer GNN, <1M params) to predict
+    local heat flux from atomic graph features.
+  evidence:
+    candidates:
+    - - Donate Create account Log in
+      - 2.0
+    - - GNN with fewer than
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/2-layer_GNN_with_fewer_than_1_million_parameters
+  kind: magnitude
+  raw_text: Use a 2-layer GNN with fewer than 1 million parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-18T15:57:40Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: model convergence criteria of 1e-4 loss change over 5 epochs
+  claim_id: c_b1ac5d67
+  context: T031 [US3] Implement code/model/trainer.py with convergence check (loss
+    change <1e-4 for 5 epochs) and comparison against linear regression baseline.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_convergence_criteria_of_1e-4_loss_change_over_5_epochs
+  kind: magnitude
+  raw_text: Check model convergence if loss change is less than 1e-4 for 5 epochs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T15:58:05Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: minimum sample size of 10 for statistical power
+  claim_id: c_65bf4e2c
+  context: "Independent Test: Train on N samples (N\u226510 for Spec statistical power);\
+    \ verify model converges, and correlation results are generated."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure a minimum sample size of N=10 for statistical power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T15:58:31Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: full integration test duration limit of 6 hours
+  claim_id: c_e7c39f59
+  context: T048 Run full integration test on representative samples to verify end-to-end
+    pipeline within 6-hour limit (SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Complete the full integration test within a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T15:58:45Z'

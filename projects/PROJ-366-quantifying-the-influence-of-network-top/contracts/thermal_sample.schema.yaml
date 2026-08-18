@@ -1,48 +1,61 @@
-# Thermal Sample Schema
-# Defines the structure for thermal conductivity samples
-# Used by T007 and T025
-
+$schema: http://json-schema.org/draft-07/schema#
+title: ThermalSample
+description: >
+  Schema for a thermal conductivity sample resulting from Green-Kubo simulation.
+  Validates the output of the simulation stage (T022) and serves as input for
+  statistical analysis (T033a, T034).
 type: object
 required:
   - graph_id
   - conductivity
   - converged
   - metadata
-
 properties:
   graph_id:
     type: string
-    description: Unique identifier for the source graph
-    pattern: "^sample_\\d+$"
-
+    description: Unique identifier linking this sample to its atomic graph (e.g., 'sample_01').
+    pattern: "^sample_[0-9]+$"
   conductivity:
     type: number
-    description: Thermal conductivity in W/(m·K)
+    description: >
+      Calculated thermal conductivity in W/(m·K).
+      Expected range for amorphous silicon: ~1.0 to 3.0 W/(m·K).
     minimum: 0.0
-    maximum: 100.0
-
   converged:
     type: boolean
-    description: Whether the Green-Kubo simulation converged
-
+    description: >
+      Indicates whether the Green-Kubo heat current autocorrelation function
+      has converged (relative change < 1% in the final segment).
   metadata:
     type: object
-    description: Additional metadata about the sample
+    description: Additional simulation parameters and diagnostics.
+    required:
+      - simulation_time_ps
+      - thermostat_type
+      - potential_file
+      - temperature_K
     properties:
-      atoms:
-        type: integer
-        minimum: 1
-      temperature:
+      simulation_time_ps:
         type: number
-        minimum: 0.0
-      cutoff:
-        type: number
-        minimum: 0.0
-      simulation_time:
-        type: number
-        minimum: 0.0
-      reason:
+        description: Total simulation time in picoseconds.
+      thermostat_type:
         type: string
-        description: Reason for non-convergence if applicable
-
+        description: Type of thermostat used (e.g., 'nose-hoover', 'berendsen').
+      potential_file:
+        type: string
+        description: Path or name of the potential file used (e.g., 'Si.sw').
+      temperature_K:
+        type: number
+        description: Target temperature in Kelvin.
+      hcacf_samples:
+        type: integer
+        description: Number of samples collected for heat current autocorrelation.
+      voronoi_volume_mean:
+        type: number
+        description: Mean Voronoi volume per atom (optional confounder).
+        nullable: true
+      impurity_fraction:
+        type: number
+        description: Fraction of impurity atoms (optional confounder).
+        nullable: true
 additionalProperties: false

@@ -64,7 +64,7 @@ projects/PROJ-366-quantifying-the-influence-of-network-top/
 │   ├── config.py               # Seeds, paths, hyperparameters
 │   ├── ingest/
 │   │   ├── __init__.py
-│   │   ├── graph_builder.py    # FR-001: XYZ -> AtomicGraph (3.0 Å cutoff) using ase
+│   │   ├── graph_builder.py    # FR-001: XYZ -> AtomicGraph (Å cutoff) using ase
 │   │   └── sample_generator.py # Generates/loads pre-equilibrated samples (if available)
 │   ├── simulation/
 │   │   ├── __init__.py

@@ -1,205 +1,235 @@
-"""
-Convergence detection logic for Green-Kubo simulations.
-
-This module implements the logic to detect convergence of the heat current
-autocorrelation function (HCACF) by checking the relative change in the
-final segment of the simulation data.
-
-Convergence Criterion:
-The simulation is considered converged if the relative change in the
-integrated HCACF (thermal conductivity estimate) over the final segment
-is less than 1%.
-"""
-
 import json
 import logging
 import pickle
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
-
 from config import get_config, get_paths
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-def calculate_hcacf_relative_change(hcacf_data: np.ndarray, window_fraction: float = 0.2) -> float:
+def calculate_hcacf_relative_change(hcacf: np.ndarray, window_fraction: float = 0.2) -> float:
     """
-    Calculate the relative change in the integrated HCACF over the final segment.
+    Calculate the relative change in the Heat Current Autocorrelation Function (HCACF)
+    over the final segment of the trajectory.
+
+    Definition: 'Final segment' is the last `window_fraction` (e.g., 20%) of the trajectory steps.
+    Metric: Relative change = |mean(last_segment) - mean(first_half_of_last_segment)| / |mean(last_segment)|
 
     Args:
-        hcacf_data: Array of HCACF values (typically the integrated values or the raw data
-                    from which the integral is computed).
-        window_fraction: Fraction of the total data points to use for the final segment check.
+        hcacf: 1D numpy array of HCACF values.
+        window_fraction: Fraction of the trajectory to consider as the 'final segment'.
 
     Returns:
-        The relative change (absolute value) between the mean of the final segment
-        and the mean of the preceding segment.
+        float: The calculated relative change. Returns 0.0 if the array is too short.
     """
-    if len(hcacf_data) < 10:
-        logger.warning("HCACF data too short for convergence check. Returning large change.")
-        return 1.0  # Force non-convergence
+    if len(hcacf) < 4:
+        logger.warning("HCACF array too short to calculate convergence.")
+        return 0.0
 
-    n_points = len(hcacf_data)
-    window_size = max(1, int(n_points * window_fraction))
+    n_points = len(hcacf)
+    segment_size = int(n_points * window_fraction)
 
-    # Define the final segment and the segment immediately preceding it
-    final_segment = hcacf_data[-window_size:]
-    prev_segment = hcacf_data[-(window_size * 2):-window_size]
+    if segment_size < 2:
+        logger.warning("Final segment size too small (< 2 points) for relative change calculation.")
+        return 0.0
 
-    if len(prev_segment) == 0:
-        logger.warning("Not enough data points for a preceding segment.")
-        return 1.0
+    final_segment = hcacf[-segment_size:]
+    
+    # Split the final segment into two halves to measure change
+    half_segment_size = segment_size // 2
+    if half_segment_size == 0:
+       half_segment_size = 1
+    
+    first_half = final_segment[:half_segment_size]
+    second_half = final_segment[half_segment_size:]
 
-    # Calculate the mean of the integrated values (or the values themselves if already integrated)
-    # Assuming hcacf_data represents the running integral of the autocorrelation (thermal conductivity estimate)
-    # If it's raw autocorrelation, we would integrate it here, but typically post_process_hcacf
-    # returns the running integral.
-    mean_final = np.mean(final_segment)
-    mean_prev = np.mean(prev_segment)
+    mean_first = np.mean(first_half)
+    mean_second = np.mean(second_half)
 
-    if abs(mean_prev) < 1e-12:
-        # Avoid division by zero if the previous value is effectively zero
-        return 1.0 if abs(mean_final) > 1e-12 else 0.0
+    # Avoid division by zero if the signal is flat near zero
+    denominator = np.abs(mean_second)
+    if denominator < 1e-12:
+        return 0.0
 
-    relative_change = abs(mean_final - mean_prev) / abs(mean_prev)
+    relative_change = np.abs(mean_second - mean_first) / denominator
     return relative_change
 
 def check_convergence(relative_change: float, threshold: float = 0.01) -> bool:
     """
-    Check if the relative change is below the convergence threshold.
+    Check if the relative change is below the convergence threshold (1%).
 
     Args:
-        relative_change: The calculated relative change in the HCACF integral.
-        threshold: The threshold for convergence (default 1% or 0.01).
+        relative_change: The calculated relative change.
+        threshold: The threshold for convergence (default 0.01 for 1%).
 
     Returns:
-        True if converged (relative_change < threshold), False otherwise.
+        bool: True if converged, False otherwise.
     """
     return relative_change < threshold
 
-def update_thermal_sample_metadata(thermal_sample: Dict[str, Any], is_converged: bool, relative_change: float) -> Dict[str, Any]:
+def update_thermal_sample_metadata(sample_data: Dict[str, Any], is_converged: bool, relative_change: float) -> Dict[str, Any]:
     """
-    Update the thermal sample metadata with convergence status.
+    Update the thermal sample dictionary with convergence status and metrics.
 
     Args:
-        thermal_sample: The dictionary representing the ThermalSample object.
-        is_converged: Boolean indicating if the simulation converged.
+        sample_data: The dictionary containing sample data.
+        is_converged: Boolean result of convergence check.
         relative_change: The calculated relative change value.
 
     Returns:
-        The updated thermal sample dictionary.
+        Dict[str, Any]: Updated sample data.
     """
-    if 'metadata' not in thermal_sample:
-        thermal_sample['metadata'] = {}
+    if 'metadata' not in sample_data:
+        sample_data['metadata'] = {}
+    
+    sample_data['metadata']['convergence_status'] = is_converged
+    sample_data['metadata']['convergence_relative_change'] = float(relative_change)
+    
+    # Update top-level converged flag if present
+    if 'converged' in sample_data:
+        sample_data['converged'] = is_converged
+        
+    return sample_data
 
-    thermal_sample['metadata']['converged'] = is_converged
-    thermal_sample['metadata']['convergence_relative_change'] = float(relative_change)
-    thermal_sample['converged'] = is_converged  # Also set at top level as per schema requirement
-
-    return thermal_sample
-
-def process_convergence_for_sample(sample_path: Path, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def process_convergence_for_sample(sample_id: str, hcacf_path: Optional[Path] = None, hcacf_data: Optional[np.ndarray] = None) -> Tuple[str, bool, float]:
     """
-    Process a single thermal sample file to check convergence.
-
+    Process a single sample to determine convergence.
+    
     Args:
-        sample_path: Path to the serialized ThermalSample file (pickle).
-        config: Configuration dictionary containing convergence parameters.
-
+        sample_id: Identifier for the sample.
+        hcacf_path: Path to the HCACF data file (if available).
+        hcacf_data: Direct numpy array of HCACF data (if available).
+    
     Returns:
-        The updated thermal sample dictionary if successful, None otherwise.
+        Tuple of (sample_id, is_converged, relative_change).
     """
-    try:
-        with open(sample_path, 'rb') as f:
-            thermal_sample = pickle.load(f)
+    config = get_config()
+    threshold = config.get('simulation', {}).get('convergence_threshold', 0.01)
+    window_fraction = config.get('simulation', {}).get('convergence_window_fraction', 0.2)
+    
+    hcacf = None
+    
+    if hcacf_data is not None:
+        hcacf = hcacf_data
+    elif hcacf_path and hcacf_path.exists():
+        try:
+            # Try loading as pickle or numpy
+            if hcacf_path.suffix == '.npy':
+                hcacf = np.load(hcacf_path)
+            elif hcacf_path.suffix == '.pkl':
+                with open(hcacf_path, 'rb') as f:
+                    data = pickle.load(f)
+                    # Handle if loaded data is a dict containing the array
+                    if isinstance(data, dict) and 'hcacf' in data:
+                        hcacf = data['hcacf']
+                    elif isinstance(data, np.ndarray):
+                        hcacf = data
+                    else:
+                        # Fallback: assume it's the array directly
+                        hcacf = np.array(data)
+            else:
+                logger.warning(f"Unknown HCACF file format for {sample_id}: {hcacf_path.suffix}")
+                return sample_id, False, 0.0
+        except Exception as e:
+            logger.error(f"Failed to load HCACF for {sample_id} from {hcacf_path}: {e}")
+            return sample_id, False, 0.0
+    else:
+        logger.warning(f"No HCACF data or path provided for {sample_id}. Assuming not converged.")
+        return sample_id, False, 0.0
 
-        # Extract HCACF data. This depends on how green_kubo.py stores it.
-        # Assuming it's stored under 'hcacf_data' or similar in the sample.
-        # If the green_kubo.py outputs the integrated values, use those directly.
-        # If it outputs raw HCACF, we need to integrate.
-        # Based on typical Green-Kubo implementation, we expect the running integral.
-        hcacf_data = thermal_sample.get('hcacf_data')
+    if hcacf is None or len(hcacf) == 0:
+        logger.error(f"Empty HCACF data for {sample_id}.")
+        return sample_id, False, 0.0
 
-        if hcacf_data is None:
-            logger.error(f"HCACF data not found in {sample_path}. Skipping convergence check.")
-            return None
-
-        # Convert to numpy array if it isn't already
-        hcacf_array = np.array(hcacf_data)
-
-        # Calculate relative change
-        window_fraction = config.get('convergence_window_fraction', 0.2)
-        relative_change = calculate_hcacf_relative_change(hcacf_array, window_fraction)
-
-        # Check convergence
-        threshold = config.get('convergence_threshold', 0.01)
-        is_converged = check_convergence(relative_change, threshold)
-
-        logger.info(f"Sample {sample_path.stem}: Relative change = {relative_change:.4f}, Converged = {is_converged}")
-
-        # Update metadata
-        updated_sample = update_thermal_sample_metadata(thermal_sample, is_converged, relative_change)
-
-        return updated_sample
-
-    except Exception as e:
-        logger.error(f"Error processing convergence for {sample_path}: {e}", exc_info=True)
-        return None
+    relative_change = calculate_hcacf_relative_change(hcacf, window_fraction)
+    is_converged = check_convergence(relative_change, threshold)
+    
+    logger.info(f"Sample {sample_id}: Relative change = {relative_change:.4f}, Converged = {is_converged}")
+    return sample_id, is_converged, relative_change
 
 def main():
     """
-    Main entry point to process all thermal samples for convergence.
-    Outputs:
-        data/processed/conductivities/convergence_status.json
+    Main entry point to process all thermal samples and write convergence status.
+    Reads from data/processed/conductivities/ (if serialized samples exist) or
+    expects HCACF files to be present.
     """
     config = get_config()
     paths = get_paths()
-
-    conductivities_dir = paths['processed_conductivities']
-    output_file = conductivities_dir / 'convergence_status.json'
-
-    if not conductivities_dir.exists():
-        logger.error(f"Conductivities directory not found: {conductivities_dir}")
-        return
-
-    # Find all pickle files in the directory
-    sample_files = list(conductivities_dir.glob('*.pkl')) + list(conductivities_dir.glob('*.pickle'))
-
+    output_dir = paths['data_processed_conductivities']
+    output_file = paths['data_processed_conductivities'].parent / 'convergence_status.json'
+    
+    # Ensure output directory exists
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Starting convergence detection for samples in {output_dir}")
+    
+    # Strategy: Look for existing thermal sample files (pkl) which might contain HCACF
+    # or look for explicit HCACF files if the pipeline structure changed.
+    # We will scan for .pkl files in the conductivities directory.
+    
+    sample_files = list(output_dir.glob("*.pkl"))
     if not sample_files:
-        logger.warning(f"No thermal sample files found in {conductivities_dir}")
-        # Create an empty status file if no samples exist
+        logger.warning(f"No .pkl files found in {output_dir}. Checking for .json files...")
+        sample_files = list(output_dir.glob("*.json"))
+    
+    convergence_results: Dict[str, bool] = {}
+    
+    if not sample_files:
+        logger.error(f"No sample files found in {output_dir}. Cannot determine convergence.")
+        # Write empty result to indicate failure to process
         with open(output_file, 'w') as f:
             json.dump({}, f, indent=2)
         return
 
-    convergence_status = {}
+    for file_path in sample_files:
+        sample_id = file_path.stem
+        try:
+            with open(file_path, 'rb') as f:
+                sample_data = pickle.load(f)
+            
+            # Attempt to extract HCACF from the sample data
+            # The structure depends on how green_kubo.py saves data.
+            # Assuming 'hcacf' key or similar.
+            hcacf_data = None
+            
+            if 'hcacf' in sample_data:
+                hcacf_data = np.array(sample_data['hcacf'])
+            elif 'metadata' in sample_data and 'hcacf' in sample_data['metadata']:
+                hcacf_data = np.array(sample_data['metadata']['hcacf'])
+            else:
+                # Check if it's a numpy file saved alongside
+                npy_path = file_path.with_suffix('.npy')
+                if npy_path.exists():
+                    hcacf_data = np.load(npy_path)
+                
+            if hcacf_data is None:
+                logger.warning(f"Could not find HCACF data in {file_path}. Marking as not converged.")
+                convergence_results[sample_id] = False
+                continue
+            
+            _, is_converged, _ = process_convergence_for_sample(sample_id, hcacf_data=hcacf_data)
+            convergence_results[sample_id] = is_converged
+            
+            # Optionally update the sample file with metadata (if writable)
+            # This is a side effect, but ensures the source of truth is updated
+            if 'metadata' not in sample_data:
+                sample_data['metadata'] = {}
+            sample_data['metadata']['convergence_status'] = is_converged
+            with open(file_path, 'wb') as f:
+                pickle.dump(sample_data, f)
+                
+        except Exception as e:
+            logger.error(f"Error processing {file_path}: {e}")
+            convergence_results[sample_id] = False
 
-    for sample_file in sample_files:
-        logger.info(f"Processing convergence for: {sample_file.name}")
-        updated_sample = process_convergence_for_sample(sample_file, config)
-
-        if updated_sample:
-            sample_id = updated_sample.get('graph_id', sample_file.stem)
-            converged = updated_sample.get('converged', False)
-            convergence_status[sample_id] = converged
-
-            # Save the updated sample back to disk with new metadata
-            with open(sample_file, 'wb') as f:
-                pickle.dump(updated_sample, f)
-            logger.info(f"Updated and saved {sample_file.name}")
-
-    # Write the summary status file
+    # Write the final status file
     with open(output_file, 'w') as f:
-        json.dump(convergence_status, f, indent=2)
-
+        json.dump(convergence_results, f, indent=2)
+    
     logger.info(f"Convergence status written to {output_file}")
-    logger.info(f"Total samples processed: {len(convergence_status)}")
-    logger.info(f"Converged samples: {sum(convergence_status.values())}")
+    logger.info(f"Results: {convergence_results}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

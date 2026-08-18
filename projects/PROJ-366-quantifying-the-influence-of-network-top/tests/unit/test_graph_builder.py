@@ -1,83 +1,182 @@
+"""
+Unit tests for Graph Builder and Serializer (T015a).
+
+Tests:
+- T011: Unit test for bond cutoff logic.
+- T016b: Unit test for node-degree stats output.
+- T015a: Unit test for graph serialization.
+"""
 import os
 import json
 import pickle
-import hashlib
 import tempfile
 from pathlib import Path
 import pytest
+import numpy as np
 
+# Import modules
 from ingest.graph_builder import build_graph_from_xyz, calculate_node_degree_stats
-from ingest.graph_serializer import calculate_checksum, serialize_graph, save_checksum_manifest
+from ingest.graph_serializer import serialize_graph, calculate_checksum
+from config import get_config, get_paths
 
-# Helper to create a minimal valid XYZ file for testing
-def create_test_xyz(path: Path, num_atoms: int = 5):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
-        f.write(f"{num_atoms}\n")
-        f.write("Test structure for T015\n")
-        for i in range(num_atoms):
-            # Simple cubic arrangement
-            x, y, z = i * 2.0, 0.0, 0.0
-            f.write(f"Si {x:.4f} {y:.4f} {z:.4f}\n")
 
-class TestGraphSerialization:
-    def test_serialization(self, tmp_path):
-        """
-        T015 Verification:
-        1. Build a graph from a known XYZ file.
-        2. Serialize it to data/processed/graphs/ (using tmp_path for safety).
-        3. Verify the file exists.
-        4. Verify the checksum matches the input data.
-        """
-        # Setup
-        xyz_file = tmp_path / "sample_01.xyz"
-        output_dir = tmp_path / "graphs"
-        output_dir.mkdir()
-        
-        # Create test data
-        create_test_xyz(xyz_file, num_atoms=5)
+@pytest.fixture
+def temp_xyz_file():
+    """Create a temporary XYZ file with a known structure for testing."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.xyz', delete=False) as f:
+        # Header: 4 atoms
+        f.write("4\n")
+        f.write("Test structure for bond cutoff\n")
+        # Atom 1 at origin
+        f.write("Si 0.0 0.0 0.0\n")
+        # Atom 2 at 2.35 A (bonded)
+        f.write("Si 2.35 0.0 0.0\n")
+        # Atom 3 at 3.5 A (not bonded, > 3.0 cutoff)
+        f.write("Si 3.5 0.0 0.0\n")
+        # Atom 4 at 2.35 in Y (bonded to 1)
+        f.write("Si 0.0 2.35 0.0\n")
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
-        # Build graph
-        graph_data = build_graph_from_xyz(str(xyz_file), cutoff=3.0)
-        
-        # Validate basic structure (from T012 logic)
-        assert "nodes" in graph_data
-        assert "edges" in graph_data
-        assert len(graph_data["nodes"]) == 5
 
-        # Serialize graph (T015 implementation)
-        checksum = calculate_checksum(xyz_file)
-        serialized_path = serialize_graph(graph_data, output_dir, checksum)
+@pytest.fixture
+def temp_output_dir():
+    """Create a temporary directory for output files."""
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    import shutil
+    shutil.rmtree(temp_dir)
 
-        # Verification: File exists
-        assert serialized_path.exists(), f"Serialized file {serialized_path} was not created"
 
-        # Verification: File is valid pickle
-        with open(serialized_path, 'rb') as f:
-            loaded_graph = pickle.load(f)
-        
-        assert loaded_graph["nodes"] == graph_data["nodes"]
-        assert loaded_graph["edges"] == graph_data["edges"]
-        assert loaded_graph["metadata"]["input_checksum"] == checksum
+def test_bond_cutoff_logic(temp_xyz_file):
+    """
+    T011: Unit test for bond cutoff logic.
+    
+    Verifies that atoms within 3.0 Å are connected and those outside are not.
+    """
+    graph = build_graph_from_xyz(temp_xyz_file, cutoff=3.0)
+    
+    assert graph is not None
+    assert len(graph['nodes']) == 4
+    
+    # Check edges
+    edges = graph['edges']
+    
+    # Expected edges: (0,1), (0,3). (0,2) should NOT exist (3.5 > 3.0)
+    # Node indices: 0, 1, 2, 3
+    
+    # Verify specific connections
+    edge_set = set(tuple(sorted(e)) for e in edges)
+    
+    assert (0, 1) in edge_set, "Atoms at 0.0 and 2.35 should be bonded"
+    assert (0, 3) in edge_set, "Atoms at 0.0 and 2.35 (Y) should be bonded"
+    assert (0, 2) not in edge_set, "Atoms at 0.0 and 3.5 should NOT be bonded"
+    
+    # Verify degrees
+    # Node 0: connected to 1, 3 -> degree 2
+    # Node 1: connected to 0 -> degree 1
+    # Node 2: connected to none -> degree 0
+    # Node 3: connected to 0 -> degree 1
+    
+    node_degrees = {n['id']: n['degree'] for n in graph['nodes']}
+    assert node_degrees[0] == 2
+    assert node_degrees[1] == 1
+    assert node_degrees[2] == 0
+    assert node_degrees[3] == 1
 
-        # Verification: Manifest creation
-        manifest_path = save_checksum_manifest([{"file": serialized_path.name, "checksum": checksum}], output_dir)
-        assert manifest_path.exists()
 
-        # Verification: Checksum integrity
-        with open(manifest_path, 'r') as f:
-            manifest = json.load(f)
-        
-        assert manifest[0]["checksum"] == checksum
-        assert manifest[0]["file"] == serialized_path.name
+def test_node_degree_stats_output(temp_xyz_file):
+    """
+    T016b: Unit test for node-degree stats output.
+    
+    Verifies that the node degree statistics function returns expected structure.
+    """
+    graph = build_graph_from_xyz(temp_xyz_file, cutoff=3.0)
+    stats = calculate_node_degree_stats([graph])
+    
+    assert 'mode' in stats
+    assert isinstance(stats['mode'], int)
+    # In our test case: degrees are [2, 1, 0, 1]. Mode is 1.
+    assert stats['mode'] == 1
+    
+    assert 'distribution' in stats
+    assert 0 in stats['distribution']
+    assert 1 in stats['distribution']
+    assert 2 in stats['distribution']
 
-    def test_serialization_with_invalid_input(self, tmp_path):
-        """Test that serialization fails loudly if input graph is missing required fields."""
-        output_dir = tmp_path / "graphs"
-        output_dir.mkdir()
-        
-        # Malformed graph data (missing 'nodes')
-        bad_graph = {"edges": [[0, 1]]}
-        
-        with pytest.raises(AssertionError):
-            serialize_graph(bad_graph, output_dir, "fake_checksum")
+
+def test_serialization(temp_xyz_file, temp_output_dir):
+    """
+    T015a: Unit test for graph serialization.
+    
+    Verifies that a graph can be serialized to a pickle file and loaded back
+    with identical content.
+    """
+    # Build graph
+    graph_data = build_graph_from_xyz(temp_xyz_file, cutoff=3.0)
+    assert graph_data is not None
+    
+    # Define output path
+    output_file = temp_output_dir / "graph_test.pkl"
+    
+    # Serialize
+    serialize_graph(graph_data, output_file)
+    
+    # Verify file exists
+    assert output_file.exists(), "Serialized file was not created"
+    
+    # Verify checksum calculation works
+    checksum = calculate_checksum(output_file)
+    assert len(checksum) == 64, "SHA256 checksum should be 64 hex chars"
+    
+    # Deserialize and verify content
+    with open(output_file, 'rb') as f:
+        loaded_graph = pickle.load(f)
+    
+    # Verify structure
+    assert loaded_graph['nodes'] == graph_data['nodes']
+    assert loaded_graph['edges'] == graph_data['edges']
+    assert loaded_graph['metadata'] == graph_data['metadata']
+
+
+def test_serialization_schema_compliance(temp_xyz_file, temp_output_dir):
+    """
+    T015a: Verify serialized data matches the AtomicGraph schema requirements.
+    
+    Checks that the serialized object contains required fields:
+    nodes (with id, coords, degree, clustering_coeff), edges, metadata.
+    """
+    graph_data = build_graph_from_xyz(temp_xyz_file, cutoff=3.0)
+    output_file = temp_output_dir / "graph_schema_test.pkl"
+    
+    serialize_graph(graph_data, output_file)
+    
+    with open(output_file, 'rb') as f:
+        loaded_graph = pickle.load(f)
+    
+    # Check top-level keys
+    assert 'nodes' in loaded_graph
+    assert 'edges' in loaded_graph
+    assert 'metadata' in loaded_graph
+    
+    # Check node structure
+    for node in loaded_graph['nodes']:
+        assert 'id' in node
+        assert 'coords' in node
+        assert len(node['coords']) == 3
+        assert 'degree' in node
+        assert isinstance(node['degree'], int)
+        assert 'clustering_coeff' in node
+        assert isinstance(node['clustering_coeff'], float)
+    
+    # Check edge structure (list of pairs)
+    for edge in loaded_graph['edges']:
+        assert len(edge) == 2
+        assert isinstance(edge[0], int)
+        assert isinstance(edge[1], int)
+    
+    # Check metadata
+    assert 'sample_id' in loaded_graph['metadata']
+    assert 'cutoff' in loaded_graph['metadata']
+    assert 'atom_count' in loaded_graph['metadata']

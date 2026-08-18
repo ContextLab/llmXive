@@ -1,22 +1,18 @@
-# Atomic Graph Schema
-# Defines the structure for atomic graphs constructed from XYZ files
-# Used by T007 and T012
-
+$schema: http://json-schema.org/draft-07/schema#
+title: AtomicGraph
+description: |
+  Schema for atomic graph representation of amorphous silicon structures.
+  Defines nodes (atoms) and edges (bonds) based on a distance cutoff.
+  Used for validation of graph construction outputs.
 type: object
 required:
   - nodes
   - edges
-  - graph_id
-  - cutoff
-
+  - metadata
 properties:
-  graph_id:
-    type: string
-    description: Unique identifier for the graph
-
   nodes:
     type: array
-    description: List of atomic nodes
+    description: List of atomic nodes with topological features.
     items:
       type: object
       required:
@@ -27,48 +23,49 @@ properties:
       properties:
         id:
           type: integer
-          description: Unique node identifier
+          description: Unique identifier for the atom/node.
         coords:
           type: array
-          description: Cartesian coordinates [x, y, z]
+          description: Cartesian coordinates (x, y, z).
           items:
             type: number
+            format: float32
           minItems: 3
           maxItems: 3
         degree:
           type: integer
-          description: Node degree (number of bonds)
+          description: Number of bonds connected to this atom.
           minimum: 0
         clustering_coeff:
           type: number
-          description: Local clustering coefficient
+          description: Local clustering coefficient for the atom.
+          format: float32
           minimum: 0.0
           maximum: 1.0
-
   edges:
     type: array
-    description: List of edges as pairs of node indices
+    description: List of bonds represented as pairs of node indices.
     items:
       type: array
+      description: Pair of node IDs [u, v] representing a bond.
       items:
         type: integer
       minItems: 2
       maxItems: 2
-
-  cutoff:
-    type: number
-    description: Bond cutoff distance in Å
-    minimum: 0.0
-
   metadata:
     type: object
-    description: Additional graph metadata
+    description: Additional metadata about the graph.
     properties:
-      source_file:
-        type: string
+      cutoff_distance:
+        type: number
+        description: Distance cutoff used for bond determination (Angstroms).
       atom_count:
         type: integer
-      edge_count:
+        description: Total number of atoms in the system.
+      bond_count:
         type: integer
-
+        description: Total number of bonds in the system.
+      source_file:
+        type: string
+        description: Path to the source XYZ file.
 additionalProperties: false
