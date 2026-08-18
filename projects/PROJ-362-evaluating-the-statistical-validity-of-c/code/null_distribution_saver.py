@@ -1,44 +1,49 @@
+"""
+Module to save null distribution results to CSV files.
+"""
+
 import os
 import csv
 import logging
 from typing import List, Dict, Any, Optional
-from config import RESULTS_DIR
+from pathlib import Path
+from config import RESULTS_DIR, ensure_dirs
 
 logger = logging.getLogger(__name__)
 
 def save_null_distribution_csv(
-    query_id: int,
-    metric_name: str,
-    scores: List[float],
+    result: Dict[str, Any],
     output_dir: Optional[str] = None
 ) -> str:
     """
-    Save a null distribution for a single query and metric to a CSV file.
+    Save a single null distribution result to a CSV file.
     
     Args:
-        query_id: The ID of the query.
-        metric_name: The name of the metric (e.g., 'NDCG@10', 'MAP').
-        scores: List of scores from the permutation test.
-        output_dir: Optional override for the output directory. Defaults to RESULTS_DIR.
-        
+        result: Dictionary containing query_id, metric, null_distribution, N_actual.
+        output_dir: Directory to save the file. Defaults to RESULTS_DIR/null_distributions.
+    
     Returns:
-        The path to the saved CSV file.
+        Path to the saved file.
     """
     if output_dir is None:
-        output_dir = os.path.join(RESULTS_DIR, "null_distributions")
+        ensure_dirs()
+        output_dir = str(Path(RESULTS_DIR) / "null_distributions")
     
     os.makedirs(output_dir, exist_ok=True)
     
-    filename = f"q{query_id}_{metric_name.replace('@', '_at_').replace(' ', '_')}.csv"
+    query_id = result['query_id']
+    metric = result['metric']
+    filename = f"q{query_id}_{metric}.csv"
     filepath = os.path.join(output_dir, filename)
     
     with open(filepath, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['query_id', 'metric', 'score'])
-        for score in scores:
-            writer.writerow([query_id, metric_name, score])
+        writer.writerow(['query_id', 'metric', 'score', 'permutation_index'])
+        
+        for idx, score in enumerate(result['null_distribution']):
+            writer.writerow([query_id, metric, score, idx])
     
-    logger.info(f"Saved null distribution for query {query_id}, metric {metric_name} to {filepath}")
+    logger.info(f"Saved null distribution for Query {query_id}, Metric {metric} to {filepath}")
     return filepath
 
 def save_all_null_distributions(
@@ -46,25 +51,23 @@ def save_all_null_distributions(
     output_dir: Optional[str] = None
 ) -> List[str]:
     """
-    Save null distributions for a batch of results.
+    Save a list of null distribution results to CSV files.
     
     Args:
-        results: List of dictionaries containing 'query_id', 'metric', and 'null_scores'.
-        output_dir: Optional override for the output directory.
-        
-    Returns:
-        List of paths to saved CSV files.
-    """
-    saved_paths = []
-    if output_dir is None:
-        output_dir = os.path.join(RESULTS_DIR, "null_distributions")
+        results: List of result dictionaries.
+        output_dir: Directory to save files.
     
-    for item in results:
-        query_id = item['query_id']
-        metric_name = item['metric']
-        scores = item['null_scores']
-        
-        path = save_null_distribution_csv(query_id, metric_name, scores, output_dir)
-        saved_paths.append(path)
-        
-    return saved_paths
+    Returns:
+        List of file paths saved.
+    """
+    if output_dir is None:
+        ensure_dirs()
+        output_dir = str(Path(RESULTS_DIR) / "null_distributions")
+    
+    saved_files = []
+    for result in results:
+        filepath = save_null_distribution_csv(result, output_dir)
+        saved_files.append(filepath)
+    
+    logger.info(f"Saved {len(saved_files)} null distribution files.")
+    return saved_files

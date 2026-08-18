@@ -86,7 +86,7 @@ expected alphabetic or numeric character, but found '*'
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T010 [P] [US1] Unit test for `metrics.py` NDCG@10 calculation with known ground truth in `tests/unit/test_metrics.py`
-- [ ] T011 [P] [US1] Unit test for permutation logic (shuffle correctness) in `tests/unit/test_permutation.py`
+- [X] T011 [P] [US1] Unit test for permutation logic (shuffle correctness) in `tests/unit/test_permutation.py`
 - [X] T012 [US1] Integration test: Verify p-value calculation `(r+1)/(N+1)` against a manual calculation in `tests/integration/test_permutation_flow.py`
 
 ### Implementation for User Story 1
@@ -95,7 +95,7 @@ expected alphabetic or numeric character, but found '*'
 - [ ] T014 [US1] Implement batch processing loop in `permutation.py` to handle memory limits (process queries in batches, log progress)
 - [ ] T015 [US1] Implement runtime monitor in `main.py`: if runtime > 3.5h, trigger subsampling (random selection of 100 queries) per FR-011; runs concurrently or depends on T013 completion
 - [ ] T016 [US1] Implement p-value calculation logic: rank observed score within null distribution (depends on T013 completion)
-- [~] T017 [US1] Save null distribution CSVs to `results/null_distributions/` with headers `query_id, metric, score`
+- [ ] T017 [US1] Save null distribution CSVs to `results/null_distributions/` with headers `query_id, metric, score`
 - [ ] T018 [US1] Save raw p-values to `results/p_values/raw_p_values.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -115,15 +115,15 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement `power_analysis.py` bootstrap resampling utility function for power estimation; **prerequisite for T021**
+- [ ] T022 [US2] Implement `power_analysis.py` bootstrap resampling utility function for power estimation; **prerequisite for T021**
 - [ ] T022.1 [US2] Implement `power_analysis.py` function to simulate alternative hypothesis by **swapping top-k positions** in relevance labels
-- [ ] T021 [US2] Implement `power_analysis.py` MDES logic: binary search over the magnitude of the **top-k swap** to find smallest shift detectable with Power ≥ 0.8; **calls the bootstrap function (T022) and swap function (T022.1) iteratively**; search range [0.001, 0.500], tolerance ≤ 0.001, Power = proportion of rejections; **Write MDES result to `results/mdes/mdes_summary.csv` with columns `metric, mdes, power, ci_width`**
-- [~] T023 [US2] Implement BH correction in `power_analysis.py`: apply separately to NDCG and MAP p-value families; **Depends on: T018**
+- [ ] T021 [US2] Implement `power_analysis.py` MDES logic: binary search over the magnitude of the **top-k swap** to find smallest shift detectable with Power ≥ 0.8; **calls the bootstrap function (T022) and swap function (T022.1) iteratively**; search range [0.001, 0.500], tolerance ≤ 0.001, Power = proportion of rejections; **Write MDES result to `results/mdes/mdes_summary.csv` with columns `metric, mdes, power, ci_width`** <!-- FAILED: unspecified -->
+- [ ] T023 [US2] Implement BH correction in `power_analysis.py`: apply separately to NDCG and MAP p-value families; **Depends on: T018**
 - [ ] T024 [US2] Implement sensitivity analysis: **iterate (sweep) alpha values across [0.01, 0.05, 0.10]**, report the count of queries where significance status changes between α values; **Generate `results/sensitivity/alpha_sweep.csv` with columns `alpha, significant_count`**; **Depends on: T023**
 - [ ] T025 [US2] Generate `results/mdes/mdes_summary.csv` with columns: `metric, mdes, power, ci_width`
 - [ ] T025.1 [US2] **Verification**: Read `results/mdes/mdes_summary.csv` and **assert ci_width < 0.02 for BOTH NDCG@10 and MAP metrics independently**; fail the build if either exceeds threshold (SC-003)
 - [ ] T026 [US2] Generate `results/p_values/corrected_p_values.csv` with columns: `query_id, metric, raw_p, corrected_p, is_significant`
-- [~] T027 [US2] Add explicit text generation in `main.py` output: "Findings indicate statistical association, not causal algorithmic improvement" per FR-008
+- [ ] T027 [US2] Add explicit text generation in `main.py` output: "Findings indicate statistical association, not causal algorithmic improvement" per FR-008
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -141,8 +141,8 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 3
 
-- [~] T029 [P] [US3] Implement `visualization.py` to generate density plots comparing original vs. permuted scores
-- [~] T030 [US3] Annotate plots with MDES and significance thresholds: **Modify `visualization.py` to add a vertical dashed line at `mdes` value and text label "MDES={val}" to all density plots in `results/plots/`**
+- [ ] T029 [P] [US3] Implement `visualization.py` to generate density plots comparing original vs. permuted scores
+- [ ] T030 [US3] Annotate plots with MDES and significance thresholds: **Modify `visualization.py` to add a vertical dashed line at `mdes` value and text label "MDES={val}" to all density plots in `results/plots/`**
 - [X] T031 [US3] Generate `results/summary.csv` aggregating all query-metric pairs, p-values, and MDES
 - [~] T032 [US3] Implement final runtime/memory guard in `main.py`: if > 5h or > 6GB RAM, force subsampling and log warning
 - [~] T033 [US3] Add error handling for network failures in `data_loader.py` (graceful exit with error code)

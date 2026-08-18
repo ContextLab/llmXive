@@ -6,197 +6,194 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 
 from config import get_artifacts_path
-from analysis.modeling import load_split_data, detect_problem_type
-from analysis.validation import compare_models, validate_null_baseline, save_validation_report
+from analysis.modeling import load_split_data, train_model, train_null_model, evaluate_on_holdout
 from analysis.permutation_test import run_permutation_test, calculate_p_value, save_holdout_metrics
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def load_model_metrics() -> Dict[str, Any]:
-    """Load model performance metrics from the modeling pipeline artifacts."""
-    metrics_path = get_artifacts_path() / "models" / "model_metrics.json"
+def load_model_metrics(metrics_path: Path) -> Dict[str, Any]:
+    """Load model performance metrics from a JSON file."""
     if not metrics_path.exists():
-        raise FileNotFoundError(f"Model metrics file not found at {metrics_path}. "
-                                "Run the modeling pipeline (T017) first.")
-    
+        raise FileNotFoundError(f"Model metrics file not found: {metrics_path}")
     with open(metrics_path, 'r') as f:
         return json.load(f)
 
-def load_null_comparison() -> Dict[str, Any]:
-    """Load null model comparison results from validation artifacts."""
-    validation_path = get_artifacts_path() / "reports" / "validation_report.json"
-    if not validation_path.exists():
-        raise FileNotFoundError(f"Validation report not found at {validation_path}. "
-                                "Run the validation pipeline (T018) first.")
-    
-    with open(validation_path, 'r') as f:
+def load_null_comparison(null_metrics_path: Path) -> Dict[str, Any]:
+    """Load null model comparison metrics from a JSON file."""
+    if not null_metrics_path.exists():
+        raise FileNotFoundError(f"Null model metrics file not found: {null_metrics_path}")
+    with open(null_metrics_path, 'r') as f:
         return json.load(f)
 
-def run_permutation_on_holdout(n_permutations: int = 1000) -> Dict[str, Any]:
+def run_permutation_on_holdout(
+    holdout_X: Any,
+    holdout_y: Any,
+    model: Any,
+    metric_func: Any,
+    n_permutations: int = 1000,
+    random_state: int = 42
+) -> Dict[str, Any]:
     """
-    Run permutation testing on the hold-out set to generate model-level p-value.
-    This implements the requirement for T022/T033 overlap.
-    """
-    logger.info("Starting permutation test on hold-out set...")
+    Run permutation test on the hold-out set to generate a p-value.
     
-    # Load hold-out data
-    split_data_path = get_artifacts_path() / "data" / "holdout"
-    if not split_data_path.exists():
-        raise FileNotFoundError(f"Hold-out data not found at {split_data_path}. "
-                                "Run the split pipeline (T015) first.")
+    This calculates the probability that the model's performance on the
+    hold-out set could be achieved by chance (shuffled labels).
+    """
+    logger.info(f"Running permutation test on hold-out set with {n_permutations} permutations")
+    
+    # Calculate observed metric
+    observed_metric = metric_func(holdout_y, model.predict(holdout_X))
     
     # Run permutation test
-    result = run_permutation_test(
-        n_permutations=n_permutations,
-        random_state=42
-    )
+    perm_metrics = []
+    for i in range(n_permutations):
+        # Shuffle labels
+        y_permuted = holdout_y.sample(frac=1, random_state=random_state + i).reset_index(drop=True)
+        perm_metric = metric_func(y_permuted, model.predict(holdout_X))
+        perm_metrics.append(perm_metric)
     
-    return result
+    # Calculate p-value
+    p_value = calculate_p_value(observed_metric, perm_metrics, higher_is_better=True)
+    
+    return {
+        "observed_metric": float(observed_metric),
+        "permuted_metrics_mean": float(np.mean(perm_metrics)),
+        "permuted_metrics_std": float(np.std(perm_metrics)),
+        "p_value": float(p_value),
+        "n_permutations": n_permutations
+    }
 
 def compile_metrics_report(
-    cv_metrics: Dict[str, Any],
-    holdout_metrics: Dict[str, Any],
+    model_metrics: Dict[str, Any],
     null_comparison: Dict[str, Any],
-    permutation_result: Dict[str, Any]
+    permutation_results: Dict[str, Any]
 ) -> Dict[str, Any]:
-    """Compile all metrics into the final report structure."""
+    """Compile all metrics into a single report dictionary."""
     report = {
-        "generated_at": datetime.utcnow().isoformat(),
-        "cv_metrics": cv_metrics,
-        "holdout_metrics": holdout_metrics,
+        "generated_at": datetime.now().isoformat(),
+        "model_performance": model_metrics,
         "null_model_comparison": null_comparison,
-        "permutation_test": {
-            "n_permutations": permutation_result.get("n_permutations", 0),
-            "p_value": permutation_result.get("p_value", None),
-            "observed_metric": permutation_result.get("observed_metric", None),
-            "null_distribution_mean": permutation_result.get("null_distribution_mean", None),
-            "null_distribution_std": permutation_result.get("null_distribution_std", None)
-        },
+        "permutation_test": permutation_results,
         "summary": {
-            "cv_accuracy": cv_metrics.get("accuracy", None),
-            "cv_auc": cv_metrics.get("auc", None),
-            "cv_r2": cv_metrics.get("r2", None),
-            "holdout_accuracy": holdout_metrics.get("accuracy", None),
-            "holdout_auc": holdout_metrics.get("auc", None),
-            "holdout_r2": holdout_metrics.get("r2", None),
-            "null_baseline_accuracy": null_comparison.get("null_accuracy", None),
-            "improvement_over_null": None,
-            "permutation_p_value": permutation_result.get("p_value", None),
-            "is_significant": False
+            "cv_accuracy": model_metrics.get("cv_accuracy"),
+            "holdout_accuracy": model_metrics.get("holdout_accuracy"),
+            "null_baseline_accuracy": null_comparison.get("accuracy"),
+            "improvement_over_null": model_metrics.get("holdout_accuracy") - null_comparison.get("accuracy"),
+            "permutation_p_value": permutation_results.get("p_value"),
+            "statistically_significant": permutation_results.get("p_value", 1.0) < 0.05
         }
     }
-    
-    # Calculate improvement over null
-    if report["summary"]["holdout_accuracy"] is not None and \
-       report["summary"]["null_baseline_accuracy"] is not None:
-        report["summary"]["improvement_over_null"] = \
-            report["summary"]["holdout_accuracy"] - report["summary"]["null_baseline_accuracy"]
-    
-    # Determine significance
-    if report["summary"]["permutation_p_value"] is not None:
-        report["summary"]["is_significant"] = report["summary"]["permutation_p_value"] <= 0.05
-    
     return report
 
-def save_metrics_report(report: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
-    """Save the compiled metrics report to disk."""
-    if output_path is None:
-        output_path = get_artifacts_path() / "reports" / "metrics.json"
-    
-    # Ensure directory exists
+def save_metrics_report(report: Dict[str, Any], output_path: Path) -> None:
+    """Save the metrics report to a JSON file."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
-    
     logger.info(f"Metrics report saved to {output_path}")
-    return output_path
 
 def generate_metrics_pipeline(
+    split_data_path: Path,
+    model_path: Path,
+    null_metrics_path: Path,
+    output_path: Path,
     n_permutations: int = 1000
 ) -> Dict[str, Any]:
     """
-    Main pipeline function to generate the complete metrics report.
+    Main pipeline to generate the metrics report.
     
-    This function:
-    1. Loads CV metrics from modeling
-    2. Loads null model comparison from validation
-    3. Runs permutation test on hold-out set
-    4. Compiles all into a final report
-    5. Saves to artifacts/reports/metrics.json
+    1. Load model metrics (CV accuracy, holdout accuracy)
+    2. Load null model comparison
+    3. Run permutation test on hold-out set
+    4. Compile and save the final report
     """
-    logger.info("Starting metrics report generation pipeline...")
+    logger.info("Starting metrics report generation pipeline")
     
-    # 1. Load CV metrics
-    logger.info("Loading CV metrics...")
+    # Load existing metrics
     try:
-        cv_metrics = load_model_metrics()
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
+        model_metrics = load_model_metrics(model_path)
+    except FileNotFoundError:
+        logger.warning(f"Model metrics file not found at {model_path}. Running modeling pipeline first.")
+        # If metrics don't exist, we need to run the modeling pipeline
+        # This assumes the modeling pipeline has already been run and saved its outputs
+        raise RuntimeError("Model metrics not found. Ensure modeling pipeline has been run.")
     
-    # 2. Load null comparison
-    logger.info("Loading null model comparison...")
     try:
-        null_comparison = load_null_comparison()
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
+        null_comparison = load_null_comparison(null_metrics_path)
+    except FileNotFoundError:
+        logger.warning(f"Null model metrics file not found at {null_metrics_path}.")
+        raise RuntimeError("Null model metrics not found. Ensure validation pipeline has been run.")
     
-    # 3. Run permutation test on hold-out set
-    logger.info("Running permutation test on hold-out set...")
+    # Load hold-out data for permutation test
+    logger.info("Loading hold-out data for permutation test")
+    # Assuming split data contains hold-out set
+    # This needs to match the actual structure from split.py
     try:
-        permutation_result = run_permutation_on_holdout(n_permutations=n_permutations)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
+        split_data = load_split_data(split_data_path)
+        holdout_X = split_data.get("holdout_X")
+        holdout_y = split_data.get("holdout_y")
+        
+        if holdout_X is None or holdout_y is None:
+            raise ValueError("Hold-out data not found in split data file")
+        
+        # Load the trained model
+        import pickle
+        with open(model_path.with_suffix('.pkl'), 'rb') as f:
+            model = pickle.load(f)
+        
+        # Define metric function (accuracy for classification)
+        from sklearn.metrics import accuracy_score
+        metric_func = accuracy_score
+        
+        # Run permutation test
+        permutation_results = run_permutation_on_holdout(
+            holdout_X, holdout_y, model, metric_func, n_permutations
+        )
+        
+    except Exception as e:
+        logger.error(f"Error running permutation test: {e}")
+        # If permutation test fails, we still generate the report but with null p-value
+        permutation_results = {
+            "observed_metric": None,
+            "permuted_metrics_mean": None,
+            "permuted_metrics_std": None,
+            "p_value": 1.0,  # Default to non-significant
+            "n_permutations": n_permutations,
+            "error": str(e)
+        }
     
-    # 4. Compile report
-    logger.info("Compiling metrics report...")
-    # We need holdout metrics from the permutation result or modeling
-    # Assuming modeling pipeline saved holdout metrics in model_metrics.json
-    holdout_metrics = cv_metrics.get("holdout_metrics", {})
-    if not holdout_metrics:
-        # Fallback: try to load from separate file
-        holdout_path = get_artifacts_path() / "models" / "holdout_metrics.json"
-        if holdout_path.exists():
-            with open(holdout_path, 'r') as f:
-                holdout_metrics = json.load(f)
-        else:
-            holdout_metrics = {"accuracy": None, "auc": None, "r2": None}
+    # Compile final report
+    report = compile_metrics_report(model_metrics, null_comparison, permutation_results)
     
-    report = compile_metrics_report(
-        cv_metrics=cv_metrics,
-        holdout_metrics=holdout_metrics,
-        null_comparison=null_comparison,
-        permutation_result=permutation_result
-    )
+    # Save report
+    save_metrics_report(report, output_path)
     
-    # 5. Save report
-    logger.info("Saving metrics report...")
-    output_path = save_metrics_report(report)
-    
-    logger.info("Metrics report generation complete.")
+    logger.info("Metrics report generation pipeline completed successfully")
     return report
 
 def main():
-    """CLI entry point for generating the metrics report."""
+    """Entry point for generating the metrics report."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Generate comprehensive metrics report")
-    parser.add_argument(
-        "--n-permutations",
-        type=int,
-        default=1000,
-        help="Number of permutations for the hold-out test (default: 1000)"
-    )
+    parser = argparse.ArgumentParser(description="Generate metrics report")
+    parser.add_argument("--split-data", type=Path, required=True, help="Path to split data file")
+    parser.add_argument("--model-metrics", type=Path, required=True, help="Path to model metrics file")
+    parser.add_argument("--null-metrics", type=Path, required=True, help="Path to null model metrics file")
+    parser.add_argument("--output", type=Path, required=True, help="Path to output metrics report")
+    parser.add_argument("--n-permutations", type=int, default=1000, help="Number of permutations for test")
     
     args = parser.parse_args()
     
     try:
-        report = generate_metrics_pipeline(n_permutations=args.n_permutations)
-        print(f"Report generated successfully. Summary: {report['summary']}")
+        generate_metrics_pipeline(
+            args.split_data,
+            args.model_metrics,
+            args.null_metrics,
+            args.output,
+            args.n_permutations
+        )
+        print(f"Metrics report generated at {args.output}")
     except Exception as e:
         logger.error(f"Failed to generate metrics report: {e}")
         raise

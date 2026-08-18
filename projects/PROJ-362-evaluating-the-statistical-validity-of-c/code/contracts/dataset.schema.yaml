@@ -2,16 +2,12 @@ type: object
 properties:
   query_id:
     type: integer
-    description: Unique identifier for the query
   doc_id:
     type: integer
-    description: Unique identifier for the document
   relevance:
     type: integer
-    description: Relevance score (0-4 scale for TREC)
 required:
   - query_id
   - doc_id
   - relevance
 additionalProperties: false
-description: Schema for TREC qrels (query-relevance judgments) data structure

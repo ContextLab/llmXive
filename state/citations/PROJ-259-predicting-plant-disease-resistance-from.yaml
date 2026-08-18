@@ -1,4 +1,4 @@
-- artifact_hash: 7c5011f0892eae1d279c39706df4e154f5305109d27a78260bd8f903f2edc802
+- artifact_hash: 26b54fca78223d6ffb2cdf0fc9d12d1240f2416b4f70fc5776c9937b6024fedf
   artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -9,8 +9,8 @@
   value: https://arxiv.org/abs/2601.08725
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2601.08725
-  verified_at: '2026-08-17T21:25:05.295204Z'
-- artifact_hash: 7c5011f0892eae1d279c39706df4e154f5305109d27a78260bd8f903f2edc802
+  verified_at: '2026-08-18T06:28:53.453510Z'
+- artifact_hash: 26b54fca78223d6ffb2cdf0fc9d12d1240f2416b4f70fc5776c9937b6024fedf
   artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -20,4 +20,4 @@
   value: https://www.wikidata.org/wiki/Q113106917
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-08-17T21:25:05.295204Z'
+  verified_at: '2026-08-18T06:28:53.453510Z'

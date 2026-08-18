@@ -64,7 +64,7 @@
 - [X] T008 Create `data/data_manifest.yaml` schema and loader in `code/data/manifest.py`
 - [X] T009 Implement `code/data/generate_synthetic.py` to create ~150 paired samples with injected signal structure: **[deferred] SNPs, metabolites**, **binary phenotype (balanced split)**, effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5, {{claim:c_13800645}} (2601.08725, https://arxiv.org/abs/2601.08725)
 - [ ] T010 Implement `code/data/download.py` to attempt NCBI SRA/MetaboLights fetch using query "plant AND disease resistance AND (SNP OR metabolite)" with accession list from `data_manifest.yaml`; if **no results found OR HTTP 404/403 after 3 retries **, trigger immediate fallback to synthetic generation (**Simulation Mode ONLY**); bypass halt logic in T019 only if `source == SIMULATED` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T011 Implement `code/data/preprocess.py` wrappers for `fastp` (variant calling via `bcftools`) and MetaboAnalyst-compatible normalization; explicitly generate aligned feature tables by matching sample IDs across modalities using **exact string match**; if IDs do not match, **drop both samples** and log to `data/processed/exclusion_log.csv` with columns: `sample_id`, `missing_modality`, `timestamp` as mandated by FR-001
+- [X] T011 Implement `code/data/preprocess.py` wrappers for `fastp` (variant calling via `bcftools`) and MetaboAnalyst-compatible normalization; explicitly generate aligned feature tables by matching sample IDs across modalities using **exact string match**; if IDs do not match, **drop both samples** and log to `data/processed/exclusion_log.csv` with columns: `sample_id`, `missing_modality`, `timestamp` as mandated by FR-001
 - [X] T012 Implement `code/utils/stats.py` with Benjamini-Hochberg correction and Variance Inflation Factor (VIF) calculation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -116,7 +116,7 @@
 - [ ] T027 [US2] Implement `code/analysis/biomarker_report.py` to generate `artifacts/reports/top_features.csv` with p-values and effect sizes
 - [ ] T028 [US2] Implement logic to filter and rank features based on selection frequency and BH-adjusted p < 0.05
 - [ ] T028b [US2] Implement logic to count and verify that **at least 10 SNPs and 10 metabolites** remain significant **across the entire sensitivity sweep (defined as intersection of significant features across all three thresholds)**; **if count < 10, write `success_status: FAILED` to `artifacts/reports/success_criteria.json` and log a warning** (SC-002)
-- [ ] T029 [US2] Add VIF flagging logic in `code/analysis/validation.py` to {{claim:c_d690e157}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917) (FR-005)
+- [X] T029 [US2] Add VIF flagging logic in `code/analysis/validation.py` to {{claim:c_d690e157}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917) (FR-005)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

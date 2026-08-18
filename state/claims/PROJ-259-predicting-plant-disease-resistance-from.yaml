@@ -286,27 +286,6 @@
   updated_at: '2026-07-02T22:17:51Z'
 - artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   attempts: 1
-  canonical: at least 10 SNPs and 10 metabolites remain significant across sensitivity
-    sweep
-  claim_id: c_c3ec830e
-  context: T028b [US2] Implement logic to count and verify that at least 10 SNPs and
-    10 metabolites remain significant across the entire sensitivity sweep (defined
-    as intersection of significant features across all three thresholds)
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/At_least_10_SNPs_and_10_metabolites_remain_significant_acros
-  kind: magnitude
-  raw_text: count and verify that at least 10 SNPs and 10 metabolites remain significant
-    across the entire sensitivity sweep
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-02T22:18:18Z'
-- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
-  attempts: 1
   canonical: perform 1000 permutation iterations on independent hold-out test set
   claim_id: c_b8249755
   context: 'T033 [US3] Implement permutation testing (n=1000, shuffling phenotype
@@ -1738,3 +1717,165 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T21:27:33Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: generate synthetic dataset of 150 paired samples
+  claim_id: c_e82679ca
+  context: 'T009 Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: [deferred] SNPs, metabolites, binary phenotype
+    (balanced split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite
+    correlation=0.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:20:02Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: run 1000 permutation tests on independent hold-out test set to generate
+    model-level p-value
+  claim_id: c_4a0c4fbe
+  context: 'T033 [US3] Implement permutation testing (n=1000, shuffling phenotype
+    labels, metric: accuracy/AUC) specifically on the independent hold-out test set
+    to generate model-level p-value; output to artifacts/reports/holdout_metrics.json
+    (FR-005, SC-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement permutation testing (n=1000, shuffling phenotype labels, metric:
+    accuracy/AUC) specifically on the independent hold-out test set to generate model-level
+    p-value'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:24:29Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 2
+  canonical: create 150 paired synthetic samples with injected signal structure
+  claim_id: c_841b093c
+  context: 'T009 Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: [deferred] SNPs, metabolites, binary phenotype
+    (balanced split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite
+    correlation=0.5, {{claim:c_13800645}} (2601.08725, https://arxiv.org/abs/2601.08725)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:27:53Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 2
+  canonical: at least 10 SNPs and 10 metabolites remain significant across sensitivity
+    sweep
+  claim_id: c_c3ec830e
+  context: T028b [US2] Implement logic to count and verify that at least 10 SNPs and
+    10 metabolites remain significant across the entire sensitivity sweep (defined
+    as intersection of significant features across all three thresholds)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_10_SNPs_and_10_metabolites_remain_significant_acros
+  kind: magnitude
+  raw_text: count and verify that at least 10 SNPs and 10 metabolites remain significant
+    across the entire sensitivity sweep
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:28:18Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: perform 1000 permutation tests on hold-out set
+  claim_id: c_584e9654
+  context: 'T033 [US3] Implement permutation testing (n=1000, shuffling phenotype
+    labels, metric: accuracy/AUC) specifically on the independent hold-out test set
+    to generate model-level p-value'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement permutation testing with n=1000 shuffling phenotype labels on
+    the independent hold-out test set
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:28:28Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: create 150 paired samples with effect size 0.1 and SNP-metabolite correlation
+    0.5
+  claim_id: c_24ce7c8a
+  context: 'T009 Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: [deferred] SNPs, metabolites, binary phenotype
+    (balanced split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite
+    correlation=0.5, {{claim:c_13800645}} (2601.08725, https://arxiv.org/abs/2601.08725)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: SNPs, metabolites, binary phenotype (balanced
+    split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:29:27Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: at least 10 SNPs and 10 metabolites remain significant across sensitivity
+    sweep
+  claim_id: c_661e26be
+  context: 'T028b [US2] Implement logic to count and verify that at least 10 SNPs
+    and 10 metabolites remain significant across the entire sensitivity sweep (defined
+    as intersection of significant features across all three thresholds); if count
+    < 10, write success_status: FAILED to artifacts/reports/success_criteria.json
+    and log a warning (SC-002)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_10_SNPs_and_10_metabolites_remain_significant_acros
+  kind: magnitude
+  raw_text: count and verify that at least 10 SNPs and 10 metabolites remain significant
+    across the entire sensitivity sweep
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:29:31Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: perform 1000 permutation tests on independent hold-out set
+  claim_id: c_8f33d6ad
+  context: 'T033 [US3] Implement permutation testing (n=1000, shuffling phenotype
+    labels, metric: accuracy/AUC) specifically on the independent hold-out test set
+    to generate model-level p-value; output to artifacts/reports/holdout_metrics.json
+    (FR-005, SC-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement permutation testing (n=1000, shuffling phenotype labels, metric:
+    accuracy/AUC) specifically on the independent hold-out test set to generate model-level
+    p-value'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T06:29:32Z'

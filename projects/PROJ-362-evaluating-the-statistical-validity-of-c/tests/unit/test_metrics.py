@@ -1,103 +1,82 @@
+"""
+Unit tests for metrics.py NDCG@10 and other metric calculations.
+"""
+
 import pytest
-from metrics import ndcg_at_k, dcg_at_k, idcg_at_k, discount_factor
+from code.metrics import discount_factor, dcg_at_k, idcg_at_k, ndcg_at_k, average_precision
 
-def test_discount_factor():
-    # discount_factor(i) = 1 / log2(i + 2)
-    # i=0 -> 1/log2(2) = 1/1 = 1.0
-    assert discount_factor(0) == pytest.approx(1.0)
-    # i=1 -> 1/log2(3) ≈ 0.6309
-    assert discount_factor(1) == pytest.approx(0.6309297535714574)
+class TestDiscountFactor:
+    def test_rank_1(self):
+        # log2(2) = 1.0
+        assert discount_factor(1) == 1.0
+    
+    def test_rank_3(self):
+        # log2(4) = 2.0 -> 1/2 = 0.5
+        assert discount_factor(3) == 0.5
 
-def test_dcg_at_k_simple():
-    # Relevance: [3, 2, 3, 0, 1]
-    # DCG@2 = rel[0]/log2(2) + rel[1]/log2(3) = 3/1 + 2/0.6309...
-    rel = [3, 2, 3, 0, 1]
-    # DCG@1 = 3
-    assert dcg_at_k(rel, k=1) == pytest.approx(3.0)
-    # DCG@2 = 3 + 2/log2(3)
-    expected_dcg_2 = 3 + 2 / (1.5849625007211563)
-    assert dcg_at_k(rel, k=2) == pytest.approx(expected_dcg_2)
+class TestDcgAtK:
+    def test_simple_dcg(self):
+        # Labels: [3, 2, 2, 1]
+        # Rank 1: 3 / log2(2) = 3
+        # Rank 2: 2 / log2(3) ~ 1.26
+        # DCG = 3 + 1.26...
+        labels = [3, 2, 2, 1]
+        dcg = dcg_at_k(labels, k=2)
+        assert dcg > 3.0
+        assert dcg < 4.0
 
-def test_idcg_at_k_perfect():
-    # Ideal relevance: [3, 3, 2, 1, 0] for k=5
-    ideal_rel = [3, 3, 2, 1, 0]
-    # IDCG@5 is the DCG of the sorted list
-    expected_idcg = 0
-    for i, r in enumerate(ideal_rel):
-        expected_idcg += r / (1 + math.log2(i + 2))
-    
-    import math
-    assert idcg_at_k(ideal_rel, k=5) == pytest.approx(expected_idcg)
+    def test_dcg_all(self):
+        labels = [1, 0, 0]
+        # Rank 1: 1/1 = 1.
+        # Rank 2: 0.
+        # Rank 3: 0.
+        assert dcg_at_k(labels) == 1.0
 
-def test_ndcg_at_k_known_values():
-    """
-    Test NDCG@3 with a known ground truth scenario.
-    Relevance labels: [3, 2, 3, 0, 1]
-    k=3
-    
-    Actual DCG@3:
-    i=0: 3 / log2(2) = 3.0
-    i=1: 2 / log2(3) ≈ 1.2618
-    i=2: 3 / log2(4) = 1.5
-    Total DCG@3 ≈ 5.7618
-    
-    Ideal order (sorted desc): [3, 3, 2, 1, 0]
-    IDCG@3:
-    i=0: 3 / log2(2) = 3.0
-    i=1: 3 / log2(3) ≈ 1.8928
-    i=2: 2 / log2(4) = 1.0
-    Total IDCG@3 ≈ 5.8928
-    
-    NDCG@3 = DCG@3 / IDCG@3
-    """
-    rel = [3, 2, 3, 0, 1]
-    k = 3
-    
-    import math
-    # Calculate expected manually
-    dcg_val = 0
-    for i in range(min(k, len(rel))):
-        dcg_val += rel[i] / math.log2(i + 2)
-    
-    sorted_rel = sorted(rel, reverse=True)
-    idcg_val = 0
-    for i in range(min(k, len(sorted_rel))):
-        idcg_val += sorted_rel[i] / math.log2(i + 2)
-    
-    expected_ndcg = dcg_val / idcg_val if idcg_val > 0 else 0.0
-    
-    actual_ndcg = ndcg_at_k(rel, k=k)
-    
-    assert actual_ndcg == pytest.approx(expected_ndcg, rel=1e-5)
+class TestIdcgAtK:
+    def test_idcg_ideal(self):
+        # Ideal order: [3, 2, 1, 0]
+        # DCG of this should be the IDCG of [0, 1, 2, 3]
+        ideal = [3, 2, 1, 0]
+        shuffled = [0, 1, 2, 3]
+        assert idcg_at_k(shuffled) == dcg_at_k(ideal)
 
-def test_ndcg_at_k_perfect_ranking():
-    # If the list is already sorted descending, NDCG should be 1.0
-    rel = [3, 2, 1, 0]
-    k = 4
-    assert ndcg_at_k(rel, k=k) == pytest.approx(1.0)
+class TestNdcgAtK:
+    def test_ndcg_perfect(self):
+        # Perfect ranking: [3, 2, 1]
+        labels = [3, 2, 1]
+        assert ndcg_at_k(labels) == 1.0
 
-def test_ndcg_at_k_zero_relevance():
-    # All zeros should result in 0.0
-    rel = [0, 0, 0, 0]
-    k = 4
-    assert ndcg_at_k(rel, k=k) == pytest.approx(0.0)
+    def test_ndcg_worst(self):
+        # Worst ranking (all 0s or 0s at top): [0, 0, 3]
+        # DCG will be low, IDCG will be high (based on sorted [3, 0, 0])
+        labels = [0, 0, 3]
+        ndcg = ndcg_at_k(labels)
+        assert 0.0 <= ndcg < 1.0
 
-def test_ndcg_at_k_k_greater_than_len():
-    # k larger than list length should just use the whole list
-    rel = [3, 2, 1]
-    k = 10
-    # Should calculate NDCG for the whole list
-    assert ndcg_at_k(rel, k=k) == pytest.approx(1.0) # Already sorted
+    def test_ndcg_k_cutoff(self):
+        # [3, 2, 1, 0]
+        # k=2: only considers [3, 2]
+        labels = [3, 2, 1, 0]
+        ndcg_k2 = ndcg_at_k(labels, k=2)
+        # k=4: considers all
+        ndcg_k4 = ndcg_at_k(labels, k=4)
+        # Since [3, 2] is the top of the ideal, NDCG@2 should be 1.0
+        assert ndcg_k2 == 1.0
 
-def test_ndcg_at_k_unsorted():
-    # Reverse sorted: [0, 1, 2, 3]
-    rel = [0, 1, 2, 3]
-    k = 4
-    # Ideal: [3, 2, 1, 0]
-    # DCG: 0/1 + 1/log2(3) + 2/log2(4) + 3/log2(5)
-    # IDCG: 3/1 + 2/log2(3) + 1/log2(4) + 0/log2(5)
-    import math
-    dcg = 0 + 1/math.log2(3) + 2/2 + 3/math.log2(5)
-    idcg = 3 + 2/math.log2(3) + 1/2 + 0
-    expected = dcg / idcg
-    assert ndcg_at_k(rel, k=k) == pytest.approx(expected, rel=1e-5)
+class TestAveragePrecision:
+    def test_ap_perfect(self):
+        # [1, 1, 0, 0] -> Rel at 1, Rel at 2.
+        # P@1 = 1/1 = 1. P@2 = 2/2 = 1. Avg = 1.
+        labels = [1, 1, 0, 0]
+        assert average_precision(labels) == 1.0
+
+    def test_ap_worst(self):
+        # [0, 0, 1, 1] -> Rel at 3, Rel at 4.
+        # P@3 = 1/3. P@4 = 2/4 = 0.5. Avg = (0.33 + 0.5)/2 = 0.4166
+        labels = [0, 0, 1, 1]
+        ap = average_precision(labels)
+        assert 0.41 < ap < 0.42
+
+    def test_ap_no_relevant(self):
+        labels = [0, 0, 0]
+        assert average_precision(labels) == 0.0

@@ -1,44 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/`
-    directory or an `__init__.py` file was presented; the claim lacks any tangible
-    artifact confirming the root project structure was created.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides only a statistical\u2011validity feature specification and\
-    \ no linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ `black` settings, or a `pre\u2011commit` hook). Since there is no artifact showing\
-    \ that ruff and black have been set up, the requirement to configure linting (ruff)\
-    \ and formatting (black) tools is not satisfied. The missing artifacts need to\
-    \ be added for the task to be considered complete."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data_loader.py` file or any code implementing dataset fetching with retry
-    logic is provided; the evidence contains only the task description and project
-    requirements, without the required artifact. Consequently, the implementation
-    cannot be verified as completed.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `data_loader.py` file with added validation logic is present, nor any logs\
-    \ or tests demonstrating schema enforcement or warnings for zero\u2011relevance\
-    \ queries. The required code artifact is missing, so the task is not satisfied."
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `config.py` file or its contents are present in the provided evidence; therefore\
-    \ the required constants for seeds, permutation count (N=1000), batch sizes, and\
-    \ memory thresholds have not been supplied. The task remains undone until a non\u2011\
-    empty `config.py` with those definitions is added."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `metrics.py` file or any code implementing a CPU\u2011only NDCG@k function\
-    \ with IDCG normalization and explicit relevance\u2011label mapping was presented.\
-    \ The required artifact is missing, so the task is not satisfied."
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -83,3 +42,45 @@ T016:
     \ Without an artifact showing the logic (e.g., a function, module, or test output),\
     \ we cannot confirm the requirement is met. The implementer must add the actual\
     \ implementation and evidence of its execution."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV files were presented in the evidence; there is no `results/null_distributions/`\
+    \ directory containing non\u2011empty files with the required headers `query_id,\
+    \ metric, score`. The implementer must provide the actual null\u2011distribution\
+    \ CSV artifacts to satisfy the task."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `power_analysis.py` file or any code implementing a bootstrap resampling\
+    \ utility for power estimation is present. The required artifact is missing, so\
+    \ the task\u2019s core requirement is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code artifact (e.g., an updated `power_analysis.py` with Benjamini\u2011\
+    Hochberg correction applied separately to NDCG and MAP p\u2011value families)\
+    \ was provided, nor any test output or documentation showing the correction in\
+    \ action. Without concrete evidence of the implementation, the task requirement\
+    \ is not satisfied."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `main.py` file (or any code) was provided, and there is no\
+    \ proof that the required output string \u201CFindings indicate statistical association,\
+    \ not causal algorithmic improvement\u201D has been added. The implementer must\
+    \ supply the updated `main.py` containing the explicit text generation."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `visualization.py` file or any generated density\u2011plot PNGs are present;\
+    \ the claim provides no code, functions, or output artifacts that create the required\
+    \ original\u2011vs\u2011permuted score visualizations. The task therefore remains\
+    \ unfulfilled."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `visualization.py` file or modified version is provided, and there are no
+    updated density plot images in `results/plots/` showing a vertical dashed MDES
+    line and label. The required code change and resulting visual artifacts are missing,
+    so the task is not satisfied.
