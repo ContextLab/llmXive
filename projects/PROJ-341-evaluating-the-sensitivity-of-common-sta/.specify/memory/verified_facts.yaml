@@ -1,21 +1,5 @@
-'|constraint less runtime second than':
-  quote: Post-production of the film began simultaneously with the wrapping-up of
-    filming in December 2025. The film's visual effects (VFX) were handled by Assemblage
-    Entertainment, while Urvashi Saxena served as the editor. The Marathi version
-    received a U/A certificate from the Central Board of Film Certification (CBFC)
-    on 24 April 2026, with a final runtime of 195.05 minutes, while the Hindi version
-    was certified on 28 April 2026 with a runtime of 187.05 minutes.
-  source_id: Raja Shivaji (film)
-  url: https://en.wikipedia.org/wiki/Raja_Shivaji_(film)
-  value: 195.05 minutes
-'|error nominal significance threshold type':
-  quote: "The boundary is conservative at early interim analyses\u2014requiring very\
-    \ strong evidence to stop a trial early\u2014and becomes less stringent as the\
-    \ study progresses. At the first interim looks the rule requires a very high test\
-    \ statistic (or equivalently a very low p-value) to declare significance. This\
-    \ protects against premature stopping on random fluctuations. As the trial progresses,\
-    \ the required statistic becomes less extreme. By the final analysis the boundary\
-    \ is essentially the nominal significance level (e.g., 0.05)."
-  source_id: "O'Brien\u2013Fleming boundary"
-  url: "https://en.wikipedia.org/wiki/O'Brien\u2013Fleming_boundary"
-  value: '0.05'
+'|bound confidence error exceed identify interval lower sample size smallest system type where':
+  quote: 'P3879: 21'
+  source_id: Q115868730
+  url: https://www.wikidata.org/wiki/Q115868730
+  value: '21'

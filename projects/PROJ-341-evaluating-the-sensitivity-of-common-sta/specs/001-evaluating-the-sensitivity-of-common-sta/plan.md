@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a simulation engine to empirically evaluate the sensitivity of parametric statistical tests (t-test, ANOVA, chi-squared) to sample size reductions. The system generates synthetic data with known ground truth (null and alternative hypotheses) across sample sizes $n=5$ to $n=500$, performing [deferred]+ iterations per condition to calculate Type I and Type II error rates. It identifies reliability thresholds where error rates deviate from nominal levels or power drops below 0.80, visualizes these trends with confidence intervals, and validates findings against public small-sample datasets. The implementation adheres to strict reproducibility and compute feasibility constraints (CPU-only, bounded runtime).
+This project implements a simulation engine to empirically evaluate the sensitivity of parametric statistical tests (t-test, ANOVA, chi-squared) to sample size reductions. The system generates synthetic data with known ground truth (null and alternative hypotheses) across sample sizes $n=5$ to $n=500$, performing [deferred]+ iterations per condition to calculate Type I and Type II error rates. It identifies reliability thresholds where error rates deviate from nominal levels or power drops below acceptable standards., visualizes these trends with confidence intervals, and validates findings against public small-sample datasets. The implementation adheres to strict reproducibility and compute feasibility constraints (CPU-only, bounded runtime).
 
 ## Technical Context
 
