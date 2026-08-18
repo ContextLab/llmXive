@@ -12,6 +12,13 @@ T002:
   r: "No `main.py` file was presented at the required location (`projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`),\
     \ nor any content showing it has been initialized. The implementer must add a\
     \ non\u2011empty `main.py` at that path to satisfy the task."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence (e.g., directory listings, creation logs, or verification commands)
+    was provided showing that `code/`, `data/`, `tests/`, and `state/` exist under
+    `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/`. Without such artifacts,
+    the task requirement cannot be confirmed.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,6 +28,14 @@ T004:
     directory, so the required setup cannot be verified. The implementer must add
     the actual ruff and black configuration (and optionally integration scripts) in
     the specified path.
+T006:
+  c: false
+  h: 175963997e5c7269a2e49c0829d66745bd9c615e0408584671d828be6157e85d
+  r: "The `pyproject.toml` exists and contains a `[tool.black]` section, but the required\
+    \ `ruff.toml` file is absent, and the ruff configuration is embedded in `pyproject.toml`\
+    \ with a broader `select` list (including \u201CW\u201D, \u201CC\u201D, \u201C\
+    B\u201D) instead of the exact `[\"E\", \"F\", \"I\"]` specified. Both the missing\
+    \ file and mismatched configuration mean the task is not fully satisfied."
 T011:
   c: false
   h: 7f2bed8697c254cbac58a2ec794a360d26878d58a1b34c19c469b284b7a4b91f
@@ -53,39 +68,3 @@ T034:
     `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/` directory,
     and no evidence of loading `human_eval_results.json` or computing a Pearson correlation
     is provided. The required artifact is missing, so the task is not satisfied.
-T037a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code artifact (e.g., an updated `train_loop.py` containing the required try/except\
-    \ block, logging, batch\u2011size reduction logic, and fatal\u2011error raise)\
-    \ was provided or referenced, so we cannot confirm that the OOM handling was actually\
-    \ implemented. The task remains unverified."
-T037b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `train_loop.py` file or of any refactoring that uses a context\
-    \ manager for model loading was provided; without the actual code artifact we\
-    \ cannot confirm the required change was made. The implementer must supply the\
-    \ updated `train_loop.py` showing the context\u2011manager\u2011based model loading."
-T038a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `train_loop.py` containing the described dynamic\u2011\
-    batch\u2011size logic (starting from `max_batch_size`, halving on OOM, stopping\
-    \ at <\u202F4, and logging the final batch size) was provided. The required code\
-    \ artifact is missing, so the task cannot be confirmed as completed."
-T038b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No monitoring script (`utils/monitor.py`) or modifications to `run_experiment.py`\
-    \ are provided, nor any log or measurement showing that peak RAM usage stays below\
-    \ 6.5\u202FGB. The required artifact and proof of the RAM bound are missing."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated versions of `download_micro_corpus.py` or `split_data.py` are provided,\
-    \ nor any diff, test, or description showing that input validation and path sanitization\
-    \ were added. The evidence consists only of a high\u2011level feature specification,\
-    \ which does not demonstrate that the required security hardening was implemented.\
-    \ The implementer must supply the modified scripts (or a clear patch) that include\
-    \ the new validation and sanitization logic."

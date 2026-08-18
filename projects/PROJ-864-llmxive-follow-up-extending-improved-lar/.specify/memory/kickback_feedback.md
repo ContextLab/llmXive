@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T014` (rejected 1x): The required output file `data/processed/micro_corpus_full.jsonl` does not exist, and there is no evidence that `tokenize_and_stream.py` was created or executed to produce it. Without the generated JSONL corpus (or the script that creates it), the task’s core requirement is unmet.
-- `T024` (rejected 1x): No `callbacks.py` file (or its contents) was presented for the path `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`, and therefore there is no evidence that epoch, train_loss, val_loss, gap, time, and RAM are being logged as required. The implementer must supply a non‑empty `callbacks.py` implementing the specified logging.
+- `T038b` (rejected 1x): No monitoring script (`utils/monitor.py`) or modifications to `run_experiment.py` are provided, nor any log or measurement showing that peak RAM usage stays below 6.5 GB. The required artifact and proof of the RAM bound are missing.
+- `T040` (rejected 1x): No updated versions of `download_micro_corpus.py` or `split_data.py` are provided, nor any diff, test, or description showing that input validation and path sanitization were added. The evidence consists only of a high‑level feature specification, which does not demonstrate that the required security hardening was implemented. The implementer must supply the modified scripts (or a clear patch) that include the new validation and sanitization logic.
 
 ## Required change
 

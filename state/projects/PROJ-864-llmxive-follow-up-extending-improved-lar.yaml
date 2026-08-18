@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-864-llmxive-follow-up-extending-improved-lar
-last_run_id: eb9e3d57-4cfa-4fac-be34-b072361f0249
+last_run_id: 865a9fa7-26b0-4b59-8981-0c9cd98d4c9e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar
 title: 'llmXive follow-up: extending "Improved Large Language Diffusion Models"'
-updated_at: '2026-08-16T09:27:53.402687Z'
+updated_at: '2026-08-18T06:53:09.586994Z'

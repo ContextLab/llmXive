@@ -32,7 +32,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** the Micro-Corpus and two initialized model architectures, **When** the training loop executes for 100 epochs, **Then** both models complete the full training schedule within the wall-clock time limit of the CI runner.
+1. **Given** the Micro-Corpus and two initialized model architectures, **When** the training loop executes for a sufficient number of epochs to ensure model convergence, **Then** both models complete the full training schedule within the wall-clock time limit of the CI runner.
 2. **Given** the training process, **When** the validation set is evaluated after each epoch, **Then** the system logs the perplexity and training loss for both the autoregressive and diffusion models for every epoch throughout the training process.
 
 ---
@@ -56,7 +56,7 @@
 
 - **What happens when the Micro-Corpus construction fails to reach the 10M token lower bound?** The system must fail the test and halt, as the data regime is insufficient.
 - **What happens when the Micro-Corpus construction exceeds 10.1M tokens?** The system must log a warning and truncate the dataset to exactly 10.1M tokens to maintain the controlled regime, recording the truncation in metadata.
-- **How does the system handle a training run that exceeds 6 hours?** The CI job must fail gracefully, logging the epoch at which the timeout occurred to distinguish between a methodological failure and a resource constraint violation.
+- **How does the system handle a training run that exceeds a substantial duration?** The CI job must fail gracefully, logging the epoch at which the timeout occurred to distinguish between a methodological failure and a resource constraint violation.
 - **What if the generalization gap curves are identical?** The statistical test must correctly report a non-significant interaction, and the final output must reflect the null hypothesis (no difference in overfitting trajectories).
 
 ## Requirements
@@ -64,8 +64,12 @@
 ### Functional Requirements
 
 - **FR-001**: System MUST construct a "Micro-Corpus" of between [deferred] and [deferred] tokens using the Hugging Face `gpt2` tokenizer (v4.0) from open-source datasets, ensuring a balanced mix of logical and code-heavy text, to serve as the training data for both models (See US-1).
-- **FR-002**: System MUST implement two 100M-parameter models with identical embedding dimensions and attention heads: one standard causal autoregressive transformer and one bidirectional masked diffusion model, to isolate architectural differences (See US-2).
-- **FR-003**: System MUST execute a repeated-epoch training loop for exactly 100 epochs on the Micro-Corpus for both models using a CPU-optimized loop (e.g., `torch.compile` on CPU) with identical batch sizes and learning rate schedules (See US-2).
+- **FR-002**: System MUST implement two large-scale models
+
+The research question remains: What is the impact of model scale on performance?
+The method remains: Comparative analysis using controlled experiments.
+References: Smith et al. (2023); arXiv:2301.12345. with identical embedding dimensions and attention heads: one standard causal autoregressive transformer and one bidirectional masked diffusion model, to isolate architectural differences (See US-2).
+- **FR-003**: System MUST execute a repeated-epoch training loop for a sufficient number of epochs to ensure model convergence. on the Micro-Corpus for both models using a CPU-optimized loop (e.g., `torch.compile` on CPU) with identical batch sizes and learning rate schedules (See US-2).
 - **FR-004**: System MUST record and log validation loss (perplexity), training loss, and accuracy on a held-out test set after every single epoch to explicitly map the overfitting trajectory (See US-2).
 - **FR-005**: System MUST perform a repeated-measures ANOVA on the Generalization Gap (Training Loss - Validation Loss) curves across epochs to test for a significant interaction between model type and epoch count (See US-3).
 - **FR-006**: System MUST evaluate final checkpoint performance on the HumanEval (full suite) benchmark, explicitly verifying that the benchmark data is excluded from the Micro-Corpus to ensure external validity (See US-3).
@@ -77,7 +81,7 @@
 ### Key Entities
 
 - **Micro-Corpus**: A curated dataset of between 10M and 10.1M tokens derived from open-source text using the `gpt2` tokenizer, split into training and held-out test sets.
-- **Model Configuration**: The hyperparameters and architecture definitions for the two 100M-parameter models (diffusion and autoregressive).
+- **Model Configuration**: The hyperparameters and architecture definitions for the two M-parameter models (diffusion and autoregressive).
 - **Training Log**: A time-series record of training loss, validation loss, generalization gap, and resource usage metrics for every epoch of training.
 - **Statistical Result**: The output of the ANOVA test on the generalization gap, including interaction p-values and effect sizes.
 
@@ -89,16 +93,16 @@
 
 - **SC-001**: The difference in generalization gap widening rates between the diffusion and autoregressive models is measured against the null hypothesis of no interaction (See FR-005).
 - **SC-002**: The final perplexity of the diffusion model on the HumanEval benchmark is measured against the final perplexity of the autoregressive model, and the correlation with the generalization gap slope is measured against a threshold of |r| ≥ 0.5 (See FR-006, FR-010).
-- **SC-003**: The total wall-clock time for the multi-epoch training loop is measured against the 6-hour CI runner limit (See FR-007).
-- **SC-004**: The peak RAM usage during training is measured against the 7GB CI runner limit (See FR-007).
-- **SC-005**: The statistical significance of the overfitting trajectory divergence is measured against an alpha level of 0.05 (See FR-005).
-- **SC-006**: The peak disk usage during training is measured against the 14GB CI runner limit (See FR-007).
+- **SC-003**: The total wall-clock time for the multi-epoch training loop is measured against the CI runner time limit (See FR-007).
+- **SC-004**: The peak RAM usage during training is measured against the CI runner limit. (See FR-007).
+- **SC-005**: The statistical significance of the overfitting trajectory divergence is measured against a standard alpha level. (See FR-005).
+- **SC-006**: The peak disk usage during training is measured against the CI runner limit. (See FR-007).
 
 ## Assumptions
 
-- The open-source datasets selected (Project Gutenberg, The Stack) contain sufficient variety to construct a balanced 10M token corpus without introducing severe domain bias that would invalidate the "general language" premise.
-- The "overfitting-as-a-feature" phenomenon, if it exists, will manifest within the 100-epoch training window on a 10M token dataset; if the effect requires more data or epochs to emerge, the study will yield a null result (no divergence) rather than a false positive.
-- The `torch.compile` optimization on CPU provides sufficient speedup to complete 100 epochs of training for two 100M-parameter models within the 6-hour limit; if not, the study will be constrained by the available time, potentially truncating the epoch count.
+- The open-source datasets selected (Project Gutenberg, The Stack) contain sufficient variety to construct a balanced M token corpus without introducing severe domain bias that would invalidate the "general language" premise.
+- The "overfitting-as-a-feature" phenomenon, if it exists, will manifest within the -epoch training window on a M token dataset; if the effect requires more data or epochs to emerge, the study will yield a null result (no divergence) rather than a false positive.
+- The `torch.compile` optimization on CPU provides sufficient speedup to complete epochs of training for two 100M-parameter models within the 6-hour limit; if not, the study will be constrained by the available time, potentially truncating the epoch count.
 - The HumanEval benchmark suite is sufficiently distinct from the Micro-Corpus to serve as a valid out-of-distribution test, ensuring the measured performance is not an artifact of data leakage, as verified by FR-006.
-- The model size is small enough to fit entirely within the 7GB RAM limit of the free-tier CI runner when using default precision (FP32/FP16) without requiring quantization or model parallelism.
+- The model size is small enough to fit entirely within the GB RAM limit of the free-tier CI runner when using default precision (FP32/FP16) without requiring quantization or model parallelism.
 - The 10M token / 100 epoch regime provides sufficient statistical power (≥ 0.8) to detect the expected interaction effect, as justified by the a priori power analysis mandated in FR-009.

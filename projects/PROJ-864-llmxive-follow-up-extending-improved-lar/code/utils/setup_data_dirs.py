@@ -4,66 +4,59 @@ from pathlib import Path
 from typing import List
 from utils.logging import get_logger, info, error
 
-def setup_data_directories() -> List[str]:
+def setup_data_directories() -> bool:
     """
-    Initialize the project directory structure.
+    Create the required project directories: code/, data/, tests/, and state/.
     
-    Creates the following directories relative to the project root:
-    - code/
-    - data/raw/
-    - data/processed/
-    - data/artifacts/
-    - tests/
-    - state/
-    - figures/
-    - analysis/
-    - models/
-    - training/
+    This function ensures that the directory structure required by the project
+    exists under the project root. It creates the directories if they don't exist
+    and verifies their existence afterwards.
     
     Returns:
-        List[str]: List of created directory paths (absolute).
+        bool: True if all directories were successfully created or already exist,
+              False if any directory creation failed.
     """
-    # Determine project root (parent of code/)
-    current_file = Path(__file__).resolve()
-    code_root = current_file.parent
-    project_root = code_root.parent
-    
-    # Define relative paths to create
-    relative_paths = [
-        "code",
-        "code/data",
-        "code/models",
-        "code/training",
-        "code/analysis",
-        "code/utils",
-        "code/tests",
-        "data/raw",
-        "data/processed",
-        "data/artifacts",
-        "figures",
-        "state",
-    ]
-    
-    created_dirs = []
     logger = get_logger(__name__)
     
-    for rel_path in relative_paths:
-        full_path = project_root / rel_path
-        
-        if not full_path.exists():
-            try:
-                full_path.mkdir(parents=True, exist_ok=True)
-                created_dirs.append(str(full_path))
-                info(f"Created directory: {full_path}")
-            except OSError as e:
-                error(f"Failed to create directory {full_path}: {e}")
-                raise
-        else:
-            info(f"Directory already exists: {full_path}")
+    # Define the directories to create relative to the project root
+    # The project root is assumed to be the parent of the 'code' directory
+    project_root = Path(__file__).resolve().parent.parent.parent
     
-    if created_dirs:
-        info(f"Successfully created {len(created_dirs)} directories.")
+    directories_to_create: List[Path] = [
+        project_root / "code",
+        project_root / "data",
+        project_root / "tests",
+        project_root / "state"
+    ]
+    
+    success = True
+    
+    for directory in directories_to_create:
+        try:
+            if not directory.exists():
+                directory.mkdir(parents=True, exist_ok=True)
+                info(f"Created directory: {directory}")
+            else:
+                info(f"Directory already exists: {directory}")
+            
+            # Verify the directory exists and is actually a directory
+            if not directory.is_dir():
+                error(f"Path exists but is not a directory: {directory}")
+                success = False
+                
+        except PermissionError as e:
+            error(f"Permission denied when creating directory {directory}: {e}")
+            success = False
+        except OSError as e:
+            error(f"OS error when creating directory {directory}: {e}")
+            success = False
+        except Exception as e:
+            error(f"Unexpected error when creating directory {directory}: {e}")
+            success = False
+    
+    if success:
+        info("All required directories verified successfully.")
     else:
-        info("No new directories created (all exist).")
-        
-    return created_dirs
+        error("Failed to create or verify one or more required directories.")
+    
+    return success
