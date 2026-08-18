@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Extraction Schema"
+description: "Schema for the extracted emoji features used in analysis. Only valid if data is available."
+type: object
+properties:
+  feature_name:
+    type: string
+    description: "Name of the feature (e.g., 'emoji_count', 'U+1F60D')."
+  feature_type:
+    type: string
+    enum:
+      - "continuous"
+      - "categorical"
+      - "binary"
+    description: "Type of the feature for statistical modeling."
+  value:
+    type: number
+    description: "The value of the feature for a specific message."
+  collapsed_category:
+    type: string
+    description: "Optional field indicating if the feature was collapsed into a 'Rare' category."
+required:
+  - feature_name
+  - feature_type
+  - value
+additionalProperties: false

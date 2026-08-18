@@ -1,49 +1,56 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AnalysisResult"
-description: "Schema for the output of statistical tests (correlation, regression)."
+description: "Schema for the output of statistical tests (correlation and regression). Only valid if data is available."
 type: "object"
 properties:
   test_type:
     type: "string"
-    enum:
-      - "Pearson"
-      - "Spearman"
-      - "Regression"
-    description: "Type of statistical test performed."
-  variable:
+    description: "e.g., 'pearson_corr', 'lasso_regression'."
+  variable_x:
     type: "string"
-    description: "Name of the variable tested (e.g., 'emoji_count')."
+    description: "Predictor variable (e.g., 'emoji_count')."
+  variable_y:
+    type: "string"
+    description: "Outcome variable ('intensity_score')."
   coefficient:
     type: "number"
-    description: "Correlation coefficient (r) or Standardized Regression Beta."
+    description: "Correlation (r) or Unstandardized Beta."
+  standardized_beta:
+    type: "number"
+    description: "Standardized Regression Coefficient (Effect Size). **Mandatory primary metric per FR-004 and SC-003.**"
   p_value:
     type: "number"
+    description: "Raw p-value."
     minimum: 0
     maximum: 1
-    description: "Raw p-value."
   adjusted_p_value:
     type: "number"
+    description: "Bonferroni-corrected p-value."
     minimum: 0
     maximum: 1
-    description: "Bonferroni-corrected p-value."
-  effect_size_label:
-    type: "string"
-    enum:
-      - "Small"
-      - "Medium"
-      - "Large"
-      - "Negligible"
-    description: "Interpretation of the effect size based on Beta benchmarks."
   sample_size:
     type: "integer"
+    description: "N used for the test."
     minimum: 1
-    description: "Number of observations used in the test."
+  power_limitation:
+    type: "boolean"
+    description: "True if N was insufficient for target power."
+  category_aggregation:
+    type: "string"
+    description: "Description of how emoji types were aggregated (e.g., 'Top 5 + Other')."
+  alpha_selection_method:
+    type: "string"
+    description: "Method used to select Lasso alpha (e.g., 'cross_validation')."
 required:
   - test_type
-  - variable
+  - variable_x
+  - variable_y
   - coefficient
+  - standardized_beta
   - p_value
   - adjusted_p_value
-  - effect_size_label
   - sample_size
+  - power_limitation
+  - category_aggregation
+  - alpha_selection_method
 additionalProperties: false

@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the statistical analysis results. Only valid if data is available."
+type: object
+properties:
+  test_type:
+    type: string
+    description: "Type of statistical test (e.g., 'pearson', 'lasso')."
+  predictor:
+    type: string
+    description: "Name of the predictor variable."
+  coefficient:
+    type: number
+    description: "Correlation coefficient or regression beta."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value."
+  adjusted_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni-corrected p-value."
+  standardized_beta:
+    type: number
+    description: "Standardized regression coefficient."
+  significance:
+    type: boolean
+    description: "True if adjusted p-value < 0.05."
+  alpha_selection_method:
+    type: string
+    description: "Method used to select Lasso alpha (e.g., 'cross_validation')."
+required:
+  - test_type
+  - predictor
+  - coefficient
+  - p_value
+  - adjusted_p_value
+  - standardized_beta
+  - significance
+  - alpha_selection_method
+additionalProperties: false

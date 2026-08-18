@@ -1,62 +1,89 @@
 # Research: The Influence of Emoji Use on Perceived Emotional Intensity in Text
 
-## Research Question
-Does the frequency and type of emoji in digital text messages influence how emotionally intense recipients perceive those messages to be?
+## Overview
 
-## Background & Literature Review
-
-Emojis serve as digital paralinguistic cues, compensating for the lack of non-verbal signals (tone, facial expression) in text-based communication. Prior research suggests that emojis can amplify emotional intensity, but the specific relationship between *frequency* (count) and *type* (e.g., heart vs. fire) and perceived intensity remains under-quantified in large-scale observational datasets.
-
-**Key Concepts**:
-- **Emotional Intensity**: The strength of the emotion perceived by the recipient. Operationalized here as a 1-7 Likert scale.
-- **Emoji Metrics**: Presence (binary), Count (integer), and Type (Unicode category).
+This research document defines the dataset strategy, methodological approach, and statistical rigor for the project. It addresses the feasibility of the study given the available open data and compute constraints. The primary scientific question is: "Does a public dataset exist that allows for the direct testing of the relationship between emoji use and human-rated emotional intensity?"
 
 ## Dataset Strategy
 
 ### Verified Datasets
-The plan relies exclusively on the following verified dataset source:
+The project is constrained to the following verified datasets from the `# Verified datasets` block. **Crucially, the study requires a dataset containing `text_content`, `emoji_presence`, AND `human_intensity_score`.**
 
-- **CMU Text Message Corpus**:
-  - **Source**: `ml-datasets` package (verified via `pip install ml-datasets` and execution).
-  - **Access Method**: `import ml_datasets; train, dev = ml_datasets.cmu()`.
-  - **Content**: [deferred] real text messages with `message_id` and `text` fields.
-  - **Limitations**: The dataset contains text messages but **does not** include human-rated emotional intensity scores.
-  - **URLs**: No direct raw URL is provided in the "Verified datasets" block for a downloadable CSV; the `ml_datasets` library is the canonical access point.
+1.  **CMU Datasets**:
+    *   `cmu-arctic`: Audio synthesis dataset. Likely lacks human-rated intensity scores for text.
+    *   `cmu-book-summaries`: Summaries of books. Unlikely to contain human-rated intensity scores for individual messages.
+    *   `cmu_hinglish_dog`: Dog-related content. Unlikely to contain the required intensity metric.
+2.  **NOT (Not Open Text) Datasets**:
+    *   `issues-kaggle-notebooks`: GitHub issues. No intensity scores.
+    *   `Answerable-or-Not`: Binary classification. No intensity scores.
+    *   `vlmbook-notebooks`: Code/Notebook data. No intensity scores.
 
-### Gap Analysis & Strategy
-**Gap**: The research question requires a dependent variable (`intensity_score`) that reflects **human perception**, but the CMU corpus only provides text.
-**Strategy**: **ACTIVATE SYNTHETIC PROXY MODULE** (FR-002, US-2).
-1.  **Proxy Generation**: Since human-rated data is unavailable in the CMU corpus, the system will generate "synthetic proxy scores" for N messages (where N is determined by power analysis, min N=128).
-2.  **Non-Circular Design**: To address the multicollinearity concern (methodology-f32e3adc), the proxy generation algorithm **will NOT** use `text_length` or `punctuation` as predictors. Instead, it will assign intensity scores based on a **stochastic weighting of emoji presence and count**, calibrated to mimic the distribution of human ratings (1-7 scale). This ensures that `text_length` and `punctuation` remain valid, independent control variables in the final regression model.
-3.  **Validation**: A small subset of messages (N=20) will be manually rated by humans (simulated via a fixed seed for reproducibility in the test environment, or the plan assumes a small human-annotated subset is available for validation as per spec). The proxy scores will be compared against this human subset. If the correlation (r) is < 0.6, the proxy is deemed invalid, and the project will flag a "Proxy Validity Failure" warning in the final report rather than proceeding with unvalidated data.
-4.  **Labeling**: All generated scores will be marked with `is_proxy=True` in the dataset to ensure transparency.
+**Gap Analysis**:
+None of the verified datasets listed in the `# Verified datasets` block explicitly contain the required `human_intensity_score` column alongside text messages. The spec assumes a "public text message corpus (e.g., CMU Text Message Corpus)" exists with these fields. However, the verified list provided for this project does not include the "CMU Text Message Corpus" with intensity ratings.
 
-### Data Hygiene
-- **Checksum**: The raw data loaded from `ml_datasets` will be checksummed (SHA-256) and stored in `state/...yaml`.
-- **Derivation**: Feature extraction and proxy generation produce new files in `data/processed/`. No in-place modification.
+**Resolution**:
+Per **Constitution Principle VI** and **FR-002c**, the system MUST halt if the required `human_intensity_score` is missing. Since no verified source in the provided list contains this specific modality, the plan is to:
+1.  Attempt to load the most text-rich dataset from the verified list (e.g., `cmu-book-summaries` or `issues-kaggle-notebooks`) to verify the schema.
+2.  If `human_intensity_score` is absent (which is expected), the pipeline will trigger the "Data Unavailable" report as required by **US-1** and **US-2**.
+3.  **Critical Note**: If the study cannot proceed without human-rated data, and no open source exists in the verified list, the research question as stated cannot be answered with the current available resources. The plan includes the logic to detect this and report it, rather than fabricating scores or using a substitute dataset that lacks the outcome variable. The "Data Unavailable" report is the valid scientific output for this scenario.
 
-## Statistical Methodology
+*Self-Correction for Implementation*: The implementation will strictly follow the "Data Unavailable" path if the verified datasets do not contain the column. The plan does not invent a new dataset URL.
 
-### Hypotheses
-- **H0**: There is no correlation between emoji frequency and perceived emotional intensity (r = 0).
-- **H1**: There is a positive correlation between emoji frequency and perceived emotional intensity (r > 0).
-- **H2**: Specific emoji types (e.g., hearts) are associated with higher intensity than others (e.g., neutral faces).
+### Data Loading & Verification Plan
+*   **Source**: Hugging Face `datasets` library.
+*   **Streaming**: Use `streaming=True` to avoid loading large files into memory if necessary, though expected sizes are small.
+*   **Verification**:
+    *   Check for `text_content` (or equivalent column).
+    *   Check for `human_intensity_score`.
+    *   If `human_intensity_score` is missing -> **HALT** and generate report.
+    *   If present -> Proceed to extraction.
 
-### Analysis Plan
-1.  **Correlation**: Compute Pearson (if normal) or Spearman (if non-normal) correlation between `emoji_count` and `intensity_score` (FR-003).
-2.  **Regression**: Fit a linear model: `Intensity ~ Emoji_Count + Text_Length + Punctuation_Count`.
-    - **Effect Size**: Report Standardized Regression Coefficient (Beta) for `Emoji_Count` (FR-004).
-    - **Controls**: Text length and punctuation are controlled to isolate the emoji effect. **Crucially, because the proxy generation excludes these variables, they are not collinear with the outcome, ensuring valid coefficient estimation.**
-3.  **Multiple Comparisons**: When testing specific emoji types, apply Bonferroni correction to p-values (FR-005, SC-002).
-4.  **Power Analysis**: Determine minimum N to detect a small-to-medium effect (Cohen's f² ≥ 0.02) with 80% power at α=0.05 (FR-006).
+## Methodological Rigor
 
-### Rigor & Limitations
-- **Observational Design**: The study is observational; claims are strictly associational (Constitution Principle VI).
-- **Data Limitation**: If no human-rated dataset is found, the study relies on the **Synthetic Proxy**. The validity of this proxy is strictly limited by the N=20 validation subset. The final report will explicitly state: "Results derived from a synthetic proxy validated against N=20 human ratings (r=[value])."
-- **Collinearity**: Emoji types may be correlated with text length or sentiment. The regression model includes controls. The proxy generation logic is explicitly designed to **avoid** using text length/punctuation as predictors to prevent artificial inflation of the emoji coefficient.
-- **Proxy Validity**: If the proxy fails the validity check (r < 0.6), the project will report a "Proxy Validity Failure" and refrain from making strong claims about the relationship, instead highlighting the limitation.
+### Statistical Approach (Conditional on Data Availability)
+If a valid dataset is found, the following rigorous methodology will be applied:
+
+1.  **Descriptive Statistics**:
+    *   Calculate distribution of `emoji_count`, `emoji_types`, and `intensity_score`.
+    *   Check for skewness in intensity ratings.
+2.  **Correlation Analysis**:
+    *   **Metric**: Spearman's rank correlation (robust to non-normality of Likert scales) and Pearson's correlation (for comparison).
+    *   **Hypothesis**: H0: No association between emoji frequency and intensity.
+    *   **Correction**: Bonferroni correction applied for multiple tests (testing each unique emoji type).
+3.  **Regression Analysis**:
+    *   **Model**: Linear Regression.
+    *   **Predictors**: `emoji_count`, `text_length`, `punctuation_count`, `emoji_type` (one-hot encoded).
+    *   **Feature Collapsing**: To handle high dimensionality in small datasets (N ~128), emoji types with frequency < 5 will be collapsed into a single "Rare" category before modeling.
+    *   **Regularization**: Lasso (L1) with **alpha selected via 5-fold cross-validation** (not fixed at 0.1) to optimize the bias-variance tradeoff for the specific dataset. This ensures model stability and valid coefficient estimates.
+    *   **Effect Size**: Standardized Beta coefficients reported.
+    *   **Causal Framing**: All claims framed as **associational** (observational design). No causal claims (randomization absent).
+4.  **Power Analysis**:
+    *   Pre-study power analysis to determine N required for Cohen's f² ≥ 0.02, power=0.80, α=0.05.
+    *   Post-hoc check: If N is insufficient, flag "Power Limitation Warning" (Edge Case).
+
+### Multiple Comparison & Error Control
+*   **Family-Wise Error Rate (FWER)**: Controlled via Bonferroni correction. Adjusted p-value = p * k (where k = number of unique emoji types tested).
+*   **Threshold**: Significance at adjusted p < 0.05.
+
+### Measurement Validity
+*   **Outcome**: `human_intensity_score` (1-7 Likert). Assumed valid proxy for perceived intensity based on literature (Assumption).
+*   **Predictors**: Objective extraction of emoji from raw text. No circularity (Constitution Principle VII).
+*   **Independence Check**: The independence of predictors (emoji) and outcomes (intensity) is contingent on the dataset's collection method (e.g., blind rating). If the dataset is not verified, this independence cannot be assumed, reinforcing the decision to halt if data is missing.
 
 ## Compute Feasibility
-- **Platform**: GitHub Actions free-tier (2 CPU, ~7 GB RAM).
-- **Method**: All statistical operations (correlation, OLS regression) and proxy generation are computationally light and run efficiently on CPU.
-- **No GPU Required**: The analysis does not involve deep learning model training or inference.
+
+*   **Platform**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
+*   **Method**:
+    *   Data loading: `pandas` (CPU).
+    *   Extraction: `regex` + `emoji` library (CPU).
+    *   Analysis: `scipy`, `statsmodels`, `sklearn` (CPU).
+*   **GPU Requirement**: None. The analysis relies on classical statistics and linear regression, which are computationally lightweight. No transformer fine-tuning or diffusion models are involved.
+*   **Memory**: Streaming or chunked processing if dataset > 1GB (unlikely for text message corpora).
+*   **Time**: Expected < 60 seconds for verification-only path; < 300 seconds for full analysis path.
+
+## Decision Rationale
+
+*   **CPU vs GPU**: CPU is sufficient. No deep learning models are required for the specified statistical tests.
+*   **Dataset Selection**: The plan strictly adheres to the verified list. If the required `human_intensity_score` is absent, the pipeline halts. This prevents the fabrication of data or the use of invalid proxies, adhering to **Constitution Principle VI**. The "Data Unavailable" report is the valid scientific outcome.
+*   **Regularization**: Lasso chosen over Ridge for `emoji_type` to perform feature selection. **Alpha is determined via cross-validation** to ensure optimal performance for the specific data distribution, addressing concerns about arbitrary parameter choice.
+*   **Feature Collapsing**: Collapsing rare emoji types prevents overfitting in high-dimensional spaces when N is small, ensuring model stability.

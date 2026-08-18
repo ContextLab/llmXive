@@ -1,55 +1,65 @@
 # Quickstart: The Influence of Emoji Use on Perceived Emotional Intensity in Text
 
 ## Prerequisites
-- Python 3.11+
-- `pip` package manager
+
+*   Python 3.11+
+*   Git
+*   Access to a GitHub Actions runner (or local environment with 7GB+ RAM).
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Install dependencies**:
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-401-the-influence-of-emoji-use-on-perceived-/code
+    ```
+
+2.  **Create Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install Dependencies**:
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` includes `ml-datasets`, `pandas`, `numpy`, `scipy`, `statsmodels`, `seaborn`, `emoji`.*
 
 ## Running the Pipeline
 
-The pipeline is designed to run end-to-end on a CPU.
-
-1.  **Execute the main script**:
-    ```bash
-    python src/main.py
-    ```
-    This will:
-    - Download/load the verified dataset.
-    - **Validate** that the dataset contains human-rated intensity scores. **If missing, the script halts with an error.**
-    - Extract emoji features.
-    - Perform power analysis.
-    - Run correlation and regression analyses.
-    - Generate plots and save results to `data/processed/`.
-
-2.  **Verify Outputs**:
-    - Check `data/processed/analysis_ready.csv` for the combined features and human-rated scores.
-    - Check `data/processed/results.csv` for statistical findings.
-    - Check `output/` for visualization plots (e.g., `intensity_vs_emoji_count.png`).
-
-## Testing
-
-Run the test suite to ensure reproducibility and correctness:
+The pipeline is executed via `main.py`. It will automatically:
+1.  Download the verified dataset (if available).
+2.  Verify the presence of `human_intensity_score`.
+3.  **If missing**: Generate a "Data Unavailable" report and exit.
+4.  **If present**: Extract emoji features, run statistical analysis, and generate reports.
 
 ```bash
-pytest tests/ -v
+python main.py
 ```
 
-- **Unit Tests**: Verify emoji extraction logic (FR-001).
-- **Integration Tests**: Verify the full pipeline produces identical results on re-run (SC-004).
-- **Data Validation Tests**: Verify that the pipeline halts if human-rated data is missing.
+### Expected Output
 
-## Reproducibility Check
+*   **Data Unavailable (Expected Outcome)**: `results/data_unavailable_report.md` detailing the missing `human_intensity_score` column.
+*   **Success (Conditional)**: `results/analysis_report.json`, `results/correlation_plot.png`, `results/regression_coefficients.csv`, `results/reproducibility_report.md`, `results/performance_report.md`.
 
-To verify reproducibility (Constitution Principle I):
-1.  Run `python src/main.py` and save the output hash.
-2.  Delete `data/processed/`.
-3.  Run `python src/main.py` again.
-4.  Verify that the new output hash matches the previous one.
+## Verification
+
+To verify reproducibility:
+1.  Run the pipeline twice.
+2.  Compare the output checksums.
+3.  Ensure `results/data_unavailable_report.md` (or `analysis_report.json`) matches exactly.
+
+```bash
+# Run twice and compare
+python main.py
+cp results/data_unavailable_report.md results/run1_report.md  # or analysis_report.json
+python main.py
+diff results/data_unavailable_report.md results/run1_report.md  # or analysis_report.json
+# No output indicates success (files are identical)
+```
+
+## Troubleshooting
+
+*   **Data Unavailable**: If the script halts with "Data Unavailable", this is the **expected outcome** given the current verified dataset list. The report details which fields were missing. No further action is required unless a new verified dataset with `human_intensity_score` is added to the project.
+*   **Memory Error**: If loading the dataset fails, ensure `streaming=True` is used in the loader (implemented by default).
+*   **Emoji Extraction Errors**: Ensure the `emoji` library is up to date.

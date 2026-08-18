@@ -1,25 +1,12 @@
-status: verified
-kind: pypi_package
-ref: ml-datasets
-access_python: "import ml_datasets\n\n# Load the CMU Text Message Corpus (train and\
-  \ dev splits)\ntrain, dev = ml_datasets.cmu()\n# Combine splits into a single list\
-  \ of records\nrecords_raw = train + dev\n# Ensure we have data\nif not records_raw:\n\
-  \    raise ValueError('No records loaded')\n# Normalize each record to a dict with\
-  \ explicit fields\nnormalized = []\nfor idx, rec in enumerate(records_raw):\n  \
-  \  if isinstance(rec, (list, tuple)):\n        # Expected format: (text, annotation,\
-  \ ...)\n        text = rec[0]\n    elif isinstance(rec, dict):\n        # Look for\
-  \ a key that likely holds the message text\n        text = rec.get('text') or rec.get('message')\n\
-  \        if text is None:\n            raise KeyError('Text field not found in record\
-  \ dict')\n    else:\n        raise TypeError(f'Unexpected record type: {type(rec)}')\n\
-  \    normalized.append({'message_id': idx, 'text': text})\nprint(f\"RECORDS={len(normalized)}\"\
-  )\nprint('FIELDS=message_id,text')\n"
-record_count: 41793
-sample_fields:
-- message_id
-- text
-field_coverage: 1.0
+status: none
+intent: OpenML SMS Spam Collection CMU Arctic CMU Text Message Corpus emoji intensity
+  dataset python package dataset
 required_fields:
-- message_id
 - text
-intent: CMU Text Message Corpus OpenML equivalent python package dataset
-cache_key: 911d2b82db18a2a1e0c319dc31d60015d78ca7d99905a78d2b5df6f28e215572
+- emoji_presence
+- emoji_count
+- emoji_unicode_category
+- intensity_score
+cache_key: ef6e25e4e1aea547b323b4b7c0b137e41bd589759dbceee69706a2604ff3ec6a
+searched_at: '2026-08-18T08:55:55.826921+00:00'
+retry_count: 1
