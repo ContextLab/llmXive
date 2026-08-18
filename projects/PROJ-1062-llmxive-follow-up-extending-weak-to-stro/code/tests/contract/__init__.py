@@ -1,1 +1,3 @@
-"""Contract tests for API interfaces."""
+"""
+Contract tests for component interfaces
+"""

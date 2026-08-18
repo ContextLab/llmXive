@@ -1,5 +1,6 @@
 """
-Script to run Black code formatter on the project.
+Script to run the formatter (black) on the project codebase.
+Usage: python code/scripts/run_format.py
 """
 import subprocess
 import sys
@@ -7,29 +8,24 @@ import os
 from pathlib import Path
 
 def main():
-    """Execute Black formatter on the code directory."""
-    project_root = Path(__file__).resolve().parent.parent
-    code_dir = project_root / "code"
-    
-    if not code_dir.exists():
-        print(f"Error: Code directory not found at {code_dir}")
-        sys.exit(1)
+    """Run black format on the code directory."""
+    root = Path(__file__).parent.parent.parent
+    code_dir = root / "code"
+    black_cmd = [sys.executable, "-m", "black", str(code_dir)]
 
-    print(f"Running Black formatter on {code_dir}...")
-    
+    print(f"Running: {' '.join(black_cmd)}")
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "black", "--line-length", "88", str(code_dir)],
+            black_cmd,
+            cwd=root,
             check=True,
             capture_output=False,
         )
-        print("Formatting completed successfully.")
+        print("Formatting completed.")
+        return 0
     except subprocess.CalledProcessError as e:
-        print(f"Formatting failed: {e}")
-        sys.exit(1)
-    except FileNotFoundError:
-        print("Error: Black is not installed. Please install it with: pip install black")
-        sys.exit(1)
+        print(f"Formatting failed with exit code {e.returncode}")
+        return e.returncode
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

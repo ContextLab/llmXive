@@ -1,6 +1,11 @@
-'|batch size training used':
+'|batch experiment size use':
   quote: We find that small batch sizes (1) train stably, (2) are consistently more
     robust to
   source_id: '2507.07101'
   url: https://arxiv.org/abs/2507.07101
   value: '1'
+'|hour limit time training':
+  quote: 'data: in fact, we only have 6 hours of annotated audio. There-'
+  source_id: '2605.13846'
+  url: https://arxiv.org/abs/2605.13846
+  value: 6 hours

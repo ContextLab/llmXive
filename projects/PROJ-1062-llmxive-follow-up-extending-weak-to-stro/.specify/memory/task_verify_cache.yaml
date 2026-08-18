@@ -1,3 +1,25 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory `projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/`
+    or any file listing was provided, so the required project structure cannot be
+    verified as existing or populated. The implementer must supply the actual folder
+    hierarchy and its contents.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No project initialization files (e.g., `pyproject.toml`, `requirements.txt`,
+    or `environment.yml`) or installation scripts are present, and there is no evidence
+    that `torch` was installed with the required `--index-url` and version pinning.
+    The required artifacts to prove the Python 3.11 project setup are missing.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting (ruff) or formatting (black) configuration files (e.g., `pyproject.toml`,
+    `.ruff.toml`, `.pre-commit-config.yaml`) or related setup scripts were provided
+    as evidence, so the requirement to configure these tools is not demonstrated.
+    The implementer must supply the actual configuration artifacts showing ruff and
+    black are set up for the project.
 T005:
   c: true
   h: 738be5d91bd14aa0ec1d6f94487b3984ba8d4cd5a29d0d94e3f4c562d5de7802

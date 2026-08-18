@@ -1,1 +1,3 @@
-"""Integration tests for full pipelines."""
+"""
+Integration tests for end-to-end workflows
+"""

@@ -1,5 +1,6 @@
 """
-Script to run Ruff linter on the project.
+Script to run the linter (ruff) on the project codebase.
+Usage: python code/scripts/run_lint.py
 """
 import subprocess
 import sys
@@ -7,29 +8,24 @@ import os
 from pathlib import Path
 
 def main():
-    """Execute Ruff linter on the code directory."""
-    project_root = Path(__file__).resolve().parent.parent
-    code_dir = project_root / "code"
-    
-    if not code_dir.exists():
-        print(f"Error: Code directory not found at {code_dir}")
-        sys.exit(1)
+    """Run ruff check on the code directory."""
+    root = Path(__file__).parent.parent.parent
+    code_dir = root / "code"
+    ruff_cmd = [sys.executable, "-m", "ruff", "check", str(code_dir)]
 
-    print(f"Running Ruff linter on {code_dir}...")
-    
+    print(f"Running: {' '.join(ruff_cmd)}")
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "--fix", str(code_dir)],
+            ruff_cmd,
+            cwd=root,
             check=True,
             capture_output=False,
         )
-        print("Linting completed successfully.")
+        print("Linting passed.")
+        return 0
     except subprocess.CalledProcessError as e:
         print(f"Linting failed with exit code {e.returncode}")
-        sys.exit(1)
-    except FileNotFoundError:
-        print("Error: Ruff is not installed. Please install it with: pip install ruff")
-        sys.exit(1)
+        return e.returncode
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

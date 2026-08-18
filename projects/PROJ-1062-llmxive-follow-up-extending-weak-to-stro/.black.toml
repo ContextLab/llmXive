@@ -1,18 +1,4 @@
-[tool.black]
+# Explicit configuration for black if standalone is preferred.
+# Usually black reads from pyproject.toml, but this ensures presence.
 line-length = 88
 target-version = ['py311']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''

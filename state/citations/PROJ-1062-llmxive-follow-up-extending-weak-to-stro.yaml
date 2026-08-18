@@ -9,17 +9,6 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-08-16T11:17:57.327518Z'
-- artifact_hash: fc6188d8a3abf87cf55c8b1a0d7b436247952a0c0f86da83fb6ce9f8e75ee5d7
-  artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-16T11:26:54.978628Z'
 - artifact_hash: 1097ceb631ca2b26dcd4f4bb1bf87dfe866d6090aba9423fcddd325aedcc30a8
   artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/research.md
   cite_id: c-001
@@ -31,3 +20,26 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/MathArena/aime_2024
   verified_at: '2026-08-16T11:56:25.069524Z'
+- artifact_hash: 582a76432899a124f297d487fe2293f1e17aa53f8c9258091c8698f70346cf72
+  artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-08-18T11:04:41.183268Z'
+- artifact_hash: 582a76432899a124f297d487fe2293f1e17aa53f8c9258091c8698f70346cf72
+  artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2507.07101] Small Batch Size Training for Language Models: When
+    Vanilla SGD Works, and Why Gradient Accumulation Is Wasteful'
+  kind: url
+  value: https://arxiv.org/abs/2507.07101
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2507.07101
+  verified_at: '2026-08-18T11:04:41.183268Z'
