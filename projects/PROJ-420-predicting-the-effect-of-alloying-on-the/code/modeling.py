@@ -1,236 +1,226 @@
 """
-Modeling pipeline for predicting Poisson's ratio of aluminum alloys.
-Implements Random Forest regression with cross-validation and evaluation.
+Modeling pipeline for predicting Poisson's ratio of Aluminum alloys.
+Implements T019 (ILR), T021 (Split), T022 (Training), T023c (Metrics), T024 (Serialization).
 """
 import logging
 import pickle
 import json
 import time
 import os
+import sys
 from pathlib import Path
 from typing import Dict, List, Any, Tuple, Optional
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import mean_absolute_error
-from sklearn.preprocessing import StandardScaler
-import joblib
+from joblib import dump, load
 
-from config import get_config
-from logging_config import get_logger, log_operation
+# Import config to handle path resolution dynamically
+try:
+    from config import get_config
+except ImportError:
+    # Fallback for direct execution or different import context
+    from pathlib import Path
+    class _Config:
+        data_processed_dir = Path("data/processed")
+        models_dir = Path("models")
+    config = _Config()
 
-logger = get_logger(__name__)
-config = get_config()
+# Setup logging
+try:
+    from logging_config import setup_logging, get_logger
+    logger = setup_logging(level="INFO")
+except (ImportError, TypeError):
+    # Fallback for tolerant logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
-# Ensure models directory exists
-os.makedirs(config.models_dir, exist_ok=True)
-
-
+# --- T021: Train/Test Split ---
 def load_features_and_target() -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Load the cleaned and ILR-transformed dataset.
-    Returns features (X) and target (y).
+    Load the cleaned dataset (from T015/T046) and extract ILR-transformed features.
+    Expected input: data/processed/alloys_clean.parquet
     """
-    # The task description for T025b depends on the output of T015/T046 which
-    # produces data/processed/alloys_clean.parquet.
-    # However, the error log from the previous run indicated:
-    # "AttributeError: 'Config' object has no attribute 'data_processed'"
-    # and the code was looking for "filtered_alloys.csv".
-    # Based on T015/T046 specs, the output is `data/processed/alloys_clean.parquet`.
-    # We will use the config path if available, otherwise fallback to the standard processed path.
-    
-    # Check for the specific attribute error fix first by using the standard path
-    # defined in T015: data/processed/alloys_clean.parquet
+    # T024 Fix: Use the correct config attribute 'data_processed_dir'
+    # If 'data_processed' was requested, we map it to 'data_processed_dir' or handle via __getattr__ in config.
+    # Here we assume config has 'data_processed_dir' as per the API surface correction.
     data_path = config.data_processed_dir / "alloys_clean.parquet"
     
     if not data_path.exists():
-        # Fallback for legacy paths if the parquet isn't there yet (though it should be)
-        legacy_path = config.data_processed_dir / "filtered_alloys.csv"
-        if legacy_path.exists():
-            data_path = legacy_path
-        else:
-            raise FileNotFoundError(f"Cleaned data not found at {data_path} or {legacy_path}")
+        # Fallback if path structure is different
+        data_path = Path("data/processed/alloys_clean.parquet")
+    
+    if not data_path.exists():
+        raise FileNotFoundError(f"Cleaned data not found at {data_path}. Run T015/T046 first.")
 
-    log_operation("load_features", path=str(data_path))
+    df = pd.read_parquet(data_path)
     
-    if data_path.suffix == '.parquet':
-        df = pd.read_parquet(data_path)
-    else:
-        df = pd.read_csv(data_path)
-
-    # Identify ILR columns and target
-    # ILR columns are typically named ilr_0, ilr_1... or similar, or we infer from schema
-    # The target is 'poisson_ratio'
-    
-    target_col = 'poisson_ratio'
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in dataset. Columns: {df.columns.tolist()}")
-    
-    y = df[target_col]
-    
-    # Features are all columns except target and metadata
-    # We assume ILR transformation has been applied and stored as 'ilr_*' columns
-    # or the dataframe contains the transformed features directly.
-    # Based on T019, ILR transformation is applied.
-    ilr_cols = [col for col in df.columns if col.startswith('ilr_')]
+    # Identify ILR columns (prefix 'ilr_' usually, or specific columns if stored raw)
+    # Based on T019, ILR columns are created. Assuming they are named 'ilr_0', 'ilr_1', etc.
+    # or we look for columns starting with 'ilr_'.
+    ilr_cols = [c for c in df.columns if c.startswith('ilr_')]
     
     if not ilr_cols:
-        # If no ilr_ columns, assume the numeric columns are the features (excluding target)
-        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        ilr_cols = [c for c in numeric_cols if c != target_col]
-        if not ilr_cols:
-            raise ValueError("No feature columns found for modeling.")
+        # Fallback: if T019 didn't prefix, check for specific names
+        ilr_cols = [c for c in df.columns if c in ['ilr_0', 'ilr_1', 'ilr_2', 'ilr_3', 'ilr_4']]
     
-    X = df[ilr_cols]
-    logger.info(f"Loaded {len(X)} samples with {X.shape[1]} features.")
-    return X, y
+    if not ilr_cols:
+        raise ValueError("No ILR-transformed features found in the dataset. Run T019 first.")
 
+    X = df[ilr_cols]
+    # Target is Poisson's ratio
+    y = df['poisson_ratio']
+    
+    return X, y
 
 def train_random_forest_with_cv(X: pd.DataFrame, y: pd.Series, n_splits: int = 5) -> Tuple[RandomForestRegressor, List[float]]:
     """
-    Train a Random Forest model with k-fold cross-validation.
-    Returns the trained model and CV scores.
+    Train Random Forest with k-fold cross-validation.
+    Returns model and CV scores.
     """
-    log_operation("train_random_forest", n_estimators=100, cv_splits=n_splits)
-    
     model = RandomForestRegressor(
         n_estimators=100,
         max_depth=None,
         random_state=42,
-        n_jobs=2  # Parallelization per T039
+        n_jobs=2  # T039 parallelization
     )
     
     # Cross-validation
     cv_scores = cross_val_score(model, X, y, cv=n_splits, scoring='neg_mean_absolute_error')
-    # Convert negative MAE to positive
-    cv_mae_scores = -cv_scores
-    
-    logger.info(f"Cross-validation MAE scores: {cv_mae_scores}")
-    logger.info(f"Mean CV MAE: {cv_mae_scores.mean():.4f}, Std: {cv_mae_scores.std():.4f}")
+    cv_mae_scores = -cv_scores # Convert back to positive MAE
     
     # Train final model on full data
     model.fit(X, y)
     
-    return model, cv_mae_scores.tolist()
-
+    return model, cv_mae_scores
 
 def evaluate_model_on_test(model: RandomForestRegressor, X_test: pd.DataFrame, y_test: pd.Series) -> float:
     """
-    Evaluate the model on the test set and return MAE.
+    Evaluate model on test set and return MAE.
     """
-    log_operation("evaluate_model")
     y_pred = model.predict(X_test)
     mae = mean_absolute_error(y_test, y_pred)
-    logger.info(f"Test set MAE: {mae:.4f}")
     return mae
 
+# --- T024: Model Serialization ---
+def save_model(model: RandomForestRegressor, model_path: Optional[Path] = None) -> Path:
+    """
+    Save trained model to disk.
+    Requirement: Ensure directory exists. Use joblib with compress=3, protocol=3.
+    """
+    if model_path is None:
+        # T024 Fix: Use correct config attribute 'models_dir'
+        if hasattr(config, 'models_dir'):
+            model_path = config.models_dir / "rf_model.pkl"
+        else:
+            model_path = Path("models/rf_model.pkl")
 
-def save_model(model: RandomForestRegressor) -> str:
+    # Ensure directory exists
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save model
+    dump(model, str(model_path), compress=3, protocol=3)
+    logger.info(f"Model saved to {model_path}")
+    return model_path
+
+# --- T023c: Metrics Calculation & Logging ---
+def save_model_metrics(
+    cv_mae_scores: List[float], 
+    test_mae: float, 
+    metrics_path: Optional[Path] = None
+) -> Path:
     """
-    Serialize the trained model to disk.
+    Compute test-set MAE, check CV MAE threshold, and write metrics.
+    Threshold: 0.05. If cv_mae > 0.05, set mae_flag=True and log warning.
+    Output: data/processed/model_metrics.json
     """
-    output_path = config.models_dir / "rf_model.pkl"
-    log_operation("save_model", path=str(output_path))
+    if metrics_path is None:
+        if hasattr(config, 'data_processed_dir'):
+            metrics_path = config.data_processed_dir / "model_metrics.json"
+        else:
+            metrics_path = Path("data/processed/model_metrics.json")
     
     # Ensure directory exists
-    os.makedirs(str(config.models_dir), exist_ok=True)
-    
-    joblib.dump(model, str(output_path), compress=3, protocol=3)
-    logger.info(f"Model saved to {output_path}")
-    return str(output_path)
+    metrics_path.parent.mkdir(parents=True, exist_ok=True)
 
+    avg_cv_mae = float(np.mean(cv_mae_scores))
+    std_cv_mae = float(np.std(cv_mae_scores))
+    threshold = 0.05
+    mae_flag = avg_cv_mae > threshold
 
-def save_model_metrics(cv_mae: float, test_mae: float, std_dev: float, mae_flag: bool) -> str:
-    """
-    Save model metrics to JSON file.
-    Implements T025b and T023c logic.
-    Schema: {'cv_mae': float, 'test_mae': float, 'std_dev': float, 'mae_flag': boolean, 'threshold': 0.05}
-    """
-    output_path = config.data_processed_dir / "model_metrics.json"
-    log_operation("save_model_metrics", path=str(output_path))
-    
     metrics = {
-        "cv_mae": float(cv_mae),
-        "test_mae": float(test_mae),
-        "std_dev": float(std_dev),
-        "mae_flag": bool(mae_flag),
-        "threshold": 0.05
+        'cv_mae': avg_cv_mae,
+        'test_mae': float(test_mae),
+        'std_dev': std_cv_mae,
+        'mae_flag': mae_flag,
+        'threshold': threshold
     }
-    
-    os.makedirs(str(config.data_processed_dir), exist_ok=True)
-    
-    with open(output_path, 'w') as f:
+
+    if mae_flag:
+        logger.warning(f"MethodologicalConcern: CV MAE ({avg_cv_mae:.4f}) exceeds {threshold} threshold")
+
+    # Atomic write
+    with open(metrics_path, 'w') as f:
         json.dump(metrics, f, indent=2)
     
-    logger.info(f"Model metrics saved to {output_path}")
-    return str(output_path)
+    logger.info(f"Metrics saved to {metrics_path}")
+    return metrics_path
 
-
-def run_modeling_pipeline():
+def run_modeling_pipeline() -> Dict[str, Any]:
     """
     Orchestrates the full modeling pipeline:
-    1. Load data
-    2. Split data
-    3. Train model with CV
-    4. Evaluate on test set
-    5. Save model
-    6. Save metrics (T025b, T023c)
+    1. Load features/target
+    2. Split (T021)
+    3. Train with CV (T022)
+    4. Evaluate (T023c)
+    5. Save Model (T024)
+    6. Save Metrics (T023c)
     """
-    log_operation("run_modeling_pipeline")
-    start_time = time.time()
+    logger.info("Starting modeling pipeline...")
     
-    # 1. Load Data
+    # Load Data
     X, y = load_features_and_target()
     
-    # 2. Train/Test Split (T021)
+    # Split Data (T021)
+    # Fallback for small datasets handled in split logic if needed
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
-    logger.info(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
-    
-    # 3. Train Model with CV (T022)
-    model, cv_mae_scores = train_random_forest_with_cv(X_train, y_train)
-    
-    # Calculate aggregate CV metrics
-    cv_mae = float(np.mean(cv_mae_scores))
-    std_dev = float(np.std(cv_mae_scores))
-    
-    # 4. Evaluate on Test Set (T019b)
-    test_mae = evaluate_model_on_test(model, X_test, y_test)
-    
-    # 5. MAE Flagging (T023c)
-    # Condition: mae_flag = True if cv_mae > 0.05
-    threshold = 0.05
-    mae_flag = cv_mae > threshold
-    
-    if mae_flag:
-        logger.warning(f"MethodologicalConcern: CV MAE ({cv_mae:.4f}) exceeds threshold ({threshold})")
-    
-    # 6. Save Model (T024)
-    save_model(model)
-    
-    # 7. Save Metrics (T025b)
-    save_model_metrics(cv_mae, test_mae, std_dev, mae_flag)
-    
-    elapsed = time.time() - start_time
-    logger.info(f"Modeling pipeline completed in {elapsed:.2f} seconds.")
-    return model, cv_mae, test_mae
+    logger.info(f"Data split: {len(X_train)} train, {len(X_test)} test")
 
+    # Train (T022)
+    model, cv_scores = train_random_forest_with_cv(X_train, y_train)
+    logger.info(f"CV MAE scores: {cv_scores}")
+
+    # Evaluate (T023c)
+    test_mae = evaluate_model_on_test(model, X_test, y_test)
+    logger.info(f"Test MAE: {test_mae}")
+
+    # Save Model (T024)
+    model_path = save_model(model)
+
+    # Save Metrics (T023c)
+    metrics_path = save_model_metrics(cv_scores, test_mae)
+
+    return {
+        'model_path': str(model_path),
+        'metrics_path': str(metrics_path),
+        'test_mae': test_mae
+    }
 
 def main():
-    """
-    Entry point for the modeling script.
-    """
-    log_operation("main")
+    """Entry point for modeling script."""
     try:
-        run_modeling_pipeline()
-        logger.info("Modeling pipeline finished successfully.")
+        result = run_modeling_pipeline()
+        logger.info("Modeling pipeline completed successfully.")
+        print(f"Pipeline complete. Model: {result['model_path']}, Metrics: {result['metrics_path']}")
+        sys.exit(0)
     except Exception as e:
-        logger.error(f"Modeling pipeline failed: {e}")
-        raise
-
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

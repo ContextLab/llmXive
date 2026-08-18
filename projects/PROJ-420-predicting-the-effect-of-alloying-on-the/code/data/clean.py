@@ -1,7 +1,4 @@
-"""
-Data cleaning and validation pipeline for alloy data.
-Implements T010-T016 logic.
-"""
+"""Data cleaning pipeline for aluminum alloy Poisson's ratio prediction."""
 import sys
 import logging
 import argparse
@@ -12,253 +9,397 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 import pandas as pd
 import numpy as np
-from compositional import ilr, ilr_inv
+from compositional import ilr
 from periodictable import elements
+import joblib
+
 from logging_config import setup_logging, get_logger
 from config import get_config
 
-logger = get_logger()
-config = get_config()
 
-def log_exclusion(step: str, count: int, reason: str) -> None:
-    """Append exclusion records to data/logs/exclusion_log.txt."""
-    log_path = config.data_logs_dir / "exclusion_log.txt"
-    file_exists = log_path.exists()
+def log_exclusion(step: str, count: int, reason: str, log_file: Optional[Path] = None) -> None:
+    """Log exclusion records to a CSV file.
     
-    with open(log_path, "a") as f:
+    Args:
+        step: The filtering step name
+        count: Number of records excluded
+        reason: Reason for exclusion
+        log_file: Path to the exclusion log file
+    """
+    if log_file is None:
+        config = get_config()
+        log_file = config.data_logs / "exclusion_log.txt"
+    
+    # Ensure directory exists
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Append to log file
+    file_exists = log_file.exists()
+    with open(log_file, 'a') as f:
         if not file_exists:
             f.write("step,count,reason\n")
         f.write(f"{step},{count},{reason}\n")
 
+
 def validate_raw_record_fields(df: pd.DataFrame) -> pd.DataFrame:
-    """Verify the raw data contains all required fields at schema level."""
-    required_fields = ["poisson_ratio", "young_modulus", "composition", "measurement_method"]
+    """Validate that raw data contains required fields at schema level.
     
-    # Check if columns exist in the dataframe
-    missing_fields = [f for f in required_fields if f not in df.columns]
+    Args:
+        df: Raw DataFrame from data sources
+        
+    Returns:
+        DataFrame with validated structure
+        
+    Raises:
+        ValueError: If required fields are missing from schema
+    """
+    required_fields = ['poisson_ratio', 'young_modulus', 'composition', 'measurement_method']
+    missing_fields = [field for field in required_fields if field not in df.columns]
     
     if missing_fields:
         raise ValueError(f"Missing required fields in raw data: {missing_fields}")
     
     return df
 
+
 def apply_monolithic_filter(df: pd.DataFrame) -> pd.DataFrame:
-    """Filter for monolithic alloys only."""
+    """Filter for monolithic alloys only.
+    
+    Definition: alloy_type == 'monolithic' OR is_composite == False OR composite_fraction == 0.0
+    
+    Args:
+        df: Input DataFrame
+        
+    Returns:
+        Filtered DataFrame
+    """
     initial_count = len(df)
     
-    # Priority: alloy_type -> is_composite -> composite_fraction
-    if "alloy_type" in df.columns:
-        df = df[df["alloy_type"] == "monolithic"]
+    # Priority: Check alloy_type first, then is_composite, then composite_fraction
+    mask = pd.Series([False] * len(df), index=df.index)
     
-    if "is_composite" in df.columns:
-        df = df[df["is_composite"] == False]
+    if 'alloy_type' in df.columns:
+        mask |= (df['alloy_type'] == 'monolithic')
     
-    if "composite_fraction" in df.columns:
-        df = df[df["composite_fraction"] == 0.0]
+    if 'is_composite' in df.columns:
+        mask |= (df['is_composite'] == False)
     
-    # If neither field exists, exclude all (but we assume at least one exists from T007)
-    if len(df) == 0 and initial_count > 0:
-        logger.log("monolithic_filter", reason="No monolithic records found")
+    if 'composite_fraction' in df.columns:
+        mask |= (df['composite_fraction'] == 0.0)
     
-    log_exclusion("monolithic_filter", initial_count - len(df), "non-monolithic")
-    return df
+    # If none of the fields exist, exclude all records
+    if not mask.any():
+        # Check if any of the fields exist at all
+        has_any_field = any(field in df.columns for field in ['alloy_type', 'is_composite', 'composite_fraction'])
+        if has_any_field:
+            filtered_df = df[mask]
+            excluded_count = initial_count - len(filtered_df)
+            if excluded_count > 0:
+                log_exclusion("monolithic_filter", excluded_count, "Non-monolithic alloy")
+            return filtered_df
+        else:
+            # No fields exist, exclude all
+            log_exclusion("monolithic_filter", initial_count, "No monolithic/composite fields found")
+            return pd.DataFrame(columns=df.columns)
+    
+    filtered_df = df[mask]
+    excluded_count = initial_count - len(filtered_df)
+    if excluded_count > 0:
+        log_exclusion("monolithic_filter", excluded_count, "Non-monolithic alloy")
+    
+    return filtered_df
+
 
 def normalize_units(df: pd.DataFrame) -> pd.DataFrame:
-    """Convert units: young_modulus to GPa, composition to at%."""
-    # Convert young_modulus from MPa to GPa if needed
-    if "young_modulus" in df.columns:
-        # Assume values > 1000 are in MPa
-        df["young_modulus"] = df["young_modulus"].apply(lambda x: x / 1000.0 if x > 1000 else x)
+    """Normalize units for composition and Young's modulus.
     
-    # Convert composition from wt% to at%
-    if "composition" in df.columns:
-        def wt_to_at(comp_dict):
-            if not isinstance(comp_dict, dict):
-                return comp_dict
-            
-            total_wt = sum(comp_dict.values())
-            if total_wt == 0:
-                return comp_dict
-            
-            at_dict = {}
-            for elem, wt in comp_dict.items():
-                try:
-                    atomic_weight = getattr(elements, elem.lower(), None)
-                    if atomic_weight:
-                        at_dict[elem] = (wt / atomic_weight)
-                    else:
-                        at_dict[elem] = wt  # Keep as is if unknown
-                except:
-                    at_dict[elem] = wt
-            
-            total_at = sum(at_dict.values())
-            if total_at > 0:
-                for elem in at_dict:
-                    at_dict[elem] = at_dict[elem] / total_at
-            
-            return at_dict
+    - Composition: Convert wt% to at% if needed
+    - Young's modulus: Convert to GPa if in MPa
+    
+    Args:
+        df: Input DataFrame
         
-        df["composition"] = df["composition"].apply(wt_to_at)
+    Returns:
+        DataFrame with normalized units
+    """
+    df = df.copy()
+    
+    # Handle Young's modulus unit conversion
+    if 'young_modulus_unit' in df.columns:
+        # Convert MPa to GPa
+        mask_mp = df['young_modulus_unit'].str.upper().str.contains('MPA', na=False)
+        df.loc[mask_mp, 'young_modulus'] = df.loc[mask_mp, 'young_modulus'] / 1000.0
+        df.loc[mask_mp, 'young_modulus_unit'] = 'GPa'
+    
+    # Handle composition unit conversion
+    if 'composition_unit' in df.columns:
+        mask_wt = df['composition_unit'].str.upper().str.contains('WT', na=False)
+        if mask_wt.any():
+            # Convert wt% to at% using atomic weights
+            for idx in df[mask_wt].index:
+                composition = df.loc[idx, 'composition']
+                if isinstance(composition, dict):
+                    total_weight = sum(composition.values())
+                    atomic_fractions = {}
+                    for element, weight in composition.items():
+                        try:
+                            atomic_weight = getattr(elements, element.strip()).atomic
+                            atomic_fractions[element] = (weight / atomic_weight)
+                        except (AttributeError, KeyError):
+                            atomic_fractions[element] = 0.0
+                    
+                    total_atoms = sum(atomic_fractions.values())
+                    if total_atoms > 0:
+                        atomic_fractions = {k: v / total_atoms for k, v in atomic_fractions.items()}
+                    
+                    df.loc[idx, 'composition'] = atomic_fractions
+            df.loc[mask_wt, 'composition_unit'] = 'at%'
     
     return df
+
 
 def apply_major_element_filter(df: pd.DataFrame) -> pd.DataFrame:
-    """Exclude entries where major element sum < 0.95."""
+    """Exclude entries where major element sum < 0.95.
+    
+    Major elements: Cu, Mg, Si, Zn, Mn
+    
+    Args:
+        df: Input DataFrame
+        
+    Returns:
+        Filtered DataFrame
+    """
     initial_count = len(df)
-    major_elements = ["Cu", "Mg", "Si", "Zn", "Mn"]
+    major_elements = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
     
-    def check_major_sum(comp_dict):
-        if not isinstance(comp_dict, dict):
-            return False
-        major_sum = sum(comp_dict.get(elem, 0.0) for elem in major_elements)
-        return major_sum >= config.MIN_MAJOR_ELEMENT_SUM
+    def check_major_sum(row):
+        composition = row.get('composition', {})
+        if isinstance(composition, dict):
+            major_sum = sum(composition.get(elem, 0.0) for elem in major_elements)
+            return major_sum >= 0.95
+        return False
     
-    df = df[df["composition"].apply(check_major_sum)]
+    mask = df.apply(check_major_sum, axis=1)
+    filtered_df = df[mask]
+    excluded_count = initial_count - len(filtered_df)
     
-    log_exclusion("major_element_filter", initial_count - len(df), "major_sum < 0.95")
-    return df
+    if excluded_count > 0:
+        log_exclusion("major_element_filter", excluded_count, "Major element sum < 0.95")
+    
+    return filtered_df
+
 
 def apply_independence_filter(df: pd.DataFrame) -> pd.DataFrame:
-    """Exclude records with missing or invalid measurement_method."""
+    """Filter records based on measurement_method availability.
+    
+    If measurement_method is missing/null, attempt inference from metadata.
+    If inference fails, exclude the record.
+    
+    Args:
+        df: Input DataFrame
+        
+    Returns:
+        Filtered DataFrame
+    """
     initial_count = len(df)
+    inference_keywords = ['Ultrasonic', 'Direct', 'Resonant', 'Impulse']
     
-    if "measurement_method" not in df.columns:
-        # If column doesn't exist, exclude all
-        log_exclusion("independence_filter", initial_count, "missing_measurement_method")
-        return pd.DataFrame(columns=df.columns)
+    def process_measurement_method(row):
+        method = row.get('measurement_method')
+        
+        # If method exists and is not null, return as-is
+        if pd.notna(method) and method:
+            return method, False
+        
+        # Attempt inference from metadata
+        metadata = row.get('metadata', {})
+        source = row.get('source', '')
+        
+        # Check various metadata fields for keywords
+        for field in ['method', 'technique', 'measurement_type', 'source_method']:
+            if field in metadata:
+                value = str(metadata[field])
+                for keyword in inference_keywords:
+                    if keyword.lower() in value.lower():
+                        return keyword, True
+        
+        # Check source field for keywords
+        if source:
+            for keyword in inference_keywords:
+                if keyword.lower() in str(source).lower():
+                    return keyword, True
+        
+        # Inference failed
+        return None, False
     
-    # Check for null/missing values
-    mask = df["measurement_method"].notna() & (df["measurement_method"] != "")
-    df_filtered = df[mask]
+    # Process each row
+    new_methods = []
+    excluded_rows = []
     
-    excluded_count = initial_count - len(df_filtered)
-    if excluded_count > 0:
-        log_exclusion("independence_filter", excluded_count, "missing_measurement_method")
+    for idx, row in df.iterrows():
+        method, inferred = process_measurement_method(row)
+        if method is None:
+            excluded_rows.append(idx)
+        else:
+            new_methods.append(method)
+            if inferred:
+                df.at[idx, 'measurement_method'] = method
+                df.at[idx, 'measurement_method_inferred'] = True
     
-    # Validate values against regex
-    valid_mask = df_filtered["measurement_method"].apply(
-        lambda x: bool(config.VALID_MEASUREMENT_METHODS.search(str(x)))
-    )
-    df_filtered = df_filtered[valid_mask]
+    if excluded_rows:
+        df = df.drop(index=excluded_rows)
+        log_exclusion("independence_filter", len(excluded_rows), "missing_measurement_method")
     
-    invalid_count = len(df) - len(df_filtered) - excluded_count
-    if invalid_count > 0:
-        log_exclusion("independence_filter", invalid_count, "invalid_measurement_method")
-    
-    return df_filtered
+    return df
+
 
 def apply_ilr_transformation(df: pd.DataFrame) -> pd.DataFrame:
-    """Apply ILR transformation to composition."""
-    elements_order = ["Cu", "Mg", "Si", "Zn", "Mn"]
+    """Apply isometric log-ratio transformation to composition data.
     
-    def transform_composition(comp_dict):
-        if not isinstance(comp_dict, dict):
-            return {f"ilr_{i}": 0.0 for i in range(len(elements_order))}
+    Args:
+        df: Input DataFrame with composition column
         
-        # Extract values in order, filling missing with 0
-        values = [comp_dict.get(elem, 0.0) for elem in elements_order]
+    Returns:
+        DataFrame with ILR-transformed features
+    """
+    df = df.copy()
+    element_order = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
+    
+    def transform_composition(row):
+        composition = row.get('composition', {})
+        if not isinstance(composition, dict):
+            return None
         
-        # Avoid zero values for ILR
-        values = [max(v, 1e-10) for v in values]
+        # Extract values for ILR transformation
+        values = [composition.get(elem, 0.0) for elem in element_order]
         
-        try:
-            ilr_result = ilr(values)
-            return {f"ilr_{i}": float(val) for i, val in enumerate(ilr_result)}
-        except Exception as e:
-            logger.log("ilr_error", message=str(e))
-            return {f"ilr_{i}": 0.0 for i in range(len(elements_order))}
+        # Check for zeros (ILR requires positive values)
+        if any(v <= 0 for v in values):
+            # Add small pseudocount
+            values = [max(v, 1e-10) for v in values]
+        
+        return ilr(np.array(values))
     
-    ilr_columns = {f"ilr_{i}": [] for i in range(len(elements_order))}
+    # Apply ILR transformation
+    ilr_results = df.apply(transform_composition, axis=1)
+    ilr_valid = ilr_results.notna()
     
-    for _, row in df.iterrows():
-        result = transform_composition(row.get("composition", {}))
-        for key, val in result.items():
-            ilr_columns[key].append(val)
+    if not ilr_valid.all():
+        excluded_count = (~ilr_valid).sum()
+        log_exclusion("ilr_transformation", excluded_count, "Invalid composition for ILR")
+        df = df[ilr_valid]
+        ilr_results = ilr_results[ilr_valid]
     
-    for key, vals in ilr_columns.items():
-        df[key] = vals
+    # Convert ILR results to columns
+    ilr_df = pd.DataFrame(ilr_results.tolist(), index=df.index, columns=[f'ilr_{i}' for i in range(len(element_order) - 1)])
+    df = pd.concat([df, ilr_df], axis=1)
     
     return df
 
-def run_cleaning_pipeline(input_path: Path, output_path: Path) -> pd.DataFrame:
-    """Run the full cleaning pipeline."""
-    logger.log("cleaning_pipeline_start", input=str(input_path), output=str(output_path))
+
+def run_cleaning_pipeline(input_path: Optional[Path] = None, output_path: Optional[Path] = None) -> pd.DataFrame:
+    """Run the complete data cleaning pipeline.
+    
+    Steps:
+    1. Validate raw record fields (T010)
+    2. Apply monolithic filter (T011)
+    3. Normalize units (T012)
+    4. Apply major element filter (T013)
+    5. Apply independence filter with inference (T014)
+    6. Log all exclusions (T016)
+    7. Final validation and output (T015)
+    
+    Args:
+        input_path: Path to raw data file
+        output_path: Path for cleaned output file
+        
+    Returns:
+        Cleaned DataFrame
+    """
+    config = get_config()
+    logger = get_logger()
+    
+    # Set default paths
+    if input_path is None:
+        input_path = config.data_raw / "alloys_raw.parquet"
+    if output_path is None:
+        output_path = config.data_processed / "alloys_clean.parquet"
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    config.data_logs.mkdir(parents=True, exist_ok=True)
     
     # Load raw data
-    if input_path.suffix == ".json":
-        df = pd.read_json(input_path)
-    elif input_path.suffix == ".csv":
-        df = pd.read_csv(input_path)
-    else:
-        raise ValueError(f"Unsupported file format: {input_path.suffix}")
+    logger.log("load_raw_data", path=str(input_path))
+    df = pd.read_parquet(input_path)
     
-    # Step 1: Schema validation (T010)
+    initial_count = len(df)
+    
+    # Step 1: Validate raw record fields
+    logger.log("validate_raw_fields")
     df = validate_raw_record_fields(df)
     
-    # Step 2: Monolithic filter (T011)
+    # Step 2: Apply monolithic filter
+    logger.log("apply_monolithic_filter")
     df = apply_monolithic_filter(df)
     
-    # Step 3: Unit normalization (T012)
+    # Step 3: Normalize units
+    logger.log("normalize_units")
     df = normalize_units(df)
     
-    # Step 4: Major element filter (T013)
+    # Step 4: Apply major element filter
+    logger.log("apply_major_element_filter")
     df = apply_major_element_filter(df)
     
-    # Step 5: Independence filter (T014)
+    # Step 5: Apply independence filter with inference
+    logger.log("apply_independence_filter")
     df = apply_independence_filter(df)
     
-    # Step 6: ILR transformation (T019)
-    df = apply_ilr_transformation(df)
+    # Step 6: Log all exclusions (T016 is invoked automatically by log_exclusion calls above)
     
-    # Step 7: Final validation and logging (T015, T016)
+    # Step 7: Final validation and output (T015)
     final_count = len(df)
     
-    # Read exclusion log to verify
-    log_path = config.data_logs_dir / "exclusion_log.txt"
-    if log_path.exists():
-        with open(log_path, "r") as f:
-            lines = f.readlines()[1:]  # Skip header
-            for line in lines:
-                parts = line.strip().split(",")
-                if len(parts) >= 3:
-                    logger.log("exclusion_record", step=parts[0], count=parts[1], reason=parts[2])
+    # Read exclusion log and count
+    exclusion_log_path = config.data_logs / "exclusion_log.txt"
+    if exclusion_log_path.exists():
+        exclusion_df = pd.read_csv(exclusion_log_path)
+        total_excluded = exclusion_df['count'].sum()
+        logger.log("exclusion_summary", total_excluded=total_excluded, final_count=final_count)
     
     # Check minimum row count
-    if final_count < config.MIN_ROWS_AFTER_FILTERING:
-        logger.log("insufficient_data", count=final_count, threshold=config.MIN_ROWS_AFTER_FILTERING)
-        raise SystemExit(f"Insufficient data after filtering ({final_count} entries, need >= {config.MIN_ROWS_AFTER_FILTERING})")
+    if final_count < 50:
+        error_msg = f"Insufficient data after filtering (<50 entries): {final_count}"
+        logger.log("pipeline_halt", error=error_msg)
+        print(error_msg, file=sys.stderr)
+        sys.exit(1)
     
-    # Save output
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Save cleaned dataset
+    logger.log("save_cleaned_data", path=str(output_path), count=final_count)
     df.to_parquet(output_path, index=False)
     
-    logger.log("cleaning_pipeline_complete", rows=final_count, output=str(output_path))
+    print(f"Cleaning complete: {final_count} records saved to {output_path}")
     return df
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Clean and validate alloy data.")
-    parser.add_argument('--input', type=str, required=True, help="Path to raw data file")
-    parser.add_argument('--output', type=str, required=True, help="Path to output parquet file")
-    parser.add_argument('--log-level', type=str, default="INFO", help="Logging level")
+    """Main entry point for data cleaning."""
+    parser = argparse.ArgumentParser(description="Clean aluminum alloy data")
+    parser.add_argument("--input", type=str, help="Input data file path")
+    parser.add_argument("--output", type=str, help="Output data file path")
+    parser.add_argument("--log-level", type=str, default="INFO", help="Logging level")
     
     args = parser.parse_args()
     
-    input_path = Path(args.input)
-    output_path = Path(args.output)
+    # Setup logging
+    setup_logging(level=args.log_level)
     
-    if not input_path.exists():
-        logger.log("input_not_found", path=str(input_path))
-        sys.exit(1)
+    # Run pipeline
+    input_path = Path(args.input) if args.input else None
+    output_path = Path(args.output) if args.output else None
     
-    try:
-        run_cleaning_pipeline(input_path, output_path)
-        logger.log("pipeline_success")
-    except SystemExit as e:
-        if e.code != 0:
-            sys.exit(e.code)
-    except Exception as e:
-        logger.log("pipeline_error", error=str(e))
-        sys.exit(1)
+    run_cleaning_pipeline(input_path, output_path)
+
 
 if __name__ == "__main__":
     main()

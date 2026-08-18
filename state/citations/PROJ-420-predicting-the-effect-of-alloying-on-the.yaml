@@ -20,7 +20,7 @@
   verification_status: mismatch
   verified_against_url: https://www.nist.gov/data-library
   verified_at: '2026-08-08T16:56:08.322961Z'
-- artifact_hash: 65873ca72e89cd0a2f0e5aa560e49e3224e9e948871fa58394791793ef2a377a
+- artifact_hash: 1476c5b5bd4077883cda8ade0eaf20aa656ec8541f4636cdf36b257a8f630e53
   artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://next-gen.materialsproject.org/api/v2/materials/`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/api/v2/materials/
-  verified_at: '2026-08-16T04:52:48.498380Z'
+  verified_at: '2026-08-18T02:58:07.319167Z'

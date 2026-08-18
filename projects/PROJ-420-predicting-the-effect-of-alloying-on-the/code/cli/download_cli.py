@@ -1,41 +1,38 @@
-"""CLI entry point for data extraction."""
+"""
+CLI entry point for data extraction.
+Orchestrates fetching from Materials Project and NIST.
+"""
 import sys
 import logging
 import argparse
 from pathlib import Path
+
+# Local imports
 from logging_config import setup_logging, get_logger
 from config import get_config
+from data._download_logic import run_extraction
 
 def main():
-    """Main entry point for download CLI."""
-    parser = argparse.ArgumentParser(description="Extract alloy data from sources")
-    parser.add_argument('--input', type=str, help='Input data file path (optional)')
-    parser.add_argument('--output', type=str, help='Output data file path')
-    parser.add_argument('--log-level', type=str, default='INFO', help='Logging level')
+    parser = argparse.ArgumentParser(description="Download raw data")
+    parser.add_argument("--input", type=str, default=None, help="Input (not used for download)")
+    parser.add_argument("--output", type=str, default=None, help="Output (not used for download)")
+    parser.add_argument("--log-level", type=str, default="INFO", help="Logging level")
     
     args = parser.parse_args()
-    
-    # Setup logging
+
+    # Setup logger
     logger = setup_logging(level=args.log_level)
-    if logger is None:
-        logging.basicConfig(level=getattr(logging, args.log_level, logging.INFO))
-        logger = logging.getLogger(__name__)
-    
-    logger.info("Starting data extraction CLI")
-    
+    logger.info("Starting data extraction")
+
     try:
-        # Import and run extraction
-        from data._download_logic import run_extraction
+        # Run extraction
+        run_extraction()
         
-        output_path = Path(args.output) if args.output else None
-        
-        run_extraction(output_path)
-        
-        logger.info("Data extraction completed successfully")
-        
+        logger.info("Extraction complete")
+        return 0
     except Exception as e:
-        logger.error(f"Data extraction failed: {e}")
-        sys.exit(1)
+        logger.error(f"Extraction failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

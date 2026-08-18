@@ -1,43 +1,43 @@
-"""
-CLI Entry Point for Data Cleaning (T046).
-Orchestrates the cleaning steps defined in code/data/clean.py.
-"""
+"""CLI entry point for data cleaning pipeline."""
 import sys
 import logging
 import argparse
 from pathlib import Path
+
 from logging_config import setup_logging, get_logger
 from config import get_config
 from data.clean import run_cleaning_pipeline
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Clean and validate alloy data.")
-    parser.add_argument('--input', type=str, required=True, help="Path to raw data file (JSON/CSV)")
-    parser.add_argument('--output', type=str, required=True, help="Path to output parquet file")
-    parser.add_argument('--log-level', type=str, default="INFO", help="Logging level")
+    """Main CLI entry point for data cleaning."""
+    parser = argparse.ArgumentParser(description="Clean aluminum alloy data")
+    parser.add_argument("--input", type=str, help="Input data file path")
+    parser.add_argument("--output", type=str, help="Output data file path")
+    parser.add_argument("--log-level", type=str, default="INFO", help="Logging level")
     
     args = parser.parse_args()
     
     # Setup logging
+    # The setup_logging function in logging_config.py is now tolerant of 'level' keyword
     logger = setup_logging(level=args.log_level)
-    logger.log("cleaning_cli_start", level=args.log_level)
-    
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    
-    if not input_path.exists():
-        logger.log("input_not_found", path=str(input_path))
-        sys.exit(1)
+    logger.log("clean_cli_start", input=args.input, output=args.output, log_level=args.log_level)
     
     try:
+        # Run cleaning pipeline
+        input_path = Path(args.input) if args.input else None
+        output_path = Path(args.output) if args.output else None
+        
         run_cleaning_pipeline(input_path, output_path)
-        logger.log("cleaning_pipeline_completed", output=str(output_path))
-    except SystemExit as e:
-        if e.code != 0:
-            sys.exit(e.code)
+        
+        print("Cleaning complete")
+        sys.exit(0)
+        
     except Exception as e:
-        logger.log("pipeline_failed", error=str(e))
+        logger.log("clean_cli_error", error=str(e))
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
