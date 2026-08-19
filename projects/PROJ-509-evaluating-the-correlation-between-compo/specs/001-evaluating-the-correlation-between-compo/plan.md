@@ -17,7 +17,7 @@ This plan implements a CPU-first computational pipeline to evaluate the correlat
 **Project Type**: Computational Research Pipeline  
 **Performance Goals**: Complete pipeline ≤ 6 hours; Memory usage < 6 GB; R² > 0.0 (baseline)  
 **Constraints**: CPU-only (no GPU); No external API calls during runtime (except dataset download); Strict reproducibility (fixed seeds); No synthetic data substitution.  
-**Scale/Scope**: A verified subset of inorganic compounds; 10 descriptors per compound.
+**Scale/Scope**: A verified subset of inorganic compounds; descriptors per compound.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
