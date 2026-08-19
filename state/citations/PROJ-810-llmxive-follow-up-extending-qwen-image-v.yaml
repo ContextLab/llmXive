@@ -20,26 +20,3 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/Qwen/Qwen2-VL-2B-Instruct
   verified_at: '2026-07-12T14:21:15.638978Z'
-- artifact_hash: 291725832a0e01fa79c39490166713be40346e157cb5d0258b91df878b7638ca
-  artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Pi - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Pi
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-08-16T21:41:02.559940Z'
-- artifact_hash: 291725832a0e01fa79c39490166713be40346e157cb5d0258b91df878b7638ca
-  artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2310.09493] Summary Statistics Knockoffs Inference with Family-wise
-    Error Rate Control'
-  kind: url
-  value: https://arxiv.org/abs/2310.09493
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2310.09493
-  verified_at: '2026-08-16T21:41:02.559940Z'
