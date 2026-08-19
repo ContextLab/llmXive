@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline: Predicting Cognitive Flexibility from Resting-State FC Variability.
+llmXive Project: Predicting Cognitive Flexibility from Resting-State Functional Connectivity Variability
 """

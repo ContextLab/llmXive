@@ -1,85 +1,35 @@
-"""
-Metrics computation utilities for network analysis.
-"""
 import networkx as nx
 import numpy as np
 from typing import Dict, Any, Tuple, Optional
 
-
 def compute_clustering_coefficient(graph: nx.Graph) -> float:
-    """
-    Compute the global clustering coefficient of a graph.
-    
-    Args:
-        graph: NetworkX graph
-    
-    Returns:
-        Clustering coefficient (0 to 1)
-    """
-    return nx.clustering(graph)
-
+    """Compute the average clustering coefficient of a graph."""
+    return nx.average_clustering(graph)
 
 def compute_average_path_length(graph: nx.Graph) -> float:
-    """
-    Compute the average shortest path length of a graph.
-    
-    Args:
-        graph: NetworkX graph
-    
-    Returns:
-        Average path length (float)
-    """
-    if nx.is_connected(graph):
-        return nx.average_shortest_path_length(graph)
-    else:
-        # For disconnected graphs, compute average over connected components
-        total_length = 0.0
-        count = 0
-        for component in nx.connected_components(graph):
-            subgraph = graph.subgraph(component)
-            if len(component) > 1:
-                total_length += nx.average_shortest_path_length(subgraph)
-                count += 1
-        return total_length / count if count > 0 else float('inf')
+    """Compute the average shortest path length of a graph."""
+    if not nx.is_connected(graph):
+        # For disconnected graphs, compute average over largest component
+        largest_cc = max(nx.connected_components(graph), key=len)
+        subgraph = graph.subgraph(largest_cc)
+        return nx.average_shortest_path_length(subgraph)
+    return nx.average_shortest_path_length(graph)
 
-
-def compute_degree_distribution_stats(graph: nx.Graph) -> Dict[str, Any]:
-    """
-    Compute statistics of the degree distribution.
-    
-    Args:
-        graph: NetworkX graph
-    
-    Returns:
-        Dictionary with degree distribution statistics
-    """
+def compute_degree_distribution_stats(graph: nx.Graph) -> Dict[str, float]:
+    """Compute statistical properties of the degree distribution."""
     degrees = [d for n, d in graph.degree()]
     return {
-        'mean': float(np.mean(degrees)),
-        'std': float(np.std(degrees)),
-        'min': int(np.min(degrees)),
-        'max': int(np.max(degrees)),
-        'median': float(np.median(degrees))
+        "mean": float(np.mean(degrees)),
+        "std": float(np.std(degrees)),
+        "min": float(np.min(degrees)),
+        "max": float(np.max(degrees))
     }
-
 
 def compute_graph_metrics(graph: nx.Graph) -> Dict[str, Any]:
-    """
-    Compute a comprehensive set of graph metrics.
-    
-    Args:
-        graph: NetworkX graph
-    
-    Returns:
-        Dictionary with all computed metrics
-    """
-    metrics = {
-        'n_nodes': graph.number_of_nodes(),
-        'n_edges': graph.number_of_edges(),
-        'clustering_coefficient': float(nx.clustering(graph)),
-        'average_path_length': compute_average_path_length(graph),
-        'degree_stats': compute_degree_distribution_stats(graph),
-        'avg_degree': float(np.mean([d for n, d in graph.degree()]))
+    """Compute a comprehensive set of metrics for a graph."""
+    return {
+        "clustering_coefficient": compute_clustering_coefficient(graph),
+        "average_path_length": compute_average_path_length(graph),
+        "average_degree": sum(dict(graph.degree()).values()) / graph.number_of_nodes(),
+        "degree_distribution_stats": compute_degree_distribution_stats(graph)
     }
-    
-    return metrics

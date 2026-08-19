@@ -3,55 +3,48 @@ import sys
 import json
 from pathlib import Path
 
-# Ensure the project root is in the path for imports
+# Add the project root to the path to allow imports
 project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root))
 
 from code.utils.checksums import setup_data_directories, generate_checksum_file
 
-
 def main():
     """
-    Main entry point for setting up data directories and generating initial checksums.
-    This script ensures the directory structure exists and creates a manifest for
-    tracking data integrity.
+    Main entry point to setup the data directory structure and generate initial checksums.
     """
-    print("Setting up data directory structure...")
-    setup_data_directories()
-
-    # Define the directories we expect to manage checksums for
-    data_dirs = ["data/raw", "data/processed", "data/analysis"]
-    checksum_files = []
-
-    for d in data_dirs:
-        dir_path = Path(d)
-        if dir_path.exists():
-            # Create a placeholder checksum file for each directory if one doesn't exist
-            checksum_path = dir_path / "checksums.json"
-            if not checksum_path.exists():
-                # Create an empty manifest initially
-                generate_checksum_file([], str(checksum_path))
-                print(f"Created initial checksum manifest: {checksum_path}")
-            checksum_files.append(str(checksum_path))
-        else:
-            print(f"Warning: Directory {d} does not exist and could not be created.")
-
-    # Create a root manifest if needed
-    root_manifest = Path("data/checksum_manifest.json")
-    if not root_manifest.exists():
-        # We can't checksum directories directly, but we can list the manifest locations
-        manifest_content = {
-            "version": "1.0",
-            "generated_by": "setup_data.py",
-            "sub_manifests": checksum_files
-        }
-        with open(root_manifest, "w") as f:
-            json.dump(manifest_content, f, indent=2)
-        print(f"Created root manifest: {root_manifest}")
-
-    print("Data directory setup complete.")
-
+    base_dir = "data"
+    
+    print(f"Setting up directory structure under '{base_dir}'...")
+    directories = setup_data_directories(base_dir)
+    
+    for name, path in directories.items():
+        print(f"  Created: {path}")
+    
+    # Create .gitkeep files to ensure directories are tracked by git
+    for path in directories.values():
+        gitkeep = path / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.touch()
+            print(f"  Created: {gitkeep}")
+    
+    # Prepare to generate checksums for the directory structure itself (empty initially)
+    # We create a placeholder checksum file for the directories
+    checksum_path = os.path.join(base_dir, "checksums.json")
+    
+    # Since directories are empty, we just record their existence
+    # In a real scenario, this would be populated after data generation
+    initial_checksums = {}
+    for name, path in directories.items():
+        # We can't checksum an empty directory easily without content, 
+        # so we record the directory structure state
+        initial_checksums[f"dir:{name}"] = "structure_created"
+        
+    with open(checksum_path, 'w') as f:
+        json.dump(initial_checksums, f, indent=2)
+        
+    print(f"Initialized checksum file: {checksum_path}")
+    print("Data directory structure setup complete.")
 
 if __name__ == "__main__":
     main()

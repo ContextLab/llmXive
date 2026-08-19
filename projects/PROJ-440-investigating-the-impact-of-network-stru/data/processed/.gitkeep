@@ -1,2 +1,1 @@
-# This file ensures the data/processed directory is tracked by git.
-# Processed simulation results (e.g., energy_decay.csv) will be stored here.
+# Processed data storage

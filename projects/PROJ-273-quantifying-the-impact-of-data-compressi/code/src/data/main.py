@@ -1,11 +1,15 @@
 """
-Main Orchestration Script for Data Pipeline (T020)
+Main orchestration script for the Download-Inject-Validate pipeline (User Story 1).
 
-Orchestrates the download-inject-validate pipeline for >=15 target events
-(per Amended FR-001) and produces the validated dataset.
-Calls T019.1 logic (run_fetch_loop).
+This script implements the logic to fetch real GW noise segments from GWOSC,
+inject synthetic CBC signals with known ground truth, and validate the resulting
+datasets until a target number of valid events (>=12) is reached or max attempts (20)
+is exhausted, as per Amended FR-001.
+
+Output:
+    - data/processed/validated_events.json: List of validated event metadata.
+    - data/processed/validated_events/: Directory containing individual event files.
 """
-
 import os
 import sys
 import json
@@ -13,79 +17,111 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-from src.utils.logging import setup_logging, get_logger, log_step_start, log_step_complete, log_step_error, log_metric
-from src.utils.config import get_path, ensure_dir, set_seed
+# Add project root to path if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
 from src.data.fetch_loop import run_fetch_loop
-
-# Configure logging
-setup_logging()
-logger = get_logger(__name__)
-
-# Constants (Amended FR-001)
-TARGET_EVENTS = 15
-MIN_VALID_EVENTS = 12
+from src.utils.logging import setup_logging, get_logger, log_step_start, log_step_complete, log_step_error
+from src.utils.config import get_project_root, ensure_dir, get_path
 
 def main():
     """
-    Main entry point for the data pipeline.
-
-    1. Initialize environment (seeds, directories).
-    2. Run the fetch-inject-validate loop (T019.1).
-    3. Aggregate results and save final validated dataset.
+    Orchestrates the download-inject-validate pipeline.
+    
+    Steps:
+    1. Initialize logging and configuration.
+    2. Ensure output directories exist.
+    3. Run the fetch loop (T019.1 logic) to gather >=12 valid events.
+    4. Aggregate results into a final manifest.
+    5. Save the manifest to disk.
     """
-    log_step_start(logger, "Data Pipeline Orchestration")
-
+    # Setup logging
+    setup_logging(level=logging.INFO)
+    logger = get_logger("T020-main")
+    
+    log_step_start(logger, "Pipeline Orchestration", "T020")
+    
     try:
-        # 1. Setup
-        set_seed(42)  # Pin random seed for reproducibility
-        data_root = get_path("data")
-        ensure_dir(data_root)
-        ensure_dir(get_path("data", "raw", "noise"))
-        ensure_dir(get_path("data", "interim", "injections"))
-        ensure_dir(get_path("data", "processed"))
-
-        logger.info(f"Pipeline started at {datetime.now().isoformat()}")
-        logger.info(f"Target events: {TARGET_EVENTS}, Minimum valid: {MIN_VALID_EVENTS}")
-
-        # 2. Run the fetch loop (T019.1 logic)
-        # Note: The loop is configured to aim for >=12 valid events,
-        # but we aim for 15 in the orchestration if possible.
-        # We pass target_events=15 to the loop, but the loop logic
-        # (in fetch_loop.py) handles the max_attempts constraint.
-        valid_events = run_fetch_loop(
-            target_events=TARGET_EVENTS,
-            max_attempts=20,
-            timeout_per_attempt=300
+        # 1. Configuration & Paths
+        project_root = get_project_root()
+        data_processed_dir = project_root / "data" / "processed"
+        ensure_dir(data_processed_dir)
+        
+        output_manifest_path = data_processed_dir / "validated_events.json"
+        output_events_dir = data_processed_dir / "validated_events"
+        ensure_dir(output_events_dir)
+        
+        logger.info(f"Output manifest will be written to: {output_manifest_path}")
+        logger.info(f"Output events directory: {output_events_dir}")
+        
+        # 2. Execute the Fetch Loop (T019.1)
+        # Parameters per Amended FR-001:
+        # - Target valid events: >= 12 (minimum)
+        # - Max attempts: 20
+        # - Batch size: 1 (fetch one by one)
+        # - Timeout: 300s per attempt (handled inside fetch_loop)
+        
+        target_valid_count = 12
+        max_attempts = 20
+        batch_size = 1
+        
+        logger.info(f"Starting fetch loop: target={target_valid_count}, max_attempts={max_attempts}, batch_size={batch_size}")
+        
+        # run_fetch_loop returns a tuple: (list_of_valid_events, stats_dict)
+        # It handles the logic of fetching, injecting, validating, and looping.
+        valid_events, stats = run_fetch_loop(
+            target_valid_count=target_valid_count,
+            max_attempts=max_attempts,
+            batch_size=batch_size,
+            output_dir=output_events_dir,
+            logger=logger
         )
-
-        # 3. Post-processing and Final Output
-        final_count = len(valid_events)
-        log_metric(logger, "total_valid_events", final_count)
-
-        if final_count < MIN_VALID_EVENTS:
-            logger.error(
-                f"Pipeline terminated with only {final_count} valid events "
-                f"(minimum required: {MIN_VALID_EVENTS}). "
-                "Proceeding with warning, but downstream tasks may fail."
+        
+        logger.info(f"Fetch loop completed. Found {len(valid_events)} valid events.")
+        
+        # 3. Final Validation & Reporting
+        if len(valid_events) < 1:
+            error_msg = "Pipeline failed: No valid events were generated."
+            logger.error(error_msg)
+            log_step_error(logger, "Pipeline Orchestration", error_msg)
+            raise RuntimeError(error_msg)
+        
+        if len(valid_events) < target_valid_count:
+            warning_msg = (
+                f"Pipeline completed with reduced sample size: {len(valid_events)} valid events "
+                f"(target was {target_valid_count}). Proceeding with available data as per FR-001 fallback."
             )
-            # We still proceed to save what we have, as per FR-001 fallback
-        else:
-            logger.info(f"Pipeline successfully generated {final_count} valid events.")
-
-        # Save the final validated dataset (list of event paths + metadata)
-        output_file = get_path("data", "processed", "validated_dataset.json")
-        with open(output_file, "w") as f:
-            json.dump(valid_events, f, indent=2)
-
-        log_step_complete(logger, "Data Pipeline Orchestration")
-        logger.info(f"Validated dataset saved to {output_file}")
-
-        return valid_events
+            logger.warning(warning_msg)
+        
+        # 4. Save Manifest
+        manifest = {
+            "pipeline_version": "1.0.0",
+            "execution_timestamp": datetime.utcnow().isoformat(),
+            "parameters": {
+                "target_valid_count": target_valid_count,
+                "max_attempts": max_attempts,
+                "batch_size": batch_size
+            },
+            "statistics": stats,
+            "valid_events_count": len(valid_events),
+            "events": valid_events
+        }
+        
+        with open(output_manifest_path, 'w', encoding='utf-8') as f:
+            json.dump(manifest, f, indent=2)
+        
+        logger.info(f"Successfully wrote manifest to {output_manifest_path}")
+        log_step_complete(logger, "Pipeline Orchestration", "T020")
+        
+        return 0
 
     except Exception as e:
-        log_step_error(logger, f"Pipeline failed: {str(e)}")
-        logger.exception(e)
-        raise
+        log_step_error(logger, "Pipeline Orchestration", str(e))
+        logger.exception("Unhandled exception in main pipeline")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

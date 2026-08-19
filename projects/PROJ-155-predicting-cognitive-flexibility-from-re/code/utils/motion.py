@@ -4,179 +4,146 @@ import logging
 from typing import List, Dict, Tuple, Optional, Any
 import numpy as np
 import nibabel as nib
+
 from code.config import get_config
-from code.utils.logging import log_exclusion, get_exclusion_log_path, init_logging
 from code.data.paths import get_processed_path, get_raw_path, ensure_dir
+from code.utils.logging import log_exclusion, get_exclusion_log_path
+
+logger = logging.getLogger(__name__)
 
 def calculate_mean_fd(motion_params: np.ndarray) -> float:
     """
     Calculate the Mean Framewise Displacement (FD) from 6 motion parameters.
     
     Args:
-        motion_params: Array of shape (n_timepoints, 6) containing 
+        motion_params: Array of shape (n_timepoints, 6) containing
                        [trans_x, trans_y, trans_z, rot_x, rot_y, rot_z]
     
     Returns:
-        float: Mean FD value in mm.
+        Mean FD value in mm.
     """
     if motion_params.shape[1] != 6:
         raise ValueError(f"Expected 6 motion parameters, got {motion_params.shape[1]}")
     
-    # Jacobian approximation for rotation to mm (assuming 50mm radius)
-    # FD = |Δdx| + |Δdy| + |Δdz| + 50*(|Δdrx| + |Δdry| + |Δdrz|)
-    # Note: Rotations are typically in radians in NIfTI headers
-    n_tp = motion_params.shape[0]
-    if n_tp < 2:
-        return 0.0
+    # Translational differences (mm)
+    trans_diff = np.abs(np.diff(motion_params[:, 0:3], axis=0), axis=1)
     
-    # Calculate absolute differences between consecutive timepoints
-    diffs = np.abs(np.diff(motion_params, axis=0))
+    # Rotational differences (radians) -> convert to mm (assuming 50mm radius)
+    # Power et al. (2012) convention: 50mm radius for rotation to mm conversion
+    rot_diff = np.abs(np.diff(motion_params[:, 3:6], axis=0), axis=1) * 50.0
     
-    # Sum translation diffs and rotation diffs (scaled by 50mm)
-    # diffs[:, 0:3] are translations (mm), diffs[:, 3:6] are rotations (rad)
-    fd_values = np.sum(diffs[:, 0:3], axis=1) + 50.0 * np.sum(diffs[:, 3:6], axis=1)
+    # FD per frame: sum of absolute differences
+    fd_per_frame = np.sum(trans_diff, axis=1) + np.sum(rot_diff, axis=1)
     
-    return float(np.mean(fd_values))
+    # Mean FD across all frames (excluding the first frame which has no diff)
+    mean_fd = np.mean(fd_per_frame)
+    
+    return float(mean_fd)
 
 def load_motion_params_from_nifti(nifti_path: str) -> np.ndarray:
     """
-    Load motion parameters from a preprocessed NIfTI file's sidecar or 
-    extract from the file if stored in a specific manner.
+    Load motion parameters from a preprocessed fMRI NIfTI file.
     
-    For HCP data, motion parameters are often stored in separate .tsv files
-    or embedded in the preprocessing logs. This function attempts to find
-    the standard HCP motion parameter file associated with the subject.
+    Note: In HCP data, motion parameters are often stored in a separate
+    .txt or .1D file alongside the NIfTI. If not found in the NIfTI
+    header or sidecar, this function attempts to load from a standard
+    sidecar file or raises an error if not found.
+    
+    For this implementation, we assume motion parameters are stored in
+    a sidecar text file named <subject>_movement_params.txt or similar.
+    If the NIfTI itself contains the motion parameters (e.g., in a specific
+    extension), we extract them there.
     
     Args:
         nifti_path: Path to the preprocessed NIfTI file.
     
     Returns:
-        np.ndarray: Motion parameters array (n_timepoints, 6).
+        numpy array of motion parameters (n_timepoints, 6).
     
     Raises:
-        FileNotFoundError: If motion parameters cannot be located.
+        FileNotFoundError: If motion parameters cannot be found.
     """
-    # HCP typically stores motion parameters in a .tsv file next to the NIfTI
-    # or in the 'MNINonLinear/Results' directory structure.
-    # We look for a file named <subject>_rfn_MSMAll_hp2000_clean.dtf.nii.gz
-    # and its corresponding motion parameter file.
+    base_path = os.path.splitext(nifti_path)[0]
     
-    base_dir = os.path.dirname(nifti_path)
-    subject_id = os.path.basename(base_dir)
-    
-    # Common HCP motion parameter file patterns
-    possible_names = [
-        f"{subject_id}_rfn_MSMAll_hp2000_clean.dtf.nii.gz", # This is the image, we need params
-        f"{subject_id}_rfn_MSMAll_hp2000_clean.par",
-        f"{subject_id}_rfn_MSMAll_hp2000_clean.tsv",
-        os.path.join(base_dir, "Movement_Regressors.txt")
+    # Common sidecar patterns for HCP data
+    possible_sidecars = [
+        f"{base_path}_movement_params.txt",
+        f"{base_path}_movement_params.1D",
+        f"{os.path.basename(base_path)}_movement_params.txt",
     ]
     
-    # If we can't find a specific sidecar, we might need to rely on the 
-    # fact that the task T012/T013/T014 pipeline has already extracted 
-    # the time series and potentially the motion parameters into a CSV.
-    # However, for strict adherence to "real data", we assume the raw 
-    # download includes the necessary files.
+    motion_file = None
+    for candidate in possible_sidecars:
+        if os.path.exists(candidate):
+            motion_file = candidate
+            break
     
-    # Fallback: Try to load from the standard HCP directory structure
-    # HCP 1200 release structure: <Subject>/MNINonLinear/Results/rfMRI_REST1_LR/
-    # The motion parameters are often in the 'Movement_Regressors.txt'
+    if motion_file is None:
+        # Try to find any .txt or .1D file in the same directory with 'movement' or 'motion'
+        dir_path = os.path.dirname(nifti_path)
+        for f in os.listdir(dir_path):
+            if ('movement' in f.lower() or 'motion' in f.lower()) and (f.endswith('.txt') or f.endswith('.1D')):
+                motion_file = os.path.join(dir_path, f)
+                break
     
-    # Since we are in the processed stage, let's assume the motion params 
-    # were saved alongside the time series or can be recalculated if 
-    # the raw data is still accessible.
+    if motion_file is None:
+        raise FileNotFoundError(
+            f"Could not find motion parameters for {nifti_path}. "
+            "Expected a sidecar file with 'movement' or 'motion' in the name."
+        )
     
-    # For this implementation, we assume the existence of a file 
-    # 'motion_params.csv' generated during T013 preprocessing or T012 download
-    # if not found, we raise an error to fail loudly as per constraints.
-    
-    # Let's look for a standard HCP motion file relative to the NIfTI
-    # In HCP, the file is often: <Subject>/MNINonLinear/Results/rfMRI_REST1_LR/<Subject>_rfn_MSMAll_hp2000_clean.dtf.nii.gz
-    # And the motion file is: <Subject>/MNINonLinear/Results/rfMRI_REST1_LR/<Subject>_rfn_MSMAll_hp2000_clean.par
-    
-    # We will construct the path to the .par file if it exists
-    # If not, we look for a .txt file
-    
-    # Attempt 1: Look for .par file (FSL format)
-    base_name = os.path.splitext(os.path.basename(nifti_path))[0]
-    parent_dir = os.path.dirname(nifti_path)
-    
-    # Try to find motion params in the same directory or a standard location
-    # If T013 created a CSV of time series, it might have also saved motion params.
-    # Let's assume a standard location for this project: data/processed/motion_params.csv
-    
-    # Actually, the most robust way for HCP is to read the .par file if available
-    # or the .txt file.
-    
-    # Let's assume the path provided is the preprocessed NIfTI.
-    # We will look for the motion parameters in the same directory.
-    # If not found, we check the raw data directory.
-    
-    # For the purpose of this task, we assume the motion parameters are stored
-    # in a CSV file named 'motion_params.csv' in the same directory as the NIfTI
-    # or in a dedicated 'motion' subdirectory.
-    
-    # If we cannot find the motion parameters, we must fail loudly.
-    
-    # Let's try to read from a standard HCP location if the NIfTI path is deep
-    # e.g., .../MNINonLinear/Results/rfMRI_REST1_LR/subject.nii.gz
-    # The motion file is .../MNINonLinear/Results/rfMRI_REST1_LR/subject.par
-    
-    potential_par = os.path.join(parent_dir, base_name + ".par")
-    if os.path.exists(potential_par):
-        # FSL .par files are space-separated
-        data = np.loadtxt(potential_par)
-        return data
-    
-    potential_txt = os.path.join(parent_dir, "Movement_Regressors.txt")
-    if os.path.exists(potential_txt):
-        # HCP Movement_Regressors.txt is space/tab separated, 6 columns
-        data = np.loadtxt(potential_txt)
-        return data
+    # Load motion parameters
+    try:
+        params = np.loadtxt(motion_file)
+        if params.ndim == 1:
+            params = params.reshape(-1, 6)
+        if params.shape[1] != 6:
+            logger.warning(f"Motion file {motion_file} has {params.shape[1]} columns, expected 6. Using first 6.")
+            params = params[:, :6]
+        return params
+    except Exception as e:
+        raise RuntimeError(f"Failed to load motion parameters from {motion_file}: {e}")
 
-    # If we are in the processed folder, maybe T013 saved it?
-    # Let's check for a generic motion_params.csv in the processed dir
-    processed_path = get_processed_path()
-    if os.path.exists(os.path.join(processed_path, "motion_params.csv")):
-        # This would require mapping subject IDs, which is complex without context
-        # We will assume the file is in the same directory as the NIfTI for now
-        # or fail.
-        pass
-
-    raise FileNotFoundError(f"Motion parameters not found for {nifti_path}. "
-                            f"Checked {potential_par} and {potential_txt}. "
-                            "Ensure T012/T013 have downloaded and processed the raw data correctly.")
-
-def check_motion_exclusion(mean_fd: float, threshold: Optional[float] = None) -> Tuple[bool, str]:
+def check_motion_exclusion(mean_fd: float, threshold: Optional[float] = None) -> bool:
     """
-    Check if a subject should be excluded based on Mean FD.
+    Check if a subject should be excluded based on Mean FD threshold.
     
     Args:
-        mean_fd: The calculated Mean FD.
-        threshold: The FD threshold. Defaults to config value (0.2).
+        mean_fd: Calculated Mean FD value.
+        threshold: FD threshold for exclusion. Defaults to config value (0.2mm).
     
     Returns:
-        Tuple[bool, str]: (should_exclude, reason)
+        True if the subject should be excluded (Mean FD > threshold).
     """
     if threshold is None:
         config = get_config()
-        threshold = config.get("FD_threshold", 0.2)
+        threshold = config.get('FD_threshold', 0.2)
     
-    if mean_fd > threshold:
-        return True, "Motion"
-    return False, ""
+    return mean_fd > threshold
 
-def generate_exclusion_log(subject_id: str, reason: str, mean_fd: float, log_path: str):
+def generate_exclusion_log(
+    subject_id: str, 
+    mean_fd: float, 
+    reason: str = "Motion",
+    log_path: Optional[str] = None
+) -> str:
     """
-    Append a single exclusion record to the CSV log.
+    Log an exclusion entry to the exclusion log CSV.
     
     Args:
         subject_id: The subject identifier.
-        reason: The reason for exclusion (e.g., "Motion").
-        mean_fd: The calculated Mean FD.
-        log_path: Path to the exclusion log CSV.
+        mean_fd: The calculated Mean FD value.
+        reason: The reason for exclusion (default: "Motion").
+        log_path: Optional path to the exclusion log. Defaults to processed/exclusion_log.csv.
+    
+    Returns:
+        Path to the updated exclusion log.
     """
-    ensure_dir(log_path)
+    if log_path is None:
+        log_path = get_exclusion_log_path()
+    
+    ensure_dir(os.path.dirname(log_path))
+    
     file_exists = os.path.exists(log_path)
     
     with open(log_path, mode='a', newline='') as f:
@@ -184,78 +151,131 @@ def generate_exclusion_log(subject_id: str, reason: str, mean_fd: float, log_pat
         if not file_exists:
             writer.writerow(['Subject_ID', 'Exclusion_Reason', 'Mean_FD'])
         writer.writerow([subject_id, reason, f"{mean_fd:.6f}"])
+    
+    logger.info(f"Logged exclusion for {subject_id}: {reason} (Mean_FD={mean_fd:.4f})")
+    return log_path
 
-def process_subject_motion(nifti_path: str, subject_id: str, log_path: str) -> Optional[Dict[str, Any]]:
+def process_subject_motion(
+    subject_id: str, 
+    nifti_path: str, 
+    threshold: Optional[float] = None
+) -> Tuple[bool, float]:
     """
-    Process motion for a single subject: load params, calculate FD, check exclusion.
+    Process a single subject's motion data: calculate Mean FD and check exclusion.
     
     Args:
-        nifti_path: Path to the subject's NIfTI file.
-        subject_id: Subject ID string.
-        log_path: Path to the exclusion log.
+        subject_id: The subject identifier.
+        nifti_path: Path to the preprocessed NIfTI file.
+        threshold: FD threshold for exclusion. Defaults to config value.
     
     Returns:
-        Dict with 'subject_id', 'mean_fd', 'excluded' if successful.
-        None if the file is missing or an error occurs (will be logged).
+        Tuple of (should_exclude: bool, mean_fd: float).
+    
+    Raises:
+        FileNotFoundError: If motion parameters are missing.
+        RuntimeError: If motion calculation fails.
     """
     try:
         motion_params = load_motion_params_from_nifti(nifti_path)
         mean_fd = calculate_mean_fd(motion_params)
-        should_exclude, reason = check_motion_exclusion(mean_fd)
+        should_exclude = check_motion_exclusion(mean_fd, threshold)
         
         if should_exclude:
-            generate_exclusion_log(subject_id, reason, mean_fd, log_path)
-            log_exclusion(subject_id, reason, f"Mean_FD={mean_fd:.4f}")
+            generate_exclusion_log(subject_id, mean_fd, "Motion")
+            logger.warning(f"Subject {subject_id} excluded due to motion (Mean_FD={mean_fd:.4f} > {threshold})")
         
-        return {
-            "subject_id": subject_id,
-            "mean_fd": mean_fd,
-            "excluded": should_exclude
-        }
+        return should_exclude, mean_fd
+        
     except FileNotFoundError as e:
-        logging.error(f"Missing motion data for {subject_id}: {e}")
-        return None
+        logger.error(f"Motion parameters not found for {subject_id}: {e}")
+        raise
     except Exception as e:
-        logging.error(f"Error processing motion for {subject_id}: {e}")
-        return None
+        logger.error(f"Error processing motion for {subject_id}: {e}")
+        raise
 
-def run_motion_filtering_pipeline(subjects: List[Dict[str, Any]], log_path: Optional[str] = None) -> List[Dict[str, Any]]:
+def run_motion_filtering_pipeline(
+    subject_ids: List[str], 
+    nifti_paths: Dict[str, str], 
+    threshold: Optional[float] = None,
+    output_csv: Optional[str] = None
+) -> Tuple[List[str], Dict[str, float]]:
     """
     Run the motion filtering pipeline on a list of subjects.
     
     Args:
-        subjects: List of dicts containing 'subject_id' and 'nifti_path'.
-        log_path: Optional path for the exclusion log. If None, uses default from config.
+        subject_ids: List of subject IDs to process.
+        nifti_paths: Dictionary mapping subject_id to their NIfTI path.
+        threshold: FD threshold for exclusion. Defaults to config value.
+        output_csv: Optional path to save the full exclusion log (defaults to get_exclusion_log_path()).
     
     Returns:
-        List of valid subjects (those not excluded by motion).
+        Tuple of (valid_subject_ids: List[str], all_mean_fds: Dict[str, float]).
+        valid_subject_ids are those NOT excluded by motion.
+        all_mean_fds contains Mean FD for all processed subjects.
     """
-    if log_path is None:
-        log_path = get_exclusion_log_path()
+    if output_csv is None:
+        output_csv = get_exclusion_log_path()
     
-    ensure_dir(log_path)
+    # Clear the log file at the start of the pipeline run if it exists
+    # to ensure we only log exclusions from this run (or append if intended as cumulative)
+    # Per task requirement: "Log excluded subjects". We append to the file.
+    # However, to avoid duplicates on re-runs, we might want to clear it first.
+    # Given the task says "Log excluded subjects", we will append.
+    # But for a clean run, let's ensure the file exists with headers if it's a new run.
+    # The function generate_exclusion_log handles header creation.
+    
     valid_subjects = []
+    all_mean_fds = {}
     
-    # Initialize log header if file doesn't exist
-    if not os.path.exists(log_path):
-        with open(log_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['Subject_ID', 'Exclusion_Reason', 'Mean_FD'])
+    logger.info(f"Starting motion filtering pipeline for {len(subject_ids)} subjects.")
     
-    for sub in subjects:
-        sub_id = sub['subject_id']
-        nifti_path = sub['nifti_path']
+    for subject_id in subject_ids:
+        if subject_id not in nifti_paths:
+            logger.error(f"Subject {subject_id} not found in nifti_paths mapping. Skipping.")
+            continue
         
-        result = process_subject_motion(nifti_path, sub_id, log_path)
+        nifti_path = nifti_paths[subject_id]
         
-        if result and not result['excluded']:
-            valid_subjects.append(sub)
-        elif result and result['excluded']:
-            # Already logged in process_subject_motion
-            pass
-        else:
-            # Error occurred, exclude the subject
-            log_exclusion(sub_id, "Error", "Motion processing failed")
-            generate_exclusion_log(sub_id, "Error", 0.0, log_path)
+        if not os.path.exists(nifti_path):
+            logger.error(f"NIfTI file not found for {subject_id}: {nifti_path}. Skipping.")
+            continue
+        
+        try:
+            should_exclude, mean_fd = process_subject_motion(subject_id, nifti_path, threshold)
+            all_mean_fds[subject_id] = mean_fd
+            
+            if not should_exclude:
+                valid_subjects.append(subject_id)
+            else:
+                # Already logged in process_subject_motion
+                pass
+                
+        except Exception as e:
+            logger.error(f"Failed to process motion for {subject_id}: {e}")
+            # Do not include in valid subjects
+            continue
     
-    return valid_subjects
+    logger.info(f"Motion filtering complete. {len(valid_subjects)} subjects passed, {len(subject_ids) - len(valid_subjects)} excluded.")
+    return valid_subjects, all_mean_fds
+
+# Helper to ensure the exclusion log path is correct
+def get_exclusion_log_path() -> str:
+    """
+    Get the path to the exclusion log CSV.
+    
+    Returns:
+        Absolute path to data/processed/exclusion_log.csv.
+    """
+    processed_path = get_processed_path()
+    return os.path.join(processed_path, "exclusion_log.csv")
+
+# Re-export for clarity in imports
+__all__ = [
+    'calculate_mean_fd',
+    'load_motion_params_from_nifti',
+    'check_motion_exclusion',
+    'generate_exclusion_log',
+    'process_subject_motion',
+    'run_motion_filtering_pipeline',
+    'get_exclusion_log_path'
+]

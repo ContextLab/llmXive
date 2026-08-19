@@ -780,3 +780,133 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T22:22:51Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345
+  claim_id: c_f0a21020
+  context: Smith et al. (2023) [arXiv:2301.12345].. No low-bit models, no deep net
+    training, no large LLMs.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T15:58:33Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 arXiv:2301.12345 findings on low-bit models and deep
+    net training
+  claim_id: c_7c4179bc
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? ... Smith et al. (2023) [arXiv:2301.12345].. No low-bit
+    models, no deep net training, no large LLMs.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T15:59:23Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Fetch HCP data from s3://hcp-openaccess/HCP_1200_Subjects/
+  claim_id: c_43a4e462
+  context: 'Implement code/data/download.py to fetch HCP resting-state fMRI and behavioral
+    data. Specifics: Fetch from s3://hcp-openaccess/HCP_1200_Subjects/ using specific
+    subject IDs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_HCP_data_from_s3://hcp-openaccess/HCP_1200_Subjects/
+  kind: entity_fact
+  raw_text: Fetch from s3://hcp-openaccess/HCP_1200_Subjects/
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:00:40Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: 1200 subjects processed within 6 hours
+  claim_id: c_cb995619
+  context: 'Profile and optimize memory usage in code/main.py to ensure 1200 subjects
+    processed within 6 hours. Deliverable: A benchmark script that runs the full pipeline
+    and asserts execution time < 6h on CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1200 subjects processed within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:02:21Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: 10000-iteration permutation test
+  claim_id: c_e833a6bb
+  context: Implement code/analysis/permutation.py for 10,000-iteration permutation
+    test to generate null distribution
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10,000-iteration permutation test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:02:38Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 arXiv:2301.12345 findings regarding low-bit models
+    deep net training and large LLMs
+  claim_id: c_c6ea30f4
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345].. No low-bit models, no
+    deep net training, no large LLMs.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345].. No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:06:17Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 2
+  canonical: Fetch HCP data from s3://hcp-openaccess/HCP_1200_Subjects/
+  claim_id: c_65afd2aa
+  context: 'Implement code/data/download.py to fetch HCP resting-state fMRI and behavioral
+    data. Specifics: Fetch from ''s3://hcp-openaccess/HCP_1200_Subjects/'' using specific
+    subject IDs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_HCP_data_from_s3://hcp-openaccess/HCP_1200_Subjects/
+  kind: entity_fact
+  raw_text: Fetch from 's3://hcp-openaccess/HCP_1200_Subjects/' using specific subject
+    IDs
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:07:54Z'

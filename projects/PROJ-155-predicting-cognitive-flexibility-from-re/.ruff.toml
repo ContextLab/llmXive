@@ -1,0 +1,25 @@
+# Standalone Ruff configuration for CLI usage
+# Extends settings from pyproject.toml if needed, but this file allows direct CLI invocation
+target-version = "py311"
+line-length = 88
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]

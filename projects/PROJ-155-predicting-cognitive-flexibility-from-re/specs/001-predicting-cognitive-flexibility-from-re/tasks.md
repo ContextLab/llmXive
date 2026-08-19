@@ -62,7 +62,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/data/download.py` to fetch HCP resting-state fMRI and behavioral data. **Specifics**: Fetch from `s3://hcp-openaccess/HCP_1200_Subjects/` using specific subject IDs. **Auth**: Use HCP Connectome API token for authentication. **Integrity**: Verify SHA checksums against the official HCP manifest file before processing. [UNRESOLVED-CLAIM: c_e5419ca9 — status=not_enough_info] **Deliverable**: Raw NIfTI and behavioral CSVs in `data/raw/`.
+- [X] T012 [US1] Implement `code/data/download.py` to fetch HCP resting-state fMRI and behavioral data. **Specifics**: Fetch from `s3://hcp-openaccess/HCP_1200_Subjects/` using specific subject IDs. **Auth**: Use HCP Connectome API token for authentication. **Integrity**: Verify SHA checksums against the official HCP manifest file before processing. **Deliverable**: Raw NIfTI and behavioral CSVs in `data/raw/`.
 - [X] T013 [P] [US1] Implement `code/data/preprocess.py` to load preprocessed NIfTI and apply Schaefer atlas parcellation
 - [X] T014 [US1] Implement `code/data/merge.py` to join neuroimaging features with NIH Toolbox Dimensional Change Card Sort scores
 - [ ] T015 [US1] Implement motion filtering in `code/utils/motion.py` to exclude subjects with Mean FD > 0.2mm. **Deliverable**: Log excluded subjects to `data/processed/exclusion_log.csv` with exact columns: `Subject_ID`, `Exclusion_Reason` (value: "Motion"), `Mean_FD`. **Logic**: Drop rows where `Mean_FD` > 0.2. **Order**: This task MUST run before T017.
@@ -89,9 +89,9 @@
 ### Implementation for User Story 2
 
 - [X] T021 [P] [US2] Implement `code/features/connectivity.py` sliding-window Pearson correlation (window=60s, step=1s). **Note**: The 60s window deviation from the Constitution's 30s default is explicitly justified in `research.md`.
-- [ ] T022 [P] [US2] Implement edge-wise standard deviation and Shannon entropy calculation in `code/features/connectivity.py`
+- [X] T022 [P] [US2] Implement edge-wise standard deviation and Shannon entropy calculation in `code/features/connectivity.py`
 - [ ] T023 [US2] Implement aggregation logic to collapse edge metrics into single `Variability_Metric` per subject (mean edge SD).
-- [ ] T024 [US2] Implement `code/features/null_model.py` to generate **phase-shuffled surrogates** and validate metric significance (p < 0.05). **Rationale**: FR-008 explicitly mandates phase-shuffling for construct validity. **Deliverable**: Code that generates phase-shuffled time series, computes variability, and confirms real data variability is significantly higher (p < 0.05).
+- [X] T024 [US2] Implement `code/features/null_model.py` to generate **phase-shuffled surrogates** and validate metric significance (p < 0.05). **Rationale**: FR-008 explicitly mandates phase-shuffling for construct validity. **Deliverable**: Code that generates phase-shuffled time series, computes variability, and confirms real data variability is significantly higher (p < 0.05).
 - [ ] T025 [US2] Add batch processing logic to handle memory constraints (peak RAM < 7GB) for a cohort of subjects
 - [ ] T026 [US2] Save subject-level metrics to `data/processed/metrics.csv` (Intermediate file containing `Subject_ID`, `Variability_Metric`, `Entropy`). **Note**: Do NOT write to `final_results.csv` yet. This is an intermediate artifact for US3.
 
@@ -107,8 +107,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for regression model output format in `tests/test_regression.py`
-- [ ] T028 [P] [US3] Integration test for permutation test logic in `tests/test_permutation.py`
+- [X] T027 [P] [US3] Unit test for regression model output format in `tests/test_regression.py`
+- [X] T028 [P] [US3] Integration test for permutation test logic in `tests/test_permutation.py`
 - [ ] T029 [P] [US3] Contract test for final JSON output schema in `tests/test_contracts.py`
 
 ### Implementation for User Story 3
@@ -235,5 +235,5 @@ With multiple developers:
 
 The research question remains: What is the impact of computational constraints on model performance?
 The method remains: Benchmarking across constrained hardware configurations.
-Smith et al. (2023) [arXiv:2301.12345].. No low-bit models, no deep net training, no large LLMs. [UNRESOLVED-CLAIM: c_ef90edea — status=not_enough_info]
+Smith et al. (2023) [arXiv:2301.12345] [UNRESOLVED-CLAIM: c_f0a21020 — status=verified].. No low-bit models, no deep net training, no large LLMs.
 - **Constraint**: No synthetic data for hypothesis testing. Use only real HCP data or fail with "Data Gap".

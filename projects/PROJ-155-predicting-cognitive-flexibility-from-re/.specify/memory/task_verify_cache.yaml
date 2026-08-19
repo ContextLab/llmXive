@@ -1,31 +1,23 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I looked for the required top\u2011level folders (`code/`, `data/`, `docs/`,\
-    \ `tests/`) but none are present in the provided artifact list or description.\
-    \ Without these directories the project structure specified in `plan.md` has not\
-    \ been created."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no linting or formatting configuration files (e.g.,
-    `pyproject.toml` with Black settings, `.ruff.toml` or `.flake8`), nor any evidence
-    that ruff/flake8 and Black were installed or integrated into the project workflow.
-    Consequently, the requirement to configure these tools is not satisfied. The missing
-    artifacts must be added and demonstrated (e.g., runnable lint/format commands
-    passing without errors).
-T015:
-  c: false
-  h: 6505e8866c343882113a9dc90d5fd671fb846ea6fc9cc6114590b30f394c2382
-  r: "The repository contains `code/utils/motion.py`, but the shown code only defines\
-    \ helper functions and does not include any logic that filters subjects by Mean\
-    \ FD\u202F>\u202F0.2\u202Fmm or writes entries to `data/processed/exclusion_log.csv`.\
-    \ Moreover, the required `exclusion_log.csv` file is absent from the project.\
-    \ The task\u2019s deliverable (logging excluded subjects with the specified columns)\
-    \ is therefore not present."
 T017:
   c: false
   h: 90a5015989878b93676b1c47be5856475f8098eb4c76f5651608f9f8157aaeae
   r: "The required `data/processed/exclusion_log.csv` file does not exist, so no row\
     \ logging the missing behavioral scores was created. The task\u2019s core output\
     \ is missing, indicating the implementation is incomplete."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output file implementing the aggregation of edge\u2011wise\
+    \ standard deviations into a single `Variability_Metric` per subject was provided.\
+    \ The claim lacks any artifact (e.g., Python module, function, or CSV result)\
+    \ that could be inspected to verify the mean\u2011edge\u2011SD calculation, so\
+    \ the requirement is not satisfied. The next implementer must supply the actual\
+    \ implementation (source code) and a sample output demonstrating the computed\
+    \ metric for at least one subject."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation implementing batch processing logic were\
+    \ provided, nor any evidence (e.g., logs, benchmarks, test results) showing that\
+    \ a cohort of subjects can be processed while keeping peak RAM below 7\u202FGB.\
+    \ The claim lacks the required artifact to verify the task\u2019s requirement."

@@ -3309,3 +3309,213 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T09:46:59Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: generate 15 synthetic CBC injections using LALSimulation
+  claim_id: c_5428e25f
+  context: "FR-001: System MUST generate \u226515 synthetic CBC injections into real\
+    \ GW noise segments fetched from GWOSC, using `LALSimulation` with known ground\
+    \ truth parameters, replacing the requirement to download public injection campaigns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST generate \u226515 synthetic CBC injections into real\
+    \ GW noise segments fetched from GWOSC, using `LALSimulation` with known ground\
+    \ truth parameters, replacing the requirement to download public injection campaigns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T15:25:09Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: iterate until 12 valid events found or 20 attempts reached
+  claim_id: c_c64b667b
+  context: "The system MUST iterate fetching noise segments and generating injections\
+    \ until \u226512 valid events with complete spin metadata are found, or a maximum\
+    \ of 20 attempts is reached."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST iterate fetching noise segments and generating injections\
+    \ until \u226512 valid events with complete spin metadata are found, or a maximum\
+    \ of 20 attempts is reached."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T15:25:10Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: fallback to paired t-tests if ESS less than 100
+  claim_id: c_4ee28b29
+  context: If convergence fails (ESS < 100), the system MUST fallback to Paired t-tests
+    (alpha=0.05) with Benjamini-Hochberg correction.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_paired_t-tests_if_ESS_less_than_100
+  kind: magnitude
+  raw_text: The system MUST fallback to Paired t-tests (alpha=0.05) with Benjamini-Hochberg
+    correction if Hierarchical Bayesian shift tests fail convergence (ESS < 100).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T15:25:36Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: apply Hilbert curve D-to-2D folding for wavelet-based compression
+  claim_id: c_2ff2ba5c
+  context: For wavelet-based image compression standards, a D-to-2D folding transformation
+    (Hilbert curve) is applied to adapt 2D codecs to 1D strain data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Hilbert_curve_D-to-2D_folding_for_wavelet-based_compre
+  kind: entity_fact
+  raw_text: For wavelet-based image compression standards, a D-to-2D folding transformation
+    (Hilbert curve) is applied to adapt 2D codecs to 1D strain data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T15:26:03Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: measure parameter estimation bias using Delta_Bias formula
+  claim_id: c_887fe9ed
+  context: Parameter estimation bias is measured against an external baseline (`Bias_Original`)
+    using `Delta_Bias` (Posterior Mean - True Value).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Measure_parameter_estimation_bias_using_Delta_Bias_formula
+  kind: entity_fact
+  raw_text: Parameter estimation bias is measured against an external baseline (`Bias_Original`)
+    using `Delta_Bias` (Posterior Mean - True Value).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T15:26:51Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: run Bilby with Dynesty for 12 events
+  claim_id: c_07c71f7b
+  context: "System MUST run Parameter Estimation using `Bilby` with `Dynesty` (Fast\
+    \ PE) on both original and compressed datasets for \u226512 events, replacing\
+    \ LALInference due to CI constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST run Parameter Estimation using `Bilby` with `Dynesty`\
+    \ (Fast PE) on both original and compressed datasets for \u226512 events."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T15:26:51Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: baseline generation maxiter 500 nlive 200
+  claim_id: c_1dbdc823
+  context: MUST use reduced iterations (maxiter=500, nlive=200) to ensure completion
+    within CI time limits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline generation task MUST use reduced iterations (maxiter=500,
+    nlive=200) to ensure completion within CI time limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T15:27:09Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: PE run maxiter 5000 nlive 200 dlogz_init 0.5
+  claim_id: c_3ab93d6b
+  context: Implement `src/pe/run_bilby.py` wrapper for Bilby/Dynesty with **reduced
+    iterations** (`maxiter=5000`, `nlive=200`, `dlogz_init=0.5`) **specifically chosen
+    to meet the h/event constraint**.
+  evidence:
+    asserted: '5000.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: The PE run wrapper uses reduced iterations (maxiter=5000, nlive=200, dlogz_init=0.5)
+    specifically chosen to meet the h/event constraint.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T15:27:10Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time less than or equal to 6 hours
+  claim_id: c_f26193f2
+  context: "Performance optimization to ensure full pipeline execution \u2264 6 hours\
+    \ (CI constraint)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "The pipeline execution must be optimized to ensure full execution time\
+    \ is \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T15:27:39Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: classify compression levels as unacceptable if SNR degradation greater
+    than 5 percent
+  claim_id: c_5e193050
+  context: Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable'
+    (FR-002, FR-003, FR-004, SC-002)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Classify_compression_levels_as_unacceptable_if_SNR_degradati
+  kind: magnitude
+  raw_text: The system must classify compression levels as 'unacceptable' if SNR degradation
+    is > 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T15:27:59Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: compute SNR degradation with precision 0.1 dB
+  claim_id: c_57952c08
+  context: "Implement `src/compression/metrics.py` to compute MSE and SNR degradation\
+    \ (precision \u2265 0.1 dB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must compute reconstruction error metrics with precision \u2265\
+    \ 0.1 dB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T15:28:00Z'

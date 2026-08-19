@@ -66,7 +66,7 @@ The system MUST perform Spearman correlations between each network metric and ea
 - **FR-001**: System MUST download resting-state fMRI data and behavioral metadata from OpenNeuro for specified datasets (e.g., ds000030, ds000208) and merge them by subject ID. (See US-1)
 - **FR-001b**: System MUST validate the presence of the 'musical genre preference' variable; if missing, it MUST automatically switch to the 'STOMP-R' proxy variable if available, or halt with error `ERR_DATA_MISSING`. (See US-1)
 - **FR-002**: System MUST preprocess fMRI data using fMRIPrep (Docker) to generate standardized BOLD time series and confound regressors. (See US-1)
-- **FR-003**: System MUST extract regional time courses using the Schaefer-400 atlas to create a 400-ROI parcellation for each subject. (See US-1)
+- **FR-003**: System MUST extract regional time courses using the Schaefer atlas to create a multi-ROI parcellation for each subject. (See US-1)
 - **FR-004**: System MUST calculate static functional connectivity metrics (global efficiency, modularity, within-module degree) for DMN, auditory, and salience networks. These networks MUST be identified by mapping the Schaefer-400 ROIs to the Yeo 7-network parcellation (DMN=7, Auditory=4, Salience=2) using the official Schaefer lookup table. (See US-2)
 - **FR-005**: System MUST compute dynamic functional connectivity using a sliding-window approach (window=30 TRs, step=5 TRs) to derive reconfiguration metrics. (See US-2)
 - **FR-006**: System MUST perform Spearman rank correlations between every network metric and every musical genre preference score. (See US-3)
@@ -99,7 +99,7 @@ The system MUST perform Spearman correlations between each network metric and ea
 
 ## Assumptions
 
-- The OpenNeuro datasets (ds000030, ds000208) contain either the specific behavioral questionnaire measuring musical genre preference or the STOMP-R proxy. If neither is present, the system halts with `ERR_DATA_MISSING` and the research question is deemed untestable with the current data source.
+- The OpenNeuro datasets (ds, ds000208) contain either the specific behavioral questionnaire measuring musical genre preference or the STOMP-R proxy. If neither is present, the system halts with `ERR_DATA_MISSING` and the research question is deemed untestable with the current data source.
 - The fMRIPrep Docker container can be successfully pulled and executed on a CPU-only GitHub Actions runner with sufficient RAM without exceeding memory limits.; if memory errors occur, the pipeline will automatically downsample the fMRI resolution or use a subset of ROIs.
 - The sliding-window analysis (window=30 TRs, step=5 TRs) is computationally feasible within the 6-hour runtime limit for the full dataset; if the dataset size exceeds this, the analysis will be restricted to a random sample of 50 subjects.
 - The Schaefer-400 atlas is appropriate for the resolution of the downloaded fMRI data; if the data resolution is significantly lower, the analysis will default to a coarser atlas (e.g., Schaefer-200) to maintain signal quality.

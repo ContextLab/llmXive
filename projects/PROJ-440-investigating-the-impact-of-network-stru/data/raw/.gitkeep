@@ -1,2 +1,1 @@
-# This file ensures the data/raw directory is tracked by git.
-# Generated network topologies will be stored here (e.g., networks.csv).
+# Raw data storage

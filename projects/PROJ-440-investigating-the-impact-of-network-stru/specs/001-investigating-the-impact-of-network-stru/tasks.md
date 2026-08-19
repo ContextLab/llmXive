@@ -83,14 +83,14 @@
 - [X] T009c [P] [US1] Unit test `test_generate_all_classes` in `tests/test_generation.py`: assert a set of graphs distributed across multiple classes, with a balanced representation per class.
 - [X] T010a [P] [US1] Unit test `test_clustering_coefficient_bounds` in `tests/test_generation.py`: assert clustering coefficient is between 0 and 1 for all generated graphs
 - [X] T010b [P] [US1] Unit test `test_path_length_bounds` in `tests/test_generation.py`: assert average path length is positive and finite for all generated graphs
-- [ ] T011a [P] [US1] Integration test `test_full_generation_pipeline` in `tests/test_generation.py`: assert `data/raw/networks.csv` exists and contains a representative set of network instances., columns match schema (id, class, clustering, path_length...)
+- [X] T011a [P] [US1] Integration test `test_full_generation_pipeline` in `tests/test_generation.py`: assert `data/raw/networks.csv` exists and contains a representative set of network instances., columns match schema (id, class, clustering, path_length...)
 
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `code/generate_networks.py` to generate 50+ networks (N=100-200) across 5 classes (Random, Scale-Free, Small-World, Lattice, Star) with pinned random seeds
 - [X] T013 [US1] Implement metric calculation logic in `code/generate_networks.py` by CALLING functions from `code/utils/metrics.py` (T004) to compute average degree, clustering, path length, degree distribution
 - [X] T014 [US1] Implement theoretical validation in `code/generate_networks.py` (KS-test for Scale-Free power law, 5% tolerance check for Random)
-- [ ] T015 [US1] Implement data export to `data/raw/networks.csv` with checksum generation
+- [X] T015 [US1] Implement data export to `data/raw/networks.csv` with checksum generation
 - [ ] T016 [US1] Add error handling for generation failures (log specific graph ID, exclude from final set)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -105,14 +105,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017a [P] [US2] Unit test `test_energy_conservation_no_damping` in `tests/test_simulation.py`: assert energy variance < 1e-6 for undamped system
-- [ ] T017b [P] [US2] Unit test `test_analytical_decay_match` in `tests/test_simulation.py`: assert decay rate matches λ = damping/2 within 1% for ring graph
-- [ ] T018a [P] [US2] Unit test `test_decay_extraction_fit` in `tests/test_simulation.py`: assert damped sinusoid fit on synthetic data returns R² ≥ 0.95 and correct λ
-- [ ] T019a [P] [US2] Unit test `test_resonance_detection` in `tests/test_simulation.py`: assert negative decay rate is flagged when driving frequency matches natural mode
+- [X] T017a [P] [US2] Unit test `test_energy_conservation_no_damping` in `tests/test_simulation.py`: assert energy variance < 1e-6 for undamped system
+- [X] T017b [P] [US2] Unit test `test_analytical_decay_match` in `tests/test_simulation.py`: assert decay rate matches λ = damping/2 within 1% for ring graph
+- [X] T018a [P] [US2] Unit test `test_decay_extraction_fit` in `tests/test_simulation.py`: assert damped sinusoid fit on synthetic data returns R² ≥ 0.95 and correct λ
+- [X] T019a [P] [US2] Unit test `test_resonance_detection` in `tests/test_simulation.py`: assert negative decay rate is flagged when driving frequency matches natural mode
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/simulate_oscillators.py` to define coupled harmonic oscillator equations of motion using Laplacian matrix
+- [X] T020 [P] [US2] Implement `code/simulate_oscillators.py` to define coupled harmonic oscillator equations of motion using Laplacian matrix
 - [ ] T021 [US2] Implement `solve_ivp` integration (T=200, driving active T=0-100) using `RK45` or `DOP853` in `code/simulate_oscillators.py` (Depends on T015: requires `data/raw/networks.csv`)
 - [ ] T022 [US2] Implement energy decay extraction: fit damped sinusoid model `E(t) = A * exp(-λt) * cos(ωt + φ) + C` to post-transient phase (t > 100)
 - [ ] T023 [US2] Implement fit validation (R² ≥ 0.95) and resonance detection (negative decay rate flagging)

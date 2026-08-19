@@ -1,3 +1,3 @@
 """
-Documentation and specification files.
+Documentation module for llmXive project.
 """

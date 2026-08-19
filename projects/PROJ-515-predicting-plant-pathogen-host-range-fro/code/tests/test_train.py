@@ -1,5 +1,5 @@
 """
-Tests for the model training module (T014).
+Tests for the model training module (src/models/train.py).
 """
 import os
 import json
@@ -9,46 +9,42 @@ import numpy as np
 import pytest
 from pathlib import Path
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
 
-# Import the module under test
 from src.models.train import (
-    calculate_vif,
-    run_vif_selection,
-    train_l1_logistic_regression,
-    train_model_fold,
-    save_model,
+    calculate_vif, 
+    run_vif_selection, 
+    train_l1_logistic_regression, 
+    train_model_fold, 
+    save_model, 
     load_model
 )
 
-
 @pytest.fixture
 def sample_features():
-    """Create sample feature DataFrame with known multicollinearity."""
+    """Generate a sample feature DataFrame with some multicollinearity."""
     np.random.seed(42)
     n = 100
-
     # Create correlated features
     f1 = np.random.randn(n)
     f2 = f1 * 0.9 + np.random.randn(n) * 0.1  # Highly correlated with f1
-    f3 = np.random.randn(n)  # Independent
-    f4 = f1 * 0.5 + f3 * 0.5 + np.random.randn(n) * 0.1  # Moderately correlated
-
+    f3 = np.random.randn(n)
+    f4 = np.random.randn(n)
+    f5 = f3 * 0.8 + np.random.randn(n) * 0.2  # Correlated with f3
+    
     df = pd.DataFrame({
-        'feature_1': f1,
-        'feature_2': f2,
-        'feature_3': f3,
-        'feature_4': f4
+        'f1': f1,
+        'f2': f2,
+        'f3': f3,
+        'f4': f4,
+        'f5': f5
     })
     return df
 
-
 @pytest.fixture
 def sample_labels():
-    """Create sample binary labels."""
+    """Generate sample binary labels."""
     np.random.seed(42)
     return pd.Series(np.random.randint(0, 2, 100))
-
 
 @pytest.fixture
 def temp_output_dir():
@@ -56,137 +52,97 @@ def temp_output_dir():
     with tempfile.TemporaryDirectory() as tmpdir:
         yield tmpdir
 
-
 def test_calculate_vif_basic(sample_features):
-    """Test basic VIF calculation."""
-    vif = calculate_vif(sample_features)
+    """Test that VIF is calculated correctly for a basic set."""
+    vif_dict = calculate_vif(sample_features)
+    assert isinstance(vif_dict, dict)
+    assert len(vif_dict) == 5
+    # f1 and f2 are correlated, so their VIF should be > 1
+    assert vif_dict['f1'] > 1.0
+    assert vif_dict['f2'] > 1.0
+    # f4 is independent, VIF should be close to 1
+    assert 1.0 <= vif_dict['f4'] < 1.5
 
-    assert len(vif) == len(sample_features.columns)
-    assert all(vif >= 1.0), "VIF should be >= 1.0"
-    # feature_2 is highly correlated with feature_1, should have higher VIF
-    assert vif['feature_2'] > vif['feature_3'], "Correlated feature should have higher VIF"
-
-
-def test_run_vif_selection_reduces_features(sample_features):
-    """Test that VIF selection removes highly correlated features."""
-    reduced_df, removed = run_vif_selection(sample_features, threshold=5.0)
-
-    # Should have removed at least one feature
-    assert len(reduced_df.columns) <= len(sample_features.columns)
-    assert len(removed) >= 0  # May be 0 if no VIF > 5
-
+def test_run_vif_selection_reduces_features(sample_features, sample_labels, temp_output_dir):
+    """Test that VIF selection removes correlated features."""
+    # Set a low threshold to force removal
+    reduced_X, kept_features, final_vif = run_vif_selection(sample_features, threshold=2.0)
+    
+    assert isinstance(kept_features, list)
+    assert len(kept_features) < 5 # Should have removed some
+    assert reduced_X.shape[1] == len(kept_features)
+    
+    # Check that no kept feature has VIF >= 2.0
+    for f in kept_features:
+        assert final_vif[f] < 2.0
 
 def test_run_vif_selection_empty_threshold(sample_features):
-    """Test VIF selection with very high threshold (no removal)."""
-    reduced_df, removed = run_vif_selection(sample_features, threshold=1000.0)
+    """Test VIF selection with threshold=0 (removes everything)."""
+    reduced_X, kept_features, _ = run_vif_selection(sample_features, threshold=0.0)
+    # With threshold 0, everything is removed (VIF is always >= 1)
+    # Actually, if VIF < 0 is impossible, all are removed.
+    # But our logic stops when no features >= threshold. 
+    # If threshold is 0, and VIF is always >= 1, all are removed.
+    assert len(kept_features) == 0
 
-    # Should keep all features
-    assert len(reduced_df.columns) == len(sample_features.columns)
-    assert len(removed) == 0
-
-
-def test_train_l1_logistic_regression_basic(sample_features, sample_labels, temp_output_dir):
-    """Test basic training of L1 Logistic Regression."""
-    model, X_selected, removed = train_l1_logistic_regression(
-        X_train=sample_features,
-        y_train=sample_labels,
-        vif_threshold=5.0,
-        random_state=42,
-        fold_id=0,
-        output_dir=temp_output_dir
-    )
-
-    # Check model type
+def test_train_l1_logistic_regression_basic(sample_features, sample_labels):
+    """Test basic training of L1 logistic regression."""
+    # First reduce features to ensure no errors
+    reduced_X, kept_features, _ = run_vif_selection(sample_features, threshold=10.0)
+    if len(kept_features) == 0:
+        # If all removed, add one back for test validity
+        reduced_X = sample_features[['f4']]
+        kept_features = ['f4']
+    
+    model = train_l1_logistic_regression(reduced_X, sample_labels)
+    
     assert isinstance(model, LogisticRegression)
-
-    # Check that model was fitted
+    assert model.penalty == 'l1'
+    assert model.solver == 'liblinear'
     assert hasattr(model, 'coef_')
-    assert model.coef_.shape[1] == len(X_selected.columns)
 
-    # Check that VIF-filtered features file was saved
-    expected_file = Path(temp_output_dir) / "vif_filtered_features_fold_0.csv"
-    assert expected_file.exists(), f"VIF filtered features file not saved: {expected_file}"
-
-    # Verify file contents
-    saved_features = pd.read_csv(expected_file)
-    assert 'feature_name' in saved_features.columns
-    assert len(saved_features) == len(X_selected.columns)
-
-
-def test_train_l1_logistic_regression_no_features_left(sample_features, temp_output_dir):
-    """Test handling of extreme VIF threshold that removes all features."""
-    # Create highly correlated features
-    n = 50
-    f1 = np.random.randn(n)
-    f2 = f1 * 0.99  # Almost identical
-    f3 = f1 * 0.98  # Almost identical
-
-    X = pd.DataFrame({'f1': f1, 'f2': f2, 'f3': f3})
-    y = pd.Series(np.random.randint(0, 2, n))
-
-    # Very low threshold should remove all but one
-    with pytest.raises(ValueError, match="No features available after VIF selection"):
-        train_l1_logistic_regression(
-            X_train=X,
-            y_train=y,
-            vif_threshold=1.01,  # Very strict
-            random_state=42,
-            fold_id=0,
-            output_dir=temp_output_dir
-        )
-
+def test_train_l1_logistic_regression_no_features_left(sample_labels):
+    """Test training fails when no features are left."""
+    empty_X = pd.DataFrame(index=range(100))
+    with pytest.raises(ValueError, match="No features remaining"):
+        train_l1_logistic_regression(empty_X, sample_labels)
 
 def test_train_model_fold(sample_features, sample_labels, temp_output_dir):
-    """Test single fold training with train/val split."""
-    n = len(sample_features)
-    train_idx = np.arange(int(n * 0.8))
-    val_idx = np.arange(int(n * 0.8), n)
-
-    model, auprc, metrics = train_model_fold(
-        X=sample_features,
-        y=sample_labels,
-        train_idx=train_idx,
-        val_idx=val_idx,
-        vif_threshold=5.0,
-        random_state=42,
-        fold_id=0,
+    """Test the full fold training pipeline including file saving."""
+    model, kept_features = train_model_fold(
+        sample_features, 
+        sample_labels, 
+        fold_idx=0, 
+        vif_threshold=10.0, 
         output_dir=temp_output_dir
     )
-
+    
     assert isinstance(model, LogisticRegression)
-    assert 'val_auprc' in metrics
-    assert 'n_features_selected' in metrics
-    assert metrics['n_train_samples'] == len(train_idx)
-    assert metrics['n_val_samples'] == len(val_idx)
-
+    assert isinstance(kept_features, list)
+    
+    # Check file was created
+    file_path = Path(temp_output_dir) / "vif_filtered_features_fold_0.csv"
+    assert file_path.exists()
+    
+    # Check content
+    df = pd.read_csv(file_path)
+    assert 'feature' in df.columns
+    assert len(df) == len(kept_features)
 
 def test_save_and_load_model(sample_features, sample_labels, temp_output_dir):
-    """Test model save and load functionality."""
-    # Train a model
-    model, X_selected, _ = train_l1_logistic_regression(
-        X_train=sample_features,
-        y_train=sample_labels,
-        random_state=42
-    )
-
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X_selected)
-    model.fit(X_scaled, sample_labels)
-
-    # Save model
+    """Test saving and loading a model."""
+    reduced_X, kept_features, _ = run_vif_selection(sample_features, threshold=10.0)
+    if len(kept_features) == 0:
+        reduced_X = sample_features[['f4']]
+    
+    model = train_l1_logistic_regression(reduced_X, sample_labels)
+    
     model_path = Path(temp_output_dir) / "test_model.pkl"
-    save_model(model, scaler, model_path)
-
-    # Load model
-    loaded_model, loaded_scaler = load_model(model_path)
-
-    # Verify loaded model works
+    save_model(model, model_path)
+    
+    assert model_path.exists()
+    
+    loaded_model = load_model(model_path)
+    
     assert isinstance(loaded_model, LogisticRegression)
-    assert isinstance(loaded_scaler, StandardScaler)
-
-    # Predictions should be consistent
-    X_test = sample_features.iloc[:5]
-    pred_original = model.predict(scaler.transform(X_test))
-    pred_loaded = loaded_model.predict(loaded_scaler.transform(X_test))
-
-    assert np.array_equal(pred_original, pred_loaded)
+    np.testing.assert_array_equal(model.coef_, loaded_model.coef_)

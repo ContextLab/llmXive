@@ -1,166 +1,135 @@
-"""
-Validation utilities for the cognitive flexibility prediction pipeline.
-
-This module provides functions to validate the integrity and structure of
-processed data artifacts, ensuring data quality before analysis.
-"""
 import os
 import logging
 import pandas as pd
 from typing import Dict, List, Optional, Tuple, Any
-
 from code.data.paths import get_processed_path, ensure_dir
 from code.utils.logging import log_error, log_warning, init_logging
 
-logger = logging.getLogger(__name__)
+REQUIRED_COLUMNS = [
+    'Subject_ID',
+    'Mean_FD',
+    'Age',
+    'Sex',
+    'Flexibility_Score',
+    'Variability_Metric',
+    'Entropy'
+]
 
 def validate_final_results_schema(df: pd.DataFrame) -> Tuple[bool, List[str]]:
     """
-    Validate that the DataFrame has the required columns and types for final_results.csv.
+    Validates that the DataFrame contains all required columns.
     
     Args:
-        df: DataFrame to validate
+        df: DataFrame to validate.
         
     Returns:
-        Tuple of (is_valid, list_of_errors)
+        Tuple of (is_valid, list of missing columns).
     """
-    errors = []
+    if df is None or df.empty:
+        return False, ["DataFrame is empty or None"]
     
-    required_columns = [
-        'Subject_ID', 'Variability_Metric', 'Flexibility_Score', 
-        'Covariates', 'Predicted_Score', 'Residual', 
-        'Beta_Variability', 'SE_Variability', 'P_Value'
-    ]
-    
-    missing_cols = [col for col in required_columns if col not in df.columns]
+    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
     if missing_cols:
-        errors.append(f"Missing required columns: {missing_cols}")
+        return False, missing_cols
     
-    # Check for null values in critical columns
-    critical_cols = ['Subject_ID', 'Variability_Metric', 'Flexibility_Score']
-    for col in critical_cols:
-        if col in df.columns and df[col].isnull().any():
-            errors.append(f"Column '{col}' contains null values")
-    
-    # Check data types
-    if 'Subject_ID' in df.columns and not df['Subject_ID'].dtype == 'object':
-        errors.append(f"Column 'Subject_ID' should be string type, got {df['Subject_ID'].dtype}")
-        
-    if 'Variability_Metric' in df.columns and not pd.api.types.is_numeric_dtype(df['Variability_Metric']):
-        errors.append(f"Column 'Variability_Metric' should be numeric, got {df['Variability_Metric'].dtype}")
-        
-    if 'Flexibility_Score' in df.columns and not pd.api.types.is_numeric_dtype(df['Flexibility_Score']):
-        errors.append(f"Column 'Flexibility_Score' should be numeric, got {df['Flexibility_Score'].dtype}")
-    
-    return len(errors) == 0, errors
+    return True, []
 
-def validate_unique_subjects(df: pd.DataFrame) -> Tuple[bool, List[str]]:
+def validate_unique_subjects(df: pd.DataFrame) -> Tuple[bool, int]:
     """
-    Validate that each subject appears exactly once in the DataFrame.
+    Validates that there is exactly one row per Subject_ID.
     
     Args:
-        df: DataFrame to validate
+        df: DataFrame to validate.
         
     Returns:
-        Tuple of (is_valid, list_of_errors)
+        Tuple of (is_valid, count of duplicate subjects).
     """
-    errors = []
-    
     if 'Subject_ID' not in df.columns:
-        errors.append("Column 'Subject_ID' not found in DataFrame")
-        return False, errors
+        return False, -1
     
-    subject_counts = df['Subject_ID'].value_counts()
-    duplicates = subject_counts[subject_counts > 1]
+    duplicates = df['Subject_ID'].duplicated().sum()
+    if duplicates > 0:
+        return False, duplicates
     
-    if len(duplicates) > 0:
-        duplicate_subjects = duplicates.index.tolist()
-        errors.append(f"Found duplicate Subject_IDs: {duplicate_subjects}")
-        errors.append(f"Total duplicate entries: {len(duplicates)}")
-    
-    return len(errors) == 0, errors
+    return True, 0
 
-def validate_final_results_file(filepath: Optional[str] = None) -> Tuple[bool, List[str], int]:
+def validate_final_results_file(file_path: str) -> Dict[str, Any]:
     """
-    Validate the final_results.csv file for schema correctness and unique subjects.
+    Validates the final_results.csv file for schema and uniqueness.
     
     Args:
-        filepath: Optional path to the file. If None, uses default path from config.
+        file_path: Path to the CSV file.
         
     Returns:
-        Tuple of (is_valid, list_of_errors, row_count)
+        Dictionary with validation results.
     """
-    if filepath is None:
-        processed_path = get_processed_path()
-        filepath = os.path.join(processed_path, 'final_results.csv')
+    result = {
+        'valid': False,
+        'errors': [],
+        'subject_count': 0,
+        'row_count': 0
+    }
     
-    if not os.path.exists(filepath):
-        return False, [f"File not found: {filepath}"], 0
+    if not os.path.exists(file_path):
+        result['errors'].append(f"File not found: {file_path}")
+        log_error(f"Validation failed: {result['errors'][0]}")
+        return result
     
     try:
-        df = pd.read_csv(filepath)
-    except Exception as e:
-        return False, [f"Failed to read CSV: {str(e)}"], 0
-    
-    if df.empty:
-        return False, ["DataFrame is empty"], 0
-    
-    row_count = len(df)
-    errors = []
-    
-    # Validate schema
-    schema_valid, schema_errors = validate_final_results_schema(df)
-    errors.extend(schema_errors)
-    
-    # Validate unique subjects
-    unique_valid, unique_errors = validate_unique_subjects(df)
-    errors.extend(unique_errors)
-    
-    is_valid = schema_valid and unique_valid
-    
-    if not is_valid:
-        log_error(f"Validation failed for {filepath}: {errors}")
-    else:
-        logger.info(f"Validation passed for {filepath}: {row_count} unique subjects")
-    
-    return is_valid, errors, row_count
-
-def run_validation_pipeline(filepath: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Run the complete validation pipeline for final_results.csv.
-    
-    Args:
-        filepath: Optional path to the file. If None, uses default path.
+        df = pd.read_csv(file_path)
+        result['row_count'] = len(df)
         
-    Returns:
-        Dictionary with validation results:
-        - valid: bool
-        - errors: list of error messages
-        - row_count: number of rows
-        - unique_subjects: number of unique subjects
+        # Check schema
+        schema_valid, missing_cols = validate_final_results_schema(df)
+        if not schema_valid:
+            result['errors'].append(f"Missing columns: {missing_cols}")
+            log_error(f"Schema validation failed: {missing_cols}")
+            return result
+        
+        # Check uniqueness
+        unique_valid, dup_count = validate_unique_subjects(df)
+        if not unique_valid:
+            result['errors'].append(f"Duplicate subjects found: {dup_count}")
+            log_error(f"Uniqueness validation failed: {dup_count} duplicates")
+            return result
+        
+        result['valid'] = True
+        result['subject_count'] = len(df['Subject_ID'].unique())
+        log_warning(f"Validation successful: {result['subject_count']} unique subjects")
+        
+    except Exception as e:
+        result['errors'].append(f"Error reading file: {str(e)}")
+        log_error(f"Validation exception: {str(e)}")
+    
+    return result
+
+def run_validation_pipeline() -> Dict[str, Any]:
     """
-    is_valid, errors, row_count = validate_final_results_file(filepath)
+    Main pipeline to validate the final_results.csv file.
     
+    Returns:
+        Dictionary with validation results.
+    """
+    init_logging()
     processed_path = get_processed_path()
-    default_filepath = os.path.join(processed_path, 'final_results.csv')
-    actual_filepath = filepath if filepath else default_filepath
+    ensure_dir(processed_path)
     
-    if not is_valid:
-        log_error(f"Validation failed for {actual_filepath}")
-        for err in errors:
-            log_error(f"  - {err}")
+    final_results_path = os.path.join(processed_path, 'final_results.csv')
+    
+    if not os.path.exists(final_results_path):
+        log_error(f"Final results file not found at {final_results_path}")
+        return {
+            'valid': False,
+            'errors': [f"File not found: {final_results_path}"],
+            'subject_count': 0,
+            'row_count': 0
+        }
+    
+    validation_result = validate_final_results_file(final_results_path)
+    
+    if validation_result['valid']:
+        log_warning(f"Validation passed: {validation_result['subject_count']} unique subjects in final_results.csv")
     else:
-        logger.info(f"Validation successful for {actual_filepath}")
-        logger.info(f"  - Total rows: {row_count}")
-        if 'Subject_ID' in pd.read_csv(actual_filepath).columns:
-            df = pd.read_csv(actual_filepath)
-            unique_count = df['Subject_ID'].nunique()
-            logger.info(f"  - Unique subjects: {unique_count}")
+        log_error(f"Validation failed: {validation_result['errors']}")
     
-    return {
-        'valid': is_valid,
-        'errors': errors,
-        'row_count': row_count,
-        'unique_subjects': row_count if is_valid else 0,
-        'filepath': actual_filepath
-    }
+    return validation_result

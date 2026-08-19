@@ -1,3 +1,4 @@
 """
-Data loading and processing utilities.
+Data module for llmXive project.
+Contains download, preprocessing, and loading utilities.
 """

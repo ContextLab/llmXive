@@ -1,130 +1,134 @@
-"""
-Module to handle validation of behavioral scores and logging exclusions.
-Implements T017: Error handling for missing behavioral scores.
-"""
 import os
 import logging
 import pandas as pd
 from typing import List, Optional, Tuple, Dict, Any
-
 from code.data.paths import get_processed_path, ensure_dir
 from code.utils.logging import log_exclusion, get_exclusion_log_path
 
 logger = logging.getLogger(__name__)
 
-def load_behavioral_scores(behavioral_data_path: str) -> pd.DataFrame:
+def load_behavioral_scores(behavioral_csv_path: str) -> pd.DataFrame:
     """
-    Load behavioral data from a CSV file.
+    Load behavioral scores from a CSV file.
     
     Args:
-        behavioral_data_path: Path to the behavioral CSV file.
+        behavioral_csv_path: Path to the behavioral CSV file.
         
     Returns:
-        DataFrame containing behavioral scores.
+        DataFrame with behavioral scores.
     """
-    if not os.path.exists(behavioral_data_path):
-        raise FileNotFoundError(f"Behavioral data file not found: {behavioral_data_path}")
+    if not os.path.exists(behavioral_csv_path):
+        raise FileNotFoundError(f"Behavioral CSV not found at {behavioral_csv_path}")
     
-    df = pd.read_csv(behavioral_data_path)
-    logger.info(f"Loaded behavioral data from {behavioral_data_path}: {len(df)} rows")
+    df = pd.read_csv(behavioral_csv_path)
+    logger.info(f"Loaded {len(df)} rows from {behavioral_csv_path}")
     return df
 
-def identify_missing_scores(merged_df: pd.DataFrame, score_column: str = 'Flexibility_Score') -> List[str]:
+def identify_missing_scores(merged_df: pd.DataFrame, score_column: str = "Flexibility_Score") -> List[str]:
     """
     Identify subjects with missing behavioral scores.
     
     Args:
-        merged_df: DataFrame containing merged neuro and behavioral data.
+        merged_df: Merged DataFrame with neuroimaging and behavioral data.
         score_column: Name of the column containing the flexibility score.
         
     Returns:
         List of Subject_IDs with missing scores.
     """
-    missing_mask = merged_df[score_column].isna() | (merged_df[score_column] == '')
-    missing_subjects = merged_df.loc[missing_mask, 'Subject_ID'].tolist()
-    logger.info(f"Identified {len(missing_subjects)} subjects with missing behavioral scores")
+    missing_mask = merged_df[score_column].isna()
+    missing_subjects = merged_df.loc[missing_mask, "Subject_ID"].tolist()
+    logger.info(f"Identified {len(missing_subjects)} subjects with missing {score_column}")
     return missing_subjects
 
 def log_missing_score_exclusions(missing_subjects: List[str], exclusion_log_path: Optional[str] = None) -> None:
     """
-    Log exclusions for missing behavioral scores to the exclusion log.
+    Log excluded subjects due to missing behavioral scores to the exclusion log CSV.
+    
+    This function appends a row for each missing subject to the exclusion log with:
+    - Subject_ID: The ID of the excluded subject
+    - Exclusion_Reason: "Missing_Behavioral_Score"
+    - Mean_FD: Empty/NaN (since this is not a motion exclusion)
     
     Args:
         missing_subjects: List of Subject_IDs to exclude.
-        exclusion_log_path: Optional path to the exclusion log file. 
-                            If None, uses the default path from utils.logging.
+        exclusion_log_path: Path to the exclusion log CSV. If None, uses default path.
     """
     if not missing_subjects:
-        logger.info("No missing behavioral scores to log.")
+        logger.info("No missing subjects to log.")
         return
-
+    
     if exclusion_log_path is None:
         exclusion_log_path = get_exclusion_log_path()
     
-    ensure_dir(os.path.dirname(exclusion_log_path))
-
-    # Check if file exists to determine if we need headers
-    file_exists = os.path.exists(exclusion_log_path)
+    ensure_dir(exclusion_log_path)
     
-    with open(exclusion_log_path, 'a', newline='') as f:
-        writer = csv.writer(f)
-        
-        if not file_exists:
-            # Write header
-            writer.writerow(['Subject_ID', 'Exclusion_Reason', 'Mean_FD'])
-        
-        for subject_id in missing_subjects:
-            # Mean_FD is N/A for behavioral exclusions, but column must exist
-            writer.writerow([subject_id, 'Missing_Behavioral_Score', 'N/A'])
+    # Create exclusion records
+    exclusion_records = []
+    for sub_id in missing_subjects:
+        exclusion_records.append({
+            "Subject_ID": sub_id,
+            "Exclusion_Reason": "Missing_Behavioral_Score",
+            "Mean_FD": ""  # Empty for non-motion exclusions
+        })
     
-    logger.info(f"Logged {len(missing_subjects)} exclusions for missing behavioral scores to {exclusion_log_path}")
+    new_df = pd.DataFrame(exclusion_records)
+    
+    # Load existing log if it exists
+    if os.path.exists(exclusion_log_path):
+        existing_df = pd.read_csv(exclusion_log_path)
+        combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+    else:
+        combined_df = new_df
+    
+    # Write back to CSV
+    combined_df.to_csv(exclusion_log_path, index=False)
+    logger.info(f"Logged {len(missing_subjects)} missing score exclusions to {exclusion_log_path}")
 
-def filter_missing_scores(merged_df: pd.DataFrame, score_column: str = 'Flexibility_Score', 
-                          exclusion_log_path: Optional[str] = None) -> pd.DataFrame:
+def filter_missing_scores(merged_df: pd.DataFrame, score_column: str = "Flexibility_Score") -> Tuple[pd.DataFrame, List[str]]:
     """
-    Filter out subjects with missing behavioral scores and log the exclusions.
-    
-    This function implements the core logic for T017:
-    1. Identifies subjects with missing scores
-    2. Logs them to exclusion_log.csv with reason "Missing_Behavioral_Score"
-    3. Returns the filtered DataFrame
+    Filter out subjects with missing behavioral scores.
     
     Args:
-        merged_df: DataFrame containing merged neuro and behavioral data.
+        merged_df: Merged DataFrame.
         score_column: Name of the column containing the flexibility score.
-        exclusion_log_path: Optional path to the exclusion log file.
         
     Returns:
-        Filtered DataFrame with subjects having valid behavioral scores.
+        Tuple of (filtered DataFrame, list of excluded Subject_IDs).
     """
-    initial_count = len(merged_df)
     missing_subjects = identify_missing_scores(merged_df, score_column)
-    
     if missing_subjects:
-        log_missing_score_exclusions(missing_subjects, exclusion_log_path)
-        filtered_df = merged_df.drop(merged_df[merged_df['Subject_ID'].isin(missing_subjects)].index)
-        logger.info(f"Dropped {len(missing_subjects)} subjects due to missing behavioral scores.")
-        logger.info(f"Remaining subjects: {len(filtered_df)}")
-        return filtered_df
-    else:
-        logger.info("All subjects have valid behavioral scores.")
-        return merged_df
+        filtered_df = merged_df.dropna(subset=[score_column])
+        logger.info(f"Dropped {len(missing_subjects)} subjects due to missing scores.")
+        return filtered_df, missing_subjects
+    return merged_df, []
 
 def run_behavioral_validation_pipeline(merged_df: pd.DataFrame, 
-                                       score_column: str = 'Flexibility_Score',
-                                       exclusion_log_path: Optional[str] = None) -> pd.DataFrame:
+                                       behavioral_csv_path: str,
+                                       score_column: str = "Flexibility_Score") -> pd.DataFrame:
     """
-    Run the complete behavioral validation pipeline.
+    Run the full behavioral validation pipeline:
+    1. Load behavioral scores (if needed, though merged_df should already have them)
+    2. Identify missing scores
+    3. Log exclusions to exclusion_log.csv
+    4. Filter out missing subjects
     
     Args:
-        merged_df: Input merged DataFrame.
-        score_column: Column name for flexibility score.
-        exclusion_log_path: Optional custom path for exclusion log.
+        merged_df: Merged DataFrame with neuroimaging and behavioral data.
+        behavioral_csv_path: Path to original behavioral CSV (for reference).
+        score_column: Name of the flexibility score column.
         
     Returns:
-        Filtered DataFrame ready for downstream analysis.
+        Filtered DataFrame with only subjects having valid behavioral scores.
     """
     logger.info("Starting behavioral validation pipeline...")
-    filtered_df = filter_missing_scores(merged_df, score_column, exclusion_log_path)
-    logger.info("Behavioral validation pipeline completed.")
+    
+    # Identify and log missing scores
+    missing_subjects = identify_missing_scores(merged_df, score_column)
+    if missing_subjects:
+        log_missing_score_exclusions(missing_subjects)
+    
+    # Filter the DataFrame
+    filtered_df, _ = filter_missing_scores(merged_df, score_column)
+    
+    logger.info(f"Behavioral validation complete. {len(filtered_df)} subjects remaining.")
     return filtered_df

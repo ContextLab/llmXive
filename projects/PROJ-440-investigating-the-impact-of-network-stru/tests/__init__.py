@@ -1,1 +1,1 @@
-"""Test suite for the network dissipation project."""
+# Tests package

@@ -1,0 +1,46 @@
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `run_pipeline.sh` script (or any other files) is present in `src/cli/`, and
+    none of the required output files (`model.pkl`, `feature_importance.csv`, `significant_features.tsv`,
+    `prediction.csv`, `pipeline.log`) are provided. Consequently, the claimed CLI
+    entry point and its orchestration logic cannot be verified. The implementer must
+    add the actual script and ensure it generates the specified outputs.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script, data files, or output artifacts (e.g., an updated `run_pipeline.sh`,
+    logs showing CI limit enforcement, generated model files, or reports) were provided
+    for inspection; therefore the claim cannot be verified as fulfilled. The implementer
+    must supply the actual `run_pipeline.sh` with full dataset processing integrated
+    and evidence that the CI limit is respected (e.g., execution logs, test run outputs).
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `src/cli/predict_host_range.sh` script is present, nor any evidence (code,
+    tests, or output files) showing it loads `model.pkl`, processes a FASTA via T025,
+    and writes probability predictions. The required artifact is missing, so the task
+    is not satisfied.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, function, or output file implementing the probability calculation\
+    \ for all unique hosts in the reference matrix (FR\u2011017) was provided. The\
+    \ claim lacks any tangible artifact (e.g., a Python module, CLI tool, or generated\
+    \ CSV) that could be inspected to confirm the required functionality. The implementer\
+    \ must supply the actual implementation and evidence of its execution."
+T028:
+  c: false
+  h: 21f35e9a15e52912aecbb9d177900087be6932e8c6a828f6bb5ff4ea49da0e1d
+  r: "The required artifact `src/cli/predict_host_range.sh` does not exist in the\
+    \ repository, so there is no evidence of runtime or memory compliance. The missing\
+    \ script must be added and validated against the \u226430\u202Fs and \u22644\u202F\
+    GB constraints."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact such as code handling the \u201CZero\u2011Feature Pathogen\u201D\
+    \ case, test logs, or output files was provided; the claim contains only a textual\
+    \ description without any concrete implementation or evidence that a baseline\
+    \ prevalence probability is assigned. The required edge\u2011case handling is\
+    \ therefore not demonstrated."

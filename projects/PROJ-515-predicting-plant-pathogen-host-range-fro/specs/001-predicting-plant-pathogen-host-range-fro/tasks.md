@@ -114,7 +114,7 @@
  - **Logic**: Shuffle labels within the inner training folds only, re-run T014, and compare AUPRC distribution.
 - [ ] T015 [US1] Implement k-fold cross-validation evaluation in `src/models/evaluate.py` reporting AUPRC, precision, and calibrated probabilities (FR-005, SC-001)
 - [ ] T016 [US1] Implement SHAP value generation in `src/models/interpret.py` and save `data/reports/feature_importance.csv` (FR-007)
-- [~] T017 [US1] Create `run_pipeline.sh` CLI entry point in `src/cli/`. **Args**: `--data-dir` (path to data directory), `--mode` (primary|sensitivity), `--seed` (integer for reproducibility). **Outputs**: `model.pkl`, `feature_importance.csv`, `significant_features.tsv`, `prediction.csv`, `pipeline.log`. **Logic**: Orchestrates download, feature extraction (inline), preprocessing, training, evaluation, and reporting based on the selected mode.
+- [ ] T017 [US1] Create `run_pipeline.sh` CLI entry point in `src/cli/`. **Args**: `--data-dir` (path to data directory), `--mode` (primary|sensitivity), `--seed` (integer for reproducibility). **Outputs**: `model.pkl`, `feature_importance.csv`, `significant_features.tsv`, `prediction.csv`, `pipeline.log`. **Logic**: Orchestrates download, feature extraction (inline), preprocessing, training, evaluation, and reporting based on the selected mode.
 - [ ] T018 [US1] Add error handling for "Missing Genome" and "Zero-Feature Pathogen" edge cases in `src/data/preprocess.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -132,7 +132,7 @@
 - [ ] T021 [US2] Implement Benjamini-Hochberg FDR correction logic in `src/models/evaluate.py` to adjust p-values (FR-006)
 - [ ] T022 [US2] Generate `data/reports/significant_features.tsv` with columns: `feature_name`, `cohen_d`, `adj_p_value`, `significant_flag` using tab delimiter (US-2 Acceptance)
 - [ ] T024 [US2] Implement Bias-Awareness Report generation in `src/models/interpret.py` (FR-018). **Logic**: Calculate interaction count per pathogen; flag if top 10 pathogens account for >80% of interactions. Output `data/reports/bias_awareness.json`
-- [~] T023 [US2] Integrate full dataset processing into `run_pipeline.sh` ensuring the CI limit is respected (SC-004)
+- [ ] T023 [US2] Integrate full dataset processing into `run_pipeline.sh` ensuring the CI limit is respected (SC-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -151,12 +151,12 @@
  - **Input**: `--genome novel.fa`
  - **Tool Invocation**: Call EffectorP 3.0 and antiSMASH 7.0 with standard CLI arguments (via Docker); parse outputs to extract counts.
  - **Output**: `data/processed/novel_features.json` containing keys: `effector_count`, `sm_clusters`, `gc_content`, `kmer_profile` (normalized 4-mer counts), `pfam_counts`.
-- [~] T026 [US3] Implement `predict_host_range.sh` CLI script in `src/cli/` to load `model.pkl`, process input FASTA (via T025), and output probabilities
-- [~] T027 [US3] Implement probability calculation for all unique hosts in reference matrix (FR-017).
+- [ ] T026 [US3] Implement `predict_host_range.sh` CLI script in `src/cli/` to load `model.pkl`, process input FASTA (via T025), and output probabilities
+- [ ] T027 [US3] Implement probability calculation for all unique hosts in reference matrix (FR-017).
  - **Metric Calculation**: Compute **Host-Range Breadth** as the **mean** of all predicted infection probabilities across the unique hosts.
  - **Output**: Save to `data/reports/prediction.csv` (columns: `host_species`, `probability`) and `data/reports/host_range_breadth.json` (key: `mean_probability`).
-- [~] T028 [US3] Ensure prediction runtime ≤ 30s and memory ≤ 4GB in `src/cli/predict_host_range.sh` (SC-003)
-- [~] T029 [US3] Handle "Zero-Feature Pathogen" by assigning baseline prevalence probability (Edge Case)
+- [ ] T028 [US3] Ensure prediction runtime ≤ 30s and memory ≤ 4GB in `src/cli/predict_host_range.sh` (SC-003)
+- [ ] T029 [US3] Handle "Zero-Feature Pathogen" by assigning baseline prevalence probability (Edge Case)
 
 **Checkpoint**: All user stories should now be independently functional
 
