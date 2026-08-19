@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-561-self-improving-llm-recursive-architectur",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory listing or `__init__.py` files were provided, so we cannot verify that the required folders (`code/`, `data/raw/`, `data/processed/`, `results/`, `specs/`, `tests/`, `tests/unit/`, `tests/integration/`) and their `__init__.py` files actually exist. The implementer must supply a file\u2011system view (e.g., a tree dump or screenshots) showing these directories and files.",
+      "first_seen": "2026-08-19T06:29:15.290615+00:00",
+      "last_seen": "2026-08-19T06:29:15.290615+00:00"
+    }
+  ],
+  "updated_at": "2026-08-19T06:29:15.290615+00:00"
+}

@@ -1,33 +1,7 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/`\
-    \ directory or any of its sub\u2011folders/files is provided; the claim lacks\
-    \ any artifact showing the project structure was created."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
-    settings, `.flake8` file, or CI scripts invoking these tools) are present in the
-    provided evidence, nor any documentation showing they have been set up. The required
-    artifacts to satisfy task T003 are missing.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission contains only the feature specification and user stories; there
-    is no evidence of a `data/` directory with the required `raw/`, `processed/`,
-    and `validation/` subfolders, nor any checksum verification scripts. The necessary
-    filesystem artifacts and scripts are missing, so the task is not satisfied.
-T010:
-  c: false
-  h: 5412ec9dd2fa2b700e834673028f6ec25bb194c2578e60314e173c7dfe377675
-  r: "The required file `tests/integration/test_latent_extraction.py` does not exist,\
-    \ so no integration test is provided to verify latent extraction on a sample clip.\
-    \ The task\u2019s core artifact is missing."
 T020a:
   c: false
-  h: 9320384e6f4f55af47940d9f990b699b9f36e3c49331409dabd75eecc5dc689d
-  r: The repository contains `code/data/extract_original_labels.py`, but the file
-    is truncated and does not implement the full extraction logic or write the required
-    CSV. Moreover, the expected output `data/processed/original_labels.csv` is absent.
-    Both the artifact and its content are missing, so the task is not satisfied.
+  h: 10dd843e50969ac80bce987613a81df221d143856d4c6c9e07e2f9316a209f27
+  r: The repository contains a partially shown `extract_original_labels.py`, but the
+    file is truncated, contains a clear typo (`outcome = va`), and does not produce
+    the required `data/processed/original_labels.csv` (the file is missing). Consequently
+    the required output artifact is absent and the script is not functional.

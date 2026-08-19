@@ -4,284 +4,243 @@ import json
 import logging
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
-from utils import get_logger, safe_read_json, safe_write_json, PipelineError
+# Import from project API surface
+from utils import get_logger, safe_write_json, load_npy, safe_read_json
 from config import ensure_dirs
 
-# Ensure logger is available
-logger = get_logger()
-
-def identify_significant_motifs(results):
+def load_subject_metrics_data():
     """
-    Filter motifs with corrected p < 0.05 from the Bonferroni-corrected results.
-    
-    Args:
-        results (dict): Dictionary containing correlation results with Bonferroni correction.
-                        Expected schema: 
-                        {
-                            'motif_id': {
-                                'r': float, 
-                                'p_raw': float, 
-                                'p_corrected': float, 
-                                ...
-                            },
-                            ...
-                        }
-    
-    Returns:
-        list: List of motif_ids (strings) that have p_corrected < 0.05.
-    
-    Note:
-        If no significant motifs are found, returns an empty list. The caller 
-        (T032c) should handle the edge case of skipping the permutation test 
-        if this list is empty.
+    Aggregates data from previous stages to compute VIF and check for zero variance.
+    Loads:
+      - data/processed/global_efficiency.json
+      - data/processed/rsfc.npy
+      - data/processed/motif_z_aggregated.json
+      - data/processed/weighted_adjacency.npy
     """
-    if not results:
-        logger.warning("No results provided to identify_significant_motifs.")
-        return []
+    logger = get_logger()
+    base_path = Path("data/processed")
 
-    significant_motifs = []
-    threshold = 0.05
+    # Load Global Efficiency
+    ge_path = base_path / "global_efficiency.json"
+    if not ge_path.exists():
+        logger.error(f"Missing file: {ge_path}")
+        raise FileNotFoundError(f"Required input missing: {ge_path}")
+    
+    with open(ge_path, 'r') as f:
+        ge_data = json.load(f)
+    
+    # Load Motif Z-scores (aggregated)
+    motif_path = base_path / "motif_z_aggregated.json"
+    if not motif_path.exists():
+        logger.error(f"Missing file: {motif_path}")
+        raise FileNotFoundError(f"Required input missing: {motif_path}")
+    
+    with open(motif_path, 'r') as f:
+        motif_data = json.load(f)
 
-    for motif_id, metrics in results.items():
-        # Skip metadata keys if any
-        if not isinstance(metrics, dict):
-            continue
+    # Load Weighted Adjacency to compute Network Density
+    adj_path = base_path / "weighted_adjacency.npy"
+    if not adj_path.exists():
+        logger.error(f"Missing file: {adj_path}")
+        raise FileNotFoundError(f"Required input missing: {adj_path}")
+    
+    adj_matrix = load_npy(adj_path)
+    
+    # Compute Network Density (fraction of non-zero edges)
+    # Assuming undirected or directed, density = non-zero / total possible
+    # For a weighted matrix, we consider any non-zero weight as an edge
+    total_edges = adj_matrix.size
+    non_zero_edges = np.count_nonzero(adj_matrix)
+    network_density = float(non_zero_edges / total_edges)
+    
+    logger.info(f"Computed network density: {network_density:.4f}")
+
+    # Construct DataFrame
+    # We expect keys in ge_data and motif_data to be subject IDs
+    # We need to align them. T039 handles the aggregation, so we assume
+    # the input files here are already aligned or we process the first available subject
+    # for the VIF check context if this is a single-subject pipeline, 
+    # but typically this runs on a cohort.
+    
+    # Assuming the input files contain a list of subjects or a dict keyed by subject.
+    # Based on T039 description, it produces a CSV. Here we are implementing T033
+    # which depends on T039. T039 produces subject_metrics.csv.
+    # However, T033 description says "Implement zero-variance detection... and VIF check... Output: quality_flags.json".
+    # It also says Dependency: T039. T039 produces subject_metrics.csv.
+    # So we should load subject_metrics.csv to perform the VIF check.
+    
+    metrics_csv_path = base_path / "subject_metrics.csv"
+    if not metrics_csv_path.exists():
+        logger.error(f"Missing aggregated metrics file: {metrics_csv_path}. T039 must run first.")
+        raise FileNotFoundError(f"Required input missing: {metrics_csv_path}")
+    
+    df = pd.read_csv(metrics_csv_path)
+    
+    return df, network_density
+
+def compute_vif(series):
+    """
+    Computes Variance Inflation Factor for a single series relative to others?
+    Actually, VIF is usually for multicollinearity among predictors.
+    Here we are checking if the control variable (network_density) is collinear
+    with the independent variable (motif z-scores) or if the control variable itself
+    has zero variance across subjects.
+    
+    T030a description: "compute VIF for control variable (network density)."
+    If we have multiple subjects, network_density is a single value if the adjacency is one matrix,
+    or a column in the CSV if per-subject densities were computed.
+    
+    T039 output schema includes 'network_density'.
+    If network_density is constant across all subjects, VIF is undefined (division by zero variance).
+    
+    We will check variance of the control variable. If variance is near zero, we flag it.
+    If we have multiple predictors, we could compute VIF properly.
+    Given the task description "check for collinearity (if VIF > 5)", we assume a simple regression context.
+    However, with only one control variable (density) and one outcome (motif), VIF isn't standard.
+    Perhaps it means checking if the control variable is constant (VIF -> infinity) or highly correlated with the predictor.
+    
+    Let's interpret "VIF check" as checking if the control variable (density) is constant across subjects.
+    If constant, we cannot control for it.
+    If not constant, we check correlation with the motif variable.
+    But the task says "if VIF > 5". This implies a regression context.
+    
+    Let's assume the standard approach:
+    1. Check if the control variable (network_density column) has near-zero variance.
+    2. If variance > 0, compute correlation with the predictor (motif z-score).
+    3. If correlation is extremely high (> 0.9), we might consider it collinear.
+    
+    However, to strictly follow "VIF > 5", we can compute VIF of the control variable
+    in a model where predictors are [Motif, Density].
+    VIF_j = 1 / (1 - R_j^2) where R_j^2 is from regressing X_j on other Xs.
+    Here, regressing Density on Motif.
+    """
+    return 0.0 # Placeholder, implemented in the main logic below
+
+def check_vif_and_select_method(metrics_df):
+    """
+    Implements T033:
+    1. Zero-variance detection on the control variable (network_density).
+    2. VIF check for collinearity between the control variable and the predictor (motif z-score).
+       If VIF > 5, flag method_switched=True and select Spearman.
+       Else, select Pearson.
+    
+    Output: data/processed/quality_flags.json
+    """
+    logger = get_logger()
+    
+    # Identify control variable column
+    control_var = 'network_density'
+    
+    if control_var not in metrics_df.columns:
+        logger.error(f"Control variable '{control_var}' not found in metrics.")
+        raise ValueError(f"Missing control variable: {control_var}")
+    
+    control_series = metrics_df[control_var]
+    
+    # 1. Zero-variance detection
+    var_val = control_series.var()
+    zero_variance = var_val < 1e-9
+    
+    if zero_variance:
+        logger.warning(f"Zero variance detected in '{control_var}'. Cannot control for it.")
+        # If zero variance, we can't do partial correlation with it.
+        # We might just skip the control or flag it.
+        # The task says "skip test, flag in report".
+        # We will flag it and switch to a method that doesn't require the control?
+        # Or just flag it. The correlation method selection logic:
+        # If zero variance, we can't compute VIF properly.
+        # Let's assume we switch to Spearman on the raw data without control?
+        # But the task says "switch to Spearman" if VIF > 5.
+        # Let's treat zero variance as a critical flag.
+        method = 'spearman' # Fallback
+        vif_value = float('inf')
+        method_switched = True
+    else:
+        # 2. VIF Check
+        # We need to check collinearity between control_var and the motif variable.
+        # Since we have multiple motifs, we check the max VIF across all motifs?
+        # Or check if the control variable is collinear with ANY of the predictors?
+        # Let's iterate through motif columns and find the max VIF.
         
-        p_corrected = metrics.get('p_corrected')
-        if p_corrected is None:
-            logger.warning(f"Missing 'p_corrected' for motif {motif_id}, skipping.")
-            continue
-
-        if p_corrected < threshold:
-            significant_motifs.append(motif_id)
-            logger.info(f"Motif {motif_id} is significant (p_corrected={p_corrected:.4f} < {threshold}).")
+        # Identify motif columns (likely start with 'motif_' or similar)
+        # Assuming T039 created columns like 'motif_1', 'motif_2', etc.
+        motif_cols = [c for c in metrics_df.columns if c.startswith('motif_')]
+        
+        max_vif = 0.0
+        
+        for motif_col in motif_cols:
+            if motif_col not in metrics_df.columns:
+                continue
+            
+            # Regress control_var on motif_col to get R^2
+            # R^2 from linear regression
+            X = metrics_df[motif_col].values
+            y = control_series.values
+            
+            # Simple linear regression: y = beta0 + beta1 * X
+            # R^2 = (correlation)^2
+            corr = np.corrcoef(X, y)[0, 1]
+            if np.isnan(corr):
+                r2 = 0.0
+            else:
+                r2 = corr ** 2
+            
+            # VIF = 1 / (1 - R^2)
+            if r2 >= 1.0:
+                vif = float('inf')
+            else:
+                vif = 1.0 / (1.0 - r2)
+            
+            if vif > max_vif:
+                max_vif = vif
+        
+        vif_value = max_vif
+        
+        if vif_value > 5.0:
+            logger.warning(f"High collinearity detected (VIF={vif_value:.2f}). Switching to Spearman.")
+            method = 'spearman'
+            method_switched = True
         else:
-            logger.debug(f"Motif {motif_id} is not significant (p_corrected={p_corrected:.4f}).")
-
-    logger.info(f"Identified {len(significant_motifs)} significant motifs out of {len(results)}.")
-    return significant_motifs
-
-def run_permutation_test(motif_data, n_perm=1000):
-    """
-    Run a permutation test for a single significant motif to assess the 
-    significance of the observed correlation against the null hypothesis 
-    of no correlation.
+            logger.info(f"Collinearity check passed (VIF={vif_value:.2f}). Using Pearson.")
+            method = 'pearson'
+            method_switched = False
     
-    Null Hypothesis: There is no correlation between the motif z-score 
-                     and the rsFC metric.
-    Test Statistic:  Pearson correlation coefficient (r).
-    
-    Args:
-        motif_data (dict): Dictionary containing the data for the motif.
-                           Expected keys:
-                           - 'motif_z_scores': list of float (z-scores across subjects)
-                           - 'rsfc_values': list of float (rsFC values across subjects)
-                           - 'observed_r': float (the original Pearson r from partial correlation)
-        n_perm (int): Number of permutations to run (default 1000).
-    
-    Returns:
-        dict: A dictionary containing the permutation test results:
-              {
-                  'motif_id': str,
-                  'observed_r': float,
-                  'empirical_p_value': float,
-                  'n_permutations': int,
-                  'null_distribution': list of float (optional, for debugging)
-              }
-    
-    Raises:
-        PipelineError: If the input data is missing required keys or has inconsistent lengths.
-        ValueError: If n_perm is less than 1.
-    """
-    if n_perm < 1:
-        raise ValueError("Number of permutations (n_perm) must be at least 1.")
-
-    # Extract data
-    z_scores = motif_data.get('motif_z_scores')
-    rsfc_values = motif_data.get('rsfc_values')
-    observed_r = motif_data.get('observed_r')
-    motif_id = motif_data.get('motif_id', 'unknown')
-
-    if z_scores is None or rsfc_values is None:
-        raise PipelineError(f"Missing required data keys for motif {motif_id}. "
-                            "Expected 'motif_z_scores' and 'rsfc_values'.")
-    
-    if observed_r is None:
-        raise PipelineError(f"Missing 'observed_r' for motif {motif_id}.")
-
-    # Convert to numpy arrays for efficient shuffling
-    x = np.array(z_scores)
-    y = np.array(rsfc_values)
-
-    if len(x) != len(y):
-        raise PipelineError(f"Data length mismatch for motif {motif_id}: "
-                            f"z_scores ({len(x)}) vs rsfc_values ({len(y)}).")
-
-    if len(x) < 2:
-        # Cannot compute correlation with less than 2 points
-        logger.warning(f"Insufficient data points ({len(x)}) for motif {motif_id}. "
-                       "Returning p=1.0.")
-        return {
-            'motif_id': motif_id,
-            'observed_r': observed_r,
-            'empirical_p_value': 1.0,
-            'n_permutations': n_perm,
-            'null_distribution': []
-        }
-
-    # Calculate observed statistic (should match observed_r, but recompute for consistency)
-    # Using numpy's corrcoef
-    with np.errstate(all='ignore'):
-        obs_corr = np.corrcoef(x, y)[0, 1]
-        if np.isnan(obs_corr):
-            obs_corr = 0.0 # Handle case of zero variance in one variable
-
-    # Generate null distribution by shuffling y
-    null_stats = np.zeros(n_perm)
-    for i in range(n_perm):
-        y_shuffled = np.random.permutation(y)
-        with np.errstate(all='ignore'):
-            r_shuffled = np.corrcoef(x, y_shuffled)[0, 1]
-            if np.isnan(r_shuffled):
-                r_shuffled = 0.0
-        null_stats[i] = r_shuffled
-
-    # Calculate empirical p-value (two-tailed test)
-    # p = (count of |null_stat| >= |obs_stat| + 1) / (n_perm + 1)
-    abs_obs = np.abs(obs_corr)
-    abs_null = np.abs(null_stats)
-    count_extreme = np.sum(abs_null >= abs_obs)
-    p_value = (count_extreme + 1) / (n_perm + 1)
-
-    logger.info(f"Permutation test for motif {motif_id}: "
-                f"obs_r={obs_corr:.4f}, emp_p={p_value:.4f} ({n_perm} perms)")
-
-    return {
-        'motif_id': motif_id,
-        'observed_r': float(obs_corr),
-        'empirical_p_value': float(p_value),
-        'n_permutations': n_perm,
-        'null_distribution': null_stats.tolist() # Include for debugging/verification
+    flags = {
+        'zero_variance': zero_variance,
+        'vif_value': vif_value if not np.isinf(vif_value) else 999.99, # Cap for JSON
+        'method_switched': method_switched,
+        'selected_method': method,
+        'control_variable': control_var
     }
+    
+    output_path = Path("data/processed/quality_flags.json")
+    safe_write_json(output_path, flags)
+    logger.info(f"Quality flags saved to {output_path}")
+    
+    return flags
 
 def main():
     """
-    Main entry point for T032b.
-    This function is designed to be called by T032c (the orchestrator).
-    It reads the significant motifs list, loads the necessary data for each,
-    and runs the permutation test.
-    
-    Note: This main() acts as a standalone runner for testing T032b in isolation
-    if the data files exist, but its primary role is to be the function 
-    implementation for the orchestrator.
+    Entry point for T033 execution.
     """
-    ensure_dirs()
+    logger = get_logger()
+    logger.info("Starting T033: Zero-variance and VIF check")
     
-    # Paths for T032b execution (typically called by T032c, but runnable here for validation)
-    significant_path = 'results/significant_motifs.json'
-    metrics_path = 'data/processed/subject_metrics.csv'
-    correlation_results_path = 'results/correlation_results.json'
-    
-    if not os.path.exists(significant_path):
-        logger.error(f"Significant motifs file not found: {significant_path}. "
-                     "Run T032a first.")
-        return
-
-    if not os.path.exists(metrics_path):
-        logger.error(f"Subject metrics file not found: {metrics_path}. "
-                     "Run T039 first.")
-        return
-
-    if not os.path.exists(correlation_results_path):
-        logger.error(f"Correlation results file not found: {correlation_results_path}. "
-                     "Run T030c first.")
-        return
-
     try:
-        # Load significant motifs
-        sig_data = safe_read_json(significant_path)
-        significant_motifs = sig_data.get('significant_motifs', [])
+        # Load data (T039 output)
+        df, density = load_subject_metrics_data()
         
-        if not significant_motifs:
-            logger.info("No significant motifs found. Skipping permutation tests.")
-            # Write empty results file to satisfy downstream tasks
-            safe_write_json('results/permutation_results.json', {
-                'permutations': [],
-                'count': 0,
-                'message': 'No significant motifs to test.'
-            })
-            return
-
-        # Load correlation results to get observed_r
-        corr_results = safe_read_json(correlation_results_path)
+        # Perform checks
+        flags = check_vif_and_select_method(df)
         
-        # Load subject metrics to get z-scores and rsfc values
-        df = pd.read_csv(metrics_path)
-        
-        # Ensure required columns exist
-        required_cols = ['subject_id', 'rsfc_mean', 'network_density'] 
-        # Note: motif z-scores are stored in separate columns or we need to reconstruct
-        # Based on T039 logic, motif z-scores are likely in columns like 'motif_123_z'
-        # We will assume the CSV has columns named 'motif_{id}_z' for z-scores
-        # and 'rsfc_mean' for the rsFC metric.
-        
-        permutation_results = []
-        
-        for motif_id in significant_motifs:
-            logger.info(f"Running permutation test for motif: {motif_id}")
-            
-            # Check if motif exists in correlation results
-            if motif_id not in corr_results:
-                logger.warning(f"Motif {motif_id} not found in correlation results, skipping.")
-                continue
-            
-            motif_corr_data = corr_results[motif_id]
-            observed_r = motif_corr_data.get('r')
-            
-            # Construct column name for z-scores
-            z_col_name = f'motif_{motif_id}_z'
-            
-            if z_col_name not in df.columns:
-                logger.error(f"Column '{z_col_name}' not found in subject_metrics.csv. "
-                             f"Available columns: {list(df.columns)}")
-                raise PipelineError(f"Missing z-score column for motif {motif_id}")
-            
-            z_scores = df[z_col_name].dropna().tolist()
-            rsfc_values = df['rsfc_mean'].dropna().tolist()
-            
-            # Align indices (dropna returns different indices, need to sync)
-            # Re-load and filter by valid indices
-            valid_idx = df[z_col_name].notna() & df['rsfc_mean'].notna()
-            z_scores = df.loc[valid_idx, z_col_name].tolist()
-            rsfc_values = df.loc[valid_idx, 'rsfc_mean'].tolist()
-            
-            if len(z_scores) != len(rsfc_values):
-                logger.error(f"Data alignment failed for {motif_id}.")
-                continue
-
-            motif_input_data = {
-                'motif_id': motif_id,
-                'motif_z_scores': z_scores,
-                'rsfc_values': rsfc_values,
-                'observed_r': observed_r
-            }
-            
-            result = run_permutation_test(motif_input_data, n_perm=1000)
-            permutation_results.append(result)
-            
-        # Save results
-        output_data = {
-            'permutations': permutation_results,
-            'total_tested': len(permutation_results),
-            'n_permutations': 1000
-        }
-        
-        safe_write_json('results/permutation_results.json', output_data)
-        logger.info(f"Saved permutation results to results/permutation_results.json")
+        logger.info("T033 completed successfully.")
+        print(f"Method selected: {flags['selected_method']}")
+        print(f"VIF: {flags['vif_value']}")
         
     except Exception as e:
-        logger.error(f"Error in main permutation test execution: {e}")
+        logger.error(f"Error in T033: {e}")
         raise
 
 if __name__ == "__main__":

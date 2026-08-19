@@ -431,3 +431,108 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T18:58:48Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: dataset size 450 curated clips for descriptive analysis
+  claim_id: c_0ed94017
+  context: 'Extract Original Physical Outcomes (N=450): Implement code/data/extract_original_labels.py
+    to parse the video metadata from the N=450 curated clips...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset consists of N=450 curated clips for Descriptive Analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:09:13Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: dataset subset 50 clips for physics verified labels
+  claim_id: c_aeaadccf
+  context: 'Generate Physics-Verified Labels (N=50): Implement code/data/physics_verify.py
+    to generate Physics-Verified Labels for the N=50 subset...'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 50 562949936643600
+      source_id: A000740
+      url: https://oeis.org/A000740
+      value: '562949936643600'
+    filled: true
+  kind: numeric
+  raw_text: A subset of N=50 clips is used for Physics-Verified Labels.
+  resolved_value: '562949936643600'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T07:09:30Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: validation gate accuracy threshold 90 percent
+  claim_id: c_32a5e9f8
+  context: 'Action: Compare z_cf predictions against physics results. Output: Write
+    data/validation/gate_status.json with status: ''passed'' (if accuracy >= 90%)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_gate_accuracy_threshold_90_percent
+  kind: magnitude
+  raw_text: The vector arithmetic validation gate requires an accuracy of at least
+    90% to pass.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:10:06Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: benchmark target runtime 6 hours
+  claim_id: c_5f97352e
+  context: Execute optimization strategies... IF T038a runtime > 6 hours to meet the
+    6h target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The end-to-end benchmark has a target runtime of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:11:04Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: project uses python version 3.11
+  claim_id: c_e445755e
+  context: Initialize Python 3.11 project with pinned requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python version 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:11:46Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: optical flow threshold default 0.5
+  claim_id: c_4e9b1339
+  context: Setup global config module (code/config.py) with paths, seeds, memory limits,
+    and OPTICAL_FLOW_THRESHOLD parameter (default 0.5)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for the OPTICAL_FLOW_THRESHOLD parameter is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:12:30Z'

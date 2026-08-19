@@ -1,11 +1,17 @@
-T001:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or `__init__.py` files were provided, so we cannot verify\
-    \ that the required folders (`code/`, `data/raw/`, `data/processed/`, `results/`,\
-    \ `specs/`, `tests/`, `tests/unit/`, `tests/integration/`) and their `__init__.py`\
-    \ files actually exist. The implementer must supply a file\u2011system view (e.g.,\
-    \ a tree dump or screenshots) showing these directories and files."
+  r: 'I looked for a `pipeline/loader.py` file containing a `verify_urls(urls: List[str])`
+    implementation and for an accompanying test that checks unreachable URLs raise
+    an error, but no such files or code were presented. The required function and
+    its verification test are missing, so the task is not satisfied.'
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test files, or documentation for `download_and_checksum(dataset_name,\
+    \ dest_path)` were provided, nor any evidence that a SHA\u2011256 checksum file\
+    \ is written or that a verification test was added. The required implementation\
+    \ and its test are missing."
 T005a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,6 +19,13 @@ T005a:
     \ ARC\u2011Challenge, and BoolQ loaders is present, nor are there tests that check\
     \ the required `FileNotFoundError` messages or the exponential\u2011backoff retry\
     \ behavior. The necessary artifacts are missing, so the task is not satisfied."
+T005b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code defining an `exponential_backoff` function or a corresponding verification
+    test was provided; the claim lacks any tangible artifact to inspect. The required
+    wrapper and its test must be added to the repository for the task to be considered
+    complete.
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,6 +33,13 @@ T006:
     \ code for loading a GPT checkpoint and performing CPU\u2011compatible weight\
     \ manipulation is missing. The task cannot be considered done without the actual\
     \ implementation artifact."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `config.py` file containing the specified hyperparameters, constraint, and
+    path definitions was provided; the evidence contains only a textual description
+    of the task and no actual code artifact to verify. The required file is missing,
+    so the task is not satisfied.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -62,9 +82,3 @@ T018:
     \ core deliverable is missing. The implementer must add a non\u2011empty `pipeline/evaluator.py`\
     \ that computes GSM8K accuracy, ARC\u2011Challenge accuracy, and Wikitext\u2011\
     2 Expected Calibration Error."
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `pipeline/stats.py` file or its contents was provided; thus\
-    \ we cannot confirm that the paired bootstrap comparison logic and p\u2011value\
-    \ output were implemented. The required artifact is missing."

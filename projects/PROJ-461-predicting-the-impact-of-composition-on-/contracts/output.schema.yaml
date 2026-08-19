@@ -1,29 +1,47 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: General Output Schema
-description: Schema for validating general pipeline output artifacts.
+description: Generic schema for validation of pipeline output artifacts.
 type: object
 required:
   - status
   - timestamp
+  - artifacts
 properties:
   status:
     type: string
     enum:
       - success
-      - failure
-      - partial
-    description: Execution status of the pipeline step.
+      - failed
+      - warning
+    description: Status of the pipeline execution.
   timestamp:
     type: string
     format: date-time
     description: ISO 8601 timestamp of execution.
-  message:
-    type: string
-    description: Optional status message or error details.
-  data_path:
-    type: string
-    description: Path to the generated data file if applicable.
-  metrics:
+  artifacts:
+    type: array
+    items:
+      type: object
+      required:
+        - path
+        - type
+      properties:
+        path:
+          type: string
+          description: Relative path to the artifact.
+        type:
+          type: string
+          description: Type of artifact (e.g., "csv", "pkl", "png", "json").
+        size_bytes:
+          type: integer
+          description: Size of the artifact in bytes.
+  error_details:
     type: object
-    description: Optional metrics object.
-additionalProperties: true
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      traceback:
+        type: string
+additionalProperties: false

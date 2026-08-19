@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-461-predicting-the-impact-of-composition-on-/`) by executing: `mkdir -p code/data code/features code/models code/analysis data models reports tests/unit tests/contract tests/integration`
+- [ ] T001 Create project structure per implementation plan (`projects/PROJ-461-predicting-the-impact-of-composition-on-/`) by executing: `mkdir -p code/data code/features code/models code/analysis data models reports tests/unit tests/contract tests/integration` <!-- FAILED: unspecified -->
 
 - [X] T002 Initialize Python 3.10+ project with `pyproject.toml`. Create `pyproject.toml` with:
  - `[build-system]` using `setuptools`
@@ -66,11 +66,11 @@
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T010 [P] [US1] Contract test for data schema in `tests/contract/test_dataset_schema.py`. Verify `clean_data.csv` matches `contracts/dataset.schema.yaml`.
-- [ ] T011 [US1] Integration test for download fallback logic in `tests/integration/test_data_fallback.py`. **Must run after T012**. Mock network failures to verify fallback to synthetic generation. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T011 [US1] Integration test for download fallback logic in `tests/integration/test_data_fallback.py`. **Must run after T012**. Mock network failures to verify fallback to synthetic generation. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/data/download.py` to fetch from Zenodo (primary) and Materials Cloud (secondary) with exponential backoff (3 retries). Output `data/raw_data.csv`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T012 [P] [US1] Implement `code/data/download.py` to fetch from Zenodo (primary) and Materials Cloud (secondary) with exponential backoff (3 retries). Output `data/raw_data.csv`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 - [ ] T014 [US1] Implement `code/data/preprocess.py` to normalize elemental symbols to IUPAC standards (1-2 chars). **Strategy**: Filter rows with missing density values. **Critical Logic**: If filtering reduces the row count to < 50, the system MUST immediately trigger 'Pipeline Validation Mode' (synthetic generation) as per FR-001. Output `data/clean_data.csv` (or `data/synthetic_data.csv` if fallback triggered).
 
@@ -80,7 +80,7 @@
 
 - [ ] T013 [US1] Implement `code/data/download.py` fallback logic: If T014 filtering results in < 50 rows, generate `data/synthetic_data.csv` (≥100 rows) with columns `composition` (dict), `density` (float). **Logic**: If real data exists (even if filtered), mimic 'dominant element' distribution from the *clean* real data; if not, use uniform distribution. Use linear mixing rule + Gaussian noise (σ=0.05). **Use fixed seed=42**.
 
-- [~] T016 [US1] Add logging for data source selection and `E_DATA_INSUFFICIENT` warnings when switching to synthetic mode. **Log Format**: `LOG: Data source selected: {source} | Rows: {count} | Status: {status}`.
+- [ ] T016 [US1] Add logging for data source selection and `E_DATA_INSUFFICIENT` warnings when switching to synthetic mode. **Log Format**: `LOG: Data source selected: {source} | Rows: {count} | Status: {status}`.
 
 - [X] T017 [US1] Add unit tests for `code/data/download.py` mocking network failures to verify fallback to synthetic generation.
 
@@ -111,9 +111,9 @@
 
 - [X] T020 [US2] Implement `code/features/engineering.py` to compute 5 specific descriptors required by FR-002: 1) Mean Atomic Mass, 2) Mean Atomic Radius, 3) Electronegativity Variance, 4) Atomic Radius Mismatch, 5) Packing Efficiency Proxy. **Input**: `clean_data.csv` (with atomic fractions from T022). **Output**: DataFrame with new columns.
 
-- [~] T021 [US2] Implement `code/features/engineering.py` to compute Packing Efficiency Proxy: `PE = 1 - (σ_r / r_mean)^2 * (1 - 0.5 * (Δr/r_mean)^2)`. **Guard Clause**: If σ_r = 0, set PE = 1.0. **Output**: Add `packing_efficiency` column to DataFrame and save to `data/clean_data.csv`. (Note: This is the specific implementation of the 5th descriptor listed in T020).
+- [ ] T021 [US2] Implement `code/features/engineering.py` to compute Packing Efficiency Proxy: `PE = 1 - (σ_r / r_mean)^2 * (1 - 0.5 * (Δr/r_mean)^2)`. **Guard Clause**: If σ_r = 0, set PE = 1.0. **Output**: Add `packing_efficiency` column to DataFrame and save to `data/clean_data.csv`. (Note: This is the specific implementation of the 5th descriptor listed in T020).
 
-- [~] T023 [US2] Implement `code/features/engineering.py` to calculate baseline density (Linear Mixing Rule: `ρ_baseline = Σ(w_i × ρ_element_i)`) and derive residual target (`ρ_residual = ρ_actual - ρ_baseline`). Save to `data/clean_data.csv`. <!-- FAILED: unspecified -->
+- [ ] T023 [US2] Implement `code/features/engineering.py` to calculate baseline density (Linear Mixing Rule: `ρ_baseline = Σ(w_i × ρ_element_i)`) and derive residual target (`ρ_residual = ρ_actual - ρ_baseline`). Save to `data/clean_data.csv`. <!-- FAILED: unspecified -->
 
 - [~] T025 [US2] Implement `code/models/train.py` to train LightGBM Gradient Boosting Regressor on `ρ_residual` (CPU-only). Save model to `models/model.pkl`. Log MAE/R² on test set. <!-- FAILED: unspecified -->
 
@@ -121,7 +121,7 @@
 
 - [ ] T025-ALT [US2] Implement `code/models/train.py` to train a **Mass-Only Model** (Linear Regression on `mean_atomic_mass`) on `ρ_residual`. Calculate its MAE. **Purpose**: Compare against the main model per Plan.md Complexity Tracking as an *additional* comparison (Model vs Mass-Only).
 
-- [ ] T026 [US2] Save metrics (Model MAE, Linear Mixing Rule Baseline MAE, Mass-Only Baseline MAE, R²) to `reports/metrics.json` (SSoT).
+- [X] T026 [US2] Save metrics (Model MAE, Linear Mixing Rule Baseline MAE, Mass-Only Baseline MAE, R²) to `reports/metrics.json` (SSoT).
 
 - [ ] T026-STAT [US2] Implement `code/analysis/statistics.py` to perform a **paired t-test** comparing Model MAE vs Linear Mixing Rule Baseline MAE on residuals (per SC-003). Calculate p-value. If p < 0.05, log statistical significance. Output to `reports/statistics.json`.
 
@@ -140,17 +140,17 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T028 [P] [US3] Contract test for report schema in `tests/contract/test_report_schema.py`.
-- [ ] T029 [P] [US3] Integration test for report generation with mock model in `tests/integration/test_report_generation.py`. <!-- FAILED: unspecified -->
+- [X] T029 [P] [US3] Integration test for report generation with mock model in `tests/integration/test_report_generation.py`. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Implement `code/analysis/report.py` to generate scatter plot (Predicted vs Actual) with R² in title. Save to `reports/predicted_vs_actual.png`.
+- [~] T030 [P] [US3] Implement `code/analysis/report.py` to generate scatter plot (Predicted vs Actual) with R² in title. Save to `reports/predicted_vs_actual.png`.
 
-- [ ] T031 [US3] Implement `code/analysis/report.py` to perform SHAP analysis and generate summary plot ranking features (explicitly comparing Mean Atomic Mass vs Radius Mismatch). Save to `reports/shap_summary.png`.
+- [~] T031 [US3] Implement `code/analysis/report.py` to perform SHAP analysis and generate summary plot ranking features (explicitly comparing Mean Atomic Mass vs Radius Mismatch). Save to `reports/shap_summary.png`.
 
-- [ ] T032 [US3] Implement `code/analysis/report.py` to run sensitivity analysis (add Gaussian noise with varying small magnitudes to target) and log MAE variance. Output table to `reports/sensitivity_analysis.json`.
+- [~] T032 [US3] Implement `code/analysis/report.py` to run sensitivity analysis (add Gaussian noise with varying small magnitudes to target) and log MAE variance. Output table to `reports/sensitivity_analysis.json`.
 
-- [ ] T033 [US3] Implement `code/analysis/report.py` conditional logic: If MAE > 0.1, generate Partial Dependence Plots for radius mismatch. **Output**: `reports/pdp_radius_mismatch.png`. Include explicit variance analysis as a distinct finding.
+- [~] T033 [US3] Implement `code/analysis/report.py` conditional logic: If MAE > 0.1, generate Partial Dependence Plots for radius mismatch. **Output**: `reports/pdp_radius_mismatch.png`. Include explicit variance analysis as a distinct finding.
 
 - [ ] T034 [US3] Implement `code/analysis/report.py` to compile `reports/analysis_report.html` and `reports/metrics.json` (SSoT).
 

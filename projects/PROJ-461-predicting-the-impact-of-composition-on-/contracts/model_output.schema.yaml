@@ -1,22 +1,32 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Output Schema
-description: Schema for validating model predictions and metrics.
+description: Schema for validating model predictions and metadata.
 type: object
 required:
+  - model_type
   - predictions
-  - actual
   - metrics
 properties:
+  model_type:
+    type: string
+    description: Type of model used (e.g., "LightGBM").
   predictions:
     type: array
     items:
-      type: number
-    description: Array of predicted density values.
-  actual:
-    type: array
-    items:
-      type: number
-    description: Array of actual density values.
+      type: object
+      required:
+        - actual
+        - predicted
+      properties:
+        actual:
+          type: number
+          description: Actual density value.
+        predicted:
+          type: number
+          description: Predicted density value.
+        residual:
+          type: number
+          description: Residual (actual - predicted).
   metrics:
     type: object
     required:
@@ -32,11 +42,14 @@ properties:
       rmse:
         type: number
         description: Root Mean Squared Error.
-  model_path:
-    type: string
-    description: Path to the saved model file.
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the prediction was made.
-additionalProperties: true
+  training_metadata:
+    type: object
+    properties:
+      seed:
+        type: integer
+      groups_used:
+        type: array
+        items:
+          type: string
+        description: List of dominant elements used for grouping.
+additionalProperties: false

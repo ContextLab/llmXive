@@ -5,194 +5,165 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
-    """
-    Compute the checksum of a file.
-    
-    Args:
-        file_path: Path to the file.
-        algorithm: Hash algorithm to use (default: sha256).
-        
-    Returns:
-        Hexadecimal checksum string.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the algorithm is not supported.
-    """
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
-    hash_func = hashlib.new(algorithm)
+def compute_file_checksum(file_path: Path) -> str:
+    """Compute SHA-256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            while chunk := f.read(8192):
-                hash_func.update(chunk)
-        return hash_func.hexdigest()
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found for checksum: {file_path}")
+        raise
     except Exception as e:
         logger.error(f"Error computing checksum for {file_path}: {e}")
         raise
 
-def generate_checksum_manifest(data_dir: Path, output_path: Optional[Path] = None) -> Path:
+def generate_checksum_manifest(base_dir: Path, relative_paths: List[str], output_path: Path) -> Dict:
     """
-    Generate a manifest of checksums for all files in the data directory.
+    Generate a JSON manifest of checksums for a list of files relative to base_dir.
     
     Args:
-        data_dir: Root directory of the data structure.
-        output_path: Optional path to write the manifest. Defaults to data_dir/checksum_manifest.json.
-        
-    Returns:
-        Path to the generated manifest file.
-    """
-    if not data_dir.exists():
-        raise FileNotFoundError(f"Data directory not found: {data_dir}")
+        base_dir: The root directory containing the files.
+        relative_paths: List of relative file paths to include.
+        output_path: Path where the manifest JSON will be written.
     
+    Returns:
+        The manifest dictionary.
+    """
     manifest = {
-        "algorithm": "sha256",
+        "base_dir": str(base_dir),
         "files": {}
     }
-    
-    for root, _, files in os.walk(data_dir):
-        for file in files:
-            if file == "checksum_manifest.json":
-                continue
-            
-            file_path = Path(root) / file
-            rel_path = file_path.relative_to(data_dir)
-            
-            try:
-                checksum = compute_file_checksum(file_path)
-                manifest["files"][str(rel_path)] = checksum
-                logger.info(f"Checksum computed: {rel_path} -> {checksum[:16]}...")
-            except Exception as e:
-                logger.warning(f"Skipping file {rel_path} due to error: {e}")
-    
-    if output_path is None:
-        output_path = data_dir / "checksum_manifest.json"
-    
+
+    for rel_path in relative_paths:
+        full_path = base_dir / rel_path
+        if not full_path.exists():
+            logger.warning(f"File missing for manifest generation: {full_path}")
+            continue
+        
+        checksum = compute_file_checksum(full_path)
+        manifest["files"][rel_path] = checksum
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
     
-    logger.info(f"Checksum manifest written to: {output_path}")
-    return output_path
+    logger.info(f"Checksum manifest written to {output_path}")
+    return manifest
 
-def verify_checksums(data_dir: Path, manifest_path: Optional[Path] = None) -> Tuple[bool, List[str], List[str]]:
+def verify_checksums(base_dir: Path, manifest_path: Path) -> Tuple[bool, List[str]]:
     """
-    Verify file checksums against a manifest.
+    Verify files against a checksum manifest.
     
     Args:
-        data_dir: Root directory of the data structure.
-        manifest_path: Optional path to the manifest. Defaults to data_dir/checksum_manifest.json.
-        
-    Returns:
-        Tuple of (all_valid, passed_files, failed_files).
-    """
-    if manifest_path is None:
-        manifest_path = data_dir / "checksum_manifest_manifest.json"
+        base_dir: The root directory containing the files.
+        manifest_path: Path to the JSON manifest.
     
+    Returns:
+        Tuple of (all_valid, list_of_failed_files).
+    """
     if not manifest_path.exists():
         logger.error(f"Manifest file not found: {manifest_path}")
-        return False, [], [f"Manifest missing: {manifest_path}"]
-    
+        return False, ["Manifest not found"]
+
     try:
         with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = json.load(f)
     except json.JSONDecodeError as e:
         logger.error(f"Invalid JSON in manifest: {e}")
-        return False, [], [f"Invalid manifest JSON: {e}"]
-    
-    algorithm = manifest.get("algorithm", "sha256")
-    expected_checksums = manifest.get("files", {})
-    
-    passed = []
-    failed = []
-    
-    if not expected_checksums:
-        logger.warning("Manifest contains no file entries.")
-        return True, [], []
-    
-    for rel_path_str, expected_hash in expected_checksums.items():
-        file_path = data_dir / rel_path_str
-        
-        if not file_path.exists():
-            failed.append(f"Missing: {rel_path_str}")
-            logger.warning(f"File missing: {rel_path_str}")
-            continue
-        
-        try:
-            actual_hash = compute_file_checksum(file_path, algorithm)
-            if actual_hash == expected_hash:
-                passed.append(rel_path_str)
-                logger.info(f"Verified OK: {rel_path_str}")
-            else:
-                failed.append(f"Checksum mismatch: {rel_path_str}")
-                logger.error(f"Checksum mismatch for {rel_path_str}: expected {expected_hash}, got {actual_hash}")
-        except Exception as e:
-            failed.append(f"Error reading {rel_path_str}: {e}")
-            logger.error(f"Error reading {rel_path_str}: {e}")
-    
-    all_valid = len(failed) == 0
-    return all_valid, passed, failed
+        return False, ["Invalid manifest JSON"]
 
-def initialize_data_structure(root_dir: Path) -> None:
+    failed_files = []
+    all_valid = True
+
+    for rel_path, expected_checksum in manifest.get("files", {}).items():
+        full_path = base_dir / rel_path
+        if not full_path.exists():
+            logger.error(f"File missing during verification: {full_path}")
+            failed_files.append(rel_path)
+            all_valid = False
+            continue
+
+        try:
+            actual_checksum = compute_file_checksum(full_path)
+            if actual_checksum != expected_checksum:
+                logger.error(f"Checksum mismatch for {full_path}: expected {expected_checksum}, got {actual_checksum}")
+                failed_files.append(rel_path)
+                all_valid = False
+            else:
+                logger.debug(f"Checksum verified for {full_path}")
+        except Exception as e:
+            logger.error(f"Error verifying {full_path}: {e}")
+            failed_files.append(rel_path)
+            all_valid = False
+
+    return all_valid, failed_files
+
+def initialize_data_structure(data_root: Path) -> None:
     """
-    Initialize the data directory structure with raw, processed, and validation subdirectories.
-    
-    Args:
-        root_dir: Root directory where data structure will be created.
+    Initialize the required directory structure for the data pipeline.
+    Creates: raw/, processed/, validation/
     """
-    subdirs = ["raw", "processed", "validation"]
-    for subdir in subdirs:
-        dir_path = root_dir / subdir
+    sub_dirs = ["raw", "processed", "validation"]
+    for subdir in sub_dirs:
+        dir_path = data_root / subdir
         dir_path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created directory: {dir_path}")
-    
-    # Initialize .gitkeep files to ensure directories are tracked
-    for subdir in subdirs:
-        gitkeep_path = root_dir / subdir / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.touch()
-            logger.info(f"Created .gitkeep in: {root_dir / subdir}")
+        # Create a .gitkeep to ensure directories are tracked in git
+        gitkeep = dir_path / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.touch()
+        logger.info(f"Initialized directory: {dir_path}")
 
 def main():
     """
-    Main entry point for checksum utility scripts.
+    CLI entry point for checksum utilities.
     Usage:
-      python code/utils/checksum_utils.py init <data_dir>
-      python code/utils/checksum_utils.py generate <data_dir>
-      python code/utils/checksum_utils.py verify <data_dir>
+      - Initialize: python code/utils/checksum_utils.py init
+      - Generate: python code/utils/checksum_utils.py generate <relative_path1> [relative_path2] ...
+      - Verify: python code/utils/checksum_utils.py verify
     """
     import sys
     
-    if len(sys.argv) < 3:
-        print("Usage: python checksum_utils.py <command> <data_dir>")
+    if len(sys.argv) < 2:
+        print("Usage: python code/utils/checksum_utils.py <command> [args]")
         print("Commands: init, generate, verify")
         sys.exit(1)
-    
+
     command = sys.argv[1]
-    data_dir = Path(sys.argv[2])
-    
+    # Assume data root is relative to script location or current dir
+    # For this project, we assume running from project root
+    data_root = Path("./data").resolve()
+
     if command == "init":
-        initialize_data_structure(data_dir)
-        print(f"Data structure initialized at: {data_dir}")
+        initialize_data_structure(data_root)
+        print(f"Data structure initialized at {data_root}")
+    
     elif command == "generate":
-        manifest_path = generate_checksum_manifest(data_dir)
-        print(f"Checksum manifest generated at: {manifest_path}")
+        if len(sys.argv) < 3:
+            print("Usage: generate <relative_path1> [relative_path2] ...")
+            sys.exit(1)
+        relative_paths = sys.argv[2:]
+        manifest_path = data_root / "manifest.json"
+        generate_checksum_manifest(data_root, relative_paths, manifest_path)
+        print(f"Manifest generated at {manifest_path}")
+    
     elif command == "verify":
-        all_valid, passed, failed = verify_checksums(data_dir)
+        manifest_path = data_root / "manifest.json"
+        all_valid, failed = verify_checksums(data_root, manifest_path)
         if all_valid:
-            print("Verification PASSED. All files match their checksums.")
+            print("All checksums verified successfully.")
         else:
-            print(f"Verification FAILED. {len(failed)} issues found.")
-            for issue in failed:
-                print(f"  - {issue}")
-        sys.exit(0 if all_valid else 1)
+            print(f"Verification failed for {len(failed)} files: {failed}")
+            sys.exit(1)
+    
     else:
         print(f"Unknown command: {command}")
         sys.exit(1)
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

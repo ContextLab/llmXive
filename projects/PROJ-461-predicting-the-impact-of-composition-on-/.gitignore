@@ -1,46 +1,60 @@
-# Data artifacts
-data/*.csv
-data/*.json
-data/*.pkl
-data/*.h5
-data/*.parquet
-data/*.feather
-
-# Model artifacts
-models/*.pkl
-models/*.joblib
-models/*.onnx
-
-# Report artifacts
-reports/*.png
-reports/*.jpg
-reports/*.html
-reports/*.pdf
-reports/*.json
-reports/*.csv
-
-# Logs
-logs/
-
-# Environment and cache
-.env
-.env.local
+# Python
 __pycache__/
-*.pyc
-*.pyo
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+
+# Data Artifacts (Generated)
+# Exclude all CSV, PKL, PNG, HTML files except metrics.json
+data/*.csv
+data/*.pkl
+data/*.npy
+data/*.parquet
+models/*.pkl
+models/*.pt
+models/*.h5
+reports/*.png
+reports/*.jpg
+reports/*.html
+reports/*.pdf
+logs/*.log
+
+# Exceptions: Keep metrics.json
+!reports/metrics.json
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Keep metrics.json as it is the Source of Truth
-!reports/metrics.json
+# Local config
+.env
+config.local.yaml

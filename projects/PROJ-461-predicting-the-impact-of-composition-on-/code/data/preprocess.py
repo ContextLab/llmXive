@@ -58,8 +58,8 @@ def generate_synthetic_data(num_rows: int = 100, seed: int = 42) -> List[Dict[st
     Mimics 'dominant element' distribution if real data exists, else uniform.
     Uses linear mixing rule + Gaussian noise (σ=0.05).
     """
-    random = __import__('random')
-    random.seed(seed)
+    import random as random_module
+    random_module.seed(seed)
     np.random.seed(seed)
 
     # Mock densities
@@ -73,9 +73,9 @@ def generate_synthetic_data(num_rows: int = 100, seed: int = 42) -> List[Dict[st
     data = []
     for _ in range(num_rows):
         # Random composition
-        num_elems = random.randint(2, 5)
-        selected = random.sample(elements, num_elems)
-        weights = [random.random() for _ in selected]
+        num_elems = random_module.randint(2, 5)
+        selected = random_module.sample(elements, num_elems)
+        weights = [random_module.random() for _ in selected]
         total_weight = sum(weights)
         comp = {e: w/total_weight for e, w in zip(selected, weights)}
         

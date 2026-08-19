@@ -1,26 +1,18 @@
 T011a:
   c: false
-  h: 3e80d2c484b2ccbaaea333fc41ac25474d65c406837dcf21dd86657a94300a3b
-  r: "The `data_loader.py` script does not match the specification: it attempts to\
-    \ load a different dataset (`locomo/locomo` instead of `locomo/locomo-benchmark`),\
-    \ raises a `RuntimeError` rather than the required `ValueError(\"Dataset fetch\
-    \ failed\")`, and contains extensive graph\u2011parsing logic that should be omitted.\
-    \ Moreover, the expected output file `data/raw/locomo.csv` is missing."
+  h: 92f3e342d057efb4171ae98417ed8e268758e5dbe08130d12027abe9a777ba29
+  r: "The `code/data_loader.py` script is present and contains the required download\
+    \ and CSV\u2011saving logic (including raising `ValueError(\"Dataset fetch failed\"\
+    )`), but the expected output file `data/raw/locomo.csv` does not exist. The task\
+    \ is considered incomplete until the script is executed (or the CSV is provided)\
+    \ and the required CSV file is present."
 T011c:
   c: false
-  h: 1bf980bf13361511029df79d58bf4391883a4e98cb6fb1bfc1bd7a9462b9939b
-  r: "The required output file `data/processed/graphs/graph_noise_42.json` does not\
-    \ exist, and the provided `code/data_loader.py` (truncated view) shows no function\
-    \ that calls `inject_noise` and writes a noisy graph to that path. Consequently\
-    \ the script does not fulfill the task\u2019s specification."
-T013:
-  c: false
-  h: c36593069273429ba4a91eb1097ceb08d9ec6deda60b05d8c6acc52496cf8d6a
-  r: "The provided `code/runner.py` is truncated and does not contain logic to compute\
-    \ normalized accuracy, record nodes visited, latency, status, or write these fields\
-    \ to `data/processed/baseline_results.csv`. Moreover, the required `baseline_results.csv`\
-    \ file is absent. The task\u2019s core output artifact is missing and the runner\
-    \ implementation is incomplete."
+  h: a6851f52e015556be320cd0fbad4b9a2949688d7a7c8ab93f323b148edf48dfe
+  r: "The required output file `data/processed/graphs/graph_noise_42.json` is absent,\
+    \ and the provided `code/data_loader.py` (truncated) contains no code that generates\
+    \ a graph, calls `inject_noise`, and writes the noisy graph to the specified path.\
+    \ Consequently the task\u2019s core requirement is not fulfilled."
 T013b:
   c: false
   h: 391ba653c4a7c8c195b3281bfb8982e33c208d90afa6386ea88ddecb0c07a04a
@@ -37,35 +29,11 @@ T019a:
     results to `data/processed/lazy_results.csv`. Moreover, the `lazy_results.csv`
     file is absent. Consequently the required output artifact is missing and the runner
     does not fully satisfy the specification.
-T019d:
-  c: false
-  h: 71bedf566b2256fd8a84ad48c8e455c58bc7ac57c4f6572e528494993212018b
-  r: "The required synthetic noisy graph file `data/processed/graphs/graph_noise_42.json`\
-    \ is absent, and the expected results CSV `data/processed/noisy_greedy_results.csv`\
-    \ was not generated. Moreover, `code/runner.py` only contains generic task\u2011\
-    running utilities and does not implement the Greedy strategy execution or produce\
-    \ the specified output schema. These missing artifacts prevent the task from being\
-    \ considered complete."
-T024a:
-  c: false
-  h: 0ff57d6f1d069d79493e9c4b40ef79c17074ffc12b23f127a1b2c32599c7c950
-  r: "The claimed script does not contain any implementation of Shapiro\u2011Wilk\
-    \ testing, paired t\u2011test or Wilcoxon analysis, nor does it generate the required\
-    \ `stats_report.json`. Moreover, the `stats_report.json` file is missing entirely,\
-    \ and the provided `stats.py` is truncated before any statistical logic. The task\u2019\
-    s core output and behavior are therefore not present."
-T024b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No statistical analysis artifact (e.g., a CSV or report showing paired t\u2011\
-    test or Wilcoxon results, p\u2011values, confidence intervals, or Point\u2011\
-    Biserial correlation) was provided. The claim lacks the required output files\
-    \ or documented results, so the task\u2019s requirement is not satisfied."
 T042:
   c: false
-  h: 24c0eb2b81272e510b32e25d30e0ea304ed2f36c427025cdde5b1b4db715b668
-  r: The required script `code/utils/verify_seeds.py`, the generated file `data/processed/graphs/graph_noise_42.json`,
-    and the documentation `docs/reproducibility.md` are all missing, so the reproducibility
-    verification cannot have been performed or recorded. Additionally, there is no
-    evidence that any seeding fix was applied in `code/graph_utils.py`. The task therefore
-    remains unfinished.
+  h: 075a4075f4a74f58f77684da496eb853e6dacda150e2b9d334085c8e1d312939
+  r: "The repository contains `code/utils/verify_seeds.py`, but the required output\
+    \ `data/processed/graphs/graph_noise_42.json` is missing and there is no evidence\
+    \ (e.g., hash values or a reproducibility report) that the script was executed\
+    \ twice with matching SHA\u2011256 hashes. The task\u2019s core verification step\
+    \ is therefore not satisfied."

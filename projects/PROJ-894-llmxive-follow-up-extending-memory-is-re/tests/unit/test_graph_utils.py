@@ -2,6 +2,9 @@ import pytest
 import networkx as nx
 import numpy as np
 from code.graph_utils import inject_noise, validate_graph, get_graph_statistics
+from code.strategies.full import FullTraversal, run_full_strategy
+from code.strategies.lazy import LazyTraversal, run_lazy_strategy
+from code.strategies.greedy import GreedyTraversal, run_greedy_strategy
 
 class TestInjectNoise:
     def test_inject_noise_replaces_edges(self):
@@ -144,3 +147,134 @@ class TestGetGraphStatistics:
         assert stats["avg_out_degree"] == 1.0
         assert stats["num_components"] == 1
         assert stats["largest_component_size"] == 3
+
+class TestDegenerateGraphHandling:
+    """
+    Tests for T046: Verify that traversal strategies handle degenerate graphs
+    (single-node, zero-edge) without crashing or division-by-zero errors.
+    """
+
+    def _create_single_node_graph(self):
+        """Helper to create a graph with one node and zero edges."""
+        G = nx.DiGraph()
+        G.add_node("node_1")
+        return G
+
+    def _create_empty_graph(self):
+        """Helper to create a completely empty graph."""
+        return nx.DiGraph()
+
+    def _create_single_edge_graph(self):
+        """Helper to create a graph with two nodes and one edge."""
+        G = nx.DiGraph()
+        G.add_edge("start", "end")
+        return G
+
+    def test_full_strategy_single_node_no_crash(self):
+        """
+        Test FullTraversal on a single-node graph.
+        Expects no division-by-zero and a 'degenerate' or 'unresolved' status.
+        """
+        G = self._create_single_node_graph()
+        
+        # Define a query that targets the single node (or a non-existent one)
+        query = {"start_node": "node_1", "target_node": "node_1"}
+        
+        # Run the strategy
+        result = run_full_strategy(G, query)
+        
+        # Assert no crash occurred and result contains status
+        assert "status" in result
+        # The strategy should detect the degenerate nature (0 edges)
+        # and flag it appropriately rather than hanging or crashing.
+        assert result["status"] in ["degenerate", "unresolved", "completed"]
+
+    def test_full_strategy_empty_graph_no_crash(self):
+        """
+        Test FullTraversal on an empty graph.
+        """
+        G = self._create_empty_graph()
+        query = {"start_node": "node_1", "target_node": "node_2"}
+        
+        result = run_full_strategy(G, query)
+        
+        assert "status" in result
+        assert result["status"] in ["degenerate", "unresolved"]
+
+    def test_lazy_strategy_single_node_no_crash(self):
+        """
+        Test LazyTraversal on a single-node graph.
+        """
+        G = self._create_single_node_graph()
+        query = {"start_node": "node_1", "target_node": "node_1"}
+        
+        result = run_lazy_strategy(G, query)
+        
+        assert "status" in result
+        assert result["status"] in ["degenerate", "unresolved", "completed"]
+
+    def test_lazy_strategy_no_division_by_zero(self):
+        """
+        Specifically check that lazy strategy doesn't divide by zero
+        when calculating thresholds on a graph with 0 edges.
+        """
+        G = self._create_empty_graph()
+        query = {"start_node": "A", "target_node": "B"}
+        
+        # This should not raise ZeroDivisionError
+        try:
+            result = run_lazy_strategy(G, query)
+            assert "status" in result
+        except ZeroDivisionError:
+            pytest.fail("LazyTraversal raised ZeroDivisionError on degenerate graph")
+
+    def test_greedy_strategy_single_node_no_crash(self):
+        """
+        Test GreedyTraversal on a single-node graph.
+        """
+        G = self._create_single_node_graph()
+        query = {"start_node": "node_1", "target_node": "node_1"}
+        
+        result = run_greedy_strategy(G, query)
+        
+        assert "status" in result
+        assert result["status"] in ["degenerate", "unresolved", "completed"]
+
+    def test_greedy_strategy_no_division_by_zero(self):
+        """
+        Specifically check that greedy strategy doesn't divide by zero
+        when selecting top-k edges on a graph with 0 edges.
+        """
+        G = self._create_empty_graph()
+        query = {"start_node": "A", "target_node": "B"}
+        
+        try:
+            result = run_greedy_strategy(G, query)
+            assert "status" in result
+        except ZeroDivisionError:
+            pytest.fail("GreedyTraversal raised ZeroDivisionError on degenerate graph")
+
+    def test_degenerate_flag_returned(self):
+        """
+        Verify that the strategies explicitly return a 'degenerate' flag
+        when the input graph has no edges to traverse.
+        """
+        G = self._create_empty_graph()
+        query = {"start_node": "A", "target_node": "B"}
+        
+        # Test all three strategies
+        strategies = [
+            (run_full_strategy, "Full"),
+            (run_lazy_strategy, "Lazy"),
+            (run_greedy_strategy, "Greedy")
+        ]
+        
+        for strategy_func, name in strategies:
+            result = strategy_func(G, query)
+            # We expect the status to indicate the graph was degenerate
+            # or that the task was unresolved due to lack of connectivity
+            assert "status" in result, f"{name} strategy missing status"
+            # Depending on implementation, it might be 'degenerate' or 'unresolved'
+            # The key is that it doesn't crash.
+            assert result["status"] in ["degenerate", "unresolved", "failed"], \
+                f"{name} strategy returned unexpected status: {result['status']}"

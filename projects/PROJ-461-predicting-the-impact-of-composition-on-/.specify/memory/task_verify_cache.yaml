@@ -1,69 +1,33 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or evidence of the requested folders (`code/data`, `code/features`,
-    `code/models`, `code/analysis`, `data`, `models`, `reports`, `tests/unit`, `tests/contract`,
-    `tests/integration`) is provided, so we cannot verify that the project structure
-    was actually created. The implementer must supply a concrete view of the filesystem
-    showing these directories (and optionally placeholder files) to satisfy the task.
-T003:
-  c: false
-  h: 4c3a0097a5d8df2618e78452245ec36246178bf1889a5f87403a4025768f9ed1
-  r: The `pyproject.toml` correctly contains the `[tool.black]` section with the required
-    settings, but the required `.ruff.toml` file is missing entirely; only a `[tool.ruff]`
-    section is present inside `pyproject.toml`. The task explicitly demanded a separate
-    `.ruff.toml` file with `line-length = 88` and `target-version = "py310"`. This
-    artifact must be added to satisfy the requirement.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data/`, `models/`, or `reports/` directories and no `.gitignore` file containing
-    the required exclusion patterns are present in the provided artifacts. Consequently
-    the required directory structure and ignore rules have not been demonstrated.
-T006:
-  c: false
-  h: 47af4c7cdd17a45625facdf53f883842d6d43b828e6968f1531e58da5b492fbd
-  r: The repository contains `code/utils/schema_validator.py` with a generic `load_schema`
-    implementation, but the required schema files (`contracts/dataset.schema.yaml`,
-    `contracts/model_output.schema.yaml`, `contracts/output.schema.yaml`) are absent
-    (e.g., `schema.yaml` is missing) and the code snippet is truncated, so the function
-    cannot be demonstrated to load the specified contracts schemas. The task therefore
-    lacks the necessary schema artifacts.
-T010:
-  c: false
-  h: 36285dc507f606d0da85edee125e2e081ac85154b07b1611e0498e4dbebec8e2
-  r: The test file `tests/contract/test_dataset_schema.py` exists, but the required
-    schema file `contracts/dataset.schema.yaml` is missing, and there is no evidence
-    that `data/clean_data.csv` is present. Without the schema (and the data file)
-    the contract test cannot verify the dataset, so the task is not genuinely completed.
-T012:
-  c: false
-  h: be7c7a67f9c0770b018081948e570e54e939dc98d202fcca864278846a81fada
-  r: "The provided `code/data/download.py` contains only placeholder utilities and\
-    \ synthetic\u2011data generation; it never attempts to download from Zenodo or\
-    \ Materials Cloud, implements no exponential backoff/retry logic, and does not\
-    \ write a `data/raw_data.csv` file (the file is absent). Consequently the core\
-    \ requirements of fetching real data and producing the CSV output are not met."
 T013:
   c: false
-  h: 27729aad352b2e00dbf9d37c1aac632869af9e2078914deae3d74386748235ed
-  r: "The repository lacks the required `data/synthetic_data.csv` file, and `code/data/download.py`\
-    \ does not contain the full fallback logic (no check of filtered rows, no CSV\
-    \ generation, and the function is truncated). The task\u2019s specifications for\
-    \ generating \u2265100 rows with the correct columns and distribution are therefore\
-    \ not met."
-T014:
+  h: 4aedd64059de8ab824d8db24e8ae902badb48cc1539477dc78b5359de62f6576
+  r: "The repository contains a `code/data/download.py` file, but the visible portion\
+    \ shows only helper functions and the file is truncated before any fallback logic\
+    \ that would create `data/synthetic_data.csv`. Moreover, the required `data/synthetic_data.csv`\
+    \ does not exist at all, so the script\u2019s intended synthetic\u2011data generation\
+    \ has not been demonstrated. The implementer must add the fallback that checks\
+    \ the filtered row count, generates \u2265100 rows with the specified columns\
+    \ using seed\u202F42, and ensure the CSV is created."
+T016:
   c: false
-  h: 35cb9b43a0b83da016125d3b9307ad658dcd692c591600c71fd70c2764288727
-  r: "The provided `preprocess.py` defines normalization and synthetic data helpers,\
-    \ but the core `preprocess_data` function is truncated and does not show filtering\
-    \ of missing\u2011density rows, the <\u202F50\u2011row fallback check, or writing\
-    \ of `clean_data.csv` / `synthetic_data.csv`. Consequently the required processing\
-    \ logic and generated output files are missing."
-T015:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, log files, or other artifacts were provided that demonstrate the addition\
+    \ of logging for data source selection or the emission of `E_DATA_INSUFFICIENT`\
+    \ warnings in synthetic\u2011mode fallback. Without concrete files showing the\
+    \ required log format (`LOG: Data source selected: {source} | Rows: {count} |\
+    \ Status: {status}`) the claim cannot be verified. The implementer must supply\
+    \ the updated script/module and example log output confirming the behavior."
+T021:
   c: false
-  h: bc366bc7244d600cd1db6df86a500703aedcb915609aca9c34dedec2b786be44
-  r: The required `data/clean_data.csv` (or `synthetic_data.csv`) is absent, so the
-    validation log cannot be based on real data; the existing `validation_log.json`
-    is therefore unsubstantiated. The missing CSV file must be provided (or a synthetic
-    dataset) and the log regenerated from its actual contents.
+  h: 476ad33127aa86c0bed1c6a1a59b555b1221e1ad3ed8413b66e8dcb30792e906
+  r: The provided `code/features/engineering.py` snippet does not contain any implementation
+    of the Packing Efficiency Proxy calculation or the addition of a `packing_efficiency`
+    column, and the required output file `data/clean_data.csv` is absent. Both the
+    core functionality and the expected saved CSV are missing.
+T023:
+  c: false
+  h: 476ad33127aa86c0bed1c6a1a59b555b1221e1ad3ed8413b66e8dcb30792e906
+  r: The provided `engineering.py` does not contain any implementation for computing
+    baseline density via the linear mixing rule, nor does it calculate the residual
+    density or write a `clean_data.csv` file. Additionally, the required `data/clean_data.csv`
+    file is missing entirely. The task therefore remains unfinished.

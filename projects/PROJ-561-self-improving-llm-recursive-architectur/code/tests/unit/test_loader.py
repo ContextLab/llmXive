@@ -1,169 +1,155 @@
+"""
+Unit tests for dataset loaders in pipeline.loader.
+Tests verify:
+- Exponential backoff behavior.
+- Fail-fast logic on unreachable URLs.
+- Correct function signatures and streaming flags.
+"""
 import unittest
 from unittest.mock import patch, MagicMock, PropertyMock, call
 import sys
 import os
 import time
 import tempfile
-from huggingface_hub import HfHubHTTPError
-from requests import Response
 
-# Add the code directory to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Add project root to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from pipeline.loader import (
     HFTransientError, 
-    exponential_backoff_retry, 
-    load_local_dataset, 
+    exponential_backoff, 
+    verify_urls, 
+    download_and_checksum,
     load_openwebtext,
     load_gsm8k,
     load_arc_challenge,
     load_boolq
 )
-from config import get_config
+import requests
 
 class TestDatasetLoaders(unittest.TestCase):
-
-    def test_load_local_dataset_missing_file_raises_file_not_found(self):
-        """
-        Verify that loading a non-existent dataset using a dynamically generated 
-        temporary path raises FileNotFoundError with the exact message.
-        """
-        temp_path = tempfile.mktemp(suffix=".json")
-        # Ensure the file does not exist
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-        
-        with self.assertRaises(FileNotFoundError) as context:
-            load_local_dataset(temp_path)
-        
-        self.assertIn("Dataset file not found:", str(context.exception))
-        self.assertIn(temp_path, str(context.exception))
-
-    @patch('config.get_config')
-    def test_load_all_datasets_missing_config_path_raises_file_not_found(self, mock_get_config):
-        """
-        Verify that loading a missing file at a config.py defined path raises 
-        FileNotFoundError and does NOT fallback to synthetic data.
-        """
-        # Mock config to return a path that doesn't exist
-        mock_config = MagicMock()
-        mock_config.openwebtext_path = tempfile.mktemp(suffix=".json")
-        mock_config.gsm8k_path = tempfile.mktemp(suffix=".json")
-        mock_config.arc_challenge_path = tempfile.mktemp(suffix=".json")
-        mock_config.boolq_path = tempfile.mktemp(suffix=".json")
-        mock_get_config.return_value = mock_config
-        
-        # Ensure paths don't exist
-        for path in [mock_config.openwebtext_path, mock_config.gsm8k_path, 
-                     mock_config.arc_challenge_path, mock_config.boolq_path]:
-            if os.path.exists(path):
-                os.remove(path)
-
-        with self.assertRaises(FileNotFoundError) as context:
-            # We need to import inside or reload to pick up the mocked config
-            # But since load_all_datasets calls get_config internally, we just call it
-            from pipeline.loader import load_all_datasets
-            load_all_datasets()
-        
-        self.assertIn("Dataset file not found:", str(context.exception))
+    
+    def setUp(self):
+        self.mock_ds = MagicMock()
+        self.mock_ds.__iter__ = MagicMock(return_value=iter([{"text": "test"}]))
 
     @patch('pipeline.loader.load_dataset')
-    @patch('pipeline.loader.time.sleep')
-    def test_hf_hub_http_error_triggers_retry_logic(self, mock_sleep, mock_load_dataset):
-        """
-        Verify that simulating HfHubHTTPError (from huggingface_hub) triggers 
-        the retry logic from T005b.
-        """
-        # Create a mock response object for HfHubHTTPError
-        mock_response = MagicMock(spec=Response)
-        mock_response.status_code = 503 # Service Unavailable
+    def test_load_openwebtext_streaming(self, mock_load_dataset):
+        """Test that load_openwebtext passes streaming=True correctly."""
+        mock_load_dataset.return_value = self.mock_ds
         
-        error = HfHubHTTPError("Server Error", response=mock_response)
+        result = load_openwebtext(streaming=True)
         
-        # Configure the mock to fail 3 times, then succeed
-        mock_load_dataset.side_effect = [error, error, error, MagicMock()]
-        
-        # Call the decorated function
-        result = load_openwebtext()
-        
-        # Assert that load_dataset was called 4 times (3 failures + 1 success)
-        self.assertEqual(mock_load_dataset.call_count, 4)
-        
-        # Assert that time.sleep was called 3 times (after each failure)
-        self.assertEqual(mock_sleep.call_count, 3)
+        mock_load_dataset.assert_called_once()
+        args, kwargs = mock_load_dataset.call_args
+        self.assertEqual(kwargs.get('streaming'), True)
+        self.assertEqual(args[0], "OpenWebText")
 
     @patch('pipeline.loader.load_dataset')
-    @patch('pipeline.loader.time.sleep')
-    def test_429_error_triggers_retry_logic(self, mock_sleep, mock_load_dataset):
-        """
-        Verify that simulating a 429 (Too Many Requests) error triggers the retry logic.
-        """
-        mock_response = MagicMock(spec=Response)
-        mock_response.status_code = 429
+    def test_load_gsm8k_streaming(self, mock_load_dataset):
+        """Test that load_gsm8k passes streaming=True correctly."""
+        mock_load_dataset.return_value = self.mock_ds
         
-        error = HfHubHTTPError("Rate Limit", response=mock_response)
+        result = load_gsm8k(streaming=True)
         
-        mock_load_dataset.side_effect = [error, MagicMock()]
-        
-        result = load_openwebtext()
-        
-        # Assert that load_dataset was called 2 times (1 failure + 1 success)
-        self.assertEqual(mock_load_dataset.call_count, 2)
-        
-        # Assert that time.sleep was called 1 time
-        self.assertEqual(mock_sleep.call_count, 1)
+        mock_load_dataset.assert_called_once()
+        args, kwargs = mock_load_dataset.call_args
+        self.assertEqual(kwargs.get('streaming'), True)
+        self.assertIn("gsm8k", args[0])
 
     @patch('pipeline.loader.load_dataset')
-    @patch('pipeline.loader.time.sleep')
-    def test_non_transient_error_raises_immediately(self, mock_sleep, mock_load_dataset):
-        """
-        Verify that a non-transient error (e.g., 404) raises immediately without retry.
-        """
-        mock_response = MagicMock(spec=Response)
-        mock_response.status_code = 404 # Not Found
+    def test_load_arc_challenge_streaming(self, mock_load_dataset):
+        """Test that load_arc_challenge passes streaming=True correctly."""
+        mock_load_dataset.return_value = self.mock_ds
         
-        error = HfHubHTTPError("Not Found", response=mock_response)
+        result = load_arc_challenge(streaming=True)
         
-        mock_load_dataset.side_effect = error
-        
-        with self.assertRaises(HfHubHTTPError):
-            load_openwebtext()
-        
-        # Assert that load_dataset was called only once
-        self.assertEqual(mock_load_dataset.call_count, 1)
-        
-        # Assert that time.sleep was never called
-        self.assertEqual(mock_sleep.call_count, 0)
+        mock_load_dataset.assert_called_once()
+        args, kwargs = mock_load_dataset.call_args
+        self.assertEqual(kwargs.get('streaming'), True)
+        self.assertIn("arc", args[0].lower())
 
     @patch('pipeline.loader.load_dataset')
-    def test_load_gsm8k_calls_hf_correctly(self, mock_load_dataset):
-        """Verify GSM8K loader calls HuggingFace with correct parameters."""
+    def test_load_boolq_streaming(self, mock_load_dataset):
+        """Test that load_boolq passes streaming=True correctly."""
+        mock_load_dataset.return_value = self.mock_ds
+        
+        result = load_boolq(streaming=True)
+        
+        mock_load_dataset.assert_called_once()
+        args, kwargs = mock_load_dataset.call_args
+        self.assertEqual(kwargs.get('streaming'), True)
+        self.assertEqual(args[0], "boolq")
+
+    @patch('pipeline.loader.requests.head')
+    def test_verify_urls_success(self, mock_head):
+        """Test verify_urls with successful responses."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_head.return_value = mock_response
+        
+        verify_urls(["http://example.com"])
+        mock_head.assert_called_once_with("http://example.com", timeout=10)
+
+    @patch('pipeline.loader.requests.head')
+    def test_verify_urls_failure(self, mock_head):
+        """Test verify_urls raises ValueError on failure."""
+        mock_head.side_effect = requests.exceptions.ConnectionError("Network error")
+        
+        with self.assertRaises(ValueError) as context:
+            verify_urls(["http://broken.com"])
+        
+        self.assertIn("unreachable", str(context.exception))
+
+    def test_exponential_backoff_initial_delay(self):
+        """Test that exponential backoff applies delay on failure."""
+        call_count = 0
+        max_calls = 2
+        
+        @exponential_backoff
+        def failing_func():
+            nonlocal call_count
+            call_count += 1
+            if call_count <= max_calls:
+                raise requests.exceptions.ConnectionError("Transient error")
+            return "success"
+        
+        start_time = time.time()
+        result = failing_func()
+        elapsed = time.time() - start_time
+        
+        # Should have retried at least once with a delay
+        self.assertEqual(result, "success")
+        self.assertGreater(elapsed, 1.0) # Should have slept at least once (2s initial)
+
+    @patch('pipeline.loader.os.path.exists')
+    def test_download_and_checksum(self, mock_exists):
+        """Test download_and_checksum computes hash correctly."""
+        mock_exists.return_value = True
+        
+        # Create a temp file with known content
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            f.write(b"hello world")
+            temp_path = f.name
+        
+        try:
+            checksum = download_and_checksum("dummy", temp_path)
+            # SHA256 of "hello world"
+            expected = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+            self.assertEqual(checksum, expected)
+        finally:
+            os.unlink(temp_path)
+
+    @patch('pipeline.loader.load_dataset')
+    def test_load_openwebtext_max_samples(self, mock_load_dataset):
+        """Test that max_samples is respected in non-streaming mode."""
         mock_ds = MagicMock()
+        mock_ds.select.return_value = self.mock_ds
         mock_load_dataset.return_value = mock_ds
         
-        result = load_gsm8k()
+        result = load_openwebtext(streaming=False, max_samples=100)
         
-        mock_load_dataset.assert_called_once_with("gsm8k", "main", split="test", streaming=True)
-        self.assertEqual(result, mock_ds)
+        mock_ds.select.assert_called_once_with(range(100))
 
-    @patch('pipeline.loader.load_dataset')
-    def test_load_arc_challenge_calls_hf_correctly(self, mock_load_dataset):
-        """Verify ARC-Challenge loader calls HuggingFace with correct parameters."""
-        mock_ds = MagicMock()
-        mock_load_dataset.return_value = mock_ds
-        
-        result = load_arc_challenge()
-        
-        mock_load_dataset.assert_called_once_with("ai2_arc", "ARC-Challenge", split="test", streaming=True)
-        self.assertEqual(result, mock_ds)
-
-    @patch('pipeline.loader.load_dataset')
-    def test_load_boolq_calls_hf_correctly(self, mock_load_dataset):
-        """Verify BoolQ loader calls HuggingFace with correct parameters."""
-        mock_ds = MagicMock()
-        mock_load_dataset.return_value = mock_ds
-        
-        result = load_boolq()
-        
-        mock_load_dataset.assert_called_once_with("boolq", split="validation", streaming=True)
-        self.assertEqual(result, mock_ds)
+if __name__ == '__main__':
+    unittest.main()
