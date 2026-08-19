@@ -258,3 +258,211 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T19:16:12Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 0
+  canonical: excitatory to inhibitory activity target ratio of 4.0
+  claim_id: c_aaba9ba2
+  context: 'Implement dynamic E/I ratio enforcement mechanism in src/training/homeostasis.py:
+    define enforce_ei_ratio(model, step, target_ratio=4.0) function.'
+  evidence:
+    asserted: '4.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: target_ratio=4.0
+  resolved_value: '2.7'
+  resolver: approximate
+  source_hash: a9ca6a5760937360ff7089e18ec199bd13bfdabbc3e1d7e4c21fb58e03340b79
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T12:26:51Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: baseline transformer mean absolute error less than 0.05 within 6 hours
+    on 4 CPU cores
+  claim_id: c_32ea6973
+  context: 'Independent Test: Execute training on held-out synthetic functions (Lorenz,
+    Fourier) and verify MAE < 0.05 within 6 hours on 4 CPU cores.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_transformer_mean_absolute_error_less_than_0.05_with
+  kind: magnitude
+  raw_text: Verify MAE < 0.05 within 6 hours on 4 CPU cores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T12:27:32Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: resource constraint RSS memory less than 7 gigabytes
+  claim_id: c_f6c789aa
+  context: Implement tests/conftest.py hooks using psutil to assert RSS memory < 7GB
+    and core pinning (via os.sched_getaffinity or taskset integration) during test
+    execution.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Resource_constraint_RSS_memory_less_than_7_gigabytes
+  kind: magnitude
+  raw_text: assert RSS memory < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T12:27:58Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: kolmogorov-smirnov test p-value less than 0.05 indicates statistically
+    independent distributions
+  claim_id: c_2e02294d
+  context: 'Requirement: If p_value < 0.05, distributions are statistically different
+    (independent). If p_value >= 0.05, raise ValueError with message ''Data distributions
+    are not statistically independent (too similar)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov-smirnov_test_p-value_less_than_0.05_indicates_sta
+  kind: magnitude
+  raw_text: If p_value < 0.05, distributions are statistically different (independent).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T12:28:37Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: mean difference relative to mean greater than 0.10 for distribution independence
+  claim_id: c_5e7b921d
+  context: 'Also check that mean/variance differ significantly: abs(mean1 - mean2)
+    / mean1 > 0.10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_difference_relative_to_mean_greater_than_0.10_for_distr
+  kind: magnitude
+  raw_text: abs(mean1 - mean2) / mean1 > 0.10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T12:28:54Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: hybrid network parameter count parity within 1 percent of baseline
+  claim_id: c_f71eacee
+  context: "Implement src/models/hybrid_network.py to replace standard MLP layers\
+    \ with MicrocircuitModule while maintaining parameter count parity (\xB11%). Logic:\
+    \ Instantiate MicrocircuitModule with same hidden dimensions as the standard MLP\
+    \ it replaces. Add logic to count parameters and assert abs(total_params - baseline_params)\
+    \ / baseline_params < 0.01."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert abs(total_params - baseline_params) / baseline_params < 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T12:28:54Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: baseline test degradation percentage less than 10.0 percent
+  claim_id: c_2f1ae567
+  context: 'Logic for passed: Set passed to true if degradation_pct < 10.0, else false.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_test_degradation_percentage_less_than_10.0_percent
+  kind: magnitude
+  raw_text: degradation_pct < 10.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T12:29:30Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: paired t-test significance requires p-value less than 0.05 and relative
+    MAE increase greater than 15 percent
+  claim_id: c_fa854e80
+  context: 'Logic: Calculate mae_diff = ablated_mae - full_mae. Check p_value < 0.05
+    AND mae_diff / full_mae > 0.15 (relative increase > 15%).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_significance_requires_p-value_less_than_0.05_a
+  kind: magnitude
+  raw_text: Check p_value < 0.05 AND mae_diff / full_mae > 0.15
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T12:30:01Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: scaling analysis base configuration variants with hidden dimensions 64
+    to 256 and neuron counts 128 to 512
+  claim_id: c_a7865dcd
+  context: 'Base Config: 1x = 64 hidden/128 neurons, 2x = 128 hidden/256 neurons,
+    4x = 256 hidden/512 neurons. Output: {"exponent": float, "confidence_interval":
+    [float, float], "linear_or_sublinear": str}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Base Config: 1x = 64 hidden/128 neurons, 2x = 128 hidden/256 neurons,
+    4x = 256 hidden/512 neurons'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T12:30:39Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: scaling exponent less than 1.0 indicates sublinear scaling
+  claim_id: c_679d9eeb
+  context: 'Constraint: Must assert exponent < 1.0 or exponent >= 1.0 and set linear_or_sublinear
+    field accordingly.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scaling_exponent_less_than_1.0_indicates_sublinear_scaling
+  kind: magnitude
+  raw_text: exponent < 1.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T12:31:04Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: scaling law testing requires at least 3 distinct column count configurations
+  claim_id: c_ba98c67f
+  context: Extend src/experiments/scaling.py to ensure at least 3 distinct column
+    counts (1x, 2x, 4x) are tested to robustly fit a power law.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scaling_law_testing_requires_at_least_3_distinct_column_coun
+  kind: magnitude
+  raw_text: ensure at least 3 distinct column counts (1x, 2x, 4x) are tested
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T12:31:21Z'

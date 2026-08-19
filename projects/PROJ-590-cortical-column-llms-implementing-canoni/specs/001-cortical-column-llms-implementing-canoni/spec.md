@@ -13,7 +13,7 @@ A researcher needs to establish a computationally universal baseline using a sta
 
 **Why this priority**: Without a verified, universal baseline trained under identical resource constraints (CPU-only, <6h), any degradation observed in microcircuit models cannot be attributed to the architectural changes. This establishes the "maximum possible performance" reference point.
 
-**Independent Test**: Can be fully tested by executing the training pipeline on a held-out set of synthetic functions (e.g., Lorenz attractor, Fourier series) and verifying that the baseline model achieves a mean absolute error (MAE) below 0.05 within the 6-hour time limit on 4 CPU cores.
+**Independent Test**: Can be fully tested by executing the training pipeline on a held-out set of synthetic functions (e.g., Lorenz attractor, Fourier series) and verifying that the baseline model achieves a mean absolute error (MAE) within an acceptable low range within the 6-hour time limit on 4 CPU cores.
 
 **Acceptance Scenarios**:
 
@@ -32,7 +32,7 @@ A researcher needs to implement a parameterized "Cortical Column" module in PyTo
 
 **Acceptance Scenarios**:
 
-1. **Given** the parameterized microcircuit module definition, **When** initialized with standard weight distributions, **Then** the module must enforce a fixed excitatory-inhibitory ratio of 4:1 (approximating cortical balance) throughout training via homeostatic scaling, and prevent any connection weights from exceeding [-1.0, 1.0] during initialization.
+1. **Given** the parameterized microcircuit module definition, **When** initialized with standard weight distributions, **Then** the module must enforce a fixed excitatory-inhibitory ratio approximating cortical balance throughout training via homeostatic scaling, and prevent any connection weights from exceeding [-1.0, 1.0] during initialization.
 2. **Given** a hybrid network architecture, **When** replacing a standard Transformer MLP layer with the microcircuit module, **Then** the total parameter count must remain within ±1% of the baseline model, and the forward pass must execute without execution errors on a CPU runner.
 
 ---

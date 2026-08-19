@@ -1,51 +1,45 @@
+"""
+Script to create __init__.py files in all src/ and tests/ directories (T002).
+"""
 import os
 from pathlib import Path
 
-def ensure_init_files(root: Path) -> bool:
+def ensure_init_files(root_path: Path) -> None:
     """
-    Create __init__.py files in all src/ and tests/ directories.
-    Returns True if all files were created successfully.
+    Creates empty __init__.py files in all src/ and tests/ subdirectories.
     """
-    # Define all directories that need __init__.py
-    dirs = [
-        "src",
-        "src/models",
-        "src/data",
-        "src/training",
-        "src/experiments",
-        "src/utils",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-    ]
+    # Directories that need __init__.py
+    target_roots = ["src", "tests"]
     
-    success = True
-    for d in dirs:
-        path = root / d / "__init__.py"
-        if not path.exists():
-            try:
-                path.write_text('"""' + d + " package.\n\"\"\"\n")
-                print(f"Created: {path}")
-            except OSError as e:
-                print(f"Error creating {path}: {e}")
-                success = False
-        else:
-            print(f"Exists: {path}")
+    created_count = 0
     
-    return success
+    for root_dir in target_roots:
+        base_path = root_path / root_dir
+        if not base_path.exists():
+            print(f"Warning: {base_path} does not exist, skipping.")
+            continue
+        
+        # Walk through all subdirectories
+        for dirpath, dirnames, filenames in os.walk(base_path):
+            init_file = Path(dirpath) / "__init__.py"
+            if not init_file.exists():
+                init_file.touch()
+                created_count += 1
+                print(f"Created: {init_file}")
+            else:
+                # Optionally update existing files with version info
+                pass
+    
+    print(f"Created {created_count} __init__.py files.")
 
 def main():
     """Main entry point."""
-    root = Path(__file__).parent.parent
-    print(f"Creating init files in: {root}")
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent.parent
     
-    if ensure_init_files(root):
-        print("All init files created/verified successfully")
-        return 0
-    else:
-        print("Some init files failed to create", file=__import__('sys').stderr)
-        return 1
+    print(f"Project root: {project_root}")
+    ensure_init_files(project_root)
+    print("__init__.py creation complete.")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

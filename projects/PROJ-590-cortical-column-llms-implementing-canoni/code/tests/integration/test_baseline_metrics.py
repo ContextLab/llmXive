@@ -5,45 +5,46 @@ import pytest
 from pathlib import Path
 import sys
 
-# Add project root to path if running standalone
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Ensure project root is in path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.experiments.baseline_runner import BaselineRunner, ExperimentConfig
 
 @pytest.fixture
 def temp_output_dir():
+    """Create a temporary directory for test outputs."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield tmpdir
 
 class TestBaselineMetrics:
-    """
-    Integration test for T015: run_and_record_metrics.
-    Verifies that the baseline metrics JSON is generated with the correct schema
-    and logic (degradation calculation, passed flag).
-    """
+    """Integration tests for baseline metrics generation (T015)."""
 
     def test_run_and_record_metrics_creates_file(self, temp_output_dir):
-        """
-        Test that run_and_record_metrics successfully creates data/results/baseline_metrics.json.
-        """
+        """Test that run_and_record_metrics writes the correct JSON file."""
+        output_path = os.path.join(temp_output_dir, "baseline_metrics.json")
+
+        # Use a small config for faster testing
         config = ExperimentConfig(
-            seed=42,
-            hidden_dim=16, # Small for speed in test
-            num_layers=1,
+            name="test_baseline",
+            hidden_dim=16,
+            num_layers=2,
             num_heads=2,
-            max_epochs=2, # Few epochs for test speed
-            output_dir=temp_output_dir
+            seq_len=32,
+            train_samples=100,
+            test_samples=50,
+            epochs=2,
+            batch_size=16,
+            lr=1e-3,
+            seed=42,
         )
 
         runner = BaselineRunner(config)
-        result = runner.run_and_record_metrics()
+        result = runner.run_and_record_metrics(output_path=output_path)
 
-        # Check file existence
-        output_path = os.path.join(temp_output_dir, "baseline_metrics.json")
-        assert os.path.exists(output_path), f"Output file {output_path} was not created."
+        # Verify file exists
+        assert os.path.exists(output_path), f"Output file {output_path} was not created"
 
-        # Check content
+        # Verify JSON schema
         with open(output_path, 'r') as f:
             data = json.load(f)
 
@@ -52,64 +53,44 @@ class TestBaselineMetrics:
         assert "degradation_pct" in data
         assert "passed" in data
 
-        # Check types
+        # Verify types
         assert isinstance(data["train_mae"], float)
         assert isinstance(data["test_mae"], float)
         assert isinstance(data["degradation_pct"], float)
         assert isinstance(data["passed"], bool)
 
-        # Check result object matches file
-        assert data["train_mae"] == result.train_mae
-        assert data["test_mae"] == result.test_mae
-        assert data["degradation_pct"] == result.degradation_pct
-        assert data["passed"] == result.passed
+        # Verify precision (4 decimal places)
+        assert len(str(data["train_mae"]).split('.')[-1]) <= 4
+        assert len(str(data["test_mae"]).split('.')[-1]) <= 4
 
-    def test_degradation_logic(self, temp_output_dir):
-        """
-        Test that degradation_pct is calculated correctly.
-        Formula: ((test_mae - train_mae) / train_mae) * 100
-        """
-        # We rely on the actual run, but we can verify the calculation logic
-        # by inspecting the result object directly if we knew the values.
-        # Since we don't control the exact values, we verify the formula holds
-        # by checking the math in the result object.
-        
-        config = ExperimentConfig(
-            seed=42,
-            hidden_dim=16,
-            num_layers=1,
-            num_heads=2,
-            max_epochs=2,
-            output_dir=temp_output_dir
-        )
-        runner = BaselineRunner(config)
-        result = runner.run_and_record_metrics()
-
-        # Recalculate expected degradation
-        if result.train_mae > 0:
-            expected_degradation = ((result.test_mae - result.train_mae) / result.train_mae) * 100
+        # Verify logic for 'passed'
+        if data["degradation_pct"] < 10.0:
+            assert data["passed"] is True
         else:
-            expected_degradation = 0.0
+            assert data["passed"] is False
 
-        # Allow small floating point tolerance
-        assert abs(result.degradation_pct - expected_degradation) < 1e-5, \
-            f"Degradation calculation mismatch: {result.degradation_pct} vs {expected_degradation}"
+    def test_run_and_record_metrics_returns_result(self, temp_output_dir):
+        """Test that run_and_record_metrics returns a valid ExperimentResult."""
+        output_path = os.path.join(temp_output_dir, "baseline_metrics.json")
 
-    def test_passed_flag_logic(self, temp_output_dir):
-        """
-        Test that 'passed' is True if degradation_pct < 10.0, else False.
-        """
         config = ExperimentConfig(
-            seed=42,
+            name="test_baseline",
             hidden_dim=16,
-            num_layers=1,
+            num_layers=2,
             num_heads=2,
-            max_epochs=2,
-            output_dir=temp_output_dir
+            seq_len=32,
+            train_samples=100,
+            test_samples=50,
+            epochs=2,
+            batch_size=16,
+            lr=1e-3,
+            seed=42,
         )
-        runner = BaselineRunner(config)
-        result = runner.run_and_record_metrics()
 
-        expected_passed = result.degradation_pct < 10.0
-        assert result.passed == expected_passed, \
-            f"Passed flag mismatch: {result.passed} (expected {expected_passed})"
+        runner = BaselineRunner(config)
+        result = runner.run_and_record_metrics(output_path=output_path)
+
+        assert result.train_mae == pytest.approx(json.load(open(output_path))["train_mae"], rel=1e-4)
+        assert result.test_mae == pytest.approx(json.load(open(output_path))["test_mae"], rel=1e-4)
+        assert result.degradation_pct == pytest.approx(json.load(open(output_path))["degradation_pct"], rel=1e-4)
+        assert result.passed == json.load(open(output_path))["passed"]

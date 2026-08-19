@@ -1,269 +1,191 @@
-"""
-CPU-optimized training loop for cortical column LLMs.
-Implements gradient clipping, resource monitoring, and MAE calculation.
-"""
 import torch
 import torch.nn as nn
+import torch.optim as optim
 import psutil
 import os
 import time
+from dataclasses import dataclass
+from typing import Optional, Dict, Any, List, Tuple
 import json
-from typing import Dict, Any, Optional, Tuple, List
-from dataclasses import dataclass, field, asdict
+import logging
+
+from src.training.homeostasis import log_gradient_norms, HomeostaticScaler, apply_scaling_hook
 
 @dataclass
 class TrainingConfig:
-    """Configuration for the training loop."""
+    """Configuration for training."""
     num_epochs: int = 10
     batch_size: int = 32
-    learning_rate: float = 1e-3
-    max_grad_norm: float = 1.0
-    seed: int = 42
+    learning_rate: float = 0.001
+    gradient_clip_norm: float = 1.0
     device: str = "cpu"
-    log_interval: int = 10
+    seed: int = 42
 
 @dataclass
 class TrainingMetrics:
-    """Container for training metrics."""
-    epoch: int
-    train_loss: float
-    train_mae: float
-    val_loss: float
-    val_mae: float
-    elapsed_time: float
-    peak_memory_mb: float
-    cpu_percent: float
+    """Metrics from training."""
+    train_loss: float = 0.0
+    test_loss: float = 0.0
+    train_mae: float = 0.0
+    test_mae: float = 0.0
+    epoch_times: List[float] = None
+    gradient_norms: List[float] = None
+
+    def __post_init__(self):
+        if self.epoch_times is None:
+            self.epoch_times = []
+        if self.gradient_norms is None:
+            self.gradient_norms = []
 
 def get_resource_usage() -> Dict[str, float]:
-    """
-    Monitor CPU and memory usage using psutil.
-    Returns a dictionary with current CPU percent and memory usage in MB.
-    """
+    """Get current resource usage."""
     process = psutil.Process(os.getpid())
-    cpu_percent = process.cpu_percent(interval=0.1)
-    memory_mb = process.memory_info().rss / (1024 * 1024)
     return {
-        "cpu_percent": cpu_percent,
-        "memory_mb": memory_mb
+        "memory_mb": process.memory_info().rss / 1024 / 1024,
+        "cpu_percent": psutil.cpu_percent(interval=0.1)
     }
 
-def calculate_mae(predictions: torch.Tensor, targets: torch.Tensor) -> float:
-    """
-    Calculate Mean Absolute Error between predictions and targets.
-    Args:
-        predictions: Tensor of shape (batch_size, ...)
-        targets: Tensor of shape (batch_size, ...)
-    Returns:
-        float: Mean Absolute Error
-    """
+def calculate_mae(model: nn.Module, X: torch.Tensor, y: torch.Tensor) -> float:
+    """Calculate Mean Absolute Error."""
+    model.eval()
     with torch.no_grad():
-        mae = torch.mean(torch.abs(predictions - targets))
-        return mae.item()
+        predictions = model(X)
+        mae = torch.mean(torch.abs(predictions - y)).item()
+    return mae
 
 def train_epoch(
     model: nn.Module,
-    optimizer: torch.optim.Optimizer,
-    dataloader: torch.utils.data.DataLoader,
-    criterion: nn.Module,
-    config: TrainingConfig
-) -> Tuple[float, float]:
-    """
-    Train the model for one epoch.
-    Args:
-        model: The neural network model.
-        optimizer: The optimizer.
-        dataloader: DataLoader for training data.
-        criterion: Loss function.
-        config: Training configuration.
-    Returns:
-        Tuple of (average loss, average MAE) for the epoch.
-    """
+    optimizer: optim.Optimizer,
+    train_loader: torch.utils.data.DataLoader,
+    config: TrainingConfig,
+    gradient_log_path: Optional[str] = None,
+    step_counter: Optional[int] = None,
+    homeostatic_scaler: Optional[HomeostaticScaler] = None
+) -> Tuple[float, List[float]]:
+    """Train one epoch."""
     model.train()
     total_loss = 0.0
-    total_mae = 0.0
-    num_batches = 0
+    gradient_norms = []
+    step = 0 if step_counter is None else step_counter
 
-    for batch_idx, (data, targets) in enumerate(dataloader):
-        data = data.to(config.device)
-        targets = targets.to(config.device)
+    for batch_idx, (data, target) in enumerate(train_loader):
+        data, target = data.to(config.device), target.to(config.device)
 
         optimizer.zero_grad()
-        outputs = model(data)
-        loss = criterion(outputs, targets)
+        output = model(data)
+        loss = nn.functional.mse_loss(output, target)
         loss.backward()
 
-        # Gradient clipping by max norm
-        torch.nn.utils.clip_grad_norm_(model.parameters(), config.max_grad_norm)
+        # Log gradient norms if path provided
+        if gradient_log_path is not None and step_counter is not None:
+            norms = log_gradient_norms(model, step_counter)
+            gradient_norms.extend(norms)
+            step_counter += 1
+
+        # Apply gradient clipping
+        torch.nn.utils.clip_grad_norm_(model.parameters(), config.gradient_clip_norm)
+
+        # Apply homeostatic scaling if enabled
+        if homeostatic_scaler is not None:
+            apply_scaling_hook(optimizer, step_counter)
+            step_counter += 1
 
         optimizer.step()
-
         total_loss += loss.item()
-        total_mae += calculate_mae(outputs, targets)
-        num_batches += 1
 
-        if batch_idx % config.log_interval == 0:
-            resources = get_resource_usage()
-            # Log could be extended here, but we keep it minimal for the loop
-            pass
-
-    avg_loss = total_loss / num_batches
-    avg_mae = total_mae / num_batches
-    return avg_loss, avg_mae
+    return total_loss / len(train_loader), gradient_norms
 
 def evaluate(
     model: nn.Module,
-    dataloader: torch.utils.data.DataLoader,
-    criterion: nn.Module,
+    test_loader: torch.utils.data.DataLoader,
     config: TrainingConfig
-) -> Tuple[float, float]:
-    """
-    Evaluate the model on a dataset.
-    Args:
-        model: The neural network model.
-        dataloader: DataLoader for evaluation data.
-        criterion: Loss function.
-        config: Training configuration.
-    Returns:
-        Tuple of (average loss, average MAE).
-    """
+) -> float:
+    """Evaluate model on test set."""
     model.eval()
     total_loss = 0.0
-    total_mae = 0.0
-    num_batches = 0
-
     with torch.no_grad():
-        for data, targets in dataloader:
-            data = data.to(config.device)
-            targets = targets.to(config.device)
-
-            outputs = model(data)
-            loss = criterion(outputs, targets)
-
+        for data, target in test_loader:
+            data, target = data.to(config.device), target.to(config.device)
+            output = model(data)
+            loss = nn.functional.mse_loss(output, target)
             total_loss += loss.item()
-            total_mae += calculate_mae(outputs, targets)
-            num_batches += 1
-
-    avg_loss = total_loss / num_batches
-    avg_mae = total_mae / num_batches
-    return avg_loss, avg_mae
+    return total_loss / len(test_loader)
 
 def run_training(
     model: nn.Module,
+    optimizer: optim.Optimizer,
     train_loader: torch.utils.data.DataLoader,
-    val_loader: torch.utils.data.DataLoader,
+    test_loader: torch.utils.data.DataLoader,
     config: TrainingConfig,
-    checkpoint_path: Optional[str] = None
-) -> List[TrainingMetrics]:
-    """
-    Run the full training loop.
-    Args:
-        model: The neural network model.
-        train_loader: DataLoader for training data.
-        val_loader: DataLoader for validation data.
-        config: Training configuration.
-        checkpoint_path: Optional path to save checkpoints.
-    Returns:
-        List of TrainingMetrics for each epoch.
-    """
-    device = torch.device(config.device)
-    model.to(device)
-    
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
-    criterion = nn.MSELoss()
+    gradient_log_path: Optional[str] = None,
+    use_homeostasis: bool = False,
+    target_ei_ratio: float = 4.0
+) -> TrainingMetrics:
+    """Run full training loop with optional gradient logging and homeostasis."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Starting training for {config.num_epochs} epochs")
 
-    metrics_log: List[TrainingMetrics] = []
-    start_time = time.time()
+    all_gradient_norms = []
+    epoch_times = []
+    step_counter = 0
 
-    for epoch in range(1, config.num_epochs + 1):
+    # Setup homeostatic scaler if enabled
+    homeostatic_scaler = None
+    if use_homeostasis:
+        homeostatic_scaler = HomeostaticScaler(target_ei_ratio=target_ei_ratio)
+        logger.info(f"Homeostasis enabled with target E/I ratio: {target_ei_ratio}")
+
+    for epoch in range(config.num_epochs):
         epoch_start = time.time()
-        
-        train_loss, train_mae = train_epoch(
-            model, optimizer, train_loader, criterion, config
+        logger.info(f"Epoch {epoch + 1}/{config.num_epochs}")
+
+        # Train one epoch
+        train_loss, epoch_gradient_norms = train_epoch(
+            model=model,
+            optimizer=optimizer,
+            train_loader=train_loader,
+            config=config,
+            gradient_log_path=gradient_log_path,
+            step_counter=step_counter,
+            homeostatic_scaler=homeostatic_scaler
         )
-        val_loss, val_mae = evaluate(model, val_loader, criterion, config)
-        
-        epoch_end = time.time()
-        elapsed = epoch_end - epoch_start
-        
+
+        # Update step counter
+        if gradient_log_path is not None:
+            step_counter += len(train_loader)
+        if use_homeostasis:
+            step_counter += len(train_loader)
+
+        all_gradient_norms.extend(epoch_gradient_norms)
+
+        # Evaluate
+        test_loss = evaluate(model, test_loader, config)
+        train_mae = calculate_mae(model, train_loader.dataset.tensors[0], train_loader.dataset.tensors[1])
+        test_mae = calculate_mae(model, test_loader.dataset.tensors[0], test_loader.dataset.tensors[1])
+
+        epoch_time = time.time() - epoch_start
+        epoch_times.append(epoch_time)
+
+        # Get resource usage
         resources = get_resource_usage()
-        
-        metrics = TrainingMetrics(
-            epoch=epoch,
-            train_loss=train_loss,
-            train_mae=train_mae,
-            val_loss=val_loss,
-            val_mae=val_mae,
-            elapsed_time=elapsed,
-            peak_memory_mb=resources["memory_mb"],
-            cpu_percent=resources["cpu_percent"]
+        logger.info(
+            f"Epoch {epoch + 1}: Train Loss={train_loss:.4f}, "
+            f"Test Loss={test_loss:.4f}, MAE (train/test)={train_mae:.4f}/{test_mae:.4f}, "
+            f"Time={epoch_time:.2f}s, Memory={resources['memory_mb']:.1f}MB"
         )
-        metrics_log.append(metrics)
 
-        if checkpoint_path:
-            torch.save({
-                "epoch": epoch,
-                "model_state_dict": model.state_dict(),
-                "optimizer_state_dict": optimizer.state_dict(),
-                "metrics": asdict(metrics)
-            }, checkpoint_path)
+    # Final evaluation
+    final_train_mae = calculate_mae(model, train_loader.dataset.tensors[0], train_loader.dataset.tensors[1])
+    final_test_mae = calculate_mae(model, test_loader.dataset.tensors[0], test_loader.dataset.tensors[1])
 
-    total_time = time.time() - start_time
-    print(f"Training completed in {total_time:.2f} seconds.")
-    
-    return metrics_log
+    metrics = TrainingMetrics(
+        train_loss=train_loss,
+        test_loss=test_loss,
+        train_mae=final_train_mae,
+        test_mae=final_test_mae,
+        epoch_times=epoch_times,
+        gradient_norms=all_gradient_norms
+    )
 
-def main():
-    """
-    Entry point for running the trainer.
-    This function demonstrates the usage of the training loop with synthetic data.
-    """
-    import numpy as np
-    from torch.utils.data import TensorDataset, DataLoader
-
-    # Set seed for reproducibility
-    config = TrainingConfig(seed=42)
-    torch.manual_seed(config.seed)
-    np.random.seed(config.seed)
-
-    # Generate synthetic data for demonstration
-    # Using Lorenz attractor data structure as per benchmarks.py
-    n_samples = 1000
-    input_dim = 3
-    output_dim = 3
-    
-    X = torch.randn(n_samples, input_dim)
-    y = torch.randn(n_samples, output_dim)
-    
-    # Simple feedforward model for demonstration
-    class SimpleModel(nn.Module):
-        def __init__(self, input_dim, output_dim):
-            super().__init__()
-            self.net = nn.Sequential(
-                nn.Linear(input_dim, 64),
-                nn.ReLU(),
-                nn.Linear(64, output_dim)
-            )
-        
-        def forward(self, x):
-            return self.net(x)
-
-    model = SimpleModel(input_dim, output_dim)
-    
-    train_dataset = TensorDataset(X[:800], y[:800])
-    val_dataset = TensorDataset(X[800:], y[800:])
-    
-    train_loader = DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=config.batch_size)
-
-    # Run training
-    metrics = run_training(model, train_loader, val_loader, config)
-    
-    # Print final metrics
-    final = metrics[-1]
-    print(f"Final Epoch: {final.epoch}")
-    print(f"Train MAE: {final.train_mae:.4f}")
-    print(f"Val MAE: {final.val_mae:.4f}")
-    print(f"Peak Memory: {final.peak_memory_mb:.2f} MB")
-
-if __name__ == "__main__":
-    main()
+    logger.info(f"Training completed. Final MAE: {final_train_mae:.4f}/{final_test_mae:.4f}")
+    return metrics

@@ -32,23 +32,39 @@ env/
 *.swo
 *~
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-*.cover
+# OS
+.DS_Store
+Thumbs.db
 
 # Logs
 *.log
 
-# Data (EXCLUDE all data except specific tracked directories)
+# Data (general)
 data/
+
+# EXPLICITLY TRACK REQUIRED DATA DIRECTORIES
+# Constitution Principle V: Versioning Discipline
+# We MUST track configs, results, logs, and state
 !data/configs/
+!data/configs/*
 !data/results/
+!data/results/*
+!data/logs/
+!data/logs/*
+!state/
+!state/*
 
-# State is tracked (Constitution Principle V) - DO NOT ignore
-# state/*.yaml is explicitly NOT ignored
+# Ignore raw large data if needed, but keep processed
+# data/raw/*
+# data/interim/*
 
-# OS
-.DS_Store
-Thumbs.db
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Environment variables
+.env
+
+# Jupyter
+.ipynb_checkpoints

@@ -4,10 +4,10 @@ from pathlib import Path
 import yaml
 import datetime
 
-def ensure_directory_structure(root: Path) -> bool:
+def ensure_directory_structure(root: Path) -> None:
     """
-    Create the required directory structure for the project.
-    Returns True if all directories were created successfully.
+    Creates the required directory structure for the project.
+    Ensures 'state/*.yaml' is NOT in .gitignore (handled in T003).
     """
     dirs = [
         "src/models",
@@ -21,62 +21,68 @@ def ensure_directory_structure(root: Path) -> bool:
         "data/results",
         "data/logs",
         "data/configs",
-        "state",
+        "state"
     ]
-    
-    success = True
+
     for d in dirs:
         path = root / d
-        try:
-            path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {path}")
-        except OSError as e:
-            print(f"Error creating directory {path}: {e}", file=sys.stderr)
-            success = False
-    
-    return success
+        path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {path}")
 
-def create_state_template(root: Path) -> bool:
+def create_state_template(root: Path) -> None:
     """
-    Create the initial state template file.
-    Returns True if successful.
+    Creates a template YAML file in the state directory to ensure it is tracked.
     """
     state_dir = root / "state"
     template_path = state_dir / "template.yaml"
     
-    try:
+    if not template_path.exists():
         content = {
             "project": "PROJ-590-cortical-column-llms-implementing-canoni",
-            "created_at": datetime.datetime.now().isoformat(),
             "version": "0.1.0",
+            "created_at": datetime.datetime.now().isoformat(),
             "artifacts": [],
             "checksums": {}
         }
-        
         with open(template_path, "w") as f:
             yaml.dump(content, f, default_flow_style=False)
-        
         print(f"Created state template: {template_path}")
-        return True
-    except OSError as e:
-        print(f"Error creating state template: {e}", file=sys.stderr)
-        return False
+    else:
+        print(f"State template already exists: {template_path}")
 
-def main():
-    """Main entry point for directory setup."""
-    root = Path(__file__).parent.parent
-    print(f"Setting up directories in: {root}")
+def main() -> int:
+    """
+    Main entry point for directory setup.
+    """
+    root = Path(__file__).resolve().parent.parent
+    print(f"Project root: {root}")
     
-    if not ensure_directory_structure(root):
-        print("Failed to create directory structure", file=sys.stderr)
-        sys.exit(1)
+    ensure_directory_structure(root)
+    create_state_template(root)
     
-    if not create_state_template(root):
-        print("Failed to create state template", file=sys.stderr)
-        sys.exit(1)
+    # Verify existence
+    required = [
+        "src/models", "src/data", "src/training", "src/experiments", "src/utils",
+        "tests/unit", "tests/integration", "scripts",
+        "data/results", "data/logs", "data/configs", "state"
+    ]
     
-    print("Directory setup completed successfully")
-    sys.exit(0)
+    all_exist = True
+    for d in required:
+        if not (root / d).is_dir():
+            print(f"ERROR: Directory missing: {root / d}")
+            all_exist = False
+    
+    if not (root / "state" / "template.yaml").exists():
+        print(f"ERROR: State template missing: {root / 'state' / 'template.yaml'}")
+        all_exist = False
+
+    if all_exist:
+        print("All directories and state template created successfully.")
+        return 0
+    else:
+        print("Directory creation failed.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

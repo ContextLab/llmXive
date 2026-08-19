@@ -1,3 +1,3 @@
 """
-Cortical Column LLMs - Main Source Package.
+Cortical Column LLMs - Source Package
 """

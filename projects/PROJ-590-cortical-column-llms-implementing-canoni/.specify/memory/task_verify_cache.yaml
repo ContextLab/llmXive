@@ -1,57 +1,11 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings, file tree, or .gitignore contents were provided, so we\
-    \ cannot verify that the required folders (`src/models`, `src/data`, \u2026, `state`)\
-    \ were actually created nor that `state/*.yaml` is excluded from `.gitignore`.\
-    \ The implementer must supply concrete evidence (e.g., a printed tree or screenshots)\
-    \ showing the directories exist and the .gitignore file does not ignore `state/*.yaml`."
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No file listings or contents were provided showing `__init__.py` files in the\
-    \ `src/` and `tests/` directories, so we cannot confirm that the required files\
-    \ exist or are non\u2011empty. The implementer must supply the directory tree\
-    \ or the actual `__init__.py` files to verify completion."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file content was presented; without seeing the file we cannot
-    verify that it contains the required exclusions (`data/`, `__pycache__`, `*.pyc`,
-    `*.log`) and the explicit inclusions (`!data/configs/`, `!data/results/`). The
-    artifact is missing from the evidence.
-T011b:
-  c: false
-  h: ca854ed4e7138624f68194f68fd3173670ac8992ded09d644d4800d454bb5a18
-  r: The integration test file exists, but it writes logs to a temporary directory
-    and never creates the required `data/logs/gradient_norms.json`. That file is missing
-    from the repository, so the task of populating it is not satisfied.
-T011c:
-  c: false
-  h: 01c5aed4fce9d5f71e03d8e31e5e55fe37c3232086e585c64b701965e15df634
-  r: "The provided `tests/integration/test_microcircuit_training.py` exists, but it\
-    \ writes the gradient\u2011norm log to a temporary directory rather than the required\
-    \ `data/logs/gradient_norms_microcircuit.json`, and the expected JSON file is\
-    \ missing. Consequently the integration test does not demonstrably populate the\
-    \ specified artifact, so the task is not fulfilled."
 T011d:
   c: false
-  h: 43738bd7529914c77e6e82c8d54a4a6f610234bfe425bdc9e5e8d62383159ed4
-  r: "The repository contains `src/experiments/microcircuit_runner.py`, but the provided\
-    \ excerpt does not show an implementation of a `run_with_logging` function, and\
-    \ the required output file `data/logs/gradient_norms_microcircuit.json` is missing.\
-    \ Without the function and the generated log file, the task\u2019s core requirement\
-    \ is not satisfied. The next implementer must add a `run_with_logging` that trains\
-    \ the model, calls `log_gradient_norms`, and ensures the JSON file is written\
-    \ to the specified path."
-T015:
-  c: false
-  h: 280b4054ce2c9ef2cc64ccf9f5e96500b4ba1349869786e4d4319a959693c5fd
-  r: The repository contains a partially shown `src/experiments/baseline_runner.py`,
-    but the required `run_and_record_metrics` function is not present in the visible
-    code, and the expected output file `data/results/baseline_metrics.json` does not
-    exist. Both the implementation and the generated JSON artifact are missing, so
-    the task is not satisfied.
+  h: 56949d6592cdfc8924709b183d1e044026c4afd1d6a3b897e84ece1ed7cfa8c5
+  r: The `run_with_logging` function is truncated (e.g., ends with `start_time = tim`)
+    and does not contain a complete training loop or a call to `log_gradient_norms`.
+    Additionally, the required `data/logs/gradient_norms_microcircuit.json` file is
+    absent. The task therefore lacks both the full implementation and the expected
+    output artifact.
 T016:
   c: false
   h: 280b4054ce2c9ef2cc64ccf9f5e96500b4ba1349869786e4d4319a959693c5fd
@@ -77,3 +31,11 @@ T025b:
     output file `data/results/ablation_results.json` does not exist. Consequently
     the task of orchestrating the three variant trainings and writing the results
     JSON is not fulfilled.
+T031:
+  c: false
+  h: 3cd121e51f020776fc853b5ced4b4265fce22890aa880ea0116fdcad1bad659b
+  r: The repository lacks the required `data/logs/gradient_norms.json` baseline file
+    and the output `data/results/gradient_stability_baseline.json`. Moreover, the
+    provided `tests/integration/test_gradient_stability.py` only checks logging of
+    gradient norms and does not implement or verify the statistical stability test
+    described in the task. These essential artifacts and functionality are missing.

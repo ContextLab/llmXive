@@ -6,13 +6,12 @@ log_gradient_norms enabled to populate data/logs/gradient_norms_microcircuit.jso
 for SC-002 verification.
 
 Dependencies:
-  - T008b: log_gradient_norms implementation in src/training/homeostasis.py
-  - T007c: MicrocircuitColumn/E/I ratio enforcement in src/models/microcircuit.py
+  - T010b: log_gradient_norms implementation in src/training/homeostasis.py
+  - T011d: MicrocircuitRunner with run_with_logging capability
 """
 
 import json
 import os
-import tempfile
 import time
 from pathlib import Path
 
@@ -73,7 +72,12 @@ def test_microcircuit_gradient_logging(
       4. The JSON file contains valid gradient norm entries.
     """
     train_X, train_y, test_X, test_y = training_data
-    output_log_path = temp_output_dir / "gradient_norms_microcircuit.json"
+    # CRITICAL FIX: Use the project's canonical path as per task description,
+    # not the temporary directory. The task requires populating the specific file.
+    output_log_path = Path("data/logs/gradient_norms_microcircuit.json")
+    
+    # Ensure the directory exists
+    output_log_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Convert data to tensors
     train_X_t = torch.tensor(train_X, dtype=torch.float32)
@@ -88,6 +92,7 @@ def test_microcircuit_gradient_logging(
     test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
 
     # Configure training
+    # We pass the absolute path to the log file so the trainer writes to the correct location
     config = TrainingConfig(
         epochs=3,
         learning_rate=1e-3,
@@ -96,12 +101,6 @@ def test_microcircuit_gradient_logging(
         gradient_norms_log_path=str(output_log_path),
         seed=42
     )
-
-    # Initialize homeostatic scaler if needed (T008b dependency)
-    # We pass the scaler to the training loop via a custom hook if the trainer supports it,
-    # but for this test we directly invoke log_gradient_norms inside the loop or ensure
-    # the trainer calls it. Since run_training is the entry point, we assume it respects
-    # the config.log_gradient_norms flag and calls log_gradient_norms(model, step).
 
     # Run training
     start_time = time.time()
@@ -117,7 +116,7 @@ def test_microcircuit_gradient_logging(
     assert elapsed < 300, f"Training took too long: {elapsed}s"
     assert metrics is not None, "Training returned no metrics"
 
-    # Verify output file exists
+    # Verify output file exists at the canonical path
     assert output_log_path.exists(), f"Gradient norms log not created at {output_log_path}"
 
     # Verify JSON content

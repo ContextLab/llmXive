@@ -1,13 +1,20 @@
-import sys
+"""
+Script to generate ablation configuration files.
+"""
 import os
+import sys
+import logging
+from pathlib import Path
 
 # Add project root to path
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
+project_root = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(project_root))
 
 from src.experiments.ablation import main as generate_configs_main
 
-if __name__ == "__main__":
-    print("Running ablation config generation (Task T025a)...")
+def main():
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     generate_configs_main()
-    print("Done.")
+
+if __name__ == "__main__":
+    main()

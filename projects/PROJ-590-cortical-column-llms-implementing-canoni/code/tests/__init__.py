@@ -1,3 +1,3 @@
 """
-Test suite root package.
+Tests Package - Contains unit and integration tests.
 """
