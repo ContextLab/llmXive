@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Harmonized Dataset Schema"
+type: "object"
+properties:
+  experiment_id:
+    type: "string"
+    description: "Identifier for the source experiment"
+  separation_m:
+    type: "number"
+    description: "Separation distance in meters"
+    minimum: 0
+  force_N:
+    type: "number"
+    description: "Force measurement in Newtons"
+  stat_error_N:
+    type: "number"
+    description: "Statistical uncertainty in Newtons"
+    minimum: 0
+  sys_error_N:
+    type: "number"
+    description: "Systematic uncertainty in Newtons"
+    minimum: 0
+  total_error_N:
+    type: "number"
+    description: "Combined uncertainty (sqrt(stat^2 + sys^2))"
+    minimum: 0
+required:
+  - experiment_id
+  - separation_m
+  - force_N
+  - stat_error_N
+  - sys_error_N
+  - total_error_N
+additionalProperties: false

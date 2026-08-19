@@ -1,0 +1,13 @@
+status: none
+intent: force versus separation raw data arXiv 2106.08611 2305.06325 supplementary
+  download python package
+required_fields:
+- run_id
+- separation_m
+- force_N
+- statistical_error_N
+- systematic_error_N
+- covariance_matrix
+cache_key: 460db0e56529b305b8b56b5851d5d02e3afc0e8f57c7c6d0c1b14b6702178b62
+searched_at: '2026-08-19T09:46:23.820300+00:00'
+retry_count: 1

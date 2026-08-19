@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Bayesian Evidence Output Schema"
+type: "object"
+properties:
+  log_z_newtonian:
+    type: "number"
+    description: "Log-evidence for the Newtonian-only model"
+  log_z_yukawa:
+    type: "number"
+    description: "Log-evidence for the Yukawa-extended model"
+  bayes_factor_k:
+    type: "number"
+    description: "Bayes factor K = exp(log_z_yukawa - log_z_newtonian)"
+  interpretation:
+    type: "string"
+    description: "Qualitative interpretation based on Kass-Raftery scale"
+  alpha_upper_limit_95:
+    type: "number"
+    description: "95% credible upper limit on alpha"
+  convergence_metric:
+    type: "number"
+    description: "Gelman-Rubin statistic"
+    minimum: 1.0
+required:
+  - log_z_newtonian
+  - log_z_yukawa
+  - bayes_factor_k
+  - alpha_upper_limit_95
+  - convergence_metric
+additionalProperties: false

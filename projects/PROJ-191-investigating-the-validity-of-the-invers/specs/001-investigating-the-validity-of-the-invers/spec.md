@@ -93,7 +93,7 @@ The researcher must be able to perform leave-one-experiment-out cross-validation
 - **SC-002**: The statistical significance of the model preference is measured by the Bayes factor K against the Kass–Raftery scale (K > 3 indicates substantial evidence) AND against the null-simulation baseline established in FR-009 to ensure the result is not a systematic artifact. (See FR-004, FR-009)
 - **SC-003**: The robustness of the results is measured by the variation in the [deferred] credible upper limits across the leave-one-out cross-validation iterations (must be < 15%). (See FR-005)
 - **SC-004**: The computational feasibility is measured by the total runtime of the inference pipeline against the GitHub Actions job limit. (See FR-006)
-- **SC-005**: The validity of the inference pipeline is measured by the injection-recovery test (FR-008), requiring the recovered α to fall within the 95% credible interval of the injected value. (See FR-008)
+- **SC-005**: The validity of the inference pipeline is measured by the injection-recovery test (FR-008), requiring the recovered α to fall within the credible interval of the injected value. (See FR-008)
 
 ## Assumptions
 

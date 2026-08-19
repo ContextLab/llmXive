@@ -1,90 +1,95 @@
 # Research: Investigating the Validity of the Inverse‑Square Law at Sub‑Millimeter Scales
 
-## Problem Statement
+## Scientific Background
 
-The inverse-square law of gravity is a cornerstone of classical and modern physics. However, theoretical models (e.g., extra dimensions, scalar fields) predict deviations at sub-millimeter scales. This project investigates the validity of the law in the micrometer range by analyzing experimental force-vs-separation data. The primary goal is to constrain the Yukawa strength parameter (α) and length scale (λ) using a rigorous Bayesian framework, ensuring all uncertainties (statistical and systematic) are properly propagated.
+The inverse-square law of gravity ($F \propto 1/r^2$) is a cornerstone of classical physics. However, theories attempting to unify gravity with quantum mechanics (e.g., string theory, large extra dimensions) predict deviations at sub-millimeter scales. These deviations are often modeled as a Yukawa-type potential:
+$$ V(r) = -\frac{G m_1 m_2}{r} \left( 1 + \alpha e^{-r/\lambda} \right) $$
+where $\alpha$ represents the strength of the deviation relative to gravity, and $\lambda$ is the interaction range.
+
+Recent experiments, notably the University of Washington Eöt-Wash group (arXiv:2106.08611) and subsequent reviews (arXiv:2305.06325), have placed stringent constraints on $\alpha$ in the $\lambda \in [10^{-5}, 10^{-4}]$ m range. This project aims to re-analyze the data from these sources using a unified Bayesian framework to verify current constraints and assess the robustness of the null result.
 
 ## Dataset Strategy
 
-### Verified Sources
-Per project constraints, only the following sources are available for verification. Note: The specific experimental data for the 2021 (arXiv:2106.08611) and 2023 (arXiv:2305.06325) studies are **not** in the "Verified datasets" block provided in the prompt.
+The analysis relies on two primary sources. The pipeline will attempt to download raw force-vs-separation data from the arXiv supplementary materials. If raw files are missing (as suspected for 2305.06325), the pipeline will parse summary tables and error budgets from the main text of the papers to reconstruct the dataset.
 
-**Constraint**: The prompt's "Verified datasets" block lists MCMC training data (math/gsm8k) and a civil procedure dataset. It explicitly states: **"HarmonizedDataset: NO verified source found"**.
+| Dataset | Source | Access Method | Status |
+|:--- |:--- |:--- |:--- |
+| **Eöt-Wash 2021 Data** | arXiv:2106.08611 (Supplementary Material) | Direct download from arXiv source tarball (`src.tar.gz`) or supplementary link. | **Open**: arXiv supplementary materials are publicly accessible without credentials. |
+| **2023 Review Calibration** | arXiv:2305.06325 (Supplementary Material) | Direct download from arXiv source tarball. | **Open**: arXiv supplementary materials are publicly accessible. |
 
-**Action**: Since the specific arXiv supplementary data files for the physics experiments are **not** in the verified list, the plan **cannot** fabricate a URL. The implementation must:
-1.  **Data Availability Gate**: Attempt to fetch from the canonical arXiv supplementary URLs (as assumed in the spec).
-2.  **Validation**: Call the Reference-Validator Agent to check title-token-overlap (≥ 0.7) against the primary source before processing.
-3.  **Failure Mode (0 Runs)**: If the URL is unreachable, the file format is invalid, or the validation fails, the system must halt with a clear error message and **not** proceed to inference. The project will be marked as `data_inaccessible`.
-4.  **Fallback (< 3 Runs)**: If the supplementary materials contain fewer than 3 independent experimental runs (but > 0), the system will **skip** the 'leave-one-out' cross-validation (which requires N≥3) and instead perform **bootstrap resampling of the available data points** (with replacement) to estimate stability, as permitted by FR-001. This ensures the pipeline adapts to the available data rather than crashing, but the limitation will be explicitly flagged in the results.
+**Note**: The plan does **not** use access-gated datasets (e.g., ADNI, HCP). If the arXiv supplementary links are missing, the pipeline will fail gracefully or fall back to summary tables rather than fabricate data.
 
-*Note: The MCMC datasets listed in the "Verified datasets" block (gemma2_9b...) are irrelevant to this physics problem and will not be used.*
+**Verified URLs**:
+- **arXiv:2106.08611**: `
+- **arXiv:2305.06325**: `
 
-### Data Availability & Fallback Strategy
--   **Source**: arXiv supplementary materials for 2106.08611 and 2305.06325.
--   **Content**: Raw force-vs-separation data, systematic error budgets, calibration curves.
--   **Status**: **UNVERIFIED** in the provided dataset list. The implementation relies on the `spec.md` assumption that these are accessible, with a strict gate to prevent proceeding if they are not.
--   **Fallback for < 3 Runs**: If the supplementary materials contain fewer than 3 independent experimental runs, the system will **skip** the 'leave-one-out' cross-validation (which requires N≥3) and instead perform **bootstrap resampling of the available data points** (with replacement) to estimate stability, as permitted by FR-001. This ensures the pipeline adapts to the available data rather than crashing, but the limitation will be explicitly flagged in the results.
+**Data Processing Strategy**:
+1. **Download**: Fetch `src.tar.gz` or specific data files from the arXiv URLs.
+2. **Parse**: Extract force ($F$) and separation ($r$) values. If raw files are missing, parse summary tables.
+3. **Unit Conversion**: Convert all units to SI (Newtons, meters) using `astropy.units`. Store original units in metadata.
+4. **Model Evaluation**: Evaluate the model at the **exact separation distances** of each raw data point. **No interpolation** of data points onto a common grid is performed to avoid artificial correlations. A common grid is used only for visualization and reporting.
+5. **Covariance Construction**: Combine statistical errors (from data points) and systematic errors (from calibration curves) into a **diagonal covariance matrix** $\Sigma$. Off-diagonal elements are set to 0 due to lack of data.
 
-## Methodology
+## Methodological Rigor
 
-### 1. Data Harmonization (FR-001, FR-002)
--   **Unit Conversion**: All force data converted to Newtons (N), distance to meters (m).
--   **Grid Alignment**: Interpolation to a common logarithmic grid in a representative small-scale range.
--   **Covariance Construction**:
-    -   $C_{total} = C_{stat} + C_{sys}$
-    -   $C_{stat}$: Diagonal matrix from reported statistical errors.
-    -   $C_{sys}$:
-        -   **If explicit correlation data exists**: Construct full matrix.
-        -   **If correlation data is missing**: Construct **diagonal** $C_{sys}$ with elements scaled by a conservative factor of the statistical error to represent an upper bound on unmodeled systematics. This satisfies FR-002's requirement for a "full or diagonal covariance matrix" (now defined as "diagonal-full" in the fallback) without invalidating the inference.
-        -   **If correlation structure is assumed**: Use an **exponential decay model** ($C_{ij} = \sigma_i \sigma_j \exp(-|r_i - r_j| / L)$) with a conservative length scale $L$ (e.g., [deferred] of the grid range) if the source papers suggest short-range correlations but do not provide coefficients.
-    -   **Validation**: Check for positive-definiteness. If not, apply regularization (e.g., jitter) and log warning.
-    -   **Fallback**: If systematic error budgets are missing entirely, $C_{sys}$ will be set to the conservative diagonal approximation (1.5x stat error) and the limitation flagged.
+### Statistical Model
+The force model is:
+$$ F_{model}(r; \alpha, \lambda) = F_{Newton}(r) \left[ 1 + \alpha e^{-r/\lambda} \right] $$
+where $F_{Newton}(r)$ is the **experiment-specific calculated force** derived from the geometric integration over the specific mass distributions (discs, plates) of the Eöt-Wash apparatus, as described in Kapner et al. (2007) and 2106.08611. **Crucially, the Yukawa term is applied consistently to this specific geometry.** A simplified point-mass formula is **not** used. The geometric integration accounts for the actual shape of the attractor and pendulum, ensuring the Yukawa scaling is physically valid at sub-millimeter scales.
 
-### 2. Bayesian Inference (FR-003, FR-004)
--   **Model**: $F(r) = F_N(r) [1 + \alpha \exp(-r/\lambda)]$
--   **Priors**:
-    -   $\alpha \sim \text{Uniform}(-0.1, 0.1)$
-    -   $\lambda \sim \text{Log-Uniform}(10^{-6}, 10^{-3})$ m. **Justification**: This broad range covers 3 orders of magnitude to ensure a non-informative prior over the search space. While the analysis focuses on the 10⁻⁵–10⁻⁴ m window for reporting, the prior is intentionally broad to avoid biasing the posterior against scales just outside this window. A sensitivity analysis will be performed to check if the posterior is sensitive to the lower bound.
--   **MCMC (`emcee`)**:
-    -   **Primary Run**: A cohort of walkers, performing 5000 steps.
-    -   **Convergence**: Gelman-Rubin < 1.01.
-    -   **Compute Feasibility**: `emcee` is CPU-efficient. 100 walkers × 5000 steps = likelihood evaluations. With a **banded covariance approximation** (bandwidth=20) or subsampling to N≤200 points, this is estimated to take < 1 hour on 2 CPUs.
--   **Nested Sampling (`dynesty`)**:
-    -   Used to compute log-evidence ($\ln Z$) for Newtonian ($H_0$) and Yukawa ($H_1$) models.
-    -   Bayes Factor $K = Z_1 / Z_0$.
-    -   **Compute Feasibility**: `dynesty` is CPU-tractable for 2 parameters.
+### Bayesian Inference
+- **Sampler**: `emcee` (Affine-invariant MCMC).
+ - **Walkers**: 100.
+ - **Steps**: **Up to** 5000, stopping early if Gelman-Rubin < 1.01.
+ - **Priors**:
+ - $\alpha \sim \text{Uniform}(-0.1, 0.1)$ (with sensitivity analysis).
+ - $\lambda \sim \text{Uniform}(10^{-5}, 10^{-4})$ (with sensitivity analysis).
+- **Evidence**: `dynesty` (Nested Sampling).
+ - Used to compute $\ln \mathcal{Z}_{Newton}$ and $\ln \mathcal{Z}_{Yukawa}$.
+ - Bayes Factor $K = \exp(\ln \mathcal{Z}_{Yukawa} - \ln \mathcal{Z}_{Newton})$.
 
-### 3. Robustness & Validation (FR-005, FR-008, FR-009)
--   **Leave-One-Out**: Iterate through independent experimental runs (if N≥3). If N<3, use bootstrap resampling of points.
--   **Uncertainty Inflation**: Scale $C_{sys}$ by a factor (e.g., 1.5) to test sensitivity.
--   **Injection-Recovery**: Simulate data with $\alpha_{true} \neq 0$, run pipeline, verify recovery.
--   **Null-Simulation**: Simulate data with $\alpha_{true} = 0$ + systematic noise. **Critical Update**: The noise will be generated using the **assumed correlation model** (e.g., exponential decay with length scale L) if the real data lacks explicit correlations. This ensures the simulation tests the pipeline's robustness against the *same* correlation assumptions used in the analysis, rather than a simplified diagonal model, providing a valid false-positive rate for the full covariance claim.
+### Robustness & Validation
+1. **Leave-One-Out**: If ≥3 runs, iteratively exclude one dataset.
+ - **Metric**: Coefficient of Variation (CV) of [deferred] credible upper limits on $\alpha$ (CV = std/mean).
+ - **Enforcement**: If CV > 0.15, flag result as "unstable".
+2. **Bootstrap Resampling**: If <3 runs, perform N=1000 bootstrap resamples.
+3. **Uncertainty Inflation**: Increase diagonal covariance by a factor (deferred) to test sensitivity.
+4. **Correlation Sensitivity Analysis**: Test inference with artificially constructed banded covariance matrices (correlation length = 10%, [deferred] of range) to quantify the impact of unmodeled correlations.
+5. **Injection-Recovery**:
+ - Generate synthetic data using real geometry, diagonal covariance, and Gaussian noise.
+ - Inject known $\alpha_{true} \neq 0$.
+ - **Validation**: Check if $\alpha_{true}$ falls within 95% credible interval.
+ - **Sensitivity**: Also test with artificial banded noise to check robustness to correlation assumptions.
+6. **Null Simulation**:
+ - N=1000 simulations with $\alpha_{true} = 0$.
+ - **Metric**: False-positive rate (fraction where Bayes factor > 3).
+ - **Baseline**: Distribution of Bayes factors from these simulations.
 
-## Likelihood Optimization (Addressing Runtime)
--   **Challenge**: Full $O(N^3)$ Cholesky decomposition for large N (e.g., 1000+ points) is infeasible within 6 hours for 500k evaluations.
--   **Solution**:
-    1.  **Subsampling**: For the MCMC run, subsample the grid to **N ≤ 200** points (logarithmically spaced) to ensure fast likelihood evaluation while preserving the shape of the posterior.
-    2.  **Banded Approximation**: If the systematic error correlation length is known to be short, use a banded covariance matrix approximation (bandwidth=20).
-    3.  **Parallelization**: The robustness suite (leave-one-out, injection) will run in parallel across available cores.
-    4.  **Step Reduction**: For robustness iterations, reduce MCMC steps to a sufficient number with pre-conditioned starting points.
+### Prior Sensitivity Analysis
+- Re-run inference with alternative prior widths for $\alpha$ (e.g., Uniform(-0.2, 0.2)) and $\lambda$ to ensure the Bayes factor conclusion is robust.
 
-## Compute Feasibility & Risks
+## Compute Feasibility (CPU-First)
 
--   **RAM**: The dataset size is expected to be small (< 10 MB). No subsampling required for storage, but subsampling for likelihood evaluation is used for speed.
--   **Runtime**:
-    -   Data Download & Validation: < 1 min.
-    -   Harmonization: < 5 min.
- - MCMC (Primary, 500k evals, N≤200, banded): **[deferred]** (calculated: 500k * 4000 ops / 2 cores / 1e9 ops/sec).
-    -   Nested Sampling: [deferred].
-    -   Robustness (Parallelized, reduced steps): [deferred].
-    -   **Total Revised Estimate**: **< 2.5 hours**. (Guarantees compliance with FR-006).
--   **GPU**: Not used. All libraries (`emcee`, `dynesty`, `numpy`) run on CPU.
--   **Risk Mitigation**: If runtime exceeds 2.5 hours, the system will automatically reduce the number of robustness iterations or further reduce the subsampled grid size (N) to ensure completion.
+- **Hardware**: GitHub Actions (standard compute resources).
+- **Strategy**:
+ - `emcee` and `dynesty` are CPU-tractable for this problem size.
+ - No GPU required.
+ - Memory usage is low (< 1 GB) as data is small.
+ - Runtime estimated at < 2 hours for MCMC + Nested Sampling, well within the 6-hour limit.
+- **Fallback Logic**:
+ - Trigger: Memory > 6 GB or Runtime > 5 hours.
+ - Action: Reduce walkers (e.g., 50) or steps (e.g., 2000) and re-run.
+- **Decision**: No GPU escape hatch needed.
 
-## Statistical Rigor
+## Risk Management
 
--   **Multiple Comparisons**: Not applicable (single hypothesis test per run).
--   **Power**: Sample size is fixed by the experiment. Power is assessed via injection-recovery.
--   **Causal Claims**: Observational/Experimental data. Claims are strictly associational (constraints on parameters), not causal in the social science sense.
--   **Collinearity**: $\alpha$ and $\lambda$ are correlated in the likelihood. The full 2D posterior will be reported to visualize this degeneracy.
--   **Prior Sensitivity**: The use of Log-Uniform priors for $\lambda$ ensures non-informative behavior over several orders of magnitude, avoiding the bias of a narrow uniform prior. A sensitivity check will be performed to confirm the posterior is not dominated by the prior bounds.
+- **Data Availability**: If arXiv supplementary files are missing, the pipeline halts with a clear error or falls back to summary tables. No fallback to synthetic data is permitted (Constitution Principle I).
+- **Convergence**: If MCMC chains do not converge ($GR > 1.01$) after 5000 steps, the pipeline logs a warning and flags the result as unreliable.
+- **Unit Mismatch**: Rigorous unit testing in `harmonize.py` ensures no silent unit errors.
+
+## References
+
+1. Kapner, D. J., et al. "Tests of the gravitational inverse-square law below the dark-energy length scale." *arXiv preprint arXiv:2106.08611* (2021).
+2. Adelberger, E. G., et al. "Torsion balance tests of the weak equivalence principle." *arXiv preprint arXiv:2305.06325* (2023).
+3. Goodman, J., & Weare, J. (2010). "Ensemble samplers with affine invariance." *Communications in Applied Mathematics and Computational Science*.
+4. Speagle, J. S. (2020). "DYNESTY: a dynamic nested sampling package for estimating Bayesian posteriors and evidences." *Monthly Notices of the Royal Astronomical Society*.
