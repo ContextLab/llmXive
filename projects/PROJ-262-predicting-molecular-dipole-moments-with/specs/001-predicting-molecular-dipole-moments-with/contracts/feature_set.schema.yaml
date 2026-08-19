@@ -1,69 +1,46 @@
-$schema: https://json-schema.org/draft/2020-12/schema
-title: FeatureSet Schema
-description: Schema for extracted molecular features (3D and 2D)
+$schema: http://json-schema.org/draft-07/schema#
+title: Feature Set Schema
+description: Schema for processed molecular features (2D and 3D)
 type: object
 properties:
   mol_id:
     type: string
-    description: "Foreign key to Molecule entity"
-  features_3d:
-    type: object
-    description: "3D coordinate features (serialized)"
-    properties:
-      coordinates:
-        type: array
-        items:
-          type: array
-          items:
-            type: number
-      atom_positions:
-        type: array
-        items:
-          type: array
-          items:
-            type: number
-    required:
-      - coordinates
-  features_2d:
-    type: object
-    description: "2D connectivity features (serialized)"
-    properties:
-      adjacency:
-        type: array
-        items:
-          type: array
-          items:
-            type: integer
-      atom_degrees:
-        type: array
-        items:
-          type: integer
-    required:
-      - adjacency
-  fingerprint:
+    description: Unique molecule identifier
+    minLength: 1
+  morgan_fp:
     type: array
     items:
       type: integer
-      enum: [0, 1]
     minItems: 2048
     maxItems: 2048
-    description: "Morgan fingerprint (radius=2, n_bits=2048)"
-  coulomb_mat:
+    description: Morgan fingerprint bits (radius=2, nBits=2048)
+  topo_counts:
+    type: array
+    items:
+      type: integer
+    minItems: 10
+    maxItems: 10
+    description: Topological counts (atoms, bonds, etc.)
+  atom_types_onehot:
     type: array
     items:
       type: array
       items:
         type: number
-    description: "Coulomb matrix (N×N symmetric)"
-  extracted_at:
-    type: string
-    format: date-time
-    description: "Feature extraction timestamp (ISO 8601)"
+    minItems: 1
+    description: One-hot encoded atom types
+  pos_norm:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    minItems: 1
+    description: Normalized 3D coordinates (Angstroms)
 required:
   - mol_id
-  - features_3d
-  - features_2d
-  - fingerprint
-  - coulomb_mat
-  - extracted_at
+  - morgan_fp
+  - topo_counts
+  - atom_types_onehot
+  - pos_norm
 additionalProperties: false

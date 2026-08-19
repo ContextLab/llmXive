@@ -4439,3 +4439,524 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T04:53:12Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Jackson et al. (2010) parameters used for synthetic base
+  claim_id: c_92ce1e7e
+  context: 'Parameters for T040b-gen include Mean effect=0.5, SE distribution=LogNormal
+    (mu=0.0, sigma=1.0), Study count=20, Seed=42. Source: Cite source: Use parameters
+    from Jackson et al..'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use parameters from Jackson et al. (2010) for synthetic base generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:47:07Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 2500 replicates generated in primary sweep
+  claim_id: c_32482948
+  context: 'Run code/simulation/generator.py with the full set of heterogeneity levels
+    {0, 0.1, 0.5, 1.0, 2.0} and A substantial number of replicates each (Total: a
+    large cohort of replicates). Output: data/results/simulation_raw.json containing
+    all 2,500 replicates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 2,500 replicates in the primary sweep across 5 heterogeneity
+    levels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:47:39Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 500 replicates per level in primary sweep
+  claim_id: c_43b46977
+  context: "Implement code/simulation/generator.py to load base data... and implement\
+    \ a loop generating \u2265500 replicates per level for heterogeneity levels {0,\
+    \ 0.1, 0.5, 1.0, 2.0}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 500 replicates per heterogeneity level in the primary sweep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:48:05Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 500 replicates per level in sensitivity sweep
+  claim_id: c_79180a11
+  context: Run code/simulation/generator.py with levels {0.05, 0.1, 0.5} and 500 replicates
+    each.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 500 replicates per level in the sensitivity sweep for levels
+    0.05, 0.1, and 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:48:37Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Simulation completes within 360 minutes
+  claim_id: c_a334f88e
+  context: Verify the process completes within 360 minutes (6 hours) and RAM usage
+    < 7GB on CPU-only runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full simulation process must complete within 360 minutes (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:49:04Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: RAM usage under 7GB
+  claim_id: c_618871d7
+  context: Verify the process completes within 360 minutes (6 hours) and RAM usage
+    < 7GB on CPU-only runner.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_under_7GB
+  kind: magnitude
+  raw_text: RAM usage must be less than 7GB during the full simulation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:49:30Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Synthetic base mean effect 0.5
+  claim_id: c_91fef6da
+  context: 'Parameters: Mean effect=0.5, SE distribution=LogNormal (mu=0.0, sigma=1.0),
+    Study count=20, Seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic base generation uses a mean effect of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:49:52Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Synthetic base LogNormal mu 0.0 sigma 1.0
+  claim_id: c_b62abd9d
+  context: 'Parameters: Mean effect=0.5, SE distribution=LogNormal (mu=0.0, sigma=1.0),
+    Study count=20, Seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic base generation uses a LogNormal distribution with mu=0.0 and
+    sigma=1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:50:12Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Synthetic base study count 20
+  claim_id: c_dd7c8b58
+  context: 'Parameters: Mean effect=0.5, SE distribution=LogNormal (mu=0.0, sigma=1.0),
+    Study count=20, Seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic base generation uses a study count of 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:50:32Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Synthetic base seed 42
+  claim_id: c_643c1ad3
+  context: 'Parameters: Mean effect=0.5, SE distribution=LogNormal (mu=0.0, sigma=1.0),
+    Study count=20, Seed=42.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Seed 42
+      source_id: '2411.15484'
+      url: https://arxiv.org/abs/2411.15484
+      value: '42'
+    filled: true
+  kind: numeric
+  raw_text: Synthetic base generation uses seed 42.
+  resolved_value: '42'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T00:50:53Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Reliability flag false if N_studies < 5
+  claim_id: c_b381416f
+  context: 'Implement logic in code/analysis/metrics.py to set reliability_flag (boolean)
+    to False if N_studies < 5. Explicit threshold: N_studies < 5.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reliability_flag_false_if_N_studies_%3C_5
+  kind: magnitude
+  raw_text: The reliability flag is set to False if the number of studies is less
+    than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:51:15Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Exact binomial test p equals 0.95
+  claim_id: c_5a8b30fb
+  context: Read nominal_confidence_level from code/config.yaml (defined in T006b)
+    and use it as the expected success probability p in the Exact Binomial Test. Use
+    the Exact Binomial Test (scipy.stats.binom_test) with p set to the nominal_confidence_level
+    (e.g., 0.95).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The exact binomial test uses a nominal confidence level of 0.95 as the
+    expected success probability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:51:43Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha 0.01
+  claim_id: c_3bafffbd
+  context: Apply Bonferroni correction (alpha = 0.05/5 = 0.01) ONLY to the significance
+    threshold for the test decision, not to the p parameter.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction is applied with an alpha of 0.01 for the significance
+    threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:52:08Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk p < 0.05 triggers Kruskal-Wallis
+  claim_id: c_1bb16a25
+  context: Implement conditional branching logic in code/analysis/stats.py to select
+    Kruskal-Wallis if Shapiro-Wilk p < 0.05, else ANOVA.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Shapiro-Wilk test uses a significance threshold of 0.05 to trigger
+    Kruskal-Wallis.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T00:52:09Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Variance match error within 0.01
+  claim_id: c_ad793d63
+  context: Verify output artifact data/results/test_variance_check.json contains mean
+    variance within 0.01 of target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unit test for variance match requires the mean variance error to be
+    within 0.01 of the target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:52:35Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Estimator pooled estimate within 0.001
+  claim_id: c_79d92513
+  context: 'Assertion: Pooled estimate within 0.001 of expected value; CI bounds correct.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unit test for estimator verification requires the pooled estimate
+    to be within 0.001 of the expected value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:52:52Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: fetch_cochrane script raises FileNotFoundError on failure
+  claim_id: c_266b12db
+  context: 'Phase 2, Task T040: Fetch Real Data. The script attempts to fetch from
+    a verified Cochrane URL.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_cochrane_script_raises_FileNotFoundError_on_failure
+  kind: entity_fact
+  raw_text: The script MUST raise FileNotFoundError('REAL_DATA_FETCH_FAILED') if the
+    fetch fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:55:16Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: synthetic base parameters mean effect 0.5 lognormal mu 0.0 sigma 1.0
+    study count 20 seed 42
+  claim_id: c_46bf73f5
+  context: 'Phase 2, Task T040b-gen: Generate Verified Synthetic Base. These parameters
+    are used if real data fetch fails.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Parameters: Mean effect=0.5, SE distribution=LogNormal (mu=0.0, sigma=1.0),
+    Study count=20, Seed=42.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:55:37Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: synthetic base parameters sourced from Jackson et al.
+  claim_id: c_02db8026
+  context: Phase 2, Task T040b-gen. The text explicitly cites the source for the synthetic
+    parameters.
+  evidence:
+    entailment_evidence: Synthetic base parameters sourced from Jackson et al.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Synthetic_base_parameters_sourced_from_Jackson_et_al.
+  kind: entity_fact
+  raw_text: Use parameters from Jackson et al.
+  resolved_value: synthetic base parameters sourced from Jackson et al.
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T00:55:40Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: reliability flag set to false if number of studies less than 5
+  claim_id: c_ac0cd52e
+  context: Phase 4, Task T011b. Defines the threshold for the reliability flag in
+    the metrics output.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reliability_flag_set_to_false_if_number_of_studies_less_than
+  kind: magnitude
+  raw_text: Implement logic... to set reliability_flag (boolean) to False if N_studies
+    < 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:56:05Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: primary sweep generates 2500 replicates across 5 heterogeneity levels
+  claim_id: c_d5ba13c5
+  context: Phase 3, Task T014b. Describes the execution of the primary simulation
+    sweep.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Run code/simulation/generator.py with the full set of heterogeneity levels
+    {0, 0.1, 0.5, 1.0, 2.0} and A substantial number of replicates each (Total: a
+    large cohort of replicates). Output: data/results/simulation_raw.json containing
+    all 2,500 replicates.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:56:28Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep generates 1500 replicates across 3 levels
+  claim_id: c_3aef1385
+  context: Phase 5, Task T034d. Describes the execution of the sensitivity sweep.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run code/simulation/generator.py with levels {0.05, 0.1, 0.5} and 500
+    replicates each.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:56:49Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: full simulation completes within 360 minutes with RAM usage under 7GB
+  claim_id: c_da0a9154
+  context: Phase 6, Task T014. Defines the performance constraints for the full-scale
+    test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the process completes within 360 minutes (6 hours) and RAM usage
+    < 7GB on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:57:12Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: exact binomial test uses scipy.stats.binom_test with p equal to nominal
+    confidence level
+  claim_id: c_b0aaf538
+  context: Phase 4, Task T020. Specifies the statistical method for verifying coverage
+    at tau2=0.
+  evidence:
+    asserted: '0.95'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Use scipy.stats.binom_test with p set to the nominal_confidence_level
+    (e.g., 0.95).
+  resolved_value: '2.72'
+  resolver: approximate
+  source_hash: 43f9d428e4053c6b0833b38f4a75232c81cfb415f4e254a9b7852ef8bce7bafd
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T00:57:13Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: bonferroni correction sets significance threshold alpha to 0.01
+  claim_id: c_f5fed530
+  context: Phase 4, Task T020. Specifies the correction method for multiple hypothesis
+    testing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction (alpha = 0.05/5 = 0.01) ONLY to the significance
+    threshold for the test decision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:57:28Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: bonferroni correction applied to p-values with alpha 0.01
+  claim_id: c_7426e943
+  context: Phase 5, Task T037. Specifies the correction for the conditional test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction (alpha = 0.05/5) to the resulting p-values
+    from this test before interpretation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:57:52Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: simulation loop generates at least 500 replicates per heterogeneity level
+  claim_id: c_8dbbae6b
+  context: Phase 3, Task T010. Defines the minimum sample size for the simulation
+    engine.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_loop_generates_at_least_500_replicates_per_hetero
+  kind: magnitude
+  raw_text: "Implement a loop generating \u2265500 replicates per level for heterogeneity\
+    \ levels {0, 0.1, 0.5, 1.0, 2.0}."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:58:52Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: variance check artifact confirms mean variance error within 0.01
+  claim_id: c_22764129
+  context: Phase 3, Task T008-code. Defines the acceptance criterion for the unit
+    test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output artifact data/results/test_variance_check.json contains
+    mean variance within 0.01 of target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:59:19Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: unit test asserts corrected alpha is 0.01
+  claim_id: c_71c9f2d2
+  context: Phase 5, Task T023. Verifies the Bonferroni correction calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Assertion: Corrected alpha is 0.01.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:59:34Z'

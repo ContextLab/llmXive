@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T039** — The provided `code/04_model_analysis.py` shows imports for ROC/AUC utilities but the visible code stops before any function that actually computes or plots the ROC curve or writes the AUC value. No implementation of ROC curve plotting or AUC calculation is present in the excerpt, so the required feature is missing.
-- **T040** — The provided `code/04_model_analysis.py` file is present but the visible portion only includes data loading, design‑matrix preparation, logistic‑regression fitting, and VIF calculation; no functions or code for a Baron & Kenny mediation analysis, ≥1000‑bootstrap confidence intervals, E‑value calculations, Rosenbaum bounds, or an “exploratory” interpretation comment are shown. The required mediation‑analysis logic is therefore missing.
-- **T042** — The provided `code/05_generate_report.py` is present but the shown portion stops after loading ROC data and never demonstrates loading mediation results, sensitivity analysis, or the required `results/validity_metrics.yaml` (no `yaml` import or usage). Consequently the script does not clearly produce a PDF containing all the specified sections, so the task is not fully satisfied.

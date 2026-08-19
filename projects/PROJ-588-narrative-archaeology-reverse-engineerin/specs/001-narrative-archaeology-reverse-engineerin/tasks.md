@@ -55,7 +55,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/config.py` with pinned random seeds, CPU-only constraints, and path definitions
+- [X] T004 [P] Implement `code/config.py` with pinned random seeds, CPU-only constraints, and path definitions
 - [X] T005 [P] Create `code/utils/stats.py` for permutation testing and FDR correction logic
 - [X] T006 [P] Create `code/utils/viz.py` for plotting RSA matrices and decoding accuracy
 - [ ] T007-SKELETON [P] [US1] Create `code/data/download.py` file skeleton with checksum verification interface (Utility Skeleton)
@@ -78,15 +78,15 @@
 - [ ] T013-RUN [US1] Orchestrate download of a subject subset of an OpenNeuro dataset (dsXXXXX). using `code/data/download.py` (T007) with checksum validation
 - [ ] T014-RUN [US1] Configure and run nilearn pipeline for ds000234 (specific flags, HRF convolution) using `code/data/preprocess.py` (T008-SEQ)
 - [X] T015 [US1] Implement `code/data/segment.py` to align story events (plot, character, theme) with BOLD signal using HRF convolution
-- [ ] T016 [US1] Create `code/data/roi_masker.py` to extract timecourses for hippocampus, mPFC, PCC, and lateral temporal cortex for **both Early and Late event phases separately**
+- [X] T016 [US1] Create `code/data/roi_masker.py` to extract timecourses for hippocampus, mPFC, PCC, and lateral temporal cortex for **both Early and Late event phases separately**
 - [ ] T017 [US1] Add robust error handling: skip subjects with motion artifacts (threshold defined in `code/config.py`) and log to `data/errors.log` with JSON format: `{"timestamp": "...", "subject_id": "...", "error_code": "...", "motion_mm": 0.0}`
 - [ ] T018 [US1] Implement data hygiene: checksum raw data, ensure no in-place modifications, enforce PII scanning
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Unit test for OpenNeuro downloader in `tests/unit/test_download.py`
+- [X] T010 [P] [US1] Unit test for OpenNeuro downloader in `tests/unit/test_download.py`
 - [ ] T011 [P] [US1] Integration test for preprocessing pipeline on a small cohort of subjects in `tests/integration/test_preprocess.py`
-- [ ] T012 [P] [US1] Verify event segmentation output matches annotation file (≤5% missing timepoints) [UNRESOLVED-CLAIM: c_fc704dc7 — status=not_enough_info] in `tests/integration/test_segmentation.py`
+- [ ] T012 [P] [US1] Verify event segmentation output matches annotation file (≤5% missing timepoints) [UNRESOLVED-CLAIM: c_ae8af5f3 — status=not_enough_info] in `tests/integration/test_segmentation.py`
 
 **Checkpoint**: User Story 1 is fully functional; clean, event-aligned dataset is ready for analysis.
 
@@ -102,7 +102,7 @@
 
 - [ ] T021 [P] [US2] Implement `code/models/rsa.py` to compute dissimilarity matrices for **Early Event vs. Late Event** phases (Adapted per Spec FR-003/004 fallback)
 - [ ] T022 [US2] Implement permutation testing logic in `code/utils/stats.py` with a sufficient number of iterations to ensure convergence.
-- [ ] T023 [US2] Apply FDR correction (q < 0.05) across ROIs and report statistical significance
+- [ ] T023 [US2] Apply FDR correction (q < 0.05) across ROIs and report statistical significance [UNRESOLVED-CLAIM: c_28d14410 — status=not_enough_info]
 - [ ] T024 [US2] Visualize top differing ROIs (mPFC, hippocampus) in `code/utils/viz.py`
 - [ ] T025-IMPLEMENT [US2] Implement "Early vs. Late Event Stability" RSA analysis in `code/models/rsa.py` (Primary Deliverable per Spec FR-003/004)
 - [ ] T025-DOC [US2] Update `docs/narrative_archaeology.md` to reflect the "Early vs. Late" adaptation as the primary analysis strategy
@@ -231,7 +231,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks MUST run on GitHub Actions free-tier (limited vCPU and RAM, no GPU) [UNRESOLVED-CLAIM: c_7b3c9828 — status=not_enough_info]. No 8-bit quantization, no CUDA, no large model training.
+- **Critical Constraint**: All tasks MUST run on GitHub Actions free-tier (limited vCPU and RAM, no GPU) [UNRESOLVED-CLAIM: c_06f04fe8 — status=not_enough_info]. No 8-bit quantization, no CUDA, no large model training [UNRESOLVED-CLAIM: c_943b2473 — status=not_enough_info].
 - **Data Integrity**: {{claim:c_d6b097f2}}. No synthetic data or hard-coded placeholders allowed.
 - **Adaptation Note**: The "Encoding vs. Recognition" comparison (FR-004) is implemented as "Early vs. Late Event Stability" per the fallback authorization in FR-003 and FR-004.
 - **Scope Boundary**: **Phase 6 and Phase 7 (tempo, affect, consolidation metrics) have been REMOVED.** These tasks were identified as unapproved scope creep absent from spec.md and plan.md, violating Constitution Principle IV (Single Source of Truth). The project strictly adheres to encoding/early-late pattern comparison and linear decoding.

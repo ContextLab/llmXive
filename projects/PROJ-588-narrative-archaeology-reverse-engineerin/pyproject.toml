@@ -5,55 +5,53 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "narrative-archaeology"
 version = "0.1.0"
-description = "Reverse-Engineering Story Memories from Brain Data"
+description = "Reverse-engineering story memories from brain data"
 requires-python = ">=3.11"
 dependencies = [
-    "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "scipy>=1.10.0",
-    "scikit-learn>=1.2.0",
-    "nilearn>=0.10.0",
-    "matplotlib>=3.7.0",
-    "statsmodels>=0.14.0",
-    "torch>=2.0.0",
-    "transformers>=4.30.0",
-    "openneuro-cli>=1.0.0",
+    "pandas",
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "nilearn",
+    "transformers",
+    "torch",
+    "statsmodels",
+    "matplotlib",
+    "openneuro-cli",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "flake8>=6.0.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
-    "pytest>=7.3.0",
-    "pytest-cov>=4.1.0",
-    "pre-commit>=3.3.0",
+    "flake8",
+    "black[jupyter]",
+    "pytest",
+    "pytest-cov",
+    "pre-commit",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["code"]
-known_third_party = ["numpy", "pandas", "scipy", "sklearn", "nilearn", "matplotlib", "statsmodels", "torch", "transformers"]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

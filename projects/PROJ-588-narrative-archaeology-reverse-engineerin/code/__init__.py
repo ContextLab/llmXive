@@ -1,3 +1,3 @@
 """
-Narrative Archaeology: Reverse-Engineering Story Memories from Brain Data
+Narrative Archaeology Project Codebase.
 """

@@ -4,11 +4,13 @@ extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
-    .venv,
     build,
     dist,
     .eggs,
     *.egg-info
 per-file-ignores =
-    __init__.py: F401
-max-complexity = 10
+    # Allow unused imports in __init__.py for public API surface
+    code/__init__.py: F401
+    code/data/__init__.py: F401
+    code/utils/__init__.py: F401
+    code/models/__init__.py: F401

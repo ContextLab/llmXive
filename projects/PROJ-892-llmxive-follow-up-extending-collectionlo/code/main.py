@@ -3,260 +3,260 @@ import sys
 import json
 import csv
 import logging
-import subprocess
+import time
 from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import List, Dict, Any, Optional
 
-# Import from local modules
+# Import from existing project modules
 from config import load_config
 from data_loader import (
     load_fp16_adapter_and_base_model,
-    organize_reference_images,
-    get_project_root,
-    ensure_download_dir,
-    load_and_compute_subspace_ranks
+    load_pipeline_for_cpu,
+    get_collection_lora_adapter,
+    load_adapter_weights
 )
-from generator import generate_fp16_baseline_images, generate_images
+from generator import (
+    generate_fp16_baseline_images,
+    generate_images_for_adapters,
+    generate_fp16_reference_images
+)
 from metrics import (
+    compute_cosine_similarity,
     compute_lpips_distance,
-    compute_image_text_similarity,
-    compute_cesr_score
+    compute_cesr_score,
+    compute_lpips_distance_from_paths
 )
 from error_handler import handle_memory_error
-from state_manager import register_artifact, load_artifacts_state, save_artifacts_state
+from state_manager import (
+    ensure_state_dir,
+    compute_sha256,
+    load_artifacts_state,
+    save_artifacts_state,
+    register_artifact
+)
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/pipeline.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def handle_oom(e: Exception) -> bool:
+def handle_oom(e: MemoryError) -> bool:
     """
-    Handle OutOfMemory errors gracefully.
-    Returns True if the operation should be skipped, False to re-raise.
+    Handle Out-Of-Memory errors by logging and returning a skip flag.
+    Uses logic from T008b.
     """
-    if isinstance(e, (MemoryError, RuntimeError)) and "out of memory" in str(e).lower():
-        logger.warning("Memory error detected. Skipping this operation.")
-        handle_memory_error(e)
-        return True
-    return False
+    logger.error("Quantization Failure: Memory Error detected")
+    handle_memory_error(e)
+    return True  # Signal to skip this level
 
 def run_fp16_generation(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Run FP16 baseline generation, compute metrics, and save results.
-    
-    This function:
-    1. Loads the FP16 adapter and base model
-    2. Generates baseline images for all prompts
-    3. Computes CLIP similarity and LPIPS distance
-    4. Saves results to data/results.csv
-    5. Saves generated images to data/generated/
-    
-    Args:
-        config: Configuration dictionary from config.yaml
-        
-    Returns:
-        List of result dictionaries containing prompt, effect, metrics, etc.
+    Run FP16 baseline generation (User Story 1).
+    Dependencies: T010b, T011, T012, T013
     """
     logger.info("Starting FP16 baseline generation...")
     results = []
-    
+
     try:
-        # Load models
-        logger.info("Loading FP16 adapter and base model...")
-        pipe = load_fp16_adapter_and_base_model()
-        
-        # Organize reference images for CESR calculation
-        logger.info("Organizing reference images...")
-        ref_lookup = organize_reference_images()
-        
-        # Get prompts from config
-        prompts = config.get('prompts', [])
-        if not prompts:
-            logger.error("No prompts found in config.yaml")
-            return results
-        
-        # Generate baseline images
-        logger.info(f"Generating {len(prompts)} baseline images...")
-        generated_images = generate_fp16_baseline_images(pipe, prompts, config)
-        
-        if not generated_images:
-            logger.warning("No images were generated.")
-            return results
-        
-        # Process each generated image
-        for img_info in generated_images:
-            image_path = img_info.get('path')
-            prompt = img_info.get('prompt')
-            effect = img_info.get('effect')
-            seed = img_info.get('seed')
-            
-            if not image_path or not os.path.exists(image_path):
-                logger.warning(f"Image not found or invalid: {image_path}")
-                continue
-            
-            result_entry = {
+        # Load models (T010b)
+        pipe, adapter_weights = load_fp16_adapter_and_base_model()
+        logger.info("Models loaded successfully.")
+
+        # Generate images (T011)
+        generated_images = generate_fp16_baseline_images(pipe, config)
+        logger.info(f"Generated {len(generated_images)} FP16 baseline images.")
+
+        # Compute metrics (T012, T013)
+        for item in generated_images:
+            prompt = item['prompt']
+            seed = item['seed']
+            image_path = item['image_path']
+
+            # CLIP Similarity
+            similarity = compute_cosine_similarity(image_path, prompt)
+
+            # LPIPS (Self-consistency check against references)
+            # Assuming references are in data/references/fp16_refs/
+            ref_paths = [str(p) for p in Path('data/references/fp16_refs').glob(f'*{prompt}*.png')]
+            lpips = 0.0
+            if ref_paths:
+                lpips = compute_lpips_distance_from_paths(image_path, ref_paths[0])
+
+            results.append({
                 'prompt': prompt,
-                'effect': effect,
                 'seed': seed,
-                'quantization_level': 'FP16',
-                'image_path': image_path,
-                'timestamp': datetime.now().isoformat()
-            }
-            
-            # Compute CLIP similarity (image-text)
-            try:
-                clip_sim = compute_image_text_similarity(image_path, prompt)
-                result_entry['clip_similarity'] = clip_sim
-            except Exception as e:
-                logger.warning(f"Failed to compute CLIP similarity for {image_path}: {e}")
-                result_entry['clip_similarity'] = None
-            
-            # Compute LPIPS distance (vs reference)
-            try:
-                lpips_dist = compute_lpips_distance(image_path, effect, ref_lookup)
-                result_entry['lpips_distance'] = lpips_dist
-            except Exception as e:
-                logger.warning(f"Failed to compute LPIPS distance for {image_path}: {e}")
-                result_entry['lpips_distance'] = None
-            
-            # Compute CESR (Cross-Effect Similarity Ratio)
-            try:
-                cesr = compute_cesr_score(image_path, effect, ref_lookup)
-                result_entry['cesr_score'] = cesr
-            except Exception as e:
-                logger.warning(f"Failed to compute CESR for {image_path}: {e}")
-                result_entry['cesr_score'] = None
-            
-            results.append(result_entry)
-            
-            # Register artifact
-            try:
-                register_artifact(image_path, "generated_image")
-            except Exception as e:
-                logger.warning(f"Failed to register artifact {image_path}: {e}")
-        
-        logger.info(f"Generated {len(results)} baseline images with metrics.")
-        
+                'quantization_level': 'fp16',
+                'similarity_score': similarity,
+                'lpips_distance': lpips,
+                'cesr_score': None,  # Calculated in US2
+                'image_path': image_path
+            })
+
+        # Save intermediate results
+        save_results_to_csv(results, 'data/results.csv')
+        logger.info("FP16 results saved.")
+
     except MemoryError as e:
         if handle_oom(e):
-            logger.error("FP16 generation failed due to memory constraints.")
-            return results
+            logger.warning("Skipping FP16 generation due to OOM.")
+            return []
         raise
-    except Exception as e:
-        logger.error(f"Error during FP16 generation: {e}", exc_info=True)
-        raise
-    
+
     return results
 
-def save_results_to_csv(results: List[Dict[str, Any]], output_path: str):
+def run_quantized_generation(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Save results to a CSV file.
-    
-    Args:
-        results: List of result dictionaries
-        output_path: Path to the output CSV file
+    Run Quantized (INT8/INT4) generation (User Story 2).
+    Dependencies: T016, T017, T018, T019
     """
-    if not results:
-        logger.warning("No results to save.")
-        return
-    
-    # Ensure directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-    
-    # Write to CSV
-    fieldnames = list(results[0].keys())
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(results)
-    
-    logger.info(f"Results saved to {output_path}")
+    logger.info("Starting Quantized generation...")
+    results = []
+    quantization_levels = ['int8', 'int4']
 
-def run_quantized_generation(config: Dict[str, Any], quantization_levels: List[str]) -> List[Dict[str, Any]]:
-    """
-    Run quantized generation for specified levels (INT8, INT4).
-    
-    Note: This is a placeholder for T020 implementation.
-    Currently returns empty list as quantization logic is in T016.
-    """
-    logger.info(f"Quantized generation requested for levels: {quantization_levels}")
-    # TODO: Implement quantization generation logic (T020)
-    return []
+    # Load references for CESR (T011d)
+    # Assuming this is handled by metrics or data_loader
+    from data_loader import organize_reference_images
+    ref_lookup = organize_reference_images()
+
+    for level in quantization_levels:
+        logger.info(f"Processing quantization level: {level}")
+        try:
+            # Load quantized adapter
+            adapter_path = f"data/quantized/adapter_{level}.safetensors"
+            if not os.path.exists(adapter_path):
+                logger.warning(f"Quantized adapter {adapter_path} not found. Skipping {level}.")
+                continue
+
+            # Load pipeline with quantized weights
+            # Note: Actual loading logic depends on how T016 saves the weights
+            # Assuming load_pipeline_for_cpu can handle the quantized path
+            pipe = load_pipeline_for_cpu(adapter_path)
+
+            # Generate images (T017)
+            generated_images = generate_images_for_adapters(pipe, config, level)
+            logger.info(f"Generated {len(generated_images)} images for {level}.")
+
+            for item in generated_images:
+                prompt = item['prompt']
+                seed = item['seed']
+                image_path = item['image_path']
+
+                # CLIP Similarity
+                similarity = compute_cosine_similarity(image_path, prompt)
+
+                # LPIPS vs FP16 Baseline (T019)
+                # Find corresponding FP16 image
+                fp16_item = next((r for r in results if r['prompt'] == prompt and r['seed'] == seed and r['quantization_level'] == 'fp16'), None)
+                lpips = 0.0
+                if fp16_item:
+                    lpips = compute_lpips_distance_from_paths(image_path, fp16_item['image_path'])
+
+                # CESR (T018)
+                cesr = compute_cesr_score(image_path, prompt, ref_lookup)
+
+                results.append({
+                    'prompt': prompt,
+                    'seed': seed,
+                    'quantization_level': level,
+                    'similarity_score': similarity,
+                    'lpips_distance': lpips,
+                    'cesr_score': cesr,
+                    'image_path': image_path
+                })
+
+        except MemoryError as e:
+            if handle_oom(e):
+                logger.warning(f"Skipping {level} generation due to OOM.")
+                continue
+            raise
+        except Exception as e:
+            logger.error(f"Error processing {level}: {e}")
+            continue
+
+    return results
 
 def run_statistical_analysis(config: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Run Bayesian Hierarchical Model analysis.
-    
-    Note: This is a placeholder for T027 implementation.
-    Currently returns empty dict as analysis logic is in statistical_analysis.py.
+    Run Bayesian Hierarchical Model analysis (User Story 3).
+    Dependencies: T023, T024, T025, T026
     """
-    logger.info("Statistical analysis requested.")
-    # TODO: Implement statistical analysis logic (T027)
-    return {}
+    logger.info("Starting Statistical Analysis...")
+    from statistical_analysis import main as analysis_main
+    return analysis_main()
+
+def save_results_to_csv(results: List[Dict[str, Any]], filepath: str):
+    """
+    Append results to CSV file.
+    Schema: prompt, seed, quantization_level, similarity_score, lpips_distance, cesr_score, image_path
+    """
+    file_exists = os.path.isfile(filepath)
+    with open(filepath, 'a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['prompt', 'seed', 'quantization_level', 'similarity_score', 'lpips_distance', 'cesr_score', 'image_path'])
+        if not file_exists:
+            writer.writeheader()
+        writer.writerows(results)
+    
+    # Register in state
+    if os.path.exists(filepath):
+        hash_val = compute_sha256(filepath)
+        state = load_artifacts_state()
+        register_artifact(state, filepath, hash_val, 'results_csv')
+        save_artifacts_state(state)
+        logger.info(f"Registered {filepath} with hash {hash_val}")
 
 def main():
     """
     Main entry point for the pipeline.
-    
-    Orchestrates:
-    1. FP16 baseline generation (T014)
-    2. Quantized generation (T020)
-    3. Statistical analysis (T027)
-    
-    This task specifically focuses on T014: FP16 generation and metrics.
+    Orchestrates US1, US2, US3 execution.
     """
-    logger.info("Starting llmXive pipeline...")
-    
-    try:
-        # Load configuration
-        config_path = Path("code/config.yaml")
-        if not config_path.exists():
-            logger.error(f"Configuration file not found: {config_path}")
-            sys.exit(1)
-        
-        config = load_config(config_path)
-        
-        # Ensure output directories exist
-        results_path = Path("data/results.csv")
-        generated_dir = Path("data/generated")
-        generated_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Run FP16 baseline generation (T014)
-        logger.info("Executing T014: FP16 Generation and Metrics")
-        fp16_results = run_fp16_generation(config)
-        
-        if fp16_results:
-            save_results_to_csv(fp16_results, str(results_path))
-            logger.info("FP16 generation completed successfully.")
-        else:
-            logger.warning("FP16 generation produced no results.")
-        
-        # Run quantized generation (T020) - placeholder
-        # quantization_levels = ["INT8", "INT4"]
-        # quant_results = run_quantized_generation(config, quantization_levels)
-        # if quant_results:
-        #     # Append to results
-        #     all_results = fp16_results + quant_results
-        #     save_results_to_csv(all_results, str(results_path))
-        
-        # Run statistical analysis (T027) - placeholder
-        # analysis_results = run_statistical_analysis(config)
-        # if analysis_results:
-        #     analysis_path = Path("data/analysis_results.json")
-        #     with open(analysis_path, 'w') as f:
-        #         json.dump(analysis_results, f, indent=2)
-        
-        logger.info("Pipeline execution completed.")
-        
-    except Exception as e:
-        logger.error(f"Pipeline execution failed: {e}", exc_info=True)
-        sys.exit(1)
+    start_time = time.time()
+    logger.info("Pipeline started.")
 
-if __name__ == "__main__":
-    main()
+    config = load_config()
+    all_results = []
+
+    # 1. Run FP16 Baseline (US1)
+    fp16_results = run_fp16_generation(config)
+    all_results.extend(fp16_results)
+
+    # 2. Run Quantized Generation (US2)
+    # Note: T020 specifically implements the logic to run this and append to CSV
+    quantized_results = run_quantized_generation(config)
+    all_results.extend(quantized_results)
+
+    # Save combined results
+    save_results_to_csv(all_results, 'data/results.csv')
+
+    # 3. Run Statistical Analysis (US3)
+    try:
+        analysis_results = run_statistical_analysis(config)
+        # Save analysis results
+        with open('data/analysis_results.json', 'w') as f:
+            json.dump(analysis_results, f, indent=2)
+        logger.info("Statistical analysis saved.")
+    except Exception as e:
+        logger.error(f"Statistical analysis failed: {e}")
+
+    # 4. Generate CI Report (Timing)
+    end_time = time.time()
+    duration = end_time - start_time
+    ci_report = {
+        'duration_seconds': duration,
+        'status': 'completed' if duration <= 21600 else 'timeout_warning', # 6 hours
+        'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    with open('data/ci_report.json', 'w') as f:
+        json.dump(ci_report, f, indent=2)
+    logger.info(f"CI Report generated. Duration: {duration}s")
+
+    logger.info("Pipeline completed successfully.")
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

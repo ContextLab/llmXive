@@ -492,3 +492,236 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T00:27:35Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: Known hash for adapter verification defined as constant in config.yaml
+  claim_id: c_9a1dd69c
+  context: 'T007b-1 ... (Note: The known hash for verification is defined as a constant
+    in code/config.yaml. No fallback to mirror URLs is permitted.)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Known_hash_for_adapter_verification_defined_as_constant_in_c
+  kind: entity_fact
+  raw_text: The known hash for verification is defined as a constant in code/config.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:24:23Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: 'Bayesian model formula: similarity_score ~ quantization_level + (1 |
+    effect_id)'
+  claim_id: c_6058e2b9
+  context: 'T024 ... **Model Formula**: `similarity_score ~ quantization_level + (1
+    | effect_id)`.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: effect_id)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Bayesian_model_formula:_similarity_score_~_quantization_leve
+    source_value: https://en.wikipedia.org/wiki/Bayesian_model_formula:_similarity_score_~_quantization_leve
+    subject: 'Bayesian model formula: similarity_score ~ quantization_level + (1'
+  kind: relational
+  raw_text: The model formula is similarity_score ~ quantization_level + (1 | effect_id).
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:25:30Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: CI pipeline duration must be less than or equal to 6 hours
+  claim_id: c_de586804
+  context: "T031a ... Verify duration \u2264 6 hours (SC-005) and generate data/ci_report.json\
+    \ with job duration and status."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_pipeline_duration_must_be_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "Verify duration \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:25:52Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: Underpowered flag triggered if posterior width exceeds 0.2
+  claim_id: c_16213a7c
+  context: 'T026 ... **Decision Rule**: 1. If HDI of quantization effect excludes
+    zero, it is significant. 2. If width > 0.2, flag as underpowered (FR-014).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If width > 0.2, flag as underpowered.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:25:52Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: Regex pattern lora_unet_.*_(.+)_lora used to identify effect prefixes
+  claim_id: c_f391ac36
+  context: T007d ... Use regex `r"lora_unet_.*_(.+)_lora"` to identify unique effect
+    prefixes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regex_pattern_lora_unet_.*_(.+)_lora_used_to_identify_effect
+  kind: entity_fact
+  raw_text: Use regex r'lora_unet_.*_(.+)_lora' to identify unique effect prefixes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:26:16Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: SVD tolerance set to 1e-5 for subspace rank determination
+  claim_id: c_e61c7f62
+  context: T009a ... 2. Compute Singular Value Decomposition (SVD) on each matrix
+    to determine effective subspace rank (tolerance=1e-5).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute Singular Value Decomposition (SVD) on each matrix to determine
+    effective subspace rank (tolerance=1e-5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:26:31Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: Prompt list contains 10 specific art styles
+  claim_id: c_f26c554c
+  context: '**Prompt List**: `"oil painting", "watercolor", "cyberpunk", "pencil sketch",
+    "ink wash", "acrylic", "charcoal", "pastel", "digital art", "concept art"`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Prompts list includes 'oil painting', 'watercolor', 'cyberpunk', 'pencil
+    sketch', 'ink wash', 'acrylic', 'charcoal', 'pastel', 'digital art', 'concept
+    art'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:26:31Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: Seed list contains 5 specific integer values
+  claim_id: c_f45d67bd
+  context: '**Seed List**: `[42, 123, 456, 789, 101112]`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seed list includes 42, 123, 456, 789, 101112.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:26:47Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: Adapter validation requires at least 5 distinct effects
+  claim_id: c_4865cf26
+  context: T007d ... Implement logic in code/data_loader.py to validate that the downloaded
+    adapter contains at least 5 distinct effects.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Adapter_validation_requires_at_least_5_distinct_effects
+  kind: magnitude
+  raw_text: The adapter must contain at least 5 distinct effects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:27:15Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: Quantization config uses x86 backend and default qconfig
+  claim_id: c_1ad9dd96
+  context: '**Config**: Use `qconfig=torch.ao.quantization.get_default_qconfig(''x86'')`
+    and `backend=''x86''`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantization_config_uses_x86_backend_and_default_qconfig
+  kind: entity_fact
+  raw_text: Use qconfig=torch.ao.quantization.get_default_qconfig('x86') and backend='x86'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:27:35Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: Quantized adapters saved as int8 and int4 safetensors files
+  claim_id: c_8db268be
+  context: '**Output**: Save quantized adapters to `data/quantized/adapter_int8.safetensors`
+    and `data/quantized/adapter_int4.safetensors` (FR-002).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantized_adapters_saved_as_int8_and_int4_safetensors_files
+  kind: entity_fact
+  raw_text: Save quantized adapters to data/quantized/adapter_int8.safetensors and
+    data/quantized/adapter_int4.safetensors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:27:58Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: 'Bayesian priors: Normal(0, 1) for fixed, HalfNormal(0.5) for random'
+  claim_id: c_604ecd61
+  context: '**Priors**: Weakly informative `Normal(0, 1)` for fixed effects, `HalfNormal(0.5)`
+    for random effects (Plan Section 3.2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Priors: Weakly informative Normal(0, 1) for fixed effects, HalfNormal(0.5)
+    for random effects.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:29:21Z'
+- artifact_path: projects/PROJ-892-llmxive-follow-up-extending-collectionlo/specs/001-llmxive-follow-up-extending-collectionlo/tasks.md
+  attempts: 1
+  canonical: Subspace ranks JSON schema example with oil_painting rank 12 and watercolor
+    rank 8
+  claim_id: c_165ceb19
+  context: '**Output Schema**: `{"oil_painting": 12, "watercolor": 8, ...}`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Subspace ranks output schema example: {"oil_painting": 12, "watercolor":
+    8, ...}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:29:42Z'

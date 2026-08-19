@@ -1,47 +1,54 @@
-# Configuration for Heterogeneity Impact Assessment Pipeline
-# This file defines the schema and default parameters for the simulation and analysis.
+# Configuration for llmXive meta-analysis simulation project
+# This file defines all parameters for the simulation pipeline
 
-# Nominal confidence level for coverage calculations (e.g., 0.95 for 95% CI)
-# Used by T020 for binomial test verification.
+# Nominal confidence level for coverage calculations
 nominal_confidence_level: 0.95
 
-# Simulation parameters controlling the generation of synthetic meta-analysis datasets
+# Minimum number of studies for reliability flag
+min_studies_for_reliability: 5
+
+# Significance level for hypothesis tests
+significance_level: 0.05
+
+# Simulation parameters
 simulation_parameters:
-  # Number of replicates to generate per heterogeneity level
-  # T010 requires >= 500 replicates per level for statistical robustness.
-  replicate_count: 500
-  
-  # Heterogeneity levels (tau^2) to simulate
-  # Includes 0 (homogeneity) and increasing levels of heterogeneity
-  # T010 specifies levels: {0, 0.1, 0.5, 1.0, 2.0}
+  replicate_counts:
+    primary_sweep: 500
+    sensitivity_sweep: 500
+    test_replicates: 1000
   tau2_levels:
     - 0.0
     - 0.1
     - 0.5
     - 1.0
     - 2.0
-  
-  # Base study count for synthetic generation if no real data is loaded
-  # T040b specifies 20 studies for the synthetic base fallback.
-  base_study_count: 20
-  
-  # Seed for reproducibility (optional, can be overridden by CLI)
   random_seed: 42
+
+# Synthetic base parameters (from Jackson et al., 2010)
+# Used when real data fetch fails or for controlled experiments
+synthetic_base_params:
+  mean_effect: 0.5
+  se_distribution:
+    type: "lognormal"
+    mu: 0.0
+    sigma: 1.0
+  study_count: 20
+  seed: 42
+  source_citation: "Jackson et al. (2010)"
 
 # Data source configuration
 data_source:
-  # Path to the base dataset (real or synthetic)
-  # T040 fetches to data/raw/cochrane_base.csv
-  # T040b generates to data/raw/cochrane_base_synthetic.csv
-  base_data_path: "data/raw/cochrane_base.csv"
-  synthetic_fallback_path: "data/raw/cochrane_base_synthetic.csv"
+  type: "synthetic"  # Options: "cochrane", "synthetic"
+  cochrane_url: "https://osf.io/..."  # Placeholder, will be updated by fetch script
+  synthetic_file: "data/raw/cochrane_base_synthetic.csv"
 
-# Analysis thresholds
-analysis:
-  # Minimum number of studies required for a reliable result
-  # T011 sets reliability_flag to False if N_studies < this value
-  min_studies_for_reliability: 5
-  
-  # Significance level for statistical tests (Bonferroni corrected)
-  # T020 uses alpha=0.01 for binomial test
-  significance_level: 0.01
+# Output configuration
+output:
+  simulation_results_file: "data/results/simulation_raw.json"
+  estimation_results_file: "data/results/estimation_results.csv"
+  report_file: "data/results/report.md"
+  log_file: "data/results/simulation.log"
+  reml_failures_file: "data/results/reml_failures.json"
+  test_varianace_check_file: "data/results/test_variance_check.json"
+  test_homogeneity_check_file: "data/results/test_homogeneity_check.json"
+  sensitivity_sweep_file: "data/results/sensitivity_sweep.csv"

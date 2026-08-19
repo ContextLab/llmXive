@@ -1,47 +1,149 @@
 # Implementation Plan: Predicting Molecular Dipole Moments with Graph Neural Networks
 
-**Branch**: `001-predicting-molecular-dipole-moments` | **Date**: 2026-05-21 | **Spec**: specs/001-predicting-molecular-dipole-moments/spec.md
-**Input**: Feature specification from specs/001-predicting-molecular-dipole-moments/spec.md
+**Branch**: `001-predicting-molecular-dipole-moments` | **Date**: 2026-05-21 | **Spec**: `specs/001-predicting-molecular-dipole-moments-with/spec.md`
+**Input**: Feature specification from `/specs/001-predicting-molecular-dipole-moments-with/spec.md`
 
 ## Summary
 
-This feature implements a comparative study of 3D conformational geometry versus 2D connectivity for predicting molecular dipole moments. The technical approach trains a SchNet-style GNN (leveraging 3D coordinates) against a Random Forest baseline (using 2D descriptors only) on a random subset of QM9, with feature attribution analysis to identify structural drivers of predictive variance.
+This feature implements a computational pipeline to determine the extent to which 3D conformational geometry provides independent predictive information for molecular dipole moments beyond 2D connectivity and atom types. The technical approach involves downloading the QM9 dataset via PyTorch Geometric, extracting strictly 2D descriptors (Morgan fingerprints, topological counts) for the baseline, and 3D graph features (coordinates, connectivity) for the GNN. A lightweight SchNet-style GNN and a Random Forest baseline are trained and evaluated on identical train/test splits across 5 random seeds. Statistical significance is assessed via paired t-tests on per-molecule absolute errors with Confidence Intervals computed via bootstrapping. The pipeline strictly adheres to the constraint of operating within 6 hours on 2 CPU cores and 8GB RAM (managed to fit 7GB runner limits), utilizing the QM9 DFT-calculated dipole moments as the ground truth, explicitly excluding physical experimental validation as out-of-scope per the project assumptions (FR-011).
 
 ## Technical Context
 
-**Language/Version**: Python 3.x  
-**Primary Dependencies**: PyTorch.0, PyTorch Geometric
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: PyTorch 2.1+, PyTorch Geometric 2.4+, RDKit 2023.9+, scikit-learn 1.3+, pandas 2.1+, numpy 1.24+  
+**Storage**: Local filesystem (`.parquet` for processed data, `.pt` for model checkpoints)  
+**Testing**: `pytest` with `pytest-cov`  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM). The pipeline is designed for an 8GB theoretical peak (FR-013) but uses streaming and garbage collection to fit the 7GB runner reality.  
+**Project Type**: Computational research pipeline / data science library  
+**Performance Goals**: Complete full pipeline (download, preprocess, train multiple seeds, evaluate, attribute, visualize) within 6 hours.  
+**Constraints**: Max 8GB memory footprint (managed to 7GB); CPU-only execution (no local GPU); no external API calls for data (must use verified PyTorch Geometric loader); strict adherence to QM9 DFT ground truth (no experimental validation).  
+**Scale/Scope**: Subset of QM9 (N=10,000 molecules) selected via stratified sampling to ensure statistical power (>99% for medium effect size) while maintaining feasibility.  
+**Target Variable**: Scalar dipole moment magnitude (mu) in Debye. Both models predict the magnitude, not vector components.
 
-The specific version number is not asserted; instead, the study will utilize a recent release of PyTorch Geometric., RDKit (recent release), scikit-learn, pandas.x, numpy.2  
-**Storage**: Parquet files under data/processed/, model checkpoints under data/checkpoints/  
-**Testing**: pytest.3 with contract tests against schema definitions  
-**Target Platform**: Linux server (CPU-only mode)  
-**Project Type**: computational research pipeline  
-**Performance Goals**: Complete all 5 random seed experiments within 6h on 2 CPU cores  
-**Constraints**: No GPU acceleration; memory footprint < 8GB; reproducibility via pinned random seeds  
-**Scale/Scope**: A substantial number of molecules, random seeds, models, and feature attribution methods..
-**Documentation Structure**: README.md, quickstart.md, research.md under specs/001-predicting-molecular-dipole-moments/
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Implementation Notes | Spec Traceability |
-|-----------|-------------------|---------------------|------------------|
-| I. Reproducibility | ✅ PASS | Random seeds pinned in code/; Quantum chemistry datasets fetched from canonical HuggingFace sources; requirements.txt with exact versions | T009, SC-005 |
-| II. Verified Accuracy | ✅ PASS | All dataset URLs verified against HuggingFace datasets.load_dataset(); DOI 10.1038/sdata.2014.22 cited as reference only (no URL fabricated) | T015, FR-001 |
-| III. Data Hygiene | ✅ PASS | Raw data checksummed in state/projects/*.yaml; transformations write new files; no in-place modifications | T004, T016, T017, T018 |
-| IV. Single Source of Truth | ✅ PASS | All figures/statistics trace to data/ rows and code/ blocks; no hand-typed numbers in paper artifacts | T046, T054 |
-| V. Versioning Discipline | ✅ PASS | Content hashes for all artifacts; updated_at timestamps tracked in state/projects/*.yaml | T005, T055 |
-| VI. 3D Geometry Preservation | ✅ PASS | Coordinate preprocessing documents all geometric transformations; rotational/translational invariance verified | T009, T017 |
-| VII. Chemical Interpretability | ✅ PASS | Permutation importance + saliency mapping implemented; structural features (atom types, bond angles, electronegative placement) explicitly ranked | T038, T039, T040, T045 |
+| Constitution Principle | Status | Evidence / Action Plan |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Random seeds will be pinned in `code/`. QM9 data source is fixed to PyTorch Geometric loader. `requirements.txt` will pin all versions. |
+| **II. Verified Accuracy** | **PASS** | All citations (QM9 DOI, SchNet architecture) will be verified. The plan explicitly avoids inventing URLs for experimental data (per FR-011). 'Verified Accuracy' applies to internal computational consistency (DFT vs DFT) and citation verification, not external physical validation which is out-of-scope. |
+| **III. Data Hygiene** | **PASS** | Raw data will be checksummed. Derivations (2D descriptors) will be written to new files. No in-place modification of raw QM9 data. |
+| **IV. Single Source of Truth** | **PASS** | All metrics (MAE/RMSE) will be generated by `code/` and stored in `data/` before being summarized in `paper/`. No hand-typed values. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes. The `updated_at` timestamp in `state/` will be managed by the Advancement-Evaluator. |
+| **VI. 3D Geometry Preservation** | **PASS** | Preprocessing will document all geometric transformations. SchNet implementation will use distance-based message passing. A specific 'Geometric Invariance Test' will verify rotational invariance by rotating molecules and checking prediction stability. |
+| **VII. Chemical Interpretability** | **PASS** | Feature attribution (permutation importance, saliency) will be implemented to identify specific structural components (atom types, bond angles) driving predictions. The output will explicitly list the top 3 structural features to satisfy SC-002. |
 
-**Limitations Documented in spec.md Assumptions**:
-- **Hydration state limitation**: QM9 molecules are gas-phase DFT calculations without explicit solvent. Hydration effects acknowledged as out-of-scope per spec assumptions.
-- **Conformational ensembles**: Single lowest-energy conformer per molecule from QM9 used; ensemble sampling documented as future work in research.md.
-- **Feature attribution**: Saliency mapping + permutation importance directly address "which part of the graph is doing the work"; physics-informed loss (Raissi) noted as future enhancement in research.md.
-- **Physical validation**: Physical measurement validation explicitly out-of-scope per spec assumptions; validation against QM DFT reference data (BLYP/6-31G(2df,p)) as ground truth.
+## Project Structure
 
-**Note on Scope Boundaries**: Tasks T021-T025, T039-T043, T056-T058 referenced in earlier versions have been renumbered to align with current spec requirements. All tasks now map to explicit FR and SC requirements in spec.md.
+### Documentation (this feature)
 
-**Note on Documentation Structure**: quickstart.md is documented under specs/001-predicting-molecular-dipole-moments/ for end-to-end pipeline validation (T057)
+```text
+specs/001-predicting-molecular-dipole-moments-with/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── feature_set.schema.yaml
+│   └── prediction_output.schema.yaml
+└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
+```
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-262-predicting-molecular-dipole-moments-with/
+├── data/
+│   ├── raw/
+│   │   └── qm9_subset.parquet       # Downloaded and filtered QM9 data
+│   └── processed/
+│       ├── features_2d.parquet      # Morgan fingerprints, topological counts
+│       ├── features_3d.parquet      # 3D coordinates, atom types, connectivity
+│       └── combined_features.parquet # Merged feature set
+├── code/
+│   ├── __init__.py
+│   ├── requirements.txt
+│   ├── download_data.py             # FR-001: Download and verify QM9
+│   ├── preprocess.py                # FR-002, FR-003: Extract 3D/2D features
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── schnet.py                # FR-004: Lightweight SchNet GNN
+│   ├── train.py                     # FR-005: Train GNN and RF with 5 seeds
+│   ├── evaluate.py                  # FR-006, FR-012: Compute MAE/RMSE + CIs
+│   ├── attribution.py               # FR-007: Permutation & Saliency (Top 3 features)
+│   ├── stats.py                     # FR-008: Paired t-tests on per-molecule errors
+│   └── visualize.py                 # FR-009: Feature importance maps
+├── tests/
+│   ├── contract/
+│   │   └── test_schemas.py          # Validate data against contracts
+│   ├── integration/
+│   │   └── test_pipeline.py         # End-to-end run check
+│   └── unit/
+│       └── test_preprocess.py       # Check for NaNs, shape consistency
+└── results/
+    ├── metrics_summary.csv
+    ├── statistical_summary.json     # P-values, CIs, degrees of freedom
+    └── figures/
+        └── feature_importance.png
+```
+
+**Structure Decision**: A linear pipeline structure is selected. Data flows from `data/raw` -> `data/processed` -> `code/models` -> `results`. This ensures a clear "Producer before Consumer" flow, avoiding the dependency inversion issues noted in previous task rejections. The `code/` directory is modularized by functional step (download, preprocess, train, evaluate) to facilitate unit testing and reproducibility.
+
+## Complexity Tracking
+
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+*No violations detected. The plan strictly adheres to the scope defined in `spec.md` and avoids the "Review Response" scope creep (experimental validation, angle-aware layers, Pauling constant checks) that caused previous task rejections.*
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API. A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `torch-geometric` to the project's `requirements.txt` and `pip install torch-geometric`.
+- **Verified**: this loads **130831** real records with fields: atom_types, atom_coordinates_3d, bond_connectivity, dipole_magnitude.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import os, sys, subprocess
+
+def ensure_package(pkg):
+    try:
+        __import__(pkg)
+    except ImportError:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--quiet", pkg])
+
+ensure_package("torch")
+ensure_package("torch_geometric")
+
+from torch_geometric.datasets import QM9
+
+# Load the full dataset stream
+ds = QM9(root=os.path.expanduser("~/.torch_geometric/QM9"))
+print(f"RECORDS={len(ds)}")
+
+sample = ds[0]
+fields = []
+if hasattr(sample, "z"):
+    fields.append("atom_types")
+if hasattr(sample, "pos"):
+    fields.append("atom_coordinates_3d")
+if hasattr(sample, "edge_index"):
+    fields.append("bond_connectivity")
+if hasattr(sample, "mu"):
+    fields.append("dipole_magnitude")
+print("FIELDS=" + ",".join(fields))
+```
+
+**Subset Selection Logic**: The loader will filter the full dataset for non-null dipoles, stratify by dipole magnitude into 10 bins, and sample [deferred] molecules per bin to create a representative subset of N=10,000. This ensures statistical power while fitting the 6-hour runtime.
+
+**Data Source Consistency**: The HuggingFace Parquet URL mentioned in prior drafts is deprecated. The canonical source is the `torch_geometric.datasets.QM9` loader, which fetches the same verified data. All references to HuggingFace URLs in `research.md` and `spec.md` must be updated to reflect this canonical loader.
+
+## Statistical Power & Methodology (Critical Update)
+
+- **Power Analysis**: For a paired t-test with N=2,000 (test set size) and a medium effect size (Cohen's d=0.5), the power is >99%. The N=10,000 subset ensures a test set of [deferred], which is sufficient to detect the expected signal of 3D geometry.
+- **Hypothesis Testing Unit**: The paired t-test is performed on the distribution of **per-molecule absolute errors** (N [deferred]) for each seed. The 5 random seeds are used to compute 95% Confidence Intervals for the mean performance and to verify reproducibility (SC-005), not as the unit of the t-test itself.
+- **Baseline Definition**: The Random Forest baseline uses **strictly 2D features** (Morgan Fingerprints, topological counts). It does **not** use Coulomb matrices or pairwise distances, which are 3D-derived. This ensures the baseline represents "2D connectivity" only, making the comparison valid for the research question.
+- **Target Variable**: Both models predict the scalar dipole moment magnitude (mu), not vector components.

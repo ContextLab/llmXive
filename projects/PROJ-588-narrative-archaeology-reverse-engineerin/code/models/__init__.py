@@ -1,1 +1,3 @@
-# Models package
+"""
+Model and analysis modules.
+"""

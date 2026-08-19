@@ -1,1 +1,3 @@
-"""Test package for Narrative Archaeology."""
+"""
+Test suite initialization.
+"""

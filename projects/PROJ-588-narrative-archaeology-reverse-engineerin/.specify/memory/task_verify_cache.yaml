@@ -1,29 +1,17 @@
-T001:
+T017:
+  c: false
+  h: 448fa08ee99c4e45d03293c60460b3a2df3c3eda761bea2b5c4bc96d18f16de2
+  r: "The repository contains `code/config.py` defining the motion threshold and the\
+    \ path for the error log, but the required `data/errors.log` file does not exist\
+    \ and there is no implementation shown that actually skips subjects with excessive\
+    \ motion or writes JSON\u2011formatted error entries to that log. The core artifact\
+    \ (the error log with entries) is missing, so the task is not fulfilled."
+T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No project directory or file structure was presented; the implementer supplied
-    only the specification text without any actual folders, README, source code layout,
-    or other artifacts that would constitute a created project structure. Consequently
-    the required deliverable is missing.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer only supplied a feature specification and no concrete project\
-    \ initialization artifacts (e.g., a repository, `pyproject.toml`, `requirements.txt`,\
-    \ or any Python files). There is no evidence that a Python\u202F3.11 project was\
-    \ created or that the listed dependencies (transformers, pandas, numpy, openneuro\u2011\
-    cli) were added. The required initialization step is missing."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No flake8 or black configuration files (e.g., `.flake8`, `pyproject.toml` with\
-    \ black settings, or a pre\u2011commit hook) were provided, so the required linting/formatting\
-    \ setup is missing. The implementer\u2019s claim cannot be verified without those\
-    \ artifacts."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation showing an error\u2011handling layer\
-    \ that detects motion\u2011artifact subjects, skips them, and logs the errors\
-    \ is present. The required artifact (implementation of the skip\u2011on\u2011\
-    artifact and logging infrastructure) is missing."
+  r: "No code, scripts, configuration files, or test outputs were provided that demonstrate\
+    \ checksum generation for raw data, protection against in\u2011place modifications,\
+    \ or a PII\u2011scanning step. Without these concrete artifacts, the claimed data\u2011\
+    hygiene implementation cannot be verified. The next implementer must supply the\
+    \ actual implementation (e.g., a Python module or workflow) and evidence (logs,\
+    \ checksum files, test results) showing all three requirements are met."

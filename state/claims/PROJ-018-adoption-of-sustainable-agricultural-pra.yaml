@@ -612,21 +612,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T18:16:47Z'
 - artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
-  attempts: 3
-  canonical: no GPU or 8-bit quantization tasks are included
-  claim_id: c_e01a2d28
-  context: 'Feasibility Note: ... No GPU or 8-bit quantization tasks are included.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: No GPU or 8-bit quantization tasks are included.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T17:47:50Z'
-- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
   attempts: 1
   canonical: project does not include GPU or 8-bit quantization tasks
   claim_id: c_d8507ff0
@@ -842,3 +827,18 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T18:24:58Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 4
+  canonical: no GPU or 8-bit quantization tasks are included
+  claim_id: c_e01a2d28
+  context: 'Feasibility Note: ... No GPU or 8-bit quantization tasks are included.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T01:16:50Z'

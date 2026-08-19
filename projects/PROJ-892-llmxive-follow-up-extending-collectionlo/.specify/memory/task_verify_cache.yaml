@@ -1,3 +1,19 @@
+T009a:
+  c: false
+  h: 30fa80467cb38b8776b5c372688e333259df968f2dff489cbbede5ddf22b38e2
+  r: "The required `data/models/adapter_fp16.safetensors` file is missing (size\u202F\
+    0) and the `artifacts.yaml` records a hash of an empty file instead of the SHA\u2011\
+    256 of `data/subspace_ranks.json`. Moreover, the provided `code/data_loader.py`\
+    \ snippet does not show the implementation of the LoRA extraction, SVD rank computation,\
+    \ JSON saving, and artifact registration required by the task. These core pieces\
+    \ are absent, so the task is not genuinely completed."
+T010b:
+  c: false
+  h: cc02866b1fd5e63db664482d33732aee41ea5f3a8da293f0d2926ab26bf09e3a
+  r: The repository lacks the required `data/models/adapter_fp16.safetensors` file,
+    and the shown portion of `code/data_loader.py` does not contain a concrete function
+    that loads the FP16 adapter and base model with `device_map='cpu'` and `torch_dtype=torch.float16`.
+    Both the artifact and the loading logic are missing, so the task is not satisfied.
 T011:
   c: false
   h: 94b482a58e3d056405b3ac4384b6ff322b5e697d2a0d22cc30ba1c1ef12e1302
@@ -6,13 +22,32 @@ T011:
     \ show loading the FP16 adapter nor a complete implementation of the image\u2011\
     generation function (the code is truncated). Consequently the task\u2019s core\
     \ requirement is not satisfied."
+T014:
+  c: false
+  h: ef8950f247f2a372d7ff1af6c8d86d1362788c17fb778697763372b1d8757158
+  r: "The repository contains a `code/main.py` file, but it does not include any code\
+    \ that writes the `results.csv` file (the snippet ends before any CSV\u2011writing\
+    \ logic) and the required `data/results.csv` file is absent from the project.\
+    \ Consequently the task\u2019s core requirement\u2014producing a CSV with the\
+    \ specified schema and saving the generated images\u2014is not satisfied."
+T016:
+  c: false
+  h: e9b395355f3cff5201fa622080558e7e25ed2f9a949b8b4daea0c7db370f6dc4
+  r: "The provided `code/data_loader.py` contains generic download utilities but no\
+    \ implementation of zero\u2011shot post\u2011training quantization, directory\
+    \ creation, verification, or error handling as specified. Moreover, the required\
+    \ quantized adapter files `data/quantized/adapter_int8.safetensors` and `data/quantized/adapter_int4.safetensors`\
+    \ are absent. The task\u2019s core functionality and output artifacts are therefore\
+    \ missing."
 T020:
   c: false
-  h: aecc21ce73d43e479eacc3f0011b3f8be0ccce7c55dd1afe63e3f52131adeaba
-  r: "The provided `code/main.py` is truncated (e.g., `save_results_to_csv` ends with\
-    \ an unfinished `write` line) and lacks the logic to compute deltas and append\
-    \ them to `data/results.csv`. Moreover, the required `data/results.csv` file does\
-    \ not exist. Consequently, the task\u2019s requirements are not met."
+  h: ef8950f247f2a372d7ff1af6c8d86d1362788c17fb778697763372b1d8757158
+  r: The repository lacks the required `data/results.csv` file, so the script cannot
+    append results as specified. Moreover, the provided `code/main.py` excerpt is
+    truncated and does not show the implementation of quantized generation, delta
+    computation, or the full MemoryError handling loop required by the task. Both
+    the missing output file and the incomplete script mean the task requirements are
+    not met.
 T034a:
   c: true
   h: c3be1272d452d3996291a631b353d7ef1fb1d8c07f640ae0acbb55490c1bbe60

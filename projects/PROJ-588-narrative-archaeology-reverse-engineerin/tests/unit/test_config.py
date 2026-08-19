@@ -1,78 +1,115 @@
 """
-Unit tests for configuration module.
+Unit tests for code/config.py
+
+Verifies:
+- Random seeds are set correctly
+- CPU-only constraints are enforced
+- Path definitions are valid Path objects
+- Analysis parameters are of correct types
 """
-import pytest
+
+import os
+import sys
 from pathlib import Path
-import numpy as np
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 import code.config as config
 
-def test_random_seed_is_set():
-    """Test that the random seed is properly set."""
+
+def test_random_seed_exists():
+    """Test that RANDOM_SEED is defined and is an integer."""
+    assert hasattr(config, "RANDOM_SEED")
+    assert isinstance(config.RANDOM_SEED, int)
     assert config.RANDOM_SEED == 42
-    # Verify numpy random is reproducible
-    np.random.seed(config.RANDOM_SEED)
-    val1 = np.random.rand()
-    np.random.seed(config.RANDOM_SEED)
-    val2 = np.random.rand()
-    assert val1 == val2
 
-def test_project_root_exists():
-    """Test that project root is a valid Path."""
-    assert isinstance(config.PROJECT_ROOT, Path)
-    assert config.PROJECT_ROOT.exists()
 
-def test_data_directories_exist():
-    """Test that data directories are created."""
-    assert config.DATA_DIR.exists()
-    assert config.RAW_DATA_DIR.exists()
-    assert config.PROCESSED_DATA_DIR.exists()
-    assert config.SEGMENTED_DATA_DIR.exists()
-    assert config.FIGURES_DIR.exists()
+def test_pythonhashseed_set():
+    """Test that PYTHONHASHSEED environment variable is set."""
+    assert "PYTHONHASHSEED" in os.environ
+    assert os.environ["PYTHONHASHSEED"] == str(config.RANDOM_SEED)
 
-def test_fmriprep_flags():
-    """Test that fMRIPrep flags are correctly configured."""
-    flags = config.FMRIPREP_FLAGS
-    assert "--output-spaces" in flags
-    assert "MNI" in flags
-    assert "--fs-no-reconall" in flags
-    assert "--omp-num-threads" in flags
-    assert "2" in flags
-    assert "--nthreads" in flags
-    assert "2" in flags
 
-def test_motion_threshold():
-    """Test motion artifact threshold."""
-    assert config.MOTION_THRESHOLD_MM > 0
-    assert config.MOTION_THRESHOLD_MM < 10.0
+def test_cpu_only_constraints():
+    """Test that CPU-only constraints are enforced."""
+    assert config.USE_CUDA is False
+    assert config.N_CPUS == 2
+    assert os.environ.get("CUDA_VISIBLE_DEVICES") == ""
+
+
+def test_path_definitions():
+    """Test that all path definitions are valid Path objects."""
+    assert isinstance(config.ROOT_DIR, Path)
+    assert isinstance(config.CODE_DIR, Path)
+    assert isinstance(config.DATA_DIR, Path)
+    assert isinstance(config.TESTS_DIR, Path)
+    assert isinstance(config.SPECS_DIR, Path)
+    assert isinstance(config.FIGURES_DIR, Path)
+    assert isinstance(config.LOGS_DIR, Path)
+
+    # Verify paths are absolute
+    assert config.ROOT_DIR.is_absolute()
+    assert config.CODE_DIR.is_absolute()
+
 
 def test_analysis_parameters():
-    """Test analysis parameters are valid."""
-    assert config.N_PERMUTATIONS > 0
-    assert 0 < config.FDR_Q < 1.0
-    assert config.N_FOLDS > 1
+    """Test that analysis parameters are of correct types and values."""
+    assert isinstance(config.MOTION_THRESHOLD_MM, float)
+    assert config.MOTION_THRESHOLD_MM == 3.0
 
-def test_cpu_only_constraint():
-    """Test that CPU-only is enforced."""
-    assert config.FORCE_CPU is True
+    assert isinstance(config.HRF_FWHM, float)
+    assert config.HRF_FWHM == 6.0
 
-def test_max_memory():
-    """Test memory limit is reasonable."""
-    assert 1.0 <= config.MAX_MEMORY_GB <= 16.0
+    assert isinstance(config.RSA_METRIC, str)
+    assert config.RSA_METRIC in ["correlation", "euclidean"]
 
-def test_openneuro_dataset():
-    """Test OpenNeuro dataset configuration."""
-    assert config.OPENNEURO_DATASET_ID.startswith("ds")
-    assert config.OPENNEURO_VERSION is not None
+    assert isinstance(config.DECODER_C, float)
+    assert config.DECODER_C == 1.0
 
-def test_rois_defined():
-    """Test that ROIs are defined."""
-    assert len(config.ROIS) > 0
-    assert "hippocampus" in config.ROIS
-    assert "mPFC" in config.ROIS
-    assert "PCC" in config.ROIS
-    assert "lateral_temporal_cortex" in config.ROIS
+    assert isinstance(config.PERMUTATION_ITERATIONS, int)
+    assert config.PERMUTATION_ITERATIONS == 1000
 
-def test_decoder_config():
-    """Test decoder configuration."""
-    assert config.MIN_SAMPLES_PER_CLASS > 0
-    assert config.AGGREGATED_LABEL is not None
+    assert isinstance(config.FDR_ALPHA, float)
+    assert config.FDR_ALPHA == 0.05
+
+
+def test_dataset_id():
+    """Test that DATASET_ID is defined correctly."""
+    assert hasattr(config, "DATASET_ID")
+    assert config.DATASET_ID == "ds000234"
+
+
+def test_log_configuration():
+    """Test that logging configuration is defined."""
+    assert isinstance(config.LOG_LEVEL, str)
+    assert isinstance(config.LOG_FILE, Path)
+    assert isinstance(config.ERROR_LOG_FILE, Path)
+
+
+def test_data_paths():
+    """Test that data path variables are defined."""
+    assert isinstance(config.RAW_DATA_DIR, Path)
+    assert isinstance(config.PREPROCESSED_DATA_DIR, Path)
+    assert isinstance(config.EVENT_ANNOTATIONS_FILE, Path)
+    assert isinstance(config.ROI_MASKS_DIR, Path)
+
+
+def test_helper_functions():
+    """Test that helper functions exist and return Path objects."""
+    assert callable(config.get_data_path)
+    assert callable(config.get_output_path)
+    assert callable(config.get_figure_path)
+
+    test_file = "test.txt"
+    data_path = config.get_data_path(test_file)
+    output_path = config.get_output_path(test_file)
+    figure_path = config.get_figure_path(test_file)
+
+    assert isinstance(data_path, Path)
+    assert isinstance(output_path, Path)
+    assert isinstance(figure_path, Path)
+
+    assert data_path.name == test_file
+    assert output_path.name == test_file
+    assert figure_path.name == test_file

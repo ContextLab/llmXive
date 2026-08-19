@@ -4,3 +4,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T004a** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T004b** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T009** — declared artifact(s) missing/empty/invalid: data/results/test_homogeneity_check.json
