@@ -34,13 +34,6 @@ T021:
     \ for CPU\u2011optimized inference, and the referenced `code/bes/config.py` is\
     \ missing entirely, so the model cannot be loaded as specified. These gaps mean\
     \ the task\u2019s constraints are not met."
-T029a:
-  c: false
-  h: d19da0dd06a176ced740849b1ae0590bba15fa82c2004b3ead4e525b3fc65909
-  r: The required output file `data/processed/scaling_raw_logs.json` is absent, and
-    there is no evidence that `code/main.py` was run with `--mode symbolic` over the
-    full N=10..500 range. Without this log file, the scaling experiment has not been
-    produced.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -24,7 +24,7 @@ This project extends the "Self-Improving Language Models with Bidirectional Evol
 - NO 8-bit/4-bit quantization via bitsandbytes (requires CUDA). CPU-optimized quantization via `optimum` is allowed as a fallback.
 - Symbolic planner must handle all constraint types in the dataset; otherwise, item is excluded (FR-006).
 **Scale/Scope**: 
-- Dataset: ~500 curated logic/arithmetic puzzles (assumed sufficient for z-test power), with a specific subset for scaling analysis (N=10 to N=500).
+- Dataset: A curated set of logic and arithmetic puzzles. (assumed sufficient for z-test power), with a specific subset for scaling analysis (N=10 to N=500).
 - Population size: Tunable (default range) to fit memory.
 - Generations: Tunable to fit a feasible runtime.
 

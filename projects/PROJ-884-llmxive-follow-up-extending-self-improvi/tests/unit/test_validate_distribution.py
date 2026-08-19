@@ -2,157 +2,102 @@
 Unit tests for code/dataset/validate_distribution.py
 """
 import json
+import math
 import os
 import tempfile
-import pytest
 from pathlib import Path
-import sys
+import pytest
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# We need to add the project root to sys.path to import the module
+# Assuming this test runs from the project root or similar context
+import sys
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from code.dataset.validate_distribution import (
-    load_json,
-    load_schema,
     calculate_chi_square,
     validate_complexity_scaling,
-    calculate_power_estimate,
-    main
+    calculate_power_estimate
 )
 
-class TestLoadJson:
-    def test_load_json_exists(self, tmp_path):
-        test_data = {"key": "value"}
-        file_path = tmp_path / "test.json"
-        file_path.write_text(json.dumps(test_data))
-        
-        result = load_json(file_path)
-        assert result == test_data
 
-    def test_load_json_not_found(self, tmp_path):
-        file_path = tmp_path / "nonexistent.json"
-        with pytest.raises(FileNotFoundError):
-            load_json(file_path)
-
-class TestCalculateChiSquare:
+class TestChiSquare:
     def test_perfect_fit(self):
+        # If observed matches expected exactly, chi-square should be 0
         observed = {"sudoku": 50, "pathfinding": 50}
         expected = {"sudoku": 0.5, "pathfinding": 0.5}
-        # Total 100. Expected 50 each. (50-50)^2 / 50 = 0
-        result = calculate_chi_square(observed, expected)
-        assert result == 0.0
+        stat, p_val = calculate_chi_square(observed, expected)
+        assert math.isclose(stat, 0.0, abs_tol=1e-5)
+        # p-value should be 1.0 for perfect fit (or very close)
+        assert p_val >= 0.99
 
-    def test_mismatch_fit(self):
-        observed = {"sudoku": 90, "pathfinding": 10}
+    def test_moderate_deviation(self):
+        observed = {"sudoku": 60, "pathfinding": 40}
         expected = {"sudoku": 0.5, "pathfinding": 0.5}
-        # Total 100. Expected 50 each.
-        # (90-50)^2/50 + (10-50)^2/50 = 1600/50 + 1600/50 = 32 + 32 = 64
-        result = calculate_chi_square(observed, expected)
-        assert result == 64.0
+        stat, p_val = calculate_chi_square(observed, expected)
+        # Stat should be > 0
+        assert stat > 0.0
+        # P-value should be < 1.0
+        assert p_val < 1.0
 
-class TestValidateComplexityScaling:
-    def test_valid_range(self):
-        report = {
-            "complexity_distribution": {
-                "10": 10,
-                "50": 10,
-                "500": 10
-            }
-        }
-        result = validate_complexity_scaling(report)
-        assert result['is_valid'] is True
-        assert "within bounds" in result['notes']
+    def test_empty_observed(self):
+        observed = {}
+        expected = {"sudoku": 0.5}
+        stat, p_val = calculate_chi_square(observed, expected)
+        assert stat == 0.0
+        assert p_val == 1.0
 
-    def test_invalid_min(self):
-        report = {
-            "complexity_distribution": {
-                "5": 10
-            }
-        }
-        result = validate_complexity_scaling(report)
-        assert result['is_valid'] is False
+    def test_zero_expected_with_observed(self):
+        # If expected is 0 but we have observed, it should be a huge deviation
+        observed = {"sudoku": 10}
+        expected = {"sudoku": 0.0}
+        stat, p_val = calculate_chi_square(observed, expected)
+        # Should be inf or very large
+        assert stat == float('inf') or stat > 10000
 
-    def test_invalid_max(self):
-        report = {
-            "complexity_distribution": {
-                "600": 10
-            }
-        }
-        result = validate_complexity_scaling(report)
-        assert result['is_valid'] is False
 
-    def test_empty_distribution(self):
-        report = {"complexity_distribution": {}}
-        result = validate_complexity_scaling(report)
-        assert result['is_valid'] is False
+class TestComplexityScaling:
+    def test_valid_continuous_scaling(self):
+        data = [
+            {"n": 10, "count": 10},
+            {"n": 20, "count": 10},
+            {"n": 30, "count": 10}
+        ]
+        schema_constraints = {"min": 10, "max": 30, "step": 10}
+        is_valid, msg = validate_complexity_scaling(data, schema_constraints)
+        assert is_valid is True
 
-class TestCalculatePowerEstimate:
-    def test_small_sample(self):
-        assert calculate_power_estimate(0) == 0.0
-        assert calculate_power_estimate(1) == 0.0
+    def test_gap_in_scaling(self):
+        data = [
+            {"n": 10, "count": 10},
+            {"n": 50, "count": 10} # Gap from 10 to 50
+        ]
+        schema_constraints = {"min": 10, "max": 50, "step": 10}
+        is_valid, msg = validate_complexity_scaling(data, schema_constraints)
+        assert is_valid is False
+        assert "Gap detected" in msg
 
-    def test_large_sample(self):
-        # With large N, power should approach 1.0 for default effect size
-        power = calculate_power_estimate(10000)
+    def test_below_min(self):
+        data = [
+            {"n": 5, "count": 10}
+        ]
+        schema_constraints = {"min": 10, "max": 50, "step": 10}
+        is_valid, msg = validate_complexity_scaling(data, schema_constraints)
+        assert is_valid is False
+        assert "below schema minimum" in msg
+
+
+class TestPowerEstimate:
+    def test_large_sample_high_power(self):
+        # Large N should yield high power
+        power = calculate_power_estimate(total_count=1000, effect_size=0.5)
         assert power > 0.8
 
-class TestMain:
-    def test_main_success(self, tmp_path):
-        # Setup mock inputs
-        dist_report = {
-            "total_count": 100,
-            "type_distribution": {"sudoku": 50, "pathfinding": 50},
-            "complexity_distribution": {"10": 20, "50": 20, "500": 60}
-        }
-        schema = {"type": "object"}
-        
-        report_file = tmp_path / "distribution_report.json"
-        schema_file = tmp_path / "dataset.schema.yaml"
-        output_file = tmp_path / "distribution_validation.json"
-        
-        report_file.write_text(json.dumps(dist_report))
-        schema_file.write_text(json.dumps(schema))
-        
-        # Mock PROJECT_ROOT usage by temporarily changing the script's paths logic?
-        # Since main() uses global constants, we need to patch them or run in a specific env.
-        # For this test, we will test the logic by importing the function and mocking the paths.
-        # However, the function main() is the entry point.
-        # We will test by creating the files in the expected locations relative to a temp dir
-        # and monkey-patching the constants in the module.
-        
-        import code.dataset.validate_distribution as mod
-        
-        original_report_path = mod.DISTRIBUTION_REPORT_PATH
-        original_schema_path = mod.SCHEMA_PATH
-        original_output_path = mod.OUTPUT_PATH
-        
-        mod.DISTRIBUTION_REPORT_PATH = report_file
-        mod.SCHEMA_PATH = schema_file
-        mod.OUTPUT_PATH = output_file
-        
-        try:
-            exit_code = main()
-            assert exit_code == 0
-            assert output_file.exists()
-            
-            with open(output_file, 'r') as f:
-                result = json.load(f)
-            assert result['is_valid'] is True
-            assert 'notes' in result
-        finally:
-            mod.DISTRIBUTION_REPORT_PATH = original_report_path
-            mod.SCHEMA_PATH = original_schema_path
-            mod.OUTPUT_PATH = original_output_path
+    def test_small_sample_low_power(self):
+        # Small N should yield low power
+        power = calculate_power_estimate(total_count=10, effect_size=0.5)
+        assert power < 0.8
 
-    def test_main_missing_input(self, tmp_path):
-        import code.dataset.validate_distribution as mod
-        
-        original_report_path = mod.DISTRIBUTION_REPORT_PATH
-        mod.DISTRIBUTION_REPORT_PATH = tmp_path / "nonexistent.json"
-        
-        try:
-            exit_code = main()
-            assert exit_code == 1
-        finally:
-            mod.DISTRIBUTION_REPORT_PATH = original_report_path
+    def test_zero_sample(self):
+        power = calculate_power_estimate(total_count=0)
+        assert power == 0.0

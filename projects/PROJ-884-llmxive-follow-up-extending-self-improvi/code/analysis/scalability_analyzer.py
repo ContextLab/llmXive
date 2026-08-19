@@ -1,6 +1,11 @@
 """
 Scalability Analyzer Module.
-Implements log-log linear regression to derive complexity class (Big-O).
+
+This module implements the log-log linear regression analysis for
+determining the complexity class (Big-O) of the BES algorithm.
+
+Input: data/processed/scaling_raw_logs.json
+Output: data/processed/scaling_analysis.csv
 """
 import json
 import csv
@@ -8,31 +13,38 @@ import math
 import sys
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Tuple, Optional, Dict, Any
 from dataclasses import dataclass
 
-# Ensure project root is in path
-if str(Path(__file__).parent.parent) not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-try:
-    from scipy import stats
-except ImportError:
-    print("ERROR: scipy is required for scalability analysis. Install with: pip install scipy")
-    sys.exit(1)
 
 @dataclass
 class ScalingResult:
+    """Represents the result of a scalability analysis for a single data point."""
     n: int
     time: float
     complexity_class: str
     r_squared: float
-    status: str  # 'PASS', 'FAIL', 'INCONCLUSIVE'
 
 def load_scaling_logs(input_path: Path) -> List[Dict[str, Any]]:
     """
-    Loads the scaling raw logs from the JSON file.
-    Fails loudly if the file does not exist or is invalid.
+    Load scaling logs from a JSON file.
+    
+    Args:
+        input_path: Path to the scaling_raw_logs.json file
+        
+    Returns:
+        List of log entries with 'n' and 'time' fields
+        
+    Raises:
+        FileNotFoundError: If the input file does not exist
+        json.JSONDecodeError: If the file is not valid JSON
     """
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
@@ -41,159 +53,253 @@ def load_scaling_logs(input_path: Path) -> List[Dict[str, Any]]:
         data = json.load(f)
     
     if not isinstance(data, list):
-        raise ValueError("Input JSON must be a list of experiment records.")
+        raise ValueError(f"Expected a list in {input_path}, got {type(data)}")
     
+    # Validate that each entry has required fields
+    for entry in data:
+        if 'n' not in entry or 'time' not in entry:
+            raise ValueError(f"Entry missing 'n' or 'time' field: {entry}")
+    
+    logger.info(f"Loaded {len(data)} entries from {input_path}")
     return data
 
-def determine_complexity_class(r_squared: float, slope: float) -> str:
+
+def perform_log_log_regression(n_values: List[int], time_values: List[float]) -> Tuple[float, float]:
     """
-    Maps the regression slope to a complexity class string.
+    Perform log-log linear regression to determine the slope and R-squared.
+    
+    The regression fits: log(time) = slope * log(n) + intercept
+    
+    Args:
+        n_values: List of problem sizes (n)
+        time_values: List of corresponding execution times
+        
+    Returns:
+        Tuple of (slope, r_squared)
+        
+    Note:
+        If there are fewer than 2 data points, returns (0.0, 0.0)
+        If any value is <= 0, that point is skipped (log undefined)
     """
-    # Define thresholds for complexity classes based on slope
-    # O(1): slope ~ 0
-    # O(log n): slope ~ 0 (log-log slope is 0 for constant, but log n is distinct)
+    if len(n_values) < 2:
+        logger.warning("Insufficient data points for regression (need at least 2)")
+        return 0.0, 0.0
+    
+    # Filter out non-positive values (log undefined)
+    valid_points = [
+        (n, t) for n, t in zip(n_values, time_values)
+        if n > 0 and t > 0
+    ]
+    
+    if len(valid_points) < 2:
+        logger.warning("Not enough valid positive data points for regression")
+        return 0.0, 0.0
+    
+    # Take logs
+    log_n = [math.log(n) for n, _ in valid_points]
+    log_t = [math.log(t) for _, t in valid_points]
+    
+    n_points = len(log_n)
+    
+    # Calculate means
+    mean_log_n = sum(log_n) / n_points
+    mean_log_t = sum(log_t) / n_points
+    
+    # Calculate slope and intercept using least squares
+    numerator = sum((log_n[i] - mean_log_n) * (log_t[i] - mean_log_t) for i in range(n_points))
+    denominator = sum((log_n[i] - mean_log_n) ** 2 for i in range(n_points))
+    
+    if abs(denominator) < 1e-10:
+        logger.warning("Denominator too small in regression, likely constant n values")
+        return 0.0, 0.0
+    
+    slope = numerator / denominator
+    intercept = mean_log_t - slope * mean_log_n
+    
+    # Calculate R-squared
+    ss_tot = sum((log_t[i] - mean_log_t) ** 2 for i in range(n_points))
+    ss_res = sum((log_t[i] - (slope * log_n[i] + intercept)) ** 2 for i in range(n_points))
+    
+    if ss_tot < 1e-10:
+        r_squared = 1.0 if ss_res < 1e-10 else 0.0
+    else:
+        r_squared = 1.0 - (ss_res / ss_tot)
+    
+    return slope, r_squared
+
+
+def determine_complexity_class(slope: float, r_squared: float) -> str:
+    """
+    Determine the complexity class based on regression slope and R-squared.
+    
+    Args:
+        slope: The slope from log-log regression
+        r_squared: The R-squared value of the regression
+        
+    Returns:
+        Complexity class string: 'O(n)', 'O(n^2)', 'O(n^3)', or 'UNKNOWN'
+        
+    Note:
+        If R-squared < 0.85, returns 'UNKNOWN' regardless of slope
+    """
+    if r_squared < 0.85:
+        return "UNKNOWN"
+    
+    # Map slope to complexity class
     # O(n): slope ~ 1
-    # O(n log n): slope ~ 1 (slightly > 1)
     # O(n^2): slope ~ 2
     # O(n^3): slope ~ 3
+    # O(log n): slope ~ 0
+    # O(n log n): slope ~ 1 but with different characteristics (harder to distinguish with simple regression)
     
-    # We compare the slope to integers
-    closest_power = round(slope)
-    
-    if closest_power == 0:
-        if r_squared > 0.85:
-            return "O(1)"
-        return "O(log n)" # If R2 is low but slope is near 0, often log
-    elif closest_power == 1:
+    if abs(slope - 1.0) < 0.2:
         return "O(n)"
-    elif closest_power == 2:
+    elif abs(slope - 2.0) < 0.2:
         return "O(n^2)"
-    elif closest_power == 3:
+    elif abs(slope - 3.0) < 0.2:
         return "O(n^3)"
+    elif abs(slope) < 0.2:
+        return "O(log n)"
+    elif slope > 0 and slope < 1.5:
+        # Could be O(n log n) or similar, but we'll call it O(n) for simplicity
+        return "O(n)"
     else:
-        return f"O(n^{slope:.2f})"
+        # Unknown or non-standard complexity
+        return "UNKNOWN"
 
-def perform_log_log_regression(data: List[Dict[str, Any]]) -> List[ScalingResult]:
-    """
-    Performs log-log linear regression on the data.
-    Input: List of records with 'n' and 'avg_wall_clock' (or similar time metric).
-    Output: List of ScalingResult objects.
-    """
-    results = []
-    
-    # Extract x (n) and y (time)
-    # We assume the data is already aggregated by 'n' from T029a
-    # T029a output structure: n, avg_wall_clock
-    
-    x_vals = []
-    y_vals = []
-    
-    for record in data:
-        n = record.get('n')
-        time_val = record.get('avg_wall_clock')
-        
-        if n is None or time_val is None:
-            logging.warning(f"Skipping record due to missing n or time: {record}")
-            continue
-        
-        if n <= 0 or time_val <= 0:
-            logging.warning(f"Skipping record due to non-positive n or time: {record}")
-            continue
-        
-        x_vals.append(math.log(n))
-        y_vals.append(math.log(time_val))
-    
-    if len(x_vals) < 2:
-        raise ValueError("Insufficient data points for regression (need at least 2).")
-    
-    # Perform linear regression
-    slope, intercept, r_value, p_value, std_err = stats.linregress(x_vals, y_vals)
-    
-    r_squared = r_value ** 2
-    
-    # Determine status based on R^2
-    if r_squared >= 0.85:
-        status = "PASS"
-    else:
-        status = "INCONCLUSIVE"
-    
-    complexity_class = determine_complexity_class(r_squared, slope)
-    
-    # Create a result for each data point, but the regression is global
-    # The task requires outputting a row for each n with the derived class
-    for i, record in enumerate(data):
-        n = record.get('n')
-        time_val = record.get('avg_wall_clock')
-        
-        if n is None or time_val is None:
-            continue
-            
-        results.append(ScalingResult(
-            n=n,
-            time=time_val,
-            complexity_class=complexity_class,
-            r_squared=r_squared,
-            status=status
-        ))
-    
-    return results
 
-def save_results_csv(results: List[ScalingResult], output_path: Path):
+def save_results_csv(results: List[ScalingResult], output_path: Path) -> None:
     """
-    Saves the analysis results to a CSV file.
-    Columns: n, time, complexity_class, r_squared, status
+    Save scalability analysis results to a CSV file.
+    
+    Args:
+        results: List of ScalingResult objects
+        output_path: Path to the output CSV file
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w', newline='') as f:
         writer = csv.writer(f)
-        # Write header
-        writer.writerow(['n', 'time', 'complexity_class', 'r_squared', 'status'])
+        writer.writerow(['n', 'time', 'complexity_class', 'r_squared'])
         
-        # Write data
-        for res in results:
+        for result in results:
             writer.writerow([
-                res.n,
-                res.time,
-                res.complexity_class,
-                f"{res.r_squared:.4f}",
-                res.status
+                result.n,
+                f"{result.time:.6f}",
+                result.complexity_class,
+                f"{result.r_squared:.6f}"
             ])
+    
+    logger.info(f"Saved {len(results)} results to {output_path}")
 
-def analyze_scaling(input_path: Path, output_path: Path):
+
+def analyze_scaling(input_path: Path, output_path: Path) -> List[ScalingResult]:
     """
-    Main orchestration function for scalability analysis.
+    Perform full scalability analysis.
+    
+    1. Load scaling logs from input JSON
+    2. Group data by 'n' and calculate average time for each n
+    3. Perform log-log regression
+    4. Determine complexity class
+    5. Save results to CSV
+    
+    Args:
+        input_path: Path to scaling_raw_logs.json
+        output_path: Path to output scaling_analysis.csv
+        
+    Returns:
+        List of ScalingResult objects
     """
-    logging.info(f"Loading scaling logs from {input_path}")
-    data = load_scaling_logs(input_path)
+    # Load data
+    logs = load_scaling_logs(input_path)
     
-    logging.info(f"Performing log-log regression on {len(data)} data points")
-    results = perform_log_log_regression(data)
+    if not logs:
+        logger.warning("No data found in input file")
+        # Create empty output file with headers
+        save_results_csv([], output_path)
+        return []
     
-    logging.info(f"Saving results to {output_path}")
+    # Group by 'n' and calculate average time
+    n_to_times: Dict[int, List[float]] = {}
+    for entry in logs:
+        n = entry['n']
+        time = entry['time']
+        if n not in n_to_times:
+            n_to_times[n] = []
+        n_to_times[n].append(time)
+    
+    # Calculate average time for each n
+    n_values = sorted(n_to_times.keys())
+    avg_times = [sum(n_to_times[n]) / len(n_to_times[n]) for n in n_values]
+    
+    logger.info(f"Analyzing {len(n_values)} distinct problem sizes")
+    
+    # Perform log-log regression on the aggregated data
+    slope, r_squared = perform_log_log_regression(n_values, avg_times)
+    
+    logger.info(f"Regression results: slope={slope:.4f}, R^2={r_squared:.4f}")
+    
+    # Determine complexity class
+    complexity_class = determine_complexity_class(slope, r_squared)
+    
+    logger.info(f"Determined complexity class: {complexity_class}")
+    
+    # Create results list (one entry per distinct n, all with same complexity class and r_squared)
+    results = [
+        ScalingResult(
+            n=n,
+            time=avg_time,
+            complexity_class=complexity_class,
+            r_squared=r_squared
+        )
+        for n, avg_time in zip(n_values, avg_times)
+    ]
+    
+    # Save results
     save_results_csv(results, output_path)
     
-    # Log summary
-    if results:
-        last_result = results[-1]
-        logging.info(f"Analysis Complete. Complexity Class: {last_result.complexity_class}, R^2: {last_result.r_squared:.4f}, Status: {last_result.status}")
-    else:
-        logging.warning("No results generated.")
+    return results
+
 
 def main():
     """
-    Entry point for the module.
-    Uses hardcoded paths relative to project root as per T029b spec.
+    Main entry point for scalability analysis.
+    
+    Reads from: data/processed/scaling_raw_logs.json
+    Writes to: data/processed/scaling_analysis.csv
     """
-    project_root = Path(__file__).parent.parent.parent
-    input_file = project_root / "data" / "processed" / "scaling_raw_logs.json"
-    output_file = project_root / "data" / "processed" / "scaling_analysis.csv"
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent.parent
+    input_path = project_root / "data" / "processed" / "scaling_raw_logs.json"
+    output_path = project_root / "data" / "processed" / "scaling_analysis.csv"
+    
+    logger.info(f"Input: {input_path}")
+    logger.info(f"Output: {output_path}")
     
     try:
-        analyze_scaling(input_file, output_file)
+        results = analyze_scaling(input_path, output_path)
+        logger.info(f"Analysis complete. Processed {len(results)} data points.")
+        
+        # Print summary
+        if results:
+            unique_classes = set(r.complexity_class for r in results)
+            logger.info(f"Complexity classes found: {', '.join(unique_classes)}")
+            
+            # Show the regression slope and R-squared from the first result (they're all the same)
+            first_result = results[0]
+            logger.info(f"Overall regression: slope={first_result.r_squared:.4f} (Note: r_squared is stored per row but same for all)")
+            
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        logger.error("Please ensure T029c has been executed to generate scaling_raw_logs.json")
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in input file: {e}")
+        sys.exit(1)
     except Exception as e:
-        logging.error(f"Analysis failed: {e}")
+        logger.error(f"Analysis failed: {e}")
         raise
+
 
 if __name__ == "__main__":
     main()
