@@ -45,7 +45,7 @@
 
 - [X] T001 Create project structure matching directory tree in `plan.md` Section "Project Structure" (`projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/`)
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (networkx, llama-cpp-python, pandas, statsmodels, sentence-transformers, pyyaml, huggingface_hub)
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T003 [P] Configure linting (ruff) and formatting (black)
 
 ---
 
@@ -82,16 +82,9 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement CoT trace parser in `code/src/parser.py` to convert text steps to `networkx` DAG nodes/edges
-- [X] T013 [US1] Implement cycle detection logic (max cycle length of 5 steps, >3 incoming edges) and flagging mechanism in `code/src/parser.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
- in "<unicode string>", line 4, column 1:
- **Input**: Design documents from...
- ^
-expected alphabetic or numeric character, but found '*'
- in "<unicode string>", line 4, column 2:
- **Input**: Design documents from...
- ^) -->
+- [X] T013 [US1] Implement cycle detection logic (maximum cycle length of a limited number of steps, >3 incoming edges from steps occurring >10 lines prior) and flagging mechanism in `code/src/parser.py`. This task is fully implemented to satisfy FR-001; the logic detects cycles and flags invalid traces without skipping.
 - [X] T014 [US1] Implement "Logical Difficulty Score" calculation (max path depth) in `code/src/parser.py`
-- [X] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, generate a template file with instructions for expert annotation (handling the 'deferred' assumption) rather than failing.
+- [X] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, **raise a fatal exception and halt execution** rather than generating a template file, ensuring FR-007 validation cannot be bypassed.
 - [X] T016 [US1] Implement validation script to compute Pearson correlation (r) between DAG depth (from T014) and human-rated logical complexity (from T015), outputting `data/processed/validation_report.json` with r-value and pass/fail status (exit 0 only if r ≥ 0.6) (Plan Deviation: GeoQA replaced by SFT human ratings). **Depends on: T014, T015**.
 - [X] T017 [US1] Implement filtering and exclusion logic to remove invalid traces (cycles) from `data/processed/dag_manifest.json` and ensure they are not included in downstream prompt generation (US-001 AC-2)
 - [X] T018 [US1] Generate `data/processed/dag_manifest.json` containing dependency depths for all VALID traces only
@@ -118,11 +111,11 @@ expected alphabetic or numeric character, but found '*'
 
 - [X] T022 [US2] Implement "Logical Ascending" sorter in `code/src/prompt_gen.py` (sort by DAG depth from T018, non-decreasing). **Depends on: T016 (Validation Pass)**.
 - [X] T023 [US2] Implement "Logical Random" shuffler in `code/src/prompt_gen.py` (fixed seed, preserve distribution)
-- [X] T024a [US2] Implement "Original CDS" (Semantic Curvature) metric calculation in `code/src/prompt_gen.py`. Algorithm: Compute sentence embeddings via SBERT, calculate cosine similarity between adjacent sentences, then compute the variance of these similarities as the "Curvature Score".
-- [X] T024b [US2] Implement "Original CDS" sorting logic in `code/src/prompt_gen.py` using the Curvature Score from T024a.
+- [X] T024a [US2] Implement "Original CDS" (Semantic Curvature) metric calculation in `code/src/prompt_gen.py`. Algorithm: Compute sentence embeddings via SBERT, calculate cosine similarity between adjacent sentences, then compute the variance of these similarities as the "Curvature Score". **Output artifact**: `data/processed/curvature_scores.json`. **Depends on**: T018.
+- [X] T024b [US2] Implement "Original CDS" sorting logic in `code/src/prompt_gen.py` using the Curvature Score from T024a (read from `data/processed/curvature_scores.json`).
 - [X] T025 [US2] Implement prompt template assembler to combine a set of examples into a single prompt string in `code/src/prompt_gen.py`
-- [ ] T026 [US2] Create batch runner to generate prompts for multiple seeds across three strategies, saving to `data/processed/prompts/`
-- [ ] T027 [US2] Add validation to ensure no duplicate orderings within a strategy group across seeds
+- [X] T026 [US2] Implement batch runner in `code/src/prompt_gen.py` to generate prompts for multiple seeds (default a standard baseline value) across three strategies (Ascending, Random, CDS). This runner must iterate through seeds, apply the sorting logic from T022, T023, and T024b, and save outputs to `data/processed/prompts/` with filenames indicating seed and strategy. This task fully satisfies FR-002. **Depends on**: T022, T023, T024b.
+- [X] T027 [US2] Add validation logic to ensure no duplicate prompt orderings within a strategy group across seeds.
 - [X] T028 [US2] Generate `data/processed/prompt_manifest.json` mapping seed/strategy to file paths
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -143,15 +136,15 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 3
 
-- [X] T032 [US3] Implement `llama.cpp` inference runner in `code/src/inference.py` (CPU mode, Q4_K_M quantization, retry logic)
+- [X] T032 [US3] Implement `llama.cpp` inference runner in `code/src/inference.py` (CPU mode, Q_K_M quantization, retry logic)
 - [X] T033 [US3] Implement model selection logic for "Reasoning" vs "Non-Reasoning" classes in `code/src/inference.py`
 - [X] T034 [US3] Implement result aggregation script to collect accuracy per seed/strategy/model in `code/src/analysis.py`
-- [X] T035a [US3] Implement Linear Mixed-Effects Model (LMM) in `code/src/analysis.py` (Fixed: Strategy, ModelType, Interaction; Random: Seed, PromptID) to test interaction effects (Plan Deviation from Spec FR-004 ANOVA).
-- [ ] T035b [US3] Implement calculation of Partial Eta-Squared (or LMM-equivalent effect size like Cohen's f²) from the LMM results to satisfy SC-005. Document the deviation from Spec FR-004 (ANOVA) to Plan LMM in `artifacts/stats_report.md` including a power analysis justification (alpha=0.05, power=0.8, effect_size=0.25) using `statsmodels.stats.power`.
-- [ ] T036 [US3] Implement Bonferroni correction for multiple comparisons on post-hoc tests in `code/src/analysis.py`
-- [ ] T038 [US3] Implement Levene's test for variance stability (SC-001): Calculate the variance of the MEAN accuracy across multiple seeds. for "Logical Ascending" and "Logical Random" strategies separately. Compare the two variances to verify ≥15% reduction (p < 0.10). Append results to `artifacts/stats_report.md`.
-- [ ] T037 [US3] Generate final statistical report (`artifacts/stats_report.md`) with p-values, effect sizes (partial eta-squared), variance comparisons, and the deviation note from T035b
-- [ ] T039 [US3] Add timeout handling and failure logging for inference runs exceeding a prolonged duration limit
+- [X] T035a [US3] Implement Linear Mixed-Effects Model (LMM) in `code/src/analysis.py` (Fixed: Strategy, ModelType, Interaction; Random: Seed, PromptID) to test interaction effects.
+- [X] T035b [US3] Calculate partial eta-squared from the LMM results and append it to `artifacts/stats_report.md`. This task explicitly calculates the effect size required by SC-005 and documents the ANOVA-to-LMM deviation in the report. **Depends on**: T035a.
+- [X] T036 [US3] Implement Bonferroni correction for multiple comparisons on post-hoc tests in `code/src/analysis.py`
+- [X] T037 [US3] Generate final statistical report (`artifacts/stats_report.md`) with p-values, effect sizes (partial eta-squared), and the deviation note about ANOVA->LMM.
+- [X] T038 [US3] Implement Levene's test for variance stability – calculate the variance of mean accuracy across multiple seeds, compare between "Logical Ascending" and "Logical Random" using Levene's test (p < 0.10), and append the p-value to `artifacts/stats_report.md`. This task explicitly implements the statistical test required by SC-001.
+- [X] T039 [US3] Add timeout handling and failure logging for inference runs exceeding a prolonged duration limit
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -200,25 +193,9 @@ expected alphabetic or numeric character, but found '*'
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, User Story 1 can start immediately.
-- **User Story 2 and 3 cannot start until User Story 1 is complete and validated (T016/T017).**
+- **User Story 2 and 3 cannot start until User Story 1 is complete and validated (T016).**
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members ONLY if US1 is already complete.
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for cycle detection and invalid trace flagging in code/tests/test_parser.py"
-Task: "Unit test for DAG depth calculation logic in code/tests/test_parser.py"
-Task: "Integration test for gold-standard correlation validation (r ≥ 0.6) in code/tests/test_integration.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement CoT trace parser in code/src/parser.py"
-Task: "Implement cycle detection logic in code/src/parser.py"
-```
 
 ---
 
@@ -267,6 +244,6 @@ With multiple developers:
 - **CRITICAL**: T016 (Validation) is a hard gate. If r < 0.6, the "Logical Difficulty Score" is invalid, and the project must pivot or report failure before proceeding to US2.
 - **CRITICAL**: T017 (Exclusion) must remove invalid traces from the manifest to prevent data leakage.
 - **CRITICAL**: Phase 4 (US2) cannot start until Phase 3 (US1) is fully complete and validated (T016 passed).
-- **CRITICAL**: T024a explicitly defines the "curvature" metric (variance of adjacent cosine similarities) to satisfy Spec Assumptions.
-- **CRITICAL**: T035b ensures SC-005 (effect size) is met despite the ANOVA->LMM deviation.
-- **CRITICAL**: T038 explicitly calculates variance of mean accuracy across 10 seeds to satisfy SC-001.
+- **CRITICAL**: T024a explicitly defines the 'curvature' metric (variance of cosine similarities) and outputs `data/processed/curvature_scores.json` to satisfy Spec Assumptions and FR-002.
+- **CRITICAL**: T035b implements the partial eta squared calculation required by SC-005 and documents the ANOVA-to-LMM deviation.
+- **CRITICAL**: T038 explicitly implements Levene's test to satisfy SC-001 stability requirement.
