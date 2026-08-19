@@ -1,0 +1,38 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or screenshots were provided, so there is no evidence that
+    the required folders (`data/raw/`, `data/processed/`, `code/`, `code/utils/`,
+    `tests/`, `results/paper_figures/`) actually exist in the repository. The implementer
+    must create these directories and show their presence (e.g., via a file tree or
+    `ls` output).
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that `__init__.py` files exist in the `code/`,\
+    \ `code/utils/`, or `tests/` directories; the claim lacks the required artifacts.\
+    \ The implementer must add these three files (non\u2011empty) to satisfy the task."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` entries\
+    \ for Black, a `.ruff.toml` or `ruff.toml`, or related setup scripts) were presented,\
+    \ nor any evidence that ruff and black have been integrated into the project\u2019\
+    s workflow. Without these artifacts, the requirement to configure linting and\
+    \ formatting tools is not satisfied."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration file, script, or documentation defining the required environment\
+    \ variables (e.g., `RANDOM_SEED`, `MODEL_PATH`, etc.) is present. The claim provides\
+    \ no artifact that sets or documents these variables, so the task\u2019s core\
+    \ deliverable is missing."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only a high\u2011level feature description and user\
+    \ stories; there is no code, script, or data implementing the required stratified\
+    \ orthogonalization with a rejection\u2011sampling loop, nor any log or output\
+    \ showing that the |r|\u202F<\u202F0.2 constraint was enforced or that a final\
+    \ correlation coefficient was verified and recorded. The necessary artifact is\
+    \ missing."

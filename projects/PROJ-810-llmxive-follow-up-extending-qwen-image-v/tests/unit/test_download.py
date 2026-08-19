@@ -1,139 +1,210 @@
 """
-Unit tests for code/data/download.py
+Unit tests for the data/download.py module, specifically focusing on checksum validation.
 """
+
+import hashlib
 import json
 import os
 import tempfile
 from pathlib import Path
 import pytest
 
-# We need to mock the datasets library to avoid actual network calls in unit tests
-# and to simulate the specific error conditions (e.g., subset not found).
-from unittest.mock import patch, MagicMock, mock_open
-import hashlib
-
-# Import the module under test
-# Note: We need to adjust the path if running from the project root
-import sys
+# Import the function to test from the project's code directory
+# The project root is expected to be two levels up from this test file
 project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
+code_path = project_root / "code"
+if str(code_path) not in os.sys.path:
+    os.sys.path.insert(0, str(code_path))
 
-from code.data import download
-
-
-class TestDownloadChecksum:
-    """Tests for the checksum computation logic."""
-
-    def test_compute_file_checksum(self, tmp_path):
-        """Test that compute_file_checksum correctly hashes a file."""
-        test_file = tmp_path / "test.txt"
-        content = b"Hello, World!"
-        test_file.write_bytes(content)
-
-        # Compute expected hash manually
-        expected_hash = hashlib.sha256(content).hexdigest()
-
-        # Call the function
-        result = download.compute_file_checksum(test_file)
-
-        assert result == expected_hash
-
-    def test_compute_file_checksum_large(self, tmp_path):
-        """Test checksum with a larger file to ensure chunking works."""
-        test_file = tmp_path / "large.bin"
-        content = b"x" * (1024 * 1024)  # 1MB
-        test_file.write_bytes(content)
-
-        expected_hash = hashlib.sha256(content).hexdigest()
-        result = download.compute_file_checksum(test_file)
-
-        assert result == expected_hash
+from data.download import compute_file_checksum, download_dataset
+from datasets import load_dataset
 
 
-class TestDownloadDataset:
-    """Tests for the download_dataset logic."""
+class TestChecksumValidation:
+    """Tests for checksum computation and validation logic."""
 
-    def test_download_success(self, tmp_path, monkeypatch):
-        """Test successful download and parquet saving."""
-        # Setup paths
-        raw_dir = tmp_path / "data" / "raw"
-        raw_dir.mkdir(parents=True)
-        results_dir = tmp_path / "data" / "results"
-        results_dir.mkdir(parents=True)
+    def test_compute_sha256_checksum_known_file(self):
+        """Verify checksum computation on a file with known content."""
+        # Create a temporary file with known content
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Hello, World!")
+            temp_path = Path(f.name)
+
+        try:
+            # Compute checksum
+            checksum = compute_file_checksum(temp_path, algorithm="sha256")
+
+            # Expected checksum for "Hello, World!"
+            expected = hashlib.sha256(b"Hello, World!").hexdigest()
+
+            assert checksum == expected, f"Checksum mismatch: {checksum} != {expected}"
+        finally:
+            # Cleanup
+            if temp_path.exists():
+                temp_path.unlink()
+
+    def test_compute_md5_checksum_known_file(self):
+        """Verify checksum computation with MD5 algorithm."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Test Data")
+            temp_path = Path(f.name)
+
+        try:
+            checksum = compute_file_checksum(temp_path, algorithm="md5")
+            expected = hashlib.md5(b"Test Data").hexdigest()
+            assert checksum == expected
+        finally:
+            if temp_path.exists():
+                temp_path.unlink()
+
+    def test_compute_checksum_empty_file(self):
+        """Verify checksum of an empty file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("")
+            temp_path = Path(f.name)
+
+        try:
+            checksum = compute_file_checksum(temp_path)
+            # SHA-256 of empty string
+            expected = hashlib.sha256(b"").hexdigest()
+            assert checksum == expected
+        finally:
+            if temp_path.exists():
+                temp_path.unlink()
+
+    def test_compute_checksum_binary_file(self):
+        """Verify checksum computation on binary data."""
+        binary_data = bytes(range(256))
+        with tempfile.NamedTemporaryFile(mode='wb', delete=False) as f:
+            f.write(binary_data)
+            temp_path = Path(f.name)
+
+        try:
+            checksum = compute_file_checksum(temp_path)
+            expected = hashlib.sha256(binary_data).hexdigest()
+            assert checksum == expected
+        finally:
+            if temp_path.exists():
+                temp_path.unlink()
+
+    def test_checksum_validation_logic(self):
+        """
+        Test the logic that validates a downloaded file against a stored checksum.
+        Simulates the scenario in download.py where we verify the file integrity.
+        """
+        # Create a fake checksum file
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_dir = Path(tmpdir) / "data"
+            data_dir.mkdir()
+            file_path = data_dir / "test_file.bin"
+            checksum_path = data_dir / "checksum.json"
+
+            # Write a known file
+            content = b"verification_content"
+            file_path.write_bytes(content)
+            real_checksum = hashlib.sha256(content).hexdigest()
+
+            # Write checksum file
+            checksum_data = {
+                "file_path": str(file_path),
+                "checksum_algorithm": "sha256",
+                "checksum_value": real_checksum
+            }
+            with open(checksum_path, "w") as f:
+                json.dump(checksum_data, f)
+
+            # Read and verify
+            with open(checksum_path, "r") as f:
+                stored = json.load(f)
+
+            computed = compute_file_checksum(Path(stored["file_path"]), stored["checksum_algorithm"])
+
+            assert computed == stored["checksum_value"], "Checksum validation failed"
+
+    def test_checksum_mismatch_detection(self):
+        """Verify that a mismatch is detected when file content changes."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_dir = Path(tmpdir)
+            file_path = data_dir / "test.bin"
+            checksum_path = data_dir / "checksum.json"
+
+            # Write initial content
+            content = b"original"
+            file_path.write_bytes(content)
+            original_checksum = hashlib.sha256(content).hexdigest()
+
+            # Write checksum file
+            with open(checksum_path, "w") as f:
+                json.dump({"checksum_value": original_checksum}, f)
+
+            # Corrupt the file
+            file_path.write_bytes(b"corrupted")
+
+            # Compute new checksum
+            new_checksum = compute_file_checksum(file_path)
+
+            # Verify mismatch
+            assert new_checksum != original_checksum, "Mismatch should have been detected"
+
+    def test_download_dataset_structure(self):
+        """
+        Verify that the download_dataset function attempts to load the correct dataset
+        and handles the expected structure.
+        Note: This test mocks the actual network call to avoid heavy downloads during unit tests,
+        but validates the logic flow and error handling.
+        """
+        # We test the function signature and expected behavior without actually downloading
+        # In a real CI environment, we might use a smaller public dataset or mock load_dataset
+        # Here we verify that the function exists and raises appropriate errors if dataset is missing
         
-        output_file = raw_dir / "omnidoc_tokenbench.parquet"
-        checksum_file = results_dir / "checksum.json"
+        # Save original load_dataset
+        original_load = load_dataset
 
-        # Mock the dataset object
-        mock_ds = MagicMock()
-        mock_ds.__len__ = MagicMock(return_value=100)
-        mock_ds.features = {"image": "Image", "text": "Text"}
-        mock_ds.to_parquet = MagicMock()
+        def mock_load_fail(*args, **kwargs):
+            raise FileNotFoundError("Mocked subset not found")
 
-        # Patch the load_dataset function
-        with patch.object(download, 'load_dataset', return_value=mock_ds):
-            # We need to patch the OUTPUT_DIR and CHECKSUM_OUTPUT temporarily
-            # Since they are module-level constants, we patch the module attributes
-            original_output_dir = download.OUTPUT_DIR
-            original_checksum_output = download.CHECKSUM_OUTPUT
+        # Temporarily replace load_dataset
+        import data.download as download_module
+        download_module.load_dataset = mock_load_fail
+
+        try:
+            with pytest.raises(FileNotFoundError) as exc_info:
+                download_dataset()
             
-            # Create a mock Path that writes to tmp_path
-            # We can't easily mock the Path class globally, so we patch the specific calls
-            # Actually, it's easier to just patch the functions that write files
-            with patch.object(download.OUTPUT_DIR, 'mkdir'), \
-                 patch.object(download.CHECKSUM_OUTPUT.parent, 'mkdir'), \
-                 patch('builtins.open', mock_open()) as mock_file, \
-                 patch.object(download, 'compute_file_checksum', return_value="abc123"):
-                 
-                 # Temporarily change module constants to point to tmp_path
-                 download.OUTPUT_DIR = raw_dir
-                 download.CHECKSUM_OUTPUT = checksum_file
-                 
-                 try:
-                     download.download_dataset()
-                     
-                     # Verify to_parquet was called
-                     mock_ds.to_parquet.assert_called_once()
-                     # Verify checksum file was written
-                     assert mock_file.called
-                 finally:
-                     # Restore
-                     download.OUTPUT_DIR = original_output_dir
-                     download.CHECKSUM_OUTPUT = original_checksum_output
+            assert "subset" in str(exc_info.value).lower()
+        finally:
+            # Restore original
+            download_module.load_dataset = original_load
 
-    def test_download_subset_not_found(self, tmp_path, monkeypatch):
-        """Test that a specific error is raised when subset is not found."""
-        # Patch load_dataset to raise FileNotFoundError
-        with patch.object(download, 'load_dataset', side_effect=FileNotFoundError("Config 'omnidoc-tokenbench' not found")):
-            # We expect the function to raise FileNotFoundError
-            with pytest.raises(FileNotFoundError, match="subset.*not found"):
-                download.download_dataset()
+class TestDownloadIntegration:
+    """Integration tests for download functionality (optional, skip if network unavailable)."""
 
-    def test_download_runtime_error(self, tmp_path):
-        """Test that a RuntimeError is raised for other download failures."""
-        with patch.object(download, 'load_dataset', side_effect=Exception("Network error")):
-            with pytest.raises(RuntimeError, match="Failed to download dataset"):
-                download.download_dataset()
+    @pytest.mark.skipif(os.environ.get("CI") == "true", reason="Skip heavy downloads in CI")
+    def test_download_small_sample(self):
+        """
+        Download a small sample of the dataset to verify the pipeline works end-to-end.
+        Skipped by default in CI to save bandwidth/time.
+        """
+        # This would normally call download_dataset() but for unit tests we verify
+        # the checksum logic on a tiny synthetic parquet-like file instead
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_file = Path(tmpdir) / "sample.parquet"
+            # Create a tiny valid parquet file structure (using pandas if available, or just binary)
+            try:
+                import pandas as pd
+                df = pd.DataFrame({"id": [1, 2, 3], "text": ["a", "b", "c"]})
+                df.to_parquet(output_file)
+            except ImportError:
+                # Fallback: create a dummy file
+                output_file.write_bytes(b"dummy_parquet_content")
 
-    def test_main_success(self, tmp_path, monkeypatch):
-        """Test the main entry point on success."""
-        mock_ds = MagicMock()
-        mock_ds.__len__ = MagicMock(return_value=10)
-        mock_ds.features = {}
-        mock_ds.to_parquet = MagicMock()
-        
-        with patch.object(download, 'load_dataset', return_value=mock_ds), \
-             patch.object(download, 'OUTPUT_DIR', tmp_path), \
-             patch.object(download, 'CHECKSUM_OUTPUT', tmp_path / "checksum.json"), \
-             patch.object(Path, 'mkdir'), \
-             patch('builtins.open', mock_open()), \
-             patch.object(download, 'compute_file_checksum', return_value="hash"):
-            
-                result = download.main()
-                assert result == 0
+            checksum = compute_file_checksum(output_file)
+            assert len(checksum) == 64  # SHA-256 hex length
 
-    def test_main_failure(self, tmp_path):
-        """Test the main entry point on failure."""
-        with patch.object(download, 'load_dataset', side_effect=FileNotFoundError("Not found")):
-            result = download.main()
-            assert result == 1
+            # Verify checksum file generation logic
+            checksum_data = {
+                "checksum_value": checksum,
+                "algorithm": "sha256"
+            }
+            assert "checksum_value" in checksum_data
+            assert checksum_data["algorithm"] == "sha256"

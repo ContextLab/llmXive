@@ -1,302 +1,105 @@
 """
-Unit tests for rule derivation logic in code/models/derive_rules.py.
-
-These tests verify that the rule derivation logic correctly extracts hard thresholds
-from model importance scores and generates deterministic rule-based heuristics.
+Unit tests for rule derivation logic (Task T020).
 """
 
-import pytest
+import os
+import sys
+import json
+import tempfile
+import unittest
+from unittest.mock import patch, MagicMock
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
-import sys
-import os
+from sklearn.tree import DecisionTreeClassifier
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models.derive_rules import (
-    derive_entropy_threshold,
-    derive_pos_rule,
-    derive_position_threshold,
-    derive_perplexity_threshold,
-    combine_rules,
-    RuleSet
+    extract_feature_importance,
+    extract_decision_rules,
+    derive_hard_thresholds,
+    main
 )
 
+class TestRuleDerivation(unittest.TestCase):
 
-class TestDeriveEntropyThreshold:
-    """Tests for entropy threshold derivation."""
+    def setUp(self):
+        # Create a simple mock model
+        X = np.array([[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0]])
+        y = np.array([0, 0, 1, 1])
+        self.model = DecisionTreeClassifier(max_depth=2, random_state=42)
+        self.model.fit(X, y)
+        self.feature_names = ["feature_a", "feature_b"]
 
-    def test_derive_entropy_threshold_basic(self):
-        """Test basic entropy threshold derivation."""
-        # Create sample data: high entropy tokens are more likely to be selected
-        data = pd.DataFrame({
-            'entropy': [1.0, 2.0, 3.0, 4.0, 5.0],
-            'rtpurbo_selected': [0, 0, 1, 1, 1]
-        })
+    def test_extract_feature_importance(self):
+        """Test that feature importances are extracted correctly."""
+        importances = extract_feature_importance(self.model, self.feature_names)
+        self.assertIsInstance(importances, dict)
+        self.assertEqual(len(importances), 2)
+        self.assertIn("feature_a", importances)
+        self.assertIn("feature_b", importances)
+        self.assertTrue(all(isinstance(v, float) for v in importances.values()))
+        # Sum should be close to 1.0
+        self.assertAlmostEqual(sum(importances.values()), 1.0, places=5)
 
-        threshold = derive_entropy_threshold(data, percentile=50)
+    def test_extract_decision_rules(self):
+        """Test that decision rules are extracted."""
+        rules = extract_decision_rules(self.model, self.feature_names)
+        self.assertIsInstance(rules, list)
+        self.assertGreater(len(rules), 0)
+        # Check structure of rules
+        for rule in rules:
+            self.assertIn("type", rule)
+            if rule["type"] != "leaf":
+                self.assertIn("feature", rule)
+                self.assertIn("operator", rule)
+                self.assertIn("threshold", rule)
 
-        # With 50th percentile, threshold should be around the median
-        assert isinstance(threshold, float)
-        assert 2.0 <= threshold <= 4.0
+    def test_derive_hard_thresholds(self):
+        """Test aggregation of rules from multiple models."""
+        # Create two simple models
+        models = [self.model, self.model]  # Use same model twice for simplicity
+        thresholds = derive_hard_thresholds(models, self.feature_names)
+        
+        self.assertIsInstance(thresholds, dict)
+        # Should have thresholds for features used by the model
+        self.assertGreater(len(thresholds), 0)
+        
+        for feat, rule in thresholds.items():
+            self.assertIn("threshold", rule)
+            self.assertIn("operator", rule)
+            self.assertIn("count", rule)
+            self.assertIsInstance(rule["threshold"], float)
+            self.assertIsInstance(rule["count"], int)
 
-    def test_derive_entropy_threshold_percentile(self):
-        """Test entropy threshold derivation with different percentiles."""
-        data = pd.DataFrame({
-            'entropy': [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
-            'rtpurbo_selected': [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
-        })
+    @patch('models.derive_rules.load_models')
+    @patch('models.derive_rules.pd.read_csv')
+    @patch('models.derive_rules.json.dump')
+    @patch('models.derive_rules.os.makedirs')
+    def test_main_execution(self, mock_makedirs, mock_json_dump, mock_read_csv, mock_load_models):
+        """Test the main function execution flow."""
+        # Setup mocks
+        mock_model = MagicMock(spec=DecisionTreeClassifier)
+        mock_model.feature_importances_ = np.array([0.6, 0.4])
+        mock_load_models.return_value = [mock_model, mock_model]
+        
+        mock_df = pd.DataFrame({"feature_a": [1, 2], "feature_b": [3, 4], "rtpurbo_label": [0, 1]})
+        mock_read_csv.return_value = mock_df
 
-        # 25th percentile
-        threshold_25 = derive_entropy_threshold(data, percentile=25)
-        assert threshold_25 <= 5.0
-
-        # 75th percentile
-        threshold_75 = derive_entropy_threshold(data, percentile=75)
-        assert threshold_75 >= 5.0
-
-    def test_derive_entropy_threshold_empty_data(self):
-        """Test entropy threshold derivation with empty data."""
-        data = pd.DataFrame(columns=['entropy', 'rtpurbo_selected'])
-
-        with pytest.raises(ValueError):
-            derive_entropy_threshold(data)
-
-    def test_derive_entropy_threshold_no_selection(self):
-        """Test entropy threshold derivation when no tokens are selected."""
-        data = pd.DataFrame({
-            'entropy': [1.0, 2.0, 3.0],
-            'rtpurbo_selected': [0, 0, 0]
-        })
-
-        with pytest.raises(ValueError):
-            derive_entropy_threshold(data)
-
-    def test_derive_entropy_threshold_all_selected(self):
-        """Test entropy threshold derivation when all tokens are selected."""
-        data = pd.DataFrame({
-            'entropy': [1.0, 2.0, 3.0],
-            'rtpurbo_selected': [1, 1, 1]
-        })
-
-        threshold = derive_entropy_threshold(data)
-        assert isinstance(threshold, float)
-
-
-class TestDerivePosRule:
-    """Tests for POS rule derivation."""
-
-    def test_derive_pos_rule_basic(self):
-        """Test basic POS rule derivation."""
-        data = pd.DataFrame({
-            'pos_tag': ['NN', 'VB', 'ADJ', 'NN', 'VB', 'ADJ'],
-            'rtpurbo_selected': [1, 1, 0, 1, 1, 0]
-        })
-
-        rule = derive_pos_rule(data)
-
-        assert isinstance(rule, dict)
-        assert 'selected_tags' in rule
-        assert 'excluded_tags' in rule
-
-    def test_derive_pos_rule_single_tag(self):
-        """Test POS rule derivation with single tag."""
-        data = pd.DataFrame({
-            'pos_tag': ['NN', 'NN', 'NN'],
-            'rtpurbo_selected': [1, 1, 1]
-        })
-
-        rule = derive_pos_rule(data)
-
-        assert 'NN' in rule['selected_tags']
-
-    def test_derive_pos_rule_empty_data(self):
-        """Test POS rule derivation with empty data."""
-        data = pd.DataFrame(columns=['pos_tag', 'rtpurbo_selected'])
-
-        with pytest.raises(ValueError):
-            derive_pos_rule(data)
-
-    def test_derive_pos_rule_mixed_tags(self):
-        """Test POS rule derivation with mixed tags."""
-        data = pd.DataFrame({
-            'pos_tag': ['NN', 'VB', 'ADJ', 'ADV', 'PRON'],
-            'rtpurbo_selected': [1, 1, 0, 0, 0]
-        })
-
-        rule = derive_pos_rule(data)
-
-        assert len(rule['selected_tags']) > 0
-        assert len(rule['excluded_tags']) >= 0
-
-
-class TestDerivePositionThreshold:
-    """Tests for position threshold derivation."""
-
-    def test_derive_position_threshold_basic(self):
-        """Test basic position threshold derivation."""
-        data = pd.DataFrame({
-            'position': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-            'rtpurbo_selected': [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
-        })
-
-        threshold = derive_position_threshold(data, percentile=50)
-
-        assert isinstance(threshold, float)
-        assert 40 <= threshold <= 60
-
-    def test_derive_position_threshold_percentile(self):
-        """Test position threshold derivation with different percentiles."""
-        data = pd.DataFrame({
-            'position': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-            'rtpurbo_selected': [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
-        })
-
-        threshold_25 = derive_position_threshold(data, percentile=25)
-        threshold_75 = derive_position_threshold(data, percentile=75)
-
-        assert threshold_25 <= threshold_75
-
-    def test_derive_position_threshold_empty_data(self):
-        """Test position threshold derivation with empty data."""
-        data = pd.DataFrame(columns=['position', 'rtpurbo_selected'])
-
-        with pytest.raises(ValueError):
-            derive_position_threshold(data)
-
-
-class TestDerivePerplexityThreshold:
-    """Tests for perplexity threshold derivation."""
-
-    def test_derive_perplexity_threshold_basic(self):
-        """Test basic perplexity threshold derivation."""
-        data = pd.DataFrame({
-            'perplexity': [1.0, 2.0, 3.0, 4.0, 5.0],
-            'rtpurbo_selected': [0, 0, 1, 1, 1]
-        })
-
-        threshold = derive_perplexity_threshold(data, percentile=50)
-
-        assert isinstance(threshold, float)
-        assert 2.0 <= threshold <= 4.0
-
-    def test_derive_perplexity_threshold_empty_data(self):
-        """Test perplexity threshold derivation with empty data."""
-        data = pd.DataFrame(columns=['perplexity', 'rtpurbo_selected'])
-
-        with pytest.raises(ValueError):
-            derive_perplexity_threshold(data)
-
-
-class TestCombineRules:
-    """Tests for combining multiple rules into a rule set."""
-
-    def test_combine_rules_basic(self):
-        """Test basic rule combination."""
-        entropy_rule = {'threshold': 3.0, 'direction': 'greater'}
-        pos_rule = {'selected_tags': ['NN', 'VB'], 'excluded_tags': ['ADJ']}
-        position_rule = {'threshold': 50.0, 'direction': 'greater'}
-        perplexity_rule = {'threshold': 4.0, 'direction': 'greater'}
-
-        rule_set = combine_rules(
-            entropy=entropy_rule,
-            pos=pos_rule,
-            position=position_rule,
-            perplexity=perplexity_rule
+        # Run main
+        result = main(
+            models_dir="fake_dir",
+            data_path="fake_data.csv",
+            output_path="fake_output.json"
         )
 
-        assert isinstance(rule_set, RuleSet)
-        assert rule_set.entropy_threshold == 3.0
-        assert 'NN' in rule_set.pos_selected_tags
-        assert rule_set.position_threshold == 50.0
-        assert rule_set.perplexity_threshold == 4.0
+        self.assertEqual(result, 0)
+        mock_load_models.assert_called_once()
+        mock_read_csv.assert_called_once()
+        mock_json_dump.assert_called_once()
+        mock_makedirs.assert_called_once()
 
-    def test_combine_rules_none_values(self):
-        """Test rule combination with None values."""
-        rule_set = combine_rules(
-            entropy=None,
-            pos={'selected_tags': ['NN'], 'excluded_tags': []},
-            position=None,
-            perplexity=None
-        )
-
-        assert isinstance(rule_set, RuleSet)
-        assert rule_set.entropy_threshold is None
-        assert rule_set.position_threshold is None
-        assert rule_set.perplexity_threshold is None
-
-    def test_combine_rules_empty_pos(self):
-        """Test rule combination with empty POS rule."""
-        rule_set = combine_rules(
-            entropy={'threshold': 3.0, 'direction': 'greater'},
-            pos=None,
-            position={'threshold': 50.0, 'direction': 'greater'},
-            perplexity={'threshold': 4.0, 'direction': 'greater'}
-        )
-
-        assert isinstance(rule_set, RuleSet)
-        assert len(rule_set.pos_selected_tags) == 0
-        assert len(rule_set.pos_excluded_tags) == 0
-
-
-class TestRuleSet:
-    """Tests for the RuleSet dataclass."""
-
-    def test_ruleset_creation(self):
-        """Test RuleSet creation."""
-        rule_set = RuleSet(
-            entropy_threshold=3.0,
-            pos_selected_tags=['NN', 'VB'],
-            pos_excluded_tags=['ADJ'],
-            position_threshold=50.0,
-            perplexity_threshold=4.0
-        )
-
-        assert rule_set.entropy_threshold == 3.0
-        assert len(rule_set.pos_selected_tags) == 2
-        assert rule_set.position_threshold == 50.0
-        assert rule_set.perplexity_threshold == 4.0
-
-    def test_ruleset_defaults(self):
-        """Test RuleSet with default values."""
-        rule_set = RuleSet()
-
-        assert rule_set.entropy_threshold is None
-        assert len(rule_set.pos_selected_tags) == 0
-        assert len(rule_set.pos_excluded_tags) == 0
-        assert rule_set.position_threshold is None
-        assert rule_set.perplexity_threshold is None
-
-    def test_ruleset_serialization(self):
-        """Test RuleSet serialization to dict."""
-        rule_set = RuleSet(
-            entropy_threshold=3.0,
-            pos_selected_tags=['NN', 'VB'],
-            pos_excluded_tags=['ADJ'],
-            position_threshold=50.0,
-            perplexity_threshold=4.0
-        )
-
-        rule_dict = rule_set.to_dict()
-
-        assert isinstance(rule_dict, dict)
-        assert rule_dict['entropy_threshold'] == 3.0
-        assert rule_dict['position_threshold'] == 50.0
-
-    def test_ruleset_from_dict(self):
-        """Test RuleSet deserialization from dict."""
-        rule_dict = {
-            'entropy_threshold': 3.0,
-            'pos_selected_tags': ['NN', 'VB'],
-            'pos_excluded_tags': ['ADJ'],
-            'position_threshold': 50.0,
-            'perplexity_threshold': 4.0
-        }
-
-        rule_set = RuleSet.from_dict(rule_dict)
-
-        assert rule_set.entropy_threshold == 3.0
-        assert 'NN' in rule_set.pos_selected_tags
-        assert rule_set.position_threshold == 50.0
+if __name__ == "__main__":
+    unittest.main()

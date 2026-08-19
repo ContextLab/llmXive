@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -45,7 +45,7 @@
 
 - [ ] T001 Create project directories matching `plan.md` structure: `data/raw/`, `data/processed/`, `code/`, `code/utils/`, `tests/`, `results/paper_figures/`
 - [ ] T002 Create `__init__.py` files in `code/`, `code/utils/`, and `tests/` directories
-- [ ] T003 Initialize Python 3.11 project with `requirements.txt` (torch, transformers, datasets, networkx, lifelines, scikit-learn, pandas, numpy, pytest) with **explicit version pinning** (e.g., `torch==2.1.0`) for reproducibility
+- [X] T003 Initialize Python 3.11 project with `requirements.txt` (torch, transformers, datasets, networkx, lifelines, scikit-learn, pandas, numpy, pytest) with **explicit version pinning** (e.g., `torch==2.1.0`) for reproducibility
 - [ ] T004 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -56,9 +56,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Implement `code/utils/logging_utils.py` for standardized experiment logging and checksum generation
-- [ ] T006 [P] Implement `code/utils/graph_utils.py` containing DAG validation (acyclic check), `nesting_depth` (longest path), `branching_factor` (mean in-degree), and **longest_path** calculators
-- [ ] T007 [P] [US1] Unit test for `code/utils/graph_utils.py` DAG validation and metric calculation in `tests/test_graph_utils.py`
+- [X] T005 [P] Implement `code/utils/logging_utils.py` for standardized experiment logging and checksum generation
+- [X] T006 [P] Implement `code/utils/graph_utils.py` containing DAG validation (acyclic check), `nesting_depth` (longest path), `branching_factor` (mean in-degree), and **longest_path** calculators
+- [X] T007 [P] [US1] Unit test for `code/utils/graph_utils.py` DAG validation and metric calculation in `tests/test_graph_utils.py`
 - [ ] T008 Configure environment variables for random seeds and model paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -75,15 +75,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Contract test for `code/graph_generator.py` output schema in `tests/test_graph_generator.py` (validate against `LogicalPuzzle` entity in `data-model.md`)
-- [ ] T010 [P] [US1] Integration test for stratified orthogonalization (depth vs branching correlation < 0.2) in `tests/test_graph_generator.py` (Input: N=500, depth 3-6, branching 1-5; Assertion: |r| < 0.2)
-- [ ] T011 [P] [US1] Unit test for `code/utils/graph_utils.py` DAG validation and metric calculation in `tests/test_graph_utils.py`
+- [X] T009 [P] [US1] Contract test for `code/graph_generator.py` output schema in `tests/test_graph_generator.py` (validate against `LogicalPuzzle` entity in `data-model.md`)
+- [X] T010 [P] [US1] Integration test for stratified orthogonalization (depth vs branching correlation < 0.2) in `tests/test_graph_generator.py` (Input: N=500, depth 3-6, branching 1-5; Assertion: |r| < 0.2)
+- [X] T011 [P] [US1] Unit test for `code/utils/graph_utils.py` DAG validation and metric calculation in `tests/test_graph_utils.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/graph_generator.py` using `networkx` to generate Directed Acyclic Graphs (DAGs) with target `nesting_depth` and `branching_factor`
+- [X] T012 [US1] Implement `code/graph_generator.py` using `networkx` to generate Directed Acyclic Graphs (DAGs) with target `nesting_depth` and `branching_factor`
 - [ ] T013 [US1] Implement **Stratified Orthogonalization** logic: Rejection sampling loop to ensure |r| < 0.2 between depth and branching factors; **Verify and log final correlation coefficient**
-- [ ] T014 [US1] Implement **Deterministic Template Engine** in `code/graph_generator.py` to map DAG structure to logical text prompts (no LLM involved)
+- [X] T014 [US1] Implement **Deterministic Template Engine** in `code/graph_generator.py` to map DAG structure to logical text prompts (no LLM involved)
 - [ ] T015 [US1] Implement **Randomized Path Perturbation** (FR-007) to select a valid ground-truth path different from the longest path; **Calculate the cycle rate (discarded/total attempts) and write the cycle rate to `data/validation_metrics.json` with the literal status marker '[deferred]' as required by SC-005**
 - [ ] T016 [US1] Write generated instances to `data/raw/logical_puzzles.jsonl` with metadata (`instance_id`, `text`, `ground_truth_path`, `nesting_depth`, `branching_factor`, `graph_structure`)
 - [ ] T017 [US1] Implement checksum generation for `data/raw/logical_puzzles.jsonl` and record in `data/checksums.txt`
@@ -166,8 +166,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -232,9 +232,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Gen)
-   - Developer B: User Story 2 (Execution)
-   - Developer C: User Story 3 (Analysis)
+ - Developer A: User Story 1 (Data Gen)
+ - Developer B: User Story 2 (Execution)
+ - Developer C: User Story 3 (Analysis)
 3. Stories complete and integrate independently
 
 ---

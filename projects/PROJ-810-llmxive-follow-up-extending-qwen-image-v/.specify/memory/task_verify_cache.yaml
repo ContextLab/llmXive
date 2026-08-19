@@ -9,20 +9,6 @@ T000:
     \ logic may be missing. The implementer must execute the script to generate the\
     \ JSON with the fields `N_required`, `effect_size`, `power`, `N_audit`, and `status`,\
     \ and ensure the status logic is present."
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, dataset processing, model training, evaluation metrics, plots, or any\
-    \ other artifact required by the user stories (latent space classification results,\
-    \ PCA visualisation, permutation test statistics, or zero\u2011shot editing evaluation)\
-    \ is present. The claim of completion lacks any tangible evidence, so the task\
-    \ requirements are not satisfied."
-T003c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file content was provided; the conversation contains only the
-    task description and project specifications, with no artifact showing the required
-    ignore rules for Python/ML files. The required file is missing.
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,13 +16,6 @@ T005:
     \ Black and Ruff settings, `.flake8` file, or CI integration scripts) are present.\
     \ The evidence provided only contains a high\u2011level feature specification\
     \ unrelated to configuring ruff/flake8/black, so the required setup is missing."
-T006:
-  c: false
-  h: 6bc126c018eed9f03a3e8176ae2a528e353fd4bc8e017141b655638e575794cb
-  r: The repository contains a `download.py` script that appears to implement the
-    required logic, but the expected output files `data/raw/omnidoc_tokenbench.parquet`
-    and `data/results/checksum.json` are absent, so the deliverables are not present.
-    The task is therefore not fully satisfied.
 T008:
   c: false
   h: a457534a8c0ba6ea102b8097a6d77a5f8824afdd1ca71531fb9bc0959a9cd3c4
@@ -53,10 +32,16 @@ T008b:
     \ implement the heuristic label derivation. Moreover, the required output file\
     \ `data/interim/heuristic_labels.csv` is absent. Both the script and the CSV artifact\
     \ need to be completed for the task to be satisfied."
-T014:
+T016:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/cache/`\
-    \ directory (or any files within it) was provided. The implementer did not supply\
-    \ the directory structure or any placeholder files, so the task\u2019s core deliverable\
-    \ is missing."
+  h: 4497345501dc3444c706a82e82929da3299029a5a1ac7a68f9ebccb20947d622
+  r: "The provided unit\u2011test file exists but is truncated and imports `models.vae_loader`,\
+    \ yet the required `code/models/vae_loader.py` file is missing, so the test cannot\
+    \ be executed. The missing implementation and incomplete test need to be added\
+    \ for the task to be satisfied."
+T032:
+  c: false
+  h: 77a068efaef8597a21f082895b6b6f497a5205c24ce0de97d03662de302fb975
+  r: "The required deliverable `data/manual/verification_queue.csv` is missing from\
+    \ the repository, so no evidence of the fallback logic or sampled entries is present.\
+    \ Without this file the task\u2019s core requirement is not satisfied."

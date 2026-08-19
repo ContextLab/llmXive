@@ -1,31 +1,47 @@
 """
-Pytest configuration and shared fixtures.
+Pytest configuration and fixtures for the llmXive project.
 """
 import os
 import sys
 import pytest
-import tempfile
-import shutil
+import logging
+from pathlib import Path
 
-# Add project root to path for imports
-@pytest.fixture(autouse=True)
-def setup_path():
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    if project_root not in sys.path:
-        sys.path.insert(0, project_root)
-    yield
-    # Cleanup if needed
+# Add project root to path if not already present
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+@pytest.fixture(scope="session")
+def project_root():
+    """Return the project root path."""
+    return PROJECT_ROOT
+
+@pytest.fixture(scope="session")
+def data_dir(project_root):
+    """Return the data directory path."""
+    return project_root / "data"
+
+@pytest.fixture(scope="session")
+def code_dir(project_root):
+    """Return the code directory path."""
+    return project_root / "code"
+
+@pytest.fixture(scope="session")
+def tests_dir(project_root):
+    """Return the tests directory path."""
+    return project_root / "tests"
 
 @pytest.fixture
-def temp_dir():
+def temp_dir(tmp_path):
     """Create a temporary directory for test artifacts."""
-    tmp = tempfile.mkdtemp()
-    yield tmp
-    shutil.rmtree(tmp, ignore_errors=True)
+    return tmp_path
 
-@pytest.fixture
-def sample_data_dir(temp_dir):
-    """Create a temporary data directory structure."""
-    data_dir = os.path.join(temp_dir, "data")
-    os.makedirs(data_dir, exist_ok=True)
-    return data_dir
+@pytest.fixture(autouse=True)
+def setup_logging(caplog):
+    """Configure logging for tests."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    caplog.set_level(logging.INFO)

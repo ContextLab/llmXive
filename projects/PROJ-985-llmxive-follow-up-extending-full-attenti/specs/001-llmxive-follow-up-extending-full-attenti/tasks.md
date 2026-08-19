@@ -41,7 +41,7 @@
 - [ ] T005 Implement memory-efficient data loader in `code/lib/data_loader.py` that streams RULER dataset chunks, enforces GB RAM limit, and includes a **unit test asserting peak memory usage < 7GB on a synthetic Moderate-sized stream**; log memory profile to `data/logs/memory_profile.csv`
 - [X] T006 Create base data entities (`TokenUnit`, `AttentionMap`, `StaticHeuristic`) in `code/lib/entities.py`
 - [X] T007 [P] [Optional] Implement attention map visualization and debugging utilities in `code/lib/attention_utils.py`
-- [ ] T008 [P] [Optional] Setup logging infrastructure to track pipeline stages and memory usage in `code/lib/logging_config.py`
+- [X] T008 [P] [Optional] Setup logging infrastructure to track pipeline stages and memory usage in `code/lib/logging_config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,12 +60,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement RULER dataset downloader with streaming support in `code/data/download.py` (FR-001). **Constraint**: Must use `datasets.load_dataset(..., streaming=True)` and **fail loudly** if the real source is unreachable; **NO** synthetic fallbacks or mock data generation.
+- [X] T011 [US1] Implement RULER dataset downloader with streaming support in `code/data/download.py` (FR-001). **Constraint**: Must use `datasets.load_dataset(..., streaming=True)` and **fail loudly** if the real source is unreachable; **NO** synthetic fallbacks or mock data generation.
 - [ ] T012 [US1] Implement frozen Llama-3-8B attention map generator and RTPurbo indexer in `code/data/extract_ground_truth.py` (FR-002). **Requirements**: Load model with `torch.no_grad()` and `requires_grad=False`; **verify model.requires_grad is False**; save attention maps to `data/intermediate/attention_maps.h5`. **Constraint**: Must use CPU-only quantization (e.g., low-bit) or strictly sampled subset to fit constrained RAM resources. **NO** external offloading to Kaggle or other runners.
 - [X] T013 [US1] Implement static feature computation (Entropy, POS via spaCy, Position, KenLM perplexity) in `code/data/compute_features.py` (FR-003)
-- [ ] T014 [US1] Implement dataset merger to join ground truth labels (from T012) with static features (from T013) into `data/intermediate/merged_dataset.csv`
+- [X] T014 [US1] Implement dataset merger to join ground truth labels (from T012) with static features (from T013) into `data/intermediate/merged_dataset.csv`
 - [X] T015 [US1] Add edge case handling for ambiguous tokens (special chars, emojis) in `code/data/compute_features.py` (Edge Case 1)
-- [ ] T016 [US1] Add anomaly detection for documents with zero RTPurbo tokens in `code/data/extract_ground_truth.py` (Edge Case 2). **Requirement**: Explicitly flag and **exclude them from the final statistical comparison** to prevent skewing results. **Output**: Log anomalies to `data/logs/anomalies.csv` and exclude rows from `merged_dataset.csv`.
+- [ ] T016 [US1] Add anomaly detection for documents with zero RTPurbo tokens in `code/data/extract_ground_truth.py` (Edge Case 2). **Requirement**: Explicitly flag and **exclude them from the final statistical comparison** to prevent skewing results. **Output**: Log anomalies to `data/logs/anomalies.csv` and exclude rows from `merged_dataset.csv`. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. **T014 must complete before T019 starts.**
 
@@ -80,16 +80,16 @@
 ### Tests for User Story 2 (OPTIONAL)
 
 - [X] T017 [P] [US2] Unit test for rule derivation logic in `tests/unit/test_rule_derivation.py`
-- [ ] T018 [P] [US2] Integration test for training pipeline with 5 seeds in `tests/integration/test_training.py`
+- [X] T018 [P] [US2] Integration test for training pipeline with 5 seeds in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement CPU-based classifier training (Decision Tree/Logistic Regression) with **independent random seeds** in `code/models/train_static.py` (FR-004). **Input**: `data/intermediate/merged_dataset.csv` (output of T014). **Output**: trained models saved to `data/intermediate/models/seeds/`.
+- [X] T019 [US2] Implement CPU-based classifier training (Decision Tree/Logistic Regression) with **independent random seeds** in `code/models/train_static.py` (FR-004). **Input**: `data/intermediate/merged_dataset.csv` (output of T014). **Output**: trained models saved to `data/intermediate/models/seeds/`.
 - [ ] T019b [US2] Implement evaluation of the trained static models on the test set to generate **performance scores** (precision/recall) in `code/models/evaluate_static.py` (FR-004). **Output**: `data/intermediate/static_eval_scores.json`.
 - [ ] T019c [US2] Implement aggregation logic to compute **mean and variance** of the static evaluation scores and save to `data/results/static_aggregated.json`. **Schema**: `{mean_metric, std_metric, n_seeds, seed_values: []}` (FR-004).
-- [ ] T020 [US2] Implement rule derivation logic to extract hard thresholds from model importance in `code/models/derive_rules.py` (FR-004)
-- [ ] T021 [US2] Implement static heuristic application script to reconstruct RTPurbo tokens using only rules in `code/models/apply_heuristic.py` (FR-004)
-- [ ] T022 [US2] Add metrics calculation (Precision/Recall) for static predictor against ground truth in `code/lib/metrics.py` (FR-004)
+- [X] T020 [US2] Implement rule derivation logic to extract hard thresholds from model importance in `code/models/derive_rules.py` (FR-004)
+- [X] T021 [US2] Implement static heuristic application script to reconstruct RTPurbo tokens using only rules in `code/models/apply_heuristic.py` (FR-004)
+- [X] T022 [US2] Add metrics calculation (Precision/Recall) for static predictor against ground truth in `code/lib/metrics.py` (FR-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -105,7 +105,7 @@
 
 **⚠️ CRITICAL ORDERING**: T023 and T024 MUST be written and verified to fail before any implementation tasks (T025-T032) begin. These are NOT parallel tasks; they are sequential prerequisites to ensure the contract is defined before implementation.
 
-- [ ] T023 [US3] Contract test for statistical analysis output format in `tests/contract/test_stats_output.py`
+- [X] T023 [US3] Contract test for statistical analysis output format in `tests/contract/test_stats_output.py`
 - [ ] T024 [US3] Integration test for full baseline comparison in `tests/integration/test_baselines.py`
 
 ### Implementation for User Story 3

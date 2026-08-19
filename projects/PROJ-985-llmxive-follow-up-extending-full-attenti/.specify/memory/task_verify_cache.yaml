@@ -25,24 +25,31 @@ T004:
     \ complete."
 T005:
   c: false
-  h: 0c64c8b7ae504992abb5005ff74de4f7f91c39530107a530bb9fe289b447f1b0
-  r: "The provided `code/lib/data_loader.py` is truncated and does not show a complete\
-    \ implementation (e.g., the memory\u2011limit check and yielding logic are cut\
-    \ off). No unit test file asserting peak memory\u202F<\u202F7\u202FGB is present,\
-    \ and the required `data/logs/memory_profile.csv` does not exist. The task\u2019\
-    s core deliverables are therefore missing."
+  h: eb31f55d424e086c017fbfd497b82178a0e6b6d1902bbd85ca4d19e09376b399
+  r: "The repository contains a partially\u2011implemented `code/lib/data_loader.py`\
+    \ that streams the RULER dataset and logs memory usage, but the required unit\
+    \ test asserting peak memory <\u202F7\u202FGB is absent, and the expected log\
+    \ file `data/logs/memory_profile.csv` does not exist. Consequently the task\u2019\
+    s full requirements are not satisfied."
 T012:
   c: false
-  h: 887fc86b693a787d74643de73db1b81619c1899f3f8d89f6c06a0e726ae7178e
-  r: "The provided `extract_ground_truth.py` is incomplete (truncated) and contains\
-    \ no code that generates and writes attention maps to `data/intermediate/attention_maps.h5`\
-    \ (the file is missing). Additionally, the model loading does not wrap the operation\
-    \ in a `torch.no_grad()` context as required. The task\u2019s core output is therefore\
-    \ not produced."
+  h: 31303b5838a2a73e32985a2cd9739936f507c7a7cc5733a77ed8de0250296963
+  r: The provided `extract_ground_truth.py` does not contain code that generates and
+    writes attention maps to `data/intermediate/attention_maps.h5`, and it lacks the
+    required verification that all model parameters have `requires_grad=False` (or
+    a `torch.no_grad()` context around inference). Moreover, the expected H5 file
+    is absent from the repository. The task therefore remains unfinished.
 T016:
   c: false
-  h: 9a4e06af63d52da30a85768d0e21f9fcbd0a98c027510b69f1938bd2cb88c38a
-  r: "The repository lacks the required `data/logs/anomalies.csv` file, and the provided\
-    \ `extract_ground_truth.py` snippet is truncated before any logic that detects\
-    \ zero\u2011token cases, flags them, excludes them from the final merge, or writes\
-    \ to the CSV. Consequently the task\u2019s core requirement is not satisfied."
+  h: 4dac3fa00c17712f49d1dd0ec7accbd6d01ecbae4252db60486f70cbba206f73
+  r: "The provided `extract_ground_truth.py` does not show any logic that detects\
+    \ documents with zero RTPurbo tokens, flags them, excludes them from `merged_dataset.csv`,\
+    \ or writes entries to `data/logs/anomalies.csv`. Moreover, the required `data/logs/anomalies.csv`\
+    \ file is absent. The task\u2019s core requirements are therefore unmet."
+T019b:
+  c: false
+  h: dcf87961c4d4f7141a22a5a53d7102d2723362ef80ba1d75033cd81a37e1ec43
+  r: "The repository contains `code/models/evaluate_static.py`, but the required output\
+    \ file `data/intermediate/static_eval_scores.json` is absent, indicating the evaluation\
+    \ script has not been executed (or does not produce the expected JSON). Without\
+    \ this file the task\u2019s deliverable is incomplete."

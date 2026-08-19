@@ -22,23 +22,23 @@ description: "Task list template for feature implementation"
 - **Single project**: `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/`, `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/` at repository root
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -51,10 +51,10 @@ description: "Task list template for feature implementation"
 - [ ] T003a-results [P] Create `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/data/results/` directory
 - [ ] T003a-manual [P] Create `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/data/manual/` directory
 - [ ] T003a-cache [P] Create `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/cache/` directory
-- [ ] T003b [P] Create and execute `scripts/init_git.sh`. **Logic**: Script must run `git init` and verify `.git/HEAD` exists. **Deliverable**: `scripts/init_git.sh` and `.git/` directory.
+- [X] T003b [P] Create and execute `scripts/init_git.sh`. **Logic**: Script must run `git init` and verify `.git/HEAD` exists. **Deliverable**: `scripts/init_git.sh` and `.git/` directory.
 - [ ] T003c [P] Create `.gitignore`. **Logic**: Must include patterns `data/raw/`, `data/interim/`, `__pycache__/`, `*.pyc`, `.env`, and `data/results/*.log`. **Deliverable**: `.gitignore` file.
 - [ ] T004 [P] Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`. **Logic**: Content MUST match the plan's Technical Context exactly: `torch==2.2.0+cpu`, `transformers==4.40.0`, `datasets==2.18.0`, `scikit-learn==1.4.0`, `opencv-python-headless==4.9.0.80`, `paddleocr==2.7.3`, `pyyaml==6.0.1`, `pandas==2.2.1`, `numpy==1.26.4`, `matplotlib==3.8.3`, `seaborn==0.13.2`, `pillow==10.2.0`, `pytest==8.1.1`, `pytest-cov==5.0.0`. **Deliverable**: Valid `requirements.txt`.
-- [ ] T005 [P] Configure linting and formatting. **Logic**: Create `pyproject.toml` containing `[tool.black]` and `[tool.ruff]` sections with default project settings. **Deliverable**: `pyproject.toml` with `[tool.black]` and `[tool.ruff]` sections.
+- [X] T005 [P] Configure linting and formatting. **Logic**: Create `pyproject.toml` containing `[tool.black]` and `[tool.ruff]` sections with default project settings. **Deliverable**: `pyproject.toml` with `[tool.black]` and `[tool.ruff]` sections.
 
 ---
 
@@ -85,10 +85,10 @@ description: "Task list template for feature implementation"
 - [ ] T007-impl Implement `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/models/vae_loader.py` -> **CPU-Only VAE Loading** (Task 1.0). **Logic**: Implement CPU-only loading logic for `Qwen/Qwen-Image-VAE-2.0 ` ensuring no CUDA/GPU dependencies are invoked. **Constraint**: **MUST explicitly call `model.to('cpu')` and `torch.no_grad()`** before any inference. **Sub-task**: Implement `torch.cuda.is_available()` assertion and fallback mechanism to reduce N if CPU memory limits are exceeded. **Deliverable**: `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/models/vae_loader.py` with `load_vae_cpu()` function that enforces CPU device mapping and no_grad context.
 - [ ] T008-impl Implement `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/preprocess.py` -> **Ground-Truth Label Extraction** (Task 1.1). **Logic**: Extract "text"/"image" labels directly from OmniDoc-TokenBench ground-truth bounding box annotations using columns `bbox_x_min, bbox_y_min, bbox_width, bbox_height, modality_label`. **Deliverable**: `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/preprocess.py` (Ground-Truth extraction function). **CRITICAL**: This is the primary source for evaluation in FR-003.
 - [ ] T008b-impl Implement `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/preprocess.py` -> **Heuristic Label Derivation** (Task 1.2). **Logic**: Derive "text"/"image" labels using OCR density (`char_count / (bbox_width * bbox_height) > 0.05`) and aspect ratio (`width / height > 2.0`) from **ground-truth bounding box fields** (bbox_width, bbox_height). **Unit Definition**: `char_count` is the number of characters detected by OCR within the bounding box; the A threshold of a small magnitude is characters per pixel.. **Constraint**: **MUST rely on `paddleocr==2.7.3 `** as defined in `requirements.txt` (T004) for reproducibility. **Data Isolation**: This artifact (`heuristic_labels.csv`) is strictly for logging and sanity checks. It MUST NOT be read by T022-impl or T028-impl. **Deliverable**: `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/preprocess.py` (Heuristic derivation function).
-- [ ] T015 [P] [US1] Unit test for `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/download.py` checksum validation in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/unit/test_download.py`
+- [X] T015 [P] [US1] Unit test for `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/download.py` checksum validation in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/unit/test_download.py`
 - [ ] T016 [P] [US1] Unit test for `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/models/vae_loader.py` CPU fallback logic in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/unit/test_vae_loader.py`
-- [ ] T017 [P] [US1] Unit test for `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/preprocess.py` region extraction in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/unit/test_preprocess.py`
-- [ ] T018 [P] [US1] Integration test for end-to-end encoding pipeline on sample data in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/integration/test_encoding_pipeline.py`
+- [X] T017 [P] [US1] Unit test for `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/preprocess.py` region extraction in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/unit/test_preprocess.py`
+- [X] T018 [P] [US1] Integration test for end-to-end encoding pipeline on sample data in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/integration/test_encoding_pipeline.py`
 
 ### Sub-phase 2.2: Sequential Validation (Must run after 2.1)
 - [ ] T008-run [Feasibility] **Re-executed**: Run Ground-Truth Label Extraction. **Logic**: **Requires T008-impl completion**. **Deliverable**: `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/data/interim/ground_truth_labels.parquet`.
@@ -169,8 +169,8 @@ description: "Task list template for feature implementation"
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -236,9 +236,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

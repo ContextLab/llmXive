@@ -1,70 +1,46 @@
-# Byte-compiled / optimized / DLL files
+# Data artifacts
+data/raw/
+data/interim/
+data/results/*.log
+data/manual/*.csv
+
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Virtual environments
-env/
+.venv/
 venv/
 ENV/
-.venv/
-*.egg-info/
-dist/
-build/
+env/
 
-# IDE and Editor files
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
-.project
-.classpath
-
-# OS generated files
-.DS_Store
-.DS_Store?
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# Project specific data artifacts (Raw, Interim, Processed)
-# These are large binary files and should not be committed to git
-data/raw/
-data/interim/
-data/processed/
-data/results/
-data/manual/
-!data/manual/.gitkeep
-
-# Cache directories
-code/data/cache/
-.cache/
-
-# Logs
-*.log
-logs/
 
 # Environment variables
 .env
-.env.local
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-
-# Testing
-.pytest_cache/
-coverage.xml
-htmlcov/
-.coverage
-.coverage.*
-
-# Misc
-*.bak
-*.tmp
-.coverage
-.mypy_cache/
-.ruff_cache/
+# OS
+.DS_Store
+Thumbs.db
