@@ -1,3 +1,19 @@
+T001c:
+  c: false
+  h: b04d46f8a6cae6cc9bcb0fdb33d25f92e85b8b120fe266d732b03e6fff86ea2b
+  r: 'The provided `src/ingestion/feasibility_gate_enforcer.py` is present but ends
+    with a truncated line (`print(f"Feasibility Gate Failed: Unknown status value
+    ''{status_value}''.", file=sys.st`) causing a syntax error, so the script is not
+    a functional implementation of the required logic. The file must be completed
+    (e.g., finish the `print` call, close the function, and optionally call `sys.exit(main())`).'
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or other evidence were provided showing that the required\
+    \ folders (`src/`, `tests/`, `data/raw/`, `data/processed/`, `models/`, `templates/`)\
+    \ actually exist; without such proof the claim cannot be confirmed. The implementer\
+    \ must supply a file\u2011system snapshot, `tree` output, or similar artifact\
+    \ demonstrating the created directory structure."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,11 +35,3 @@ T007:
   r: "All four required schema files exist in `data/contracts/`, are non\u2011empty,\
     \ and contain plausible JSON\u2011Schema definitions for feature matrix, model\
     \ output, linkage method, and variance decomposition as the task requested."
-T015b:
-  c: false
-  h: 31c5741dd50d728d6c44a7e056257e47140f9152e94d98fd3f740377a7d5f218
-  r: The `tests/contract/test_linkage_method.py` file exists but is truncated (e.g.,
-    the `test_schema_validates_example` function ends abruptly and contains a syntax
-    error). Moreover, the required `linkage_method.yaml` file is missing, so the contract
-    test cannot be run successfully. The implementation needs a complete, syntactically
-    correct test file and the corresponding schema/YAML artifact.

@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to predict plant disease susceptibility by integrating genomic sequencing data (NCBI SRA) and environmental metadata (ERA5-Land/NOAA). The system ingests raw reads, aligns them to reference genomes, calls SNPs, merges them with environmental variables, imputes missing values using k-NN (per Constitution Principle VI), and trains Random Forest and SVM models. The plan strictly adheres to the 70/15/15 stratified split, performs permutation tests for statistical validation, and ensures all results are reproducible on a CPU-only GitHub Actions runner.
+This project implements a computational pipeline to predict plant disease susceptibility by integrating genomic sequencing data (NCBI SRA) and environmental metadata (ERA5-Land/NOAA). The system ingests raw reads, aligns them to reference genomes, calls SNPs, merges them with environmental variables, imputes missing values using k-NN (per Constitution Principle VI), and trains Random Forest and SVM models. The plan strictly adheres to the /15/15 stratified split, performs permutation tests for statistical validation, and ensures all results are reproducible on a CPU-only GitHub Actions runner.
 
 **Critical Feasibility Note**: This project is contingent on the existence of real, open data with linked genomic, environmental, and independent phenotypic disease labels. If such data cannot be identified and fetched, the project will halt at the **Feasibility Gate** (Phase 0.5) and reframe its output as a "Pipeline Validation" report only, with no scientific claims regarding disease prediction.
 
@@ -127,7 +127,7 @@ data/
 
 ### Phase 3: Statistical Validation
 *   **Goal**: Validate significance.
-*   **Action**: Permutation test (sufficient number of permutations). Sensitivity analysis (thresholds around 0.50).
+*   **Action**: Permutation test (sufficient number of permutations). Sensitivity analysis (thresholds around a midpoint).
 *   **Output**: `validation_report.json` (p-value, FPR/FNR variation).
 
 ### Phase 4: Variance Decomposition (SC-003)
@@ -137,7 +137,7 @@ data/
 
 ## Success Criteria (Revised)
 
-- **SC-001**: Model performance (AUC-ROC) is measured against the random baseline (AUC = 0.5) with **95% Confidence Intervals** reported. Statistical significance is determined if the lower bound of the CI > 0.5 AND p-value < 0.05.
+- **SC-001**: Model performance (AUC-ROC) is measured against the random baseline (AUC = 0.5) with **% Confidence Intervals** reported. Statistical significance is determined if the lower bound of the CI > 0.5 AND p-value < 0.05.
 - **SC-002**: Statistical significance (p-value) measured against a predetermined alpha level.
 - **SC-003**: Feature importance rankings measured against **total variance explained** (reported as percentage).
 - **SC-004**: Sensitivity analysis results measured across thresholds.
