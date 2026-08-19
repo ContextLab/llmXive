@@ -1,3 +1,17 @@
+"""
+T021d: Execute quantitative matching logic per Spec FR-009.
+
+Compares LOC/CC of candidate repos against a baseline to filter and exclude
+repos failing the ±15% tolerance.
+
+Inputs:
+  - data/raw/repo_metrics.json (Output of T021c)
+  - data/raw/baseline_metrics.json (Hardcoded baseline per spec)
+
+Outputs:
+  - data/raw/repo_selection_rubric.json (Accepted repos)
+  - data/raw/repo_matching_report.json (Excluded repos, stats)
+"""
 import json
 import os
 import sys
@@ -5,148 +19,178 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Configure logging to file, ensuring directory exists
-LOG_DIR = Path("data/logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+# Configure logging to stdout for execution visibility
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOG_DIR / "matching_report.log"),
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+TOLERANCE_PERCENTAGE = 0.15  # ±15%
+INPUT_METRICS_PATH = "data/raw/repo_metrics.json"
+BASELINE_METRICS_PATH = "data/raw/baseline_metrics.json"
+OUTPUT_RUBRIC_PATH = "data/raw/repo_selection_rubric.json"
+OUTPUT_REPORT_PATH = "data/raw/repo_matching_report.json"
+
 def load_json_file(path: str) -> Dict[str, Any]:
-    """Load a JSON file from the given path."""
-    logger.info(f"Loading JSON file: {path}")
+    """Load JSON from a file path."""
     if not os.path.exists(path):
         raise FileNotFoundError(f"Required input file not found: {path}")
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def calculate_baseline_stats(metrics_data: List[Dict[str, Any]]) -> Dict[str, float]:
-    """
-    Calculate baseline statistics (mean LOC and mean CC) from the provided metrics.
-    This serves as the reference point for the ±15% tolerance check.
-    """
-    if not metrics_data:
-        logger.warning("No metrics data provided for baseline calculation.")
-        return {"loc_mean": 0.0, "cc_mean": 0.0}
+def save_json_file(path: str, data: Any) -> None:
+    """Save data to a JSON file, ensuring directory exists."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Saved output to: {path}")
 
-    loc_values = [m.get("loc", 0) for m in metrics_data if m.get("loc") is not None]
-    cc_values = [m.get("cc", 0) for m in metrics_data if m.get("cc") is not None]
-
-    loc_mean = sum(loc_values) / len(loc_values) if loc_values else 0.0
-    cc_mean = sum(cc_values) / len(cc_values) if cc_values else 0.0
-
-    logger.info(f"Baseline LOC Mean: {loc_mean:.2f}, CC Mean: {cc_mean:.2f}")
-    return {"loc_mean": loc_mean, "cc_mean": cc_mean}
-
-def evaluate_matching_quality(
-    metrics_data: List[Dict[str, Any]],
-    baseline: Dict[str, float],
-    tolerance_pct: float = 15.0
-) -> Dict[str, Any]:
-    """
-    Evaluate matching quality by comparing each repo's LOC/CC against the baseline.
-    Calculates the mean difference and the percentage of repos within the tolerance.
-    IMPORTANT: This is descriptive only. No repos are excluded.
-    """
-    if not baseline.get("loc_mean") or not baseline.get("cc_mean"):
-        logger.error("Baseline statistics are missing or zero. Cannot evaluate matching.")
-        return {}
-
-    loc_baseline = baseline["loc_mean"]
-    cc_baseline = baseline["cc_mean"]
-
-    within_loc_tolerance = 0
-    within_cc_tolerance = 0
-    total_repos = len(metrics_data)
-    diffs = []
-
-    for repo in metrics_data:
-        loc = repo.get("loc", 0)
-        cc = repo.get("cc", 0)
-        
-        # Calculate absolute percentage difference
-        loc_diff_pct = abs((loc - loc_baseline) / loc_baseline * 100) if loc_baseline > 0 else 0
-        cc_diff_pct = abs((cc - cc_baseline) / cc_baseline * 100) if cc_baseline > 0 else 0
-
-        diffs.append({
-            "repo_id": repo.get("repo_id", "unknown"),
-            "loc_diff_pct": loc_diff_pct,
-            "cc_diff_pct": cc_diff_pct
-        })
-
-        if loc_diff_pct <= tolerance_pct:
-            within_loc_tolerance += 1
-        if cc_diff_pct <= tolerance_pct:
-            within_cc_tolerance += 1
-
-    mean_loc_diff = sum(d["loc_diff_pct"] for d in diffs) / total_repos if total_repos > 0 else 0
-    mean_cc_diff = sum(d["cc_diff_pct"] for d in diffs) / total_repos if total_repos > 0 else 0
-
-    result = {
-        "baseline": baseline,
-        "tolerance_threshold_pct": tolerance_pct,
-        "total_repos_analyzed": total_repos,
-        "mean_loc_difference_pct": mean_loc_diff,
-        "mean_cc_difference_pct": mean_cc_diff,
-        "repos_within_loc_tolerance_pct": (within_loc_tolerance / total_repos * 100) if total_repos > 0 else 0,
-        "repos_within_cc_tolerance_pct": (within_cc_tolerance / total_repos * 100) if total_repos > 0 else 0,
-        "individual_differences": diffs,
-        "note": "This report is for descriptive statistics only. Matching exclusion is replaced by ANCOVA (T021g, T036a)."
+def calculate_baseline_stats(baseline_data: Dict[str, Any]) -> Dict[str, float]:
+    """Calculate mean LOC and CC from baseline repos."""
+    repos = baseline_data.get("repos", [])
+    if not repos:
+        raise ValueError("Baseline metrics file contains no repos.")
+    
+    locs = [r["loc"] for r in repos]
+    ccs = [r["cc"] for r in repos]
+    
+    return {
+        "mean_loc": sum(locs) / len(locs),
+        "mean_cc": sum(ccs) / len(ccs)
     }
 
-    logger.info(f"Matching evaluation complete. Mean LOC diff: {mean_loc_diff:.2f}%, Mean CC diff: {mean_cc_diff:.2f}%")
-    return result
+def evaluate_matching_quality(
+    candidate_metrics: Dict[str, Any],
+    baseline_stats: Dict[str, float]
+) -> Dict[str, Any]:
+    """
+    Compare candidate repos against baseline stats.
+    Filter out repos where LOC or CC deviates > 15% from baseline mean.
+    
+    Returns:
+      Dictionary containing:
+        - accepted_repos: List of repos passing tolerance
+        - excluded_repos: List of repos failing tolerance with reasons
+        - mean_difference_loc: Mean absolute % difference of accepted repos
+        - mean_difference_cc: Mean absolute % difference of accepted repos
+        - total_accepted: Count
+        - total_excluded: Count
+    """
+    candidates = candidate_metrics.get("repos", [])
+    mean_loc = baseline_stats["mean_loc"]
+    mean_cc = baseline_stats["mean_cc"]
+    
+    accepted = []
+    excluded = []
+    loc_diffs = []
+    cc_diffs = []
+    
+    for repo in candidates:
+        repo_id = repo.get("repo_id")
+        loc = repo.get("loc")
+        cc = repo.get("cc")
+        
+        if loc is None or cc is None:
+            excluded.append({
+                "repo_id": repo_id,
+                "reason": "Missing LOC or CC metrics"
+            })
+            continue
+        
+        # Calculate percentage deviation
+        loc_deviation = abs(loc - mean_loc) / mean_loc
+        cc_deviation = abs(cc - mean_cc) / mean_cc
+        
+        is_accepted = True
+        reasons = []
+        
+        if loc_deviation > TOLERANCE_PERCENTAGE:
+            is_accepted = False
+            reasons.append(f"LOC deviation {loc_deviation:.2%} > {TOLERANCE_PERCENTAGE:.0%}")
+        
+        if cc_deviation > TOLERANCE_PERCENTAGE:
+            is_accepted = False
+            reasons.append(f"CC deviation {cc_deviation:.2%} > {TOLERANCE_PERCENTAGE:.0%}")
+        
+        if is_accepted:
+            accepted.append(repo)
+            loc_diffs.append(loc_deviation)
+            cc_diffs.append(cc_deviation)
+        else:
+            excluded.append({
+                "repo_id": repo_id,
+                "loc": loc,
+                "cc": cc,
+                "reasons": reasons
+            })
+    
+    # Calculate mean differences for accepted repos
+    mean_loc_diff = sum(loc_diffs) / len(loc_diffs) if loc_diffs else 0.0
+    mean_cc_diff = sum(cc_diffs) / len(cc_diffs) if cc_diffs else 0.0
+    
+    return {
+        "accepted_repos": accepted,
+        "excluded_repos": excluded,
+        "mean_difference_loc": mean_loc_diff,
+        "mean_difference_cc": mean_cc_diff,
+        "total_accepted": len(accepted),
+        "total_excluded": len(excluded),
+        "baseline_stats": baseline_stats,
+        "tolerance_applied": TOLERANCE_PERCENTAGE
+    }
 
 def main():
-    """
-    Main entry point for T021d: Execute quantitative matching logic.
-    Reads repo_metrics.json, calculates baseline, evaluates matching quality,
-    and writes repo_matching_report.json.
-    """
-    logger.info("Starting T021d: Quantitative Matching Logic")
-
-    # Define paths relative to project root
-    project_root = Path(__file__).parent.parent
-    input_path = project_root / "data" / "raw" / "repo_metrics.json"
-    output_path = project_root / "data" / "raw" / "repo_matching_report.json"
-
+    """Main entry point for T021d execution."""
+    logger.info("Starting T021d: Repository Matching & Filtering")
+    
+    # 1. Load Input Data
     try:
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Load input data
-        metrics_data = load_json_file(str(input_path))
-        if not isinstance(metrics_data, list):
-            metrics_data = [metrics_data]
-
-        # Calculate baseline stats
-        baseline = calculate_baseline_stats(metrics_data)
-
-        # Evaluate matching quality
-        report = evaluate_matching_quality(metrics_data, baseline)
-
-        # Write output
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(report, f, indent=2)
-
-        logger.info(f"Successfully wrote matching report to {output_path}")
-        return 0
-
+        candidate_metrics = load_json_file(INPUT_METRICS_PATH)
+        logger.info(f"Loaded candidate metrics from {INPUT_METRICS_PATH}")
+        
+        baseline_metrics = load_json_file(BASELINE_METRICS_PATH)
+        logger.info(f"Loaded baseline metrics from {BASELINE_METRICS_PATH}")
     except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        return 1
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in input file: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error during matching report generation: {e}", exc_info=True)
-        return 1
+        logger.error(str(e))
+        logger.error("T021d cannot proceed without input files. Ensure T021c has run.")
+        sys.exit(1)
+    
+    # 2. Calculate Baseline Statistics
+    baseline_stats = calculate_baseline_stats(baseline_metrics)
+    logger.info(f"Baseline Stats: Mean LOC={baseline_stats['mean_loc']:.2f}, Mean CC={baseline_stats['mean_cc']:.2f}")
+    
+    # 3. Evaluate Matching & Filter
+    results = evaluate_matching_quality(candidate_metrics, baseline_stats)
+    
+    # 4. Generate Outputs
+    
+    # Output A: repo_selection_rubric.json (Accepted repos only)
+    rubric_output = {
+        "accepted_repos": results["accepted_repos"],
+        "criteria": f"LOC/CC within ±{int(TOLERANCE_PERCENTAGE*100)}% of baseline",
+        "baseline_stats": baseline_stats
+    }
+    save_json_file(OUTPUT_RUBRIC_PATH, rubric_output)
+    
+    # Output B: repo_matching_report.json (Full report including excluded)
+    report_output = {
+        "summary": {
+            "total_accepted": results["total_accepted"],
+            "total_excluded": results["total_excluded"],
+            "mean_difference_loc": results["mean_difference_loc"],
+            "mean_difference_cc": results["mean_difference_cc"]
+        },
+        "excluded_repos": results["excluded_repos"],
+        "tolerance_percentage": TOLERANCE_PERCENTAGE
+    }
+    save_json_file(OUTPUT_REPORT_PATH, report_output)
+    
+    logger.info("T021d completed successfully.")
+    logger.info(f"Accepted: {results['total_accepted']}, Excluded: {results['total_excluded']}")
+    
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

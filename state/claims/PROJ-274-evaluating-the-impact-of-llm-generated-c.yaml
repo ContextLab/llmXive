@@ -1285,23 +1285,6 @@
   updated_at: '2026-08-18T13:29:35Z'
 - artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
   attempts: 1
-  canonical: Recruit 15 to 20 simulated volunteers for pilot study
-  claim_id: c_7ac9072b
-  context: 'T073a [US1] **Mock Recruitment**: Recruit N=15-20 simulated volunteers
-    for the pilot study. Verify eligibility criteria (developer background) and obtain
-    informed consent (simulated).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Recruit N=15-20 simulated volunteers for the pilot study.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-18T13:34:34Z'
-- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
-  attempts: 1
   canonical: Verify developer background eligibility and obtain simulated informed
     consent
   claim_id: c_be67c816
@@ -2781,3 +2764,678 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T13:58:53Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Use Faker library with seed 42
+  claim_id: c_918ede3f
+  context: '**Mechanism**: Use Faker library with seed=42. **Output**: `data/raw/recruitment_log.json`
+    containing a list of participants.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Faker library with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:27:15Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify recruitment log contains 15 to 20 rows
+  claim_id: c_5a1c98f9
+  context: '**Verification**: Assert file exists, contains N rows (15 <= N <= 20),
+    and each row has `participant_id` (UUID v4 format) and `consent_hash` (SHA-256
+    of consent document).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert file exists, contains N rows (15 <= N <= 20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:27:55Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Filter and exclude repos failing 15% tolerance
+  claim_id: c_25817965
+  context: "T021d [P] [UPDATED] Execute quantitative matching logic per Spec FR-009:\
+    \ compare LOC/CC of candidate repos against a baseline (`data/raw/baseline_metrics.json`)\
+    \ to **filter and exclude** repos failing the \xB115% tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filter and exclude repos failing the \xB115% tolerance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:27:55Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Implement codebase fetching with limit of 500 files
+  claim_id: c_53f56b80
+  context: "- [ ] T024 [P] Implement codebase fetching (\u2264500 files) and commit\
+    \ pinning logic in `code/repo_utils.py` (DEPENDS on T021d)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement codebase fetching (\u2264500 files)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:27:56Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Load phi-2 quantized int4 model from TheBloke/phi-2-GGUF on API failure
+  claim_id: c_db1ed0c7
+  context: 'T028 [US2] [UPDATED] Implement fallback logic to local CPU-optimized model.
+    If API fails, load ''phi (quantized int4)'' using `llama-cpp-python` (specific
+    model ID: `TheBloke/phi-2-GGUF`).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If API fails, load ''phi (quantized int4)'' using `llama-cpp-python`
+    (specific model ID: `TheBloke/phi-2-GGUF`).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:28:14Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify number of generated docs equals number of repos
+  claim_id: c_fc5f0295
+  context: '**Verification**: Assert `len(list(data/raw/llm_docs/*.md)) == N_repos`.
+    Verify filenames follow `^repo_[0-9a-f]{8}_docs\.md$` convention.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_number_of_generated_docs_equals_number_of_repos
+  kind: entity_fact
+  raw_text: Verify `len(list(data/raw/llm_docs/*.md)) == N_repos`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:28:30Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Calculate cognitive load proxy as 0.5 z(question count) plus 0.5 z(time
+    deviation)
+  claim_id: c_6267ccdd
+  context: 'T016b [US1/3] [NEW] Implement **Post-Hoc Cognitive Load Calculation**:
+    Calculate the `cognitive_load_proxy` composite score for each participant using
+    the global mean/std from `data/raw/session_stats.json` (T015) and the raw `clarification_question_count`
+    from `data/processed/cleaned_dataset.csv`. **Formula**: `0.5 * z(question_count)
+    + 0.5 * z(time_deviation)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculate the `cognitive_load_proxy` composite score using the formula:
+    `0.5 * z(question_count) + 0.5 * z(time_deviation)`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:28:57Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Generate 95% confidence intervals for Cohen d using bootstrap resampling
+  claim_id: c_d426d6b2
+  context: 'T084 [P] [US3] Implement **Robustness Check: Bootstrap Confidence Intervals**:
+    Generate 95% confidence intervals for the effect sizes (Cohen''s d) using a bootstrap
+    resampling method with a sufficient number of iterations to provide a more reliable
+    estimate of effect magnitude given the small sample size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 95% confidence intervals for the effect sizes (Cohen's d) using
+    a bootstrap resampling method.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:28:57Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify wall clock time less than 21600 seconds and peak RSS less than
+    7GB
+  claim_id: c_248377ed
+  context: 'T044 [P] Verify **Analysis Phase** execution time < 6 hours and RAM <
+    7GB using the active monitoring context manager from T010. Verification: Assert
+    `wall_clock_time < 21600` and `peak_RSS < 7GB` in the logged analysis report.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_wall_clock_time_less_than_21600_seconds_and_peak_RSS
+  kind: magnitude
+  raw_text: Verify `wall_clock_time < 21600` and `peak_RSS < 7GB` in the logged analysis
+    report.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:29:22Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify total time per repo less than 900 seconds
+  claim_id: c_09cf78a5
+  context: 'T045a [P] Verify **Generation Phase** execution time < 15 minutes per
+    repo (US-2 constraint) using `scripts/measure_generation_resources.py`. Verification:
+    Assert `total_time_per_repo < 900s` (measured from API call initiation to file
+    write completion) and log `context_window_usage`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_time_per_repo_less_than_900_seconds
+  kind: magnitude
+  raw_text: Verify `total_time_per_repo < 900s` (measured from API call initiation
+    to file write completion).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:29:38Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Simulate maximum load of 20 participants and 5 repos
+  claim_id: c_28b04efc
+  context: T087 [P] [Setup] Create a **Resource Stress Test Script** `scripts/stress_test_resources.py`
+    that simulates the maximum expected load (N=20 participants, 5 repos) and measures
+    peak RAM and wall-clock time for the entire pipeline (Data Collection -> Generation
+    -> Analysis).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulate the maximum expected load (N=20 participants, 5 repos).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:29:49Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 3
+  canonical: Recruit 15 to 20 simulated volunteers for pilot study
+  claim_id: c_7ac9072b
+  context: 'T073a [US1] **Mock Recruitment**: Recruit N=15-20 simulated volunteers
+    for the pilot study. Verify eligibility criteria (developer background) and obtain
+    informed consent (simulated).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit N=15-20 simulated volunteers for the pilot study.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:30:47Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Analysis phase execution time less than 6 hours
+  claim_id: c_0cf606c1
+  context: T044 [P] Verify **Analysis Phase** execution time < 6 hours and RAM < 7GB
+    using the active monitoring context manager from T010.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_phase_execution_time_less_than_6_hours
+  kind: magnitude
+  raw_text: Execute the analysis phase within a wall-clock time limit of 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:31:27Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Analysis phase RAM usage less than 7GB
+  claim_id: c_911d2d73
+  context: 'T044 [P] Verify **Analysis Phase** execution time < 6 hours and RAM <
+    7GB using the active monitoring context manager from T010. Verification: Assert
+    `wall_clock_time < 21600` and `peak_RSS < 7GB` in the logged analysis report.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_phase_RAM_usage_less_than_7GB
+  kind: magnitude
+  raw_text: Limit analysis phase RAM usage to less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:31:49Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Generation phase execution time less than 15 minutes per repository
+  claim_id: c_a64a8f05
+  context: 'T045a [P] Verify **Generation Phase** execution time < 15 minutes per
+    repo (US-2 constraint) using `scripts/measure_generation_resources.py`. Verification:
+    Assert `total_time_per_repo < 900s` (measured from API call initiation to file
+    write completion) and log `context_window_usage`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generation_phase_execution_time_less_than_15_minutes_per_rep
+  kind: magnitude
+  raw_text: Limit generation phase execution time to less than 15 minutes per repository.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:32:25Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 10000 permutations
+  claim_id: c_f6ea0f54
+  context: 'T083 [P] [US3] Implement **Robustness Check: Permutation Test**: Implement
+    a non-parametric permutation test (10,000 permutations) as a fallback for the
+    primary ANCOVA if normality assumptions are severely violated (Shapiro-Wilk p
+    < 0.01).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 10,000 permutations for the non-parametric permutation test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:32:45Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Generate 95 percent confidence intervals for effect sizes via bootstrap
+  claim_id: c_6cb4e821
+  context: 'T084 [P] [US3] Implement **Robustness Check: Bootstrap Confidence Intervals**:
+    Generate 95% confidence intervals for the effect sizes (Cohen''s d) using a bootstrap
+    resampling method with a sufficient number of iterations to provide a more reliable
+    estimate of effect magnitude given the small sample size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 95% confidence intervals for the effect sizes using bootstrap
+    resampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:32:46Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: GPU offload triggered if phi model latency exceeds 300 seconds per document
+  claim_id: c_9a3aacf4
+  context: 'T088 [P] [US2] Implement **GPU Offload Detection Logic** in `code/doc_generation.py`:
+    If the CPU-only execution of the `phi` model (int4) fails or exceeds a latency
+    threshold (e.g., 300s per doc), automatically trigger a flag `NEEDS_GPU=True`
+    and log the specific error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger GPU offload if CPU-only execution of the phi model exceeds a latency
+    threshold of 300 seconds per document.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:33:09Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Pilot study sample size is 15 to 20
+  claim_id: c_107f7b23
+  context: 'T056a [P] [US3] Implement **Power Calculation Logic**: Calculate achieved
+    statistical power for the observed effect size given N=15-20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot study uses a sample size of N=15-20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:33:29Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Resource stress test simulates 20 participants and 5 repositories
+  claim_id: c_806fde09
+  context: T087 [P] [Setup] Create a **Resource Stress Test Script** `scripts/stress_test_resources.py`
+    that simulates the maximum expected load (N=20 participants, 5 repos) and measures
+    peak RAM and wall-clock time for the entire pipeline (Data Collection -> Generation
+    -> Analysis).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study simulates a maximum expected load of 20 participants and 5 repositories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:33:45Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Use hardcoded HuggingFace commit hash for phi-2 GGUF model
+  claim_id: c_4b37e245
+  context: 'T028 [US2] [UPDATED] Implement fallback logic to local CPU-optimized model.
+    If API fails, load ''phi (quantized int4)'' using `llama-cpp-python` (specific
+    model ID: `TheBloke/phi-2-GGUF`). **CRITICAL**: This fallback is for the MODEL,
+    NOT for synthetic data. If the REAL repository fetch fails, the task must raise
+    an exception (see T055). **Pinned Hash**: Use a specific, hardcoded HuggingFace
+    commit hash (e.g., `HF_COMMIT_HASH = "7d3f..."`) for the phi-2 GGUF model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a specific, hardcoded HuggingFace commit hash for the phi-2 GGUF model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:33:57Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: recruit 15 to 20 simulated volunteers for pilot study
+  claim_id: c_b57b3ffc
+  context: 'Phase 12: Execution & Pilot Data Collection. T073a [US1] Mock Recruitment:
+    Recruit N=15-20 simulated volunteers...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T073a Recruit N=15-20 simulated volunteers for the pilot study.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:39:11Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: proceed with pilot study if recruitment count is less than 15
+  claim_id: c_7343777e
+  context: 'Phase 12: Execution & Pilot Data Collection. T073a... Gate: If recruited
+    count < 15, log a WARNING...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proceed_with_pilot_study_if_recruitment_count_is_less_than_1
+  kind: magnitude
+  raw_text: T073a Verify eligibility criteria and obtain informed consent... If recruited
+    count < 15, log a WARNING... and allow study to continue in pilot mode.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:39:50Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: run mock onboarding experiment across LLM Human and None conditions
+  claim_id: c_bc36c7ef
+  context: 'Phase 12: Execution & Pilot Data Collection. T075a [US1] Execute Mock
+    Study: Run the mock onboarding experiment with simulated participants across all
+    three conditions...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_mock_onboarding_experiment_across_LLM_Human_and_None_con
+  kind: entity_fact
+  raw_text: T075a Run the mock onboarding experiment with simulated participants across
+    all three conditions (LLM, Human, None).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:40:17Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: verify total time per repository is less than 900 seconds
+  claim_id: c_a2044890
+  context: 'Phase 7: Validation & Resource Checks. T045a [P] Verify... total_time_per_repo
+    < 900s...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_time_per_repository_is_less_than_900_seconds
+  kind: magnitude
+  raw_text: T045a Verify... total_time_per_repo < 900s.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:40:29Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: exclude repos failing 15 percent tolerance
+  claim_id: c_c19d307e
+  context: "Phase 2: Repository Selection & Rubric Validation. T021d [UPDATED] Execute\
+    \ quantitative matching logic... filter and exclude repos failing the \xB115%\
+    \ tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T021d... filter and exclude repos failing the \xB115% tolerance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:40:41Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Recruit 15 to 20 simulated volunteers for pilot study
+  claim_id: c_6c88a836
+  context: 'T073a [US1] **Mock Recruitment**: Recruit N=15-20 simulated volunteers
+    for the pilot study.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit N=15-20 simulated volunteers for the pilot study.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:44:23Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify developer background eligibility and obtain simulated informed
+    consent
+  claim_id: c_246528c9
+  context: Recruit N=15-20 simulated volunteers for the pilot study. Verify eligibility
+    criteria (developer background) and obtain informed consent (simulated).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_developer_background_eligibility_and_obtain_simulated
+  kind: entity_fact
+  raw_text: Verify eligibility criteria (developer background) and obtain informed
+    consent (simulated).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:44:47Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Use Faker library with seed 42
+  claim_id: c_b1f15c6c
+  context: 'Mechanism: Use Faker library with seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Faker library with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:44:47Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Assert recruitment log contains between 15 and 20 rows
+  claim_id: c_ddb2cad2
+  context: 'Verification: Assert file exists, contains N rows (15 <= N <= 20), and
+    each row has participant_id (UUID v4 format) and consent_hash (SHA-256 of consent
+    document).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert file exists, contains N rows (15 <= N <= 20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:44:48Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Execute mock onboarding experiment across LLM, Human, and None conditions
+  claim_id: c_7723d023
+  context: 'T075a [US1] **Execute Mock Study**: Run the mock onboarding experiment
+    with simulated participants across all three conditions (LLM, Human, None).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_mock_onboarding_experiment_across_LLM,_Human,_and_No
+  kind: entity_fact
+  raw_text: Execute the mock onboarding experiment with simulated participants across
+    all three conditions (LLM, Human, None).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:45:04Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Assert total generation time per repo is less than 900 seconds
+  claim_id: c_e4bdea34
+  context: 'Verification: Assert total_time_per_repo < 900s (measured from API call
+    initiation to file write completion) and log context_window_usage.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_total_generation_time_per_repo_is_less_than_900_secon
+  kind: magnitude
+  raw_text: Assert total_time_per_repo < 900s.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:45:21Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify analysis phase execution time is under 6 hours and RAM under 7GB
+  claim_id: c_6022b5e4
+  context: T044 [P] Verify **Analysis Phase** execution time < 6 hours and RAM < 7GB
+    using the active monitoring context manager from T010.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify Analysis Phase execution time < 6 hours and RAM < 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:45:21Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Generate 95 percent confidence intervals for effect sizes using bootstrap
+    resampling
+  claim_id: c_4f29d1f7
+  context: 'T084 [P] [US3] Implement **Robustness Check: Bootstrap Confidence Intervals**:
+    Generate 95% confidence intervals for the effect sizes (Cohen''s d) using a bootstrap
+    resampling method with a sufficient number of iterations to provide a more reliable
+    estimate of effect magnitude given the small sample size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 95% confidence intervals for the effect sizes (Cohen's d) using
+    a bootstrap resampling method.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:45:22Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Trigger NEEDS_GPU flag if phi int4 model execution exceeds 300 seconds
+    per doc
+  claim_id: c_e52cdc8f
+  context: 'T088 [P] [US2] Implement **GPU Offload Detection Logic** in code/doc_generation.py:
+    If the CPU-only execution of the phi model (int4) fails or exceeds a latency threshold
+    (e.g., 300s per doc), automatically trigger a flag NEEDS_GPU=True and log the
+    specific error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the CPU-only execution of the phi model (int4) fails or exceeds a latency
+    threshold (e.g., 300s per doc), automatically trigger a flag NEEDS_GPU=True.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:45:40Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Primary analysis must be Dynamic Decision Tree using Levene's, ANOVA,
+    Welch's, or Welch-James tests
+  claim_id: c_7af4f0f7
+  context: 'NOTE: Per Spec FR-005, the primary analysis MUST be the **Dynamic Decision
+    Tree** (Levene''s -> ANOVA/Welch''s/Welch-James).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_analysis_must_be_Dynamic_Decision_Tree_using_Levene'
+  kind: entity_fact
+  raw_text: The primary analysis MUST be the Dynamic Decision Tree (Levene's -> ANOVA/Welch's/Welch-James).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:46:00Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Pre-specified Welch's ANOVA implemented as secondary sensitivity check
+  claim_id: c_9e5ee3cd
+  context: The Plan's 'Pre-specified Welch's ANOVA' is implemented as a **secondary
+    sensitivity check** (T086).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pre-specified_Welch's_ANOVA_implemented_as_secondary_sensiti
+  kind: entity_fact
+  raw_text: The Plan's 'Pre-specified Welch's ANOVA' is implemented as a secondary
+    sensitivity check.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T22:46:24Z'

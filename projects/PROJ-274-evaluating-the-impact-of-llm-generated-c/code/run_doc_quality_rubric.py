@@ -1,22 +1,24 @@
 """
-Task T021f: Documentation Quality Rubric Scoring Runner.
+Runner script for Task T021f: Documentation Quality Rubric Scoring.
 
-This script executes the documentation quality rubric on candidate repositories
-to generate a quantitative "Human Doc Quality Score".
+This script loads the candidate repositories list from data/raw/candidate_repos.json
+and calculates a quantitative "Human Doc Quality Score" for each based on the
+presence of Setup, API, and Architecture sections in their documentation.
 
 Output: data/raw/doc_quality_scores.json
 """
+
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 
-# Add project root to path for imports
+# Add project root to path to allow imports from code/
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from validation import run_rubric_on_candidates, evaluate_repository_rubric
+from validation import evaluate_repository_rubric, load_json_file, save_json_file
 
 # Configure logging
 logging.basicConfig(
@@ -25,103 +27,60 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_candidate_repos():
-    """
-    Load candidate repositories from data/raw/repo_selection_rubric.json.
-    This file is produced by T021b.
-    """
-    input_path = project_root / "data" / "raw" / "repo_selection_rubric.json"
+def load_candidate_repos(input_path: str) -> list:
+    """Load candidate repositories from the JSON file."""
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    if not input_path.exists():
-        raise FileNotFoundError(
-            f"Input file not found: {input_path}. "
-            "Ensure T021b (Repository Selection) has completed successfully."
-        )
-    
-    with open(input_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    # Expecting a list of repos or a dict with a 'repos' key
-    if isinstance(data, dict) and 'repos' in data:
-        return data['repos']
-    elif isinstance(data, list):
-        return data
-    else:
-        raise ValueError(f"Unexpected format in {input_path}. Expected list or dict with 'repos' key.")
+    data = load_json_file(input_path)
+    return data.get("candidates", [])
 
 def main():
-    """
-    Main entry point for T021f.
-    1. Loads candidate repos from T021b output.
-    2. Evaluates documentation quality for each.
-    3. Writes results to data/raw/doc_quality_scores.json.
-    """
-    logger.info("Starting Documentation Quality Rubric Scoring (T021f)...")
-    
+    input_path = "data/raw/candidate_repos.json"
+    output_path = "data/raw/doc_quality_scores.json"
+
+    logger.info(f"Loading candidate repositories from {input_path}")
     try:
-        repos = load_candidate_repos()
-        logger.info(f"Loaded {len(repos)} candidate repositories.")
-    except Exception as e:
-        logger.error(f"Failed to load candidate repos: {e}")
+        candidates = load_candidate_repos(input_path)
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load candidates: {e}")
         sys.exit(1)
 
-    scores = []
+    if not candidates:
+        logger.warning("No candidate repositories found. Exiting.")
+        sys.exit(0)
 
-    for repo in repos:
-        repo_name = repo.get('name') or repo.get('repo_name') or str(repo)
-        repo_path = repo.get('path') or repo.get('local_path')
-        
-        if not repo_path or not os.path.isdir(repo_path):
-            logger.warning(f"Skipping {repo_name}: Path '{repo_path}' not found or invalid.")
-            # We still record it as 0 or skip? The task says "Calculate ... based on presence".
-            # If we can't read it, we can't score. We'll record a failure state or skip.
-            # Let's skip to avoid noise, or log a 0. Let's log a 0 with a note.
-            scores.append({
-                "repo_name": repo_name,
-                "doc_quality_score": 0,
-                "status": "skipped",
-                "reason": "Repository path not found"
-            })
-            continue
+    logger.info(f"Found {len(candidates)} candidate repositories.")
 
+    results = []
+    for repo_path in candidates:
+        logger.info(f"Evaluating documentation quality for: {repo_path}")
         try:
-            logger.info(f"Evaluating documentation for: {repo_name} at {repo_path}")
-            score_data = evaluate_repository_rubric(repo_path)
-            
-            # score_data should contain the binary breakdown and total
-            scores.append({
-                "repo_name": repo_name,
-                "doc_quality_score": score_data['total_score'],
-                "has_setup": score_data.get('has_setup', False),
-                "has_api": score_data.get('has_api', False),
-                "has_architecture": score_data.get('has_architecture', False),
-                "status": "success"
+            score = evaluate_repository_rubric(repo_path)
+            results.append({
+                "repo_path": repo_path,
+                "doc_quality_score": score
             })
-            logger.info(f"  -> Score: {score_data['total_score']}/3")
-            
+            logger.info(f"  -> Score: {score}/3")
         except Exception as e:
-            logger.error(f"Error evaluating {repo_name}: {e}")
-            scores.append({
-                "repo_name": repo_name,
+            logger.error(f"  -> Error evaluating {repo_path}: {e}")
+            # Record as 0 or skip? Let's record as 0 to maintain list integrity
+            results.append({
+                "repo_path": repo_path,
                 "doc_quality_score": 0,
-                "status": "error",
-                "reason": str(e)
+                "error": str(e)
             })
 
-    # Define output path
-    output_dir = project_root / "data" / "raw"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "doc_quality_scores.json"
+    output_data = {
+        "scores": results,
+        "total_repos": len(candidates),
+        "completed": len([r for r in results if "error" not in r]),
+        "failed": len([r for r in results if "error" in r])
+    }
 
-    try:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(scores, f, indent=2)
-        logger.info(f"Successfully wrote doc quality scores to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to write output file: {e}")
-        sys.exit(1)
-
-    logger.info("T021f completed.")
+    logger.info(f"Saving results to {output_path}")
+    save_json_file(output_path, output_data)
+    logger.info("Task T021f completed successfully.")
 
 if __name__ == "__main__":
     main()

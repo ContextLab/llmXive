@@ -6,6 +6,13 @@ T020:
     \ in `checksums.txt`. The constants point to the required path, satisfying the\
     \ export and checksum requirements. (The output file itself need not exist until\
     \ the function is invoked.)"
+T021a:
+  c: false
+  h: 5d1b67d54924d9ed49c9a9725151d6d75b4f075eeefc30e3ec50396bb6031cda
+  r: "The repository lacks the required output file \u2013 `data/raw/candidate_repos.json`\
+    \ does not exist \u2013 and the provided snippet of `code/validation.py` is truncated,\
+    \ giving no evidence that the rubric logic writes this file. Without the JSON\
+    \ artifact, the task\u2019s core deliverable is missing."
 T021b:
   c: false
   h: 850b4feebab3fbe437a4a2a22053139836208c7e1961fbf96bdb74f97edd1a03
@@ -13,13 +20,21 @@ T021b:
     \ checksum entry in `data/checksums.txt` does not reference that JSON (it only\
     \ contains a hash for `data/llm_config.yaml`). Consequently the task\u2019s core\
     \ outputs and verification steps are not satisfied."
-T021c:
+T021d:
   c: false
-  h: 3b4a07b55b2fb991d038303a7f0500b2300a384e979aef40f0f527f42da0e1c2
-  r: "The repository contains the metric\u2011calculation functions in `code/validation.py`,\
-    \ but there is no code that writes the results to `data/raw/repo_metrics.json`,\
-    \ and that file is absent from the project. Consequently the required output artifact\
-    \ does not exist."
+  h: f34be058816c2e38e5e46b0b4c38253719104a7bcf30d49711855b404b5e29b7
+  r: The required input file `data/raw/repo_metrics.json` is missing, and consequently
+    the expected output files `data/raw/repo_selection_rubric.json` and `data/raw/repo_matching_report.json`
+    do not exist. Without these artifacts the quantitative matching logic cannot be
+    executed or verified.
+T021f:
+  c: false
+  h: 564a0fea0adc022ad1e950ae450e5d2e1ed0dd3c44c98f176daaa4d071ce1918
+  r: "The repository contains a partially implemented `check_documentation_criteria`\
+    \ function, but there is no code that computes a summed \u201CHuman Doc Quality\
+    \ Score\u201D, iterates over the candidate repos, or writes the results to `data/raw/doc_quality_scores.json`.\
+    \ Moreover, the required `doc_quality_scores.json` file is missing entirely. The\
+    \ task\u2019s core output and integration steps are therefore not satisfied."
 T033:
   c: false
   h: afbd3c7a3c82f0345097f313e4b17a97c8976f42c93c5c5f19098703a573f99f
