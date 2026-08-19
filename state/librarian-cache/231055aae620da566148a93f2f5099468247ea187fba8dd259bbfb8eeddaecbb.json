@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-05T21:41:01Z",
+  "fetched_at": "2026-08-19T08:37:08Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serving Millions of LLMs\"",
       "target_n": 5
     },
-    "duration_seconds": 37.148,
-    "ended_at": "2026-08-05T21:41:01Z",
+    "duration_seconds": 59.477,
+    "ended_at": "2026-08-19T08:37:08Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "large-scale LLM training infrastructure"
+          "scalable infrastructure for large language model training"
         ],
         [
           2,
-          "distributed systems for serving millions of LLMs"
+          "distributed systems for LLM serving at scale"
         ],
         [
           3,
-          "managed infrastructure for generative AI workloads"
+          "managed platforms for million-scale LLM deployment"
         ],
         [
           4,
-          "scalable LLM deployment architectures"
+          "resource orchestration for massive LLM training clusters"
         ],
         [
           5,
-          "high-throughput LLM inference systems"
+          "high-throughput inference systems for large language models"
         ],
         [
           6,
-          "resource orchestration for large language models"
+          "cost-efficient infrastructure for LLM lifecycle management"
         ],
         [
           7,
-          "cost-efficient LLM training platforms"
+          "heterogeneous computing for large-scale model training"
         ],
         [
           8,
-          "multi-tenant LLM serving frameworks"
+          "automated resource provisioning for LLM workloads"
         ],
         [
           9,
-          "heterogeneous hardware acceleration for LLMs"
+          "serving architectures for concurrent LLM instances"
         ],
         [
           10,
-          "dynamic resource allocation for AI model training"
+          "cluster management for billion-parameter model training"
         ],
         [
           11,
-          "fault-tolerant distributed training for transformers"
+          "fault-tolerant systems for distributed LLM training"
         ],
         [
           12,
-          "model serving optimization at scale"
+          "dynamic scheduling for LLM inference and training"
         ],
         [
           13,
-          "infrastructure for billion-parameter model training"
+          "infrastructure optimization for generative AI workloads"
         ],
         [
           14,
-          "cloud-native LLM management systems"
+          "elastic scaling strategies for large language model services"
         ],
         [
           15,
-          "efficient GPU utilization for large-scale AI"
+          "memory-efficient systems for training massive neural networks"
         ],
         [
           16,
-          "automated scaling for generative model inference"
+          "production-grade LLM deployment pipelines"
         ],
         [
           17,
-          "end-to-end LLM lifecycle management platforms"
+          "multi-tenant infrastructure for shared LLM resources"
         ],
         [
           18,
-          "performance optimization in distributed LLM clusters"
+          "energy-efficient data center design for AI training"
         ],
         [
           19,
-          "energy-efficient datacenter design for AI training"
+          "container orchestration for large-scale AI model serving"
         ],
         [
           20,
-          "containerized orchestration for massive AI workloads"
+          "end-to-end platforms for managing LLM training and inference"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "large-scale LLM training infrastructure": 5,
-        "llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serving Millions of LLMs\" computer science": 0
+        "llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serving Millions of LLMs\" computer science": 0,
+        "scalable infrastructure for large language model training": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "LLM serving infrastructure cost optimization",
-      "Kubernetes GPU cluster autoscaling LLM",
-      "Model parallelism pipeline scheduling inference",
-      "throughput latency SLO distributed training",
-      "resource contention interference multi-tenant LLM"
+      "LLM training serving cost optimization infrastructure",
+      "distributed GPU cluster Kubernetes Ray scheduling",
+      "model parallelism tensor pipeline inference serving",
+      "throughput latency scaling laws large language model",
+      "MLOps resource allocation training cluster management"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,41 +115,56 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2606.24133"
+        "2310.00034"
       ]
     },
     "per_query_hit_count": {
-      "Kubernetes GPU cluster autoscaling LLM": 3,
-      "LLM serving infrastructure cost optimization": 3,
-      "Model parallelism pipeline scheduling inference": 3,
+      "LLM training serving cost optimization infrastructure": 3,
+      "MLOps resource allocation training cluster management": 3,
+      "distributed GPU cluster Kubernetes Ray scheduling": 3,
       "llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serving Millions of LLMs\" computer science": 3,
-      "resource contention interference multi-tenant LLM": 2,
-      "throughput latency SLO distributed training": 3
+      "model parallelism tensor pipeline inference serving": 3,
+      "throughput latency scaling laws large language model": 3
     },
     "relevance_judge": {
       "enabled": true,
-      "marginal_fallback_used": false,
-      "rejected_count": 2,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
       "rejections": [
         {
-          "primary_pointer": "2211.15910",
-          "rationale": "The paper focuses on wireless communication systems, specifically beam training for reconfigurable intelligent surfaces (RIS), which is an entirely different domain from the user's question regarding the infrastructure for training and serving Large Language Models (LLMs). This falls under the rejection rule for \"Off-domain entirely\" as there is no measurable connection to the mechanisms, variables, or empirical setting of LLM managed infrastructure.",
-          "title": "Low-overhead Beam Training Scheme for Extremely Large-Scale RIS in Near-field"
+          "primary_pointer": "2304.12244",
+          "rationale": "The paper focuses on instruction tuning methodologies and data generation for improving LLM capabilities, which is entirely distinct from the user's question regarding the management of training and serving infrastructure (hardware, scaling, deployment systems). It fails to address the specific domain of \"managed infrastructure\" or the \"MinT\" system, satisfying none of the inclusion criteria (a-f) and falling under the \"off-domain entirely\" rejection rule.",
+          "title": "WizardLM: Empowering large pre-trained language models to follow complex instructions"
         },
         {
-          "primary_pointer": "2502.21321",
-          "rationale": "The paper is a survey on algorithmic post-training techniques (fine-tuning, RL, reasoning) and does not address the user's specific question regarding \"Managed Infrastructure for Training and Serving,\" which concerns system architecture, resource management, and deployment scaling. While both relate to LLMs, the paper lacks the measurable connection to the infrastructure mechanisms, variables, or empirical population defined in the user's query, failing criteria (a) through (f).",
-          "title": "LLM Post-Training: A Deep Dive into Reasoning Large Language Models"
+          "primary_pointer": "2402.11651",
+          "rationale": "The candidate paper focuses on fine-tuning strategies for LLM agents using negative examples, which is a methodological contribution to model training and alignment, whereas the user's question specifically targets the \"MinT\" paper regarding the design and management of large-scale training and serving infrastructure. There is no overlap in the mechanism (infrastructure management vs. fine-tuning data strategy), domain (system architecture vs. agent behavior), or variables, and the paper does no",
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents"
+        },
+        {
+          "primary_pointer": "2312.10793",
+          "rationale": "The paper focuses on data composition strategies (instruction mixing) for fine-tuning LLMs, whereas the user's question specifically targets \"Managed Infrastructure for Training and Serving,\" which concerns system architecture, resource allocation, and deployment scalability. There is no overlap in the mechanism, variables, or empirical domain between dataset mixing optimization and infrastructure management.",
+          "title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models"
+        },
+        {
+          "primary_pointer": "2310.00034",
+          "rationale": "The candidate paper focuses on model compression techniques (quantization and binarization) to reduce memory and compute requirements, which is distinct from the user's question regarding \"Managed Infrastructure for Training and Serving Millions of LLMs\" (MinT) that deals with system architecture, resource orchestration, and large-scale deployment logistics. While both involve LLMs, the paper does not measure the same mechanisms, variables, or empirical populations related to infrastructure mana",
+          "title": "PB-LLM: Partially Binarized Large Language Models"
+        },
+        {
+          "primary_pointer": "2202.09061",
+          "rationale": "The paper is a survey on Vision-Language Pre-training (VLP) models and architectures, which is a distinct research domain from the user's question about \"Managed Infrastructure for Training and Serving Millions of LLMs\" (MinT). While both involve LLMs, the candidate paper focuses on multi-modal model design and pre-training objectives, whereas the user's question targets the systems engineering, resource management, and infrastructure scaling mechanisms required to train and serve models at mass",
+          "title": "VLP: A Survey on Vision-Language Pre-training"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-05T21:40:24Z",
+    "started_at": "2026-08-19T08:36:09Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"mint: managed infrastructure for training and serving millions of llms\" computer science",
       "raw": "llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serving Millions of LLMs\" computer science"
@@ -168,7 +183,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -187,7 +202,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -205,7 +220,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -221,7 +236,7 @@
           "primary_pointer": "2307.12479"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Cloud and AI Infrastructure Cost Optimization: A Comprehensive Review of Strategies and Case Studies')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -295,7 +310,7 @@
           "primary_pointer": "2606.05868"
         },
         "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -313,29 +328,7 @@
           "primary_pointer": "1207.2799"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Optimal recovery of damaged infrastructure network')",
-        "failed_at": "2026-08-05T21:40:51Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Kubernetes provides native autoscaling mechanisms, including the Horizontal Pod Autoscaler, Vertical Pod Autoscaler, and node-level autoscalers, to enable elastic resource management for cloud-native applications. However, production environments frequently experience Service Level Objective violations and cost inefficiencies due to reactive scaling behavior, limited use of application-level signals, and opaque control logic. This paper investigates how Kubernetes autoscaling can be enhanced using AIOps principles to jointly satisfy SLO and cost constraints under diverse workload patterns without compromising safety or operational transparency. We present a gap-driven analysis of existing autoscaling approaches and propose a safe and explainable multi-signal autoscaling framework that integrates SLO-aware and cost-conscious control with lightweight demand forecasting. Experimental evaluation using representative microservice and event-driven workloads shows that the proposed approach reduces SLO violation duration by up to 31 percent, improves scaling response time by 24 percent, and lowers infrastructure cost by 18 percent compared to default and tuned Kubernetes autoscaling baselines, while maintaining stable and auditable control behavior. These results demonstrate that AIOps-driven, SLO-first autoscaling can significantly improve the reliability, efficiency, and operational trustworthiness of Kubernetes-based cloud platforms.",
-          "claimed_authors": [
-            "Vinoth Punniyamoorthy",
-            "Bikesh Kumar",
-            "Sumit Saha",
-            "Lokesh Butra",
-            "Mayilsamy Palanigounder",
-            "Akash Kumar Agarwal",
-            "Kabilan Kannan"
-          ],
-          "claimed_title": "An SLO Driven and Cost-Aware Autoscaling Framework for Kubernetes",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2512.23415"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='An SLO Driven and Cost-Aware Autoscaling Framework for Kubernetes')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -355,25 +348,46 @@
           "primary_pointer": "2207.01222"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='KubeAdaptor: A Docking Framework for Workflow Containerization on Kubernetes')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "To improve customer experience, datacenter operators offer support for simplifying application and resource management. For example, running workloads of workflows on behalf of customers is desirable, but requires increasingly more sophisticated autoscaling policies, that is, policies that dynamically provision resources for the customer. Although selecting and tuning autoscaling policies is a challenging task for datacenter operators, so far relatively few studies investigate the performance of autoscaling for workloads of workflows. Complementing previous knowledge, in this work we propose the first comprehensive performance study in the field. Using trace-based simulation, we compare state-of-the-art autoscaling policies across multiple application domains, workload arrival patterns (e.g., burstiness), and system utilization levels. We further investigate the interplay between autoscaling and regular allocation policies, and the complexity cost of autoscaling. Our quantitative study focuses not only on traditional performance metrics and on state-of-the-art elasticity metrics, but also on time- and memory-related autoscaling-complexity metrics. Our main results give strong and quantitative evidence about previously unreported operational behavior, for example, that autoscaling policies perform differently across application domains and by how much they differ.",
+          "claimed_abstract": "AXTAR is a NASA MIDEX mission concept for X-ray timing of compact objects that combines very large collecting area, broadband spectral coverage, high time resolution, highly flexible scheduling, and an ability to respond promptly to time-critical targets of opportunity. It is optimized for submillisecond timing of bright Galactic X-ray sources in order to study phenomena at the natural time scales of neutron star surfaces and black hole event horizons, thus probing the physics of ultradense matter, strongly curved spacetimes, and intense magnetic fields. AXTAR's main instrument is a collimated, thick Si pixel detector with 2-50 keV coverage and over 3 square meters effective area. For timing observations of accreting neutron stars and black holes, AXTAR provides at least a factor of five improvement in sensitivity over the RXTE PCA. AXTAR also carries a sensitive sky monitor that acts as a trigger for pointed observations of X-ray transients in addition to providing high duty cycle monitoring of the X-ray sky. We review the science goals and design choices that face a next generation timing mission. We then describe the technical concept for AXTAR and summarize a preliminary mission design study at the NASA/MSFC Advanced Concepts Office.",
           "claimed_authors": [
-            "Laurens Versluis",
-            "Mihai Neacşu",
-            "Alexandru Iosup"
+            "Paul S. Ray",
+            "Bernard F. Phlips",
+            "Kent S. Wood",
+            "Deepto Chakrabarty",
+            "Ronald A. Remillard",
+            "Colleen A. Wilson-Hodge"
           ],
-          "claimed_title": "Technical Report: A Trace-Based Performance Study of Autoscaling Workloads of Workflows in Datacenters",
+          "claimed_title": "The Advanced X-ray Timing Array (AXTAR): A US MIDEX Mission Concept",
           "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1711.08993"
+          "claimed_year": 2011,
+          "primary_pointer": "1109.1309"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Technical Report: A Trace-Based Performance Study of Autoscaling Workloads of Workflows in Datacenters')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='The Advanced X-ray Timing Array (AXTAR): A US MIDEX Mission Concept')",
+        "failed_at": "2026-08-19T08:36:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AXTAR is an X-ray observatory mission concept, currently under study in the U.S., that combines very large collecting area, broadband spectral coverage, high time resolution, highly flexible scheduling, and an ability to respond promptly to time-critical targets of opportunity. It is optimized for submillisecond timing of bright Galactic X-ray sources in order to study phenomena at the natural time scales of neutron star surfaces and black hole event horizons, thus probing the physics of ultradense matter, strongly curved spacetimes, and intense magnetic fields. AXTAR's main instrument is a collimated, thick Si pixel detector with 2-50 keV coverage and 8 square meters collecting area. For timing observations of accreting neutron stars and black holes, AXTAR provides at least an order of magnitude improvement in sensitivity over both RXTE and Constellation-X. AXTAR also carries a sensitive sky monitor that acts as a trigger for pointed observations of X-ray transients and also provides continuous monitoring of the X-ray sky with 20 times the sensitivity of the RXTE ASM. AXTAR builds on detector and electronics technology previously developed for other applications and thus combines high technical readiness and well understood cost.",
+          "claimed_authors": [
+            "Deepto Chakrabarty",
+            "Paul S. Ray",
+            "Tod E. Strohmayer"
+          ],
+          "claimed_title": "The Advanced X-ray Timing Array (AXTAR)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0809.4029"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='The Advanced X-ray Timing Array (AXTAR)')",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -393,75 +407,47 @@
           "primary_pointer": "2510.05186"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='OptPipe: Memory- and Scheduling-Optimized Pipeline Parallelism for LLM Training')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study the problem of non-preemptively scheduling $n$ jobs, each job $j$ with a release time $t_j$, a deadline $d_j$, and a processing time $p_j$, on $m$ parallel identical machines. Cieliebak et al. (2004) considered the two constraints $|d_j-t_j|\\leq λp_j$ and $|d_j-t_j|\\leq p_j +σ$ and showed the problem to be NP-hard for any $λ>1$ and for any $σ\\geq 2$. We complement their results by parameterized complexity studies: we show that, for any $λ>1$, the problem remains weakly NP-hard even for $m=2$ and strongly W[1]-hard parameterized by $m$. We present a pseudo-polynomial-time algorithm for constant $m$ and $λ$ and a fixed-parameter tractability result for the parameter $m$ combined with $σ$.",
+          "claimed_abstract": "In this paper, we study batch parallel algorithms for the dynamic connectivity problem, a fundamental problem that has received considerable attention in the sequential setting. The most well known sequential algorithm for dynamic connectivity is the elegant level-set algorithm of Holm, de Lichtenberg and Thorup (HDT), which achieves $O(\\log^2 n)$ amortized time per edge insertion or deletion, and $O(\\log n / \\log\\log n)$ time per query. We design a parallel batch-dynamic connectivity algorithm that is work-efficient with respect to the HDT algorithm for small batch sizes, and is asymptotically faster when the average batch size is sufficiently large. Given a sequence of batched updates, where $Δ$ is the average batch size of all deletions, our algorithm achieves $O(\\log n \\log(1 + n / Δ))$ expected amortized work per edge insertion and deletion and $O(\\log^3 n)$ depth w.h.p. Our algorithm answers a batch of $k$ connectivity queries in $O(k \\log(1 + n/k))$ expected work and $O(\\log n)$ depth w.h.p. To the best of our knowledge, our algorithm is the first parallel batch-dynamic algorithm for connectivity.",
           "claimed_authors": [
-            "René van Bevern",
-            "Rolf Niedermeier",
-            "Ondřej Suchý"
+            "Umut A. Acar",
+            "Daniel Anderson",
+            "Guy E. Blelloch",
+            "Laxman Dhulipala"
           ],
-          "claimed_title": "A parameterized complexity view on non-preemptively scheduling interval-constrained jobs: few machines, small looseness, and small slack",
+          "claimed_title": "Parallel Batch-Dynamic Graph Connectivity",
           "claimed_venue": "arXiv",
-          "claimed_year": 2015,
-          "primary_pointer": "1508.01657"
+          "claimed_year": 2019,
+          "primary_pointer": "1903.08794"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='A parameterized complexity view on non-preemptively scheduling interval-constrained jobs: few machines, small looseness, and small slack')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Parallel Batch-Dynamic Graph Connectivity')",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper introduces the \\emph{serial-parallel decision problem}. Consider an online scheduler that receives a series of tasks, where each task has both a parallel and a serial implementation. The parallel implementation has the advantage that it can make progress concurrently on multiple processors, but the disadvantage that it is (potentially) work-inefficient. As tasks arrive, the scheduler must decide for each task which implementation to use.\n  We begin by studying \\emph{total awake time}. We give a simple \\emph{decide-on-arrival} scheduler that achieves a competitive ratio of $3$ for total awake time -- this scheduler makes serial/parallel decisions immediately when jobs arrive. Our second result is an \\emph{parallel-work-oblivious} scheduler that achieves a competitive ratio of $6$ for total awake time -- this scheduler makes all of its decisions based only on the size of each serial job and without needing to know anything about the parallel implementations. Finally, we prove a lower bound showing that, if a scheduler wishes to achieve a competitive ratio of $O(1)$, it can have at most one of the two aforementioned properties (decide-on-arrival or parallel-work-oblivious). We also prove lower bounds of the form $1 + Ω(1)$ on the optimal competitive ratio for any scheduler.\n  Next, we turn our attention to optimizing \\emph{mean response time}. Here, we show that it is possible to achieve an $O(1)$ competitive ratio with $O(1)$ speed augmentation. This is the most technically involved of our results. We also prove that, in this setting, it is not possible for a parallel-work-oblivious scheduler to do well.\n  In addition to these results, we present tight bounds on the optimal competitive ratio if we allow for arrival dependencies between tasks (e.g., tasks are components of a single parallel program), and we give an in-depth discussion of the remaining open questions.",
+          "claimed_abstract": "Pipeline parallelism has emerged as a predominant approach for deploying large language models (LLMs) across distributed nodes, owing to its lower communication overhead compared to tensor parallelism. While demonstrating high throughput in request serving, pipeline parallelism often suffers from performance limitations caused by pipeline bubbles, which are primarily resulted from imbalanced computation delays across batches. Existing methods like Sarathi-Serve attempt to address this through hybrid scheduling of chunked prefill and decode tokens using a fixed token budget. However, such methods may experience significant fluctuations due to either insufficient prefill tokens or uneven distribution of decode tokens, ultimately leading to computational imbalance. To overcome these inefficiencies, we present gLLM, a globally balanced pipeline parallelism system incorporating Token Throttling to effectively mitigate the pipeline bubbles. Our Token Throttling mechanism is a fine-grained scheduling policy that independently regulates the quantities of prefill and decode tokens, thus enabling balanced computation by leveraging global information from the inference system. Specifically, for decode tokens, gLLM maintains near-consistent token count across processing batches. For prefill tokens, it dynamically adjusts batch sizes based on both total pending tokens and the memory utilization rates of key-value cache (KV cache). Furthermore, gLLM runtime adopts an asynchronous execution and message passing architecture specifically optimized for pipeline parallelism characteristics. Experimental evaluations with representative LLMs show that gLLM achieves significant performance improvements, delivering 11% to 398% higher maximum throughput compared to state-of-the-art pipeline or tensor parallelism systems, while simultaneously maintaining lower latency.",
           "claimed_authors": [
-            "William Kuszmaul",
-            "Alek Westover"
+            "Tianyu Guo",
+            "Xianwei Zhang",
+            "Jiangsu Du",
+            "Zhiguang Chen",
+            "Nong Xiao",
+            "Yutong Lu"
           ],
-          "claimed_title": "Scheduling Jobs with Work-Inefficient Parallel Solutions",
+          "claimed_title": "gLLM: Global Balanced Pipeline Parallelism System for Distributed LLM Serving with Token Throttling",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2405.11986"
+          "claimed_year": 2025,
+          "primary_pointer": "2504.14775"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Scheduling Jobs with Work-Inefficient Parallel Solutions')",
-        "failed_at": "2026-08-05T21:40:51Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Serving large language models under latency service-level objectives (SLOs) is a configuration-heavy systems problem with an unusually failure-prone search space: many plausible configurations crash outright or miss user-visible latency targets, and standard black-box optimizers treat these failures as wasted trials. We present SLO-Guard, a crash-aware autotuner for vLLM serving that treats crashes as first-class observations. SLO-Guard combines a feasible-first Thermal Budget Annealing (TBA) exploration phase with a warm-started Tree-structured Parzen Estimator (TPE) exploitation phase; the handoff replays all exploration history, including crashes encoded as extreme constraint violations. We additionally contribute a configuration-repair pass, a GPU-aware KV-cache memory guard, and a four-category crash taxonomy.\n  We evaluate SLO-Guard on Qwen2-1.5B served with vLLM 0.19 on an NVIDIA A100 40GB. Across a pre-specified five-seed study, both SLO-Guard and uniform random search attain 75/75 feasibility with zero crashes under the corrected concurrent harness, and are statistically tied on best-achieved latency (Mann-Whitney two-sided p=0.84). SLO-Guard's advantage is in budget consistency: more trials in the fast-serving regime (10.20 vs. 7.40 out of 15; one-sided p=0.014) and higher post-handoff consistency (0.876 vs. 0.539; p=0.010). Under concurrent load, SLO-Guard's cross-seed standard deviation on best latency is 4.4x tighter than random search's (2.26 ms vs. 10.00 ms). A harness-replication analysis shows that the consistency findings survive an independent sequential-dispatch measurement condition.\n  The central claim is not that SLO-Guard finds a better final configuration, but that it spends a fixed tuning budget more predictably once the fast regime has been found.",
-          "claimed_authors": [
-            "Christian Lysenstøen"
-          ],
-          "claimed_title": "SLO-Guard: Crash-Aware, Budget-Consistent Autotuning for SLO-Constrained LLM Serving",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2604.17627"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='SLO-Guard: Crash-Aware, Budget-Consistent Autotuning for SLO-Constrained LLM Serving')",
-        "failed_at": "2026-08-05T21:40:51Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "As consumers are increasingly engaged in social networking and E-commerce activities, businesses grow to rely on Big Data analytics for intelligence, and traditional IT infrastructures continue to migrate to the cloud and edge, these trends cause distributed data storage demand to rise at an unprecedented speed. Erasure coding has seen itself quickly emerged as a promising technique to reduce storage cost while providing similar reliability as replicated systems, widely adopted by companies like Facebook, Microsoft and Google. However, it also brings new challenges in characterizing and optimizing the access latency when erasure codes are used in distributed storage. The aim of this monograph is to provide a review of recent progress (both theoretical and practical) on systems that employ erasure codes for distributed storage.\n  In this monograph, we will first identify the key challenges and taxonomy of the research problems and then give an overview of different approaches that have been developed to quantify and model latency of erasure-coded storage. This includes recent work leveraging MDS-Reservation, Fork-Join, Probabilistic, and Delayed-Relaunch scheduling policies, as well as their applications to characterize access latency (e.g., mean, tail, asymptotic latency) of erasure-coded distributed storage systems. We will also extend the problem to the case when users are streaming videos from erasure-coded distributed storage systems. Next, we bridge the gap between theory and practice, and discuss lessons learned from prototype implementation. In particular, we will discuss exemplary implementations of erasure-coded storage, illuminate key design degrees of freedom and tradeoffs, and summarize remaining challenges in real-world storage systems such as in content delivery and caching. Open problems for future research are discussed at the end of each chapter.",
-          "claimed_authors": [
-            "Vaneet Aggarwal",
-            "Tian Lan"
-          ],
-          "claimed_title": "Modeling and Optimization of Latency in Erasure-coded Storage Systems",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2005.10855"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Modeling and Optimization of Latency in Erasure-coded Storage Systems')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='gLLM: Global Balanced Pipeline Parallelism System for Distributed LLM Serving with Token Throttling')",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -479,44 +465,102 @@
           "primary_pointer": "1210.1185"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Mobile vision systems such as smartphones, drones, and augmented-reality headsets are revolutionizing our lives. These systems usually run multiple applications concurrently and their available resources at runtime are dynamic due to events such as starting new applications, closing existing applications, and application priority changes. In this paper, we present NestDNN, a framework that takes the dynamics of runtime resources into account to enable resource-aware multi-tenant on-device deep learning for mobile vision systems. NestDNN enables each deep learning model to offer flexible resource-accuracy trade-offs. At runtime, it dynamically selects the optimal resource-accuracy trade-off for each deep learning model to fit the model's resource demand to the system's available runtime resources. In doing so, NestDNN efficiently utilizes the limited resources in mobile vision systems to jointly maximize the performance of all the concurrently running applications. Our experiments show that compared to the resource-agnostic status quo approach, NestDNN achieves as much as 4.2% increase in inference accuracy, 2.0x increase in video frame processing rate and 1.7x reduction on energy consumption.",
+          "claimed_abstract": "Scaling laws provide important insights that can guide the design of large language models (LLMs). Existing work has primarily focused on studying scaling laws for pretraining (upstream) loss. However, in transfer learning settings, in which LLMs are pretrained on an unsupervised dataset and then finetuned on a downstream task, we often also care about the downstream performance. In this work, we study the scaling behavior in a transfer learning setting, where LLMs are finetuned for machine translation tasks. Specifically, we investigate how the choice of the pretraining data and its size affect downstream performance (translation quality) as judged by: downstream cross-entropy and translation quality metrics such as BLEU and COMET scores. Our experiments indicate that the size of the finetuning dataset and the distribution alignment between the pretraining and downstream data significantly influence the scaling behavior. With sufficient alignment, both downstream cross-entropy and translation quality scores improve monotonically with more pretraining data. In such cases, we show that it is possible to predict the downstream translation quality metrics with good accuracy using a log-law. However, there are cases where moderate misalignment causes the downstream translation scores to fluctuate or get worse with more pretraining, whereas downstream cross-entropy monotonically improves. By analyzing these, we provide new practical insights for choosing appropriate pretraining data.",
           "claimed_authors": [
-            "Biyi Fang",
-            "Xiao Zeng",
-            "Mi Zhang"
+            "Berivan Isik",
+            "Natalia Ponomareva",
+            "Hussein Hazimeh",
+            "Dimitris Paparas",
+            "Sergei Vassilvitskii",
+            "Sanmi Koyejo"
           ],
-          "claimed_title": "NestDNN: Resource-Aware Multi-Tenant On-Device Deep Learning for Continuous Mobile Vision",
+          "claimed_title": "Scaling Laws for Downstream Task Performance of Large Language Models",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1810.10090"
+          "claimed_year": 2024,
+          "primary_pointer": "2402.04177"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='NestDNN: Resource-Aware Multi-Tenant On-Device Deep Learning for Continuous Mobile Vision')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Scaling Laws for Downstream Task Performance of Large Language Models')",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Foundation models (FMs) such as GPT-4 exhibit exceptional generative capabilities across diverse downstream tasks through fine-tuning. Split Federated Learning (SFL) facilitates privacy-preserving FM fine-tuning on resource-constrained local devices by offloading partial FM computations to edge servers, enabling device-edge synergistic fine-tuning. Practical edge networks often host multiple SFL tenants to support diversified downstream tasks. However, existing research primarily focuses on single-tenant SFL scenarios, and lacks tailored incentive mechanisms for multi-tenant settings, which are essential to effectively coordinate self-interested local devices for participation in various downstream tasks, ensuring that each SFL tenant's distinct FM fine-tuning requirements (e.g., FM types, performance targets, and fine-tuning deadlines) are met. To address this gap, we propose a novel Price-Incentive Mechanism (PRINCE) that guides multiple SFL tenants to offer strategic price incentives, which solicit high-quality device participation for efficient FM fine-tuning. Specifically, we first develop a bias-resilient global SFL model aggregation scheme to eliminate model biases caused by independent device participation. We then derive a rigorous SFL convergence bound to evaluate the contributions of heterogeneous devices to FM performance improvements, guiding the incentive strategies of SFL tenants. Furthermore, we model inter-tenant device competition as a congestion game for Stackelberg equilibrium (SE) analysis, deriving each SFL tenant's optimal incentive strategy. Extensive simulations involving four representative SFL tenant types (ViT, BERT, Whisper, and LLaMA) across diverse data modalities (text, images, and audio) demonstrate that PRINCE accelerates FM fine-tuning by up to 3.07x compared to state-of-the-art approaches, while consistently meeting fine-tuning performance targets.",
+          "claimed_abstract": "Large Language Models (LLMs) are increasingly becoming the preferred foundation platforms for many Natural Language Processing tasks such as Machine Translation, owing to their quality often comparable to or better than task-specific models, and the simplicity of specifying the task through natural language instructions or in-context examples. Their generality, however, opens them up to subversion by end users who may embed into their requests instructions that cause the model to behave in unauthorized and possibly unsafe ways. In this work we study these Prompt Injection Attacks (PIAs) on multiple families of LLMs on a Machine Translation task, focusing on the effects of model size on the attack success rates. We introduce a new benchmark data set and we discover that on multiple language pairs and injected prompts written in English, larger models under certain conditions may become more susceptible to successful attacks, an instance of the Inverse Scaling phenomenon (McKenzie et al., 2023). To our knowledge, this is the first work to study non-trivial LLM scaling behaviour in a multi-lingual setting.",
           "claimed_authors": [
-            "Songyuan Li",
-            "Jia Hu",
-            "Geyong Min",
-            "Haojun Huang"
+            "Zhifan Sun",
+            "Antonio Valerio Miceli-Barone"
           ],
-          "claimed_title": "Incentivizing Multi-Tenant Split Federated Learning for Foundation Models at the Network Edge",
+          "claimed_title": "Scaling Behavior of Machine Translation with Large Language Models under Prompt Injection Attacks",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2503.04971"
+          "claimed_year": 2024,
+          "primary_pointer": "2403.09832"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Incentivizing Multi-Tenant Split Federated Learning for Foundation Models at the Network Edge')",
-        "failed_at": "2026-08-05T21:40:51Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Scaling Behavior of Machine Translation with Large Language Models under Prompt Injection Attacks')",
+        "failed_at": "2026-08-19T08:36:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article presents advances in resource allocation (RA) for downlink non-orthogonal multiple access (NOMA) systems, focusing on user pairing (UP) and power allocation (PA) algorithms. The former pairs the users to obtain the high capacity gain by exploiting the channel gain difference between the users, while the later allocates power to users in each cluster to balance system throughput and user fairness. Additionally, the article introduces the concept of cluster fairness and proposes the divideand- next largest difference-based UP algorithm to distribute the capacity gain among the NOMA clusters in a controlled manner. Furthermore, performance comparison between multiple-input multiple-output NOMA (MIMO-NOMA) and MIMO-OMA is conducted when users have pre-defined quality of service. Simulation results are presented, which validate the advantages of NOMA over OMA. Finally, the article provides avenues for further research on RA for downlink NOMA.",
+          "claimed_authors": [
+            "S. M. Riazul Islam",
+            "Ming Zeng",
+            "Octavia A. Dobre",
+            "Kyung-Sup Kwak"
+          ],
+          "claimed_title": "Resource Allocation for Downlink NOMA Systems: Key Techniques and Open Issues",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1801.00121"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Resource Allocation for Downlink NOMA Systems: Key Techniques and Open Issues')",
+        "failed_at": "2026-08-19T08:36:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the problem of sequentially allocating resources in a censored semi-bandits setup, where the learner allocates resources at each step to the arms and observes loss. The loss depends on two hidden parameters, one specific to the arm but independent of the resource allocation, and the other depends on the allocated resource. More specifically, the loss equals zero for an arm if the resource allocated to it exceeds a constant (but unknown) arm dependent threshold. The goal is to learn a resource allocation that minimizes the expected loss. The problem is challenging because the loss distribution and threshold value of each arm are unknown. We study this setting by establishing its `equivalence' to Multiple-Play Multi-Armed Bandits (MP-MAB) and Combinatorial Semi-Bandits. Exploiting these equivalences, we derive optimal algorithms for our problem setting using known algorithms for MP-MAB and Combinatorial Semi-Bandits. The experiments on synthetically generated data validate the performance guarantees of the proposed algorithms.",
+          "claimed_authors": [
+            "Arun Verma",
+            "Manjesh K. Hanawal",
+            "Arun Rajkumar",
+            "Raman Sankaran"
+          ],
+          "claimed_title": "Censored Semi-Bandits for Resource Allocation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.05781"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Censored Semi-Bandits for Resource Allocation')",
+        "failed_at": "2026-08-19T08:36:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Regarding the concepts of urban management, digital transformation, and smart cities, various issues are presented. Currently, we like to attend to location allocation problems that can be a new part of digital transformation in urban management (such as locating and placing facilities, locating and arranging centers such as aid and rescue centers, or even postal hubs, telecommunications, electronic equipment, and data centers, and routing in transportation optimization). These issues, which are seemingly simple but in practice complex, are important in urban environments, and the issue of accurate location allocation based on existing criteria directly impacts cost management, profit, efficiency, and citizen satisfaction. In recent years, researchers have used or presented various models and methods for location allocation problems, some of which will be mentioned in this article. Given the nature of these problems, which are optimization problems, this article will also examine existing research from an optimization perspective in summary. Finally, a brief conclusion will be made of the existing methods and their weaknesses, and suggestions will be made for continuing the path and improving scientific and practical research in this field.",
+          "claimed_authors": [
+            "Aref Ayati",
+            "Mohammad Mahdi Hashemi",
+            "Mohsen Saffar",
+            "Hamid Reza Naji"
+          ],
+          "claimed_title": "Optimizing Location Allocation in Urban Management: A Brief Review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06032"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Optimizing Location Allocation in Urban Management: A Brief Review')",
+        "failed_at": "2026-08-19T08:36:36Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -524,170 +568,158 @@
       {
         "bibliographic_info": {
           "authors": [
-            " PSBC LLM Team",
-            " Huawei LLM Team",
-            "Ruihan Long",
-            "Junjie Wu",
-            "Tianan Zhang",
-            "Duo Zhang",
-            "Yaozong Wu",
-            "Jinbin Fu",
-            "Chang Liu",
-            "Zhentao Tang",
-            "Wenshuang Yang",
-            "Xin Wang",
-            "Zhihao Song",
-            "Ning Huang",
-            "Wenjing Xu",
-            "Shuai Zong",
-            "Shupei Sun",
-            "Sen Wang",
-            "Jing Hu",
-            "Bin Wang",
-            "Xinyu Wang",
-            "Junkui Ju",
-            "Zequn Ding",
-            "Jie Ran",
-            "Man Luo",
-            "Shixiong Kai",
-            "Linkai Hou",
-            "Kaichao Liang",
-            "Hu Zhao",
-            "Yang Zhao",
-            "Shucheng Lin",
-            "Wei Yu",
-            "Chenghan Jiang",
-            "Jingjing Ding",
-            "Jiahui Zhang",
-            "Tian Jin",
-            "Yuhang Zhang",
-            "Dong Guo",
-            "Wei Sun",
-            "Jun Xie",
-            "Jianwei Li",
-            "Lei Cao",
-            "Pei Li",
-            "Jiabin Li",
-            "Jia Yuan",
-            "Rui Yuan",
-            "Jing Zhu",
-            "Mingxuan Yuan",
-            "Zhangcheng Lv",
-            "Xin Jiang",
-            "Xiuhong Fei",
-            "Xiaozhe Ren",
-            "Yulong Li",
-            "Zhipeng Zhang",
-            "Hang Wang",
-            "Zhaohui Xu",
-            "Rui Zhao",
-            "Yibo He",
-            "Xinzhuang Niu"
+            "Can Xu",
+            "Qingfeng Sun",
+            "Kai Zheng",
+            "Xiubo Geng",
+            "Pu Zhao",
+            "Jiazhan Feng",
+            "Chongyang Tao",
+            "Qingwei Lin",
+            "Daxin Jiang"
           ],
-          "title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "title": "WizardLM: Empowering large pre-trained language models to follow complex instructions",
+          "topically_marginal": true,
           "venue": "arXiv",
-          "year": 2026
+          "year": 2023
         },
-        "primary_pointer": "2606.05868",
-        "summary": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+        "primary_pointer": "2304.12244",
+        "summary": "Training large language models (LLMs) with open-domain instruction following data brings colossal success. However, manually creating such instruction data is very time-consuming and labor-intensive. Moreover, humans may struggle to produce high-complexity instructions. In this paper, we show an avenue for creating large amounts of instruction data with varying levels of complexity using LLM instead of humans. Starting with an initial set of instructions, we use our proposed Evol-Instruct to rewrite them step by step into more complex instructions. Then, we mix all generated instruction data to fine-tune LLaMA. We call the resulting model WizardLM. Human evaluations on a complexity-balanced test bed and Vicuna's testset show that instructions from Evol-Instruct are superior to human-created ones. By analyzing the human evaluation results of the high complexity part, we demonstrate that outputs from our WizardLM are preferred to outputs from OpenAI ChatGPT. In GPT-4 automatic evaluation, WizardLM achieves more than 90\\% capacity of ChatGPT on 17 out of 29 skills. Even though WizardLM still lags behind ChatGPT in some aspects, our findings suggest that fine-tuning with AI-evolved instructions is a promising direction for enhancing LLMs. Our code and data are public at https://github.com/nlpxucan/WizardLM",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2606.05868",
+          "final_url": "https://arxiv.org/abs/2304.12244",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.8,
+          "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-05T21:40:56Z"
+          "verified_at": "2026-08-19T08:36:42Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Chenhao Dang",
-            "Jing Ma",
-            "Mingjie Liao"
+            "Renxi Wang",
+            "Haonan Li",
+            "Xudong Han",
+            "Yixuan Zhang",
+            "Timothy Baldwin"
           ],
-          "title": "Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning",
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents",
+          "topically_marginal": true,
           "venue": "arXiv",
-          "year": 2026
+          "year": 2024
         },
-        "primary_pointer": "2606.24133",
-        "summary": "The composition of training data, governed by the diversity of sources and their mixing strategy, is a cornerstone of Large Language Model (LLM) pre-training. Online Data Mixing (ODM), the technique of adaptively adjusting data mixtures during training, has emerged as a promising direction to improve efficiency. However, existing methods are constrained by their reliance on a singular optimization perspective, which fundamentally overlooks the need for complex LLM pre-training to consider the dynamic data composition from multiple dimensions. To overcome this limitation, we introduce the Holistic Data Scheduler (HDS), a novel online data mixing framework. HDS formulates the data scheduling challenge as a reinforcement learning problem in a continuous control space and leverages the Soft Actor-Critic (SAC) algorithm for its stability and sample efficiency in exploring the high-dimensional policy space. At the core of HDS lies a novel multi-objective, holistic reward function that integrates three critical perspectives: a data-driven reward for quality, a loss-driven reward capturing inter-domain influence, and a model-driven reward based on weight norms. To validate our design and determine its optimal configuration, we conducted systematic experiments on LLMs of various sizes. On The Pile benchmark, HDS reaches the final validation perplexity of the next best method with 44% fewer training iterations. Furthermore, it achieves a 7.2% improvement on the MMLU 0-shot task along with consistent gains on other benchmarks, showcasing its ability to enhance both training efficiency and final model capability.",
+        "primary_pointer": "2402.11651",
+        "summary": "Large language models (LLMs) have achieved success in acting as agents, which interact with environments through tools such as search engines. However, LLMs are optimized for language generation instead of tool use during training or alignment, limiting their effectiveness as agents. To resolve this problem, previous work has first collected interaction trajectories between LLMs and environments, using only trajectories that successfully finished the task to fine-tune smaller models, making fine-tuning data scarce and acquiring it both difficult and costly. Discarding failed trajectories also leads to significant wastage of data and resources and limits the possible optimization paths during fine-tuning. In this paper, we argue that unsuccessful trajectories offer valuable insights, and LLMs can learn from these trajectories through appropriate quality control and fine-tuning strategies. By simply adding a prefix or suffix that tells the model whether to generate a successful trajectory during training, we improve model performance by a large margin on mathematical reasoning, multi-hop question answering, and strategic question answering tasks. We further analyze the inference results and find that our method provides a better trade-off between valuable information and errors in unsuccessful trajectories. To our knowledge, we are the first to demonstrate the value of negative trajectories and their application in agent-tunning scenarios. Our findings offer guidance for developing better agent-tuning methods and low-resource data usage techniques.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2606.24133",
+          "final_url": "https://arxiv.org/abs/2402.11651",
           "http_status": 200,
-          "pdf_sample_score": 0.2915,
-          "query_relevance_score": 0.6,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-05T21:40:57Z"
+          "verified_at": "2026-08-19T08:36:42Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Borui Wan",
-            "Gaohong Liu",
-            "Zuquan Song",
-            "Jun Wang",
-            "Yun Zhang",
-            "Guangming Sheng",
-            "Shuguang Wang",
-            "Houmin Wei",
-            "Chenyuan Wang",
-            "Weiqiang Lou",
-            "Xi Yang",
-            "Mofan Zhang",
-            "Kaihua Jiang",
-            "Cheng Ren",
-            "Xiaoyun Zhi",
-            "Menghan Yu",
-            "Zhe Nan",
-            "Zhuolin Zheng",
-            "Baoquan Zhong",
-            "Qinlong Wang",
-            "Huan Yu",
-            "Jinxin Chi",
-            "Wang Zhang",
-            "Yuhan Li",
-            "Zixian Du",
-            "Sida Zhao",
-            "Yongqiang Zhang",
-            "Jingzhe Tang",
-            "Zherui Liu",
-            "Chuan Wu",
-            "Yanghua Peng",
-            "Haibin Lin",
-            "Wencong Xiao",
-            "Xin Liu",
-            "Liang Xiang"
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
           ],
-          "title": "Robust LLM Training Infrastructure at ByteDance",
+          "title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "topically_marginal": true,
           "venue": "arXiv",
-          "year": 2025
+          "year": 2023
         },
-        "primary_pointer": "2509.16293",
-        "summary": "The training scale of large language models (LLMs) has reached tens of thousands of GPUs and is still continuously expanding, enabling faster learning of larger models. Accompanying the expansion of the resource scale is the prevalence of failures (CUDA error, NaN values, job hang, etc.), which poses significant challenges to training stability. Any large-scale LLM training infrastructure should strive for minimal training interruption, efficient fault diagnosis, and effective failure tolerance to enable highly efficient continuous training. This paper presents ByteRobust, a large-scale GPU infrastructure management system tailored for robust and stable training of LLMs. It exploits the uniqueness of LLM training process and gives top priorities to detecting and recovering failures in a routine manner. Leveraging parallelisms and characteristics of LLM training, ByteRobust enables high-capacity fault tolerance, prompt fault demarcation, and localization with an effective data-driven approach, comprehensively ensuring continuous and efficient training of LLM tasks. ByteRobust is deployed on a production GPU platform and achieves 97% ETTR for a three-month training job on 9,600 GPUs.",
+        "primary_pointer": "2312.10793",
+        "summary": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2509.16293",
+          "final_url": "https://arxiv.org/abs/2312.10793",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-05T21:40:57Z"
+          "verified_at": "2026-08-19T08:36:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuzhang Shang",
+            "Zhihang Yuan",
+            "Qiang Wu",
+            "Zhen Dong"
+          ],
+          "title": "PB-LLM: Partially Binarized Large Language Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2310.00034",
+        "summary": "This paper explores network binarization, a radical form of quantization, compressing model weights to a single bit, specifically for Large Language Models (LLMs) compression. Due to previous binarization methods collapsing LLMs, we propose a novel approach, Partially-Binarized LLM (PB-LLM), which can achieve extreme low-bit quantization while maintaining the linguistic reasoning capacity of quantized LLMs. Specifically, our exploration first uncovers the ineffectiveness of naive applications of existing binarization algorithms and highlights the imperative role of salient weights in achieving low-bit quantization. Thus, PB-LLM filters a small ratio of salient weights during binarization, allocating them to higher-bit storage, i.e., partially-binarization. PB-LLM is extended to recover the capacities of quantized LMMs, by analyzing from the perspective of post-training quantization (PTQ) and quantization-aware training (QAT). Under PTQ, combining the concepts from GPTQ, we reconstruct the binarized weight matrix guided by the Hessian matrix and successfully recover the reasoning capacity of PB-LLM in low-bit. Under QAT, we freeze the salient weights during training, explore the derivation of optimal scaling factors crucial for minimizing the quantization error, and propose a scaling mechanism based on this derived scaling strategy for residual binarized weights. Those explorations and the developed methodologies significantly contribute to rejuvenating the performance of low-bit quantized LLMs and present substantial advancements in the field of network binarization for LLMs.The code is available at https://github.com/hahnyuan/BinaryLLM.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2310.00034",
+          "http_status": 200,
+          "pdf_sample_score": 0.2978,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-19T08:36:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Feilong Chen",
+            "Duzhen Zhang",
+            "Minglun Han",
+            "Xiuyi Chen",
+            "Jing Shi",
+            "Shuang Xu",
+            "Bo Xu"
+          ],
+          "title": "VLP: A Survey on Vision-Language Pre-training",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2202.09061",
+        "summary": "In the past few years, the emergence of pre-training models has brought uni-modal fields such as computer vision (CV) and natural language processing (NLP) to a new era. Substantial works have shown they are beneficial for downstream uni-modal tasks and avoid training a new model from scratch. So can such pre-trained models be applied to multi-modal tasks? Researchers have explored this problem and made significant progress. This paper surveys recent advances and new frontiers in vision-language pre-training (VLP), including image-text and video-text pre-training. To give readers a better overall grasp of VLP, we first review its recent advances from five aspects: feature extraction, model architecture, pre-training objectives, pre-training datasets, and downstream tasks. Then, we summarize the specific VLP models in detail. Finally, we discuss the new frontiers in VLP. To the best of our knowledge, this is the first survey focused on VLP. We hope that this survey can shed light on future research in the VLP field.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2202.09061",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-19T08:36:44Z"
         }
       }
     ]

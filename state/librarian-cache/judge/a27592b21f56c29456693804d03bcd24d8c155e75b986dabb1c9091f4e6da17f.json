@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2202.09061",
+  "judged_at": "2026-08-19T08:37:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mint: managed infrastructure for training and serving millions of llms\" computer science",
+  "rationale": "The paper is a survey on Vision-Language Pre-training (VLP) models and architectures, which is a distinct research domain from the user's question about \"Managed Infrastructure for Training and Serving Millions of LLMs\" (MinT). While both involve LLMs, the candidate paper focuses on multi-modal model design and pre-training objectives, whereas the user's question targets the systems engineering, resource management, and infrastructure scaling mechanisms required to train and serve models at mass",
+  "relevant": false
+}

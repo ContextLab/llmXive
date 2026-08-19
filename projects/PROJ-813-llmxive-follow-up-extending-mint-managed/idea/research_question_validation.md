@@ -1,21 +1,31 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
+
 **Verdict**: pass
-The question asks about the fundamental relationship between structural parameter overlap in LoRA adapters and scheduling efficiency, specifically investigating the conditions (burstiness patterns) under which this structural signal loses predictive power. It is framed as an inquiry into system behavior and workload characteristics rather than a benchmark of a specific model architecture or a feasibility check of a single tool.
+
+The question asks about the fundamental relationship between the structural similarity of model weights (parameter overlap) and the temporal locality of request patterns in a multi-tenant system. It investigates whether a specific property of the data (adapter topology) predicts system behavior (scheduling efficiency), which is a substantive question about the mechanics of LLM serving rather than a query about the performance of a specific algorithm.
 
 ### Circularity check
+
 **Verdict**: pass
-The predictor (structural parameter overlap) is derived from the static weight deltas of the LoRA adapters, while the predicted variable (scheduling efficiency/cold-start latency) is derived from the dynamic interaction of request traces and memory constraints in the simulation. These are independent signals: the static topology of the weights does not mechanically guarantee the temporal performance outcome under varying burstiness patterns.
+
+The predictor variable is derived from the static weight tensors of the LoRA adapters (computed via cosine similarity of weight deltas), while the predicted variable is the runtime cold-start latency resulting from scheduling decisions on dynamic request traces. These are independent sources: one is a property of the model weights, and the other is a property of the system's response to external traffic patterns, ensuring the relationship is not mechanically guaranteed by construction.
 
 ### Triviality check
+
 **Verdict**: pass
-A positive result (overlap-aware scheduling significantly reduces latency) would provide a novel, high-value strategy for multi-tenant serving that current heuristics miss. A null result (overlap is useless under high burstiness) is equally informative, as it would establish a critical boundary condition for the utility of topological analysis, preventing systems from wasting compute on similarity matrices when they are ineffective.
+
+A positive result (overlap-aware scheduling reduces latency) would validate the hypothesis that structural redundancy correlates with usage patterns, justifying the overhead of computing similarity matrices. A null result (burstiness destroys the predictive signal) would be equally informative, demonstrating the limits of topology-based caching and suggesting that simpler frequency-based heuristics are sufficient under high volatility. Both outcomes provide actionable guidance for system design.
 
 ### Question-narrowing check
+
 **Verdict**: pass
-The question explicitly names domain relationships ("parameter overlap," "scheduling efficiency," "request burstiness") and asks how they interact. It does not frame the inquiry around whether a specific implementation (e.g., "Can Python SimPy handle 10k adapters?") can meet a budget constraint, but rather what the underlying system dynamics dictate.
+
+The question explicitly names a domain relationship (the interaction between parameter overlap and request burstiness) rather than focusing on implementation constraints like specific hardware budgets or library versions. It asks "under what patterns" the signal holds, which is a scientific inquiry into the boundaries of a phenomenon, not a benchmark question.
 
 ### Overall verdict
+
 **Verdict**: validated
-All four checks pass; the research question identifies a substantive gap in systems knowledge regarding the interplay between static model topology and dynamic workload patterns. The question is well-scoped to determine the limits of a specific optimization strategy, making it a strong candidate for project initialization.
+
+All checks pass; the research question targets a genuine gap in understanding how structural model properties interact with workload dynamics in serving infrastructure. The question is well-framed to yield informative results regardless of the direction of the correlation, and it avoids circularity by using independent data sources for the predictor and the outcome.
