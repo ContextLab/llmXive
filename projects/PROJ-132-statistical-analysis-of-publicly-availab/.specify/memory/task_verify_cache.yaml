@@ -41,14 +41,6 @@ T018:
     \ the required logic to flag grid cells with fewer than 5 observations per Plan\
     \ Phase\u202F2 and to exclude them from downstream modeling. Consequently, the\
     \ artifact demanded by T018 is missing."
-T023a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No preprocessing scripts, GAMM fitting code, or resulting data/model outputs
-    were provided; the claim lacks any tangible artifact (e.g., CSV files, Python/R
-    scripts, model summary reports) that would demonstrate the required data pipeline
-    and GAMM with a mandatory GP random effect has been implemented. The next implementer
-    must supply the actual code and generated outputs meeting the specifications.
 T025c:
   c: false
   h: 93fa3d6863026d3c79377ab94b8855a246a852e60e00c07fc4bc1c4517831132

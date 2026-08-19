@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-132-statistical-analysis-of-publicly-availab",
+  "ok": false,
+  "reason": "6 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026irectory. To download or generate synthetic data:  ```bash python co\u2026\u201d; code/benchmark_runtime.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026: int = 1000000):     \"\"\"Generate a large synthetic dataset for benchmarking\u2026\u201d; code/benchmark_runtime.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.info(f\"Generating synthetic dataset with {n_rows} rows...\")\u2026\u201d; 1 command(s) failed: python code/run_pipeline.py (rc=1); 8 declared deliverable(s) absent: data/interim/trajectory_statistics.json; data/interim/weekly_centroids.parquet; data/processed/imputation_metadata.json",
+  "artifacts": [],
+  "failures": [
+    "python code/run_pipeline.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-132-statistical-analysis-of-publicly-availab/code/run_pipeline.py\", line 8, in <module>\n    from src.data.download import run_download_pipeline\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-132-statistical-analysis-of-publicly-availab/code/src/data/download.py\", line 10, in <module>\n    from src.config import setup_logging\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-132-statistical-analysis-of-publicly-availab/code/src/config.py\", line 96, in "
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-19T11:44:02Z"
+}
