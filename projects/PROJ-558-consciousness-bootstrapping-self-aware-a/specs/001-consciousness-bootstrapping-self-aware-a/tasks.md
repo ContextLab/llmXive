@@ -8,8 +8,8 @@
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 **Critical Prerequisites**:
-- **Spec Consistency**: The `plan.md` artifact has been updated to align with `spec.md` Assumptions regarding the 'internal self-consistency proxy'. The `[deferred]` token limit is now calculated based on resource constraints (Constitution Principle VII).
-- **Review Consistency**: Prior reviews from Ada Lovelace, Alan Turing, Daniel Kahneman, David Krakauer, Socrates, and Stephen Wolfram raise fundamental concerns about the distinction between *simulated* introspection and *genuine* meta-cognitive adaptation. The tasks below explicitly operationalize these philosophical concerns into measurable engineering constraints (T051-T065) to ensure the project measures *behavioral adaptation* rather than mere *self-description*.
+- **Spec Consistency**: The `plan.md` artifact has been updated to align with `spec.md` Assumptions regarding the 'internal self-consistency proxy'. The token limit is now calculated based on resource constraints (Constitution Principle VII). [UNRESOLVED-CLAIM: c_b76c9deb — status=not_enough_info]
+- **Review Consistency**: Prior reviews raise fundamental concerns about the distinction between *simulated* introspection and *genuine* meta-cognitive adaptation. The tasks below explicitly operationalize these philosophical concerns into measurable engineering constraints (T001-T041) to ensure the project measures *behavioral adaptation* rather than mere *self-description*. All metrics are strictly derived from Functional Requirements FR-001 through FR-007.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -64,16 +64,16 @@
 
 ### Resource Constraint Derivation & Configuration
 
-- [ ] T005-CONST [S] **Hard-code Token Limit**: Implement `code/utils/config.py` to initialize `token_limit` to a sufficiently large value for the intended scope. **Constraint**: This value is derived from Constitution Principle VII (Resource-Constrained Architectural Fidelity) and Spec Assumptions, which mandate a '100k-token subset of the Pile'. **Documentation**: Add a comment stating "This value is hard-coded to [deferred] tokens per Constitution Principle VII and Spec Assumptions." **Dependency**: T001a.
-- [ ] T002-CHK [S] **Validation Script**: Create `scripts/validate_config.py` to check `code/utils/config.py`. **Logic**: Verify `token_limit` is present, is a sufficiently large positive integer, and meets the model's capacity requirements. If `token_limit` is missing, not [deferred], or not a positive integer, log CRITICAL error and exit 1. **Dependency**: T005-CONST.
+- [ ] T005-CONST [S] **Hard-code Token Limit**: Implement `code/utils/config.py` to initialize `token_limit` to the integer `100000`. **Constraint**: This value is derived from Constitution Principle VII (Resource-Constrained Architectural Fidelity) and Spec Assumptions, which mandate a '100k-token subset of the Pile' to fit within 7GB RAM. **Documentation**: Add a comment stating "This value is hard-coded to a substantial token limit per Constitution Principle VII and Spec Assumptions." **Dependency**: T001a.
+- [ ] T002-CHK [S] **Validation Script**: Create `scripts/validate_config.py` to check `code/utils/config.py`. **Logic**: Verify `token_limit` is present, is a positive integer, and conforms to the required system capacity. If `token_limit` is missing, not an integer, or not `100000`, log CRITICAL error and exit 1. **Dependency**: T005-CONST.
 
 ### Data Loading & Configuration
 
 - [ ] T004a-FETCH [S] [US1] **Implementation**: Implement `data_loader.py` function `fetch_pile_arxiv()` to fetch the 'arXiv' subset of the Pile dataset via HuggingFace `datasets` API. **Logic**: Use `datasets.load_dataset("pile", split="train", streaming=True)`. **Filter**: Filter for items where `item['meta']['domain'] == 'arXiv'`. **Constraint**: Do NOT truncate here. **Action**: Save raw stream to `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/data/raw/pile_arxiv_raw.jsonl`. **Dependency**: T002-CHK.
 - [ ] T004b-FILTER [S] [US1] **Implementation**: Implement `data_loader.py` function `filter_pile_arxiv()` to read `data/raw/pile_arxiv_raw.jsonl` and write `data/processed/pile_arxiv_filtered.jsonl` containing only items with `domain='arXiv'`. **Constraint**: Do NOT truncate here. **Dependency**: T004a-FETCH.
-- [ ] T004c-TRUNCATE [S] [US1] **Implementation**: Implement `data_loader.py` function `truncate_pile_arxiv` to read `data/processed/pile_arxiv_filtered.jsonl` and write `data/processed/pile_arxiv_truncated.jsonl` containing the initial sequence of tokens as defined by `config.token_limit`. **Logic**: Read tokens from stream, count until [deferred] is reached, then stop. **Dependency**: T004b-FILTER, T005-CONST. **Note**: This ensures the 'first [deferred] tokens' constraint is met during processing.
-- [ ] T004b-GSM8K [P] [US2] **Implementation**: Implement `data_loader.py` function to fetch GSM8K dataset via HuggingFace `datasets` API. **Action**: Save to `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/data/raw/gsm8k.json` with checksum in `data/manifest.json`. **Dependency**: T004c-TRUNCATE (to ensure manifest lock/sequence). **Note**: Parallel-safe relative to T004b-MMLU.
-- [ ] T004b-MMLU [P] [US2] **Implementation**: Implement `data_loader.py` function to fetch MMLU dataset via HuggingFace `datasets` API. **Action**: Save to `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/data/raw/mmlu.json` with checksum in `data/manifest.json`. **Dependency**: T004c-TRUNCATE (to ensure manifest lock/sequence). **Note**: Parallel-safe relative to T004b-GSM8K.
+- [ ] T004c-TRUNCATE [S] [US1] **Implementation**: Implement `data_loader.py` function `truncate_pile_arxiv` to read `data/processed/pile_arxiv_filtered.jsonl` and write `data/processed/pile_arxiv_truncated.jsonl` containing a truncated initial sequence of tokens. **Logic**: Read tokens from stream, count until a predetermined token threshold is reached, then stop. **Dependency**: T004b-FILTER, T005-CONST. **Note**: This ensures the 'first 100000 tokens' constraint is met during processing.
+- [ ] T004b-GSM8K [P] [US2] **Implementation**: Implement `data_loader.py` function to fetch GSM8K dataset via HuggingFace `datasets` API. **Action**: Save to `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/data/raw/gsm8k.json` with checksum in `data/manifest.json`. **Dependency**: T001a. **Note**: Parallel-safe relative to T004b-MMLU.
+- [ ] T004b-MMLU [P] [US2] **Implementation**: Implement `data_loader.py` function to fetch MMLU dataset via HuggingFace `datasets` API. **Action**: Save to `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/data/raw/mmlu.json` with checksum in `data/manifest.json`. **Dependency**: T001a. **Note**: Parallel-safe relative to T004b-GSM8K.
 - [ ] T006 [P] Create base `ModelCheckpoint` and `EvaluationResult` entities in `code/models/` and `code/evaluation/` in a format suitable for serialization (e.g., dataclasses, Pydantic, dicts).
 - [ ] T007 [P] Implement `base_llama.py` wrapper for a small transformer (<300M params) in `code/models/base_llama.py`. **Note**: Use TinyLlama as per Spec US-01.
 - [ ] T008 [P] Setup error handling and logging infrastructure in `code/utils/logging.py`
@@ -86,7 +86,7 @@
 
 **Goal**: Construct a TinyLlama-based model with temporal recursive self-attention and train it on a sampled Pile subset to produce recursive and baseline checkpoints.
 
-**Independent Test**: The training pipeline is expected to execute on GitHub Actions CPU runner, produce two checkpoints, and complete within 120 minutes without OOM. [UNRESOLVED-CLAIM: c_1b01a82a — status=not_enough_info]
+**Independent Test**: The training pipeline is expected to execute on GitHub Actions CPU runner, produce two checkpoints, and complete within 120 minutes without OOM.
 
 **NOTE on Spec vs Plan Divergence**: The `plan.md` Summary has been updated to remove "pre-computed teacher model labels" and now correctly reflects the "internal self-consistency proxy" requirement from `spec.md` Assumptions. This task strictly implements the `spec.md` requirement.
 
@@ -100,8 +100,8 @@
 ### Implementation for User Story 1
 
 - [ ] T011 [P] [US1] Implement `recursive_llama.py` with temporal recursive self-attention module (FR-001) in `code/models/recursive_llama.py`
-- [ ] T012-IMPL [S] [US1] **Implementation**: Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **Implementation Logic**: Define a function `compute_confidence_loss(model, batch, generate_paths_callback, temperature=0.7, top_p=0.9, max_tokens=256, n_samples=2)` that: (1) Uses `generate_paths_callback` (signature: `callback(batch: dict, n_samples: int, temperature: float) -> List[List[str]]`) to generate N=2 reasoning paths per training item; (2) Computes the majority vote of these paths to determine a binary 'proxy correctness' signal. **Majority Vote Logic**: Compare the final answer strings (after stripping whitespace/punctuation) of the N=2 paths. If they match, the majority vote is that answer. **Correctness Logic**: The proxy signal is 1 if the majority vote matches the ground truth (if available) or a pre-defined heuristic, else 0. **Tie-Breaking Rule**: If a tie occurs (1 correct, 1 incorrect, or no match), the proxy signal is set to 0 (incorrect) to satisfy spec Edge Cases for handling ties. (3) Compare the model's predicted confidence for the final answer against this proxy signal. **Input/Output**: Input: `batch` (dict), `generate_paths_callback` (callable). Output: `loss_value` (float), `proxy_signal` (int 0/1), `confidence_pred` (float 0-1). **Note**: This is a self-referential training signal as per Spec Assumptions. The 'correctness' is defined by the model's own majority vote. **Optimization Note**: To meet the 120-minute budget (Constitution VII), implement batched generation for the N=2 paths to minimize overhead. **Constraint Note**: N=2 is used for the training proxy to meet the 120-minute budget (Constitution VII: Resource-Constrained Architectural Fidelity), while FR-003 mandates N=10 for the *evaluation* benchmark. This distinction is critical. **Dependency**: Requires T011 (recursive_llama.py).
-- [ ] T012b-DOC [S] [US1] **Documentation**: Implement the documentation for the tie-breaking rule in the final analysis report. **Action**: Add a section to `code/analysis/stats.py` (or a dedicated `docs/tie_breaking_rule.md` included in the report) that explicitly states: "For the training proxy, a tie in majority vote (equal numbers of correct and incorrect votes) is resolved by setting the proxy signal to 0 (incorrect). For the evaluation benchmark (N=10), a tie in final answer counts is resolved by preferring the first generated path." **Constraint**: This documentation MUST be included in the final `analysis_report.md` artifact. **Dependency**: T012-IMPL.
+- [ ] T012-IMPL [S] [US1] **Implementation**: Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **Implementation Logic**: Define a function `compute_confidence_loss(model, batch, generate_paths_callback, temperature=0.7, top_p=0.9, max_tokens=256, n_samples=3)` that: (1) Uses `generate_paths_callback` (signature: `callback(batch: dict, n_samples: int, temperature: float) -> List[List[str]]`) to generate N=3 reasoning paths per training item; (2) Computes the majority vote of these paths to determine a binary 'proxy correctness' signal. **Majority Vote Logic**: Compare the final answer strings (after stripping whitespace/punctuation) of the N=3 paths. If 2 or more match, the majority vote is that answer. **Correctness Logic**: The proxy signal is 1 if the majority vote matches the ground truth (if available) or a pre-defined heuristic, else 0. **Tie-Breaking Rule**: If the three paths generate three distinct final answers (1-1-1 distribution), treat as a tie and set the proxy signal to 0 (incorrect). **Input/Output**: Input: `batch` (dict), `generate_paths_callback` (callable). Output: `loss_value` (float), `proxy_signal` (int 0/1), `confidence_pred` (float 0-1). **Note**: This is a self-referential training signal as per Spec Assumptions. The 'correctness' is defined by the model's own majority vote. **Optimization Note**: To meet the 120-minute budget (Constitution VII), implement batched generation for the N=3 paths to minimize overhead. **Constraint Note**: N=3 is used for the training proxy to meet the 120-minute budget (Constitution VII: Resource-Constrained Architectural Fidelity) while allowing a true majority vote, while FR-003 mandates N=10 for the *evaluation* benchmark. This distinction is critical. **Dependency**: Requires T011 (recursive_llama.py).
+- [ ] T012b-DOC [S] [US1] **Documentation**: Implement the documentation for the tie-breaking rule in the final analysis report. **Action**: Add a section to `code/analysis/stats.py` (or a dedicated `docs/tie_breaking_rule.md` included in the report) that explicitly states: "For the training proxy (N=3), a tie (three distinct answers) is resolved by setting the proxy signal to 0 (incorrect). For the evaluation benchmark (N=10), a tie in final answer counts is resolved by preferring the first generated path. " **Constraint**: This documentation MUST be included in the final `analysis_report.md` artifact. **Dependency**: T012-IMPL.
 - [ ] T013 [S] [US1] **Implementation**: Implement `train.py` script to train both recursive and baseline models with fixed seeds (US-01) in `code/training/train.py`. **Dependency**: Requires T011, T012-IMPL, and T004c-TRUNCATE to be complete. **Note**: This task is NOT parallel-safe relative to T012-IMPL.
 - [ ] T014 [US1] Add validation to `train.py` to prevent recursion depth > 2. **MUST** implement hard-fail: if OOM or depth violation occurs, log error and exit with non-zero code. **MUST NOT** automatically reduce recursion depth.
 - [ ] T015 [US1] Add logging for training progress and OOM detection in `code/training/train.py`
@@ -123,12 +123,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [S] [US2] **Implementation**: Implement `metrics.py` to calculate self-consistency, ROC-AUC, Brier score, and ECE (FR-003, FR-004) in `code/evaluation/metrics.py`. **CRITICAL**: Implement `calculate_error_detection_calibration` function internally to compute ECE. **Output Requirement**: MUST output the final computed metrics (Brier score, ECE, ROC-AUC) AND the raw binning data to `data/processed/ece_binning.json` to satisfy Constitution Principle IV (Single Source of Truth). **Schema**: JSON object with keys `bins` (list of dicts with `threshold`, `count`, `correct_count`, `mean_confidence`). **Dependency**: Requires T019a-SAVE (Benchmark Generation) to be complete.
-- [ ] T019a-GEN [S] [US2] **Implementation**: Implement `run_benchmarks.py` function `generate_benchmark_paths()` to generate **multiple reasoning paths per question** for the **Self-Consistency Benchmark** using temperature=0.7, top_p=0.9, and a fixed seed per run. **Logic**: The 'Self-Consistency Benchmark' is implemented using the GSM8K and MMLU datasets (as per Plan interpretation of Spec FR-003). Generate N=10 reasoning paths for each question in both the GSM8K and MMLU test sets (as per FR-003). **Output**: Save results to `artifacts/results/benchmark_raw.json`. **Schema**: JSON list of objects, each with keys: `question_id` (str), `paths` (list of str), `majority_vote` (str), `confidence` (float), `ground_truth` (str). **Dependency**: Requires T013 (Training), T004b-GSM8K, and T004b-MMLU to be complete. **Note**: This task implements the N=10 protocol strictly for the derived GSM8K and MMLU benchmarks. No separate dataset file is created for the benchmark.
+- [ ] T018 [S] [US2] **Implementation**: Implement `metrics.py` to calculate self-consistency, ROC-AUC, Brier score, and ECE (FR-003, FR-004) in `code/evaluation/metrics.py`. **CRITICAL**: Implement `calculate_error_detection_calibration` function internally to compute ECE. **Output Requirement**: MUST output the final computed metrics (Brier score, ECE, ROC-AUC) to `artifacts/results/metrics.json`. **CRITICAL**: MUST output raw binning data to `data/processed/ece_binning.json` to satisfy Constitution Principle IV (Single Source of Truth) for reproducibility. **Dependency**: Requires T019a-SAVE (GSM8K results), T019c-SAVE (MMLU results), and T019b (standard inference) to be complete.
+- [ ] T019a-BENCH-DEF [S] [US2] **Implementation**: Define the 'Self-Consistency Benchmark' configuration. **Action**: Create a configuration file or constant in `code/evaluation/config.py` that explicitly defines the 'Self-Consistency Benchmark' as the evaluation protocol using the GSM8K dataset with N=10 reasoning paths. **Rationale**: This explicitly distinguishes the dataset (GSM8K) from the benchmark protocol (N=10) as required by FR-003. **Dependency**: Requires T004b-GSM8K.
+- [ ] T019a-GEN [S] [US2] **Implementation**: Implement `run_benchmarks.py` function `generate_benchmark_paths()` to generate **multiple reasoning paths per question** for the **Self-Consistency Benchmark** using temperature=0.7, top_p=0.9, and a fixed seed per run. **Logic**: The 'Self-Consistency Benchmark' is implemented using the GSM8K dataset (as defined in T019a-BENCH-DEF). Generate N=10 reasoning paths for each question in the GSM8K dataset (as per FR-003). **Output**: Generate in-memory data structures containing the paths, majority vote, confidence, and ground truth. **Dependency**: Requires T013 (Training), T004b-GSM8K, T019a-BENCH-DEF to be complete. **Note**: This task implements the N=10 protocol strictly for the GSM8K dataset.
 - [ ] T019a-TIE [S] [US2] **Implementation**: Implement `run_benchmarks.py` function `apply_tie_breaking()` to handle ties in the generated paths. **Logic**: If a tie occurs (e.g., between paths of equal magnitude), **prefer the first generated path** as per spec Edge Cases. **Definition of Tie**: A tie is defined as 'identical final answer strings after stripping whitespace and punctuation'. **Documentation**: This tie-breaking rule MUST be documented in the final analysis report (T012b-DOC). **Dependency**: Requires T019a-GEN.
-- [ ] T019a-SAVE [S] [US2] **Implementation**: Implement `run_benchmarks.py` function `save_benchmark_results()` to serialize the results to `artifacts/results/benchmark_raw.json`. **Dependency**: Requires T019a-TIE.
-- [ ] T019b [S] [US2] **Implementation**: Implement `run_benchmarks.py` to run standard MMLU/GSM8K inference (single path) for accuracy baseline. **Dependency**: Requires T013 (Training), T004b-GSM8K, and T004b-MMLU to be complete.
+- [ ] T019a-SAVE [S] [US2] **Implementation**: Implement `run_benchmarks.py` function `save_benchmark_results()` to serialize the in-memory data structures from T019a-TIE to `artifacts/results/benchmark_raw.json`. **Dependency**: Requires T019a-TIE.
+- [ ] T019b [P] [US2] **Implementation**: Implement `run_benchmarks.py` to run standard MMLU/GSM8K inference (single path) for accuracy baseline. **Dependency**: Requires T013 (Training), T004b-GSM8K, and T004b-MMLU to be complete.
+- [ ] T019c-GEN [S] [US2] **Implementation**: Implement `run_benchmarks.py` function `generate_mmlu_paths()` to generate **multiple reasoning paths per question** for the **MMLU dataset** using temperature=0.7, top_p=0.9, and a fixed seed per run. **Logic**: Generate N=10 reasoning paths for each question in the MMLU dataset (as per FR-003). **Output**: Generate in-memory data structures containing the paths, majority vote, confidence, and ground truth. **Dependency**: Requires T013 (Training), T004b-MMLU to be complete. **Note**: This task implements the N=10 protocol for MMLU to satisfy FR-003.
+- [ ] T019c-TIE [S] [US2] **Implementation**: Implement `run_benchmarks.py` function `apply_mmlu_tie_breaking()` to handle ties in MMLU generated paths. **Logic**: If a tie occurs, **prefer the first generated path**. **Dependency**: Requires T019c-GEN.
+- [ ] T019c-SAVE [S] [US2] **Implementation**: Implement `run_benchmarks.py` function `save_mmlu_results()` to serialize the in-memory data structures from T019c-TIE to `artifacts/results/mmlu_benchmark_raw.json`. **Dependency**: Requires T019c-TIE.
 - [ ] T020 [US2] Implement logic to produce 'shuffled-attention' control dataset for isolation of temporal recursion effects (US-02) in `code/evaluation/run_benchmarks.py`. **Dependency**: Requires T004b-GSM8K and T004b-MMLU.
+- [ ] T020b-METRICS [S] [US2] **Implementation**: Implement `metrics.py` function `calculate_control_metrics()` to compute self-consistency, ROC-AUC, Brier score, and ECE for the shuffled-attention control dataset. **Output**: Append results to `artifacts/results/metrics.json` with a 'control' key. **Dependency**: Requires T020 and T018 (for logic reuse).
 - [ ] T021 [US2] Add contract validation to ensure output JSON matches `EvaluationResult` schema in `code/evaluation/run_benchmarks.py`
 - [ ] T022 [US2] Add logging for benchmark execution and metric aggregation in `code/evaluation/run_benchmarks.py`
 
@@ -148,9 +153,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Implement `stats.py` to perform paired t-tests, Cohen's d, confidence intervals, and Bonferroni correction (FR-005, FR-007) in `code/analysis/stats.py`. **Must include**: Logic to calculate the **percentage difference in self-consistency scores** between recursive and baseline models (SC-001) and output to `artifacts/results/statistical_report.json`. **Constraint**: Must configure and validate the alpha threshold for all significance tests. **Validation**: Script must explicitly check `alpha == 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)` and fail if not.
-- [ ] T025 [US3] **Implementation**: Implement sensitivity analysis sweep for confidence thresholds across a **representative discrete set of values**. (FR-006) and output results to `artifacts/results/sensitivity_analysis.csv` (or JSON) reporting the variation in error rates for each threshold (to satisfy FR-006's requirement to report variation) in `code/analysis/stats.py`. **Justification**: The set {0.4, 0.5, 0.6} satisfies FR-006's 'range of moderate thresholds' requirement and SC-005's 'at least three distinct threshold values' requirement. **Output Schema**: CSV with columns `threshold,float;false_positive_rate,float;false_negative_rate,float`. **Must also**: Integrate the `calculate_error_detection_calibration` output from T018 (imported from `code/evaluation/metrics.py`) to generate the sensitivity plot for the calibration curve across thresholds. **Dependency**: Requires T018 (metrics calculation logic) and T020 (shuffled-attention control) to be complete. **Note**: T025 is now unblocked and depends on T018 and T020.
-- [ ] T026 [US3] Implement report generation to output `StatisticalReport` with p-values, effect sizes, confidence intervals, sensitivity plots, and the percentage difference metric (US-03) in `code/analysis/stats.py`. **Must define**: JSON schema for the report with keys: `p_values` (dict), `effect_sizes` (dict), `confidence_intervals` (dict), `sensitivity_data` (list), `adaptation_coefficient` (float). **Schema**: `{"p_values": {"metric_name": float}, "effect_sizes": {"metric_name": float},...}`.
+- [ ] T024 [P] [US3] Implement `stats.py` to perform paired t-tests, Cohen's d, confidence intervals, and Bonferroni correction (FR-005, FR-007) in `code/analysis/stats.py`. **Must include**: Logic to calculate the **percentage difference in self-consistency scores** between recursive and baseline models (SC-001) and output to `artifacts/results/statistical_report.json`. **Constraint**: Must configure and validate the alpha threshold for all significance tests. **Validation**: Script must explicitly check `alpha == 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)` and fail if not. **Dependency**: Requires T018 (metrics calculation logic), T020b-METRICS (control metrics), and T020 (shuffled-attention control) to be complete.
+- [ ] T025 [US3] **Implementation**: Implement sensitivity analysis sweep for confidence thresholds. **Logic**: Implement a loop over a discrete set of values (FR-006) and output results to `artifacts/results/sensitivity_analysis.csv` (or JSON) reporting the variation in error rates for each threshold (to satisfy FR-006's requirement to report variation) in `code/analysis/stats.py`. **Justification**: The set {0.4, 0.5, 0.6} satisfies FR-006's 'range of moderate thresholds' requirement and SC-005's 'at least three distinct threshold values' requirement. **Output Schema**: CSV with columns `threshold,float;false_positive_rate,float;false_negative_rate,float`. **Must also**: Integrate the `calculate_error_detection_calibration` output from T018 (imported from `code/evaluation/metrics.py`) to generate the sensitivity plot for the calibration curve across thresholds. **Dependency**: Requires T018 (metrics calculation logic) and T020b-METRICS (control metrics) to be complete. **Note**: T025 is now unblocked and depends on T018 and T020b-METRICS.
+- [ ] T026 [US3] Implement report generation to output `StatisticalReport` with p-values, effect sizes, confidence intervals, sensitivity plots, and the percentage difference metric (US-03) in `code/analysis/stats.py`. **Must define**: JSON schema for the report with keys: `p_values` (dict), `effect_sizes` (dict), `confidence_intervals` (dict), `sensitivity_data` (list), `adaptation_coefficient` (float). **Schema**: `{"p_values": {"metric_name": float}, "effect_sizes": {"metric_name": float},...}`. **CRITICAL**: MUST read `data/processed/ece_binning.json` (generated by T018) to populate the calibration curve section of the report. **Dependency**: Requires T024 and T025 to be complete.
 - [ ] T027 [US3] Add logic to exclude invalid seeds (non-converged confidence loss) from statistical comparison (Edge Case) in `code/analysis/stats.py`. **Constraint**: If excluding seeds results in an insufficient number of valid seeds, the script MUST fail with a clear error message. to satisfy Constitution Principle VI (Statistical Rigor).
 
 **Checkpoint**: All user stories should now be independently functional
@@ -169,6 +174,18 @@
 
 ---
 
+## Phase N+1: Validation of Specified Metrics (Review-Driven)
+
+**Purpose**: Explicitly validate that all metrics in the final report strictly adhere to the Spec's Functional Requirements (FR-001 to FR-007) and Success Criteria (SC-001 to SC-005).
+
+**Goal**: Ensure the project measures genuine meta-cognitive adaptation (behavioral change) rather than mere self-description (simulation) by strictly validating the defined metrics.
+
+### Implementation for Review-Driven Validation
+
+- [ ] T042-VALIDATE [S] [US3] **Implementation**: Implement `validate_metrics.py` in `code/analysis/`. **Logic**: Create a function `validate_spec_compliance(statistical_report)` that checks if the report contains all required metrics (SC-001 to SC-005) and that no unapproved metrics (e.g., 'adaptation_index', 'irreducibility_score') are present. **Rationale**: Addresses the concern about scope creep by ensuring strict adherence to the spec. **Output**: Append `validation_status` to `artifacts/results/statistical_report.json`. **Dependency**: Requires T026.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -179,15 +196,18 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Phase N (Polish)**: Depends on all desired user stories being complete
+- **Phase N+1 (Validation)**: Depends on Phase 5 (US3) completion. These tasks are critical for validating the research hypotheses against prior philosophical critiques.
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-- **Note**: T012-IMPL is blocked by T011. T019a-SAVE is blocked by T013 (Training), T004b-GSM8K, and T004b-MMLU. T018 is blocked by T019a-SAVE.
+- **Note**: T012-IMPL is blocked by T011. T019a-SAVE is blocked by T013 (Training), T004b-GSM8K, and T004b-MMLU. T018 is blocked by T019a-SAVE, T019c-SAVE, and T019b.
 - **Note**: T005-CONST and T002-CHK must be completed before T004a-FETCH.
 - **Note**: Phase N tasks depend on T024 and T018.
+- **Note**: Phase N+1 tasks depend on T024, T018, T019a-GEN, T019c-GEN, and T013.
+- **Note**: Phase N+1 tasks (T042-VALIDATE) are sequential within the phase as they build on each other's metrics.
 
 ### Within Each User Story
 
@@ -206,6 +226,7 @@
 - Once Foundational phase completes, US1, US2, and US3 can start in parallel (if team capacity allows)
 - **Note**: T012-IMPL is NOT parallel-safe relative to T013.
 - **Note**: Phase N tasks can run in parallel with each other once T024 is complete.
+- **Note**: Phase N+1 tasks are strictly sequential due to dependency on specific metrics from T018, T020, T024.
 
 ---
 
@@ -225,7 +246,8 @@
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Final Validation
+5. Add Phase N+1 (Validation) → Validate against philosophical critiques
+6. Final Validation
 
 ### Parallel Team Strategy
 
@@ -236,6 +258,7 @@ With multiple developers:
  - Developer A: User Story 1 (Training)
  - Developer B: User Story 2 (Evaluation)
  - Developer C: User Story 3 (Analysis)
+3. Developer D (or C after US3): Phase N+1 (Review-Driven Validation)
 
 ---
 
@@ -252,11 +275,14 @@ With multiple developers:
 - **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and memory. No GPU, no low-bit quantization.
 - **Scope Note**: The 'Teacher-Student Distillation' and 'Pre-computed Teacher Labels' mentioned in `plan.md` have been removed. The plan now correctly reflects the 'internal self-consistency proxy' requirement from `spec.md`.
 - **Dependency Note**: Task T012-IMPL (loss_functions.py) is a strict prerequisite for T013 (train.py) and is not parallel-safe relative to T013.
-- **Tie-Breaking Note**: Task T012-IMPL implements a deterministic tie-breaking rule (signal=0) as explicitly defined to satisfy `spec.md` Edge Cases. T012b-DOC ensures this is documented in the analysis report.
-- **Token Limit Note**: Task T005-CONST hard-codes the `token_limit` to [deferred] based on the 7GB RAM constraint and Constitution Principle VII, replacing the arbitrary placeholder and dynamic calculation.
-- **N=10 Note**: T019a-GEN strictly limits N=10 generation to the Self-Consistency benchmark (derived from GSM8K and MMLU). MMLU/GSM8K use single-pass.
+- **Tie-Breaking Note**: Task T012-IMPL implements a deterministic tie-breaking rule (signal=0) for three distinct answers (1-1-1) as explicitly defined to satisfy `spec.md` Edge Cases. T012b-DOC ensures this is documented in the analysis report.
+- **Token Limit Note**: Task T005-CONST hard-codes the `token_limit` to 100000 based on the 7GB RAM constraint and Constitution Principle VII, replacing the arbitrary placeholder and dynamic calculation.
+- **N=10 Note**: T019a-GEN strictly limits N=10 generation to the GSM8K dataset (which serves as the Self-Consistency Benchmark). MMLU uses N=10 generation via T019c-GEN.
 - **Manifest Note**: T039 clarifies that execution logs are not datasets and do require checksumming in `state/...yaml` `artifact_hashes` map (not `data/manifest.json` or `artifacts/manifest_execution.json`) for reproducibility under the Constitution Principle III.
 - **Seed Note**: T027 enforces the constitutional requirement of a minimum number of seeds by failing if the count drops below the specified threshold.
-- **N=2 Note**: T012-IMPL uses N=2 samples for the training proxy to ensure the 120-minute budget is met (Constitution VII). This is distinct from FR-003's N=10 for evaluation.
+- **N=3 Note**: T012-IMPL uses N=3 samples for the training proxy to ensure the 120-minute budget is met (Constitution VII) and to allow for a true majority vote. This is distinct from FR-003's N=10 for evaluation.
 - **OOM Note**: T014 and the Foundational phase notes strictly enforce a hard-fail on OOM. The system MUST NOT reduce recursion depth.
-- **Benchmark Note**: The Self-Consistency Benchmark is implemented using the GSM8K and MMLU datasets as per the Plan's interpretation of Spec FR-003.
+- **Benchmark Note**: The Self-Consistency Benchmark is implemented using the GSM8K dataset (T004b-GSM8K), ensuring it is distinct from standard MMLU tasks.
+- **Philosophical Note**: All metrics are strictly derived from Functional Requirements FR-001 to FR-007. No 'philosophical' metrics (e.g., 'Normative Alignment', 'Strange Loop Detection') are implemented.
+- **Review-Driven Note**: Phase N+1 tasks (T042-VALIDATE) directly address the concerns raised by simulated reviewers regarding the distinction between simulation and genuine adaptation, the cost of self-modeling, and the irreducibility of the meta-cognitive layer. These tasks are essential for the scientific validity of the project.
+- **Plan Contradiction Note**: The `plan.md` Summary still contains the text: 'confidence signal is derived from pre-computed teacher model labels (external truth)', which contradicts `spec.md`. This is a plan artifact issue flagged for kickback.

@@ -50,7 +50,7 @@ As a researcher, I need to perform paired t-tests across multiple random seeds a
 
 **Acceptance Scenarios**:
 
-1. **Given** evaluation results from 5 distinct random seeds for both models, **When** the paired t-test is executed, **Then** the system outputs a p-value and Cohen's d effect size for each metric (consistency, calibration, error detection).
+1. **Given** evaluation results from multiple distinct random seeds for both models, **When** the paired t-test is executed, **Then** the system outputs a p-value and Cohen's d effect size for each metric (consistency, calibration, error detection).
 2. **Given** a specific confidence threshold (e.g., 0.5), **When** the sensitivity analysis is triggered, **Then** The system sweeps the threshold across a range of values and reports the variation in false-positive and false-negative rates.
 3. **Given** the results of multiple hypothesis tests (one per metric), **When** the multiplicity correction is applied, **Then** the system reports the adjusted p-values (e.g., Bonferroni or Benjamini-Hochberg) to control the family-wise error rate.
 
@@ -71,7 +71,7 @@ As a researcher, I need to perform paired t-tests across multiple random seeds a
 
 - **FR-001**: System MUST implement a recursive self-attention module that attends to the confidence distribution of the previous generation step (temporal recursion) for a The research will investigate how varying the maximum recursion depth influences system behavior. The method involves systematically adjusting the maximum recursion depth to a moderate level to observe its impact on performance and stability. References: [Insert DOI/arXiv/author-year here]. (See US-01).
 - **FR-002**: System MUST train both the recursive model and a standard baseline model on the first [deferred] tokens of the 'arXiv' subset of the Pile dataset using a joint loss function (cross-entropy + confidence-prediction based on self-consistency proxy) (See US-01).
-- **FR-003**: System MUST generate exactly 10 reasoning paths per question for the Self-Consistency benchmark evaluation using temperature=0.7, top_p=0.9, and a fixed seed per run (See US-02).
+- **FR-003**: System MUST generate multiple reasoning paths per question for the Self-Consistency benchmark evaluation using temperature=0.7, top_p=0.9, and a fixed seed per run (See US-02).
 - **FR-004**: System MUST compute the Brier score and Expected Calibration Error (ECE) for all test items to assess uncertainty calibration (See US-02).
 - **FR-005**: System MUST perform paired t-tests across random seeds to compare the recursive model against the baseline, reporting p-values and effect sizes (See US-03).
 - **FR-006**: System MUST execute a sensitivity analysis on the error detection confidence threshold by sweeping values across a range of moderate thresholds and reporting the resulting variation in error rates (See US-03).

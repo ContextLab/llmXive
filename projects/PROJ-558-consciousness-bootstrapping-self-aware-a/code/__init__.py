@@ -1,3 +1,3 @@
 """
-Codebase for the Consciousness Bootstrapping: Self-Aware AI project.
+Consciousness Bootstrapping Project Code Base.
 """

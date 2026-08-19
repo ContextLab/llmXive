@@ -2,65 +2,67 @@ import os
 import shutil
 from pathlib import Path
 import pytest
+
 from code.create_project_structure import create_structure
 
 @pytest.fixture
-def project_name():
-    return "TEST-PROJ-558-TEMP"
-
-@pytest.fixture
-def cleanup_project(project_name):
-    """Yields a clean project path and cleans it up after the test."""
-    base_dir = Path("projects")
-    project_dir = base_dir / project_name
-    
-    # Ensure it doesn't exist before the test
-    if project_dir.exists():
-        shutil.rmtree(project_dir)
-    
-    yield project_dir
-    
-    # Cleanup after test
+def temp_project_root(tmp_path):
+    """
+    Setup a temporary directory to simulate the project root.
+    We change the current working directory to this temp dir to ensure
+    relative paths in create_structure behave correctly during tests.
+    """
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    yield tmp_path
+    os.chdir(original_cwd)
+    # Cleanup: remove the created project structure if it exists
+    project_dir = tmp_path / "projects" / "PROJ-558-consciousness-bootstrapping-self-aware-a"
     if project_dir.exists():
         shutil.rmtree(project_dir)
 
-def test_create_structure_creates_all_directories(cleanup_project, project_name):
-    """Test that create_structure creates the full directory tree."""
-    create_structure(project_name)
+def test_create_structure_creates_all_directories(temp_project_root):
+    """
+    Verify that create_structure() creates all required directories.
+    """
+    # Execute the function
+    created_count = create_structure()
     
-    expected_subdirs = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "tests",
-        "artifacts",
-        "artifacts/checkpoints",
-        "artifacts/results",
+    # Define expected paths relative to the temp root
+    base_dir = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
+    expected_paths = [
+        base_dir,
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "code",
+        base_dir / "tests",
+        base_dir / "artifacts" / "checkpoints",
+        base_dir / "artifacts" / "results",
     ]
     
-    for subdir in expected_subdirs:
-        dir_path = cleanup_project / subdir
-        assert dir_path.exists(), f"Directory {dir_path} was not created"
-        assert dir_path.is_dir(), f"{dir_path} exists but is not a directory"
-
-def test_create_structure_idempotent(cleanup_project, project_name):
-    """Test that running create_structure twice doesn't raise errors."""
-    create_structure(project_name)
-    # Run again
-    create_structure(project_name)
+    # Verify all directories exist
+    for path in expected_paths:
+        assert path.exists(), f"Directory {path} was not created."
+        assert path.is_dir(), f"{path} exists but is not a directory."
     
-    # Verify structure still exists
-    assert (cleanup_project / "code").exists()
-    assert (cleanup_project / "data/raw").exists()
+    # Verify the count of created directories (should be 7 in a clean run)
+    # Note: The function returns the count of directories it actually created (mkdir called).
+    # Since we just created them, count should match the number of unique paths.
+    assert created_count == len(expected_paths), f"Expected {len(expected_paths)} directories created, got {created_count}."
 
-def test_create_structure_relative_to_root():
-    """Test that the structure is created under 'projects/' relative to cwd."""
-    test_name = "TEST-REL-ROOT"
-    try:
-        create_structure(test_name)
-        assert Path("projects").exists()
-        assert Path(f"projects/{test_name}").exists()
-    finally:
-        # Cleanup
-        if Path(f"projects/{test_name}").exists():
-            shutil.rmtree(f"projects/{test_name}")
+def test_create_structure_idempotent(temp_project_root):
+    """
+    Verify that running create_structure() twice does not fail and creates 0 new dirs on second run.
+    """
+    # First run
+    first_count = create_structure()
+    assert first_count > 0, "First run should create directories."
+    
+    # Second run
+    second_count = create_structure()
+    assert second_count == 0, "Second run should not create any new directories."
+    
+    # Verify paths still exist
+    base_dir = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
+    assert (base_dir / "data" / "raw").exists()
+    assert (base_dir / "artifacts" / "results").exists()

@@ -1,100 +1,133 @@
 """
-ModelCheckpoint entity for serialization.
+ModelCheckpoint entity for serializing model states and metadata.
 
-Defines the structure for saving and loading model training states,
-including metadata, metrics, and configuration snapshots.
+This module defines the `ModelCheckpoint` dataclass, which serves as the
+primary container for saving and loading model weights, optimizer states,
+and associated training metadata. It is designed for strict serialization
+compatibility (JSON for metadata, binary for tensors) and adheres to the
+project's data hygiene principles.
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Optional, Dict, List
 from datetime import datetime
 import json
 from pathlib import Path
 import os
+import torch
+import hashlib
 
 @dataclass
 class ModelCheckpoint:
     """
     Represents a saved state of a model during or after training.
-    
+
     Attributes:
-        checkpoint_id: Unique identifier for this checkpoint.
-        model_name: Name of the model architecture (e.g., 'recursive_llama').
-        epoch: The training epoch number when this checkpoint was saved.
-        step: The global training step number.
-        loss: The final loss value at this checkpoint.
-        metrics: Dictionary of additional metrics (accuracy, self_consistency, etc.).
-        config_snapshot: Snapshot of the configuration used during training.
-        path: Filesystem path where the checkpoint weights are stored.
-        created_at: Timestamp of creation.
-        metadata: Additional arbitrary metadata.
+        checkpoint_id: Unique identifier for this checkpoint (e.g., UUID or hash).
+        model_name: Name of the model architecture (e.g., 'recursive_llama', 'baseline_llama').
+        step: The training step number at which this checkpoint was saved.
+        epoch: The epoch number at which this checkpoint was saved.
+        timestamp: ISO 8601 formatted string of when the checkpoint was saved.
+        config_snapshot: A dictionary of the hyperparameters and config used at this step.
+        metrics_snapshot: A dictionary of training metrics at this step (loss, accuracy, etc.).
+        state_dict_path: Relative path to the file containing the torch state_dict.
+        optimizer_state_path: Relative path to the file containing the optimizer state.
+        tags: Optional list of tags for categorization (e.g., 'best_val', 'final').
+        checksum: SHA-256 checksum of the state_dict file for integrity verification.
     """
     checkpoint_id: str
     model_name: str
-    epoch: int
     step: int
-    loss: float
-    metrics: Dict[str, Any] = field(default_factory=dict)
+    epoch: int
+    timestamp: str
     config_snapshot: Dict[str, Any] = field(default_factory=dict)
-    path: Optional[str] = None
-    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metrics_snapshot: Dict[str, Any] = field(default_factory=dict)
+    state_dict_path: Optional[str] = None
+    optimizer_state_path: Optional[str] = None
+    tags: List[str] = field(default_factory=list)
+    checksum: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the checkpoint to a dictionary for serialization."""
+        """
+        Converts the checkpoint metadata to a dictionary suitable for JSON serialization.
+        Note: Binary tensors are excluded; only paths and metadata are included.
+        """
         return {
             "checkpoint_id": self.checkpoint_id,
             "model_name": self.model_name,
-            "epoch": self.epoch,
             "step": self.step,
-            "loss": self.loss,
-            "metrics": self.metrics,
+            "epoch": self.epoch,
+            "timestamp": self.timestamp,
             "config_snapshot": self.config_snapshot,
-            "path": self.path,
-            "created_at": self.created_at,
-            "metadata": self.metadata
+            "metrics_snapshot": self.metrics_snapshot,
+            "state_dict_path": self.state_dict_path,
+            "optimizer_state_path": self.optimizer_state_path,
+            "tags": self.tags,
+            "checksum": self.checksum
         }
 
-    def to_json(self, indent: int = 2) -> str:
-        """Serialize the checkpoint to a JSON string."""
-        return json.dumps(self.to_dict(), indent=indent, default=str)
-
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ModelCheckpoint":
-        """Load a checkpoint from a dictionary."""
+    def from_dict(cls, data: Dict[str, Any]) -> 'ModelCheckpoint':
+        """
+        Reconstructs a ModelCheckpoint from a dictionary.
+        """
         return cls(
             checkpoint_id=data["checkpoint_id"],
             model_name=data["model_name"],
-            epoch=data["epoch"],
             step=data["step"],
-            loss=data["loss"],
-            metrics=data.get("metrics", {}),
+            epoch=data["epoch"],
+            timestamp=data["timestamp"],
             config_snapshot=data.get("config_snapshot", {}),
-            path=data.get("path"),
-            created_at=data.get("created_at", datetime.now().isoformat()),
-            metadata=data.get("metadata", {})
+            metrics_snapshot=data.get("metrics_snapshot", {}),
+            state_dict_path=data.get("state_dict_path"),
+            optimizer_state_path=data.get("optimizer_state_path"),
+            tags=data.get("tags", []),
+            checksum=data.get("checksum")
         )
 
+    def save_metadata(self, output_path: Path) -> None:
+        """
+        Saves the checkpoint metadata to a JSON file.
+
+        Args:
+            output_path: The file path where the metadata JSON will be written.
+        """
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(self.to_dict(), f, indent=2, default=str)
+
     @classmethod
-    def from_json(cls, json_str: str) -> "ModelCheckpoint":
-        """Load a checkpoint from a JSON string."""
-        data = json.loads(json_str)
+    def load_metadata(cls, input_path: Path) -> 'ModelCheckpoint':
+        """
+        Loads checkpoint metadata from a JSON file.
+
+        Args:
+            input_path: The file path to read the metadata from.
+
+        Returns:
+            A ModelCheckpoint instance populated with the file data.
+        """
+        if not input_path.exists():
+            raise FileNotFoundError(f"Checkpoint metadata not found at {input_path}")
+        
+        with open(input_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
         return cls.from_dict(data)
 
-    def save_metadata(self, output_dir: str) -> str:
+    def compute_checksum(self, state_dict_path: Path) -> str:
         """
-        Save the checkpoint metadata to a JSON file in the specified directory.
-        
+        Computes the SHA-256 checksum of the state_dict file.
+
         Args:
-            output_dir: Directory path to save the metadata file.
-            
+            state_dict_path: Path to the binary state_dict file.
+
         Returns:
-            The full path to the saved metadata file.
+            Hexadecimal string of the SHA-256 hash.
         """
-        os.makedirs(output_dir, exist_ok=True)
-        filename = f"checkpoint_{self.checkpoint_id}_metadata.json"
-        filepath = os.path.join(output_dir, filename)
-        
-        with open(filepath, "w", encoding="utf-8") as f:
-            f.write(self.to_json())
-        
-        return filepath
+        sha256_hash = hashlib.sha256()
+        with open(state_dict_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        self.checksum = sha256_hash.hexdigest()
+        return self.checksum

@@ -1,48 +1,46 @@
 import os
 from pathlib import Path
 
-def create_structure(project_name: str = "PROJ-558-consciousness-bootstrapping-self-aware-a") -> None:
+def create_structure():
     """
-    Creates the directory structure for the project as specified in T001a.
+    Creates the directory structure for the Consciousness Bootstrapping project.
     
-    Structure:
-    projects/{project_name}/
-    ├── data/raw
-    ├── data/processed
-    ├── code
-    ├── tests
-    ├── artifacts
-    ├── artifacts/checkpoints
-    └── artifacts/results
-    
-    Args:
-        project_name: The name of the project directory to create under 'projects/'.
+    Creates the following hierarchy relative to the project root:
+    projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
+    ├── data/
+    │   ├── raw/
+    │   └── processed/
+    ├── code/
+    ├── tests/
+    ├── artifacts/
+    │   ├── checkpoints/
+    │   └── results/
     """
-    base_dir = Path("projects")
-    project_dir = base_dir / project_name
+    # Define the base project directory
+    base_dir = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
     
-    # Define subdirectories relative to the project root
-    subdirs = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "tests",
-        "artifacts",
-        "artifacts/checkpoints",
-        "artifacts/results",
+    # Define all required subdirectories
+    directories = [
+        base_dir,
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "code",
+        base_dir / "tests",
+        base_dir / "artifacts" / "checkpoints",
+        base_dir / "artifacts" / "results",
     ]
     
-    # Create the project root directory if it doesn't exist
-    project_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Created project directory: {project_dir}")
+    # Create directories
+    created_count = 0
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+        else:
+            pass  # Directory already exists, no action needed
     
-    # Create all subdirectories
-    for subdir in subdirs:
-        dir_path = project_dir / subdir
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"  Created: {dir_path}")
-    
-    print(f"Directory structure for '{project_name}' created successfully.")
+    return created_count
 
 if __name__ == "__main__":
-    create_structure()
+    count = create_structure()
+    print(f"Created {count} directories.")
