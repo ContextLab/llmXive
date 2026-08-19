@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-349-predicting-the-impact-of-ball-milling-on",
   "ok": false,
-  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/audit_report_T048.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026No synthetic fallbacks, mock data generators, or random da\u2026\u201d; code/src/ingest/stream_uci_fallback.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026domain match. # We will generate synthetic-like but REAL-derived ro\u2026\u201d; 9 command(s) failed: python -m src.ingest.arxiv_extractor (rc=1); python -m src.preprocess.pipeline (rc=1); python -m src.model.train_gpr # may be skipped automatically (rc=1); 1 declared deliverable(s) absent: data/raw/merged_dataset.parquet",
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/audit_report_T048.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026No synthetic fallbacks, mock data generators, or random da\u2026\u201d; code/src/ingest/stream_uci_fallback.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026domain match. # We will generate synthetic-like but REAL-derived ro\u2026\u201d; 9 command(s) failed: python -m src.ingest.arxiv_extractor (rc=1); python -m src.preprocess.pipeline (rc=1); python -m src.model.train_gpr # may be skipped automatically (rc=1)",
   "artifacts": [],
   "failures": [
     "python -m src.ingest.arxiv_extractor -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/src/ingest/arxiv_extractor.py\", line 20, in <module>\n    from pdfminer.layout import LAParams, LTTable, LTText\nImportError: cannot import name 'LTTable' from 'pdfminer.layout' (/home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/lib/python3.11/site-packages/",
@@ -14,11 +14,11 @@
     "python -m src.interpret.feature_importance -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.interpret.feature_importance",
     "python -m src.utils.generate_report # creates results/summary.txt and figures -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.utils.generate_report"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 11,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 11,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-18T23:31:37Z"
+  "updated_at": "2026-08-19T13:37:36Z"
 }
