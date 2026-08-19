@@ -1,56 +1,78 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Output Schema"
-description: "Schema for the statistical model output (LMM/GLMM)."
+description: "Schema for the statistical model results JSON file."
 type: "object"
 properties:
   model_type:
     type: "string"
-    description: "Type of model used (e.g., 'LMM', 'GLMM')."
+    description: "Type of model fitted (e.g., 'LMM', 'GLMM')."
   fixed_effects:
     type: "object"
-    description: "Dictionary of fixed effect coefficients."
-    additionalProperties:
-      type: "object"
-      properties:
-        estimate:
-          type: "number"
-        std_error:
-          type: "number"
-        p_value:
-          type: "number"
-      required:
-        - estimate
-        - std_error
-        - p_value
+    description: "Fixed effect coefficients."
+    properties:
+      temperature_c:
+        type: "object"
+        properties:
+          estimate:
+            type: "number"
+          std_error:
+            type: "number"
+          p_value:
+            type: "number"
+          confidence_interval:
+            type: "array"
+            items:
+              type: "number"
+            minItems: 2
+            maxItems: 2
+      dilemma_complexity:
+        type: "object"
+        properties:
+          estimate:
+            type: "number"
+          std_error:
+            type: "number"
+          p_value:
+            type: "number"
+      time_of_day:
+        type: "object"
+        properties:
+          estimate:
+            type: "number"
+          std_error:
+            type: "number"
+          p_value:
+            type: "number"
+    required:
+      - temperature_c
   random_effects:
     type: "object"
-    description: "Dictionary of random effect variances."
-    additionalProperties:
-      type: "number"
-  likelihood_ratio_test:
-    type: "object"
-    description: "Result of the likelihood ratio test against the null model."
+    description: "Random effect variances."
     properties:
-      statistic:
+      participant_id:
         type: "number"
-      p_value:
+      cultural_region:
         type: "number"
-      df_diff:
-        type: "integer"
-  convergence_status:
-    type: "string"
-    description: "Status of model convergence (e.g., 'success', 'warning')."
   diagnostics:
     type: "object"
-    description: "Diagnostic test results."
+    description: "Model diagnostics."
     properties:
-      anderson_darling_p_value:
-        type: "number"
-      normality_assessed:
+      convergence:
         type: "boolean"
+      residual_normality_p:
+        type: "number"
+      aic:
+        type: "number"
+      bic:
+        type: "number"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the run."
 required:
   - model_type
   - fixed_effects
-  - convergence_status
-  - likelihood_ratio_test
+  - random_effects
+  - diagnostics
+  - timestamp
 additionalProperties: false

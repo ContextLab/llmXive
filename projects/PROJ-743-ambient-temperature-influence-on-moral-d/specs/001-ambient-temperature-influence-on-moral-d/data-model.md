@@ -1,111 +1,71 @@
 # Data Model: Ambient Temperature Influence on Moral Decision Speed
 
-## Entity Relationship Diagram (Conceptual)
+## 1. Entity Relationship Diagram (Textual)
 
 ```mermaid
 erDiagram
- MORAL_RESPONSE ||--o{ TEMPERATURE_RECORD: "matched_by"
- MORAL_RESPONSE {
- string response_id PK
- string participant_id FK
- float latitude
- float longitude
- datetime timestamp
- float response_time_ms
- string dilemma_id
- string choice
- string country
- }
- TEMPERATURE_RECORD {
- string grid_id
- float latitude
- float longitude
- datetime timestamp_hourly
- float temperature_2m_c
- }
- MERGED_DATASET ||--o| EXCLUSION_LOG: "logged_in"
- MERGED_DATASET {
- string response_id PK
- float temperature_celsius
- float temperature_squared
- float dilemma_complexity
- string time_of_day
- string urban_rural_proxy
- string match_quality
- string station_id
- datetime match_timestamp
- }
+    MORAL_RESPONSE ||--o{ TEMPERATURE_RECORD : "matched via lat/long/time"
+    MORAL_RESPONSE ||--o{ DILEMMA : "uses"
+    MORAL_RESPONSE ||--o{ PARTICIPANT : "belongs to"
+    PARTICIPANT ||--o{ MORAL_RESPONSE : "makes"
+    DILEMMA ||--o{ MORAL_RESPONSE : "presents"
 ```
 
-## Data Schemas
+## 2. Schema Definitions
 
-### 1. Raw Input: Moral Machine Response
-* **Source**: `data/raw/moral_machine.csv`
-* **Format**: CSV
-* **Fields**:
- * `response_id` (string): Unique identifier.
- * `participant_id` (string): Unique user ID.
- * `country` (string): ISO country code.
- * `latitude` (float): Decimal degrees.
- * `longitude` (float): Decimal degrees.
- * `timestamp` (datetime): ISO 8601.
- * `response_time_ms` (int): Milliseconds.
- * `dilemma_id` (string): Dilemma scenario ID.
- * `choice` (string): "save_many", "save_few", etc.
+### 2.1. Raw Moral Machine Data (`data/raw/moral_machine.csv`)
 
-### 2. Raw Input: ERA5 Temperature
-* **Source**: ` (accessed via `cdsapi` for a multi-year period)
-* **Format**: NetCDF/HDF5 (converted to `xarray` dataset)
-* **Fields**:
- * `time` (datetime): Hourly timestamps.
- * `latitude` (float): Grid latitude.
- * `longitude` (float): Grid longitude.
- * `temperature_2m` (float): Temperature in Kelvin (converted to Celsius).
+| Column | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `id` | INT | Unique record ID | PK |
+| `participant_id` | STRING | Anonymous participant ID | |
+| `country` | STRING | Country of participant | |
+| `latitude` | FLOAT | Latitude (decimal) | Not Null |
+| `longitude` | FLOAT | Longitude (decimal) | Not Null |
+| `timestamp` | TIMESTAMP | UTC timestamp of decision | Not Null |
+| `response_time_ms` | INT | Response time in milliseconds | > 0 |
+| `dilemma_id` | INT | Dilemma scenario ID | |
+| `choice` | STRING | "save_many" or "save_few" | |
+| `age_group` | STRING | Age bracket (if available) | |
+| `gender` | STRING | Gender (if available) | |
 
-### 3. Processed: Merged Dataset
-* **Target**: `data/processed/merged_dataset.parquet`
-* **Format**: Parquet (for efficiency)
-* **Fields**:
- * `response_id` (string): PK.
- * `participant_id` (string).
- * `country` (string).
- * `response_time_ms` (int): Filtered (<100 ms or >10 000 ms removed).
- * `log_response_time` (float): Natural log of response time.
- * `temperature_celsius` (float): Mapped from ERA5.
- * `temperature_squared` (float): `temperature_celsius ** 2`.
- * `dilemma_complexity` (float): Derived static metric.
- * `time_of_day` (float): Hour of the day (0‑23) or sin/cos encoded.
- * `choice_type` (string): Type of moral choice made (e.g., 'save_many').
- * `distance_km` (float): Distance to the nearest ERA5 grid point.
- * `station_id` (string): Identifier of the matched ERA5 grid cell.
- * `match_timestamp` (datetime): Timestamp of the matched ERA5 observation.
- * `match_quality` (string): "high" if distance ≤ 25 km, "low" otherwise.
- * `exclusion_flag` (bool): True if the record was excluded due to distance, time gap, or temperature extreme.
+### 2.2. Temperature Record (`data/raw/era5/` or `data/raw/worldclim/`)
 
-### 4. Log: Exclusion Log
-* **Target**: `results/logs/exclusion_log.csv`
-* **Format**: CSV
-* **Fields**:
- * `response_id` (string).
- * `reason` (string): "distance > 100km", "ERA5 coverage gap", "invalid response time", "missing location", etc.
- * `original_lat` (float), `original_lon` (float).
- * `timestamp` (datetime).
+| Column | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `grid_id` | STRING | Grid cell identifier | |
+| `latitude` | FLOAT | Grid center latitude | |
+| `longitude` | FLOAT | Grid center longitude | |
+| `temperature_c` | FLOAT | Ambient temperature (C) | |
+| `time_period` | STRING | "2014-2018" (ERA5 subset) | |
 
-### 5. Log: Match Log
-* **Target**: `results/logs/match_log.csv`
-* **Format**: CSV
-* **Fields**:
- * `response_id` (string).
- * `station_id` (string).
- * `match_timestamp` (datetime).
- * `distance_km` (float).
- * `match_quality` (string).
+### 2.3. Merged Dataset (`data/processed/merged_dataset.parquet`)
 
-## Data Flow
+| Column | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `record_id` | STRING | Composite ID (MM_ID + GRID_ID) | Derived |
+| `participant_id` | STRING | Participant ID | MM |
+| `country` | STRING | Country | MM |
+| `latitude` | FLOAT | Lat | MM |
+| `longitude` | FLOAT | Long | MM |
+| `response_time_log` | FLOAT | Log-transformed response time | Derived |
+| `temperature_c` | FLOAT | Ambient temperature | ERA5 |
+| `distance_km` | FLOAT | Distance to grid point | Derived |
+| `dilemma_complexity` | FLOAT | Static complexity score | Derived |
+| `time_of_day` | FLOAT | Hour of day (0-23) | Derived |
+| `quality_flag` | STRING | "OK", "LOW_CONF", "EXCLUDED" | Derived |
 
-1. **Ingestion**: Download ERA5 via CDS API and Moral Machine CSV.
-2. **Validation**: Verify checksums and resolution (31 km, hourly). Abort if checks fail (FR‑014).
-3. **Matching**: Chunked nearest‑neighbor join using KD‑Tree; enforce distance ≤ 100 km and temporal gap ≤ 2 h. Log successes to `match_log.csv` and failures to `exclusion_log.csv`.
-4. **Filtering**: Remove `response_time_ms` < 100 ms or > 10 000 ms (FR‑010). Exclude temperature extremes outside ‑30 °C – 50 °C (FR‑002).
-5. **Transformation**: Log‑transform response time; compute quadratic term; derive `dilemma_complexity` from static scenario attributes.
-6. **Output**: Save `merged_dataset.parquet`, `exclusion_log.csv`, and `match_log.csv`.
+## 3. Data Flow
+
+1.  **Ingest**: Load `moral_machine.csv` and `era5` grid data (2014-2018).
+2.  **Match**: Join on `latitude`/`longitude` (nearest neighbor < 100km).
+3.  **Filter**: Remove records with `response_time_ms` < 100 or > 10000.
+4.  **Derive**: Calculate `response_time_log`, `dilemma_complexity`, `time_of_day`.
+5.  **Export**: Save to `merged_dataset.parquet`.
+
+## 4. Constraints & Rules
+
+-   **Temperature Range**: Must be within -40°C to +50°C.
+-   **Response Time**: Must be > 0.
+-   **Distance**: Must be <= 100km.
+-   **PII**: No names or exact addresses stored.

@@ -8,7 +8,7 @@ properties:
     description: "Unique identifier for the excluded response."
   reason:
     type: "string"
-    description: "Reason for exclusion (e.g., 'distance > 100km', 'ERA5 coverage gap', 'invalid response time')."
+    description: "Reason for exclusion (e.g., 'distance > 100km', 'ERA5 coverage gap', 'invalid response time', 'temperature out of range')."
   original_lat:
     type: "number"
     description: "Original latitude of the response."

@@ -2,92 +2,86 @@
 
 ## Prerequisites
 
-* Python 3.11+
-* `pip`
-* Sufficient disk space for raw and processed data.
-* Internet access (to download ERA5 and Moral Machine data)
+- Python 3.11+
+- `pip` or `conda`
+- Internet access (for dataset download)
+- CDS API Key (for ERA5 data)
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root).
-2. **Create a virtual environment**:
+1. **Clone Repository**:
+ ```bash
+ git clone <repo-url>
+ cd projects/PROJ-743-ambient-temperature-influence-on-moral-d
+ ```
+
+2. **Create Virtual Environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
-3. **Install dependencies**:
+
+3. **Install Dependencies**:
  ```bash
- pip install -r requirements.txt
+ pip install -r code/requirements.txt
  ```
- *Note: `requirements.txt` pins versions for `pandas`, `numpy`, `statsmodels`, `xarray`, `h5netcdf`, `geopy`, `matplotlib`, `seaborn`, `pytest`, `cdsapi`.*
+
+4. **Configure CDS API**:
+ - Register at https://cds.climate.copernicus.eu/
+ - Create `.cdsapirc` in your home directory with your API key.
 
 ## Data Setup
 
-The ingestion script will automatically download the required datasets to `data/raw/`.
+1. **Download Moral Machine Data**:
+ - Download from: https://www.science.org/doi/ (or the provided CSV link).
+ - Save as `data/raw/moral_machine.csv`.
 
-1. **Run the ingestion script**:
- ```bash
- python code/ingestion.py
- ```
- * This script:
- * Downloads ERA hourly data for a five-year period via the Copernicus Climate Data Store API.
- * Downloads the Moral Machine dataset from the verified HuggingFace repository.
- * Performs spatial/temporal matching using a KD‑Tree with a defined distance cutoff.
- * Filters outliers (response time < 100 ms or > 10 000 ms; temperature < ‑30 °C or > 50 °C).
- * Generates `results/logs/exclusion_log.csv` (failed matches) **and** `results/logs/match_log.csv` (successful matches).
- * Saves the cleaned dataset to `data/processed/merged_dataset.parquet`.
+2. **Download Temperature Data**:
+ - **Option A (ERA5 - Required)**: Run `python code/fetch_era5_data.py` to fetch the 2014-2018 subset via CDS API.
+ - Save to `data/raw/era5_data/`.
 
-2. **Verify Data**:
- * Check `results/logs/exclusion_log.csv` for exclusion reasons.
- * Check `results/logs/match_log.csv` for match quality.
- * Inspect `data/processed/merged_dataset.parquet` for expected columns.
+## Running the Pipeline
 
-## Running the Analysis
-
-### Primary Scalable Model (recommended)
+### 1. Validate Sources (FR-014)
 
 ```bash
-python code/modeling.py --mode scalable
+python code/validate_sources.py --input data/raw/moral_machine.csv --temp data/raw/era5_data/ --output results/logs/validation_report.json
 ```
-* **What it does**:
- * Aggregates response times per participant (or samples up to 10 k participants).
- * Fits an OLS model with clustered robust SEs by cultural region.
- * Saves `results/models/model_summary.json`, diagnostic plots, and convergence info.
 
-### Full Mixed‑Effects Model (optional, runs on sampled subset)
+### 2. Ingest and Merge
 
 ```bash
-python code/modeling.py --mode full_lmm --sample-size large-scale
+python code/ingestion.py --input data/raw/moral_machine.csv --temp data/raw/era5_data/ --output data/processed/merged_dataset.parquet
 ```
-* Outputs: same artifacts as above, plus random‑effect variances.
 
-### Robustness Checks
+### 3. Preprocess
 
 ```bash
-python code/robustness.py
+python code/preprocessing.py --input data/processed/merged_dataset.parquet --output data/processed/cleaned_dataset.parquet
 ```
-* Generates:
- * Temperature metric comparison figures.
- * Distance‑threshold sensitivity tables.
- * Non‑linearity comparison JSON (`results/robustness/nonlinearity_comparison.json`).
- * Indoor/outdoor proxy analysis (or limitation report).
 
-## Running Tests
+### 4. Run Analysis
 
 ```bash
-pytest tests/ -v
+python code/modeling.py --input data/processed/cleaned_dataset.parquet --output results/stats/model_results.json --figs results/figures/
 ```
 
-## Expected Outputs
+### 5. Robustness Check
 
-* `results/logs/exclusion_log.csv` – excluded records with reasons.
-* `results/logs/match_log.csv` – successful match details (station ID, timestamp, distance).
-* `results/models/model_summary.json` – coefficients, p‑values, LRT/Wald test results, convergence status.
-* `results/figures/` – diagnostic plots, effect plots, robustness visualizations.
-* `data/processed/merged_dataset.parquet` – cleaned dataset for further analysis.
+```bash
+python code/robustness.py --input data/processed/cleaned_dataset.parquet --output results/stats/sensitivity_analysis.csv
+```
+
+## Verification
+
+1. Check `results/logs/validation_report.json` for "PASS" status.
+2. Check `results/logs/processing_log.txt` for "SUCCESS" messages.
+3. Verify `results/stats/model_results.json` contains a `temperature_c` coefficient and `p_value`.
+4. Inspect `results/figures/residual_qq.png` for normality.
 
 ## Troubleshooting
 
-* **Memory Error** – If the full dataset exceeds memory, the script automatically samples a representative subset of rows (adjustable via `--sample-size`).
-* **ERA5 Download Failed** – Ensure internet access; the script uses the official CDS API URL `.
-* **Model Convergence Warning** – Check `results/logs/convergence_log.txt`. If convergence fails, the script will fall back to the GLMM with Gamma distribution.
+- **Memory Error**: If the dataset is too large, enable streaming in `config.py` (`STREAM_DATA = True`).
+- **Convergence Warning**: The model may fail to converge. Check `results/logs/model_diagnostics.txt` and try reducing random effects or switching to GLMM.
+- **Missing Data**: If >10% of records are dropped, check `data/processed/data_quality_log.json` for reasons.
+- **CDS API Error**: Ensure `.cdsapirc` is correctly configured and you have a valid API key.
