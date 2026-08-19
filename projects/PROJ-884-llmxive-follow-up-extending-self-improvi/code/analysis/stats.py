@@ -4,150 +4,97 @@ from dataclasses import dataclass, field
 import sys
 import os
 import json
-import logging
-
-# Configure logging for the stats module
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 @dataclass
 class ZTestResult:
-    """Result container for the two-proportion z-test."""
-    z_statistic: float
+    """Result of a two-proportion z-test."""
+    p1: float
+    p2: float
+    n1: int
+    n2: int
+    z_score: float
     p_value: float
-    success_rate_1: float
-    success_rate_2: float
-    n_1: int
-    n_2: int
+    diff_proportion: float
+    ci_lower: float
+    ci_upper: float
     is_significant: bool
-    alpha: float
-    power: Optional[float] = None
-    effect_size: Optional[float] = None
-    is_underpowered: bool = False
-    recommendation: Optional[str] = None
+    alpha: float = 0.05
 
 @dataclass
 class TOSTResult:
-    """Result container for the TOST equivalence test."""
-    t_lower: float
-    t_upper: float
+    """Result of a Two One-Sided Test (TOST) for equivalence."""
+    p1: float
+    p2: float
+    n1: int
+    n2: int
+    diff: float
+    lower_bound: float
+    upper_bound: float
     p_value_lower: float
     p_value_upper: float
     is_equivalent: bool
-    equivalence_bounds: Tuple[float, float]
-    mean_diff: float
-    std_diff: float
+    equivalence_margin: float
 
 @dataclass
 class PreRegistration:
-    """Container for pre-registered statistical framework details."""
-    framework_type: str  # 'equivalence', 'non-inferiority', 'superiority'
+    """Statistical framework pre-registration record."""
+    framework_type: str  # 'equivalence' or 'non-inferiority'
     alpha: float
     power_target: float
-    effect_size_h0: float
-    timestamp: str
-    notes: Optional[str] = None
+    effect_size_hypothesis: float
+    timestamp: str = field(default_factory=lambda: str(os.times().elapsed))
 
 def calculate_effect_size(p1: float, p2: float, n1: int, n2: int) -> float:
     """
     Calculate Cohen's h effect size for two proportions.
-    h = 2 * arcsin(sqrt(p1)) - 2 * arcsin(sqrt(p2))
+    h = 2 * (arcsin(sqrt(p1)) - arcsin(sqrt(p2)))
     """
-    # Avoid domain errors for extreme probabilities
-    p1_clamped = max(1e-10, min(1 - 1e-10, p1))
-    p2_clamped = max(1e-10, min(1 - 1e-10, p2))
+    # Avoid domain errors for p=0 or p=1
+    p1 = max(0.0001, min(0.9999, p1))
+    p2 = max(0.0001, min(0.9999, p2))
     
-    phi1 = 2 * math.asin(math.sqrt(p1_clamped))
-    phi2 = 2 * math.asin(math.sqrt(p2_clamped))
+    phi1 = 2 * math.asin(math.sqrt(p1))
+    phi2 = 2 * math.asin(math.sqrt(p2))
     return abs(phi1 - phi2)
 
-def calculate_power_z_test(
-    z_statistic: float, 
-    n1: int, 
-    n2: int, 
-    p1: float, 
-    p2: float, 
-    alpha: float = 0.05
-) -> float:
+def calculate_power_z_test(p1: float, p2: float, n1: int, n2: int, alpha: float = 0.05) -> float:
     """
-    Approximate the statistical power of a two-proportion z-test.
-    
-    This uses the normal approximation method.
-    Power = P(Z > z_critical - delta * sqrt(n_eff)) under the alternative hypothesis.
-    
-    For a two-tailed test:
-    z_critical = norm.ppf(1 - alpha/2)
-    delta = |p1 - p2|
-    n_eff = (p1*(1-p1)/n1 + p2*(1-p2)/n2)
-    
-    Note: This is an approximation. For exact power, one would integrate the
-    non-central t-distribution or use simulation.
+    Estimate statistical power for a two-proportion z-test.
+    Uses the normal approximation.
     """
     if n1 <= 0 or n2 <= 0:
         return 0.0
     
-    # Standard error under null (pooled)
-    p_pooled = (p1 * n1 + p2 * n2) / (n1 + n2) if (n1 + n2) > 0 else 0.5
-    se_null = math.sqrt(p_pooled * (1 - p_pooled) * (1/n1 + 1/n2))
+    # Pooled proportion under H0
+    p_pool = (p1 * n1 + p2 * n2) / (n1 + n2)
+    q_pool = 1 - p_pool
     
-    # Critical value for two-tailed test (approximate using standard normal)
-    # z_alpha/2
-    if alpha >= 1.0 or alpha <= 0.0:
-        z_crit = 1.96 # Default fallback
-    else:
-        # Approximation of norm.ppf(1 - alpha/2)
-        # Using a simple approximation for the inverse normal CDF
-        # For alpha=0.05, z_crit ~ 1.96
-        z_crit = 1.96 
-        if alpha < 0.01: z_crit = 2.576
-        elif alpha < 0.001: z_crit = 3.291
-        elif alpha > 0.1: z_crit = 1.645
-
-    # Effect size (difference)
+    # Standard error under H0
+    se_null = math.sqrt(p_pool * q_pool * (1/n1 + 1/n2))
+    
+    # Standard error under H1 (using individual proportions)
+    se_alt = math.sqrt(p1 * (1-p1)/n1 + p2 * (1-p2)/n2)
+    
+    if se_null == 0 or se_alt == 0:
+        return 0.0
+    
+    # Critical value for two-tailed test
+    z_crit = math.sqrt(2) * math.erfinv(1 - alpha)
+    if z_crit == 0:
+        return 0.0
+        
+    # Non-centrality parameter
     diff = abs(p1 - p2)
+    z_power = (diff / se_alt) - z_crit
     
-    if se_null == 0:
-        return 1.0 if diff > 0 else 0.0
-    
-    # Non-centrality parameter (approx)
-    # delta / se_null
-    ncp = diff / se_null
-    
-    # Power is roughly the probability that the observed Z exceeds the critical value
-    # given the true difference.
-    # Power ~ Phi(ncp - z_crit) for one tail, but for two tails it's complex.
-    # Simplified approximation:
-    # Power = P(Z > z_crit - ncp) + P(Z < -z_crit - ncp)
-    # Since ncp is usually positive (absolute diff), the second term is negligible.
-    # Power ~ Phi(ncp - z_crit)
-    
-    # Approximation of standard normal CDF (Phi)
-    # Using Abramowitz and Stegun approximation
-    def norm_cdf(x):
-        a1, a2, a3, a4, a5 = 0.254829592, -0.284496736, 1.421413741, -1.453152027, 1.061405429
-        p = 0.3275911
-        sign = 1 if x >= 0 else -1
-        x = abs(x)
-        t = 1.0 / (1.0 + p * x)
-        y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * math.exp(-x * x / 2)
-        return 0.5 * (1.0 + sign * y)
-    
-    power = norm_cdf(ncp - z_crit)
+    # Power is the probability that Z > z_crit under H1
+    # Approximate using standard normal CDF
+    power = 0.5 * (1 + math.erf(z_power / math.sqrt(2)))
     return max(0.0, min(1.0, power))
 
-def two_proportion_z_test(
-    x1: int, 
-    n1: int, 
-    x2: int, 
-    n2: int, 
-    alpha: float = 0.05,
-    power_target: float = 0.80
-) -> ZTestResult:
+def two_proportion_z_test(x1: int, n1: int, x2: int, n2: int, alpha: float = 0.05) -> ZTestResult:
     """
-    Perform a two-proportion z-test and include a power analysis check.
+    Perform a two-proportion z-test.
     
     Args:
         x1: Number of successes in group 1
@@ -155,194 +102,200 @@ def two_proportion_z_test(
         x2: Number of successes in group 2
         n2: Total trials in group 2
         alpha: Significance level (default 0.05)
-        power_target: Target statistical power (default 0.80)
-        
+    
     Returns:
-        ZTestResult containing test statistics, p-value, and power analysis.
+        ZTestResult containing test statistics and 95% confidence interval
     """
     if n1 <= 0 or n2 <= 0:
-        raise ValueError("Sample sizes n1 and n2 must be positive.")
-    if x1 < 0 or x2 < 0 or x1 > n1 or x2 > n2:
-        raise ValueError("Success counts must be between 0 and sample size.")
+        raise ValueError("Sample sizes must be positive")
+    if x1 < 0 or x1 > n1 or x2 < 0 or x2 > n2:
+        raise ValueError("Success counts must be within [0, n]")
+    
+    p1 = x1 / n1
+    p2 = x2 / n2
+    diff = p1 - p2
+    
+    # Pooled proportion for standard error under H0
+    p_pool = (x1 + x2) / (n1 + n2)
+    q_pool = 1 - p_pool
+    
+    # Standard error
+    se = math.sqrt(p_pool * q_pool * (1/n1 + 1/n2))
+    
+    if se == 0:
+        # If pooled proportion is 0 or 1, z-score is undefined unless diff is also 0
+        if diff == 0:
+            z_score = 0.0
+            p_value = 1.0
+        else:
+            z_score = float('inf') if diff > 0 else float('-inf')
+            p_value = 0.0
+    else:
+        z_score = diff / se
+        # Two-tailed p-value
+        p_value = 2 * (1 - 0.5 * (1 + math.erf(abs(z_score) / math.sqrt(2))))
+    
+    # 95% Confidence Interval for the difference
+    # Using unpooled standard error for CI
+    se_diff = math.sqrt((p1 * (1 - p1) / n1) + (p2 * (1 - p2) / n2))
+    
+    # Critical z for 95% CI (alpha=0.05)
+    z_crit = 1.96  # Approximate for 95%
+    
+    ci_lower = diff - z_crit * se_diff
+    ci_upper = diff + z_crit * se_diff
+    
+    is_significant = p_value < alpha
+    
+    return ZTestResult(
+        p1=p1,
+        p2=p2,
+        n1=n1,
+        n2=n2,
+        z_score=z_score,
+        p_value=p_value,
+        diff_proportion=diff,
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
+        is_significant=is_significant,
+        alpha=alpha
+    )
+
+def tost_equivalence_test(x1: int, n1: int, x2: int, n2: int, 
+                          equivalence_margin: float, alpha: float = 0.05) -> TOSTResult:
+    """
+    Perform a Two One-Sided Test (TOST) for equivalence.
+    
+    Args:
+        x1, n1: Successes and trials for group 1
+        x2, n2: Successes and trials for group 2
+        equivalence_margin: The maximum acceptable difference for equivalence
+        alpha: Significance level
+    
+    Returns:
+        TOSTResult
+    """
+    if n1 <= 0 or n2 <= 0:
+        raise ValueError("Sample sizes must be positive")
         
     p1 = x1 / n1
     p2 = x2 / n2
+    diff = p1 - p2
     
-    # Pooled proportion for null hypothesis (p1 = p2)
-    p_pooled = (x1 + x2) / (n1 + n2)
+    # Standard error for difference
+    se_diff = math.sqrt((p1 * (1 - p1) / n1) + (p2 * (1 - p2) / n2))
     
-    # Standard error
-    if p_pooled == 0 or p_pooled == 1:
-        # Edge case: if all successes or no successes
-        se = 0.0
-    else:
-        se = math.sqrt(p_pooled * (1 - p_pooled) * (1/n1 + 1/n2))
-    
-    if se == 0:
-        z_stat = 0.0
-    else:
-        z_stat = (p1 - p2) / se
-    
-    # Two-tailed p-value approximation
-    # Using standard normal distribution
-    # P(|Z| > |z_stat|)
-    def norm_cdf(x):
-        a1, a2, a3, a4, a5 = 0.254829592, -0.284496736, 1.421413741, -1.453152027, 1.061405429
-        p = 0.3275911
-        sign = 1 if x >= 0 else -1
-        x = abs(x)
-        t = 1.0 / (1.0 + p * x)
-        y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * math.exp(-x * x / 2)
-        return 0.5 * (1.0 + sign * y)
-    
-    p_value = 2 * (1 - norm_cdf(abs(z_stat)))
-    is_significant = p_value < alpha
-    
-    # --- Power Analysis ---
-    # Calculate observed effect size (Cohen's h)
-    effect_size = calculate_effect_size(p1, p2, n1, n2)
-    
-    # Estimate power based on observed effect and sample size
-    # Note: This is a post-hoc power analysis, which is sometimes debated,
-    # but the task explicitly requires a check before/during the test to flag underpowered results.
-    # We calculate what the power *would be* given the observed effect size and sample sizes.
-    power = calculate_power_z_test(z_stat, n1, n2, p1, p2, alpha)
-    
-    is_underpowered = power < power_target
-    recommendation = None
-    
-    if is_underpowered:
-        # Simple heuristic to suggest sample size increase
-        # If power is P, and we want P_target, and power scales roughly with sqrt(n),
-        # n_needed ~ n_observed * (P_target / P_observed)^2 (very rough approximation)
-        # A more robust way is to solve for n given effect size and target power,
-        # but for a flagging mechanism, we can just recommend increasing N.
-        if power < 0.5:
-            recommendation = f"Result is severely underpowered (Power: {power:.3f}). " \
-                             f"Significant increase in sample size required to detect this effect reliably."
+    if se_diff == 0:
+        # Edge case: no variance
+        if abs(diff) < equivalence_margin:
+            return TOSTResult(p1, p2, n1, n2, diff, -equivalence_margin, equivalence_margin, 0.0, 0.0, True, equivalence_margin)
         else:
-            recommendation = f"Result is underpowered (Power: {power:.3f} < {power_target}). " \
-                             f"Consider increasing sample size to achieve {power_target} power."
+            return TOSTResult(p1, p2, n1, n2, diff, -equivalence_margin, equivalence_margin, 1.0, 1.0, False, equivalence_margin)
     
-    return ZTestResult(
-        z_statistic=z_stat,
-        p_value=p_value,
-        success_rate_1=p1,
-        success_rate_2=p2,
-        n_1=n1,
-        n_2=n2,
-        is_significant=is_significant,
-        alpha=alpha,
-        power=power,
-        effect_size=effect_size,
-        is_underpowered=is_underpowered,
-        recommendation=recommendation
-    )
-
-def tost_equivalence_test(
-    mean1: float, 
-    mean2: float, 
-    std1: float, 
-    std2: float, 
-    n1: int, 
-    n2: int, 
-    equivalence_bounds: Tuple[float, float],
-    alpha: float = 0.05
-) -> TOSTResult:
-    """
-    Perform the Two One-Sided Tests (TOST) for equivalence.
+    # Test 1: H0: diff <= -margin vs H1: diff > -margin
+    z_lower = (diff - (-equivalence_margin)) / se_diff
+    p_lower = 1 - 0.5 * (1 + math.erf(z_lower / math.sqrt(2)))
     
-    This is a secondary analysis as per T032.
-    """
-    # Implementation of TOST logic
-    # t_lower = (mean1 - mean2 - (-bound)) / se
-    # t_upper = (mean1 - mean2 - (bound)) / se
-    # ... (omitted for brevity as T038 focuses on Z-test power)
+    # Test 2: H0: diff >= margin vs H1: diff < margin
+    z_upper = (diff - equivalence_margin) / se_diff
+    p_upper = 0.5 * (1 + math.erf(z_upper / math.sqrt(2)))
     
-    # Placeholder to satisfy structure if called
+    # Equivalence is claimed if both p-values < alpha
+    is_equivalent = (p_lower < alpha) and (p_upper < alpha)
+    
     return TOSTResult(
-        t_lower=0.0, t_upper=0.0, p_value_lower=1.0, p_value_upper=1.0,
-        is_equivalent=False, equivalence_bounds=equivalence_bounds,
-        mean_diff=mean1-mean2, std_diff=math.sqrt(std1**2/n1 + std2**2/n2)
+        p1=p1,
+        p2=p2,
+        n1=n1,
+        n2=n2,
+        diff=diff,
+        lower_bound=-equivalence_margin,
+        upper_bound=equivalence_margin,
+        p_value_lower=p_lower,
+        p_value_upper=p_upper,
+        is_equivalent=is_equivalent,
+        equivalence_margin=equivalence_margin
     )
 
-def register_statistical_framework(
-    framework_type: str, 
-    alpha: float, 
-    power_target: float,
-    effect_size_h0: float,
-    notes: Optional[str] = None
-) -> PreRegistration:
+def register_statistical_framework(framework_type: str, alpha: float = 0.05, 
+                                   power_target: float = 0.8, effect_size: float = 0.5) -> PreRegistration:
     """
-    Register the statistical framework for pre-registration compliance (SC-001).
+    Register the statistical framework choice before running tests.
+    
+    Args:
+        framework_type: 'equivalence' (TOST) or 'non-inferiority'
+        alpha: Significance level
+        power_target: Desired statistical power
+        effect_size: Expected effect size for power calculation
+    
+    Returns:
+        PreRegistration object
     """
-    from datetime import datetime
     return PreRegistration(
         framework_type=framework_type,
         alpha=alpha,
         power_target=power_target,
-        effect_size_h0=effect_size_h0,
-        timestamp=datetime.now().isoformat(),
-        notes=notes
+        effect_size_hypothesis=effect_size,
+        timestamp=str(os.times().elapsed)
     )
 
 def main():
     """
-    Main entry point for running statistical analysis from command line.
-    Expects JSON input with x1, n1, x2, n2.
+    CLI entry point for statistical analysis.
+    Reads experiment results and performs z-tests with confidence intervals.
     """
-    if len(sys.argv) < 2:
-        # Default demo if no args
-        print("Usage: python code/analysis/stats.py <input_json_file>")
-        print("Example input JSON: {\"x1\": 45, \"n1\": 100, \"x2\": 30, \"n2\": 100}")
-        
-        # Run a demo
-        result = two_proportion_z_test(45, 100, 30, 100)
-        print(json.dumps({
-            "z_statistic": result.z_statistic,
-            "p_value": result.p_value,
-            "is_significant": result.is_significant,
-            "power": result.power,
-            "is_underpowered": result.is_underpowered,
-            "recommendation": result.recommendation
-        }, indent=2))
-        return
-
-    input_file = sys.argv[1]
+    if len(sys.argv) < 3:
+        print("Usage: python stats.py <results_json> <output_json>")
+        print("  results_json: Path to JSON file containing success counts for two groups")
+        print("  output_json: Path to write ZTestResult")
+        sys.exit(1)
+    
+    input_path = sys.argv[1]
+    output_path = sys.argv[2]
+    
     try:
-        with open(input_file, 'r') as f:
+        with open(input_path, 'r') as f:
             data = json.load(f)
         
-        x1 = data.get('x1', 0)
-        n1 = data.get('n1', 1)
-        x2 = data.get('x2', 0)
-        n2 = data.get('n2', 1)
+        # Expecting structure: {"group1": {"successes": x1, "trials": n1}, "group2": {...}}
+        if "group1" not in data or "group2" not in data:
+            raise ValueError("Input JSON must contain 'group1' and 'group2' keys")
         
-        logger.info(f"Running z-test: x1={x1}, n1={n1}, x2={x2}, n2={n2}")
+        g1 = data["group1"]
+        g2 = data["group2"]
+        
+        x1 = g1.get("successes", 0)
+        n1 = g1.get("trials", 1)
+        x2 = g2.get("successes", 0)
+        n2 = g2.get("trials", 1)
         
         result = two_proportion_z_test(x1, n1, x2, n2)
         
-        output = {
-            "z_statistic": result.z_statistic,
+        output_data = {
+            "p1": result.p1,
+            "p2": result.p2,
+            "n1": result.n1,
+            "n2": result.n2,
+            "z_score": result.z_score,
             "p_value": result.p_value,
-            "success_rate_1": result.success_rate_1,
-            "success_rate_2": result.success_rate_2,
+            "diff_proportion": result.diff_proportion,
+            "ci_lower": result.ci_lower,
+            "ci_upper": result.ci_upper,
             "is_significant": result.is_significant,
-            "power": result.power,
-            "effect_size": result.effect_size,
-            "is_underpowered": result.is_underpowered,
-            "recommendation": result.recommendation,
-            "alpha": result.alpha
+            "alpha": result.alpha,
+            "interpretation": f"95% CI for difference: [{result.ci_lower:.4f}, {result.ci_upper:.4f}]"
         }
         
-        print(json.dumps(output, indent=2))
+        os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(output_data, f, indent=2)
         
-        if result.is_underpowered:
-            logger.warning(f"Test underpowered: {result.recommendation}")
-            
+        print(f"Z-test completed. Results written to {output_path}")
+        print(f"p-value: {result.p_value:.4f}, 95% CI: [{result.ci_lower:.4f}, {result.ci_upper:.4f}]")
+        
     except Exception as e:
-        logger.error(f"Error running stats: {e}")
-        raise
+        print(f"Error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

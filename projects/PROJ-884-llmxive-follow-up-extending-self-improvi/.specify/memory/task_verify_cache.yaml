@@ -25,15 +25,22 @@ T004:
   r: No evidence of the required `data/raw/` and `data/processed/` directories being
     created (or containing any files) is provided; the claim lacks concrete artifacts
     confirming the directory structure exists.
-T029:
+T021:
   c: false
-  h: 04a553199a3f3ef34fe38038d1e523f410ef705dc153ef43bcf56b6164c4cc91
-  r: "The `perform_scaling_analysis` function is truncated and does not show the actual\
-    \ regression, slope\u2011to\u2011class mapping, or CSV writing logic, and the\
-    \ required output file `data/processed/scaling_analysis.csv` is missing from the\
-    \ repository. The task\u2019s core deliverable \u2013 a completed scaling analysis\
-    \ that produces the CSV with a `complexity_class` column \u2013 is therefore not\
-    \ present."
+  h: af277c612ca9ea50ea74f887ded1ca1ead78999a8dcd3d2db29315b7ceba36e6
+  r: "The provided `forward_step.py` does not load the required `distilbert-tiny`\
+    \ model with a pinned revision (it defaults to `distilbert-base-uncased` and uses\
+    \ a placeholder revision). It also never actually uses the `optimum.intel.IPEXModel`\
+    \ for CPU\u2011optimized inference, and the referenced `code/bes/config.py` is\
+    \ missing entirely, so the model cannot be loaded as specified. These gaps mean\
+    \ the task\u2019s constraints are not met."
+T029a:
+  c: false
+  h: d19da0dd06a176ced740849b1ae0590bba15fa82c2004b3ead4e525b3fc65909
+  r: The required output file `data/processed/scaling_raw_logs.json` is absent, and
+    there is no evidence that `code/main.py` was run with `--mode symbolic` over the
+    full N=10..500 range. Without this log file, the scaling experiment has not been
+    produced.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

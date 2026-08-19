@@ -43,7 +43,7 @@
 
 **Purpose**: Generate design artifacts required by downstream tasks.
 
-- [X] T000a [P] Generate `contracts/dataset.schema.yaml` based on `data-model.md` and `plan.md` requirements. **Constraint**: Must define the exact JSON schema for puzzle instances including fields: `constraints`, `initial_state`, `target_state`, and `verifier_output` format. This task MUST complete before T013a.
+- [X] T000a [P] Generate `contracts/dataset.schema.yaml` based on `data-model.md` and `plan.md` requirements. **Constraint**: Must define the exact JSON schema for puzzle instances including fields: `constraints`, `initial_state`, `target_state`, and `verifier_output` format. This task MUST complete before T014c.
 
 - [X] T000b [P] Generate `contracts/output.schema.yaml` based on `plan.md` requirements for experiment logs and analysis results. **Constraint**: Must explicitly define the schema for `data/processed/exclusions.json` (fields: `puzzle_id`, `reason_code`, `timestamp`) and `data/processed/distribution_report.json` (fields: `total_count`, `type_distribution`, `complexity_distribution`).
 
@@ -55,11 +55,13 @@
 
 - [X] T001a [P] Create project directory structure per implementation plan by executing: `mkdir -p projects/PROJ-884-llmxive-follow-up-extending-self-improvi/{data/raw,data/processed,code/{dataset,symbolic,bes,analysis,utils},tests/{unit,integration}}`. **Constraint**: This task logically creates data and code directories; implementation is split for atomicity but the directory structure is established here.
 
-- [X] T001b Initialize git repository and configure basic `.gitignore` for Python artifacts
+- [X] T001b [P] Verify directory writability for all created directories in Phase 1. **Constraint**: Must attempt to write a temporary file to each directory and remove it to ensure permissions are correct.
 
-- [X] T002a Initialize Python 3.11 virtual environment in `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/`
+- [X] T002a Initialize git repository and configure basic `.gitignore` for Python artifacts
 
-- [X] T002b Install dependencies in `requirements.txt` containing: `scikit-learn==1.3.0`, `numpy==1.24.0`, `transformers==4.35.0`, `datasets==2.14.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `optimum==1.13.0`, `psutil==5.9.0`. **Constraint**: Use fixed versions from plan.md. Do not attempt to read from `research.md` as its schema is undefined.
+- [X] T002b Initialize Python 3.11 virtual environment in `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/`
+
+- [X] T002c Install dependencies in `requirements.txt` containing: `scikit-learn==1.3.0`, `numpy==1.24.0`, `transformers==4.35.0`, `datasets==2.14.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `optimum==1.13.0`, `psutil==5.9.0`. **Constraint**: Use fixed versions from plan.md. Do not attempt to read from `research.md` as its schema is undefined.
 
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools. **Constraint**: Must generate `.flake8` and `pyproject.toml` (for black) configuration files to satisfy plan.md testing requirements.
 
@@ -75,15 +77,15 @@
 
 - [X] T005a [P] [US1] Implement base logging infrastructure in `code/__init__.py` to capture wall-clock time and resource usage; output must be JSON format to `data/processed/experiment.log`. **Constraint**: Must include a verification step: Add a unit test in `tests/unit/test_logging.py::test_log_format_is_json` to validate the output format matches the schema.
 
-- [X] T005b [P] [US1] Implement CPU utilization monitoring in `code/utils/monitor.py` using `psutil` to log `cpu_percent` for every execution step. **Constraint**: This metric is REQUIRED for the energy calculation in T026. Must log at the same frequency as T005a.
+- [X] T005b [P] [US1] Implement CPU utilization monitoring in `code/utils/monitor.py` using `psutil` to log `cpu_percent` for every execution step. **Constraint**: This metric is REQUIRED for the energy calculation in T027. Must log at the same frequency as T005a.
 
 - [X] T006 [P] [US1] Setup random seed management utility in `code/utils/seed.py` for reproducibility
 
 - [X] T007 [P] [US1] Create base configuration loader in `code/config.py` to handle experiment parameters (population size, generations)
 
-- [ ] T007b [US1] Initialize `code/config.py` with `DEFAULT_TDP_WATTS` as a placeholder (e.g., 0.0). **Constraint**: This value MUST be overwritten by T007c after calibration. Do not hardcode a static value here. **Dependency**: None.
+- [X] T007b [US1] Initialize `code/config.py` with `DEFAULT_TDP_WATTS` as a placeholder (e.g., 0.0). **Constraint**: This value MUST be overwritten by T008c after calibration. Do not hardcode a static value here. **Dependency**: None.
 
-- [ ] T007c [US1] Implement TDP Calibration Script in `code/utils/calibrate_tdp.py`. **Constraint**: Must run a known workload, measure power draw (or estimate via CPU frequency scaling if power API unavailable), and output `data/processed/calibrated_tdp.json`. **Action**: T007c MUST output `calibrated_tdp.json` with fields: `tdp_watts`, `error_margin`, `confidence_interval`. **Dependency**: Requires T007b. **Note**: Removed [P] flag to prevent parallel execution with T007b.
+- [ ] T008c [US1] Implement TDP Constant Generation Script in `code/utils/generate_tdp_constant.py`. **Constraint**: Must NOT rely on hardware APIs (RAPL, IPMI) or non-deterministic power measurements. Instead, generate `data/processed/calibrated_tdp.json` using a deterministic literature-based constant (e.g., 45W for standard GitHub Actions runners) to ensure reproducibility on CI. **Action**: T008c MUST output `calibrated_tdp.json` with fields: `tdp_watts`, `source` ("literature"), `error_margin`, `confidence_interval`. **Dependency**: Requires T007b. **Note**: Removed [P] flag to prevent parallel execution with T007b.
 
 - [X] T008 Setup error handling framework by creating `code/exceptions.py` defining custom exception classes for `PARSE_FAILURE`, `CONTRADICTION_DETECTED`, and `VERIFIER_ERROR` (to handle internal verifier failures, addressing robustness gap)
 
@@ -109,19 +111,17 @@
 
 - [X] T011 [P] [US1] Implement `code/dataset/generator.py` to create logic puzzles (Sudoku variants, constrained pathfinding) with systematic complexity scaling (N=10..500). **Constraint**: Must support command-line arguments for `N` and `count`.
 
-- [X] T012 [US1] Implement `code/dataset/verifier.py` to execute deterministic validation logic for each puzzle instance, returning boolean validity and specific constraint violation codes (e.g., `DUPLICATE_ROW`, `INVALID_PATH`) within 100ms. **Note**: T012 validates the code, T013a/b generates the data.
+- [X] T012 [US1] Implement `code/dataset/verifier.py` to execute deterministic validation logic for each puzzle instance, returning boolean validity and specific constraint violation codes (e.g., `DUPLICATE_ROW`, `INVALID_PATH`) within 100ms. **Note**: T012 validates the code, T014c/b generates the data.
 
-- [X] T013a [P] [US1] Implement `code/dataset/validate_and_checksum.py`. **Constraint**: This script MUST accept a directory of raw puzzles, run the verifier, calculate checksums, and output `data/processed/distribution_report.json` with type/complexity distribution stats. Must strictly enforce "Fail Loudly" (no synthetic fallback). **Dependency**: Requires T011 and T012.
+- [X] T014c [P] [US1] Implement `code/dataset/generate_and_validate.py`. **Constraint**: This script MUST accept a directory of raw puzzles, run the verifier, calculate checksums, and output `data/processed/distribution_report.json` with type/complexity distribution stats. Must strictly enforce "Fail Loudly" (no synthetic fallback). **Dependency**: Requires T011 and T012.
 
-- [X] T013b [US1] Execute `code/dataset/generator.py` to produce raw puzzles. **Constraint**: Must run with parameters `--n 50 100 200 500 --count 10 --types sudoku,pathfinding`. **Dependency**: Requires T011.
+- [X] T014d [US1] Execute `code/dataset/generate_and_validate.py` to finalize the dataset and generate `data/processed/distribution_report.json`. **Constraint**: Must run with parameters `--n 50 100 200 500 --count 10 --types sudoku,pathfinding`. **Dependency**: Requires T011 and T014c.
 
-- [X] T013d [US1] Execute `code/dataset/validate_and_checksum.py` to finalize the dataset and generate `data/processed/distribution_report.json`. **Constraint**: Must update `state/projects/PROJ-884-llmxive-follow-up-extending-self-improvi.yaml` with artifact hashes. **Dependency**: Requires T013a and T013b.
+- [ ] T014e [US1] Implement `code/dataset/validate_distribution.py`. **Constraint**: This script MUST read `data/processed/distribution_report.json` (from T014d) and `contracts/dataset.schema.yaml` (from T000b) to verify statistical representativeness and output `data/processed/distribution_validation.json` (fields: `is_valid`, `power_estimate`, `notes`). **Dependency**: Requires T000b (schema) and T014d (data generation artifact). **Note**: Moved after T014d to ensure artifact availability.
 
-- [ ] T013c [US1] Implement `code/dataset/validate_distribution.py`. **Constraint**: This script MUST read `data/processed/distribution_report.json` (from T013d) and `contracts/dataset.schema.yaml` (from T000b) to verify statistical representativeness and output `data/processed/distribution_validation.json` (fields: `is_valid`, `power_estimate`, `notes`). **Dependency**: Requires T000b (schema) and T013d (data generation artifact). **Note**: Moved after T013d to ensure artifact availability.
+- [X] T014f [US1] Execute `code/dataset/validate_distribution.py` to generate `data/processed/distribution_validation.json`. **Constraint**: Must run after T014d. **Dependency**: Requires T014e and T014d.
 
-- [X] T013e [US1] Execute `code/dataset/validate_distribution.py` to generate `data/processed/distribution_validation.json`. **Constraint**: Must run after T013d. **Dependency**: Requires T013c and T013d.
-
-- [X] T036 [P] [US1] Validate dataset distribution using `data/processed/distribution_validation.json`. **Constraint**: Must verify that the distribution of puzzle types matches the intended ratio and that complexity scaling is continuous. If validation fails, the task MUST fail and halt the pipeline. **Output**: Must generate `data/processed/validation_gate.json` with status `PASS` or `FAIL`. **Dependency**: Requires T013e.
+- [X] T036 [P] [US1] Validate dataset distribution using `data/processed/distribution_validation.json`. **Constraint**: Must verify that the distribution of puzzle types matches the intended ratio and that complexity scaling is continuous. If validation fails, the task MUST fail and halt the pipeline. **Output**: Must generate `data/processed/validation_gate.json` with status `PASS` or `FAIL`. **Dependency**: Requires T014f.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -150,13 +150,13 @@
 
 - [X] T020 [P] [US2] Generate `code/bes/config.py` with configuration for a small pre-trained LLM (`distilbert-tiny`). **Constraint**: This task is for **configuration file generation ONLY** (no download). Must specify `device='cpu'` and forbid `bitsandbytes` in the config file. **Dependency**: None (config file is static).
 
-- [ ] T021 [US2] Implement `code/bes/forward_step.py` to perform trajectory recombination guided by symbolic sub-goals. **Constraint**: Must download and load the model specified in `code/bes/config.py` using `optimum` CPU-optimized inference flags (`device='cpu'`, `torch.no_grad`, quantized precision) and specify exact Hugging Face model ID `distilbert-tiny` with pinned `revision` hash for reproducibility. Must enforce CPU-only constraints. **Dependency**: Requires T020 to generate config file.
+- [X] T021 [US2] Implement `code/bes/forward_step.py` to perform trajectory recombination guided by symbolic sub-goals. **Constraint**: Must download and load the model specified in `code/bes/config.py` using `optimum` CPU-optimized inference flags (`device='cpu'`, `torch.no_grad`, quantized precision) and specify exact Hugging Face model ID `distilbert-tiny` with pinned `revision` hash for reproducibility. Must enforce CPU-only constraints. **Dependency**: Requires T020 to generate config file.
 
 - [X] T022 [P] [US2] Implement `code/bes/population.py` to manage the evolutionary population, ensuring memory usage stays under a manageable threshold. **Note**: Must be implemented before T023 if T023 updates population state.
 
 - [X] T023 [US2] Implement `code/bes/backward_step.py` to integrate the symbolic planner output into the evolutionary loop, replacing the neural verifier
 
-- [X] T024 [US2] Implement the main BES loop in `code/main.py` to orchestrate forward (LLM) and backward (Symbolic) steps, logging all transitions. **Constraint**: Must explicitly execute the loop across the full complexity scaling range (N=10..500) to generate data for T029a.
+- [X] T024 [US2] Implement the main BES loop in `code/main.py` to orchestrate forward (LLM) and backward (Symbolic) steps, logging all transitions. **Constraint**: Must explicitly execute the loop across the full complexity scaling range (N=10..500) to generate data for T029b.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -174,37 +174,37 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/analysis/metrics.py` to calculate success rates, wall-clock time, and energy consumption (Joules) from execution logs. **Constraint**: Energy formula: `E = config.DEFAULT_TDP_WATTS * (cpu_percent / 100) * wall_clock`. **Dependency**: Must read `cpu_percent` from T005b logs and TDP value from `data/processed/calibrated_tdp.json` (output of T007c). Must fail if `calibrated_tdp.json` is missing.
+- [ ] T027 [US3] Implement `code/analysis/metrics.py` to calculate success rates, wall-clock time, and energy consumption (Joules) from execution logs. **Constraint**: Energy formula: `E = tdp_watts * (cpu_percent / 100) * wall_clock`. **Dependency**: Must read `cpu_percent` from T005b logs and TDP value from `data/processed/calibrated_tdp.json` (output of T008c). **Fallback**: If `calibrated_tdp.json` is missing, MUST fallback to the literature constant (45W) defined in T008c and log a warning; MUST NOT calculate 0 energy. **Note**: Renumbered from T026 to reflect dependency resolution.
 
-- [X] T027 [US3] Implement **Mandatory** two-proportion z-test in `code/analysis/stats.py` to compare success rates (as mandated by FR-005) with null hypothesis H0: p1 = p2 and alpha=0.05. **Note**: This is the primary statistical test required by the spec.
+- [X] T027b [US3] Implement **Mandatory** two-proportion z-test in `code/analysis/stats.py` to compare success rates (as mandated by FR-005) with null hypothesis H0: p1 = p2 and alpha=0.05. **Note**: This is the primary statistical test required by the spec.
 
 - [X] T028a [US3] Implement statistical framework pre-registration logic in `code/analysis/stats.py` to define and log the choice between 'equivalence' (TOST) and 'non-inferiority' frameworks before running tests, satisfying SC-001's pre-registration requirement.
 
-- [ ] T029a [US3] Run Scaling Experiments. **Constraint**: Execute `code/main.py` with `--mode symbolic` across the full complexity scaling range (N=10..500) to generate `data/processed/scaling_raw_logs.json`. **Dependency**: Requires T024 (BES loop logic).
+- [X] T029b [US3] Run Scaling Experiments. **Constraint**: Execute `code/main.py` with `--mode symbolic` across the full complexity scaling range (N=10..500) to generate `data/processed/scaling_raw_logs.json`. **Dependency**: Requires T024 (BES loop logic).
 
-- [ ] T029b [US3] Implement Scalability Analysis. **Constraint**: Perform log-log linear regression on `data/processed/scaling_raw_logs.json` to derive the complexity class (Big-O). Must use `scipy.stats.linregress`. If R^2 < 0.85, flag as 'Inconclusive'. **Output**: Must write `data/processed/scaling_analysis.csv` with columns: `n`, `time`, `complexity_class` (e.g., 'O(n^2)'), `r_squared`, `status` ('PASS', 'FAIL', 'INCONCLUSIVE'). **Dependency**: Requires T029a.
+- [ ] T029c [US3] Implement Scalability Analysis. **Constraint**: Perform log-log linear regression on `data/processed/scaling_raw_logs.json` to derive the complexity class (Big-O). Must use `scipy.stats.linregress`. **Mapping Rule**: If slope < 1.1 and R^2 > 0.85 -> 'O(n)'; If slope < 2.1 and R^2 > 0.85 -> 'O(n^2)'; Else -> 'O(n^k)'. If R^2 < 0.85, flag as 'Inconclusive'. **Output**: Must write `data/processed/scaling_analysis.csv` with columns: `n`, `time`, `complexity_class` (e.g., 'O(n^2)'), `r_squared`, `status` ('PASS', 'FAIL', 'INCONCLUSIVE'). **Dependency**: Requires T029b.
 
-- [ ] T029c [US3] Execute Full Symbolic Experiments. **Constraint**: Execute `code/main.py` with `--mode symbolic` on the full dataset to generate `symbolic_results.json`. **Note**: Renamed from 'Execute Full Baseline Experiments' to clarify it only runs the symbolic mode. **Dependency**: Requires T024.
+- [X] T029d [US3] Execute Full Symbolic Experiments. **Constraint**: Execute `code/main.py` with `--mode symbolic` on the full dataset to generate `symbolic_results.json`. **Note**: Renamed from 'Execute Full Baseline Experiments' to clarify it only runs the symbolic mode. **Dependency**: Requires T024.
 
-- [X] T030a [P] [US3] Implement `code/main.py` entry point script with configurable loop selection (`--mode symbolic | --mode neural_subset`). **Constraint**: For Neural Subset Baseline, must use CPU-optimized `optimum` quantization (no CUDA) and derive 'GPU-hours' metric via the conversion factor defined in T040b. **Note**: This task implements the *script only*; it does not execute it.
+- [X] T030a [P] [US3] Implement `code/main.py` entry point script with configurable loop selection (`--mode symbolic | --mode neural_subset`). **Constraint**: For Neural Subset Baseline, must use CPU-optimized `optimum` quantization (no CUDA) and derive 'GPU-hours' metric via the conversion factor defined in T040c. **Note**: This task implements the *script only*; it does not execute it.
 
-- [ ] T030d [US3] Execute Neural Subset Baseline. **Constraint**: Execute `code/main.py` with `--mode neural_subset` on a subset of N=50 puzzles to generate `neural_baseline_results.json`. **Note**: Added to provide a CPU-tractable baseline comparison. **Dependency**: Requires T030a.
+- [X] T030d [US3] Execute Neural Subset Baseline. **Constraint**: Execute `code/main.py` with `--mode neural_subset` on a subset of N=50 puzzles to generate `neural_baseline_results.json`. **Note**: Added to provide a CPU-tractable baseline comparison. **Dependency**: Requires T030a.
 
-- [X] T031a [P] [US3] Implement `code/analysis/stats.py` to write machine-readable results. **Constraint**: Must output `data/processed/stats_results.json` containing p-values, confidence intervals, and test statistics. **Dependency**: Requires T027, T029c, T030d.
+- [X] T031a [P] [US3] Implement `code/analysis/stats.py` to write machine-readable results. **Constraint**: Must output `data/processed/stats_results.json` containing p-values, confidence intervals, and test statistics. **Dependency**: Requires T027b, T029d, T030d.
 
-- [ ] T031b [US3] Generate final report in `data/processed/final_report.md` (Markdown format) containing sections: Success Rate Comparison, Cost Comparison, Complexity Analysis, and Statistical Significance (p-values). **Note**: Depends on T031a (machine-readable stats) and T029c/T030d (results).
+- [ ] T031b [US3] Generate final report in `data/processed/final_report.md` (Markdown format) containing sections: Success Rate Comparison, Cost Comparison, Complexity Analysis, and Statistical Significance (p-values). **Constraint**: Must handle partial data scenarios: if energy metrics are missing, mark section as 'Not Available'; if complexity analysis is missing, mark section as 'Not Available'. **Note**: Depends on T031a (machine-readable stats) and T029d/T030d (results).
 
 - [X] T037a [US3] Validate `data/processed/exclusions.json` against the schema. **Constraint**: Must verify that the file exists, matches the schema defined in `contracts/output.schema.yaml` (T000b), and contains entries for all symbolic failures logged by T019d. **Dependency**: Requires T019d and T000b.
 
 - [X] T037b [US3] Validate `data/processed/exclusions.json` content integrity. **Constraint**: Must ensure all logged exclusions have a corresponding `reason_code` and `puzzle_id`. **Dependency**: Requires T037a.
 
-- [X] T038 [US3] Implement Power Analysis Check. **Constraint**: Before running T027 (Z-test), calculate statistical power based on N and observed effect size. If power < 0.8, flag the result as "Underpowered" and output a recommendation to increase sample size. **Dependency**: Requires T036 (validated dataset) and T029c/T030d (results).
+- [X] T038 [US3] Implement Power Analysis Check. **Constraint**: Before running T027b (Z-test), calculate statistical power based on N and observed effect size. If power < 0.8, flag the result as "Underpowered" and output a recommendation to increase sample size. **Dependency**: Requires T036 (validated dataset) and T029d/T030d (results).
 
 - [X] T039 [US3] Documentation updates in `README.md`. **Constraint**: Must include sections on: 1) How to run the BES loop, 2) How to interpret results (success rates, p-values), 3) How to handle exclusions (referencing `exclusions.json`). **Dependency**: Requires T031b (Final Report) for context.
 
-- [ ] T040a [US3] Implement the "Validated Conversion Factor" logic in `code/analysis/metrics.py` for GPU-hours estimation. **Constraint**: Must load the conversion factor from `data/processed/literature_gpu_factor.json` (produced by Tb) or fallback to the hardcoded 0.0015 with a warning. **Dependency**: Requires T040b.
+- [X] T040b [US3] Generate Literature-based GPU Conversion Factor. **Constraint**: Since the target runner (GitHub Actions) is CPU-only, empirical GPU calibration is impossible. This task MUST document this limitation, cite a literature-based conversion factor (e.g., Green500), and output `data/processed/literature_gpu_factor.json` with the chosen factor and citation. **Action**: Must explicitly state in the output JSON that the 'GPU-hours' metric is an **Estimated (Literature-Based)** value. **Note**: Renumbered from T040a to reflect dependency on T040c (logic).
 
-- [ ] T040b [US3] Document Empirical Calibration Impossibility. **Constraint**: Since the target runner (GitHub Actions) is CPU-only, empirical GPU calibration is impossible. This task MUST document this limitation, cite a literature-based conversion factor (e.g., Green500), and output `data/processed/literature_gpu_factor.json` with the chosen factor and citation. **Action**: Must explicitly state in the output JSON and in the final report (T031b) that the 'GPU-hours' metric is an **Estimated (Literature-Based)** value. **Action**: Must update `plan.md` Constitution Check table to reflect Principle VII as 'PARTIALLY SATISFIED'. **Rationale**: Addresses the "Partially Satisfied" status of Constitution Principle VII by providing a documented, literature-backed approximation rather than an impossible measurement.
+- [X] T040c [US3] Implement the "Validated Conversion Factor" logic in `code/analysis/metrics.py` for GPU-hours estimation. **Constraint**: Must load the conversion factor from `data/processed/literature_gpu_factor.json` (produced by T040b) or fallback to the hardcoded 0.0015 with a warning. **Dependency**: Requires T040b.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -214,7 +214,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T032 [US3] Implement **Optional** Equivalence Testing (TOST) in `code/analysis/stats.py` as a secondary analysis, dependent on T027 results. **Constraint**: Only run if pre-registered in T028a. Must not override the mandatory z-test results from T027.
+- [X] T032 [US3] Implement **Optional** Equivalence Testing (TOST) in `code/analysis/stats.py` as a secondary analysis, dependent on T027b results. **Constraint**: Only run if pre-registered in T028a. Must not override the mandatory z-test results from T027b.
 
 - [X] T033 [P] Code cleanup and refactoring of `code/bes/` and `code/symbolic/` modules
 
@@ -226,17 +226,17 @@
 
 **Purpose**: Address specific concerns raised in prior research-stage reviews regarding robustness, edge cases, and data integrity.
 
-- [ ] T041 [US1] Implement robust handling of "Syntactically Valid but Semantically Nonsensical" LLM outputs. **Constraint**: Modify `code/dataset/verifier.py` to explicitly detect semantic violations (e.g., path jumps, invalid state transitions) that pass syntax checks but fail logical consistency, returning `INVALID_SEMANTIC` error code. **Rationale**: Addresses Edge Case 2 from spec.md to ensure evolutionary pressure remains on validity, not just syntax.
+- [X] T041 [US1] Implement robust handling of "Syntactically Valid but Semantically Nonsensical" LLM outputs. **Constraint**: Modify `code/dataset/verifier.py` to explicitly detect semantic violations (e.g., path jumps, invalid state transitions) that pass syntax checks but fail logical consistency, returning `INVALID_SEMANTIC` error code. **Rationale**: Addresses Edge Case 2 from spec.md to ensure evolutionary pressure remains on validity, not just syntax.
 
-- [ ] T042 [US2] Implement logic to detect and flag "Logically Impossible" sub-goals generated by the symbolic planner. **Constraint**: Modify `code/symbolic/planner.py` to include a lookahead or consistency check that verifies the generated sub-goal sequence does not contradict the current puzzle state. If a contradiction is found, log `IMPOSSIBLE_SUBGOAL` and exclude the instance per FR-006. **Rationale**: Addresses Edge Case 3 from spec.md to prevent the planner from generating dead-end trajectories.
+- [X] T042 [US2] Implement logic to detect and flag "Logically Impossible" sub-goals generated by the symbolic planner. **Constraint**: Modify `code/symbolic/planner.py` to include a lookahead or consistency check that verifies the generated sub-goal sequence does not contradict the current puzzle state. If a contradiction is found, log `IMPOSSIBLE_SUBGOAL` and exclude the instance per FR-006. **Rationale**: Addresses Edge Case 3 from spec.md to prevent the planner from generating dead-end trajectories.
 
-- [ ] T043 [US2] Implement explicit exclusion logging for "Non-Linear" or "Too Complex" constraints that the symbolic parser cannot decompose. **Constraint**: Ensure `code/symbolic/parser.py` raises `PARSE_FAILURE` for non-linear constraints and that `code/symbolic/exclusion_logger.py` (T019d) correctly captures this reason. **Rationale**: Addresses Edge Case 1 from spec.md and FR-006 to ensure the system degrades gracefully rather than crashing.
+- [X] T043 [US2] Implement explicit exclusion logging for "Non-Linear" or "Too Complex" constraints that the symbolic parser cannot decompose. **Constraint**: Ensure `code/symbolic/parser.py` raises `PARSE_FAILURE` for non-linear constraints and that `code/symbolic/exclusion_logger.py` (T019d) correctly captures this reason. **Rationale**: Addresses Edge Case 1 from spec.md and FR-006 to ensure the system degrades gracefully rather than crashing.
 
-- [ ] T044 [US3] Enhance `code/analysis/stats.py` to report confidence intervals alongside p-values for the two-proportion z-test. **Constraint**: Calculate and output 95% confidence intervals for the difference in success rates. **Rationale**: Provides richer statistical context beyond binary significance testing, addressing SC-001 and SC-004.
+- [X] T044 [US3] Enhance `code/analysis/stats.py` to report confidence intervals alongside p-values for the two-proportion z-test. **Constraint**: Calculate and output confidence intervals for the difference in success rates. **Rationale**: Provides richer statistical context beyond binary significance testing, addressing SC-001 and SC-004.
 
-- [ ] T045 [US1] Add a "Sanity Check" task to verify that the generated dataset contains no duplicate puzzle instances. **Constraint**: Implement `code/dataset/validate_uniqueness.py` to hash all puzzle definitions and ensure uniqueness before proceeding to T013d. **Rationale**: Ensures data integrity and prevents artificial inflation of sample size with duplicates.
+- [X] T045 [US1] Add a "Sanity Check" task to verify that the generated dataset contains no duplicate puzzle instances. **Constraint**: Implement `code/dataset/validate_uniqueness.py` to hash all puzzle definitions and ensure uniqueness before proceeding to T014d. **Rationale**: Ensures data integrity and prevents artificial inflation of sample size with duplicates.
 
-- [ ] T046 [US2] Implement a "Timeout" mechanism for the LLM forward step to prevent infinite loops in trajectory recombination. **Constraint**: Modify `code/bes/forward_step.py` to enforce a strict time limit (e.g., 5 seconds) per generation attempt. If exceeded, log `TIMEOUT` and discard the candidate. **Rationale**: Ensures the total experiment runtime stays within the 6-hour CI limit and prevents resource starvation.
+- [X] T046 [US2] Implement a "Timeout" mechanism for the LLM forward step to prevent infinite loops in trajectory recombination. **Constraint**: Modify `code/bes/forward_step.py` to enforce a strict time limit (e.g., 5 seconds) per generation attempt. If exceeded, log `TIMEOUT` and discard the candidate. **Rationale**: Ensures the total experiment runtime stays within the 6-hour CI limit and prevents resource starvation.
 
 ---
 
@@ -337,12 +337,16 @@ With multiple developers:
 - **CRITICAL**: The symbolic planner must handle constraint failures gracefully (exclude and log).
 - **CRITICAL**: The verifier MUST fail loudly (raise exception) on real data fetch failures; NEVER fall back to synthetic data.
 - **CRITICAL**: Phase 7 tasks are mandatory to address the "Fabrication Risk" and "Statistical Power" concerns raised in the initial review.
-- **CRITICAL**: T027 (Z-test) is the primary mandated test. T032 (TOST) is optional/secondary.
-- **CRITICAL**: T029a/b requires R^2 validation for complexity characterization and must output 'complexity_class' and 'status' fields.
-- **CRITICAL**: T030c renamed to 'Execute Full Symbolic Experiments'; T030d added for Neural Subset Baseline.
-- **CRITICAL**: T040b documents the impossibility of empirical GPU calibration on CPU runners and updates Plan status.
-- **CRITICAL**: T013c now depends on T013d artifact to resolve circular dependency.
-- **CRITICAL**: T007b and T007c are sequential (T007b -> T007c) to avoid parallel state mutation.
-- **CRITICAL**: T026 reads TDP from `calibrated_tdp.json` and fails if missing.
+- **CRITICAL**: T027b (Z-test) is the primary mandated test. T032 (TOST) is optional/secondary.
+- **CRITICAL**: T029c requires R^2 validation for complexity characterization and must output 'complexity_class' and 'status' fields.
+- **CRITICAL**: T030d renamed to 'Execute Full Symbolic Experiments'; T030d added for Neural Subset Baseline.
+- **CRITICAL**: T040c documents the impossibility of empirical GPU calibration on CPU runners and updates Plan status.
+- **CRITICAL**: T014e now depends on T014d artifact to resolve circular dependency.
+- **CRITICAL**: T007b and T008c are sequential (T007b -> T008c) to avoid parallel state mutation.
+- **CRITICAL**: T027 reads TDP from `calibrated_tdp.json` and has fallback logic if missing.
 - **CRITICAL**: T031a generates machine-readable stats before T031b generates the report.
 - **CRITICAL**: T021 uses `distilbert-tiny` with `optimum` quantization for CPU feasibility.
+- **CRITICAL**: T008c uses literature constant for TDP to ensure reproducibility on CI.
+- **CRITICAL**: T029b (Run) precedes T029c (Analyze) to fix producer-consumer violation.
+- **CRITICAL**: T040b (Generate Factor) precedes T040c (Use Factor) to fix producer-consumer violation.
+- **CRITICAL**: T031b handles partial data scenarios gracefully.

@@ -1,315 +1,429 @@
 """
-Forward Step Implementation for BES
-
-Performs trajectory recombination guided by symbolic sub-goals using a CPU-optimized
-DistilBERT model via Optimum Intel.
+Forward step implementation for the BES framework.
+Handles LLM-based trajectory recombination with strict timeout enforcement.
 """
 import torch
 import time
-from typing import Dict, Any, Optional, Tuple, List
-from dataclasses import dataclass, field
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from optimum.intel import IPEXModel
-import sys
+import logging
+import json
 import os
+import sys
+import signal
+from pathlib import Path
+from typing import Dict, Any, List, Optional, Tuple
+from dataclasses import dataclass, field
+from datetime import datetime
 
-# Add project root to path for imports if running as script
-if 'code' not in sys.path:
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
+# Import from project API
+from bes.config import BESConfig, get_default_config
+from bes.population import Individual, Population
+from symbolic.planner import SymbolicPlanner, SubGoal
+from dataset.verifier import PuzzleVerifier, SolutionResult
+from utils.logger import setup_logging, log
+from utils.seed import set_seed
 from exceptions import BaseResearchException
 
+# Configure logging
+logger = logging.getLogger(__name__)
 
 class ForwardStepError(BaseResearchException):
     """Custom exception for forward step failures."""
     pass
 
-
 @dataclass
 class ForwardStepResult:
-    """Result of a forward step execution."""
+    """Result of a single forward step execution."""
     success: bool
-    trajectory: List[Dict[str, Any]]
-    sub_goals_satisfied: int
-    total_sub_goals: int
-    execution_time_ms: float
-    model_id: str
-    error_message: Optional[str] = None
+    candidate: Optional[Individual]
+    reason: Optional[str] = None
+    elapsed_time: float = 0.0
+    timeout_triggered: bool = False
+    subgoals_used: List[str] = field(default_factory=list)
 
+class TimeoutException(Exception):
+    """Raised when a timeout occurs."""
+    pass
+
+def timeout_handler(signum, frame):
+    """Signal handler for timeout."""
+    raise TimeoutException("Generation attempt exceeded time limit")
 
 class ForwardStep:
     """
-    Executes the forward step of the Bidirectional Evolutionary Search.
-
-    Uses a small pre-trained LLM (DistilBERT) to perform trajectory recombination
-    guided by symbolic sub-goals provided by the backward step.
+    Implements the forward step of the BES loop.
+    Uses a small CPU-tractable LLM for trajectory recombination.
+    Enforces strict timeouts to prevent infinite loops.
     """
 
-    # Pinned revision for reproducibility as per T021 constraint
-    MODEL_ID = "distilbert-base-uncased"
-    MODEL_REVISION = "d46364403d2e5e43c51c29454680792737523902"  # Example pin, actual hash should be verified
-    MAX_LENGTH = 512
-    BATCH_SIZE = 1
-
-    def __init__(self, device: str = "cpu", seed: int = 42):
-        """
-        Initialize the ForwardStep with CPU-optimized inference.
-
-        Args:
-            device: Device to run inference on (must be 'cpu' for this task).
-            seed: Random seed for reproducibility.
-        """
-        if device != "cpu":
-            raise ForwardStepError(f"ForwardStep requires CPU-only inference, got device={device}")
-
-        self.device = device
-        self.seed = seed
-        self.tokenizer = None
+    def __init__(self, config: BESConfig, timeout_seconds: float = 5.0):
+        self.config = config
+        self.timeout_seconds = timeout_seconds
         self.model = None
-        self._initialized = False
+        self.tokenizer = None
+        self.device = "cpu"
+        self._setup_logging()
 
-    def _load_model(self) -> None:
-        """Load the model using Optimum Intel for CPU optimization."""
-        if self._initialized:
+    def _setup_logging(self):
+        """Initialize logging for this module."""
+        setup_logging()
+        logger.info(f"ForwardStep initialized with timeout={self.timeout_seconds}s")
+
+    def load_model(self):
+        """
+        Load the LLM model specified in config.
+        Uses optimum for CPU optimization.
+        """
+        if self.model is not None:
             return
 
+        logger.info(f"Loading model: {self.config.model_name} on {self.device}")
+
         try:
+            # Import optimum for CPU optimization
+            from optimum.intel import IPEXModel
+            from transformers import AutoTokenizer, AutoConfig
+
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.MODEL_ID,
-                revision=self.MODEL_REVISION,
+                self.config.model_name,
                 trust_remote_code=False
             )
 
-            # Load model with Optimum Intel for CPU optimization
-            # IPEXModel provides optimizations for Intel CPUs
-            self.model = IPEXModel.from_pretrained(
-                self.MODEL_ID,
-                revision=self.MODEL_REVISION,
-                trust_remote_code=False
-            )
+            # Load model with CPU optimization
+            # Using IPEX for Intel CPU optimization, fallback to standard if unavailable
+            try:
+                self.model = IPEXModel.from_pretrained(
+                    self.config.model_name,
+                    torchscript=False,
+                    compile=False
+                )
+            except Exception as e:
+                logger.warning(f"IPEX not available, falling back to standard transformers: {e}")
+                from transformers import AutoModelForCausalLM
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.config.model_name,
+                    torchscript=False,
+                    low_cpu_mem_usage=True
+                )
+
             self.model.to(self.device)
             self.model.eval()
+            logger.info(f"Model loaded successfully: {self.config.model_name}")
 
-            # Disable gradients for inference
-            # Note: torch.no_grad is handled by the model's eval() and inference context
-            # but we ensure it in the execution method
-
-            self._initialized = True
         except Exception as e:
-            raise ForwardStepError(f"Failed to load model {self.MODEL_ID}: {str(e)}")
+            logger.error(f"Failed to load model: {e}")
+            raise ForwardStepError(f"Model loading failed: {e}")
 
-    def _prepare_prompt(
-        self,
-        puzzle_context: Dict[str, Any],
-        sub_goals: List[Dict[str, Any]],
-        current_trajectory: List[Dict[str, Any]]
-    ) -> str:
-        """
-        Construct a prompt for the LLM based on puzzle context and sub-goals.
-
-        Args:
-            puzzle_context: The puzzle instance data.
-            sub_goals: List of symbolic sub-goals to satisfy.
-            current_trajectory: Current solution path being evolved.
-
-        Returns:
-            Formatted prompt string for the model.
-        """
-        prompt_parts = []
-
-        # Puzzle description
-        if "description" in puzzle_context:
-            prompt_parts.append(f"Puzzle: {puzzle_context['description']}")
-
-        # Initial state
-        if "initial_state" in puzzle_context:
-            prompt_parts.append(f"Initial State: {puzzle_context['initial_state']}")
-
-        # Target state
-        if "target_state" in puzzle_context:
-            prompt_parts.append(f"Target State: {puzzle_context['target_state']}")
-
-        # Sub-goals guidance
-        if sub_goals:
-            goal_str = "; ".join([f"Goal: {g['description']}" for g in sub_goals])
-            prompt_parts.append(f"Guiding Sub-Goals: {goal_str}")
-
-        # Current trajectory context
-        if current_trajectory:
-            steps = [f"Step {i+1}: {step['action']}" for i, step in enumerate(current_trajectory)]
-            prompt_parts.append(f"Current Trajectory: {' -> '.join(steps)}")
-
-        prompt_parts.append("Next Action:")
-        return "\n".join(prompt_parts)
-
-    def _recombine_trajectory(
+    def _generate_with_timeout(
         self,
         prompt: str,
-        sub_goals: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        subgoals: List[SubGoal]
+    ) -> Tuple[str, bool]:
         """
-        Use the LLM to generate the next action in the trajectory.
-
-        Args:
-            prompt: Formatted prompt string.
-            sub_goals: List of sub-goals to consider.
-
-        Returns:
-            List of actions representing the recombined trajectory.
+        Generate a trajectory with a strict timeout.
+        Returns (generation, timeout_triggered).
         """
-        if not self._initialized:
-            self._load_model()
+        generation = ""
+        timeout_triggered = False
 
-        # Tokenize input
+        # Set up signal-based timeout (Unix only)
+        # For cross-platform compatibility, we also use a time-based check
+        start_time = time.time()
+
+        # Try signal-based timeout if available
+        if hasattr(signal, 'SIGALRM'):
+            old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(int(self.timeout_seconds))
+            try:
+                generation = self._generate_trajectory(prompt, subgoals)
+            except TimeoutException:
+                timeout_triggered = True
+                logger.warning(f"Generation timed out after {self.timeout_seconds}s")
+            finally:
+                signal.alarm(0)
+                signal.signal(signal.SIGALRM, old_handler)
+        else:
+            # Fallback to time-based checking for Windows
+            generation = self._generate_trajectory_with_time_check(prompt, subgoals)
+            if time.time() - start_time > self.timeout_seconds:
+                timeout_triggered = True
+                logger.warning(f"Generation timed out after {self.timeout_seconds}s")
+
+        return generation, timeout_triggered
+
+    def _generate_trajectory_with_time_check(
+        self,
+        prompt: str,
+        subgoals: List[SubGoal]
+    ) -> str:
+        """Generate trajectory with manual time checking."""
+        start_time = time.time()
+        # Simplified generation for timeout safety
+        # In a real implementation, this would generate token by token
+        # and check elapsed time at each step
+        if time.time() - start_time > self.timeout_seconds:
+            raise TimeoutException("Timeout during generation")
+        
+        # Placeholder for actual generation logic
+        # This would normally call model.generate() with time checks
+        return f"Generated trajectory for prompt: {prompt[:50]}..."
+
+    def _generate_trajectory(
+        self,
+        prompt: str,
+        subgoals: List[SubGoal]
+    ) -> str:
+        """
+        Generate a trajectory using the LLM.
+        This is the core generation logic.
+        """
+        if self.model is None:
+            self.load_model()
+
+        # Prepare input
+        subgoal_text = "\n".join([f"- {sg.description}" for sg in subgoals])
+        full_prompt = f"{prompt}\n\nSubgoals to satisfy:\n{subgoal_text}"
+
         inputs = self.tokenizer(
-            prompt,
+            full_prompt,
             return_tensors="pt",
             truncation=True,
-            max_length=self.MAX_LENGTH,
-            padding=True
+            max_length=self.config.max_input_length
         ).to(self.device)
 
-        # Run inference with no_grad context
+        # Generate with timeout safety
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs,
-                max_new_tokens=50,
+                max_new_tokens=self.config.max_new_tokens,
+                temperature=self.config.temperature,
                 do_sample=True,
-                temperature=0.7,
-                top_k=50,
-                top_p=0.95,
                 pad_token_id=self.tokenizer.eos_token_id,
-                eos_token_id=self.tokenizer.eos_token_id
+                use_cache=True
             )
 
         # Decode output
-        generated_text = self.tokenizer.decode(
-            outputs[0][inputs['input_ids'].shape[1]:],
+        generation = self.tokenizer.decode(
+            outputs[0, inputs['input_ids'].shape[1]:],
             skip_special_tokens=True
         )
 
-        # Parse generated action (simplified parsing for demonstration)
-        # In a real implementation, this would be more robust
-        action = generated_text.strip()
-        if not action:
-            action = "unknown_action"
+        return generation
 
-        # Construct trajectory update
-        new_step = {
-            "action": action,
-            "confidence": 0.85,  # Placeholder confidence
-            "model_id": self.MODEL_ID,
-            "sub_goals_referenced": [g['id'] for g in sub_goals] if sub_goals else []
-        }
-
-        return [new_step]
-
-    def execute(
+    def recombine_trajectory(
         self,
-        puzzle_context: Dict[str, Any],
-        sub_goals: List[Dict[str, Any]],
-        current_trajectory: List[Dict[str, Any]]
+        puzzle: Dict[str, Any],
+        subgoals: List[SubGoal],
+        parent: Optional[Individual] = None
     ) -> ForwardStepResult:
         """
-        Execute the forward step: recombine trajectory guided by sub-goals.
-
-        Args:
-            puzzle_context: The puzzle instance data.
-            sub_goals: Symbolic sub-goals from the backward step.
-            current_trajectory: Current solution path.
-
-        Returns:
-            ForwardStepResult with the updated trajectory and metrics.
+        Recombine a trajectory guided by symbolic subgoals.
+        Enforces strict timeout per generation attempt.
         """
         start_time = time.time()
+        set_seed(self.config.seed)
 
         try:
-            # Ensure model is loaded
-            if not self._initialized:
-                self._load_model()
+            # Prepare prompt from puzzle
+            prompt = self._prepare_prompt(puzzle, parent)
 
-            # Prepare prompt
-            prompt = self._prepare_prompt(puzzle_context, sub_goals, current_trajectory)
+            # Generate with timeout enforcement
+            generation, timeout_triggered = self._generate_with_timeout(
+                prompt,
+                subgoals
+            )
 
-            # Perform recombination
-            new_steps = self._recombine_trajectory(prompt, sub_goals)
+            elapsed_time = time.time() - start_time
 
-            # Update trajectory
-            updated_trajectory = current_trajectory + new_steps
+            if timeout_triggered:
+                logger.warning(
+                    f"Generation timed out after {elapsed_time:.2f}s. "
+                    f"Discarding candidate."
+                )
+                return ForwardStepResult(
+                    success=False,
+                    candidate=None,
+                    reason="TIMEOUT",
+                    elapsed_time=elapsed_time,
+                    timeout_triggered=True,
+                    subgoals_used=[sg.id for sg in subgoals]
+                )
 
-            # Calculate metrics
-            execution_time_ms = (time.time() - start_time) * 1000
+            # Parse and validate generation
+            candidate = self._parse_and_validate(generation, puzzle)
 
-            # Count satisfied sub-goals (heuristic: if action references them)
-            satisfied_count = 0
-            if new_steps and sub_goals:
-                # Simple heuristic: check if any sub-goal was referenced
-                satisfied_count = len(new_steps[0].get('sub_goals_referenced', []))
+            elapsed_time = time.time() - start_time
+
+            if candidate is None:
+                return ForwardStepResult(
+                    success=False,
+                    candidate=None,
+                    reason="VALIDATION_FAILED",
+                    elapsed_time=elapsed_time,
+                    subgoals_used=[sg.id for sg in subgoals]
+                )
 
             return ForwardStepResult(
                 success=True,
-                trajectory=updated_trajectory,
-                sub_goals_satisfied=satisfied_count,
-                total_sub_goals=len(sub_goals),
-                execution_time_ms=execution_time_ms,
-                model_id=self.MODEL_ID
+                candidate=candidate,
+                elapsed_time=elapsed_time,
+                subgoals_used=[sg.id for sg in subgoals]
             )
 
         except Exception as e:
-            execution_time_ms = (time.time() - start_time) * 1000
+            elapsed_time = time.time() - start_time
+            logger.error(f"Forward step failed: {e}")
             return ForwardStepResult(
                 success=False,
-                trajectory=current_trajectory,
-                sub_goals_satisfied=0,
-                total_sub_goals=len(sub_goals),
-                execution_time_ms=execution_time_ms,
-                model_id=self.MODEL_ID,
-                error_message=str(e)
+                candidate=None,
+                reason=f"ERROR: {str(e)}",
+                elapsed_time=elapsed_time
             )
 
+    def _prepare_prompt(
+        self,
+        puzzle: Dict[str, Any],
+        parent: Optional[Individual] = None
+    ) -> str:
+        """Prepare the input prompt for the LLM."""
+        puzzle_str = json.dumps(puzzle, indent=2)
+        
+        if parent:
+            parent_str = json.dumps(parent.data, indent=2)
+            return f"""
+            Puzzle:
+            {puzzle_str}
+            
+            Parent trajectory (to improve):
+            {parent_str}
+            
+            Generate an improved trajectory that satisfies the puzzle constraints.
+            """
+        else:
+            return f"""
+            Puzzle:
+            {puzzle_str}
+            
+            Generate a valid trajectory that satisfies the puzzle constraints.
+            """
+
+    def _parse_and_validate(
+        self,
+        generation: str,
+        puzzle: Dict[str, Any]
+    ) -> Optional[Individual]:
+        """Parse the generation and validate it against the puzzle."""
+        try:
+            # Attempt to parse as JSON
+            try:
+                parsed = json.loads(generation)
+            except json.JSONDecodeError:
+                # Try to extract JSON from text
+                import re
+                match = re.search(r'\{.*\}', generation, re.DOTALL)
+                if match:
+                    parsed = json.loads(match.group())
+                else:
+                    logger.warning("Could not parse generation as JSON")
+                    return None
+
+            # Validate against puzzle
+            verifier = PuzzleVerifier()
+            result = verifier.verify_solution(puzzle, parsed)
+
+            if result.is_valid:
+                return Individual(
+                    data=parsed,
+                    fitness=1.0,
+                    generation=0
+                )
+            else:
+                logger.debug(f"Validation failed: {result.error_codes}")
+                return None
+
+        except Exception as e:
+            logger.warning(f"Parse/validation error: {e}")
+            return None
+
+    def run(
+        self,
+        population: Population,
+        puzzles: List[Dict[str, Any]],
+        planner: SymbolicPlanner
+    ) -> Population:
+        """
+        Execute the forward step on the entire population.
+        Applies timeout to each generation attempt.
+        """
+        new_population = Population()
+        total_timeout = 0
+
+        for puzzle in puzzles:
+            # Get subgoals from symbolic planner
+            decomposition = planner.decompose(puzzle)
+            subgoals = decomposition.subgoals
+
+            # Try to recombine for each individual in population
+            for individual in population.individuals:
+                result = self.recombine_trajectory(
+                    puzzle=puzzle,
+                    subgoals=subgoals,
+                    parent=individual
+                )
+
+                if result.success:
+                    new_population.add(result.candidate)
+                elif result.timeout_triggered:
+                    total_timeout += 1
+                    logger.info(
+                        f"Timeout encountered for puzzle {puzzle.get('id', 'unknown')}. "
+                        f"Discarding candidate."
+                    )
+
+        logger.info(
+            f"Forward step complete. "
+            f"Generated {len(new_population.individuals)} candidates. "
+            f"Timeouts: {total_timeout}"
+        )
+
+        return new_population
 
 def main():
-    """
-    Main entry point for testing the ForwardStep independently.
-    Demonstrates CPU-optimized inference with DistilBERT.
-    """
-    print("Testing ForwardStep with DistilBERT (CPU-only)...")
-
-    # Initialize
-    forward_step = ForwardStep(device="cpu")
-
-    # Mock puzzle context
-    puzzle = {
-        "id": "test-puzzle-001",
-        "description": "Find a path from A to C avoiding B",
-        "initial_state": "A",
-        "target_state": "C"
+    """Main entry point for testing the forward step."""
+    # Load config
+    config = get_default_config()
+    config.model_name = "distilbert-tiny"  # Use a small model for testing
+    
+    # Initialize forward step with 5 second timeout
+    forward_step = ForwardStep(config, timeout_seconds=5.0)
+    
+    # Create a test puzzle
+    test_puzzle = {
+        "id": "test_001",
+        "type": "pathfinding",
+        "initial_state": {"x": 0, "y": 0},
+        "target_state": {"x": 5, "y": 5},
+        "constraints": ["no_diagonal", "avoid_obstacles"]
     }
-
-    # Mock sub-goals
-    sub_goals = [
-        {"id": "g1", "description": "Move to intermediate node"},
-        {"id": "g2", "description": "Avoid node B"}
-    ]
-
-    # Mock current trajectory
-    trajectory = []
-
-    # Execute
-    result = forward_step.execute(puzzle, sub_goals, trajectory)
-
-    # Report
-    print(f"Success: {result.success}")
-    print(f"Execution Time: {result.execution_time_ms:.2f} ms")
-    print(f"Model Used: {result.model_id}")
-    print(f"Trajectory Length: {len(result.trajectory)}")
-    print(f"Sub-goals Referenced: {result.sub_goals_satisfied}/{result.total_sub_goals}")
-
-    if not result.success:
-        print(f"Error: {result.error_message}")
+    
+    # Create a mock planner
+    from symbolic.planner import SymbolicPlanner, SubGoal
+    planner = SymbolicPlanner()
+    
+    # Create a mock population
+    from bes.population import Population, Individual
+    population = Population()
+    population.add(Individual(data={"path": [{"x": 0, "y": 0}]}, fitness=0.5, generation=0))
+    
+    # Run forward step
+    try:
+        result_population = forward_step.run(population, [test_puzzle], planner)
+        print(f"Generated {len(result_population.individuals)} candidates")
+        for ind in result_population.individuals:
+            print(f"  Fitness: {ind.fitness}, Data: {ind.data}")
+    except Exception as e:
+        print(f"Error during forward step: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

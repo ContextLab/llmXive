@@ -28,6 +28,9 @@ DEFAULT_CONFIG = {
     "llm_max_new_tokens": 512,
     "llm_temperature": 0.7,
     "verifier_timeout_ms": 100,
+    # Placeholder for TDP calibration. 
+    # This value MUST be overwritten by T007c after calibration.
+    "DEFAULT_TDP_WATTS": 0.0,
 }
 
 
@@ -97,6 +100,11 @@ def _validate_config(config: Dict[str, Any]) -> None:
     
     if not isinstance(config.get("verifier_timeout_ms"), int) or config["verifier_timeout_ms"] <= 0:
         raise ValueError("verifier_timeout_ms must be a positive integer")
+    
+    # T007b Constraint: DEFAULT_TDP_WATTS is a placeholder (0.0)
+    # It is expected to be overwritten by T007c. We do not enforce a non-zero value here.
+    if not isinstance(config.get("DEFAULT_TDP_WATTS"), (int, float)):
+        raise ValueError("DEFAULT_TDP_WATTS must be a number")
 
 
 def save_config(config: Dict[str, Any], output_path: str) -> None:
