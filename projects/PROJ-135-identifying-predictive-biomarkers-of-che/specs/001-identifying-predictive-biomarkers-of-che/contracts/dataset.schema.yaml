@@ -1,66 +1,27 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Harmonized Dataset Schema"
-description: "Schema for the harmonized, normalized expression matrix and metadata."
-type: "object"
-properties:
-  samples:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        sample_id:
-          type: "string"
-          description: "Unique sample identifier"
-        tumor_type:
-          type: "string"
-          description: "TCGA/GEO tumor type code"
-        response_label:
-          type: "integer"
-          enum: [0, 1]
-          description: "0=Non-responder, 1=Responder"
-        set_type:
-          type: "string"
-          enum: ["discovery", "training"]
-          description: "Partition type"
-        source:
-          type: "string"
-          enum: ["TCGA", "GEO"]
-          description: "Data source"
-        expression_vector:
-          type: "object"
-          additionalProperties:
-            type: "number"
-          description: "Gene symbol -> VST value mapping"
-      required:
-        - sample_id
-        - tumor_type
-        - response_label
-        - set_type
-        - source
-        - expression_vector
-  metadata:
-    type: "object"
-    properties:
-      total_samples:
-        type: "integer"
-        description: "Total number of samples"
-      tumor_types:
-        type: "array"
-        items:
-          type: "string"
-        description: "List of tumor types included"
-      normalization_method:
-        type: "string"
-        const: "DESeq2_VST"
-        description: "Normalization method used"
-      checksum:
-        type: "string"
-        description: "SHA256 checksum of the raw data source"
-    required:
-      - total_samples
-      - tumor_types
-      - normalization_method
-      - checksum
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Sample Schema
+description: Schema for individual sample entities in the cancer biomarker discovery dataset.
+type: object
 required:
-  - samples
-  - metadata
+  - sample_id
+  - tumor_type
+  - response_label
+  - expression_vector
+properties:
+  sample_id:
+    type: string
+    description: Unique identifier for the sample (e.g., TCGA barcode or GEO sample ID).
+  tumor_type:
+    type: string
+    description: The cancer type or tissue of origin (e.g., BRCA, LUAD).
+  response_label:
+    type: string
+    description: Chemotherapy response classification (e.g., 'Responder', 'NonResponder', 'CR', 'PR', 'SD', 'PD').
+  expression_vector:
+    type: array
+    description: Normalized gene expression values (e.g., VST transformed counts).
+    items:
+      type: number
+      format: float
+    minItems: 1
+    description: Array of floats representing expression levels for selected genes.

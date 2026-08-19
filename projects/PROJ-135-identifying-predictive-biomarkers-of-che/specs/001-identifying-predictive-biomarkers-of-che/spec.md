@@ -51,7 +51,7 @@ A researcher builds elastic-net logistic regression models using the identified 
 
 1. **Given** the meta-analyzed gene panel and training data (training set), **When** elastic-net logistic regression executes with k-fold nested CV, **Then** optimal alpha and lambda parameters are selected and AUC is computed.
 2. **Given** a trained model, **When** external validation runs on ≥2 independent GEO datasets (after cross-platform normalization), **Then** the system MUST compute and report AUC for each cohort.
-3. **Given** model predictions and clinical response labels, **When** calibration curves are generated, **Then** for all deciles with a sample size ≥20, predicted probabilities MUST align with observed response rates within ±10% (95% CI of calibration error); for deciles with <20 samples, the system MUST report the CI and flag the result as 'underpowered'.
+3. **Given** model predictions and clinical response labels, **When** calibration curves are generated, **Then** for all deciles with a sample size ≥20, predicted probabilities MUST align with observed response rates within ±10% (% CI of calibration error); for deciles with <20 samples, the system MUST report the CI and flag the result as 'underpowered'.
 
 ---
 

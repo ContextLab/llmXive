@@ -1,0 +1,14 @@
+sample_id:
+  type: string
+  description: Unique identifier for the biological sample
+tumor_type:
+  type: string
+  description: Type of tumor (e.g., BRCA, LUAD)
+response_label:
+  type: string
+  description: Chemotherapy response label (e.g., CR, PR, SD, PD)
+expression_vector:
+  type: array
+  description: Array of float values representing gene expression levels
+  items:
+    type: float

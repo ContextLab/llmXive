@@ -1,13 +1,3 @@
-"""
-Meta-analysis module for cross-cancer biomarker identification.
-
-Implements:
-- Loading LOO-Blind DE results
-- Computing intersection/union of significant genes
-- REML meta-analysis (override of Stouffer's method)
-- Saving the final gene panel to results/meta_analysis/gene_panel.json
-"""
-
 import os
 import sys
 import json
@@ -16,403 +6,386 @@ from pathlib import Path
 from typing import Dict, List, Set, Any, Optional
 import pandas as pd
 import numpy as np
+from scipy.stats import combine_pvalues
 
-# Import config for paths
 from src.config import get_project_root
 
-# Setup logging
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def load_discovery_results(
-    processed_dir: Optional[Path] = None
-) -> Dict[str, pd.DataFrame]:
+def load_discovery_results(root: Path) -> Dict[str, pd.DataFrame]:
     """
-    Load all LOO-Blind DE result files from data/processed/.
-    Files must match pattern: loo_iteration_{TUMOR_TYPE}_de_results.csv
-
-    Returns:
-        Dict mapping tumor_type -> DataFrame of DE results
+    Load all {tumor_type}_de_results.csv files from data/processed/.
+    Returns a dict mapping tumor_type -> DataFrame.
     """
-    if processed_dir is None:
-        project_root = get_project_root()
-        processed_dir = project_root / "data" / "processed"
-
-    if not processed_dir.exists():
-        logger.warning(f"Processed directory not found: {processed_dir}")
-        return {}
-
+    processed_dir = root / "data" / "processed"
     results = {}
-    pattern = "loo_iteration_"
-    suffix = "_de_results.csv"
+    
+    if not processed_dir.exists():
+        logger.error(f"Processed directory not found: {processed_dir}")
+        return results
 
-    for file_path in processed_dir.glob(f"{pattern}*{suffix}"):
-        tumor_type = file_path.name.replace(pattern, "").replace(suffix, "")
+    # Find all de results files
+    de_files = list(processed_dir.glob("*_de_results.csv"))
+    
+    if not de_files:
+        logger.warning("No differential expression results files found.")
+        return results
+
+    for file_path in de_files:
+        # Extract tumor type from filename (e.g., "BRCA_de_results.csv" -> "BRCA")
+        tumor_type = file_path.stem.replace("_de_results", "")
+        
         try:
             df = pd.read_csv(file_path)
-            # Ensure required columns exist
-            required_cols = ["gene_symbol", "pvalue", "log2FoldChange"]
+            # Validate required columns
+            required_cols = ['gene_symbol', 'pvalue', 'padj', 'log2FoldChange']
             if not all(col in df.columns for col in required_cols):
-                logger.warning(
-                    f"Skipping {file_path.name}: missing required columns. "
-                    f"Found: {list(df.columns)}"
-                )
+                logger.warning(f"Skipping {file_path}: missing required columns. Found: {df.columns.tolist()}")
                 continue
-            results[tumor_type] = df
-            logger.info(f"Loaded DE results for {tumor_type}: {len(df)} genes")
+            
+            # Filter for significant genes (FDR < 0.05, |log2FC| > 1.0)
+            significant_mask = (df['padj'] < 0.05) & (df['log2FoldChange'].abs() > 1.0)
+            significant_df = df[significant_mask].copy()
+            
+            if significant_df.empty:
+                logger.info(f"No significant genes found for {tumor_type} (FDR < 0.05, |log2FC| > 1.0)")
+                continue
+            
+            results[tumor_type] = significant_df
+            logger.info(f"Loaded {len(significant_df)} significant genes for {tumor_type}")
+            
         except Exception as e:
-            logger.error(f"Failed to load {file_path}: {e}")
+            logger.error(f"Error loading {file_path}: {e}")
+            continue
 
     return results
 
-def compute_intersection(
-    results: Dict[str, pd.DataFrame],
-    pval_threshold: float = 0.05,
-    lfc_threshold: float = 1.0
-) -> Set[str]:
+def compute_intersection(results: Dict[str, pd.DataFrame]) -> Set[str]:
     """
-    Compute intersection of significant genes across tumor types.
-    A gene is significant if pvalue < threshold AND |log2FC| > threshold.
-
-    Args:
-        results: Dict of tumor_type -> DE results DataFrame
-        pval_threshold: Maximum p-value for significance
-        lfc_threshold: Minimum absolute log2FC for significance
-
-    Returns:
-        Set of gene symbols present in the intersection
+    Compute the intersection of significant gene symbols across all tumor types.
+    Returns a set of gene symbols present in ALL tumor types.
     """
     if not results:
         return set()
-
-    significant_sets = []
-    for tumor_type, df in results.items():
-        sig_mask = (df["pvalue"] < pval_threshold) & (
-            df["log2FoldChange"].abs() > lfc_threshold
-        )
-        sig_genes = set(df.loc[sig_mask, "gene_symbol"].dropna().unique())
-        significant_sets.append(sig_genes)
-        logger.info(
-            f"Tumor {tumor_type}: {len(sig_genes)} significant genes "
-            f"(p<{pval_threshold}, |log2FC|>{lfc_threshold})"
-        )
-
-    if not significant_sets:
+    
+    gene_sets = [set(df['gene_symbol'].tolist()) for df in results.values()]
+    if not gene_sets:
         return set()
-
-    # Intersection across all sets
-    intersection = significant_sets[0]
-    for s in significant_sets[1:]:
-        intersection = intersection.intersection(s)
-
-    logger.info(f"Intersection size: {len(intersection)}")
+    
+    intersection = gene_sets[0]
+    for gene_set in gene_sets[1:]:
+        intersection = intersection.intersection(gene_set)
+    
     return intersection
 
-def compute_union_top_ranked(
-    results: Dict[str, pd.DataFrame],
-    pval_threshold: float = 0.05,
-    lfc_threshold: float = 1.0,
-    max_genes: int = 50
-) -> List[str]:
+def compute_union_top_ranked(results: Dict[str, pd.DataFrame], top_n: int = 100) -> List[str]:
     """
-    Fallback: Compute union of top-ranked genes if intersection is empty.
-    Ranks by minimum p-value across tumor types where significant.
-
-    Args:
-        results: Dict of tumor_type -> DE results DataFrame
-        pval_threshold: Maximum p-value for significance
-        lfc_threshold: Minimum absolute log2FC for significance
-        max_genes: Maximum number of genes to return
-
-    Returns:
-        List of gene symbols (top-ranked)
+    Compute the union of all significant genes and rank them.
+    Ranking criteria:
+    1. Descending mean absolute log2FC (across all types where significant)
+    2. Ascending meta p-value (calculated via Stouffer's method)
+    
+    Returns the top_n gene symbols.
     """
-    gene_min_pval = {}
-
-    for tumor_type, df in results.items():
-        sig_mask = (df["pvalue"] < pval_threshold) & (
-            df["log2FoldChange"].abs() > lfc_threshold
-        )
-        sig_df = df.loc[sig_mask]
-
-        for _, row in sig_df.iterrows():
-            gene = row["gene_symbol"]
-            pval = row["pvalue"]
-            if gene not in gene_min_pval or pval < gene_min_pval[gene]:
-                gene_min_pval[gene] = pval
-
-    # Sort by p-value
-    sorted_genes = sorted(gene_min_pval.items(), key=lambda x: x[1])
-    top_genes = [g[0] for g in sorted_genes[:max_genes]]
-
-    logger.info(f"Union top-ranked: {len(top_genes)} genes selected")
-    return top_genes
-
-def run_reml_meta_analysis(
-    results: Dict[str, pd.DataFrame],
-    pval_threshold: float = 0.05,
-    lfc_threshold: float = 1.0
-) -> pd.DataFrame:
-    """
-    Perform Random-Effects Meta-Analysis (REML) on pooled effect sizes.
-    This overrides Spec FR-006 (Stouffer's method) per Plan Phase 2.
-
-    Uses statsmodels for REML estimation.
-
-    Returns:
-        DataFrame with combined p-values and effect sizes, ranked by significance
-    """
-    try:
-        from statsmodels.stats.meta_analysis import combine_pvalues
-        from scipy import stats
-    except ImportError:
-        logger.error("statsmodels not installed. Cannot run REML meta-analysis.")
-        return pd.DataFrame()
-
-    # Aggregate effect sizes and p-values per gene
-    gene_data = {}
-
-    for tumor_type, df in results.items():
-        sig_mask = (df["pvalue"] < pval_threshold) & (
-            df["log2FoldChange"].abs() > lfc_threshold
-        )
-        sig_df = df.loc[sig_mask]
-
-        for _, row in sig_df.iterrows():
-            gene = row["gene_symbol"]
-            if gene not in gene_data:
-                gene_data[gene] = {"pvalues": [], "es": [], "ses": []}
-
-            pval = row["pvalue"]
-            log2fc = row["log2FoldChange"]
-
-            # Convert p-value to z-score (two-tailed)
-            if pval == 0:
-                pval = 1e-300
-            z_score = stats.norm.ppf(1 - pval / 2) * np.sign(log2fc)
-
-            # Approximate standard error from log2FC and z-score
-            # z = effect / se  =>  se = effect / z
-            if z_score != 0:
-                se = abs(log2fc) / abs(z_score)
-            else:
-                se = 1.0  # Fallback
-
-            gene_data[gene]["pvalues"].append(pval)
-            gene_data[gene]["es"].append(log2fc)
-            gene_data[gene]["ses"].append(se)
-
-    # Compute combined p-values using REML (Random Effects)
-    combined_results = []
-    for gene, data in gene_data.items():
-        if len(data["pvalues"]) < 2:
+    if not results:
+        return []
+    
+    # Collect all unique genes
+    all_genes = set()
+    for df in results.values():
+        all_genes.update(df['gene_symbol'].tolist())
+    
+    if not all_genes:
+        return []
+    
+    # For each gene, calculate mean log2FC and meta p-value
+    gene_stats = []
+    
+    for gene in all_genes:
+        log2fc_values = []
+        pvalues = []
+        
+        for df in results.values():
+            gene_row = df[df['gene_symbol'] == gene]
+            if not gene_row.empty:
+                log2fc_values.append(gene_row['log2FoldChange'].iloc[0])
+                pvalues.append(gene_row['pvalue'].iloc[0])
+        
+        if not log2fc_values:
             continue
-
-        # Combine p-values using Stouffer's method with weights (as proxy for REML)
-        # Note: statsmodels combine_pvalues uses various methods; 'fisher' or 'stouffer'
-        # For true REML, we would need to implement a custom metafor-like loop,
-        # but we use statsmodels as a practical approximation for this pipeline.
+        
+        mean_log2fc = np.mean(log2fc_values)
+        mean_abs_log2fc = np.mean([abs(x) for x in log2fc_values])
+        
+        # Calculate Stouffer's meta p-value
+        # Convert p-values to z-scores (one-sided, assuming effect direction)
+        # Using absolute values for ranking, but preserving sign for z-score calculation
         try:
-            combined_p, combined_z = combine_pvalues(
-                data["pvalues"],
-                method="stouffer",
-                weights=None  # Equal weights
-            )
-            combined_results.append({
-                "gene_symbol": gene,
-                "combined_pvalue": combined_p,
-                "num_studies": len(data["pvalues"]),
-                "mean_effect": np.mean(data["es"])
-            })
+            z_scores = []
+            for p in pvalues:
+                if p <= 0:
+                    p = 1e-16  # Prevent log(0)
+                elif p >= 1:
+                    p = 1 - 1e-16
+                z = np.abs(scipy.stats.norm.ppf(p / 2))  # Two-tailed conversion
+                z_scores.append(z)
+            
+            # Stouffer's method: sum of z-scores / sqrt(k)
+            if z_scores:
+                z_sum = sum(z_scores)
+                k = len(z_scores)
+                meta_z = z_sum / np.sqrt(k)
+                meta_p = 2 * (1 - scipy.stats.norm.cdf(meta_z))
+            else:
+                meta_p = 1.0
+                
         except Exception as e:
-            logger.warning(f"Failed to combine p-values for {gene}: {e}")
+            logger.warning(f"Error calculating meta p-value for {gene}: {e}")
+            meta_p = 1.0
+        
+        gene_stats.append({
+            'gene_symbol': gene,
+            'mean_abs_log2fc': mean_abs_log2fc,
+            'meta_pvalue': meta_p,
+            'occurrence_count': len(pvalues)
+        })
+    
+    # Sort by descending mean_abs_log2fc, then ascending meta_pvalue
+    gene_stats.sort(key=lambda x: (-x['mean_abs_log2fc'], x['meta_pvalue']))
+    
+    return [g['gene_symbol'] for g in gene_stats[:top_n]]
 
-    if not combined_results:
-        return pd.DataFrame()
-
-    df_combined = pd.DataFrame(combined_results)
-    df_combined = df_combined.sort_values("combined_pvalue")
-
-    logger.info(
-        f"REML Meta-Analysis: {len(df_combined)} genes with combined p-values"
-    )
-    return df_combined
+def run_reml_meta_analysis(results: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """
+    Run meta-analysis using Stouffer's method on p-values.
+    Returns a DataFrame with gene_symbol, meta_pvalue, mean_log2FC.
+    Note: This task specifically requires Stouffer's method via scipy.stats.combine_pvalues.
+    """
+    if not results:
+        return pd.DataFrame(columns=['gene_symbol', 'meta_pvalue', 'mean_log2FC'])
+    
+    # Collect all unique genes
+    all_genes = set()
+    for df in results.values():
+        all_genes.update(df['gene_symbol'].tolist())
+    
+    gene_stats = []
+    
+    for gene in all_genes:
+        pvalues = []
+        log2fc_values = []
+        
+        for df in results.values():
+            gene_row = df[df['gene_symbol'] == gene]
+            if not gene_row.empty:
+                pvalues.append(gene_row['pvalue'].iloc[0])
+                log2fc_values.append(gene_row['log2FoldChange'].iloc[0])
+        
+        if not pvalues:
+            continue
+        
+        # Calculate mean log2FC
+        mean_log2fc = np.mean(log2fc_values)
+        
+        # Stouffer's method using scipy.stats.combine_pvalues
+        # Method: 'stouffer' combines p-values using weighted Z-score method
+        try:
+            # Ensure p-values are within valid range
+            pvalues_clipped = [max(1e-16, min(1 - 1e-16, p)) for p in pvalues]
+            
+            # Use combine_pvalues with Stouffer's method
+            # weights=None gives equal weight to all studies
+            result = combine_pvalues(pvalues_clipped, method='stouffer', weights=None)
+            meta_pvalue = result.pvalue
+            
+        except Exception as e:
+            logger.warning(f"Error running Stouffer's meta-analysis for {gene}: {e}")
+            meta_pvalue = 1.0
+        
+        gene_stats.append({
+            'gene_symbol': gene,
+            'meta_pvalue': meta_pvalue,
+            'mean_log2FC': mean_log2fc
+        })
+    
+    return pd.DataFrame(gene_stats)
 
 def aggregate_and_select_panel(
-    results: Dict[str, pd.DataFrame],
-    pval_threshold: float = 0.05,
-    lfc_threshold: float = 1.0,
-    max_union_genes: int = 50
+    root: Path,
+    intersection_threshold: int = 2
 ) -> Dict[str, Any]:
     """
-    Aggregate LOO results and select the final gene panel.
-    1. Compute intersection.
-    2. If empty, fallback to union of top-ranked genes.
-
-    Returns:
-        Dict with 'selected' (list of genes) and 'fallback_reason' (if applicable)
+    Main logic to generate the static gene panel.
+    1. Load DE results for all tumor types.
+    2. Compute intersection of significant genes.
+    3. If intersection is empty, fallback to union top-ranked.
+    4. Perform Stouffer's meta-analysis on the selected genes.
+    5. Return the panel and status.
     """
-    intersection = compute_intersection(results, pval_threshold, lfc_threshold)
-
-    selected_genes = []
+    results = load_discovery_results(root)
+    
+    if not results:
+        logger.error("No discovery results found. Cannot generate gene panel.")
+        return {
+            'panel': [],
+            'status': 'error',
+            'reason': 'no_discovery_results'
+        }
+    
+    # Step 1: Compute intersection
+    intersection_genes = compute_intersection(results)
+    
     fallback_reason = None
-
-    if len(intersection) > 0:
-        selected_genes = sorted(list(intersection))
-        logger.info(f"Selected {len(selected_genes)} genes via intersection")
+    selected_genes = []
+    
+    if len(intersection_genes) >= intersection_threshold:
+        selected_genes = list(intersection_genes)
+        logger.info(f"Intersection found with {len(selected_genes)} genes.")
     else:
-        selected_genes = compute_union_top_ranked(
-            results, pval_threshold, lfc_threshold, max_union_genes
-        )
+        # Step 2: Fallback to union top-ranked
+        logger.info("Intersection is empty or insufficient. Falling back to union top-ranked.")
         fallback_reason = "intersection_empty"
-        logger.info(
-            f"Intersection empty. Fallback to union: {len(selected_genes)} genes"
-        )
-
+        # Select top 100 genes by mean log2FC and meta p-value
+        selected_genes = compute_union_top_ranked(results, top_n=100)
+        logger.info(f"Selected {len(selected_genes)} genes from union (top-ranked).")
+    
+    # Step 3: Run Stouffer's meta-analysis on selected genes
+    meta_results = run_reML_meta_analysis(results)
+    
+    # Filter meta_results to only selected genes
+    panel_df = meta_results[meta_results['gene_symbol'].isin(selected_genes)].copy()
+    
+    # Sort by meta_pvalue
+    panel_df = panel_df.sort_values('meta_pvalue')
+    
+    panel = panel_df['gene_symbol'].tolist()
+    
     return {
-        "selected": selected_genes,
-        "fallback_reason": fallback_reason,
-        "total_tumor_types": len(results),
-        "intersection_size": len(intersection),
-        "pval_threshold": pval_threshold,
-        "lfc_threshold": lfc_threshold
+        'panel': panel,
+        'panel_size': len(panel),
+        'status': 'completed',
+        'fallback_reason': fallback_reason,
+        'intersection_size': len(intersection_genes),
+        'meta_analysis_method': 'Stouffer'
     }
 
-def update_summary_with_fallback(
-    summary_path: Path,
-    fallback_reason: Optional[str]
-) -> None:
+def update_summary_with_fallback(root: Path, fallback_reason: Optional[str]) -> None:
     """
     Update results/summary.md with fallback reason if applicable.
-    Merges with existing content to preserve other flags.
     """
-    if fallback_reason is None:
-        return
-
+    summary_path = root / "results" / "summary.md"
+    
+    # Ensure results directory exists
     summary_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    note = ""
+    if fallback_reason:
+        note = f"\n# Fallback Status\n- **Fallback Reason**: {fallback_reason}\n"
+    
+    # Append to summary if it exists, otherwise create
+    mode = 'a' if summary_path.exists() else 'w'
+    with open(summary_path, mode) as f:
+        f.write(note)
 
-    existing_content = ""
-    if summary_path.exists():
-        existing_content = summary_path.read_text()
-
-    lines = existing_content.splitlines()
-    fallback_line = f"- fallback_reason: {fallback_reason}"
-
-    # Check if already exists
-    if any(fallback_reason in line for line in lines):
-        logger.info("Fallback reason already in summary.md")
-        return
-
-    # Append if not present
-    lines.append(fallback_line)
-    summary_path.write_text("\n".join(lines) + "\n")
-    logger.info(f"Updated summary.md with fallback_reason: {fallback_reason}")
-
-def write_override_note(summary_path: Path, note: str) -> None:
+def write_override_note(root: Path, method: str) -> None:
     """
-    Write an override note to summary.md if not already present.
+    Write override note to panel_status.json to satisfy Spec FR-006.
     """
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    status_path = root / "results" / "meta_analysis" / "panel_status.json"
+    
+    # Ensure directory exists
+    status_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing status or create new
+    status = {}
+    if status_path.exists():
+        try:
+            with open(status_path, 'r') as f:
+                status = json.load(f)
+        except json.JSONDecodeError:
+            status = {}
+    
+    status['override_note'] = f"{method} used as per Spec FR-006"
+    
+    with open(status_path, 'w') as f:
+        json.dump(status, f, indent=2)
 
-    existing_content = ""
-    if summary_path.exists():
-        existing_content = summary_path.read_text()
-
-    lines = existing_content.splitlines()
-    note_line = f"- override_note: {note}"
-
-    if any("override_note" in line for line in lines):
-        # Update existing if present, or skip if already same
-        updated = False
-        new_lines = []
-        for line in lines:
-            if "override_note" in line:
-                new_lines.append(note_line)
-                updated = True
-            else:
-                new_lines.append(line)
-        if updated:
-            summary_path.write_text("\n".join(new_lines) + "\n")
-        return
-
-    lines.append(note_line)
-    summary_path.write_text("\n".join(lines) + "\n")
-    logger.info(f"Added override note to summary.md: {note}")
-
-def save_gene_panel(
-    panel_data: Dict[str, Any],
-    output_path: Optional[Path] = None
-) -> Path:
+def save_gene_panel(root: Path, panel_data: Dict[str, Any]) -> None:
     """
-    Save the final selected gene panel to results/meta_analysis/gene_panel.json.
-    Conforms to contracts/gene_panel.schema.yaml.
-
-    Args:
-        panel_data: Dict from aggregate_and_select_panel
-        output_path: Optional custom output path
-
-    Returns:
-        Path to the saved file
+    Save the final gene panel to results/meta_analysis/gene_panel.json.
+    Conforms to gene_panel.schema.yaml structure.
     """
-    if output_path is None:
-        project_root = get_project_root()
-        output_path = (
-            project_root / "results" / "meta_analysis" / "gene_panel.json"
-        )
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Ensure schema compliance
-    output_json = {
-        "panel_id": "PROJ-135-LOO-PANEL-v1",
-        "selected": panel_data.get("selected", []),
-        "fallback_reason": panel_data.get("fallback_reason"),
-        "metadata": {
-            "total_tumor_types": panel_data.get("total_tumor_types", 0),
-            "intersection_size": panel_data.get("intersection_size", 0),
-            "pval_threshold": panel_data.get("pval_threshold", 0.05),
-            "lfc_threshold": panel_data.get("lfc_threshold", 1.0)
-        }
+    panel_path = root / "results" / "meta_analysis" / "gene_panel.json"
+    
+    # Ensure directory exists
+    panel_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Format output according to schema
+    output = {
+        'genes': panel_data['panel'],
+        'panel_size': panel_data['panel_size'],
+        'selection_method': 'intersection' if not panel_data.get('fallback_reason') else 'union_top_ranked',
+        'meta_analysis_method': panel_data.get('meta_analysis_method', 'Stouffer'),
+        'selected': panel_data['panel']
     }
-
-    with open(output_path, "w") as f:
-        json.dump(output_json, f, indent=2)
-
-    logger.info(f"Saved gene panel to {output_path}")
-    return output_path
+    
+    # Add fallback reason if applicable
+    if panel_data.get('fallback_reason'):
+        output['fallback_reason'] = panel_data['fallback_reason']
+    
+    with open(panel_path, 'w') as f:
+        json.dump(output, f, indent=2)
+    
+    logger.info(f"Gene panel saved to {panel_path}")
 
 def main():
     """
-    Main entry point for T028: Save final selected gene panel.
+    Entry point for generating the static gene panel (T024).
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(message)s"
-    )
-
-    project_root = get_project_root()
-    processed_dir = project_root / "data" / "processed"
-    summary_path = project_root / "results" / "summary.md"
-
-    logger.info("Starting T028: Save final selected gene panel")
-
-    # Load LOO-Blind DE results
-    results = load_discovery_results(processed_dir)
-    if not results:
-        logger.error("No LOO-Blind DE results found. Cannot select panel.")
+    root = get_project_root()
+    logger.info(f"Starting gene panel generation. Project root: {root}")
+    
+    # Ensure output directories exist
+    (root / "results" / "meta_analysis").mkdir(parents=True, exist_ok=True)
+    
+    # Generate panel
+    panel_data = aggregate_and_select_panel(root)
+    
+    if panel_data['status'] == 'error':
+        logger.error(f"Panel generation failed: {panel_data.get('reason')}")
         sys.exit(1)
-
-    # Aggregate and select panel
-    panel_data = aggregate_and_select_panel(results)
-
-    # Update summary with fallback reason if applicable
-    if panel_data.get("fallback_reason"):
-        update_summary_with_fallback(summary_path, panel_data["fallback_reason"])
-
-    # Save gene panel
-    panel_path = save_gene_panel(panel_data)
-
-    logger.info("T028 completed successfully.")
-    return panel_path
+    
+    # Save panel
+    save_gene_panel(root, panel_data)
+    
+    # Write fallback reason to panel_status.json
+    status_path = root / "results" / "meta_analysis" / "panel_status.json"
+    status_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    status = {
+        'panel_size': panel_data['panel_size'],
+        'selection_method': 'intersection' if not panel_data.get('fallback_reason') else 'union_top_ranked',
+        'intersection_size': panel_data.get('intersection_size', 0)
+    }
+    
+    if panel_data.get('fallback_reason'):
+        status['fallback_reason'] = panel_data['fallback_reason']
+        status['override_note'] = "Stouffer's method used as per Spec FR-006"
+        # Also write to summary
+        update_summary_with_fallback(root, panel_data['fallback_reason'])
+    else:
+        status['override_note'] = "Stouffer's method used as per Spec FR-006"
+    
+    with open(status_path, 'w') as f:
+        json.dump(status, f, indent=2)
+    
+    logger.info(f"Gene panel generation completed. Panel size: {panel_data['panel_size']}")
+    logger.info(f"Status saved to {status_path}")
 
 if __name__ == "__main__":
     main()

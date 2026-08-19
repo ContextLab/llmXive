@@ -1,0 +1,15 @@
+cancer_type:
+  type: string
+  description: The cancer type for which this model was trained
+alpha:
+  type: float
+  description: Elastic net mixing parameter
+lambda:
+  type: float
+  description: Regularization strength parameter
+coefficients:
+  type: object
+  description: Mapping of gene symbols to their model coefficients
+cross_val_auc:
+  type: float
+  description: Area Under the Curve from nested cross-validation

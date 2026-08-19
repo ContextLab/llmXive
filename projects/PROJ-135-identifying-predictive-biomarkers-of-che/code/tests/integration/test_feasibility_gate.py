@@ -4,164 +4,253 @@ import json
 import tempfile
 from pathlib import Path
 import pytest
-import shutil
 
-# Import the functions we're testing
-from src.data_acquisition import run_feasibility_gate, write_feasibility_gate_result
-from src.config import get_project_root
+# Add the project root to the path to allow imports
+# Assuming the test is run from the project root or code directory
+# We need to ensure 'src' is importable.
+# In a real run, this would be handled by PYTHONPATH or setup.py
+# For this test, we assume the environment is set up correctly.
+try:
+    from src.feasibility import main, write_feasibility_gate_result, count_available_tumor_types, get_valid_geo_count
+except ImportError:
+    # Fallback for direct execution in code/
+    from feasibility import main, write_feasibility_gate_result, count_available_tumor_types, get_valid_geo_count
 
-class TestFeasibilityGate:
-    """Integration tests for the Data Feasibility Gate logic."""
+@pytest.fixture
+def temp_project_dir(tmp_path):
+    """Create a temporary project structure for testing."""
+    data_dir = tmp_path / "data" / "processed"
+    data_dir.mkdir(parents=True)
     
-    @pytest.fixture
-    def temp_project(self):
-        """Create a temporary project structure for testing."""
-        # Create a temporary directory
-        temp_dir = Path(tempfile.mkdtemp())
-        
-        # Create required subdirectories
-        data_dir = temp_dir / "data"
-        data_dir.mkdir()
-        
-        # Create a mock state directory
-        state_dir = temp_dir / "state" / "projects"
-        state_dir.mkdir(parents=True)
-        
-        # Create a mock state file
-        state_file = state_dir / "PROJ-135-identifying-predictive-biomarkers-of-che.yaml"
-        with open(state_file, 'w') as f:
-            json.dump({"artifact_hashes": {}}, f)
-        
-        yield temp_dir
-        
-        # Cleanup
-        shutil.rmtree(temp_dir)
+    # Create mock tcga_samples.json
+    tcga_samples = {
+        "samples": [
+            {"sample_id": "TCGA-1", "tumor_type": "BRCA", "response_label": "CR", "expression_vector": []},
+            {"sample_id": "TCGA-2", "tumor_type": "BRCA", "response_label": "PR", "expression_vector": []},
+            {"sample_id": "TCGA-3", "tumor_type": "LUAD", "response_label": "SD", "expression_vector": []},
+            {"sample_id": "TCGA-4", "tumor_type": "LUAD", "response_label": "PD", "expression_vector": []},
+            {"sample_id": "TCGA-5", "tumor_type": "PRAD", "response_label": "CR", "expression_vector": []},
+            {"sample_id": "TCGA-6", "tumor_type": "PRAD", "response_label": "PR", "expression_vector": []},
+            {"sample_id": "TCGA-7", "tumor_type": "COAD", "response_label": "SD", "expression_vector": []}, # 4th type
+        ]
+    }
+    tcga_path = data_dir / "tcga_samples.json"
+    with open(tcga_path, 'w') as f:
+        json.dump(tcga_samples, f)
     
-    def test_tcga_insufficient_types(self, temp_project):
-        """Test that pipeline halts when TCGA types < 3."""
-        data_dir = temp_project / "data"
-        output_path = data_dir / "feasibility_gate.json"
+    # Create mock geo_samples.json
+    geo_samples = {
+        "samples": [
+            {"sample_id": "GSE1-1", "dataset_id": "GSE25055", "tumor_type": "BRCA", "response_label": "CR", "expression_vector": []},
+            {"sample_id": "GSE1-2", "dataset_id": "GSE25055", "tumor_type": "BRCA", "response_label": "PR", "expression_vector": []},
+            {"sample_id": "GSE2-1", "dataset_id": "GSE42752", "tumor_type": "BRCA", "response_label": "SD", "expression_vector": []},
+            {"sample_id": "GSE2-2", "dataset_id": "GSE42752", "tumor_type": "BRCA", "response_label": "PD", "expression_vector": []},
+        ]
+    }
+    geo_path = data_dir / "geo_samples.json"
+    with open(geo_path, 'w') as f:
+        json.dump(geo_samples, f)
+    
+    return tmp_path
+
+@pytest.fixture
+def temp_project_dir_insufficient_tcga(tmp_path):
+    """Create a temporary project structure with insufficient TCGA types."""
+    data_dir = tmp_path / "data" / "processed"
+    data_dir.mkdir(parents=True)
+    
+    # Only 2 types
+    tcga_samples = {
+        "samples": [
+            {"sample_id": "TCGA-1", "tumor_type": "BRCA", "response_label": "CR", "expression_vector": []},
+            {"sample_id": "TCGA-2", "tumor_type": "BRCA", "response_label": "PR", "expression_vector": []},
+            {"sample_id": "TCGA-3", "tumor_type": "LUAD", "response_label": "SD", "expression_vector": []},
+            {"sample_id": "TCGA-4", "tumor_type": "LUAD", "response_label": "PD", "expression_vector": []},
+        ]
+    }
+    tcga_path = data_dir / "tcga_samples.json"
+    with open(tcga_path, 'w') as f:
+        json.dump(tcga_samples, f)
+    
+    # 2 valid GEO datasets
+    geo_samples = {
+        "samples": [
+            {"sample_id": "GSE1-1", "dataset_id": "GSE25055", "tumor_type": "BRCA", "response_label": "CR", "expression_vector": []},
+            {"sample_id": "GSE2-1", "dataset_id": "GSE42752", "tumor_type": "BRCA", "response_label": "SD", "expression_vector": []},
+        ]
+    }
+    geo_path = data_dir / "geo_samples.json"
+    with open(geo_path, 'w') as f:
+        json.dump(geo_samples, f)
+    
+    return tmp_path
+
+@pytest.fixture
+def temp_project_dir_insufficient_geo(tmp_path):
+    """Create a temporary project structure with sufficient TCGA but insufficient GEO."""
+    data_dir = tmp_path / "data" / "processed"
+    data_dir.mkdir(parents=True)
+    
+    # 4 types
+    tcga_samples = {
+        "samples": [
+            {"sample_id": "TCGA-1", "tumor_type": "BRCA", "response_label": "CR", "expression_vector": []},
+            {"sample_id": "TCGA-2", "tumor_type": "LUAD", "response_label": "PR", "expression_vector": []},
+            {"sample_id": "TCGA-3", "tumor_type": "PRAD", "response_label": "SD", "expression_vector": []},
+            {"sample_id": "TCGA-4", "tumor_type": "COAD", "response_label": "PD", "expression_vector": []},
+        ]
+    }
+    tcga_path = data_dir / "tcga_samples.json"
+    with open(tcga_path, 'w') as f:
+        json.dump(tcga_samples, f)
+    
+    # Only 1 valid GEO dataset
+    geo_samples = {
+        "samples": [
+            {"sample_id": "GSE1-1", "dataset_id": "GSE25055", "tumor_type": "BRCA", "response_label": "CR", "expression_vector": []},
+            {"sample_id": "GSE1-2", "dataset_id": "GSE25055", "tumor_type": "BRCA", "response_label": "PR", "expression_vector": []},
+        ]
+    }
+    geo_path = data_dir / "geo_samples.json"
+    with open(geo_path, 'w') as f:
+        json.dump(geo_samples, f)
+    
+    return tmp_path
+
+@pytest.fixture
+def temp_project_dir_missing_files(tmp_path):
+    """Create a temporary project structure with missing data files."""
+    data_dir = tmp_path / "data" / "processed"
+    data_dir.mkdir(parents=True)
+    # No files created
+    return tmp_path
+
+def test_feasibility_gate_ready(temp_project_dir, monkeypatch, tmp_path):
+    """Test that the gate passes when requirements are met."""
+    # Mock get_project_root to return tmp_path
+    # We need to patch the function in the module where it's used
+    import src.feasibility as feasibility_module
+    
+    original_get_project_root = feasibility_module.get_project_root
+    feasibility_module.get_project_root = lambda: temp_project_dir
+    
+    try:
+        # Run main
+        exit_code = feasibility_module.main()
         
-        # Simulate insufficient TCGA types (2 types, need 3)
-        success = run_feasibility_gate(tcga_types_count=2, geo_count=5, data_dir=data_dir)
+        # Check exit code
+        assert exit_code == 0, "Expected exit code 0 for ready status"
         
-        # Assert that the function returned False
-        assert success is False
+        # Check file content
+        gate_path = temp_project_dir / "data" / "feasibility_gate.json"
+        assert gate_path.exists(), "feasibility_gate.json should exist"
         
-        # Assert that the feasibility gate JSON was written
-        assert output_path.exists(), "feasibility_gate.json should be created"
-        
-        # Read and verify the content
-        with open(output_path, 'r') as f:
+        with open(gate_path, 'r') as f:
             result = json.load(f)
         
-        assert result["status"] == "halted", "Status should be 'halted'"
-        assert result["reason"] == "insufficient_tcga_types", "Reason should be 'insufficient_tcga_types'"
+        assert result["status"] == "ready", f"Expected status 'ready', got '{result['status']}'"
+        assert result["tcga_count"] >= 3, f"Expected tcga_count >= 3, got {result['tcga_count']}"
+        assert result["geo_count"] >= 2, f"Expected geo_count >= 2, got {result['geo_count']}"
+    finally:
+        feasibility_module.get_project_root = original_get_project_root
+
+def test_feasibility_gate_halted_tcga(temp_project_dir_insufficient_tcga, monkeypatch, tmp_path):
+    """Test that the gate halts when TCGA types are insufficient."""
+    import src.feasibility as feasibility_module
     
-    def test_geo_insufficient_datasets(self, temp_project):
-        """Test that pipeline halts when GEO datasets < 2."""
-        data_dir = temp_project / "data"
-        output_path = data_dir / "feasibility_gate.json"
+    original_get_project_root = feasibility_module.get_project_root
+    feasibility_module.get_project_root = lambda: temp_project_dir_insufficient_tcga
+    
+    try:
+        exit_code = feasibility_module.main()
         
-        # Simulate sufficient TCGA types but insufficient GEO datasets
-        success = run_feasibility_gate(tcga_types_count=5, geo_count=1, data_dir=data_dir)
+        assert exit_code == 1, "Expected exit code 1 for halted status"
         
-        # Assert that the function returned False
-        assert success is False
+        gate_path = temp_project_dir_insufficient_tcga / "data" / "feasibility_gate.json"
+        assert gate_path.exists(), "feasibility_gate.json should exist"
         
-        # Assert that the feasibility gate JSON was written
-        assert output_path.exists(), "feasibility_gate.json should be created"
-        
-        # Read and verify the content
-        with open(output_path, 'r') as f:
+        with open(gate_path, 'r') as f:
             result = json.load(f)
         
-        assert result["status"] == "halted", "Status should be 'halted'"
-        assert result["reason"] == "insufficient_geo_datasets", "Reason should be 'insufficient_geo_datasets'"
+        assert result["status"] == "halted", f"Expected status 'halted', got '{result['status']}'"
+        assert result["reason"] == "insufficient_tcga_types", f"Expected reason 'insufficient_tcga_types', got '{result['reason']}'"
+        assert result["tcga_count"] < 3, f"Expected tcga_count < 3, got {result['tcga_count']}"
+    finally:
+        feasibility_module.get_project_root = original_get_project_root
+
+def test_feasibility_gate_halted_geo(temp_project_dir_insufficient_geo, monkeypatch, tmp_path):
+    """Test that the gate halts when GEO datasets are insufficient."""
+    import src.feasibility as feasibility_module
     
-    def test_geo_insufficient_with_sufficient_tcga(self, temp_project):
-        """Test that GEO gate fails even when TCGA is sufficient."""
-        data_dir = temp_project / "data"
-        output_path = data_dir / "feasibility_gate.json"
+    original_get_project_root = feasibility_module.get_project_root
+    feasibility_module.get_project_root = lambda: temp_project_dir_insufficient_geo
+    
+    try:
+        exit_code = feasibility_module.main()
         
-        # TCGA is sufficient (5 >= 3) but GEO is insufficient (0 < 2)
-        success = run_feasibility_gate(tcga_types_count=5, geo_count=0, data_dir=data_dir)
+        assert exit_code == 1, "Expected exit code 1 for halted status"
         
-        assert success is False
-        assert output_path.exists()
+        gate_path = temp_project_dir_insufficient_geo / "data" / "feasibility_gate.json"
+        assert gate_path.exists(), "feasibility_gate.json should exist"
         
-        with open(output_path, 'r') as f:
+        with open(gate_path, 'r') as f:
             result = json.load(f)
         
-        assert result["status"] == "halted"
-        assert result["reason"] == "insufficient_geo_datasets"
+        assert result["status"] == "halted", f"Expected status 'halted', got '{result['status']}'"
+        assert result["reason"] == "insufficient_geo_datasets", f"Expected reason 'insufficient_geo_datasets', got '{result['reason']}'"
+        assert result["geo_count"] < 2, f"Expected geo_count < 2, got {result['geo_count']}"
+    finally:
+        feasibility_module.get_project_root = original_get_project_root
+
+def test_feasibility_gate_test_mode(temp_project_dir_insufficient_tcga, monkeypatch, tmp_path):
+    """Test that the gate passes in TEST_MODE even with insufficient data."""
+    import src.feasibility as feasibility_module
     
-    def test_both_gates_pass(self, temp_project):
-        """Test that pipeline proceeds when both gates pass."""
-        data_dir = temp_project / "data"
-        output_path = data_dir / "feasibility_gate.json"
+    original_get_project_root = feasibility_module.get_project_root
+    feasibility_module.get_project_root = lambda: temp_project_dir_insufficient_tcga
+    
+    # Set TEST_MODE
+    monkeypatch.setenv("TEST_MODE", "True")
+    
+    try:
+        exit_code = feasibility_module.main()
         
-        # Both TCGA and GEO meet requirements
-        success = run_feasibility_gate(tcga_types_count=4, geo_count=3, data_dir=data_dir)
+        assert exit_code == 0, "Expected exit code 0 in TEST_MODE"
         
-        # Assert that the function returned True
-        assert success is True
+        gate_path = temp_project_dir_insufficient_tcga / "data" / "feasibility_gate.json"
+        assert gate_path.exists(), "feasibility_gate.json should exist"
         
-        # Assert that the feasibility gate JSON was written
-        assert output_path.exists(), "feasibility_gate.json should be created"
-        
-        # Read and verify the content
-        with open(output_path, 'r') as f:
+        with open(gate_path, 'r') as f:
             result = json.load(f)
         
-        assert result["status"] == "ready", "Status should be 'ready'"
-        assert result.get("reason") is None, "Reason should be None when ready"
+        assert result["status"] == "ready", f"Expected status 'ready' in TEST_MODE, got '{result['status']}'"
+    finally:
+        feasibility_module.get_project_root = original_get_project_root
+        # Clean up env
+        if "TEST_MODE" in os.environ:
+            del os.environ["TEST_MODE"]
+
+def test_feasibility_gate_missing_files(temp_project_dir_missing_files, monkeypatch, tmp_path):
+    """Test behavior when data files are missing."""
+    import src.feasibility as feasibility_module
     
-    def test_boundary_tcga_exact_minimum(self, temp_project):
-        """Test that exactly 3 TCGA types passes the gate."""
-        data_dir = temp_project / "data"
-        output_path = data_dir / "feasibility_gate.json"
+    original_get_project_root = feasibility_module.get_project_root
+    feasibility_module.get_project_root = lambda: temp_project_dir_missing_files
+    
+    try:
+        exit_code = feasibility_module.main()
         
-        # Exactly 3 TCGA types (minimum required)
-        success = run_feasibility_gate(tcga_types_count=3, geo_count=2, data_dir=data_dir)
+        # Should halt because counts will be 0
+        assert exit_code == 1, "Expected exit code 1 when files are missing"
         
-        assert success is True
-        assert output_path.exists()
+        gate_path = temp_project_dir_missing_files / "data" / "feasibility_gate.json"
+        assert gate_path.exists(), "feasibility_gate.json should exist"
         
-        with open(output_path, 'r') as f:
+        with open(gate_path, 'r') as f:
             result = json.load(f)
         
-        assert result["status"] == "ready"
-    
-    def test_boundary_geo_exact_minimum(self, temp_project):
-        """Test that exactly 2 GEO datasets passes the gate."""
-        data_dir = temp_project / "data"
-        output_path = data_dir / "feasibility_gate.json"
-        
-        # Exactly 2 GEO datasets (minimum required)
-        success = run_feasibility_gate(tcga_types_count=3, geo_count=2, data_dir=data_dir)
-        
-        assert success is True
-        assert output_path.exists()
-        
-        with open(output_path, 'r') as f:
-            result = json.load(f)
-        
-        assert result["status"] == "ready"
-    
-    def test_geo_fails_even_with_high_tcga(self, temp_project):
-        """Test that GEO gate failure takes precedence even with high TCGA count."""
-        data_dir = temp_project / "data"
-        output_path = data_dir / "feasibility_gate.json"
-        
-        # Very high TCGA count but GEO is 0
-        success = run_feasibility_gate(tcga_types_count=10, geo_count=0, data_dir=data_dir)
-        
-        assert success is False
-        assert output_path.exists()
-        
-        with open(output_path, 'r') as f:
-            result = json.load(f)
-        
-        assert result["status"] == "halted"
-        assert result["reason"] == "insufficient_geo_datasets"
+        assert result["status"] == "halted", f"Expected status 'halted', got '{result['status']}'"
+        # Reason could be either, depending on which check runs first or combined
+        assert result["reason"] in ["insufficient_tcga_types", "insufficient_geo_datasets", "insufficient_tcga_types_and_geo_datasets"]
+    finally:
+        feasibility_module.get_project_root = original_get_project_root

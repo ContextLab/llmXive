@@ -1,40 +1,34 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Output Schema
-description: Schema for the trained model output and performance metrics.
+description: Schema for the output of the predictive model training process.
 type: object
-properties:
-  model_id:
-    type: string
-    description: "Unique identifier for the model"
-  cancer_type:
-    type: string
-    description: "Tumor type the model was trained on"
-  alpha:
-    type: number
-    description: "Elastic-net mixing parameter"
-  lambda_:
-    type: number
-    description: "Regularization strength"
-  coefficients:
-    type: object
-    description: "Gene coefficients"
-    additionalProperties:
-      type: number
-  cross_val_auc:
-    type: number
-    description: "AUC from nested cross-validation"
-  external_auc:
-    type: number
-    description: "AUC from external validation"
-  calibration_error:
-    type: number
-    description: "Calibration error metric"
 required:
-  - model_id
   - cancer_type
   - alpha
-  - lambda_
+  - lambda
   - coefficients
   - cross_val_auc
-  - external_auc
-additionalProperties: false
+properties:
+  cancer_type:
+    type: string
+    description: The specific tumor type this model was trained on.
+  alpha:
+    type: number
+    format: float
+    description: Elastic net mixing parameter (alpha).
+  lambda:
+    type: number
+    format: float
+    description: Regularization strength (lambda).
+  coefficients:
+    type: object
+    description: Mapping of gene symbols to their learned coefficients.
+    additionalProperties:
+      type: number
+      format: float
+  cross_val_auc:
+    type: number
+    format: float
+    minimum: 0.0
+    maximum: 1.0
+    description: Area Under the Curve (AUC) from cross-validation.

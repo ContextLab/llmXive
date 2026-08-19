@@ -1,95 +1,26 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Meta-Analysis Schema
-description: |
-  Schema for meta-analysis results, including gene panel selection,
-  DerSimonian-Laird Random-Effects p-values, and intersection/union logic.
+title: Meta Analysis Schema
+description: Schema for meta-analysis results aggregating differential expression across tumor types.
 type: object
 required:
-  - metadata
-  - gene_panel
-  - meta_analysis_results
+  - gene_symbol
+  - meta_p_value
+  - log2FC_mean
+  - selected
 properties:
-  metadata:
-    type: object
-    required:
-      - analysis_date
-      - method
-      - tumor_types_included
-      - selection_strategy
-    properties:
-      analysis_date:
-        type: string
-        format: date-time
-      method:
-        type: string
-        enum: ["intersection", "union", "random_effects"]
-        description: Primary selection method used (Random-Effects DerSimonian-Laird)
-      tumor_types_included:
-        type: array
-        items:
-          type: string
-        description: List of tumor types included in meta-analysis
-      selection_strategy:
-        type: string
-        description: Detailed strategy (e.g., "Intersection of significant genes via Random-Effects")
-      fallback_reason:
-        type: string
-        nullable: true
-        description: Reason for fallback if union was used (e.g., "intersection_empty")
-  gene_panel:
-    type: object
-    required:
-      - genes
-      - count
-    properties:
-      genes:
-        type: array
-        items:
-          type: string
-        description: List of HGNC gene symbols in the final panel
-      count:
-        type: integer
-        minimum: 1
-        description: Number of genes in the panel
-  meta_analysis_results:
-    type: array
-    description: Detailed results per gene
-    items:
-      type: object
-      required:
-        - gene_symbol
-        - combined_p_value
-        - z_score
-        - significant_in_count
-      properties:
-        gene_symbol:
-          type: string
-        combined_p_value:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-        z_score:
-          type: number
-        log2fc_avg:
-          type: number
-        significant_in_count:
-          type: integer
-          minimum: 0
-          description: Number of tumor types where gene was significant
-        tumor_type_pvalues:
-          type: object
-          description: P-values per tumor type
-          additionalProperties:
-            type: number
-  differential_expression_summary:
-    type: object
-    description: Summary of DE results per tumor type
-    additionalProperties:
-      type: object
-      properties:
-        total_significant_genes:
-          type: integer
-        fdr_threshold:
-          type: number
-        log2fc_threshold:
-          type: number
+  gene_symbol:
+    type: string
+    description: Standardized gene symbol (HGNC).
+  meta_p_value:
+    type: number
+    format: float
+    minimum: 0.0
+    maximum: 1.0
+    description: Combined p-value from meta-analysis (e.g., Stouffer's method).
+  log2FC_mean:
+    type: number
+    format: float
+    description: Mean log2 fold change across tumor types.
+  selected:
+    type: boolean
+    description: Flag indicating if this gene was selected for the final predictive panel.
