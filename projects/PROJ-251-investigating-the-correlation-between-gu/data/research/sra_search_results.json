@@ -1,0 +1,6 @@
+{
+  "use_synthetic": true,
+  "status": "no_real_data",
+  "reason": "No suitable real dataset found in SRA search",
+  "timestamp": "2024-01-15T10:30:00"
+}

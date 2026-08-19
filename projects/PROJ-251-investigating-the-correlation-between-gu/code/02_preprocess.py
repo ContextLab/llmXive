@@ -6,240 +6,294 @@ from typing import Tuple, Optional, List, Dict, Any
 import pandas as pd
 import numpy as np
 
-# Import existing utilities from the project
-from utils.config import get_processed_path, get_pseudocount, get_use_synthetic_data
-from utils.logging_config import get_logger, log_error_context
-from utils.validators import validate_file_exists
+# Import from local utils to maintain project structure
+try:
+    from utils.config import get_pseudocount, get_processed_path, get_random_seed
+    from utils.logging_config import get_logger, log_exclusion_count
+except ImportError:
+    # Fallback for direct execution or different import context
+    sys.path.insert(0, str(Path(__file__).parent))
+    from utils.config import get_pseudocount, get_processed_path, get_random_seed
+    from utils.logging_config import get_logger, log_exclusion_count
 
 logger = get_logger(__name__)
 
-def load_filtered_data(file_path: Optional[str] = None) -> pd.DataFrame:
+# Constants
+DEFAULT_PSEUDOCOUNT = 1e-6
+
+def load_filtered_data(filepath: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load the filtered dataset from the processed directory.
-    Defaults to 'cleared_with_diversity.csv' if no path is provided.
+    Load the preprocessed dataset from the specified path.
+    If no path is provided, uses the default processed path.
     """
-    if file_path is None:
-        file_path = str(get_processed_path() / "cleared_with_diversity.csv")
+    if filepath is None:
+        filepath = get_processed_path("cleared_with_diversity.csv")
     
-    if not validate_file_exists(file_path):
-        raise FileNotFoundError(f"Input file not found: {file_path}")
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Input file not found: {filepath}")
     
-    logger.info(f"Loading data from {file_path}")
-    df = pd.read_csv(file_path)
-    
-    # Identify taxon columns (assume they start with 'taxa_' or are not known metadata columns)
-    # For this implementation, we assume columns other than 'subject_id', 'titer_baseline', 'titer_post', 'log_titer', 'shannon_diversity' are taxa
-    known_metadata = ['subject_id', 'titer_baseline', 'titer_post', 'log_titer', 'shannon_diversity']
-    taxon_columns = [col for col in df.columns if col not in known_metadata]
-    
-    if len(taxon_columns) == 0:
-        logger.warning("No taxon columns found in the dataset. Check column naming convention.")
-    
-    logger.info(f"Loaded {len(df)} rows. Found {len(taxon_columns)} taxon columns.")
+    logger.info(f"Loading filtered data from {filepath}")
+    df = pd.read_csv(filepath)
+    logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
+    return df
+
+def identify_zero_variance_taxa(df: pd.DataFrame, taxon_columns: List[str]) -> List[str]:
+    """
+    Identify taxa columns that have zero variance (all values identical).
+    """
+    zero_var_taxa = []
+    for col in taxon_columns:
+        if col not in df.columns:
+            continue
+        if df[col].var() == 0:
+            zero_var_taxa.append(col)
+    return zero_var_taxa
+
+def filter_zero_variance_taxa(df: pd.DataFrame, taxon_columns: List[str]) -> pd.DataFrame:
+    """
+    Filter out taxa columns with zero variance.
+    """
+    zero_var_taxa = identify_zero_variance_taxa(df, taxon_columns)
+    if zero_var_taxa:
+        logger.info(f"Removing {len(zero_var_taxa)} zero-variance taxa: {zero_var_taxa}")
+        df = df.drop(columns=zero_var_taxa)
+        # Update taxon_columns list to reflect changes
+        taxon_columns = [c for c in taxon_columns if c not in zero_var_taxa]
     return df, taxon_columns
 
-def apply_normalization(df: pd.DataFrame, taxon_columns: List[str]) -> pd.DataFrame:
+def apply_zero_variance_exclusion(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply zero-variance exclusion to the dataframe.
+    """
+    # Identify taxon columns (assume columns starting with 'taxon_' or containing specific pattern)
+    # For this implementation, we'll assume taxon columns are those not in a known exclusion list
+    known_non_taxon_cols = {'subject_id', 'titer_baseline', 'titer_post', 'log_titer', 
+                            'shannon_diversity', 'zero_variance_removed'}
+    taxon_cols = [c for c in df.columns if c not in known_non_taxon_cols]
+    
+    df, taxon_cols = filter_zero_variance_taxa(df, taxon_cols)
+    return df
+
+def normalize_to_relative_abundance(df: pd.DataFrame) -> pd.DataFrame:
     """
     Normalize taxon abundances to relative abundance (sum to 1 per subject).
     """
-    logger.info("Applying relative abundance normalization...")
+    known_non_taxon_cols = {'subject_id', 'titer_baseline', 'titer_post', 'log_titer', 
+                            'shannon_diversity', 'zero_variance_removed'}
+    taxon_cols = [c for c in df.columns if c not in known_non_taxon_cols and c.endswith('_rel')]
     
-    # Calculate sum of abundances per row for taxon columns
-    row_sums = df[taxon_columns].sum(axis=1)
+    if not taxon_cols:
+        # If no _rel columns exist, assume original taxon columns need normalization
+        taxon_cols = [c for c in df.columns if c not in known_non_taxon_cols]
+    
+    if not taxon_cols:
+        logger.warning("No taxon columns found for normalization")
+        return df
+
+    # Calculate sum per row
+    row_sums = df[taxon_cols].sum(axis=1)
     
     # Avoid division by zero
-    row_sums[row_sums == 0] = np.nan
+    row_sums = row_sums.replace(0, np.nan)
     
-    for col in taxon_columns:
-        df[col] = df[col] / row_sums
+    # Normalize
+    for col in taxon_cols:
+        df[f"{col}_rel"] = df[col] / row_sums
     
-    # Fill NaN with 0 if any subject had 0 total abundance (though unlikely in real data)
-    df[taxon_columns] = df[taxon_columns].fillna(0)
-    
-    logger.info("Normalization complete.")
+    logger.info(f"Normalized {len(taxon_cols)} taxa to relative abundance")
     return df
 
-def run_normalization(input_path: Optional[str] = None, output_path: Optional[str] = None) -> str:
+def calculate_shannon_diversity(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Run the normalization pipeline.
+    Calculate Shannon diversity index for each subject.
+    Shannon index: -sum(p_i * ln(p_i)) where p_i is the relative abundance of taxon i.
     """
-    if input_path is None:
-        input_path = str(get_processed_path() / "cleared_with_diversity.csv")
-    if output_path is None:
-        output_path = str(get_processed_path() / "cleared_with_diversity.csv")
+    known_non_taxon_cols = {'subject_id', 'titer_baseline', 'titer_post', 'log_titer', 
+                            'shannon_diversity', 'zero_variance_removed'}
+    taxon_cols = [c for c in df.columns if c not in known_non_taxon_cols and c.endswith('_rel')]
     
-    df, taxon_columns = load_filtered_data(input_path)
-    df = apply_normalization(df, taxon_columns)
-    
-    df.to_csv(output_path, index=False)
-    logger.info(f"Normalized data saved to {output_path}")
-    return output_path
+    if not taxon_cols:
+        logger.warning("No relative abundance columns found for Shannon diversity calculation")
+        return df
 
-def apply_clr_transformation(df: pd.DataFrame, taxon_columns: List[str], pseudocount: Optional[float] = None) -> pd.DataFrame:
-    """
-    Apply Centered Log-Ratio (CLR) transformation to taxon abundances.
+    # Calculate Shannon diversity
+    def shannon_index(row):
+        # Filter out zeros and NaNs
+        abundances = row[taxon_cols].replace(0, np.nan).dropna()
+        if len(abundances) == 0 or abundances.sum() == 0:
+            return 0.0
+        
+        # Normalize to ensure sum is 1 (in case of floating point errors)
+        p = abundances / abundances.sum()
+        # Calculate Shannon index
+        return -np.sum(p * np.log(p))
     
-    Steps:
-    1. Replace zeros with a small pseudocount (default 1e-6).
-    2. Calculate the geometric mean of abundances for each sample.
-    3. Compute log(abundance / geometric_mean) for each taxon.
+    df['shannon_diversity'] = df.apply(shannon_index, axis=1)
+    logger.info("Calculated Shannon diversity index")
+    return df
+
+def handle_lod_titers(df: pd.DataFrame, lod: float = 0.5) -> pd.DataFrame:
+    """
+    Handle values below Limit of Detection (LOD) by imputing as a fraction of LOD.
+    """
+    # Log count of values below LOD
+    below_lod_count = (df['titer_post'] < lod).sum()
+    if below_lod_count > 0:
+        logger.info(f"Found {below_lod_count} values below LOD ({lod}). Imputing as {lod/2}.")
+        df.loc[df['titer_post'] < lod, 'titer_post'] = lod / 2
+    return df
+
+def apply_log_transform_titers(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply log10 transformation to titer_post column.
+    """
+    if 'titer_post' not in df.columns:
+        logger.warning("titer_post column not found, skipping log transform")
+        return df
+    
+    df['log_titer'] = np.log10(df['titer_post'])
+    logger.info("Applied log10 transformation to titer_post")
+    return df
+
+def apply_clr_transformation(df: pd.DataFrame, pseudocount: Optional[float] = None) -> pd.DataFrame:
+    """
+    Apply Centered Log-Ratio (CLR) transformation to taxon abundance columns.
+    
+    CLR transformation:
+    1. Replace zeros with a small pseudocount
+    2. Take natural log of each value
+    3. Subtract the mean of the log-transformed values for each sample
     
     Args:
-        df: DataFrame containing the data.
-        taxon_columns: List of column names representing taxa.
-        pseudocount: Value to replace zeros. If None, uses config default.
+        df: DataFrame with taxon abundance columns
+        pseudocount: Small value to replace zeros (default: 1e-6)
     
     Returns:
-        DataFrame with new CLR-transformed columns (named 'clr_{taxon}').
+        DataFrame with CLR-transformed columns appended (e.g., 'taxon_A_clr')
     """
     if pseudocount is None:
         pseudocount = get_pseudocount()
     
-    logger.info(f"Applying CLR transformation with pseudocount={pseudocount}...")
+    # Identify taxon columns (columns not in known non-taxa list and not ending with _clr or _rel)
+    known_non_taxon_cols = {'subject_id', 'titer_baseline', 'titer_post', 'log_titer', 
+                            'shannon_diversity', 'zero_variance_removed'}
     
-    # Create a copy of the taxon data to avoid modifying original
-    taxon_data = df[taxon_columns].copy()
+    # Get all columns that are likely taxon abundances (not already processed)
+    taxon_cols = [c for c in df.columns 
+                 if c not in known_non_taxon_cols 
+                 and not c.endswith('_clr') 
+                 and not c.endswith('_rel')]
     
-    # Step 1: Zero replacement
-    zero_mask = taxon_data == 0
-    taxon_data[zero_mask] = pseudocount
-    zero_count = zero_mask.sum().sum()
-    logger.info(f"Replaced {zero_count} zero values with pseudocount {pseudocount}.")
+    if not taxon_cols:
+        logger.warning("No taxon columns found for CLR transformation")
+        return df
+
+    logger.info(f"Applying CLR transformation to {len(taxon_cols)} taxa with pseudocount={pseudocount}")
     
-    # Step 2: Calculate geometric mean for each row
-    # Geometric mean = exp(mean(log(x)))
-    # We use np.log which is natural log.
+    # Create a copy of the taxon columns to work with
+    taxon_data = df[taxon_cols].copy()
+    
+    # Step 1: Replace zeros with pseudocount
+    zero_count = (taxon_data == 0).sum().sum()
+    if zero_count > 0:
+        logger.info(f"Replacing {zero_count} zero values with pseudocount {pseudocount}")
+        taxon_data = taxon_data.replace(0, pseudocount)
+    
+    # Step 2: Take natural log
     log_data = np.log(taxon_data)
-    geometric_mean_log = log_data.mean(axis=1)
     
-    # Step 3: CLR = log(x) - mean(log(x))
-    clr_data = log_data.sub(geometric_mean_log, axis=0)
+    # Step 3: Calculate geometric mean (mean of logs) for each sample
+    # This is the denominator in CLR
+    geo_mean = log_data.mean(axis=1)
     
-    # Rename columns to indicate CLR transformation
-    clr_columns = [f"clr_{col}" for col in taxon_columns]
-    clr_df = pd.DataFrame(clr_data, columns=clr_columns, index=df.index)
+    # Step 4: Subtract geometric mean from each log value
+    clr_data = log_data.sub(geo_mean, axis=0)
     
-    # Concatenate back to original dataframe
-    df = pd.concat([df, clr_df], axis=1)
+    # Append CLR-transformed columns to the original dataframe
+    for col in taxon_cols:
+        clr_col_name = f"{col}_clr"
+        df[clr_col_name] = clr_data[col]
     
-    logger.info(f"CLR transformation complete. Added {len(clr_columns)} columns.")
+    logger.info(f"Added {len(taxon_cols)} CLR-transformed columns")
     return df
 
-def run_clr_transformation(input_path: Optional[str] = None, output_path: Optional[str] = None) -> str:
+def run_normalization_pipeline(input_path: Optional[Path] = None, 
+                             output_path: Optional[Path] = None,
+                             pseudocount: Optional[float] = None) -> Path:
     """
-    Run the CLR transformation pipeline.
-    Reads input, applies CLR, and saves output.
+    Run the complete preprocessing pipeline:
+    1. Load data
+    2. Apply zero-variance exclusion
+    3. Normalize to relative abundance
+    4. Calculate Shannon diversity
+    5. Handle LOD titers
+    6. Apply log transform to titers
+    7. Apply CLR transformation
+    
+    Args:
+        input_path: Path to input CSV file
+        output_path: Path to output CSV file
+        pseudocount: Pseudocount value for CLR transformation
+    
+    Returns:
+        Path to the output file
     """
-    if input_path is None:
-        input_path = str(get_processed_path() / "cleared_with_diversity.csv")
+    # Load data
+    df = load_filtered_data(input_path)
+    
+    # Apply zero-variance exclusion
+    df = apply_zero_variance_exclusion(df)
+    
+    # Normalize to relative abundance
+    df = normalize_to_relative_abundance(df)
+    
+    # Calculate Shannon diversity
+    df = calculate_shannon_diversity(df)
+    
+    # Handle LOD titers
+    df = handle_lod_titers(df)
+    
+    # Apply log transform to titers
+    df = apply_log_transform_titers(df)
+    
+    # Apply CLR transformation
+    df = apply_clr_transformation(df, pseudocount=pseudocount)
+    
+    # Determine output path
     if output_path is None:
-        output_path = str(get_processed_path() / "cleared_with_diversity.csv")
+        output_path = get_processed_path("cleared_with_diversity.csv")
     
-    df, taxon_columns = load_filtered_data(input_path)
-    df = apply_clr_transformation(df, taxon_columns)
-    
+    # Save the final dataset
+    logger.info(f"Saving processed data to {output_path}")
     df.to_csv(output_path, index=False)
-    logger.info(f"CLR transformed data saved to {output_path}")
-    return output_path
-
-def calculate_shannon_diversity(df: pd.DataFrame, taxon_columns: List[str]) -> pd.DataFrame:
-    """
-    Calculate Shannon diversity index for each subject.
-    Shannon = -sum(p_i * log(p_i))
-    """
-    logger.info("Calculating Shannon diversity index...")
     
-    # Ensure data is normalized (relative abundance)
-    # Assuming input df has already been normalized in previous steps
-    # If not, we could normalize here, but per task dependencies, it should be done.
-    
-    # Filter out zeros to avoid log(0)
-    # We add a tiny epsilon if needed, but typically normalized data with zeros
-    # should be handled by ignoring zero terms in the sum.
-    
-    shannon_values = []
-    for _, row in df.iterrows():
-        p = row[taxon_columns].values
-        # Filter non-zero probabilities
-        p_nonzero = p[p > 0]
-        if len(p_nonzero) == 0:
-            shannon_values.append(0.0)
-        else:
-            shannon = -np.sum(p_nonzero * np.log(p_nonzero))
-            shannon_values.append(shannon)
-    
-    df['shannon_diversity'] = shannon_values
-    logger.info("Shannon diversity calculation complete.")
-    return df
-
-def log_titer_statistics(df: pd.DataFrame) -> None:
-    """
-    Log basic statistics for titer columns.
-    """
-    logger.info("Logging titer statistics...")
-    if 'titer_baseline' in df.columns:
-        logger.info(f"Baseline titer stats:\n{df['titer_baseline'].describe()}")
-    if 'titer_post' in df.columns:
-        logger.info(f"Post titer stats:\n{df['titer_post'].describe()}")
-    if 'log_titer' in df.columns:
-        logger.info(f"Log titer stats:\n{df['log_titer'].describe()}")
-
-def run_titer_log_transformation(input_path: Optional[str] = None, output_path: Optional[str] = None) -> str:
-    """
-    Apply log transformation to titer_post and handle LOD if necessary.
-    """
-    if input_path is None:
-        input_path = str(get_processed_path() / "cleared_with_diversity.csv")
-    if output_path is None:
-        output_path = str(get_processed_path() / "cleared_with_diversity.csv")
-    
-    df, _ = load_filtered_data(input_path)
-    
-    # LOD handling logic (simplified for this task, assuming LOD is handled or 1e-6 if 0)
-    # If titer_post is 0, replace with a small value before log
-    if 'titer_post' in df.columns:
-        df['titer_post'] = df['titer_post'].replace(0, np.nan)
-        # Impute missing/zero with a small value (e.g., 1e-6) or half LOD if known
-        # For now, using a small constant as placeholder for LOD handling
-        df['titer_post'] = df['titer_post'].fillna(1e-6)
-        
-        df['log_titer'] = np.log10(df['titer_post'])
-        log_titer_statistics(df)
-    
-    df.to_csv(output_path, index=False)
-    logger.info(f"Log titer transformation complete. Saved to {output_path}")
+    logger.info(f"Preprocessing pipeline completed. Output: {output_path}")
     return output_path
 
 def main():
     """
     Main entry point for the preprocessing script.
-    Orchestrates the pipeline steps.
     """
-    logger.info("Starting preprocessing pipeline...")
+    # Set up logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    # 1. Load data
-    input_file = str(get_processed_path() / "cleared_with_diversity.csv")
-    df, taxon_columns = load_filtered_data(input_file)
-    
-    # 2. Apply Normalization (Relative Abundance)
-    df = apply_normalization(df, taxon_columns)
-    
-    # 3. Calculate Shannon Diversity (before CLR, as it depends on relative abundances)
-    df = calculate_shannon_diversity(df, taxon_columns)
-    
-    # 4. Apply CLR Transformation
-    df = apply_clr_transformation(df, taxon_columns)
-    
-    # 5. Log titer statistics (assuming log_titer might be added later or already present)
-    # If log_titer is not present, this step might be skipped or handled by run_titer_log_transformation
-    log_titer_statistics(df)
-    
-    # Save final output
-    output_file = str(get_processed_path() / "cleared_with_diversity.csv")
-    df.to_csv(output_file, index=False)
-    
-    logger.info(f"Preprocessing pipeline complete. Output saved to {output_file}")
-    return output_file
+    try:
+        # Run the normalization pipeline
+        output_path = run_normalization_pipeline()
+        print(f"Preprocessing completed successfully. Output saved to: {output_path}")
+        
+        # Verify output exists
+        if os.path.exists(output_path):
+            print(f"Output file size: {os.path.getsize(output_path)} bytes")
+        else:
+            raise RuntimeError(f"Output file was not created: {output_path}")
+            
+    except Exception as e:
+        logger.error(f"Preprocessing pipeline failed: {str(e)}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

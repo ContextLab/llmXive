@@ -1,121 +1,53 @@
+"""
+Utilities for fetching data from HuggingFace Hub.
+"""
 import os
-import sys
 import logging
-import requests
-import pandas as pd
 from pathlib import Path
-from typing import Tuple, Optional
-
-from utils.config import get_sra_accession, get_raw_path
+from typing import Optional
+from huggingface_hub import hf_hub_download, HfApi
 from utils.logging_config import get_logger
-from utils.sra_downloader import DataUnavailableError
 
 logger = get_logger(__name__)
 
-# Verified real data source: HuggingFace Datasets (curated microbiome datasets)
-# We use the "gut-microbiome-influenza" dataset which contains paired 16S and serology
-# This is a verified real source that has been tested in the pipeline
-DATASET_HF_ID = "gut-microbiome-influenza-vaccine"
-SPLIT_NAME = "train"
-
-def fetch_huggingface_data() -> Tuple[Path, Path]:
+def fetch_huggingface_data(
+    repo_id: str,
+    filename: str,
+    local_dir: Path,
+    token: Optional[str] = None
+) -> str:
     """
-    Fetch pre-processed OTU table and serology metadata from a verified HuggingFace dataset.
+    Downloads a specific file from a HuggingFace repository.
     
-    This function:
-    1. Loads the real dataset from HuggingFace (streaming to avoid memory issues)
-    2. Splits the data into OTU table and serology metadata
-    3. Writes them to the required output paths
+    Args:
+        repo_id: The HuggingFace repository ID (e.g., 'username/repo-name')
+        filename: The name of the file to download
+        local_dir: The local directory to save the file
+        token: Optional authentication token (not needed for public repos)
     
     Returns:
-        Tuple of (otu_table_path, serology_path)
+        Path to the downloaded file
     
     Raises:
-        DataUnavailableError: If the dataset cannot be fetched or is empty
+        FileNotFoundError: If the file does not exist in the repository
+        Exception: For other network or download errors
     """
-    try:
-        # Dynamically import datasets to avoid hard dependency if not installed
-        try:
-            from datasets import load_dataset
-        except ImportError:
-            logger.error("datasets library not found. Please install: pip install datasets")
-            raise DataUnavailableError("datasets library not installed")
-
-        logger.info(f"Fetching real data from HuggingFace: {DATASET_HF_ID}")
-        
-        # Load the dataset (streaming mode to handle large datasets efficiently)
-        dataset = load_dataset(DATASET_HF_ID, split=SPLIT_NAME, streaming=True)
-        
-        # Convert to pandas dataframe
-        df = dataset.to_pandas()
-        
-        if df.empty:
-            raise DataUnavailableError(f"Dataset {DATASET_HF_ID} is empty")
-        
-        logger.info(f"Loaded {len(df)} records from real source")
-        
-        # Validate required columns exist
-        required_cols = ['subject_id', 'baseline_titer', 'post_titer']
-        otu_cols = [col for col in df.columns if col.startswith('taxon_')]
-        
-        if not all(col in df.columns for col in required_cols):
-            raise DataUnavailableError(
-                f"Dataset missing required columns. Found: {list(df.columns)}"
-            )
-        
-        if not otu_cols:
-            raise DataUnavailableError(
-                f"Dataset missing OTU columns (taxon_*). Found: {list(df.columns)}"
-            )
-        
-        # Extract serology metadata
-        serology_cols = ['subject_id'] + required_cols
-        serology_df = df[serology_cols].copy()
-        serology_df = serology_df.rename(columns={
-            'baseline_titer': 'titer_baseline',
-            'post_titer': 'titer_post'
-        })
-        
-        # Extract OTU table (wide format: rows=subjects, cols=taxa)
-        otu_df = df[['subject_id'] + otu_cols].copy()
-        otu_df = otu_df.set_index('subject_id')
-        
-        # Write to output files
-        raw_dir = get_raw_path()
-        raw_dir.mkdir(parents=True, exist_ok=True)
-        
-        otu_path = raw_dir / "otutable.csv"
-        serology_path = raw_dir / "serology.csv"
-        
-        otu_df.to_csv(otu_path)
-        serology_df.to_csv(serology_path)
-        
-        logger.info(f"OTU table written to: {otu_path}")
-        logger.info(f"Serology metadata written to: {serology_path}")
-        logger.info(f"OTU table shape: {otu_df.shape}")
-        logger.info(f"Serology shape: {serology_df.shape}")
-        
-        return otu_path, serology_path
-
-    except Exception as e:
-        logger.error(f"Failed to fetch data from HuggingFace: {e}")
-        # Re-raise as DataUnavailableError to trigger fallback logic in pipeline
-        raise DataUnavailableError(f"Real data fetch failed: {str(e)}")
-
-def main():
-    """Entry point for the SRA fetcher script."""
-    logging.basicConfig(level=logging.INFO)
+    local_dir.mkdir(parents=True, exist_ok=True)
     
     try:
-        otu_path, serology_path = fetch_huggingface_data()
-        logger.info("Data fetch completed successfully")
-        return 0
-    except DataUnavailableError as e:
-        logger.error(f"Data fetch failed: {e}")
-        return 1
+        logger.info(f"Downloading {filename} from {repo_id} to {local_dir}")
+        
+        downloaded_path = hf_hub_download(
+            repo_id=repo_id,
+            filename=filename,
+            local_dir=str(local_dir),
+            token=token
+        )
+        
+        logger.info(f"Downloaded to: {downloaded_path}")
+        return downloaded_path
+        
     except Exception as e:
-        logger.exception(f"Unexpected error: {e}")
-        return 1
-
-if __name__ == "__main__":
-    sys.exit(main())
+        logger.error(f"Error downloading from HuggingFace: {e}")
+        # Re-raise to allow the caller to handle the failure (fail loudly)
+        raise
