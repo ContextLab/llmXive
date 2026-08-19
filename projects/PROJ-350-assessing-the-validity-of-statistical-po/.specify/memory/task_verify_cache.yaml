@@ -1,0 +1,38 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or other evidence were supplied showing that the required
+    folders (`code/`, `data/raw/`, `data/derived/`, `tests/`, `specs/`, `results/`,
+    `docs/`) actually exist; the claim is unsubstantiated.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `.gitkeep` files in any data directories is provided; the artifact
+    list is empty, so the requirement to create placeholder files in all data directories
+    is not demonstrated. The implementer must add the `.gitkeep` files to each data
+    folder and show their presence.
+T003:
+  c: false
+  h: c90954ec2a70e3fdc148c94360a5016c8ccb4914bdc0b4a46273751a428dfa6b
+  r: The `requirements.txt` and `pyproject.toml` files are present and populated,
+    but the required `.pre-commit-config.yaml` file is missing entirely. The task
+    is not fully satisfied until this configuration file is created.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No GitHub Actions workflow file (e.g., `.github/workflows/ci.yml`) or any description
+    of its contents was provided, nor any evidence of checksum validation steps. The
+    required CI configuration artifact is missing, so the task is not satisfied.
+T010:
+  c: false
+  h: 66df14a58a22ee88f189dd17639f64e645760744b684ec4d1f43f74a9e5a0508
+  r: The required artifact `tests/integration/test_osf_client.py` does not exist on
+    disk, so no integration test for the OSF API connection and backoff logic is present.
+    The task cannot be considered fulfilled.
+T011:
+  c: false
+  h: 823be83e3c0212bea81d1b9c0ca1498a8c4fb1f487844b98ff56fee57487645f
+  r: The JSON file `data/derived/study_records_raw.json` exists, but the required
+    schema file `specs/contracts/study_record.schema.yaml` is missing, and there is
+    no evidence that any schema validation was performed. Without the schema and a
+    validation result, the contract test cannot be considered satisfied.

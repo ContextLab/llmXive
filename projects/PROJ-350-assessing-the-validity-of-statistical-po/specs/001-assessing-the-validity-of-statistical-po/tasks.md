@@ -28,7 +28,7 @@
 
 - [ ] T001a [P] Create directory structure: `code/`, `data/raw/`, `data/derived/`, `tests/`, `specs/`, `results/`, `docs/`
 - [ ] T001b [P] Create placeholder files: `.gitkeep` in all data directories
-- [ ] T002 Initialize `code/__init__.py` as an empty file
+- [X] T002 Initialize `code/__init__.py` as an empty file
 - [ ] T003 [P] Create configuration files: `.pre-commit-config.yaml`, `requirements.txt`, `pyproject.toml`
 - [ ] T004 [P] Setup GitHub Actions workflow for CI (CPU-only, limited core count, constrained memory limits) and data checksum validation
 
@@ -59,7 +59,7 @@
 ### Tests for User Story 1
 
 - [X] T009 [P] [US1] Unit test for `code/extraction.py` parsing logic with mock OSF JSON in `tests/unit/test_extraction.py`
-- [~] T010 [P] [US1] Integration test for OSF API connection and backoff logic in `tests/integration/test_osf_client.py`
+- [ ] T010 [P] [US1] Integration test for OSF API connection and backoff logic in `tests/integration/test_osf_client.py`
 - [ ] T011 [US1] Contract test: Verify output schema of `data/derived/study_records_raw.json` against `specs/contracts/study_record.schema.yaml`
 
 ### Implementation for User Story 1 (Extraction)
@@ -67,14 +67,14 @@
 - [X] T012 [US1] Implement `code/extraction.py`: OSF API fetcher with retry logic (FR-001)
 - [X] T013 [US1] Implement NLP/Regex hybrid parser in `code/extraction.py` to extract `planned_power`, `target_n`, `effect_size_assumption` (FR-001)
 - [~] T014 [US1] Implement logic to handle missing data (flag `missing_planned_data`) and prioritize "Primary Pre-registration" (FR-001)
-- [ ] T015 [US1] Implement data validation: ensure `target_n > 0` and flag invalid records (Edge Case)
-- [ ] T016 [US1] Write extracted planned records to `data/derived/study_records_raw.json` with source citations (`page_number:paragraph_id`)
+- [~] T015 [US1] Implement data validation: ensure `target_n > 0` and flag invalid records (Edge Case)
+- [X] T016 [US1] Write extracted planned records to `data/derived/study_records_raw.json` with source citations (`page_number:paragraph_id`) <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1 (Result Retrieval)
 
-- [ ] T017 [US1] Implement `code/retrieval.py`: Fetch `observed_effect_size` from linked data repositories or published results. **Logic MUST**: (1) Parse OSF files nodes to find data links; (2) Resolve DOIs to data URLs if direct links are missing; (3) Flag records where no data file is found. Explicitly NOT used for sensitivity power calculation (FR-002).
-- [ ] T018 [US1] Implement `code/retrieval.py`: Fetch `actual_sample_size` from linked data repositories or published results. **Logic MUST**: (1) Parse OSF files nodes; (2) Resolve DOIs; (3) Flag records where data is missing. **This task is a blocking prerequisite for Phase 4** (FR-002).
-- [ ] T019 [US1] Implement validation for retrieved results: handle CI midpoints, flag missing `actual_sample_size` (Edge Case)
+- [X] T017 [US1] Implement `code/retrieval.py`: Fetch `observed_effect_size` from linked data repositories or published results. **Logic MUST**: (1) Parse OSF files nodes to find data links; (2) Resolve DOIs to data URLs if direct links are missing; (3) Flag records where no data file is found. Explicitly NOT used for sensitivity power calculation (FR-002).
+- [X] T018 [US1] Implement `code/retrieval.py`: Fetch `actual_sample_size` from linked data repositories or published results. **Logic MUST**: (1) Parse OSF files nodes; (2) Resolve DOIs; (3) Flag records where data is missing. **This task is a blocking prerequisite for Phase 4** (FR-002).
+- [~] T019 [US1] Implement validation for retrieved results: handle CI midpoints, flag missing `actual_sample_size` (Edge Case)
 
 **Checkpoint**: At this point, User Story 1 (Extraction + Result Retrieval) should be fully functional and testable independently
 
@@ -89,16 +89,16 @@
 
 ### Tests for User Story 2
 
-- [ ] T020 [P] [US2] Unit test for `code/power_calc.py` with known statistical inputs in `tests/unit/test_power_calc.py`. **Must verify** that `alpha` is hardcoded to 0.05 (FR-003).
-- [ ] T021 [P] [US2] Unit test for edge cases (power > 1.0, power < 0.0) and clamping logic in `tests/unit/test_power_calc.py`
-- [ ] T021a [P] [US2] Regression test: Compare `code/power_calc.py` output against a hard-coded `statsmodels` baseline result for a known input to satisfy SC-005.
-- [ ] T022 [US2] Contract test: Verify `data/derived/power_analysis.csv` schema and data types
+- [X] T020 [P] [US2] Unit test for `code/power_calc.py` with known statistical inputs in `tests/unit/test_power_calc.py`. **Must verify** that `alpha` is hardcoded to 0.05 (FR-003).
+- [X] T021 [P] [US2] Unit test for edge cases (power > 1.0, power < 0.0) and clamping logic in `tests/unit/test_power_calc.py`
+- [X] T021a [P] [US2] Regression test: Compare `code/power_calc.py` output against a hard-coded `statsmodels` baseline result for a known input to satisfy SC-005.
+- [~] T022 [US2] Contract test: Verify `data/derived/power_analysis.csv` schema and data types
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `code/power_calc.py`: Sensitivity power calculation using `statsmodels.stats.power` with `effect_size_assumption` and `actual_sample_size` (from T018). **Verify** `alpha=0.05` is hardcoded (FR-003).
-- [ ] T024 [US2] Implement `power_gap` calculation: `planned_power - sensitivity_power` (FR-004)
-- [ ] T025 [US2] Implement validation: clamp sensitivity power to the valid probability range and log warnings for anomalies (Edge Case)
+- [X] T023 [US2] Implement `code/power_calc.py`: Sensitivity power calculation using `statsmodels.stats.power` with `effect_size_assumption` and `actual_sample_size` (from T018). **Verify** `alpha=0.05` is hardcoded (FR-003).
+- [~] T024 [US2] Implement `power_gap` calculation: `planned_power - sensitivity_power` (FR-004)
+- [~] T025 [US2] Implement validation: clamp sensitivity power to the valid probability range and log warnings for anomalies (Edge Case)
 - [ ] T026 [US2] Write final analysis dataset to `data/derived/power_analysis.csv` including all calculated metrics (FR-004, FR-006)
 - [ ] T026a [US2] **CRITICAL GUARDRAIL**: Filter `power_analysis.csv` to include only studies with valid power calculations. If the count is < 30 (SC-004), **halt execution** and write an error artifact to `results/error/sample_size_insufficient.json`.
 - [ ] T027 [US2] Implement one-sample t-test (or Wilcoxon) on `data/derived/power_analysis.csv` column `power_gap` against null hypothesis of zero (SC-001). **Output**: Write test statistic, p-value, and conclusion to `data/derived/regression_diagnostics.json`.

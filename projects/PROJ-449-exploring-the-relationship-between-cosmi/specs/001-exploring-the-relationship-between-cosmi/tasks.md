@@ -84,7 +84,7 @@
 - [X] T012 [P] [US1] Implement `code/data/fetch_noaa.py` to download daily sunspot numbers from NOAA/SWPC (e.g., ` or verified CSV mirror).
 - [X] T013 [US1] Implement `code/data/align_data.py` to merge flux and solar data, handling time zones and date formats; must flag gaps > 30 days as "Data Gap" and exclude from correlation later.
 - [X] T014 [US1] Implement `code/data/preprocess.py` to calculate composition ratios: explicitly calculate **He/p** and **Fe/p** (and CNO/p if available). For any row where the denominator flux (proton) is zero or missing, log the event as "Below Detection Limit" and exclude it from the ratio calculation, as required by FR-003. Ensure the output artifact explicitly lists the calculated ratios for both He/p and Fe/p species.
-- [ ] T015 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline and output `data/processed/unified_timeseries.csv`
+- [ ] T015 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline and output `data/processed/unified_timeseries.csv` <!-- FAILED: unspecified -->
 - [ ] T016 [US1] Add validation to ensure the unified dataset contains sufficient data coverage. **Logic**: If coverage is < 100% for the 2011-2024 period, do NOT fail. Instead, identify the most populated rigidity bin available for each species, log the fallback action per the spec's Assumptions, and proceed with analysis using that bin. If coverage is < 50% for all bins, log a critical error and exit.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -105,11 +105,11 @@
 ### Implementation for User Story 2
 
 - [X] T019 [P] [US2] Implement `code/analysis/correlation.py` function `calculate_lagged_correlations` supporting Pearson and Spearman methods with a lag window spanning a symmetric range of months (±12).
-- [ ] T020 [US2] Implement `code/analysis/correlation.py` to iterate over **all rigidity bins** and perform two distinct correlation sets in a single loop: 1) **Composition Ratios**: Calculate Pearson/Spearman correlations for He/p and Fe/p against sunspot numbers. 2) **Control Analysis**: Calculate correlations for **absolute, rigidity-normalized fluxes** against sunspot numbers. For both sets, compute p-values. After the loop, derive the modulation amplitude trend against rigidity for the absolute flux results and save all results (coefficients, p-values, trends) to `data/processed/correlation_results.json` and `data/processed/correlation_summary.csv`.
-- [~] T021 [US2] **REMOVED**: Merged into T020. The control analysis is now part of the main iteration to ensure consistent per-bin processing and explicit rigidity-dependence validation as required by FR-008.
-- [~] T022 [US2] Implement `code/analysis/visualization.py` to generate time-lag plots and correlation heatmaps. **Dependency**: This task MUST consume the merged results from `data/processed/correlation_results.csv` (output of T020) to ensure both ratio and absolute flux plots are generated correctly.
-- [ ] T023 [US2] Save correlation results (coefficients, p-values) to `data/processed/correlation_results.json` and `data/processed/correlation_summary.csv` (Handled in T020, this task serves as a checkpoint for file existence).
-- [~] T024 [US2] Validate that p-values are calculated for all correlations and flag any non-significant results (p > 0.01).
+- [X] T020 [US2] Implement `code/analysis/correlation.py` to iterate over **all rigidity bins** and perform two distinct correlation sets in a single loop: 1) **Composition Ratios**: Calculate Pearson/Spearman correlations for He/p and Fe/p against sunspot numbers. 2) **Control Analysis**: Calculate correlations for **absolute, rigidity-normalized fluxes** against sunspot numbers. For both sets, compute p-values. After the loop, derive the modulation amplitude trend against rigidity for the absolute flux results and save all results (coefficients, p-values, trends) to `data/processed/correlation_results.json` and `data/processed/correlation_summary.csv`.
+- [ ] T021 [US2] **REMOVED**: Merged into T020. The control analysis is now part of the main iteration to ensure consistent per-bin processing and explicit rigidity-dependence validation as required by FR-008.
+- [ ] T022 [US2] Implement `code/analysis/visualization.py` to generate time-lag plots and correlation heatmaps. **Dependency**: This task MUST consume the merged results from `data/processed/correlation_results.csv` (output of T020) to ensure both ratio and absolute flux plots are generated correctly.
+- [X] T023 [US2] Save correlation results (coefficients, p-values) to `data/processed/correlation_results.json` and `data/processed/correlation_summary.csv` (Handled in T020, this task serves as a checkpoint for file existence).
+- [ ] T024 [US2] Validate that p-values are calculated for all correlations and flag any non-significant results (p > 0.01).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,13 +124,13 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T025 [P] [US3] Unit test for bootstrap resampling logic in `tests/test_bootstrap.py`
-- [~] T026 [P] [US3] Unit test for diffusion model fitting convergence in `tests/test_model_fitting.py`
+- [ ] T026 [P] [US3] Unit test for diffusion model fitting convergence in `tests/test_model_fitting.py`
 
 ### Implementation for User Story 3
 
 - [X] T027 [P] [US3] Implement `code/analysis/bootstrap.py` function `run_bootstrap_resampling` with n=1000 iterations to estimate confidence intervals for max correlation coefficients. **Constraint**: Use `scipy.stats` or `numpy` vectorization to ensure this completes within the time limit on CPU-only runners. Avoid heavy parallelization overhead; use chunked processing if memory is tight.
 - [ ] T028 [US3] Implement `code/analysis/model_fitting.py` to derive modulation amplitudes: perform a sinusoidal fit to the time-series for each rigidity bin, calculate the **peak-to-trough difference** explicitly, and save these intermediate values to `data/processed/modulation_amplitudes.csv`. This artifact is required for traceability (Constitution Principle IV) before the model fit.
-- [ ] T029 [US3] Implement `code/analysis/model_fitting.py` to fit a rigidity-dependent diffusion model to the amplitudes loaded from `data/processed/modulation_amplitudes.csv` (output of T028) using least-squares optimization (`scipy.optimize.curve_fit`). **Constraint**: The model must be a simplified physics-based parameterization (e.g., `Amplitude = A / (Rigidity + B)`) to ensure convergence without GPU acceleration.
+- [~] T029 [US3] Implement `code/analysis/model_fitting.py` to fit a rigidity-dependent diffusion model to the amplitudes loaded from `data/processed/modulation_amplitudes.csv` (output of T028) using least-squares optimization (`scipy.optimize.curve_fit`). **Constraint**: The model must be a simplified physics-based parameterization (e.g., `Amplitude = A / (Rigidity + B)`) to ensure convergence without GPU acceleration.
 - [ ] T030 [US3] Calculate and report the R² value for the diffusion model fit. **CRITICAL**: Perform an F-test (or equivalent hypothesis test) on the R² value to determine if the model explains a statistically significant portion of the variance (p < 0.05). Save the R² value, F-statistic, and p-value to `data/processed/model_fit_results.json` to satisfy SC-004.
 - [ ] T031 [US3] Add error handling to ensure model fitting does not exceed the designated runtime limit on CPU-only runners.
 - [ ] T032 [US3] Generate final validation report in `data/processed/validation_report.md` summarizing bootstrap CIs and model fit quality (including the F-test result).

@@ -1,0 +1,6 @@
+{
+  "error": "Insufficient sample size for analysis",
+  "message": "The dataset contains fewer than 30 studies with valid power calculations. Analysis halted per SC-004.",
+  "timestamp": "2024-01-01T00:00:00Z",
+  "study_count": 0
+}

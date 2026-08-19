@@ -1,1 +1,2 @@
-# Raw data directory - keep this file
+# This directory stores raw downloaded data
+# Do not commit actual data files, only this placeholder

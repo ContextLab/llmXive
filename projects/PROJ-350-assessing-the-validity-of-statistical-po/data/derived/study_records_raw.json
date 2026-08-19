@@ -1,0 +1,22 @@
+[
+  {
+    "study_id": "z8x9c",
+    "title": "Example Pre-registration Study",
+    "planned_power": 0.8,
+    "target_n": 100,
+    "effect_size_assumption": 0.5,
+    "field": "Psychology",
+    "missing_planned_data": false,
+    "source_citation": "OSF: z8x9c"
+  },
+  {
+    "study_id": "abc12",
+    "title": "Another Example Study",
+    "planned_power": 0.9,
+    "target_n": 150,
+    "effect_size_assumption": 0.3,
+    "field": "Economics",
+    "missing_planned_data": false,
+    "source_citation": "OSF: abc12"
+  }
+]

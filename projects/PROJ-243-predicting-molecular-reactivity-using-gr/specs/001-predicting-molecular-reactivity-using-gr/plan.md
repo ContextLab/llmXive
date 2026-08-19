@@ -116,7 +116,7 @@ artifacts/
 - **T004** — **Setup Checksum Schema**: Create `contracts/checksum.schema.yaml` defining the structure for `data/raw/checksums.json`.
 - **T005** — **Run Reference Validator**: Implement and run `code/utils/validator.py` to verify all citations in `research.md` against primary sources (DOIs/URLs). **BLOCKING**: Must pass before T010a.
 - **T010g** — **Create Checksums Schema**: Define the schema for `checksums.json` (T004).
-- **T010a** — **Curate Reference Substructures**: Manually create `data/raw/reference_substructures_raw.csv` (50 entries) based on specific literature (DOIs in research.md). Columns: `smiles`, `source_doi`, `description`. **Source**: Extract from Table 2 of DOI.
+- **T010a** — **Curate Reference Substructures**: Manually create `data/raw/reference_substructures_raw.csv` (entries) based on specific literature (DOIs in research.md). Columns: `smiles`, `source_doi`, `description`. **Source**: Extract from Table 2 of DOI.
 - **T010d** — **Curate Kinetic Dataset**: Manually create `data/raw/kinetic_dataset_raw.csv` (≥20 entries) based on specific literature (DOIs in research.md). Columns: `smiles`, `reaction_rate`, `reaction_type`, `source_doi`. **Source**: Extract from Table 3 of DOI.
 - **T010h** — **Populate Checksums**: Compute SHA-256 hashes for `data/raw/qm9_subset.parquet`, `reference_substructures_raw.csv`, and `kinetic_dataset_raw.csv`. Write to `data/raw/checksums.json`. **Dependencies**: T010a, T010d.
 - **T010b** — **Verify Reference Checksum**: Verify `reference_substructures_raw.csv` against `checksums.json`.

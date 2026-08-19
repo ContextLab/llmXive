@@ -1,1 +1,2 @@
-# Processed data directory - keep this file
+# This directory stores processed data and results
+# Do not commit actual data files, only this placeholder

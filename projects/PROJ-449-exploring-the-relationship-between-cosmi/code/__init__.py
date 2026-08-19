@@ -1,3 +1,1 @@
-"""
-Cosmic Ray Solar Activity Analysis Package
-"""
+# Code package for cosmic-ray-solar-analysis

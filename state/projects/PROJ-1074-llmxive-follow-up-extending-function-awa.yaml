@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-16T04:05:47.787867Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1074-llmxive-follow-up-extending-function-awa
-last_run_id: 4e2099ca-eb8b-43c5-b247-148487ef8d21
+last_run_id: ab480b89-afed-457a-a76c-a13b5958052b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Function-Aware Fill-in-the-Middle as Mid-Training
   for Coding Agent Fou"'
-updated_at: '2026-08-13T21:38:11.996183Z'
+updated_at: '2026-08-19T09:27:34.846216Z'

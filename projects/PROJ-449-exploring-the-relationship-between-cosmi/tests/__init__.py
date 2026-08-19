@@ -1,3 +1,1 @@
-"""
-Test suite for Cosmic Ray Solar Activity Analysis.
-"""
+# Test package for cosmic-ray-solar-analysis

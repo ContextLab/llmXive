@@ -3,18 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Distribution / packaging
-.eggs/
-*.egg-info/
-dist/
-build/
-bdist.*/
-
 # Virtual environments
 venv/
 .venv/
-env/
-.env/
+ENV/
 
 # IDE
 .idea/
@@ -22,22 +14,21 @@ env/
 *.swp
 *.swo
 
-# Data artifacts (Raw and Processed)
+# Data files (tracked separately if needed)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
-data/checksums.txt
+
+# Test coverage
+htmlcov/
+.coverage
+coverage.xml
 
 # Logs
 *.log
 logs/
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
-
-# Testing
-.coverage
-htmlcov/
-pytest.ini

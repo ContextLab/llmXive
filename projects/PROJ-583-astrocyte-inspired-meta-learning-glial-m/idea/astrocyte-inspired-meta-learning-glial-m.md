@@ -24,19 +24,20 @@ Two systematic searches were performed on Semantic Scholar / arXiv / OpenAlex (a
 
 1. `"astrocyte calcium signaling meta‑learning"` – 0 results.
 2. `"tripartite synapse computational model deep learning"` – 0 results.
-3. `"homeostatic plasticity meta-learning"` (broadened) – 1 result retrieved.
+3. `"homeostatic plasticity meta-learning"` (broadened) – 2 results retrieved.
 
-The initial queries targeted the exact intersection of astrocytic calcium dynamics and meta‑learning. The third query broadened to general homeostatic plasticity in deep learning to find methodological precedents. The only on‑topic record retrieved in the broader literature pool is listed below.
+The initial queries targeted the exact intersection of astrocytic calcium dynamics and meta‑learning. The third query broadened to general homeostatic plasticity and astrocyte-neural networks in deep learning to find methodological precedents. The two on‑topic records retrieved in the broader literature pool are listed below.
 
 ### What is known
 
-- [Backpropamine: training self-modifying neural networks with differentiable neuromodulated plasticity (2020)](https://arxiv.org/abs/2002.10585) — Demonstrates that actively controlled, biologically-inspired plasticity rules (neuromodulation) can enable lifelong learning in neural networks, providing a methodological precedent for using biological regulatory mechanisms as learnable or fixed modulators in deep learning.
+- [A Neural-Astrocytic Network Architecture: Astrocytic calcium waves modulate synchronous neuronal activity (2018)](https://arxiv.org/abs/1807.02514) — Proposes a neural network architecture where astrocytic calcium waves explicitly modulate neuronal synchrony, demonstrating that glial-inspired mechanisms can alter network dynamics, though not specifically evaluated on meta-learning stability-plasticity benchmarks.
+- [SPICED: A Synaptic Homeostasis-Inspired Framework for Unsupervised Continual EEG Decoding (2025)](https://arxiv.org/abs/2509.17439) — Introduces a framework using synaptic homeostasis principles to balance stability and plasticity in continual learning, providing a relevant methodological precedent for homeostatic regularizers, though applied to EEG decoding rather than few-shot meta-learning.
 
 ### What is NOT known
 
-- No study has specifically translated astrocyte-derived *calcium homeostatic* mechanisms (distinct from general neuromodulation) into a meta-learning algorithm.
-- The impact of such a biologically-inspired homeostatic regularizer on the stability-plasticity trade-off in few-shot learning has not been quantified on standard benchmarks.
-- There is no benchmark comparing astrocyte-inspired modulation against standard meta-learning baselines (like MAML) to isolate the specific contribution of calcium-driven homeostasis.
+- No study has specifically translated astrocyte-derived *calcium homeostatic* mechanisms (distinct from general synaptic homeostasis or neuromodulation) into a meta-learning algorithm.
+- The impact of such a biologically-inspired homeostatic regularizer on the stability-plasticity trade-off in few-shot learning has not been quantified on standard benchmarks (e.g., Mini-ImageNet, Omniglot).
+- There is no benchmark comparing astrocyte-inspired modulation against standard meta-learning baselines (like MAML) to isolate the specific contribution of calcium-driven homeostasis versus generic regularization.
 
 ### Why this gap matters
 
@@ -53,12 +54,12 @@ We anticipate that incorporating astrocyte-inspired homeostatic plasticity will 
 ## Methodology sketch
 
 - **Data acquisition**
-  - Download the Omniglot and Mini-ImageNet few-shot classification datasets from `torchvision` and `huggingface/datasets` repositories.
-  - Ensure datasets are pre-processed and split into training, validation, and test task sets as per standard benchmarks.
+  - Download the Omniglot and Mini-ImageNet few-shot classification datasets from `torchvision` and `huggingface/datasets` repositories (e.g., `torchvision.datasets.Omniglot`, `huggingface/datasets/mini_imagenet`).
+  - Ensure datasets are pre-processed and split into training, validation, and test task sets as per standard benchmarks (e.g., 600 training tasks, 100 validation tasks, 100 test tasks).
 - **Baseline implementation**
-  - Use an open-source MAML implementation (e.g., `learn2learn` library) to establish standard few-shot performance metrics.
+  - Use an open-source MAML implementation (e.g., `learn2learn` library) to establish standard few-shot performance metrics on the test task sets.
 - **Astrocyte-inspired homeostatic module**
-  1. Implement the calcium-wave ODE (derived from Polykretis et al., 2018) in PyTorch.
+  1. Implement the calcium-wave ODE (derived from Polykretis et al., 2018) in PyTorch as a differentiable module.
   2. Define the mapping from calcium concentration ($Ca_t$) to a homeostatic scaling factor $h_t = \exp(-\lambda \cdot Ca_t)$, justified by the rapid saturation of calcium-dependent inhibition in biological systems.
   3. Couple $h_t$ to the learning rate of each neuron or layer during the inner-loop update of MAML.
 - **Training protocol**
@@ -71,7 +72,7 @@ We anticipate that incorporating astrocyte-inspired homeostatic plasticity will 
   - Execute 20 random seeds to ensure sufficient statistical power for univariate tests.
   - Perform paired-sample t-tests on the Plasticity metric (accuracy on $T_N$ query set) and Stability metric (accuracy on $T_{N-1}$ query set) separately between the astrocyte-modulated and baseline models.
   - Apply Bonferroni correction for multiple comparisons to maintain family-wise error rate.
-  - *Note*: All metrics are computed from **actual forward passes** on the test query sets; no synthetic, placeholder, or simulated metrics are used.
+  - **Critical Note**: All metrics are computed from **actual forward passes** on the test query sets; no synthetic, placeholder, or simulated metrics are used. The "Stability" and "Plasticity" values are raw accuracy scores derived from real model predictions on real data samples.
 - **Ablation studies**
   - Vary the homeostatic scale parameter ($\lambda$) across the set {0.01, 0.05, 0.1, 0.5, 1.0} to examine sensitivity.
   - Replace the dynamic calcium ODE with a constant homeostatic term to isolate the effect of dynamic signaling.
@@ -88,17 +89,18 @@ We anticipate that incorporating astrocyte-inspired homeostatic plasticity will 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-09T01:17:09Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-19T09:26:43Z
 **Outcome**: exhausted
 **Original term**: Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscience
-**Verified citation count**: 1
+**Verified citation count**: 2
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscience | 1 |
+| 0 (initial) | Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscience | 2 |
 
 ### Verified citations
 
-1. **Backpropamine: training self-modifying neural networks with differentiable neuromodulated plasticity** (2020). Thomas Miconi, Aditya Rawal, Jeff Clune, Kenneth O. Stanley. arXiv. [2002.10585](https://arxiv.org/abs/2002.10585). PDF-sampled: No.
+1. **SPICED: A Synaptic Homeostasis-Inspired Framework for Unsupervised Continual EEG Decoding** (2025). Yangxuan Zhou, Sha Zhao, Jiquan Wang, Haiteng Jiang, Shijian Li, et al.. arXiv. [2509.17439](https://arxiv.org/abs/2509.17439). PDF-sampled: No.
+2. **A Neural-Astrocytic Network Architecture: Astrocytic calcium waves modulate synchronous neuronal activity** (2018). Ioannis Polykretis, Vladimir Ivanov, Konstantinos P. Michmizos. arXiv. [1807.02514](https://arxiv.org/abs/1807.02514). PDF-sampled: No.

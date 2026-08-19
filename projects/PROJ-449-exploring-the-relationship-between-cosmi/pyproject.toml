@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cosmic-ray-solar-analysis"
 version = "0.1.0"
-description = "Analyzing the relationship between cosmic ray composition and solar activity cycles"
+description = "Analysis of cosmic ray composition and solar activity cycles"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -19,48 +19,28 @@ dependencies = [
     "pytest",
     "flake8",
     "black",
-    "isort",
-]
-
-[project.optional-dependencies]
-dev = [
-    "flake8",
-    "black",
-    "isort",
-    "pytest",
-    "pytest-cov",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["code", "tests"]
-known_third_party = ["pandas", "numpy", "scipy", "matplotlib", "requests", "yaml", "statsmodels", "pytest"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*", "tests*"]
