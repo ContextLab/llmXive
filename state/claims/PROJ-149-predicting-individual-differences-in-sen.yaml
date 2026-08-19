@@ -1116,3 +1116,191 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T17:44:02Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Download PhysioNet EEG Motor Movement/Imagery data
+  claim_id: c_a1640d6e
+  context: T007 [P] Create code/01_download_data.py to fetch PhysioNet EEG Motor Movement/Imagery
+    data and verify checksums (FR-001).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_PhysioNet_EEG_Motor_Movement/Imagery_data
+  kind: entity_fact
+  raw_text: Download PhysioNet EEG Motor Movement/Imagery data and verify checksums.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T06:58:24Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Exclude participants if rejected channel ratio exceeds 0.30
+  claim_id: c_a630f1f0
+  context: '3. Exclusion Logic & Logging: Exclude participants if the ratio of rejected
+    channels exceeds 0.30 (>30%).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants if the ratio of rejected channels exceeds 0.30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T06:59:11Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Filter behavioral outliers <100ms and >2000ms before median calculation
+  claim_id: c_99c9777d
+  context: 'T013 [P] [US1] Implement behavioral parsing: MUST filter outliers (<100ms,
+    >2000ms) FROM the raw trial data BEFORE calculating the median (FR-004).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_behavioral_outliers_%3C100ms_and_%3E2000ms_before_median_
+  kind: magnitude
+  raw_text: Filter behavioral outliers less than 100ms and greater than 2000ms before
+    calculating the median.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T06:59:54Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Exclude participants if <70% trials remain after outlier exclusion
+  claim_id: c_7cd5681f
+  context: Exclude participants if <70% trials remain after outlier exclusion.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_if_%3C70%25_trials_remain_after_outlier_exc
+  kind: magnitude
+  raw_text: Exclude participants if less than 70% of trials remain after outlier exclusion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:00:53Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Validate RT range 100ms to 2000ms
+  claim_id: c_d2462681
+  context: T035a [US1] Validate schema of data/processed/features_clr.csv (no nulls,
+    correct columns, valid RT range 100ms to 2000ms as per FR-004 outlier exclusion).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_RT_range_100ms_to_2000ms
+  kind: entity_fact
+  raw_text: Validate RT range is between 100ms and 2000ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:01:39Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for 6 bands with threshold 0.0083
+  claim_id: c_14fdc54c
+  context: T021 [US2] Apply Bonferroni correction for 6 bands (0.05/6 = 0.0083) as
+    per Spec FR-006 and flag significant results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction for 6 bands using a threshold of 0.05/6 =
+    0.0083.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:02:24Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Generate null distribution with 10000 permutations
+  claim_id: c_cdc72f7b
+  context: 'Output: data/interim/permutation_null_distribution.npy (numpy array of
+    shape (10000,)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate null distribution with 10000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:03:01Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Calculate p-value with formula (count + 1) / (N + 1) where N=10000
+  claim_id: c_09b51e56
+  context: "Compare the observed R\xB2 against the null distribution from T022a to\
+    \ calculate the p-value using the formula: p = (count(null_R2 >= observed_R2)\
+    \ + 1) / (N + 1) where N=10000."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate p-value using the formula p = (count(null_R2 >= observed_R2)
+    + 1) / (N + 1) where N=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:03:52Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Sweep p-value threshold 0.01 to 0.10 with step 0.01
+  claim_id: c_bd1aa1fb
+  context: 'T028a [US3] Implement code/06_sensitivity_sweep.py: Sweep p-value threshold
+    from 0.01 to 0.10 with a step size of 0.01 and record count of significant correlations
+    at each step (FR-009).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep p-value threshold from 0.01 to 0.10 with a step size of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:04:37Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Fail build if max RAM exceeds 7 GB
+  claim_id: c_b41dcc83
+  context: IF max_ram_gb > 7 OR total_duration_sec > 21600 (6h), the task MUST exit
+    with code 1 (FAIL).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail the build if max RAM usage exceeds 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:05:17Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Fail build if total duration exceeds 21600 seconds
+  claim_id: c_529eeecc
+  context: IF max_ram_gb > 7 OR total_duration_sec > 21600 (6h), the task MUST exit
+    with code 1 (FAIL).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail the build if total duration exceeds 21600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:05:43Z'
