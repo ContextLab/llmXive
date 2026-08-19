@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "symbol": "state_dir",
+    "owner": "Config"
+  }
+]

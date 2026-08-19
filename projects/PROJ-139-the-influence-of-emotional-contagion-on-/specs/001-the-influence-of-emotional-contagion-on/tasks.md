@@ -108,7 +108,7 @@
  **Dependency**: T007a-1.
  **Logic**:
  1. **Fetch Corpus**: Download the `cardiffnlp/twitter-sentiment-2018` from HuggingFace (split: 'train').
- 2. **Verification**: Compute Cohen's Kappa between VADER scores and human annotations on the sample.
+ 2. **Verification**: Compute Cohen's Kappa between VADER scores and human annotations on the sample. [UNRESOLVED-CLAIM: c_612f7427 — status=not_enough_info]
  **Constraint**:
  1. If the external dataset is unavailable, raise a RuntimeError with a clear message.
  2. Do NOT use hardcoded sentences or synthetic annotations.
@@ -133,7 +133,7 @@
 - [X] T071 [S] [US1] **Language Detection and Filtering**.
  **Dependency**: T008.
  **Action**: Implement `code/data/sentiment.py` to integrate `langdetect` library. Process each comment in `data/raw/reddit_threads.jsonl`. Filter out comments where the detected language is not 'en'.
- **Justification**: VADER is English-only; non-English comments cannot be scored and would yield null/invalid results. Filtering is an implementation optimization authorized by Assumption 6 (CPU feasibility) and does not constitute scope reduction.
+ **Justification**: {{claim:c_3c912d3b}} (Wikidata Q37573478, https://www.wikidata.org/wiki/Q37573478) Filtering is an implementation optimization authorized by Assumption 6 (CPU feasibility) and does not constitute scope reduction. [UNRESOLVED-CLAIM: c_74e8428b — status=not_enough_info]
  **Input**: `data/raw/reddit_threads.jsonl`.
  **Output**: Write filtered data to `data/raw/reddit_threads_english.jsonl` and log excluded thread IDs to `data/processed/lang_filter.log`.
  **Constraint**: This task runs BEFORE T009 (Extraction) to ensure only English content is processed.
@@ -148,7 +148,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T010 [S] [US1] **Generate Exclusion Log**: Implement `code/data/extract.py` to identify threads with <3 top-level posts and write them to `data/processed/exclusions_seed.log`.
+- [ ] T010 [S] [US1] **Generate Exclusion Log**: Implement `code/data/extract.py` to identify threads with <3 top-level posts and write them to `data/processed/exclusions_seed.log`.
  **Dependency**: T008.
  **Input**: Read RAW data from `data/raw/reddit_threads.jsonl`.
  **Logic**: Filter threads with <3 top-level posts. Log `thread_id` and reason code `SEED_INSUFFICIENT`.
@@ -170,7 +170,7 @@
 
 - [X] T019a [S] [US1] **Depends on T009, T019, T010, T071**: Implement `code/data/validation.py` to **compute the external validation score** (accuracy of consensus vs. ground truth) for valid threads.
  **Dependency**: T009, T019, T010, T071.
- **Logic**: Calculate accuracy of consensus (majority vote) against ground truth for valid threads.
+ **Logic**: Calculate accuracy of consensus (majority vote) against ground truth for valid threads. [UNRESOLVED-CLAIM: c_79abec4a — status=not_enough_info]
  **Consensus Definition**: For Stack Exchange, consensus is the 'accepted_answer_id'. For Reddit, set `external_validation_score` to `null` and log the reason as 'No External Ground Truth'.
  **Input**: Merge data from T009 (seed posts) and T019 (ground truth classification). Iterate over ALL threads in `data/processed/all_threads_classified.csv`.
  **Output**: Append `external_validation_score` to `data/processed/valid_threads.csv` (for valid threads) and `data/processed/all_threads_classified.csv` (for all threads, setting null for 'valid_no_gt').
@@ -304,7 +304,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T031 [S] **Review Fix**: Ensure `code/data/download.py` implements a strict "fail-loud" policy for data fetching: Remove any `try/except` blocks that fall back to `generate_synthetic_*()` or mock data.
+- [ ] T031 [S] **Review Fix**: Ensure `code/data/download.py` implements a strict "fail-loud" policy for data fetching: Remove any `try/except` blocks that fall back to `generate_synthetic_*()` or mock data.
  **Logic**: If the primary Pushshift API, Reddit API, and Internet Archive/Common Crawl all fail, raise a RuntimeError with a clear message indicating the exact failure point.
 
 - [X] T032 [S] **Review Fix**: Update `code/data/metrics.py` to explicitly state the streaming/sampling rule in comments and logs: specify the exact split used, chunking strategy (if any), and the number of rows processed.
@@ -318,7 +318,7 @@
 - [X] T025 [S] **Review Fix**: Run full pipeline on up to N=500 threads and verify completion within 6 hours on CPU-only runner (SC-005).
  **Requirement**: Implement a runtime check that raises an error or flags a `status: failure` if the total runtime exceeds a predefined maximum duration threshold.
 
-- [X] T086 [S] [US3] **Add Power Analysis Documentation**: Create `docs/paper.md` section "Power Analysis" to explicitly state the sample size (N=500 threads) and acknowledge the limitation if N < 100 threads (Assumption 5). Include a calculation or reference for the statistical power of the GLMM given the sample size and expected effect sizes.
+- [X] T086 [S] [US3] **Add Power Analysis Documentation**: Create `docs/paper.md` section "Power Analysis" to explicitly state the sample size (N=500 threads) and acknowledge the limitation if N < 100 threads (Assumption 5). Include a calculation or reference for the statistical power of the GLMM given the sample size and expected effect sizes. [UNRESOLVED-CLAIM: c_f034e8b4 — status=not_enough_info]
  **Dependency**: T019a, T015b.
  **Output**: Updated `docs/paper.md`.
 

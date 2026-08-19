@@ -1,3 +1,11 @@
+T010:
+  c: false
+  h: c255f1ed2026b6271ad41e4036266b72b61cff245adcd1cf55d107b566faa311
+  r: "The provided `code/data/extract.py` is truncated and contains no logic that\
+    \ writes threads with fewer than three top\u2011level posts to `data/processed/exclusions_seed.log`.\
+    \ Moreover, the required `exclusions_seed.log` file does not exist on disk. The\
+    \ task\u2019s core requirement\u2014generating and persisting the exclusion log\u2014\
+    is therefore unmet."
 T019:
   c: false
   h: 92c06802de23737232483c0480b05438cf609539f13fb465ed5af74f95d52a7b

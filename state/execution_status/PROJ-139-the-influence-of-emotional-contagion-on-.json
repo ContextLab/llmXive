@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-139-the-influence-of-emotional-contagion-on-",
   "ok": false,
-  "reason": "2 command(s) failed: python code/data/download.py --source askScience --source fdr (rc=1); python code/analysis/run_pipeline.py (rc=1); 9 declared deliverable(s) absent: data/processed/all_threads_classified.csv; data/processed/collinearity_diagnostics.json; data/processed/external_validation_correlation.csv",
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/download.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ny fallback to synthetic/mock data. If all real sources fai\u2026\u201d; 2 command(s) failed: python code/data/download.py --source askScience --source fdr (rc=1); python code/analysis/run_pipeline.py (rc=1); 9 declared deliverable(s) absent: data/processed/all_threads_classified.csv; data/processed/collinearity_diagnostics.json; data/processed/external_validation_correlation.csv",
   "artifacts": [],
   "failures": [
-    "python code/data/download.py --source askScience --source fdr -> rc=1\n    -08-18 18:17:50,652 - INFO - Attempting Pushshift API...\n2026-08-18 18:17:50,842 - INFO - Attempt: https://api.pushshift.io/reddit/search/subreddit/fdr - Status: 404 - Success: False\n2026-08-18 18:17:50,843 - INFO - Pushshift failed. Attempting Reddit Official API...\n2026-08-18 18:17:50,843 - INFO - Attempt: Reddit API (OAuth) - Status: 0 - Success: False\n2026-08-18 18:17:50,843 - INFO - Reddit API failed. Attempting Internet Archive...\n2026-08-18 18:17:50,843 - WARNING - Internet Archive fallback is not fully implemente",
-    "python code/analysis/run_pipeline.py -> rc=1\n    ()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-139-the-influence-of-emotional-contagion-on-/code/data/extract.py\", line 275, in main\n    config = get_config()\n             ^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-139-the-influence-of-emotional-contagion-on-/code/config/settings.py\", line 164, in get_config\n    _config = load_config_from_env()\n              ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-139-the-influence-of-emotional-contagion-on-/code/config/settings.py\", li"
+    "python code/data/download.py --source askScience --source fdr -> rc=1\n    INFO:__main__:Directories ensured.\nINFO:__main__:Processing subreddit: fdr\nINFO:__main__:Attempting Pushshift API: https://api.pushshift.io/reddit/search/subreddit/fdr\nWARNING:__main__:Pushshift failed with status 404.\nWARNING:__main__:Reddit API credentials not found in config. Skipping Reddit API.\nWARNING:__main__:Internet Archive fallback is not fully implemented for Reddit data.\nERROR:__main__:CRITICAL FAILURE: Could not retrieve any data for subreddit 'fdr' from Pushshift, Reddit API, or Internet Archive. The pipeli",
+    "python code/analysis/run_pipeline.py -> rc=1\n    object has no attribute 'state_dir' ---\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-139-the-influence-of-emotional-contagion-on-/code/analysis/run_pipeline.py\", line 126, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-139-the-influence-of-emotional-contagion-on-/code/analysis/run_pipeline.py\", line 123, in main\n    run_full_pipeline(args)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-139-the-influence-of-emotional-contagion-on-/code/analysis/run_pipeline.py\""
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-18T18:18:15Z"
+  "updated_at": "2026-08-19T02:32:08Z"
 }
