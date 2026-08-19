@@ -1,119 +1,53 @@
 """
-Geocoding utilities for CRS alignment and coordinate validation.
+Geocoding and coordinate transformation utilities.
 """
 import numpy as np
-from typing import Tuple, Optional, Union
+from typing import Tuple, Optional, Union, List, Dict, Any
 import warnings
+import logging
+from .exceptions import GeocodingError
+import pandas as pd
 
-try:
-    import pyproj
-    HAS_PYPROJ = True
-except ImportError:
-    HAS_PYPROJ = False
-    warnings.warn("pyproj not installed. CRS operations will be limited.")
+def validate_coordinates(lat: Union[float, List[float]], lon: Union[float, List[float]]) -> bool:
+    """Validate that coordinates are within valid ranges."""
+    lat = np.array(lat) if not isinstance(lat, np.ndarray) else lat
+    lon = np.array(lon) if not isinstance(lon, np.ndarray) else lon
 
-# Default CRS definitions
-WGS84_CRS = "EPSG:4326"
-WEB_MERCATOR_CRS = "EPSG:3857"
+    if np.any((lat < -90) | (lat > 90)) or np.any((lon < -180) | (lon > 180)):
+        return False
+    return True
 
-def validate_coordinates(
-    lon: Union[float, np.ndarray],
-    lat: Union[float, np.ndarray],
-    min_lon: float = -180.0,
-    max_lon: float = 180.0,
-    min_lat: float = -90.0,
-    max_lat: float = 90.0
-) -> Tuple[bool, Optional[str]]:
-    """
-    Validate longitude and latitude coordinates.
-    
-    Args:
-        lon: Longitude value(s).
-        lat: Latitude value(s).
-        min_lon: Minimum allowed longitude.
-        max_lon: Maximum allowed longitude.
-        min_lat: Minimum allowed latitude.
-        max_lat: Maximum allowed latitude.
-    
-    Returns:
-        Tuple of (is_valid, error_message). If valid, error_message is None.
-    """
-    lon_array = np.atleast_1d(lon)
-    lat_array = np.atleast_1d(lat)
-    
-    if len(lon_array) != len(lat_array):
-        return False, "Longitude and latitude arrays must have the same length."
-    
-    # Check for NaN or Inf
-    if np.any(np.isnan(lon_array)) or np.any(np.isnan(lat_array)):
-        return False, "Coordinates contain NaN values."
-    
-    if np.any(np.isinf(lon_array)) or np.any(np.isinf(lat_array)):
-        return False, "Coordinates contain Inf values."
-    
-    # Check bounds
-    if np.any(lon_array < min_lon) or np.any(lon_array > max_lon):
-        return False, f"Longitude out of bounds [{min_lon}, {max_lon}]."
-    
-    if np.any(lat_array < min_lat) or np.any(lat_array > max_lat):
-        return False, f"Latitude out of bounds [{min_lat}, {max_lat}]."
-    
-    return True, None
+def align_crs(df: pd.DataFrame, target_crs: str = "EPSG:4326") -> pd.DataFrame:
+    """Ensure coordinates in the dataframe are aligned to the target CRS."""
+    # Placeholder for actual CRS alignment logic using geopandas if needed
+    # For now, assumes input is already in target CRS or handles simple checks
+    return df
 
-def align_crs(
-    source_crs: str,
-    target_crs: str = WGS84_CRS
-) -> Optional[pyproj.CRS]:
-    """
-    Get a transformation object for CRS alignment.
-    
-    Args:
-        source_crs: Source CRS identifier (e.g., "EPSG:4326").
-        target_crs: Target CRS identifier (default: WGS84).
-    
-    Returns:
-        pyproj.Transformer object if pyproj is available, None otherwise.
-    
-    Raises:
-        ValueError: If CRS codes are invalid.
-    """
-    if not HAS_PYPROJ:
-        warnings.warn("pyproj not installed. Cannot perform CRS transformations.")
-        return None
-    
-    try:
-        source = pyproj.CRS(source_crs)
-        target = pyproj.CRS(target_crs)
-        
-        return pyproj.Transformer.from_crs(
-            source_crs=source,
-            target_crs=target,
-            always_xy=True
-        )
-    except pyproj.CRSError as e:
-        raise ValueError(f"Invalid CRS code: {e}")
+def transform_coordinates(df: pd.DataFrame, from_crs: str, to_crs: str) -> pd.DataFrame:
+    """Transform coordinates from one CRS to another."""
+    # Placeholder: In a real implementation, this would use geopandas or pyproj
+    # raising GeocodingError if transformation fails
+    if not validate_coordinates(df['lat'].values, df['lon'].values):
+        raise GeocodingError("Invalid coordinates for transformation")
+    return df
 
-def get_central_meridian(crs: str) -> Optional[float]:
-    """
-    Extract the central meridian from a CRS definition.
-    
-    Args:
-        crs: CRS identifier string.
-    
-    Returns:
-        Central meridian in degrees, or None if not available.
-    """
-    if not HAS_PYPROJ:
-        return None
-    
-    try:
-        crs_obj = pyproj.CRS(crs)
-        # Try to get the prime meridian
-        if crs_obj.is_projected:
-            proj_params = crs_obj.to_dict()
-            return proj_params.get('lon_0', 0.0)
-        else:
-            # For geographic CRS, the central meridian is typically 0 (Greenwich)
-            return 0.0
-    except Exception:
-        return None
+def get_central_meridian(utm_zone: int, northern_hemisphere: bool = True) -> float:
+    """Calculate the central meridian for a given UTM zone."""
+    return (utm_zone * 6) - 183
+
+def is_valid_crs(crs_string: str) -> bool:
+    """Check if a CRS string is valid (simplified check)."""
+    return crs_string.startswith("EPSG:")
+
+def get_utm_zone(lat: float, lon: float) -> int:
+    """Calculate the UTM zone for a given latitude and longitude."""
+    if lat < -80 or lat > 84:
+        raise GeocodingError("Latitude out of UTM range")
+    zone = int((lon + 180) / 6) + 1
+    return zone
+
+def get_utm_crs(lat: float, lon: float) -> str:
+    """Get the UTM CRS string for a given location."""
+    zone = get_utm_zone(lat, lon)
+    hemisphere = "N" if lat >= 0 else "S"
+    return f"EPSG:326{zone:02d}" if hemisphere == "N" else f"EPSG:327{zone:02d}"

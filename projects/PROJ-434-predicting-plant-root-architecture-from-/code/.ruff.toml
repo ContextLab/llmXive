@@ -1,22 +1,29 @@
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501",  # line too long (black handles this)
-    "C901",  # too complex
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W"]
+ignore = []
+
+# Allow autofix for all enabled rules (if `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific files or directories
+exclude = [
+    "data/",
+    "artifacts/",
+    "figures/",
+    ".venv",
+    "__pycache__",
 ]
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]
+# Same as `--line-length`
+line-length = 88
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+known-first-party = ["ingestion", "modeling", "utils", "setup_directories"]
+force-sort-within-sections = false
+combine-as-imports = true
+split-on-trailing-comma = true

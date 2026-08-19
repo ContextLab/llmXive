@@ -20,31 +20,75 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
-.venv/
+# Virtual Environments
 venv/
 ENV/
 env/
+.venv
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+.project
+.pydevproject
+.settings/
 
-# Data and artifacts (generated)
-data/processed/*.csv
-data/raw/*.nc
-data/raw/*.zip
-figures/
-artifacts/
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Data Artifacts (large files)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/logs/*
+!data/logs/.gitkeep
+artifacts/*
+!artifacts/.gitkeep
+figures/*
+!figures/.gitkeep
+
+# Logs
 *.log
+data/logs/*.log
+!data/logs/.gitkeep
 
-# Environment
+# Environment variables
 .env
 .env.local
 .env.*.local
 
-# OS
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Model artifacts (large binary files)
+*.pkl
+*.pickle
+*.joblib
+models/
+
+# Build artifacts
+*.pyc
+*.pyo
+*.pyd
+PIP-DELETE-ON-UPGRADE.txt

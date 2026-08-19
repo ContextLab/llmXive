@@ -1,8 +1,26 @@
-[lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = ["E501"] # Line length handled by black
-target-version = "py311"
+[ruff]
+# Same target version as black (default in modern setups)
+target-version = "py310"
 
-[format]
+# Line length for black compatibility
 line-length = 88
-indent-width = 4
+
+# Exclude generated data and build artifacts
+extend-exclude = [
+    "data/",
+    "artifacts/",
+    "figures/",
+    "__pycache__",
+    "*.ipynb"
+]
+
+[ruff.lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I)
+select = ["E", "F", "I", "W", "UP", "N", "C4"]
+
+# Ignore specific rules if necessary (e.g., E501 handled by black)
+ignore = []
+
+[ruff.lint.isort]
+known-first-party = ["ingestion", "modeling", "utils"]
+force-sort-within-sections = true

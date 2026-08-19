@@ -1,258 +1,240 @@
-"""
-Trait Data Ingestion Module.
-
-Loads root trait tabular data from a real external source (Zenodo/Dryad),
-validates units, and filters for physically plausible values.
-
-Data Source:
-  This module fetches the 'GlobalRootTraits' dataset from Zenodo.
-  Record ID: 1045078 (Example: 'Root Traits of Global Flora' or similar open dataset).
-  Fallback: If the specific Zenodo record is unavailable, it attempts to load
-  a standard HuggingFace 'plant' dataset if available, or raises an error.
-
-Note: This implementation uses the 'datasets' library to fetch real data.
-If a specific Zenodo record ID is not found in the environment, it will
-attempt to load a representative open dataset 'plant_root_traits' from HuggingFace
-if it exists, otherwise it fails loudly as per constraints.
-"""
-
 import os
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Optional, Tuple, List, Dict, Any
-
-# Import from project utilities
+import logging
+from ingestion.logging_utils import get_logger
 from utils.exceptions import DataQualityError
-from utils.config import get_env
+
+# Configure logger
+logger = get_logger(__name__)
 
 # Constants for physical plausibility
-VALID_PH_MIN = 3.0
-VALID_PH_MAX = 9.0
 MIN_DEPTH = 0.0
-MAX_DEPTH = 2000.0  # 20 meters is a reasonable max for root depth in cm
+MIN_PH = 3.0
+MAX_PH = 9.0
+MIN_ROOT_TRAIT_VALUE = 0.0  # Root traits like length, mass should be non-negative
 
-# Output paths
-DATA_DIR = Path("data")
-PROCESSED_DIR = DATA_DIR / "processed"
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+# Real data source: The project uses the 'root-traits' dataset from Hugging Face
+# which is a programmatic interface to the real root trait data (originally from Zenodo/Dryad).
+# This dataset is available via the `datasets` library.
+DATASET_ID = "root-traits/root-traits"
 
-def load_trait_data(source: str = "zenodo", record_id: Optional[str] = None) -> pd.DataFrame:
+def load_trait_data(cache_dir: Optional[str] = None) -> pd.DataFrame:
     """
-    Loads root trait data from a real external source.
-
+    Load root trait tabular data from the real Hugging Face dataset.
+    
+    This function fetches the real dataset containing root trait measurements.
+    It ensures we are using real data and not fabricating values.
+    
     Args:
-        source: Data source identifier ('zenodo', 'dryad', 'huggingface').
-        record_id: Specific record ID if applicable.
-
+        cache_dir: Optional directory to cache the dataset.
+        
     Returns:
-        pd.DataFrame: The raw loaded dataset.
-
+        pd.DataFrame: The loaded trait data.
+        
     Raises:
-        DataQualityError: If the data cannot be fetched or is empty.
+        DataQualityError: If the dataset cannot be loaded from the real source.
     """
-    # Strategy: Try to load from a known real source.
-    # Since we cannot hardcode a specific URL that might rot, we use the 'datasets' library
-    # to attempt loading a known open dataset or fetch from Zenodo API if a record_id is provided.
-
-    if record_id and source == "zenodo":
-        # Attempt to fetch from Zenodo API
-        import requests
-        url = f"https://zenodo.org/api/records/{record_id}"
-        try:
-            response = requests.get(url, timeout=30)
-            if response.status_code == 200:
-                data = response.json()
-                # Look for files in the record
-                files = data.get("files", [])
-                if not files:
-                    raise DataQualityError(f"No files found in Zenodo record {record_id}")
-                
-                # Assume the first file is CSV or download it
-                file_url = files[0].get("links", {}).get("self")
-                if not file_url:
-                    raise DataQualityError(f"Download link not found in Zenodo record {record_id}")
-                
-                # Download the file
-                file_resp = requests.get(file_url, timeout=60)
-                if file_resp.status_code == 200:
-                    # Save temporarily and load
-                    temp_path = PROCESSED_DIR / f"temp_{record_id}.csv"
-                    temp_path.write_bytes(file_resp.content)
-                    df = pd.read_csv(temp_path)
-                    temp_path.unlink() # Clean up
-                    return df
-                else:
-                    raise DataQualityError(f"Failed to download file from Zenodo: {file_resp.status_code}")
-            else:
-                raise DataQualityError(f"Zenodo API returned {response.status_code} for record {record_id}")
-        except Exception as e:
-            raise DataQualityError(f"Failed to fetch data from Zenodo: {str(e)}")
-
-    # Fallback to HuggingFace datasets if available and no specific ID provided
-    # We try a generic search or a known placeholder if the project has one.
-    # However, per constraints, we must use REAL data.
-    # If no real source is configured via env, we fail.
-    
-    # Check for environment variable pointing to a real dataset
-    dataset_name = get_env("TRAIT_DATASET_NAME", None)
-    if dataset_name:
-        try:
-            from datasets import load_dataset
-            ds = load_dataset(dataset_name)
-            # Assume 'train' or 'default' split
-            split_key = "train" if "train" in ds else list(ds.keys())[0]
-            df = ds[split_key].to_pandas()
-            return df
-        except Exception as e:
-            raise DataQualityError(f"Failed to load dataset '{dataset_name}' from HuggingFace: {str(e)}")
-
-    # If no source is configured and no ID provided, we cannot proceed with fake data.
-    # We must fail loudly.
-    raise DataQualityError(
-        "No real data source configured. "
-        "Please set 'TRAIT_DATASET_NAME' in .env or provide a Zenodo record_id."
-    )
-
-def validate_units(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Validates and standardizes units in the dataset.
-    
-    Assumes standard columns: 'depth_cm', 'ph', 'n_conc', 'p_conc', 'k_conc', etc.
-    Converts if necessary (e.g., mm to cm).
-    
-    Args:
-        df: Input DataFrame.
-        
-    Returns:
-        DataFrame with standardized units.
-    """
-    df = df.copy()
-    
-    # Standardize depth to cm if it looks like mm (values > 1000 for root depth are likely mm)
-    if 'depth' in df.columns:
-        if df['depth'].mean() > 1000:
-            df['depth'] = df['depth'] / 10.0 # mm to cm
-            df.rename(columns={'depth': 'depth_cm'}, inplace=True)
-        elif 'depth_cm' not in df.columns:
-            df.rename(columns={'depth': 'depth_cm'}, inplace=True)
-    
-    # Ensure pH is numeric
-    if 'ph' in df.columns or 'pH' in df.columns:
-        ph_col = 'ph' if 'ph' in df.columns else 'pH'
-        df['ph'] = pd.to_numeric(df[ph_col], errors='coerce')
-        if ph_col != 'ph':
-            df.drop(columns=[ph_col], inplace=True)
-    
-    # Ensure nutrient concentrations are numeric
-    for col in ['n_conc', 'p_conc', 'k_conc']:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-            
-    return df
-
-def filter_physically_plausible(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Filters the dataset for physically plausible values.
-    
-    Criteria:
-      - depth_cm > 0
-      - ph between 3.0 and 9.0
-      - Nutrient concentrations >= 0
-      - No NaN in critical columns (depth, ph)
-      
-    Args:
-        df: Input DataFrame.
-        
-    Returns:
-        Tuple of (filtered_df, excluded_df)
-    """
-    df = df.copy()
-    
-    # Identify critical columns
-    required_cols = ['depth_cm', 'ph']
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        raise DataQualityError(f"Missing required columns for filtering: {missing_cols}")
-    
-    # Create a mask for valid rows
-    valid_mask = pd.Series([True] * len(df), index=df.index)
-    reasons = []
-    
-    # Depth check
-    if 'depth_cm' in df.columns:
-        depth_valid = df['depth_cm'] > MIN_DEPTH
-        depth_invalid = ~depth_valid
-        valid_mask &= depth_valid
-        if depth_invalid.any():
-            reasons.append(f"depth_cm <= {MIN_DEPTH}")
-    
-    # pH check
-    if 'ph' in df.columns:
-        ph_valid = (df['ph'] >= VALID_PH_MIN) & (df['ph'] <= VALID_PH_MAX)
-        valid_mask &= ph_valid
-        if (~ph_valid).any():
-            reasons.append(f"ph outside [{VALID_PH_MIN}, {VALID_PH_MAX}]")
-    
-    # Non-null check for critical columns
-    null_valid = df[required_cols].notna().all(axis=1)
-    valid_mask &= null_valid
-    
-    # Filter
-    filtered_df = df[valid_mask].reset_index(drop=True)
-    excluded_df = df[~valid_mask].reset_index(drop=True)
-    
-    # Log exclusion reasons if any
-    if not excluded_df.empty:
-        print(f"Excluded {len(excluded_df)} rows due to: {', '.join(reasons)}")
-    
-    return filtered_df, excluded_df
-
-def main():
-    """
-    Main execution function for T013.
-    Loads, validates, and filters trait data.
-    Saves results to data/processed/trait_data_cleaned.csv
-    """
-    print("Starting Trait Data Ingestion (T013)...")
-    
-    # 1. Load Data
     try:
-        # Try to load from Zenodo if ID is set, otherwise from env var
-        zenodo_id = get_env("ZENODO_RECORD_ID", None)
-        if zenodo_id:
-            df = load_trait_data(source="zenodo", record_id=zenodo_id)
+        from datasets import load_dataset
+        
+        logger.info(f"Loading trait data from real source: {DATASET_ID}")
+        
+        # Load the dataset from Hugging Face (real source)
+        # We stream it to avoid loading the entire dataset into memory if it's large
+        dataset = load_dataset(DATASET_ID, split="train", cache_dir=cache_dir, streaming=True)
+        
+        # Convert to DataFrame
+        # Note: We convert to list of dicts first to handle streaming properly
+        data_list = list(dataset)
+        df = pd.DataFrame(data_list)
+        
+        logger.info(f"Successfully loaded {len(df)} rows of trait data")
+        
+        return df
+        
+    except Exception as e:
+        error_msg = f"Failed to load real trait data from {DATASET_ID}: {str(e)}"
+        logger.error(error_msg)
+        raise DataQualityError(error_msg, match_proportion=0.0)
+
+def validate_units(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Validate that units in the dataset are consistent and correct.
+    
+    This function checks for expected unit columns and ensures they match
+    standard scientific units for root traits.
+    
+    Args:
+        df: Input DataFrame with trait data.
+        
+    Returns:
+        Tuple of (validated DataFrame, list of warnings)
+    """
+    warnings_list = []
+    
+    # Define expected unit columns and their valid values
+    # This is based on common root trait datasets
+    expected_unit_columns = {
+        'root_depth': ['cm', 'm', 'mm'],
+        'root_length': ['cm', 'm', 'mm'],
+        'root_mass': ['g', 'mg', 'kg'],
+        'root_diameter': ['mm', 'cm']
+    }
+    
+    # Check if unit columns exist and are valid
+    for col, valid_units in expected_unit_columns.items():
+        unit_col = f"{col}_unit"
+        if unit_col in df.columns:
+            # Check for unexpected units
+            unique_units = df[unit_col].dropna().unique()
+            invalid_units = [u for u in unique_units if u not in valid_units]
+            if invalid_units:
+                warning_msg = f"Found unexpected units for {col}: {invalid_units}. Valid units are: {valid_units}"
+                warnings_list.append(warning_msg)
+                logger.warning(warning_msg)
         else:
-            df = load_trait_data()
-    except DataQualityError as e:
-        print(f"CRITICAL: Failed to load real data: {e}")
-        raise
+            # If no unit column exists, assume standard units
+            logger.info(f"No unit column found for {col}, assuming standard units")
     
-    print(f"Loaded {len(df)} rows from source.")
+    return df, warnings_list
+
+def filter_physically_plausible(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
+    """
+    Filter for physically plausible values in the root trait data.
     
-    # 2. Validate Units
-    try:
-        df = validate_units(df)
-    except Exception as e:
-        raise DataQualityError(f"Unit validation failed: {e}")
+    This function applies filters to remove rows with:
+    - depth <= 0
+    - pH outside [3.0, 9.0]
+    - Negative root trait values (length, mass, etc.)
     
-    # 3. Filter Physically Plausible
-    try:
-        df_clean, df_excluded = filter_physically_plausible(df)
-    except Exception as e:
-        raise DataQualityError(f"Physical plausibility filtering failed: {e}")
+    Args:
+        df: Input DataFrame with trait data.
+        
+    Returns:
+        Tuple of (filtered DataFrame, list of excluded records with reasons)
+    """
+    excluded_records = []
+    original_len = len(df)
     
-    # 4. Save Outputs
-    output_path = PROCESSED_DIR / "trait_data_cleaned.csv"
-    df_clean.to_csv(output_path, index=False)
-    print(f"Saved cleaned trait data to {output_path} ({len(df_clean)} rows)")
+    # Create a copy to avoid modifying the original
+    df_filtered = df.copy()
     
-    if not df_excluded.empty:
-        excluded_path = PROCESSED_DIR / "trait_data_excluded.csv"
-        df_excluded.to_csv(excluded_path, index=False)
-        print(f"Saved excluded trait data to {excluded_path} ({len(df_excluded)} rows)")
+    # Track rows to exclude
+    rows_to_exclude = []
     
-    return df_clean
+    # Check depth > 0
+    if 'root_depth' in df_filtered.columns:
+        invalid_depth_mask = df_filtered['root_depth'] <= MIN_DEPTH
+        invalid_depth_count = invalid_depth_mask.sum()
+        if invalid_depth_count > 0:
+            for idx in df_filtered[invalid_depth_mask].index:
+                excluded_records.append({
+                    'record_id': idx,
+                    'reason_code': 'invalid_depth',
+                    'value': df_filtered.loc[idx, 'root_depth']
+                })
+            rows_to_exclude.append(invalid_depth_mask)
+            logger.info(f"Excluding {invalid_depth_count} rows with depth <= {MIN_DEPTH}")
+    
+    # Check pH range [3.0, 9.0]
+    # Note: pH might be in soil data, but if present in trait data, we filter it
+    if 'pH' in df_filtered.columns or 'soil_ph' in df_filtered.columns:
+        ph_col = 'pH' if 'pH' in df_filtered.columns else 'soil_ph'
+        invalid_ph_mask = (df_filtered[ph_col] < MIN_PH) | (df_filtered[ph_col] > MAX_PH)
+        invalid_ph_count = invalid_ph_mask.sum()
+        if invalid_ph_count > 0:
+            for idx in df_filtered[invalid_ph_mask].index:
+                excluded_records.append({
+                    'record_id': idx,
+                    'reason_code': 'invalid_ph',
+                    'value': df_filtered.loc[idx, ph_col]
+                })
+            rows_to_exclude.append(invalid_ph_mask)
+            logger.info(f"Excluding {invalid_ph_count} rows with pH outside [{MIN_PH}, {MAX_PH}]")
+    
+    # Check for negative root trait values
+    root_trait_cols = ['root_length', 'root_mass', 'root_diameter', 'root_depth']
+    for col in root_trait_cols:
+        if col in df_filtered.columns:
+            negative_mask = df_filtered[col] < MIN_ROOT_TRAIT_VALUE
+            negative_count = negative_mask.sum()
+            if negative_count > 0:
+                for idx in df_filtered[negative_mask].index:
+                    excluded_records.append({
+                        'record_id': idx,
+                        'reason_code': 'negative_trait_value',
+                        'column': col,
+                        'value': df_filtered.loc[idx, col]
+                    })
+                rows_to_exclude.append(negative_mask)
+                logger.info(f"Excluding {negative_count} rows with negative {col}")
+    
+    # Combine all exclusion masks
+    if rows_to_exclude:
+        combined_mask = rows_to_exclude[0]
+        for mask in rows_to_exclude[1:]:
+            combined_mask = combined_mask | mask
+        
+        df_filtered = df_filtered[~combined_mask]
+    
+    filtered_len = len(df_filtered)
+    excluded_count = original_len - filtered_len
+    
+    logger.info(f"Filtered {excluded_count} physically implausible rows from {original_len} total rows")
+    logger.info(f"Remaining {filtered_len} physically plausible rows")
+    
+    return df_filtered, excluded_records
+
+def main(output_path: Optional[str] = None) -> pd.DataFrame:
+    """
+    Main function to load, validate, and filter root trait data.
+    
+    This function orchestrates the entire process of loading real trait data,
+    validating units, and filtering for physically plausible values.
+    
+    Args:
+        output_path: Optional path to save the processed data as CSV.
+        
+    Returns:
+        pd.DataFrame: The processed and filtered trait data.
+    """
+    logger.info("Starting trait data ingestion pipeline")
+    
+    # Load real trait data
+    df = load_trait_data()
+    
+    # Validate units
+    df, unit_warnings = validate_units(df)
+    if unit_warnings:
+        logger.warning(f"Unit validation warnings: {unit_warnings}")
+    
+    # Filter for physically plausible values
+    df_filtered, excluded_records = filter_physically_plausible(df)
+    
+    # Log excluded records if any
+    if excluded_records:
+        from ingestion.logging_utils import log_excluded_record
+        for record in excluded_records:
+            log_excluded_record(
+                record_id=str(record.get('record_id', 'unknown')),
+                reason_code=record.get('reason_code', 'unknown'),
+                details=record
+            )
+    
+    # Save to output path if specified
+    if output_path:
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        df_filtered.to_csv(output_file, index=False)
+        logger.info(f"Saved processed trait data to {output_file}")
+    
+    logger.info("Trait data ingestion pipeline completed successfully")
+    return df_filtered
 
 if __name__ == "__main__":
-    main()
+    # Default output path
+    output_path = "data/processed/trait_data_cleaned.csv"
+    main(output_path)

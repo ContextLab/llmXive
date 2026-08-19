@@ -23,49 +23,14 @@ if str(code_root) not in sys.path:
     sys.path.insert(0, str(code_root))
 
 from utils.exceptions import DataQualityError
-
-# Stub implementation to test the loop logic without full training pipeline
-def run_loso_cv_stub(df: pd.DataFrame, species_col: str = "species_name") -> list:
-    """
-    Simulates the LOSO loop logic to be implemented in modeling.train.
-    """
-    unique_species = df[species_col].unique()
-    results = []
-
-    if len(unique_species) < 2:
-        # Edge case: cannot perform LOSO with < 2 species
-        # In a real scenario, this might raise DataQualityError
-        return []
-
-    for hold_out in unique_species:
-        train_mask = df[species_col] != hold_out
-        test_mask = df[species_col] == hold_out
-
-        train_df = df[train_mask]
-        test_df = df[test_mask]
-
-        # Verify no leakage
-        assert hold_out not in train_df[species_col].values, \
-            f"Leakage detected: {hold_out} found in training set"
-        assert hold_out in test_df[species_col].values, \
-            f"Test set for {hold_out} is empty"
-
-        # Simulate metric
-        metric = {
-            "held_out_species": hold_out,
-            "train_size": len(train_df),
-            "test_size": len(test_df),
-            "r2_score": 0.0
-        }
-        results.append(metric)
-
-    return results
-
+from modeling.train import run_loso_cv
 
 class TestLOSOIntegration:
     @pytest.fixture
     def sample_dataset(self):
         """Create a small synthetic dataset for testing the LOSO loop logic."""
+        # Using a fixed seed for reproducibility in tests
+        np.random.seed(42)
         data = {
             "species_name": ["Species_A"] * 20 + ["Species_B"] * 20 + ["Species_C"] * 20,
             "soil_n": np.random.rand(60),
@@ -79,7 +44,17 @@ class TestLOSOIntegration:
 
     def test_loso_loop_structure(self, sample_dataset):
         """Test that the LOSO loop iterates correctly over all species."""
-        results = run_loso_cv_stub(sample_dataset, species_col="species_name")
+        # Define feature and target columns matching expected train.py interface
+        feature_cols = ["soil_n", "soil_p", "soil_k", "soil_ph"]
+        target_col = "root_depth"
+        species_col = "species_name"
+
+        results = run_loso_cv(
+            sample_dataset,
+            feature_cols=feature_cols,
+            target_col=target_col,
+            species_col=species_col
+        )
 
         assert len(results) == 3, "LOSO should produce 3 folds for 3 species"
 
@@ -89,7 +64,16 @@ class TestLOSOIntegration:
 
     def test_no_data_leakage(self, sample_dataset):
         """Test that the held-out species does not appear in the training set."""
-        results = run_loso_cv_stub(sample_dataset, species_col="species_name")
+        feature_cols = ["soil_n", "soil_p", "soil_k", "soil_ph"]
+        target_col = "root_depth"
+        species_col = "species_name"
+
+        results = run_loso_cv(
+            sample_dataset,
+            feature_cols=feature_cols,
+            target_col=target_col,
+            species_col=species_col
+        )
 
         for r in results:
             expected_train_size = 60 - r["test_size"]
@@ -98,6 +82,7 @@ class TestLOSOIntegration:
 
     def test_single_species_dataset_fails_gracefully(self):
         """Test behavior when dataset has only one species."""
+        np.random.seed(42)
         data = {
             "species_name": ["Species_A"] * 20,
             "soil_n": np.random.rand(20),
@@ -105,16 +90,24 @@ class TestLOSOIntegration:
         }
         df = pd.DataFrame(data)
 
-        results = run_loso_cv_stub(df, species_col="species_name")
-        assert len(results) == 0, "LOSO should return empty list for single species"
+        feature_cols = ["soil_n"]
+        target_col = "root_depth"
+        species_col = "species_name"
+
+        # Should raise DataQualityError for insufficient species
+        with pytest.raises(DataQualityError):
+            run_loso_cv(
+                df,
+                feature_cols=feature_cols,
+                target_col=target_col,
+                species_col=species_col
+            )
 
     def test_integration_with_real_import_path(self):
         """
         Verify that the test can import the actual modeling.train module
-        once it is implemented.
+        and that the function signature matches expectations.
         """
-        try:
-            from modeling.train import run_loso_cross_validation
-            assert callable(run_loso_cross_validation)
-        except ImportError:
-            pytest.skip("modeling.train module not yet implemented (T020-T023 pending)")
+        # This test passes if the import works and the function is callable
+        # The previous stub check is removed as we now import the real function
+        assert callable(run_loso_cv)

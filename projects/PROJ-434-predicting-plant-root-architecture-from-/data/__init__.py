@@ -1,1 +1,1 @@
-# Data directory for raw, processed, and intermediate artifacts.
+# Data package (holds processed data, not raw large files)
