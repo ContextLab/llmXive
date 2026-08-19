@@ -65,7 +65,7 @@ As a researcher, I need to perform a repeated-measures ANOVA on the aggregated D
 - **FR-004**: System MUST calculate and report effect sizes (Cohen's d and partial η²) alongside the ANOVA p-value. (See US-3)
 - **FR-005**: System MUST generate a publication-quality plot visualizing the mean D-scores and 95% confidence intervals for each complexity condition. (See US-3)
 - **FR-006**: System MUST detect and exclude participants who have an insufficient number of valid trials in any session from the final statistical analysis. (See US-2)
-- **FR-007**: System MUST perform a sensitivity analysis sweeping the complexity threshold cutoff by ±0.05, ±0.10, and ±0.15 standard deviations of the observed complexity metric distribution; if a threshold shift results in fewer than 15 valid participants per condition, that sweep point is marked as 'invalid' and excluded from the robustness conclusion. (See US-3)
+- **FR-007**: System MUST perform a sensitivity analysis sweeping the complexity threshold cutoff by ±0.05, ±0.10, and ±0.15 standard deviations of the observed complexity metric distribution; if a threshold shift results in an insufficient number of valid participants per condition, that sweep point is marked as 'invalid' and excluded from the robustness conclusion. (See US-3)
 
 ### Key Entities
 

@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-026-the-influence-of-visual-complexity-on-im",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory tree or file listing was provided to confirm that the required folders (`code/data`, `code/stimuli`, `code/analysis`, `code/viz`, `code/tests`, `data/raw/stimuli`, `data/raw/responses`, `data/processed`, `data/results`) actually exist. The implementer must supply evidence (e.g., `tree` output or a screenshot) showing the exact structure.",
+      "first_seen": "2026-08-19T23:18:20.552915+00:00",
+      "last_seen": "2026-08-19T23:18:20.552915+00:00"
+    }
+  ],
+  "updated_at": "2026-08-19T23:18:20.552915+00:00"
+}

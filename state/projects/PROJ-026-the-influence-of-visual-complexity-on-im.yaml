@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T08:56:45.172352Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-026-the-influence-of-visual-complexity-on-im
-last_run_id: fbb3cfbe-7064-480b-9bf2-213408919c7e
+last_run_id: b4583b1d-c2f9-4182-a514-9a68228ad36d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-026-the-influence-of-visual-complexity-on-im/specs/001-the-influence-of-visual-complexity-on-im
 title: The Influence of Visual Complexity on Implicit Bias
-updated_at: '2026-08-17T14:06:10.091426Z'
+updated_at: '2026-08-19T23:18:26.645806Z'

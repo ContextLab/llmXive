@@ -1,79 +1,73 @@
 """
-Module to set up the project directory structure.
-Creates required folders for stimuli, responses, processed data, and results.
+Script to create the project directory structure as defined in the implementation plan.
 """
 import os
 from pathlib import Path
 import logging
 from config import get_project_root
 
-# Configure logger
-logger = logging.getLogger(__name__)
+# Configure logging for this script
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger("setup_directories")
 
 def setup_directories():
     """
-    Creates the required directory structure for the project.
-    Specifically creates:
-    - data/raw/stimuli
-    - data/raw/responses
-    - data/processed
-    - data/results
-    
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    Creates the required directory tree for the project.
+    Structure:
+    code/
+      data/
+      stimuli/
+      analysis/
+      viz/
+      tests/
+    data/
+      raw/stimuli/
+      raw/responses/
+      processed/
+      results/
+    docs/
     """
     project_root = get_project_root()
-    data_root = project_root / "data"
-    
-    # Define the required directories relative to the project root
-    required_dirs = [
+    logger.info(f"Project root identified at: {project_root}")
+
+    # Define relative paths to create
+    directories = [
+        "code/data",
+        "code/stimuli",
+        "code/analysis",
+        "code/viz",
+        "code/tests",
         "data/raw/stimuli",
         "data/raw/responses",
         "data/processed",
-        "data/results"
+        "data/results",
+        "docs"
     ]
-    
+
     created_count = 0
-    existing_count = 0
-    
-    for dir_path in required_dirs:
-        full_path = project_root / dir_path
-        try:
-            if not full_path.exists():
-                full_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {full_path}")
-                created_count += 1
-            else:
-                logger.debug(f"Directory already exists: {full_path}")
-                existing_count += 1
-        except OSError as e:
-            logger.error(f"Failed to create directory {full_path}: {e}")
-            return False
-    
-    logger.info(f"Directory setup complete. Created: {created_count}, Existing: {existing_count}")
+    for rel_dir in directories:
+        full_path = project_root / rel_dir
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            logger.debug(f"Directory already exists: {full_path}")
+
+    logger.info(f"Setup complete. Created {created_count} new directories.")
     return True
 
 def main():
-    """
-    Entry point for the setup_directories script.
-    """
-    # Set up basic logging if not already configured
-    if not logging.getLogger().handlers:
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-    
-    logger.info("Starting directory setup...")
-    success = setup_directories()
-    
-    if success:
-        logger.info("Directory setup completed successfully.")
-        return 0
-    else:
-        logger.error("Directory setup failed.")
-        return 1
+    """Entry point for the script."""
+    try:
+        setup_directories()
+        print("Directory structure created successfully.")
+    except Exception as e:
+        logger.error(f"Failed to create directories: {e}")
+        raise
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

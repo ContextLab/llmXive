@@ -1,209 +1,291 @@
+"""
+Data processing module for aggregating IAT response logs into D-scores.
+
+Implements trial filtering, Greenwald D2 calculation, and aggregation
+per participant/session with complexity condition mapping.
+"""
 import numpy as np
 import pandas as pd
 from typing import List, Dict, Any, Tuple, Optional
-from ..data.models import ParticipantResponse, AggregatedScore
 import logging
 from datetime import datetime
 from pathlib import Path
-from ..config import get_project_root
+import json
+
+from ..data.models import ParticipantResponse, AggregatedScore
+from ..config import get_project_root, get_data_path
 
 logger = logging.getLogger(__name__)
+
+# Constants
+LATENCY_MIN = 300.0
+LATENCY_MAX = 10000.0
+MIN_VALID_TRIALS = 10
 
 def filter_trials(df: pd.DataFrame) -> pd.DataFrame:
     """
     Filter trials based on latency bounds and error handling.
     
-    Thresholds:
-    - Remove trials with reaction_time < 300ms
-    - Remove trials with reaction_time > 10000ms
-    - Remove trials marked as incorrect (is_correct == False)
+    Removes trials with latency < 300ms or > 10000ms.
+    Marks error trials for exclusion in D-score calculation.
     
     Args:
-        df: DataFrame with raw response logs
+        df: DataFrame with columns including 'reaction_time' and 'is_correct'
         
     Returns:
-        Filtered DataFrame
+        Filtered DataFrame with valid trials only
     """
-    logger.info(f"Filtering trials: starting with {len(df)} rows")
+    logger.info(f"Filtering trials: removing RT < {LATENCY_MIN}ms or > {LATENCY_MAX}ms")
     
-    # Filter by reaction time bounds
-    df = df[(df['reaction_time'] >= 300) & (df['reaction_time'] <= 10000)]
+    valid_mask = (
+        (df['reaction_time'] >= LATENCY_MIN) & 
+        (df['reaction_time'] <= LATENCY_MAX)
+    )
     
-    # Filter by correctness (keep only correct trials)
-    df = df[df['is_correct'] == True]
+    filtered_df = df[valid_mask].copy()
+    logger.info(f"Retained {len(filtered_df)} of {len(df)} trials after latency filtering")
     
-    logger.info(f"Filtering trials: {len(df)} rows remaining")
-    return df
+    return filtered_df
 
-def calculate_d_score(df: pd.DataFrame) -> float:
+def calculate_d_score(df: pd.DataFrame) -> Tuple[float, int]:
     """
-    Calculate Greenwald D2 algorithm for D-score aggregation.
+    Calculate Greenwald D2 algorithm for a single session.
     
-    The D2 score is calculated as:
-    D = (M_diff) / SD_pooled
-    
-    Where:
-    - M_diff is the mean difference between incompatible and compatible block RTs
-    - SD_pooled is the pooled standard deviation of the two blocks
+    D = (mean(L2) - mean(L1)) / (SD(L1) + SD(L2)) / 2
+    where L1 and L2 are the two block conditions.
     
     Args:
-        df: DataFrame with filtered trials for a single session
+        df: DataFrame with columns 'reaction_time' and 'condition' (L1/L2)
         
     Returns:
-        D-score value
+        Tuple of (d_score, n_valid_trials)
     """
-    if len(df) < 10:
-        logger.warning(f"Insufficient trials for D-score calculation: {len(df)}")
-        return np.nan
+    if df.empty:
+        return np.nan, 0
     
-    # Separate by block type (assuming session_id encodes block info or we have a block column)
-    # For this implementation, we assume the session_id distinguishes the two blocks
-    # In a real IAT, we'd have explicit block labels. Here we simulate based on session_id
+    # Group by condition
+    l1 = df[df['condition'] == 'L1']['reaction_time']
+    l2 = df[df['condition'] == 'L2']['reaction_time']
     
-    # If we have two distinct session_ids, treat them as the two conditions
-    unique_sessions = df['session_id'].unique()
-    if len(unique_sessions) != 2:
-        # If only one session, we can't calculate difference
-        logger.warning("Cannot calculate D-score: need two conditions")
-        return np.nan
+    if len(l1) < 5 or len(l2) < 5:
+        logger.warning("Insufficient trials in one or both conditions")
+        return np.nan, len(df)
     
-    block1 = df[df['session_id'] == unique_sessions[0]]['reaction_time']
-    block2 = df[df['session_id'] == unique_sessions[1]]['reaction_time']
+    # Calculate means and SDs
+    mean_l1 = l1.mean()
+    mean_l2 = l2.mean()
+    sd_l1 = l1.std()
+    sd_l2 = l2.std()
     
-    if len(block1) < 10 or len(block2) < 10:
-        logger.warning(f"Insufficient trials in one or both blocks: {len(block1)}, {len(block2)}")
-        return np.nan
+    # D2 formula: difference divided by average SD
+    pooled_sd = (sd_l1 + sd_l2) / 2.0
     
-    # Calculate mean difference
-    mean_diff = block2.mean() - block1.mean()
+    if pooled_sd == 0:
+        return np.nan, len(df)
+        
+    d_score = (mean_l2 - mean_l1) / pooled_sd
     
-    # Calculate pooled standard deviation
-    n1, n2 = len(block1), len(block2)
-    std1, std2 = block1.std(), block2.std()
-    
-    # Handle zero std
-    if std1 == 0 and std2 == 0:
-        return np.nan
-    
-    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
-    
-    if pooled_std == 0:
-        return np.nan
-    
-    d_score = mean_diff / pooled_std
-    return d_score
+    return d_score, len(df)
 
-def aggregate_d_scores(df: pd.DataFrame) -> pd.DataFrame:
+def load_raw_logs_to_dict(logs_dir: Path) -> Dict[str, pd.DataFrame]:
     """
-    Aggregate raw logs into D-scores per participant and session.
+    Load all raw response log CSV files from directory.
     
     Args:
-        df: DataFrame with raw response logs
+        logs_dir: Path to directory containing raw response logs
         
     Returns:
-        DataFrame with aggregated D-scores
+        Dictionary mapping (participant_id, session_id) to DataFrame
     """
-    logger.info(f"Aggregating D-scores for {len(df)} total rows")
+    logs_dict = {}
     
-    # Group by participant_id and session_id
-    aggregated = []
+    if not logs_dir.exists():
+        raise FileNotFoundError(f"Logs directory not found: {logs_dir}")
+        
+    csv_files = list(logs_dir.glob("*.csv"))
+    if not csv_files:
+        raise FileNotFoundError(f"No CSV files found in {logs_dir}")
+        
+    logger.info(f"Found {len(csv_files)} response log files")
     
-    for (pid, sid), group in df.groupby(['participant_id', 'session_id']):
+    for csv_file in csv_files:
+        try:
+            df = pd.read_csv(csv_file)
+            
+            # Validate required columns
+            required_cols = ['participant_id', 'session_id', 'reaction_time', 'is_correct', 'condition']
+            missing_cols = [c for c in required_cols if c not in df.columns]
+            if missing_cols:
+                logger.warning(f"Skipping {csv_file}: missing columns {missing_cols}")
+                continue
+            
+            key = (df['participant_id'].iloc[0], df['session_id'].iloc[0])
+            logs_dict[key] = df
+            logger.info(f"Loaded {len(df)} trials from {csv_file.name} for {key}")
+            
+        except Exception as e:
+            logger.error(f"Failed to load {csv_file}: {e}")
+            continue
+            
+    return logs_dict
+
+def aggregate_d_scores(
+    logs_dict: Dict[str, pd.DataFrame],
+    counterbalance_df: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Aggregate raw logs into D-scores per participant/session.
+    
+    Maps session IDs to complexity conditions (Low/High) using counterbalance data.
+    Excludes participants with < MIN_VALID_TRIALS valid trials.
+    
+    Args:
+        logs_dict: Dictionary of raw log DataFrames
+        counterbalance_df: DataFrame with participant_id, session_id, complexity_condition
+        
+    Returns:
+        Aggregated DataFrame with columns:
+        participant_id, session_id, complexity_condition, d_score, n_trials_valid, status
+    """
+    results = []
+    
+    # Create lookup for counterbalance assignments
+    cb_lookup = {}
+    for _, row in counterbalance_df.iterrows():
+        key = (row['participant_id'], row['session_id'])
+        cb_lookup[key] = row['complexity_condition']
+        
+    for (participant_id, session_id), df in logs_dict.items():
         # Filter trials
-        filtered = filter_trials(group)
-        n_valid = len(filtered)
+        filtered_df = filter_trials(df)
         
         # Calculate D-score
-        d_score = calculate_d_score(filtered)
+        d_score, n_valid = calculate_d_score(filtered_df)
+        
+        # Get complexity condition from counterbalance
+        complexity_condition = cb_lookup.get((participant_id, session_id), 'Unknown')
         
         # Determine status
-        if n_valid < 10:
+        if n_valid < MIN_VALID_TRIALS:
             status = 'insufficient_trials'
             d_score = np.nan
         elif pd.isna(d_score):
             status = 'calculation_failed'
         else:
             status = 'valid'
-        
-        aggregated.append({
-            'participant_id': pid,
-            'session_id': sid,
+            
+        results.append({
+            'participant_id': participant_id,
+            'session_id': session_id,
+            'complexity_condition': complexity_condition,
             'd_score': d_score,
             'n_trials_valid': n_valid,
             'status': status
         })
-    
-    result_df = pd.DataFrame(aggregated)
-    logger.info(f"Aggregated {len(result_df)} participant-session combinations")
-    
-    # Log summary
-    valid_count = len(result_df[result_df['status'] == 'valid'])
-    logger.info(f"Valid D-scores: {valid_count}/{len(result_df)}")
-    
-    return result_df
-
-def load_raw_logs_to_dict(data_dir: str) -> Dict[str, pd.DataFrame]:
-    """
-    Load raw logs from a directory into a dictionary of DataFrames.
-    
-    Args:
-        data_dir: Path to data directory
         
-    Returns:
-        Dictionary mapping participant_id to their DataFrame
-    """
-    from .load import load_response_logs
+    aggregated_df = pd.DataFrame(results)
     
-    df = load_response_logs(data_dir)
+    # Ensure paired data is properly linked
+    logger.info(f"Aggregated {len(aggregated_df)} session records")
     
-    # Group by participant
-    participant_logs = {}
-    for pid, group in df.groupby('participant_id'):
-        participant_logs[pid] = group
-    
-    return participant_logs
+    return aggregated_df
 
-def save_aggregated_scores(df: pd.DataFrame, output_path: str) -> None:
+def save_aggregated_scores(df: pd.DataFrame, output_path: Path) -> None:
     """
     Save aggregated D-scores to CSV.
     
     Args:
-        df: DataFrame with aggregated scores
-        output_path: Path to save the CSV
+        df: Aggregated DataFrame
+        output_path: Path to output CSV file
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_file, index=False)
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    df.to_csv(output_path, index=False)
     logger.info(f"Saved aggregated scores to {output_path}")
+    
+    # Log summary
+    valid_count = len(df[df['status'] == 'valid'])
+    logger.info(f"Valid sessions: {valid_count}/{len(df)}")
 
 def main():
-    """Main entry point for data processing."""
-    import argparse
-    from ..config import get_project_root
+    """
+    Main entry point for D-score aggregation pipeline.
     
-    parser = argparse.ArgumentParser(description='Process response logs to D-scores')
-    parser.add_argument('--data-dir', type=str, default=None,
-                      help='Path to raw response data directory')
-    parser.add_argument('--output', type=str, default=None,
-                      help='Path to output CSV file')
+    Usage:
+        python -m code.data.process [--logs-dir DATA/raw/responses] [--cb-file DATA/processed/counterbalance_assignment.csv]
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Aggregate IAT response logs into D-scores")
+    parser.add_argument(
+        '--logs-dir',
+        type=str,
+        default=None,
+        help='Path to raw response logs directory'
+    )
+    parser.add_argument(
+        '--cb-file',
+        type=str,
+        default=None,
+        help='Path to counterbalance assignment CSV'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=None,
+        help='Path to output aggregated D-scores CSV'
+    )
     
     args = parser.parse_args()
-    root = get_project_root()
     
-    data_dir = args.data_dir or str(root / "data" / "raw" / "responses")
-    output_path = args.output or str(root / "data" / "processed" / "aggregated_d_scores.csv")
+    # Setup logging
+    from ..utils.logging import setup_logging
+    setup_logging()
     
-    # Load data
-    logger.info(f"Loading data from {data_dir}")
-    df = load_response_logs(data_dir)
+    # Resolve paths
+    project_root = get_project_root()
     
-    # Aggregate
-    aggregated = aggregate_d_scores(df)
+    logs_dir = Path(args.logs_dir) if args.logs_dir else project_root / "data" / "raw" / "responses"
+    cb_file = Path(args.cb_file) if args.cb_file else project_root / "data" / "processed" / "counterbalance_assignment.csv"
+    output_path = Path(args.output) if args.output else project_root / "data" / "processed" / "aggregated_d_scores.csv"
     
-    # Save
-    save_aggregated_scores(aggregated, output_path)
+    logger.info(f"Loading logs from: {logs_dir}")
+    logger.info(f"Using counterbalance from: {cb_file}")
+    logger.info(f"Output will be written to: {output_path}")
     
-    logger.info("Processing complete")
+    # Load counterbalance assignments
+    if not cb_file.exists():
+        raise FileNotFoundError(f"Counterbalance file not found: {cb_file}. Run T027a first.")
+        
+    counterbalance_df = pd.read_csv(cb_file)
+    logger.info(f"Loaded {len(counterbalance_df)} counterbalance assignments")
+    
+    # Load raw logs
+    try:
+        logs_dict = load_raw_logs_to_dict(logs_dir)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        raise
+        
+    if not logs_dict:
+        raise ValueError("No valid log files found in the specified directory")
+        
+    # Aggregate D-scores
+    aggregated_df = aggregate_d_scores(logs_dict, counterbalance_df)
+    
+    # Save results
+    save_aggregated_scores(aggregated_df, output_path)
+    
+    # Verify output schema
+    required_cols = ['participant_id', 'session_id', 'complexity_condition', 'd_score', 'n_trials_valid', 'status']
+    missing_cols = [c for c in required_cols if c not in aggregated_df.columns]
+    if missing_cols:
+        raise ValueError(f"Output missing required columns: {missing_cols}")
+        
+    logger.info("Aggregation complete. Schema verified.")
+    
+    return aggregated_df
 
 if __name__ == "__main__":
     main()

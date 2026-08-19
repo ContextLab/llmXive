@@ -1,17 +1,19 @@
-T001:
+T017a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listing was provided to confirm that the required folders
-    (`code/data`, `code/stimuli`, `code/analysis`, `code/viz`, `code/tests`, `data/raw/stimuli`,
-    `data/raw/responses`, `data/processed`, `data/results`) actually exist. The implementer
-    must supply evidence (e.g., `tree` output or a screenshot) showing the exact structure.
-T006:
+  h: 27ef0253e41ff38b80c44e3d634de3f971aae3e201be4e95348015c25f1eb57c
+  r: "The provided `process.py` is truncated and does not contain a complete implementation\
+    \ of the batch processing logic (e.g., it never creates a `status` column, nor\
+    \ does it write the required CSV). Moreover, the expected output file `data/processed/complexity_scores_raw.csv`\
+    \ is missing. The task\u2019s schema and status requirements are therefore not\
+    \ satisfied."
+T026b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission contains only the task description and feature specifications;
-    no filesystem evidence (e.g., a listing, screenshots, or code creating `data/raw/stimuli`,
-    `data/raw/responses`, `data/processed`, `data/results`) is provided. Consequently,
-    the required directory structure has not been demonstrated as existing.
+  h: d0dd91bb76fb34771e1f88ca519688aeaf64c3f6df9f5b81ee3a3cc436d8d6d3
+  r: "The required output file `data/processed/aggregated_d_scores.csv` does not exist,\
+    \ so the aggregation step is not completed. Additionally, the provided `code/data/process.py`\
+    \ is truncated and does not show any code that writes the CSV with the required\
+    \ columns or handles paired low/high sessions. The missing CSV and incomplete\
+    \ script mean the task\u2019s core requirement is unmet."
 T027b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
