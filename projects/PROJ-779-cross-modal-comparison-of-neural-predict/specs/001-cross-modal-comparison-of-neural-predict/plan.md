@@ -81,7 +81,7 @@ code/
 - **Data Source**: `mne.datasets` fetches ds000246 and ds000117. If fetch fails, pipeline halts with "Dataset Not Found" error.
 
 ### Phase 1: Preprocessing (FR-002, FR-010)
-- **Action**: Apply bandpass (0.5–40 Hz), ICA, re-referencing.
+- **Action**: Apply bandpass (low-frequency cutoff to 40 Hz), ICA, re-referencing.
 - **Validation**: Log artifact rejection rates; halt if SNR too low for MNE.
 - **FR Mapping**: FR-002 (Preprocessing), FR-010 (MNE failure handling).
 - **SC Mapping**: SC-004 (Runtime constraint).

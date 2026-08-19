@@ -45,7 +45,7 @@
 
 - [X] T001a [P] Create `code/` directory and `code/__init__.py`
 - [X] T001b [P] Create `code/data/` directory and `code/data/__init__.py`
-- [ ] T001c [P] Create `code/analysis/` and `code/validation/` directories with `__init__.py` files
+- [X] T001c [P] Create `code/analysis/` and `code/validation/` directories with `__init__.py` files. **Verification**: Run `test -d code/analysis && test -d code/validation && test -f code/analysis/__init__.py && test -f code/validation/__init__.py` and verify exit code 0.
 - [X] T002 [P] Create `requirements.txt` with pinned versions (mne, numpy, scipy, scikit-learn, pandas, statsmodels, hpy, requests, pytest, huggingface_hub)
 - [X] T003 [P] **Setup Virtualenv**: Create `.venv` directory and install dependencies from `requirements.txt`. **Verification**: Run `pip list` and confirm all packages from `requirements.txt` are installed with correct versions.
 - [X] T004 [P] **Configure Linting/Formatting**: Create `.ruff.toml` and `pyproject.toml` with `[tool.black]` and `[tool.ruff]` configuration sections. **Verification**: Run `ruff check code/` and `black --check code/` to ensure successful execution without errors.
@@ -61,12 +61,12 @@
 
 - [X] T005 Create `code/config.py` defining paths, random seeds, sampling rate threshold (≥500 Hz), trial thresholds (≥100 oddball, ≥300 standard), and time windows
 - [X] T006 [P] Implement `code/__init__.py` and module initialization
-- [X] T007 [P] Setup `code/data/__init__.py` and base logging infrastructure
+- [ ] T007 [P] Setup `code/data/__init__.py` and base logging infrastructure
 - [X] T008 Create base `code/data/data_loader.py` skeleton for dataset validation logic
 - [X] T009 Configure error handling and logging infrastructure in `code/utils/logger.py`
-- [X] T011 [P] **Setup**: Document "Real Data" assumption in `docs/README.md` and `code/config.py`, explicitly stating that all data must originate from OpenNeuro datasets and that no synthetic data generation is permitted.
+- [ ] T011 [P] **Setup**: Document "Real Data" assumption in `docs/README.md` and `code/config.py`, explicitly stating that all data must originate from OpenNeuro datasets and that no synthetic data generation is permitted.
 - [X] T055a [P] **Draft Constitution Amendment**: Create `docs/constitution-amendment-vii.md` explicitly documenting the substitution of behavioral measures with split-half reliability for passive oddball paradigms (as authorized by Plan 'Constitution Check' section), and propose text amendment. **Format**: Markdown document with clear justification, reference to Plan 'Constitution Check', and proposed text amendment. **Verification**: Document created and reviewed.
-- [X] T055b [P] **Propose Amendment**: Open a Pull Request containing `docs/constitution-amendment-vii.md` for governance review. **Status**: ACTIVE (Proceed with Compliance Warning if ratification pending). **Instruction**: If the PR is not yet merged/ratified, downstream tasks MUST proceed but include a "Compliance Warning" in their output logs and final reports, explicitly citing the unratified status of T055b. **Verification**: PR created and linked. **Note**: Do not block execution on ratification; document the warning instead.
+- [ ] T055b [P] **Propose Amendment**: Open a Pull Request containing `docs/constitution-amendment-vii.md` for governance review. **Status**: ACTIVE (Wait for ratification). **Instruction**: If the PR is not yet merged/ratified, the pipeline MUST HALT and report a Constitution Violation. **Verification**: PR created and linked. **Note**: Execution is blocked on ratification. **Logic**: Implement a check in `code/main.py` or `code/config.py` to verify the existence of an `amendment_ratified` flag in `state/projects/...yaml`. If the flag is missing, raise `ConstitutionViolationError`. **Note**: This task is marked complete upon PR creation and the implementation of the detection logic.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel (dependent on data availability)
 
@@ -74,7 +74,7 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download OpenNeuro datasets (ds, ds000117), validate trial counts and sampling rates, and apply standardized preprocessing (filtering, ICA, re-referencing).
+**Goal**: Download OpenNeuro datasets, validate trial counts and sampling rates, and apply standardized preprocessing (filtering, ICA, re-referencing).
 
 **Independent Test**: Run `code/data/download_auditory.py` and `code/data/download_visual.py` and `code/data/preprocess.py` on a subset; verify output files exist, artifact logs are generated, and sampling rate validation halts execution if <500 Hz.
 
@@ -88,15 +88,15 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] {{claim:c_02292d17}} **This task must ensure metadata is extracted immediately after fetch to validate the dataset structure.**
-- [X] T016 [US1] **Implement Visual Download**: Implement `code/data/download_visual.py` to fetch **ds (visual oddball)** using `mne.datasets.fetch_openneuro_dataset(ds_id="ds000117")`. **This task must ensure metadata is extracted immediately after fetch to validate the dataset structure independently of T015.** **Depends on**: None (Independent of T015).
-- [X] T016a [US1] **Generate Checksums**: Implement `code/data/checksums.py` to compute SHA256 checksums for downloaded raw datasets (ds000246, ds000117) and **write them immediately** to `state/projects/PROJ-779-cross-modal-comparison-of-neural-predict.yaml` under `artifact_hashes`. **Verification**: Verify `state/...yaml` contains valid checksums for both datasets. **Depends on**: T015, T016.
+- [X] T015 [US1] **Implement Metadata Extraction**: Implement `code/data/download_auditory.py::extract_metadata` to extract dataset metadata (sampling rate, trial counts) immediately after fetch. **Output**: Return a dict with `sampling_rate`, `n_oddball`, `n_standard`. **Verification**: Run function on mock data and verify output schema.
+- [X] T016 [US1] **Implement Visual Download**: Implement `code/data/download_visual.py` to fetch a visual oddball dataset from OpenNeuro using `mne.datasets.fetch_openneuro_dataset(ds_id=<dataset_id>)`. **This task must ensure metadata is extracted immediately after fetch to validate the dataset structure independently of T015.** **Depends on**: Existence of metadata extraction function (T015).
+- [X] T016a [US1] **Generate Checksums**: Implement `code/data/checksums.py` to compute SHA256 checksums for downloaded raw datasets (ds000246, ds000117) and **write them immediately** to `state/projects/PROJ-779-cross-modal-comparison-of-neural-predict.yaml` under `artifact_hashes`. **Schema**: `artifact_hashes: { ds000246: "sha256...", ds000117: "sha256..." }`. **Logic**: Read existing YAML, update keys, write back. **Verification**: Verify `state/...yaml` contains valid checksums for both datasets. **Depends on**: Completion of T015 and T016 (download tasks).
 - [X] T017 [US1] Implement `code/data/download_auditory.py` validation logic for Auditory: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard); **if validation fails, HALT the pipeline immediately** and raise a `DataValidationError` with specific error codes (FR-008, FR-009, FR-011). **Crucially, this HALT mechanism must prevent any downstream tasks (T019-T022) from executing on invalid data.** **Depends on T015.**
 - [X] T018 [US1] Implement `code/data/download_visual.py` validation logic for Visual: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard) for ds000117; **if validation fails, HALT the pipeline immediately** and raise a `DataValidationError` with specific error codes (FR-008, FR-009, FR-011). **Crucially, this HALT mechanism must prevent any downstream tasks (T019-T022) from executing on invalid data.** **Depends on T016.**
-- [X] T019a [US1] **Define Filter Parameters**: Define bandpass filter parameters (FIR/IIR, order, low-frequency cutoff) in `code/config.py` as `BANDPASS_FILTER_PARAMS`. **Verification**: Verify `code/config.py` contains the dict.
-- [X] T019b [US1] **Implement Bandpass Filter**: Implement `code/data/preprocess.py` bandpass filter using defined parameters. **Depends on T019a.**
-- [X] T020a [US1] **Define ICA Criteria**: Define ICA component rejection criteria (e.g., correlation with EOG) in `code/config.py` as `ICA_REJECTION_CRITERIA`. **Verification**: Verify `code/config.py` contains the dict.
-- [X] T020b [US1] **Implement ICA**: Implement `code/data/preprocess.py` ICA artifact removal using defined criteria. **Depends on T020a.**
+- [ ] T019a [US1] **Define Filter Parameters**: Define bandpass filter parameters (FIR/IIR, order, low-frequency cutoff) in `code/config.py` as `BANDPASS_FILTER_PARAMS`. **Verification**: Verify `code/config.py` contains the dict.
+- [X] T019b [US1] **Implement Bandpass Filter**: Implement `code/data/preprocess.py` bandpass filter using defined parameters from T019a. **Depends on T019a.**
+- [ ] T020a [US1] **Define ICA Criteria**: Define ICA component rejection criteria (e.g., correlation with EOG) in `code/config.py` as `ICA_REJECTION_CRITERIA`. **Verification**: Verify `code/config.py` contains the dict.
+- [X] T020b [US1] **Implement ICA**: Implement `code/data/preprocess.py` ICA artifact removal using defined criteria from T020a. **Depends on T020a.**
 - [X] T021 [US1] Implement `code/data/preprocess.py` common average re-referencing. **Depends on T020b.**
 - [X] T022 [US1] **Save Cleaned Data**: Implement `code/data/preprocess.py` to **SAVE CLEANED DATA ARTIFACT** (`data/processed/cleaned_data.fif`) and trial rejection logs. **Logic**: Re-validate sampling rate (≥500 Hz) **immediately before saving**; if <500 Hz, **raise `DataFetchError` and HALT**. **Verification**: Verify file `data/processed/cleaned_data.fif` exists and is >0 bytes; verify log file contains rejection count. **Depends on T021.**
 
@@ -121,9 +121,9 @@
 - [X] T027 [P] [US2] Implement `code/analysis/metrics.py` function to compute difference waves (Oddball - Standard) at fronto-central electrodes (Auditory). **Depends on T022 (Cleaned Data Artifact).**
 - [X] T028 [P] [US2] Implement `code/analysis/metrics.py` function to compute difference waves at occipito-parietal electrodes (Visual). **Depends on T022 (Cleaned Data Artifact).**
 - [X] T029 [P] [US2] Implement `code/analysis/metrics.py` peak latency extraction (Auditory and Visual modalities). **Depends on T022.**
-- [ ] T030 [P] [US2] **Extract Mean Amplitude**: Implement `code/analysis/metrics.py` mean amplitude extraction. **Windows**: Auditory (100–250 ms), Visual (150–350 ms). **Output**: Write to `data/results/metrics_summary.json`. **Schema**: `{"auditory": {"peak_latency_ms": float, "mean_amplitude_uV": float}, "visual": {...}}`. **Verification**: Verify file exists, contains valid JSON with required keys, and that the extraction logic explicitly uses the specified time windows. **Depends on T022.** <!-- FAILED: unspecified -->
+- [ ] T030 [US2] **Extract Mean Amplitude**: Implement `code/analysis/metrics.py::extract_mean_amplitude` to compute mean amplitude for the **visual modality** within the **150–350 ms** window (FR-004). **Output**: Write to `data/results/metrics_summary.json`. **Schema**: `{"auditory": {"peak_latency_ms": float, "mean_amplitude_uV": float}, "visual": {"peak_latency_ms": float, "mean_amplitude_uV": float}}`. **Verification**: Verify file exists, contains valid JSON with required keys, and that the extraction logic explicitly uses the 150–350 ms window. **Depends on T022.**
 - [X] T031 [US2] Implement `code/analysis/metrics.py` to generate a summary table (DataFrame/JSON) with latency, amplitude, and modality labels. **Depends on T030.**
-- [ ] T032 [US2] Update `code/main.py` to call extraction after preprocessing. **Input**: `data/processed/cleaned_data.fif`. **Output**: `data/results/metrics_summary.json`. **Verification**: Run `main.py` and verify `metrics_summary.json` exists with valid data (or script halts with error if data missing). **Depends on T031.**
+- [ ] T032 [US2] Update `code/main.py` to call extraction after preprocessing. **Input**: `data/processed/cleaned_data.fif`. **Output**: `data/results/metrics_summary.json`. **Logic**: Wire functions from T027-T031 into the pipeline. **Specifically, call `extract_mean_amplitude` with a defined time window for auditory data and a corresponding time window for visual data.** **Verification**: Run `main.py` and verify `metrics_summary.json` exists with valid data (or script halts with error if data missing). **Depends on Implementation of T027-T031.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
@@ -138,7 +138,7 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T033 [US3] Unit test for MNE lead field generation in `tests/unit/analysis/test_source.py`. **Objective**: Verify lead field matrix shape and non-zero values for the ICBM standard model.
-- [X] T034 [P] [US3] Unit test for permutation test logic in `tests/unit/analysis/test_stats.py`
+- [ ] T034 [P] [US3] Unit test for permutation test logic in `tests/unit/analysis/test_stats.py`
 - [X] T035 [P] [US3] Unit test for split-half reliability calculation in `tests/unit/validation/test_reliability.py`
 - [X] T036a [US3] CI Integration: Create `.github/workflows/ci.yml` from scratch. **Workflow Definition**:
  ```yaml
@@ -147,13 +147,13 @@
  jobs:
  run-analysis:
  runs-on: ubuntu-latest
- timeout-minutes:
+ timeout-minutes: 360
  steps:
  - uses: actions/checkout@v4
  - name: Set up Python
  uses: actions/setup-python@v5
  with:
- python-version: 'a compatible Python 3.x release'
+ python-version: '3.11'
  - name: Install Dependencies
  run: pip install -r requirements.txt
  - name: Run Analysis
@@ -168,18 +168,19 @@
 
 - [X] T037 [US3] Implement `code/analysis/source.py` to setup ICBM head model and compute lead fields. **Depends on T022 (cleaned data) and T005 (config paths).**
 - [X] T038 [US3] Implement `code/analysis/source.py` MNE with depth weighting and orientation normalization. **Depends on T037 (Lead Fields).**
-- [ ] T039 [US3] **Sensitivity Analysis**: Implement `code/analysis/source.py` sensitivity analysis: **sweep spatial smoothing kernel σ over a range of values**, compute Coefficient of Variation (CV) for source strength for each sigma, and **Generate and save `data/results/sensitivity_analysis.csv`**. **CSV Schema**: Columns must be `sigma_mm`, `source_strength`, `cv`. **Verification**: Verify `data/results/sensitivity_analysis.csv` exists with multiple rows and correct headers. **Depends on T038.**
-- [X] T040 [P] [US3] Implement `code/analysis/stats_permutation.py` Mixed-Effects Permutation Test (sufficient permutations for robust inference) for **source strength** modality comparison. **Depends on T039.**
-- [X] T041 [P] [US3] Implement `code/analysis/stats_ttest.py` independent samples t-test for **source strength** modality comparison (Required by FR-006 'OR' condition). **Depends on T039.**
-- [X] T042 [P] [US3] Implement `code/analysis/stats_tost.py` TOST (Two One-Sided Tests) for **source strength** equivalence. **Depends on T039.**
-- [X] T043 [P] [US3] Implement `code/analysis/stats_bh.py` Benjamini-Hochberg correction for multiple comparisons. **Depends on T039.**
-- [X] T043b [US3] **Generate BH-Corrected P-Values**: Implement `code/analysis/stats_bh.py` to calculate Benjamini-Hochberg corrected p-values for **latency, amplitude, and source strength** differences. **Output**: Save to `data/results/bh_corrected_pvalues.json`. **Verification**: Verify file exists and contains p-values for all metrics. **Depends on T043.**
+- [ ] T039 [US3] **Sensitivity Analysis**: Implement `code/analysis/source.py::run_sensitivity_analysis` to sweep spatial smoothing kernel σ over **{5, 10, 15} mm** (FR-014). Compute Coefficient of Variation (CV) for source strength for each sigma. **Output**: Save `data/results/sensitivity_analysis.csv`. **CSV Schema**: Columns must be `sigma_mm`, `source_strength`, `cv`. **Verification**: Verify `data/results/sensitivity_analysis.csv` exists with three rows (5, 10, 15) and correct headers. **Depends on T038.**
+- [X] T040 [P] [US3] Implement `code/analysis/stats_permutation.py` Mixed-Effects Permutation Test (sufficient permutations for robust inference) for **source strength** modality comparison. **Depends on T038.**
+- [X] T041 [P] [US3] Implement `code/analysis/stats_ttest.py` independent samples t-test for **source strength** modality comparison (Required by FR-006 'OR' condition). **Depends on T038.**
+- [X] T042 [P] [US3] Implement `code/analysis/stats_tost.py` TOST (Two One-Sided Tests) for **source strength** equivalence. **Depends on T038.**
+- [X] T043 [US3] Implement `code/analysis/stats_bh.py` Benjamini-Hochberg correction for multiple comparisons. **Logic**: Apply BH correction to p-values generated by T040, T041, and T042. **Depends on T040, T041, T042.**
+- [X] T043b [US3] **Generate BH-Corrected P-Values**: Implement `code/analysis/stats_bh.py` to calculate Benjamini-Hochberg corrected p-values for **latency, amplitude, and source strength** differences. **Input**: Raw p-values from T040, T041, T042. **Output**: Save to `data/results/bh_corrected_pvalues.json`. **Verification**: Verify file exists and contains p-values for all metrics. **Depends on T043, T040, T041, T042.**
 - [X] T044 [US3] Implement `code/validation/reliability.py` split-half reliability (Odd/Even trials) and Cronbach's α calculation (FR-013). **Depends on T031 (Metrics Summary).**
-- [ ] T048 [US3] **Data Integrity Verification**: Implement `code/main.py` to validate that processed data artifacts match the checksums recorded in `state/projects/PROJ-779-cross-modal-comparison-of-neural-predict.yaml` (generated during T016a). **Depends on T022 (Cleaned Data) and T016a.**
-- [ ] T045 [US3] Implement `code/main.py` to aggregate results from T037-T044, T047, T048 for final report generation (Report Assembly). **Depends on completion of T037-T044, T047, T048.**
-- [ ] T046 [US3] Implement `code/main.py` logic for Latency Classification: Check |Δt| < 50ms (SC-001) and set classification field.
-- [ ] T047 [US3] **Source Overlap Logic**: Implement `code/main.py` logic for Source Overlap. **Primary Decision**: Use **Benjamini-Hochberg corrected p-value** (from T043b) for 'reject/fail to reject' null hypothesis (FR-006/SC-003). **Secondary Decision**: Use TOST (from T042) and Dice coefficient for equivalence/overlap assessment (Plan Phase 4). **Note**: If TOST p < 0.05 AND Dice > 0.6, report 'Equivalence Supported'; otherwise report 'Difference Detected'. **Note**: Explicitly document the deviation from SC-002 (p > 0.05) in favor of the Plan's TOST logic (p < 0.05) in the output. **Dependency**: T059 (Deviation Documentation). **Depends on T048, T046, T042, T043b.**
-- [X] T049 [US3] **Generate Final Report**: Generate final report in `data/results/final_report.md`. **Sections**: (A) Latency difference vs 50ms threshold, (B) Source overlap (Dice) & TOST result, (C) Reliability score, (D) Computational feasibility confirmation, (E) Constitution Compliance (citing 'Compliance Warning' for unratified amendment from T055b if applicable), (F) Statistical Decision (**BH-corrected p-value** and decision). **Verification**: Verify report contains all sections and specific metrics (Dice > 0.6, TOST p < 0.05, **BH p-value**). **Note**: Acknowledges SC-002 conflict pending ratification. **Depends on T048, T046, T047.**
+- [ ] T048 [US3] **Data Integrity Verification**: Implement `code/main.py::validate_checksums` to validate that processed data artifacts match the checksums recorded in `state/projects/PROJ-779-cross-modal-comparison-of-neural-predict.yaml` (generated during T016a). **Logic**: Read `artifact_hashes` key from YAML and compare against file checksums. **Error Handling**: If file is missing or checksum mismatch, raise `DataIntegrityError`. **Depends on T022 (Cleaned Data) and T016a.**
+- [ ] T045 [US3] Implement `code/main.py` to aggregate results from T037-T044, T047, T047c, T048 for final report generation (Report Assembly). **Input Files**: `data/results/metrics_summary.json`, `data/results/sensitivity_analysis.csv`, `data/results/bh_corrected_pvalues.json`, `data/results/reliability.json`, `data/results/sc002_compliance.json`. **Output**: `data/results/final_report.md`. **Depends on completion of T037-T044, T047, T047c, T048.**
+- [ ] T046 [US3] **Latency Classification**: Implement `code/main.py::classify_latency` to check |Δt| < 50ms (SC-001) and set classification field. **Output**: Update `data/results/final_report.md` with classification. **Depends on T048, T031.**
+- [ ] T047 [US3] **Source Overlap Logic (TOST)**: Implement `code/main.py` logic for Source Overlap using **TOST** (p < 0.05) and Dice coefficient. **Primary Decision**: Use **Benjamini-Hochberg corrected p-value** (from T043b) for 'reject/fail to reject' null hypothesis (FR-006/SC-003). **Secondary Decision**: Use TOST (from T042) and Dice coefficient for equivalence/overlap assessment. **Input Data**: Binary masks derived from source maps (thresholded at 95% confidence). **Logic**: If TOST p < 0.05 AND Dice > 0.6, report 'Equivalence Supported'; otherwise report 'Difference Detected'. **Note**: Explicitly document the deviation from SC-002 (p > 0.05) in favor of the Plan's TOST logic (p < 0.05) in the output. **Dependency**: T059 (Deviation Documentation). **Depends on T048, T046, T042, T043b.**
+- [ ] T047c [US3] **Source Overlap Logic (SC-002 Compliance)**: Implement `code/main.py::check_sc002` to explicitly evaluate SC-002 success conditions: (A) Overlap > 0.6 AND p > 0.05 (domain-general) OR (B) Overlap ≤ 0.6 AND p ≤ 0.05 (modality-specific). **Input**: Raw p-values from T040, T041, T042. **Output**: Report SC-002 decision in `data/results/sc002_compliance.json`. **Depends on T040, T041, T042, T048.**
+- [X] T049 [US3] **Generate Final Report**: Generate final report in `data/results/final_report.md`. **Sections**: (A) Latency difference vs 50ms threshold, (B) Source overlap (Dice) & TOST result, (C) Reliability score, (D) Computational feasibility confirmation, (E) Constitution Compliance (citing 'Compliance Warning' for unratified amendment from T055b if applicable), (F) Statistical Decision (**BH-corrected p-value** and decision), (G) **SC-002 Compliance Check (from T047c)**. **Verification**: Verify report contains all sections and specific metrics (Dice > 0.6, TOST p < 0.05, **BH p-value**, SC-002 result). **Note**: Acknowledges SC-002 conflict pending ratification. **Depends on T048, T046, T047, T047c.**
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -207,7 +208,7 @@
 
 ### Implementation for Review Resolution
 
-- [X] T056 [US3] Refactor `code/validation/reliability.py` to explicitly document that Split-Half Reliability is used as a **proxy** for Validation Independence (Principle VII) and reference the **unratified** amendment from T055a/T055b (FR-013). **Note**: If T055b is not ratified, this task MUST **log a "Compliance Warning"** and proceed; do not block execution. **Depends on T055b.**
+- [X] T056 [US3] Refactor `code/validation/reliability.py` to explicitly document that Split-Half Reliability is used as a **proxy** for Validation Independence (Principle VII) and reference the **unratified** amendment from T055a/T055b (FR-013). **Note**: If T055b is not ratified (check state file flag), this task MUST **log a "Compliance Warning"** and **HALT** the pipeline; do not proceed. **Depends on T055b (Ratified Flag Check).**
 - [X] T057 [US3] Update `data/results/final_report.md` generation logic to include a dedicated "Constitution Compliance" section that explicitly cites the **unratified** amendment from T055a/T055b (if applicable) and confirms all other principles (I-VI) are met, while documenting the **Compliance Warning** for Principle VII. **Note**: Acknowledges SC-002 conflict pending ratification. **Depends on T055b.**
 - [X] T058 [US1] **Data Fetch Robustness**: Refactor `code/data/download_auditory.py` and `code/data/download_visual.py` to remove any `try/except` blocks that catch `mne.datasets` errors and substitute synthetic data. **Action**: Ensure any fetch failure raises a `RuntimeError` with a clear message pointing to the OpenNeuro source. **Verification**: Unit test confirms that a simulated network failure raises an exception rather than returning mock data. **Depends on T015, T016.**
 - [X] T059 [US3] **Document Spec Deviation**: Create `docs/deviation-sc-002.md` explicitly documenting the conflict between SC-002 ('p > 0.05') and Plan Phase 4 ('TOST p < 0.05'). **Action**: State that TOST is used for equivalence testing while BH is used for significance testing, and this deviation is recorded for future amendment. **Verification**: Document created and referenced by T047/T049.
@@ -308,7 +309,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must be executable on CPU-only GitHub Actions free-tier (limited CPU resources, constrained RAM, 6h limit). No GPU, no 8-bit quantization, no large model training.
+- **Critical Constraint**: All tasks must be executable on CPU-only GitHub Actions free-tier (limited CPU resources, constrained RAM, time-limited execution). No GPU, no 8-bit quantization, no large model training.
 - **Data Integrity**: All datasets must be fetched from real sources (OpenNeuro ds000246, ds000117); **NO** synthetic data generation or fallbacks allowed. If fetch fails, the pipeline must halt.
-- **Constitution Compliance**: Explicitly acknowledge the use of Split-Half Reliability as a proxy for Validation Independence (Principle VII) in all reporting and documentation, noting the 'Compliance Warning' for the unratified amendment (T055b) if applicable.
+- **Constitution Compliance**: Explicitly acknowledge the use of Split-Half Reliability as a proxy for Validation Independence (Principle VII) in all reporting and documentation, noting the 'Compliance Warning' for the unratified amendment (T055b) if applicable. **Execution is HALTED if amendment is not ratified.**
 - **Spec Deviation**: T059 documents the SC-002 vs TOST logic conflict; T047 uses BH for primary significance testing and TOST for equivalence.
+- **CPU Feasibility**: T039 (Sensitivity Analysis) and T040 (Permutation Test) must be implemented with reduced permutation counts (e.g., a computationally feasible subset) and limited spatial smoothing steps (e.g., a range of values in millimeters) to ensure the total runtime remains [deferred] on vCPU/standard memory configuration.
+- **Memory Management**: T022 and T037 must process data in chunks or downsample if the full dataset exceeds available RAM, ensuring no `MemoryError` occurs on the free-tier runner.
+- **Real Data Enforcement**: T017 and T018 must strictly enforce the "Fail Loudly" rule; any attempt to load synthetic data must raise an exception, preventing the pipeline from proceeding with fabricated inputs.

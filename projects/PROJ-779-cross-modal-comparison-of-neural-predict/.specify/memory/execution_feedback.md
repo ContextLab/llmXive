@@ -9,70 +9,61 @@ The gate detected that your reported numbers are NOT real measurements: they are
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
 - code/analysis/stats.py: synthetic/fake INPUT data not authorized by the spec — “…# Example usage with dummy data (in real execution, data…”
-- code/config.py: synthetic/fake INPUT data not authorized by the spec — “…7 (via Hugging Face) # # SYNTHETIC DATA GENERATION IS PROHIBITED…”
+- code/config.py: synthetic/fake INPUT data not authorized by the spec — “…# - Visual: ds000117 # # SYNTHETIC DATA GENERATION IS PROHIBITED…”
 - code/config.py: synthetic/fake INPUT data not authorized by the spec — “…riginate from OpenNeuro. Synthetic data is strictly prohibited.'…”
+- code/config.py: synthetic/fake INPUT data not authorized by the spec — “…n of synthetic, mock, or simulated data is "                 "st…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/stats.py: synthetic/fake INPUT data not authorized by the spec — “…# Example usage with dummy data (in real execution, data…”; code/config.py: synthetic/fake INPUT data not authorized by the spec — “…7 (via Hugging Face) # # SYNTHETIC DATA GENERATION IS PROHIBITED…”; code/config.py: synthetic/fake INPUT data not authorized by the spec — “…riginate from OpenNeuro. Synthetic data is strictly prohibited.'…”; 5 command(s) failed: python code/main.py --stage download_preprocess (rc=1); python code/main.py --stage extract_metrics (rc=1); python code/main.py --stage localize_sources (rc=1); 2 declared deliverable(s) absent: data/results/metrics_summary.json; data/results/sensitivity_analysis.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/stats.py: synthetic/fake INPUT data not authorized by the spec — “…# Example usage with dummy data (in real execution, data…”; code/config.py: synthetic/fake INPUT data not authorized by the spec — “…# - Visual: ds000117 # # SYNTHETIC DATA GENERATION IS PROHIBITED…”; code/config.py: synthetic/fake INPUT data not authorized by the spec — “…riginate from OpenNeuro. Synthetic data is strictly prohibited.'…”; 5 command(s) failed: python code/main.py --stage download_preprocess (rc=1); python code/main.py --stage extract_metrics (rc=1); python code/main.py --stage localize_sources (rc=1); 2 declared deliverable(s) absent: data/results/metrics_summary.json; data/results/sensitivity_analysis.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --stage download_preprocess -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 15, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 33, in <module>
     from code.config import get_config, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/__init__.py", line 1, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/__init__.py", line 4, in <module>
     from .config import get_config, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py", line 1, in <module>
-    from code.config.env_config import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/env_config.py", line 4, in <module>
-    from dotenv import load_dotenv
-ModuleNotFoundError: No module named 'dotenv'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py", line 7, in <module>
+    from code.config import ensure_directories, get_config as get_static_config
+ImportError: cannot import name 'ensure_directories' from partially initialized module 'code.config' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py)
 - python code/main.py --stage extract_metrics -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 15, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 33, in <module>
     from code.config import get_config, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/__init__.py", line 1, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/__init__.py", line 4, in <module>
     from .config import get_config, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py", line 1, in <module>
-    from code.config.env_config import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/env_config.py", line 4, in <module>
-    from dotenv import load_dotenv
-ModuleNotFoundError: No module named 'dotenv'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py", line 7, in <module>
+    from code.config import ensure_directories, get_config as get_static_config
+ImportError: cannot import name 'ensure_directories' from partially initialized module 'code.config' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py)
 - python code/main.py --stage localize_sources -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 15, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 33, in <module>
     from code.config import get_config, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/__init__.py", line 1, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/__init__.py", line 4, in <module>
     from .config import get_config, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py", line 1, in <module>
-    from code.config.env_config import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/env_config.py", line 4, in <module>
-    from dotenv import load_dotenv
-ModuleNotFoundError: No module named 'dotenv'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py", line 7, in <module>
+    from code.config import ensure_directories, get_config as get_static_config
+ImportError: cannot import name 'ensure_directories' from partially initialized module 'code.config' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py)
 - python code/main.py --stage statistical_analysis -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 15, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 33, in <module>
     from code.config import get_config, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/__init__.py", line 1, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/__init__.py", line 4, in <module>
     from .config import get_config, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py", line 1, in <module>
-    from code.config.env_config import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/env_config.py", line 4, in <module>
-    from dotenv import load_dotenv
-ModuleNotFoundError: No module named 'dotenv'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py", line 7, in <module>
+    from code.config import ensure_directories, get_config as get_static_config
+ImportError: cannot import name 'ensure_directories' from partially initialized module 'code.config' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py)
 - python code/main.py --stage full_run -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 15, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 33, in <module>
     from code.config import get_config, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/__init__.py", line 1, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/__init__.py", line 4, in <module>
     from .config import get_config, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py", line 1, in <module>
-    from code.config.env_config import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/env_config.py", line 4, in <module>
-    from dotenv import load_dotenv
-ModuleNotFoundError: No module named 'dotenv'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py", line 7, in <module>
+    from code.config import ensure_directories, get_config as get_static_config
+ImportError: cannot import name 'ensure_directories' from partially initialized module 'code.config' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py)
 
 ## Declared deliverables still missing
 
