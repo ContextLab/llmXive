@@ -48,7 +48,7 @@ This project implements a computational pipeline to identify gene-expression sig
 - **T041 (Coarse Task)**: Split into:
   1.  `Implement summary.md merge logic`: Reads existing summary flags and merges with new results.
   2.  `Implement final summary generation`: Generates the final `results/summary.md` with all metrics and limitations.
-- **T013 (Hard Halt)**: Replaced "halt if <2 GEO" with "skip invalid GEO, log warning, proceed if ≥2 valid remain; else fail gracefully". The pipeline will now attempt to download each GEO dataset individually. If a dataset fails (e.g., missing annotations), it is skipped with a warning. The pipeline halts only if fewer than 2 valid datasets remain after processing all requested ones.
+- **T013 (Hard Halt)**: Replaced "halt if <2 GEO" with "skip invalid GEO, log warning, proceed if ≥2 valid remain; else fail gracefully". The pipeline will now attempt to download each GEO dataset individually. If a dataset fails (e.g., missing annotations), it is skipped with a warning. The pipeline halts only if a critically low number of valid datasets remain after processing all requested ones.
 
 ## Project Structure
 
