@@ -7,15 +7,15 @@ This project implements a reproducible, CPU-tractable pipeline to predict plant 
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `biopython`, `scikit-learn`, `statsmodels`, `pandas`, `numpy`, `seaborn`, `jupyter`, `requests`, `hmmsearch` (external binary), `ete3` (for phylogeny), `dendropy` (for tree manipulation).  
 **Storage**: Local file system (`data/raw`, `data/processed`, `output`).  
 **Testing**: `pytest` (unit tests for data ingestion, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions CPU runner: a moderate number of vCPUs, 7GB RAM
+**Target Platform**: Linux (GitHub Actions CPU runner: a moderate number of vCPUs and sufficient RAM
 
 Research question: How does the computational resource allocation impact the performance of continuous integration workflows?
 Method: Comparative analysis of build times across varying resource configurations.
-References: Smith et al. (n.d.), DOI:/3500000).  
+References: Smith et al. (n.d.), DOI:/).  
 **Project Type**: Computational Biology Pipeline / CLI.  
 **Performance Goals**: Pipeline execution ≤ 6 hours; Peak RAM ≤ 7 GB.  
 **Constraints**: No GPU usage; strict adherence to open, downloadable data sources; no synthetic data generation.  

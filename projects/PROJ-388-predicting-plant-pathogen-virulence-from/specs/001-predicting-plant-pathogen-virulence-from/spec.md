@@ -49,7 +49,7 @@ A researcher can view a visualization of the top genomic-virulence associations 
 
 **Acceptance Scenarios**:
 
-1. **Given** the list of significant genomic features, **When** the visualization module runs, **Then** it generates a seaborn heatmap showing the correlation strength of the top 10 features (filtered by |ρ| ≥ 0.5) against disease severity.
+1. **Given** the list of significant genomic features, **When** the visualization module runs, **Then** it generates a seaborn heatmap showing the correlation strength of the top features (filtered by |ρ| ≥ 0.5) against disease severity.
 2. **Given** the full analysis workflow, **When** the documentation step runs, **Then** it compiles a Jupyter notebook containing all code, data source URLs, and parameter settings used in the analysis.
 3. **Given** the generated artifacts, **When** a user opens the notebook, **Then** all cells execute successfully on a standard CPU environment, reproducing the statistical tables and figures with numerical equivalence within a tolerance of a sufficiently small threshold.
 
@@ -80,7 +80,7 @@ A researcher can view a visualization of the top genomic-virulence associations 
 - **Isolate**: A unique biological sample identified by a specific strain ID, containing linked genomic sequence data and a quantitative disease severity score (if available).
 - **Species Aggregate**: A grouped dataset where phenotypic scores are averaged across multiple isolates of the same species to enable analysis when isolate-level linkage is unavailable.
 - **Genomic Feature**: A binary indicator (presence/absence) of a virulence gene or a quantitative count of transcription factor binding sites within a specific genomic region.
-- **Phenotypic Score**: A numerical value (0.0 to 1.0 or similar scale) representing the observed disease severity for a specific isolate or species aggregate.
+- **Phenotypic Score**: A numerical value (to 1.0 or similar scale) representing the observed disease severity for a specific isolate or species aggregate.
 
 ## Success Criteria *(mandatory)*
 
