@@ -3937,3 +3937,204 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T23:53:45Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1B-Chat Q4_K_M size less than 7 GB
+  claim_id: c_0f637217
+  context: "Download and convert the base LLM to GGUF format (e.g., TinyLlama\u2011\
+    1B\u2011Chat, Q4_K_M quantization). Verify size < 7 GB and perform a dry\u2011\
+    run inference to ensure memory fits."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TinyLlama-1B-Chat_Q4_K_M_size_less_than_7_GB
+  kind: magnitude
+  raw_text: The base model TinyLlama-1B-Chat with Q4_K_M quantization has a size less
+    than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:54:56Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: runner hardware constraint 2-core CPU
+  claim_id: c_110bf372
+  context: Implement src/evaluation/verify_runner.py to verify the runner's hardware
+    constraints (standard 2-core CPU).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runner_hardware_constraint_2-core_CPU
+  kind: entity_fact
+  raw_text: The runner hardware constraint is a standard 2-core CPU.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:56:04Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: latent-skills/alfworld-weights HuggingFace URL
+  claim_id: c_371d278e
+  context: 'Create data_sources.yaml defining the canonical URLs/IDs only for the
+    required datasets: 1. latent-skills/alfworld-weights (HF Dataset ID: latent-skills/alfworld-weights,
+    URL: https://huggingface.co/datasets/latent-skills/alfworld-weights)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Latent-skills/alfworld-weights_HuggingFace_URL
+  kind: entity_fact
+  raw_text: The HuggingFace dataset latent-skills/alfworld-weights is located at https://huggingface.co/datasets/latent-skills/alfworld-weights.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:56:40Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: latent-skills/searchqa-weights HuggingFace URL
+  claim_id: c_fb2163d0
+  context: 'Create data_sources.yaml defining the canonical URLs/IDs only for the
+    required datasets: 2. latent-skills/searchqa-weights (HF Dataset ID: latent-skills/searchqa-weights,
+    URL: https://huggingface.co/datasets/latent-skills/searchqa-weights)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Latent-skills/searchqa-weights_HuggingFace_URL
+  kind: entity_fact
+  raw_text: The HuggingFace dataset latent-skills/searchqa-weights is located at https://huggingface.co/datasets/latent-skills/searchqa-weights.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:57:10Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: arXiv:2606.06087 supplementary URL
+  claim_id: c_6d068a64
+  context: 'Create data_sources.yaml defining the canonical URLs/IDs only for the
+    required datasets: 3. arXiv:2606.06087 (Supplementary URL: )'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The arXiv supplementary URL is associated with arXiv:2606.06087.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T07:57:13Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L-v2 for query vectors
+  claim_id: c_a38a9e33
+  context: Implement src/retrieval/query.py (FR-002) to generate query vectors using
+    sentence-transformers/all-MiniLM-L-v2.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sentence-transformers/all-MiniLM-L-v2_for_query_vectors
+  kind: entity_fact
+  raw_text: The sentence-transformers model all-MiniLM-L-v2 is used for generating
+    query vectors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:57:48Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: evaluation loop N greater than or equal to 5 independent runs
+  claim_id: c_c981c52d
+  context: "Implement loop in src/evaluation/runner.py to execute N \u2265 5 independent\
+    \ runs per task (FR-008) and record binary outcomes, calculating the mean success\
+    \ rate."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Evaluation_loop_N_greater_than_or_equal_to_5_independent_run
+  kind: magnitude
+  raw_text: "The evaluation loop executes N \u2265 5 independent runs per task."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:58:49Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: ALFWorld environment timeout 30 seconds
+  claim_id: c_408e450a
+  context: 'Implement src/evaluation/init_env_logic.py to initialize ALFWorld environment
+    and provide run_task(adapter_path: str, task_id: str) -> bool. Include a timeout
+    wrapper (max 30 s) that logs a timeout failure and returns False.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The timeout wrapper for the ALFWorld environment has a maximum duration
+    of 30 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:59:12Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: disk space requirement 500 MB
+  claim_id: c_d6bcb869
+  context: "Implement disk\u2011space check in src/evaluation/runner.py before writing\
+    \ adapters or logs (require \u2265 500 MB free). Raise RuntimeError if insufficient."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Disk_space_requirement_500_MB
+  kind: magnitude
+  raw_text: The disk space requirement before writing adapters or logs is at least
+    500 MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T07:59:54Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: reconstruction error max error flag 0.05
+  claim_id: c_fe2932fe
+  context: Otherwise, compute error, output mean and max to data/results/reconstruction_error.json;
+    flag if max_error > 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum error flag for reconstruction error is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T08:00:40Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: retry mechanism 2 retries exponential backoff
+  claim_id: c_6711e49c
+  context: Implement retry mechanism in src/evaluation/runner.py for transient environment
+    failures (max 2 retries with exponential backoff). Do not retry logical failures.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retry mechanism for transient environment failures has a maximum of
+    2 retries with exponential backoff.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T08:01:12Z'
