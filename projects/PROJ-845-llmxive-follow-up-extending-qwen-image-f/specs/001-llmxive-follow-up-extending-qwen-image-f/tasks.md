@@ -86,7 +86,7 @@
 
 - [X] T011 [US1] Implement propositional logic problem generator function `generate_propositional_problem()` in `code/generators/logic_generator.py`.
 - [ ] T011‑B [US1] Implement arithmetic problem generator function `generate_arithmetic_problem()` in the same module.
-- [ ] T012 [US1] Add entropy parameterization in `logic_generator.py` to produce High‑Entropy, Low‑Entropy, and Target‑Specific subsets, each receiving [deferred] samples (total N ≥ 3,000) with appropriate metadata flags. <!-- ATOMIZE: requested -->
+- [ ] T012 [US1] Add entropy parameterization in `logic_generator.py` to produce High‑Entropy, Low‑Entropy, and Target‑Specific subsets, each receiving [deferred] samples (total N ≥ 3,000) with appropriate metadata flags. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T013 [US1] Implement generation of a distinct Generalization Set (`data/raw/test_set.csv`) with N_test ≥ 500, ensuring each sample’s `structure_hash` (SHA256 of premises + operators) is **not** present in any training subset; also stratify by entropy level.
 - [ ] T014 [US1] Add contradiction detection: before writing a problem, verify solvability (e.g., using a simple SAT check); discard unsolvable problems.
 - [X] T015 [US1] Implement function `compute_entropy_statistics()` in `code/analysis/metrics.py` that calculates per‑sample entropy scores and performs a two‑sample t‑test (high vs low); log mean, std, and p‑value.
@@ -122,7 +122,7 @@
 - [ ] T024 [US2] Add early‑stopping logic to the training loop; record the epoch at which the loss threshold is first met.
 - [ ] T025 [US2] Integrate `ResourceMonitor` hooks into the training script to enforce the 7 GB RAM ceiling and 6 h wall‑clock limit, exiting with a specific error code on breach.
 - [ ] T026 [US2] Execute three independent distillation runs (High, Low, Target) by invoking `distill_loop.py` with the appropriate dataset path; store each run’s log as a `DistillationRun` JSON in `data/processed/`.
-- [~] T027 [US2] Ensure non‑convergent runs are logged with `"status": "failed_non_converge"` and assign `convergence_epoch` = `max_epochs + 1` for downstream statistical handling.
+- [ ] T027 [US2] Ensure non‑convergent runs are logged with `"status": "failed_non_converge"` and assign `convergence_epoch` = `max_epochs + 1` for downstream statistical handling.
 - [ ] T042 [US2] After all three runs, generate a validation report `data/processed/trace_consistency_report.json` summarizing total samples, number filtered per entropy subset, and overall pass/fail status for FR‑009.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -141,13 +141,13 @@
 
 ### Implementation for User Story 3
 
-- [~] T029 [US3] Implement evaluation script `code/analysis/evaluation.py` that loads each student model, runs inference on `data/raw/test_set.csv`, and records accuracy and per‑sample epoch of loss‑threshold crossing. <!-- FAILED: unspecified -->
+- [ ] T029 [US3] Implement evaluation script `code/analysis/evaluation.py` that loads each student model, runs inference on `data/raw/test_set.csv`, and records accuracy and per‑sample epoch of loss‑threshold crossing. <!-- FAILED: unspecified -->
 - [ ] T029‑VERIFY [US3] Add an assertion in `evaluation.py` that raises `ValueError` if any loaded sample has `set_type != "test_generalization"`; this guarantees exclusive use of the Generalization Set.
 - [X] T030 [US3] Add function `anova_test(accuracies: Dict[str, List[float]]) -> Dict` in `code/analysis/stats.py` that computes the ANOVA F‑statistic and raw p‑value across the three models.
-- [~] T031 [US3] Add function `pairwise_t_test(convergence_epochs: Dict[str, List[int]]) -> Dict` that performs pairwise t‑tests between model groups.
-- [~] T032 [US3] Implement Bonferroni correction in `stats.py` that adjusts all p‑values (ANOVA and pairwise) and returns corrected values.
+- [ ] T031 [US3] Add function `pairwise_t_test(convergence_epochs: Dict[str, List[int]]) -> Dict` that performs pairwise t‑tests between model groups.
+- [ ] T032 [US3] Implement Bonferroni correction in `stats.py` that adjusts all p‑values (ANOVA and pairwise) and returns corrected values.
 - [ ] T033 [US3] Create `StatisticalResult` records (using the schema from contracts) for each test and write them to `data/processed/statistical_results.json`.
-- [~] T034 [US3] Extend `code/report_generator.py` to produce a human‑readable markdown report `docs/research_report.md` that includes the statistical results and, **conditionally**, inserts the phrase “causal regarding the effect of entropy on performance” **only if** the corrected p‑value < 0.05; otherwise it states “no statistically significant effect detected”.
+- [ ] T034 [US3] Extend `code/report_generator.py` to produce a human‑readable markdown report `docs/research_report.md` that includes the statistical results and, **conditionally**, inserts the phrase “causal regarding the effect of entropy on performance” **only if** the corrected p‑value < 0.05; otherwise it states “no statistically significant effect detected”.
 - [ ] T034‑VALIDATE [US3] Add a validation function in `report_generator.py` that asserts the conditional phrasing logic matches the statistical outcome, raising an AssertionError on mismatch.
 - [ ] T043 [US3] Add a separate JSON summary `data/processed/final_statistical_summary.json` that lists all raw and corrected statistics (F, t, p-values) and the final conclusion, to satisfy SC‑001 and SC‑002 as a distinct artifact.
 - [ ] T035 [US3] Commit the final markdown report and JSON summary to the repository.

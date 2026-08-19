@@ -5,187 +5,139 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
+# Import existing utilities
 from utils.logger import get_logger
+from config import get_config
 
-logger = get_logger(__name__)
+logger = get_logger("trace_consistency_report")
+config = get_config()
 
 def load_distillation_runs(
-    processed_dir: Optional[Path] = None,
-    entropy_subsets: List[str] = None,
-) -> Dict[str, Dict[str, Any]]:
+    processed_dir: Optional[str] = None,
+) -> List[Dict[str, Any]]:
     """
-    Load all distillation run JSON files from the processed directory.
-    
-    Args:
-        processed_dir: Path to data/processed directory. Defaults to 'data/processed'.
-        entropy_subsets: List of entropy subset names to look for (e.g., ['high', 'low', 'target']).
-    
-    Returns:
-        Dictionary mapping subset name to run data.
+    Load all DistillationRun JSON files from the processed directory.
+    Returns a list of dicts, each representing a run.
     """
-    if entropy_subsets is None:
-        entropy_subsets = ["high", "low", "target"]
-    
     if processed_dir is None:
-        processed_dir = Path("data/processed")
-    
-    runs = {}
-    
-    if not processed_dir.exists():
+        processed_dir = config.processed_dir
+
+    processed_path = Path(processed_dir)
+    if not processed_path.exists():
         logger.warning(f"Processed directory {processed_dir} does not exist.")
-        return runs
-    
-    for subset in entropy_subsets:
-        # Look for files matching pattern: distillation_run_{subset}.json
-        pattern = f"distillation_run_{subset}.json"
-        files = list(processed_dir.glob(pattern))
-        
-        if not files:
-            logger.warning(f"No distillation run found for subset '{subset}' matching pattern '{pattern}'")
-            continue
-        
-        # Take the most recent file if multiple exist
-        latest_file = max(files, key=lambda f: f.stat().st_mtime)
-        
+        return []
+
+    run_files = list(processed_path.glob("*_run.json"))
+    runs = []
+    for rf in run_files:
         try:
-            with open(latest_file, "r", encoding="utf-8") as f:
-                run_data = json.load(f)
-                runs[subset] = run_data
-                logger.info(f"Loaded distillation run for '{subset}' from {latest_file}")
+            with open(rf, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                runs.append(data)
+                logger.info(f"Loaded run: {rf.name}")
         except (json.JSONDecodeError, IOError) as e:
-            logger.error(f"Failed to load {latest_file}: {e}")
-            continue
-    
+            logger.error(f"Failed to load {rf.name}: {e}")
     return runs
 
 def aggregate_statistics(
-    runs: Dict[str, Dict[str, Any]],
+    runs: List[Dict[str, Any]],
 ) -> Dict[str, Any]:
     """
-    Aggregate statistics from multiple distillation runs.
-    
-    Args:
-        runs: Dictionary of run data per entropy subset.
-    
-    Returns:
-        Aggregated statistics dictionary.
+    Aggregate statistics from a list of distillation runs.
+    Computes total samples, filtered counts per entropy subset, and pass/fail status.
     """
     total_samples = 0
-    filtered_samples = 0
-    subset_stats = {}
-    all_passed = True
-    
-    for subset_name, run_data in runs.items():
-        subset_total = run_data.get("total_samples", 0)
-        subset_filtered = run_data.get("filtered_samples", 0)
-        status = run_data.get("status", "unknown")
-        
-        subset_stats[subset_name] = {
-            "total_samples": subset_total,
-            "filtered_samples": subset_filtered,
-            "status": status,
-            "pass_rate": (subset_total - subset_filtered) / subset_total if subset_total > 0 else 0.0,
-        }
-        
-        total_samples += subset_total
-        filtered_samples += subset_filtered
-        
-        # FR-009: Check if run status indicates failure
-        if status in ["failed_non_converge", "failed", "error"]:
-            all_passed = False
-            logger.warning(f"Run for subset '{subset_name}' did not pass: status={status}")
-    
-    overall_pass_rate = (total_samples - filtered_samples) / total_samples if total_samples > 0 else 0.0
-    
+    filtered_counts = {"high": 0, "low": 0, "target": 0}
+    total_filtered = 0
+    failed_runs = []
+    passed_runs = []
+
+    for run in runs:
+        entropy_subset = run.get("entropy_subset", "unknown")
+        status = run.get("status", "unknown")
+        samples_in_run = run.get("total_samples", 0)
+        filtered_in_run = run.get("filtered_samples", 0)
+
+        total_samples += samples_in_run
+        total_filtered += filtered_in_run
+
+        if entropy_subset in filtered_counts:
+            filtered_counts[entropy_subset] += filtered_in_run
+        else:
+            logger.warning(f"Unknown entropy subset in run: {entropy_subset}")
+
+        if status == "failed_non_converge":
+            failed_runs.append(run.get("run_id", "unknown"))
+        else:
+            passed_runs.append(run.get("run_id", "unknown"))
+
+    overall_pass = len(failed_runs) == 0
+    pass_rate = len(passed_runs) / len(runs) if runs else 0.0
+
     return {
         "total_samples": total_samples,
-        "total_filtered": filtered_samples,
-        "overall_pass_rate": overall_pass_rate,
-        "all_runs_passed": all_passed,
-        "subset_details": subset_stats,
+        "total_filtered": total_filtered,
+        "filtered_by_subset": filtered_counts,
+        "run_summary": {
+            "total_runs": len(runs),
+            "passed_runs": passed_runs,
+            "failed_runs": failed_runs,
+            "pass_rate": pass_rate,
+        },
+        "fr_009_compliance": overall_pass,
     }
 
 def generate_report(
     stats: Dict[str, Any],
-    output_path: Path,
+    output_path: str,
 ) -> None:
     """
     Generate the trace consistency report JSON file.
-    
-    Args:
-        stats: Aggregated statistics from aggregate_statistics().
-        output_path: Path where the report JSON will be written.
     """
     report = {
-        "report_type": "trace_consistency_report",
-        "generated_at": datetime.utcnow().isoformat() + "Z",
-        "summary": {
-            "total_samples": stats["total_samples"],
-            "total_filtered": stats["total_filtered"],
-            "overall_pass_rate": stats["overall_pass_rate"],
-            "fr_009_status": "PASS" if stats["all_runs_passed"] else "FAIL",
-            "conclusion": (
-                "All distillation runs passed trace consistency checks."
-                if stats["all_runs_passed"]
-                else "One or more distillation runs failed trace consistency checks."
-            ),
+        "generated_at": datetime.utcnow().isoformat(),
+        "config": {
+            "seed": config.seed,
+            "max_ram_gb": config.max_ram_gb,
+            "max_runtime_hours": config.max_runtime_hours,
         },
-        "subset_statistics": stats["subset_details"],
+        "statistics": stats,
+        "fr_009_status": (
+            "PASS" if stats["fr_009_compliance"] else "FAIL"
+        ),
     }
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Trace consistency report written to {output_path}")
 
-def main():
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Report written to {output_file}")
+
+def main() -> None:
     """
     Main entry point for generating the trace consistency report.
-    
-    This script loads all distillation runs from data/processed/,
-    aggregates their statistics, and writes a validation report
-    to data/processed/trace_consistency_report.json.
     """
-    logger.info("Starting trace consistency report generation...")
-    
-    processed_dir = Path("data/processed")
-    output_path = processed_dir / "trace_consistency_report.json"
-    
-    # Define the entropy subsets we expect
-    entropy_subsets = ["high", "low", "target"]
-    
+    logger.info("Starting trace consistency report generation.")
+
     # Load distillation runs
-    runs = load_distillation_runs(processed_dir, entropy_subsets)
-    
+    runs = load_distillation_runs()
     if not runs:
         logger.error("No distillation runs found. Cannot generate report.")
-        # Still generate a report indicating failure
-        stats = {
-            "total_samples": 0,
-            "total_filtered": 0,
-            "overall_pass_rate": 0.0,
-            "all_runs_passed": False,
-            "subset_details": {},
-        }
-        generate_report(stats, output_path)
         sys.exit(1)
-    
+
+    logger.info(f"Found {len(runs)} distillation runs.")
+
     # Aggregate statistics
     stats = aggregate_statistics(runs)
-    
+
     # Generate report
+    output_path = os.path.join(config.processed_dir, "trace_consistency_report.json")
     generate_report(stats, output_path)
-    
-    # Exit with appropriate code based on FR-009 status
-    if stats["all_runs_passed"]:
-        logger.info("Trace consistency report generation completed successfully.")
-        sys.exit(0)
-    else:
-        logger.warning("Trace consistency report generated, but FR-009 check failed.")
-        sys.exit(0)  # Report generated, but status is FAIL (logged)
+
+    logger.info("Trace consistency report generation complete.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

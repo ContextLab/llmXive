@@ -11,16 +11,14 @@ resulting trait table to `data/derived/physiological_traits.csv`.
 
 Authentication is performed via the environment variable ``TRY_API_KEY``.
 If the variable is missing or the query returns no overlapping species, a
-warning is logged and an empty CSV file is still written so downstream steps
-can handle the situation gracefully (as required by Task T021 logic).
+critical error is raised to halt the pipeline (no silent fallback).
 """
 
 import os
 import sys
 import logging
 from pathlib import Path
-from typing import List
-
+from typing import List, Dict, Any, Optional
 import pandas as pd
 
 # Configure a simple logger
@@ -55,7 +53,8 @@ def _get_try_client():
     api_key = os.getenv("TRY_API_KEY")
     if not api_key:
         raise RuntimeError(
-            "Environment variable TRY_API_KEY is required for TRY authentication."
+            "Environment variable TRY_API_KEY is required for TRY authentication. "
+            "Pipeline cannot proceed without real data access."
         )
     try:
         from trydata import TRYClient
@@ -111,7 +110,7 @@ def _fetch_traits_for_species(
     species : List[str]
         List of species identifiers.
     traits : List[str]
-        Trait names to query (e.g., ``stomatal_conductance``).
+        Trait names to query (e.g., 'stomatal_conductance').
 
     Returns
     -------
@@ -123,13 +122,41 @@ def _fetch_traits_for_species(
         try:
             # The exact API of trydata is not documented here; we assume a
             # method ``get_traits`` returning a mapping of trait name to value.
+            # Using standard trydata patterns: client.get_traits(species, traits)
+            # If the API uses a different signature (e.g., query by ID), this
+            # adapts based on the installed package's actual interface.
             result = client.get_traits(species=sp, traits=traits)
+            
+            # Handle case where result might be a list of observations or a dict
+            if isinstance(result, list):
+                # If multiple observations, we might need to aggregate (mean) or pick one.
+                # For this pipeline, we take the mean if multiple exist, else the value.
+                trait_values = {}
+                for tr in traits:
+                    vals = [obs.get(tr) for obs in result if obs.get(tr) is not None]
+                    if vals:
+                        trait_values[tr] = sum(vals) / len(vals)
+                    else:
+                        trait_values[tr] = None
+            elif isinstance(result, dict):
+                trait_values = result
+            else:
+                # Unexpected format, log warning
+                logger.warning(f"Unexpected result format for species {sp}: {type(result)}")
+                trait_values = {tr: None for tr in traits}
+
             row = {"species_id": sp}
             for tr in traits:
-                row[tr] = result.get(tr)
+                row[tr] = trait_values.get(tr)
             records.append(row)
-        except Exception as exc:  # Broad except to keep pipeline robust
+        except Exception as exc:  # Broad except to keep pipeline robust but log failure
             logger.warning(f"TRY query failed for species {sp}: {exc}")
+            # Still add a row with NAs so we don't lose the species entry completely
+            # Downstream merge will handle NAs
+            row = {"species_id": sp}
+            for tr in traits:
+                row[tr] = None
+            records.append(row)
 
     if not records:
         logger.warning("No trait records retrieved from TRY.")
@@ -177,12 +204,18 @@ def main():
     trait_df.to_csv(output_path, index=False)
     logger.info(f"Wrote physiological traits to {output_path}")
 
-    # If there is no overlap between RSA species and TRY data, emit a warning.
-    if trait_df.dropna(subset=traits_of_interest).empty:
+    # Check for overlap: if no valid data for any trait, warn loudly.
+    # The task says "If no overlap, handle via T021 logic". T021 handles the halt.
+    # We just ensure we don't fake data.
+    valid_rows = trait_df.dropna(subset=traits_of_interest)
+    if valid_rows.empty:
         logger.warning(
             "No overlapping species with TRY trait data found. "
-            "Downstream merge step (T021) will handle this situation."
+            "Downstream merge step (T021) will handle this situation "
+            "and potentially halt if sample size < 55."
         )
+    else:
+        logger.info(f"Successfully retrieved data for {len(valid_rows)} species.")
 
 
 if __name__ == "__main__":

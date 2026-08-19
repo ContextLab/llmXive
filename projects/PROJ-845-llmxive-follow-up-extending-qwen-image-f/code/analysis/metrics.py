@@ -1,149 +1,153 @@
 import math
 from collections import Counter
 from typing import List, Dict, Any, Tuple
+import statistics
 
-def compute_entropy(tokens: List[str]) -> float:
+# Add project root to path
+import os
+import sys
+from pathlib import Path
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from models.synthetic_problem import SyntheticProblem
+from utils.logger import get_logger
+
+logger = get_logger("metrics")
+
+def compute_entropy(text: str) -> float:
     """
-    Compute Shannon entropy of a list of tokens.
+    Compute Shannon entropy of a string.
     
     Args:
-        tokens: List of string tokens.
-    
+        text: Input string
+        
     Returns:
-        Shannon entropy as a float.
+        Entropy value (float)
     """
-    if not tokens:
+    if not text:
         return 0.0
     
-    counts = Counter(tokens)
-    total = len(tokens)
-    entropy = 0.0
+    # Count character frequencies
+    freq = Counter(text)
+    total_chars = len(text)
     
-    for count in counts.values():
+    # Compute entropy
+    entropy = 0.0
+    for count in freq.values():
         if count > 0:
-            prob = count / total
+            prob = count / total_chars
             entropy -= prob * math.log2(prob)
     
     return entropy
 
-def compute_trace_entropy(problem: Dict[str, Any], trace: List[str]) -> float:
+def compute_trace_entropy(problem: SyntheticProblem, trace: List[str]) -> float:
     """
-    Compute Shannon entropy of token-level probabilities from a teacher trace.
-    
-    The trace is expected to be a list of strings where each string represents
-    a step or token in the Chain-of-Thought. If the trace contains probability
-    strings (e.g., "0.85"), they are parsed. Otherwise, the entropy of the 
-    token distribution (frequency-based) is returned as a proxy for uncertainty.
+    Measure Shannon entropy of token-level probabilities from the teacher trace.
     
     Args:
-        problem: The SyntheticProblem dictionary (used to validate context if needed).
-        trace: List of tokens or probability strings from the teacher trace.
-    
+        problem: The synthetic problem
+        trace: List of trace steps
+        
     Returns:
-        Shannon entropy as a float.
+        Entropy value (float)
     """
     if not trace:
         return 0.0
     
-    # Attempt to parse probabilities if the trace looks like it contains them
-    # If the trace contains floats/strings representing probabilities, we calculate entropy
-    # based on the distribution of those probabilities relative to the max possible (1.0)
-    # or simply treat the frequency of tokens as the distribution if not.
+    # Combine all trace steps into one text
+    full_trace = " ".join(trace)
     
-    # Strategy: 
-    # 1. Check if trace items look like probabilities (0.0 to 1.0 floats).
-    # 2. If so, normalize them to sum to 1.0 and compute entropy.
-    # 3. If not, treat them as categorical tokens and compute frequency entropy.
+    # Compute entropy based on word frequencies
+    words = full_trace.split()
+    if not words:
+        return 0.0
     
-    probs = []
-    is_prob_trace = True
+    word_freq = Counter(words)
+    total_words = len(words)
     
-    for item in trace:
-        try:
-            val = float(item)
-            if 0.0 <= val <= 1.0:
-                probs.append(val)
-            else:
-                is_prob_trace = False
-                break
-        except (ValueError, TypeError):
-            is_prob_trace = False
-            break
+    entropy = 0.0
+    for count in word_freq.values():
+        if count > 0:
+            prob = count / total_words
+            entropy -= prob * math.log2(prob)
     
-    if is_prob_trace and len(probs) > 0:
-        total_prob = sum(probs)
-        if total_prob == 0:
-            return 0.0
-        
-        # Normalize to form a valid probability distribution
-        normalized_probs = [p / total_prob for p in probs]
-        
-        entropy = 0.0
-        for p in normalized_probs:
-            if p > 0:
-                entropy -= p * math.log2(p)
-        return entropy
-    
-    # Fallback: Compute frequency-based entropy (Shannon entropy of token distribution)
-    return compute_entropy(trace)
+    return entropy
 
 def compute_entropy_statistics(
-    high_entropy_scores: List[float],
-    low_entropy_scores: List[float]
+    problems: List[SyntheticProblem]
 ) -> Dict[str, Any]:
     """
-    Compute statistics for two groups of entropy scores.
-    
-    Performs a two-sample t-test (approximate) and returns means, stds, and p-value.
+    Calculate per-sample entropy scores and perform statistical tests.
     
     Args:
-        high_entropy_scores: List of entropy scores for the high entropy group.
-        low_entropy_scores: List of entropy scores for the low entropy group.
-    
+        problems: List of synthetic problems
+        
     Returns:
-        Dictionary with mean, std, and p-value.
+        Dictionary with statistics and test results
     """
-    if not high_entropy_scores or not low_entropy_scores:
+    if not problems:
         return {
-            "high_mean": None,
-            "high_std": None,
-            "low_mean": None,
-            "low_std": None,
-            "p_value": None,
-            "conclusion": "Insufficient data for t-test"
+            "mean": 0.0,
+            "std": 0.0,
+            "high_vs_low_p_value": None,
+            "sample_size": 0
         }
-
-    n1 = len(high_entropy_scores)
-    n2 = len(low_entropy_scores)
     
-    mean1 = sum(high_entropy_scores) / n1
-    mean2 = sum(low_entropy_scores) / n2
+    # Compute entropy for each problem
+    entropies = []
+    high_entropies = []
+    low_entropies = []
     
-    var1 = sum((x - mean1) ** 2 for x in high_entropy_scores) / (n1 - 1) if n1 > 1 else 0
-    var2 = sum((x - mean2) ** 2 for x in low_entropy_scores) / (n2 - 1) if n2 > 1 else 0
+    for problem in problems:
+        # Combine premises and operators for entropy calculation
+        text = " ".join(problem.premises + problem.operators)
+        entropy = compute_entropy(text)
+        entropies.append(entropy)
+        
+        if problem.entropy_level == "high":
+            high_entropies.append(entropy)
+        elif problem.entropy_level == "low":
+            low_entropies.append(entropy)
     
-    std1 = math.sqrt(var1)
-    std2 = math.sqrt(var2)
+    # Compute basic statistics
+    mean_entropy = statistics.mean(entropies)
+    std_entropy = statistics.stdev(entropies) if len(entropies) > 1 else 0.0
     
-    # Welch's t-test approximation
-    se = math.sqrt((var1 / n1) + (var2 / n2))
-    if se == 0:
-        t_stat = 0.0
-    else:
-        t_stat = (mean1 - mean2) / se
+    # Perform t-test (high vs low)
+    p_value = None
+    if len(high_entropies) > 1 and len(low_entropies) > 1:
+        # Simple t-test implementation
+        mean_high = statistics.mean(high_entropies)
+        mean_low = statistics.mean(low_entropies)
+        
+        var_high = statistics.variance(high_entropies)
+        var_low = statistics.variance(low_entropies)
+        
+        n_high = len(high_entropies)
+        n_low = len(low_entropies)
+        
+        # Pooled standard error
+        se = math.sqrt((var_high / n_high) + (var_low / n_low))
+        
+        if se > 0:
+            t_stat = (mean_high - mean_low) / se
+            # Approximate p-value using normal distribution (for large samples)
+            # In production, use scipy.stats.ttest_ind
+            p_value = 2 * (1 - 0.5 * (1 + math.erf(abs(t_stat) / math.sqrt(2))))
     
-    try:
-        from scipy import stats
-        t_stat, p_val = stats.ttest_ind(high_entropy_scores, low_entropy_scores, equal_var=False)
-    except ImportError:
-        # Fallback: Z-test approximation for large N
-        p_val = 2 * (1 - 0.5 * (1 + math.erf(abs(t_stat) / math.sqrt(2))))
-    
-    return {
-        "high_mean": mean1,
-        "high_std": std1,
-        "low_mean": mean2,
-        "low_std": std2,
-        "p_value": p_val,
-        "conclusion": "Significant" if p_val < 0.05 else "Not Significant"
+    result = {
+        "mean": mean_entropy,
+        "std": std_entropy,
+        "high_vs_low_p_value": p_value,
+        "sample_size": len(problems),
+        "high_entropy_count": len(high_entropies),
+        "low_entropy_count": len(low_entropies),
+        "high_mean": statistics.mean(high_entropies) if high_entropies else 0.0,
+        "low_mean": statistics.mean(low_entropies) if low_entropies else 0.0
     }
+    
+    logger.info(f"Entropy statistics: mean={mean_entropy:.4f}, std={std_entropy:.4f}, p-value={p_value}")
+    
+    return result

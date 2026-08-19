@@ -1,20 +1,29 @@
+"""
+Preprocess root images to extract Root System Architecture (RSA) metrics.
+
+This module implements the image processing pipeline to convert raw root images
+from the NPPN Plant Phenome Pipeline into quantitative architectural metrics:
+- Depth: Maximum vertical extent of the root system
+- Branching Density: (branch_points - endpoints) / total_length
+- Surface Area: Calculated from contour analysis
+
+Uses OpenCV and scikit-image for CPU-optimized processing.
+"""
+
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 from dataclasses import dataclass, asdict
-
 import cv2
 import numpy as np
-import pandas as pd
 from skimage.morphology import skeletonize
-from skimage.measure import find_contours, perimeter
-from scipy import ndimage
-
+from skimage.measure import find_contours
+import pandas as pd
 from config import ensure_directories, get_config_summary
 
-# Configure logging
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -23,30 +32,31 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RSAMetricsResult:
-    """Container for extracted RSA metrics for a single image."""
+    """Data class to hold RSA metrics for a single image."""
     image_id: str
-    species_id: str
+    species: str
     depth: float
     branching_density: float
     surface_area: float
-    error: Optional[str] = None
+    status: str  # 'success' or 'error'
+    error_message: Optional[str] = None
 
-def load_and_preprocess_image(image_path: Path) -> Tuple[np.ndarray, str]:
+def load_and_preprocess_image(image_path: Path) -> Optional[np.ndarray]:
     """
-    Load an image and preprocess it for skeletonization.
+    Load and preprocess a single root image.
     
     Args:
-        image_path: Path to the image file.
+        image_path: Path to the image file
         
     Returns:
-        Tuple of (binary_mask, error_message). 
-        If successful, error_message is None.
+        Preprocessed binary image (0 for background, 1 for root) or None if error
     """
     try:
-        # Read image
+        # Load image
         img = cv2.imread(str(image_path))
         if img is None:
-            return np.array([]), f"Failed to load image: {image_path.name}"
+            logger.error(f"Failed to load image: {image_path}")
+            return None
         
         # Convert to grayscale
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -54,254 +64,246 @@ def load_and_preprocess_image(image_path: Path) -> Tuple[np.ndarray, str]:
         # Apply Gaussian blur to reduce noise
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
         
-        # Threshold to get binary mask (roots are typically darker than background)
-        # Using Otsu's thresholding after Gaussian filtering
+        # Threshold to create binary mask (roots are typically darker than background)
+        # Using Otsu's thresholding for automatic threshold selection
         _, binary = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         
         # Morphological operations to clean up noise
-        kernel = np.ones((3, 3), np.uint8)
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
         cleaned = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
         cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel)
         
-        # Ensure binary (0 and 255)
-        binary_mask = (cleaned > 0).astype(np.uint8)
+        # Convert to boolean mask (0 for background, True for root)
+        mask = cleaned > 0
         
-        if np.sum(binary_mask) == 0:
-            return np.array([]), f"No root structure found in image: {image_path.name}"
-        
-        return binary_mask, None
-        
+        return mask
+    
     except Exception as e:
-        return np.array([]), f"Error processing {image_path.name}: {str(e)}"
+        logger.error(f"Error processing image {image_path}: {str(e)}")
+        return None
 
-def extract_skeleton_metrics(binary_mask: np.ndarray) -> Dict[str, float]:
+def extract_skeleton_metrics(mask: np.ndarray, image_id: str) -> Tuple[float, int, int, float]:
     """
-    Extract depth and branching metrics from a binary root mask using skeletonization.
-    
-    Algorithm:
-    - Skeletonize the binary mask (8-connectivity)
-    - Calculate depth as max distance from root base to tip
-    - Count branch points and endpoints
-    - Calculate total skeleton length
+    Extract depth and branching metrics from the skeletonized root system.
     
     Args:
-        binary_mask: Binary numpy array where 1 represents root pixels.
+        mask: Binary mask of the root system
+        image_id: Identifier for the image
         
     Returns:
-        Dictionary with 'depth', 'branch_points', 'endpoints', 'total_length'.
+        Tuple of (depth, branch_points, endpoints, total_length)
     """
-    if binary_mask.size == 0:
-        return {'depth': 0.0, 'branch_points': 0, 'endpoints': 0, 'total_length': 0.0}
+    if not np.any(mask):
+        logger.warning(f"Empty mask for {image_id}")
+        return 0.0, 0, 0, 0.0
     
-    # Skeletonize (returns boolean array)
-    skeleton = skeletonize(binary_mask)
-    skeleton_uint8 = skeleton.astype(np.uint8)
+    # Skeletonize the root system (8-connectivity)
+    skeleton = skeletonize(mask)
     
-    # Calculate branch points (pixels with 3 or more neighbors in 8-connectivity)
+    # Calculate total length of skeleton
+    total_length = np.sum(skeleton)
+    
+    if total_length == 0:
+        logger.warning(f"Zero skeleton length for {image_id}")
+        return 0.0, 0, 0, 0.0
+    
+    # Find endpoints (pixels with only 1 neighbor)
     # Convolve with a 3x3 kernel to count neighbors
-    kernel = np.ones((3, 3), np.uint8)
+    kernel = np.ones((3, 3), dtype=np.uint8)
     kernel[1, 1] = 0  # Exclude center pixel
-    neighbor_count = ndimage.convolve(skeleton_uint8, kernel, mode='constant')
     
-    # Branch points: skeleton pixels with exactly 3 or more neighbors
-    branch_points = np.sum((skeleton_uint8 == 1) & (neighbor_count >= 3))
+    neighbor_count = cv2.filter2D(skeleton.astype(np.uint8), -1, kernel)
     
-    # Endpoints: skeleton pixels with exactly 1 neighbor
-    endpoints = np.sum((skeleton_uint8 == 1) & (neighbor_count == 1))
+    # Endpoints have exactly 1 neighbor
+    endpoints = np.sum(neighbor_count == 1)
     
-    # Total skeleton length (number of pixels in skeleton)
-    total_length = float(np.sum(skeleton_uint8))
+    # Branch points have 3 or more neighbors
+    branch_points = np.sum(neighbor_count >= 3)
     
-    # Calculate depth: maximum distance from any root pixel to the "base"
-    # For simplicity, we'll use the maximum extent in the vertical direction
-    # assuming roots grow downward. We find the bounding box of the skeleton.
-    coords = np.column_stack(np.where(skeleton_uint8 > 0))
-    if len(coords) > 0:
-        # coords are (row, col) - row increases downward
-        min_row, max_row = coords[:, 0].min(), coords[:, 0].max()
-        depth = float(max_row - min_row)
-    else:
+    # Depth: maximum vertical extent (assuming roots grow downward)
+    # Find all non-zero pixel coordinates
+    coords = np.column_stack(np.where(skeleton))
+    if len(coords) == 0:
         depth = 0.0
-        
-    return {
-        'depth': depth,
-        'branch_points': int(branch_points),
-        'endpoints': int(endpoints),
-        'total_length': total_length
-    }
-
-def extract_surface_area(binary_mask: np.ndarray) -> float:
-    """
-    Estimate surface area using contour-based approach.
+    else:
+        # Assuming row index represents vertical position (0 at top)
+        # Depth is the maximum row index
+        depth = float(np.max(coords[:, 0]))
     
-    For 2D root images, surface area is approximated by:
-    - Finding the contour of the root system
-    - Calculating the perimeter
-    - Estimating area from the binary mask (pixel count)
+    return depth, branch_points, endpoints, total_length
+
+def extract_surface_area(mask: np.ndarray, image_id: str) -> float:
+    """
+    Extract surface area from the root system mask using contour analysis.
     
     Args:
-        binary_mask: Binary numpy array where 1 represents root pixels.
+        mask: Binary mask of the root system
+        image_id: Identifier for the image
         
     Returns:
-        Estimated surface area (in pixels).
+        Surface area (number of pixels in the root system)
     """
-    if binary_mask.size == 0:
+    if not np.any(mask):
+        logger.warning(f"Empty mask for {image_id}")
         return 0.0
-        
-    # Use find_contours to get the outer boundary
-    # skimage expects float in [0, 1]
-    contours = find_contours(binary_mask.astype(float), 0.5)
+    
+    # Convert mask to uint8 for OpenCV
+    mask_uint8 = (mask * 255).astype(np.uint8)
+    
+    # Find contours
+    contours, _ = find_contours(mask_uint8)
     
     if not contours:
-        # Fallback: use pixel count as area approximation
-        return float(np.sum(binary_mask))
+        logger.warning(f"No contours found for {image_id}")
+        return 0.0
     
-    # Sum the areas of all contours (using the binary mask area as proxy)
-    # For root systems, the total area of the binary mask is a good approximation
-    # of the cross-sectional area, which correlates with surface area
-    total_area = float(np.sum(binary_mask))
+    # Calculate total area from all contours
+    total_area = 0.0
+    for contour in contours:
+        # Area is simply the number of pixels in the contour
+        area = cv2.contourArea(contour)
+        total_area += area
+    
+    # If no contours were found via find_contours, fall back to pixel count
+    if total_area == 0:
+        total_area = float(np.sum(mask))
     
     return total_area
 
 def calculate_branching_density(branch_points: int, endpoints: int, total_length: float) -> float:
     """
-    Calculate branching density.
-    
-    Formula: (branch_points - endpoints) / total_length
-    This normalizes the branching complexity by the total root length.
+    Calculate branching density using the formula: (branch_points - endpoints) / total_length.
     
     Args:
-        branch_points: Number of branch points in the skeleton.
-        endpoints: Number of endpoints in the skeleton.
-        total_length: Total length of the skeleton (in pixels).
+        branch_points: Number of branch points in the skeleton
+        endpoints: Number of endpoints in the skeleton
+        total_length: Total length of the skeleton
         
     Returns:
-        Branching density (float). Returns 0.0 if total_length is 0.
+        Branching density value
     """
     if total_length == 0:
         return 0.0
     
-    # Avoid negative density if endpoints > branch_points (rare but possible)
-    density = max(0.0, (branch_points - endpoints) / total_length)
-    return density
+    # Formula: (branch_points - endpoints) / total_length
+    density = (branch_points - endpoints) / total_length
+    
+    # Ensure non-negative (in case of calculation artifacts)
+    return max(0.0, density)
 
-def validate_metrics(metrics: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+def validate_metrics(metrics: RSAMetricsResult) -> bool:
     """
-    Validate that all metrics are non-null and positive (where applicable).
+    Validate that all metrics are non-null and positive.
     
     Args:
-        metrics: Dictionary containing RSA metrics.
+        metrics: RSAMetricsResult object to validate
         
     Returns:
-        Tuple of (is_valid, error_message).
+        True if validation passes, False otherwise
     """
-    required_fields = ['depth', 'branching_density', 'surface_area']
+    if metrics.status != 'success':
+        return False
     
-    for field in required_fields:
-        if field not in metrics:
-            return False, f"Missing required field: {field}"
-        
-        value = metrics[field]
-        if value is None:
-            return False, f"Null value for {field}"
-        
-        if not isinstance(value, (int, float)):
-            return False, f"Non-numeric value for {field}: {type(value)}"
-        
-        if field != 'branching_density' and value < 0:
-            return False, f"Negative value for {field}: {value}"
-        
-        # For branching_density, allow 0 but not negative
-        if field == 'branching_density' and value < 0:
-            return False, f"Negative value for {field}: {value}"
+    # Check for null/None values
+    if metrics.depth is None or metrics.branching_density is None or metrics.surface_area is None:
+        logger.error(f"Null values detected for {metrics.image_id}")
+        return False
     
-    return True, None
+    # Check for positive values
+    if metrics.depth <= 0:
+        logger.error(f"Non-positive depth for {metrics.image_id}: {metrics.depth}")
+        return False
+    
+    if metrics.surface_area <= 0:
+        logger.error(f"Non-positive surface area for {metrics.image_id}: {metrics.surface_area}")
+        return False
+    
+    # Branching density can be zero but not negative
+    if metrics.branching_density < 0:
+        logger.error(f"Negative branching density for {metrics.image_id}: {metrics.branching_density}")
+        return False
+    
+    return True
 
-def process_single_image(image_path: Path, species_id: str) -> RSAMetricsResult:
+def process_single_image(image_path: Path, image_id: str, species: str) -> RSAMetricsResult:
     """
-    Process a single root image and extract RSA metrics.
+    Process a single image and extract all RSA metrics.
     
     Args:
-        image_path: Path to the image file.
-        species_id: Species identifier for the image.
+        image_path: Path to the image file
+        image_id: Identifier for the image
+        species: Species name associated with the image
         
     Returns:
-        RSAMetricsResult object with extracted metrics or error information.
+        RSAMetricsResult containing the extracted metrics
     """
-    image_id = image_path.stem
+    try:
+        # Load and preprocess image
+        mask = load_and_preprocess_image(image_path)
+        
+        if mask is None:
+            return RSAMetricsResult(
+                image_id=image_id,
+                species=species,
+                depth=0.0,
+                branching_density=0.0,
+                surface_area=0.0,
+                status='error',
+                error_message='Failed to load or preprocess image'
+            )
+        
+        # Extract skeleton metrics
+        depth, branch_points, endpoints, total_length = extract_skeleton_metrics(mask, image_id)
+        
+        # Extract surface area
+        surface_area = extract_surface_area(mask, image_id)
+        
+        # Calculate branching density
+        branching_density = calculate_branching_density(branch_points, endpoints, total_length)
+        
+        # Create result object
+        result = RSAMetricsResult(
+            image_id=image_id,
+            species=species,
+            depth=depth,
+            branching_density=branching_density,
+            surface_area=surface_area,
+            status='success'
+        )
+        
+        # Validate metrics
+        if not validate_metrics(result):
+            result.status = 'error'
+            result.error_message = 'Validation failed: non-null and positive values required'
+            logger.warning(f"Validation failed for {image_id}")
+        
+        return result
     
-    # Load and preprocess image
-    binary_mask, error = load_and_preprocess_image(image_path)
-    if error:
-        logger.warning(error)
+    except Exception as e:
+        logger.error(f"Unexpected error processing {image_id}: {str(e)}")
         return RSAMetricsResult(
             image_id=image_id,
-            species_id=species_id,
+            species=species,
             depth=0.0,
             branching_density=0.0,
             surface_area=0.0,
-            error=error
+            status='error',
+            error_message=f'Unexpected error: {str(e)}'
         )
-    
-    # Extract skeleton metrics
-    skeleton_metrics = extract_skeleton_metrics(binary_mask)
-    
-    # Extract surface area
-    surface_area = extract_surface_area(binary_mask)
-    
-    # Calculate branching density
-    branching_density = calculate_branching_density(
-        skeleton_metrics['branch_points'],
-        skeleton_metrics['endpoints'],
-        skeleton_metrics['total_length']
-    )
-    
-    # Compile metrics
-    metrics = {
-        'depth': skeleton_metrics['depth'],
-        'branching_density': branching_density,
-        'surface_area': surface_area
-    }
-    
-    # Validate metrics
-    is_valid, validation_error = validate_metrics(metrics)
-    if not is_valid:
-        logger.error(f"Validation failed for {image_path.name}: {validation_error}")
-        return RSAMetricsResult(
-            image_id=image_id,
-            species_id=species_id,
-            depth=0.0,
-            branching_density=0.0,
-            surface_area=0.0,
-            error=validation_error
-        )
-    
-    logger.info(f"Successfully processed {image_path.name}: depth={metrics['depth']:.2f}, "
-               f"branching_density={metrics['branching_density']:.6f}, "
-               f"surface_area={metrics['surface_area']:.2f}")
-    
-    return RSAMetricsResult(
-        image_id=image_id,
-        species_id=species_id,
-        depth=metrics['depth'],
-        branching_density=metrics['branching_density'],
-        surface_area=metrics['surface_area'],
-        error=None
-    )
 
-def process_directory(input_dir: Path, output_csv: Path) -> List[RSAMetricsResult]:
+def process_directory(input_dir: Path, output_path: Path) -> List[RSAMetricsResult]:
     """
-    Process all images in a directory and save results to CSV.
+    Process all images in a directory and generate a CSV with RSA metrics.
     
     Args:
-        input_dir: Directory containing root images.
-        output_csv: Path to save the output CSV file.
+        input_dir: Directory containing root images
+        output_path: Path to write the output CSV file
         
     Returns:
-        List of RSAMetricsResult objects.
+        List of RSAMetricsResult objects
     """
     # Ensure output directory exists
-    ensure_directories([output_csv.parent])
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     # Supported image extensions
     image_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif'}
@@ -315,88 +317,120 @@ def process_directory(input_dir: Path, output_csv: Path) -> List[RSAMetricsResul
     if not image_files:
         logger.error(f"No image files found in {input_dir}")
         # Create empty CSV with headers
-        pd.DataFrame(columns=['image_id', 'species_id', 'depth', 'branching_density', 'surface_area', 'error']).to_csv(output_csv, index=False)
+        df = pd.DataFrame(columns=['image_id', 'species', 'depth', 'branching_density', 'surface_area', 'status', 'error_message'])
+        df.to_csv(output_path, index=False)
         return []
     
-    logger.info(f"Found {len(image_files)} image files in {input_dir}")
+    logger.info(f"Found {len(image_files)} image files to process")
     
     results = []
+    successful = 0
+    failed = 0
+    
     for image_path in image_files:
-        # Extract species_id from filename or directory structure
-        # Assuming filename format: species_id_*.jpg or similar
-        species_id = image_path.parent.name  # Use parent directory as species_id
-        if species_id == input_dir.name:
-            species_id = image_path.stem.split('_')[0] if '_' in image_path.stem else "unknown"
+        # Generate image_id from filename (without extension)
+        image_id = image_path.stem
         
-        result = process_single_image(image_path, species_id)
+        # Extract species from directory structure or filename
+        # Assuming species is in the parent directory name or part of the filename
+        species = image_path.parent.name
+        if species == input_dir.name:
+            # If parent is the input directory, try to extract from filename
+            # Assume format: species_imageName.ext
+            parts = image_path.stem.split('_')
+            if len(parts) > 1:
+                species = parts[0]
+            else:
+                species = 'unknown'
+        
+        logger.info(f"Processing {image_id} (species: {species})")
+        
+        result = process_single_image(image_path, image_id, species)
         results.append(result)
         
-        # Log errors for skipped images
-        if result.error:
-            logger.warning(f"Skipped {image_path.name}: {result.error}")
+        if result.status == 'success':
+            successful += 1
+        else:
+            failed += 1
+            logger.warning(f"Failed to process {image_id}: {result.error_message}")
     
-    # Filter out results with errors for the final CSV
-    valid_results = [r for r in results if r.error is None]
+    # Convert results to DataFrame
+    df_data = [asdict(r) for r in results]
+    df = pd.DataFrame(df_data)
     
-    if not valid_results:
-        logger.error("No valid results to write to CSV. All images failed processing.")
-        # Still write CSV with error information
-        df = pd.DataFrame([asdict(r) for r in results])
-        df.to_csv(output_csv, index=False)
-        return results
-    
-    # Create DataFrame and validate
-    df = pd.DataFrame([asdict(r) for r in valid_results])
-    
-    # Final validation: ensure no null values and positive numerical values
-    numeric_cols = ['depth', 'branching_density', 'surface_area']
-    for col in numeric_cols:
-        if df[col].isnull().any():
-            logger.error(f"Null values found in {col} column")
-        if (df[col] < 0).any() and col != 'branching_density':
-            logger.error(f"Negative values found in {col} column")
-        if col == 'branching_density' and (df[col] < 0).any():
-            logger.error(f"Negative values found in {col} column")
+    # Ensure correct column order
+    columns = ['image_id', 'species', 'depth', 'branching_density', 'surface_area', 'status', 'error_message']
+    df = df[columns]
     
     # Write to CSV
-    df.to_csv(output_csv, index=False)
-    logger.info(f"Successfully wrote {len(valid_results)} valid records to {output_csv}")
+    df.to_csv(output_path, index=False)
     
-    # Log summary
-    logger.info(f"Processing complete: {len(valid_results)} successful, {len(results) - len(valid_results)} failed")
+    logger.info(f"Processing complete: {successful} successful, {failed} failed")
+    logger.info(f"Results written to {output_path}")
+    
+    # Final validation: ensure no null values and positive numerical values in successful rows
+    successful_df = df[df['status'] == 'success']
+    if len(successful_df) > 0:
+        # Check for null values
+        null_counts = successful_df[['depth', 'branching_density', 'surface_area']].isnull().sum()
+        if null_counts.any():
+            logger.error(f"Null values found in successful results: {null_counts.to_dict()}")
+            raise ValueError("Null values detected in successful results")
+        
+        # Check for positive values
+        if (successful_df['depth'] <= 0).any():
+            logger.error("Non-positive depth values found in successful results")
+            raise ValueError("Non-positive depth values detected")
+        
+        if (successful_df['surface_area'] <= 0).any():
+            logger.error("Non-positive surface area values found in successful results")
+            raise ValueError("Non-positive surface area values detected")
+        
+        if (successful_df['branching_density'] < 0).any():
+            logger.error("Negative branching density values found in successful results")
+            raise ValueError("Negative branching density values detected")
+        
+        logger.info("Final validation passed: all successful results have non-null, positive numerical values")
     
     return results
 
 def main():
     """Main entry point for the image preprocessing pipeline."""
+    logger.info("Starting RSA metrics extraction pipeline")
+    
+    # Load configuration
     config = get_config_summary()
     
     # Define paths
     input_dir = Path(config['data_raw_dir']) / 'nppn_images'
-    output_csv = Path(config['data_derived_dir']) / 'rsametrics.csv'
+    output_path = Path(config['data_derived_dir']) / 'rsametrics.csv'
     
-    logger.info(f"Starting RSA metrics extraction from {input_dir}")
-    logger.info(f"Output will be saved to {output_csv}")
+    # Ensure directories exist
+    ensure_directories()
     
     if not input_dir.exists():
         logger.error(f"Input directory does not exist: {input_dir}")
-        logger.error("Please run download_images.py first to fetch the root images.")
+        logger.error("Please run download_images.py first to fetch the root images")
         sys.exit(1)
     
     # Process images
-    results = process_directory(input_dir, output_csv)
-    
-    if not results:
-        logger.error("No images were processed. Check input directory and logs.")
+    try:
+        results = process_directory(input_dir, output_path)
+        
+        if not results:
+            logger.warning("No results generated")
+            sys.exit(1)
+        
+        successful_count = sum(1 for r in results if r.status == 'success')
+        if successful_count == 0:
+            logger.error("No images were successfully processed")
+            sys.exit(1)
+        
+        logger.info(f"Pipeline completed successfully. {successful_count}/{len(results)} images processed")
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed: {str(e)}")
         sys.exit(1)
-    
-    # Check for any processing errors
-    failed_count = sum(1 for r in results if r.error is not None)
-    if failed_count > 0:
-        logger.warning(f"{failed_count} images failed to process. Check logs for details.")
-    
-    logger.info("RSA metrics extraction completed successfully.")
-    return 0
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

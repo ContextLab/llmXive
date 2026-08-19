@@ -1,10 +1,10 @@
 T006:
   c: false
-  h: ffb63c3523255bd67b5ff04e5931e73e0bcf5d234c9e85ef739579eb902de948
-  r: The required file `projects/PROJ-267-exploring-the-relationship-between-atmos/code/requirements.txt`
-    does not exist, so the specified dependencies are not initialized at the correct
-    project location. The existing `code/requirements.txt` is at a different path
-    and does not fulfill the task.
+  h: 8188ba4a498113a2e4acf0202931b2988444208ba8a89fe7dd106e9de2493541
+  r: "The required file `projects/PROJ-267-exploring-the-relationship-between-atmos/code/requirements.txt`\
+    \ does not exist, so the specified project initialization with dependencies is\
+    \ not present despite a similarly named `code/requirements.txt` elsewhere. The\
+    \ task\u2019s path requirement is unmet."
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,9 +14,9 @@ T009:
     \ document with the specified sections."
 T017:
   c: false
-  h: e624b3b855a5bb91a904463a8451d361bacfc49caf3e67f80cf96a364ce10bee
-  r: "The repository contains the `03_merge_output.py` script, but the required output\
-    \ file `data/processed/merged_monthly.csv` does not exist, and the referenced\
-    \ schema file `contracts/dataset.schema.yaml` is also missing. Without these artifacts\
-    \ the script cannot fulfill the completeness, NaN\u2011check, and schema\u2011\
-    validation steps mandated by the task."
+  h: f59d0d72a56f0570e57b5cafb82004bbe89d7d8a1247904b2b037c8ea6b3cf9b
+  r: "The provided `03_merge_output.py` is truncated (e.g., undefined `total_months`\
+    \ and no NaN or schema validation logic) and the required output file `merged_monthly.csv`\
+    \ does not exist. Additionally, the referenced schema file `contracts/dataset.schema.yaml`\
+    \ is missing, so the script cannot perform the required schema validation. The\
+    \ task\u2019s deliverables are therefore not fully satisfied."

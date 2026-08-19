@@ -1,135 +1,146 @@
 # Quickstart Guide: Atmospheric River Gravity Correlation
 
-This guide provides instructions for installing dependencies, fetching real data, running the analysis pipeline, and verifying expected outputs for the `PROJ-267-exploring-the-relationship-between-atmos` project.
+This guide covers installation, execution, data sources, and expected outputs for the PROJ-267 project investigating the relationship between atmospheric rivers and gravity anomalies.
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- pip (Python package installer)
-- Access to the internet (required for fetching real data from PO.DAAC and NOAA ERDDAP)
+- Python 3.11+
+- pip (Python package manager)
+- Internet access (for data fetching)
 
 ## Installation
 
-1. Navigate to the project root directory:
+1. Navigate to the project root:
  ```bash
  cd projects/PROJ-267-exploring-the-relationship-between-atmos
  ```
 
-2. Install the required Python dependencies:
+2. Create a virtual environment (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
  ```
 
-3. (Optional) Verify citation validity before running the pipeline:
- ```bash
- python code/00_verify_citations.py
- ```
- This script validates that all referenced citations in `specs/001-atmospheric-river-gravity/spec.md` are reachable and match their primary sources.
-
 ## Data Sources
 
-The pipeline relies on two real, external datasets. These are fetched automatically during the ingestion step.
+The pipeline automatically fetches real data from the following sources:
 
 1. **GRACE-FO Mascon Solutions**:
- - **Source**: NASA PO.DAAC (Physical Oceanography Distributed Active Archive Center)
- - **Endpoint**: ` (via programmatic access)
- - **Content**: Level-3 GRACE-FO mascon solutions (RL06) for terrestrial water storage anomalies.
- - **Access**: Requires no API key for public datasets, but programmatic access follows standard PO.DAAC protocols.
+ - Source: NASA PO.DAAC (Physical Oceanography Distributed Active Archive Center)
+ - Access: Programmatic download via `code/01_data_ingestion.py`
+ - Note: Requires internet connectivity. Data is saved to `data/raw/grace-fo/`
 
 2. **NOAA CPC Atmospheric River Catalog**:
- - **Source**: NOAA National Centers for Environmental Information (NCEI) via ERDDAP
- - **Endpoint**: `
- - **Content**: Global Atmospheric River detection events with Integrated Water Vapor Transport (IWVT) metrics.
-
-**Note**: The scripts are designed to fail loudly if these real sources are unreachable. Do not expect synthetic fallback data.
+ - Source: NOAA ERDDAP (Environmental Research Division's Data Access Program)
+ - Access: Programmatic download via `code/01_data_ingestion.py`
+ - Note: Requires internet connectivity. Data is saved to `data/raw/noaa-ar/`
 
 ## Running the Pipeline
 
-Execute the pipeline steps in the following order. Each step reads from the previous step's output or the raw data sources.
+Execute the following scripts in order. Each script produces specific output files.
 
-### Step 1: Data Ingestion
-Fetches raw GRACE-FO and NOAA AR data and saves them to `data/raw/`.
+### 1. Data Ingestion
+Fetches raw data from external sources.
 ```bash
 python code/01_data_ingestion.py
 ```
-**Expected Output**:
-- `data/raw/grace-fo/`: Raw mascon data files (NetCDF/CSV).
-- `data/raw/noaa-ar/`: Raw AR catalog data files (CSV).
-- Console logs confirming dataset versions and checksums.
+**Outputs**:
+- `data/raw/grace-fo/` (raw GRACE-FO mascon files)
+- `data/raw/noaa-ar/` (raw NOAA AR catalog files)
 
-### Step 2: Preprocessing
-Applies GRACE-FO corrections (degree-1, C20, smoothing) and aggregates both datasets to monthly resolution.
+### 2. Preprocessing
+Applies corrections (degree-1, C20), smoothing, and monthly aggregation.
 ```bash
 python code/02_preprocessing.py
 ```
-**Expected Output**:
-- `data/processed/grace-fo_monthly.csv`: Preprocessed gravity anomaly data.
-- `data/processed/noaa-ar_monthly.csv`: Preprocessed AR intensity data.
+**Outputs**:
+- Preprocessed intermediate files in `data/processed/` (internal use)
 
-### Step 3: Merge Output
-Merges the preprocessed datasets into a single time-series CSV.
+### 3. Merge Output
+Combines GRACE-FO and NOAA data into a single dataset.
 ```bash
 python code/03_merge_output.py
 ```
-**Expected Output**:
-- `data/processed/merged_monthly.csv`: The primary analysis dataset.
-- **Schema Validation**: The script validates this file against `contracts/dataset.schema.yaml`.
+**Outputs**:
+- `data/processed/merged_monthly.csv` (merged time-series data)
 
-### Step 4: Correlation Analysis
-Computes Pearson correlations with lag windows, bootstrap confidence intervals, and FDR correction.
+### 4. Correlation Analysis
+Computes Pearson correlations with lag windows and bootstrap corrections.
 ```bash
 python code/04_correlation.py
 ```
+**Outputs**:
+- Correlation results (internal JSON/CSV structures)
+
+### 5. Bootstrap Correction
+Applies FDR correction and confidence intervals.
 ```bash
 python code/05_bootstrap_correction.py
 ```
-**Expected Output**:
-- `data/processed/correlation_results.json`: Statistical results including coefficients, p-values, and bootstrap CIs.
+**Outputs**:
+- Corrected statistical results
 
-### Step 5: Control Validation
-Validates results against a control region to distinguish signal from noise.
+### 6. Control Validation
+Compares target vs. control regions.
 ```bash
 python code/06_control_validation.py
 ```
-**Expected Output**:
-- `data/processed/control_validation_report.json`: Comparison metrics and noise floor analysis.
+**Outputs**:
+- Validation metrics
 
-### Step 6: Visualization & Reporting
-Generates diagnostic plots and the final sensitivity report.
+### 7. Visualization
+Generates diagnostic plots.
 ```bash
 python code/07_visualization_timeseries.py
 python code/08_visualization_scatter.py
 python code/09_visualization_spatial.py
-python code/10_sensitivity_report.py
 ```
-**Expected Output**:
+**Outputs**:
 - `output/timeseries_overlay.png`
 - `output/scatter_regression.png`
 - `output/spatial_anomaly_map.png`
-- `docs/sensitivity_report.md`
+
+### 8. Sensitivity Report
+Generates the final sensitivity analysis report.
+```bash
+python code/10_sensitivity_report.py
+```
+**Outputs**:
+- `output/sensitivity_report.md`
+
+## Expected Outputs
+
+After running the full pipeline, verify the following files exist:
+
+| File Path | Description |
+|:--- |:--- |
+| `data/raw/grace-fo/` | Raw GRACE-FO downloaded files |
+| `data/raw/noaa-ar/` | Raw NOAA AR catalog files |
+| `data/processed/merged_monthly.csv` | Merged monthly dataset (≥90% completeness) |
+| `output/timeseries_overlay.png` | Time-series visualization |
+| `output/scatter_regression.png` | Scatter plot with regression |
+| `output/spatial_anomaly_map.png` | Spatial anomaly map |
+| `output/sensitivity_report.md` | Final sensitivity analysis report |
 
 ## Verification
 
-To verify the entire pipeline and schema compliance:
+Run the citation verification script before starting the pipeline to ensure all data sources are reachable:
+```bash
+python code/00_verify_citations.py
+```
 
-1. **Run Contract Tests**:
- ```bash
- pytest tests/contract/
- ```
-
-2. **Run Integration Tests**:
- ```bash
- pytest tests/integration/
- ```
-
-3. **Validate Output Language**:
- ```bash
- python code/10_sensitivity_report.py --validate
- ```
- This ensures the final report contains no prohibited causal language (e.g., "causes", "effect") as per FR-007.
+Run contract tests to verify schema compliance:
+```bash
+pytest tests/contract/
+```
 
 ## Troubleshooting
 
-- **"Name or service not known" errors**: Ensure your network connection is active. The scripts require internet access to fetch real data.
-- **Missing `data/raw` files**: If `01_data_ingestion.py` fails, check the logs for specific URL access issues. The script will not generate synthetic data.
-- **Schema Validation Errors**: If `03_merge_output.py` fails schema validation, inspect `data/processed/merged_monthly.csv` for missing columns or unexpected data types.
+- **Data Fetch Failures**: Ensure internet connectivity and that the project has not been blocked by the source (PO.DAAC/NOAA). The scripts will fail loudly with clear error messages if data cannot be retrieved.
+- **Missing Dependencies**: Re-run `pip install -r code/requirements.txt`.
+- **Memory Issues**: The pipeline is optimized for 7GB RAM. If errors occur, check system resources.

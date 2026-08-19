@@ -1,14 +1,14 @@
-# llmXive: Follow-up: Extending "Macaron-A2UI"
+# llmXive Follow-up: Extending Macaron-A2UI
 
-Automated science pipeline for studying latency and alignment in generative UI agents.
+This project implements a study on latency and fidelity in generative UI for personal agents, extending the "Macaron-A2UI" model.
 
 ## Project Structure
 
-- `code/`: Source code for ingestion, models, simulation, and analysis
-- `data/`: Raw and processed datasets (excluded from git)
-- `specs/`: Design documents and contracts
-- `tests/`: Unit, integration, and contract tests
-- `state/`: Versioning and experiment state tracking
+- `code/`: Source code for ingestion, simulation, models, and analysis.
+- `data/`: Raw and processed data artifacts.
+- `tests/`: Unit, integration, and contract tests.
+- `specs/`: Feature specifications and design documents.
+- `figures/`: Generated plots and visualizations.
 
 ## Setup
 
@@ -23,25 +23,22 @@ Automated science pipeline for studying latency and alignment in generative UI a
  pip install -r requirements.txt
  ```
 
-3. Configure environment:
+3. Configure environment variables:
  ```bash
  cp.env.example.env
- # Edit.env to add your HF_TOKEN if required
+ # Edit.env as needed
  ```
 
 ## Running the Pipeline
 
-Refer to `specs/001-llmxive-a2ui-latency-study/quickstart.md` for execution steps.
+Refer to `specs/001-llmxive-a2ui-latency-study/quickstart.md` for detailed execution steps.
 
-## Testing
+## Development
 
-```bash
-pytest tests/
-```
+- Formatting: `black code/ tests/`
+- Linting: `ruff check code/ tests/`
+- Testing: `pytest`
 
-## Linting & Formatting
+## License
 
-```bash
-ruff check code/
-black code/
-```
+[Insert License]

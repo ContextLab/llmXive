@@ -1,0 +1,29 @@
+T008:
+  c: false
+  h: 8082b5a1a875ffc05b52b3612d84855421e2edcfe2d39e455853b082b5d8c47c
+  r: "The provided `code/power_analysis.py` is truncated and does not contain the\
+    \ full logic for fetching species from both NPPN/MGB3 and TRY, computing the sample\
+    \ size with `FTestPower`, nor halting with the required error when N\u202F<\u202F\
+    55. Additionally, the required output file `state/power_analysis_report.yaml`\
+    \ is absent. Both the implementation and the deliverable report are missing."
+T024a:
+  c: false
+  h: 6355649be472f4b78c16de9f6d6576990313e54d15d6b3b33e09baac4840e95a
+  r: "The required output file `data/derived/phylogenetic_tree.newick` does not exist,\
+    \ so the script\u2019s primary deliverable is missing. Consequently the task\u2019\
+    s requirement is not satisfied."
+T024b:
+  c: false
+  h: 7782fc663534eaa2a4b6779be05c616f0db1828af6d9965afc3f7345bf51f8cc
+  r: The repository lacks a `fit_pgl()` implementation in `code/models.py` (the file
+    is truncated and does not contain the required function), and the required input
+    file `data/derived/phylogenetic_tree.newick` is missing. Both the core function
+    and its necessary data are absent, so the task is not satisfied.
+T026b:
+  c: false
+  h: c51703c3eb7370dde6a9358e3ebd536ecb4cebe8150c3cc31611cd0825e94948
+  r: "The repository contains `code/generate_report.py` with functions to load VIF\
+    \ results and generate framing text, but the file never writes the required `state/vif_compliance_check.yaml`.\
+    \ Moreover, that YAML file is missing from the project, so the required output\
+    \ artifact does not exist. The task\u2019s requirement to record VIF status and\
+    \ suppression actions in `state/vif_compliance_check.yaml` is therefore unmet."

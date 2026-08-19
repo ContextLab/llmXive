@@ -7,8 +7,11 @@ exclude =
     .eggs,
     *.egg-info,
     build,
-    dist
+    dist,
+    .venv,
+    venv
 per-file-ignores =
-    # Allow unused imports in __init__.py if present (not currently used but good practice)
-    __init__.py: F401
-max-complexity = 15
+    # Allow wildcard imports in __init__ files if they exist
+    __init__.py: F403, F405
+    # Allow unused variables in test files for setup purposes
+    tests/*.py: F841

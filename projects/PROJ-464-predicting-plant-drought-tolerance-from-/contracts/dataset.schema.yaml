@@ -1,185 +1,85 @@
-# Dataset Schema for NPPN Root Phenotyping and TRY Physiological Traits
-# This schema defines the validation rules for raw and derived datasets
+# Dataset Validation Schema for NPPN Root Phenotyping and TRY Physiological Traits
+# This schema defines the expected structure and constraints for input datasets
 # used in the plant drought tolerance prediction pipeline.
 
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: Plant Drought Tolerance Dataset Schema
-version: 1.0.0
+description: Schema for validating raw and derived datasets before analysis
 
 definitions:
-  RootImage:
+  rsa_metrics:
     type: object
-    required:
-      - id
-      - path
-      - species
     properties:
-      id:
+      species_id:
         type: string
-        description: Unique identifier for the root image
-      path:
-        type: string
-        format: uri
-        description: Relative or absolute path to the image file
-      species:
-        type: string
-        description: Species name (scientific name)
-
-  RSAMetrics:
-    type: object
+        description: Unique identifier for the plant species
+        pattern: "^[a-zA-Z0-9_-]+$"
+      depth:
+        type: number
+        minimum: 0
+        description: Maximum root depth in cm
+      branching_density:
+        type: number
+        minimum: 0
+        description: Branch points per unit length
+      surface_area:
+        type: number
+        minimum: 0
+        description: Total root surface area in cm²
     required:
       - species_id
       - depth
       - branching_density
       - surface_area
+    additionalProperties: false
+
+  physiological_traits:
+    type: object
     properties:
       species_id:
         type: string
-        description: Unique identifier for the species
-      depth:
+        description: Unique identifier for the plant species
+        pattern: "^[a-zA-Z0-9_-]+$"
+      stomatal_conductance:
         type: number
         minimum: 0
-        description: Maximum root depth in pixels or mm
-      branching_density:
-        type: number
-        minimum: 0
-        description: Number of branches per unit length
-      surface_area:
-        type: number
-        minimum: 0
-        description: Total root surface area
-
-  PhysioTrait:
-    type: object
-    required:
-      - species
-      - conductance
-      - photosynthesis
-    properties:
-      species:
-        type: string
-        description: Species name
-      conductance:
-        type: number
-        minimum: 0
-        description: Stomatal conductance (mol m-2 s-1)
+        description: Stomatal conductance in mol/m²/s
       photosynthesis:
         type: number
         minimum: 0
-        description: Net photosynthesis rate (µmol m-2 s-1)
+        description: Photosynthetic rate in μmol/m²/s
       survival_rate:
         type: number
         minimum: 0
         maximum: 1
-        description: Survival rate under drought (optional proxy)
-
-oneOf:
-  - title: RSA Metrics Dataset
-    type: object
+        description: Survival rate under drought (optional)
     required:
-      - data
-      - schema_version
-    properties:
-      schema_version:
-        type: string
-        const: "1.0.0"
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/RSAMetrics"
-        minItems: 1
-      metadata:
-        type: object
-        properties:
-          source:
-            type: string
-            description: Source of the data (e.g., 'nppn', 'derived')
-          generated_at:
-            type: string
-            format: date-time
-          total_records:
-            type: integer
-            minimum: 1
+      - species_id
+      - stomatal_conductance
+      - photosynthesis
+    additionalProperties: false
 
-  - title: Physiological Traits Dataset
-    type: object
-    required:
-      - data
-      - schema_version
-    properties:
-      schema_version:
-        type: string
-        const: "1.0.0"
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/PhysioTrait"
-        minItems: 1
-      metadata:
-        type: object
-        properties:
-          source:
-            type: string
-            description: Source of the data (e.g., 'try', 'merged')
-          generated_at:
-            type: string
-            format: date-time
-          total_records:
-            type: integer
-            minimum: 1
+type: object
+properties:
+  rsa_metrics_file:
+    $ref: "#/definitions/rsa_metrics"
+  physiological_traits_file:
+    $ref: "#/definitions/physiological_traits"
+required:
+  - rsa_metrics_file
+  - physiological_traits_file
+additionalProperties: false
 
-  - title: Merged Dataset
-    type: object
-    required:
-      - data
-      - schema_version
-    properties:
-      schema_version:
-        type: string
-        const: "1.0.0"
-      data:
-        type: array
-        items:
-          type: object
-          required:
-            - species_id
-            - depth
-            - branching_density
-            - surface_area
-            - conductance
-            - photosynthesis
-          properties:
-            species_id:
-              type: string
-            depth:
-              type: number
-              minimum: 0
-            branching_density:
-              type: number
-              minimum: 0
-            surface_area:
-              type: number
-              minimum: 0
-            conductance:
-              type: number
-              minimum: 0
-            photosynthesis:
-              type: number
-              minimum: 0
-            survival_rate:
-              type: number
-              minimum: 0
-              maximum: 1
-        minItems: 55
-      metadata:
-        type: object
-        properties:
-          source:
-            type: string
-            const: "merged"
-          generated_at:
-            type: string
-            format: date-time
-          total_records:
-            type: integer
-            minimum: 55
+validation_rules:
+  - name: no_null_values
+    description: All numeric fields must be non-null and non-NaN
+    implementation: pandas.notna()
+  - name: positive_values
+    description: All numeric traits must be strictly positive
+    implementation: value > 0
+  - name: species_overlap
+    description: Species IDs must exist in both datasets
+    implementation: set intersection check
+  - name: sample_size
+    description: Merged dataset must have N >= 55 species
+    implementation: len(merged_df) >= 55

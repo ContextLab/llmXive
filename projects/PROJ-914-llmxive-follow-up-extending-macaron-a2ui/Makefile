@@ -1,31 +1,30 @@
-.PHONY: lint format test clean install
+# Makefile for llmXive Follow-up: Macaron-A2UI
+# Provides shortcuts for common development tasks
 
-# Install dependencies
+.PHONY: install lint format test clean
+
 install:
 	pip install -r requirements.txt
-	pip install ruff black pytest
+	pip install -e .
 
-# Run linter (ruff)
 lint:
 	ruff check code/ tests/
 
-# Run formatter (black)
 format:
 	black code/ tests/
 	ruff check --fix code/ tests/
 
-# Run tests
 test:
 	pytest tests/ -v
 
-# Clean generated files
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
-	find . -type f -name ".coverage*" -delete
-	rm -rf htmlcov/ .pytest_cache/ .tox/
-	rm -rf data/processed/*.csv
-	rm -rf figures/*.png
-
-# Full clean and reinstall
-fresh: clean install
+	find . -type f -name "*.pyo" -delete
+	find . -type d -name "*.egg-info" -exec rm -rf {} +
+	rm -rf .pytest_cache
+	rm -rf htmlcov
+	rm -rf .coverage
+	rm -rf build
+	rm -rf dist
+	rm -rf *.egg-info

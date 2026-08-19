@@ -1863,21 +1863,6 @@
   updated_at: '2026-08-01T19:10:14Z'
 - artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
   attempts: 1
-  canonical: project uses Python 3.11
-  claim_id: c_0d61c604
-  context: T006 Initialize Python 3.11 project with dependencies in projects/PROJ-267-exploring-the-relationship-between-atmos/code/requirements.txt
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project uses Python 3.11.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-01T19:10:30Z'
-- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
-  attempts: 1
   canonical: runtime 03_merge_output.py 6 hours 2 CPU 7 GB RAM
   claim_id: c_01c16ac4
   context: "T035 Measure 03_merge_output.py runtime to verify \u2264 6 hours on 2\
@@ -1927,22 +1912,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T19:11:14Z'
-- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
-  attempts: 1
-  canonical: lag window analysis 0 to 3 months
-  claim_id: c_4c1feb18
-  context: 'Goal: Compute Pearson correlation between AR intensity and gravity anomalies
-    across lag windows 0-3 months'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The lag window analysis covers multiple lag intervals from 0 to 3 months.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-01T19:11:35Z'
 - artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
   attempts: 0
   canonical: null results defined as correlation less than 0.1
@@ -2474,3 +2443,413 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-04T09:43:48Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: citation verification script exits with error on failure
+  claim_id: c_e7a53cb4
+  context: T008 Create citation verification script... Script must exit with error
+    code if any citation fails.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citation_verification_script_exits_with_error_on_failure
+  kind: entity_fact
+  raw_text: The script must exit with error code if any citation fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:41:28Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: citation verification title-token-overlap threshold 0.7
+  claim_id: c_b869fa95
+  context: "T008 ... that validates both URL reachability AND citation validation\
+    \ (title-token-overlap \u2265 0.7 against primary source) per Constitution Principle\
+    \ II."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The script validates title-token-overlap \u2265 0.7 against primary source."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:41:28Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11
+  claim_id: c_b652d26d
+  context: T006 Initialize Python 3.11 project with dependencies in requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:41:46Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: merged CSV completeness threshold 90 percent
+  claim_id: c_d3b03136
+  context: "Independent Test: Can be fully tested by executing the data pipeline script\
+    \ and verifying the output contains a merged CSV with \u2265 90% of expected monthly\
+    \ rows"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The data pipeline output must contain a merged CSV with \u2265 90% of\
+    \ expected monthly rows."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:41:47Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 2
+  canonical: lag window analysis 0 to 3 months
+  claim_id: c_4c1feb18
+  context: 'Goal: Compute Pearson correlation between AR intensity and gravity anomalies
+    across lag windows 0-3 months'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lag window analysis covers multiple lag intervals from 0 to 3 months.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:42:11Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations
+  claim_id: c_532c2735
+  context: T021 ... implements bootstrap resampling (1000 iterations, seed=42) for
+    % confidence intervals
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling uses 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:42:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling seed 42
+  claim_id: c_fad82e1d
+  context: T021 ... implements bootstrap resampling (1000 iterations, seed=42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling uses seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:43:00Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: AR(1) correction lags 1 trend c
+  claim_id: c_5403739e
+  context: T020 ... use statsmodels.tsa.ar_model.AutoReg with lags=1 and trend='c'
+    to fit AR(1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AR(1) autocorrelation correction uses lags=1 and trend='c'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:43:13Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: effective sample size formula n times negative rho over 1 plus rho
+  claim_id: c_d4b1153e
+  context: "T020 ... implements effective sample size calculation (n_eff = n \xD7\
+    \ (-\u03C1)/(1+\u03C1))"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The effective sample size is calculated as n_eff = n \xD7 (-\u03C1)/(1+\u03C1\
+    )."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:43:31Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: signal magnitude metric 3 sigma
+  claim_id: c_38dbc5b8
+  context: "T022 ... implements signal magnitude comparison to GRACE-FO measurement\
+    \ noise floor (report as metric, NOT a pass/fail threshold; \u2265 3\u03C3 is\
+    \ a reporting metric, not a constraint)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The signal magnitude comparison to GRACE-FO measurement noise floor uses\
+    \ a reporting metric of \u2265 3\u03C3."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:43:31Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: null result threshold correlation 0.1
+  claim_id: c_d189d8e1
+  context: 'T022 ... handles null results (correlation < 0.1 (Wikipedia: Spearman''s
+    rank correlation coefficient...))'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Null results are handled when correlation is < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:43:32Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 6 hours on minimal CPU and 7 GB RAM
+  claim_id: c_fb944d94
+  context: "T035 Measure aggregate pipeline runtime (full historical dataset from\
+    \ data/processed/merged_monthly.csv) to verify \u2264 6 hours on A minimal CPU\
+    \ configuration and 7 GB RAM (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The full historical dataset pipeline runtime must be \u2264 6 hours on\
+    \ a minimal CPU configuration and 7 GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:43:32Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: pipeline runtime verification 7 GB RAM
+  claim_id: c_7bc1079e
+  context: "T035 ... to verify \u2264 6 hours on A minimal CPU configuration and 7\
+    \ GB RAM"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline runtime verification assumes 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:43:46Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: pipeline runtime <= 6 hours on minimal CPU and 7 GB RAM
+  claim_id: c_f435716b
+  context: "T035 Measure aggregate pipeline runtime (full historical dataset from\
+    \ data/processed/merged_monthly.csv) to verify \u2264 6 hours on A minimal CPU\
+    \ configuration and 7 GB RAM (SC-004) using Python time module with assertion\
+    \ that fails if exceeded"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline runtime for the full historical dataset must be verified\
+    \ to be \u2264 6 hours on a minimal CPU configuration and 7 GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:44:45Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: merged CSV contains >= 90% of expected monthly rows
+  claim_id: c_76a8c64a
+  context: "Independent Test: Can be fully tested by executing the data pipeline script\
+    \ and verifying the output contains a merged CSV with \u2265 90% of expected monthly\
+    \ rows and no NaN values in the primary columns"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The merged CSV output must contain \u2265 90% of expected monthly rows."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:44:46Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling with 1000 iterations and seed 42
+  claim_id: c_d16b0f04
+  context: 'T021 [US2] Create bootstrap correction script ... that: (1) implements
+    bootstrap resampling (1000 iterations, seed=42) for % confidence intervals'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling will be performed with 1000 iterations and seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:45:08Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: autocorrelation correction uses AR(1) model with lags 1 and trend c
+  claim_id: c_db941b40
+  context: 'T020 [US2] Create correlation computation script ... that: (3) implements
+    autocorrelation correction: use statsmodels.tsa.ar_model.AutoReg with lags=1 and
+    trend=''c'' to fit AR(1)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Autocorrelation correction uses an AR(1) model with lags=1 and trend='c'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:45:21Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: effective sample size formula n_eff equals n times negative rho divided
+    by 1 plus rho
+  claim_id: c_bb728b0c
+  context: "T020 [US2] Create correlation computation script ... that: (4) implements\
+    \ effective sample size calculation (n_eff = n \xD7 (-\u03C1)/(1+\u03C1))"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The effective sample size calculation uses the formula n_eff = n \xD7\
+    \ (-\u03C1)/(1+\u03C1)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:45:38Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: signal magnitude >= 3 sigma used as reporting metric for noise floor
+    comparison
+  claim_id: c_d6379c32
+  context: "T022 [US2] Create control validation script ... that: (4) implements signal\
+    \ magnitude comparison to GRACE-FO measurement noise floor (report as metric,\
+    \ NOT a pass/fail threshold; \u2265 3\u03C3 is a reporting metric, not a constraint)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A signal magnitude of \u2265 3\u03C3 is used as a reporting metric for\
+    \ comparison to GRACE-FO measurement noise floor."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:45:38Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: null results defined as correlation coefficient < 0.1
+  claim_id: c_c5b9cc2d
+  context: 'T022 [US2] Create control validation script ... that: (5) handles null
+    results (correlation < 0.1 (Wikipedia: Spearman''s rank correlation coefficient,
+    https://en.wikipedia.org/wiki/Spearman''s_rank_correlation_coefficient)) by reporting
+    with p-value and confidence intervals without forcing positive finding'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Null results are defined as a correlation coefficient < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:45:39Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: West Coast NA region filtering covers 120 W to 125 W
+  claim_id: c_ab470fea
+  context: "T015 [US1] Create data fetching script ... that: (4) implements region\
+    \ filtering for West Coast NA (mid-to-high latitude North America, 120\xB0W-125\xB0\
+    W)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The region filtering for the West Coast NA covers mid-to-high latitude\
+    \ North America from 120\xB0W to 125\xB0W."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:45:51Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: citation verification requires title-token-overlap >= 0.7
+  claim_id: c_06dfa8e5
+  context: "T008 [P] Create citation verification script ... that validates both URL\
+    \ reachability AND citation validation (title-token-overlap \u2265 0.7 against\
+    \ primary source) per Constitution Principle II."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The citation verification script requires a title-token-overlap of \u2265\
+    \ 0.7 against the primary source."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:45:52Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 2
+  canonical: project uses Python 3.11
+  claim_id: c_0d61c604
+  context: T006 Initialize Python 3.11 project with dependencies in projects/PROJ-267-exploring-the-relationship-between-atmos/code/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:45:52Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: correlation less than 0.1 defined as null result
+  claim_id: c_516e63ea
+  context: 'handles null results (correlation < 0.1 (Wikipedia: Spearman''s rank correlation
+    coefficient, https://en.wikipedia.org/wiki/Spearman''s_rank_correlation_coefficient))
+    by reporting with p-value and confidence intervals without forcing positive finding'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_less_than_0.1_defined_as_null_result
+  kind: magnitude
+  raw_text: handles null results (correlation < 0.1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:48:31Z'

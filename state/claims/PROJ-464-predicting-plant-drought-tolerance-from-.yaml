@@ -1673,3 +1673,159 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T19:01:40Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if species overlap count is less than 55
+  claim_id: c_58486b96
+  context: 'T008: Implement code/power_analysis.py: Calculate required sample size
+    (N) using statsmodels.stats.power.FTestPower with explicit parameters. Logic:
+    Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, HALT with critical
+    error ''Insufficient species for power analysis (N < 55)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_species_overlap_count_is_less_than_5
+  kind: magnitude
+  raw_text: If overlap N < 55, HALT with critical error 'Insufficient species for
+    power analysis (N < 55)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:25:00Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Branching density calculated as (branch points minus endpoints) divided
+    by total length
+  claim_id: c_6e5200ae
+  context: 'T013: Implement code/preprocess_images.py: Extract RSA traits using OpenCV/scikit-image
+    on CPU. Algorithm: skeletonize (8-connectivity) for depth/branching; find_contours
+    for surface area. Branching density = (branch_points - endpoints) / total_length.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Branching_density_calculated_as_(branch_points_minus_endpoin
+  kind: entity_fact
+  raw_text: Branching density = (branch_points - endpoints) / total_length.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:25:23Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor check threshold set to greater than 5
+  claim_id: c_1dcda6f1
+  context: 'T022: Implement code/analysis.py function perform_pca() to transform RSA
+    traits for collinearity handling (VIF > 5 check included).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: VIF > 5 check included for collinearity handling.
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T18:25:29Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Model fitting uses 5-fold GroupKFold cross-validation grouped by species
+    name
+  claim_id: c_83873e81
+  context: "T023a: Implement code/models.py functions fit_ols(), fit_ridge(), fit_lasso()\
+    \ to predict stomatal conductance/photosynthesis. Specs: R\xB2 metric, 5-fold\
+    \ GroupKFold (groups=species_name) to prevent phylogenetic leakage, alpha search\
+    \ [a range of values]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5-fold GroupKFold (groups=species_name) to prevent phylogenetic leakage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:25:42Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest model configured with 100 estimators and infinite max depth
+  claim_id: c_9b11c34d
+  context: "T023c: Implement code/models.py function fit_random_forest() to predict\
+    \ stomatal conductance/photosynthesis using Random Forest Regression. Specs: R\xB2\
+    \ metric, 5-fold GroupKFold (groups=species_name) to prevent phylogenetic leakage,\
+    \ n_estimators=100, max_depth=None, regularization via min_samples_leaf."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators=100, max_depth=None, regularization via min_samples_leaf.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:26:00Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Unit test asserts Spearman correlation is within 5 percent of synthetic
+    target
+  claim_id: c_45fb4279
+  context: 'T018: Unit test in tests/unit/test_model_fitting.py: Implement test_spearman_correlation_matches_known_value
+    (asserts correlation within 5% of synthetic target).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserts correlation within 5% of synthetic target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:26:00Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Classification model configured with 100 estimators
+  claim_id: c_026341e7
+  context: 'T027b: Implement code/models.py function fit_rf_classification() to predict
+    the binary drought tolerance class (high/low). Logic: If has_proxy is True: Binarize
+    the proxy variable using median split. Train Random Forest Classification model.
+    Specs: F1-score metric, 5-fold GroupKFold (groups=species_name), n_estimators=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:26:17Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline memory usage under 7 GB and runtime under 6 hours on 2 CPU configuration
+  claim_id: c_ea9bb27d
+  context: 'T034: Profile and optimize image loading to use generators; ensure memory
+    usage <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM. Logic:
+    Measure total pipeline runtime and log against 6h limit. Deliverable: Generate
+    docs/memory_profile.md with peak usage <7GB and state/runtime_profile.yaml with
+    total runtime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure memory usage <7GB RAM and full pipeline runs within 6 hours on
+    2 CPU/7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:26:50Z'

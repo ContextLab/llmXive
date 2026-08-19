@@ -1,316 +1,358 @@
-"""
-Statistical analysis utilities for the A2UI Latency Study.
-
-Implements Benjamini-Hochberg FDR correction for multiple comparison tests
-on alignment scores (FR-006, SC-004).
-"""
-
 import os
 import sys
 import json
 import argparse
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
-
-import numpy as np
 import pandas as pd
-from scipy import stats as scipy_stats
-
-# Add parent directory to path for imports if running as script
-if __name__ == "__main__" and __package__ is None:
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+import numpy as np
+from typing import Dict, List, Tuple, Optional
+from scipy import stats
 
 from config import get_processed_data_path, get_figures_path, ensure_dirs
-from utils.logging import get_experiment_logger
+from utils.logging import get_experiment_logger, log_info, log_error
 
 logger = get_experiment_logger(__name__)
-
 
 def benjamini_hochberg_fdr(p_values: List[float], alpha: float = 0.05) -> Tuple[List[bool], List[float]]:
     """
     Apply Benjamini-Hochberg FDR correction to a list of p-values.
-
-    This procedure controls the False Discovery Rate (expected proportion of
-    false positives among rejected hypotheses).
-
+    
     Args:
-        p_values: List of raw p-values from hypothesis tests.
-        alpha: Significance level (default 0.05).
-
+        p_values: List of raw p-values
+        alpha: Significance level (default 0.05)
+        
     Returns:
-        Tuple of:
-            - List of booleans indicating which hypotheses are rejected (True = significant)
-            - List of adjusted p-values (q-values)
+        Tuple of (boolean rejection list, adjusted p-values)
     """
-    if not p_values:
-        return [], []
-
     n = len(p_values)
-    indices = np.arange(1, n + 1)
-    sorted_p_values = np.sort(p_values)
-
-    # Calculate critical values: (i/n) * alpha
-    critical_values = (indices / n) * alpha
-
-    # Find the largest k such that p_(k) <= (k/n) * alpha
-    # We iterate from largest to smallest to find the first (largest) that satisfies the condition
-    rejected = np.zeros(n, dtype=bool)
-    adjusted_p_values = np.ones(n)
-
-    # Calculate adjusted p-values (q-values)
-    # q_i = min( (n/j) * p_j for j >= i )  (monotonically increasing from largest p)
-    # We compute this by iterating backwards
-    min_q = 1.0
-    for i in range(n - 1, -1, -1):
-        q = min(1.0, (n / (i + 1)) * sorted_p_values[i])
-        min_q = min(min_q, q)
-        adjusted_p_values[i] = min_q
-
-    # Determine rejections: p_i <= adjusted_threshold
-    # Actually, standard BH: reject if p_(i) <= (i/n)*alpha
-    # But we need to map back to original indices.
-    # A simpler way: compare adjusted p-values to alpha
-    sorted_rejected = adjusted_p_values <= alpha
-
-    # Map back to original order
-    # We need to sort indices to match sorted_p_values
-    sort_indices = np.argsort(p_values)
-    original_order_rejected = np.zeros(n, dtype=bool)
-    original_order_adjusted = np.zeros(n)
-
-    for sorted_idx, orig_idx in enumerate(sort_indices):
-        original_order_rejected[orig_idx] = sorted_rejected[sorted_idx]
-        original_order_adjusted[orig_idx] = adjusted_p_values[sorted_idx]
-
-    return original_order_rejected.tolist(), original_order_adjusted.tolist()
-
+    if n == 0:
+        return [], []
+        
+    # Sort p-values and keep track of original indices
+    indexed_p_values = list(enumerate(p_values))
+    sorted_p_values = sorted(indexed_p_values, key=lambda x: x[1])
+    
+    # Calculate adjusted p-values
+    adjusted_p_values = [0.0] * n
+    rank = 1
+    
+    # Work backwards to ensure monotonicity
+    prev_adj = 1.0
+    for idx, p_val in reversed(sorted_p_values):
+        # BH adjusted p-value: p * n / rank
+        adj_p = p_val * n / rank
+        # Ensure monotonicity (adjusted p-values should not decrease as rank increases)
+        adj_p = min(adj_p, prev_adj)
+        adjusted_p_values[idx] = adj_p
+        prev_adj = adj_p
+        rank += 1
+        
+    # Determine rejections
+    rejections = [p < alpha for p in adjusted_p_values]
+    
+    return rejections, adjusted_p_values
 
 def pairwise_ttest_with_fdr(
     group1_scores: List[float],
     group2_scores: List[float],
     alpha: float = 0.05
-) -> Dict[str, Any]:
+) -> Dict[str, float]:
     """
-    Perform an independent two-sample t-test and apply FDR correction.
-
+    Perform independent t-test between two groups and apply FDR correction.
+    
     Args:
-        group1_scores: Scores for the first group (e.g., Hybrid model).
-        group2_scores: Scores for the second group (e.g., Generative baseline).
-        alpha: Significance level.
-
+        group1_scores: Scores from group 1 (e.g., hybrid model)
+        group2_scores: Scores from group 2 (e.g., generative baseline)
+        alpha: Significance level
+        
     Returns:
-        Dictionary containing:
-            - t_statistic: t-value
-            - p_value: raw p-value
-            - fdr_rejected: boolean indicating if significant after FDR
-            - fdr_adjusted_p: adjusted p-value
+        Dictionary with t-statistic, p-value, and FDR-adjusted p-value
     """
-    if not group1_scores or not group2_scores:
-        raise ValueError("Both groups must have at least one score.")
-
-    t_stat, p_val = scipy_stats.ttest_ind(group1_scores, group2_scores, equal_var=False)
-
-    # Since we are doing a single comparison here, FDR correction is trivial,
-    # but we structure it to allow extension for multiple comparisons later.
-    # For a single test, adjusted p = raw p.
-    is_rejected, adjusted_p = benjamini_hochberg_fdr([p_val], alpha)
-
+    t_stat, p_val = stats.ttest_ind(group1_scores, group2_scores, equal_var=False)
+    
+    # For single comparison, FDR adjustment is trivial but included for API consistency
+    _, adjusted_p = benjamini_hochberg_fdr([p_val], alpha)
+    
     return {
         "t_statistic": float(t_stat),
         "p_value": float(p_val),
-        "fdr_rejected": is_rejected[0],
-        "fdr_adjusted_p": float(adjusted_p[0])
+        "adjusted_p_value": float(adjusted_p[0]) if adjusted_p else float('nan'),
+        "significant": float(adjusted_p[0]) < alpha if adjusted_p else False
     }
-
 
 def analyze_alignment_scores_by_density(
-    metrics_file: Optional[str] = None,
+    df: pd.DataFrame,
+    density_col: str = "density_level",
+    score_col: str = "alignment_score",
+    model_col: str = "model_type",
     alpha: float = 0.05
-) -> Dict[str, Any]:
+) -> Dict[str, any]:
     """
-    Analyze alignment scores across different density levels and perform
-    statistical comparisons with FDR correction.
-
+    Analyze alignment scores by density level and model type.
+    
     Args:
-        metrics_file: Path to the metrics JSON file. If None, uses default path.
-        alpha: Significance level for FDR.
-
+        df: DataFrame with simulation results
+        density_col: Column name for density levels
+        score_col: Column name for alignment scores
+        model_col: Column name for model types
+        alpha: Significance level
+        
     Returns:
-        Dictionary with analysis results including p-values and FDR decisions.
+        Dictionary with analysis results per density level
     """
-    if metrics_file is None:
-        data_path = get_processed_data_path()
-        # Assuming the simulation runner saves a metrics file here
-        # The exact filename might vary, but typically 'simulation_metrics.json'
-        metrics_file = str(Path(data_path) / "simulation_metrics.json")
-
-    if not os.path.exists(metrics_file):
-        raise FileNotFoundError(f"Metrics file not found: {metrics_file}")
-
-    with open(metrics_file, 'r') as f:
-        data = json.load(f)
-
-    # Extract alignment scores by density
-    # Assuming data structure: { "results": [ { "density": ..., "alignment_score": ... }, ... ] }
-    # Or aggregated: { "by_density": { "1": [...], "3": [...] } }
-    # We handle the common case where we have a list of runs
-
-    scores_by_density = {}
-    density_levels = sorted(set([1, 3, 5, 10]))
-
-    for entry in data.get("results", []):
-        density = entry.get("density")
-        score = entry.get("alignment_score")
-        if density is not None and score is not None:
-            if density not in scores_by_density:
-                scores_by_density[density] = []
-            scores_by_density[density].append(score)
-
-    # Ensure all density levels are present (even if empty)
-    for d in density_levels:
-        if d not in scores_by_density:
-            scores_by_density[d] = []
-
-    # Perform pairwise comparisons between consecutive densities
-    # (1 vs 3), (3 vs 5), (5 vs 10)
-    comparisons = []
-    p_values = []
-
-    density_pairs = [(1, 3), (3, 5), (5, 10)]
-
-    for d1, d2 in density_pairs:
-        s1 = scores_by_density.get(d1, [])
-        s2 = scores_by_density.get(d2, [])
-
-        if len(s1) < 2 or len(s2) < 2:
-            logger.warning(f"Insufficient data for comparison {d1} vs {d2}. Skipping.")
-            comparisons.append({
-                "group1": d1,
-                "group2": d2,
-                "n1": len(s1),
-                "n2": len(s2),
-                "skipped": True,
-                "reason": "Insufficient samples"
-            })
+    results = {}
+    
+    for density in sorted(df[density_col].unique()):
+        density_df = df[df[density_col] == density]
+        
+        hybrid_scores = density_df[density_df[model_col] == "hybrid"][score_col].dropna()
+        baseline_scores = density_df[density_df[model_col] == "generative_baseline"][score_col].dropna()
+        
+        if len(hybrid_scores) == 0 or len(baseline_scores) == 0:
             continue
+            
+        # Calculate means and confidence intervals
+        hybrid_mean = hybrid_scores.mean()
+        hybrid_std = hybrid_scores.std()
+        hybrid_n = len(hybrid_scores)
+        hybrid_ci_lower = hybrid_mean - 1.96 * hybrid_std / np.sqrt(hybrid_n)
+        hybrid_ci_upper = hybrid_mean + 1.96 * hybrid_std / np.sqrt(hybrid_n)
+        
+        baseline_mean = baseline_scores.mean()
+        baseline_std = baseline_scores.std()
+        baseline_n = len(baseline_scores)
+        baseline_ci_lower = baseline_mean - 1.96 * baseline_std / np.sqrt(baseline_n)
+        baseline_ci_upper = baseline_mean + 1.96 * baseline_std / np.sqrt(baseline_n)
+        
+        # Perform t-test
+        t_test_result = pairwise_ttest_with_fdr(
+            hybrid_scores.tolist(),
+            baseline_scores.tolist(),
+            alpha
+        )
+        
+        results[density] = {
+            "hybrid": {
+                "mean": float(hybrid_mean),
+                "std": float(hybrid_std),
+                "n": int(hybrid_n),
+                "ci_lower": float(hybrid_ci_lower),
+                "ci_upper": float(hybrid_ci_upper)
+            },
+            "baseline": {
+                "mean": float(baseline_mean),
+                "std": float(baseline_std),
+                "n": int(baseline_n),
+                "ci_lower": float(baseline_ci_lower),
+                "ci_upper": float(baseline_ci_upper)
+            },
+            "t_test": t_test_result
+        }
+        
+    return results
 
-        result = pairwise_ttest_with_fdr(s1, s2, alpha)
-        comparisons.append({
-            "group1": d1,
-            "group2": d2,
-            "n1": len(s1),
-            "n2": len(s2),
-            "t_statistic": result["t_statistic"],
-            "p_value": result["p_value"],
-            "fdr_rejected": result["fdr_rejected"],
-            "fdr_adjusted_p": result["fdr_adjusted_p"],
-            "skipped": False
-        })
-        p_values.append(result["p_value"])
-
-    # Apply FDR correction to all collected p-values at once
-    # (This is the correct way: collect all p-values, then correct)
-    if p_values:
-        rejected_flags, adjusted_p_values = benjamini_hochberg_fdr(p_values, alpha)
-        # Update the comparisons with the FDR results
-        for i, comp in enumerate(comparisons):
-            if not comp.get("skipped", False) and i < len(rejected_flags):
-                comp["fdr_rejected"] = rejected_flags[i]
-                comp["fdr_adjusted_p"] = adjusted_p_values[i]
-
-    return {
-        "total_comparisons": len(comparisons),
-        "significant_comparisons": sum(1 for c in comparisons if not c.get("skipped") and c["fdr_rejected"]),
-        "comparisons": comparisons,
-        "alpha": alpha,
-        "method": "Benjamini-Hochberg FDR"
-    }
-
-
-def save_fdr_analysis_report(results: Dict[str, Any], output_path: Optional[str] = None) -> str:
+def find_latency_threshold(
+    df: pd.DataFrame,
+    latency_col: str = "total_latency",
+    score_col: str = "alignment_score",
+    model_col: str = "model_type",
+    alpha: float = 0.05
+) -> Optional[float]:
     """
-    Save the FDR analysis results to a JSON file.
-
+    Identify the latency threshold where generative baseline CI drops below 
+    hybrid model CI (p < 0.05).
+    
+    This function sorts unique latency values and checks at each point whether
+    the generative baseline's confidence interval is significantly lower than
+    the hybrid model's.
+    
     Args:
-        results: Dictionary containing analysis results.
-        output_path: Path to save the report. If None, uses default.
-
+        df: DataFrame with simulation results
+        latency_col: Column name for latency values
+        score_col: Column name for alignment scores
+        model_col: Column name for model types
+        alpha: Significance level
+        
     Returns:
-        Path to the saved report.
+        The latency threshold value if found, None otherwise
     """
-    if output_path is None:
-        fig_path = get_figures_path()
-        output_path = str(Path(fig_path) / "fdr_analysis_report.json")
+    # Get unique latency values sorted
+    unique_latencies = sorted(df[latency_col].unique())
+    
+    if len(unique_latencies) < 2:
+        log_info("Not enough unique latency values to determine threshold")
+        return None
+        
+    threshold = None
+    
+    for i in range(len(unique_latencies)):
+        current_latency = unique_latencies[i]
+        
+        # Filter data up to and including current latency
+        mask = df[latency_col] <= current_latency
+        subset_df = df[mask]
+        
+        # Separate by model type
+        hybrid_scores = subset_df[subset_df[model_col] == "hybrid"][score_col].dropna()
+        baseline_scores = subset_df[subset_df[model_col] == "generative_baseline"][score_col].dropna()
+        
+        if len(hybrid_scores) < 5 or len(baseline_scores) < 5:
+            continue
+            
+        # Calculate confidence intervals
+        hybrid_mean = hybrid_scores.mean()
+        hybrid_std = hybrid_scores.std()
+        hybrid_n = len(hybrid_scores)
+        hybrid_ci_lower = hybrid_mean - 1.96 * hybrid_std / np.sqrt(hybrid_n)
+        
+        baseline_mean = baseline_scores.mean()
+        baseline_std = baseline_scores.std()
+        baseline_n = len(baseline_scores)
+        baseline_ci_upper = baseline_mean + 1.96 * baseline_std / np.sqrt(baseline_n)
+        
+        # Check if baseline CI is below hybrid CI
+        # Specifically: baseline upper CI < hybrid lower CI
+        if baseline_ci_upper < hybrid_ci_lower:
+            # Perform t-test to confirm significance
+            t_test_result = pairwise_ttest_with_fdr(
+                hybrid_scores.tolist(),
+                baseline_scores.tolist(),
+                alpha
+            )
+            
+            if t_test_result["significant"]:
+                threshold = current_latency
+                log_info(f"Found threshold at latency {threshold}: "
+                         f"baseline_ci_upper={baseline_ci_upper:.4f} < hybrid_ci_lower={hybrid_ci_lower:.4f}, "
+                         f"p={t_test_result['adjusted_p_value']:.4f}")
+                break
+                
+    return threshold
 
-    ensure_dirs(output_path)
-
+def save_fdr_analysis_report(
+    results: Dict,
+    threshold: Optional[float],
+    output_path: Path
+) -> None:
+    """
+    Save the FDR analysis results and threshold to a JSON file.
+    
+    Args:
+        results: Analysis results from analyze_alignment_scores_by_density
+        threshold: Identified latency threshold
+        output_path: Path to save the report
+    """
+    report = {
+        "analysis_by_density": results,
+        "latency_threshold": threshold,
+        "threshold_description": (
+            f"Latency threshold where generative baseline CI drops below hybrid model CI (p < 0.05)"
+            if threshold is not None 
+            else "No significant threshold found"
+        )
+    }
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-
-    logger.info(f"FDR analysis report saved to: {output_path}")
-    return output_path
-
+        json.dump(report, f, indent=2)
+        
+    log_info(f"Saved FDR analysis report to {output_path}")
 
 def main():
     """
-    CLI entry point for running FDR analysis on alignment scores.
+    Main entry point for latency threshold analysis.
+    
+    Reads simulation results, performs FDR-corrected statistical tests,
+    identifies the latency threshold, and saves the report.
     """
     parser = argparse.ArgumentParser(
-        description="Perform Benjamini-Hochberg FDR correction on alignment scores."
+        description="Identify latency threshold where generative baseline CI drops below hybrid model CI"
     )
     parser.add_argument(
-        "--metrics-file",
+        "--input",
         type=str,
         default=None,
-        help="Path to the simulation metrics JSON file."
-    )
-    parser.add_argument(
-        "--alpha",
-        type=float,
-        default=0.05,
-        help="Significance level for FDR correction (default: 0.05)."
+        help="Path to simulation results CSV (default: uses config path)"
     )
     parser.add_argument(
         "--output",
         type=str,
         default=None,
-        help="Path to save the FDR analysis report."
+        help="Path to output report JSON (default: uses config path)"
     )
-
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=0.05,
+        help="Significance level for FDR correction (default: 0.05)"
+    )
+    
     args = parser.parse_args()
-
-    logger.info("Starting FDR analysis for alignment scores...")
-
-    try:
-        results = analyze_alignment_scores_by_density(
-            metrics_file=args.metrics_file,
-            alpha=args.alpha
-        )
-
-        output_path = save_fdr_analysis_report(results, args.output)
-
-        # Print summary
-        print(f"\nFDR Analysis Summary:")
-        print(f"  Method: {results['method']}")
-        print(f"  Alpha: {results['alpha']}")
-        print(f"  Total Comparisons: {results['total_comparisons']}")
-        print(f"  Significant (FDR-corrected): {results['significant_comparisons']}")
-
-        for comp in results['comparisons']:
-            if comp.get('skipped'):
-                print(f"  {comp['group1']} vs {comp['group2']}: SKIPPED ({comp.get('reason')})")
-            else:
-                sig_str = "SIGNIFICANT" if comp['fdr_rejected'] else "Not Significant"
-                print(f"  {comp['group1']} vs {comp['group2']}: p={comp['p_value']:.4f}, "
-                      f"adj_p={comp['fdr_adjusted_p']:.4f} [{sig_str}]")
-
-        logger.info("FDR analysis completed successfully.")
-
-    except Exception as e:
-        logger.error(f"FDR analysis failed: {e}", exc_info=True)
+    
+    # Determine input path
+    if args.input:
+        input_path = Path(args.input)
+    else:
+        input_path = get_processed_data_path() / "simulation_results.csv"
+        
+    if not input_path.exists():
+        log_error(f"Input file not found: {input_path}")
         sys.exit(1)
-
+        
+    # Determine output path
+    if args.output:
+        output_path = Path(args.output)
+    else:
+        output_path = get_figures_path() / "fdr_analysis_report.json"
+        
+    log_info(f"Loading simulation results from {input_path}")
+    df = pd.read_csv(input_path)
+    
+    # Verify required columns
+    required_cols = ["alignment_score", "model_type", "total_latency"]
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        log_error(f"Missing required columns: {missing_cols}")
+        sys.exit(1)
+        
+    # Perform analysis by density
+    log_info("Analyzing alignment scores by density level")
+    density_results = analyze_alignment_scores_by_density(
+        df,
+        score_col="alignment_score",
+        model_col="model_type",
+        alpha=args.alpha
+    )
+    
+    # Find latency threshold
+    log_info("Searching for latency threshold")
+    threshold = find_latency_threshold(
+        df,
+        latency_col="total_latency",
+        score_col="alignment_score",
+        model_col="model_type",
+        alpha=args.alpha
+    )
+    
+    # Save report
+    save_fdr_analysis_report(density_results, threshold, output_path)
+    
+    # Print summary
+    log_info("=" * 60)
+    log_info("LATENCY THRESHOLD ANALYSIS SUMMARY")
+    log_info("=" * 60)
+    if threshold is not None:
+        log_info(f"✓ Latency threshold identified: {threshold:.4f}s")
+        log_info("  At this point, generative baseline performance is significantly")
+        log_info("  worse than hybrid model (p < 0.05, FDR corrected).")
+    else:
+        log_info("✗ No significant latency threshold found at p < 0.05")
+        log_info("  Generative baseline did not show statistically significant")
+        log_info("  degradation relative to hybrid model at any tested latency.")
+    log_info("=" * 60)
+    
+    return threshold
 
 if __name__ == "__main__":
     main()

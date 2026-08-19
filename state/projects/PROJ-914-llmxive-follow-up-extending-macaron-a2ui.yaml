@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T00:35:38.418609Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-914-llmxive-follow-up-extending-macaron-a2ui
-last_run_id: 6ae6118f-8149-4fbb-bf48-d700882a9c0d
+last_run_id: f179e780-db4d-4bc3-828e-7e023971c1c1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui
 title: 'llmXive follow-up: extending "Macaron-A2UI: A Model for Generative UI in Personal
   Agents"'
-updated_at: '2026-07-16T23:57:25.804464Z'
+updated_at: '2026-08-19T18:59:20.310561Z'

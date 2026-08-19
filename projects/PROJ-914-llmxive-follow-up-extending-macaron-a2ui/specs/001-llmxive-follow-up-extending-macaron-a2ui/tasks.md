@@ -68,7 +68,7 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Intent Annotation (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest the Macaron-A2UI dataset and provide an interface to label N=500 interaction turns as "High-Confidence" or "Ambiguous" to create ground truth. Additionally, create a separate N=50 human-annotated hold-out set for rubric validation [UNRESOLVED-CLAIM: c_a12ce69b — status=not_enough_info].
+**Goal**: Ingest the Macaron-A2UI dataset and provide an interface to label N=500 interaction turns as "High-Confidence" or "Ambiguous" to create ground truth. Additionally, create a separate N=50 human-annotated hold-out set for rubric validation.
 
 **Independent Test**: A CSV file exists containing N=500 rows with columns `query`, `ground_truth_intent`, `complexity_score`, validated by a script checking ≥95% coverage and no missing labels. A separate N=50 hold-out set exists for rubric validation.
 
@@ -101,7 +101,7 @@
 - [X] T020 [US2] Implement `code/models/router.py` with DistilBERT (8-bit quantized) for intent classification (High-Confidence vs. Ambiguous)
 - [X] T021 [US2] Implement `code/models/fallback.py` for the deterministic rule-based generator with ontology matching
 - [X] T022 [US2] Implement `code/simulation/patience.py` with `sample_patience()` function modeling exponential decay (mean=2s) for user abandonment (FR-003)
-- [X] T023 [US2] Implement `code/simulation/rubric.py` to derive and implement the "Human-Agent Alignment" scoring function: `score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness [UNRESOLVED-CLAIM: c_76d53354 — status=not_enough_info]` (FR-005, SC-002); **must include latency_penalty**
+- [X] T023 [US2] Implement `code/simulation/rubric.py` to derive and implement the "Human-Agent Alignment" scoring function: `score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness ` (FR-005, SC-002); **must include latency_penalty**
 - [X] T024 [US2] Implement `code/simulation/runner.py` with latency injection (sleep/delay) and dependency on **T022** for patience modeling
 - [X] T025 [US2] Implement logic in `code/simulation/runner.py` to iterate through **explicit density levels {1, 3, 5, 10}** for deterministic fallback (FR-004, Constitution Principle VII)
 - [X] T026 [US2] Implement logic in `code/simulation/runner.py` to handle "Ambiguous" queries: invoke fallback, log "no-match" if no ontology entry, return minimal UI (element)
@@ -128,11 +128,11 @@
 
 - [X] T032 [US3] Implement `code/analysis/stats.py` for **Benjamini-Hochberg FDR** multiple-comparison correction on alignment scores (FR-006, SC-004)
 - [X] T033 [US3] Implement sensitivity analysis in `code/analysis/sensitivity.py` to sweep router confidence cutoffs across a range of thresholds and report inconsistency rates. (FR-007, SC-005)
-- [ ] T034 [US3] Implement `code/analysis/stats.py` to identify the latency threshold where generative baseline CI drops below hybrid model CI (p < 0.05)
-- [ ] T035 [US3] Implement `code/analysis/viz.py` to generate the Pareto frontier plot (Alignment vs. Latency)
-- [ ] T036 [US3] Implement `code/analysis/viz.py` to plot alignment scores across information density levels (low, medium, high)
-- [ ] T037 [US3] Implement `code/analysis/rubric_validation.py` to validate the rubric correlation (r ≥ 0.7) against the N=50 hold-out set from **T015**; **consumes rubric logic from T023 and metrics from T028; explicitly calculate correlation between rubric scores and human scores**
-- [ ] T038 [US3] Implement `code/main.py` entry point to orchestrate the full pipeline: Ingest -> Route -> Simulate -> Analyze -> Report
+- [X] T034 [US3] Implement `code/analysis/stats.py` to identify the latency threshold where generative baseline CI drops below hybrid model CI (p < 0.05)
+- [X] T035 [US3] Implement `code/analysis/viz.py` to generate the Pareto frontier plot (Alignment vs. Latency)
+- [X] T036 [US3] Implement `code/analysis/viz.py` to plot alignment scores across information density levels (low, medium, high)
+- [X] T037 [US3] Implement `code/analysis/rubric_validation.py` to validate the rubric correlation (r ≥ 0.7) against the N=50 hold-out set from **T015**; **consumes rubric logic from T023 and metrics from T028; explicitly calculate correlation between rubric scores and human scores**
+- [X] T038 [US3] Implement `code/main.py` entry point to orchestrate the full pipeline: Ingest -> Route -> Simulate -> Analyze -> Report
 - [ ] T039 [US3] Generate final report containing Pareto plot, threshold table, and inconsistency rate analysis
 
 ### Tests for User Story 3
@@ -151,7 +151,7 @@
 
 - [ ] T040 [P] Documentation updates in `specs/001-llmxive-a2ui-latency-study/quickstart.md`
 - [ ] T041 Code cleanup and refactoring in `code/`
-- [ ] T042 Performance optimization: ensure CPU inference < 500ms per query [UNRESOLVED-CLAIM: c_2bcb3a6f — status=not_enough_info] (8-bit quantization check)
+- [ ] T042 Performance optimization: ensure CPU inference < 500ms per query (8-bit quantization check)
 - [ ] T043 [P] Additional unit tests for edge cases (e.g., router confidence near boundary) in `tests/unit/`
 - [ ] T044 Run `quickstart.md` validation to ensure full reproducibility
 

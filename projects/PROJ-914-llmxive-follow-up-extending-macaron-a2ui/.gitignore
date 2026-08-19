@@ -38,10 +38,6 @@ pip-delete-this-directory.txt
 htmlcov/
 .tox/
 .nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
 coverage.xml
 *.cover
 *.py,cover
@@ -52,12 +48,6 @@ coverage.xml
 *.mo
 *.pot
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
 # Environments
 .env
 .venv
@@ -67,15 +57,18 @@ ENV/
 env.bak/
 venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
+# Jupyter Notebook
+.ipynb_checkpoints
 
-# Rope project settings
-.ropeproject
+# IPython
+profile_default/
+ipython_config.py
 
-# mkdocs documentation
-site/
+# pyenv
+.python-version
+
+# Cython
+cython_debug/
 
 # mypy
 .mypy_cache/
@@ -85,15 +78,21 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# IDE
+# pytype static type analyzer
+.pytype/
+
+# IDEs and editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+.project
+.settings/
 
-# OS
+# OS generated files
 .DS_Store
+.DS_Store?
 .Spotlight-V100
 .Trashes
 ehthumbs.db
@@ -102,15 +101,19 @@ Thumbs.db
 # Project specific
 data/raw/
 data/processed/
-data/interim/
-data/external/
+data/annotated/
+data/holdout/
+figures/
 code/models/
-code/models/router_model/
 state/
 logs/
-figures/
-*.log
 
-# Secrets and local config
-.env.local
-.env.*.local
+# Sensitive data
+*.pem
+*.key
+secrets/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

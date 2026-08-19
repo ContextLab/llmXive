@@ -1,11 +1,3 @@
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code changes to `logic_generator.py`, no generated dataset, and no metadata\
-    \ flags or statistical validation are present. The required artifact (the updated\
-    \ generator script and the \u22653,000 samples partitioned into High\u2011Entropy,\
-    \ Low\u2011Entropy, and Target\u2011Specific subsets) is missing, so the task\
-    \ is not satisfied."
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,6 +29,44 @@ T026:
     no evidence (e.g., command logs, script output) showing that `distill_loop.py`
     was run for the High, Low, and Target datasets. The required artifacts are missing,
     so the task is not satisfied.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: 'No code, configuration, log files, or tests were provided that demonstrate runs
+    are logged with `"status": "failed_non_converge"` and that `convergence_epoch`
+    is set to `max_epochs + 1`. The artifacts required to verify this behavior are
+    missing.'
+T029:
+  c: false
+  h: 6233cdf059c3e333246dbc8a53209daa26b387fde945995b3b1d4eb6d05f2d41
+  r: "The repository contains `code/analysis/evaluation.py`, but the script is incomplete\
+    \ (truncated) and uses placeholder logic rather than real inference, and the required\
+    \ `data/raw/test_set.csv` file is missing, so the script cannot be executed as\
+    \ specified. The task\u2019s core requirements\u2014loading each student model,\
+    \ running inference on the test set, and recording accuracy and per\u2011sample\
+    \ epoch of loss\u2011threshold crossing\u2014are therefore not satisfied. The\
+    \ missing test set and incomplete script must be provided/fixed."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code defining `pairwise_t_test` is provided; there is no file, function implementation,\
+    \ or test showing it performs pairwise t\u2011tests on the supplied dictionary.\
+    \ Consequently the required artifact is missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no `stats.py` file or any code showing a Bonferroni correction\
+    \ applied to ANOVA and pairwise p\u2011values. No corrected p\u2011value outputs\
+    \ or tests are present, and the supplied project excerpt concerns unrelated dataset\
+    \ generation and distillation pipelines. The required artifact (the implemented\
+    \ function in `stats.py`) is missing."
+T034:
+  c: false
+  h: a201094591e27c933b5bed88b093bd3ed63a336b0b47be4f80bad8996a01e48a
+  r: The required `code/report_generator.py` file is missing, so the implementation
+    that should generate the conditional markdown report does not exist. While the
+    `docs/research_report.md` file is present and contains the correct conditional
+    phrase, the absence of the script means the task is not fully satisfied.
 T044:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
