@@ -1360,23 +1360,6 @@
   status: not_enough_info
   updated_at: '2026-07-13T21:57:53Z'
 - artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
-  attempts: 1
-  canonical: 2000 image files with stiffness tensors within Voigt-Reuss-Hill bounds
-  claim_id: c_f0561d80
-  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
-    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
-    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T22:00:56Z'
-- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
   attempts: 5
   canonical: training completes within 6 hours on 2-core CPU
   claim_id: c_1ffcbcfc
@@ -1702,7 +1685,24 @@
   status: not_enough_info
   updated_at: '2026-08-15T06:25:29Z'
 - artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
-  attempts: 6
+  attempts: 2
+  canonical: 2000 image files with stiffness tensors within Voigt-Reuss-Hill bounds
+  claim_id: c_f0561d80
+  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
+    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
+    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T18:59:42Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 7
   canonical: Output directory contains at least 2000 image files with stiffness tensors
     within Voigt-Reuss-Hill bounds
   claim_id: c_072625a0
@@ -1720,4 +1720,129 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-15T06:27:01Z'
+  updated_at: '2026-08-19T19:02:21Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime is less than or equal to 6 hours on simulated free-tier
+    constraints
+  claim_id: c_e421cc69
+  context: "Phase N: Polish & Cross-Cutting Concerns ... - [ ] T046 Verify full pipeline\
+    \ runtime is \u2264 6 hours on simulated free-tier constraints."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_is_less_than_or_equal_to_6_hours_on_si
+  kind: magnitude
+  raw_text: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T19:02:39Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: scikit-image version 0.21.0 is required
+  claim_id: c_8a47223d
+  context: Create `requirements.txt` with the following exact content. ... scikit-image==0.21.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-image==0.21.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T19:02:53Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.0 is required
+  claim_id: c_534b4e5a
+  context: Create `requirements.txt` with the following exact content. ... scipy==1.11.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy==1.11.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T19:03:08Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.0 is required
+  claim_id: c_0e4505d8
+  context: Create `requirements.txt` with the following exact content. ... numpy==1.24.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T19:03:24Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.0 is required
+  claim_id: c_1638e4ac
+  context: Create `requirements.txt` with the following exact content. ... pandas==2.0.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T19:03:43Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: pytest version 7.3.0 is required
+  claim_id: c_ac4f2a0d
+  context: Create `requirements.txt` with the following exact content. ... pytest==7.3.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T19:03:57Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.2.0 is required
+  claim_id: c_b26fb986
+  context: Create `requirements.txt` with the following exact content. ... scikit-learn==1.2.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T19:04:09Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: pyfftw version 0.13.1 is required
+  claim_id: c_8d9b1aba
+  context: Create `requirements.txt` with the following exact content. ... pyfftw==0.13.1
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyfftw==0.13.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T19:04:21Z'

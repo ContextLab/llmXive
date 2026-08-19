@@ -1,34 +1,45 @@
+"""
+Updates the project state file to record governance verification completion.
+This script updates the artifact_hashes and updated_at fields in the state file.
+"""
 import sys
 from pathlib import Path
 from code.utils.state_manager import update_project_state
 
 def main():
     """
-    Executes the state update for T003: Governance Change Recording.
-    
-    This script updates the project state YAML to reflect the completion
-    of the constitution amendment (T001, T002).
+    Main entry point for updating governance state.
+    Updates the state file for PROJ-506-predicting-material-stiffness-from-micro
+    to record that governance verification (T002v, T004v, T005v) is complete.
     """
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent
-    state_dir = project_root / "state"
     project_id = "PROJ-506-predicting-material-stiffness-from-micro"
+    task_id = "T002d"
     
-    # Artifacts updated in this governance phase
-    artifacts = [
-        project_root / "docs" / "constitution_amendment_proposal.md",
-        project_root / "constitution.md"
-    ]
+    # The state file path relative to project root
+    state_file_path = Path("state/projects") / f"{project_id}.yaml"
     
-    description = "Governance update: Approved FFT-based homogenization (Principle VI). Updated constitution and proposal docs."
+    # Check if state file exists
+    if not state_file_path.exists():
+        print(f"Error: State file not found at {state_file_path}")
+        print("Please ensure the project state file exists before running this update.")
+        sys.exit(1)
     
-    try:
-        update_project_state(project_id, state_dir, artifacts, description)
-        print(f"Successfully updated state for {project_id}")
-        return 0
-    except Exception as e:
-        print(f"Error updating state: {e}", file=sys.stderr)
-        return 1
+    # Update the state file with governance verification info
+    # We update artifact_hashes to include the verified tasks and updated_at to current time
+    update_project_state(
+        state_file_path=state_file_path,
+        project_id=project_id,
+        completed_tasks=["T002v", "T004v", "T005v"],
+        current_task=task_id,
+        status="completed",
+        notes="Governance verification complete: Constitution Principle VI, Spec Resolution (128x128), and Spec/Plan Alignment (ANOVA) verified."
+    )
+    
+    print(f"Successfully updated governance state for {project_id}")
+    print(f"Verified tasks: T002v, T004v, T005v")
+    print(f"Current task {task_id} marked as completed.")
+    
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

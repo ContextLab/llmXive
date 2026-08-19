@@ -2,11 +2,8 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
-def check_structure() -> Tuple[bool, str]:
-    """
-    Verify the expected directory structure exists.
-    Returns (success, output_string).
-    """
+def check_structure() -> Tuple[bool, List[str]]:
+    """Verify that the required directory structure exists."""
     required_dirs = [
         "code/data_generation",
         "code/training",
@@ -19,45 +16,79 @@ def check_structure() -> Tuple[bool, str]:
         "tests/integration",
         "specs/001-predict-stiffness-cnn/contracts",
     ]
-
-    base = Path(".")
+    
+    required_files = [
+        "code/__init__.py",
+        "code/data_generation/__init__.py",
+        "code/training/__init__.py",
+        "code/evaluation/__init__.py",
+        "code/utils/__init__.py",
+        "tests/__init__.py",
+        "tests/unit/__init__.py",
+        "tests/contract/__init__.py",
+        "tests/integration/__init__.py",
+        "code/main.py",
+        "code/data_generation/generate_microstructures.py",
+        "code/data_generation/compute_stiffness.py",
+        "code/training/model.py",
+        "code/training/train.py",
+        "code/evaluation/stats_utils.py",
+        "code/evaluation/evaluate.py",
+    ]
+    
     missing = []
-    for d in required_dirs:
-        if not (base / d).exists():
-            missing.append(d)
+    
+    for dir_path in required_dirs:
+        if not Path(dir_path).exists():
+            missing.append(f"Directory missing: {dir_path}")
+    
+    for file_path in required_files:
+        if not Path(file_path).exists():
+            missing.append(f"File missing: {file_path}")
+    
+    return len(missing) == 0, missing
 
-    output = print_tree_structure(base)
-
-    if missing:
-        return False, f"Missing directories: {missing}\n{output}"
-    return True, output
-
-def print_tree_structure(root_path: Path) -> str:
-    """
-    Generate a string representation of the directory tree.
-    """
+def print_tree_structure(root: Path = None) -> str:
+    """Generate a tree-like string representation of the directory structure."""
+    if root is None:
+        root = Path(".")
+    
     lines = []
-    for path in sorted(root_path.rglob("*")):
-        if path.is_file():
-            lines.append(f"  {path}")
-        else:
-            lines.append(f"  {path}/")
+    
+    def _print_tree(current_path: Path, prefix: str = ""):
+        contents = sorted(current_path.iterdir())
+        # Filter out hidden files and common non-project directories
+        contents = [c for c in contents if not c.name.startswith('.')]
+        
+        for i, item in enumerate(contents):
+            is_last = i == len(contents) - 1
+            connector = "└── " if is_last else "├── "
+            lines.append(f"{prefix}{connector}{item.name}")
+            
+            if item.is_dir():
+                extension = "    " if is_last else "│   "
+                _print_tree(item, prefix + extension)
+    
+    lines.append(f"{root.name}/")
+    _print_tree(root)
     return "\n".join(lines)
 
 def main():
-    """
-    Main entry point to verify structure.
-    """
-    success, tree_output = check_structure()
-    if not success:
-        print("Structure verification FAILED.")
-        print(tree_output)
+    """Main entry point for structure verification."""
+    print("Verifying project structure...")
+    
+    success, missing = check_structure()
+    
+    if success:
+        print("Structure verification: PASSED")
+        print("\nDirectory Tree:")
+        print(print_tree_structure())
+        sys.exit(0)
+    else:
+        print("Structure verification: FAILED")
+        for item in missing:
+            print(f"  - {item}")
         sys.exit(1)
-
-    print("Structure verification PASSED.")
-    print("\nDirectory Tree:")
-    print(tree_output)
-    sys.exit(0)
 
 if __name__ == "__main__":
     main()

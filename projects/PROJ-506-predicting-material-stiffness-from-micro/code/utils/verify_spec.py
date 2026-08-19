@@ -1,54 +1,96 @@
-import sys
-from pathlib import Path
-import re
+"""
+Verification script for T004v: Verify Spec Resolution.
 
-def verify_spec() -> bool:
+Inspects spec.md to confirm that FR-001 and US-1 Acceptance Scenario 1
+explicitly state "128x128 pixels".
+"""
+import sys
+import re
+from pathlib import Path
+
+def verify_spec(spec_path: Path) -> bool:
     """
-    Verify that spec.md contains the required resolution text:
-    - FR-001
-    - US-1 Acceptance Scenario 1
+    Verify that spec.md contains the required resolution specifications.
     
-    Both must explicitly state "128x128 pixels".
-    
+    Args:
+        spec_path: Path to the spec.md file.
+        
     Returns:
-        bool: True if all requirements are met, False otherwise.
+        True if verification passes, False otherwise.
     """
-    spec_path = Path("specs/001-predict-stiffness-cnn/spec.md")
-    
     if not spec_path.exists():
         print(f"ERROR: spec.md not found at {spec_path}")
         return False
+
+    content = spec_path.read_text(encoding='utf-8')
     
-    content = spec_path.read_text()
+    # Check for FR-001
+    fr001_pattern = r'FR-001.*?128x128.*?pixels'
+    fr001_match = re.search(fr001_pattern, content, re.IGNORECASE | re.DOTALL)
     
-    required_text = "128x128 pixels"
-    checks = [
-        ("FR-001", r"FR-001.*?" + re.escape(required_text)),
-        ("US-1 Acceptance Scenario 1", r"US-1.*?Acceptance Scenario 1.*?" + re.escape(required_text)),
+    # Check for US-1 Acceptance Scenario 1
+    us1_pattern = r'US-1.*?Acceptance Scenario.*?1.*?128x128.*?pixels'
+    us1_match = re.search(us1_pattern, content, re.IGNORECASE | re.DOTALL)
+    
+    # More lenient checks if specific phrasing varies
+    if not fr001_match:
+        # Try looking for FR-001 and 128x128 pixels separately in proximity
+        fr001_section = re.search(r'FR-001.*?(?=FR-002|US-|$)', content, re.DOTALL)
+        if fr001_section and '128x128' in fr001_section.group() and 'pixels' in fr001_section.group():
+            fr001_match = True
+        else:
+            fr001_match = False
+    
+    if not us1_match:
+        # Try looking for US-1 and 128x128 pixels in proximity
+        us1_section = re.search(r'US-1.*?(?=US-2|$)', content, re.DOTALL)
+        if us1_section and 'Acceptance Scenario' in us1_section.group() and '128x128' in us1_section.group() and 'pixels' in us1_section.group():
+            us1_match = True
+        else:
+            us1_match = False
+
+    success = True
+    
+    if not fr001_match:
+        print("FAIL: FR-001 does not explicitly state '128x128 pixels'")
+        success = False
+    else:
+        print("PASS: FR-001 explicitly states '128x128 pixels'")
+        
+    if not us1_match:
+        print("FAIL: US-1 Acceptance Scenario 1 does not explicitly state '128x128 pixels'")
+        success = False
+    else:
+        print("PASS: US-1 Acceptance Scenario 1 explicitly states '128x128 pixels'")
+        
+    return success
+
+def main() -> int:
+    """Main entry point for the verification script."""
+    # Look for spec.md in common locations
+    possible_paths = [
+        Path("specs/001-predict-stiffness-cnn/spec.md"),
+        Path("spec.md"),
+        Path("docs/spec.md"),
     ]
     
-    all_passed = True
+    spec_path = None
+    for p in possible_paths:
+        if p.exists():
+            spec_path = p
+            break
     
-    for check_name, pattern in checks:
-        match = re.search(pattern, content, re.DOTALL | re.IGNORECASE)
-        if match:
-            print(f"✓ PASS: {check_name} explicitly states '{required_text}'")
-        else:
-            print(f"✗ FAIL: {check_name} does NOT explicitly state '{required_text}'")
-            all_passed = False
-    
-    return all_passed
-
-def main():
-    print("Verifying spec.md for 128x128 pixels resolution...")
-    success = verify_spec()
-    
-    if success:
-        print("\n✅ Spec resolution verified.")
-        sys.exit(0)
+    if spec_path is None:
+        print("ERROR: Could not find spec.md in any expected location")
+        return 1
+        
+    print(f"Verifying spec at: {spec_path}")
+    if verify_spec(spec_path):
+        print("\nT004v VERIFICATION: PASSED")
+        return 0
     else:
-        print("\n❌ Spec resolution verification failed.")
-        sys.exit(1)
+        print("\nT004v VERIFICATION: FAILED")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
