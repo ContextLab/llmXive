@@ -9,13 +9,6 @@ T007:
   r: The required file `src/models/genomic_feature.py` does not exist, so the class
     definition with the specified fields is missing. The implementer must create this
     file and implement the `GenomicFeature` class accordingly.
-T020b:
-  c: false
-  h: 0203babf894251ce176c93d5d75c9ba6689ef1eb40e3273c96ad201baa3564e8
-  r: "The provided `src/data/merge.py` is truncated (the `detect_aggregation_need`\
-    \ function is incomplete and no aggregation\u2011or\u2011write logic is visible),\
-    \ and the required output file `data/processed/species_aggregates.parquet` does\
-    \ not exist. Both the implementation and the generated artifact are missing."
 T059:
   c: false
   h: 47aa066202cdcd54d4cb6db6b5804a7c91b94dfd1c32d2f97106e49d77fb334b

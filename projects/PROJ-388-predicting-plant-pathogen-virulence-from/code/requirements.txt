@@ -26,3 +26,4 @@ pytest-cov>=4.1.0
 # Utilities
 tqdm>=4.65.0
 loguru>=0.7.0
+Bio  # auto-added: imported by run-book but missing from venv
