@@ -5,6 +5,7 @@ Defines environment variables, fixed random seeds, and memory limits
 required for reproducible and resource-constrained execution.
 """
 import os
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -33,9 +34,14 @@ MAX_WORKERS: Optional[int] = None
 # --- Project Paths ---
 # Base directory for the project root (where code/, data/, etc. reside).
 # Resolves relative to the script location if run as a module, or current dir.
-PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent.parent
+# We assume the project root is the parent of the 'code' directory.
+_script_dir = Path(__file__).resolve().parent
+_code_dir = _script_dir.parent
+PROJECT_ROOT: Path = _code_dir.parent
+
+# Verify the structure exists to avoid silent failures in downstream scripts
 if not (PROJECT_ROOT / "code").exists():
-    # Fallback if running from a different context
+    # Fallback if running from a different context (e.g. tests run from root)
     PROJECT_ROOT = Path.cwd()
 
 # Data directories

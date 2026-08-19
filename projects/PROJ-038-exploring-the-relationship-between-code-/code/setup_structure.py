@@ -3,20 +3,12 @@ from pathlib import Path
 
 def main():
     """
-    Creates the project directory structure for the llmXive research pipeline.
-    
-    Creates the following directories relative to the project root:
-    - code/
-    - code/src/
-    - code/tests/
-    - code/data/raw/
-    - code/data/processed/
-    - code/data/results/
-    - specs/001-code-complexity-bug-prediction/
+    Creates the required project directory structure for the llmXive science pipeline.
+    This script ensures all necessary folders exist before data ingestion or analysis begins.
     """
-    base_dir = Path(__file__).parent.parent
-    project_root = base_dir / "code"
+    base_dir = Path(__file__).parent.parent.resolve()
     
+    # Define relative paths as per task T001a
     directories = [
         "code",
         "code/src",
@@ -24,7 +16,7 @@ def main():
         "code/data/raw",
         "code/data/processed",
         "code/data/results",
-        "specs/001-code-complexity-bug-prediction",
+        "specs/001-exploring-the-relationship-between-code"
     ]
     
     created_count = 0
@@ -37,7 +29,8 @@ def main():
         else:
             print(f"Directory already exists: {full_path}")
     
-    print(f"Setup complete. Created {created_count} new directories.")
+    print(f"\nSetup complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

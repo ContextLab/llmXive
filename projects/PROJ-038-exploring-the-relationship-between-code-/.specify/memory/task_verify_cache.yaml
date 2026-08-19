@@ -1,3 +1,45 @@
+T000a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `methodology_rationale.md` file is present in `specs/001-code-complexity-bug-prediction/`,\
+    \ and no content was supplied that documents the conflict between Constitution\
+    \ Principle\u202FVI and the required Point\u2011Biserial/Spearman/Paired Permutation\
+    \ methods. The required artifact is missing."
+T000b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `constitution.md` or `spec.md` file was provided; the evidence shows
+    no artifact at all, so the required amendment document is missing.
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required folders (`code/`, `code/src/`, `code/tests/`, `code/data/raw/`,\
+    \ `code/data/processed/`, `code/data/results/`, `specs/001-exploring-the-relationship-between-code/`)\
+    \ being created is provided; the response only contains specification text and\
+    \ no directory listings or file system artifacts. The task\u2019s core deliverable\
+    \ \u2013 the actual project directory structure \u2013 is missing."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a Python\u202F3.11 virtual environment (e.g., a `venv/` directory,\
+    \ activation script, or `pyproject.toml`/`requirements.txt` showing it was created)\
+    \ is present. The implementer provided only a feature specification unrelated\
+    \ to initializing a venv, so the required artifact is missing."
+T014b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No Python wrapper script, command\u2011line integration, XML parsing logic,\
+    \ or syntax\u2011validation code was provided. The required artifact (a functional\
+    \ script that runs `pmd -f xml -d <dir> -rulesets rulesets/java/complexity.xml`,\
+    \ parses `<violation>` tags, and validates Java files) is missing, so the task\
+    \ is not satisfied."
+T014c:
+  c: false
+  h: eb16911dafe0924b76beccc5879fea1c323cb3d7c4618d36fe64294a2781301d
+  r: The required Python wrapper script `code/src/metrics/halstead_calc.py` does not
+    exist, and the compiled `halstead_calc.jar` is also missing, so the task of providing
+    a functional wrapper that builds, runs, parses output, and validates syntax cannot
+    be satisfied.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,3 +63,9 @@ T025:
     \ required by T025\u202F[US2]. No such code, configuration, or output logs were\
     \ present; the only artifacts relate to metric extraction and correlation analysis.\
     \ The task\u2019s specific handling of class\u2011imbalance is therefore missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` file or its contents were presented as evidence, so we cannot
+    verify that the required documentation with instructions for `run_pipeline.sh`
+    actually exists. The implementer must add the markdown file and provide its content.

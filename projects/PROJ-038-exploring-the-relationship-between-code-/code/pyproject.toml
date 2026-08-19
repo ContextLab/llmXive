@@ -6,7 +6,21 @@ build-backend = "setuptools.build_meta"
 name = "llmxive-code-complexity"
 version = "0.1.0"
 description = "Research pipeline for exploring code complexity metrics and bug prediction"
+readme = "README.md"
 requires-python = ">=3.11"
+authors = [
+    {name = "llmXive Research Team"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+# Dependencies from T002a requirements.txt
 dependencies = [
     "pandas==2.1.0",
     "scikit-learn==1.3.0",
@@ -21,19 +35,89 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "flake8",
-    "mypy",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "pytest-cov>=4.0.0",
 ]
+
+[project.scripts]
+# Entry points for main pipeline scripts
+run-ingest = "src.ingest:main"
+run-metrics-loc = "src.metrics:main"
+run-metrics-pmd = "src.metrics_pmd:main"
+run-metrics-halstead = "src.metrics_halstead:main"
+run-labeling = "src.labeling:main"
+run-validation = "src.validate_metrics:main"
+run-analysis = "src.analysis:main"
+run-modeling = "src.modeling:main"
+validate-schema = "data.validate_schema:main"
+
+[project.urls]
+Repository = "https://github.com/llmxive/code-complexity-bug-prediction"
+Documentation = "https://github.com/llmxive/code-complexity-bug-prediction#readme"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["src*", "tests*"]
+include = ["code/src*", "code/tests*", "code/data*"]
 
+[tool.setuptools.package-dir]
+"" = "code"
+
+# Formatting and Linting Configuration
 [tool.black]
 line-length = 88
 target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.flake8]
 max-line-length = 88
 extend-ignore = ["E203", "W503"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv"
+]
+per-file-ignores = [
+    "__init__.py:F401"
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = [
+    "code/tests"
+]
+python_files = [
+    "test_*.py"
+]
+python_classes = [
+    "Test*"
+]
+python_functions = [
+    "test_*"
+]
+addopts = [
+    "-v",
+    "--tb=short"
+]

@@ -1,49 +1,49 @@
 #!/bin/bash
-# T001c: Initialize Python 3.11 virtual environment
-# This script creates a virtual environment in `code/venv` using Python 3.11.
-# It ensures the environment is ready for subsequent tasks (T002a, etc.)
-# by installing the pinned dependencies.
+# Script to initialize a Python 3.11 virtual environment for the project.
+# This script creates a venv in the 'code/venv' directory and installs
+# initial dependencies from requirements.txt.
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="${SCRIPT_DIR}/venv"
-PYTHON_CMD="python3.11"
+REQUIREMENTS_FILE="${SCRIPT_DIR}/requirements.txt"
 
-echo "Checking for Python 3.11..."
-if ! command -v $PYTHON_CMD &> /dev/null; then
-    echo "ERROR: Python 3.11 ($PYTHON_CMD) is not installed or not in PATH."
-    echo "Please install Python 3.11 and ensure it is accessible via 'python3.11'."
+echo "=== Initializing Python 3.11 Virtual Environment ==="
+
+# Check if Python 3.11 is available
+if ! command -v python3.11 &> /dev/null; then
+    echo "Error: Python 3.11 is not installed or not in PATH."
+    echo "Please install Python 3.11 and try again."
     exit 1
 fi
 
-echo "Python 3.11 found: $(python3.11 --version)"
-
-# Remove existing venv if present to ensure a clean state
+# Check if venv already exists
 if [ -d "$VENV_DIR" ]; then
-    echo "Removing existing virtual environment at $VENV_DIR..."
+    echo "Virtual environment already exists at $VENV_DIR."
+    echo "Removing existing environment..."
     rm -rf "$VENV_DIR"
 fi
 
-echo "Creating virtual environment at $VENV_DIR..."
-$PYTHON_CMD -m venv "$VENV_DIR"
+# Create the virtual environment
+echo "Creating virtual environment with Python 3.11..."
+python3.11 -m venv "$VENV_DIR"
 
-echo "Activating virtual environment..."
+# Activate and upgrade pip
+echo "Upgrading pip, setuptools, and wheel..."
 source "$VENV_DIR/bin/activate"
+pip install --upgrade pip setuptools wheel
 
-echo "Upgrading pip..."
-pip install --upgrade pip
-
-# Install dependencies from requirements.txt if it exists
-REQUIREMENTS_FILE="${SCRIPT_DIR}/requirements.txt"
+# Install dependencies if requirements.txt exists
 if [ -f "$REQUIREMENTS_FILE" ]; then
-    echo "Installing dependencies from $REQUIREMENTS_FILE..."
+    echo "Installing dependencies from requirements.txt..."
     pip install -r "$REQUIREMENTS_FILE"
 else
-    echo "WARNING: $REQUIREMENTS_FILE not found. Skipping dependency installation."
-    echo "Please ensure requirements.txt is created (e.g., by T002a) before running scripts."
+    echo "Warning: requirements.txt not found. Skipping dependency installation."
 fi
 
-echo "Virtual environment initialization complete."
-echo "To activate manually later, run: source $VENV_DIR/bin/activate"
+echo "=== Virtual Environment Ready ==="
+echo "To activate manually, run: source ${VENV_DIR}/bin/activate"
+echo "Python version: $(python --version)"
 deactivate
+echo "Script completed successfully."
