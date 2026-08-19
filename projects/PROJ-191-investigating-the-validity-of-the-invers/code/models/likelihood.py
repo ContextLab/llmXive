@@ -1,273 +1,242 @@
-"""
-Likelihood functions for Yukawa and Newtonian force models.
-
-Implements log-likelihood calculations using the covariance matrix
-from T015 (full or banded) with Cholesky decomposition for numerical stability.
-"""
 import numpy as np
 from typing import Tuple, Optional
 from pathlib import Path
 import logging
 from scipy.linalg import cholesky, cho_solve, LinAlgError
-
 from models.physics import yukawa_force, newtonian_force
-from config import get_logger
+from config import get_logger, ProjectConfig
 
 logger = get_logger(__name__)
 
-def load_covariance_matrix(cov_path: Path) -> np.ndarray:
+def load_covariance_matrix(filepath: Optional[Path] = None) -> np.ndarray:
     """
     Load the covariance matrix from disk.
     
     Args:
-        cov_path: Path to the .npy file containing the covariance matrix.
+        filepath: Path to the .npy file. Defaults to ProjectConfig paths.
         
     Returns:
-        The covariance matrix as a numpy array.
+        np.ndarray: The loaded covariance matrix.
         
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If the file is not a valid numpy array or is not square.
+        ValueError: If the file is empty or invalid.
     """
-    if not cov_path.exists():
-        raise FileNotFoundError(f"Covariance matrix file not found: {cov_path}")
+    if filepath is None:
+        config = ProjectConfig()
+        filepath = config.data_processed_dir / "covariance_matrix.npy"
+    
+    if not filepath.exists():
+        raise FileNotFoundError(f"Covariance matrix not found at {filepath}")
     
     try:
-        cov_matrix = np.load(cov_path)
+        cov_matrix = np.load(filepath)
     except Exception as e:
-        raise ValueError(f"Failed to load covariance matrix from {cov_path}: {e}")
+        raise ValueError(f"Failed to load covariance matrix: {e}")
     
-    if cov_matrix.ndim != 2 or cov_matrix.shape[0] != cov_matrix.shape[1]:
-        raise ValueError(f"Covariance matrix must be square. Got shape: {cov_matrix.shape}")
-    
-    logger.info(f"Loaded covariance matrix with shape {cov_matrix.shape} from {cov_path}")
+    if cov_matrix.size == 0:
+        raise ValueError("Covariance matrix is empty.")
+        
+    logger.info(f"Loaded covariance matrix of shape {cov_matrix.shape}")
     return cov_matrix
 
 def compute_cholesky_decomposition(cov_matrix: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute the Cholesky decomposition of the covariance matrix.
+    Compute the Cholesky decomposition of the covariance matrix for numerical stability.
     
     Args:
-        cov_matrix: The covariance matrix (must be positive definite).
+        cov_matrix: The covariance matrix (N x N).
         
     Returns:
-        A tuple (L, L_inv) where L is the lower triangular Cholesky factor
-        and L_inv is its inverse.
-        
+        Tuple containing:
+            - L: Lower triangular Cholesky factor.
+            - L_inv: Inverse of the Cholesky factor (used for solving linear systems).
+            
     Raises:
-        LinAlgError: If the matrix is not positive definite.
+        LinAlgError: If the matrix is not positive-definite.
     """
     try:
         L = cholesky(cov_matrix, lower=True)
-        # Solve L * X = I to get L_inv
-        L_inv = cho_solve((L, True), np.eye(L.shape[0]))
-        logger.debug("Cholesky decomposition computed successfully.")
-        return L, L_inv
+        # We need L_inv for solving L * x = b => x = L_inv * b
+        # However, cho_solve expects the Cholesky factor directly.
+        # To support both direct solve and pre-computed inverse usage, we return L.
+        # The actual solve is done via cho_solve(L, b) for stability.
+        return L, None 
     except LinAlgError as e:
-        logger.error(f"Cholesky decomposition failed: {e}")
-        raise
+        logger.error(f"Covariance matrix is not positive-definite. Shape: {cov_matrix.shape}")
+        raise LinAlgError(f"Cholesky decomposition failed: {e}")
 
 def log_likelihood_newtonian(
-    r: np.ndarray,
-    F_obs: np.ndarray,
-    L: np.ndarray,
-    L_inv: np.ndarray
+    separation: np.ndarray,
+    force: np.ndarray,
+    cov_matrix: np.ndarray,
+    L: np.ndarray
 ) -> float:
     """
-    Compute the log-likelihood for the Newtonian force model.
+    Compute the log-likelihood for the Newtonian model.
     
-    The model assumes F = newtonian_force(r).
-    Likelihood is proportional to exp(-0.5 * chi^2).
+    Model: F_pred = newtonian_force(separation)
+    Likelihood: log P(data | model) = -0.5 * (residual^T * Cov^-1 * residual + log|Cov| + N*log(2*pi))
     
     Args:
-        r: Array of separation distances (meters).
-        F_obs: Array of observed force values (Newtons).
-        L: Lower triangular Cholesky factor of the covariance matrix.
-        L_inv: Inverse of the lower triangular Cholesky factor.
+        separation: Array of separation distances (m).
+        force: Array of measured forces (N).
+        cov_matrix: Full covariance matrix.
+        L: Lower triangular Cholesky factor of cov_matrix.
         
     Returns:
-        The log-likelihood value.
+        float: The log-likelihood value.
     """
-    F_model = newtonian_force(r)
-    residuals = F_obs - F_model
+    pred = newtonian_force(separation)
+    residual = force - pred
+    n = len(force)
     
-    # Solve L * y = residuals for y (i.e., y = L^{-1} * residuals)
-    # Then chi^2 = y^T * y
+    # Solve L * z = residual for z
+    # Then residual^T * Cov^-1 * residual = z^T * z
     try:
-        y = cho_solve((L, True), residuals)
-        chi_sq = np.dot(y, y)
-    except Exception as e:
-        logger.error(f"Error solving linear system for Newtonian likelihood: {e}")
+        z = cho_solve((L, True), residual) # (L, True) implies L is lower triangular
+    except LinAlgError:
+        logger.error("Cholesky solve failed during likelihood computation.")
         return -np.inf
+        
+    chi_sq = np.dot(residual, z)
+    log_det_cov = 2.0 * np.sum(np.log(np.diag(L)))
     
-    log_det = 2 * np.sum(np.log(np.diag(L)))
-    n = len(residuals)
-    log_likelihood = -0.5 * (chi_sq + n * np.log(2 * np.pi) + log_det)
-    
+    log_likelihood = -0.5 * (chi_sq + log_det_cov + n * np.log(2.0 * np.pi))
     return log_likelihood
 
 def log_likelihood_yukawa(
-    r: np.ndarray,
-    F_obs: np.ndarray,
-    alpha: float,
-    lambda_val: float,
+    separation: np.ndarray,
+    force: np.ndarray,
+    cov_matrix: np.ndarray,
     L: np.ndarray,
-    L_inv: np.ndarray
+    alpha: float,
+    lambda_val: float
 ) -> float:
     """
-    Compute the log-likelihood for the Yukawa-modified force model.
+    Compute the log-likelihood for the Yukawa-modified model.
     
-    The model assumes F = yukawa_force(r, alpha, lambda).
-    Likelihood is proportional to exp(-0.5 * chi^2).
+    Model: F_pred = yukawa_force(separation, alpha, lambda_val)
+    Likelihood: log P(data | model) = -0.5 * (residual^T * Cov^-1 * residual + log|Cov| + N*log(2*pi))
     
     Args:
-        r: Array of separation distances (meters).
-        F_obs: Array of observed force values (Newtons).
-        alpha: Strength parameter of the Yukawa interaction (dimensionless).
-        lambda_val: Range parameter of the Yukawa interaction (meters).
-        L: Lower triangular Cholesky factor of the covariance matrix.
-        L_inv: Inverse of the lower triangular Cholesky factor.
+        separation: Array of separation distances (m).
+        force: Array of measured forces (N).
+        cov_matrix: Full covariance matrix.
+        L: Lower triangular Cholesky factor of cov_matrix.
+        alpha: Strength parameter for Yukawa potential.
+        lambda_val: Range parameter for Yukawa potential (m).
         
     Returns:
-        The log-likelihood value.
+        float: The log-likelihood value.
     """
-    if lambda_val <= 0:
+    pred = yukawa_force(separation, alpha, lambda_val)
+    residual = force - pred
+    n = len(force)
+    
+    try:
+        z = cho_solve((L, True), residual)
+    except LinAlgError:
+        logger.error("Cholesky solve failed during Yukawa likelihood computation.")
         return -np.inf
         
-    F_model = yukawa_force(r, alpha, lambda_val)
-    residuals = F_obs - F_model
+    chi_sq = np.dot(residual, z)
+    log_det_cov = 2.0 * np.sum(np.log(np.diag(L)))
     
-    # Solve L * y = residuals for y (i.e., y = L^{-1} * residuals)
-    # Then chi^2 = y^T * y
-    try:
-        y = cho_solve((L, True), residuals)
-        chi_sq = np.dot(y, y)
-    except Exception as e:
-        logger.error(f"Error solving linear system for Yukawa likelihood: {e}")
-        return -np.inf
-    
-    log_det = 2 * np.sum(np.log(np.diag(L)))
-    n = len(residuals)
-    log_likelihood = -0.5 * (chi_sq + n * np.log(2 * np.pi) + log_det)
-    
+    log_likelihood = -0.5 * (chi_sq + log_det_cov + n * np.log(2.0 * np.pi))
     return log_likelihood
 
 class YukawaLikelihood:
-    """
-    A callable class representing the Yukawa log-likelihood function.
-    
-    This class pre-computes the Cholesky decomposition of the covariance matrix
-    to speed up repeated likelihood evaluations during MCMC or nested sampling.
-    """
-    def __init__(self, r: np.ndarray, F_obs: np.ndarray, cov_matrix: np.ndarray):
-        """
-        Initialize the Yukawa likelihood.
-        
-        Args:
-            r: Array of separation distances (meters).
-            F_obs: Array of observed force values (Newtons).
-            cov_matrix: The covariance matrix.
-        """
-        self.r = np.asarray(r)
-        self.F_obs = np.asarray(F_obs)
-        self.L, self.L_inv = compute_cholesky_decomposition(cov_matrix)
-        logger.info("YukawaLikelihood initialized with pre-computed Cholesky decomposition.")
-    
-    def __call__(self, params: Tuple[float, float]) -> float:
-        """
-        Evaluate the log-likelihood for given parameters.
-        
-        Args:
-            params: A tuple (alpha, lambda_val).
-            
-        Returns:
-            The log-likelihood value.
-        """
+    """Callable class for Yukawa likelihood, suitable for MCMC samplers."""
+    def __init__(self, separation: np.ndarray, force: np.ndarray, L: np.ndarray):
+        self.separation = separation
+        self.force = force
+        self.L = L
+        self.n = len(force)
+        self.log_det_cov = 2.0 * np.sum(np.log(np.diag(L)))
+        self.const_term = self.n * np.log(2.0 * np.pi)
+
+    def __call__(self, params: np.ndarray) -> float:
         alpha, lambda_val = params
-        return log_likelihood_yukawa(self.r, self.F_obs, alpha, lambda_val, self.L, self.L_inv)
+        # Basic sanity checks to avoid NaNs in physics model
+        if alpha < 0 or lambda_val <= 0:
+            return -np.inf
+        try:
+            return log_likelihood_yukawa(self.separation, self.force, None, self.L, alpha, lambda_val)
+        except Exception:
+            return -np.inf
 
 class NewtonianLikelihood:
-    """
-    A callable class representing the Newtonian log-likelihood function.
-    
-    This class pre-computes the Cholesky decomposition of the covariance matrix
-    to speed up repeated likelihood evaluations.
-    """
-    def __init__(self, r: np.ndarray, F_obs: np.ndarray, cov_matrix: np.ndarray):
-        """
-        Initialize the Newtonian likelihood.
-        
-        Args:
-            r: Array of separation distances (meters).
-            F_obs: Array of observed force values (Newtons).
-            cov_matrix: The covariance matrix.
-        """
-        self.r = np.asarray(r)
-        self.F_obs = np.asarray(F_obs)
-        self.L, self.L_inv = compute_cholesky_decomposition(cov_matrix)
-        logger.info("NewtonianLikelihood initialized with pre-computed Cholesky decomposition.")
-    
-    def __call__(self, params: Tuple[()]) -> float:
-        """
-        Evaluate the log-likelihood. No parameters for Newtonian model.
-        
-        Args:
-            params: Empty tuple (ignored).
-            
-        Returns:
-            The log-likelihood value.
-        """
-        return log_likelihood_newtonian(self.r, self.F_obs, self.L, self.L_inv)
+    """Callable class for Newtonian likelihood."""
+    def __init__(self, separation: np.ndarray, force: np.ndarray, L: np.ndarray):
+        self.separation = separation
+        self.force = force
+        self.L = L
+        self.n = len(force)
+        self.log_det_cov = 2.0 * np.sum(np.log(np.diag(L)))
+        self.const_term = self.n * np.log(2.0 * np.pi)
+
+    def __call__(self, params: np.ndarray) -> float:
+        # Newtonian model has no free parameters in this context (alpha=0, lambda irrelevant)
+        # We accept params for interface compatibility but ignore them.
+        try:
+            return log_likelihood_newtonian(self.separation, self.force, None, self.L)
+        except Exception:
+            return -np.inf
 
 def main():
     """
-    Main entry point for testing the likelihood functions.
-    
-    This function loads the covariance matrix and harmonized data,
-    then demonstrates the likelihood calculations.
+    Main entry point to validate likelihood computation.
+    Loads the covariance matrix, computes Cholesky, and prints likelihoods for
+    dummy parameters to ensure the pipeline works.
     """
-    from config import ProjectConfig
-    from data.loaders import HarmonizedDataset
-    
+    logger.info("Starting likelihood validation...")
     config = ProjectConfig()
-    cov_path = config.data_dir / "processed" / "covariance_matrix.npy"
+    
+    # Paths
+    cov_path = config.data_processed_dir / "covariance_matrix.npy"
+    data_path = config.data_processed_dir / "harmonized_data.csv"
     
     if not cov_path.exists():
-        logger.error(f"Covariance matrix not found at {cov_path}. Please run harmonization first.")
+        logger.error(f"Covariance matrix not found at {cov_path}. Run harmonization first.")
         return
     
+    if not data_path.exists():
+        logger.error(f"Harmonized data not found at {data_path}. Run harmonization first.")
+        return
+
     try:
         cov_matrix = load_covariance_matrix(cov_path)
-        L, L_inv = compute_cholesky_decomposition(cov_matrix)
-        logger.info("Successfully loaded and decomposed covariance matrix.")
+        L, _ = compute_cholesky_decomposition(cov_matrix)
         
-        # Load harmonized data
-        data_path = config.data_dir / "processed" / "harmonized_data.csv"
-        if not data_path.exists():
-            logger.error(f"Harmonized data not found at {data_path}.")
+        # Load data
+        df = pd.read_csv(data_path)
+        # Ensure columns exist
+        required_cols = ['separation_m', 'force_n']
+        if not all(c in df.columns for c in required_cols):
+            logger.error(f"Data missing required columns. Found: {df.columns.tolist()}")
             return
-        
-        df = HarmonizedDataset.load_from_csv(data_path)
-        r = df['separation_m']
-        F_obs = df['force_N']
-        
-        # Test Newtonian likelihood
-        ll_newton = log_likelihood_newtonian(r, F_obs, L, L_inv)
-        logger.info(f"Newtonian log-likelihood: {ll_newton}")
-        
-        # Test Yukawa likelihood with sample parameters
-        alpha_test = 1.0
-        lambda_test = 1e-4  # 0.1 mm
-        ll_yukawa = log_likelihood_yukawa(r, F_obs, alpha_test, lambda_test, L, L_inv)
-        logger.info(f"Yukawa log-likelihood (alpha={alpha_test}, lambda={lambda_test}): {ll_yukawa}")
-        
-        # Test class-based likelihood
-        yukawa_lik = YukawaLikelihood(r, F_obs, cov_matrix)
-        ll_class = yukawa_lik((alpha_test, lambda_test))
-        logger.info(f"Yukawa log-likelihood (class-based): {ll_class}")
-        
+
+        separation = df['separation_m'].values
+        force = df['force_n'].values
+
+        # Test Newtonian
+        ll_newt = log_likelihood_newtonian(separation, force, cov_matrix, L)
+        logger.info(f"Newtonian Log-Likelihood: {ll_newt:.4f}")
+
+        # Test Yukawa with dummy params
+        ll_yuk = log_likelihood_yukawa(separation, force, cov_matrix, L, alpha=0.1, lambda_val=1e-4)
+        logger.info(f"Yukawa Log-Likelihood (alpha=0.1, lambda=1e-4): {ll_yuk:.4f}")
+
+        # Test Class interface
+        yuk_lik = YukawaLikelihood(separation, force, L)
+        ll_class = yuk_lik(np.array([0.1, 1e-4]))
+        logger.info(f"Yukawa Likelihood (Class): {ll_class:.4f}")
+
+        logger.info("Likelihood validation successful.")
+
     except Exception as e:
-        logger.error(f"Error in main likelihood test: {e}", exc_info=True)
+        logger.error(f"Validation failed: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":

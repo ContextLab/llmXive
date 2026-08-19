@@ -1,48 +1,33 @@
 """
 Linting tool wrapper for Ruff.
-Runs Ruff to check code quality and style.
 """
 import subprocess
 import sys
 from pathlib import Path
 
 
-def run_command():
-    """Run Ruff linter on the project directory."""
-    project_root = Path(__file__).resolve().parent.parent.parent
-    code_dir = project_root / "code"
-    tests_dir = project_root / "tests"
-
-    cmd = [
-        sys.executable,
-        "-m",
-        "ruff",
-        "check",
-        "--config",
-        str(project_root / "pyproject.toml"),
-        str(code_dir),
-        str(tests_dir),
-    ]
-
+def run_command(directory: Path) -> int:
+    """Run ruff on the given directory."""
     try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        print("Linting completed successfully. No issues found.")
-        if result.stdout:
-            print(result.stdout)
+        subprocess.check_call(
+            [sys.executable, "-m", "ruff", "check", "."],
+            cwd=directory,
+        )
+        print(f"Linting passed in {directory}.")
         return 0
     except subprocess.CalledProcessError as e:
-        print(f"Linting found issues or failed with exit code {e.returncode}")
-        if e.stderr:
-            print(e.stderr)
-        if e.stdout:
-            print(e.stdout)
+        print(f"Linting failed: {e}")
+        return 1
+    except FileNotFoundError:
+        print("Ruff is not installed. Run: pip install ruff")
         return 1
 
 
 def main():
-    """Entry point for the lint tool."""
-    print("Running Ruff linter...")
-    sys.exit(run_command())
+    """Entry point for linting."""
+    root = Path(__file__).resolve().parent.parent
+    exit_code = run_command(root)
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":

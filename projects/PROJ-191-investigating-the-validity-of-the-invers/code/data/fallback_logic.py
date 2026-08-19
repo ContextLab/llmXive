@@ -1,7 +1,3 @@
-"""
-Fallback logic module for handling cases with insufficient independent runs.
-Implements bootstrap resampling when fewer than 3 independent runs are detected.
-"""
 import logging
 import json
 import numpy as np
@@ -9,164 +5,119 @@ import pandas as pd
 from pathlib import Path
 from typing import List, Tuple, Optional
 
-from config import get_logger
-from data.state_manager import get_state_path, read_state, write_state, set_bootstrap_flag
+from config import get_logger, ProjectConfig
+from data.state_manager import read_state, write_state, set_bootstrap_flag
 
 logger = get_logger(__name__)
 
-
-def detect_independent_runs(harmonized_data_path: Path) -> int:
+def detect_independent_runs(raw_data_dir: Path) -> List[dict]:
     """
-    Detect the number of independent experimental runs in the harmonized dataset.
+    Scan the raw data directory for independent experimental runs.
+    Returns a list of run metadata dictionaries.
+    """
+    runs = []
+    if not raw_data_dir.exists():
+        logger.warning(f"Raw data directory does not exist: {raw_data_dir}")
+        return runs
+
+    # Expecting tarballs or extracted folders corresponding to arXiv IDs
+    # e.g., arXiv:2106.08611, arXiv:2305.06325, arXiv:1909.03356
+    # We look for markers or specific filenames that indicate a successful extraction
+    potential_runs = [
+        "arXiv_2106_08611", "arXiv_2305_06325", "arXiv_1909_03356",
+        "2106.08611", "2305.06325", "1909.03356"
+    ]
+
+    for run_id in potential_runs:
+        run_path = raw_data_dir / run_id
+        if run_path.exists():
+            runs.append({"id": run_id, "path": str(run_path)})
+        else:
+            # Check for CSV files directly if folder extraction didn't happen as expected
+            csv_files = list(raw_data_dir.glob(f"*{run_id}*.csv"))
+            if csv_files:
+                runs.append({"id": run_id, "path": str(csv_files[0])})
+
+    return runs
+
+def bootstrap_resample_dataset(dataset: pd.DataFrame, rng: Optional[np.random.Generator] = None) -> pd.DataFrame:
+    """
+    Perform bootstrap resampling on the dataset (rows with replacement).
+    """
+    if rng is None:
+        rng = np.random.default_rng()
     
-    Args:
-        harmonized_data_path: Path to the harmonized dataset CSV file
-        
-    Returns:
-        Number of independent runs detected
-    """
-    if not harmonized_data_path.exists():
-        logger.warning(f"Harmonized data file not found at {harmonized_data_path}")
-        return 0
-        
-    try:
-        df = pd.read_csv(harmonized_data_path)
-        
-        # Check for run identifier columns
-        run_columns = [col for col in df.columns if 'run' in col.lower() or 'experiment' in col.lower()]
-        
-        if not run_columns:
-            # If no explicit run column, try to infer from unique combinations
-            # of other identifiers or assume single run
-            logger.info("No explicit run identifier found, assuming single run")
-            return 1
-            
-        # Count unique run identifiers
-        unique_runs = df[run_columns[0]].nunique()
-        logger.info(f"Detected {unique_runs} independent runs from column '{run_columns[0]}'")
-        return unique_runs
-        
-    except Exception as e:
-        logger.error(f"Error detecting independent runs: {e}")
-        return 0
+    n_samples = len(dataset)
+    indices = rng.choice(n_samples, size=n_samples, replace=True)
+    return dataset.iloc[indices].reset_index(drop=True)
 
-
-def bootstrap_resample_dataset(
-    df: pd.DataFrame,
-    n_bootstrap: int = 1000,
-    random_seed: Optional[int] = None
-) -> List[pd.DataFrame]:
+def prepare_analysis_dataset(runs: List[dict], use_bootstrap: bool = False) -> dict:
     """
-    Generate bootstrap resamples of the dataset for statistical analysis.
-    
-    Args:
-        df: Input dataframe to resample
-        n_bootstrap: Number of bootstrap samples to generate
-        random_seed: Random seed for reproducibility
-        
-    Returns:
-        List of bootstrap resampled dataframes
+    Prepare the analysis dataset configuration based on detected runs.
     """
-    if random_seed is not None:
-        np.random.seed(random_seed)
-        
-    bootstrap_samples = []
-    n_rows = len(df)
-    
-    for i in range(n_bootstrap):
-        # Sample with replacement
-        indices = np.random.choice(n_rows, size=n_rows, replace=True)
-        bootstrap_df = df.iloc[indices].reset_index(drop=True)
-        bootstrap_samples.append(bootstrap_df)
-        
-    logger.info(f"Generated {n_bootstrap} bootstrap samples")
-    return bootstrap_samples
-
-
-def prepare_analysis_dataset(
-    df: pd.DataFrame,
-    use_bootstrap: bool,
-    n_bootstrap: int = 1000,
-    random_seed: Optional[int] = None
-) -> Tuple[pd.DataFrame, bool]:
-    """
-    Prepare the analysis dataset, applying bootstrap resampling if needed.
-    
-    Args:
-        df: Input dataframe
-        use_bootstrap: Whether to use bootstrap resampling
-        n_bootstrap: Number of bootstrap samples if using bootstrap
-        random_seed: Random seed for reproducibility
-        
-    Returns:
-        Tuple of (prepared dataset, bootstrap flag)
-    """
-    if use_bootstrap:
-        logger.info("Preparing bootstrap resampling for analysis")
-        bootstrap_samples = bootstrap_resample_dataset(df, n_bootstrap, random_seed)
-        # For analysis, we'll return the original df with a flag indicating
-        # that bootstrap should be used in downstream processing
-        logger.info(f"Bootstrap resampling will generate {n_bootstrap} samples during analysis")
-        return df, True
-    else:
-        logger.info("Using full dataset for analysis without bootstrap")
-        return df, False
-
+    return {
+        "runs_detected": len(runs),
+        "runs": runs,
+        "use_bootstrap": use_bootstrap
+    }
 
 def main():
     """
-    Main entry point for fallback logic execution.
+    T016 Implementation: Check run count and set bootstrap flag if < 3.
     
-    This function:
-    1. Reads the harmonized dataset
-    2. Detects the number of independent runs
-    3. Writes the appropriate state flag (USE_BOOTSTRAP) to data/processed/state.json
+    Logic:
+    1. Detect independent runs from data/raw/.
+    2. If count < 3, set USE_BOOTSTRAP: true in data/processed/state.json.
+    3. Log the decision.
     """
-    logger.info("Starting fallback logic execution (T016)")
-    
-    # Define paths relative to project root
-    project_root = Path(__file__).parent.parent.parent
-    harmonized_data_path = project_root / "data" / "processed" / "harmonized_data.csv"
-    state_path = project_root / "data" / "processed" / "state.json"
-    
-    # Ensure state directory exists
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Detect independent runs
-    n_runs = detect_independent_runs(harmonized_data_path)
-    logger.info(f"Detected {n_runs} independent runs")
-    
-    # Determine if bootstrap is needed (fewer than 3 runs)
-    use_bootstrap = n_runs < 3
-    
-    if use_bootstrap:
-        logger.warning(f"Only {n_runs} independent runs detected. Bootstrap resampling will be used.")
-    else:
-        logger.info(f"{n_runs} independent runs detected. Standard analysis will be used.")
-    
-    # Write state flag to state.json
-    try:
-        # Read existing state if it exists
-        current_state = read_state(state_path) if state_path.exists() else {}
-        
-        # Update with bootstrap flag
-        current_state["USE_BOOTSTRAP"] = use_bootstrap
-        current_state["detected_runs"] = n_runs
-        current_state["bootstrap_threshold"] = 3
-        
-        # Write updated state
-        write_state(state_path, current_state)
-        
-        logger.info(f"Successfully wrote state to {state_path}")
-        logger.info(f"USE_BOOTSTRAP flag set to: {use_bootstrap}")
-        
-    except Exception as e:
-        logger.error(f"Failed to write state file: {e}")
-        raise RuntimeError(f"Failed to write bootstrap state flag: {e}")
-    
-    logger.info("Fallback logic execution completed successfully")
-    return use_bootstrap
+    config = ProjectConfig()
+    raw_data_dir = config.data_dir / "raw"
+    processed_dir = config.data_dir / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
+    logger.info("Starting T016: Fallback Logic (Run Count Check & Bootstrap Flag)")
+
+    # Detect runs
+    runs = detect_independent_runs(raw_data_dir)
+    run_count = len(runs)
+    logger.info(f"Detected {run_count} independent runs in {raw_data_dir}")
+
+    # Read current state to preserve other flags
+    state_path = processed_dir / "state.json"
+    current_state = {}
+    if state_path.exists():
+        try:
+            with open(state_path, 'r') as f:
+                current_state = json.load(f)
+        except json.JSONDecodeError:
+            logger.warning("Existing state.json is invalid JSON. Starting fresh.")
+            current_state = {}
+
+    # Determine if bootstrap is needed
+    # The task specifies: "If fewer than three independent runs are detected"
+    needs_bootstrap = run_count < 3
+
+    if needs_bootstrap:
+        logger.warning(f"Run count ({run_count}) is less than 3. Setting USE_BOOTSTRAP to true.")
+        set_bootstrap_flag(processed_dir)
+        current_state["USE_BOOTSTRAP"] = True
+    else:
+        logger.info(f"Run count ({run_count}) is sufficient (>= 3). Ensuring USE_BOOTSTRAP is false/absent.")
+        current_state["USE_BOOTSTRAP"] = False
+        # Explicitly remove if it was previously set by a partial run
+        if "USE_BOOTSTRAP" in current_state:
+            del current_state["USE_BOOTSTRAP"]
+
+    # Update run count in state for downstream tasks
+    current_state["detected_runs"] = run_count
+    current_state["last_updated"] = "T016"
+
+    # Write state
+    write_state(processed_dir, current_state)
+    logger.info(f"State updated at {state_path}")
+
+    return 0 if not needs_bootstrap else 1
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

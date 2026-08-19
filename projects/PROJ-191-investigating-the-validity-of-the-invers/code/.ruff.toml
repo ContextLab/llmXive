@@ -1,3 +1,4 @@
-# Extends the configuration in pyproject.toml for IDE compatibility or specific overrides
-# This file ensures ruff picks up settings even if pyproject.toml is not in the cwd
+# This file is a duplicate for IDE compatibility; configuration lives in pyproject.toml
+# Ruff will automatically pick up the [tool.ruff] section from pyproject.toml.
+# This file exists to satisfy tools that specifically look for a .ruff.toml file.
 extend = "pyproject.toml"

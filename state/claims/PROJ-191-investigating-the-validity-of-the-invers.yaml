@@ -947,3 +947,236 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T01:11:40Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: fetch arXiv:2106.08611 and arXiv:2305.06325
+  claim_id: c_9cad69fe
+  context: 'T013-DATA [US1] Data Acquisition: Implement code/data/download.py to fetch
+    arXiv:2106.08611 and arXiv:2305.06325.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: fetch arXiv:2106.08611 and arXiv:2305.06325
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T10:45:40Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: fetch arXiv:1909.03356
+  claim_id: c_a42dae7f
+  context: 'T013-3RD-RUN [US1] Third Run Fetch: Implement logic in code/data/download.py
+    to fetch arXiv:1909.03356 (if available) as the third independent run.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: fetch arXiv:1909.03356
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T10:47:35Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: validate_reference threshold 0.7
+  claim_id: c_a478947a
+  context: 'T013-VALIDATOR [US1] Validator Implementation: Implement code/agents/validator.py
+    with a function validate_reference(url: str, threshold: float = 0.7) -> bool.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'threshold: float = 0.7'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:50:35Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: run count check less than 3
+  claim_id: c_34e6c01d
+  context: 'T013-DATA [US1] Data Acquisition: Run Count Check: Count independent experimental
+    runs found. If len(runs) < 3...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_count_check_less_than_3
+  kind: magnitude
+  raw_text: If len(runs) < 3
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:50:40Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: covariance matrix construction threshold 200
+  claim_id: c_398271dd
+  context: "T015-COV [US1] Covariance Construction: If N (data points) <= 200: Construct\
+    \ full N\xD7N covariance matrix."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N (data points) <= 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:50:44Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: covariance matrix block-diagonal threshold 200
+  claim_id: c_67ad6185
+  context: 'T015-COV [US1] Covariance Construction: If N > 200: Automatically switch
+    to block-diagonal approximation...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N > 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:50:44Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: block-diagonal covariance bandwidth 20
+  claim_id: c_ced42d7d
+  context: 'T015-COV [US1] Covariance Construction: ...switch to block-diagonal approximation
+    with bandwidth=20 (preserving local correlations as per Plan.md).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bandwidth=20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:50:48Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: emcee minimum steps 5000
+  claim_id: c_ba62f91d
+  context: 'T023 [US2] Implement emcee runner: Run a minimum of 5000 steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: minimum of 5000 steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:50:52Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Gelman-Rubin convergence threshold 1.01
+  claim_id: c_d5a5920f
+  context: 'T023 [US2] Implement emcee runner: Continue running in batches of steps
+    until the Gelman-Rubin statistic < 1.01...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gelman-Rubin statistic < 1.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:50:53Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Bayes factor K threshold 3
+  claim_id: c_06a188b5
+  context: 'T026-NULL-SIM [US2] Null-Simulation Test: Calculate: false_positive =
+    (Bayes_factor_K > 3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bayes_factor_K > 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:50:53Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Kass-Raftery scale K greater than 3 substantial evidence
+  claim_id: c_91c1e58c
+  context: "T038 [US2/US3] Single Source of Truth & SC-002 Verification: Compare K\
+    \ against the Kass\u2013Raftery scale (K > 3 indicates substantial evidence for\
+    \ the Yukawa model)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kass-Raftery_scale_K_greater_than_3_substantial_evidence
+  kind: magnitude
+  raw_text: K > 3 indicates substantial evidence
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:50:58Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: robustness test Bayes factor shift less than 15 percent
+  claim_id: c_32f29171
+  context: "Phase 5 Independent Test: Run code/robustness/cross_val.py and code/robustness/uncertainty.py;\
+    \ verify Bayes factors and credible\u2011upper\u2011limit shifts stay < 15% across\
+    \ all iterations."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_test_Bayes_factor_shift_less_than_15_percent
+  kind: magnitude
+  raw_text: "Bayes factors and credible\u2011upper\u2011limit shifts stay < 15%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:51:06Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: coefficient of variation formula
+  claim_id: c_b6c72ed7
+  context: "T033 [US3] Calculate the coefficient of variation (CV) of the credible\u2011\
+    upper\u2011limits (95th percentile) across all robustness iterations, where CV\
+    \ = (standard deviation \xF7 mean) \xD7 100."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "CV = (standard deviation \xF7 mean) \xD7 100"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:51:10Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: coefficient of variation warning threshold 15 percent
+  claim_id: c_135f1ee4
+  context: T033 [US3] ...if CV > 15%, log a warning and flag the result...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if CV > 15%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T10:51:11Z'

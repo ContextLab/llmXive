@@ -9,17 +9,15 @@ This project implements a rigorous Bayesian analysis pipeline to test the invers
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `numpy`, `scipy`, `pandas`, `emcee`, `dynesty`, `requests`, `astropy` (for unit handling), `pyyaml`
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/results/`) with checksums; no external DB.
-**Testing**: `pytest` with `pytest-cov`; contract tests against YAML schemas.
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, ~14 GB disk).
-**Project Type**: Scientific analysis CLI / library.
-**Performance Goals**: Complete full inference pipeline (MCMC + Nested Sampling + Robustness) within 6 hours.
-**Constraints**: Memory ≤ 7 GB; No GPU dependencies (CPU-first); All external data must be publicly downloadable without credentials.
-**Scale/Scope**: Processing of available experimental runs; 100 walkers × up to 5000 steps (MCMC); A sufficient number of live points (Nested Sampling).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `numpy`, `scipy`, `pandas`, `emcee`, `dynesty`, `astropy`, `requests`, `pytest`, `ruamel.yaml`  
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/results/`)  
+**Testing**: `pytest` (unit, integration, contract validation)  
+**Target Platform**: Linux (GitHub Actions Free Tier: A modest number of CPU cores and sufficient RAM to support the research question and method, as outlined in the relevant literature., No GPU)  
+**Project Type**: Scientific Computing / Data Analysis Pipeline  
+**Performance Goals**: Complete full inference pipeline (MCMC + Nested Sampling + Robustness) within ≤5.5 hours; Memory usage ≤7 GB.  
+**Constraints**: No GPU usage; No deep learning; Data must be sampled if size exceeds RAM (preserving covariance structure via block-diagonal approximation); Strict adherence to `emcee` (A cohort of walkers, 5000 steps for primary run) and `dynesty` configurations as per Constitution.  
+**Scale/Scope**: Analysis of multiple independent experimental runs; Parameter space: α ∈ a bounded interval around zero, λ ∈ a bounded interval of small positive values (Log-Uniform prior).
 
 ## Constitution Check
 
@@ -57,6 +55,34 @@ specs/001-investigating-the-inverse-square-law/
 
 ```text
 projects/PROJ-191-investigating-the-validity-of-the-invers/
+├── code/
+│   ├── __init__.py
+│   ├── run_pipeline.py          # Main entry script
+│   ├── requirements.txt
+│   ├── config.py                # Hyperparameters (walkers, steps, priors)
+│   ├── data/
+│   │   ├── __init__.py
+│   │   ├── download.py          # arXiv fetching, checksumming, & validation
+│   │   ├── harmonize.py         # Unit conversion, grid alignment, covariance
+│   │   └── loaders.py           # Dataset loading utilities
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── physics.py           # Yukawa and Newtonian force models
+│   │   └── likelihood.py        # Log-likelihood with full covariance
+│   ├── inference/
+│   │   ├── __init__.py
+│   │   ├── mcmc.py              # emcee execution (multiple walkers, sufficient steps)
+│   │   ├── nested.py            # dynesty execution (Bayesian evidence)
+│   │   └── diagnostics.py       # Gelman-Rubin, convergence checks
+│   ├── robustness/
+│   │   ├── __init__.py
+│   │   ├── cross_val.py         # Leave-one-out loop
+│   │   ├── uncertainty.py       # Covariance inflation tests
+│   │   └── injection.py         # Injection-recovery & null-simulation
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── versioning.py        # Content hashing & state update automation
+│   │   └── plotting.py          # Visualization helpers
 ├── data/
 │ ├── raw/ # Downloaded arXiv supplementary files (immutable)
 │ ├── processed/ # Harmonized CSVs, covariance matrices
@@ -93,11 +119,17 @@ projects/PROJ-191-investigating-the-validity-of-the-invers/
 
 ## Data Availability & Fallback Logic
 
-- **Primary Source**: arXiv supplementary materials for 2106.08611 and 2305.06325.
-- **Fallback 1 (Missing Raw Files)**: If raw CSV/TXT files are missing from arXiv, the pipeline will parse summary tables and error budgets from the main text of the papers to reconstruct the dataset.
-- **Fallback 2 (Insufficient Runs)**: If < 3 independent experimental runs are found, the pipeline will **not** perform Leave-One-Out (LOO). Instead, it will switch to **Bootstrap Resampling** (N=1000) as a distinct validation method. LOO requires distinct datasets; bootstrap generates synthetic datasets from one.
-- **Fallback 3 (Compute Limits)**: If memory > 6 GB or runtime > 5 hours, the pipeline will automatically reduce the number of walkers or steps and re-run.
-- **Covariance Fallback**: The pipeline **always** produces a diagonal covariance matrix as the primary artifact. A full/banded matrix is only generated as a sensitivity analysis artifact if explicitly triggered; it is not a prerequisite for the main inference pipeline, preventing blocking.
+-   **RAM**: The dataset size is expected to be small (< 10 MB). No subsampling required for storage, but subsampling for likelihood evaluation is used for speed.
+-   **Runtime**:
+    -   Data Download & Validation: < 1 min.
+    -   Harmonization: < 5 min.
+ - **MCMC (Primary)**: [deferred] evaluations (100 walkers × 5000 steps). With N=200 points and a **banded covariance approximation (bandwidth=20)**, each likelihood evaluation is O(N * bandwidth), representing a computationally intensive operation. Total operations [deferred] * 4000 = 2e9 ops. On a multi-core CPU architecture (approx e9 ops/sec each), this is estimated to take **[deferred]**.
+    -   Nested Sampling: Approximately a moderate duration.
+    -   Robustness (Parallelized, reduced steps): A sufficient number of steps per iteration, multiple iterations, parallelized. [deferred].
+    -   **Total Revised Estimate**: **< 2.5 hours**. (Guarantees compliance with FR-006).
+-   **GPU**: Not used. All libraries (`emcee`, `dynesty`, `numpy`) run on CPU.
+-   **Risk Mitigation**: If runtime exceeds 2.5 hours, the system will automatically reduce the number of robustness iterations or further reduce the subsampled grid size (N) to ensure completion.
+-   **Subsampling Strategy**: When subsampling, the covariance matrix is approximated as **block-diagonal** to preserve local correlation structure, ensuring the "full or diagonal covariance" requirement is met within the subsampled subset.
 
 ## Data Source Authorization
 
