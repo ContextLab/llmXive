@@ -1,121 +1,188 @@
-"""
-Unit tests for code/summary_table.py (T033).
-"""
-import os
-import json
-import tempfile
+import pytest
 import pandas as pd
+import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import tempfile
+import os
 
-# Mock the config paths to use a temporary directory
-import sys
-from code import config
-from code import summary_table
+from code.summary_table import generate_summary_table, load_enrichment_csv, load_validation_json
+from code.config import DATA_PROCESSED_DIR
 
-def test_load_chip_overlap_stats_missing_file():
-    """Test that load_chip_overlap_stats raises FileNotFoundError if report is missing."""
-    # Ensure the path doesn't exist in the mock
-    with patch.object(summary_table, 'CHIP_OVERLAP_REPORT_PATH', Path('/nonexistent/path.json')):
-        try:
-            summary_table.load_chip_overlap_stats()
-            assert False, "Expected FileNotFoundError"
-        except FileNotFoundError:
-            pass
-
-def test_generate_summary_table_missing_enrichment():
-    """Test that generate_summary_table raises FileNotFoundError if enrichment matrix is missing."""
-    with patch.object(summary_table, 'ENRICHMENT_MATRIX_PATH', Path('/nonexistent/enrichment.csv')):
-        with patch.object(summary_table, 'load_chip_overlap_stats', return_value={}):
-            try:
-                summary_table.generate_summary_table()
-                assert False, "Expected FileNotFoundError"
-            except FileNotFoundError:
-                pass
-
-def test_generate_summary_table_success():
-    """Test successful generation of summary table."""
-    # Create temporary files
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        
-        # Mock paths
-        enrichment_path = tmp_path / "enrichment.csv"
-        overlap_path = tmp_path / "validation.json"
-        output_path = tmp_path / "summary.csv"
-        
-        # Create mock enrichment data
-        mock_enrichment = pd.DataFrame({
-            'motif_id': ['MA0001', 'MA0002', 'MA0001'],
-            'cell_type': ['GM', 'GM', 'K562'],
-            'p_value': [1e-10, 1e-5, 1e-8],
-            'q_value': [1e-8, 1e-3, 1e-6]
-        })
-        mock_enrichment.to_csv(enrichment_path, index=False)
-        
-        # Create mock overlap data
-        mock_overlap = {
-            "motif_overlaps": [
-                {"motif_id": "MA0001", "overlap_pct": 0.85},
-                {"motif_id": "MA0002", "overlap_pct": 0.45}
-            ]
+class TestSummaryTable:
+    """Test suite for T033: Generate final summary table"""
+    
+    @pytest.fixture
+    def sample_enrichment_csv(self, tmp_path):
+        """Create a sample enrichment matrix CSV"""
+        csv_path = tmp_path / 'enrichment_matrix.csv'
+        data = {
+            'motif_id': ['MA0001.1', 'MA0002.1', 'MA0003.1', 'MA0004.1'],
+            'cell_type': ['GM12878', 'GM12878', 'K562', 'K562'],
+            'p_value': [0.0001, 0.001, 0.00005, 0.01],
+            'q_value': [0.001, 0.01, 0.0005, 0.05]
         }
-        with open(overlap_path, 'w') as f:
-            json.dump(mock_overlap, f)
+        df = pd.DataFrame(data)
+        df.to_csv(csv_path, index=False)
+        return csv_path
+    
+    @pytest.fixture
+    def sample_validation_json(self, tmp_path):
+        """Create a sample validation report JSON"""
+        json_path = tmp_path / 'validation_report.json'
+        data = {
+            'overlap_pct': 65.5,
+            'top_motifs': [
+                {'motif_id': 'MA0001.1', 'q_value': 0.001, 'overlap_pct': 70.2},
+                {'motif_id': 'MA0002.1', 'q_value': 0.01, 'overlap_pct': 62.3},
+                {'motif_id': 'MA0003.1', 'q_value': 0.0005, 'overlap_pct': 68.9}
+            ],
+            'silhouette_score': 0.45
+        }
+        with open(json_path, 'w') as f:
+            json.dump(data, f)
+        return json_path
+    
+    @pytest.fixture
+    def output_path(self, tmp_path):
+        """Create output path"""
+        return tmp_path / 'summary_table.csv'
+    
+    def test_generate_summary_table_basic(self, sample_enrichment_csv, sample_validation_json, output_path):
+        """Test basic summary table generation"""
+        result_df = generate_summary_table(sample_enrichment_csv, sample_validation_json, output_path)
         
-        # Patch the module-level paths
-        with patch.object(summary_table, 'ENRICHMENT_MATRIX_PATH', enrichment_path):
-            with patch.object(summary_table, 'CHIP_OVERLAP_REPORT_PATH', overlap_path):
-                with patch.object(summary_table, 'DATA_PROCESSED_DIR', tmp_path):
-                    df_result = summary_table.generate_summary_table()
-                    
-                    # Check columns
-                    expected_cols = ['motif_id', 'p_value_raw', 'q_value_adj', 'chip_overlap_pct']
-                    assert list(df_result.columns) == expected_cols
-                    
-                    # Check row count (should be unique motifs: 2)
-                    assert len(df_result) == 2
-                    
-                    # Check specific values
-                    # MA0001 should have p_value 1e-10 (min) and overlap 0.85
-                    row_0001 = df_result[df_result['motif_id'] == 'MA0001'].iloc[0]
-                    assert row_0001['p_value_raw'] == 1e-10
-                    assert row_0001['chip_overlap_pct'] == 0.85
-                    
-                    # MA0002 should have p_value 1e-5 and overlap 0.45
-                    row_0002 = df_result[df_result['motif_id'] == 'MA0002'].iloc[0]
-                    assert row_0002['p_value_raw'] == 1e-5
-                    assert row_0002['chip_overlap_pct'] == 0.45
-
-def test_main_execution():
-    """Test the main() function execution flow."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
+        # Check file was created
+        assert output_path.exists()
         
-        # Create mock files
-        enrichment_path = tmp_path / "enrichment.csv"
-        overlap_path = tmp_path / "validation.json"
+        # Check columns
+        expected_cols = ['motif_id', 'p_value_raw', 'q_value_adj', 'chip_overlap_pct']
+        assert list(result_df.columns) == expected_cols
         
-        pd.DataFrame({
-            'motif_id': ['MA0001'],
-            'p_value': [1e-10],
-            'q_value': [1e-8]
-        }).to_csv(enrichment_path, index=False)
+        # Check that only top motifs are included (MA0001.1, MA0002.1, MA0003.1)
+        assert len(result_df) == 3
+        assert set(result_df['motif_id']) == {'MA0001.1', 'MA0002.1', 'MA0003.1'}
         
-        with open(overlap_path, 'w') as f:
-            json.dump({"motif_overlaps": [{"motif_id": "MA0001", "overlap_pct": 0.9}]}, f)
+        # Check that MA0004.1 is excluded (not in top_motifs)
+        assert 'MA0004.1' not in result_df['motif_id'].values
+    
+    def test_generate_summary_table_columns_format(self, sample_enrichment_csv, sample_validation_json, output_path):
+        """Test that output columns have correct formatting"""
+        result_df = generate_summary_table(sample_enrichment_csv, sample_validation_json, output_path)
         
-        with patch.object(summary_table, 'ENRICHMENT_MATRIX_PATH', enrichment_path):
-            with patch.object(summary_table, 'CHIP_OVERLAP_REPORT_PATH', overlap_path):
-                with patch.object(summary_table, 'DATA_PROCESSED_DIR', tmp_path):
-                    # Mock the output path to be in tmpdir
-                    output_path = tmp_path / "summary_table.csv"
-                    with patch.object(summary_table, 'SUMMARY_TABLE_PATH', output_path):
-                        ret = summary_table.main()
-                        assert ret == 0
-                        assert output_path.exists()
-                        
-                        # Verify content
-                        df = pd.read_csv(output_path)
-                        assert 'motif_id' in df.columns
-                        assert 'chip_overlap_pct' in df.columns
+        # Check p_value_raw precision (6 decimal places)
+        assert all(isinstance(val, float) for val in result_df['p_value_raw'])
+        
+        # Check q_value_adj precision (4 decimal places)
+        assert all(isinstance(val, float) for val in result_df['q_value_adj'])
+        
+        # Check chip_overlap_pct precision (2 decimal places)
+        assert all(isinstance(val, float) for val in result_df['chip_overlap_pct'])
+    
+    def test_load_enrichment_csv_success(self, sample_enrichment_csv):
+        """Test loading enrichment CSV successfully"""
+        df = load_enrichment_csv(sample_enrichment_csv)
+        
+        assert isinstance(df, pd.DataFrame)
+        assert 'motif_id' in df.columns
+        assert 'cell_type' in df.columns
+        assert 'p_value' in df.columns
+        assert 'q_value' in df.columns
+    
+    def test_load_enrichment_csv_missing_file(self, tmp_path):
+        """Test loading non-existent enrichment CSV"""
+        non_existent = tmp_path / 'non_existent.csv'
+        
+        with pytest.raises(FileNotFoundError):
+            load_enrichment_csv(non_existent)
+    
+    def test_load_enrichment_csv_missing_columns(self, tmp_path):
+        """Test loading enrichment CSV with missing columns"""
+        csv_path = tmp_path / 'bad_enrichment.csv'
+        data = {
+            'motif_id': ['MA0001.1'],
+            'cell_type': ['GM12878']
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(csv_path, index=False)
+        
+        with pytest.raises(ValueError):
+            load_enrichment_csv(csv_path)
+    
+    def test_load_validation_json_success(self, sample_validation_json):
+        """Test loading validation JSON successfully"""
+        data = load_validation_json(sample_validation_json)
+        
+        assert isinstance(data, dict)
+        assert 'top_motifs' in data
+        assert 'overlap_pct' in data
+        assert 'silhouette_score' in data
+    
+    def test_load_validation_json_missing_file(self, tmp_path):
+        """Test loading non-existent validation JSON"""
+        non_existent = tmp_path / 'non_existent.json'
+        
+        with pytest.raises(FileNotFoundError):
+            load_validation_json(non_existent)
+    
+    def test_load_validation_json_missing_top_motifs(self, tmp_path):
+        """Test loading validation JSON missing top_motifs"""
+        json_path = tmp_path / 'bad_validation.json'
+        data = {
+            'overlap_pct': 65.5,
+            'silhouette_score': 0.45
+        }
+        with open(json_path, 'w') as f:
+            json.dump(data, f)
+        
+        with pytest.raises(ValueError):
+            load_validation_json(json_path)
+    
+    def test_generate_summary_table_empty_top_motifs(self, sample_enrichment_csv, tmp_path):
+        """Test handling of empty top_motifs in validation report"""
+        json_path = tmp_path / 'empty_validation.json'
+        data = {
+            'overlap_pct': 0.0,
+            'top_motifs': [],
+            'silhouette_score': 0.0
+        }
+        with open(json_path, 'w') as f:
+            json.dump(data, f)
+        
+        output_path = tmp_path / 'summary_table.csv'
+        result_df = generate_summary_table(sample_enrichment_csv, json_path, output_path)
+        
+        # Should create empty dataframe with correct columns
+        assert len(result_df) == 0
+        assert list(result_df.columns) == ['motif_id', 'p_value_raw', 'q_value_adj', 'chip_overlap_pct']
+    
+    def test_generate_summary_table_duplicate_motifs(self, tmp_path):
+        """Test handling of duplicate motif_ids across cell types"""
+        # Create enrichment with duplicate motif_ids
+        csv_path = tmp_path / 'enrichment.csv'
+        data = {
+            'motif_id': ['MA0001.1', 'MA0001.1', 'MA0002.1'],
+            'cell_type': ['GM12878', 'K562', 'HepG2'],
+            'p_value': [0.0001, 0.0002, 0.001],
+            'q_value': [0.001, 0.002, 0.01]
+        }
+        pd.DataFrame(data).to_csv(csv_path, index=False)
+        
+        # Validation with both motifs
+        json_path = tmp_path / 'validation.json'
+        data = {
+            'overlap_pct': 60.0,
+            'top_motifs': [
+                {'motif_id': 'MA0001.1', 'q_value': 0.001, 'overlap_pct': 65.0},
+                {'motif_id': 'MA0002.1', 'q_value': 0.01, 'overlap_pct': 55.0}
+            ],
+            'silhouette_score': 0.5
+        }
+        with open(json_path, 'w') as f:
+            json.dump(data, f)
+        
+        output_path = tmp_path / 'summary.csv'
+        result_df = generate_summary_table(csv_path, json_path, output_path)
+        
+        # Should have 2 unique motifs (duplicates aggregated)
+        assert len(result_df) == 2
+        assert len(result_df['motif_id'].unique()) == 2

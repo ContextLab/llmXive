@@ -9,25 +9,14 @@
   verification_status: verified
   verified_against_url: https://www.encodeproject.org/
   verified_at: '2026-07-02T14:55:52.188148Z'
-- artifact_hash: 5808f2277a088de426bdf56a3432ecec1377d8001894e2cc48845c7865497a5e
-  artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: FIMO - Submission form
-  kind: url
-  value: https://meme-suite.org/meme/tools/fimo
-  verification_status: pending
-  verified_against_url: https://meme-suite.org/meme/tools/fimo
-  verified_at: '2026-08-16T15:49:45.231222Z'
-- artifact_hash: 41bfb9f85461269a804a0352df5c2ebcdc86a941f860bd827168bdcda744a2f7
+- artifact_hash: c6060e8846eddf953cf86f8c31a8133c83db09909fe15da60e938eb3cc3d4750
   artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "Files \u2013 ENCODE"
+  fetched_title: null
   kind: url
-  value: https://www.encodeproject.org/files/...`
-  verification_status: pending
-  verified_against_url: https://www.encodeproject.org/files/
-  verified_at: '2026-08-18T16:53:43.842122Z'
+  value: https://www.encodeproject.org/search/?type=Experiment&file_type=peaks&experiment_type=ChIP-seq&target=
+  verification_status: mismatch
+  verified_against_url: https://www.encodeproject.org/search/?type=Experiment&file_type=peaks&experiment_type=ChIP-seq&target=
+  verified_at: '2026-08-19T01:13:40.008461Z'

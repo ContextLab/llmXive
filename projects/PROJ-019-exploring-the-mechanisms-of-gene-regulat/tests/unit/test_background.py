@@ -1,6 +1,5 @@
 import pytest
-from code.enrichment import load_background_peaks, aggregate_background_model
-from code.preprocess import aggregate_background_model as preprocess_aggregate
+from code.enrichment import load_background_peaks
 from pathlib import Path
 import tempfile
 import os
@@ -22,6 +21,7 @@ def test_union_aggregation(tmp_path):
     target_cell_type = "GM"
 
     # Create mock peak files for each cell type
+    # Format: chrom, start, end, name (standard BED-like)
     peak_data = {
         "GM": "chr1\t100\t200\tpeak_gm1\nchr1\t300\t400\tpeak_gm2",
         "K562": "chr1\t150\t250\tpeak_k562_1\nchr2\t100\t200\tpeak_k562_2",
@@ -41,7 +41,7 @@ def test_union_aggregation(tmp_path):
 
     # Verify that background contains peaks from K562, HepG2, H1-hESC, IMR90
     # but NOT from GM
-    assert len(background_peaks) > 0
+    assert len(background_peaks) > 0, "Background should contain peaks from other cell types"
     
     # Check that GM peaks are NOT in the background
     gm_peak_names = ["peak_gm1", "peak_gm2"]
@@ -76,4 +76,4 @@ def test_union_aggregation_empty_others(tmp_path):
     background_peaks = load_background_peaks(target_cell_type, str(interim_dir), cell_types)
     
     # Background should be empty or only contain what's available from others
-    assert len(background_peaks) == 0
+    assert len(background_peaks) == 0, "Background should be empty when no other peaks exist"

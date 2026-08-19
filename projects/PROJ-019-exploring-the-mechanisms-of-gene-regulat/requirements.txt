@@ -1,17 +1,9 @@
-# Core dependencies
-requests>=2.31.0
-pandas>=2.0.0
-pybedtools>=0.9.0
-scipy>=1.11.0
-seaborn>=0.13.0
-matplotlib>=3.7.0
-biopython>=1.81
-pytest>=7.4.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
-# Development dependencies
-ruff>=0.1.0
-black>=23.0.0
-mypy>=1.5.0
-# Optional: for dataset handling
-datasets>=2.14.0
+requests
+pandas
+pybedtools
+scipy
+seaborn
+matplotlib
+biopython
+pytest
+scikit-learn

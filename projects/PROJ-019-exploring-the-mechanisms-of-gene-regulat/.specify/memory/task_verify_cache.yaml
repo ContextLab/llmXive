@@ -1,39 +1,11 @@
-T024:
+T015:
   c: false
-  h: 016271fa36cf213e99e43a32a0a02041793cd3da6fcdc1f2a8ec2497eac934b5
-  r: The provided `code/main.py` is truncated and does not contain a complete orchestration
-    (e.g., a `main` entry point that runs download, preprocessing, scanning, enrichment,
-    and then calls `generate_enrichment_matrix`). Moreover, the required output file
-    `data/processed/enrichment_matrix.csv` is absent from the repository. The task
-    therefore remains unfinished.
-T028:
-  c: false
-  h: 651b50a6c0b446db93e84a08bf9822a84bffd18dbc0e66198d1f786c656f5fcb
-  r: The repository contains `code/visualize.py`, but the required output file `data/processed/heatmap.png`
-    is absent, indicating the heatmap was never generated. The missing image must
-    be produced by the script for the task to be considered complete.
-T032:
-  c: false
-  h: 069cabafadba783fac2780825b2da1392fe9063b95f612a7f53b7ae49c99eee4
-  r: "The repository lacks the required `data/processed/validation_report.json` file,\
-    \ and the shown portion of `code/main.py` does not contain logic that runs the\
-    \ validation step or writes a validation report (the script is truncated and only\
-    \ includes ingestion and enrichment matrix code). Consequently the task of orchestrating\
-    \ visualization\u202F+\u202Fvalidation and producing the JSON report is not fulfilled."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No actual `README.md` or `specs/001-gene-regulation/quickstart.md` content was
-    provided; without seeing the updated files we cannot confirm that the required
-    documentation changes were made. The implementer must supply the modified files
-    (or their contents) showing the documentation updates.
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, diff, or documentation showing that any cleanup or refactoring of the\
-    \ gene\u2011regulation pipeline was performed; the only provided information is\
-    \ the original feature specification, with no artifacts indicating changes, linting,\
-    \ modularization, or tests. Consequently the required deliverable is missing."
+  h: c9e0ca97a14edfac22990468529b59a033fcee67f4f44e44c08adca71ebb7d31
+  r: The `code/main.py` defines `run_ingestion` and writes a JSON file, but the required
+    output file `data/processed/ingestion_summary.json` is missing, and the `cell_types`
+    list is sorted rather than preserving the exact order `['GM12878', 'K562', 'HepG2',
+    'H1-hESC', 'IMR90']`. The implementation therefore does not fully meet the task
+    specifications.
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -50,3 +22,9 @@ T037:
     \ test files present, the requirement for \u201CAdditional unit tests in `tests/unit/`\u201D\
     \ is not satisfied. The implementer must add non\u2011empty test modules in that\
     \ directory."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `quickstart.md` validation run, CI logs, or reproducibility
+    report is provided; the implementer supplied only the task description without
+    any artifacts demonstrating that the validation was executed successfully.

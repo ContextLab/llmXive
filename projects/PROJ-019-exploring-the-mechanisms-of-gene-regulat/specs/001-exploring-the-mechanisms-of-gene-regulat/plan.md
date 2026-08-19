@@ -12,7 +12,7 @@ This project implements a reproducible pipeline to identify cell-type-specific t
 **Primary Dependencies**: `requests`, `pybedtools`, `fimo` (MEME suite), `pandas`, `scipy`, `seaborn`, `matplotlib`, `biopython`  
 **Storage**: Local filesystem (`TMP_DIR`), no database required.  
 **Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, ~7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, ~7GB RAM)  
 **Project Type**: Computational Biology Pipeline / CLI  
 **Performance Goals**: Complete full analysis within 6 hours on CPU-only runner; memory usage < 7GB.  
 **Constraints**: No GPU; strict disk limits (a constrained capacity); robust error handling for network failures (exponential backoff); strict data provenance per Constitution.  

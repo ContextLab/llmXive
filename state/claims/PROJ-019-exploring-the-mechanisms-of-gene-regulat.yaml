@@ -1,0 +1,201 @@
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: '5 cell types: GM12878, K562, HepG2, H1-hESC, IMR90'
+  claim_id: c_ef3aa5cf
+  context: 'Goal: Download, parse, and normalize ATAC-seq/ChIP-seq peak data for 5
+    cell types into a unified BED-like format with gene annotations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The project targets 5 cell types: GM12878, K562, HepG2, H1-hESC, and
+    IMR90.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:15:43Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 14GB free space requirement for execution
+  claim_id: c_9e96840b
+  context: "Create code/utils/disk_check.py to verify \u226514GB free space in TMP_DIR\
+    \ before execution (FR-002, Edge Cases) and exit with clear error if insufficient"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/14GB_free_space_requirement_for_execution
+  kind: magnitude
+  raw_text: The system requires verification of at least 14GB free space in the temporary
+    directory before execution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:16:09Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 3 retries maximum for HTTP requests with exponential backoff
+  claim_id: c_aa8caaba
+  context: Create code/utils/network.py implementing exponential backoff with a maximum
+    of 3 retries for HTTP requests (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HTTP requests use exponential backoff with a maximum of 3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:16:27Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: FIMO p-value threshold of 0.0001
+  claim_id: c_7ba0f09d
+  context: "Implement code/scan.py to invoke FIMO (subprocess) against JASPAR CORE\
+    \ database with p-value \u22640.0001 threshold (FR-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FIMO_p-value_threshold_of_0.0001
+  kind: magnitude
+  raw_text: FIMO motif scanning uses a p-value threshold of less than or equal to
+    0.0001.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:17:17Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Memory usage limit of 7GB
+  claim_id: c_fbb530ab
+  context: Add chunked processing logic in code/enrichment.py to ensure memory usage
+    stays <7GB if dataset size approaches RAM limits (GitHub Actions free-tier constraint).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_of_7GB
+  kind: entity_fact
+  raw_text: Memory usage is constrained to stay below 7GB during enrichment calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:17:35Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Silhouette score threshold of 0.4
+  claim_id: c_49da926f
+  context: "Independent Test: Generate plots, verify heatmap clustering silhouette\
+    \ score \u22650.4 (as a verification metric), and confirm \u226560% overlap between\
+    \ predicted motifs and independent ChIP-seq peaks."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Silhouette_score_threshold_of_0.4
+  kind: magnitude
+  raw_text: The validation test requires a heatmap clustering silhouette score of
+    at least 0.4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:18:30Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 60% overlap between predicted motifs and ChIP-seq peaks
+  claim_id: c_465fe81d
+  context: "Independent Test: Generate plots, verify heatmap clustering silhouette\
+    \ score \u22650.4 (as a verification metric), and confirm \u226560% overlap between\
+    \ predicted motifs and independent ChIP-seq peaks."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/60%25_overlap_between_predicted_motifs_and_ChIP-seq_peaks
+  kind: magnitude
+  raw_text: The validation test requires at least 60% overlap between predicted motifs
+    and independent ChIP-seq peaks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:19:11Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: q-value threshold of 0.05 for top enriched motifs
+  claim_id: c_e5cb9974
+  context: Implement code/validate.py to filter enrichment results to top enriched
+    motifs (q < 0.05) before generating summary table, ensuring FR-005's 'top enriched'
+    constraint is satisfied.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Q-value_threshold_of_0.05_for_top_enriched_motifs
+  kind: magnitude
+  raw_text: The system filters enrichment results to top enriched motifs with a q-value
+    less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:19:59Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project
+  claim_id: c_252aa33f
+  context: Initialize Python 3.11 project with requirements.txt (requests, pandas,
+    pybedtools, scipy, seaborn, matplotlib, biopython, pytest).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:20:18Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: hg38 genome assembly for gene annotation
+  claim_id: c_c0a363e0
+  context: Implement gene annotation and background model aggregation in code/preprocess.py
+    using pybedtools to map peak coordinates to gene symbols (hg38)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hg38_genome_assembly_for_gene_annotation
+  kind: entity_fact
+  raw_text: The project uses the hg38 genome assembly for mapping peak coordinates
+    to gene symbols.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:20:47Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Background model aggregates peaks from 4 other cell types
+  claim_id: c_c50d6c45
+  context: aggregate peaks from the remaining cell types to form the dynamic background
+    model (FR-002, FR-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The background model is formed by aggregating peaks from the remaining
+    4 cell types.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T00:21:10Z'

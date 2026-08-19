@@ -1,78 +1,113 @@
 # PROJ-019: Exploring the Mechanisms of Gene Regulation Across Different Cell Types
 
 ## Overview
-This project implements an automated pipeline to analyze gene regulation mechanisms across five distinct cell types (GM, K562, HepG2, H1-hESC, IMR90). The pipeline ingests ATAC-seq/ChIP-seq peak data from ENCODE, performs motif scanning using FIMO against the JASPAR database, calculates enrichment scores, and validates findings against independent ChIP-seq data.
 
-## Key Features
-- **Data Ingestion**: Downloads and normalizes ENCODE peak data into a unified BED-like format.
-- **Motif Scanning**: Scans peaks for transcription factor motifs using FIMO (p-value ≤ 0.0001).
-- **Enrichment Analysis**: Computes enrichment scores using Fisher's exact test with Benjamini-Hochberg correction.
-- **Visualization**: Generates heatmaps of enrichment results with clustering.
-- **Validation**: Validates findings against independent ChIP-seq data with overlap calculations.
+This project investigates gene regulation mechanisms by analyzing ATAC-seq and ChIP-seq peak data across five distinct cell types: GM12878, K562, HepG2, H1-hESC, and IMR90. The pipeline downloads raw data from ENCODE, preprocesses it into a unified format, scans for transcription factor motifs using FIMO/JASPAR, calculates enrichment scores, and generates visualizations.
 
-## Requirements
-- Python 3.11+
-- ≥14GB free disk space
-- CPU-only execution (no GPU required)
-- External dependencies: ENCODE, JASPAR, FIMO
+## Prerequisites
+
+- **Python**: 3.11+
+- **Disk Space**: Minimum 14GB free space required for intermediate files and downloads.
+- **RAM**: ~7GB recommended for processing large datasets.
+- **External Tools**:
+ - `FIMO` (MEME Suite): Required for motif scanning. Install via `conda install -c bioconda meme` or `apt-get install meme`.
+ - `JASPAR` database: Downloaded automatically or provided via environment variable.
 
 ## Installation
-1. Clone the repository
-2. Install dependencies:
+
+1. **Clone the repository** and navigate to the project root.
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
-3. Ensure FIMO is installed and available in PATH
 
-## Usage
-Run the main pipeline:
+## Directory Structure
+
+```text
+PROJ-019-exploring-the-mechanisms-of-gene-regulat/
+├── code/ # Source code
+│ ├── config.py # Configuration and path constants
+│ ├── main.py # Orchestration logic
+│ ├── download.py # ENCODE data ingestion
+│ ├── preprocess.py # BED parsing and gene annotation
+│ ├── scan.py # FIMO motif scanning
+│ ├── enrichment.py # Fisher's exact test and BH correction
+│ ├── visualize.py # Heatmap generation
+│ ├── validate.py # Cross-validation against ChIP-seq
+│ ├── summary_table.py # Final summary generation
+│ ├── ingest.py # BED parsing utilities
+│ ├── provenance.py # Data provenance tracking
+│ └── utils/ # Utility modules
+│ ├── disk_check.py # Disk space verification
+│ └── network.py # Retry logic for downloads
+├── data/
+│ ├── raw/ # Downloaded ENCODE files
+│ ├── interim/ # Intermediate processed files
+│ ├── processed/ # Final outputs (JSON, CSV, PNG)
+│ └── provenance.json # Data lineage record
+├── specs/
+│ └── 001-gene-regulation/
+│ ├── quickstart.md # Detailed execution guide
+│ └──...
+├── tests/ # Unit and contract tests
+├── requirements.txt # Python dependencies
+└── pyproject.toml # Linting and formatting config
+```
+
+## Quick Start
+
+To run the full pipeline end-to-end:
+
 ```bash
 python code/main.py
 ```
 
-This will:
-1. Perform pre-flight disk space checks
-2. Download ENCODE peak files
-3. Preprocess and annotate peaks
-4. Scan for motifs
-5. Calculate enrichment scores
-6. Generate visualizations
-7. Validate results
+This command executes the following stages in order:
+1. **Disk Check**: Verifies sufficient free space.
+2. **Ingestion**: Downloads ENCODE peak files and parses them.
+3. **Preprocessing**: Annotates peaks with gene symbols and builds background models.
+4. **Scanning**: Runs FIMO to identify motif occurrences.
+5. **Enrichment**: Calculates statistical significance of motif enrichment.
+6. **Visualization**: Generates heatmaps and calculates clustering quality.
+7. **Validation**: Cross-references with independent ChIP-seq data.
+8. **Reporting**: Generates final summary tables and JSON reports.
 
-## Output Files
-- `data/processed/ingestion_summary.json`: Peak counts per cell type
-- `data/processed/enrichment_matrix.csv`: Enrichment results with p-values and q-values
-- `data/processed/heatmap.png`: Visualization of enrichment results
-- `data/processed/validation_report.json`: Validation statistics
-- `data/processed/summary_table.csv`: Final summary with all metrics
+**Outputs** are saved to `data/processed/`:
+- `ingestion_summary.json`: Peak counts and metadata.
+- `enrichment_matrix.csv`: Motif enrichment scores per cell type.
+- `heatmap.png`: Clustering visualization of enrichment profiles.
+- `validation_report.json`: Overlap statistics and top motifs.
+- `summary_table.csv`: Consolidated results.
 
-## Project Structure
-```
-code/
- ├── config.py # Configuration constants
- ├── main.py # Orchestration logic
- ├── download.py # Data download utilities
- ├── preprocess.py # Data preprocessing and annotation
- ├── scan.py # Motif scanning with FIMO
- ├── enrichment.py # Enrichment analysis
- ├── visualize.py # Visualization generation
- ├── validate.py # Validation against independent data
- ├── summary_table.py # Summary table generation
- └── utils/
- ├── disk_check.py # Disk space verification
- └── network.py # Network utilities with retry logic
-data/
- ├── raw/ # Downloaded raw files
- ├── interim/ # Intermediate processed files
- └── processed/ # Final output files
-tests/
- ├── unit/ # Unit tests
- ├── integration/ # Integration tests
- └── contract/ # Contract tests
+## Configuration
+
+Edit `code/config.py` to modify:
+- `TMP_DIR`: Directory for temporary files (default: `data/interim/`).
+- `DATA_RAW_DIR`, `DATA_INTERIM_DIR`, `DATA_PROCESSED_DIR`: Output paths.
+- `ENCODE_VERSION`: Dataset version to download.
+- `JASPAR_VERSION`: Motif database version.
+
+## Testing
+
+Run the test suite with `pytest`:
+
+```bash
+pytest tests/ -v
 ```
 
-## Dependencies
-See `requirements.txt` for the complete list of dependencies.
+Specific test modules:
+- `tests/unit/test_ingest.py`: BED parsing edge cases.
+- `tests/unit/test_network.py`: Network retry logic.
+- `tests/unit/test_background.py`: Background model aggregation.
+- `tests/unit/test_motifs.py`: Fisher's exact test and BH correction.
+- `tests/unit/test_viz.py`: Heatmap silhouette scoring.
+- `tests/unit/test_validate.py`: ChIP-seq overlap calculation.
 
 ## License
-This project is part of the llmXive automated science pipeline.
+
+This project is for research purposes. Data from ENCODE and JASPAR is subject to their respective licenses.
