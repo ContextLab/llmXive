@@ -1,7 +1,5 @@
-'|null report show':
-  quote: A possible result of the experiment that we consider here is 5 heads. Let
-    outcomes be considered unlikely with respect to an assumed distribution if their
-    probability is lower than a significance threshold of 0.05.
-  source_id: Null hypothesis
-  url: https://en.wikipedia.org/wiki/Null_hypothesis
-  value: '0.05'
+'|assessment both doc documented md multicollinearity predictor reproducibility vif':
+  quote: 'P1533: Q113107166'
+  source_id: Q113106917
+  url: https://www.wikidata.org/wiki/Q113106917
+  value: '33'

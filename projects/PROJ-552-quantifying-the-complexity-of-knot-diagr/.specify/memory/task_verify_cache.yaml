@@ -4,13 +4,6 @@ T010:
   r: No code, configuration files, or documentation for API routing or middleware
     structure were presented. The only artifacts described relate to knot data download
     and analysis, not to any API setup, so the required deliverable is missing.
-T082:
-  c: false
-  h: 4f0126706b7d02029c57753afbd72193a8c850f372fb938e701956213f5a06da
-  r: "The parser now includes the computed\u2011invariant fields, but the required\
-    \ schema file `contracts/knot_record.schema.yaml` is absent, so the schema cannot\
-    \ be extended nor validated. No evidence of a passing schema\u2011validation test\
-    \ is provided. The task therefore remains unfinished."
 T104:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -13,16 +13,16 @@ This project implements a computational analysis pipeline to quantify the relati
 **Primary Dependencies**: `database-knotinfo`, `pandas`, `numpy`, `scipy`, `scikit-learn`, `matplotlib`, `pyyaml`, `requests`  
 **Storage**: Local file system (`data/raw/`, `data/processed/`, `docs/reproducibility/`)  
 **Testing**: `pytest` (unit tests for data parsing, invariant validation; integration tests for full pipeline)  
-**Target Platform**: Linux (GitHub Actions runner: 2 CPU, 7GB RAM, 14GB disk)  
+**Target Platform**: Linux (GitHub Actions runner: multi‑CPU configuration, 7GB RAM, 14GB disk)  
 **Project Type**: CLI/Analysis Pipeline  
 **Performance Goals**: Complete pipeline execution < 2 hours on standard CPU; data download < 10 minutes.  
 **Constraints**: No local GPU required; all analysis is CPU-tractable (statistical regression, correlation).  
-**Scale/Scope**: Total census count: a comprehensive set of prime knots (source: OEIS A002863). Expected hyperbolic subset: [deferred] knots (excluding <100 torus/satellite knots).
+**Scale/Scope**: Total census count: a comprehensive set of prime knots (source: OEIS). Expected hyperbolic subset: [deferred] knots (excluding <100 torus/satellite knots).
 
 > **Sample Size & Power Justification**: The analysis relies on a complete census of hyperbolic knots. This sample size is vastly sufficient for the proposed regression models (linear, polynomial, logarithmic) to detect non-trivial effect sizes, even in the presence of high multicollinearity. The primary risk is not statistical power (which is effectively infinite for a census) but the interpretability of individual coefficients. Therefore, the analysis focuses on the *joint* predictive power (R²) and *residual* patterns, rather than the statistical significance of individual coefficients.
 
 **Dataset Breakdown**:
-- **Total Prime Knots (≤13 crossings)**: 9,988 (Source: OEIS A002863).
+- **Total Prime Knots (≤13 crossings)**: [deferred] (Source: OEIS A002863).
 - **Expected Hyperbolic Knots**: [deferred]. Torus and satellite knots are known to be a small minority (<100) for this crossing range.
 - **Expected Excluded Count**: <100 (documented in `docs/reproducibility/excluded_knots.md`).
 

@@ -26175,3 +26175,314 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T06:34:42Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: 1296 total knots processed
+  claim_id: c_e792fb8f
+  context: Summary section of the Computed Invariant Verification Report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total knots processed: 1296'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:40:31Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: 3888 invariants computed
+  claim_id: c_3d89ae87
+  context: Summary section of the Computed Invariant Verification Report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Invariants computed: 3888'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:40:57Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: 3888 invariant matches found
+  claim_id: c_f832fab3
+  context: Summary section of the Computed Invariant Verification Report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Matches: 3888'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:41:17Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: 0 discrepancies found
+  claim_id: c_6731d53a
+  context: Summary section of the Computed Invariant Verification Report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Discrepancies: 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:41:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: arc_index for knot 3_1 is 3
+  claim_id: c_5a79b869
+  context: Detailed Results table showing computed invariants for knot 3_1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3_1 arc_index 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:42:06Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: seifert_circle_count for knot 3_1 is 2
+  claim_id: c_2d14e5a2
+  context: Detailed Results table showing computed invariants for knot 3_1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3_1 seifert_circle_count 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:42:22Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: bridge_number for knot 3_1 is 2
+  claim_id: c_4f341cbc
+  context: Detailed Results table showing computed invariants for knot 3_1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3_1 bridge_number 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:43:47Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: arc_index for knot 4_1 is 4
+  claim_id: c_2c04311a
+  context: Detailed Results table showing computed invariants for knot 4_1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4_1 arc_index 4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:44:08Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: seifert_circle_count for knot 4_1 is 3
+  claim_id: c_33e43f3a
+  context: Detailed Results table showing computed invariants for knot 4_1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4_1 seifert_circle_count 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:44:24Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: bridge_number for knot 4_1 is 2
+  claim_id: c_b7b72e90
+  context: Detailed Results table showing computed invariants for knot 4_1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4_1 bridge_number 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:45:44Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: arc_index for knot 5_1 is 5
+  claim_id: c_3f1f1162
+  context: Detailed Results table showing computed invariants for knot 5_1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5_1 arc_index 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:46:04Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: seifert_circle_count for knot 5_1 is 2
+  claim_id: c_99d3ea4b
+  context: Detailed Results table showing computed invariants for knot 5_1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5_1 seifert_circle_count 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:46:19Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/computed_invariant_verification.md
+  attempts: 1
+  canonical: bridge_number for knot 5_1 is 2
+  claim_id: c_7818d417
+  context: Detailed Results table showing computed invariants for knot 5_1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5_1 bridge_number 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:47:36Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: file size greater than 128 kilobytes
+  claim_id: c_8311c1a2
+  context: "Verification: File size > 128\u202FKB and contains expected header fields;\
+    \ code imports `database-knotinfo`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/File_size_greater_than_128_kilobytes
+  kind: magnitude
+  raw_text: "File size > 128\u202FKB and contains expected header fields; code imports\
+    \ `database-knotinfo`."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:50:32Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: null percentage less than or equal to 5 percent and duplicate count equals
+    zero
+  claim_id: c_b2a3631c
+  context: "Verification: Report shows null\u202F% \u2264 5\u202F% and duplicate count\
+    \ = 0."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_percentage_less_than_or_equal_to_5_percent_and_duplicat
+  kind: magnitude
+  raw_text: "Report shows null\u202F% \u2264 5\u202F% and duplicate count = 0."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:51:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: variance inflation factor for both predictors greater than or equal to
+    5
+  claim_id: c_551ed340
+  context: "Verification: VIF for both predictors \u2265\u202F5; documented in `docs/reproducibility/multicollinearity_assessment.md`."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: "VIF for both predictors \u2265\u202F5; documented in `docs/reproducibility/multicollinearity_assessment.md`."
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T16:51:54Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: at least 95 percent of data points are visible
+  claim_id: c_93d8ccb5
+  context: "Verification: \u226595\u202F% of data points are visible."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95_percent_of_data_points_are_visible
+  kind: magnitude
+  raw_text: "\u226595\u202F% of data points are visible."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:52:44Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: simulated failure triggers at least three retries
+  claim_id: c_39bc6973
+  context: "Verification: Simulated transient failure triggers \u22653 retries with\
+    \ exponential delays."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulated_failure_triggers_at_least_three_retries
+  kind: magnitude
+  raw_text: "Simulated transient failure triggers \u22653 retries with exponential\
+    \ delays."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:53:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: detect families deviating by at least two standard deviations
+  claim_id: c_d678391a
+  context: "Verification: Unit test confirms detection of families deviating \u2265\
+    \ 2\u202FSD on synthetic data."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Detect_families_deviating_by_at_least_two_standard_deviation
+  kind: magnitude
+  raw_text: "Unit test `tests/unit/test_residual_analysis.py` confirms detection of\
+    \ families deviating \u2265 2\u202FSD on synthetic data."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T16:54:12Z'

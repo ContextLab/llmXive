@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T081` (rejected 1x): The repository contains `code/data/verify_invariants.py`, but the provided excerpt is truncated and does not show any logic that actually writes the required `docs/reproducibility/computed_invariant_verification.md`. Moreover, the markdown report file is missing entirely. The task’s core deliverable – a generated verification report – is therefore not present.
+- `T082` (rejected 1x): The parser was updated to include the computed invariant fields, but the required schema file `contracts/knot_record.schema.yaml` does not exist, so the schema extension and validation test cannot be satisfied. The missing schema artifact must be added and contain the new fields.
 
 ## Required change
 
