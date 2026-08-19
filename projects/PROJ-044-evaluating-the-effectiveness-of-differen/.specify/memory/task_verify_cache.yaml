@@ -1,35 +1,9 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tree_output.txt` (or any directory listing) was supplied, and there is no
-    evidence that the required folder hierarchy was actually created under `projects/PROJ-044-evaluating-the-effectiveness-of-differen/`.
-    Without this artifact the completion criterion cannot be verified.
-T011:
-  c: false
-  h: 6ad0d24580ea174af92635172638a19dc81037eab3155ae7cba4e357a5ec5469
-  r: "The repository contains a `download.py` implementation, but the required output\
-    \ files `data/raw/femnist.parquet` and `data/raw/femnist.sha256` are absent, so\
-    \ the task\u2019s completion criterion is not satisfied. The downloader has not\
-    \ been executed to produce the real dataset files."
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `results/plots/` directory or any PNG files (300\u202FDPI)\
-    \ was provided; thus the required overlay plot of minority\u2011client degradation\
-    \ versus global accuracy curves is missing. The implementer must generate and\
-    \ supply the specified plot files in the correct location."
 T028:
   c: false
   h: e10705754bbf7e7fa31e20705c5ebca2046e84261380fbd1a08da78613b90922
   r: The required `results/summary.csv` file does not exist, so the specified columns
     and data are missing. While a `validation_report.md` is present, the overall task
     is incomplete without the summary CSV.
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `README.md` or files under `docs/` were provided or referenced; the
-    evidence contains only the feature specification and no documentation artifacts,
-    so the required documentation updates are missing.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

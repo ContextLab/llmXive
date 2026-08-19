@@ -1,46 +1,33 @@
 # Dataset Exclusion Policy
 
-## Overview
+## Shakespeare Dataset Exclusion
 
-This document outlines the policy regarding dataset selection and exclusion within the "Evaluating the Effectiveness of Differential Privacy in Federated Learning" project.
+This project explicitly **excludes** the Shakespeare dataset from the LEAF benchmark.
 
-## Excluded Datasets
+### Rationale
 
-### Shakespeare Dataset
+According to the project's `plan.md` Gap Analysis:
+1. **No Verified Source**: There is no verified, programmatic source (e.g., a stable Hugging Face `datasets` ID or direct download URL) for the Shakespeare dataset that meets the project's reliability standards.
+2. **Reproducibility Risk**: Attempting to fetch from unverified mirrors or hard-coded paths introduces significant reproducibility risks.
+3. **Focus on FEMNIST**: FEMNIST provides a sufficient and verified testbed for the study's hypotheses regarding heterogeneity and differential privacy.
 
-**Status**: Excluded
+### Implementation
 
-**Reason**: The Shakespeare dataset was initially considered as a secondary dataset for federated learning experiments. However, after a thorough gap analysis in the project plan (`plan.md`), it was determined that there is no verified, programmatically-accessible source for this dataset that meets our reliability and reproducibility standards.
+Any attempt to use the "shakespeare" dataset in the codebase will result in a clear error:
 
-**Impact**: Any code paths or configuration attempts to use "shakespeare" as a dataset will raise a `ValueError` with a clear message indicating the exclusion per plan.md Gap Analysis.
+```python
+if dataset_name != "femnist":
+ raise ValueError(
+ f"Dataset '{dataset_name}' is excluded per plan.md Gap Analysis. "
+ "Only 'femnist' is supported."
+)
+```
 
-**Reference**:
-- Plan.md Gap Analysis section
-- Task T006: `code/config.py` raises `ValueError` for Shakespeare
-- Task T011: `code/data/download.py` rejects non-FEMNIST datasets
-
-## Supported Datasets
-
-### FEMNIST
-
-**Status**: Active / Supported
-
-**Source**: Hugging Face Datasets (`leaf/femnist`)
-
-**Verification**: Verified real data source with reliable programmatic access.
-
-**Implementation**:
-- Downloaded via `code/data/download.py`
-- Partitioned via `code/data/partition.py`
-- Used in all training and analysis tasks
+This check is enforced in:
+- `code/config.py` (Configuration validation)
+- `code/data/download.py` (Data fetching logic)
+- `code/data/partition.py` (Partitioning logic)
 
 ## Future Considerations
 
-If a verified source for the Shakespeare dataset (or other datasets) becomes available in the future, the exclusion policy can be updated. Any new dataset addition must:
-1. Pass the verified source criteria (reliable, programmatic access).
-2. Be documented in `plan.md`.
-3. Update relevant task implementations and error handling logic.
-
-## Compliance
-
-All implementation tasks (T006, T011, T028, etc.) explicitly enforce this exclusion policy to ensure project consistency and reproducibility.
+If a verified source for the Shakespeare dataset becomes available in the future, this policy may be revisited. Until then, all experiments and documentation are strictly FEMNIST-only.

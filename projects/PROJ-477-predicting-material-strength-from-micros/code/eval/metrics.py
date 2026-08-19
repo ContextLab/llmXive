@@ -1,8 +1,7 @@
-"""
-Evaluation metrics and statistical tests for material strength prediction.
+"""Evaluation metrics for material strength prediction.
 
-Implements MSE, R², and a single-sample t-test comparing CNN squared errors
-against the baseline mean squared error (scalar).
+Implements MSE, R², and single-sample t-test on squared errors comparing
+CNN performance against a naive baseline (FR-005, SC-002).
 """
 from __future__ import annotations
 
@@ -12,260 +11,304 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import List, Tuple, Dict, Any
 
 import numpy as np
 from scipy import stats
 
-# Project imports
+# Import project utilities from the API surface
 from utils.config import get_results_dir, get_project_root, set_seed
-from utils.logging_config import get_logger, log_operation
+from utils.logging_config import get_logger, log_operation, ReproducibilityLogger, LogEntry
 
 
-def setup_logging() -> logging.Logger:
-    """Initialize logger for metrics module."""
-    logger = get_logger("metrics")
-    # Ensure logger has basic handlers if none exist (for direct script execution)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+def setup_logging() -> ReproducibilityLogger:
+    """Setup logging for the metrics evaluation script."""
+    logger = get_logger("metrics_eval")
     return logger
 
 
-def load_predictions_from_csv(predictions_path: str) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Load predictions and true values from a CSV file.
-    
-    Expected columns: 'image_id', 'predicted_strength', 'true_strength'
-    
+def load_predictions_from_csv(path: Path) -> Tuple[List[float], List[float]]:
+    """Load predictions and true values from a CSV file.
+
+    Expected CSV columns: 'image_id', 'prediction', 'true_value'
+
     Args:
-        predictions_path: Path to the predictions CSV file.
-        
+        path: Path to the CSV file.
+
     Returns:
-        Tuple of (y_pred, y_true) as numpy arrays.
+        Tuple of (predictions, true_values) lists.
     """
-    y_pred = []
-    y_true = []
-    
-    with open(predictions_path, 'r', newline='', encoding='utf-8') as f:
+    predictions = []
+    true_values = []
+
+    if not path.exists():
+        raise FileNotFoundError(f"Predictions file not found: {path}")
+
+    with open(path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            y_pred.append(float(row['predicted_strength']))
-            y_true.append(float(row['true_strength']))
-    
-    return np.array(y_pred), np.array(y_true)
+            predictions.append(float(row['prediction']))
+            true_values.append(float(row['true_value']))
+
+    return predictions, true_values
 
 
-def calculate_mse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Calculate Mean Squared Error."""
-    return float(np.mean((y_true - y_pred) ** 2))
+def calculate_mse(y_true: List[float], y_pred: List[float]) -> float:
+    """Calculate Mean Squared Error.
+
+    Args:
+        y_true: List of true values.
+        y_pred: List of predicted values.
+
+    Returns:
+        MSE value.
+    """
+    if len(y_true) != len(y_pred):
+        raise ValueError("y_true and y_pred must have the same length")
+
+    errors = np.array(y_true) - np.array(y_pred)
+    mse = float(np.mean(errors ** 2))
+    return mse
 
 
-def calculate_r2(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Calculate R² (coefficient of determination)."""
-    ss_res = np.sum((y_true - y_pred) ** 2)
-    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+def calculate_r2(y_true: List[float], y_pred: List[float]) -> float:
+    """Calculate R² (coefficient of determination).
+
+    Args:
+        y_true: List of true values.
+        y_pred: List of predicted values.
+
+    Returns:
+        R² value.
+    """
+    if len(y_true) != len(y_pred):
+        raise ValueError("y_true and y_pred must have the same length")
+
+    y_true_arr = np.array(y_true)
+    y_pred_arr = np.array(y_pred)
+
+    ss_res = np.sum((y_true_arr - y_pred_arr) ** 2)
+    ss_tot = np.sum((y_true_arr - np.mean(y_true_arr)) ** 2)
+
     if ss_tot == 0:
-        return 0.0
-    return float(1 - (ss_res / ss_tot))
+        return 0.0 if ss_res == 0 else -1.0
+
+    r2 = float(1 - (ss_res / ss_tot))
+    return r2
 
 
 def single_sample_ttest_squared_errors(
-    cnn_sq_errors: np.ndarray,
+    cnn_sq_errors: List[float],
     baseline_sq_error_scalar: float,
     alpha: float = 0.05
-) -> Dict[str, any]:
-    """
-    Perform a single-sample t-test on squared errors.
-    
-    Null Hypothesis: Mean(CNN_Squared_Errors) == Baseline_Squared_Error_Scalar
-    Alternative: Mean(CNN_Squared_Errors) != Baseline_Squared_Error_Scalar
-    
-    This compares the distribution of CNN errors against the single scalar
-    value of the baseline's squared error (the squared error of the training mean).
-    
+) -> Dict[str, Any]:
+    """Perform single-sample t-test on squared errors.
+
+    Compares the distribution of CNN squared errors against a single scalar
+    value (the squared error of the baseline mean predictor).
+
+    Null Hypothesis: Mean(CNN_Error) == Baseline_Error
+
     Args:
-        cnn_sq_errors: Array of squared errors for the CNN model.
-        baseline_sq_error_scalar: The squared error of the baseline (training mean).
-        alpha: Significance level for the test.
-        
+        cnn_sq_errors: List of squared errors from the CNN model.
+        baseline_sq_error_scalar: Single scalar value representing the
+            squared error of the naive baseline (mean of training set).
+        alpha: Significance level (default 0.05).
+
     Returns:
-        Dictionary with test_type, t_statistic, p_value, and outcome.
+        Dictionary with test results:
+            - test_type: "single-sample"
+            - t_statistic: float
+            - p_value: float
+            - outcome: "significant" if p < alpha, else "not_significant"
     """
     if len(cnn_sq_errors) == 0:
-        raise ValueError("cnn_sq_errors array is empty; cannot perform t-test.")
-    
-    # scipy.stats.ttest_1samp tests if the mean of a distribution differs from a population mean
-    # Here, the "population mean" is our baseline scalar error
-    t_stat, p_value = stats.ttest_1samp(cnn_sq_errors, baseline_sq_error_scalar)
-    
+        raise ValueError("cnn_sq_errors cannot be empty")
+
+    cnn_sq_errors_arr = np.array(cnn_sq_errors)
+
+    # Perform single-sample t-test
+    t_stat, p_value = stats.ttest_1samp(cnn_sq_errors_arr, baseline_sq_error_scalar)
+
+    # Determine outcome
     outcome = "significant" if p_value < alpha else "not_significant"
-    
+
     return {
         "test_type": "single-sample",
         "t_statistic": float(t_stat),
         "p_value": float(p_value),
-        "outcome": outcome
+        "outcome": outcome,
+        "alpha": alpha
     }
 
 
 def evaluate_model_performance(
-    y_true: np.ndarray,
-    y_pred: np.ndarray,
-    baseline_mean: float,
-    output_path: str,
+    predictions_path: Path,
+    baseline_mse: float,
+    output_path: Path,
     alpha: float = 0.05,
-    seed: Optional[int] = None
-) -> Dict[str, any]:
-    """
-    Evaluate model performance: MSE, R², and single-sample t-test.
-    
+    seed: int = 42
+) -> Dict[str, Any]:
+    """Evaluate model performance: MSE, R², and statistical significance test.
+
     Args:
-        y_true: True values array.
-        y_pred: Predicted values array.
-        baseline_mean: The mean of the training set (naive baseline predictor).
-        output_path: Path to write the statistical test results JSON.
-        alpha: Significance level.
-        seed: Random seed for reproducibility (if needed).
-        
+        predictions_path: Path to CSV with 'prediction' and 'true_value' columns.
+        baseline_mse: The MSE of the naive baseline (mean of training set).
+        output_path: Path to write the statistical_test.json output.
+        alpha: Significance level for the t-test.
+        seed: Random seed for reproducibility.
+
     Returns:
-        Dictionary containing all metrics and test results.
+        Dictionary containing all evaluation metrics and test results.
     """
-    if seed is not None:
-        set_seed(seed)
-    
+    set_seed(seed)
     logger = setup_logging()
-    logger.info("Starting model performance evaluation.")
-    
-    # Calculate errors
-    errors = y_pred - y_true
-    sq_errors = errors ** 2
-    
-    # Calculate MSE and R²
-    mse = calculate_mse(y_true, y_pred)
-    r2 = calculate_r2(y_true, y_pred)
-    
-    logger.info(f"MSE: {mse:.6f}")
-    logger.info(f"R²: {r2:.6f}")
-    
-    # Calculate baseline squared error (scalar)
-    # Baseline predictor is the mean of training set, so its error on test set is (y_true - baseline_mean)
-    # The squared error for the baseline is (y_true - baseline_mean)^2
-    # However, FR-005 specifies comparing CNN squared errors against the "squared error of the training set mean"
-    # This implies a single scalar: (baseline_mean - baseline_mean)^2? No, that's 0.
-    # Re-reading FR-005: "baseline_sq_error_scalar is the squared error of the training set mean"
-    # Context implies the baseline predictor is the training mean.
-    # The "squared error of the baseline" usually refers to the MSE of the baseline on the test set.
-    # But the t-test is single-sample: comparing a distribution (CNN errors) to a scalar.
-    # The scalar must be the MSE of the baseline on the test set?
-    # Let's interpret "squared error of the training set mean" as the MSE of the baseline predictor on the current test set.
-    # Baseline predictions = [baseline_mean] * len(y_true)
-    baseline_predictions = np.full_like(y_true, baseline_mean, dtype=float)
-    baseline_sq_errors = (y_true - baseline_predictions) ** 2
-    baseline_sq_error_scalar = float(np.mean(baseline_sq_errors))
-    
-    logger.info(f"Baseline MSE (scalar for t-test): {baseline_sq_error_scalar:.6f}")
-    
+
+    log_operation("evaluate_model_performance", 
+                predictions=str(predictions_path), 
+                baseline_mse=baseline_mse,
+                alpha=alpha)
+
+    # Load data
+    predictions, true_values = load_predictions_from_csv(predictions_path)
+
+    # Calculate metrics
+    mse = calculate_mse(true_values, predictions)
+    r2 = calculate_r2(true_values, predictions)
+
+    # Calculate squared errors for CNN
+    cnn_sq_errors = [(t - p) ** 2 for t, p in zip(true_values, predictions)]
+
+    # Calculate squared error of baseline (scalar)
+    # The baseline predictor always predicts the mean, so its error is constant
+    # for all samples: (true_value - baseline_mean)^2. However, for the
+    # single-sample test as specified in FR-005, we compare the distribution
+    # of CNN errors against the SINGLE scalar value of the baseline MSE.
+    # This is the conservative interpretation mandated by the spec.
+    baseline_sq_error_scalar = baseline_mse
+
     # Perform single-sample t-test
-    ttest_result = single_sample_ttest_squared_errors(sq_errors, baseline_sq_error_scalar, alpha)
-    
-    logger.info(f"T-test outcome: {ttest_result['outcome']} (p={ttest_result['p_value']:.6f})")
-    
-    # Prepare output
+    test_result = single_sample_ttest_squared_errors(
+        cnn_sq_errors, 
+        baseline_sq_error_scalar, 
+        alpha
+    )
+
+    # Compile results
     results = {
         "mse": mse,
         "r2": r2,
-        "baseline_mse": baseline_sq_error_scalar,
-        "t_test": ttest_result
+        "n_samples": len(predictions),
+        "test_result": test_result,
+        "baseline_mse": baseline_mse
     }
-    
-    # Write to file
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w', encoding='utf-8') as f:
+
+    # Write output to JSON file
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2)
-    
-    logger.info(f"Results written to {output_path}")
-    
+
+    log_operation("evaluation_complete", 
+                mse=mse, 
+                r2=r2, 
+                p_value=test_result["p_value"],
+                outcome=test_result["outcome"])
+
     return results
 
 
 def main():
     """Main entry point for the metrics evaluation script."""
-    parser = argparse.ArgumentParser(description="Evaluate model performance with statistical tests.")
+    parser = argparse.ArgumentParser(
+        description="Evaluate model performance with statistical testing"
+    )
     parser.add_argument(
         "--predictions",
         type=str,
         required=True,
-        help="Path to the CSV file containing predictions (columns: image_id, predicted_strength, true_strength)."
+        help="Path to CSV file with 'prediction' and 'true_value' columns"
     )
     parser.add_argument(
         "--output",
         type=str,
         default=None,
-        help="Path to write the statistical test results JSON. Defaults to results/statistical_test.json."
+        help="Path to output JSON file (default: results/statistical_test.json)"
+    )
+    parser.add_argument(
+        "--baseline-mse",
+        type=float,
+        default=None,
+        help="MSE of the naive baseline (required if not in predictions file metadata)"
     )
     parser.add_argument(
         "--alpha",
         type=float,
         default=0.05,
-        help="Significance level for the t-test (default: 0.05)."
+        help="Significance level for t-test (default: 0.05)"
     )
     parser.add_argument(
         "--seed",
         type=int,
-        default=None,
-        help="Random seed for reproducibility."
+        default=42,
+        help="Random seed (default: 42)"
     )
-    parser.add_argument(
-        "--baseline-mean",
-        type=float,
-        required=True,
-        help="The mean of the training set yield strengths (naive baseline value)."
-    )
-    
+
     args = parser.parse_args()
+
+    # Setup paths
+    project_root = get_project_root()
+    predictions_path = Path(args.predictions)
     
-    # Determine output path
-    if args.output is None:
-        results_dir = get_results_dir()
-        output_path = str(Path(results_dir) / "statistical_test.json")
+    if not predictions_path.is_absolute():
+        predictions_path = project_root / predictions_path
+
+    if args.output:
+        output_path = Path(args.output)
+        if not output_path.is_absolute():
+            output_path = project_root / output_path
     else:
-        output_path = args.output
-    
-    # Load data
-    logger = setup_logging()
-    logger.info(f"Loading predictions from {args.predictions}")
-    
-    try:
-        y_pred, y_true = load_predictions_from_csv(args.predictions)
-    except FileNotFoundError:
-        logger.error(f"Predictions file not found: {args.predictions}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Error loading predictions: {e}")
-        sys.exit(1)
-    
-    logger.info(f"Loaded {len(y_true)} samples.")
-    
-    # Evaluate
+        output_path = get_results_dir() / "statistical_test.json"
+
+    # Determine baseline MSE
+    baseline_mse = args.baseline_mse
+    if baseline_mse is None:
+        # Try to load from baseline_stats.json if available
+        baseline_stats_path = get_results_dir() / "baseline_stats.json"
+        if baseline_stats_path.exists():
+            with open(baseline_stats_path, 'r') as f:
+                baseline_data = json.load(f)
+                baseline_mse = baseline_data.get("mse")
+            if baseline_mse is None:
+                raise ValueError(
+                    "Baseline MSE not provided via --baseline-mse and not found "
+                    "in results/baseline_stats.json. Please provide it explicitly."
+                )
+        else:
+            raise ValueError(
+                "Baseline MSE not provided via --baseline-mse and "
+                "results/baseline_stats.json does not exist. "
+                "Please run the baseline predictor first or provide --baseline-mse."
+            )
+
+    # Run evaluation
     try:
         results = evaluate_model_performance(
-            y_true=y_true,
-            y_pred=y_pred,
-            baseline_mean=args.baseline_mean,
+            predictions_path=predictions_path,
+            baseline_mse=baseline_mse,
             output_path=output_path,
             alpha=args.alpha,
             seed=args.seed
         )
-        logger.info("Evaluation completed successfully.")
-        print(json.dumps(results, indent=2))
+        
+        print(f"Evaluation complete.")
+        print(f"MSE: {results['mse']:.4f}")
+        print(f"R²: {results['r2']:.4f}")
+        print(f"T-test outcome: {results['test_result']['outcome']} (p={results['test_result']['p_value']:.4f})")
+        print(f"Results written to: {output_path}")
+        
     except Exception as e:
-        logger.error(f"Evaluation failed: {e}")
-        sys.exit(1)
+        logging.error(f"Evaluation failed: {e}")
+        raise
 
 
 if __name__ == "__main__":

@@ -92,9 +92,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `src/evaluator.py` to load held-out test sessions (from T013d) and identify the "next item" ground truth for cold-start seeds.
-- [ ] T022 [US2] Implement `src/evaluator.py` function `calculate_precision_recall` (FR-004) to compute Precision@K and Recall@K.
-- [ ] T023 [US2] Implement `src/evaluator.py` function `calculate_diversity_coverage` (FR-004) to compute Diversity ($1 - \text{avg cosine sim}$) and Coverage.
+- [X] T021 [US2] Implement `src/evaluator.py` to load held-out test sessions (from T013d) and identify the "next item" ground truth for cold-start seeds.
+- [X] T022 [US2] Implement `src/evaluator.py` function `calculate_precision_recall` (FR-004) to compute Precision@K and Recall@K.
+- [X] T023 [US2] Implement `src/evaluator.py` function `calculate_diversity_coverage` (FR-004) to compute Diversity ($1 - \text{avg cosine sim}$) and Coverage.
 - [ ] T024 [US2] Implement `src/main.py` logic to run the evaluation pipeline on the full test set, generating `results/greedy_paths.json` (Greedy), `results/greedy_rectified_paths.json` (Greedy+ProRL), and `results/beam_rectified_paths.json` (Beam+ProRL). **This task depends on T021-T023 being defined.**
 - [ ] T025 [US2] Implement `src/main.py` validation logic to check SC-005: verify mean absolute difference between rectified and raw scores ≥ 0.01. **Must create or overwrite** `results/sc005_status.json` with the status (pass/fail) to ensure T032 can read it.
 - [ ] T025b [US2] Implement `src/evaluator.py` function `compare_metrics` to perform the side-by-side metric comparison (Precision@K, Diversity, etc.) between `results/greedy_paths.json` and `results/greedy_rectified_paths.json`, outputting the comparison results to `results/metrics_comparison.json` as required by US-2 and SC-001.
@@ -130,7 +130,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Implement resource monitoring in `src/main.py` to log peak RAM usage, total runtime, and **resource enforcement actions taken** (SC-003, SC-004).
+- [X] T031 [P] Implement resource monitoring in `src/main.py` to log peak RAM usage, total runtime, and **resource enforcement actions taken** (SC-003, SC-004).
 - [ ] T032 [P] Write `results/final_report.md` generation logic summarizing all metrics, statistical findings, SC-005 pass/fail status (read from `results/sc005_status.json`), and sensitivity reports.
 - [ ] T033 [P] Add comprehensive docstrings to all public functions in `src/` modules
 - [ ] T034 Run `pytest` suite and ensure all tests pass (exit code 0).

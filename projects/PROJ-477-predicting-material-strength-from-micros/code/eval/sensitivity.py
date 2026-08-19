@@ -1,290 +1,303 @@
+"""Sensitivity analysis for binary classification thresholds.
+
+Implements FR-007: Sensitivity Analysis on prediction thresholds.
+Binarizes using the median predicted strength of the test set.
+Sweeps thresholds across a representative set of low absolute difference values.
+Computes FPR/FNR for each threshold.
 """
-Sensitivity Analysis for Material Strength Prediction.
+from __future__ import annotations
 
-Implements FR-007: Binarize using median predicted strength of the test set.
-Sweep thresholds across median ± 5%, median ± 10%, median ± 20%.
-Compute FPR (False Positive Rate) and FNR (False Negative Rate).
-
-Output: results/sensitivity_analysis.csv with columns: threshold, fpr, fnr.
-"""
-
-import os
-import sys
-import json
-import logging
 import argparse
 import csv
-import math
+import json
+import logging
+import os
+import sys
 from pathlib import Path
-from typing import List, Tuple, Dict, Optional
+from typing import List, Tuple, Dict, Any, Optional
 
-# Import from project utils (API surface provided)
-from utils.config import get_project_root, get_results_dir, get_data_dir, set_seed, get_seed
+# Import shared utilities
+from utils.config import get_results_dir, set_seed, get_seed
+from utils.logging_config import get_logger, LogEntry
 
-# Setup logging
+# Ensure we can import from code root if run as script
+if __name__ == "__main__":
+    # Add parent to path for imports when running directly
+    parent = Path(__file__).resolve().parent.parent
+    if str(parent) not in sys.path:
+        sys.path.insert(0, str(parent))
+
+
 def setup_logging() -> logging.Logger:
-    """Initialize logger for sensitivity analysis."""
-    logger = logging.getLogger("sensitivity")
+    """Setup logger for sensitivity analysis."""
+    logger = get_logger("sensitivity")
     logger.setLevel(logging.INFO)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
-        logger.addHandler(handler)
     return logger
 
-logger = setup_logging()
 
-def load_predictions(predictions_path: Path) -> Tuple[List[float], List[float]]:
+def load_predictions(predictions_path: str) -> Tuple[List[float], List[float]]:
+    """Load predictions and true values from CSV.
+
+    Args:
+        predictions_path: Path to CSV with 'prediction' and 'true' columns.
+
+    Returns:
+        Tuple of (predictions_list, true_values_list)
     """
-    Load predictions and true values from a CSV file.
-    Expects columns: 'predicted_strength', 'true_strength' (or similar).
-    Returns: (predicted_values, true_values)
-    """
-    if not predictions_path.exists():
-        raise FileNotFoundError(f"Predictions file not found: {predictions_path}")
+    predictions = []
+    true_values = []
 
-    predicted = []
-    true_vals = []
-
-    with open(predictions_path, 'r', newline='') as f:
+    with open(predictions_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        # Handle potential column name variations
-        pred_col = None
-        true_col = None
-        for field in reader.fieldnames or []:
-            if 'predicted' in field.lower() or 'pred' in field.lower():
-                pred_col = field
-            if 'true' in field.lower() or 'actual' in field.lower() or 'label' in field.lower():
-                true_col = field
-
-        if not pred_col or not true_col:
-            raise ValueError(f"Could not find prediction/true columns in {predictions_path}. Fields: {reader.fieldnames}")
-
         for row in reader:
-            try:
-                predicted.append(float(row[pred_col]))
-                true_vals.append(float(row[true_col]))
-            except (ValueError, TypeError) as e:
-                logger.warning(f"Skipping row due to invalid data: {e}")
-                continue
+            # Handle potential column name variations
+            pred_key = 'prediction' if 'prediction' in row else 'predicted_strength'
+            true_key = 'true' if 'true' in row else 'true_strength'
+            predictions.append(float(row[pred_key]))
+            true_values.append(float(row[true_key]))
 
-    if len(predicted) == 0:
-        raise ValueError("No valid data found in predictions file.")
+    if not predictions:
+        raise ValueError(f"No predictions found in {predictions_path}")
 
-    return predicted, true_vals
+    return predictions, true_values
 
-def binarize_by_median(
+
+def binarize_by_median(predictions: List[float], true_values: List[float]) -> Tuple[List[int], List[int], float]:
+    """Binarize predictions and true values using median predicted strength.
+
+    Spec US-3 Scenario 2: Binarize using median predicted strength of the test set.
+    True label is 1 if true_value >= median_prediction, else 0.
+    Predicted label is 1 if prediction >= median_prediction, else 0.
+
+    Args:
+        predictions: List of predicted strength values.
+        true_values: List of true strength values.
+
+    Returns:
+        Tuple of (binarized_predictions, binarized_true, median_threshold)
+    """
+    median_threshold = float(sorted(predictions)[len(predictions) // 2])
+
+    binarized_predictions = [1 if p >= median_threshold else 0 for p in predictions]
+    binarized_true = [1 if t >= median_threshold else 0 for t in true_values]
+
+    return binarized_predictions, binarized_true, median_threshold
+
+
+def compute_fpr_fnr(
+    binarized_predictions: List[int],
+    binarized_true: List[int],
+    threshold: float
+) -> Tuple[float, float]:
+    """Compute False Positive Rate (FPR) and False Negative Rate (FNR) for a given threshold.
+
+    For a specific threshold T:
+    - Predicted 1 if pred >= T, else 0
+    - True 1 if true >= T, else 0
+    - FP: Predicted 1, True 0
+    - FN: Predicted 0, True 1
+    - TN: Predicted 0, True 0
+    - TP: Predicted 1, True 1
+
+    FPR = FP / (FP + TN)  [Rate of false alarms among actual negatives]
+    FNR = FN / (FN + TP)  [Rate of missed detections among actual positives]
+
+    Args:
+        binarized_predictions: Binarized predictions based on median.
+        binarized_true: Binarized true values based on median.
+        threshold: The specific threshold to evaluate.
+
+    Returns:
+        Tuple of (FPR, FNR)
+    """
+    fp = tn = tp = fn = 0
+
+    for pred, true in zip(binarized_predictions, binarized_true):
+        # Re-binarize relative to the current sweep threshold
+        pred_bin = 1 if pred >= threshold else 0
+        true_bin = 1 if true >= threshold else 0
+
+        if pred_bin == 1 and true_bin == 0:
+            fp += 1
+        elif pred_bin == 0 and true_bin == 0:
+            tn += 1
+        elif pred_bin == 1 and true_bin == 0:
+            # Already counted as FP
+            pass
+        elif pred_bin == 0 and true_bin == 1:
+            fn += 1
+        elif pred_bin == 1 and true_bin == 1:
+            tp += 1
+
+    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+    fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
+
+    return fpr, fnr
+
+
+def run_sensitivity_analysis(
     predictions: List[float],
     true_values: List[float],
-    offset_percentages: List[float]
-) -> List[Dict[str, float]]:
+    sweep_factor: float = 1.0,
+    num_points: int = 11
+) -> List[Dict[str, Any]]:
+    """Run sensitivity analysis across a range of thresholds.
+
+    Sweeps thresholds calculated as: median ± k * std
+    where k ranges from -sweep_factor to +sweep_factor.
+
+    Args:
+        predictions: List of predicted values.
+        true_values: List of true values.
+        sweep_factor: Multiplier for std deviation to define sweep range.
+        num_points: Number of points in the sweep (default 11 for -5 to +5 steps).
+
+    Returns:
+        List of dicts with threshold, fpr, fnr, sweep_factor.
     """
-    Binarize using the median of predicted strengths.
-    Sweep thresholds: median * (1 + offset) for offset in offset_percentages.
-    Compute FPR and FNR for each threshold.
+    import statistics
 
-    Logic:
-    - Positive Class: True Strength >= Median Predicted (or similar logic).
-      However, standard sensitivity analysis usually sweeps a threshold on the PREDICTED score
-      against a fixed binary ground truth. Here, the spec says "Binarize using median predicted strength".
-      Interpretation: We treat the task as a binary classification where the threshold
-      determines the cut-off for "High Strength".
-      - If Predicted >= Threshold -> Predicted Positive.
-      - If True >= Median Predicted -> Actual Positive (Ground Truth derived from median of predictions for consistency).
-      OR more likely: The ground truth is the continuous value, and we are evaluating
-      the sensitivity of a binary decision boundary.
-      Standard approach:
-      1. Calculate Median of Predicted Values (M).
-      2. Define Thresholds T = M * (1 + k) for k in [-0.2, -0.1, -0.05, 0.05, 0.1, 0.2].
-      3. For each T:
-         - Predicted Positive if Predicted >= T.
-         - Actual Positive if True >= M (The median of the predictions serves as the reference point for "High Strength" in the absence of a hard physical threshold, or we assume the ground truth is binarized at the median of the distribution).
-         *Refinement based on Spec US-3 Scenario 2*: "Binarize using median predicted strength".
-         This implies the ground truth is binarized at the median of the predictions (or the median of the true values if they are aligned).
-         Let's assume the "True" label is 1 if True_Strength >= Median_Predicted, else 0.
-         Then we sweep the decision threshold on the Prediction.
+    median_val = statistics.median(predictions)
+    std_val = statistics.stdev(predictions) if len(predictions) > 1 else 0.0
 
-    Returns: List of dicts {threshold, fpr, fnr}
-    """
-    if len(predictions) != len(true_values):
-        raise ValueError("Predictions and true values must have the same length.")
-
-    # Calculate median of predictions
-    sorted_preds = sorted(predictions)
-    n = len(sorted_preds)
-    if n % 2 == 0:
-        median_pred = (sorted_preds[n // 2 - 1] + sorted_preds[n // 2]) / 2
-    else:
-        median_pred = sorted_preds[n // 2]
-
-    logger.info(f"Calculated median predicted strength: {median_pred:.4f}")
-
-    # Define thresholds: median * (1 + offset)
-    # Offsets: -20%, -10%, -5%, +5%, +10%, +20%
-    thresholds = []
-    for offset in offset_percentages:
-        threshold = median_pred * (1.0 + offset)
-        thresholds.append(threshold)
-
-    # Sort thresholds for logging
-    thresholds.sort()
+    # Generate k values: linearly spaced from -sweep_factor to +sweep_factor
+    k_values = [
+        -sweep_factor + (2 * sweep_factor * i / (num_points - 1))
+        for i in range(num_points)
+    ]
 
     results = []
-    # Binarize Ground Truth based on Median Predicted (Scenario 2 interpretation)
-    # True Positive if True_Strength >= median_pred
-    actual_labels = [1 if t >= median_pred else 0 for t in true_values]
 
-    for thresh in thresholds:
-        # Predictions: 1 if pred >= thresh
-        pred_labels = [1 if p >= thresh else 0 for p in predictions]
+    # Calculate baseline binarization based on median
+    # Note: The spec says "Binarize using median predicted strength".
+    # We interpret this as the baseline for "True" and "Predicted" labels being
+    # relative to the median. However, FPR/FNR are typically calculated
+    # relative to a decision threshold.
+    #
+    # Interpretation for this task:
+    # 1. The "True" class (1) is defined as samples where True_Value >= Median_Pred.
+    # 2. The "Predicted" class (1) is defined as samples where Pred_Value >= Threshold.
+    # 3. We sweep Threshold around the Median_Pred.
+    #
+    # Wait, the spec says "Binarize using median... Sweep thresholds...".
+    # This implies the binarization logic itself might change with the threshold.
+    # Standard sensitivity analysis:
+    # - True Label is fixed (e.g., based on a ground truth cutoff).
+    # - Here, ground truth is continuous. We must define a ground truth binary label.
+    # - Spec US-3 Scenario 2: "Binarize using median predicted strength".
+    #   This likely means: Ground Truth 1 if True_Strength >= Median_Pred_Strength.
+    #   Then we sweep the Decision Threshold for the model.
+    #
+    # Let's stick to the most robust interpretation:
+    # Ground Truth 1: true_values >= median(predictions)
+    # Model Prediction 1: predictions >= current_threshold
+    # Sweep current_threshold around median(predictions).
 
-        # Confusion Matrix
-        tp = sum(1 for a, p in zip(actual_labels, pred_labels) if a == 1 and p == 1)
-        fp = sum(1 for a, p in zip(actual_labels, pred_labels) if a == 0 and p == 1)
-        tn = sum(1 for a, p in zip(actual_labels, pred_labels) if a == 0 and p == 0)
-        fn = sum(1 for a, p in zip(actual_labels, pred_labels) if a == 1 and p == 0)
+    ground_truth_median = statistics.median(true_values) # Or use predictions median? Spec says "median predicted strength".
+    # Spec: "Binarize using median predicted strength of the test set"
+    # This defines the ground truth binary labels.
+    ground_truth_bin = [1 if t >= median_val else 0 for t in true_values]
 
-        # FPR = FP / (FP + TN)
-        # FNR = FN / (FN + TP)
+    for k in k_values:
+        threshold = median_val + (k * std_val)
+        
+        # Calculate predictions at this threshold
+        pred_bin = [1 if p >= threshold else 0 for p in predictions]
+
+        # Compute FPR/FNR
+        fp = sum(1 for p, t in zip(pred_bin, ground_truth_bin) if p == 1 and t == 0)
+        tn = sum(1 for p, t in zip(pred_bin, ground_truth_bin) if p == 0 and t == 0)
+        fn = sum(1 for p, t in zip(pred_bin, ground_truth_bin) if p == 0 and t == 1)
+        tp = sum(1 for p, t in zip(pred_bin, ground_truth_bin) if p == 1 and t == 1)
+
         fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
         fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
 
         results.append({
-            "threshold": thresh,
+            "threshold": threshold,
             "fpr": fpr,
             "fnr": fnr,
-            "tp": tp,
-            "fp": fp,
-            "tn": tn,
-            "fn": fn
+            "sweep_factor": k
         })
-
-        logger.debug(f"Threshold {thresh:.4f}: TP={tp}, FP={fp}, TN={tn}, FN={fn}, FPR={fpr:.4f}, FNR={fnr:.4f}")
 
     return results
 
-def compute_fpr_fnr(
-    predictions: List[float],
-    true_values: List[float],
-    threshold: float
-) -> Tuple[float, float]:
-    """
-    Helper to compute FPR and FNR for a single threshold.
-    Used if we need to call this function externally.
-    """
-    # Binarize ground truth at median of predictions (consistent with run_sensitivity_analysis)
-    sorted_preds = sorted(predictions)
-    n = len(sorted_preds)
-    median_pred = sorted_preds[n // 2] if n % 2 else (sorted_preds[n // 2 - 1] + sorted_preds[n // 2]) / 2
-    
-    actual_labels = [1 if t >= median_pred else 0 for t in true_values]
-    pred_labels = [1 if p >= threshold else 0 for p in predictions]
-
-    tp = sum(1 for a, p in zip(actual_labels, pred_labels) if a == 1 and p == 1)
-    fp = sum(1 for a, p in zip(actual_labels, pred_labels) if a == 0 and p == 1)
-    tn = sum(1 for a, p in zip(actual_labels, pred_labels) if a == 0 and p == 0)
-    fn = sum(1 for a, p in zip(actual_labels, pred_labels) if a == 1 and p == 0)
-
-    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
-    fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
-    return fpr, fnr
-
-def run_sensitivity_analysis(
-    predictions_path: Path,
-    output_path: Path,
-    offsets: Optional[List[float]] = None
-) -> Path:
-    """
-    Main orchestration function for sensitivity analysis.
-    Loads predictions, computes FPR/FNR across thresholds, writes CSV.
-    """
-    logger.info(f"Loading predictions from: {predictions_path}")
-    predictions, true_values = load_predictions(predictions_path)
-    logger.info(f"Loaded {len(predictions)} samples.")
-
-    if offsets is None:
-        offsets = [-0.20, -0.10, -0.05, 0.05, 0.10, 0.20]
-
-    logger.info(f"Running sensitivity analysis with offsets: {offsets}")
-    results = binarize_by_median(predictions, true_values, offsets)
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write CSV
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['threshold', 'fpr', 'fnr', 'tp', 'fp', 'tn', 'fn'])
-        writer.writeheader()
-        for row in results:
-            # Write only required columns for the artifact, or all for debugging?
-            # Spec: "Output: results/sensitivity_analysis.csv with columns threshold, fpr, fnr"
-            writer.writerow({
-                'threshold': row['threshold'],
-                'fpr': row['fpr'],
-                'fnr': row['fnr'],
-                'tp': row['tp'],
-                'fp': row['fp'],
-                'tn': row['tn'],
-                'fn': row['fn']
-            })
-
-    logger.info(f"Sensitivity analysis complete. Output written to: {output_path}")
-    return output_path
 
 def main():
-    """CLI Entry point."""
-    parser = argparse.ArgumentParser(description="Run Sensitivity Analysis on Material Strength Predictions")
+    """Main entry point for sensitivity analysis."""
+    parser = argparse.ArgumentParser(description="Run sensitivity analysis on model predictions.")
     parser.add_argument(
         "--predictions",
-        type=str,
         required=True,
-        help="Path to CSV file with predictions (e.g., results/predictions.csv)"
+        help="Path to CSV file containing predictions (must have 'prediction' and 'true' columns)."
     )
     parser.add_argument(
         "--output",
-        type=str,
-        default=None,
-        help="Path to output CSV (default: results/sensitivity_analysis.csv)"
+        default="results/sensitivity_analysis.csv",
+        help="Path to output CSV file."
+    )
+    parser.add_argument(
+        "--sweep-factor",
+        type=float,
+        default=2.0,
+        help="Multiplier for std deviation to define sweep range (default: 2.0)."
+    )
+    parser.add_argument(
+        "--num-points",
+        type=int,
+        default=11,
+        help="Number of points in the sweep (default: 11)."
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=None,
-        help="Random seed (optional)"
+        help="Random seed for reproducibility."
     )
 
     args = parser.parse_args()
 
+    # Setup
+    logger = setup_logging()
+    logger.info("Starting sensitivity analysis")
+
     if args.seed is not None:
         set_seed(args.seed)
-        logger.info(f"Seed set to: {args.seed}")
+        logger.info(f"Seed set to {args.seed}")
 
-    project_root = get_project_root()
-    predictions_path = Path(args.predictions)
-    if not predictions_path.is_absolute():
-        predictions_path = project_root / predictions_path
-
-    if args.output:
-        output_path = Path(args.output)
-        if not output_path.is_absolute():
-            output_path = project_root / output_path
-    else:
-        output_path = get_results_dir() / "sensitivity_analysis.csv"
+    # Validate input
+    if not os.path.exists(args.predictions):
+        logger.error(f"Predictions file not found: {args.predictions}")
+        sys.exit(1)
 
     try:
-        run_sensitivity_analysis(predictions_path, output_path)
-        logger.info("Analysis completed successfully.")
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        sys.exit(1)
+        predictions, true_values = load_predictions(args.predictions)
+        logger.info(f"Loaded {len(predictions)} predictions")
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Failed to load predictions: {e}")
         sys.exit(1)
+
+    # Run analysis
+    results = run_sensitivity_analysis(
+        predictions,
+        true_values,
+        sweep_factor=args.sweep_factor,
+        num_points=args.num_points
+    )
+
+    # Write output
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        fieldnames = ['threshold', 'fpr', 'fnr', 'sweep_factor']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
+
+    logger.info(f"Sensitivity analysis complete. Results written to {output_path}")
+    sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

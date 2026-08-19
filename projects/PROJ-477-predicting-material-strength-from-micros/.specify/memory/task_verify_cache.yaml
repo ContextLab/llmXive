@@ -1,43 +1,26 @@
 T007:
-  c: false
-  h: b05236ce7fb214075578d5565f9e779370c4d96607a648f38facdf780da6ed8b
-  r: "The provided `code/utils/logging_config.py` does not automatically create or\
-    \ write to `results/metrics.log` and `results/metrics.json`; it only writes to\
-    \ a user\u2011specified file via the stdlib logger and never outputs JSON entries\
-    \ to a file. Consequently the required output files are missing (log file absent,\
-    \ JSON file empty), so the task\u2019s specification is not met."
+  c: true
+  h: 04465b1119b8f478524542ceefae4a948e356546c980efbf7be5a64fec5ed43c
+  r: "The `code/utils/logging_config.py` file exists, is non\u2011empty, and defines\
+    \ a logger that targets `results/metrics.log` and `results/metrics.json` with\
+    \ a `LogEntry` JSON structure, satisfying the creation requirement. (The absence\
+    \ of populated log files is acceptable because the task only required the logger\
+    \ initialization code.)"
 T022a:
   c: false
-  h: 2e7dac07cef345c0b52a36cf1dcf8b0c96b4975e0e10735293c9eec722446388
-  r: "The provided `code/data/extract_features.py` is truncated (ends at `def extract_`)\
-    \ and does not contain the logic to iterate over test images, compute grain sizes,\
-    \ and write `data/features/test_grain_features.csv` (or the optional all\u2011\
-    set file). Moreover, neither `data/features/test_grain_features.csv` nor `data/features/all_grain_features.csv`\
-    \ exist on disk. The required output artifacts are missing, so the task is not\
-    \ fulfilled."
+  h: 28033eb9f04f70200a729d5ff773d07a4a54e29ffb5df4f5c050b9f4a872ef2a
+  r: "The required output files `data/features/test_grain_features.csv` (and the optional\
+    \ `all_grain_features.csv`) are missing, and the provided `extract_features.py`\
+    \ script is incomplete/truncated and does not demonstrably generate those CSVs.\
+    \ The task\u2019s core deliverable \u2013 a CSV of grain\u2011size features for\
+    \ the test set \u2013 has not been produced."
 T024:
   c: false
-  h: 058e4d7f0fd3ebe78b5e20877a50d34fe41e13f77441bf4ab045108f40b9466d
-  r: "The repository contains `code/eval/metrics.py` with functions for MSE, R\xB2\
-    , and a `single_sample_ttest_squared_errors` stub, but the required output file\
-    \ `results/statistical_test.json` is missing, and the provided snippet does not\
-    \ show that the function writes the JSON with the exact fields (`test_type`, `t_statistic`,\
-    \ `p_value`, `outcome`). Without the result file, the task\u2019s output requirement\
-    \ is not satisfied."
-T031:
-  c: false
-  h: cbc7419b526153450abb93453dfe52c6ba6bd74fd761d10e77c317a4e146b5b9
-  r: "The repository contains `code/eval/sensitivity.py`, but the file is truncated\
-    \ and does not show the full implementation of the threshold sweep, FPR/FNR calculation,\
-    \ or CSV writing. Moreover, the required output file `results/sensitivity_analysis.csv`\
-    \ is missing. The task\u2019s output artifact is therefore not present."
-T032:
-  c: false
-  h: 3e9e0fc6e8d2a773deb394a5dd25248a3fa6cfa795e4ffa411cfdfe51463175e
-  r: "The required output files `results/predictions.csv` (with `ci_lower` and `ci_upper`\
-    \ columns) and `results/uncertainty_calibration.json` are absent, and the provided\
-    \ `code/eval/predictor.py` does not demonstrably generate or write these artifacts.\
-    \ The task\u2019s core deliverables are therefore missing."
+  h: a04708b3598beeff5f6eb50cc2edd6295ff4b167add8091eec905ffbb865c639
+  r: "The `code/eval/metrics.py` file defines the metric functions, but the required\
+    \ output file `results/statistical_test.json` is not present on disk, and the\
+    \ provided snippet shows no code that writes the JSON result. The task\u2019s\
+    \ core deliverable \u2013 a JSON file with the t\u2011test results \u2013 is missing."
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -78,12 +61,12 @@ T040:
     file and the incomplete downloader prevent the task from being fulfilled.
 T042:
   c: false
-  h: d832d0e362ddceb460355b1ae8e980d396804e225dc7f13b010c5c5c6ef634ba
-  r: "The provided `code/data/validate.py` is present but the visible portion ends\
-    \ mid\u2011function and shows no code that actually writes `results/validation_report.json`\
-    \ or exits with the required status code. Moreover, the expected output file `results/validation_report.json`\
-    \ is missing, indicating the script either does not implement the reporting logic\
-    \ or has not been executed. The implementation must be completed to iterate over\
-    \ `data/raw/`, count invalid image\u2011metadata pairs, write a JSON report with\
-    \ `invalid_count`, `total_count`, and `invalid_ratio`, and exit with code\u202F\
-    1 when the ratio exceeds\u202F"
+  h: 3201d12b19bf56c3c65a9557d40373357a416c0028ba043d846280e4d4e970ad
+  r: "The provided `code/data/validate.py` is truncated (ends mid\u2011definition)\
+    \ and does not show the logic that writes `results/validation_report.json` or\
+    \ exits with the required status code. Moreover, the expected output file `results/validation_report.json`\
+    \ is missing, indicating the script either does not generate it or has not been\
+    \ run. The implementation must be completed so the script iterates over `data/raw/`,\
+    \ validates images and metadata, writes the JSON report with `invalid_count`,\
+    \ `total_count`, and `invalid_ratio`, and exits with code\u202F1 when the ratio\
+    \ exceeds\u202F1\u202F%."

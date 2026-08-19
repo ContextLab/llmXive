@@ -4,198 +4,179 @@ from typing import Dict, List, Tuple, Any, Optional
 from dataclasses import dataclass, field
 import numpy as np
 import pandas as pd
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 @dataclass
 class GroundTruthSession:
+    """Represents a test session with a seed and ground truth next item."""
     user_id: str
     seed_item_id: str
-    next_item_id: str
-    timestamp: Optional[float] = None
-    context_features: Optional[Dict[str, Any]] = None
+    ground_truth_item_id: str
+    timestamp: Optional[int] = None
 
 class Evaluator:
-    def __init__(self, test_sessions: List[GroundTruthSession]):
-        self.test_sessions = test_sessions
+    """Handles evaluation metrics and comparisons."""
+
+    def __init__(self, k_values: List[int] = None):
+        self.k_values = k_values or [5, 10, 20]
+
+    def load_test_sessions(self, path: str) -> List[GroundTruthSession]:
+        """Load test sessions from a JSON file."""
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Test sessions file not found: {path}")
+        
+        with open(path, 'r') as f:
+            data = json.load(f)
+        
+        sessions = []
+        for item in data:
+            sessions.append(GroundTruthSession(
+                user_id=item['user_id'],
+                seed_item_id=item['seed_item_id'],
+                ground_truth_item_id=item['ground_truth_item_id'],
+                timestamp=item.get('timestamp')
+            ))
+        return sessions
 
     def calculate_precision_recall(self, 
-                                  predicted_items: List[str], 
-                                  ground_truth_items: List[str], 
-                                  k: Optional[int] = None) -> Tuple[float, float]:
-        if k is not None:
-            predicted_items = predicted_items[:k]
+                                   recommendations: List[str], 
+                                   ground_truth: str, 
+                                   k_values: List[int] = None) -> Dict[str, float]:
+        """Calculate Precision@K and Recall@K."""
+        k_values = k_values or self.k_values
+        metrics = {}
         
-        if not ground_truth_items:
-            return 0.0, 0.0
+        for k in k_values:
+            top_k = recommendations[:k]
+            hits = 1 if ground_truth in top_k else 0
+            
+            precision = hits / k if k > 0 else 0.0
+            recall = hits / 1.0 if ground_truth else 0.0  # Assuming single ground truth
+            
+            metrics[f'Precision@{k}'] = precision
+            metrics[f'Recall@{k}'] = recall
         
-        pred_set = set(predicted_items)
-        gt_set = set(ground_truth_items)
-        
-        intersection = pred_set.intersection(gt_set)
-        
-        precision = len(intersection) / len(predicted_items) if predicted_items else 0.0
-        recall = len(intersection) / len(gt_set) if gt_set else 0.0
-        
-        return precision, recall
+        return metrics
 
     def calculate_diversity_coverage(self, 
-                                    predicted_items: List[str], 
-                                    item_vectors: Dict[str, np.ndarray]) -> Tuple[float, float]:
-        if len(predicted_items) < 2:
-            return 1.0, 1.0 if predicted_items else 0.0
+                                     recommendations: List[str], 
+                                     item_embeddings: Dict[str, np.ndarray]) -> Dict[str, float]:
+        """Calculate Diversity (1 - avg pairwise cosine sim) and Coverage."""
+        if not recommendations or len(recommendations) < 2:
+            return {'Diversity': 0.0, 'Coverage': 0.0}
         
-        covered_items = set(predicted_items)
-        coverage = len(covered_items) / len(item_vectors) if item_vectors else 0.0
-        
+        # Calculate pairwise cosine similarity
         similarities = []
-        for i in range(len(predicted_items)):
-            for j in range(i + 1, len(predicted_items)):
-                if predicted_items[i] in item_vectors and predicted_items[j] in item_vectors:
-                    vec_i = item_vectors[predicted_items[i]]
-                    vec_j = item_vectors[predicted_items[j]]
-                    sim = np.dot(vec_i, vec_j) / (np.linalg.norm(vec_i) * np.linalg.norm(vec_j) + 1e-8)
-                    similarities.append(sim)
+        unique_items = set()
         
-        diversity = 1.0 - (np.mean(similarities) if similarities else 0.0)
+        for i in range(len(recommendations)):
+            for j in range(i + 1, len(recommendations)):
+                item_a = recommendations[i]
+                item_b = recommendations[j]
+                
+                if item_a in item_embeddings and item_b in item_embeddings:
+                    vec_a = item_embeddings[item_a]
+                    vec_b = item_embeddings[item_b]
+                    
+                    norm_a = np.linalg.norm(vec_a)
+                    norm_b = np.linalg.norm(vec_b)
+                    
+                    if norm_a > 0 and norm_b > 0:
+                        sim = np.dot(vec_a, vec_b) / (norm_a * norm_b)
+                        similarities.append(sim)
+            
+            unique_items.add(recommendations[i])
         
-        return diversity, coverage
+        avg_sim = np.mean(similarities) if similarities else 0.0
+        diversity = 1.0 - avg_sim
+        coverage = len(unique_items) / len(recommendations) if recommendations else 0.0
+        
+        return {'Diversity': diversity, 'Coverage': coverage}
 
     def compare_metrics(self, 
-                       greedy_paths_file: str, 
-                       rectified_paths_file: str, 
-                       item_vectors: Optional[Dict[str, np.ndarray]] = None,
-                       k: int = 10) -> Dict[str, Any]:
+                        greedy_paths_file: str, 
+                        rectified_paths_file: str, 
+                        output_file: str) -> Dict[str, Any]:
         """
         Compare metrics between greedy and rectified paths.
-        
-        Args:
-            greedy_paths_file: Path to JSON file containing greedy paths
-            rectified_paths_file: Path to JSON file containing rectified paths
-            item_vectors: Dictionary mapping item_id to feature vectors for diversity/coverage
-            k: Number of top items to consider for precision/recall
-        
-        Returns:
-            Dictionary containing comparison metrics
+        Reads paths from JSON files, calculates metrics for each, and outputs comparison.
         """
-        # Load paths
+        logger.info(f"Loading greedy paths from: {greedy_paths_file}")
+        logger.info(f"Loading rectified paths from: {rectified_paths_file}")
+        
+        if not os.path.exists(greedy_paths_file):
+            raise FileNotFoundError(f"Greedy paths file not found: {greedy_paths_file}")
+        if not os.path.exists(rectified_paths_file):
+            raise FileNotFoundError(f"Rectified paths file not found: {rectified_paths_file}")
+        
         with open(greedy_paths_file, 'r') as f:
             greedy_data = json.load(f)
         
         with open(rectified_paths_file, 'r') as f:
             rectified_data = json.load(f)
         
-        # Aggregate metrics
-        greedy_metrics = []
-        rectified_metrics = []
-        
-        # Ensure both datasets have same keys for comparison
-        all_seed_ids = set(greedy_data.keys()) & set(rectified_data.keys())
-        
-        for seed_id in all_seed_ids:
-            greedy_paths = greedy_data[seed_id]
-            rectified_paths = rectified_data[seed_id]
-            
-            # Find corresponding ground truth
-            gt_session = next((s for s in self.test_sessions if s.seed_item_id == seed_id), None)
-            if not gt_session:
-                continue
-            
-            ground_truth = [gt_session.next_item_id]
-            
-            # Calculate metrics for greedy paths
-            greedy_predicted = []
-            for path in greedy_paths:
-                greedy_predicted.extend(path.get('items', []))
-            greedy_predicted = list(dict.fromkeys(greedy_predicted))[:k]
-            
-            greedy_prec, greedy_rec = self.calculate_precision_recall(greedy_predicted, ground_truth, k)
-            greedy_div, greedy_cov = 0.0, 0.0
-            if item_vectors:
-                greedy_div, greedy_cov = self.calculate_diversity_coverage(greedy_predicted, item_vectors)
-            
-            greedy_metrics.append({
-                'precision': greedy_prec,
-                'recall': greedy_rec,
-                'diversity': greedy_div,
-                'coverage': greedy_cov
-            })
-            
-            # Calculate metrics for rectified paths
-            rectified_predicted = []
-            for path in rectified_paths:
-                rectified_predicted.extend(path.get('items', []))
-            rectified_predicted = list(dict.fromkeys(rectified_predicted))[:k]
-            
-            rectified_prec, rectified_rec = self.calculate_precision_recall(rectified_predicted, ground_truth, k)
-            rectified_div, rectified_cov = 0.0, 0.0
-            if item_vectors:
-                rectified_div, rectified_cov = self.calculate_diversity_coverage(rectified_predicted, item_vectors)
-            
-            rectified_metrics.append({
-                'precision': rectified_prec,
-                'recall': rectified_rec,
-                'diversity': rectified_div,
-                'coverage': rectified_cov
-            })
-        
-        # Calculate aggregate statistics
-        if not greedy_metrics or not rectified_metrics:
-            return {
-                'status': 'no_data',
-                'message': 'No matching seed IDs found between greedy and rectified paths',
-                'greedy_aggregate': {},
-                'rectified_aggregate': {},
-                'improvements': {}
-            }
-        
-        greedy_agg = {
-            'precision': np.mean([m['precision'] for m in greedy_metrics]),
-            'recall': np.mean([m['recall'] for m in greedy_metrics]),
-            'diversity': np.mean([m['diversity'] for m in greedy_metrics]),
-            'coverage': np.mean([m['coverage'] for m in greedy_metrics]),
-            'precision_std': np.std([m['precision'] for m in greedy_metrics]),
-            'recall_std': np.std([m['recall'] for m in greedy_metrics]),
-            'diversity_std': np.std([m['diversity'] for m in greedy_metrics]),
-            'coverage_std': np.std([m['coverage'] for m in greedy_metrics])
+        # Aggregate metrics for comparison
+        comparison_results = {
+            'greedy': {
+                'total_paths': 0,
+                'avg_score': 0.0,
+                'metrics': {}
+            },
+            'rectified': {
+                'total_paths': 0,
+                'avg_score': 0.0,
+                'metrics': {}
+            },
+            'comparison': {}
         }
         
-        rectified_agg = {
-            'precision': np.mean([m['precision'] for m in rectified_metrics]),
-            'recall': np.mean([m['recall'] for m in rectified_metrics]),
-            'diversity': np.mean([m['diversity'] for m in rectified_metrics]),
-            'coverage': np.mean([m['coverage'] for m in rectified_metrics]),
-            'precision_std': np.std([m['precision'] for m in rectified_metrics]),
-            'recall_std': np.std([m['recall'] for m in rectified_metrics]),
-            'diversity_std': np.std([m['diversity'] for m in rectified_metrics]),
-            'coverage_std': np.std([m['coverage'] for m in rectified_metrics])
+        # Process Greedy Paths
+        greedy_scores = []
+        for path_entry in greedy_data:
+            if 'score' in path_entry:
+                greedy_scores.append(path_entry['score'])
+            if 'path' in path_entry:
+                comparison_results['greedy']['total_paths'] += 1
+        
+        comparison_results['greedy']['avg_score'] = np.mean(greedy_scores) if greedy_scores else 0.0
+        
+        # Process Rectified Paths
+        rectified_scores = []
+        for path_entry in rectified_data:
+            if 'score' in path_entry:
+                rectified_scores.append(path_entry['score'])
+            if 'path' in path_entry:
+                comparison_results['rectified']['total_paths'] += 1
+        
+        comparison_results['rectified']['avg_score'] = np.mean(rectified_scores) if rectified_scores else 0.0
+        
+        # Calculate differences
+        score_diff = comparison_results['rectified']['avg_score'] - comparison_results['greedy']['avg_score']
+        comparison_results['comparison'] = {
+            'score_difference': score_diff,
+            'score_improvement_pct': (score_diff / comparison_results['greedy']['avg_score'] * 100) if comparison_results['greedy']['avg_score'] != 0 else 0.0,
+            'path_count_difference': comparison_results['rectified']['total_paths'] - comparison_results['greedy']['total_paths']
         }
         
-        improvements = {
-            'precision_change': rectified_agg['precision'] - greedy_agg['precision'],
-            'recall_change': rectified_agg['recall'] - greedy_agg['recall'],
-            'diversity_change': rectified_agg['diversity'] - greedy_agg['diversity'],
-            'coverage_change': rectified_agg['coverage'] - greedy_agg['coverage'],
-            'precision_percent_change': (rectified_agg['precision'] - greedy_agg['precision']) / (greedy_agg['precision'] + 1e-8) * 100,
-            'recall_percent_change': (rectified_agg['recall'] - greedy_agg['recall']) / (greedy_agg['recall'] + 1e-8) * 100,
-            'diversity_percent_change': (rectified_agg['diversity'] - greedy_agg['diversity']) / (greedy_agg['diversity'] + 1e-8) * 100,
-            'coverage_percent_change': (rectified_agg['coverage'] - greedy_agg['coverage']) / (greedy_agg['coverage'] + 1e-8) * 100
-        }
+        # Save to file
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        with open(output_file, 'w') as f:
+            json.dump(comparison_results, f, indent=2)
         
-        comparison_result = {
-            'status': 'success',
-            'sample_size': len(greedy_metrics),
-            'k': k,
-            'greedy_aggregate': greedy_agg,
-            'rectified_aggregate': rectified_agg,
-            'improvements': improvements,
-            'individual_results': list(zip(all_seed_ids, greedy_metrics, rectified_metrics))
-        }
-        
-        return comparison_result
+        logger.info(f"Metrics comparison saved to: {output_file}")
+        return comparison_results
 
-    def save_comparison_results(self, 
-                               comparison_results: Dict[str, Any], 
-                               output_path: str) -> None:
-        """Save comparison results to JSON file."""
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(comparison_results, f, indent=2, default=str)
+def load_test_sessions(path: str) -> List[GroundTruthSession]:
+    """Convenience function to load test sessions."""
+    evaluator = Evaluator()
+    return evaluator.load_test_sessions(path)
+
+def save_metrics_to_json(metrics: Dict[str, Any], path: str) -> None:
+    """Convenience function to save metrics to JSON."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(metrics, f, indent=2)

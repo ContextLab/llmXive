@@ -23,16 +23,17 @@ class LogEntry:
 class ReproducibilityLogger:
     """Accepts ANY call shape and never raises.
 
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
+    This logger writes to:
+    1. `results/metrics.log` (text log of all operations)
+    2. `results/metrics.json` (JSON array of all LogEntry objects)
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # Handle call shapes: get_logger("name", "log_file") or get_logger(name="name")
         self.name = "reproducibility"
         self.log_file = None
+        self.json_file = None
 
+        # Parse args/kwargs for name and optional log file
         if args:
             self.name = str(args[0])
             if len(args) > 1:
@@ -44,20 +45,25 @@ class ReproducibilityLogger:
             self.log_file = str(kwargs["log_file"])
 
         self.entries: list = []
-        # Initialize stdlib logging if a log_file was requested
-        if self.log_file:
-            self._init_stdlib_logger()
+        
+        # Ensure results directory exists
+        self.results_dir = os.path.join(os.getcwd(), "results")
+        os.makedirs(self.results_dir, exist_ok=True)
+
+        # Initialize default file paths if not specified
+        if not self.log_file:
+            self.log_file = "metrics.log"
+        self.json_file = "metrics.json"
+
+        self._text_log_path = os.path.join(self.results_dir, self.log_file)
+        self._json_log_path = os.path.join(self.results_dir, self.json_file)
+
+        # Initialize stdlib logging for text output
+        self._init_stdlib_logger()
 
     def _init_stdlib_logger(self) -> None:
         """Initialize standard logging to write to the specified file."""
         import logging
-        import logging.handlers
-
-        # Ensure results directory exists
-        results_dir = os.path.join(os.getcwd(), "results")
-        os.makedirs(results_dir, exist_ok=True)
-
-        file_path = os.path.join(results_dir, self.log_file)
 
         # Create a custom logger
         std_logger = logging.getLogger(f"stdlib_{self.name}")
@@ -65,7 +71,7 @@ class ReproducibilityLogger:
 
         # Avoid adding handlers multiple times
         if not std_logger.handlers:
-            fh = logging.FileHandler(file_path, mode='a')
+            fh = logging.FileHandler(self._text_log_path, mode='a')
             fh.setLevel(logging.INFO)
             formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
             fh.setFormatter(formatter)
@@ -84,7 +90,35 @@ class ReproducibilityLogger:
             msg = f"{op} - {kwargs}"
             self._stdlib_logger.info(msg)
 
+        # Write JSON entry to file immediately
+        self._write_json_entry(entry)
+
         return entry
+
+    def _write_json_entry(self, entry: LogEntry) -> None:
+        """Append a single log entry to the JSON file."""
+        try:
+            # Read existing entries if file exists
+            existing_entries = []
+            if os.path.exists(self._json_log_path):
+                try:
+                    with open(self._json_log_path, 'r', encoding='utf-8') as f:
+                        content = f.read().strip()
+                        if content:
+                            existing_entries = json.loads(content)
+                except (json.JSONDecodeError, ValueError):
+                    # If file is corrupted, start fresh
+                    existing_entries = []
+
+            # Append new entry
+            existing_entries.append(asdict(entry))
+
+            # Write back all entries
+            with open(self._json_log_path, 'w', encoding='utf-8') as f:
+                json.dump(existing_entries, f, indent=2, ensure_ascii=False, default=str)
+        except Exception:
+            # Fail silently to avoid breaking the main workflow
+            pass
 
     # .info/.debug/.warning/.error/.critical/... -> tolerant no-op or stdlib delegate
     def __getattr__(self, name: str):
@@ -155,3 +189,5 @@ def main() -> None:
     logger = get_logger("test")
     logger.log("test_operation", key="value")
     print("Log entry created:", logger.entries[0].to_json())
+    print(f"Text log written to: {logger._text_log_path}")
+    print(f"JSON log written to: {logger._json_log_path}")

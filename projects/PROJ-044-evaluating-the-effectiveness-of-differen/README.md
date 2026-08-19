@@ -1,143 +1,163 @@
 # Evaluating the Effectiveness of Differential Privacy in Federated Learning
 
-## Overview
+This project investigates how Differential Privacy (DP) affects model utility and fairness in Federated Learning (FL) under varying degrees of data heterogeneity.
 
-This project investigates the impact of Differential Privacy (DP) on Federated Learning (FL) convergence and fairness, specifically focusing on the "critical heterogeneity" hypothesis. We simulate client data partitions using Dirichlet distributions with varying concentration parameters (α) and train models using FedAvg with Opacus-enabled DP.
+## ⚠️ Important: Dataset Scope
 
-**Important Note on Datasets**: This project currently supports **FEMNIST** only. The Shakespeare dataset is explicitly excluded per the project plan due to lack of verified programmatically-accessible sources. Attempting to run with Shakespeare will raise a `ValueError`.
+**FEMNIST Only**: This project exclusively uses the FEMNIST dataset from the LEAF benchmark (hosted on Hugging Face).
+**Shakespeare Excluded**: The Shakespeare dataset has been explicitly excluded from this study due to the lack of a verified, programmatic source as identified in the project's Gap Analysis (plan.md). Any attempt to run experiments with "shakespeare" will raise a `ValueError`.
 
 ## Installation
 
-### Prerequisites
-
-- Python 3.10 or higher
-- pip
-
-### Setup
-
-1. Clone the repository:
+1. **Clone the repository**:
  ```bash
  git clone <repository-url>
  cd projects/PROJ-044-evaluating-the-effectiveness-of-differen
  ```
 
-2. Create a virtual environment:
+2. **Create a virtual environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. Install dependencies:
+3. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
 
-4. (Optional) Install pre-commit hooks:
+ *Required dependencies include:*
+ - `torch`
+ - `opacus`
+ - `datasets` (Hugging Face)
+ - `pandas`, `numpy`, `scipy`
+ - `matplotlib`, `statsmodels`
+
+4. **Install pre-commit hooks**:
  ```bash
  pre-commit install
  ```
 
 ## Usage
 
-### Configuration
+### 1. Data Preparation (User Story 1)
 
-The project uses a `Config` dataclass defined in `code/config.py`. Key parameters include:
-- `seed`: Random seed for reproducibility.
-- `alpha`: Dirichlet concentration parameter (controls heterogeneity).
-- `epsilon`: Privacy budget (DP strength).
-- `dataset`: Currently only `"femnist"` is supported.
-
-### Data Preparation
-
-Download and partition the FEMNIST dataset:
+Download FEMNIST and generate Dirichlet partitions.
 
 ```bash
-# Download FEMNIST data
+# Download FEMNIST (creates data/raw/femnist.parquet and.sha256)
 python code/data/download.py --dataset femnist
 
-# Partition data with specific alpha and seed
-python code/data/partition.py --alpha 0.1 --seed 42 --dataset femnist
+# Generate partitions with specific alpha and seed
+python code/data/partition.py --dataset femnist --seed 42 --alpha 0.1
 ```
 
-Outputs:
-- `data/raw/femnist.parquet`: Raw dataset in Parquet format.
-- `data/raw/femnist.sha256`: Checksum file for verification.
-- `data/partitions/`: Directory containing partition metadata JSON files.
+**CLI Arguments**:
+- `--dataset`: Dataset name (only `femnist` is supported).
+- `--seed`: Random seed for reproducibility.
+- `--alpha`: Dirichlet concentration parameter (e.g., 0.1, 0.5, 1.0).
+- `--output`: Output directory for partition metadata (default: `data/partitions/`).
 
-### Training
+### 2. Training (User Story 2)
 
-Run the DP-FL training experiment:
+Run the Federated Learning experiment with Differential Privacy.
 
 ```bash
 python code/training/orchestrate_experiment.py \
- --alpha 0.1 \
- --epsilon 0.5 \
- --seeds 42 123 456 789 101 \
- --dataset femnist
+ --dataset femnist \
+ --seeds 42 43 44 45 46 \
+ --alphas 0.1 0.5 1.0 \
+ --epsilons 0.1 0.5 1.0 5.0 10.0 \
+ --output results/raw_logs.csv
 ```
 
-Outputs:
-- `results/raw_logs.csv`: Detailed training metrics per round.
+**CLI Arguments**:
+- `--dataset`: Dataset name (`femnist`).
+- `--seeds`: List of random seeds for the 5-seed orchestration loop.
+- `--alphas`: List of heterogeneity levels.
+- `--epsilons`: List of privacy budgets (ε).
+- `--output`: Path to the output CSV log file.
 
-### Analysis
+**Output**:
+- `results/raw_logs.csv`: Contains per-round metrics including global accuracy, majority/minority accuracy, privacy budget spent, and flags for time limits or utility collapse.
 
-Perform statistical analysis and generate plots:
+### 3. Analysis (User Story 3)
+
+Perform statistical analysis and generate plots.
 
 ```bash
-python code/analysis/stats.py
+python code/analysis/stats.py \
+ --input results/raw_logs.csv \
+ --output results/summary.csv \
+ --plots-dir results/plots/
 ```
 
-This script:
-1. Filters out time-limited and utility-collapse runs.
-2. Calculates rounds to target accuracy.
-3. Performs paired t-tests (DP vs Non-DP).
-4. Performs unpaired tests (Majority vs Minority clients).
-5. Generates sensitivity analysis plots.
+**CLI Arguments**:
+- `--input`: Path to the raw training logs CSV.
+- `--output`: Path for the summary statistics CSV.
+- `--plots-dir`: Directory for generated plots (PNG, 300 DPI).
 
-Outputs:
-- `results/filtered_data.csv`: Cleaned dataset for analysis.
-- `results/plots/`: Directory containing PNG plots (300 DPI).
-- `results/summary.csv`: Final results summary.
+**Outputs**:
+- `results/filtered_data.csv`: Data with time-limited and utility-collapsed runs removed.
+- `results/summary.csv`: Aggregated metrics and p-values.
+- `results/plots/`:
+ - `accuracy_gap_vs_alpha.png`
+ - `accuracy_vs_epsilon.png`
+ - `minority_degradation_overlay.png`
 - `results/validation_report.md`: Report on excluded runs and statistical power.
 
-### Results
+## Results
 
-The final analysis produces:
-- **Accuracy Gap vs. α**: Visualizing the impact of heterogeneity.
-- **Accuracy vs. ε**: Showing the trade-off between privacy and utility.
-- **Minority Degradation Overlay**: Comparing minority client performance against global accuracy.
-- **Statistical Significance**: P-values for DP impact and fairness gaps.
+The analysis produces the following key artifacts in the `results/` directory:
 
-See `results/summary.csv` and `results/validation_report.md` for detailed numerical results.
+1. **`summary.csv`**: A comprehensive table containing:
+ - `seed`, `alpha`, `epsilon`
+ - `global_accuracy`, `majority_accuracy`, `minority_accuracy`
+ - `rounds_to_target`
+ - `p_value_dp_vs_nondp` (per seed)
+ - `p_value_majority_vs_minority`
+
+2. **`validation_report.md`**: Details on:
+ - Count of runs excluded due to `is_time_limited` or `is_utility_collapse`.
+ - Flags for reduced statistical power (Mann-Whitney U fallback).
+
+3. **Plots**:
+ - **Accuracy Gap vs. Alpha**: Shows how heterogeneity impacts the DP vs. Non-DP gap.
+ - **Accuracy vs. Epsilon**: Convergence curves across privacy budgets.
+ - **Minority Degradation Overlay**: Explicitly compares minority client accuracy against global accuracy to assess fairness impact.
 
 ## Project Structure
 
 ```
 .
 ├── code/
-│ ├── analysis/ # Statistical analysis and plotting
-│ ├── data/ # Data download and partitioning
-│ ├── models/ # Model definitions
-│ ├── training/ # Training loop and DP utilities
+│ ├── analysis/ # Statistical tests and plotting
+│ ├── data/ # Downloaders and partitioning logic
+│ ├── models/ # Model definitions (SmallCNN)
+│ ├── training/ # FedAvg orchestrator, DP utils, logging
 │ ├── config.py # Configuration management
-│ └──...
+│ └── setup_project_structure.py
 ├── data/
-│ ├── raw/ # Raw downloaded datasets
-│ └── partitions/ # Client partition metadata
+│ ├── raw/ # Downloaded datasets (femnist.parquet)
+│ └── partitions/ # Dirichlet partition metadata
 ├── results/
-│ ├── plots/ # Generated visualization plots
-│ └──... # Analysis outputs
+│ ├── raw_logs.csv
+│ ├── filtered_data.csv
+│ ├── summary.csv
+│ ├── validation_report.md
+│ └── plots/ # Generated PNG figures
 ├── tests/
 │ ├── unit/ # Unit tests
 │ └── integration/ # Integration tests
 ├── requirements.txt
-└── README.md
+├── README.md
+└── tree_output.txt
 ```
 
 ## Contributing
 
-Please read the contribution guidelines before submitting PRs. Ensure all tests pass and code is formatted with Black and Ruff.
+Please read the `CONTRIBUTING.md` (if available) for guidelines on how to contribute to this project.
 
 ## License
 
-MIT License.
+This project is licensed under the MIT License.

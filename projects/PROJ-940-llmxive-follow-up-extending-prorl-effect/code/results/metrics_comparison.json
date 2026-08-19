@@ -1,0 +1,17 @@
+{
+  "greedy": {
+    "total_paths": 3,
+    "avg_score": 0.85,
+    "metrics": {}
+  },
+  "rectified": {
+    "total_paths": 3,
+    "avg_score": 0.88,
+    "metrics": {}
+  },
+  "comparison": {
+    "score_difference": 0.03,
+    "score_improvement_pct": 3.529411764705882,
+    "path_count_difference": 0
+  }
+}

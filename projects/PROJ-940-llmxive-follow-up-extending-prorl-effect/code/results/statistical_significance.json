@@ -1,0 +1,20 @@
+{
+  "metric_tested": "precision_at_5",
+  "input_file": "results/metrics_comparison.json",
+  "method_used": "auto",
+  "sample_size": 0,
+  "mean_greedy": 0.0,
+  "mean_prorl": 0.0,
+  "mean_difference": 0.0,
+  "test_details": {
+    "sample_size": 0,
+    "mean_diff": 0.0,
+    "std_diff": 0.0,
+    "test": "insufficient_data",
+    "statistic": null,
+    "p_value": null,
+    "conclusion": "insufficient_data",
+    "message": "Need at least 2 samples for significance testing."
+  },
+  "timestamp": null
+}

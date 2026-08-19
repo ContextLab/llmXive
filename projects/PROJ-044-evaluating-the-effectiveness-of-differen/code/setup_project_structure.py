@@ -1,24 +1,15 @@
-"""
-Project Structure Setup Script for llmXive PROJ-044.
-
-This script creates the required directory hierarchy for the
-'Evaluating the Effectiveness of Differential Privacy in Federated Learning'
-project and generates a deterministic verification file (tree_output.txt).
-"""
 import os
-import sys
 import subprocess
 from pathlib import Path
 
-
 def create_directories(base_path: Path) -> None:
     """
-    Create the required directory structure.
-
+    Creates the required directory structure for the project.
+    
     Args:
-        base_path: The root directory where the project structure will be created.
+        base_path: The root path where directories should be created.
     """
-    required_dirs = [
+    directories = [
         "code/data",
         "code/training",
         "code/analysis",
@@ -28,100 +19,70 @@ def create_directories(base_path: Path) -> None:
         "data/raw",
         "data/partitions",
         "results",
-        "artifacts",
+        "artifacts"
     ]
-
-    for dir_path in required_dirs:
+    
+    for dir_path in directories:
         full_path = base_path / dir_path
         full_path.mkdir(parents=True, exist_ok=True)
         print(f"Created directory: {full_path}")
 
-
 def generate_tree_output(base_path: Path, output_file: Path) -> None:
     """
-    Generate a deterministic tree listing of the created structure.
-
-    Attempts to use the `tree` command if available, otherwise falls back
-    to a Python-based directory walk to ensure the artifact is always created.
-
+    Executes the 'tree' or 'find' command to verify directory creation
+    and saves the output to a file.
+    
     Args:
-        base_path: The root directory to list.
-        output_file: The path where the tree output will be saved.
+        base_path: The root path to list.
+        output_file: The file path where the tree output will be saved.
     """
     try:
-        # Try using the 'tree' command
+        # Try 'tree' command first
         result = subprocess.run(
             ["tree", str(base_path)],
             capture_output=True,
             text=True,
-            check=True,
-            timeout=30
+            check=True
         )
-        content = result.stdout
-    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
-        # Fallback: Generate a sorted list representation if 'tree' is not found
-        lines = [f"Project Root: {base_path.name}"]
-        lines.append("-" * 40)
-        
-        for root, dirs, files in os.walk(base_path):
-            level = root.replace(str(base_path), '').count(os.sep)
-            indent = ' ' * 2 * level
-            subdir_name = os.path.basename(root)
-            if subdir_name:
-                lines.append(f"{indent}{subdir_name}/")
-            
-            sub_indent = ' ' * 2 * (level + 1)
-            for file in sorted(files):
-                lines.append(f"{sub_indent}{file}")
-        
-        content = "\n".join(lines)
+        output_content = result.stdout
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Fallback to 'find' command if 'tree' is not available
+        print("'tree' command not found, using 'find' command as fallback.")
+        try:
+            result = subprocess.run(
+                ["find", str(base_path), "-type", "d"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            output_content = result.stdout
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"Failed to generate directory listing: {e.stderr}")
+    
+    # Write the output to the specified file
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(output_content)
+    
+    print(f"Directory structure verification saved to: {output_file}")
 
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(content)
+def main() -> None:
+    """Main entry point for project structure setup."""
+    # Define the project root path based on the task description
+    project_root = Path("projects/PROJ-044-evaluating-the-effectiveness-of-differen")
     
-    print(f"Tree output saved to: {output_file}")
-
-
-def main() -> int:
-    """
-    Main entry point for the project setup script.
+    # Ensure the project root exists
+    project_root.mkdir(parents=True, exist_ok=True)
     
-    Returns:
-        0 on success, 1 on failure.
-    """
-    # Determine the project root based on the task requirements
-    # The task specifies the project is at: projects/PROJ-044-evaluating-the-effectiveness-of-differen/
-    # We assume the script is run from the repository root or the project root.
-    # We will resolve the path relative to the current working directory.
+    print(f"Setting up project structure in: {project_root}")
     
-    # The task requires creating structure in:
-    # projects/PROJ-044-evaluating-the-effectiveness-of-differen/
-    # However, usually scripts in `code/` are run from the repo root.
-    # Let's assume the current working directory is the repo root.
+    # Create directories
+    create_directories(project_root)
     
-    repo_root = Path.cwd()
-    project_dir = repo_root / "projects" / "PROJ-044-evaluating-the-effectiveness-of-differen"
+    # Generate and save tree output
+    tree_output_path = project_root / "tree_output.txt"
+    generate_tree_output(project_root, tree_output_path)
     
-    # If the project directory doesn't exist, create it first
-    project_dir.mkdir(parents=True, exist_ok=True)
-    
-    print(f"Setting up project structure at: {project_dir}")
-    
-    try:
-        # 1. Create directories
-        create_directories(project_dir)
-        
-        # 2. Generate verification file
-        tree_output_path = project_dir / "tree_output.txt"
-        generate_tree_output(project_dir, tree_output_path)
-        
-        print("Project structure setup completed successfully.")
-        return 0
-        
-    except Exception as e:
-        print(f"Error during setup: {e}", file=sys.stderr)
-        return 1
-
+    print("Project structure setup completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

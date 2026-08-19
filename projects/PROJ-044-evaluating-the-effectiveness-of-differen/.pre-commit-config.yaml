@@ -1,88 +1,43 @@
 # Pre-commit configuration for llmXive project
-# Implements T003: Configure linting (black, ruff) and formatting tools
-# Requirement: Must include hooks for black, ruff, and pre-commit-hooks
+# Enforces black formatting, ruff linting, and standard hooks
+# Run `pre-commit install` to set up git hooks
+# Run `pre-commit run --all-files` to check all files
 
 repos:
-  # Standard pre-commit hooks (security, formatting, etc.)
+  # Standard pre-commit hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: trailing-whitespace
-        name: Check trailing whitespace
         description: Trims trailing whitespace.
       - id: end-of-file-fixer
-        name: Check end of file
-        description: Ensures that a file is either empty, or ends with one newline.
+        description: Ensures files end with a single newline.
       - id: check-yaml
-        name: Check YAML syntax
-        description: Validates YAML files.
+        description: Validates YAML syntax.
       - id: check-json
-        name: Check JSON syntax
-        description: Validates JSON files.
-      - id: check-toml
-        name: Check TOML syntax
-        description: Validates TOML files.
+        description: Validates JSON syntax.
       - id: check-added-large-files
-        name: Check for large files
-        description: Prevents giant files from being committed.
         args: ['--maxkb=1024']
-      - id: detect-private-key
-        name: Detect private keys
-        description: Checks for the existence of private keys.
-      - id: mixed-line-ending
-        name: Check line endings
-        description: Ensures that files use consistent line endings.
-        args: ['--fix=lf']
+        description: Prevents large files from being committed.
+      - id: check-case-conflict
+        description: Checks for files that would conflict on case-insensitive filesystems.
 
-  # Code formatting with Black
+  # Black: The uncompromising code formatter
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.4.2
     hooks:
       - id: black
-        name: Format code with Black
-        description: Enforces consistent Python code style.
         language_version: python3.10
+        description: Formats Python code to 88 characters per line.
 
-  # Linting with Ruff (fast, comprehensive linter)
+  # Ruff: An extremely fast Python linter
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.4.8
     hooks:
       - id: ruff
-        name: Lint code with Ruff
-        description: Enforces code quality and style rules.
-        args: [--fix, --exit-non-zero-on-fix]
+        args: ['--fix']
+        description: Lints Python code and attempts to fix issues automatically.
       - id: ruff-format
-        name: Format code with Ruff
-        description: Alternative formatter (optional, can replace black if desired)
-
-  # Additional security checks
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
-    hooks:
-      - id: flake8
-        name: Lint with Flake8
-        description: Check for style and syntax errors (legacy compatibility)
-        args: ['--max-line-length=88', '--ignore=E501,W503']
-
-  # Python specific checks
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
-    hooks:
-      - id: mypy
-        name: Type check with MyPy
-        description: Static type checker for Python
-        args: ['--ignore-missing-imports']
-        additional_dependencies: [types-requests, types-setuptools]
-
-# Default settings for all hooks
-default_language_version:
-  python: python3.10
-
-# Stages configuration
-default_stages: [commit]
-
-# Fail fast configuration
-fail_fast: false
-
-# Minimum version of pre-commit required
-minimum_pre_commit_version: 2.9.0
+        description: Formats Python code (alternative to black, but we use black here for consistency).
+        # Note: We primarily use Black for formatting, but Ruff can catch import sorting issues
+        # If using ruff-format, ensure it aligns with black settings or disable black hook

@@ -39,3 +39,35 @@ T023:
     \ checks for required electrodes and exits with code\u202F1 while logging the\
     \ required CRITICAL message. Without such artifact, we cannot confirm the task\
     \ was fulfilled."
+T024:
+  c: false
+  h: 53043ef14387371f4a46b5e7d13d941282c609c1f83ebd40b85661f5752586b1
+  r: The required artifact `data/metrics/alpha_power.csv` does not exist on disk,
+    so no alpha power metrics have been stored as specified. The task therefore remains
+    unfinished.
+T025:
+  c: false
+  h: 44d957b1a610e1b6f45411bb4f112f65509d7435ff923f0d133f6d8936596340
+  r: "The required artifact `data/metrics/plv.csv` does not exist, so no PLV metrics\
+    \ are stored per participant with electrode pair identifiers. The task\u2019s\
+    \ core output is missing."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, notebook, or results implementing the required correlation logic
+    (VIF check, PCA with joint variance reporting, or partial correlation) were provided.
+    The artifact needed to demonstrate the conditional analysis and its outputs is
+    missing.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting output, report, or modified files from the `code/` directory are provided;
+    there is no evidence that ruff was run or that violations were fixed. The required
+    artifact (a clean code state after linting) is missing.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of any new test files in the `tests/unit/` directory was provided;\
+    \ the claim lacks concrete artifacts (e.g., Python test modules covering N\u202F\
+    <\u202F30 or missing\u2011electrode scenarios). The required edge\u2011case unit\
+    \ tests are missing."

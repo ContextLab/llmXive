@@ -1,289 +1,300 @@
-"""
-Main orchestration module for the Solar Wind - Geomagnetic Tail Reconnection analysis.
-"""
 import json
 import os
 import sys
 import argparse
 import logging
 from datetime import datetime, timedelta
-import pandas as pd
-import portalocker
 
-# Local imports
+# Ensure project root is in path for relative imports if run as script
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from data.ingest import fetch_omni_sw, fetch_themis_ey
-from data.clean import clean_and_resample
-from data.lag import calculate_l_phys, log_lag_derivation
+from data.clean import clean_and_resample, handle_gaps
+from data.lag import calculate_l_phys, apply_lag_shift, log_lag_derivation
 from analysis.correlation import calculate_correlation, circular_block_permutation, moving_block_bootstrap
 from analysis.lag_search import find_optimal_lag
 from analysis.sensitivity import analyze_thresholds
 from viz.plots import plot_scatter, plot_timeseries
+from config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP, TAIL_DISTANCE_RE, BOOTSTRAP_ITERATIONS
+import pandas as pd
+import portalocker
 
-# Setup logging
+# Configure logging
 def setup_logging():
-    """Configure logging for the pipeline."""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.StreamHandler(sys.stdout)
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler(os.path.join(project_root, 'data', 'processed', 'pipeline.log'))
         ]
     )
-    return logging.getLogger(__name__)
 
-def log_data_quality_warnings(warnings: list, logger: logging.Logger = None) -> None:
+def log_data_quality_warnings(warnings: list) -> None:
     """
-    Log data-quality warnings to data/processed/quality_log.json.
-    
-    Uses portalocker to prevent race conditions with log_lag_derivation.
-    
-    Args:
-        warnings: List of warning dictionaries.
-        logger: Optional logger instance.
+    Logs data-quality warnings to data/processed/quality_log.json.
+    Uses portalocker to prevent race conditions with T006c.
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
+    log_path = os.path.join(project_root, 'data', 'processed', 'quality_log.json')
     
-    log_path = "data/processed/quality_log.json"
+    # Ensure directory exists
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    
-    # Read existing log if it exists
-    existing_logs = []
-    if os.path.exists(log_path):
-        try:
-            with open(log_path, 'r') as f:
-                content = f.read().strip()
-                if content:
-                    existing_logs = json.loads(content)
-        except json.JSONDecodeError:
-            logger.warning("Existing quality_log.json is not valid JSON, starting fresh.")
-            existing_logs = []
-    
-    # Add new warnings
-    for warning in warnings:
-        # Ensure required keys are present
-        if not all(key in warning for key in ['timestamp', 'level', 'source', 'message']):
-            warning['timestamp'] = datetime.utcnow().isoformat()
-            warning['level'] = 'WARN'
-            if 'source' not in warning:
-                warning['source'] = 'pipeline'
-            if 'message' not in warning:
-                warning['message'] = 'Unknown warning'
-        existing_logs.append(warning)
-    
-    # Write with file locking
+
+    # Load existing entries or create new list
+    try:
+        with open(log_path, 'r') as f:
+            try:
+                entries = json.load(f)
+                if not isinstance(entries, list):
+                    entries = []
+            except json.JSONDecodeError:
+                entries = []
+    except FileNotFoundError:
+        entries = []
+
+    # Prepare new entries
+    now_iso = datetime.utcnow().isoformat() + "Z"
+    for w in warnings:
+        entry = {
+            "timestamp": now_iso,
+            "level": "WARN",
+            "source": w.get("source", "pipeline"),
+            "message": w.get("message", "Unknown warning")
+        }
+        entries.append(entry)
+
+    # Write with locking
     with open(log_path, 'w') as f:
         portalocker.lock(f, portalocker.LOCK_EX)
         try:
-            json.dump(existing_logs, f, indent=2)
-            f.flush()
-            os.fsync(f.fileno())
+            json.dump(entries, f, indent=2)
         finally:
             portalocker.unlock(f)
-    
-    logger.info(f"Logged {len(warnings)} warnings to {log_path}")
 
-def run_data_pipeline(start_date: str, end_date: str, logger: logging.Logger = None) -> pd.DataFrame:
+    logging.info(f"Logged {len([e for e in entries if e.get('level') == 'WARN'])} warnings to {log_path}")
+
+def run_data_pipeline(start_date: str, end_date: str) -> str:
     """
-    Orchestrate data ingestion and cleaning.
-    
-    Fetches solar wind (Vsw, Bz) and THEMIS (Ey) data, cleans and resamples them,
-    and saves the result to data/processed/cleaned_data.csv.
-    
-    Args:
-        start_date: Start date string (YYYY-MM-DD).
-        end_date: End date string (YYYY-MM-DD).
-        logger: Optional logger instance.
-        
-    Returns:
-        Combined cleaned DataFrame with columns: timestamp, Vsw, Bz, Ey.
+    Orchestrates data ingestion and cleaning.
+    Saves cleaned data to data/processed/cleaned_data.csv.
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
-    
+    logger = logging.getLogger(__name__)
     logger.info(f"Starting data pipeline for {start_date} to {end_date}")
-    
+
     # Parse dates
-    start = datetime.strptime(start_date, "%Y-%m-%d")
-    end = datetime.strptime(end_date, "%Y-%m-%d")
-    date_range = (start, end)
-    
+    start = datetime.fromisoformat(start_date)
+    end = datetime.fromisoformat(end_date)
+
     # Fetch data
-    logger.info("Fetching OMNI solar wind data...")
-    df_sw = fetch_omni_sw(date_range)
+    logger.info("Fetching OMNI SW data...")
+    df_sw = fetch_omni_sw((start, end))
     
-    logger.info("Fetching THEMIS Ey data...")
-    df_ey = fetch_themis_ey(date_range)
-    
+    logger.info("Fetching THEMIS EY data...")
+    df_ey = fetch_themis_ey((start, end))
+
+    if df_sw.empty or df_ey.empty:
+        raise ValueError("One or both data sources returned empty DataFrames.")
+
     # Clean and resample
     logger.info("Cleaning and resampling data...")
     df_sw_clean, df_ey_clean = clean_and_resample(df_sw, df_ey)
-    
-    # Merge on timestamp
-    df_combined = pd.merge(
-        df_sw_clean, 
-        df_ey_clean, 
-        on='timestamp', 
-        how='inner',
-        suffixes=('_sw', '_ey')
-    )
-    
-    # Rename columns for clarity if needed (ensure standard names)
-    # Assuming clean_and_resample returns 'timestamp', 'Vsw', 'Bz' for sw and 'timestamp', 'Ey' for ey
-    # Merge might create duplicate timestamp columns if not careful, but 'on' handles that.
-    # We need to ensure column names are exactly as expected downstream.
-    # Let's enforce: timestamp, Vsw, Bz, Ey
-    if 'Vsw' in df_combined.columns and 'Bz' in df_combined.columns and 'Ey' in df_combined.columns:
-        pass # Good
-    else:
-        # Fallback renaming if the merge produced suffixes unexpectedly
-        if 'Vsw_sw' in df_combined.columns:
-            df_combined.rename(columns={'Vsw_sw': 'Vsw', 'Bz_sw': 'Bz', 'Ey_ey': 'Ey'}, inplace=True)
-    
-    # Save to disk
-    output_path = "data/processed/cleaned_data.csv"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df_combined.to_csv(output_path, index=False)
-    logger.info(f"Saved cleaned data to {output_path}")
-    
-    return df_combined
 
-def run_analysis_pipeline(df: pd.DataFrame, logger: logging.Logger = None) -> dict:
+    # Handle gaps
+    warnings = []
+    if not df_sw_clean.empty:
+        df_sw_clean = handle_gaps(df_sw_clean)
+    if not df_ey_clean.empty:
+        df_ey_clean = handle_gaps(df_ey_clean)
+
+    # Log any warnings from gap handling if necessary (simplified here)
+    if len(df_sw_clean) == 0 or len(df_ey_clean) == 0:
+        warnings.append({"source": "clean", "message": "Data empty after gap handling"})
+    
+    if warnings:
+        log_data_quality_warnings(warnings)
+
+    # Save cleaned data
+    output_path = os.path.join(project_root, 'data', 'processed', 'cleaned_data.csv')
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    combined_df = pd.concat([
+        df_sw_clean.rename(columns={'Vsw': 'Vsw_raw'}),
+        df_ey_clean.rename(columns={'Ey': 'Ey_raw'}),
+    ], axis=1)
+    
+    # Align indices explicitly
+    combined_df = combined_df.loc[combined_df.index.dropna()]
+    combined_df.to_csv(output_path)
+    logger.info(f"Cleaned data saved to {output_path}")
+
+    return output_path
+
+def run_analysis_pipeline(cleaned_data_path: str = None, start_date: str = None, end_date: str = None) -> dict:
     """
-    Orchestrate the core analysis pipeline.
-    
-    Args:
-        df: Cleaned DataFrame with columns timestamp, Vsw, Bz, Ey.
-        logger: Optional logger instance.
-        
-    Returns:
-        Dictionary containing analysis results.
+    Orchestrates the core analysis pipeline.
+    Loads cleaned data, calculates lag, performs correlation analysis,
+    sensitivity analysis, and generates plots.
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
+    logger = logging.getLogger(__name__)
     
-    logger.info("Starting analysis pipeline")
-    
+    # If no path provided, run the ingestion pipeline first
+    if cleaned_data_path is None:
+        if not start_date or not end_date:
+            raise ValueError("Either cleaned_data_path or start/end dates must be provided.")
+        cleaned_data_path = run_data_pipeline(start_date, end_date)
+
+    logger.info(f"Loading cleaned data from {cleaned_data_path}")
+    df = pd.read_csv(cleaned_data_path, index_col=0, parse_dates=True)
+
+    if df.empty:
+        raise ValueError("Cleaned data is empty. Cannot proceed with analysis.")
+
     # Extract series
-    vsw = df['Vsw']
-    ey = df['Ey']
-    timestamps = df['timestamp']
+    # Assuming columns are aligned as Vsw_raw and Ey_raw after concat in run_data_pipeline
+    # If they are just Vsw and Ey, adjust accordingly. Based on T020a logic:
+    # df_sw_clean has 'Vsw', df_ey_clean has 'Ey'.
+    # Let's re-read carefully: run_data_pipeline does concat with rename.
+    # So columns should be 'Vsw_raw' and 'Ey_raw'.
     
-    # Calculate physics-based lag
-    vsw_mean = vsw.mean()
+    if 'Vsw_raw' not in df.columns or 'Ey_raw' not in df.columns:
+        # Fallback if column names are different
+        if 'Vsw' in df.columns and 'Ey' in df.columns:
+            vsw_series = df['Vsw']
+            ey_series = df['Ey']
+        else:
+            raise KeyError(f"Expected 'Vsw_raw'/'Ey_raw' or 'Vsw'/'Ey' columns. Found: {df.columns.tolist()}")
+    else:
+        vsw_series = df['Vsw_raw']
+        ey_series = df['Ey_raw']
+
+    # Drop NaNs just in case
+    valid_mask = vsw_series.notna() & ey_series.notna()
+    vsw_series = vsw_series[valid_mask]
+    ey_series = ey_series[valid_mask]
+
+    if len(vsw_series) == 0:
+        raise ValueError("No valid data points after filtering NaNs.")
+
+    # 1. Calculate Physics-based Lag
+    vsw_mean = vsw_series.mean()
     l_phys = calculate_l_phys(vsw_mean)
+    logger.info(f"Calculated physics-based lag (L_phys): {l_phys:.2f} minutes (Vsw mean: {vsw_mean:.2f} km/s)")
+
+    # 2. Log Lag Derivation
     log_lag_derivation(vsw_mean, l_phys)
-    logger.info(f"Calculated physics-based lag: {l_phys:.2f} minutes")
-    
-    # Find optimal lag
-    # Use config values if not passed, but task description implies using defaults
-    # From T003a: LAG_WINDOW_MIN=30, LAG_WINDOW_MAX=90, LAG_STEP=5
-    # We need to import these or use them directly. Assuming they are in config.
-    from config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP
-    
-    lag_results = find_optimal_lag(vsw, ey, LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP)
+
+    # 3. Find Optimal Lag
+    logger.info("Searching for optimal lag...")
+    lag_results = find_optimal_lag(
+        vsw_series, 
+        ey_series, 
+        min_lag=LAG_WINDOW_MIN, 
+        max_lag=LAG_WINDOW_MAX, 
+        step=LAG_STEP
+    )
     optimal_lag = lag_results['optimal_lag']
     max_corr = lag_results['max_correlation']
-    logger.info(f"Optimal lag found: {optimal_lag} minutes, correlation: {max_corr:.4f}")
+    lag_diff = abs(optimal_lag - l_phys)
+    logger.info(f"Optimal lag found: {optimal_lag} min (Max Correlation: {max_corr:.4f}, |L* - L_phys|: {lag_diff:.2f})")
+
+    # 4. Apply Lag Shift for Final Correlation
+    vsw_lagged = apply_lag_shift(vsw_series, optimal_lag)
     
-    # Apply lag shift to Vsw
-    vsw_lagged = apply_lag_shift(vsw, optimal_lag)
-    
-    # Calculate correlation on lagged data
-    corr_stats = calculate_correlation(vsw_lagged, ey)
+    # Re-align for correlation
+    valid_lag_mask = vsw_lagged.notna() & ey_series.notna()
+    vsw_final = vsw_lagged[valid_lag_mask]
+    ey_final = ey_series[valid_lag_mask]
+
+    if len(vsw_final) == 0:
+        raise ValueError("No valid data points after applying lag shift.")
+
+    # 5. Calculate Correlation
+    logger.info("Calculating correlations...")
+    corr_stats = calculate_correlation(vsw_final, ey_final)
     pearson = corr_stats['pearson']
     spearman = corr_stats['spearman']
-    logger.info(f"Correlation (Pearson): {pearson:.4f}, (Spearman): {spearman:.4f}")
-    
-    # Permutation test for p-value
-    p_val = circular_block_permutation(vsw_lagged, ey)
+
+    # 6. Permutation Test for P-value
+    logger.info("Running permutation test...")
+    p_val = circular_block_permutation(vsw_final, ey_final)
     logger.info(f"Permutation p-value: {p_val:.4f}")
-    
-    # Bootstrap for confidence interval
-    ci_lower, ci_upper = moving_block_bootstrap(vsw_lagged, ey)
+
+    # 7. Bootstrap Confidence Interval
+    logger.info("Running bootstrap for CI...")
+    ci_lower, ci_upper = moving_block_bootstrap(vsw_final, ey_final)
     logger.info(f"Bootstrap 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
-    
-    # Sensitivity analysis
+
+    # 8. Sensitivity Analysis
+    logger.info("Running sensitivity analysis...")
     thresholds = [400, 500, 600]
-    sensitivity_results = analyze_thresholds(vsw, ey, thresholds)
+    sensitivity_table = analyze_thresholds(vsw_series, ey_series, thresholds)
+
+    # 9. Generate Plots
+    results_dir = os.path.join(project_root, 'results')
+    os.makedirs(results_dir, exist_ok=True)
     
-    # Log any data quality warnings
-    warnings = []
-    if vsw.isna().any() or ey.isna().any():
-        warnings.append({
-            "timestamp": datetime.utcnow().isoformat(),
-            "level": "WARN",
-            "source": "data_cleaning",
-            "message": "NaN values detected in input data after cleaning."
-        })
-    if warnings:
-        log_data_quality_warnings(warnings, logger)
+    scatter_path = os.path.join(results_dir, 'plot_scatter.png')
+    timeseries_path = os.path.join(results_dir, 'plot_timeseries.png')
     
-    # Compile results
+    logger.info("Generating plots...")
+    plot_scatter(vsw_final, ey_final, optimal_lag, scatter_path)
+    plot_timeseries(
+        pd.DataFrame({'Vsw': vsw_series}, index=vsw_series.index),
+        pd.DataFrame({'Ey': ey_series}, index=ey_series.index),
+        timeseries_path
+    )
+
+    # 10. Compile Results
     results = {
-        "pearson": float(pearson),
-        "spearman": float(spearman),
-        "p_val_permutation": float(p_val),
-        "optimal_lag": int(optimal_lag),
-        "lag_difference": float(abs(optimal_lag - l_phys)),
-        "ci_bootstrap": [float(ci_lower), float(ci_upper)],
-        "sensitivity_table": sensitivity_results,
+        "pearson": pearson,
+        "spearman": spearman,
+        "p_val_permutation": p_val,
+        "optimal_lag": optimal_lag,
+        "lag_difference": lag_diff,
+        "ci_bootstrap": {"lower": ci_lower, "upper": ci_upper},
+        "sensitivity_table": sensitivity_table,
         "notes": [
-            f"Analysis performed on {len(df)} data points.",
-            "Reference frame: GSM for Ey, Solar Wind Rest Frame for Vsw (approximate).",
-            f"Physics-based lag (L_phys) calculated as {l_phys:.2f} minutes."
+            f"Analysis performed on data from {start_date} to {end_date}.",
+            f"Physics-based lag (L_phys) calculated as {l_phys:.2f} min based on Vsw mean {vsw_mean:.2f} km/s.",
+            f"Optimal lag L* = {optimal_lag} min differs from L_phys by {lag_diff:.2f} min.",
+            f"Reference Frame: GSM for Ey, Solar Wind Rest Frame for Vsw (aligned via propagation model)."
         ]
     }
-    
-    # Save results
-    results_path = "results/us1_correlation.json"
-    os.makedirs(os.path.dirname(results_path), exist_ok=True)
-    with open(results_path, 'w') as f:
+
+    # Save results JSON
+    results_json_path = os.path.join(results_dir, 'us1_correlation.json')
+    with open(results_json_path, 'w') as f:
         json.dump(results, f, indent=2)
-    logger.info(f"Saved results to {results_path}")
+    
+    logger.info(f"Analysis complete. Results saved to {results_json_path}")
     
     return results
 
-def run_pipeline(start_date: str, end_date: str, logger: logging.Logger = None) -> None:
+def run_pipeline(start_date: str, end_date: str) -> dict:
     """
-    Full pipeline orchestration: ingest, clean, analyze, visualize.
-    
-    Args:
-        start_date: Start date string (YYYY-MM-DD).
-        end_date: End date string (YYYY-MM-DD).
-        logger: Optional logger instance.
+    Full pipeline orchestration: Ingest -> Clean -> Analyze -> Plot.
     """
-    if logger is None:
-        logger = setup_logging()
-    
-    # 1. Data Pipeline
-    df = run_data_pipeline(start_date, end_date, logger)
-    
-    # 2. Analysis Pipeline
-    results = run_analysis_pipeline(df, logger)
-    
-    # 3. Visualization
-    logger.info("Generating plots...")
-    # Plot scatter
-    plot_scatter(df['Vsw'], df['Ey'], results['optimal_lag'], "results/plot_scatter.png")
-    # Plot timeseries
-    plot_timeseries(
-        df[['timestamp', 'Vsw', 'Bz']], 
-        df[['timestamp', 'Ey']], 
-        "results/plot_timeseries.png"
-    )
-    logger.info("Plots generated.")
-    
-    logger.info("Pipeline completed successfully.")
+    cleaned_path = run_data_pipeline(start_date, end_date)
+    return run_analysis_pipeline(cleaned_data_path=cleaned_path, start_date=start_date, end_date=end_date)
 
 def main():
     parser = argparse.ArgumentParser(description="Solar Wind - Reconnection Analysis Pipeline")
     parser.add_argument("--start", required=True, help="Start date (YYYY-MM-DD)")
     parser.add_argument("--end", required=True, help="End date (YYYY-MM-DD)")
     args = parser.parse_args()
-    
-    logger = setup_logging()
-    run_pipeline(args.start, args.end, logger)
+
+    setup_logging()
+    logger = logging.getLogger(__name__)
+
+    try:
+        results = run_pipeline(args.start, args.end)
+        logger.info("Pipeline executed successfully.")
+        print(json.dumps(results, indent=2))
+    except Exception as e:
+        logger.error(f"Pipeline failed: {str(e)}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -14746,3 +14746,295 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T22:40:24Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 0
+  canonical: 'dependencies pinned to specific versions: pandas 2.1.4, numpy 1.26.2,
+    requests 2.31.0, scipy 1.11.4, matplotlib 3.8.0, tqdm 4.66.1, portalocker 2.7.0'
+  claim_id: c_6d80ba50
+  context: 'Phase 1: Setup - Create requirements.txt with pinned versions.'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'The file must contain: pandas==2.1.4, numpy==1.26.2, requests==2.31.0,
+    scipy==1.11.4, matplotlib==3.8.0, tqdm==4.66.1, portalocker==2.7.0.'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T21:14:06Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: physics-based propagation lag formula is L_phys = 6371 / vsw_mean
+  claim_id: c_b5e381cb
+  context: 'Phase 2: Foundational - Implement calculate_l_phys function.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation MUST use the simplified formula L_phys = 6371 / vsw_mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:14:38Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: nominal Earth-magnetotail distance is 60 Re (1 Re = 6371 km)
+  claim_id: c_53becb41
+  context: 'Phase 2: Foundational - Docstring text for lag calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 60 Re is the nominal Earth-magnetotail distance (1 Re = 6371 km).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:15:07Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: circular block permutation uses fixed block size max(5, len(series) //
+    10)
+  claim_id: c_7d360c4d
+  context: 'Phase 2: Foundational - Implement circular_block_permutation function.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The block size heuristic for circular block permutation is max(5, len(series)
+    // 10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:15:33Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: circular block permutation uses 10000 iterations
+  claim_id: c_7b706c95
+  context: 'Phase 2: Foundational - Implement circular_block_permutation function.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The circular_block_permutation function uses n_iterations=10000 for empirical
+    p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:15:57Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: moving block bootstrap uses 1000 iterations based on Kunsch 1989 and
+    Politis & Romano 1994
+  claim_id: c_4dba4b5a
+  context: 'Phase 2: Foundational - Implement moving_block_bootstrap function.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The moving_block_bootstrap function uses n_iterations=1000 (Kunsch 1989,
+    Politis & Romano 1994) for 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:16:19Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: "synthetic lag validation reports 45 min \xB1 1 min as optimal lag"
+  claim_id: c_3d037761
+  context: 'Phase 4: User Story 2 - Independent Test for lag-search.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline must report 45 min (\xB11 min) as the optimal lag when executed\
+    \ on a synthetic dataset with a true lag of 45 minutes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:16:33Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 0
+  canonical: 'Project dependencies list: pandas 2.1.4, numpy 1.26.2, requests 2.31.0,
+    scipy 1.11.4, matplotlib 3.8.0, tqdm 4.66.1, portalocker 2.7.0'
+  claim_id: c_d721ee5d
+  context: Task T002a specifies the creation of requirements.txt with pinned versions.
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'The file must contain: pandas==2.1.4, numpy==1.26.2, requests==2.31.0,
+    scipy==1.11.4, matplotlib==3.8.0, tqdm==4.66.1, portalocker==2.7.0'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T21:17:54Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: 'Physics-based propagation lag formula: L_phys = 6371 / vsw_mean'
+  claim_id: c_15378c37
+  context: Task T006a defines the formula for calculating the physics-based propagation
+    lag.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation MUST use the simplified formula L_phys = 6371 / vsw_mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:18:25Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Nominal Earth-magnetotail distance is 60 Re where 1 Re equals 6371 km
+  claim_id: c_cf4109bb
+  context: Docstring requirement for T006a explaining the derivation of the lag formula.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 60 Re is the nominal Earth-magnetotail distance (1 Re = 6371 km).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:18:28Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Circular block permutation test uses 10000 iterations
+  claim_id: c_500b0dec
+  context: Task T008 specifies the number of iterations for the permutation test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The circular_block_permutation function uses n_iterations=10000 for empirical
+    p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:18:30Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Moving block bootstrap uses 1000 iterations
+  claim_id: c_3ffb0458
+  context: Task T009 specifies the number of iterations for the bootstrap confidence
+    interval calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The moving_block_bootstrap function uses n_iterations=1000 for 95% confidence
+    intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:18:33Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: 'Fixed block size heuristic: max(5, len(series) // 10)'
+  claim_id: c_5ca7a13d
+  context: Tasks T008 and T009 specify the fixed block size logic for permutation
+    and bootstrap tests.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The block size heuristic is max(5, len(series) // 10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:19:06Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: 'Lag search window: 30 to 90 minutes with step size 5 minutes'
+  claim_id: c_b5102a5c
+  context: Task T003a defines the constants for the lag search window.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lag window range is defined by LAG_WINDOW_MIN=30 and LAG_WINDOW_MAX=90
+    with LAG_STEP=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:19:22Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: 'Synthetic dataset validation: reported optimal lag must be within 1
+    minute of 45 minutes'
+  claim_id: c_169b63a5
+  context: Task T026 describes the independent test for User Story 2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The test verifies the pipeline reports 45 min (\xB11 min) as the optimal\
+    \ lag for a synthetic dataset with a true lag of 45 minutes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:19:37Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: 'Validation constraint: absolute difference between reported lag and
+    45 must be less than or equal to 1'
+  claim_id: c_102fa34a
+  context: Task T037 specifies the assertion logic for the synthetic dataset test.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_constraint:_absolute_difference_between_reported
+  kind: magnitude
+  raw_text: The test verifies that abs(reported_lag - 45) <= 1 where reported_lag
+    is retrieved from the JSON key optimal_lag.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:20:03Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity table reports correlation values for thresholds 400, 500,
+    and 600 km/s
+  claim_id: c_c83ed54c
+  context: Task T062 requires the sensitivity analysis to report numeric values for
+    specific thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity_table output contains numeric correlation values for thresholds
+    400, 500, and 600.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:20:23Z'
