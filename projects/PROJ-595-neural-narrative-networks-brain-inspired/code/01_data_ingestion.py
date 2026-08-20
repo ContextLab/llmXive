@@ -5,109 +5,167 @@ import random
 from pathlib import Path
 from typing import Optional
 
-from datasets import load_dataset
+# Import config and logging utilities from the project
 from config import get_config
 from utils.logging_config import get_logger, info, error, warning, critical
 
 logger = get_logger(__name__)
 
-def download_rocstories_corpus(
-    output_path: str,
-    sample_size: int = 1000,
-    seed: int = 42
-) -> str:
+def download_rocstories_corpus(output_dir: Optional[str] = None, sample_size: int = 1000, seed: int = 42) -> str:
     """
-    Download the ROCStories corpus via HuggingFace datasets and save a representative
-    sample to the specified output path in JSONL format.
-
-    This function fetches the real 'rocstories' dataset from HuggingFace,
-    shuffles it deterministically, and writes the first `sample_size` stories
-    to a JSONL file.
-
+    Downloads the ROCStories corpus from HuggingFace datasets and saves a sampled subset.
+    
     Args:
-        output_path: Path to the output .jsonl file.
+        output_dir: Directory to save the output file. Defaults to 'data/text/'.
         sample_size: Number of stories to sample.
         seed: Random seed for reproducibility.
-
+        
     Returns:
-        The absolute path to the created file.
-
+        Path to the saved JSONL file.
+        
     Raises:
-        RuntimeError: If the dataset cannot be loaded from HuggingFace.
-        ValueError: If sample_size is invalid.
+        RuntimeError: If the download fails or the dataset is unavailable.
     """
-    if sample_size <= 0:
-        raise ValueError(f"sample_size must be positive, got {sample_size}")
-
-    logger.info(f"Starting ROCStories download and sampling (target: {sample_size} stories)...")
-
-    # Ensure output directory exists
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-
     try:
-        # Load the real ROCStories dataset from HuggingFace
-        # Dataset ID: 'rocstories'
-        logger.info("Loading 'rocstories' dataset from HuggingFace...")
-        dataset = load_dataset("rocstories", split="train")
-        logger.info(f"Dataset loaded successfully. Total stories: {len(dataset)}")
-    except Exception as e:
-        error(f"Failed to load ROCStories dataset from HuggingFace: {e}")
-        raise RuntimeError(f"Could not fetch real ROCStories data: {e}")
+        from datasets import load_dataset
+    except ImportError:
+        raise RuntimeError("The 'datasets' package is required. Install it via 'pip install datasets'.")
 
-    if len(dataset) < sample_size:
-        warning(f"Dataset size ({len(dataset)}) is smaller than requested sample ({sample_size}). Using all available stories.")
-        sample_size = len(dataset)
-
-    # Deterministic shuffle
-    random.seed(seed)
-    indices = list(range(len(dataset)))
-    random.shuffle(indices)
-    sampled_indices = indices[:sample_size]
-
-    logger.info(f"Sampling {sample_size} stories from {len(dataset)} total...")
-
-    # Write to JSONL
-    with open(output_file, 'w', encoding='utf-8') as f:
+    if output_dir is None:
+        output_dir = "data/text"
+    
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    final_file = output_path / "rocstories_sample.jsonl"
+    
+    logger.info(f"Attempting to download ROCStories corpus from HuggingFace...")
+    
+    # The dataset identifier for ROCStories on HuggingFace
+    dataset_id = "rocstories"
+    
+    try:
+        # Load the dataset with streaming to avoid downloading the full corpus if not needed
+        # We specifically request the 'train' split which usually contains the bulk of the data
+        ds = load_dataset(dataset_id, split="train", streaming=True)
+        
+        # Set random seed for sampling
+        random.seed(seed)
+        
+        # Sample the dataset
+        # Since streaming doesn't support direct random sampling of the whole set without buffering,
+        # we will collect the first N items if the dataset is small enough, or sample on the fly.
+        # Given the constraint of ~7GB RAM, we'll stream and sample efficiently.
+        
+        sampled_stories = []
         count = 0
-        for idx in sampled_indices:
-            story = dataset[idx]
-            # ROCStories format usually has 'story' or 'sentences' keys.
-            # We normalize to a consistent structure if needed, or dump raw.
-            # The dataset typically has 'story' (string) or 'sentences' (list of strings).
-            # We will store the raw record but ensure it's JSON serializable.
-            f.write(json.dumps(story, ensure_ascii=False) + '\n')
-            count += 1
+        
+        # We need a representative sample. For ROCStories, the dataset is manageable in memory
+        # but we'll use a reservoir sampling approach or simple limit if we just want N items.
+        # The task asks for a "representative subset". Taking the first N is a common strategy
+        # if the dataset is ordered, but random sampling is better.
+        # To be safe and robust, we will try to load the full list of IDs if possible or stream.
+        # However, standard practice for a "sample" in this context is often just the first N
+        # or a random N if we can index. Let's try to load the dataset normally first.
+        
+        # Fallback to non-streaming if we need to sample randomly from the whole set without
+        # knowing the total count, but for ROCStories, the total size is known (~98k stories).
+        # We will load the full dataset into memory as it fits in RAM (it's text).
+        ds_full = load_dataset(dataset_id, split="train")
+        
+        total_size = len(ds_full)
+        if sample_size > total_size:
+            logger.warning(f"Requested sample size {sample_size} exceeds dataset size {total_size}. Using full dataset.")
+            sample_size = total_size
+        
+        indices = random.sample(range(total_size), sample_size)
+        
+        for i in indices:
+            item = ds_full[i]
+            # ROCStories structure: usually has 'story' (list of sentences) or 'text'
+            # We need to normalize to a consistent JSON format.
+            # Standard ROCStories often has 'story' as a list of 5 sentences.
+            if 'story' in item:
+                story_text = " ".join(item['story'])
+            elif 'text' in item:
+                story_text = item['text']
+            else:
+                # Fallback for unexpected schema
+                story_text = str(item)
+            
+            sampled_stories.append({"story": story_text, "source": "rocstories", "id": i})
+        
+        # Write to JSONL
+        with open(final_file, 'w', encoding='utf-8') as f:
+            for story in sampled_stories:
+                f.write(json.dumps(story, ensure_ascii=False) + '\n')
+                
+        logger.info(f"Successfully downloaded and sampled {len(sampled_stories)} stories to {final_file}")
+        return str(final_file)
+        
+    except Exception as e:
+        logger.error(f"Failed to download or process ROCStories dataset: {str(e)}")
+        raise RuntimeError(f"ROCStories download failed: {str(e)}")
 
-        if count != sample_size:
-            critical(f"Internal error: Expected to write {sample_size} stories, wrote {count}.")
-            raise RuntimeError("Story count mismatch during sampling.")
-
-    logger.info(f"Successfully saved {count} stories to {output_file}")
-    return str(output_file)
+def validate_ingested_data(file_path: str) -> bool:
+    """
+    Validates that the downloaded JSONL file exists and is not empty.
+    
+    Args:
+        file_path: Path to the JSONL file.
+        
+    Returns:
+        True if valid, False otherwise.
+    """
+    path = Path(file_path)
+    if not path.exists():
+        logger.error(f"Validation failed: File {file_path} does not exist.")
+        return False
+    
+    if path.stat().st_size == 0:
+        logger.error(f"Validation failed: File {file_path} is empty.")
+        return False
+    
+    # Basic check: can we read one line?
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            line = f.readline()
+            if line:
+                json.loads(line)
+            else:
+                logger.error("Validation failed: File appears to be empty or malformed.")
+                return False
+    except json.JSONDecodeError as e:
+        logger.error(f"Validation failed: Invalid JSON in {file_path}: {e}")
+        return False
+    
+    logger.info(f"Validation passed for {file_path}")
+    return True
 
 def main():
     """
-    Entry point for the ROCStories download script.
-    Reads config, sets paths, and executes the download.
+    Main entry point for the data ingestion script.
     """
     config = get_config()
-    seed = config.get('random_seed', 42)
-    sample_size = 1000  # Representative subset size as per task description
-
-    # Output path as defined in tasks.md
-    output_path = "data/text/rocstories_sample.jsonl"
-
+    sample_size = 1000  # Default sample size as per task requirement for a "representative subset"
+    
+    logger.info("Starting ROCStories corpus ingestion (Task T019)...")
+    
     try:
-        result_path = download_rocstories_corpus(
-            output_path=output_path,
-            sample_size=sample_size,
-            seed=seed
-        )
-        info(f"Task T019 completed: ROCStories corpus saved to {result_path}")
-        return 0
+        output_file = download_rocstories_corpus(sample_size=sample_size, seed=config.get('random_seed', 42))
+        
+        if validate_ingested_data(output_file):
+            logger.info("Task T019 completed successfully.")
+            return 0
+        else:
+            logger.error("Task T019 failed: Validation of ingested data failed.")
+            return 1
+            
+    except RuntimeError as e:
+        logger.error(f"Task T019 failed with error: {e}")
+        return 1
     except Exception as e:
-        error(f"Task T019 failed: {e}")
+        logger.critical(f"Unexpected error during T019: {e}")
         return 1
 
 if __name__ == "__main__":

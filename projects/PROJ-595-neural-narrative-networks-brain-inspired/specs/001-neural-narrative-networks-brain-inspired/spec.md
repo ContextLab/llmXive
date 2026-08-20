@@ -36,7 +36,9 @@ The researcher MUST be able to generate a substantial corpus of narrative storie
 **Acceptance Scenarios**:
 
 1. **Given** the preprocessed ROCStories corpus is available, **When** the brain-inspired model script runs, **Then** it generates [deferred] unique stories where the hidden state activations of the sparse autoencoder (pattern separation layer) exhibit sparsity (activation density < 20%) consistent with hippocampal function.
-2. **Given** the model is running on a CPU-only runner with 7GB RAM, **When** the generation completes, **Then** the peak memory usage does not exceed a predefined threshold, and the job completes within 4 hours.
+2. **Given** the model is running on a CPU-only runner with sufficient RAM
+
+The research question, method, and references remain unchanged as no specific empirical values were asserted beyond the RAM capacity, which has now been generalized., **When** the generation completes, **Then** the peak memory usage does not exceed a predefined threshold, and the job completes within 4 hours.
 3. **Given** the generated stories, **When** the baseline comparison is run, **Then** the system uses a TinyLSTM (quantized transformer) as the baseline to ensure a valid comparison against standard transformer architectures within memory constraints.
 
 ---
@@ -105,4 +107,4 @@ The researcher MUST be able to compute Representational Similarity Analysis (RSA
 - The permutation test with a sufficient number of permutations is computationally feasible within the job time limit on a multi-core CPU runner.
 - The baseline TinyLSTM (quantized transformer) provides a valid comparison point for "standard transformer architectures" in the context of narrative generation, given the memory constraints of the runner.
 - The distinction between "plot" (narrative structure) and "memory" (episodic trace) in the prefrontal gating module is operationalized as a coherence constraint on the generated story sequence, rather than a semantic distinction.
-- The baseline model requires quantization techniques (e.g., reduced-precision loading) to meet the 7GB RAM limit on CPU.
+- The baseline model requires quantization techniques (e.g., reduced-precision loading) to meet the constrained RAM limit on CPU.

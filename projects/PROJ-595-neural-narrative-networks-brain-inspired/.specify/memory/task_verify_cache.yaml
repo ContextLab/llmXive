@@ -5,18 +5,24 @@ T000:
     the Summary and Technical Context sections were edited to reference OpenNeuro
     dataset `ds001495` and to remove all mentions of `ds000208`. The required artifact
     is missing.
+T017:
+  c: false
+  h: 9acff128edcbd3a53b5ff6c0599abc2fe2187ab38c9c52283b076cde9ca7bc2d
+  r: "The required output file `data/processed/roi_timecourses.csv` does not exist,\
+    \ so the combined timecourse data is missing and the task\u2019s specification\
+    \ is not satisfied. The implementer must create the CSV with the specified columns."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No evidence of `utils/checksums.py` being executed or of a state file being\
     \ updated is provided; the required artifact (updated state file with checksum\
     \ entries) is missing, so the task\u2019s requirement is not demonstrably satisfied."
-T019:
+T022:
   c: false
-  h: d43586a850d43b9f27008f95dfb186ced91d43524ea2c24d38e8b8447eb54c24
-  r: "The required output file `data/text/rocstories_sample.jsonl` does not exist,\
-    \ so the ROCStories corpus has not been downloaded and sampled as specified. The\
-    \ task\u2019s core requirement is missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No checksum output, log, or updated state file is provided as evidence that `utils/checksums.py`
+    was executed after data processing. The required artifact (the updated state file
+    reflecting new checksums) is missing, so the task is not demonstrably completed.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -24,3 +30,39 @@ T025:
     \ code implementing a retry mechanism across three random seeds for the sparse\
     \ autoencoder (SAE), nor any evidence (e.g., saved model checkpoints, convergence\
     \ plots) that such a loop was executed. The required artifact is missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or test output showing a training loop with retry logic, seed
+    increment, sparsity measurement, or the required E003 error is present. The artifact
+    needed to demonstrate the core training loop and its retry behavior is missing.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, configuration, or log file implementing memory monitoring and enforcing\
+    \ a <\u202F7\u202FGB peak usage limit was provided. The required artifact (e.g.,\
+    \ a monitoring module, logging output, or test confirming the limit) is missing,\
+    \ so the task is not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No checksum output file, log, or updated state file is present in the provided
+    evidence, so we cannot confirm that `utils/checksums.py` was actually executed
+    or that the state file was updated as required. The implementer must supply the
+    resulting checksum artifact and the modified state file to satisfy the task.
+T036:
+  c: false
+  h: 726c9f48996c0370587014c4ef90a7dba9475765eafcb57ff2490fb8da145f4b
+  r: "The provided `code/03_rsa_analysis.py` is incomplete (truncated) and does not\
+    \ contain logic to load or verify the T030/T031 model artifacts, compute separate\
+    \ RSA matrices for the Brain\u2011Inspired and Baseline models, or write the resulting\
+    \ RSA distances to `data/results/rsa_matrix.csv` (the file is missing). The task\u2019\
+    s core requirements are therefore not met."
+T037:
+  c: false
+  h: e4ebeb6df526ee237669f6d8139ae7e73e7ea5a17ee43d5d896763a6b56e8968
+  r: "The provided `code/03_rsa_analysis.py` contains data\u2011loading and RSA utilities\
+    \ but no implementation of the required permutation test (convergence logic, timeout\
+    \ handling, or \u201Cborderline\u201D flag). Moreover, the expected output file\
+    \ `data/results/permutation_test_results.json` is absent. Both the core functionality\
+    \ and the result artifact are missing."

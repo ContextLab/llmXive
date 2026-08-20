@@ -1,4 +1,5 @@
-torch
+torch==2.3.0
+cpuonly
 nibabel
 nilearn
 scikit-learn
@@ -11,3 +12,4 @@ ruff
 black
 pytest
 pyyaml
+psutil
