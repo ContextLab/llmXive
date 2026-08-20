@@ -42,7 +42,7 @@ As a researcher, I want to generate automated Markdown reports with figures, val
 ## Functional Requirements
 
 - **FR-001**: System MUST download the HumanEval dataset and verify SHA256 checksums against a **specific commit hash** (not just a tag) to ensure bit-for-bit reproducibility (See US1).
-- **FR-002**: System MUST generate code using Salesforce/codegen-mono-4b with exponential-backoff retry logic and a 60-second timeout per task (See US1).
+- **FR-002**: System MUST generate code using Salesforce/codegen-mono with exponential-backoff retry logic and a 60-second timeout per task (See US1).
 - **FR-003**: System MUST calculate cyclomatic complexity and Halstead volume using the `radon` tool, ensuring all outputs are floats ≥ 0 (See US1).
 - **FR-004**: System MUST perform statistical hypothesis testing using the **Wilcoxon Signed-Rank test** (paired) with a significance level (alpha) of **0.05** and the null hypothesis that the median difference in metrics is zero (See US2).
 - **FR-005**: System MUST execute test suites using the HumanEval harness with a **60-second timeout** and record `pass_rate` (passed_tests / total_tests); tasks with `pass_rate` < **0.80** must be filtered out to ensure functional correctness before structural analysis, explicitly distinguishing this execution filter from the static `branch_coverage_potential` metric (See US1).
