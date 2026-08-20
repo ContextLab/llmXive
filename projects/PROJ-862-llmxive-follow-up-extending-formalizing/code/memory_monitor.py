@@ -3,190 +3,193 @@ import resource
 import sys
 import json
 import os
-from typing import Optional, Callable, Any, Dict
-from contextlib import contextmanager
+import gc
 import logging
-import time
+from typing import Optional, Callable, Any, Dict
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-class MemoryLimitExceeded(Exception):
-    """Raised when memory usage exceeds the configured limit."""
-    pass
+# Memory limits in MB
+HARD_LIMIT_MB = 7000
+WARNING_THRESHOLD_MB = 6500
+BUFFER_MB = 500
 
-# Global state for the tracker
-_peak_memory = 0.0
-_limit_mb = 7000.0
-_profile_path = "data/processed/memory_profile.json"
+_peak_rss_mb = 0.0
 _monitoring_active = False
 
+class MemoryLimitExceeded(Exception):
+    """Raised when memory usage exceeds the defined hard limit."""
+    pass
+
 def reset_memory_tracker():
-    """Resets the internal peak memory tracker and starts tracemalloc if needed."""
-    global _peak_memory, _monitoring_active
-    _peak_memory = 0.0
-    _monitoring_active = True
-    if not tracemalloc.is_tracing():
-        tracemalloc.start()
-        logger.info("tracemalloc started for memory monitoring.")
+    """Reset the internal peak memory tracker."""
+    global _peak_rss_mb
+    _peak_rss_mb = 0.0
+    logger.info("Memory tracker reset.")
 
 def get_current_memory_mb() -> float:
-    """Returns current memory usage in MB (tracemalloc current)."""
-    if not _monitoring_active:
+    """
+    Get the current Resident Set Size (RSS) of the process in MB.
+    Uses resource module for accuracy on Unix-like systems, fallback to tracemalloc.
+    """
+    try:
+        # resource module is more accurate for RSS
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        # ru_maxrss is in KB on Linux, MB on macOS. Normalize to MB.
+        maxrss_kb = usage.ru_maxrss
+        # Detect OS to normalize units if necessary (Linux returns KB)
+        if sys.platform != 'darwin':
+            return maxrss_kb / 1024.0
+        return float(maxrss_kb)
+    except Exception:
+        # Fallback to tracemalloc if resource is unavailable
+        if tracemalloc.is_tracing():
+            current, peak = tracemalloc.get_traced_memory()
+            return current / (1024 * 1024)
         return 0.0
-    current, peak = tracemalloc.get_traced_memory()
-    return current / (1024 * 1024)
 
 def get_peak_memory_mb() -> float:
-    """Returns peak memory usage in MB since tracker start (tracemalloc peak)."""
-    if not _monitoring_active:
-        return 0.0
-    current, peak = tracemalloc.get_traced_memory()
-    return peak / (1024 * 1024)
+    """
+    Get the peak RSS memory usage recorded so far in MB.
+    Updates internal state with current reading if higher.
+    """
+    current = get_current_memory_mb()
+    global _peak_rss_mb
+    if current > _peak_rss_mb:
+        _peak_rss_mb = current
+    return _peak_rss_mb
 
 def get_rss_memory_mb() -> float:
-    """
-    Returns RSS memory usage in MB using resource module.
-    ru_maxrss is in KB on Linux, convert to MB.
-    """
-    try:
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        return usage.ru_maxrss / 1024.0
-    except Exception:
-        # Fallback if resource.getrusage is unavailable (e.g., Windows)
-        return 0.0
+    """Alias for get_current_memory_mb for clarity in sweep loops."""
+    return get_current_memory_mb()
 
-def check_memory_limit(limit_mb: float = None) -> None:
+def check_memory_limit(current_mb: Optional[float] = None) -> bool:
     """
-    Checks if current RSS memory usage exceeds the limit.
-    Raises MemoryLimitExceeded if the threshold is breached.
-    
-    Updates the global peak tracker for logging consistency.
+    Check if current memory usage exceeds the HARD_LIMIT_MB.
+    Returns True if limit is exceeded, False otherwise.
     """
-    global _peak_memory
-    limit = limit_mb if limit_mb is not None else _limit_mb
-    
-    rss = get_rss_memory_mb()
-    
-    # Update global peak tracker for logging consistency
-    if rss > _peak_memory:
-        _peak_memory = rss
-    
-    if rss > limit:
-        logger.error(f"Memory limit exceeded! Peak RSS: {rss:.2f} MB, Limit: {limit:.2f} MB")
-        raise MemoryLimitExceeded(f"Peak RSS usage {rss:.2f} MB exceeded limit {limit:.2f} MB")
-    
-    logger.debug(f"Memory check passed: Peak RSS {rss:.2f} MB, Limit {limit:.2f} MB")
+    if current_mb is None:
+        current_mb = get_current_memory_mb()
+    return current_mb >= HARD_LIMIT_MB
 
-def enforce_memory_limit(limit_mb: float = None):
-    """Decorator to enforce memory limit on a function."""
-    limit = limit_mb if limit_mb is not None else _limit_mb
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            check_memory_limit(limit)
-            return func(*args, **kwargs)
-        return wrapper
-    return decorator
+def enforce_memory_limit(current_mb: Optional[float] = None) -> None:
+    """
+    Enforce memory limits with dynamic guardrails.
+    
+    Logic:
+    1. If RSS >= HARD_LIMIT_MB (7GB): Raise MemoryLimitExceeded immediately.
+    2. If RSS >= WARNING_THRESHOLD_MB (6.5GB): 
+       - Pause processing.
+       - Force garbage collection (gc.collect()).
+       - Log a warning with the current RSS.
+       - Resume processing.
+    """
+    if current_mb is None:
+        current_mb = get_current_memory_mb()
 
-def get_memory_snapshot() -> Dict[str, float]:
-    """Returns a snapshot of memory metrics."""
+    # Update peak tracking
+    global _peak_rss_mb
+    if current_mb > _peak_rss_mb:
+        _peak_rss_mb = current_mb
+
+    # Check Hard Limit (Fail Loudly)
+    if current_mb >= HARD_LIMIT_MB:
+        logger.error(f"CRITICAL: Memory limit exceeded. Current RSS: {current_mb:.2f}MB >= {HARD_LIMIT_MB}MB.")
+        raise MemoryLimitExceeded(f"Memory limit exceeded: {current_mb:.2f}MB >= {HARD_LIMIT_MB}MB")
+
+    # Check Warning Threshold (Dynamic Guardrail)
+    if current_mb >= WARNING_THRESHOLD_MB:
+        warning_msg = (
+            f"WARNING: Memory usage approaching limit. "
+            f"Current RSS: {current_mb:.2f}MB >= {WARNING_THRESHOLD_MB}MB. "
+            f"Triggering garbage collection..."
+        )
+        logger.warning(warning_msg)
+        
+        # Pause and Force Garbage Collection
+        gc.collect()
+        
+        # Log post-GC status
+        post_gc_mb = get_current_memory_mb()
+        logger.info(f"Post-GC Memory: {post_gc_mb:.2f}MB")
+        
+        if post_gc_mb >= HARD_LIMIT_MB:
+            logger.error(f"CRITICAL: Memory still exceeds limit after GC: {post_gc_mb:.2f}MB.")
+            raise MemoryLimitExceeded(f"Memory limit exceeded after GC: {post_gc_mb:.2f}MB")
+        
+        logger.info("Memory guardrail: Garbage collection completed. Resuming processing.")
+
+def get_memory_snapshot() -> Dict[str, Any]:
+    """Get a snapshot of current memory state."""
     return {
+        "timestamp": datetime.utcnow().isoformat(),
         "current_mb": get_current_memory_mb(),
-        "peak_tracemalloc_mb": get_peak_memory_mb(),
-        "peak_rss_mb": get_rss_memory_mb()
+        "peak_mb": get_peak_memory_mb(),
+        "hard_limit_mb": HARD_LIMIT_MB,
+        "warning_threshold_mb": WARNING_THRESHOLD_MB
     }
 
-def save_memory_profile(profile_path: Optional[str] = None, limit_mb: Optional[float] = None):
+def save_memory_profile(output_path: str = "data/processed/memory_profile.json"):
     """
-    Saves the current memory profile to data/processed/memory_profile.json.
-    MUST log the peak RSS value even if the limit is not breached.
+    Save the current memory profile to a JSON file.
+    Creates the directory if it doesn't exist.
     """
-    global _limit_mb
     snapshot = get_memory_snapshot()
-    # Add a timestamp for clarity
-    snapshot["timestamp"] = time.time()
-    snapshot["limit_mb"] = limit_mb if limit_mb is not None else _limit_mb
-    snapshot["peak_rss_recorded_mb"] = _peak_memory
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    path = profile_path if profile_path else _profile_path
-    
-    # Ensure directory exists
-    profile_dir = os.path.dirname(path)
-    if profile_dir and not os.path.exists(profile_dir):
-        os.makedirs(profile_dir, exist_ok=True)
-    
-    with open(path, 'w') as f:
-        json.dump(snapshot, f, indent=2)
-    
-    logger.info(f"Memory profile saved to {path}: {snapshot}")
-
-@contextmanager
-def memory_monitor(limit_mb: float = 7000.0, profile_path: Optional[str] = None):
-    """
-    Context manager to monitor memory usage for the entire process.
-    
-    - Starts tracemalloc.
-    - Enforces a hard "peak RSS ≤ 7GB" failure condition.
-    - Raises MemoryLimitExceeded if the threshold is breached.
-    - ALWAYS logs the peak RSS value to data/processed/memory_profile.json on exit,
-      regardless of whether the limit was breached or not.
-    """
-    global _limit_mb, _profile_path, _peak_memory, _monitoring_active
-    
-    original_limit = _limit_mb
-    original_path = _profile_path
-    original_peak = _peak_memory
-    
-    if profile_path:
-        _profile_path = profile_path
-    _limit_mb = limit_mb
-    _peak_memory = 0.0
-    _monitoring_active = True
-    
-    # Start tracemalloc if not already running
-    if not tracemalloc.is_tracing():
-        tracemalloc.start()
-    
-    try:
-        yield
-    finally:
-        # CRITICAL: Must save profile even if an exception occurred or limit was not breached
+    # Append to existing file if it exists, or create new
+    records = []
+    if os.path.exists(output_path):
         try:
-            # Capture the final RSS before cleanup
-            final_rss = get_rss_memory_mb()
-            if final_rss > _peak_memory:
-                _peak_memory = final_rss
-            save_memory_profile(profile_path=_profile_path, limit_mb=_limit_mb)
-        except Exception as e:
-            logger.warning(f"Failed to save memory profile: {e}")
-        
-        # Restore original state if needed (optional, but good practice)
-        # _limit_mb = original_limit
-        # _profile_path = original_path
-        
-        # Check limit after saving profile. If exceeded, raise.
-        # Note: We check the limit here. If the limit was already exceeded during the block,
-        # the check_memory_limit call inside the block would have raised.
-        # If we are here, it means we finished the block. We check the final state.
-        check_memory_limit(_limit_mb)
+            with open(output_path, 'r') as f:
+                content = f.read().strip()
+                if content:
+                    # Handle JSON Lines or single JSON object
+                    for line in content.split('\n'):
+                        if line.strip():
+                            records.append(json.loads(line))
+        except json.JSONDecodeError:
+            logger.warning(f"Could not parse existing {output_path}, starting fresh.")
+            records = []
+    
+    records.append(snapshot)
+    
+    with open(output_path, 'w') as f:
+        for rec in records:
+            f.write(json.dumps(rec) + '\n')
+    
+    logger.debug(f"Memory profile saved to {output_path}")
 
-# Convenience functions for direct usage if context manager is not desired
-def start_monitoring(limit_mb: float = 7000.0):
-    """Starts global memory monitoring."""
-    global _limit_mb, _monitoring_active
-    _limit_mb = limit_mb
-    _monitoring_active = True
-    if not tracemalloc.is_tracing():
+def memory_monitor(callback: Callable[[float], None]) -> Callable[[float], None]:
+    """
+    Decorator or wrapper to enforce memory checks at specific intervals.
+    
+    Args:
+        callback: A function that takes current memory MB and performs the check.
+    
+    Returns:
+        A wrapped function that checks memory before executing the callback logic.
+    """
+    def wrapper(current_mb: float):
+        enforce_memory_limit(current_mb)
+        return callback(current_mb)
+    return wrapper
+
+def start_monitoring():
+    """Start tracemalloc if not already running."""
+    global _monitoring_active
+    if not _monitoring_active:
         tracemalloc.start()
+        _monitoring_active = True
+        logger.info("Memory monitoring started (tracemalloc).")
 
 def stop_monitoring():
-    """Stops global memory monitoring and saves profile."""
+    """Stop tracemalloc and save final profile."""
     global _monitoring_active
-    _monitoring_active = False
-    if tracemalloc.is_tracing():
+    if _monitoring_active:
         tracemalloc.stop()
-    
-    # Save final profile
-    try:
+        _monitoring_active = False
+        logger.info("Memory monitoring stopped.")
+        # Ensure final profile is saved
         save_memory_profile()
-    except Exception as e:
-        logger.warning(f"Failed to save memory profile on stop: {e}")

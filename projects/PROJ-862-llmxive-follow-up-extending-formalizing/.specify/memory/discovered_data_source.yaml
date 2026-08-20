@@ -1,11 +1,10 @@
 status: none
-intent: HuggingFace reasoning tasks dataset python package for latent vector extraction
-  python package dataset
+intent: download BIG-bench reasoning dataset and validation sets python package dataset
 required_fields:
 - question_id
-- task_type
-- pair_id
-- latent_vector
-cache_key: 59f8d3e4132e92a851d5373a247b8594cda2caf1df833433fd0cac1726edb932
-searched_at: '2026-07-29T00:34:57.890157+00:00'
+- task_name
+- question_text
+- answer
+cache_key: 8b93418c40d42adf9d39dd5def9d7047786b3bc70bdc1ddbbcf3e914e848bb6d
+searched_at: '2026-08-20T00:05:56.802198+00:00'
 retry_count: 1

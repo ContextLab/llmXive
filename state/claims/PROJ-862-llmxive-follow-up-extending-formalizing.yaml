@@ -1437,3 +1437,401 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T16:43:40Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: google/bigbench_lite dataset URL
+  claim_id: c_071c240f
+  context: Implement code/data_loader.py to fetch the reasoning dataset from the verified
+    HuggingFace URL specified in code/config.py (DATASET_NAME='google/bigbench_lite',
+    DATASET_URL='https://huggingface.co/datasets/google/bigbench_lite').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Google/bigbench_lite_dataset_URL
+  kind: entity_fact
+  raw_text: The dataset 'google/bigbench_lite' is available at 'https://huggingface.co/datasets/google/bigbench_lite'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:51:53Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: sentence-transformers version 2.2.2 verified stable for all-MiniLM-L6-v2
+  claim_id: c_b29dd580
+  context: MUST pin sentence-transformers to sentence-transformers==2.2.2 (verified
+    stable version for all-MiniLM-L6-v2).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 'sentence-transformers' library version 2.2.2 is verified as a stable
+    version for the 'all-MiniLM-L6-v2' model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:52:12Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Peak RSS memory limit 7GB
+  claim_id: c_37c17194
+  context: "Implement code/memory_monitor.py to instrument tracemalloc and enforce\
+    \ a hard 'peak RSS \u2264 7GB' failure condition for the entire process."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_memory_limit_7GB
+  kind: entity_fact
+  raw_text: The system enforces a hard peak RSS memory limit of 7GB for the entire
+    process.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:52:35Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Input drift threshold cosine similarity 0.95
+  claim_id: c_c1303f72
+  context: Define constant INPUT_DRIFT_THRESHOLD = 0.95. Exclude pairs with cosine
+    similarity < 0.95.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The input drift threshold for excluding pairs is set to a cosine similarity
+    of 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:52:59Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: BERTScore F1 threshold 0.85
+  claim_id: c_57fdbeff
+  context: "Implement code/validity_check.py function check_output_validity(model_output,\
+    \ expected_answer) using BERTScore (F1 \u2265 0.85) and perplexity bound (\u2264\
+    \ 2.0x baseline)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/BERTScore_F1_threshold_0.85
+  kind: magnitude
+  raw_text: The output validity check requires a BERTScore F1 score of at least 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:53:44Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Validity collapse point weighted pass-rate 10%
+  claim_id: c_53ee263c
+  context: Implement the specific algorithm in run_sweep (T010b) to detect the 'validity
+    collapse point' (weighted pass-rate < 10%) and break the sigma loop.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validity collapse point is detected when the weighted average pass-rate
+    across task types falls below 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:53:45Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Significant separability increase p-value 0.05
+  claim_id: c_35ef01a2
+  context: Implement logic to flag 'Significant Separability Increase' if corrected
+    p-value < 0.05 (FR-005).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significant_separability_increase_p-value_0.05
+  kind: magnitude
+  raw_text: The statistical significance threshold for flagging a 'Significant Separability
+    Increase' is a corrected p-value less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:54:30Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Default runner 7GB RAM 14GB disk
+  claim_id: c_ae618beb
+  context: Address the specific constraint that the default runner is CPU-only with
+    ~7GB RAM and ~14GB disk.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_runner_7GB_RAM_14GB_disk
+  kind: entity_fact
+  raw_text: The default runner environment is constrained to approximately 7GB of
+    RAM and 14GB of disk space.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:55:35Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Pin sentence-transformers version to 2.2.2
+  claim_id: c_3306613b
+  context: Create code/requirements.txt with pinned versions... MUST pin sentence-transformers
+    to sentence-transformers==2.2.2 (verified stable version for all-MiniLM-L6-v2).
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: MUST pin sentence-transformers to sentence-transformers==2.2.2
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T23:57:05Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Enforce peak RSS limit of 7GB
+  claim_id: c_3cd0905b
+  context: "Implement code/memory_monitor.py to instrument tracemalloc and enforce\
+    \ a hard 'peak RSS \u2264 7GB' failure condition for the entire process"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_peak_RSS_limit_of_7GB
+  kind: entity_fact
+  raw_text: "enforce a hard 'peak RSS \u2264 7GB' failure condition for the entire\
+    \ process"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:57:23Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Dataset name is google/bigbench_lite
+  claim_id: c_5f615430
+  context: fetch the reasoning dataset from the verified HuggingFace URL specified
+    in code/config.py (DATASET_NAME='google/bigbench_lite', DATASET_URL='https://huggingface.co/datasets/google/bigbench_lite').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_name_is_google/bigbench_lite
+  kind: entity_fact
+  raw_text: DATASET_NAME='google/bigbench_lite'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:57:42Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Exclude pairs with cosine similarity below 0.95
+  claim_id: c_63a0c19e
+  context: Define constant INPUT_DRIFT_THRESHOLD = 0.95. Exclude pairs with cosine
+    similarity < 0.95.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude pairs with cosine similarity < 0.95
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:57:43Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Use BERTScore with F1 threshold of 0.85
+  claim_id: c_3aecb9e3
+  context: "Implement code/validity_check.py function check_output_validity(model_output,\
+    \ expected_answer) using BERTScore (F1 \u2265 0.85) and perplexity bound (\u2264\
+    \ 2.0x baseline)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "using BERTScore (F1 \u2265 0.85)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:58:05Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Use perplexity bound of 2.0x baseline
+  claim_id: c_7e7cf92e
+  context: "using BERTScore (F1 \u2265 0.85) and perplexity bound (\u2264 2.0x baseline)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "perplexity bound (\u2264 2.0x baseline)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:58:05Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Detect validity collapse when over 90% of pairs fail
+  claim_id: c_1eda534f
+  context: Implement code/validity_check.py function check_validity_collapse(pass_rate,
+    threshold) to detect if >90% of pairs fail at a specific sigma
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: detect if >90% of pairs fail at a specific sigma
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:58:05Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Record validity collapse point when weighted average pass rate is below
+    10%
+  claim_id: c_a2c9ccf6
+  context: MUST record the validity collapse point (task_type, sigma, pass_rate) IMMEDIATELY
+    upon detection (when weighted average < 10%)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: when weighted average < 10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:58:05Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Implement Holm-Bonferroni correction
+  claim_id: c_78312187
+  context: 'Implement code/analysis.py function apply_holm_bonferroni(p_values, alpha=0.05):
+    Implement the Holm-Bonferroni correction as a distinct, testable function.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_Holm-Bonferroni_correction
+  kind: entity_fact
+  raw_text: Apply Holm-Bonferroni correction as a distinct, testable function
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:58:23Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Significance level alpha set to 0.05
+  claim_id: c_49db0550
+  context: Implement code/analysis.py function apply_holm_bonferroni(p_values, alpha=0.05)
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The 0.05 significance level is merely a convention. The 0.05 significance
+        level (alpha level) is often used as the boundary between a statistically
+        significant and a statistically non-significant p-value. However, this does
+        not imply that there is generally a scientific reason to consider results
+        on opposite sides of any threshold as qualitatively different.
+      source_id: Misuse of p-values
+      url: https://en.wikipedia.org/wiki/Misuse_of_p-values
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T23:58:34Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Flag significant separability increase if corrected p-value is below
+    0.05
+  claim_id: c_87f6cf8e
+  context: Implement logic to flag 'Significant Separability Increase' if corrected
+    p-value < 0.05 (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flag 'Significant Separability Increase' if corrected p-value < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:58:34Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Pause processing if RSS approaches 6.5GB
+  claim_id: c_e6240408
+  context: If the RSS approaches 6.5GB (leaving 0.5GB buffer), the system MUST pause
+    processing, force garbage collection (gc.collect()), and log a warning
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the RSS approaches 6.5GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:59:00Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Default batch size for inference is 4
+  claim_id: c_f83895da
+  context: Create code/model_utils.py function run_batched_inference(model, input_ids_list,
+    batch_size=4).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: batch_size=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T23:59:22Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Use Sturges' rule for histogram binning
+  claim_id: c_ffb95030
+  context: MUST explicitly calculate the mean, standard deviation, and histogram bins
+    of the collapse points and save these statistical metrics using Sturges' rule
+    for binning.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Sturges'_rule_for_histogram_binning
+  kind: entity_fact
+  raw_text: use Sturges' rule for binning
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T00:00:00Z'

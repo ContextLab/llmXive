@@ -76,15 +76,6 @@ T038:
     \ output document `docs/sensitivity_report.md` is absent, and the dependent data\
     \ file `data/processed/sensitivity_report.json` does not exist. Without the JSON\
     \ input and the generated markdown report, the task\u2019s deliverables are incomplete."
-T039:
-  c: false
-  h: a2dac48f8e193da1f20349721f759b210672b79da627296cc075f0152f6b5127
-  r: "The required output file `data/processed/statistical_results.json` is absent,\
-    \ so the pipeline cannot have saved the specified keys. Additionally, without\
-    \ this file we cannot confirm that the Holm\u2011Bonferroni correction and sensitivity\
-    \ report were actually performed. The next implementer must generate the JSON\
-    \ results with the required fields and ensure the main script writes it to the\
-    \ correct location."
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -102,11 +93,3 @@ T047:
     \ it explicitly check for the presence of files in `data/raw/`. A proper pre\u2011\
     flight check must be added early in the script, the checksum file must exist,\
     \ and the script must terminate with the specifi"
-T049:
-  c: false
-  h: 1de4a3f687ce3f75f61f0bda69d87c649a7c68a9502d9789ce2933e0d1ed0377
-  r: "The provided `code/analysis.py` snippet shows no implementation of a pre\u2011\
-    test sample\u2011size check, automatic switch to a Wilcoxon test, power calculation,\
-    \ or JSON logging, and the required `data/processed/statistical_results.json`\
-    \ file is absent. Consequently the task\u2019s functional and output requirements\
-    \ are not met."

@@ -10,3 +10,5 @@ datasets==2.14.0
 pyarrow==14.0.1
 matplotlib==3.8.0
 seaborn==0.13.0
+bert_score  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
