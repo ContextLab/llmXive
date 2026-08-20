@@ -28654,7 +28654,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-08-20T21:19:22.341318+00:00",
+  "generated_at": "2026-08-20T21:24:32.318626+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -41153,6 +41153,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 2.845842,
+          "ended_at": "2026-08-20T21:16:04.451799Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-08-20T21:16:01.605957Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 62.130663,
           "ended_at": "2026-08-08T21:26:25.665807Z",
           "model": "qwen.qwen3.5-122b",
@@ -41222,14 +41230,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-06-29T12:23:59.994573Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 65.970175,
-          "ended_at": "2026-06-29T12:23:59.993747Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-06-29T12:22:54.023572Z"
         }
       ],
       "paper_status": null,
@@ -41803,6 +41803,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 2.999944,
+          "ended_at": "2026-08-20T21:12:42.318690Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-08-20T21:12:39.318746Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 787.537705,
           "ended_at": "2026-08-07T04:56:29.245970Z",
           "model": "qwen.qwen3.5-122b",
@@ -41872,14 +41880,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-05T09:27:24.880699Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 16.881396,
-          "ended_at": "2026-08-05T09:27:24.876971Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-05T09:27:07.995575Z"
         }
       ],
       "paper_status": null,
@@ -151888,6 +151888,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 2.10379,
+          "ended_at": "2026-08-20T21:24:13.471629Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-08-20T21:24:11.367839Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 2.379568,
           "ended_at": "2026-08-20T18:12:53.475284Z",
           "model": "qwen.qwen3.5-122b",
@@ -151957,14 +151965,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-14T08:32:31.098036Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 0.764686,
-          "ended_at": "2026-08-14T08:32:31.041808Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-14T08:32:30.277122Z"
         }
       ],
       "paper_status": null,
@@ -153235,6 +153235,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 2.783792,
+          "ended_at": "2026-08-20T21:15:23.373994Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-08-20T21:15:20.590202Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 2.664422,
           "ended_at": "2026-08-20T18:17:34.530157Z",
           "model": "qwen.qwen3.5-122b",
@@ -153304,14 +153312,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-07T00:39:53.082616Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 37.451495,
-          "ended_at": "2026-08-07T00:39:53.079250Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-07T00:39:15.627755Z"
         }
       ],
       "paper_status": null,
@@ -159103,6 +159103,90 @@
       "project_stage": "tasked",
       "severity": "hard",
       "started_at": "2026-08-20T19:18:33.148068Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.10379,
+      "ended_at": "2026-08-20T21:24:13.471629Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: <html>\r\n<head><title>302 Found</title></head>\r\n<body>\r\n<center><h1>302 Found</h1></center>\r\n<hr><center>nginx/1.3",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-927-llmxive-follow-up-extending-openrath-ses",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-08-20T21:24:11.367839Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.845842,
+      "ended_at": "2026-08-20T21:16:04.451799Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: <html>\r\n<head><title>302 Found</title></head>\r\n<body>\r\n<center><h1>302 Found</h1></center>\r\n<hr><center>nginx/1.3",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-074-statistical-modeling-of-network-propagat",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-08-20T21:16:01.605957Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.783792,
+      "ended_at": "2026-08-20T21:15:23.373994Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: <html>\r\n<head><title>302 Found</title></head>\r\n<body>\r\n<center><h1>302 Found</h1></center>\r\n<hr><center>nginx/1.3",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-941-llmxive-follow-up-extending-spatialclaw",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-08-20T21:15:20.590202Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.999944,
+      "ended_at": "2026-08-20T21:12:42.318690Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: <html>\r\n<head><title>302 Found</title></head>\r\n<body>\r\n<center><h1>302 Found</h1></center>\r\n<hr><center>nginx/1.3",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-08-20T21:12:39.318746Z"
+    },
+    {
+      "agent": "research_question_validator",
+      "duration_s": 2.125153,
+      "ended_at": "2026-08-20T21:12:41.397813Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: <html>\r\n<head><title>302 Found</title></head>\r\n<body>\r\n<center><h1>302 Found</h1></center>\r\n<hr><center>nginx/1.3",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-1021-llmxive-follow-up-extending-alayaworld-l",
+      "project_stage": "flesh_out_complete",
+      "severity": "hard",
+      "started_at": "2026-08-20T21:12:39.272660Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 2.326776,
+      "ended_at": "2026-08-20T21:12:26.787600Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: <html>\r\n<head><title>302 Found</title></head>\r\n<body>\r\n<center><h1>302 Found</h1></center>\r\n<hr><center>nginx/1.3",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-006-agriculture-optimization",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-08-20T21:12:24.460824Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.30309,
+      "ended_at": "2026-08-20T21:12:07.963016Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: <html>\r\n<head><title>302 Found</title></head>\r\n<body>\r\n<center><h1>302 Found</h1></center>\r\n<hr><center>nginx/1.3",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-369-evaluating-the-robustness-of-statistical",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-08-20T21:12:05.659926Z"
     },
     {
       "agent": "implementer",
@@ -165019,54 +165103,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-08-20T04:19:43.920655Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.328729,
-      "ended_at": "2026-08-20T04:19:43.847791Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-20T04:19:41.519062Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.487,
-      "ended_at": "2026-08-20T04:19:41.443002Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-20T04:19:37.956002Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.177446,
-      "ended_at": "2026-08-20T04:19:38.315566Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-20T04:19:36.138120Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 6.408329,
-      "ended_at": "2026-08-20T04:19:37.880556Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-20T04:19:31.472227Z"
     }
   ],
   "reviewed_preprints": [
