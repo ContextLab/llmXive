@@ -1,6 +1,10 @@
 # Investigating the Relationship Between Brain Network Dynamics and Anticipatory Reward Processing
 
-This project analyzes the relationship between dynamic functional connectivity patterns in brain networks and anticipatory reward processing using fMRI data from the Human Connectome Project (HCP).
+This project implements an automated science pipeline to investigate the relationship between dynamic functional connectivity (dFC) flexibility in brain networks and anticipatory reward processing, specifically focusing on the Ventral Striatum (VS).
+
+## Overview
+
+The pipeline ingests resting-state and task-fMRI data from the Human Connectome Project (HCP) via OpenNeuro, preprocesses the data using the Power 264 atlas (excluding nodes overlapping with the VS ROI), calculates dynamic connectivity flexibility scores, and performs correlation analysis with VS activation metrics.
 
 ## Installation
 
@@ -10,18 +14,14 @@ This project analyzes the relationship between dynamic functional connectivity p
 
 <!-- Usage instructions to be added -->
 
-## Data Sources
+## Project Structure
 
-- HCP 1200 Subjects Data Release (OpenNeuro ds000224)
-- Power 264 Atlas
-- Ventral Striatum ROI
-
-## Pipeline Stages
-
-1. Data Ingestion and Preprocessing
-2. Dynamic Connectivity and Flexibility Calculation
-3. Correlation Analysis and Significance Testing
+- `code/`: Source code for the pipeline
+- `data/`: Raw and processed data artifacts
+- `tests/`: Unit and integration tests
+- `state/`: State management and artifact hashes
+- `specs/`: Project specifications and design documents
 
 ## License
 
-This project is for research purposes only.
+<!-- License information to be added -->

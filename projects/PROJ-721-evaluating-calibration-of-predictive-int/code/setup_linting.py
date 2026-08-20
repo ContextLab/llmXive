@@ -1,83 +1,40 @@
 from __future__ import annotations
-
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-
 def run_command(cmd: list[str]) -> None:
-    """Run a shell command and raise an error if it fails."""
-    print(f"Running: {' '.join(cmd)}")
+    """Execute a shell command and raise on failure."""
     try:
-        subprocess.run(cmd, check=True, text=True)
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Command failed with exit code {e.returncode}: {e.stderr}") from e
-
+        print(f"Command failed: {' '.join(cmd)}", file=sys.stderr)
+        if e.stdout:
+            print(e.stdout)
+        if e.stderr:
+            print(e.stderr)
+        raise
 
 def main() -> None:
-    """Install and configure linting (ruff) and formatting (black) tools."""
-    # Ensure tools are installed
-    run_command([sys.executable, "-m", "pip", "install", "ruff", "black", "--quiet"])
-
-    # Create pyproject.toml with configuration if it doesn't exist
-    root = Path(__file__).resolve().parent.parent
-    pyproject_path = root / "pyproject.toml"
-
-    if pyproject_path.exists():
-        content = pyproject_path.read_text()
-        if "[tool.black]" in content and "[tool.ruff]" in content:
-            print("Configuration already exists in pyproject.toml")
-            return
-        print("Appending configuration to existing pyproject.toml")
-    else:
-        content = ""
-        print("Creating new pyproject.toml")
-
-    config = """
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\\.pyi?$'
-exclude = '''
-/(
-    \\.git
-  | \\.mypy_cache
-  | \\.tox
-  | venv
-  | build
-  | dist
-)/
-'''
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"] # Ignore unused imports in __init__.py
-
-[tool.ruff.isort]
-known-first-party = ["download", "metrics", "models", "stratify", "setup_linting"]
-"""
-
-    with open(pyproject_path, "w") as f:
-        f.write(content + config)
-
-    print("Linting and formatting configuration complete.")
-
+    """Verify that ruff and black are installed and configured."""
+    # Verify installation
+    run_command([sys.executable, "-m", "pip", "install", "ruff", "black"])
+    
+    # Verify configuration exists
+    config_path = Path("pyproject.toml")
+    if not config_path.exists():
+        raise FileNotFoundError("pyproject.toml not found. Please run task T003 to create it.")
+    
+    # Run a dry check to ensure configuration is valid
+    run_command([sys.executable, "-m", "ruff", "check", "--output-format=concise", "."])
+    run_command([sys.executable, "-m", "black", "--check", "--diff", "."])
+    
+    print("Linting and formatting tools configured successfully.")
 
 if __name__ == "__main__":
     main()

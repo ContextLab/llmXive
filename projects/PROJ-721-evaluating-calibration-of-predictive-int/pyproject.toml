@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evaluating-calibration-of-predictive-intervals"
+version = "0.1.0"
+description = "Evaluating Calibration of Predictive Intervals in Time Series Forecasting"
+requires-python = ">=3.11"
+dependencies = [
+    "statsmodels",
+    "prophet",
+    "lightgbm",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "pytest-json-report",
+    "ruff",
+    "black"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long, handled by black
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.isort]
+known-first-party = ["models", "metrics", "stratify", "download", "setup_linting"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--json-report --json-report-file=results/pytest_report.json"

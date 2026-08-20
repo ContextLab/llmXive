@@ -1,94 +1,137 @@
+"""
+Unit tests for data_ingestion.py functions.
+Tests data filtering logic with mock API responses.
+"""
 import pytest
 import pandas as pd
-from unittest.mock import patch, MagicMock
 import numpy as np
+from pathlib import Path
+import sys
 
-from code.data_ingestion import filter_and_impute, validate_rotation_period
+# Ensure code directory is in path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-class TestDataIngestion:
-    """Unit tests for data ingestion filtering and imputation logic."""
+from data_ingestion import filter_and_impute, merge_datasets
 
-    def test_filter_non_mdwarf(self):
-        """Test that non-M-dwarf hosts are excluded."""
-        df = pd.DataFrame({
-            'spectral_type': ['M0', 'K5', 'M3', 'G2'],
-            'flare_count': [15, 20, 12, 8],
-            'mass': [0.5, 0.8, 0.4, 1.0],
-            'radius': [0.5, 0.7, 0.4, 1.0],
-            'semi_major_axis': [0.1, 0.2, 0.15, 0.3]
+
+class TestFilterAndImpute:
+    """Tests for filter_and_impute function."""
+
+    def test_filter_m_dwarfs(self):
+        """Test that non-M-dwarfs are filtered out."""
+        # Create mock data with spectral types
+        mock_df = pd.DataFrame({
+            'star_id': [1, 2, 3, 4, 5],
+            'spectral_type': ['M0', 'K0', 'M5', 'G2', 'M3'],
+            'flare_count': [15, 5, 20, 8, 12],
+            'mass': [0.5, 0.8, 0.4, 1.0, 0.3],
+            'radius': [0.5, 0.8, 0.4, 1.0, 0.3],
+            'semi_major_axis': [0.1, 0.2, 0.15, 0.3, 0.12],
+            'system_age': [5.0, 3.0, 6.0, 4.0, np.nan]
         })
         
-        result = filter_and_impute(df)
+        # Apply filtering
+        filtered_df = filter_and_impute(mock_df)
         
-        # Only M-dwarfs should remain
-        assert all(result['spectral_type'].str.contains('M', case=False))
-        assert len(result) == 2  # M0 and M3
+        # Check that only M-dwarfs remain
+        assert all(filtered_df['spectral_type'].str.startswith('M')), \
+            "Only M-dwarf spectral types should remain"
+        
+        # Check that systems with <10 flares are removed
+        assert all(filtered_df['flare_count'] >= 10), \
+            "All remaining systems should have >= 10 flares"
+        
+        # Check that missing mass/radius are removed
+        assert not filtered_df['mass'].isna().any(), "No missing mass values"
+        assert not filtered_df['radius'].isna().any(), "No missing radius values"
+        
+        # Check that missing age is imputed
+        assert not filtered_df['system_age'].isna().any(), \
+            "Missing age values should be imputed"
 
-    def test_filter_low_flare_count(self):
-        """Test that systems with <10 flares are excluded."""
-        df = pd.DataFrame({
-            'spectral_type': ['M0', 'M1', 'M2'],
-            'flare_count': [5, 15, 8],
-            'mass': [0.5, 0.6, 0.4],
-            'radius': [0.5, 0.6, 0.4],
-            'semi_major_axis': [0.1, 0.15, 0.1]
-        })
-        
-        result = filter_and_impute(df)
-        
-        # Only M1 with 15 flares should remain
-        assert len(result) == 1
-        assert result.iloc[0]['flare_count'] == 15
-
-    def test_filter_missing_values(self):
-        """Test that records with missing mass, radius, or semi_major_axis are excluded."""
-        df = pd.DataFrame({
-            'spectral_type': ['M0', 'M1', 'M2'],
+    def test_filter_missing_required_columns(self):
+        """Test filtering when required columns are missing."""
+        mock_df = pd.DataFrame({
+            'star_id': [1, 2, 3],
+            'spectral_type': ['M0', 'M5', 'M3'],
             'flare_count': [15, 20, 12],
-            'mass': [0.5, np.nan, 0.4],
-            'radius': [0.5, 0.6, np.nan],
-            'semi_major_axis': [0.1, 0.15, 0.1]
+            # Missing mass, radius, semi_major_axis
         })
         
-        result = filter_and_impute(df)
+        # Should filter out all rows due to missing required columns
+        filtered_df = filter_and_impute(mock_df)
         
-        # Only M0 with complete data should remain
-        assert len(result) == 1
-        assert result.iloc[0]['spectral_type'] == 'M0'
+        assert len(filtered_df) == 0, \
+            "All rows should be filtered out due to missing required columns"
 
-    def test_impute_missing_age(self):
-        """Test that missing system_age is imputed with DEFAULT_M_DWARF_AGE."""
-        from code import config
+    def test_impute_age_with_default(self):
+        """Test that missing age is imputed with default value."""
+        from config import DEFAULT_M_DWARF_AGE
         
-        df = pd.DataFrame({
-            'spectral_type': ['M0', 'M1'],
+        mock_df = pd.DataFrame({
+            'star_id': [1, 2],
+            'spectral_type': ['M0', 'M5'],
             'flare_count': [15, 20],
-            'mass': [0.5, 0.6],
-            'radius': [0.5, 0.6],
+            'mass': [0.5, 0.4],
+            'radius': [0.5, 0.4],
             'semi_major_axis': [0.1, 0.15],
-            'system_age': [5.0, np.nan]
+            'system_age': [np.nan, 6.0]
         })
         
-        result = filter_and_impute(df)
+        filtered_df = filter_and_impute(mock_df)
         
-        assert result.iloc[0]['system_age'] == 5.0
-        assert result.iloc[1]['system_age'] == config.DEFAULT_M_DWARF_AGE
+        # Check that missing age was imputed
+        assert filtered_df.loc[filtered_df['star_id'] == 1, 'system_age'].iloc[0] == DEFAULT_M_DWARF_AGE, \
+            f"Missing age should be imputed with {DEFAULT_M_DWARF_AGE}"
 
-    def test_validate_rotation_period_present(self):
-        """Test validation when Rotation Period column is present."""
-        df = pd.DataFrame({
-            'Rotation Period': [10.0, 20.0],
-            'mass': [0.5, 0.6]
-        })
-        
-        result = validate_rotation_period(df)
-        assert result is True
 
-    def test_validate_rotation_period_missing(self):
-        """Test validation when Rotation Period column is missing."""
-        df = pd.DataFrame({
-            'mass': [0.5, 0.6]
+class TestMergeDatasets:
+    """Tests for merge_datasets function."""
+
+    def test_merge_datasets_success(self):
+        """Test successful merge of flare and exoplanet data."""
+        flare_df = pd.DataFrame({
+            'host_star_id': [1, 2, 3, 4],
+            'flare_count': [15, 20, 5, 12]
         })
         
-        result = validate_rotation_period(df)
-        assert result is False
+        exoplanet_df = pd.DataFrame({
+            'host_star_id': [1, 2, 3, 5],
+            'mass': [0.5, 0.4, 0.6, 0.3],
+            'radius': [0.5, 0.4, 0.6, 0.3],
+            'semi_major_axis': [0.1, 0.15, 0.12, 0.2]
+        })
+        
+        merged_df = merge_datasets(flare_df, exoplanet_df)
+        
+        # Check that merge was successful
+        assert 'flare_count' in merged_df.columns, "Flare count should be in merged data"
+        assert 'mass' in merged_df.columns, "Mass should be in merged data"
+        assert 'radius' in merged_df.columns, "Radius should be in merged data"
+        assert 'semi_major_axis' in merged_df.columns, "Semi-major axis should be in merged data"
+        
+        # Check that only matching records remain (inner join)
+        assert len(merged_df) == 3, "Should have 3 matching records"
+        
+        # Check specific values
+        assert merged_df.loc[merged_df['host_star_id'] == 1, 'flare_count'].iloc[0] == 15
+        assert merged_df.loc[merged_df['host_star_id'] == 1, 'mass'].iloc[0] == 0.5
+
+    def test_merge_datasets_no_matches(self):
+        """Test merge when there are no matching star IDs."""
+        flare_df = pd.DataFrame({
+            'host_star_id': [1, 2, 3],
+            'flare_count': [15, 20, 5]
+        })
+        
+        exoplanet_df = pd.DataFrame({
+            'host_star_id': [4, 5, 6],
+            'mass': [0.5, 0.4, 0.6],
+            'radius': [0.5, 0.4, 0.6],
+            'semi_major_axis': [0.1, 0.15, 0.12]
+        })
+        
+        merged_df = merge_datasets(flare_df, exoplanet_df)
+        
+        # Should return empty DataFrame
+        assert len(merged_df) == 0, "Should return empty DataFrame when no matches"

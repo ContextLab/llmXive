@@ -1,84 +1,110 @@
+"""
+Unit tests for utils.py functions.
+Tests API retry logic with mock rate limit responses.
+"""
 import pytest
 import time
-from unittest.mock import patch, MagicMock
-import hashlib
+from unittest.mock import Mock, patch
 from pathlib import Path
+import sys
 
-from code.utils import exponential_backoff_retry, calculate_checksum, log_api_provenance
+# Ensure code directory is in path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-class TestUtils:
-    """Unit tests for utility functions."""
+from utils import exponential_backoff_retry
 
-    def test_exponential_backoff_retry_success(self):
-        """Test retry logic on successful function."""
-        def mock_func():
-            return "success"
-        
-        result = exponential_backoff_retry(mock_func)
-        assert result == "success"
 
-    def test_exponential_backoff_retry_failure(self):
-        """Test retry logic when function eventually succeeds."""
+class TestExponentialBackoffRetry:
+    """Tests for exponential_backoff_retry function."""
+
+    def test_retry_on_rate_limit(self):
+        """Test that function retries on rate limit responses."""
         call_count = 0
         
-        def mock_func():
+        def mock_function():
             nonlocal call_count
             call_count += 1
             if call_count < 3:
-                raise Exception("Rate limit")
+                # Simulate rate limit on first two attempts
+                raise Exception("429 Too Many Requests")
             return "success"
         
-        result = exponential_backoff_retry(mock_func, max_retries=5, backoff_factor=0.1)
+        # Apply retry decorator
+        retry_func = exponential_backoff_retry(mock_function, max_retries=5, base_delay=0.1)
+        
+        # Should succeed after retries
+        result = retry_func()
+        
+        assert result == "success", "Should eventually succeed"
+        assert call_count == 3, "Should have made 3 attempts (2 failures + 1 success)"
+
+    def test_max_retries_exceeded(self):
+        """Test that function raises after max retries exceeded."""
+        def mock_function():
+            raise Exception("429 Too Many Requests")
+        
+        retry_func = exponential_backoff_retry(mock_function, max_retries=2, base_delay=0.1)
+        
+        # Should raise exception after max retries
+        with pytest.raises(Exception) as exc_info:
+            retry_func()
+        
+        assert "429 Too Many Requests" in str(exc_info.value)
+
+    def test_no_retry_on_success(self):
+        """Test that function doesn't retry on successful response."""
+        call_count = 0
+        
+        def mock_function():
+            nonlocal call_count
+            call_count += 1
+            return "success"
+        
+        retry_func = exponential_backoff_retry(mock_function, max_retries=5, base_delay=0.1)
+        
+        result = retry_func()
+        
         assert result == "success"
-        assert call_count == 3
+        assert call_count == 1, "Should have made only 1 attempt"
 
-    def test_exponential_backoff_retry_max_exceeded(self):
-        """Test that exception is raised after max retries."""
-        def mock_func():
-            raise Exception("Always fails")
+    def test_retry_with_different_error_types(self):
+        """Test retry behavior with different error types."""
+        call_count = 0
         
-        with pytest.raises(Exception):
-            exponential_backoff_retry(mock_func, max_retries=3, backoff_factor=0.1)
+        def mock_function():
+            nonlocal call_count
+            call_count += 1
+            if call_count < 2:
+                raise ConnectionError("Connection refused")
+            return "success"
+        
+        retry_func = exponential_backoff_retry(mock_function, max_retries=3, base_delay=0.1)
+        
+        result = retry_func()
+        
+        assert result == "success"
+        assert call_count == 2, "Should have retried once"
 
-    def test_calculate_checksum(self):
-        """Test checksum calculation."""
-        # Create a temporary file
-        import tempfile
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-            f.write("test content")
-            temp_path = f.name
+    def test_backoff_delay_timing(self):
+        """Test that backoff delay increases between retries."""
+        call_times = []
         
-        checksum = calculate_checksum(temp_path)
+        def mock_function():
+            call_times.append(time.time())
+            if len(call_times) < 3:
+                raise Exception("Rate limited")
+            return "success"
         
-        # Verify it's a valid SHA256 hash
-        assert len(checksum) == 64
-        assert all(c in '0123456789abcdef' for c in checksum)
+        retry_func = exponential_backoff_retry(mock_function, max_retries=5, base_delay=0.1)
         
-        # Clean up
-        Path(temp_path).unlink()
-
-    def test_log_api_provenance(self):
-        """Test API provenance logging."""
-        import json
-        from code import config
+        result = retry_func()
         
-        # Ensure log directory exists
-        Path(config.DATA_LOGS_DIR).mkdir(parents=True, exist_ok=True)
+        assert result == "success"
         
-        log_api_provenance(
-            operation="test_op",
-            status="success",
-            details={"key": "value"},
-            output_path="/tmp/test.csv"
-        )
-        
-        # Read the log file and verify
-        log_file = Path(config.DATA_LOGS_DIR) / "api_log.jsonl"
-        with open(log_file, 'r') as f:
-            lines = f.readlines()
-        
-        assert len(lines) >= 1
-        last_entry = json.loads(lines[-1])
-        assert last_entry['operation'] == 'test_op'
-        assert last_entry['status'] == 'success'
-        assert last_entry['details'] == {"key": "value"}
+        # Check that delays increased
+        if len(call_times) >= 3:
+            delay1 = call_times[1] - call_times[0]
+            delay2 = call_times[2] - call_times[1]
+            
+            # Second delay should be at least as long as first (exponential backoff)
+            assert delay2 >= delay1 * 0.9, "Backoff delay should increase"

@@ -1,60 +1,44 @@
-# Data files
-data/raw/*.nii*
-data/raw/*.nii
-data/raw/*.nii.gz
-data/processed/*.csv
-data/processed/*.json
-data/processed/*.log
-
-# Python cache
+# Python bytecode and cache
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+*.py[cod]
+*$py.class
 
-# Virtual environments
+# Environment and virtual environments
 env/
-venv/
-ENV/
 .env
+.venv/
+venv/
 
-# IDE
+# Data artifacts (raw and processed)
+data/raw/*.nii*
+data/raw/*.gz
+data/processed/*.csv
+data/processed/*.tsv
+data/processed/*.log
+data/processed/*.json
+data/processed/*.parquet
+
+# State and logs
+state/*.log
+logs/
+
+# IDE and OS files
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# OS
 .DS_Store
-Thumbs.db
 
-# Jupyter
-.ipynb_checkpoints/
+# Figures and plots (optional, often large)
+figures/*.png
+figures/*.pdf
 
-# Testing
-.pytest_cache/
+# Testing and coverage
 .coverage
 htmlcov/
+.pytest_cache/
+.mypy_cache/
 
-# State
-state/*.yaml
-state/*.json
-
-# Logs
-*.log
+# Temporary files
+*.tmp
+.tmp/

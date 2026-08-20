@@ -1,28 +1,17 @@
 """
-llmXive Research Pipeline - Code Package
+llmXive Research Pipeline - Code Package.
 """
-__version__ = "0.1.0"
-__author__ = "llmXive"
-
-# Import key modules for convenience
 from .config import ensure_directories
-from .state_manager import (
-    compute_file_hash,
-    compute_directory_hash,
-    load_state,
-    save_state,
-    update_state_artifact,
-    update_state_directory,
-    verify_artifact_integrity
-)
+from .env_config import OpenNeuroConfig, get_openneuro_config
+from .state_manager import load_state, save_state, update_state_artifact
+from .streaming_utils import verify_memory_constraints
 
 __all__ = [
-    'ensure_directories',
-    'compute_file_hash',
-    'compute_directory_hash',
-    'load_state',
-    'save_state',
-    'update_state_artifact',
-    'update_state_directory',
-    'verify_artifact_integrity'
+    "ensure_directories",
+    "OpenNeuroConfig",
+    "get_openneuro_config",
+    "load_state",
+    "save_state",
+    "update_state_artifact",
+    "verify_memory_constraints"
 ]

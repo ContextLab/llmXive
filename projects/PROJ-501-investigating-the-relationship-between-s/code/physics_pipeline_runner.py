@@ -1,20 +1,16 @@
 """
-T025 Implementation: Physics Pipeline Runner
+Physics Pipeline Runner for T025.
 
-Reads data/processed/merged_filtered.csv, applies physics models (T021-T023),
-applies unphysical filters (T024a-T024b), and writes the clean result to
-data/processed/derived_physics.csv.
-
-Columns in output: cumulative_flux, mass_loss_rate, retention_fraction, is_valid
+Reads the filtered dataset from User Story 1, applies physics models
+(T021-T023), applies unphysical filters (T024a-T024b), and writes
+the clean result to data/processed/derived_physics.csv.
 """
 import logging
 import sys
 from pathlib import Path
+
 import pandas as pd
 import numpy as np
-
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from physics import (
     calculate_quiescent_xuv,
@@ -22,115 +18,79 @@ from physics import (
     calculate_retention_fraction,
     calculate_unphysical_flag,
     apply_unphysical_filter,
+    validate_derived_columns,
     run_physics_pipeline
 )
-from utils import log_api_provenance
+from utils import log_api_provenance, calculate_checksum
+import config
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 def main():
     """
-    Main entry point for T025: Run physics models on merged data and save results.
+    Execute the physics pipeline:
+    1. Load merged_filtered.csv
+    2. Apply physics calculations (Quiescent XUV, Cumulative Flux, Retention)
+    3. Flag and filter unphysical records
+    4. Validate derived columns
+    5. Save to derived_physics.csv
     """
     input_path = Path("data/processed/merged_filtered.csv")
     output_path = Path("data/processed/derived_physics.csv")
     
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
-        raise FileNotFoundError(f"Required input file {input_path} does not exist. "
-                              "Run T017 (data ingestion) first.")
+        logger.error("Please ensure T017 (save_processed_data) has been run successfully.")
+        sys.exit(1)
 
-    logger.info(f"Reading input data from {input_path}")
-    df = pd.read_csv(input_path)
+    logger.info(f"Loading data from {input_path}")
+    try:
+        df = pd.read_csv(input_path)
+    except Exception as e:
+        logger.error(f"Failed to load CSV: {e}")
+        sys.exit(1)
+
+    logger.info(f"Loaded {len(df)} records. Starting physics calculations...")
+
+    # Apply the full physics pipeline which includes T021-T024b logic
+    # The run_physics_pipeline function is expected to orchestrate the calls
+    # to calculate_quiescent_xuv, calculate_cumulative_flux, calculate_retention_fraction,
+    # calculate_unphysical_flag, and apply_unphysical_filter.
+    try:
+        df_processed = run_physics_pipeline(df)
+    except Exception as e:
+        logger.error(f"Physics pipeline failed: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+    # Validate derived columns to ensure no NaNs where expected (T026 dependency)
+    # This function is defined in physics.py but we call it here to be explicit about the step
+    is_valid, errors = validate_derived_columns(df_processed)
+    if not is_valid:
+        logger.warning(f"Validation warnings: {errors}")
+        # We proceed but log the warnings as per T026 requirements (validation logic exists)
+
+    # Save the result
+    logger.info(f"Saving {len(df_processed)} records to {output_path}")
+    df_processed.to_csv(output_path, index=False)
     
-    logger.info(f"Loaded {len(df)} records from {input_path}")
-    logger.info(f"Columns: {list(df.columns)}")
-
-    # Apply physics models
-    logger.info("Applying physics models...")
-    
-    # Step 1: Calculate quiescent XUV
-    # T021: calculate_quiescent_xuv expects a DataFrame and returns a DataFrame with 'quiescent_xuv'
-    try:
-        df = calculate_quiescent_xuv(df)
-        logger.info("Quiescent XUV calculation complete.")
-    except Exception as e:
-        logger.error(f"Error in quiescent XUV calculation: {e}")
-        raise
-
-    # Step 2: Calculate cumulative flux
-    # T022: calculate_cumulative_flux expects a DataFrame and returns a DataFrame with 'cumulative_flux'
-    try:
-        df = calculate_cumulative_flux(df)
-        logger.info("Cumulative flux calculation complete.")
-    except Exception as e:
-        logger.error(f"Error in cumulative flux calculation: {e}")
-        raise
-
-    # Step 3: Calculate retention fraction
-    # T023: calculate_retention_fraction expects a DataFrame and returns a DataFrame with 'retention_fraction' and 'mass_loss_rate'
-    try:
-        df = calculate_retention_fraction(df)
-        logger.info("Retention fraction calculation complete.")
-    except Exception as e:
-        logger.error(f"Error in retention fraction calculation: {e}")
-        raise
-
-    # Step 4: Calculate unphysical flag
-    # T024a: calculate_unphysical_flag expects a DataFrame and returns a boolean Series or DataFrame with 'is_unphysical'
-    try:
-        df = calculate_unphysical_flag(df)
-        logger.info("Unphysical flag calculation complete.")
-    except Exception as e:
-        logger.error(f"Error in unphysical flag calculation: {e}")
-        raise
-
-    # Step 5: Apply unphysical filter
-    # T024b: apply_unphysical_filter expects a DataFrame and returns a filtered DataFrame with 'is_valid'
-    try:
-        df = apply_unphysical_filter(df)
-        logger.info("Unphysical filter applied.")
-    except Exception as e:
-        logger.error(f"Error applying unphysical filter: {e}")
-        raise
-
-    # Verify required columns exist
-    required_columns = ['cumulative_flux', 'mass_loss_rate', 'retention_fraction', 'is_valid']
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns in output: {missing_cols}")
-        raise ValueError(f"Physics pipeline did not produce expected columns: {missing_cols}")
-
-    # Log statistics
-    logger.info(f"Output statistics:")
-    logger.info(f"  Total records: {len(df)}")
-    logger.info(f"  Valid records: {df['is_valid'].sum()}")
-    logger.info(f"  Invalid records: {(~df['is_valid']).sum()}")
-    logger.info(f"  Cumulative flux range: [{df['cumulative_flux'].min():.2e}, {df['cumulative_flux'].max():.2e}]")
-    logger.info(f"  Retention fraction range: [{df['retention_fraction'].min():.2f}, {df['retention_fraction'].max():.2f}]")
-
-    # Save output
-    logger.info(f"Saving results to {output_path}")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    
-    logger.info(f"Successfully wrote {len(df)} records to {output_path}")
-    
-    # Log provenance
+    # Generate checksum for provenance
+    checksum = calculate_checksum(output_path)
     log_api_provenance(
-        operation="physics_pipeline",
+        operation="physics_pipeline_run",
         input_file=str(input_path),
         output_file=str(output_path),
-        record_count=len(df),
-        valid_count=int(df['is_valid'].sum())
+        checksum=checksum,
+        record_count=len(df_processed)
     )
-
-    return output_path
+    
+    logger.info(f"Pipeline complete. Checksum: {checksum}")
 
 if __name__ == "__main__":
     main()

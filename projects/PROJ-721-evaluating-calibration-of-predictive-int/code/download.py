@@ -4,218 +4,140 @@ import os
 import shutil
 import zipfile
 import logging
+import requests
 from pathlib import Path
-from typing import Dict, Optional
-import urllib.request
-import tempfile
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-REPO_OWNER = "monash-university"
-REPO_NAME = "M4-Competiton"
-RELEASE_TAG = "v1.0"
-ASSET_NAME = "M4-Dataset.zip"
-MANIFEST_NAME = "manifest.json"
-
-# Official GitHub release URL for M4 dataset
-BASE_URL = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/releases/download/{RELEASE_TAG}"
-DATASET_URL = f"{BASE_URL}/{ASSET_NAME}"
-MANIFEST_URL = f"{BASE_URL}/{MANIFEST_NAME}"
-
-# Output paths relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-TEMP_DIR = PROJECT_ROOT / "data" / ".temp"
+M4_GITHUB_OWNER = "M4Comp"
+M4_GITHUB_REPO = "M4-Dataset"
+M4_GITHUB_BRANCH = "main"
+M4_ZIP_FILENAME = "M4-Dataset.zip"
+MANIFEST_FILENAME = "manifest.json"
+BASE_URL = f"https://raw.githubusercontent.com/{M4_GITHUB_OWNER}/{M4_GITHUB_REPO}/{M4_GITHUB_BRANCH}"
+DATA_DIR = Path("data")
+TEMP_DIR = Path("data/tmp")
 
 def calculate_sha256(file_path: Path) -> str:
-    """Calculate SHA256 hash of a file.
-    
-    Args:
-        file_path: Path to the file to hash
-        
-    Returns:
-        Hex digest of the SHA256 hash
-    """
+    """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_file(url: str, output_path: Path) -> None:
-    """Download a file from a URL with progress logging.
+def download_file(url: str, destination: Path) -> None:
+    """Download a file from a URL to a destination path."""
+    logger.info(f"Downloading {url} to {destination}")
+    response = requests.get(url, stream=True)
+    response.raise_for_status()  # Raise error for bad status
     
-    Args:
-        url: URL to download from
-        output_path: Path where file should be saved
-        
-    Raises:
-        RuntimeError: If download fails
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Downloading {url} to {output_path}")
-    
-    try:
-        # Use urllib for download (no external dependencies)
-        urllib.request.urlretrieve(url, output_path)
-        
-        if not output_path.exists():
-            raise RuntimeError(f"Download failed: {output_path} does not exist")
-            
-        file_size = output_path.stat().st_size
-        logger.info(f"Downloaded {output_path.name}: {file_size:,} bytes")
-        
-    except Exception as e:
-        raise RuntimeError(f"Failed to download {url}: {str(e)}")
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    logger.info(f"Downloaded {destination}")
 
-def load_manifest(manifest_path: Path) -> Dict:
-    """Load and parse the manifest.json file.
+def load_manifest(manifest_path: Path) -> dict:
+    """Load and parse the manifest JSON file."""
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
     
-    Args:
-        manifest_path: Path to manifest.json
-        
-    Returns:
-        Dictionary containing manifest data
-        
-    Raises:
-        FileNotFoundError: If manifest doesn't exist
-        json.JSONDecodeError: If manifest is invalid JSON
-    """
-    with open(manifest_path, 'r', encoding='utf-8') as f:
-        manifest = json.load(f)
-    return manifest
+    with open(manifest_path, "r") as f:
+        return json.load(f)
 
-def validate_checksums(manifest: Dict, data_dir: Path) -> bool:
-    """Validate SHA256 checksums of downloaded files against manifest.
-    
-    Args:
-        manifest: Manifest dictionary with file checksums
-        data_dir: Directory containing the downloaded files
-        
-    Returns:
-        True if all checksums match, False otherwise
-        
-    Raises:
-        FileNotFoundError: If any file in manifest is missing
-    """
+def validate_checksums(manifest: dict, data_dir: Path) -> bool:
+    """Validate SHA256 checksums of files against the manifest."""
     all_valid = True
-    
-    for file_info in manifest.get('files', []):
-        filename = file_info.get('filename')
-        expected_hash = file_info.get('sha256')
+    for file_entry in manifest.get("files", []):
+        filename = file_entry.get("filename")
+        expected_checksum = file_entry.get("sha256")
         
-        if not filename or not expected_hash:
-            logger.warning(f"Skipping invalid manifest entry: {file_info}")
+        if not filename or not expected_checksum:
+            logger.warning(f"Skipping entry with missing filename or checksum: {file_entry}")
             continue
-            
+        
         file_path = data_dir / filename
-        
         if not file_path.exists():
-            logger.error(f"Missing file: {filename}")
+            logger.error(f"File not found for checksum validation: {file_path}")
             all_valid = False
             continue
-            
-        actual_hash = calculate_sha256(file_path)
         
-        if actual_hash.lower() == expected_hash.lower():
-            logger.info(f"✓ {filename}: Checksum valid")
-        else:
-            logger.error(f"✗ {filename}: Checksum mismatch")
-            logger.error(f"  Expected: {expected_hash}")
-            logger.error(f"  Actual:   {actual_hash}")
+        actual_checksum = calculate_sha256(file_path)
+        if actual_checksum != expected_checksum:
+            logger.error(f"Checksum mismatch for {filename}: expected {expected_checksum}, got {actual_checksum}")
             all_valid = False
-            
+        else:
+            logger.info(f"Checksum valid for {filename}")
+    
     return all_valid
 
-def extract_zip(zip_path: Path, extract_to: Path) -> None:
-    """Extract a ZIP file to a directory.
-    
-    Args:
-        zip_path: Path to ZIP file
-        extract_to: Directory to extract contents to
-        
-    Raises:
-        zipfile.BadZipFile: If ZIP file is corrupted
-    """
-    extract_to.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Extracting {zip_path.name} to {extract_to}")
-    
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall(extract_to)
-        
-    logger.info(f"Extraction complete: {extract_to}")
+def extract_zip(zip_path: Path, dest_dir: Path) -> None:
+    """Extract a zip file to a destination directory."""
+    logger.info(f"Extracting {zip_path} to {dest_dir}")
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
+        zip_ref.extractall(dest_dir)
+    logger.info("Extraction complete")
 
 def cleanup_temp_files(temp_dir: Path) -> None:
-    """Remove temporary directory and its contents.
-    
-    Args:
-        temp_dir: Path to temporary directory to remove
-    """
+    """Remove temporary directory and its contents."""
     if temp_dir.exists():
-        logger.info(f"Cleaning up temporary directory: {temp_dir}")
         shutil.rmtree(temp_dir)
-    else:
-        logger.debug(f"Temporary directory does not exist: {temp_dir}")
+        logger.info(f"Cleaned up temporary directory: {temp_dir}")
 
-def main() -> bool:
-    """Main function to download, validate, and extract M4 dataset.
-    
-    Returns:
-        True if successful, False otherwise
-    """
-    logger.info("Starting M4 dataset download and validation")
-    
-    # Create necessary directories
+def main() -> None:
+    """Main function to fetch M4 dataset, validate checksums, and extract."""
+    # Ensure directories exist
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     TEMP_DIR.mkdir(parents=True, exist_ok=True)
+
+    zip_url = f"{BASE_URL}/{M4_ZIP_FILENAME}"
+    manifest_url = f"{BASE_URL}/{MANIFEST_FILENAME}"
     
-    dataset_zip = DATA_DIR / ASSET_NAME
-    manifest_file = DATA_DIR / MANIFEST_NAME
-    extracted_dir = DATA_DIR / "M4-Dataset"
-    
+    zip_path = DATA_DIR / M4_ZIP_FILENAME
+    manifest_path = DATA_DIR / MANIFEST_FILENAME
+
     try:
-        # Step 1: Download manifest
-        logger.info("Step 1: Downloading manifest...")
-        download_file(MANIFEST_URL, manifest_file)
+        # Download manifest
+        download_file(manifest_url, manifest_path)
         
-        # Step 2: Load manifest
-        logger.info("Step 2: Loading manifest...")
-        manifest = load_manifest(manifest_file)
+        # Load manifest to get expected checksums
+        manifest = load_manifest(manifest_path)
         
-        # Step 3: Download dataset if not already present
-        if not dataset_zip.exists():
-            logger.info("Step 3: Downloading M4 dataset...")
-            download_file(DATASET_URL, dataset_zip)
-        else:
-            logger.info("Step 3: Dataset already exists, skipping download")
+        # Check if zip already exists and validate
+        if zip_path.exists():
+            logger.info(f"Found existing {M4_ZIP_FILENAME}, validating checksum...")
+            if validate_checksums(manifest, DATA_DIR):
+                logger.info("Existing file checksum valid. Skipping download.")
+            else:
+                logger.warning("Existing file checksum invalid. Re-downloading.")
+                zip_path.unlink()
         
-        # Step 4: Validate checksums
-        logger.info("Step 4: Validating checksums...")
+        # Download zip if not present or invalid
+        if not zip_path.exists():
+            download_file(zip_url, zip_path)
+        
+        # Final validation of the downloaded zip
         if not validate_checksums(manifest, DATA_DIR):
-            logger.error("Checksum validation failed!")
-            return False
+            raise RuntimeError("Checksum validation failed after download. Aborting.")
         
-        # Step 5: Extract dataset
-        logger.info("Step 5: Extracting dataset...")
-        extract_zip(dataset_zip, extracted_dir)
+        # Extract the dataset
+        extract_zip(zip_path, DATA_DIR)
         
-        # Step 6: Cleanup (optional - keep zip for reproducibility)
-        # cleanup_temp_files(TEMP_DIR)
+        logger.info("M4 Dataset successfully fetched and validated.")
         
-        logger.info("M4 dataset download and validation completed successfully!")
-        logger.info(f"Dataset location: {extracted_dir}")
-        return True
-        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network error during download: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Failed to process M4 dataset: {str(e)}")
-        return False
+        logger.error(f"Error during dataset processing: {e}")
+        raise
 
 if __name__ == "__main__":
-    success = main()
-    exit(0 if success else 1)
+    main()

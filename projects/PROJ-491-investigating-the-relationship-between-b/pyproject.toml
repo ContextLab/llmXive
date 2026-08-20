@@ -1,5 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-brain-network-dynamics"
+version = "0.1.0"
+description = "Investigating the Relationship Between Brain Network Dynamics and Anticipatory Reward Processing"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "nibabel",
+    "scipy",
+    "matplotlib",
+    "requests",
+    "tqdm",
+    "bids",
+    "python-dotenv",
+    "pyyaml",
+    "nilearn",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "black",
+    "isort",
+    "pytest",
+    "pytest-cov",
+]
+
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
@@ -13,10 +47,18 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | data
 )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 100
-known_first_party = ["config", "state_manager", "env_config", "streaming_utils"]
+line_length = 88
+skip = ["data", "env", ".venv", "__pycache__"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

@@ -26,3 +26,42 @@ T026:
     logic to prevent NaN values in derived columns, nor any evidence (e.g., unit tests,
     logs, or documentation) showing the logic works for valid inputs. The task therefore
     lacks the necessary artifact to confirm completion.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was presented that adds console output logic\
+    \ to print a significance statement based on a p\u2011value\u202F<\u202F0.05 and\
+    \ the sign of \u03C1. The required artifact is missing, so the task is not satisfied."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., report, script, or documentation) was provided that shows\
+    \ analysis outputs being explicitly labeled as \u201Cassociational\u201D only.\
+    \ Without such evidence, the requirement cannot be verified as met."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md content was provided; without seeing the file we cannot confirm
+    that execution instructions and dependency installation steps were added. The
+    required artifact is missing from the evidence.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No ingestion script, output CSV, flux\u2011calculation module, or integration\u2011\
+    test results were provided; the claim lacks any concrete artifacts to verify that\
+    \ the full pipeline (Ingest \u2192 Physics \u2192 Analysis \u2192 Visualization)\
+    \ was executed and produced the required data and visualizations. The required\
+    \ code, data files, and test outputs are missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No timing measurements, benchmark logs, or performance reports are present to\
+    \ demonstrate that the processing completes within 60\u202Fseconds on the specified\
+    \ target hardware (SC\u2011004). Consequently, the required artifact proving the\
+    \ performance requirement is missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest output, log, or report is present, and no indication that a test suite\
+    \ was executed or that any tests passed. The required artifact\u2014a proof that\
+    \ the pytest suite ran and met the deferred pass\u2011rate criteria\u2014is missing."

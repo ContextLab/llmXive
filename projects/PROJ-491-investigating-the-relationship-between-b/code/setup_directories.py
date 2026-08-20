@@ -5,15 +5,15 @@ from config import ensure_directories
 
 def create_directories():
     """
-    Creates the required project directory structure:
-    code/, tests/, data/raw/, data/processed/, state/
-    
-    This function ensures all directories exist as per T001a.
+    Create the required directory structure for the project.
+    Directories created:
+        - code/
+        - tests/
+        - data/raw/
+        - data/processed/
+        - state/
     """
-    # Define the root directory (assumed to be the project root)
-    # We assume this script is run from the project root or passed the root path.
-    # For safety, we use the current working directory as the base.
-    base_path = Path.cwd()
+    root = Path(__file__).resolve().parents[1]
     
     directories = [
         "code",
@@ -23,26 +23,30 @@ def create_directories():
         "state"
     ]
     
-    created_count = 0
-    for dir_name in directories:
-        dir_path = base_path / dir_name
+    created = []
+    for d in directories:
+        dir_path = root / d
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path))
             print(f"Created directory: {dir_path}")
-            created_count += 1
         else:
             print(f"Directory already exists: {dir_path}")
     
-    if created_count > 0:
-        print(f"Successfully created {created_count} new directory(s).")
-    else:
-        print("All required directories already exist.")
-        
-    # Ensure the parent directories for data exist too
+    # Ensure config paths are also valid (though config.py might handle this)
     ensure_directories()
+    
+    return created
 
 def main():
-    create_directories()
+    """Entry point for directory creation script."""
+    print("Initializing project directory structure...")
+    created = create_directories()
+    if created:
+        print(f"Successfully created {len(created)} directories.")
+    else:
+        print("All directories already exist.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

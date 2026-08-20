@@ -1,82 +1,158 @@
+%YAML 1.2
+---
 $schema: http://json-schema.org/draft-07/schema#
-title: Correlation Results Schema
+title: Stellar Flare Correlation Results Schema
 description: >
-  Schema for the output of the statistical analysis phase (User Story 3).
-  Defines the structure of `data/results/correlation_results.json`.
-  Contains partial Spearman rank correlation statistics and sensitivity analysis data.
+  Defines the output schema for statistical correlation results
+  between stellar flare activity and exoplanet atmospheric retention.
+  Used by code/analysis.py for saving to data/results/correlation_results.json.
 type: object
 required:
-  - partial_correlation
-  - sensitivity_analysis
   - metadata
+  - correlation
+  - sensitivity
 properties:
-  partial_correlation:
+  metadata:
     type: object
-    description: >
-      Results of the partial Spearman rank correlation between
-      cumulative_xuv_flux and retention_fraction, controlling for
-      stellar_mass and semi_major_axis.
+    description: Execution and provenance metadata
     required:
+      - timestamp
+      - pipeline_version
+      - input_file
+      - filter_criteria
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of analysis execution
+      pipeline_version:
+        type: string
+        description: Git commit hash or version tag of the pipeline
+      input_file:
+        type: string
+        description: Relative path to the input derived physics file
+      filter_criteria:
+        type: object
+        description: Summary of data filtering applied
+        required:
+          - min_flare_count
+          - stellar_type
+          - unphysical_mass_loss_threshold
+        properties:
+          min_flare_count:
+            type: integer
+            description: Minimum number of flares required for inclusion
+          stellar_type:
+            type: string
+            description: Stellar classification filter (e.g., "M-dwarf")
+          unphysical_mass_loss_threshold:
+            type: number
+            description: Threshold for mass loss rate exclusion (fraction per Gyr)
+      data_quality_flags:
+        type: array
+        items:
+          type: string
+        description: List of data quality issues encountered (e.g., missing rotation periods)
+
+  correlation:
+    type: object
+    description: Primary partial Spearman rank correlation results
+    required:
+      - method
+      - variables
       - rho_partial
       - p_value
       - n_samples
-      - method
+      - confidence_interval
     properties:
+      method:
+        type: string
+        enum:
+          - partial_spearman_rank
+        description: Statistical method used
+      variables:
+        type: object
+        description: Variables involved in the correlation
+        required:
+          - independent
+          - dependent
+          - controls
+        properties:
+          independent:
+            type: string
+            description: Name of the independent variable (e.g., cumulative_flux)
+          dependent:
+            type: string
+            description: Name of the dependent variable (e.g., retention_fraction)
+          controls:
+            type: array
+            items:
+              type: string
+            description: List of control variables (e.g., mass, semi_major_axis)
       rho_partial:
         type: number
-        description: The partial Spearman rank correlation coefficient (ρ).
+        description: Partial Spearman rank correlation coefficient (ρ)
         minimum: -1.0
         maximum: 1.0
       p_value:
         type: number
-        description: The p-value associated with the correlation coefficient.
+        description: Two-tailed p-value for the correlation
         minimum: 0.0
         maximum: 1.0
       n_samples:
         type: integer
-        description: Number of samples (systems) included in the analysis.
+        description: Number of samples used in the calculation
         minimum: 1
-      method:
-        type: string
-        description: The statistical method used.
-        const: "partial_spearman_rank"
       confidence_interval:
         type: object
-        description: Optional 95% confidence interval for rho_partial.
+        description: 95% confidence interval for ρ
+        required:
+          - lower
+          - upper
         properties:
           lower:
             type: number
           upper:
             type: number
-  sensitivity_analysis:
+      significance_statement:
+        type: string
+        description: Human-readable statement about statistical significance
+        pattern: "^(associational|significant|not significant).*$"
+
+  sensitivity:
     type: object
-    description: >
-      Results of the sensitivity analysis performed by varying the
-      initial atmospheric mass baseline (M_atm_initial).
+    description: Results from sensitivity analysis on atmospheric mass baseline
     required:
+      - parameter
       - baselines
       - correlations
       - variation
     properties:
+      parameter:
+        type: string
+        description: Name of the parameter varied (e.g., M_atm_initial_baseline)
       baselines:
         type: array
-        description: List of M_atm_initial baseline values tested.
         items:
           type: number
+        description: List of baseline values tested
       correlations:
         type: array
-        description: List of rho_partial values corresponding to each baseline.
         items:
           type: number
+        description: List of ρ values corresponding to each baseline
       variation:
         type: object
-        description: Statistical summary of the variation in correlation coefficients.
+        description: Statistical variation of correlation coefficients
         required:
           - range
           - std_dev
         properties:
           range:
             type: object
+            required:
+              - min
+              - max
             properties:
               min:
                 type: number
@@ -84,30 +160,35 @@ properties:
                 type: number
           std_dev:
             type: number
-            description: Standard deviation of the correlation coefficients across baselines.
-  metadata:
+            description: Standard deviation of the correlation coefficients
+      robustness_assessment:
+        type: string
+        description: Qualitative assessment of result robustness
+        enum:
+          - robust
+          - moderately_robust
+          - sensitive
+          - highly_sensitive
+
+  provenance:
     type: object
-    description: Metadata about the analysis run.
+    description: Detailed execution provenance
     required:
-      - input_file
-      - timestamp
-      - version
+      - code_checksum
+      - dependencies
     properties:
-      input_file:
+      code_checksum:
         type: string
-        description: Path to the input data file used (e.g., data/processed/derived_physics.csv).
-      timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of when the analysis was run.
-      version:
-        type: string
-        description: Version of the analysis script.
-      controls:
-        type: array
-        description: List of variables controlled for in the partial correlation.
-        items:
-          type: string
-        const:
-          - "mass"
-          - "semi_major_axis"
+        description: SHA-256 checksum of the analysis script
+      dependencies:
+        type: object
+        description: Versions of key dependencies used
+        properties:
+          scipy:
+            type: string
+          pingouin:
+            type: string
+          pandas:
+            type: string
+          numpy:
+            type: string

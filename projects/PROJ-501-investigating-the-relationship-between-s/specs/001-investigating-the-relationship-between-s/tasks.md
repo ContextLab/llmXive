@@ -150,7 +150,7 @@
  - Fallback: If rank-based partial correlation is not supported by the library version, implement manually using residuals of rank-transformed variables (FR-006, SC-001).
 - [X] T029 [US3] Implement `code/analysis.py` function `run_sensitivity_analysis`: Re-run correlation with $M_{atm, initial}$ baselines across a range of low to moderate magnitudes., calculate the variation in correlation coefficients, and append the calculated variation to `correlation_results.json` (FR-010)
 - [ ] T030 [US3] Save results to `data/results/correlation_results.json` including ρ_partial, p-value, and a structured summary of sensitivity results with keys: `baselines` (list of values), `correlations` (list of ρ values), and `variation` (range or std dev) (FR-006, FR-010)
-- [ ] T031 [US3] Implement `code/visualization.py` to generate scatter plot: X-axis = Cumulative XUV Flux, Y-axis = Retention Fraction, with regression line and labels (FR-007)
+- [X] T031 [US3] Implement `code/visualization.py` to generate scatter plot: X-axis = Cumulative XUV Flux, Y-axis = Retention Fraction, with regression line and labels (FR-007)
 - [ ] T032 [US3] Save plot to `data/results/flux_vs_retention.png`
 - [ ] T033 [US3] Add console output logic to print significance statement based on p-value < 0.05 and sign of ρ (US-3 Acceptance 3)
 - [ ] T034 [US3] Ensure all analysis outputs explicitly frame findings as "associational" only (SC-005)

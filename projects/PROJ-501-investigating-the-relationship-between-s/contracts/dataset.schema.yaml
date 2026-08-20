@@ -1,58 +1,121 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Merged Filtered Stellar and Exoplanet Dataset Schema"
+title: "Merged Filtered Stellar-Exoplanet Dataset Schema"
 description: |
-  Schema for the output of the data ingestion pipeline (User Story 1).
-  This file defines the structure of `data/processed/merged_filtered.csv`.
-  Contains merged data from MAST TESS Stellar Flare Catalog and NASA Exoplanet Archive,
-  filtered for M-dwarfs with >= 10 flare events.
+  Schema for the intermediate dataset produced by the data ingestion pipeline
+  (User Story 1). This file contains merged stellar flare and exoplanet data,
+  filtered for M-dwarfs with sufficient flare events.
 type: object
-properties:
-  star_id:
-    description: "Unique identifier for the host star (from TESS/MAST)."
-    type: integer
-  flare_count:
-    description: "Total number of flare events detected for this star."
-    type: integer
-    minimum: 10
-  radius:
-    description: "Stellar radius in solar units (R_sun)."
-    type: number
-    format: float
-    minimum: 0
-  mass:
-    description: "Stellar mass in solar units (M_sun)."
-    type: number
-    format: float
-    minimum: 0
-  semi_major_axis:
-    description: "Planetary semi-major axis in astronomical units (AU)."
-    type: number
-    format: float
-    minimum: 0
-  density:
-    description: "Stellar density in g/cm^3 or relative to solar density."
-    type: number
-    format: float
-    minimum: 0
-  age:
-    description: "System age in Gyr. May be imputed with DEFAULT_M_DWARF_AGE if missing."
-    type: number
-    format: float
-    minimum: 0
 required:
-  - star_id
-  - flare_count
-  - radius
-  - mass
-  - semi_major_axis
-  - density
-  - age
-additionalProperties: false
-examples:
-  - star_id: 12345
-    flare_count: 15
-    radius: 0.45
-    mass: 0.42
-    semi_major_axis: 0.05
-    density: 5.2
-    age: 3.5
+  - $schema
+  - description
+  - source_file
+  - columns
+properties:
+  $schema:
+    type: string
+    const: "http://json-schema.org/draft-07/schema#"
+  description:
+    type: string
+    description: "Human-readable description of the dataset"
+  source_file:
+    type: string
+    description: "Relative path to the generated CSV file"
+    const: "data/processed/merged_filtered.csv"
+  columns:
+    type: array
+    description: "Ordered list of column definitions"
+    items:
+      type: object
+      required:
+        - name
+        - type
+        - description
+      properties:
+        name:
+          type: string
+          description: "Column name in the CSV"
+        type:
+          type: string
+          enum:
+            - integer
+            - float
+            - string
+            - boolean
+          description: "Expected data type"
+        description:
+          type: string
+          description: "Physical meaning and units of the column"
+        nullable:
+          type: boolean
+          default: false
+          description: "Whether NULL values are permitted"
+  constraints:
+    type: object
+    description: "Domain-specific constraints applied during filtering"
+    properties:
+      stellar_type:
+        type: string
+        const: "M-dwarf"
+        description: "Only M-dwarf hosts are included"
+      min_flare_count:
+        type: integer
+        const: 10
+        description: "Minimum number of flare events required"
+      required_columns:
+        type: array
+        items:
+          type: string
+        description: "Columns that must not be null"
+        const:
+          - mass
+          - radius
+          - semi_major_axis
+  expected_rows:
+    type: integer
+    description: "Approximate number of rows (will vary based on API data)"
+    minimum: 1
+
+# Specific Column Definitions matching tasks.md T006
+column_definitions:
+  - name: star_id
+    type: string
+    description: "Unique identifier for the host star (e.g., TIC ID or Gaia ID)"
+    nullable: false
+  - name: flare_count
+    type: integer
+    description: "Total number of detected flare events for this star"
+    nullable: false
+    minimum: 10
+  - name: radius
+    type: float
+    description: "Stellar radius in solar radii (R_sun)"
+    nullable: false
+    unit: "R_sun"
+  - name: mass
+    type: float
+    description: "Stellar mass in solar masses (M_sun)"
+    nullable: false
+    unit: "M_sun"
+  - name: semi_major_axis
+    type: float
+    description: "Planetary semi-major axis in astronomical units (AU)"
+    nullable: false
+    unit: "AU"
+  - name: density
+    type: float
+    description: "Planetary bulk density in g/cm^3"
+    nullable: true
+    unit: "g/cm^3"
+  - name: age
+    type: float
+    description: "System age in Gyr. If missing in source, filled with DEFAULT_M_DWARF_AGE"
+    nullable: false
+    unit: "Gyr"
+  - name: host_star_id
+    type: string
+    description: "Primary key used for merging flare and exoplanet datasets"
+    nullable: false
+  - name: planet_name
+    type: string
+    description: "Name of the orbiting exoplanet"
+    nullable: true

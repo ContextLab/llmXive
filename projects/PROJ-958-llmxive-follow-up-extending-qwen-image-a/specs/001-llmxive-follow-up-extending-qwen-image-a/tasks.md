@@ -83,16 +83,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for `src/scoring/syntactic_features.py` in `tests/unit/test_scoring.py` verifying no semantic embeddings are used (check for absence of BERT/CLIP text encoder calls)
-- [ ] T010 [P] [US1] Unit test for malformed prompt handling in `tests/unit/test_scoring.py` (verify default 0.0 score and warning log)
+- [X] T009 [P] [US1] Unit test for `src/scoring/syntactic_features.py` in `tests/unit/test_scoring.py` verifying no semantic embeddings are used (check for absence of BERT/CLIP text encoder calls)
+- [X] T010 [P] [US1] Unit test for malformed prompt handling in `tests/unit/test_scoring.py` (verify default 0.0 score and warning log)
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `src/scoring/syntactic_features.py` with syntactic complexity metrics (parse tree depth, clause count) using `nltk`/`spacy`
-- [ ] T012 [P] [US1] Implement `src/scoring/syntactic_features.py` with lexical diversity metric (MTLD) using `textstat`
-- [ ] T013 [US1] Implement the weighted average formula in `src/scoring/complexity_calculator.py` to combine metrics into a raw score
-- [ ] T013b [US1] Implement `src/scoring/complexity_calculator.py` normalization logic to clamp raw score strictly to [0.0, 1.0] range (min-max scaling)
-- [ ] T014 [US1] Implement logic in `src/scoring/syntactic_features.py` to handle parse failures gracefully (assign 0.0, log warning)
+- [X] T011 [P] [US1] Implement `src/scoring/syntactic_features.py` with syntactic complexity metrics (parse tree depth, clause count) using `nltk`/`spacy`
+- [X] T012 [P] [US1] Implement `src/scoring/syntactic_features.py` with lexical diversity metric (MTLD) using `textstat`
+- [X] T013 [US1] Implement the weighted average formula in `src/scoring/complexity_calculator.py` to combine metrics into a raw score
+- [X] T013b [US1] Implement `src/scoring/complexity_calculator.py` normalization logic to clamp raw score strictly to [0.0, 1.0] range (min-max scaling)
+- [X] T014 [US1] Implement logic in `src/scoring/syntactic_features.py` to handle parse failures gracefully (assign 0.0, log warning)
 - [ ] T015 [US1] Create script `src/scoring/run_scoring.py` to process the full dataset (IA-Bench + WISE-Verified) and write `data/derived/scoring_results.csv`
 - [ ] T015b [US1] Add logic in `run_scoring.py` to output reference metadata (if available) alongside scores
 - [ ] T016 [US1] Add logging in `src/scoring/syntactic_features.py` to confirm no semantic embeddings were used during execution

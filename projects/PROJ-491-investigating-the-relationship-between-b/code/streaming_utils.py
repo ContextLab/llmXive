@@ -1,9 +1,8 @@
 """
 Memory-efficient streaming utilities for large NIfTI files.
 
-This module provides functions to process fMRI data in chunks to ensure
-peak RAM usage stays below 7GB, as required by the project constraints.
-It leverages nibabel's memory mapping and chunked iteration capabilities.
+This module provides generators and functions to process NIfTI images
+in chunks (time or space) to ensure RAM usage stays below 7GB.
 """
 import os
 import numpy as np
@@ -11,353 +10,272 @@ import nibabel as nib
 from pathlib import Path
 from typing import Generator, Tuple, Optional, List, Union
 from config import ensure_directories
-import logging
 
-logger = logging.getLogger(__name__)
+# Constants
+MAX_RAM_GB = 7.0
+BYTES_PER_FLOAT32 = 4
+GB_TO_BYTES = 1024 ** 3
 
-# Constants for memory management
-# Target: < 7GB RAM. We'll process data in chunks to stay well within this.
-# Assuming float32 (4 bytes) for time series data.
-# A 264-node atlas with 1000 timepoints is ~1MB, so the bottleneck is usually
-# the raw 4D volume loading.
-MAX_CHUNK_SIZE_MB = 500  # Process ~500MB chunks at a time
 
-def get_nifti_volume_info(file_path: Union[str, Path]) -> dict:
+def get_nifti_volume_info(nifti_path: Union[str, Path]) -> dict:
     """
-    Retrieve metadata about a NIfTI file without loading the full data into memory.
+    Inspect a NIfTI file without loading the full data array.
+    
+    Returns metadata including dimensions, data type, and estimated memory size.
     
     Args:
-        file_path: Path to the NIfTI file.
+        nifti_path: Path to the .nii or .nii.gz file.
         
     Returns:
-        Dictionary containing shape, dtype, voxel dimensions, and estimated size.
+        Dictionary containing shape, dtype, estimated_size_gb, and voxel_size.
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"NIfTI file not found: {file_path}")
+    path = Path(nifti_path)
+    if not path.exists():
+        raise FileNotFoundError(f"NIfTI file not found: {nifti_path}")
     
-    # Load header only (nibabel does this efficiently)
-    img = nib.load(str(file_path))
+    # Load header only
+    img = nib.load(str(path))
     header = img.header
     data_shape = img.shape
     data_dtype = img.get_data_dtype()
-    affine = img.affine
     
-    # Calculate estimated size in MB
-    # Shape is typically (x, y, z, t)
-    if len(data_shape) == 4:
-        total_voxels = np.prod(data_shape)
-    elif len(data_shape) == 3:
-        total_voxels = np.prod(data_shape)
-    else:
-        raise ValueError(f"Unexpected NIfTI shape: {data_shape}")
-        
-    bytes_per_voxel = np.dtype(data_dtype).itemsize
-    estimated_size_mb = (total_voxels * bytes_per_voxel) / (1024 ** 2)
+    # Calculate total size
+    total_voxels = np.prod(data_shape)
+    bytes_per_voxel = data_dtype.itemsize
+    total_bytes = total_voxels * bytes_per_voxel
+    total_size_gb = total_bytes / GB_TO_BYTES
     
     return {
         "shape": data_shape,
         "dtype": str(data_dtype),
-        "voxel_size_mm": header.get_zooms(),
-        "affine": affine,
-        "estimated_size_mb": estimated_size_mb,
-        "is_4d": len(data_shape) == 4
+        "estimated_size_gb": round(total_size_gb, 2),
+        "voxel_size": img.header.get_zooms(),
+        "ndim": len(data_shape)
     }
 
+
+def verify_memory_constraints(nifti_path: Union[str, Path], max_gb: float = MAX_RAM_GB) -> bool:
+    """
+    Check if loading the entire NIfTI file would exceed memory constraints.
+    
+    Args:
+        nifti_path: Path to the NIfTI file.
+        max_gb: Maximum allowed RAM in GB (default 7.0).
+        
+    Returns:
+        True if the file fits in memory, False otherwise.
+        
+    Raises:
+        RuntimeError: If the file exceeds memory constraints.
+    """
+    info = get_nifti_volume_info(nifti_path)
+    if info["estimated_size_gb"] > max_gb:
+        raise RuntimeError(
+            f"Memory constraint violation: {nifti_path} is {info['estimated_size_gb']}GB, "
+            f"exceeding limit of {max_gb}GB. Use streaming utilities instead."
+        )
+    return True
+
+
 def stream_nifti_by_time_chunks(
-    file_path: Union[str, Path],
-    chunk_size: Optional[int] = None
+    nifti_path: Union[str, Path],
+    chunk_size: int = 10,
+    overlap: int = 0
 ) -> Generator[Tuple[int, np.ndarray], None, None]:
     """
-    Stream a 4D NIfTI file in time-point chunks to minimize memory usage.
+    Stream a 4D NIfTI file (x, y, z, time) in time-based chunks.
     
-    This generator yields (start_idx, end_idx, data_chunk) tuples.
-    The data_chunk is a 4D array (x, y, z, t_chunk) or 3D if 3D file.
+    This allows processing long time-series without loading the full 4D array.
     
     Args:
-        file_path: Path to the NIfTI file.
-        chunk_size: Number of time points per chunk. If None, calculates
-                    based on MAX_CHUNK_SIZE_MB.
-                    
+        nifti_path: Path to the 4D NIfTI file.
+        chunk_size: Number of timepoints per chunk.
+        overlap: Number of timepoints to overlap between chunks.
+        
     Yields:
-        Tuple of (start_time_idx, end_time_idx, data_array)
-        
-    Raises:
-        FileNotFoundError: If file doesn't exist.
-        ValueError: If file is not 4D (or 3D with single timepoint).
+        Tuples of (start_index, data_chunk) where data_chunk shape is (x, y, z, chunk_size).
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"NIfTI file not found: {file_path}")
-        
-    img = nib.load(str(file_path))
+    path = Path(nifti_path)
+    if not path.exists():
+        raise FileNotFoundError(f"NIfTI file not found: {nifti_path}")
+    
+    img = nib.load(str(path))
     data_shape = img.shape
     
-    if len(data_shape) == 3:
-        # Treat as single time point 4D
-        logger.warning(f"File {file_path} is 3D. Treating as single timepoint.")
-        data = img.get_fdata(dtype=np.float32)
-        yield (0, 1, data[..., np.newaxis])
-        return
-        
     if len(data_shape) != 4:
         raise ValueError(f"Expected 4D NIfTI, got shape {data_shape}")
-        
+    
     x, y, z, t = data_shape
-    bytes_per_voxel = np.dtype(img.get_data_dtype()).itemsize
-    voxel_size_mb = (x * y * z * bytes_per_voxel) / (1024 ** 2)
-    
-    if chunk_size is None:
-        # Calculate chunk size to fit within MAX_CHUNK_SIZE_MB
-        # We want chunk_size * voxel_size_mb <= MAX_CHUNK_SIZE_MB
-        if voxel_size_mb == 0:
-            chunk_size = t
-        else:
-            chunk_size = max(1, int(MAX_CHUNK_SIZE_MB / voxel_size_mb))
-            # Ensure we don't exceed total time points
-            chunk_size = min(chunk_size, t)
-            
-    logger.info(f"Streaming {file_path}: {t} timepoints in chunks of {chunk_size} ({chunk_size * voxel_size_mb:.1f}MB per chunk)")
-    
-    # Use memory-mapped access to avoid loading full volume
-    # nibabel's get_fdata() loads into memory, so we use dataobj directly
-    # or load in slices. However, standard nibabel doesn't support true
-    # chunked reading without loading the whole thing if not memory mapped correctly.
-    # We will use get_fdata() but slice it, assuming the file is not huge
-    # in X/Y/Z dimensions (typical fMRI is ~64x64x36).
-    # If X*Y*Z is huge, we need a different approach, but for standard HCP data
-    # (often 2mm isotropic ~91x109x91), loading one timepoint is ~36MB,
-    # so loading 10-15 timepoints is safe.
-    
-    # To be safe for very large X/Y/Z, we iterate time points one by one if chunk_size > 1 is risky
-    # But typically HCP data fits in memory for a few timepoints.
-    # We will load the whole array if it fits in a reasonable buffer, else slice.
-    # Given the constraint <7GB, and typical fMRI sizes, loading the whole 4D
-    # might exceed memory if T is large (e.g. 1000 TRs * 36MB = 36GB).
-    # So we MUST NOT load the whole 4D array.
-    
-    # Strategy: Iterate time points and accumulate.
-    current_chunk = []
     start_idx = 0
     
-    for t_idx in range(t):
-        # Load single time point (3D volume)
-        # This is the most memory-efficient way with nibabel
-        vol_3d = img.dataobj[t_idx, :, :, :]
-        vol_3d = np.asarray(vol_3d, dtype=np.float32)
+    while start_idx < t:
+        end_idx = min(start_idx + chunk_size, t)
         
-        current_chunk.append(vol_3d)
+        # Use memory mapping for efficient slicing
+        # nibabel's get_fdata() loads the whole file, so we use dataobj directly
+        # which supports slicing without full load for many formats
+        data_obj = img.dataobj
         
-        if len(current_chunk) == chunk_size or t_idx == t - 1:
-            # Stack and yield
-            chunk_4d = np.stack(current_chunk, axis=-1)
-            end_idx = t_idx + 1
-            yield (start_idx, end_idx, chunk_4d)
-            
-            # Reset
-            current_chunk = []
-            start_idx = end_idx
+        # Slicing the dataobj creates a view or reads only necessary blocks
+        # depending on the underlying file format and compression
+        chunk = data_obj[:, :, :, start_idx:end_idx]
+        
+        # Convert to numpy array (only the chunk is loaded into RAM)
+        chunk_array = np.asarray(chunk)
+        
+        yield (start_idx, chunk_array)
+        
+        start_idx = end_idx - overlap if overlap > 0 else end_idx
+
 
 def stream_nifti_by_spatial_chunks(
-    file_path: Union[str, Path],
-    chunk_size_z: Optional[int] = None
-) -> Generator[Tuple[int, int, np.ndarray], None, None]:
+    nifti_path: Union[str, Path],
+    chunk_size: Tuple[int, int, int] = (32, 32, 32)
+) -> Generator[Tuple[Tuple[int, int, int], np.ndarray], None, None]:
     """
-    Stream a 4D NIfTI file in spatial Z-slices chunks.
+    Stream a 3D or 4D NIfTI file in spatial chunks.
     
-    Useful when time dimension is small but spatial volume is large.
+    Useful for operations that can be parallelized over brain regions.
     
     Args:
-        file_path: Path to the NIfTI file.
-        chunk_size_z: Number of Z-slices per chunk.
+        nifti_path: Path to the NIfTI file.
+        chunk_size: Tuple (dx, dy, dz) defining the spatial block size.
         
     Yields:
-        Tuple of (start_z, end_z, data_array) where data_array is (x, y, z_chunk, t)
+        Tuples of ((x_start, y_start, z_start), data_chunk).
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"NIfTI file not found: {file_path}")
-        
-    img = nib.load(str(file_path))
+    path = Path(nifti_path)
+    if not path.exists():
+        raise FileNotFoundError(f"NIfTI file not found: {nifti_path}")
+    
+    img = nib.load(str(path))
     data_shape = img.shape
+    data_obj = img.dataobj
     
-    if len(data_shape) == 3:
-        # Add time dimension
-        data_shape = data_shape + (1,)
-        t = 1
-    else:
-        t = data_shape[3]
-        
-    x, y, z, t = data_shape
+    dx, dy, dz = chunk_size
+    x_dim, y_dim, z_dim = data_shape[:3]
+    t_dim = data_shape[3] if len(data_shape) == 4 else 1
     
-    if chunk_size_z is None:
-        # Estimate based on memory
-        bytes_per_voxel = np.dtype(img.get_data_dtype()).itemsize
-        slice_size_mb = (x * y * t * bytes_per_voxel) / (1024 ** 2)
-        if slice_size_mb == 0:
-            chunk_size_z = z
-        else:
-            chunk_size_z = max(1, int(MAX_CHUNK_SIZE_MB / slice_size_mb))
-            chunk_size_z = min(chunk_size_z, z)
-            
-    logger.info(f"Streaming spatial Z-chunks: {z} slices in chunks of {chunk_size_z}")
-    
-    for start_z in range(0, z, chunk_size_z):
-        end_z = min(start_z + chunk_size_z, z)
-        
-        # Load slice chunk
-        # dataobj allows slicing
-        chunk_data = np.asarray(img.dataobj[:, :, start_z:end_z, :], dtype=np.float32)
-        yield (start_z, end_z, chunk_data)
+    for x_start in range(0, x_dim, dx):
+        x_end = min(x_start + dx, x_dim)
+        for y_start in range(0, y_dim, dy):
+            y_end = min(y_start + dy, y_dim)
+            for z_start in range(0, z_dim, dz):
+                z_end = min(z_start + dz, z_dim)
+                
+                if len(data_shape) == 4:
+                    chunk = data_obj[x_start:x_end, y_start:y_end, z_start:z_end, :]
+                else:
+                    chunk = data_obj[x_start:x_end, y_start:y_end, z_start:z_end]
+                
+                yield ((x_start, y_start, z_start), np.asarray(chunk))
+
 
 def extract_roi_timeseries_streaming(
-    file_path: Union[str, Path],
-    roi_mask_path: Union[str, Path],
-    chunk_size: Optional[int] = None
+    nifti_path: Union[str, Path],
+    mask_path: Union[str, Path],
+    chunk_size: int = 50
 ) -> np.ndarray:
     """
-    Extract time series for a specific ROI from a large NIfTI file using streaming.
+    Extract ROI timeseries from a NIfTI file using a mask, processing in time chunks.
     
-    This avoids loading the full 4D volume into memory by processing time chunks
-    and aggregating the ROI mean.
+    This avoids loading the full 4D image and full mask into memory simultaneously.
     
     Args:
-        file_path: Path to the 4D NIfTI fMRI file.
-        roi_mask_path: Path to the 3D NIfTI mask defining the ROI (1s inside, 0s outside).
-        chunk_size: Number of time points per processing chunk.
+        nifti_path: Path to the 4D NIfTI file (BOLD data).
+        mask_path: Path to the binary mask (3D NIfTI).
+        chunk_size: Number of timepoints to process per chunk.
         
     Returns:
-        1D numpy array of time series (mean signal per time point).
-        
-    Raises:
-        FileNotFoundError: If files not found.
-        ValueError: If mask shape doesn't match spatial dimensions of fMRI.
+        2D numpy array (n_voxels_in_roi, n_timepoints).
     """
-    file_path = Path(file_path)
-    roi_mask_path = Path(roi_mask_path)
+    path = Path(nifti_path)
+    mask_path = Path(mask_path)
     
-    if not file_path.exists():
-        raise FileNotFoundError(f"fMRI file not found: {file_path}")
-    if not roi_mask_path.exists():
-        raise FileNotFoundError(f"ROI mask not found: {roi_mask_path}")
-        
-    # Load ROI mask (3D, should fit in memory)
-    mask_img = nib.load(str(roi_mask_path))
-    mask_data = np.asarray(mask_img.get_fdata(dtype=np.float32))
-    mask_shape = mask_data.shape
+    if not path.exists():
+        raise FileNotFoundError(f"NIfTI file not found: {nifti_path}")
+    if not mask_path.exists():
+        raise FileNotFoundError(f"Mask file not found: {mask_path}")
     
-    # Validate spatial dimensions
-    fmri_info = get_nifti_volume_info(file_path)
-    fmri_shape = fmri_info["shape"]
+    # Load mask (usually small)
+    mask_img = nib.load(str(mask_path))
+    mask_data = np.asarray(mask_img.dataobj)
+    roi_indices = np.where(mask_data > 0)
+    n_voxels = len(roi_indices[0])
     
-    if len(fmri_shape) == 4:
-        fmri_spatial_shape = fmri_shape[:3]
-    else:
-        fmri_spatial_shape = fmri_shape
-        
-    if fmri_spatial_shape != mask_shape:
-        raise ValueError(
-            f"Mask shape {mask_shape} does not match fMRI spatial shape {fmri_spatial_shape}"
-        )
-        
-    # Get indices of active voxels
-    active_voxel_indices = np.where(mask_data > 0)
-    if len(active_voxel_indices[0]) == 0:
-        logger.warning(f"No active voxels found in ROI mask: {roi_mask_path}")
-        return np.array([])
-        
-    logger.info(f"ROI has {len(active_voxel_indices[0])} active voxels")
+    if n_voxels == 0:
+        raise ValueError("Mask contains no valid voxels.")
     
-    # Prepare storage for time series
-    # We don't know T yet, so we'll collect in a list and convert at the end
-    # or use a pre-allocated array if we know T.
-    # Since we stream, we don't know T easily without loading header fully (which we did).
-    t = fmri_info["shape"][3] if len(fmri_info["shape"]) == 4 else 1
-    time_series = np.zeros(t, dtype=np.float32)
+    # Load image info
+    img = nib.load(str(path))
+    data_obj = img.dataobj
+    _, _, _, n_timepoints = data_obj.shape
     
-    # Stream through time chunks
-    for start_idx, end_idx, chunk_4d in stream_nifti_by_time_chunks(file_path, chunk_size):
-        # chunk_4d shape: (x, y, z, t_chunk)
-        t_chunk = chunk_4d.shape[-1]
+    # Prepare output array
+    timeseries = np.zeros((n_voxels, n_timepoints), dtype=np.float32)
+    
+    # Stream time chunks
+    start_idx = 0
+    voxel_idx = 0
+    while start_idx < n_timepoints:
+        end_idx = min(start_idx + chunk_size, n_timepoints)
+        chunk = np.asarray(data_obj[:, :, :, start_idx:end_idx])
         
-        # Extract values for active voxels
-        # This is efficient: advanced indexing on the chunk
-        chunk_values = chunk_4d[active_voxel_indices]
+        # Extract ROI voxels for this chunk
+        # chunk shape: (x, y, z, t_chunk)
+        # We need to extract specific (x, y, z) coordinates for all t
+        for i in range(n_voxels):
+            x, y, z = roi_indices[0][i], roi_indices[1][i], roi_indices[2][i]
+            timeseries[i, start_idx:end_idx] = chunk[x, y, z, :]
         
-        # Calculate mean across voxels for each time point in the chunk
-        mean_signal = np.mean(chunk_values, axis=0)
-        
-        # Store in main array
-        time_series[start_idx:end_idx] = mean_signal
-        
-    return time_series
+        start_idx = end_idx
+    
+    return timeseries
 
-def verify_memory_constraints(
-    file_path: Union[str, Path],
-    max_ram_gb: float = 7.0
-) -> bool:
-    """
-    Verify that processing the given file with our streaming strategy
-    will stay within the specified RAM limit.
-    
-    Args:
-        file_path: Path to the NIfTI file.
-        max_ram_gb: Maximum allowed RAM usage in GB.
-        
-    Returns:
-        True if safe, False otherwise.
-    """
-    info = get_nifti_volume_info(file_path)
-    voxel_size_mb = (info["shape"][0] * info["shape"][1] * info["shape"][2] * 
-                    np.dtype(info["dtype"]).itemsize) / (1024 ** 2)
-    
-    # Worst case: loading one full 3D volume + overhead
-    # Our streaming loads one chunk (e.g., 500MB) + Python overhead
-    estimated_peak_mb = MAX_CHUNK_SIZE_MB + 100  # 100MB overhead buffer
-    estimated_peak_gb = estimated_peak_mb / 1024
-    
-    if estimated_peak_gb > max_ram_gb:
-        logger.error(f"Estimated peak memory {estimated_peak_gb:.2f}GB exceeds limit {max_ram_gb}GB")
-        return False
-        
-    logger.info(f"Memory check passed: estimated peak {estimated_peak_gb:.2f}GB < {max_ram_gb}GB")
-    return True
 
 def main():
     """
-    CLI entry point for testing streaming utilities.
-    Usage: python code/streaming_utils.py <path_to_nifti>
+    Command-line interface for testing streaming utilities.
+    Usage: python code/streaming_utils.py <nifti_path> [--chunk-size 10]
     """
     import sys
     
     if len(sys.argv) < 2:
-        print("Usage: python code/streaming_utils.py <path_to_nifti>")
+        print("Usage: python code/streaming_utils.py <nifti_path> [--chunk-size N]")
         sys.exit(1)
-        
-    nifti_path = Path(sys.argv[1])
+    
+    nifti_path = sys.argv[1]
+    chunk_size = 10
+    
+    for i, arg in enumerate(sys.argv):
+        if arg == "--chunk-size" and i + 1 < len(sys.argv):
+            chunk_size = int(sys.argv[i + 1])
     
     print(f"Analyzing: {nifti_path}")
+    
     try:
         info = get_nifti_volume_info(nifti_path)
         print(f"Shape: {info['shape']}")
-        print(f"Estimated size: {info['estimated_size_mb']:.2f} MB")
         print(f"Dtype: {info['dtype']}")
+        print(f"Estimated Size: {info['estimated_size_gb']} GB")
         
-        print("\nTesting streaming by time chunks...")
-        total_timepoints = 0
-        for start, end, chunk in stream_nifti_by_time_chunks(nifti_path):
-            total_timepoints += (end - start)
-            print(f"  Chunk: {start}-{end}, shape: {chunk.shape}")
-            
-        print(f"Total timepoints streamed: {total_timepoints}")
-        
-        if info['is_4d']:
-            print("\nMemory constraint check:")
-            verify_memory_constraints(nifti_path)
+        if info['estimated_size_gb'] > MAX_RAM_GB:
+            print(f"Warning: File exceeds {MAX_RAM_GB}GB limit. Using streaming.")
+            print(f"Streaming chunks of {chunk_size} timepoints...")
+            count = 0
+            for start_idx, chunk in stream_nifti_by_time_chunks(nifti_path, chunk_size):
+                count += 1
+                print(f"  Processed chunk {count}: timepoints {start_idx}-{start_idx+chunk.shape[-1]}")
+                # Free memory explicitly
+                del chunk
+            print(f"Completed processing {count} chunks.")
+        else:
+            print("File fits in memory. Full load test skipped for safety.")
             
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

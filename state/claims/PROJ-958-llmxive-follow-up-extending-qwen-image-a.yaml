@@ -758,24 +758,6 @@
   updated_at: '2026-08-10T10:08:29Z'
 - artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
   attempts: 1
-  canonical: Identify knee point where slope change is less than 0.01
-  claim_id: c_3a63588b
-  context: T029 [US3] Implement `src/fidelity/regression_analysis.py` with piecewise
-    linear regression to identify the 'knee point' where slope change < 0.01
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Identify_knee_point_where_slope_change_is_less_than_0.01
-  kind: magnitude
-  raw_text: Identify the 'knee point' where slope change < 0.01.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-10T10:08:50Z'
-- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
-  attempts: 1
   canonical: Handle no threshold found if R squared is less than 0.85
   claim_id: c_3400f005
   context: "T034 [US3] Add logic to handle 'No Threshold Found' case (R\xB2 < 0.85\
@@ -900,39 +882,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T10:13:02Z'
-- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
-  attempts: 1
-  canonical: pilot study selects 200 random prompts
-  claim_id: c_df420649
-  context: T012a [US1/US2] Implement src/pilot/study_runner.py to select a random
-    subset of 200 prompts from data/derived/scoring_results.csv.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The pilot study selects a random subset of 200 prompts from data/derived/scoring_results.csv.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-10T10:16:14Z'
-- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
-  attempts: 1
-  canonical: permutation test uses 10000 permutations
-  claim_id: c_2d7a7995
-  context: Also implement a permutation test with 10,000 permutations (FR-006) to
-    validate the significance of fidelity difference below threshold.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The permutation test uses 10,000 permutations to validate the significance
-    of fidelity difference below threshold.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-10T10:16:27Z'
 - artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
   attempts: 1
   canonical: 10000 permutations in fidelity difference validation
@@ -1110,3 +1059,224 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T10:19:24Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 2
+  canonical: pilot study selects 200 random prompts
+  claim_id: c_df420649
+  context: T012a [US1/US2] Implement src/pilot/study_runner.py to select a random
+    subset of 200 prompts from data/derived/scoring_results.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot study selects a random subset of 200 prompts from data/derived/scoring_results.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:31:49Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 2
+  canonical: permutation test uses 10000 permutations
+  claim_id: c_2d7a7995
+  context: Also implement a permutation test with 10,000 permutations (FR-006) to
+    validate the significance of fidelity difference below threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 10,000 permutations to validate the significance
+    of fidelity difference below threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:32:11Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: permutation test with 10000 permutations for fidelity difference significance
+  claim_id: c_c5b2cabd
+  context: 'T030 [US3] Implement statistical validation in src/fidelity/regression_analysis.py
+    including: 1) F-test (p < 0.05) AND 2) Likelihood Ratio Test (LRT) against a linear
+    model. BOTH tests must pass to validate the ''knee point'' as a statistically
+    superior non-linear relationship. If either test fails, output ''No Threshold
+    Found'' flag. Also implement a permutation test with 10,000 permutations (FR-006)
+    to validate the significance of fidelity difference below threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a permutation test with 10,000 permutations to validate the
+    significance of fidelity difference below threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:33:35Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: random subset of 200 prompts for pilot study
+  claim_id: c_196098a1
+  context: T012a [US1/US2] Implement src/pilot/study_runner.py to select a random
+    subset of 200 prompts from data/derived/scoring_results.csv. Execute BOTH the
+    Full Agent (baseline) and Hybrid (rule-based for low/medium, agent for high) pipelines
+    for these prompts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random subset of 200 prompts from data/derived/scoring_results.csv
+    for the pilot study.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:33:36Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Compute Fidelity Delta as Baseline CLIP Score minus Hybrid CLIP Score
+  claim_id: c_ac92bf11
+  context: T012b [US1/US2] Implement `src/pilot/failure_rate_computer.py` to compute
+    the 'Fidelity Delta' (Baseline CLIP Score - Hybrid CLIP Score) for each prompt
+    in the pilot subset. This delta serves as the proxy for 'need for agentic reasoning'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Fidelity_Delta_as_Baseline_CLIP_Score_minus_Hybrid_C
+  kind: entity_fact
+  raw_text: Implement `src/pilot/failure_rate_computer.py` to compute the 'Fidelity
+    Delta' (Baseline CLIP Score - Hybrid CLIP Score) for each prompt in the pilot
+    subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:35:34Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Compute correlation coefficient between Syntactic Complexity Score and
+    Fidelity Delta
+  claim_id: c_3994b0a2
+  context: T012c [US1/US2] Implement `src/pilot/study_runner.py` to compute the correlation
+    coefficient (Pearson/Spearman) between the Syntactic Complexity Score (from `scoring_results.csv`)
+    and the Fidelity Delta (from T012b).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_correlation_coefficient_between_Syntactic_Complexity
+  kind: entity_fact
+  raw_text: Implement `src/pilot/study_runner.py` to compute the correlation coefficient
+    (Pearson/Spearman) between the Syntactic Complexity Score and the Fidelity Delta.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:36:00Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Perform permutation test with 10,000 permutations to validate fidelity
+    difference significance
+  claim_id: c_b1c53f18
+  context: 'T030 [US3] Implement statistical validation in `src/fidelity/regression_analysis.py`
+    including: 1) F-test (p < 0.05) AND 2) Likelihood Ratio Test (LRT) against a linear
+    model. ... Also implement a permutation test with 10,000 permutations (FR-006)
+    to validate the significance of fidelity difference below threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a permutation test with 10,000 permutations to validate the
+    significance of fidelity difference below threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:36:01Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Clamp Syntactic Complexity Score to range 0.0 to 1.0
+  claim_id: c_4948ea8f
+  context: 'Critical Normalization Rule: Syntactic Complexity Score MUST be strictly
+    clamped to [0.0, 1.0] (Task T013b).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Syntactic Complexity Score MUST be strictly clamped to [0.0, 1.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:36:24Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Select random subset of 200 prompts for pilot study
+  claim_id: c_987a776c
+  context: T012a [US1/US2] Implement `src/pilot/study_runner.py` to select a random
+    subset of 200 prompts from `data/derived/scoring_results.csv`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot study selects a random subset of 200 prompts from `data/derived/scoring_results.csv`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:36:24Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 2
+  canonical: Identify knee point where slope change is less than 0.01
+  claim_id: c_3a63588b
+  context: T029 [US3] Implement `src/fidelity/regression_analysis.py` with piecewise
+    linear regression to identify the 'knee point' where slope change < 0.01
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_knee_point_where_slope_change_is_less_than_0.01
+  kind: magnitude
+  raw_text: Identify the 'knee point' where slope change < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:36:48Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Record No Threshold Found if R-squared less than 0.85 or slope change
+    less than 0.01
+  claim_id: c_0ebd7098
+  context: "T034 [US3] Add logic to handle 'No Threshold Found' case (R\xB2 < 0.85\
+    \ or slope change < 0.01) and record max observed delta"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Record_No_Threshold_Found_if_R-squared_less_than_0.85_or_slo
+  kind: magnitude
+  raw_text: "The 'No Threshold Found' case is recorded if R\xB2 < 0.85 or slope change\
+    \ < 0.01."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:38:31Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 2
+  canonical: Define routing thresholds at 0.2 and 0.6
+  claim_id: c_cde38d88
+  context: "T017 [P] [US2] Unit test for `src/routing/router.py` in `tests/unit/test_router.py`\
+    \ verifying threshold logic (< 0.2, 0.2\u20130.6, > 0.6)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Routing thresholds are defined at 0.2 and 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:39:01Z'

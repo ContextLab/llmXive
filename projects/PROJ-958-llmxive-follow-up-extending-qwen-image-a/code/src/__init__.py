@@ -1,3 +1,2 @@
-"""
-llmXive research pipeline source package.
-"""
+# llmXive: Automated Science Pipeline
+# Core package initialization

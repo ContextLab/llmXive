@@ -1,0 +1,157 @@
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: "Pipeline test verifies 50 subject folders and disk usage \u2264 14 GB"
+  claim_id: c_3c418ea9
+  context: "Independent Test: The pipeline can be fully tested by executing the data\
+    \ ingestion script and verifying the output directory contains exactly 50 subject\
+    \ folders (or fewer if skipped), with both resting-state and task-fMRI NIfTI files,\
+    \ and that total disk usage is \u2264 14 GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline can be fully tested by executing the data ingestion script\
+    \ and verifying the output directory contains exactly 50 subject folders (or fewer\
+    \ if skipped), with both resting-state and task-fMRI NIfTI files, and that total\
+    \ disk usage is \u2264 14 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:46:46Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Download HCP data from OpenNeuro for 50 subjects
+  claim_id: c_4fecedbd
+  context: T012 [US1] Implement `code/data_ingestion.py` to download HCP data from
+    OpenNeuro for 50 subjects (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/data_ingestion.py` to download HCP data from OpenNeuro
+    for 50 subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:47:07Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sliding window functional connectivity calculation uses window=30 TR
+    and step=1 TR
+  claim_id: c_3566ef84
+  context: T021 [US2] Implement sliding window functional connectivity calculation
+    (window=30 TR, step=1 TR) in `code/connectivity.py` (FR-003)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sliding window functional connectivity calculation (window=30
+    TR, step=1 TR)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:47:36Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: K-means clustering uses K=4, K-means++, and seed=42
+  claim_id: c_82801d5c
+  context: T022 [US2] Implement K-means clustering (K=4, K-means++, seed=42) to define
+    state space in `code/connectivity.py` (FR-003a)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement K-means clustering (K=4, K-means++, seed=42) to define state
+    space
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:48:07Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis loop uses window sizes 20, 30, and 40 TRs
+  claim_id: c_6ba9829f
+  context: 'T029b [US3] Implement sensitivity analysis loop for window sizes {20,
+    30, 40} TRs; calculate correlation and p-value for each; write results to `data/processed/sensitivity_analysis.csv`
+    with columns: window_size, correlation_coefficient, p_value (FR-009)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sensitivity analysis loop for window sizes {20, 30, 40} TRs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:48:35Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Permutation p-value of 0 is reported as < 1/1001
+  claim_id: c_bd3705b6
+  context: 'T031 [US3] Handle edge case: report p < 1/1001 if permutation p-value
+    is exactly 0 (Edge Case)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report p < 1/1001 if permutation p-value is exactly 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:48:35Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Benchmark pipeline runtime on a subset of 5 subjects
+  claim_id: c_e44e1661
+  context: T037c [P] Benchmark pipeline runtime on a small subset (e.g., 5 subjects)
+    to establish a baseline and verify the time constraint before full execution (FR-009/Assumptions)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark pipeline runtime on a small subset (e.g., 5 subjects) to establish
+    a baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:48:55Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Total runtime stays <6h for 50 subjects
+  claim_id: c_8b5fbe94
+  context: 'T037b [P] Performance optimization: ensure total runtime stays <6h for
+    50 subjects based on T037c results (FR-009/Assumptions)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure total runtime stays <6h for 50 subjects based on T037c results
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:48:56Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage stays <6GB during processing
+  claim_id: c_1e1470fa
+  context: 'T037a Performance optimization: ensure peak RAM usage stays <6GB during
+    processing'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_stays_%3C6GB_during_processing
+  kind: entity_fact
+  raw_text: Ensure peak RAM usage stays <6GB during processing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:49:23Z'

@@ -1,1 +1,1 @@
-# results package initialization
+# results package

@@ -1,3 +1,3 @@
 """
-Tests package for llmXive Science Pipeline
+llmXive Research Pipeline: Test Suite
 """

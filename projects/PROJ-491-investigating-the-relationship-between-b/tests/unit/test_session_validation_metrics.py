@@ -1,184 +1,105 @@
 """
-Unit tests for T013b: Session validation metrics calculation.
-
-These tests verify the logic of calculate_pass_rate and write_metrics
-without requiring actual data ingestion (mocked data).
+Unit tests for session_validation_metrics module.
 """
-import os
 import json
+import os
 import tempfile
-import shutil
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+
 import pytest
-import sys
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# We need to mock the load_validation_state function since it depends on file system state
+# which might not be populated in a unit test environment.
+from session_validation_metrics import calculate_pass_rate, write_metrics, main
 
-from code.session_validation_metrics import calculate_pass_rate, write_metrics
 
-class TestSessionValidationMetrics:
-    
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.test_dir = tempfile.mkdtemp()
-        self.data_dir = Path(self.test_dir) / 'data' / 'processed'
-        self.data_dir.mkdir(parents=True)
-        
-        # Mock state file path
-        self.mock_state_file = self.data_dir / 'session_validation_state.json'
-        
-        # Patch project_root in the module
-        self.original_project_root = None
-        # We will patch the module's project_root variable directly in tests
+class TestCalculatePassRate:
+    def test_calculate_pass_rate_100_percent(self):
+        assert calculate_pass_rate(50, 50) == 100.0
 
-    def teardown_method(self):
-        """Clean up test fixtures."""
-        if os.path.exists(self.test_dir):
-            shutil.rmtree(self.test_dir)
+    def test_calculate_pass_rate_50_percent(self):
+        assert calculate_pass_rate(25, 50) == 50.0
 
-    def test_calculate_pass_rate_with_valid_data(self):
-        """Test pass rate calculation with valid distinct sessions."""
-        # Create mock validation data
-        mock_data = {
-            "total_subjects_checked": 100,
-            "distinct_session_count": 95,
-            "duplicate_session_ids": ["sub-001_ses-01", "sub-001_ses-02"],
-            "excluded_subjects": ["sub-001"]
-        }
-        
-        # Write mock data to temp file
-        with open(self.mock_state_file, 'w') as f:
-            json.dump(mock_data, f)
-        
-        # Temporarily override the module's project_root
-        import code.session_validation_metrics as module
-        original_project_root = module.project_root
-        module.project_root = Path(self.test_dir)
-        
-        try:
-            metrics = calculate_pass_rate()
-            
-            assert metrics['total_subjects_checked'] == 100
-            assert metrics['subjects_with_distinct_sessions'] == 95
-            assert metrics['pass_rate_percent'] == 95.0
-            assert metrics['subjects_excluded'] == 1
-            assert metrics['status'] == 'passed'
-        finally:
-            module.project_root = original_project_root
+    def test_calculate_pass_rate_zero_total(self):
+        assert calculate_pass_rate(0, 0) == 0.0
 
-    def test_calculate_pass_rate_with_zero_pass_rate(self):
-        """Test pass rate calculation when no subjects pass."""
-        mock_data = {
-            "total_subjects_checked": 50,
-            "distinct_session_count": 0,
-            "duplicate_session_ids": ["sub-001_ses-01", "sub-001_ses-02", "sub-002_ses-01", "sub-002_ses-02"],
-            "excluded_subjects": ["sub-001", "sub-002"]
-        }
-        
-        with open(self.mock_state_file, 'w') as f:
-            json.dump(mock_data, f)
-        
-        import code.session_validation_metrics as module
-        original_project_root = module.project_root
-        module.project_root = Path(self.test_dir)
-        
-        try:
-            metrics = calculate_pass_rate()
-            
-            assert metrics['pass_rate_percent'] == 0.0
-            assert metrics['status'] == 'failed'
-            assert metrics['subjects_excluded'] == 2
-        finally:
-            module.project_root = original_project_root
+    def test_calculate_pass_rate_zero_valid(self):
+        assert calculate_pass_rate(0, 50) == 0.0
 
-    def test_calculate_pass_rate_with_no_data(self):
-        """Test pass rate calculation when no subjects were checked."""
-        mock_data = {
-            "total_subjects_checked": 0,
-            "distinct_session_count": 0,
-            "duplicate_session_ids": [],
-            "excluded_subjects": []
-        }
-        
-        with open(self.mock_state_file, 'w') as f:
-            json.dump(mock_data, f)
-        
-        import code.session_validation_metrics as module
-        original_project_root = module.project_root
-        module.project_root = Path(self.test_dir)
-        
-        try:
-            metrics = calculate_pass_rate()
-            
-            assert metrics['pass_rate_percent'] == 0.0
-            assert metrics['status'] == 'no_data'
-            assert metrics['total_subjects_checked'] == 0
-        finally:
-            module.project_root = original_project_root
 
-    def test_calculate_pass_rate_missing_file(self):
-        """Test that FileNotFoundError is raised when state file is missing."""
-        # Ensure the file does not exist
-        if self.mock_state_file.exists():
-            self.mock_state_file.unlink()
-        
-        import code.session_validation_metrics as module
-        original_project_root = module.project_root
-        module.project_root = Path(self.test_dir)
-        
-        try:
-            with pytest.raises(FileNotFoundError):
-                calculate_pass_rate()
-        finally:
-            module.project_root = original_project_root
-
+class TestWriteMetrics:
     def test_write_metrics_creates_file(self):
-        """Test that write_metrics creates the output file."""
-        metrics = {
-            "pass_rate_percent": 90.0,
-            "total_subjects_checked": 100,
-            "subjects_with_distinct_sessions": 90,
-            "subjects_excluded": 10,
-            "excluded_count": 10,
-            "status": "passed"
-        }
-        
-        output_path = write_metrics(metrics)
-        
-        assert output_path.exists()
-        assert output_path.suffix == '.json'
-        
-        # Verify content
-        with open(output_path, 'r') as f:
-            written_data = json.load(f)
-        
-        assert written_data['pass_rate_percent'] == 90.0
-        assert written_data['status'] == 'passed'
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "metrics.json"
+            metrics = {"test": 123}
+            
+            write_metrics(metrics, output_path)
+            
+            assert output_path.exists()
+            with open(output_path) as f:
+                data = json.load(f)
+            assert data == metrics
 
-    def test_write_metrics_ensures_directory_exists(self):
-        """Test that write_metrics creates the output directory if missing."""
-        metrics = {
-            "pass_rate_percent": 50.0,
-            "total_subjects_checked": 10,
-            "subjects_with_distinct_sessions": 5,
-            "subjects_excluded": 5,
-            "excluded_count": 5,
-            "status": "passed"
+    def test_write_metrics_creates_directory(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "subdir" / "metrics.json"
+            metrics = {"test": 123}
+            
+            write_metrics(metrics, output_path)
+            
+            assert output_path.exists()
+            assert output_path.parent.exists()
+
+
+class TestMain:
+    @patch('session_validation_metrics.load_validation_state')
+    def test_main_success(self, mock_load_state):
+        mock_load_state.return_value = {
+            'total_subjects': 50,
+            'valid_subjects': 48,
+            'excluded_subjects': ['sub-01', 'sub-02']
         }
         
-        # Remove the directory
-        if self.data_dir.exists():
-            shutil.rmtree(self.data_dir)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Mock the output path to be in temp dir to avoid cluttering data/
+            with patch('session_validation_metrics.Path') as mock_path:
+                mock_path.return_value = Path(tmpdir) / "session_validation_metrics.json"
+                
+                result = main()
+                
+                assert result == 0
+                assert mock_path.return_value.exists()
+                
+                with open(mock_path.return_value) as f:
+                    data = json.load(f)
+                
+                assert data['total_subjects'] == 50
+                assert data['valid_subjects'] == 48
+                assert abs(data['pass_rate_percentage'] - 96.0) < 0.01
+
+    @patch('session_validation_metrics.load_validation_state')
+    def test_main_no_state(self, mock_load_state):
+        mock_load_state.return_value = None
         
-        import code.session_validation_metrics as module
-        original_project_root = module.project_root
-        module.project_root = Path(self.test_dir)
+        result = main()
+        assert result == 1
+
+    @patch('session_validation_metrics.load_validation_state')
+    def test_main_zero_total(self, mock_load_state):
+        mock_load_state.return_value = {
+            'total_subjects': 0,
+            'valid_subjects': 0,
+            'excluded_subjects': []
+        }
         
-        try:
-            output_path = write_metrics(metrics)
-            assert output_path.parent.exists()
-        finally:
-            module.project_root = original_project_root
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('session_validation_metrics.Path') as mock_path:
+                mock_path.return_value = Path(tmpdir) / "session_validation_metrics.json"
+                
+                result = main()
+                
+                assert result == 0
+                with open(mock_path.return_value) as f:
+                    data = json.load(f)
+                assert data['pass_rate_percentage'] == 0.0
