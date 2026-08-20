@@ -19,7 +19,7 @@ All data processing and modeling are designed to run on a CPU-only GitHub Action
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels` (for LMM), `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `huggingface_hub`, `jsonschema`  
 **Storage**: Local file system (`data/`, `results/`, `code/`)  
 **Testing**: `pytest` (unit tests for power calculation, integration tests for pipeline flow). **All JSON/CSV outputs are validated against schemas defined in `contracts/`** (e.g., `aggregated_drift.schema.yaml`, `field_slopes.schema.yaml`).  
-**Target Platform**: Linux (GitHub Actions Free Runner: 2 CPU, ~7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Runner: multiple CPU cores, ~ GB RAM)  
 **Project Type**: Data Analysis Pipeline / CLI  
 **Performance Goals**: Complete full pipeline (including 1,000-10,000 permutations) within 6 hours on 2 cores; memory usage < 6 GB.  
 **Constraints**: No GPU; CPU-first algorithms; streaming data ingestion to avoid OOM; strict reproducibility via pinned seeds.  
@@ -30,7 +30,7 @@ All data processing and modeling are designed to run on a CPU-only GitHub Action
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 - **[PRINCIPLE I: Reproducibility]**: The plan mandates pinned `requirements.txt`, explicit random seeds in `code/`, and a `data/` directory structure where raw data is checksummed and derived data is immutable. The pipeline will be tested on a fresh runner.
-- **[PRINCIPLE II: Verified Accuracy]**: All citations to power formulas (1999) and aggregation methods (DerSimonian-Laird) will be validated against primary sources before implementation. The `research.md` will cite only verified dataset URLs.
+- **[PRINCIPLE II: Verified Accuracy]**: All citations to power formulas () and aggregation methods (DerSimonian-Laird) will be validated against primary sources before implementation. The `research.md` will cite only verified dataset URLs.
 - **[PRINCIPLE III: Data Hygiene]**: The plan explicitly includes T011a (filtering missing data) and T011d (schema validation). No in-place modifications are allowed.
 - **[PRINCIPLE IV: Single Source of Truth]**: All figures and statistics in the final report will be generated directly from `results/` JSON/CSV files produced by the code, ensuring no hand-typed numbers.
 - **[PRINCIPLE V: Versioning Discipline]**: T032 is executed at the end of **every phase** to update `state.yaml` with content hashes and timestamps for all artifacts generated in that phase.
@@ -138,7 +138,7 @@ projects/PROJ-150-detecting-statistical-power-drift-in-rep/
   - Output: `results/permutation_pvalue.json` (validated against `contracts/permutation_result.schema.yaml`).
 - [ ] **T021**: **Sensitivity Analysis**.
   - Read `results/lmm_final_summary.json`.
-  - Sweep alpha {, 0.05, 0.1}.
+  - Sweep alpha {,, 0.1}.
   - Output: `results/sensitivity_report.json` (validated against `contracts/sensitivity_report.schema.yaml`).
 - [ ] **T025**: **Field-Specific Stratification**.
   - Fit LMM separately for each `field` using `power_residual ~ year`.

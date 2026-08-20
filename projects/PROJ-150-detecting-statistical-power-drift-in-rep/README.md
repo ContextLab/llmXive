@@ -1,84 +1,123 @@
-# Detecting Statistical Power Drift in Replicated Studies
+# Detecting Statistical Power Drift in Replicated Studies (PROJ-150)
 
-## Project Overview
+**Project ID**: PROJ-150-detecting-statistical-power-drift-in-rep
+**Status**: Implemented
+**Primary Goal**: Quantify temporal decline in statistical power across replicated studies using Linear Mixed-Effects Models (LMM).
 
-This project implements a statistical pipeline to detect and quantify temporal drift in statistical power across replicated studies. Using the OSF Reproducibility Project dataset, we employ Linear Mixed-Effects Models (LMM) to analyze whether statistical power has changed over time, controlling for effect size and sample size.
+## Overview
 
-## Methodology
+This pipeline analyzes the "OSF Reproducibility Project" dataset to detect whether statistical power in replicated studies has drifted over time. It implements a robust statistical workflow involving:
+1. **Data Ingestion**: Fetching real data from the OSF/HuggingFace repository.
+2. **Preprocessing**: Cleaning, filtering, and validating grouping variables.
+3. **Residualization**: Removing deterministic effects of sample size and effect size via a Pilot OLS model.
+4. **LMM Analysis**: Fitting a Full Linear Mixed-Effects Model (`power_residual ~ year + (1|field) + (1|original_study_id)`) to estimate the drift slope.
+5. **Robustness Checks**: Permutation tests and sensitivity analysis.
+6. **Cross-Field Aggregation**: Combining evidence across disciplines using DerSimonian-Laird weighting.
 
-The core analysis uses a Linear Mixed-Effects Model (LMM) with:
-- **Fixed Effects**: `year`, `effect_size`, `sample_size`
-- **Random Effects**: Random intercepts for `field` and `original_study_id`
+## Project Structure
 
-The model tests the hypothesis that there is a significant temporal trend ($\beta_{year}$) in statistical power. A Likelihood-Ratio Test (LRT) compares the full model against a reduced model (excluding `year`) to determine significance.
+```text
+PROJ-150-detecting-statistical-power-drift-in-rep/
+├── code/ # Implementation modules
+│ ├── download.py # Data fetcher (OSF/HuggingFace)
+│ ├── preprocess.py # Cleaning and grouping validation
+│ ├── models.py # OLS Pilot and LMM fitting logic
+│ ├── robustness.py # Permutation tests & aggregation
+│ ├── visualize.py # Plotting residuals and distributions
+│ ├── main.py # Pipeline orchestrator
+│ └──...
+├── data/
+│ ├── raw/ # Raw downloaded data (excluded from git)
+│ └── derived/ # Cleaned data and intermediate artifacts
+├── results/ # Final outputs (JSON summaries, PNG plots)
+├── state/ # Project state tracking (SHA-256 hashes)
+├── tests/ # Unit and integration tests
+└── README.md
+```
 
-For detailed methodology, see [docs/METHODOLOGY_LMM.md](docs/METHODOLOGY_LMM.md).
+## Prerequisites
+
+- Python 3.9+
+- `pip` for dependency management
+- Network access to fetch the OSF dataset (HuggingFace)
 
 ## Installation
 
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
+1. Clone the repository and navigate to the project directory.
 2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+
+```bash
+pip install -r requirements.txt
+```
+
+**Required Dependencies**:
+- `pandas`, `numpy`, `scipy` (Data processing)
+- `statsmodels`, `scikit-learn` (Statistical modeling)
+- `matplotlib`, `seaborn` (Visualization)
+- `huggingface_hub` (Data fetching)
+- `pyyaml` (State management)
+- `pytest` (Testing)
 
 ## Usage
 
 ### Running the Full Pipeline
 
-Execute the main pipeline script to download data, preprocess, fit models, and generate reports:
+To execute the entire analysis from data fetch to final report:
 
 ```bash
 python code/main.py
 ```
 
-### Individual Components
+This will:
+1. Download the dataset to `data/raw/`.
+2. Clean and validate data, saving to `data/derived/`.
+3. Fit the Pilot OLS and Full LMM models.
+4. Run robustness checks (permutation, sensitivity).
+5. Generate visualizations and JSON reports in `results/`.
 
-- **Data Download**: `python code/download.py`
-- **Preprocessing**: `python code/preprocess.py`
-- **Trend Analysis**: `python code/compute_trends.py`
-- **Visualization**: `python code/visualize.py`
-- **Robustness Checks**: `python code/robustness.py`
+### Running Specific Modules
 
-## Project Structure
+- **Download Data**: `python code/download.py`
+- **Preprocess Data**: `python code/preprocess.py`
+- **Fit Models**: `python code/models.py`
+- **Run Robustness**: `python code/robustness.py`
+- **Generate Plots**: `python code/visualize.py`
 
-```
-.
-├── code/ # Source code modules
-│ ├── main.py # Pipeline orchestrator
-│ ├── download.py # Data fetching
-│ ├── preprocess.py # Data cleaning and validation
-│ ├── compute_trends.py # LMM fitting and LRT
-│ ├── visualize.py # Plotting residuals and trends
-│ └── robustness.py # Permutation tests and sensitivity analysis
-├── data/
-│ ├── raw/ # Original downloaded data
-│ └── derived/ # Processed data and intermediate results
-├── results/ # Final outputs (summaries, plots)
-├── docs/
-│ └── METHODOLOGY_LMM.md # Detailed statistical methodology
-├── tests/ # Test suites
-├── requirements.txt # Python dependencies
-└── README.md # This file
+### Running Tests
+
+```bash
+pytest tests/ -v
 ```
 
-## Key Outputs
+## Methodology Summary
 
-- `results/lmm_final_summary.json`: Primary statistical results (slope, p-value, CI).
+1. **Power Calculation**: Post-hoc power is estimated for each study based on reported effect sizes and sample sizes.
+2. **Residualization**: A Pilot OLS model (`power ~ effect_size + sample_size`) removes the deterministic relationship between power and its inputs. The residuals (`power_residual`) represent the unexplained variance in power.
+3. **Drift Detection**: A Linear Mixed-Effects Model (LMM) is fitted:
+ `power_residual ~ year + (1|field) + (1|original_study_id)`
+ - **Fixed Effect**: `year` (The primary drift metric is the slope coefficient).
+ - **Random Effects**: Intercepts for `field` and `original_study_id` to account for hierarchical structure.
+4. **Validation**:
+ - **Likelihood Ratio Test (LRT)**: Compares the Full LMM against a reduced model (without `year`).
+ - **Permutation Test**: Shuffles `year` labels to generate a null distribution.
+ - **Cross-Field Aggregation**: Uses DerSimonian-Laird weighting to combine slopes across fields.
+
+## Output Artifacts
+
+Upon successful completion, the following files are generated:
+
+- `results/lmm_final_summary.json`: Primary drift metrics (slope, SE, CI, LRT p-value).
 - `results/power_drift_scatter.png`: Visualization of residual power vs. year.
 - `results/permutation_pvalue.json`: Empirical p-value from permutation test.
-- `data/derived/residuals.csv`: Residual data for programmatic verification.
+- `results/aggregated_drift.json`: Cross-field aggregated drift estimate.
+- `data/derived/cleaned_data.csv`: Filtered dataset ready for analysis.
+- `data/derived/residuals.csv`: Residualized power values.
 
-## Requirements
+## Data Integrity
 
-- Python 3.8+
-- pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pyyaml, pytest, huggingface_hub
+- **Real Data Only**: This pipeline fetches the `osf/reproducibility_project` dataset directly from HuggingFace. No synthetic data is generated.
+- **Fail Loudly**: If the data source is unreachable, the pipeline raises a `DataFetchError` and halts.
 
 ## License
 
-This project is open source. See LICENSE for details.
+Internal Research Project - All rights reserved.
