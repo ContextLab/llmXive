@@ -11,12 +11,12 @@
         "page": 39
       }
     ],
-    "audited_at": "2026-08-20T21:03:35.061750+00:00"
+    "audited_at": "2026-08-20T21:27:38.859509+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin",
-  "updated_at": "2026-08-20T21:03:35.061765+00:00"
+  "updated_at": "2026-08-20T21:27:38.859522+00:00"
 }
