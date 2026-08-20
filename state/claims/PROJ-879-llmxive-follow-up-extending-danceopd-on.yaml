@@ -1126,3 +1126,870 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T06:05:40Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: system produces parquet file with 1000 or more rows
+  claim_id: c_5023e836
+  context: "Independent Test for User Story 1: The system produces a CSV/Parquet file\
+    \ with \u22651,000 rows, valid expert identifiers, and consistent velocity vector\
+    \ dimensions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:19:54Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: target 1200 raw samples for data streaming
+  claim_id: c_1dde23b7
+  context: 'Sampling Strategy: Use a fixed random seed. Target 1200 raw samples (oversampled
+    to account for exclusions). If pilot exclusion rate > 20%, increase target to
+    1500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target 1200 raw samples (oversampled to account for exclusions).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:20:34Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: pilot run of 500 samples to estimate exclusion rate
+  claim_id: c_48b75c07
+  context: 'Pilot Run: Execute a pilot run of 500 samples to estimate the ''undefined
+    routing path'' exclusion rate. Store this rate in data/results/pilot_exclusion_rate.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a pilot run of 500 samples to estimate the 'undefined routing
+    path' exclusion rate.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:21:06Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: increase target to 1500 if pilot exclusion rate exceeds 20 percent
+  claim_id: c_952a94b5
+  context: 'Sampling Strategy: Use a fixed random seed. Target 1200 raw samples (oversampled
+    to account for exclusions). If pilot exclusion rate > 20%, increase target to
+    1500.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Increase_target_to_1500_if_pilot_exclusion_rate_exceeds_20_p
+  kind: magnitude
+  raw_text: If the pilot exclusion rate is greater than 20%, increase the target to
+    1500 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:21:47Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: teacher ground truth parquet must contain 1000 or more valid rows
+  claim_id: c_76ddc196
+  context: "Deliverable: teacher_ground_truth.parquet (generated) with \u22651000\
+    \ valid rows. If generation fails, exit with code 1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Deliverable: teacher_ground_truth.parquet (generated) with \u22651000\
+    \ valid rows."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:21:47Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: exit with code 1 if final dataset size is below 1000 after exclusion
+  claim_id: c_0d57581d
+  context: 'Verification: (2506.09162, https://arxiv.org/abs/2506.09162) If the final
+    dataset size is below 1000 after exclusion, exit with code 1 and log the specific
+    error ''Dataset size below 1000 after exclusion''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the final dataset size is below 1000 after exclusion, exit with code
+    1 and log the specific error 'Dataset size below 1000 after exclusion'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:22:18Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: train decision trees for max_depth values from 2 to 20
+  claim_id: c_baa28d3a
+  context: 'Logic: Train a tree for each depth d in 2, 3,..., 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a tree for each depth d in 2, 3,..., 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:24:00Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: calculate required sample size using effect size 0.5 alpha 0.05 and power
+    0.8
+  claim_id: c_7ac58f99
+  context: 'Logic: Define a function to calculate required sample size using effect_size=0.5
+    (medium), alpha=0.05, power=0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define a function to calculate required sample size using effect_size=0.5
+    (medium), alpha=0.05, power=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:24:36Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: run pilot with 50 samples and seed 42
+  claim_id: c_8e1b7d97
+  context: 'Logic: Run a pilot with N=50 (first 50 samples, seed 42). If dataset <
+    50, use all.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a pilot with N=50 (first 50 samples, seed 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:25:20Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: extend sample size to maximum 200 if power is below 0.8
+  claim_id: c_37374239
+  context: Calculate power using the function from T030b-Impl. If power < 0.8, extend
+    N up to a maximum of 200 or until runtime limit (30s for pilot).
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If power is less than 0.8, extend N up to a maximum of 200 or until runtime
+    limit (30s for pilot).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T05:25:20Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: enforce 1-hour timeout for teacher model inference
+  claim_id: c_89776a38
+  context: Use signal.signal(signal.SIGALRM, handler) to enforce a 1-hour timeout.
+    If the timeout is hit, log the error and exit with code 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a 1-hour timeout mechanism for teacher model inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:25:55Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: pipeline runs on cpu only ci with 7 gb ram limit and 6 hour runtime limit
+  claim_id: c_29489b17
+  context: "Critical Constraint: All tasks must run on CPU\u2011only CI with minimal\
+    \ computational resources (limited CPU cores and RAM, \u22647 GB RAM, \u22646\
+    \ hours total runtime)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU-only CI with limited CPU cores and RAM, \u2264\
+    7 GB RAM, \u22646 hours total runtime."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:25:55Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: memory profile peak below 6 gb for chunked loading
+  claim_id: c_458078dd
+  context: 'Verification: Memory profile shows < 6 GB peak.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory profile shows < 6 GB peak for chunked loading optimization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:25:56Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: verify wall clock time reduction greater than 2x for parallel batch processing
+  claim_id: c_96fa8583
+  context: 'Verification: Verify wall-clock time reduction > 2x compared to sequential
+    processing.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_wall_clock_time_reduction_greater_than_2x_for_paralle
+  kind: magnitude
+  raw_text: Verify wall-clock time reduction > 2x compared to sequential processing
+    for parallel batch processing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:26:32Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: perform paired t test on clip scores with alpha 0.05
+  claim_id: c_8f0e025a
+  context: Perform a paired t-test on per-sample CLIP scores (two-tailed, alpha=0.05).
+    Ensure input lists are aligned.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a paired t-test on per-sample CLIP scores (two-tailed, alpha=0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:27:08Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: teacher ground truth dataset contains at least 1000 rows
+  claim_id: c_41774a88
+  context: "Independent Test: The system produces a CSV/Parquet file with \u22651,000\
+    \ rows, valid expert identifiers, and consistent velocity vector dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth_dataset_contains_at_least_1000_rows
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:29:21Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: data streaming targets 1200 raw samples
+  claim_id: c_9b24c72e
+  context: 'Sampling Strategy: Use a fixed random seed. Target 1200 raw samples (oversampled
+    to account for exclusions). If pilot exclusion rate > 20%, increase target to
+    1500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed random seed. Target 1200 raw samples (oversampled to account
+    for exclusions).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:29:55Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: pilot run uses 500 samples
+  claim_id: c_e7510c39
+  context: 'Pilot Run: Execute a pilot run of 500 samples to estimate the ''undefined
+    routing path'' exclusion rate. Store this rate in data/results/pilot_exclusion_rate.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a pilot run of 500 samples to estimate the 'undefined routing
+    path' exclusion rate.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:29:56Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: final dataset size must be at least 1000
+  claim_id: c_fbe14845
+  context: 'Verification: (2506.09162, https://arxiv.org/abs/2506.09162) If the final
+    dataset size is below 1000 after exclusion, exit with code 1 and log the specific
+    error ''Dataset size below 1000 after exclusion''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_dataset_size_must_be_at_least_1000
+  kind: magnitude
+  raw_text: If the final dataset size is below 1000 after exclusion, exit with code
+    1 and log the specific error 'Dataset size below 1000 after exclusion'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:30:00Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: decision tree training varies max_depth from 2 to 20
+  claim_id: c_2e45d3ec
+  context: 'Logic: Train a tree for each depth d in 2, 3,..., 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a tree for each depth d in 2, 3,..., 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:30:00Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: sample size calculation uses effect size 0.5 alpha 0.05 and power 0.8
+  claim_id: c_4e539b74
+  context: 'Logic: Define a function to calculate required sample size using effect_size=0.5
+    (medium), alpha=0.05, power=0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define a function to calculate required sample size using effect_size=0.5
+    (medium), alpha=0.05, power=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:30:00Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: pilot sample size is 50 with seed 42
+  claim_id: c_850a9c9c
+  context: 'Logic: Run a pilot with N=50 (first 50 samples, seed 42). If dataset <
+    50, use all.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a pilot with N=50 (first 50 samples, seed 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:30:00Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: pilot sample size maximum is 200
+  claim_id: c_e1c0655b
+  context: If power < 0.8, extend N up to a maximum of 200 or until runtime limit
+    (30s for pilot).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extend N up to a maximum of 200 or until runtime limit (30s for pilot).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:30:47Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: CI constraints are 7 GB RAM and 6 hours runtime
+  claim_id: c_88249848
+  context: "Critical Constraint: All tasks must run on CPU\u2011only CI with minimal\
+    \ computational resources (limited CPU cores and RAM, \u22647 GB RAM, \u22646\
+    \ hours total runtime)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU\u2011only CI with minimal computational resources\
+    \ (limited CPU cores and RAM, \u22647 GB RAM, \u22646 hours total runtime)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:30:47Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 0
+  canonical: Tasks run on CPU-only CI with at most 7 GB RAM and 6 hours runtime
+  claim_id: c_f234e8f3
+  context: "Critical Constraint: All tasks must run on CPU\u2011only CI with minimal\
+    \ computational resources (limited CPU cores and RAM, \u22647 GB RAM, \u22646\
+    \ hours total runtime)."
+  evidence:
+    candidates:
+    - - Tasks run on CPU-only CI with at most
+      - 7.0
+    - - GB RAM and
+      - 6.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Tasks_run_on_CPU-only_CI_with_at_most_7_GB_RAM_and_6_hours_t
+  kind: magnitude
+  raw_text: "All tasks must run on CPU-only CI with minimal computational resources\
+    \ (limited CPU cores and RAM, \u22647 GB RAM, \u22646 hours total runtime)."
+  resolved_value: Tasks run on CPU-only CI with at most 7 GB RAM and 6 hours total
+    runtime
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T05:31:42Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: System produces dataset with at least 1000 rows with valid expert identifiers
+    and consistent velocity vector dimensions
+  claim_id: c_e07cbf2f
+  context: "Independent Test: The system produces a CSV/Parquet file with \u22651,000\
+    \ rows, valid expert identifiers, and consistent velocity vector dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_produces_dataset_with_at_least_1000_rows_with_valid_e
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:31:48Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Target 1200 raw samples with fixed random seed
+  claim_id: c_68afe68d
+  context: 'Sampling Strategy: Use a fixed random seed. Target 1200 raw samples (oversampled
+    to account for exclusions). If pilot exclusion rate > 20%, increase target to
+    1500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed random seed. Target 1200 raw samples (oversampled to account
+    for exclusions).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:31:48Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Execute pilot run of 500 samples to estimate undefined routing path exclusion
+    rate
+  claim_id: c_32139339
+  context: 'Pilot Run: Execute a pilot run of 500 samples to estimate the ''undefined
+    routing path'' exclusion rate. Store this rate in data/results/pilot_exclusion_rate.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a pilot run of 500 samples to estimate the 'undefined routing
+    path' exclusion rate.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:31:48Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Teacher ground truth parquet generated with at least 1000 valid rows
+  claim_id: c_f19cddae
+  context: "Deliverable: teacher_ground_truth.parquet (generated) with \u22651000\
+    \ valid rows. If generation fails, exit with code 1."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth_parquet_generated_with_at_least_1000_va
+  kind: magnitude
+  raw_text: "Deliverable: teacher_ground_truth.parquet (generated) with \u22651000\
+    \ valid rows."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:32:19Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Exit with code 1 if final dataset size below 1000 after exclusion
+  claim_id: c_9f071381
+  context: 'Verification: (2506.09162,) If the final dataset size is below 1000 after
+    exclusion, exit with code 1 and log the specific error ''Dataset size below 1000
+    after exclusion''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the final dataset size is below 1000 after exclusion, exit with code
+    1 and log the specific error 'Dataset size below 1000 after exclusion'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:32:19Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Train DecisionTreeClassifier for max_depth values from 2 to 20 with step
+    1
+  claim_id: c_51eaa0d2
+  context: 'Logic: Train a tree for each depth d in 2, 3,..., 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a DecisionTreeClassifier for max_depth values systematically varying
+    from 2 to 20 (step 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:32:41Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Calculate required sample size using effect size 0.5 alpha 0.05 and power
+    0.8
+  claim_id: c_a7548788
+  context: 'Logic: Define a function to calculate required sample size using effect_size=0.5
+    (medium), alpha=0.05, power=0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define a function to calculate required sample size using effect_size=0.5
+    (medium), alpha=0.05, power=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:32:41Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Run pilot with 50 samples and seed 42
+  claim_id: c_c7d8eb94
+  context: 'Logic: Run a pilot with N=50 (first 50 samples, seed 42). If dataset <
+    50, use all.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a pilot with N=50 (first 50 samples, seed 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:32:41Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Extend sample size up to 200 if power below 0.8 or until 30 second runtime
+    limit
+  claim_id: c_3be87b6e
+  context: If power < 0.8, extend N up to a maximum of 200 or until runtime limit
+    (30s for pilot).
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If power < 0.8, extend N up to a maximum of 200 or until runtime limit
+    (30s for pilot).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T05:32:41Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Perform paired t-test on per-sample CLIP scores with two-tailed alpha
+    0.05
+  claim_id: c_5a1d495e
+  context: 'Logic: Perform a paired t-test on per-sample CLIP scores (two-tailed,
+    alpha=0.05). Ensure input lists are aligned.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a paired t-test on per-sample CLIP scores (two-tailed, alpha=0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:32:41Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Use fixed minimum sample size N_min defined in config.py
+  claim_id: c_96074cd4
+  context: 'Constraint: Use a fixed minimum sample size (N_min) defined in config.py.
+    If the dataset size is < N_min, save partial results with status: insufficient_power
+    and log a warning (do NOT abort).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_fixed_minimum_sample_size_N_min_defined_in_config.py
+  kind: entity_fact
+  raw_text: Use a fixed minimum sample size (N_min) defined in config.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:33:15Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Memory profile shows less than 6 GB peak with chunked streaming
+  claim_id: c_b94af17d
+  context: 'Performance optimization for data streaming: Implement chunked loading
+    to reduce memory usage. Verification: Memory profile shows < 6 GB peak.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_profile_shows_less_than_6_GB_peak_with_chunked_stream
+  kind: magnitude
+  raw_text: 'Implement chunked streaming to reduce memory usage. Verification: Memory
+    profile shows < 6 GB peak.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:33:55Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Verify wall-clock time reduction greater than 2x compared to sequential
+    processing
+  claim_id: c_1b53ec4f
+  context: 'Performance optimization for batch processing: Implement parallel batch
+    processing for image generation. Verification: Verify wall-clock time reduction
+    > 2x compared to sequential processing.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_wall-clock_time_reduction_greater_than_2x_compared_to
+  kind: magnitude
+  raw_text: Verify wall-clock time reduction > 2x compared to sequential processing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:34:37Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Teacher ground truth dataset contains at least 1000 valid rows with valid
+    expert identifiers and consistent velocity vectors
+  claim_id: c_e3a9a2a4
+  context: "Independent Test: The system produces a CSV/Parquet file with \u22651,000\
+    \ rows, valid expert identifiers, and consistent velocity vector dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth_dataset_contains_at_least_1000_valid_ro
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:36:01Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Data streaming targets 1200 raw samples from ImageNet-1K and LAION-400M
+  claim_id: c_ec4c388e
+  context: 'Sampling Strategy: Use a fixed random seed. Target 1200 raw samples (oversampled
+    to account for exclusions). If pilot exclusion rate > 20%, increase target to
+    1500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target 1200 raw samples (oversampled to account for exclusions).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:36:01Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Pilot run of 500 samples used to estimate undefined routing path exclusion
+    rate
+  claim_id: c_5152244e
+  context: 'Pilot Run: Execute a pilot run of 500 samples to estimate the ''undefined
+    routing path'' exclusion rate. Store this rate in data/results/pilot_exclusion_rate.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a pilot run of 500 samples to estimate the 'undefined routing
+    path' exclusion rate.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:36:01Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Decision Tree models trained with max_depth values ranging from 2 to
+    20
+  claim_id: c_656eefc8
+  context: "Implement a loop to train DecisionTreeClassifier (scikit\u2011learn, CPU)\
+    \ for max_depth values systematically varying from 2 to 20 (step 1) in code/01_train_trees.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a DecisionTreeClassifier for max_depth values systematically varying
+    from 2 to 20 (step 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:36:01Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Pilot sample size of 50 used to determine final N for statistical power
+  claim_id: c_dd0a038a
+  context: 'Logic: Run a pilot with N=50 (first 50 samples, seed 42). If dataset <
+    50, use all. Calculate power using the function from T030b-Impl.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a pilot with N=50 (first 50 samples, seed 42) to determine final sample
+    size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:36:37Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Sample size calculation parameters set to effect size 0.5, alpha 0.05,
+    power 0.8
+  claim_id: c_b31095ed
+  context: 'Logic: Define a function to calculate required sample size using effect_size=0.5
+    (medium), alpha=0.05, power=0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate required sample size using effect_size=0.5 (medium), alpha=0.05,
+    power=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:37:12Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: 'CI constraints: CPU-only, max 7 GB RAM, max 6 hours runtime'
+  claim_id: c_55054be3
+  context: "Critical Constraint: All tasks must run on CPU\u2011only CI with minimal\
+    \ computational resources (limited CPU cores and RAM, \u22647 GB RAM, \u22646\
+    \ hours total runtime)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU\u2011only CI with limited CPU cores and RAM,\
+    \ \u22647 GB RAM, \u22646 hours total runtime."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:37:13Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Memory usage peak under 6 GB during chunked loading
+  claim_id: c_6ba7734d
+  context: 'Performance optimization for data streaming: Implement chunked loading
+    to reduce memory usage. Verification: Memory profile shows < 6 GB peak.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory profile shows < 6 GB peak.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:37:13Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Parallel batch processing achieves over 2x wall-clock time reduction
+  claim_id: c_ad9fd016
+  context: 'Performance optimization for batch processing: Implement parallel batch
+    processing for image generation. Verification: Verify wall-clock time reduction
+    > 2x compared to sequential processing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Parallel_batch_processing_achieves_over_2x_wall-clock_time_r
+  kind: entity_fact
+  raw_text: Verify wall-clock time reduction > 2x compared to sequential processing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:37:18Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Statistical tests enforce a hard minimum sample size N_min
+  claim_id: c_27aa3aa8
+  context: 'Constraint: Use a fixed minimum sample size (N_min) defined in config.py.
+    If the dataset size is < N_min, save partial results with status: insufficient_power
+    and log a warning.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_tests_enforce_a_hard_minimum_sample_size_N_min
+  kind: entity_fact
+  raw_text: Use a fixed minimum sample size (N_min) defined in config.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:37:20Z'

@@ -1,10 +1,3 @@
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no actual JSON files at `specs/contracts/TeacherRoutingDataset.json`,\
-    \ `InferenceResult.json`, or `DecisionTreeMetadata.json`; there is no evidence\
-    \ that these schemas exist, are non\u2011empty, or define the required fields\
-    \ and constraints. The required artifacts are missing."
 T013a:
   c: false
   h: 16433e4f6d0cf5aac76d62dc0148ff701d37cdddf09fbdc82d793bddc2bd05b4
@@ -15,28 +8,6 @@ T013a:
     \ not abort with a clear error when neither GPU inference nor a verified fallback\
     \ is available. Consequently, the task\u2019s primary and fallback requirements\
     \ are not met."
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, logs, or modified dataset were provided to demonstrate that undefined
-    routing paths are detected, counted, logged, and excluded from the final dataset.
-    The required implementation artifacts are missing.
-T014:
-  c: false
-  h: f61f77ea3f6d2285d6f466bf8a308566f411748e771bbb6fd2091e2e0280cbc2
-  r: "The provided `code/00_data_extraction.py` stops mid\u2011implementation (truncated\
-    \ after `filter_valid_rows`) and contains no code that extracts the required columns\
-    \ and writes them to `data/processed/teacher_routing_dataset.parquet`. Moreover,\
-    \ the expected Parquet file is absent from the repository. The task\u2019s core\
-    \ requirement\u2014producing the processed dataset file\u2014is therefore not\
-    \ satisfied."
-T016b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `teacher_routing_dataset.parquet` file or any inspection output is provided,\
-    \ and there is no evidence (e.g., a summary, column indicating source, or a script\
-    \ that verifies inclusion of both ImageNet\u20111K and LAION\u2011400M samples).\
-    \ The required artifact is missing, so the task is not satisfied."
 T020:
   c: false
   h: 478616cc2ab0af44f3eeeafefef0d62fd70e1c6fce3e8ca494d86158773fa1fc

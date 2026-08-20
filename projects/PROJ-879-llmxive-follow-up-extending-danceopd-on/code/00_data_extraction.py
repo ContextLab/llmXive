@@ -6,254 +6,206 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 import pandas as pd
-import numpy as np
+import pyarrow.parquet as pq
 
 from utils.config import get_config
 
+# --- Timeout Handling ---
 
 class TimeoutError(Exception):
-    """Custom timeout exception for pipeline control."""
     pass
 
-
 def timeout_handler(signum, frame):
-    """Signal handler for timeout."""
-    raise TimeoutError("Operation timed out after 6 hours")
+    raise TimeoutError("Operation timed out")
 
-
-def setup_timeout(seconds: int = 21600):
-    """Setup a 6-hour timeout (21600 seconds)."""
-    try:
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(seconds)
-    except AttributeError:
-        # SIGALRM not available on Windows
-        pass
-
+def setup_timeout(seconds: int):
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(seconds)
 
 def cancel_timeout():
-    """Cancel the active timeout."""
-    try:
-        signal.alarm(0)
-    except AttributeError:
-        pass
+    signal.alarm(0)
 
+# --- Core Logic ---
 
 def get_known_expert_ids() -> List[str]:
     """
-    Return the set of valid expert IDs defined in the DanceOPD architecture.
-    These are the only routing_label values considered 'defined'.
+    Returns the list of valid expert identifiers.
+    In a real system, this might be loaded from a config or model metadata.
     """
-    # Based on the project context and typical DanceOPD architecture
     return [
         "expert_text_to_image",
         "expert_editing",
         "expert_inpainting",
         "expert_super_resolution",
-        "expert_color_correction",
-        "expert_style_transfer",
+        "expert_colorization",
         "expert_depth_estimation",
         "expert_segmentation"
     ]
 
-
-def load_inference_outputs(input_path: str) -> pd.DataFrame:
+def load_inference_outputs(input_path: Path) -> pd.DataFrame:
     """
-    Load the raw inference outputs from the combined samples.
-    Expects a parquet file containing prompt_embedding, noise_level, 
-    routing_label, velocity_vector, and source information.
+    Loads the raw inference output from T013a (teacher_ground_truth.parquet).
+    Expects columns: prompt_embedding, noise_level, routing_label, velocity_vector, source_dataset
     """
-    path = Path(input_path)
-    if not path.exists():
+    if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    # Try loading as parquet first, fallback to csv if needed
-    if path.suffix == '.parquet':
-        df = pd.read_parquet(path)
-    elif path.suffix == '.csv':
-        df = pd.read_csv(path)
-    else:
-        # Try parquet by default for unknown extensions
-        try:
-            df = pd.read_parquet(path)
-        except Exception:
-            df = pd.read_csv(path)
-    
-    return df
-
+    try:
+        df = pd.read_parquet(input_path)
+        return df
+    except Exception as e:
+        raise RuntimeError(f"Failed to load parquet file {input_path}: {e}")
 
 def validate_routing_labels(df: pd.DataFrame, known_ids: List[str]) -> pd.DataFrame:
     """
-    Validate that routing labels are in the known expert set.
-    Returns a boolean mask indicating valid rows.
+    Validates that routing_label is in the known expert set.
+    Returns the filtered dataframe containing only valid rows.
     """
-    valid_set = set(known_ids)
-    # Ensure routing_label column exists
-    if 'routing_label' not in df.columns:
-        raise KeyError("DataFrame must contain 'routing_label' column")
+    valid_mask = df['routing_label'].isin(known_ids)
+    valid_count = valid_mask.sum()
+    invalid_count = (~valid_mask).sum()
     
-    # Check for nulls first
-    null_mask = df['routing_label'].isna()
+    if invalid_count > 0:
+        print(f"Warning: Excluding {invalid_count} rows with undefined routing labels.")
     
-    # Check against known IDs
-    valid_mask = df['routing_label'].isin(valid_set)
-    
-    # A row is valid if it has a non-null label AND it is in the known set
-    return (~null_mask) & valid_mask
-
-
-def filter_valid_rows(df: pd.DataFrame, valid_mask: pd.Series) -> pd.DataFrame:
-    """
-    Filter the DataFrame to keep only valid rows.
-    """
     return df[valid_mask].reset_index(drop=True)
 
+def filter_valid_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Performs additional validation:
+    1. Check for nulls in critical columns.
+    2. Ensure velocity_vector is not empty.
+    """
+    critical_cols = ['prompt_embedding', 'noise_level', 'routing_label', 'velocity_vector']
+    
+    # Check for nulls
+    null_mask = df[critical_cols].isnull().any(axis=1)
+    if null_mask.any():
+        print(f"Warning: Excluding {null_mask.sum()} rows with null values.")
+        df = df[~null_mask]
+    
+    # Check velocity_vector integrity (assuming it's a list or array)
+    if 'velocity_vector' in df.columns:
+        empty_vec_mask = df['velocity_vector'].apply(lambda x: len(x) == 0 if hasattr(x, '__len__') else False)
+        if empty_vec_mask.any():
+            print(f"Warning: Excluding {empty_vec_mask.sum()} rows with empty velocity vectors.")
+            df = df[~empty_vec_mask]
+    
+    return df.reset_index(drop=True)
 
-def write_exclusion_log(
-    total_rows: int, 
-    valid_rows: int, 
-    excluded_rows: int, 
-    reason: str = "undefined_label",
-    output_path: str = "data/results/exclusion_log.json"
-):
+def write_exclusion_log(count: int, reason: str, output_dir: Path):
     """
-    Write the exclusion log to a JSON file.
+    Writes the exclusion log to data/results/exclusion_log.json
     """
-    log_entry = {
-        "count": excluded_rows,
+    log_path = output_dir / "exclusion_log.json"
+    log_data = {
+        "count": count,
         "reason": reason,
-        "timestamp": pd.Timestamp.now().isoformat(),
-        "total_rows_processed": total_rows,
-        "valid_rows_kept": valid_rows,
-        "excluded_rows": excluded_rows,
-        "exclusion_rate": excluded_rows / total_rows if total_rows > 0 else 0.0
+        "timestamp": pd.Timestamp.now().isoformat()
     }
     
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_file, 'w') as f:
-        json.dump(log_entry, f, indent=2)
-    
-    return log_entry
-
+    with open(log_path, 'w') as f:
+        json.dump(log_data, f, indent=2)
+    print(f"Exclusion log written to {log_path}")
 
 def extract_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Ensure feature columns are in the correct format.
-    This is a pass-through for now, but can be extended for normalization.
+    Ensures the dataframe has the correct schema for the final dataset.
+    Performs type normalization if necessary.
     """
-    required_cols = ['prompt_embedding', 'noise_level', 'routing_label', 'velocity_vector']
-    for col in required_cols:
-        if col not in df.columns:
-            raise KeyError(f"Missing required column: {col}")
+    # Ensure columns exist
+    required_cols = ['prompt_embedding', 'noise_level', 'routing_label', 'velocity_vector', 'source_dataset']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Input dataframe missing required columns: {missing_cols}")
+    
+    # Normalize types (example: ensure noise_level is float)
+    if 'noise_level' in df.columns:
+        df['noise_level'] = df['noise_level'].astype(float)
+    
     return df
 
+def stream_to_parquet(df: pd.DataFrame, output_path: Path):
+    """
+    Writes the dataframe to a Parquet file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(output_path, index=False)
+    print(f"Successfully wrote {len(df)} rows to {output_path}")
 
-def stream_to_parquet(df: pd.DataFrame, output_path: str):
+def run_data_extraction(config: Dict[str, Any]):
     """
-    Write the final dataset to a parquet file.
+    Main orchestration function for T014.
+    1. Loads teacher_ground_truth.parquet
+    2. Validates and filters routing labels
+    3. Extracts features
+    4. Writes to data/processed/teacher_routing_dataset.parquet
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(output_file, index=False)
-
-
-def run_data_extraction(
-    input_path: str = "data/raw/combined_samples.parquet",
-    output_path: str = "data/processed/teacher_routing_dataset.parquet",
-    log_path: str = "data/results/exclusion_log.json"
-):
-    """
-    Main pipeline for T013b:
-    1. Load raw inference outputs.
-    2. Identify undefined routing paths.
-    3. Log the exclusion count and details.
-    4. Exclude invalid rows.
-    5. Verify minimum dataset size (>= 1000).
-    6. Save the cleaned dataset.
-    """
-    print(f"Loading inference outputs from {input_path}...")
+    input_path = Path(config.get('input_path', 'data/raw/teacher_ground_truth.parquet'))
+    output_path = Path(config.get('output_path', 'data/processed/teacher_routing_dataset.parquet'))
+    
+    print(f"Starting data extraction from {input_path}")
+    
+    # Pre-check
+    if not input_path.exists():
+        raise FileNotFoundError(f"Required input file not found: {input_path}. "
+                                "Ensure T013a-Generate has completed successfully.")
+    
+    # Load
     df = load_inference_outputs(input_path)
-    total_rows = len(df)
-    print(f"Loaded {total_rows} rows.")
-
+    print(f"Loaded {len(df)} rows from input.")
+    
+    initial_count = len(df)
+    
+    # Validate Routing Labels
     known_ids = get_known_expert_ids()
-    print(f"Known expert IDs: {known_ids}")
-
-    print("Validating routing labels...")
-    valid_mask = validate_routing_labels(df, known_ids)
-    valid_count = valid_mask.sum()
-    excluded_count = total_rows - valid_count
-
-    print(f"Valid rows: {valid_count}, Excluded rows: {excluded_count}")
-
-    if excluded_count > 0:
-        write_exclusion_log(
-            total_rows=total_rows,
-            valid_rows=valid_count,
-            excluded_rows=excluded_count,
-            reason="undefined_label",
-            output_path=log_path
-        )
-        print(f"Exclusion log written to {log_path}")
-    else:
-        # Log zero exclusions for completeness
-        write_exclusion_log(
-            total_rows=total_rows,
-            valid_rows=valid_count,
-            excluded_rows=0,
-            reason="none",
-            output_path=log_path
-        )
-
-    # Filter the dataframe
-    df_clean = filter_valid_rows(df, valid_mask)
-
-    # Verify minimum size
-    MIN_ROWS = 1000
-    if len(df_clean) < MIN_ROWS:
-        error_msg = f"Dataset size below {MIN_ROWS} after exclusion. Current size: {len(df_clean)}"
-        print(f"ERROR: {error_msg}")
-        raise RuntimeError(error_msg)
-
-    print(f"Saving cleaned dataset ({len(df_clean)} rows) to {output_path}...")
-    stream_to_parquet(df_clean, output_path)
-
-    print("Data extraction and filtering complete.")
-    return df_clean
-
+    df = validate_routing_labels(df, known_ids)
+    
+    # Log exclusions if any
+    if len(df) < initial_count:
+        excluded_count = initial_count - len(df)
+        write_exclusion_log(excluded_count, "undefined_label", Path("data/results"))
+    
+    # Filter Valid Rows (nulls, empty vectors)
+    df = filter_valid_rows(df)
+    
+    if len(df) < 1000:
+        raise RuntimeError(f"Dataset size below 1000 after exclusion. Current size: {len(df)}. "
+                           "T013b/T014 validation failed.")
+    
+    # Extract Features / Normalize
+    df = extract_features(df)
+    
+    # Stream to Parquet
+    stream_to_parquet(df, output_path)
+    
+    print(f"Data extraction complete. Final dataset size: {len(df)}")
+    return df
 
 def main():
-    """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Extract and filter teacher routing data")
-    parser.add_argument("--input", type=str, default="data/raw/combined_samples.parquet",
-                        help="Path to input combined samples")
+    parser = argparse.ArgumentParser(description="Extract and validate teacher routing dataset.")
+    parser.add_argument("--input", type=str, default="data/raw/teacher_ground_truth.parquet",
+                        help="Path to input parquet file.")
     parser.add_argument("--output", type=str, default="data/processed/teacher_routing_dataset.parquet",
-                        help="Path to output dataset")
-    parser.add_argument("--log", type=str, default="data/results/exclusion_log.json",
-                        help="Path to exclusion log")
-    parser.add_argument("--timeout", type=int, default=21600,
-                        help="Timeout in seconds (default 6 hours)")
-
+                        help="Path to output parquet file.")
+    parser.add_argument("--timeout", type=int, default=3600, help="Timeout in seconds.")
     args = parser.parse_args()
-
-    setup_timeout(args.timeout)
+    
+    config = {
+        "input_path": args.input,
+        "output_path": args.output
+    }
+    
     try:
-        run_data_extraction(
-            input_path=args.input,
-            output_path=args.output,
-            log_path=args.log
-        )
-    except TimeoutError as e:
-        print(f"TIMEOUT: {e}")
+        setup_timeout(args.timeout)
+        run_data_extraction(config)
+        cancel_timeout()
+    except TimeoutError:
+        print("Error: Data extraction timed out.")
         sys.exit(1)
     except Exception as e:
-        print(f"ERROR: {e}")
+        print(f"Error during data extraction: {e}")
         sys.exit(1)
-    finally:
-        cancel_timeout()
-
 
 if __name__ == "__main__":
     main()
