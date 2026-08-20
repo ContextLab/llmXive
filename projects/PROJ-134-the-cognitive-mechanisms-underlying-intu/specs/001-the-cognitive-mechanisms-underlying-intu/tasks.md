@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: The Cognitive Mechanisms Underlying Intuitive Moral Judgments in Virtual Environments
 
 **Input**: Design documents from `/specs/001-cognitive-mechanisms-moral-judgments/`
