@@ -1,3 +1,9 @@
+T013a:
+  c: false
+  h: 6962f62fadf70a8f64f6552623e49126ee4e43f86b4d4b893d9aab49795a7558
+  r: "The repository lacks a `count_unique_planets` implementation in `code/download.py`\
+    \ and the required output file `data/processed/count_report.json` does not exist.\
+    \ Consequently the task\u2019s deliverable is missing."
 T013b:
   c: false
   h: 2fdd30fb262117876083fa4d6d0957a6b6d9b76a93d745be98f42a41fcd27695
@@ -28,6 +34,12 @@ T025c:
     \ requirement cannot be verified as met. The next implementer must provide the\
     \ actual bootstrap loop code and demonstrate its output (e.g., confidence interval\
     \ values)."
+T030d:
+  c: false
+  h: 59e4c5c9f880c9fad369f8d7e3644d71fd1f66a5118abdde55baf1cfbb16a91b
+  r: The required artifact `data/processed/analysis_results.json` does not exist in
+    the repository, so no aggregated statistics have been provided. The implementer
+    must create this JSON file containing the compiled analysis results.
 T031:
   c: false
   h: e148ac199de2ca6fb282f7f2a95cb635f195a68bc17eeea13903e406d37299f1

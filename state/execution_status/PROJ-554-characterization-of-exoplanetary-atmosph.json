@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-554-characterization-of-exoplanetary-atmosph",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 3 command(s) failed: python code/download.py --output data/raw (rc=1); python code/retrieval.py --input data/raw --output data/processed (rc=1); python code/analysis.py --input data/processed/analysis_dataset.csv --output results (rc=1); 6 declared deliverable(s) absent: data/processed/analysis_results.json; data/processed/bootstrap_ci.json; data/processed/correlation_stats.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/main.py': [Errno 2] No such file or directory",
+    "python code/download.py --output data/raw -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/download.py\", line 5, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/retrieval.py --input data/raw --output data/processed -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/retrieval.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/analysis.py --input data/processed/analysis_dataset.csv --output results -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/analysis.py\", line 3, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-20T23:35:00Z"
+}

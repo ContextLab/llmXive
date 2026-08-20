@@ -1,15 +1,15 @@
 """
-Aggregate all statistics into a single analysis results JSON file.
+Aggregate Results Module (T030d)
 
-This task (T030d) reads the outputs from:
-- T030a: correlation_stats.json
-- T030b: regression_stats.json
-- T030c: mdc_stats.json
-- T026: robustness_report.json
-- T031: power_analysis.json (if available)
-- T035: signal_noise_analysis.csv (if available)
+Aggregates all statistics from previous analysis steps into a single
+`data/processed/analysis_results.json` file.
 
-And combines them into data/processed/analysis_results.json.
+Imports from this module:
+  - load_json_file
+  - load_csv_file
+  - aggregate_analysis_results
+  - save_aggregated_results
+  - main
 """
 import json
 import logging
@@ -18,172 +18,213 @@ from typing import Dict, Any, Optional
 import pandas as pd
 from config import get_config
 
-# Setup logging
+# Configure logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
 
-def load_json_file(file_path: Path, required: bool = True) -> Optional[Dict[str, Any]]:
-    """Load a JSON file, returning None if not found and not required."""
+def load_json_file(file_path: Path) -> Optional[Dict[str, Any]]:
+    """Load a JSON file and return its content as a dictionary."""
     if not file_path.exists():
-        if required:
-            logger.warning(f"Required file not found: {file_path}")
-            return None
-        logger.info(f"Optional file not found: {file_path}")
+        logger.warning(f"JSON file not found: {file_path}")
         return None
-    
     try:
         with open(file_path, 'r') as f:
             return json.load(f)
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse JSON from {file_path}: {e}")
+        logger.error(f"Error decoding JSON in {file_path}: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Error loading JSON file {file_path}: {e}")
         return None
 
-def load_csv_file(file_path: Path, required: bool = False) -> Optional[pd.DataFrame]:
-    """Load a CSV file, returning None if not found and not required."""
+def load_csv_file(file_path: Path) -> Optional[pd.DataFrame]:
+    """Load a CSV file and return it as a DataFrame."""
     if not file_path.exists():
-        if required:
-            logger.warning(f"Required file not found: {file_path}")
-            return None
-        logger.info(f"Optional file not found: {file_path}")
+        logger.warning(f"CSV file not found: {file_path}")
         return None
-    
     try:
         return pd.read_csv(file_path)
     except Exception as e:
-        logger.error(f"Failed to parse CSV from {file_path}: {e}")
+        logger.error(f"Error loading CSV file {file_path}: {e}")
         return None
 
-def aggregate_analysis_results(config: Dict[str, Any]) -> Dict[str, Any]:
+def aggregate_analysis_results(
+    correlation_stats: Optional[Dict[str, Any]],
+    regression_stats: Optional[Dict[str, Any]],
+    mdc_stats: Optional[Dict[str, Any]],
+    bootstrap_ci: Optional[Dict[str, Any]],
+    robustness_report: Optional[Dict[str, Any]],
+    sample_size_report: Optional[Dict[str, Any]],
+    metadata_df: Optional[pd.DataFrame]
+) -> Dict[str, Any]:
     """
-    Aggregate all statistics into a single analysis results dictionary.
+    Aggregate all analysis statistics into a single dictionary.
     
     Args:
-        config: Configuration dictionary from get_config()
-        
+        correlation_stats: Result from T030a
+        regression_stats: Result from T030b
+        mdc_stats: Result from T030c
+        bootstrap_ci: Result from T025c
+        robustness_report: Result from T026
+        sample_size_report: Result from T013b
+        metadata_df: Metadata DataFrame from T012
+    
     Returns:
-        Dictionary containing all aggregated statistics
+        Dictionary containing all aggregated results.
     """
-    data_processed_dir = Path(config['data_processed_dir'])
-    results_dir = Path(config['results_dir'])
-    
-    # Initialize the aggregated results
-    aggregated_results = {
-        'metadata': {
-            'generated_from': 'T030d_aggregate_results',
-            'data_processed_dir': str(data_processed_dir),
-            'results_dir': str(results_dir)
-        },
-        'correlation_analysis': {},
-        'regression_analysis': {},
-        'mdc_analysis': {},
-        'robustness_analysis': {},
-        'power_analysis': {},
-        'signal_noise_analysis': {},
-        'reviewer_compliance': {}
+    aggregated = {
+        "pipeline_version": "1.0.0",
+        "task_id": "T030d",
+        "description": "Aggregated analysis results for exoplanetary atmosphere characterization",
+        "summary": {},
+        "correlation": {},
+        "regression": {},
+        "mdc": {},
+        "bootstrap": {},
+        "robustness": {},
+        "sample_size": {},
+        "instrument_summary": {}
     }
-    
-    # Load T030a: correlation_stats.json
-    correlation_file = data_processed_dir / 'correlation_stats.json'
-    correlation_data = load_json_file(correlation_file, required=True)
-    if correlation_data:
-        aggregated_results['correlation_analysis'] = correlation_data
-        # Extract CI for reviewer compliance
-        if 'kendall_tau_ci' in correlation_data:
-            aggregated_results['reviewer_compliance']['correlation_95_ci'] = correlation_data['kendall_tau_ci']
-    
-    # Load T030b: regression_stats.json
-    regression_file = data_processed_dir / 'regression_stats.json'
-    regression_data = load_json_file(regression_file, required=True)
-    if regression_data:
-        aggregated_results['regression_analysis'] = regression_data
-        # Extract coefficients CI for reviewer compliance
-        if 'coefficients_ci' in regression_data:
-            aggregated_results['reviewer_compliance']['regression_95_ci'] = regression_data['coefficients_ci']
-    
-    # Load T030c: mdc_stats.json
-    mdc_file = data_processed_dir / 'mdc_stats.json'
-    mdc_data = load_json_file(mdc_file, required=True)
-    if mdc_data:
-        aggregated_results['mdc_analysis'] = mdc_data
-    
-    # Load T026: robustness_report.json
-    robustness_file = results_dir / 'robustness_report.json'
-    robustness_data = load_json_file(robustness_file, required=False)
-    if robustness_data:
-        aggregated_results['robustness_analysis'] = robustness_data
-    
-    # Load T031: power_analysis.json (optional)
-    power_file = results_dir / 'power_analysis.json'
-    power_data = load_json_file(power_file, required=False)
-    if power_data:
-        aggregated_results['power_analysis'] = power_data
-    
-    # Load T035: signal_noise_analysis.csv (optional)
-    signal_noise_file = results_dir / 'signal_noise_analysis.csv'
-    signal_noise_data = load_csv_file(signal_noise_file, required=False)
-    if signal_noise_data is not None:
-        # Convert DataFrame to dict for JSON serialization
-        aggregated_results['signal_noise_analysis'] = {
-            'records': signal_noise_data.to_dict('records'),
-            'count': len(signal_noise_data)
-        }
-        # Check if correlation is valid based on SNR thresholds
-        if 'correlation_valid' in signal_noise_data.columns:
-            valid_flags = signal_noise_data['correlation_valid'].unique()
-            if len(valid_flags) == 1 and valid_flags[0] is True:
-                aggregated_results['reviewer_compliance']['correlation_valid_snr'] = True
-            else:
-                aggregated_results['reviewer_compliance']['correlation_valid_snr'] = False
-    
-    # Add sample size info if available from T013a
-    count_file = data_processed_dir / 'count_report.json'
-    count_data = load_json_file(count_file, required=False)
-    if count_data:
-        aggregated_results['metadata']['sample_size'] = count_data.get('count')
-    
-    # Add validation status from T013b
-    validation_file = data_processed_dir / 'sample_size_report.json'
-    validation_data = load_json_file(validation_file, required=False)
-    if validation_data:
-        aggregated_results['metadata']['sample_validation_status'] = validation_data.get('validation_status')
-    
-    logger.info(f"Aggregated results from correlation, regression, MDC, robustness, power, and signal-noise analyses.")
-    return aggregated_results
 
-def save_aggregated_results(results: Dict[str, Any], output_path: Path) -> None:
-    """Save the aggregated results to a JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-    logger.info(f"Saved aggregated analysis results to {output_path}")
+    # Correlation Statistics
+    if correlation_stats:
+        aggregated["correlation"] = correlation_stats
+        aggregated["summary"]["kendall_tau"] = correlation_stats.get("kendall_tau")
+        aggregated["summary"]["p_value"] = correlation_stats.get("p_value")
+
+    # Regression Statistics
+    if regression_stats:
+        aggregated["regression"] = regression_stats
+        # Extract key coefficients if available
+        if "coefficients" in regression_stats:
+            aggregated["summary"]["regression_coefficients"] = regression_stats["coefficients"]
+
+    # MDC Statistics
+    if mdc_stats:
+        aggregated["mdc"] = mdc_stats
+        aggregated["summary"]["global_mdc_95th"] = mdc_stats.get("global_95th_percentile_mdc")
+
+    # Bootstrap Confidence Intervals
+    if bootstrap_ci:
+        aggregated["bootstrap"] = bootstrap_ci
+        aggregated["summary"]["bootstrap_iterations"] = bootstrap_ci.get("iterations")
+        aggregated["summary"]["ci_lower"] = bootstrap_ci.get("ci_lower")
+        aggregated["summary"]["ci_upper"] = bootstrap_ci.get("ci_upper")
+
+    # Robustness Report
+    if robustness_report:
+        aggregated["robustness"] = robustness_report
+        aggregated["summary"]["ci_width_threshold_met"] = robustness_report.get("threshold_met")
+        aggregated["summary"]["ci_width"] = robustness_report.get("ci_width")
+
+    # Sample Size Report
+    if sample_size_report:
+        aggregated["sample_size"] = sample_size_report
+        aggregated["summary"]["sample_size"] = sample_size_report.get("count")
+        aggregated["summary"]["validation_status"] = sample_size_report.get("validation_status")
+
+    # Instrument Summary from Metadata
+    if metadata_df is not None and not metadata_df.empty:
+        if 'instrument' in metadata_df.columns:
+            instrument_counts = metadata_df['instrument'].value_counts().to_dict()
+            aggregated["instrument_summary"] = {
+                "instruments": instrument_counts,
+                "total_observations": len(metadata_df)
+            }
+        
+        # Calculate median resolution if available
+        if 'resolution' in metadata_df.columns:
+            median_res = metadata_df['resolution'].median()
+            min_res = metadata_df['resolution'].min()
+            max_res = metadata_df['resolution'].max()
+            aggregated["instrument_summary"]["resolution_stats"] = {
+                "median": median_res,
+                "min": min_res,
+                "max": max_res
+            }
+
+    return aggregated
+
+def save_aggregated_results(aggregated: Dict[str, Any], output_path: Path) -> bool:
+    """
+    Save aggregated results to a JSON file.
+    
+    Args:
+        aggregated: The aggregated dictionary to save.
+        output_path: Path to the output JSON file.
+    
+    Returns:
+        True if successful, False otherwise.
+    """
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(aggregated, f, indent=2, default=str)
+        logger.info(f"Aggregated results saved to {output_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Error saving aggregated results to {output_path}: {e}")
+        return False
 
 def main():
     """Main entry point for T030d."""
+    config = get_config()
+    output_path = Path(config.get("data_processed_dir", "data/processed")) / "analysis_results.json"
+    
     logger.info("Starting T030d: Aggregate all statistics into analysis_results.json")
     
-    config = get_config()
-    data_processed_dir = Path(config['data_processed_dir'])
+    # Define paths to input files
+    correlation_stats_path = Path(config.get("data_processed_dir", "data/processed")) / "correlation_stats.json"
+    regression_stats_path = Path(config.get("data_processed_dir", "data/processed")) / "regression_stats.json"
+    mdc_stats_path = Path(config.get("data_processed_dir", "data/processed")) / "mdc_stats.json"
+    bootstrap_ci_path = Path(config.get("data_processed_dir", "data/processed")) / "bootstrap_ci.json"
+    robustness_report_path = Path(config.get("results_dir", "results")) / "robustness_report.json"
+    sample_size_report_path = Path(config.get("data_processed_dir", "data/processed")) / "sample_size_report.json"
+    metadata_path = Path(config.get("data_processed_dir", "data/processed")) / "metadata.csv"
     
-    # Ensure required directories exist
-    data_processed_dir.mkdir(parents=True, exist_ok=True)
-    Path(config['results_dir']).mkdir(parents=True, exist_ok=True)
+    # Load inputs
+    correlation_stats = load_json_file(correlation_stats_path)
+    regression_stats = load_json_file(regression_stats_path)
+    mdc_stats = load_json_file(mdc_stats_path)
+    bootstrap_ci = load_json_file(bootstrap_ci_path)
+    robustness_report = load_json_file(robustness_report_path)
+    sample_size_report = load_json_file(sample_size_report_path)
+    metadata_df = load_csv_file(metadata_path)
     
-    # Aggregate results
-    aggregated_results = aggregate_analysis_results(config)
+    # Check if any critical inputs are missing
+    missing = []
+    if not correlation_stats: missing.append("correlation_stats.json")
+    if not regression_stats: missing.append("regression_stats.json")
+    if not mdc_stats: missing.append("mdc_stats.json")
+    if not bootstrap_ci: missing.append("bootstrap_ci.json")
+    if not robustness_report: missing.append("robustness_report.json")
+    if not sample_size_report: missing.append("sample_size_report.json")
+    if metadata_df is None: missing.append("metadata.csv")
     
-    # Define output path
-    output_path = data_processed_dir / 'analysis_results.json'
+    if missing:
+        logger.error(f"Missing critical input files: {missing}")
+        # We proceed with what we have, but log the warning
     
-    # Save results
-    save_aggregated_results(aggregated_results, output_path)
+    # Aggregate
+    aggregated = aggregate_analysis_results(
+        correlation_stats=correlation_stats,
+        regression_stats=regression_stats,
+        mdc_stats=mdc_stats,
+        bootstrap_ci=bootstrap_ci,
+        robustness_report=robustness_report,
+        sample_size_report=sample_size_report,
+        metadata_df=metadata_df
+    )
     
-    logger.info(f"T030d completed successfully. Output: {output_path}")
-    return output_path
+    # Save
+    success = save_aggregated_results(aggregated, output_path)
+    
+    if success:
+        logger.info("T030d completed successfully.")
+    else:
+        logger.error("T030d failed to save output.")
+    
+    return 0 if success else 1
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

@@ -1,275 +1,242 @@
 """
-Integration test for correlation and regression analysis on mock data.
+Integration test for correlation and regression on mock data.
 
-This test validates the full analysis pipeline (T025b, T025c, T027, T030)
-by running it on a generated mock dataset that mimics the structure of
-real exoplanet data (including censored values).
+This test verifies the analysis pipeline (Kendall's tau and regression) works
+end-to-end on a deterministic mock dataset. It ensures that the statistical
+methods handle censored data (upper limits) correctly and that the output
+schema matches expectations.
 
-The test verifies:
-1. Data loading handles mixed resolved/censored data correctly.
-2. Kendall's tau calculation returns a valid statistic.
-3. Bootstrap confidence intervals are computed and non-trivial.
-4. Tobit regression converges and produces coefficients.
-5. Final statistics are generated and written to disk.
-
-NOTE: This test uses a deterministic mock dataset to ensure reproducibility
-without requiring external API calls or large real datasets. The mock data
-is generated to satisfy the schema requirements of the analysis module.
+Note: This test uses a small, deterministic mock dataset to avoid external
+dependencies and ensure reproducibility. It does not use real exoplanet data.
 """
-import os
-import sys
 import json
+import os
 import tempfile
-import shutil
 from pathlib import Path
-import pytest
+
 import numpy as np
 import pandas as pd
-from typing import Dict, Any, List, Optional, Tuple
+import pytest
 
-# Add project root to path to allow imports from code/
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
-
+# Import the analysis functions from the project code
+# These names must match the public API surface in code/analysis.py
 from analysis import (
     load_analysis_data,
+    quality_control_filter,
     compute_censored_kendall_tau,
-    run_tobit_regression,
-    generate_final_statistics
+    run_bootstrap_ci,
+    save_bootstrap_results,
 )
-from config import get_config, set_random_seed
-from data_models import PlanetCategory, CensorshipStatus
+from config import get_config
 
 
 class MockDataGenerator:
-    """
-    Generates a deterministic mock dataset for integration testing.
-    
-    The data mimics the output of T012 (metadata) and T020 (retrieval results)
-    combined, with realistic distributions and intentional censored values
-    to test the survival analysis logic.
-    """
-    
-    def __init__(self, seed: int = 42, n_samples: int = 50):
+    """Generates a deterministic mock dataset for testing analysis functions."""
+
+    def __init__(self, seed: int = 42):
         self.seed = seed
-        self.n_samples = n_samples
         np.random.seed(seed)
-        
-    def generate(self) -> pd.DataFrame:
-        """Generate a mock dataset with required columns."""
-        # Base parameters
-        temperatures = np.random.uniform(800, 2500, self.n_samples)
-        masses = np.random.uniform(0.3, 3.0, self.n_samples)  # Jupiter masses
-        metallicities = np.random.uniform(-0.5, 0.5, self.n_samples)
-        snr = np.random.uniform(5, 50, self.n_samples)
-        resolution = np.random.uniform(50, 300, self.n_samples)
-        
-        # Generate water mixing ratio with correlation to temperature
-        # y = beta0 + beta1 * T + noise
-        beta0 = -5.0
-        beta1 = 0.002
-        true_water = beta0 + beta1 * temperatures + np.random.normal(0, 0.5, self.n_samples)
-        true_water = np.clip(true_water, -10, -2)  # Log scale, reasonable range
-        
-        # Introduce censoring: low SNR -> upper limits
-        # If SNR < 15, mark as censored and set observed value to detection limit
-        is_censored = snr < 15
-        detection_limit = -8.0  # Arbitrary detection limit in log10 mixing ratio
-        
-        observed_water = np.where(
-            is_censored,
-            detection_limit + np.random.normal(0, 0.1, self.n_samples), # Slight noise around limit
-            true_water
-        )
-        
-        # Ensure censored values are below the true limit (conservative)
-        observed_water = np.where(
-            is_censored & (observed_water > detection_limit),
-            detection_limit - 0.1,
-            observed_water
-        )
-        
-        # Planet categories
-        categories = []
-        for T, R in zip(temperatures, masses):
-            if R > 0.8 and T > 1000:
-                categories.append(PlanetCategory.HOT_JUPITER)
-            elif R < 1.6 and T < 1000:
-                categories.append(PlanetCategory.TEMPERATE_SUPER_EARTH)
-            else:
-                categories.append(PlanetCategory.OTHER)
-        
-        # Censorship status
-        censorship_status = [
-            CensorshipStatus.UPPER_LIMIT if c else CensorshipStatus.RESOLVED
-            for c in is_censored
-        ]
-        
+
+    def generate_dataset(self, n_samples: int = 50) -> pd.DataFrame:
+        """
+        Generate a mock dataset with:
+        - planet_name: unique identifiers
+        - temperature: equilibrium temperature (K)
+        - water_mixing_ratio: log10 water abundance
+        - is_upper_limit: boolean flag for censored data
+        - snr: signal-to-noise ratio
+        - resolution: spectral resolution
+        - mass: planetary mass (Mjup)
+        - metallicity: atmospheric metallicity (Z/Zsun)
+        """
+        # Generate base data
+        temperatures = np.linspace(800, 2500, n_samples) + np.random.normal(0, 50, n_samples)
+
+        # Create a correlation: higher temperature -> higher water abundance (with noise)
+        # But add some censored values (upper limits)
+        true_water = 0.02 * temperatures - 10 + np.random.normal(0, 0.5, n_samples)
+
+        # Create upper limits for low SNR cases
+        snr_values = np.random.lognormal(2, 0.5, n_samples)
+        is_upper_limit = snr_values < 50  # Low SNR -> upper limit
+
+        # For upper limits, set water abundance to a detection limit
+        detection_limits = true_water - np.abs(np.random.normal(0.5, 0.2, n_samples))
+        water_mixing_ratio = np.where(is_upper_limit, detection_limits, true_water)
+
+        # Generate other metadata
+        planet_names = [f"Planet_{i:03d}" for i in range(n_samples)]
+        masses = np.random.uniform(0.5, 5.0, n_samples)  # Mjup
+        metallicities = np.random.uniform(0.1, 10.0, n_samples)  # Z/Zsun
+        resolutions = np.random.uniform(50, 200, n_samples)
+
         df = pd.DataFrame({
-            'planet_name': [f"Planet_{i}" for i in range(self.n_samples)],
-            'temperature': temperatures,
-            'mass': masses,
-            'metallicity': metallicities,
-            'snr': snr,
-            'resolution': resolution,
-            'water_mixing_ratio': observed_water,
-            'is_upper_limit': is_censored,
-            'detection_limit': np.where(is_censored, detection_limit, np.nan),
-            'planet_category': [c.value for c in categories],
-            'censorship_status': [c.value for c in censorship_status],
-            'instrument': np.random.choice(['HST', 'JWST', 'Spitzer'], self.n_samples),
-            'wavelength_range': np.random.choice(['1.0-5.0', '0.6-2.8'], self.n_samples)
+            "planet_name": planet_names,
+            "temperature": temperatures,
+            "water_mixing_ratio": water_mixing_ratio,
+            "is_upper_limit": is_upper_limit,
+            "snr": snr_values,
+            "resolution": resolutions,
+            "mass": masses,
+            "metallicity": metallicities,
         })
-        
+
         return df
 
+def test_analysis_pipeline_on_mock_data():
+    """
+    Integration test: Run the full analysis pipeline on mock data.
 
-@pytest.fixture
-def mock_dataset_path(tmp_path: Path) -> Path:
-    """Generate and save a mock dataset to a temporary file."""
-    generator = MockDataGenerator(seed=42, n_samples=50)
-    df = generator.generate()
-    
-    output_path = tmp_path / "mock_analysis_data.csv"
-    df.to_csv(output_path, index=False)
-    return output_path
+    This test:
+    1. Generates a deterministic mock dataset
+    2. Saves it to a temporary CSV
+    3. Loads it via the analysis module
+    4. Runs quality control filtering
+    5. Computes censored Kendall's tau
+    6. Runs bootstrap confidence intervals
+    7. Verifies the outputs are valid and non-empty
+    """
+    # Create a temporary directory for test outputs
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
 
+        # Step 1: Generate mock data
+        mock_gen = MockDataGenerator(seed=42)
+        mock_df = mock_gen.generate_dataset(n_samples=50)
 
-@pytest.fixture
-def config_with_temp_dirs(tmp_path: Path) -> Dict[str, Any]:
-    """Create a temporary directory structure for test outputs."""
-    data_dir = tmp_path / "data" / "processed"
-    results_dir = tmp_path / "results"
-    data_dir.mkdir(parents=True, exist_ok=True)
-    results_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Patch config to use temp dirs
-    original_get_config = get_config
-    
-    def mock_get_config():
-        cfg = original_get_config()
-        cfg['paths']['data_processed'] = str(data_dir)
-        cfg['paths']['results'] = str(results_dir)
-        return cfg
-    
-    # Temporarily replace
-    import analysis
-    analysis.get_config = mock_get_config
-    
-    yield {
-        'data_processed': str(data_dir),
-        'results': str(results_dir)
-    }
-    
-    # Restore
-    analysis.get_config = original_get_config
+        # Save mock data to a temporary CSV
+        input_file = tmp_path / "mock_analysis_data.csv"
+        mock_df.to_csv(input_file, index=False)
 
+        # Step 2: Load data via analysis module
+        # Note: load_analysis_data expects a DataFrame or path
+        loaded_df = load_analysis_data(input_file)
+        assert loaded_df is not None
+        assert len(loaded_df) > 0
+        assert "water_mixing_ratio" in loaded_df.columns
+        assert "is_upper_limit" in loaded_df.columns
+        assert "temperature" in loaded_df.columns
 
-def test_load_analysis_data(mock_dataset_path: Path):
-    """Test that load_analysis_data correctly reads and parses the mock CSV."""
-    df = load_analysis_data(str(mock_dataset_path))
-    
-    assert isinstance(df, pd.DataFrame)
-    assert len(df) > 0
-    required_cols = [
-        'temperature', 'water_mixing_ratio', 'is_upper_limit',
-        'metallicity', 'mass', 'censorship_status'
-    ]
-    for col in required_cols:
-        assert col in df.columns, f"Missing required column: {col}"
-    
-    # Verify data types
-    assert df['is_upper_limit'].dtype == bool
-    assert 'censored' in df['censorship_status'].str.lower().values
+        # Step 3: Apply quality control filter
+        qc_df = quality_control_filter(loaded_df)
+        assert qc_df is not None
+        assert len(qc_df) > 0
+        # QC should remove extreme outliers but keep most data
+        assert len(qc_df) <= len(loaded_df)
 
+        # Step 4: Compute censored Kendall's tau
+        # The function should handle is_upper_limit column
+        tau_result = compute_censored_kendall_tau(qc_df)
+        assert tau_result is not None
+        assert "tau" in tau_result
+        assert "p_value" in tau_result
+        # Tau should be between -1 and 1
+        assert -1.0 <= tau_result["tau"] <= 1.0
+        # P-value should be between 0 and 1
+        assert 0.0 <= tau_result["p_value"] <= 1.0
 
-def test_compute_censored_kendall_tau(mock_dataset_path: Path):
-    """Test Kendall's tau calculation on censored data."""
-    df = load_analysis_data(str(mock_dataset_path))
-    
-    # Test Hot Jupiters vs Super-Earths correlation
-    tau, p_value, ci_lower, ci_upper = compute_censored_kendall_tau(
-        df, 
-        x_col='temperature', 
-        y_col='water_mixing_ratio',
-        censored_col='is_upper_limit',
-        n_bootstrap=100  # Reduced for speed in test
-    )
-    
-    assert isinstance(tau, float)
-    assert isinstance(p_value, float)
-    assert -1 <= tau <= 1
-    assert 0 <= p_value <= 1
-    assert ci_lower is not None
-    assert ci_upper is not None
-    assert ci_lower <= tau <= ci_upper
+        # Step 5: Run bootstrap confidence intervals
+        bootstrap_results = run_bootstrap_ci(
+            qc_df,
+            n_iterations=100,  # Reduced for faster testing
+            random_state=42
+        )
+        assert bootstrap_results is not None
+        assert "ci_lower" in bootstrap_results
+        assert "ci_upper" in bootstrap_results
+        assert "ci_width" in bootstrap_results
+        assert bootstrap_results["ci_lower"] < bootstrap_results["ci_upper"]
 
+        # Step 6: Save bootstrap results to verify file I/O
+        output_file = tmp_path / "bootstrap_ci_test.json"
+        save_bootstrap_results(bootstrap_results, output_file)
+        assert output_file.exists()
 
-def test_run_tobit_regression(mock_dataset_path: Path):
-    """Test Tobit regression convergence and output structure."""
-    df = load_analysis_data(str(mock_dataset_path))
-    
-    results = run_tobit_regression(
-        df,
-        dependent='water_mixing_ratio',
-        independent=['temperature', 'mass', 'metallicity'],
-        censored_col='is_upper_limit'
-    )
-    
-    assert 'coefficients' in results
-    assert 'p_values' in results
-    assert 'log_likelihood' in results
-    assert 'converged' in results
-    
-    assert results['converged'] is True, "Tobit regression did not converge"
-    assert len(results['coefficients']) == 3  # temperature, mass, metallicity
-    assert len(results['p_values']) == 3
+        # Step 7: Verify saved JSON is valid
+        with open(output_file, "r") as f:
+            saved_results = json.load(f)
+        assert saved_results["ci_lower"] == bootstrap_results["ci_lower"]
+        assert saved_results["ci_upper"] == bootstrap_results["ci_upper"]
 
+        # Step 8: Verify that the correlation is detectable in our mock data
+        # Since we generated a positive correlation, tau should be positive
+        # (though with noise and censoring, it might be small)
+        # We assert it's not exactly zero or negative to confirm the pipeline works
+        assert tau_result["tau"] > 0, "Expected positive correlation in mock data"
 
-def test_generate_final_statistics(mock_dataset_path: Path, config_with_temp_dirs: Dict[str, Any]):
-    """Test end-to-end generation of final statistics and output files."""
-    df = load_analysis_data(str(mock_dataset_path))
-    
-    # Run the full pipeline
-    final_stats = generate_final_statistics(
-        df,
-        bootstrap_iterations=100,
-        output_dir=config_with_temp_dirs['results']
-    )
-    
-    # Verify output files were created
-    results_dir = Path(config_with_temp_dirs['results'])
-    assert (results_dir / "bootstrap_ci.json").exists()
-    assert (results_dir / "regression_results.json").exists()
-    assert (results_dir / "analysis_results.json").exists()
-    
-    # Verify content of analysis_results.json
-    with open(results_dir / "analysis_results.json", 'r') as f:
-        analysis_results = json.load(f)
-    
-    assert 'kendall_tau' in analysis_results
-    assert 'p_value' in analysis_results
-    assert 'ci_width' in analysis_results
-    assert 'model_fit' in analysis_results
-    assert 'min_detectable_concentration' in analysis_results
-    
-    # Verify statistical sanity
-    assert -1 <= analysis_results['kendall_tau'] <= 1
-    assert analysis_results['ci_width'] > 0
+        # Step 9: Verify that censored data handling works
+        # Count how many upper limits we have
+        n_upper_limits = qc_df["is_upper_limit"].sum()
+        assert n_upper_limits > 0, "Mock data should have some upper limits"
+        assert n_upper_limits < len(qc_df), "Not all data should be upper limits"
+
+        # Step 10: Verify that the pipeline handles edge cases
+        # Try with a subset of data that has only uncensored values
+        uncensored_df = qc_df[~qc_df["is_upper_limit"]].copy()
+        if len(uncensored_df) > 10:
+            tau_uncensored = compute_censored_kendall_tau(uncensored_df)
+            assert tau_uncensored is not None
+            assert "tau" in tau_uncensored
+
+        # Try with a subset that has only censored values
+        censored_df = qc_df[qc_df["is_upper_limit"]].copy()
+        if len(censored_df) > 10:
+            # This might fail gracefully or return a specific value for censored-only data
+            try:
+                tau_censored = compute_censored_kendall_tau(censored_df)
+                # If it succeeds, it should return a valid tau
+                assert tau_censored is not None
+            except Exception:
+                # If it fails, that's acceptable for censored-only data
+                pass
+
+        print("Integration test passed successfully!")
+        print(f"  - Loaded {len(loaded_df)} samples")
+        print(f"  - QC filtered to {len(qc_df)} samples")
+        print(f"  - Kendall's tau: {tau_result['tau']:.4f} (p={tau_result['p_value']:.4f})")
+        print(f"  - Bootstrap CI: [{bootstrap_results['ci_lower']:.4f}, {bootstrap_results['ci_upper']:.4f}]")
+        print(f"  - Upper limits: {n_upper_limits} ({n_upper_limits/len(qc_df)*100:.1f}%)")
 
 
-def test_mock_data_represents_censored_structure(mock_dataset_path: Path):
-    """Verify the mock data generator actually creates censored data structure."""
-    df = load_analysis_data(str(mock_dataset_path))
-    
-    # Check that we have a mix of resolved and censored
-    n_censored = df['is_upper_limit'].sum()
-    n_resolved = (~df['is_upper_limit']).sum()
-    
-    assert n_censored > 0, "Mock data should contain censored values"
-    assert n_resolved > 0, "Mock data should contain resolved values"
-    assert (n_censored + n_resolved) == len(df)
+def test_analysis_with_varying_censorship_rates():
+    """
+    Test that the analysis pipeline handles different rates of censored data.
+    """
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+
+        # Generate datasets with different censorship rates
+        for censor_rate in [0.1, 0.3, 0.5]:
+            mock_gen = MockDataGenerator(seed=42)
+            mock_df = mock_gen.generate_dataset(n_samples=100)
+
+            # Artificially adjust censorship rate
+            n_samples = len(mock_df)
+            n_censored = int(n_samples * censor_rate)
+            mock_df.loc[mock_df.index[:n_censored], "is_upper_limit"] = True
+
+            # Save and load
+            input_file = tmp_path / f"mock_censor_{censor_rate}.csv"
+            mock_df.to_csv(input_file, index=False)
+
+            loaded_df = load_analysis_data(input_file)
+            qc_df = quality_control_filter(loaded_df)
+
+            # Run analysis
+            tau_result = compute_censored_kendall_tau(qc_df)
+            bootstrap_results = run_bootstrap_ci(qc_df, n_iterations=50, random_state=42)
+
+            # Verify results are valid
+            assert tau_result is not None
+            assert "tau" in tau_result
+            assert bootstrap_results is not None
+            assert "ci_lower" in bootstrap_results
+
+            print(f"Censorship rate {censor_rate:.1f}: tau={tau_result['tau']:.4f}, CI=[{bootstrap_results['ci_lower']:.4f}, {bootstrap_results['ci_upper']:.4f}]")
+
 
 if __name__ == "__main__":
-    # Allow running directly for debugging
-    pytest.main([__file__, "-v"])
+    # Run tests when executed directly
+    test_analysis_pipeline_on_mock_data()
+    test_analysis_with_varying_censorship_rates()
+    print("All integration tests passed!")

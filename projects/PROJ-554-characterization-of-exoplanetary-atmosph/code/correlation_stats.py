@@ -1,8 +1,10 @@
 """
-Task T030a: Output correlation statistics.
+T030a: Output correlation statistics.
 
-Computes and saves Kendall's tau, p-values, and CI width to data/processed/correlation_stats.json.
-Relies on data produced by T025b (compute_censored_kendall_tau) and T025c (run_bootstrap_ci).
+Computes and saves Kendall's tau, p-values, and CI width for the water abundance
+vs temperature correlation analysis.
+
+This task depends on T025b (censored Kendall's tau) and T025c (bootstrap CI).
 """
 import json
 import logging
@@ -12,153 +14,175 @@ from typing import Dict, Any, Optional
 import pandas as pd
 import numpy as np
 
+# Import existing functions from analysis.py
+from analysis import compute_censored_kendall_tau, run_bootstrap_ci
+
+# Import config
 from config import get_config
-from utils import setup_logging
 
 logger = logging.getLogger(__name__)
 
-def load_correlation_results() -> Dict[str, Any]:
+
+def load_correlation_results(
+    input_dir: Path,
+    bootstrap_file: str = "bootstrap_ci.json",
+    retrieval_file: str = "retrieval_results.csv",
+    metadata_file: str = "metadata.csv"
+) -> Dict[str, Any]:
     """
-    Load the Kendall's tau and p-value from the analysis results.
-    Assumes T025b has written the results to a JSON file or they are available
-    via a standard location. For this implementation, we assume the results
-    are stored in data/processed/analysis_intermediate.json or similar,
-    or we recompute if necessary.
-
-    However, based on the task dependencies, T025b computes the tau and p-value.
-    T025c computes the bootstrap CI.
-    T026 computes the CI width of water mixing ratio.
-
-    We need to load:
-    1. Kendall's tau and p-value (from T025b output)
-    2. Bootstrap CI width for the correlation (from T025c output)
-
-    Since the exact output file names for T025b and T025c are not explicitly
-    defined in the task list, we assume:
-    - T025b writes to: data/processed/kendall_tau_results.json
-    - T025c writes to: data/processed/bootstrap_ci.json (which contains ci_lower, ci_upper for the correlation)
-
-    If these files do not exist, we raise an error as the prerequisites are not met.
-    """
-    config = get_config()
-    processed_dir = config["paths"]["processed"]
-
-    # Load Kendall's tau results
-    kendall_path = Path(processed_dir) / "kendall_tau_results.json"
-    if not kendall_path.exists():
-        raise FileNotFoundError(
-            f"Prerequisite file missing: {kendall_path}. "
-            "Ensure T025b has been executed successfully."
-        )
+    Load necessary data to compute correlation statistics.
     
-    with open(kendall_path, "r") as f:
-        kendall_data = json.load(f)
-
+    Args:
+        input_dir: Directory containing processed data files.
+        bootstrap_file: Filename for bootstrap CI results.
+        retrieval_file: Filename for retrieval results.
+        metadata_file: Filename for metadata.
+        
+    Returns:
+        Dictionary containing merged analysis data and bootstrap results.
+    """
     # Load bootstrap CI results
-    bootstrap_path = Path(processed_dir) / "bootstrap_ci.json"
+    bootstrap_path = input_dir / bootstrap_file
     if not bootstrap_path.exists():
-        raise FileNotFoundError(
-            f"Prerequisite file missing: {bootstrap_path}. "
-            "Ensure T025c has been executed successfully."
-        )
-
-    with open(bootstrap_path, "r") as f:
+        raise FileNotFoundError(f"Bootstrap CI file not found: {bootstrap_path}")
+    
+    with open(bootstrap_path, 'r') as f:
         bootstrap_data = json.load(f)
-
+    
+    # Load retrieval results
+    retrieval_path = input_dir / retrieval_file
+    if not retrieval_path.exists():
+        raise FileNotFoundError(f"Retrieval results file not found: {retrieval_path}")
+    
+    retrieval_df = pd.read_csv(retrieval_path)
+    
+    # Load metadata
+    metadata_path = input_dir / metadata_file
+    if not metadata_path.exists():
+        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
+    
+    metadata_df = pd.read_csv(metadata_path)
+    
+    # Merge retrieval results with metadata
+    merged_df = pd.merge(
+        retrieval_df,
+        metadata_df[['planet_name', 'temperature', 'metallicity', 'snr', 'resolution', 'planet_category']],
+        on='planet_name',
+        how='inner'
+    )
+    
     return {
-        "kendall_tau": kendall_data,
-        "bootstrap_ci": bootstrap_data
+        'data': merged_df,
+        'bootstrap': bootstrap_data
     }
 
-def compute_ci_width(ci_lower: float, ci_upper: float) -> float:
-    """Compute the width of the confidence interval."""
-    return ci_upper - ci_lower
 
-def save_correlation_stats(output_path: Optional[Path] = None) -> Dict[str, Any]:
+def compute_ci_width(bootstrap_ci: Dict[str, Any]) -> float:
     """
-    Aggregate correlation statistics and save to JSON.
-
-    The output includes:
-    - kendall_tau: The correlation coefficient
-    - p_value: The p-value associated with the correlation
-    - ci_lower: Lower bound of the 95% CI
-    - ci_upper: Upper bound of the 95% CI
-    - ci_width: The width of the CI (ci_upper - ci_lower)
-
-    Returns the saved dictionary.
-    """
-    config = get_config()
-    processed_dir = Path(config["paths"]["processed"])
+    Compute the width of the confidence interval.
     
-    if output_path is None:
-        output_path = processed_dir / "correlation_stats.json"
-    else:
-        output_path = Path(output_path)
+    Args:
+        bootstrap_ci: Dictionary containing bootstrap CI results with 'ci_lower' and 'ci_upper'.
+        
+    Returns:
+        Width of the confidence interval.
+    """
+    ci_lower = bootstrap_ci.get('ci_lower')
+    ci_upper = bootstrap_ci.get('ci_upper')
+    
+    if ci_lower is None or ci_upper is None:
+        raise ValueError("Bootstrap CI must contain 'ci_lower' and 'ci_upper' keys")
+    
+    return float(ci_upper) - float(ci_lower)
 
-    # Ensure parent directory exists
+
+def save_correlation_stats(
+    output_path: Path,
+    tau: float,
+    p_value: float,
+    ci_width: float,
+    bootstrap_ci: Dict[str, Any],
+    sample_size: int
+) -> None:
+    """
+    Save correlation statistics to a JSON file.
+    
+    Args:
+        output_path: Path to save the correlation statistics JSON.
+        tau: Kendall's tau coefficient.
+        p_value: P-value for the correlation.
+        ci_width: Width of the confidence interval.
+        bootstrap_ci: Full bootstrap CI results.
+        sample_size: Number of samples used in the analysis.
+    """
+    stats = {
+        'kendall_tau': float(tau),
+        'p_value': float(p_value),
+        'ci_width': float(ci_width),
+        'bootstrap_ci': bootstrap_ci,
+        'sample_size': int(sample_size),
+        'ci_lower': float(bootstrap_ci['ci_lower']),
+        'ci_upper': float(bootstrap_ci['ci_upper'])
+    }
+    
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(stats, f, indent=2)
+    
+    logger.info(f"Correlation statistics saved to {output_path}")
 
-    try:
-        results = load_correlation_results()
-        
-        kendall_data = results["kendall_tau"]
-        bootstrap_data = results["bootstrap_ci"]
-
-        # Extract values
-        tau = kendall_data.get("tau")
-        p_value = kendall_data.get("p_value")
-        
-        # Bootstrap CI might be for the correlation or for the water mixing ratio.
-        # Based on T025c description: "bootstrap resampling loop to estimate confidence intervals"
-        # and T026: "Compute and report the CI width of the water mixing ratio distribution"
-        # We assume T025c produced a CI for the correlation coefficient (Kendall's tau).
-        # If T025c produced CI for water mixing ratio, we need to adjust.
-        # Given T026 specifically handles water mixing ratio CI width, T025c likely handles correlation CI.
-        
-        ci_lower = bootstrap_data.get("ci_lower")
-        ci_upper = bootstrap_data.get("ci_upper")
-        iterations = bootstrap_data.get("iterations", 1000)
-
-        if tau is None or p_value is None or ci_lower is None or ci_upper is None:
-            raise ValueError("Missing required fields in prerequisite result files.")
-
-        ci_width = compute_ci_width(ci_lower, ci_upper)
-
-        output_data = {
-            "kendall_tau": tau,
-            "p_value": p_value,
-            "ci_lower": ci_lower,
-            "ci_upper": ci_upper,
-            "ci_width": ci_width,
-            "bootstrap_iterations": iterations
-        }
-
-        with open(output_path, "w") as f:
-            json.dump(output_data, f, indent=2)
-
-        logger.info(f"Correlation statistics saved to {output_path}")
-        logger.info(f"Kendall's tau: {tau:.4f}, p-value: {p_value:.4f}, CI Width: {ci_width:.4f}")
-
-        return output_data
-
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
-    except Exception as e:
-        logger.error(f"Error saving correlation statistics: {e}")
-        raise
 
 def main():
     """Main entry point for T030a."""
-    setup_logging()
-    logger.info("Starting Task T030a: Output correlation statistics")
+    config = get_config()
+    input_dir = Path(config['processed_data_dir'])
+    output_path = Path(config['processed_data_dir']) / 'correlation_stats.json'
+    
+    logger.info("Starting T030a: Output correlation statistics")
     
     try:
-        stats = save_correlation_stats()
-        logger.info("Task T030a completed successfully")
+        # Load data
+        data = load_correlation_results(input_dir)
+        merged_df = data['data']
+        bootstrap_data = data['bootstrap']
+        
+        # Filter out censored values for correlation computation
+        # Use only detected values (is_upper_limit == False)
+        uncensored_df = merged_df[merged_df['is_upper_limit'] == False]
+        
+        if len(uncensored_df) < 2:
+            raise ValueError("Insufficient uncensored data points for correlation analysis")
+        
+        # Compute Kendall's tau for censored data (using all data including upper limits)
+        # The function compute_censored_kendall_tau handles the censoring
+        tau, p_value = compute_censored_kendall_tau(
+            merged_df,
+            x_col='temperature',
+            y_col='water_mixing_ratio',
+            censor_col='is_upper_limit'
+        )
+        
+        # Compute CI width from bootstrap results
+        ci_width = compute_ci_width(bootstrap_data)
+        
+        # Save results
+        save_correlation_stats(
+            output_path=output_path,
+            tau=tau,
+            p_value=p_value,
+            ci_width=ci_width,
+            bootstrap_ci=bootstrap_data,
+            sample_size=len(merged_df)
+        )
+        
+        logger.info(f"T030a completed successfully. Results: tau={tau:.4f}, p={p_value:.4f}, CI width={ci_width:.4f}")
+        
     except Exception as e:
-        logger.critical(f"Task T030a failed: {e}")
+        logger.error(f"T030a failed: {str(e)}", exc_info=True)
         raise
+
 
 if __name__ == "__main__":
     main()

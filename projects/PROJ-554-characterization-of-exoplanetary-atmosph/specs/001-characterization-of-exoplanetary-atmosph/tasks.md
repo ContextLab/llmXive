@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a [P] Create project directory structure: `projects/PROJ-554-characterization-of-exoplanetary-atmosph/`, `code/`, `data/`, `tests/`, `results/`
-- [X] T001b [P] Initialize `requirements.txt` with pinned versions: `petitRADTRANS`, `astropy`, `statsmodels`, `scipy`, `pandas`, `numpy`, `requests`, `tqdm`, `lifelines`, `synphot`, `scikit-survival`
+- [X] T001b [P] Initialize `requirements.txt` with pinned versions: `petitRADTRANS`, `astropy`, `statsmodels`, `scipy`, `pandas`, `numpy`, `requests`, `tqdm`, `lifelines`, `synphot`, `scikit-survival`, `scikit-learn`
 - [X] T001c [P] Configure linting (ruff) and formatting (black) tools by creating `.ruff.toml` and `pyproject.toml`
 
 ---
@@ -83,14 +83,22 @@
 
 ### Implementation for User Story 1
 
-- [X] T011a [P] [US1] Create `code/api_config.py` defining `QUERY_PARAMS` dictionary for NASA Exoplanet Archive API (Hot Jupiters and Super-Earths filters)
-- [X] T011b [P] [US1] Implement `code/download.py` fetch logic to retrieve spectrum files and raw metadata using `QUERY_PARAMS`. **Depends on T008**.
-- [X] T011c [P] [US1] Implement parsing logic in `code/download.py` to extract equilibrium temperature (K), host star metallicity ([Fe/H]), spectral resolution (R), and signal-to-noise ratio (SNR). **Logic for Planet Category**: Classify as "Hot Jupiter" if Radius > 0.8 R_Jup AND T_eq > 1000K; classify as "Temperate Super-Earth" if Radius < 1.6 R_E AND T_eq < 1000K. **Note**: This radius cutoff is for **metadata tag for analysis stratification ONLY**. The download step MUST retrieve ALL spectra matching the planet type criteria without applying the radius cutoff. Extract instrument name and wavelength range from metadata headers. **Deliverable**: Populated in-memory dataframe with columns [planet_name, temperature, metallicity, snr, resolution, planet_category, instrument, wavelength_range].
-- [X] T015a [US1] [P] [US1] **Download ALL**: Implement `download_all_spectra` in `code/download.py` to fetch **ALL** available spectra matching the criteria **without any resolution or radius filtering**. **Deliverable**: Unfiltered raw data in `data/raw/`. **Depends on T011b**.
-- [X] T013a [US1] **Count**: Implement `count_unique_planets` in `code/download.py` to count unique planets from the unfiltered dataset. **Deliverable**: `data/processed/count_report.json` with {count}. **Depends on T015a**.
-- [X] T013b [US1] **Validate**: Implement `validate_sample_size` in `code/download.py`. **Logic**: 1. Read count from T013a. 2. If count < 30 OR count > 45, **log a WARNING** (do NOT halt) and set `validation_status: "proceed"`. 3. If valid, log success and set `validation_status: "proceed"`. **Deliverable**: `data/processed/sample_size_report.json` containing {count, validation_status: "proceed"}. **Depends on T013a**.
-- [X] T012 [US1] Save raw spectrum files to `data/raw/` and metadata CSV (including SNR, R, instrument, wavelength, and **planet_category**) to `data/processed/metadata.csv`. **Deliverable**: `data/processed/metadata.csv` with columns [planet_name, temperature, metallicity, snr, resolution, planet_category, instrument, wavelength_range]. **Depends on T013b (status=proceed)**.
-- [ ] T014 [US1] Add logging for download progress and API response handling. **Deliverable**: Log file `logs/download.log` with progress updates.
+- [X] T011a [US1] Create `code/api_config.py` defining `QUERY_PARAMS` dictionary for NASA Exoplanet Archive API (Hot Jupiters and Super-Earths filters)
+- [X] T011b [US1] Implement `code/download.py` fetch logic to retrieve spectrum files and raw metadata using `QUERY_PARAMS`. **Depends on T008**.
+- [X] T015a [US1] **Download ALL**: Implement `download_all_spectra` in `code/download.py` to fetch **ALL** available spectra matching the criteria **without any resolution or radius filtering**. **Deliverable**: Unfiltered raw data in `data/raw/`. **Depends on T011b**.
+- [X] T011c [US1] **Classification Logic**: Implement classification logic in `code/download.py` to tag planets as "Hot Jupiter" or "Temperate Super-Earth" **AFTER** download is complete. **Logic**:
+ - Apply standard literature definitions for "Hot Jupiter" (e.g., irradiated gas giants) and "Temperate Super-Earth" (rocky/mini-Neptune boundary).
+ - **Do NOT use hardcoded arbitrary thresholds (e.g., Radius < 1.6 R_E or T_eq > 1000K) unless explicitly defined in spec.md.**
+ - If a threshold is necessary for implementation, log the specific value and scientific citation used in `logs/classification.log`.
+ - **Note**: This classification is for metadata tagging ONLY. It MUST NOT be used to filter the download query. **Deliverable**: In-memory dataframe with `planet_category` column populated. **Depends on T015a**.
+- [ ] T012 [US1] Save raw spectrum files and metadata CSV to `data/processed/`. **Logic**: Combine downloaded spectra with metadata (including SNR, R, instrument, wavelength, and `planet_category` from T011c). **Deliverable**: `data/processed/metadata.csv` with columns [planet_name, temperature, metallicity, snr, resolution, planet_category, instrument, wavelength_range]. **Depends on T011c**.
+- [ ] T013a [US1] **Count**: Implement `count_unique_planets` in `code/download.py` to count unique planets from the saved `metadata.csv`. **Deliverable**: `data/processed/count_report.json` with {count}. **Depends on T012**.
+- [X] T013b [US1] **Validate**: Implement `validate_sample_size` in `code/download.py`. **Logic**:
+ 1. Read count from T013a.
+ 2. If count < 30 OR count > 45, **HALT** the pipeline, log a CRITICAL ERROR, and generate `data/processed/sample_size_error.json` with {count, error_message: "Sample size out of valid range [30, 45]"}, setting `validation_status: "failed"`.
+ 3. If valid, log success and set `validation_status: "proceed"`.
+ **Deliverable**: `data/processed/sample_size_report.json` (if valid) or `data/processed/sample_size_error.json` (if invalid). **Depends on T013a**.
+- [X] T014 [US1] Add logging for download progress and API response handling. **Logic**: Log 'API request start', 'response status', and 'download completion' events in JSON format. **Deliverable**: Log file `logs/download.log` containing JSON lines with timestamp, event_type, and status. **Depends on T011b**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,12 +117,12 @@
 
 ### Implementation for User Story 2
 
-- [X] T018a [P] [US2] Configure `petitRADTRANS` for CPU-optimized mode (single-threaded, memory limit GB) in `code/retrieval.py`
-- [X] T018b [P] [US2] Implement wrapper function in `code/retrieval.py` to run retrieval on a single spectrum file
-- [ ] T018c [P] [US2] Define output schema mapping: log10 water mixing ratio, standard deviation, or upper limit flag. **Deliverable**: Create `contracts/retrieval.schema.yaml` with the defined fields.
+- [X] T018a [P] [US2] Configure `petitRADTRANS` for CPU-optimized mode (single-threaded, memory limit GB) in `code/retrieval.py` <!-- FAILED: unspecified -->
+- [X] T018b [P] [US2] Implement wrapper function in `code/retrieval.py` to run retrieval on a single spectrum file <!-- FAILED: unspecified -->
+- [X] T018c [P] [US2] Define output schema mapping: log10 water mixing ratio, standard deviation, or upper limit flag. **Deliverable**: Create `contracts/retrieval.schema.yaml` with the defined fields.
 - [X] T019 [US2] Implement logic to detect low S/N spectra using SNR/Resolution metadata and derive upper limits (censored values) instead of false precision. **Logic**: Calculate detection limit based on instrumental noise floor; if signal < 3-sigma above noise, flag as upper limit and record the limit value in mixing ratio units. Also calculate the minimum detectable concentration (MDC) based on SNR and resolution. **Deliverable**: `code/retrieval.py` updated with `derive_upper_limit` and `calculate_mdc` functions. **Depends on T012; Must precede T020**.
-- [X] T020 [US2] Implement output generation: save results to `data/processed/retrieval_results.csv`. **Deliverable**: `data/processed/retrieval_results.csv` with columns [planet_name, water_mixing_ratio, uncertainty, is_upper_limit, detection_limit, min_detectable_concentration]. **Depends on T019**.
-- [ ] T021 [US2] Add error handling for non-convergent retrievals: log failure, attempt upper limit derivation, proceed without halting.
+- [ ] T020 [US2] Implement output generation: save results to `data/processed/retrieval_results.csv`. **Deliverable**: `data/processed/retrieval_results.csv` with columns [planet_name, water_mixing_ratio, uncertainty, is_upper_limit, detection_limit, min_detectable_concentration]. **Depends on T019**.
+- [X] T021 [US2] Add error handling for non-convergent retrievals: **Logic**: Catch `RetrievalError` and `ConvergenceError`, log failure, call `derive_upper_limit` as fallback, and proceed. **Deliverable**: Updated `code/retrieval.py` with try/except block. **Depends on T019**.
 - [X] T022 [US2] Implement `test_upper_limit_flags_reflect_noise` in `code/validation.py` to verify upper limit flags reflect physical noise floors. **Depends on T019**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -135,24 +143,36 @@
 ### Implementation for User Story 3
 
 - [X] T025a [P] [US3] Import `scikit-survival` and `lifelines` in `code/analysis.py` and verify import availability
-- [X] T033 [US3] **Constraint Preservation**: Implement `quality_control_filter` in `code/analysis.py` to flag low SNR spectra and include them as censored values per FR-002, ensuring the filter uses the SNR and Resolution metadata extracted in T012. **Logic**: Apply filter before finalizing analysis; uses T020 results and T012 metadata. **Deliverable**: Filtered dataset for analysis. **Depends on T012, T020**.
-- [X] T025b [US3] Implement `compute_censored_kendall_tau` in `code/analysis.py` using `scikit-survival`'s `kendall_tau` function for censored data (Hot Jupiters vs Super-Earths). **Logic**: Implements FR-003 requirement for censored correlation using the `scikit-survival` library. **Deliverable**: Kendall's tau coefficient and p-value. **Depends on T012, T020, T033**.
-- [X] T025c [US3] Implement a bootstrap resampling loop to estimate confidence intervals. **Deliverable**: Write results to `data/processed/bootstrap_ci.json` containing {iterations: 1000, ci_lower, ci_upper}.
-- [ ] T026 [US3] Compute and report the CI width of the **water mixing ratio distribution** as a measure of robustness per SC-003. **Logic**: Calculate the 95% CI width of the `water_mixing_ratio` column using the **Kaplan-Meier estimator** to properly account for censored values (upper limits). **Explicitly verify** if width <= 0.2 dex. Set `threshold_met` boolean. **Deliverable**: `results/robustness_report.json` containing {ci_width, threshold_met (boolean)}. **Note**: Report the value; do NOT raise RuntimeError. The result is a measured outcome, not a pipeline gate. **Depends on T025c**.
-- [ ] T027 [US3] Implement Tobit regression model (using `lifelines` or `statsmodels`) with water abundance as dependent variable and temperature, mass, metallicity as predictors. **Logic**: **Check VIF > 5**. If VIF > 5, automatically switch to **Survival Regression (Cox PH or AFT)** using `lifelines` to handle collinearity while preserving censored data validity, as a robust approximation to censored-data models. **Log the fallback trigger event**. **Deliverable**: `data/processed/regression_results.json` with coefficients, p-values, and `fallback_triggered` flag. **Depends on T020**.
-- [ ] T029a [US3] Generate diagnostic plot: Water abundance vs. temperature with error bars/limits. **Deliverable**: `results/plots/water_vs_temp.png`. **Depends on T020**.
-- [ ] T029b [US3] Generate diagnostic plot: Residuals. **Deliverable**: `results/plots/residuals.png`. **Depends on T027**.
-- [ ] T029c [US3] Generate diagnostic plot: Correlation matrix. **Deliverable**: `results/plots/correlation_matrix.png`. **Depends on T025b**.
-- [ ] T029d [US3] Generate diagnostic plot: Instrumental Noise vs. Signal. **Deliverable**: `results/plots/noise_vs_signal.png`. **Depends on T019**.
+- [X] T033 [US3] **Constraint Preservation**: Implement `quality_control_filter` in `code/analysis.py` to flag low SNR spectra and include them as censored values per FR-002, ensuring the filter uses the SNR and Resolution metadata extracted in T012. **Logic**: Apply filter before finalizing analysis; uses T020 results and T012 metadata. **Deliverable**: Filtered dataset for analysis. **Depends on T012, T020**. <!-- FAILED: unspecified -->
+- [X] T025b [US3] Implement `compute_censored_kendall_tau` in `code/analysis.py` using `scikit-survival`'s censored correlation (Kaplan-Meier estimator) to compute Kendall's tau for censored data (Hot Jupiters vs Super-Earths). **Logic**: Implements FR-003 requirement for censored correlation. **Deliverable**: Kendall's tau coefficient and p-value. **Depends on T012, T020, T033**.
+- [ ] T025c [US3] Implement a bootstrap resampling loop to estimate confidence intervals. **Deliverable**: Write results to `data/processed/bootstrap_ci.json` containing {iterations: 1000, ci_lower, ci_upper}.
+- [X] T026 [US3] Compute and report the CI width of the **water mixing ratio distribution** as a measure of robustness per SC-003. **Logic**: Calculate the 95% CI width of the `water_mixing_ratio` (log10 scale) using the bootstrap results from T025c. **Explicitly verify** if width <= 0.2 (dex). Set `threshold_met` boolean. **Deliverable**: `results/robustness_report.json` containing {ci_width, threshold_met (boolean)}. **Note**: Report the value; do NOT raise RuntimeError. The result is a measured outcome, not a pipeline gate. **Depends on T025c**.
+- [ ] T027 [US3] Implement Tobit regression model (using `lifelines` or `statsmodels`) with water abundance as dependent variable and temperature, mass, metallicity as predictors. **Logic**: **Check VIF > 5**. If VIF > 5, automatically switch to **Ridge Regression Fallback** using `sklearn.linear_model.Ridge` on the subset of data where `is_upper_limit == False` (uncensored subset). **Log the fallback trigger event**. **Deliverable**: `data/processed/regression_results.json` with coefficients, p-values, and `fallback_triggered` flag. **Depends on T020**.
+- [X] T029 [US3] Generate all diagnostic plots. **Deliverables**: `results/plots/water_vs_temp.png`, `results/plots/residuals.png`, `results/plots/correlation_matrix.png`, `results/plots/noise_vs_signal.png`. **Depends on T020, T025b, T027**.
 - [ ] T030a [US3] Output correlation statistics: Kendall's tau, p-values, CI width. **Deliverable**: `data/processed/correlation_stats.json`.
-- [ ] T030b [US3] Output regression statistics: Coefficients, p-values, model fit. **Deliverable**: `data/processed/regression_stats.json`.
-- [ ] T030c [US3] Output MDC statistics. **Deliverable**: `data/processed/mdc_stats.json`.
-- [X] T030d [US3] Aggregate all statistics into `data/processed/analysis_results.json`.
-- [ ] T031 [US3] Implement `calculate_statistical_power` in `code/analysis.py` using **actual achieved sample size and variance** to verify power ≥ 0.8 per SC-004. **Logic**: Perform formal post-hoc power analysis. **Deliverable**: `results/power_analysis.json` with {power_estimate, power_sufficient (boolean)} and `results/quality_report.md` with resolved vs. upper limits count and power verification.
-- [X] T034 [US3] **Review Response**: Implement explicit "Confidence Interval Reporting" per Marie Curie's demand for "quantity of data" and "uncertainty". **Logic**: Ensure `analysis_results.json` explicitly reports the 95% CI for the correlation coefficient and the regression coefficients. Generate a `results/uncertainty_summary.md` that interprets these intervals in the context of the sample size (N). **Deliverable**: `results/uncertainty_summary.md`.
-- [ ] T035 [US3] **Review Response**: Implement "Signal vs. Noise" discrimination analysis per Rosalind Franklin's concern about "distinguishing water from methane". **Logic**: Compute the ratio of the water feature depth to the noise floor (SNR) for the 1.4 micron band specifically. Flag any correlation that relies on spectra where this specific SNR < 3. **Deliverable**: `results/signal_noise_analysis.csv` and a binary flag `correlation_valid` in `analysis_results.json`.
+- [X] T030b [US3] Output regression statistics: Coefficients, p-values, model fit. **Deliverable**: `data/processed/regression_stats.json`.
+- [X] T030c [US3] Output MDC statistics. **Deliverable**: `data/processed/mdc_stats.json`.
+- [ ] T030d [US3] Aggregate all statistics into `data/processed/analysis_results.json`.
+- [ ] T031 [US3] Implement `calculate_statistical_power` in `code/analysis.py` using **actual achieved sample size and variance** to verify power ≥ 0.8 per SC-004. **Logic**: Perform formal post-hoc power analysis with **effect_size = 0.3** (|tau|). **Deliverable**: `results/power_analysis.json` with {power_estimate, power_sufficient (boolean)} and `results/quality_report.md` with resolved vs. upper limits count and power verification.
+- [ ] T034 [US3] **Review Response**: Implement explicit "Confidence Interval Reporting" per Marie Curie's demand for "quantity of data" and "uncertainty". **Logic**: Ensure `analysis_results.json` explicitly reports the 95% CI for the correlation coefficient and the regression coefficients. Generate a `results/uncertainty_summary.md` that interprets these intervals in the context of the sample size (N). **Deliverable**: `results/uncertainty_summary.md`.
 
 **Checkpoint**: All user stories should now be independently functional
+
+---
+
+## Phase 6: Review Response & Evidentiary Standards (Revision)
+
+**Purpose**: Address specific quantitative and evidentiary concerns raised by simulated reviewers (Marie Curie, Rosalind Franklin) regarding spectral resolution, signal-to-noise, and detection limits.
+
+### Implementation for Review Response
+
+- [ ] T045 [US3] **Review Response**: Implement **Spectral Resolution Reporting** per Marie Curie's demand for instrument parameters. **Logic**: Extract and aggregate spectral resolution (R) from `metadata.csv`. Calculate the **median** as the primary metric, plus min and max. Explicitly state the resolution range in the final report. **Deliverable**: `results/spectral_resolution_report.md` containing {median_R, min_R, max_R, instrument_breakdown: JSON}. **Depends on T012**.
+- [X] T046 [US3] **Review Response**: Implement **Minimum Detectable Concentration (MDC) Analysis** per Marie Curie's demand for "minimum quantity of atmospheric material". **Logic**: Use the `min_detectable_concentration` calculated in T019 for each planet. Aggregate these to determine the global sensitivity floor of the study. Report the 95th percentile MDC as the effective detection limit for the sample. **Deliverable**: `results/mdc_sensitivity_report.md` containing {global_95th_percentile_mdc, sample_coverage}. **Depends on T019, T020**.
+- [X] T047 [US3] **Review Response**: Implement **Calibration & Noise Stability Analysis** per Marie Curie's concern about "quantity of photons and stability of the detector". **Logic**: Analyze the variance in the noise floor across the sample. Compute the coefficient of variation (CV) for the SNR across all spectra. Flag any instrument with high variance (>20%) as a potential confounding factor. **Deliverable**: `results/noise_stability_report.md` containing {snr_cv, instrument_stability_flags}. **Depends on T012**.
+- [X] T049 [US3] **Review Response**: Implement **Quantitative Evidence Summary** per Marie Curie's demand for "evidentiary standard". **Logic**: Synthesize T045, T046, T047, T034, and T026 into a single "Evidentiary Standard" table. Explicitly list: (1) Instrument resolution achieved, (2) Sample size N, (3) 95% CI for correlation, (4) Global MDC, (5) Power analysis result. **Deliverable**: `results/evidentiary_standard_summary.md`. **Depends on T045, T046, T047, T034, T026**.
+- [ ] T050 [US3] **Review Response**: Implement **Instrument-Specific Calibration Validation** per Marie Curie's demand for "what is the instrument?". **Logic**: Parse `metadata.csv` to group results by instrument (HST, Spitzer, etc.). For each instrument group, calculate and report the mean and standard deviation of the retrieved water abundances for planets with similar equilibrium temperatures (binned). This tests for systematic instrument biases. **Deliverable**: `results/instrument_calibration_report.md` containing {instrument_bias_analysis, systematic_error_flags}. **Depends on T012, T020**.
+- [X] T051 [US3] **Review Response**: Implement **Detection Limit vs. Signal Separation Analysis** per Rosalind Franklin's demand to "define the detection limit... before asserting a correlation". **Logic**: Create a scatter plot and statistical table comparing the retrieved water abundance (or upper limit) against the calculated MDC for each planet. Explicitly count how many detections are >3-sigma above the MDC and how many are consistent with noise. **Deliverables**: `results/detection_limit_separation.md` (table and stats) and `results/plots/detection_limit_scatter.png`. **Depends on T019, T020, T025b**.
+- [X] T052 [US3] **Review Response**: Implement **Noise Floor Stability & Calibration Verification** per Marie Curie's concern about "stability of the detector". **Logic**: Calculate the residual variance of the retrieval model for each spectrum. Group by instrument and observation date (if available) to detect temporal drifts in detector stability. Flag any instrument/date combination with residual variance > 2x the median. **Deliverable**: `results/detector_stability_report.md` containing {temporal_drift_analysis, detector_flags}. **Depends on T020, T047**.
 
 ---
 
@@ -160,14 +180,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [US3] **Results Summary**: Generate `results/results_summary.md` aggregating SC-001 to SC-004 outcomes. **Content**: (1) Final sample size N, (2) Median spectral resolution achieved, (3) 95% CI width for the correlation, (4) Minimum detectable water vapor concentration (derived from T019's detection limits). **Deliverable**: `results/results_summary.md` with required sections.
-- [ ] T039 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T040a [P] Refactor `code/utils.py` to remove duplicate exception handling.
+- [X] T038 [US3] **Results Summary**: Generate `results/results_summary.md` aggregating SC-001 to SC-004 outcomes. **Content**: (1) Final sample size N, (2) Median spectral resolution achieved, (3) 95% CI width for the correlation, (4) Minimum detectable water vapor concentration (derived from T019's detection limits). **Deliverable**: `results/results_summary.md` with required sections.
+- [X] T039 [P] Documentation updates in `README.md` and `quickstart.md`
+- [X] T040a [P] Refactor `code/utils.py` to remove duplicate exception handling.
 - [ ] T040b [P] Update docstrings in `code/analysis.py` for all public functions.
 - [ ] T041a [P] Refactor `code/retrieval.py` to use batch processing for memory efficiency.
 - [ ] T041b [P] Add caching to `code/download.py` to avoid redundant API calls.
-- [ ] T042 [P] Additional unit tests (if requested) in `tests/unit/`
-- [ ] T043 Run quickstart.md validation
+- [X] T042 [P] Additional unit tests (if requested) in `tests/unit/`
+- [X] T043 Run quickstart.md validation
 
 ---
 
@@ -180,15 +200,15 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **Review Response (Phase 6)**: Requires results from US1, US2, and US3 to address reviewer concerns
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Revision (Phase 6)**: Depends on completion of US1-US3 to generate initial results for review response
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires data from US1 (T012)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires data from US1 (T012) and US2 (T020)
-- **Revision (Phase 6)**: Requires results from US1, US2, and US3 to address reviewer concerns
+- **Review Response (Phase 6)**: Requires results from US1, US2, and US3 to address reviewer concerns
 
 ### Within Each User Story
 
@@ -265,8 +285,11 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CPU Constraint**: All tasks must run on a limited number of CPU cores, constrained memory, and no GPU. `petitRADTRANS` must be configured for single-threaded execution.
 - **Data Integrity**: All data must be fetched programmatically; no static data commits.
-- **Censored Data**: All statistical methods must handle upper limits correctly (Kendall's tau via scikit-survival, Tobit, or Survival Regression fallbacks).
+- **Censored Data**: All statistical methods must handle upper limits correctly (Kendall's tau via scikit-survival, Tobit, or Ridge fallback).
 - **Constraint Preservation**: Do NOT remove Ridge Regression Fallback for Tobit; do NOT proceed with biased sample sizes; **DO proceed with post-hoc power analysis**.
 - **Review Compliance**: All tasks in Phase 6 directly address the specific quantitative and evidentiary standards raised by Marie Curie and Rosalind Franklin simulated reviewers regarding spectral resolution, SNR, and detection limits.
 - **Download Policy**: The system MUST download ALL available spectra. No resolution-based filtering (R>=50) is applied before analysis.
-- **Sample Size**: If the available sample is outside the 30-45 target range, the pipeline logs a warning but proceeds with the actual data.
+- **Sample Size**: If the available sample is outside the 30-45 target range, the pipeline halts with an error report.
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [ ] T053 Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

@@ -1,88 +1,111 @@
+"""
+Unit tests for the bootstrap resampling functionality in analysis.py.
+"""
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import json
-import sys
+import tempfile
 import os
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
-
-from analysis import run_bootstrap_ci, save_bootstrap_results, load_analysis_data
+# Import the function to test
+from analysis import run_bootstrap_ci, compute_censored_kendall_tau
 
 @pytest.fixture
-def mock_data():
-    """Create a mock DataFrame with censored data."""
-    np.random.seed(42)
-    n = 50
-    # Generate some mixing ratios
-    ratios = np.random.normal(0, 1, n)
-    # Generate some upper limit flags (0 = detection, 1 = upper limit)
-    is_upper = np.random.choice([0, 1], n, p=[0.8, 0.2])
-    
-    df = pd.DataFrame({
-        'water_mixing_ratio': ratios,
-        'is_upper_limit': is_upper,
-        'snr': np.random.uniform(2, 10, n) # For QC filter
-    })
-    return df
+def sample_censored_data():
+    """Create a small sample dataset with censored values for testing."""
+    data = {
+        'temperature': [1000, 1200, 1400, 1600, 1800, 2000],
+        'water_mixing_ratio': [-4.0, -3.8, -3.5, -3.2, -3.0, -2.8],
+        'is_censored': [False, False, False, True, True, True]
+    }
+    return pd.DataFrame(data)
 
-def test_bootstrap_ci_structure(mock_data, tmp_path):
-    """Test that bootstrap_ci returns the correct structure."""
-    result = run_bootstrap_ci(mock_data, n_iterations=10, random_seed=123)
-    
-    assert 'iterations' in result
-    assert 'ci_lower' in result
-    assert 'ci_upper' in result
-    assert 'tau_median' in result
-    
-    assert result['iterations'] == 10
-    assert isinstance(result['ci_lower'], (float, type(None)))
-    assert isinstance(result['ci_upper'], (float, type(None)))
-    assert isinstance(result['tau_median'], (float, type(None)))
+def test_bootstrap_ci_computation(sample_censored_data):
+    """Test that bootstrap_ci returns a valid dictionary with expected keys."""
+    results = run_bootstrap_ci(sample_censored_data, n_iterations=10, random_state=42)
 
-def test_bootstrap_ci_values(mock_data):
-    """Test that bootstrap CI values are reasonable."""
-    result = run_bootstrap_ci(mock_data, n_iterations=100, random_seed=456)
-    
-    if result['ci_lower'] is not None:
-        # CI lower should be <= tau_median <= CI upper
-        assert result['ci_lower'] <= result['tau_median']
-        assert result['tau_median'] <= result['ci_upper']
-        
-        # Values should be in [-1, 1] range for Kendall's tau
-        assert -1.0 <= result['ci_lower'] <= 1.0
-        assert -1.0 <= result['ci_upper'] <= 1.0
+    assert isinstance(results, dict)
+    assert 'iterations' in results
+    assert 'ci_lower' in results
+    assert 'ci_upper' in results
+    assert 'mean_tau' in results
+    assert 'std_dev' in results
 
-def test_save_bootstrap_results(mock_data, tmp_path):
-    """Test that results are saved correctly to JSON."""
-    result = run_bootstrap_ci(mock_data, n_iterations=10, random_seed=789)
-    output_path = tmp_path / "test_bootstrap.json"
-    
-    save_bootstrap_results(result, output_path)
-    
-    assert output_path.exists()
-    
-    with open(output_path, 'r') as f:
-        saved_data = json.load(f)
-        
-    assert saved_data['iterations'] == 10
-    assert saved_data['ci_lower'] == result['ci_lower']
-    assert saved_data['ci_upper'] == result['ci_upper']
-    assert saved_data['tau_median'] == result['tau_median']
+    assert results['iterations'] == 10
+    assert isinstance(results['ci_lower'], float)
+    assert isinstance(results['ci_upper'], float)
+    assert results['ci_lower'] <= results['ci_upper']
 
-def test_insufficient_data():
-    """Test behavior with insufficient data."""
-    df = pd.DataFrame({
-        'water_mixing_ratio': [1.0],
-        'is_upper_limit': [0],
-        'snr': [5.0]
-    })
-    
-    result = run_bootstrap_ci(df, n_iterations=10)
-    
-    assert result['error'] == "Insufficient data"
-    assert result['ci_lower'] is None
-    assert result['ci_upper'] is None
-    assert result['tau_median'] is None
+def test_bootstrap_ci_with_low_iterations(sample_censored_data):
+    """Test bootstrap with a very low number of iterations."""
+    results = run_bootstrap_ci(sample_censored_data, n_iterations=2, random_state=123)
+
+    assert results['iterations'] == 2
+    # With 2 iterations, CI might be wide or equal, but should not crash
+    assert 'ci_lower' in results
+
+def test_bootstrap_ci_empty_dataframe():
+    """Test that an empty dataframe raises an error."""
+    empty_df = pd.DataFrame(columns=['temperature', 'water_mixing_ratio', 'is_censored'])
+    with pytest.raises(ValueError, match="Cannot bootstrap with empty dataset"):
+        run_bootstrap_ci(empty_df, n_iterations=10)
+
+def test_bootstrap_ci_missing_columns(sample_censored_data):
+    """Test that missing required columns raise an error."""
+    incomplete_df = sample_censored_data.drop(columns=['temperature'])
+    # The function should handle the missing column gracefully or raise an error
+    # In our implementation, it logs a warning and skips, but if no valid taus are found, it raises RuntimeError
+    with pytest.raises(RuntimeError, match="Bootstrap failed to produce any valid Tau values"):
+        run_bootstrap_ci(incomplete_df, n_iterations=5)
+
+def test_save_bootstrap_results():
+    """Test saving bootstrap results to a JSON file."""
+    from analysis import save_bootstrap_results
+
+    test_results = {
+        "iterations": 100,
+        "mean_tau": 0.5,
+        "ci_lower": 0.3,
+        "ci_upper": 0.7,
+        "std_dev": 0.1
+    }
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_bootstrap.json"
+        save_bootstrap_results(test_results, str(output_path))
+
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            loaded = json.load(f)
+
+        assert loaded == test_results
+
+def test_compute_censored_kendall_tau_basic():
+    """Test basic computation of censored Kendall's tau."""
+    data = {
+        'temperature': [100, 200, 300, 400, 500],
+        'water_mixing_ratio': [1.0, 2.0, 3.0, 4.0, 5.0],
+        'is_censored': [False, False, False, False, False]
+    }
+    df = pd.DataFrame(data)
+    tau, p_val = compute_censored_kendall_tau(df, 'temperature', 'water_mixing_ratio')
+
+    # Perfect positive correlation should yield tau close to 1.0
+    assert tau > 0.9
+    assert 0.0 <= p_val <= 1.0
+
+def test_compute_censored_kendall_tau_censored():
+    """Test computation with some censored values."""
+    data = {
+        'temperature': [100, 200, 300, 400, 500],
+        'water_mixing_ratio': [1.0, 2.0, 3.0, 4.0, 5.0],
+        'is_censored': [False, False, True, True, True]
+    }
+    df = pd.DataFrame(data)
+    tau, p_val = compute_censored_kendall_tau(df, 'temperature', 'water_mixing_ratio')
+
+    # Should not crash and return a valid tau
+    assert -1.0 <= tau <= 1.0
+    assert 0.0 <= p_val <= 1.0

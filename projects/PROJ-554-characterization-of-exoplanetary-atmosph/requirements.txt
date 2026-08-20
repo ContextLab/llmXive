@@ -9,6 +9,6 @@ tqdm
 lifelines
 synphot
 scikit-survival
-pytest
-ruff
-black
+scikit-learn
+matplotlib
+seaborn
