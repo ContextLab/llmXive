@@ -1,0 +1,6 @@
+numpy  # auto-added: imported by run-book but missing from venv
+optimum  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
+transformers  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

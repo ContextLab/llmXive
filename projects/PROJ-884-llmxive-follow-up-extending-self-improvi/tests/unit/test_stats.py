@@ -2,7 +2,8 @@
 Unit tests for code/analysis/stats.py
 """
 import pytest
-from code.analysis.stats import two_proportion_z_test, tost_equivalence_test
+import math
+from code.analysis.stats import two_proportion_z_test, tost_equivalence_test, ZTestResult, TOSTResult
 
 class TestTwoProportionZTest:
     def test_z_test_identifies_significance(self):

@@ -1,10 +1,6 @@
 """
-Metrics calculation module for llmXive BES pipeline.
-
-Calculates success rates, wall-clock time, and energy consumption (Joules)
-from execution logs, using calibrated TDP values.
-
-Constraint: Must fail loudly if calibration data is missing or invalid.
+Metrics calculation for the BES experiments.
+Calculates success rates, wall-clock time, energy consumption, and GPU hours estimates.
 """
 import json
 import os
@@ -13,358 +9,302 @@ import csv
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, field
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 @dataclass
 class ExperimentMetrics:
     """Container for calculated experiment metrics."""
-    puzzle_id: str
-    success: bool
-    wall_clock_seconds: float
-    energy_joules: float
-    cpu_percent: float
-    tdp_watts: float
-    timestamp: str
-    complexity_n: int
-    puzzle_type: str
+    total_puzzles: int = 0
+    successful_puzzles: int = 0
+    success_rate: float = 0.0
+    total_wall_clock_seconds: float = 0.0
+    avg_wall_clock_seconds: float = 0.0
+    total_energy_joules: float = 0.0
+    avg_energy_joules: float = 0.0
+    estimated_gpu_hours: float = 0.0
+    calibration_source: Optional[str] = None
+    gpu_conversion_factor: Optional[float] = None
 
-def load_calibrated_tdp() -> Dict[str, Any]:
-    """
-    Load calibrated TDP data from the calibration run.
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "total_puzzles": self.total_puzzles,
+            "successful_puzzles": self.successful_puzzles,
+            "success_rate": self.success_rate,
+            "total_wall_clock_seconds": self.total_wall_clock_seconds,
+            "avg_wall_clock_seconds": self.avg_wall_clock_seconds,
+            "total_energy_joules": self.total_energy_joules,
+            "avg_energy_joules": self.avg_energy_joules,
+            "estimated_gpu_hours": self.estimated_gpu_hours,
+            "calibration_source": self.calibration_source,
+            "gpu_conversion_factor": self.gpu_conversion_factor
+        }
+
+def load_calibrated_tdp(file_path: str = "data/processed/calibrated_tdp.json") -> Dict[str, Any]:
+    """Load the calibrated TDP data."""
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Calibrated TDP file not found: {file_path}")
     
-    Constraint: Must fail loudly if file is missing or invalid.
-    """
-    calibration_path = Path("data/processed/calibrated_tdp.json")
+    with open(path, 'r') as f:
+        data = json.load(f)
     
-    if not calibration_path.exists():
-        raise FileNotFoundError(
-            f"Calibration data not found at {calibration_path}. "
-            "Run T008a (calibrate_tdp.py) and T008c (generate_tdp_constant.py) first."
-        )
+    if 'tdp_watts' not in data:
+        raise ValueError(f"Calibrated TDP file missing 'tdp_watts' field: {file_path}")
     
-    try:
-        with open(calibration_path, 'r') as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in calibration file: {e}")
-    
-    # Validate required fields
-    required_fields = ['tdp_watts', 'source', 'error_margin', 'confidence_interval']
-    missing_fields = [field for field in required_fields if field not in data]
-    
-    if missing_fields:
-        raise ValueError(
-            f"Calibration data missing required fields: {missing_fields}. "
-            "Ensure T008c has been run successfully."
-        )
-    
-    # Validate TDP value
-    tdp_watts = data.get('tdp_watts')
-    if tdp_watts is None or not isinstance(tdp_watts, (int, float)) or tdp_watts <= 0:
-        raise ValueError(
-            f"Invalid TDP value: {tdp_watts}. Must be a positive number."
-        )
-    
-    logger.info(f"Loaded calibrated TDP: {tdp_watts}W (source: {data['source']})")
     return data
 
-def load_experiment_logs(log_dir: str = "data/processed") -> List[Dict[str, Any]]:
-    """
-    Load experiment logs from the processed directory.
-    
-    Looks for experiment.log files containing CPU percent and timing data.
-    """
-    log_path = Path(log_dir) / "experiment.log"
-    
-    if not log_path.exists():
-        # Try to find any .log file in the directory
-        log_files = list(Path(log_dir).glob("*.log"))
-        if not log_files:
-            raise FileNotFoundError(
-                f"No experiment logs found in {log_dir}. "
-                "Run the BES loop (T024) to generate logs first."
-            )
-        log_path = log_files[0]
+def load_experiment_logs(file_path: str) -> List[Dict[str, Any]]:
+    """Load experiment logs from a JSONL or JSON file."""
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Experiment log file not found: {file_path}")
     
     logs = []
-    try:
-        with open(log_path, 'r') as f:
-            for line_num, line in enumerate(f, 1):
+    if path.suffix == '.jsonl':
+        with open(path, 'r') as f:
+            for line in f:
                 line = line.strip()
-                if not line:
-                    continue
-                try:
-                    entry = json.loads(line)
-                    logs.append(entry)
-                except json.JSONDecodeError as e:
-                    logger.warning(f"Skipping malformed log entry at line {line_num}: {e}")
-                    continue
-    except IOError as e:
-        raise IOError(f"Failed to read log file {log_path}: {e}")
+                if line:
+                    logs.append(json.loads(line))
+    elif path.suffix == '.json':
+        with open(path, 'r') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                logs = data
+            elif isinstance(data, dict) and 'logs' in data:
+                logs = data['logs']
+            else:
+                logs = [data]
+    else:
+        raise ValueError(f"Unsupported file format: {path.suffix}")
     
-    if not logs:
-        raise ValueError("No valid log entries found in experiment log")
-    
-    logger.info(f"Loaded {len(logs)} log entries from {log_path}")
     return logs
 
-def load_gpu_conversion_factor() -> Dict[str, Any]:
+def load_gpu_conversion_factor(file_path: str = "data/processed/literature_gpu_factor.json") -> float:
     """
-    Load GPU conversion factor from literature-based calibration.
+    Load the literature-based GPU conversion factor.
     
-    Returns the conversion factor and metadata.
+    Constraint: This script MUST read `data/processed/literature_gpu_factor.json` 
+    and verify that it is not zero before use.
+    
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the file is missing the 'conversion_factor' field or if the factor is zero.
     """
-    factor_path = Path("data/processed/literature_gpu_factor.json")
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"GPU conversion factor file not found: {file_path}. "
+                                "Please ensure T040b has been executed to generate this file.")
     
-    if not factor_path.exists():
-        # Return default if not found, but log warning
-        logger.warning("GPU conversion factor not found, using default 1.0")
-        return {"conversion_factor": 1.0, "source": "default", "estimated": True}
-    
-    try:
-        with open(factor_path, 'r') as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in GPU factor file: {e}")
+    with open(path, 'r') as f:
+        data = json.load(f)
     
     if 'conversion_factor' not in data:
-        raise ValueError("GPU conversion factor file missing 'conversion_factor' field")
+        raise ValueError(f"GPU conversion factor file missing 'conversion_factor' field: {file_path}")
     
     factor = data['conversion_factor']
-    if not isinstance(factor, (int, float)) or factor <= 0:
-        raise ValueError(f"Invalid GPU conversion factor: {factor}")
     
-    logger.info(f"Loaded GPU conversion factor: {factor}")
-    return data
+    if not isinstance(factor, (int, float)):
+        raise ValueError(f"GPU conversion factor must be a number, got {type(factor)}")
+    
+    if factor == 0:
+        raise ValueError(f"GPU conversion factor cannot be zero. "
+                         "This would result in zero energy estimates. "
+                         "Please check the source file: {file_path}")
+    
+    logger.info(f"Loaded GPU conversion factor: {factor} from {file_path}")
+    return float(factor)
 
-def calculate_metrics_from_logs(
-    logs: List[Dict[str, Any]],
-    tdp_data: Dict[str, Any]
-) -> List[ExperimentMetrics]:
+def calculate_metrics_from_logs(logs: List[Dict[str, Any]], 
+                                tdp_watts: float, 
+                                gpu_factor: Optional[float] = None) -> ExperimentMetrics:
     """
-    Calculate metrics from experiment logs using calibrated TDP.
+    Calculate metrics from experiment logs.
     
-    Energy calculation: E = TDP * (cpu_percent/100) * wall_clock_seconds
-    
-    Constraint: Must fail loudly if required fields are missing.
+    Args:
+        logs: List of log entries from the experiment.
+        tdp_watts: The calibrated TDP in watts.
+        gpu_factor: Optional GPU conversion factor for estimating GPU hours.
+        
+    Returns:
+        ExperimentMetrics object with calculated values.
     """
-    tdp_watts = tdp_data['tdp_watts']
-    metrics_list = []
+    metrics = ExperimentMetrics()
+    metrics.total_puzzles = len(logs)
     
-    for log_entry in logs:
-        # Extract required fields
-        puzzle_id = log_entry.get('puzzle_id')
-        success = log_entry.get('success')
-        wall_clock = log_entry.get('wall_clock_seconds')
-        cpu_percent = log_entry.get('cpu_percent')
-        timestamp = log_entry.get('timestamp')
-        complexity_n = log_entry.get('complexity_n', 0)
-        puzzle_type = log_entry.get('puzzle_type', 'unknown')
-        
-        # Validate required fields
-        missing_fields = []
-        if puzzle_id is None:
-            missing_fields.append('puzzle_id')
-        if success is None:
-            missing_fields.append('success')
-        if wall_clock is None:
-            missing_fields.append('wall_clock_seconds')
-        if cpu_percent is None:
-            missing_fields.append('cpu_percent')
-        if timestamp is None:
-            missing_fields.append('timestamp')
-        
-        if missing_fields:
-            logger.warning(
-                f"Skipping log entry for puzzle {puzzle_id}: "
-                f"missing fields {missing_fields}"
-            )
-            continue
-        
-        # Validate numeric fields
-        try:
-            wall_clock = float(wall_clock)
-            cpu_percent = float(cpu_percent)
-            complexity_n = int(complexity_n)
-        except (ValueError, TypeError) as e:
-            logger.warning(f"Skipping log entry for puzzle {puzzle_id}: invalid numeric field - {e}")
-            continue
-        
-        if wall_clock < 0 or cpu_percent < 0 or cpu_percent > 100:
-            logger.warning(
-                f"Skipping log entry for puzzle {puzzle_id}: "
-                f"invalid values (wall_clock={wall_clock}, cpu_percent={cpu_percent})"
-            )
-            continue
-        
-        # Calculate energy consumption
-        energy_joules = tdp_watts * (cpu_percent / 100.0) * wall_clock
-        
-        # Create metrics object
-        metrics = ExperimentMetrics(
-            puzzle_id=str(puzzle_id),
-            success=bool(success),
-            wall_clock_seconds=round(wall_clock, 6),
-            energy_joules=round(energy_joules, 6),
-            cpu_percent=round(cpu_percent, 2),
-            tdp_watts=round(tdp_watts, 2),
-            timestamp=timestamp,
-            complexity_n=complexity_n,
-            puzzle_type=puzzle_type
-        )
-        metrics_list.append(metrics)
+    if metrics.total_puzzles == 0:
+        logger.warning("No logs provided, returning empty metrics.")
+        return metrics
     
-    logger.info(f"Calculated metrics for {len(metrics_list)} puzzles")
-    return metrics_list
+    successful = 0
+    total_time = 0.0
+    total_energy = 0.0
+    
+    for log in logs:
+        # Check success
+        if log.get('status') == 'success' or log.get('success', False):
+            successful += 1
+        
+        # Extract time
+        duration = log.get('duration_seconds', log.get('wall_clock_seconds', 0.0))
+        if not isinstance(duration, (int, float)):
+            logger.warning(f"Invalid duration in log: {duration}")
+            duration = 0.0
+        total_time += duration
+        
+        # Calculate energy: Energy (J) = Power (W) * Time (s)
+        # We use the TDP as the power draw estimate
+        energy = tdp_watts * duration
+        total_energy += energy
+    
+    metrics.successful_puzzles = successful
+    metrics.success_rate = successful / metrics.total_puzzles
+    metrics.total_wall_clock_seconds = total_time
+    metrics.avg_wall_clock_seconds = total_time / metrics.total_puzzles
+    metrics.total_energy_joules = total_energy
+    metrics.avg_energy_joules = total_energy / metrics.total_puzzles
+    
+    # Estimate GPU hours if factor provided
+    if gpu_factor is not None and gpu_factor > 0:
+        # GPU hours estimated based on energy consumption and conversion factor
+        # This is a rough estimate based on the literature factor
+        # GPU_hours = (Energy_Joules / (TDP_Watts * 3600)) * conversion_factor
+        # Or more simply: GPU_hours = (total_time_hours) * conversion_factor
+        total_time_hours = total_time / 3600.0
+        metrics.estimated_gpu_hours = total_time_hours * gpu_factor
+        metrics.gpu_conversion_factor = gpu_factor
+    
+    return metrics
 
-def calculate_gpu_hours_estimated(
-    metrics_list: List[ExperimentMetrics],
-    gpu_factor_data: Dict[str, Any]
-) -> float:
+def calculate_gpu_hours_estimated(logs: List[Dict[str, Any]], 
+                                  tdp_watts: float, 
+                                  gpu_factor: float) -> float:
     """
-    Calculate estimated GPU hours based on CPU runtime and conversion factor.
+    Calculate estimated GPU hours based on logs and conversion factor.
     
-    Returns total estimated GPU hours.
+    Args:
+        logs: List of log entries.
+        tdp_watts: Calibrated TDP in watts.
+        gpu_factor: GPU conversion factor.
+        
+    Returns:
+        Estimated GPU hours.
     """
-    conversion_factor = gpu_factor_data['conversion_factor']
-    total_cpu_hours = sum(m.wall_clock_seconds for m in metrics_list) / 3600.0
-    estimated_gpu_hours = total_cpu_hours * conversion_factor
-    
-    logger.info(
-        f"Estimated GPU hours: {estimated_gpu_hours:.4f} "
-        f"(CPU hours: {total_cpu_hours:.4f}, factor: {conversion_factor})"
-    )
-    return estimated_gpu_hours
+    metrics = calculate_metrics_from_logs(logs, tdp_watts, gpu_factor)
+    return metrics.estimated_gpu_hours
 
-def save_metrics_to_csv(
-    metrics_list: List[ExperimentMetrics],
-    output_path: str = "data/processed/metrics.csv"
-) -> None:
-    """
-    Save calculated metrics to a CSV file.
-    """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+def save_metrics_to_csv(metrics: ExperimentMetrics, output_path: str) -> None:
+    """Save metrics to a CSV file."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    fieldnames = [
-        'puzzle_id', 'success', 'wall_clock_seconds', 'energy_joules',
-        'cpu_percent', 'tdp_watts', 'timestamp', 'complexity_n', 'puzzle_type'
-    ]
-    
-    with open(output_file, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        
-        for metrics in metrics_list:
-            writer.writerow(asdict(metrics))
-    
-    logger.info(f"Saved metrics to {output_file}")
+    with open(path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['metric', 'value', 'unit'])
+        writer.writerow(['total_puzzles', metrics.total_puzzles, 'count'])
+        writer.writerow(['successful_puzzles', metrics.successful_puzzles, 'count'])
+        writer.writerow(['success_rate', metrics.success_rate, 'ratio'])
+        writer.writerow(['total_wall_clock_seconds', metrics.total_wall_clock_seconds, 'seconds'])
+        writer.writerow(['avg_wall_clock_seconds', metrics.avg_wall_clock_seconds, 'seconds'])
+        writer.writerow(['total_energy_joules', metrics.total_energy_joules, 'joules'])
+        writer.writerow(['avg_energy_joules', metrics.avg_energy_joules, 'joules'])
+        if metrics.estimated_gpu_hours > 0:
+            writer.writerow(['estimated_gpu_hours', metrics.estimated_gpu_hours, 'hours'])
+            writer.writerow(['gpu_conversion_factor', metrics.gpu_conversion_factor, 'factor'])
 
-def perform_scaling_analysis(
-    metrics_list: List[ExperimentMetrics]
-) -> Dict[str, Any]:
+def perform_scaling_analysis(logs_by_complexity: Dict[int, List[Dict[str, Any]]],
+                             tdp_watts: float,
+                             gpu_factor: Optional[float] = None) -> Dict[int, ExperimentMetrics]:
     """
-    Perform basic scaling analysis on the metrics.
+    Perform scaling analysis across different complexity levels.
     
-    Returns summary statistics by complexity level.
+    Args:
+        logs_by_complexity: Dictionary mapping complexity level to list of logs.
+        tdp_watts: Calibrated TDP in watts.
+        gpu_factor: Optional GPU conversion factor.
+        
+    Returns:
+        Dictionary mapping complexity level to ExperimentMetrics.
     """
-    if not metrics_list:
-        return {"error": "No metrics provided"}
-    
-    # Group by complexity
-    complexity_groups = {}
-    for metrics in metrics_list:
-        n = metrics.complexity_n
-        if n not in complexity_groups:
-            complexity_groups[n] = []
-        complexity_groups[n].append(metrics)
-    
-    # Calculate statistics for each complexity level
-    scaling_stats = []
-    for n in sorted(complexity_groups.keys()):
-        group = complexity_groups[n]
-        
-        avg_time = sum(m.wall_clock_seconds for m in group) / len(group)
-        avg_energy = sum(m.energy_joules for m in group) / len(group)
-        success_rate = sum(1 for m in group if m.success) / len(group)
-        
-        scaling_stats.append({
-            'complexity_n': n,
-            'count': len(group),
-            'avg_wall_clock_seconds': round(avg_time, 6),
-            'avg_energy_joules': round(avg_energy, 6),
-            'success_rate': round(success_rate, 4)
-        })
-    
-    return {
-        'scaling_stats': scaling_stats,
-        'total_puzzles': len(metrics_list),
-        'complexity_levels': len(complexity_groups)
-    }
+    results = {}
+    for complexity, logs in logs_by_complexity.items():
+        metrics = calculate_metrics_from_logs(logs, tdp_watts, gpu_factor)
+        results[complexity] = metrics
+        logger.info(f"Complexity {complexity}: success_rate={metrics.success_rate:.2f}, "
+                    f"avg_time={metrics.avg_wall_clock_seconds:.2f}s")
+    return results
 
 def main():
     """
     Main entry point for metrics calculation.
     
-    Reads experiment logs, calculates metrics using calibrated TDP,
-    and saves results to CSV.
+    This function:
+    1. Loads the calibrated TDP from data/processed/calibrated_tdp.json
+    2. Loads the GPU conversion factor from data/processed/literature_gpu_factor.json
+    3. Validates that the GPU conversion factor is not zero
+    4. Calculates and outputs metrics for provided experiment logs
     """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Calculate experiment metrics')
+    parser.add_argument('--logs', type=str, required=True, 
+                      help='Path to experiment logs (JSON or JSONL)')
+    parser.add_argument('--output', type=str, required=True,
+                      help='Path to output metrics file (JSON or CSV)')
+    parser.add_argument('--tdp-file', type=str, 
+                      default='data/processed/calibrated_tdp.json',
+                      help='Path to calibrated TDP file')
+    parser.add_argument('--gpu-factor-file', type=str,
+                      default='data/processed/literature_gpu_factor.json',
+                      help='Path to GPU conversion factor file')
+    parser.add_argument('--format', type=str, choices=['json', 'csv'], default='json',
+                      help='Output format')
+    
+    args = parser.parse_args()
+    
     try:
-        # Load calibrated TDP (fails loudly if missing)
-        logger.info("Loading calibrated TDP...")
-        tdp_data = load_calibrated_tdp()
+        # Load TDP
+        tdp_data = load_calibrated_tdp(args.tdp_file)
+        tdp_watts = tdp_data['tdp_watts']
+        logger.info(f"Loaded TDP: {tdp_watts}W from {args.tdp_file}")
         
-        # Load experiment logs
-        logger.info("Loading experiment logs...")
-        logs = load_experiment_logs()
+        # Load and validate GPU conversion factor
+        gpu_factor = load_gpu_conversion_factor(args.gpu_factor_file)
+        logger.info(f"GPU conversion factor validated: {gpu_factor}")
+        
+        # Load logs
+        logs = load_experiment_logs(args.logs)
+        logger.info(f"Loaded {len(logs)} log entries from {args.logs}")
         
         # Calculate metrics
-        logger.info("Calculating metrics...")
-        metrics_list = calculate_metrics_from_logs(logs, tdp_data)
+        metrics = calculate_metrics_from_logs(logs, tdp_watts, gpu_factor)
+        metrics.calibration_source = tdp_data.get('source', 'unknown')
         
-        if not metrics_list:
-            raise ValueError("No valid metrics could be calculated from logs")
+        logger.info(f"Calculated metrics: success_rate={metrics.success_rate:.2%}, "
+                    f"avg_time={metrics.avg_wall_clock_seconds:.2f}s, "
+                    f"avg_energy={metrics.avg_energy_joules:.2f}J")
         
-        # Save metrics to CSV
-        output_path = "data/processed/metrics.csv"
-        save_metrics_to_csv(metrics_list, output_path)
+        if metrics.estimated_gpu_hours > 0:
+            logger.info(f"Estimated GPU hours: {metrics.estimated_gpu_hours:.4f}")
         
-        # Perform scaling analysis
-        scaling_stats = perform_scaling_analysis(metrics_list)
-        scaling_path = "data/processed/scaling_summary.json"
-        with open(scaling_path, 'w') as f:
-            json.dump(scaling_stats, f, indent=2)
-        logger.info(f"Saved scaling summary to {scaling_path}")
+        # Save output
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # Calculate GPU hours estimate
-        gpu_factor_data = load_gpu_conversion_factor()
-        gpu_hours = calculate_gpu_hours_estimated(metrics_list, gpu_factor_data)
-        
-        # Print summary
-        total_success = sum(1 for m in metrics_list if m.success)
-        total_attempts = len(metrics_list)
-        success_rate = total_success / total_attempts if total_attempts > 0 else 0
-        
-        total_energy = sum(m.energy_joules for m in metrics_list)
-        total_time = sum(m.wall_clock_seconds for m in metrics_list)
-        
-        print(f"\n=== Metrics Summary ===")
-        print(f"Total puzzles: {total_attempts}")
-        print(f"Success rate: {success_rate:.2%}")
-        print(f"Total wall-clock time: {total_time:.2f} seconds")
-        print(f"Total energy consumption: {total_energy:.2f} Joules")
-        print(f"Estimated GPU hours: {gpu_hours:.4f}")
-        print(f"Metrics saved to: {output_path}")
-        print(f"Scaling summary saved to: {scaling_path}")
-        
-        return metrics_list, scaling_stats, gpu_hours
+        if args.format == 'json':
+            with open(output_path, 'w') as f:
+                json.dump(metrics.to_dict(), f, indent=2)
+            logger.info(f"Saved metrics to {output_path}")
+        elif args.format == 'csv':
+            save_metrics_to_csv(metrics, str(output_path))
+            logger.info(f"Saved metrics to {output_path}")
         
     except FileNotFoundError as e:
-        logger.error(f"Required file not found: {e}")
+        logger.error(f"File not found: {e}")
         raise
     except ValueError as e:
         logger.error(f"Validation error: {e}")
@@ -373,5 +313,5 @@ def main():
         logger.error(f"Unexpected error: {e}")
         raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

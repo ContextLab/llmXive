@@ -1,0 +1,17 @@
+status: none
+intent: CSPLib constraint satisfaction puzzles verification scripts MiniZinc Challenge
+  python package dataset
+required_fields:
+- puzzle_id
+- puzzle_type
+- puzzle_definition
+- constraints_formal
+- verification_script
+- example_solution
+- solution_path
+- final_answer
+- source
+- difficulty_level
+cache_key: e7a2726a75f464ec080523f13d8fcd50da999b10daa6ee09e621d399fec6e8ff
+searched_at: '2026-08-20T07:24:07.243937+00:00'
+retry_count: 1

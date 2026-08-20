@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-884-llmxive-follow-up-extending-self-improvi",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/bes/population.py: function `select_parent` returns a bare RNG draw (line 279) \u2014 a reported value computed from no real input; 4 command(s) failed: python code/dataset/generator.py --count 500 --output data/raw/puzzles.jsonl --scaling (rc=2); python code/main.py --method symbolic --pop-size 50 --generations 20 --output data/processed/symbolic_run.jsonl (rc=1); python code/main.py --method neural --pop-size 50 --generations 20 --output data/processed/neural_run.jsonl (rc=1); 7 declared deliverable(s) absent: data/processed/calibrated_tdp.json; data/processed/calibration_run.json; data/processed/distribution_report.json",
+  "artifacts": [],
+  "failures": [
+    "python code/dataset/generator.py --count 500 --output data/raw/puzzles.jsonl --scaling -> rc=2\n    usage: generator.py [-h] --n N [N ...] --count COUNT\n                    [--types TYPES [TYPES ...]] [--output-dir OUTPUT_DIR]\n                    [--seed SEED] [--max-attempts MAX_ATTEMPTS]\ngenerator.py: error: the following arguments are required: --n",
+    "python code/main.py --method symbolic --pop-size 50 --generations 20 --output data/processed/symbolic_run.jsonl -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/main.py\", line 18, in <module>\n    from config import load_config, get_experiment_id, initialize_experiment\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/config.py\", line 8, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
+    "python code/main.py --method neural --pop-size 50 --generations 20 --output data/processed/neural_run.jsonl -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/main.py\", line 18, in <module>\n    from config import load_config, get_experiment_id, initialize_experiment\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/config.py\", line 8, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
+    "python code/analysis/stats.py --symbolic data/processed/symbolic_run.jsonl --neural data/processed/neural_run.jsonl --output data/processed/results.json -> rc=1\n    Error: [Errno 2] No such file or directory: '--symbolic'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-20T07:23:02Z"
+}

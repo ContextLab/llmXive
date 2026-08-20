@@ -34,17 +34,29 @@ T021:
     \ for CPU\u2011optimized inference, and the referenced `code/bes/config.py` is\
     \ missing entirely, so the model cannot be loaded as specified. These gaps mean\
     \ the task\u2019s constraints are not met."
-T032:
+T031a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `README.md` content or any documentation artifact was presented; therefore
-    we cannot confirm that the required updates detailing how to run the BES loop
-    and interpret results actually exist. The implementer must supply the updated
-    README file with the specified instructions.
-T033:
+  h: 7ba0e370872dcfb7a95b919c9776c96567656e642cee305a65ef05c7ad2dcb78
+  r: "The repository contains `code/analysis/stats.py`, but it does not show any code\
+    \ that writes results to `data/processed/stats_results.json`, and the required\
+    \ JSON file is absent. Consequently the task\u2019s core requirement\u2014producing\
+    \ a machine\u2011readable stats file with p\u2011values, confidence intervals,\
+    \ and test statistics\u2014is not satisfied."
+T035:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No cleaned or refactored source files for the `code/bes/` and `code/symbolic/`\
-    \ modules are present; the claim provides only a high\u2011level feature description\
-    \ without any actual code changes, diff, or commit evidence. The required artifact\u2014\
-    a set of updated, lint\u2011clean, and refactored Python modules\u2014is missing."
+  h: fdcc53ba40ea46075b92cd76c7258a11ec65634363275067fb48b5f847b92c66
+  r: The required artifact `pre_registration.yaml` is missing from the provided evidence,
+    so the set of required files is not complete, violating the verification constraint.
+T035#1:
+  c: false
+  h: fdcc53ba40ea46075b92cd76c7258a11ec65634363275067fb48b5f847b92c66
+  r: The required artifact `pre_registration.yaml` is missing from the repository,
+    so the set of required files is incomplete and the verification task is not satisfied.
+T040c:
+  c: false
+  h: 99dd1f7c7e8501eaa3ffbb6600cce90562467a5f430d00d5786aeafe49cc609b
+  r: "The required `data/processed/literature_gpu_factor.json` file is absent, and\
+    \ the provided `code/analysis/metrics.py` does not contain any implemented logic\
+    \ that reads this file and checks that the conversion factor is non\u2011zero\
+    \ (the file is truncated before any such function). Both the artifact and the\
+    \ validation step are missing."

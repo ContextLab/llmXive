@@ -1,586 +1,635 @@
 """
-Population management for the Bidirectional Evolutionary Search (BES) framework.
+Population management for the Bidirectional Evolutionary Search (BES).
 
-This module handles the evolutionary population, including individual representation,
-selection, replacement, and memory management to ensure the population stays within
-manageable resource thresholds.
+This module handles the evolutionary population, ensuring memory usage stays
+under a manageable threshold and providing selection mechanisms for the
+evolutionary loop.
 """
-
 import gc
 import time
 import json
 import random
 import os
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple, Callable, Set
-from dataclasses import dataclass, field
+from typing import Dict, Any, List, Optional, Tuple
+from dataclasses import dataclass, field, asdict
 from enum import Enum
+import logging
 
-# Import from project structure
+# Import from project API
+from code.utils.seed import set_seed, get_seed
+from code.utils.logger import log, setup_logging
 from code.exceptions import BaseResearchException
-from code.utils.seed import get_seed, set_seed
-from code.utils.logger import log
-from code.bes.forward_step import ForwardStepResult
-from code.bes.backward_step import BackwardStepResult
 
+# Configure logging for this module
+logger = logging.getLogger(__name__)
 
 class PopulationError(BaseResearchException):
-    """Base exception for population-related errors."""
+    """Custom exception for population-related errors."""
     pass
 
-
 class SelectionMethod(Enum):
-    """Available selection methods for the evolutionary algorithm."""
+    """Enumeration of selection methods for evolutionary steps."""
+    ROULETTE = "roulette"
     TOURNAMENT = "tournament"
     RANK = "rank"
-    ROUNDR_ROBIN = "round_robin"
-    ELITE = "elite"
-
+    ELITISM = "elitism"
 
 @dataclass
 class Individual:
-    """
-    Represents a single individual in the evolutionary population.
-    
-    Attributes:
-        id: Unique identifier for this individual.
-        genotype: The solution representation (e.g., list of moves, path).
-        phenotype: The interpreted solution (e.g., final state, trajectory).
-        fitness: The fitness score (higher is better).
-        age: Number of generations this individual has survived.
-        parent_ids: IDs of parent individuals (for lineage tracking).
-        metadata: Additional data for analysis (e.g., generation created, source).
-    """
+    """Represents a single individual in the evolutionary population."""
     id: str
-    genotype: Any
-    phenotype: Any
+    genotype: Any  # Can be a list, dict, or custom object representing the solution
     fitness: float
     age: int = 0
-    parent_ids: List[str] = field(default_factory=list)
+    generation_created: int = 0
+    parent_ids: Optional[List[str]] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
     
     def __post_init__(self):
-        if not isinstance(self.id, str):
-            self.id = str(self.id)
         if self.parent_ids is None:
             self.parent_ids = []
-        if self.metadata is None:
-            self.metadata = {}
-
-    def __repr__(self):
-        return f"Individual(id={self.id}, fitness={self.fitness:.4f}, age={self.age})"
-
+        
     def to_dict(self) -> Dict[str, Any]:
         """Convert individual to a dictionary for serialization."""
-        return {
-            "id": self.id,
-            "genotype": self.genotype,
-            "phenotype": self.phenotype,
-            "fitness": self.fitness,
-            "age": self.age,
-            "parent_ids": self.parent_ids,
-            "metadata": self.metadata
-        }
-
+        return asdict(self)
+        
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Individual":
+    def from_dict(cls, data: Dict[str, Any]) -> 'Individual':
         """Create an Individual from a dictionary."""
-        return cls(
-            id=data["id"],
-            genotype=data["genotype"],
-            phenotype=data["phenotype"],
-            fitness=data["fitness"],
-            age=data.get("age", 0),
-            parent_ids=data.get("parent_ids", []),
-            metadata=data.get("metadata", {})
-        )
+        return cls(**data)
 
 @dataclass
 class PopulationStats:
     """Statistics about the current population state."""
     size: int
     avg_fitness: float
-    max_fitness: float
     min_fitness: float
+    max_fitness: float
     std_fitness: float
-    avg_age: float
-    diversity_score: float  # Placeholder for diversity metric
     generation: int
     memory_usage_mb: float
-
+    diversity_score: float = 0.0
+    
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "size": self.size,
-            "avg_fitness": self.avg_fitness,
-            "max_fitness": self.max_fitness,
-            "min_fitness": self.min_fitness,
-            "std_fitness": self.std_fitness,
-            "avg_age": self.avg_age,
-            "diversity_score": self.diversity_score,
-            "generation": self.generation,
-            "memory_usage_mb": self.memory_usage_mb
-        }
+        """Convert stats to a dictionary."""
+        return asdict(self)
 
 class Population:
     """
-    Manages the evolutionary population with memory-aware constraints.
+    Manages the evolutionary population for BES.
     
-    This class implements:
-    - Population initialization
-    - Selection mechanisms (tournament, rank, etc.)
-    - Replacement strategies (elitism, generational)
-    - Memory management (garbage collection, size limits)
-    - Statistics tracking
+    Ensures memory usage stays under a manageable threshold and provides
+    selection mechanisms for the evolutionary loop.
     """
     
     def __init__(
         self,
-        max_size: int = 100,
-        min_size: int = 10,
-        elite_count: int = 2,
-        selection_method: SelectionMethod = SelectionMethod.TOURNAMENT,
-        tournament_size: int = 3,
-        mutation_rate: float = 0.1,
-        crossover_rate: float = 0.7,
-        memory_threshold_mb: float = 500.0,
-        generation: int = 0
+        size: int,
+        generation: int = 0,
+        seed: Optional[int] = None,
+        max_memory_mb: Optional[float] = None
     ):
         """
-        Initialize the population manager.
+        Initialize a new population.
         
         Args:
-            max_size: Maximum number of individuals allowed.
-            min_size: Minimum number of individuals before regeneration.
-            elite_count: Number of top individuals to preserve each generation.
-            selection_method: Method for selecting parents.
-            tournament_size: Size for tournament selection.
-            mutation_rate: Probability of mutation per gene.
-            crossover_rate: Probability of crossover between parents.
-            memory_threshold_mb: Soft limit on memory usage (triggers GC).
-            generation: Starting generation number.
+            size: Maximum population size.
+            generation: Current generation number.
+            seed: Random seed for reproducibility.
+            max_memory_mb: Optional maximum memory usage in MB. If exceeded,
+                          garbage collection is triggered.
         """
-        self.max_size = max_size
-        self.min_size = min_size
-        self.elite_count = min(elite_count, max_size)
-        self.selection_method = selection_method
-        self.tournament_size = tournament_size
-        self.mutation_rate = mutation_rate
-        self.crossover_rate = crossover_rate
-        self.memory_threshold_mb = memory_threshold_mb
+        self.size = size
         self.generation = generation
+        self.max_memory_mb = max_memory_mb
+        self.individuals: List[Individual] = []
+        self.history: List[Dict[str, Any]] = []
         
-        self._individuals: Dict[str, Individual] = {}
-        self._id_counter: int = 0
-        self._history: List[Dict[str, Any]] = []
-        
-        # Ensure we don't start with invalid parameters
-        if self.elite_count > self.max_size:
-            raise PopulationError(f"elite_count ({self.elite_count}) cannot exceed max_size ({self.max_size})")
-        if self.tournament_size > self.max_size:
-            self.tournament_size = max(2, self.max_size)
-    
-    def _generate_id(self) -> str:
-        """Generate a unique ID for a new individual."""
-        self._id_counter += 1
-        return f"ind_{self.generation}_{self._id_counter}"
-    
-    def initialize(
-        self,
-        initial_genotypes: Optional[List[Any]] = None,
-        fitness_function: Optional[Callable[[Individual], float]] = None,
-        seed: Optional[int] = None
-    ) -> List[Individual]:
-        """
-        Initialize the population with random or provided genotypes.
-        
-        Args:
-            initial_genotypes: Optional list of initial genotypes. If None, random ones are generated.
-            fitness_function: Function to evaluate fitness. If None, fitness is 0.0.
-            seed: Optional random seed for reproducibility.
-        
-        Returns:
-            List of initialized individuals.
-        """
         if seed is not None:
             set_seed(seed)
-        
-        self._individuals.clear()
-        self._id_counter = 0
-        self.generation = 0
-        
-        if initial_genotypes:
-            # Use provided genotypes
-            for genotype in initial_genotypes[:self.max_size]:
-                ind = Individual(
-                    id=self._generate_id(),
-                    genotype=genotype,
-                    phenotype=genotype,  # Default phenotype = genotype
-                    fitness=0.0,
-                    age=0,
-                    metadata={"source": "initial"}
-                )
-                if fitness_function:
-                    ind.fitness = fitness_function(ind)
-                self._individuals[ind.id] = ind
+            self.seed = seed
         else:
-            # Generate random genotypes (placeholder logic - should be overridden by specific puzzle types)
-            # For now, create dummy individuals with random lists
-            for _ in range(self.max_size):
-                genotype = [random.randint(0, 100) for _ in range(10)]
-                ind = Individual(
-                    id=self._generate_id(),
-                    genotype=genotype,
-                    phenotype=genotype,
-                    fitness=0.0,
-                    age=0,
-                    metadata={"source": "random"}
-                )
-                if fitness_function:
-                    ind.fitness = fitness_function(ind)
-                self._individuals[ind.id] = ind
+            self.seed = get_seed()
+            
+        random.seed(self.seed)
+        logger.info(f"Initialized population with size {size}, seed {self.seed}")
         
-        return list(self._individuals.values())
-    
-    def select_parent(self) -> Individual:
+        # Memory monitoring
+        self._last_gc_generation = 0
+        self._gc_threshold = 10  # Run GC every 10 generations if no explicit limit
+        
+    def add_individual(self, individual: Individual) -> None:
         """
-        Select a parent individual based on the configured selection method.
+        Add an individual to the population.
         
+        Args:
+            individual: The Individual to add.
+            
+        Raises:
+            PopulationError: If population exceeds max size.
+        """
+        if len(self.individuals) >= self.size:
+            raise PopulationError(
+                f"Population size {len(self.individuals)} already at maximum {self.size}"
+            )
+        self.individuals.append(individual)
+        logger.debug(f"Added individual {individual.id} to population")
+        
+    def initialize_random(
+        self,
+        generator_func,
+        num_individuals: Optional[int] = None
+    ) -> List[Individual]:
+        """
+        Initialize the population with random individuals.
+        
+        Args:
+            generator_func: A callable that generates a random individual.
+                            Should return an Individual or data to wrap in one.
+            num_individuals: Number of individuals to generate. Defaults to self.size.
+                            
+        Returns:
+            List of generated individuals.
+        """
+        count = num_individuals or self.size
+        self.individuals = []
+        
+        for i in range(count):
+            ind_data = generator_func()
+            if isinstance(ind_data, Individual):
+                individual = ind_data
+            else:
+                # Assume it's genotype data, wrap it
+                individual = Individual(
+                    id=f"init_{self.generation}_{i}",
+                    genotype=ind_data,
+                    fitness=0.0,
+                    generation_created=self.generation
+                )
+            self.individuals.append(individual)
+            
+        logger.info(f"Initialized population with {len(self.individuals)} random individuals")
+        return self.individuals
+        
+    def get_fitnesses(self) -> List[float]:
+        """Get list of fitness values for all individuals."""
+        return [ind.fitness for ind in self.individuals]
+        
+    def get_best_individual(self) -> Optional[Individual]:
+        """Return the individual with the highest fitness."""
+        if not self.individuals:
+            return None
+        return max(self.individuals, key=lambda ind: ind.fitness)
+        
+    def get_worst_individual(self) -> Optional[Individual]:
+        """Return the individual with the lowest fitness."""
+        if not self.individuals:
+            return None
+        return min(self.individuals, key=lambda ind: ind.fitness)
+        
+    def select_parent(
+        self,
+        method: SelectionMethod = SelectionMethod.TOURNAMENT,
+        tournament_size: int = 3,
+        elite_count: int = 0
+    ) -> Individual:
+        """
+        Select a parent from the population using the specified method.
+        
+        Args:
+            method: The selection method to use.
+            tournament_size: Size of tournament for tournament selection.
+            elite_count: Number of elite individuals to preserve (for elitism).
+            
         Returns:
             Selected Individual.
-        
+            
         Raises:
             PopulationError: If population is empty or selection fails.
         """
-        if not self._individuals:
-            raise PopulationError("Cannot select from empty population")
-        
-        individuals = list(self._individuals.values())
-        
-        if self.selection_method == SelectionMethod.TOURNAMENT:
-            candidates = random.sample(individuals, min(self.tournament_size, len(individuals)))
-            return max(candidates, key=lambda x: x.fitness)
-        
-        elif self.selection_method == SelectionMethod.RANK:
-            # Sort by fitness and select based on rank probability
-            sorted_inds = sorted(individuals, key=lambda x: x.fitness, reverse=True)
-            # Simple linear rank selection
-            ranks = [len(sorted_inds) - i for i in range(len(sorted_inds))]
+        if not self.individuals:
+            raise PopulationError("Cannot select parent from empty population")
+            
+        if method == SelectionMethod.ELITISM and elite_count > 0:
+            # Sort by fitness descending and pick from top
+            sorted_inds = sorted(self.individuals, key=lambda x: x.fitness, reverse=True)
+            if elite_count <= len(sorted_inds):
+                return sorted_inds[elite_count - 1]
+            else:
+                # Fall back to random if elite count is too high
+                return random.choice(self.individuals)
+                
+        elif method == SelectionMethod.TOURNAMENT:
+            if tournament_size > len(self.individuals):
+                tournament_size = len(self.individuals)
+            tournament = random.sample(self.individuals, tournament_size)
+            return max(tournament, key=lambda ind: ind.fitness)
+            
+        elif method == SelectionMethod.ROULETTE:
+            fitnesses = self.get_fitnesses()
+            min_fit = min(fitnesses)
+            # Shift to ensure non-negative values for probability
+            shifted = [f - min_fit + 1e-6 for f in fitnesses]
+            total = sum(shifted)
+            if total == 0:
+                return random.choice(self.individuals)
+            
+            # Calculate cumulative probabilities
+            probs = [s / total for s in shifted]
+            r = random.random()
+            cumulative = 0.0
+            for i, prob in enumerate(probs):
+                cumulative += prob
+                if r <= cumulative:
+                    return self.individuals[i]
+            return self.individuals[-1]
+            
+        elif method == SelectionMethod.RANK:
+            # Sort by fitness
+            sorted_inds = sorted(self.individuals, key=lambda ind: ind.fitness)
+            n = len(sorted_inds)
+            # Assign ranks (1 to n)
+            ranks = list(range(1, n + 1))
             total_rank = sum(ranks)
             probs = [r / total_rank for r in ranks]
-            selected = random.choices(sorted_inds, weights=probs, k=1)[0]
-            return selected
-        
-        elif self.selection_method == SelectionMethod.ELITE:
-            # Return the best individual
-            return max(individuals, key=lambda x: x.fitness)
-        
+            
+            r = random.random()
+            cumulative = 0.0
+            for i, prob in enumerate(probs):
+                cumulative += prob
+                if r <= cumulative:
+                    return sorted_inds[i]
+            return sorted_inds[-1]
+            
         else:
-            # Default: random selection
-            return random.choice(individuals)
-    
-    def select_parents(self, count: int) -> List[Individual]:
-        """Select multiple parents for reproduction."""
-        return [self.select_parent() for _ in range(count)]
-    
-    def crossover(self, parent1: Individual, parent2: Individual) -> Tuple[Any, Any]:
+            # Default to tournament
+            return self.select_parent(SelectionMethod.TOURNAMENT, tournament_size)
+            
+    def crossover(
+        self,
+        parent1: Individual,
+        parent2: Individual,
+        crossover_rate: float = 0.8
+    ) -> Tuple[Individual, Individual]:
         """
         Perform crossover between two parents.
         
         Args:
             parent1: First parent.
             parent2: Second parent.
-        
+            crossover_rate: Probability of crossover occurring.
+            
         Returns:
-            Tuple of (child_genotype, child2_genotype).
+            Tuple of two offspring individuals.
         """
-        g1 = parent1.genotype
-        g2 = parent2.genotype
+        if random.random() > crossover_rate:
+            # No crossover, return copies
+            child1 = Individual(
+                id=f"child_{self.generation}_{time.time()}_1",
+                genotype=parent1.genotype,
+                fitness=0.0,
+                generation_created=self.generation + 1,
+                parent_ids=[parent1.id, parent2.id]
+            )
+            child2 = Individual(
+                id=f"child_{self.generation}_{time.time()}_2",
+                genotype=parent2.genotype,
+                fitness=0.0,
+                generation_created=self.generation + 1,
+                parent_ids=[parent1.id, parent2.id]
+            )
+            return child1, child2
+            
+        # Simple uniform crossover for lists
+        if isinstance(parent1.genotype, list) and isinstance(parent2.genotype, list):
+            if len(parent1.genotype) != len(parent2.genotype):
+                # Fallback: swap entire genotypes
+                child1 = Individual(
+                    id=f"child_{self.generation}_{time.time()}_1",
+                    genotype=parent2.genotype,
+                    fitness=0.0,
+                    generation_created=self.generation + 1,
+                    parent_ids=[parent1.id, parent2.id]
+                )
+                child2 = Individual(
+                    id=f"child_{self.generation}_{time.time()}_2",
+                    genotype=parent1.genotype,
+                    fitness=0.0,
+                    generation_created=self.generation + 1,
+                    parent_ids=[parent1.id, parent2.id]
+                )
+                return child1, child2
+                
+            child1_genotype = []
+            child2_genotype = []
+            for i in range(len(parent1.genotype)):
+                if random.random() < 0.5:
+                    child1_genotype.append(parent1.genotype[i])
+                    child2_genotype.append(parent2.genotype[i])
+                else:
+                    child1_genotype.append(parent2.genotype[i])
+                    child2_genotype.append(parent1.genotype[i])
+                    
+            child1 = Individual(
+                id=f"child_{self.generation}_{time.time()}_1",
+                genotype=child1_genotype,
+                fitness=0.0,
+                generation_created=self.generation + 1,
+                parent_ids=[parent1.id, parent2.id]
+            )
+            child2 = Individual(
+                id=f"child_{self.generation}_{time.time()}_2",
+                genotype=child2_genotype,
+                fitness=0.0,
+                generation_created=self.generation + 1,
+                parent_ids=[parent1.id, parent2.id]
+            )
+            return child1, child2
+            
+        # Default: return copies
+        child1 = Individual(
+            id=f"child_{self.generation}_{time.time()}_1",
+            genotype=parent1.genotype,
+            fitness=0.0,
+            generation_created=self.generation + 1,
+            parent_ids=[parent1.id, parent2.id]
+        )
+        child2 = Individual(
+            id=f"child_{self.generation}_{time.time()}_2",
+            genotype=parent2.genotype,
+            fitness=0.0,
+            generation_created=self.generation + 1,
+            parent_ids=[parent1.id, parent2.id]
+        )
+        return child1, child2
         
-        if not isinstance(g1, list) or not isinstance(g2, list):
-            # Fallback for non-list genotypes: swap entire genotypes
-            return g2, g1
-        
-        if random.random() > self.crossover_rate:
-            return g1, g2
-        
-        # Single-point crossover
-        if len(g1) == 0 or len(g2) == 0:
-            return g1, g2
-        
-        point = random.randint(1, max(len(g1), len(g2)) - 1)
-        
-        c1 = g1[:point] + g2[point:]
-        c2 = g2[:point] + g1[point:]
-        
-        return c1, c2
-    
-    def mutate(self, genotype: Any) -> Any:
-        """
-        Apply mutation to a genotype.
-        
-        Args:
-            genotype: The genotype to mutate.
-        
-        Returns:
-            Mutated genotype.
-        """
-        if not isinstance(genotype, list):
-            return genotype
-        
-        mutated = genotype.copy()
-        for i in range(len(mutated)):
-            if random.random() < self.mutation_rate:
-                # Simple mutation: random value change
-                mutated[i] = random.randint(0, 100)
-        
-        return mutated
-    
-    def create_offspring(
+    def mutate(
         self,
-        parent1: Individual,
-        parent2: Individual
+        individual: Individual,
+        mutation_rate: float = 0.1
     ) -> Individual:
         """
-        Create a new offspring from two parents.
+        Apply mutation to an individual.
         
         Args:
-            parent1: First parent.
-            parent2: Second parent.
-        
+            individual: The individual to mutate.
+            mutation_rate: Probability of mutating each gene/element.
+                           
         Returns:
-            New Individual.
+            A new mutated individual.
         """
-        c1_genotype, _ = self.crossover(parent1, parent2)
-        c1_genotype = self.mutate(c1_genotype)
-        
-        child = Individual(
-            id=self._generate_id(),
-            genotype=c1_genotype,
-            phenotype=c1_genotype,
-            fitness=0.0,
-            age=0,
-            parent_ids=[parent1.id, parent2.id],
-            metadata={"source": "crossover"}
-        )
-        
-        return child
-    
-    def evaluate_fitness(
+        if isinstance(individual.genotype, list):
+            new_genotype = individual.genotype.copy()
+            for i in range(len(new_genotype)):
+                if random.random() < mutation_rate:
+                    # Simple mutation: flip or randomize
+                    if isinstance(new_genotype[i], bool):
+                        new_genotype[i] = not new_genotype[i]
+                    elif isinstance(new_genotype[i], (int, float)):
+                        new_genotype[i] += random.gauss(0, 0.1)
+                    else:
+                        # For other types, just keep original (no-op mutation)
+                        pass
+                        
+            return Individual(
+                id=f"mutated_{time.time()}",
+                genotype=new_genotype,
+                fitness=individual.fitness,
+                generation_created=individual.generation_created,
+                parent_ids=individual.parent_ids.copy() if individual.parent_ids else []
+            )
+        else:
+            # Non-list genotype: return copy with slight modification if possible
+            return Individual(
+                id=f"mutated_{time.time()}",
+                genotype=individual.genotype,
+                fitness=individual.fitness,
+                generation_created=individual.generation_created,
+                parent_ids=individual.parent_ids.copy() if individual.parent_ids else []
+            )
+                
+    def evolve_generation(
         self,
-        individuals: List[Individual],
-        fitness_function: Callable[[Individual], float]
+        fitness_func,
+        selection_method: SelectionMethod = SelectionMethod.TOURNAMENT,
+        crossover_rate: float = 0.8,
+        mutation_rate: float = 0.1,
+        elite_count: int = 1
     ) -> List[Individual]:
         """
-        Evaluate fitness for a list of individuals.
+        Evolve the population to the next generation.
         
         Args:
-            individuals: List of individuals to evaluate.
-            fitness_function: Function to compute fitness.
-        
+            fitness_func: Function to evaluate fitness of individuals.
+            selection_method: Method for selecting parents.
+            crossover_rate: Probability of crossover.
+            mutation_rate: Probability of mutation per gene.
+            elite_count: Number of top individuals to preserve unchanged.
+            
         Returns:
-            List of individuals with updated fitness values.
+            List of individuals in the new generation.
         """
-        for ind in individuals:
-            ind.fitness = fitness_function(ind)
-        return individuals
-    
-    def replace_population(
-        self,
-        new_individuals: List[Individual],
-        fitness_function: Optional[Callable[[Individual], float]] = None
-    ) -> List[Individual]:
-        """
-        Replace the current population with new individuals, preserving elites.
+        start_time = time.time()
         
-        Args:
-            new_individuals: New individuals to add to the population.
-            fitness_function: Optional function to evaluate fitness of new individuals.
+        # Evaluate fitness for current population if not already done
+        for ind in self.individuals:
+            if ind.fitness == 0.0 and ind.id.startswith("init_"):
+                ind.fitness = fitness_func(ind)
+                
+        # Sort by fitness for elitism
+        sorted_inds = sorted(self.individuals, key=lambda ind: ind.fitness, reverse=True)
+        new_population = sorted_inds[:elite_count]
         
-        Returns:
-            The updated population list.
-        """
-        if fitness_function:
-            new_individuals = self.evaluate_fitness(new_individuals, fitness_function)
-        
-        # Get current elites
-        current_inds = list(self._individuals.values())
-        elites = sorted(current_inds, key=lambda x: x.fitness, reverse=True)[:self.elite_count]
-        
-        # Increment age for survivors
-        for ind in elites:
-            ind.age += 1
-        
-        # Combine elites and new individuals
-        combined = elites + new_individuals
-        
-        # Sort by fitness and keep top max_size
-        combined.sort(key=lambda x: x.fitness, reverse=True)
-        top_inds = combined[:self.max_size]
-        
-        # Update population
-        self._individuals.clear()
-        for ind in top_inds:
-            self._individuals[ind.id] = ind
-        
+        # Generate rest of population
+        while len(new_population) < self.size:
+            parent1 = self.select_parent(selection_method, elite_count=elite_count)
+            parent2 = self.select_parent(selection_method, elite_count=elite_count)
+            
+            child1, child2 = self.crossover(parent1, parent2, crossover_rate)
+            child1 = self.mutate(child1, mutation_rate)
+            child2 = self.mutate(child2, mutation_rate)
+            
+            # Evaluate fitness
+            child1.fitness = fitness_func(child1)
+            child2.fitness = fitness_func(child2)
+            
+            new_population.append(child1)
+            if len(new_population) < self.size:
+                new_population.append(child2)
+                
+        # Replace old population
+        self.individuals = new_population
         self.generation += 1
         
-        # Manage memory
-        self._check_memory_usage()
+        # Update age of all individuals
+        for ind in self.individuals:
+            ind.age += 1
+            
+        # Memory management
+        self._check_memory()
         
-        return list(self._individuals.values())
-    
-    def _check_memory_usage(self) -> None:
-        """Check current memory usage and trigger GC if necessary."""
-        # Simple memory estimation (in MB)
-        # In a real implementation, use psutil or tracemalloc for accuracy
-        total_size = sum(sys.getsizeof(ind.genotype) + sys.getsizeof(ind.phenotype) 
-                        for ind in self._individuals.values())
-        total_size_mb = total_size / (1024 * 1024)
+        elapsed = time.time() - start_time
+        logger.info(f"Evolved generation {self.generation} in {elapsed:.2f}s")
         
-        if total_size_mb > self.memory_threshold_mb:
-            log.warning(f"Population memory usage ({total_size_mb:.2f} MB) exceeds threshold ({self.memory_threshold_mb} MB). Triggering GC.")
-            gc.collect()
-    
+        return self.individuals
+        
+    def _check_memory(self) -> None:
+        """Check memory usage and trigger GC if necessary."""
+        try:
+            import psutil
+            import os
+            process = psutil.Process(os.getpid())
+            mem_mb = process.memory_info().rss / (1024 * 1024)
+            
+            if self.max_memory_mb and mem_mb > self.max_memory_mb:
+                logger.warning(f"Memory usage {mem_mb:.1f}MB exceeds limit {self.max_memory_mb}MB")
+                gc.collect()
+                self._last_gc_generation = self.generation
+                
+            elif self.generation - self._last_gc_generation >= self._gc_threshold:
+                gc.collect()
+                self._last_gc_generation = self.generation
+                
+        except ImportError:
+            # psutil not available, skip memory check
+            pass
+            
     def get_stats(self) -> PopulationStats:
-        """
-        Calculate and return current population statistics.
-        
-        Returns:
-            PopulationStats object.
-        """
-        if not self._individuals:
+        """Calculate and return current population statistics."""
+        if not self.individuals:
             return PopulationStats(
-                size=0, avg_fitness=0.0, max_fitness=0.0, min_fitness=0.0,
-                std_fitness=0.0, avg_age=0.0, diversity_score=0.0,
-                generation=self.generation, memory_usage_mb=0.0
+                size=0,
+                avg_fitness=0.0,
+                min_fitness=0.0,
+                max_fitness=0.0,
+                std_fitness=0.0,
+                generation=self.generation,
+                memory_usage_mb=0.0
             )
-        
-        individuals = list(self._individuals.values())
-        fitnesses = [ind.fitness for ind in individuals]
-        ages = [ind.age for ind in individuals]
-        
+            
+        fitnesses = self.get_fitnesses()
         avg_fit = sum(fitnesses) / len(fitnesses)
-        max_fit = max(fitnesses)
         min_fit = min(fitnesses)
-        std_fit = (sum((f - avg_fit) ** 2 for f in fitnesses) / len(fitnesses)) ** 0.5
-        avg_age = sum(ages) / len(ages)
+        max_fit = max(fitnesses)
+        variance = sum((f - avg_fit) ** 2 for f in fitnesses) / len(fitnesses)
+        std_fit = variance ** 0.5
         
-        # Simple diversity: count unique genotypes (approximation)
-        unique_genotypes = len(set(tuple(g) if isinstance(g, list) else g for g in [ind.genotype for ind in individuals]))
-        diversity = unique_genotypes / len(individuals)
-        
-        # Memory estimate
-        total_size = sum(sys.getsizeof(ind.genotype) + sys.getsizeof(ind.phenotype) 
-                        for ind in individuals)
-        mem_mb = total_size / (1024 * 1024)
+        # Estimate memory usage
+        mem_mb = 0.0
+        try:
+            import psutil
+            import os
+            process = psutil.Process(os.getpid())
+            mem_mb = process.memory_info().rss / (1024 * 1024)
+        except ImportError:
+            pass
+            
+        # Calculate diversity (simple: count unique genotypes)
+        unique_genotypes = len(set(str(ind.genotype) for ind in self.individuals))
+        diversity = unique_genotypes / len(self.individuals) if self.individuals else 0.0
         
         return PopulationStats(
-            size=len(individuals),
+            size=len(self.individuals),
             avg_fitness=avg_fit,
-            max_fitness=max_fit,
             min_fitness=min_fit,
+            max_fitness=max_fit,
             std_fitness=std_fit,
-            avg_age=avg_age,
-            diversity_score=diversity,
             generation=self.generation,
-            memory_usage_mb=mem_mb
+            memory_usage_mb=mem_mb,
+            diversity_score=diversity
         )
-    
-    def get_best_individual(self) -> Optional[Individual]:
-        """Return the individual with the highest fitness."""
-        if not self._individuals:
-            return None
-        return max(self._individuals.values(), key=lambda x: x.fitness)
-    
-    def save_population(self, filepath: str) -> None:
-        """
-        Save the current population to a JSON file.
         
-        Args:
-            filepath: Path to save the population data.
-        """
+    def to_json(self) -> str:
+        """Serialize population to JSON string."""
         data = {
             "generation": self.generation,
-            "individuals": [ind.to_dict() for ind in self._individuals.values()],
-            "stats": self.get_stats().to_dict()
+            "size": self.size,
+            "seed": self.seed,
+            "individuals": [ind.to_dict() for ind in self.individuals]
         }
+        return json.dumps(data, indent=2)
         
-        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-        with open(filepath, "w") as f:
-            json.dump(data, f, indent=2)
-    
-    def load_population(self, filepath: str) -> None:
-        """
-        Load a population from a JSON file.
+    @classmethod
+    def from_json(cls, json_str: str) -> 'Population':
+        """Deserialize population from JSON string."""
+        data = json.loads(json_str)
+        pop = cls(
+            size=data["size"],
+            generation=data["generation"],
+            seed=data.get("seed")
+        )
+        pop.individuals = [Individual.from_dict(ind) for ind in data["individuals"]]
+        return pop
         
-        Args:
-            filepath: Path to the population data file.
-        """
-        with open(filepath, "r") as f:
-            data = json.load(f)
+    def save_to_file(self, filepath: str) -> None:
+        """Save population to a JSON file."""
+        path = Path(filepath)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w') as f:
+            f.write(self.to_json())
+        logger.info(f"Saved population to {filepath}")
         
-        self.generation = data.get("generation", 0)
-        self._individuals.clear()
-        
-        for ind_data in data["individuals"]:
-            ind = Individual.from_dict(ind_data)
-            self._individuals[ind.id] = ind
-        
-        # Reset ID counter to avoid collisions
-        if self._individuals:
-            self._id_counter = max(int(ind.id.split("_")[-1]) for ind in self._individuals.values() if "_" in ind.id)
+    @classmethod
+    def load_from_file(cls, filepath: str) -> 'Population':
+        """Load population from a JSON file."""
+        path = Path(filepath)
+        if not path.exists():
+            raise FileNotFoundError(f"Population file not found: {filepath}")
+            
+        with open(path, 'r') as f:
+            json_str = f.read()
+        return cls.from_json(json_str)
 
 def main():
-    """
-    Main entry point for testing population management.
-    Demonstrates initialization, evolution, and statistics.
-    """
-    log.info("Starting Population Management Test")
+    """Main entry point for testing/running population module."""
+    import argparse
     
-    # Create a simple fitness function
-    def simple_fitness(ind: Individual) -> float:
+    parser = argparse.ArgumentParser(description="Population management for BES")
+    parser.add_argument("--size", type=int, default=10, help="Population size")
+    parser.add_argument("--generations", type=int, default=5, help="Number of generations")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--output", type=str, default="data/processed/population_test.json", 
+                      help="Output file path")
+    args = parser.parse_args()
+    
+    # Setup logging
+    setup_logging()
+    
+    # Define a simple fitness function for testing
+    def simple_fitness(ind):
+        # Sum of genotype elements (assuming numeric list)
         if isinstance(ind.genotype, list):
-            return sum(ind.genotype) / len(ind.genotype)
+            return sum(float(x) for x in ind.genotype if isinstance(x, (int, float)))
         return 0.0
-    
-    # Initialize population
-    pop = Population(max_size=20, elite_count=2, selection_method=SelectionMethod.TOURNAMENT)
-    pop.initialize(fitness_function=simple_fitness, seed=42)
-    
-    log.info(f"Initial population size: {len(pop._individuals)}")
-    stats = pop.get_stats()
-    log.info(f"Initial stats: {stats.to_dict()}")
-    
-    # Run a few generations
-    for gen in range(5):
-        parents = pop.select_parents(10)
-        offspring = []
-        for i in range(0, len(parents), 2):
-            if i + 1 < len(parents):
-                child = pop.create_offspring(parents[i], parents[i+1])
-                offspring.append(child)
         
-        if offspring:
-            offspring = pop.evaluate_fitness(offspring, simple_fitness)
-            pop.replace_population(offspring, simple_fitness)
+    # Create population
+    pop = Population(size=args.size, seed=args.seed)
+    
+    # Initialize with random data
+    def random_genotype():
+        return [random.random() for _ in range(10)]
         
+    pop.initialize_random(random_genotype)
+    
+    # Evolve
+    for gen in range(args.generations):
+        pop.evolve_generation(
+            fitness_func=simple_fitness,
+            selection_method=SelectionMethod.TOURNAMENT,
+            elite_count=1
+        )
         stats = pop.get_stats()
-        log.info(f"Generation {gen + 1} stats: avg_fit={stats.avg_fitness:.4f}, max_fit={stats.max_fitness:.4f}, mem={stats.memory_usage_mb:.2f}MB")
+        logger.info(f"Generation {pop.generation}: avg={stats.avg_fitness:.4f}, "
+                   f"max={stats.max_fitness:.4f}, diversity={stats.diversity_score:.4f}")
+                   
+    # Save result
+    pop.save_to_file(args.output)
+    print(f"Population saved to {args.output}")
     
-    # Save and load
-    test_path = "data/processed/test_population.json"
-    pop.save_population(test_path)
-    log.info(f"Population saved to {test_path}")
-    
-    new_pop = Population(max_size=20)
-    new_pop.load_population(test_path)
-    log.info(f"Population loaded. Size: {len(new_pop._individuals)}")
-    
-    best = new_pop.get_best_individual()
-    if best:
-        log.info(f"Best individual: {best}")
-    
-    log.info("Population Management Test Complete")
+    # Print final stats
+    final_stats = pop.get_stats()
+    print(json.dumps(final_stats.to_dict(), indent=2))
 
 if __name__ == "__main__":
     main()

@@ -1,15 +1,23 @@
 """
 Configuration for the Bidirectional Evolutionary Search (BES) framework.
 Specifically handles the forward step LLM configuration.
+
+This module generates the configuration file for the small pre-trained LLM
+(distilbert-base-uncased) used in the forward step of the BES loop.
+
+Constraints:
+- device='cpu' is enforced.
+- bitsandbytes is explicitly forbidden (no 8-bit quantization on CPU).
+- This task is for configuration generation ONLY; no model download occurs here.
 """
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 
 # Default configuration values
-DEFAULT_MODEL_ID = "distilbert-tiny"
+DEFAULT_MODEL_ID = "distilbert-base-uncased"
 DEFAULT_DEVICE = "cpu"
-DEFAULT_REVISION = "622d5325e2324129049037970474490074667740"  # Pinned revision for reproducibility
+DEFAULT_REVISION = None  # Use latest if not specified
 DEFAULT_MAX_LENGTH = 512
 DEFAULT_BATCH_SIZE = 1
 DEFAULT_TEMPERATURE = 0.7
@@ -17,6 +25,8 @@ DEFAULT_TOP_K = 50
 DEFAULT_TOP_P = 0.95
 
 # CPU optimization flags
+# Disable bitsandbytes as it requires CUDA and is forbidden by task constraints
+USE_BITSANDBYTES = False
 USE_IPEx = True
 IPEX_PRECISION = "bf16"  # Use bfloat16 for Intel AMX/AVX512 support if available, else fallback to fp32
 
@@ -27,7 +37,7 @@ class BESConfig:
         self,
         model_id: str = DEFAULT_MODEL_ID,
         device: str = DEFAULT_DEVICE,
-        revision: str = DEFAULT_REVISION,
+        revision: Optional[str] = DEFAULT_REVISION,
         max_length: int = DEFAULT_MAX_LENGTH,
         batch_size: int = DEFAULT_BATCH_SIZE,
         temperature: float = DEFAULT_TEMPERATURE,
@@ -35,6 +45,7 @@ class BESConfig:
         top_p: float = DEFAULT_TOP_P,
         use_ipex: bool = USE_IPEx,
         ipex_precision: str = IPEX_PRECISION,
+        use_bitsandbytes: bool = USE_BITSANDBYTES,
     ):
         self.model_id = model_id
         self.device = device
@@ -46,10 +57,13 @@ class BESConfig:
         self.top_p = top_p
         self.use_ipex = use_ipex
         self.ipex_precision = ipex_precision
+        self.use_bitsandbytes = use_bitsandbytes
 
         # Validation
         if self.device != "cpu":
             raise ValueError("Forward step configuration only supports 'cpu' device to ensure compatibility with CI runners.")
+        if self.use_bitsandbytes:
+            raise ValueError("bitsandbytes is forbidden in this configuration (CPU-only constraint).")
         if self.use_ipex and self.ipex_precision not in ["bf16", "fp32"]:
             raise ValueError(f"Invalid IPEX precision: {self.ipex_precision}. Must be 'bf16' or 'fp32'.")
 
@@ -66,6 +80,7 @@ class BESConfig:
             "top_p": self.top_p,
             "use_ipex": self.use_ipex,
             "ipex_precision": self.ipex_precision,
+            "use_bitsandbytes": self.use_bitsandbytes,
         }
 
     @classmethod
@@ -82,6 +97,7 @@ class BESConfig:
             top_p=data.get("top_p", DEFAULT_TOP_P),
             use_ipex=data.get("use_ipex", USE_IPEx),
             ipex_precision=data.get("ipex_precision", IPEX_PRECISION),
+            use_bitsandbytes=data.get("use_bitsandbytes", USE_BITSANDBYTES),
         )
 
     def save(self, path: Path) -> None:
