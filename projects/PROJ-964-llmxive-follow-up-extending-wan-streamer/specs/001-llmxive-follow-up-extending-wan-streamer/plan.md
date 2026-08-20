@@ -18,11 +18,13 @@ Success is measured by a ≥20% latency reduction with ≤5% FID degradation (if
 **Primary Dependencies**: `torch` (CPU wheel), `scikit-learn`, `pandas`, `pyyaml`, `datasets` (HuggingFace), `numpy`, `scipy` (for TOST/bootstrap), `torchmetrics` (for FID), `opencv-python`.  
 **Storage**: Local filesystem (Parquet/CSV) for intermediate data; GitHub Actions ephemeral storage.  
 **Testing**: `pytest` (unit/contract), shell scripts for integration (data extraction, training, simulation).  
-**Target Platform**: Linux (GitHub Actions Free Tier: limited CPU resources, ~7 GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions Free Tier: limited CPU resources, limited RAM, no GPU).  
 **Project Type**: Research/Computational Experiment.  
 **Performance Goals**: Training ≤ 6h; Peak RAM ≤ 7 GB; Inference simulation latency reduction ≥ 20%.  
 **Constraints**: No GPU/CUDA; No quantization libraries requiring CUDA; Strict memory limits; Reproducibility via pinned seeds.  
-**Scale/Scope**: Sampled dataset ≤ 1 GB (target 10k+ frames); 1 lightweight model; 1 simulation pipeline.
+**Scale/Scope**: Sampled dataset ≤ 1 GB (target 10k+ frames); A lightweight model
+
+The research question, method, and references remain unchanged as no specific empirical values were asserted in this context beyond the quantifier to be generalized.; simulation pipeline.
 
 **Dataset Version Pinning**: To satisfy Constitution Principle I (Reproducibility), the `code/config.py` file will pin the exact HuggingFace dataset revision for VoxCeleb2 (e.g., `revision: 'main'` or a specific commit hash) to ensure the canonical source is fetched on every run.
 
