@@ -1,293 +1,318 @@
 """
-Final Paired Dataset Assembly for SpatialClaw Restriction Project.
+Assemble the final paired dataset by merging 2D agent results and 3D baseline results.
 
-Merges 2D agent results (aggregated across runs) and 3D baseline results
-into a single canonical CSV file for statistical analysis.
+This module aggregates the 2D agent runs (across multiple seeds/runs per task)
+and pairs them with the single 3D baseline run per task to create a canonical
+comparison dataset for statistical analysis.
 
 Output: results/analysis/final_paired_dataset.csv
-Schema: task_id, task_type, 2d_success_rate, 2d_mean_latency, 3d_success, 3d_latency, success_diff, latency_diff
 """
-
 import os
 import json
 import csv
 import logging
 import argparse
 from typing import Dict, List, Any, Optional, Set
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-
 def load_yaml_config_simple(config_path: str) -> Dict[str, Any]:
     """
-    Load a simple YAML config file.
-    Note: This is a minimal parser for the specific format used in power_config.yaml.
+    Load a simple YAML config file (key: value pairs).
+    Handles basic types and comments.
     """
     config = {}
-    try:
-        with open(config_path, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith('#'):
-                    continue
-                if ':' in line:
-                    key, value = line.split(':', 1)
-                    key = key.strip()
-                    value = value.strip()
-                    # Try to convert to appropriate type
-                    if value.lower() == 'true':
-                        config[key] = True
-                    elif value.lower() == 'false':
-                        config[key] = False
-                    else:
-                        try:
-                            if '.' in value:
-                                config[key] = float(value)
-                            else:
-                                config[key] = int(value)
-                        except ValueError:
-                            config[key] = value
-    except FileNotFoundError:
-        logger.error(f"Config file not found: {config_path}")
-        raise
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+    
+    with open(config_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            if ':' in line:
+                key, value = line.split(':', 1)
+                key = key.strip()
+                value = value.strip()
+                # Try to parse as int, float, bool, or keep as string
+                if value.lower() == 'true':
+                    config[key] = True
+                elif value.lower() == 'false':
+                    config[key] = False
+                else:
+                    try:
+                        if '.' in value:
+                            config[key] = float(value)
+                        else:
+                            config[key] = int(value)
+                    except ValueError:
+                        config[key] = value
     return config
-
 
 def load_baseline_results(baseline_path: str) -> Dict[str, Dict[str, Any]]:
     """
-    Load 3D baseline results from JSON file.
-
-    Args:
-        baseline_path: Path to results/logs/baseline_run.json
-
-    Returns:
-        Dict mapping task_id to result dict
+    Load the 3D baseline results from a JSON file.
+    Returns a dict keyed by task_id.
     """
     if not os.path.exists(baseline_path):
         raise FileNotFoundError(f"Baseline results file not found: {baseline_path}")
-
+    
     with open(baseline_path, 'r') as f:
         data = json.load(f)
-
+    
     # Handle both list and dict formats
     if isinstance(data, list):
-        results = {item['task_id']: item for item in data}
+        baseline_map = {}
+        for item in data:
+            if 'task_id' not in item:
+                logger.warning(f"Skipping item without task_id in baseline results")
+                continue
+            baseline_map[item['task_id']] = item
+    elif isinstance(data, dict):
+        baseline_map = data
     else:
-        results = data
+        raise ValueError(f"Unexpected baseline results format: {type(data)}")
+    
+    logger.info(f"Loaded {len(baseline_map)} baseline results")
+    return baseline_map
 
-    logger.info(f"Loaded {len(results)} baseline results from {baseline_path}")
-    return results
-
-
-def load_2d_run_results(runs_dir: str) -> Dict[str, List[Dict[str, Any]]]:
+def load_2d_run_results(run_dir: str) -> List[Dict[str, Any]]:
     """
-    Load all 2D agent run results from individual JSON files.
-
-    Args:
-        runs_dir: Directory containing results/runs/run_*.json files
-
-    Returns:
-        Dict mapping task_id to list of result dicts across runs
+    Load all 2D agent run results from the results/runs directory.
+    Returns a list of all result dicts from all run_*.json files.
     """
-    results = {}
-    run_files = sorted(glob.glob(os.path.join(runs_dir, 'run_*.json')))
-
+    if not os.path.exists(run_dir):
+        raise FileNotFoundError(f"2D run results directory not found: {run_dir}")
+    
+    all_results = []
+    run_files = sorted(glob.glob(os.path.join(run_dir, "run_*.json")))
+    
     if not run_files:
-        raise FileNotFoundError(f"No 2D run result files found in {runs_dir}")
-
+        raise FileNotFoundError(f"No run_*.json files found in {run_dir}")
+    
     for run_file in run_files:
         with open(run_file, 'r') as f:
             run_data = json.load(f)
-
+        
         # Handle both list and dict formats
         if isinstance(run_data, list):
-            for item in run_data:
-                task_id = item['task_id']
-                if task_id not in results:
-                    results[task_id] = []
-                results[task_id].append(item)
+            all_results.extend(run_data)
+        elif isinstance(run_data, dict):
+            if 'results' in run_data and isinstance(run_data['results'], list):
+                all_results.extend(run_data['results'])
+            else:
+                # Single result object
+                all_results.append(run_data)
         else:
-            # Assume dict format with task_id as key
-            for task_id, item in run_data.items():
-                if task_id not in results:
-                    results[task_id] = []
-                results[task_id].append(item)
+            logger.warning(f"Skipping unexpected format in {run_file}")
+    
+    logger.info(f"Loaded {len(all_results)} total 2D agent results from {len(run_files)} files")
+    return all_results
 
-    logger.info(f"Loaded 2D results from {len(run_files)} run files, covering {len(results)} unique tasks")
-    return results
-
-
-def aggregate_2d_results(raw_2d_results: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Dict[str, Any]]:
+def aggregate_2d_results(
+    run_results: List[Dict[str, Any]], 
+    n_runs_expected: int
+) -> Dict[str, Dict[str, Any]]:
     """
-    Aggregate 2D results across runs for each task.
-
-    Args:
-        raw_2d_results: Dict mapping task_id to list of result dicts
-
-    Returns:
-        Dict mapping task_id to aggregated metrics dict
+    Aggregate 2D agent results by task_id.
+    Calculates success_rate and mean_latency for each task.
     """
     aggregated = {}
-
-    for task_id, runs in raw_2d_results.items():
-        if not runs:
+    
+    for result in run_results:
+        task_id = result.get('task_id')
+        if not task_id:
+            logger.warning(f"Skipping result without task_id")
             continue
-
-        # Calculate success rate
-        success_count = sum(1 for r in runs if r.get('success', False))
-        success_rate = success_count / len(runs)
-
-        # Calculate mean latency
-        latencies = [r.get('latency_ms', 0) for r in runs if 'latency_ms' in r]
-        mean_latency = sum(latencies) / len(latencies) if latencies else 0.0
-
-        # Get task type from first run (should be consistent across runs)
-        task_type = runs[0].get('task_type', 'unknown')
-
-        aggregated[task_id] = {
-            'task_id': task_id,
-            'task_type': task_type,
+        
+        if task_id not in aggregated:
+            aggregated[task_id] = {
+                'successes': 0,
+                'latencies': [],
+                'task_type': result.get('task_type', 'unknown')
+            }
+        
+        if result.get('success', False):
+            aggregated[task_id]['successes'] += 1
+        
+        latency = result.get('latency_ms')
+        if latency is not None:
+            aggregated[task_id]['latencies'].append(latency)
+    
+    # Calculate final metrics
+    final_aggregated = {}
+    for task_id, data in aggregated.items():
+        total_runs = len(data['latencies'])
+        if total_runs == 0:
+            logger.warning(f"No latency data for task {task_id}, skipping")
+            continue
+        
+        success_rate = data['successes'] / total_runs
+        mean_latency = sum(data['latencies']) / total_runs
+        
+        final_aggregated[task_id] = {
             '2d_success_rate': success_rate,
             '2d_mean_latency': mean_latency,
-            'n_runs': len(runs)
+            'task_type': data['task_type'],
+            'n_runs': total_runs
         }
-
-    logger.info(f"Aggregated 2D results for {len(aggregated)} tasks")
-    return aggregated
-
+    
+    logger.info(f"Aggregated {len(final_aggregated)} unique tasks from 2D results")
+    return final_aggregated
 
 def build_paired_dataset(
-    aggregated_2d: Dict[str, Dict[str, Any]],
-    baseline_3d: Dict[str, Dict[str, Any]]
+    baseline_map: Dict[str, Dict[str, Any]],
+    aggregated_2d: Dict[str, Dict[str, Any]]
 ) -> List[Dict[str, Any]]:
     """
-    Build the final paired dataset by merging 2D and 3D results.
-
-    Args:
-        aggregated_2d: Aggregated 2D results
-        baseline_3d: 3D baseline results
-
-    Returns:
-        List of paired result dicts
+    Build the paired dataset by merging baseline and aggregated 2D results.
+    Only includes tasks that have both 2D and 3D results.
     """
     paired = []
-
-    # Find common task IDs
-    common_tasks = set(aggregated_2d.keys()) & set(baseline_3d.keys())
-    missing_2d = set(baseline_3d.keys()) - set(aggregated_2d.keys())
-    missing_3d = set(aggregated_2d.keys()) - set(baseline_3d.keys())
-
-    if missing_2d:
-        logger.warning(f"Tasks missing 2D results: {len(missing_2d)}")
-    if missing_3d:
-        logger.warning(f"Tasks missing 3D results: {len(missing_3d)}")
-
-    for task_id in sorted(common_tasks):
-        data_2d = aggregated_2d[task_id]
-        data_3d = baseline_3d[task_id]
-
+    common_tasks = set(baseline_map.keys()) & set(aggregated_2d.keys())
+    
+    if not common_tasks:
+        logger.error("No common tasks found between baseline and 2D results!")
+        return paired
+    
+    logger.info(f"Found {len(common_tasks)} common tasks for pairing")
+    
+    for task_id in common_tasks:
+        baseline = baseline_map[task_id]
+        agg_2d = aggregated_2d[task_id]
+        
+        task_type = agg_2d['task_type']
+        
+        # Extract baseline metrics
+        baseline_success = baseline.get('success', False)
+        baseline_latency = baseline.get('latency_ms')
+        
+        # Extract 2D metrics
+        d_success_rate = agg_2d['2d_success_rate']
+        d_mean_latency = agg_2d['2d_mean_latency']
+        
         # Calculate differences
-        success_diff = data_2d['2d_success_rate'] - float(data_3d.get('success', 0))
-        latency_diff = data_2d['2d_mean_latency'] - data_3d.get('latency_ms', 0)
-
-        paired_row = {
+        success_diff = d_success_rate - (1.0 if baseline_success else 0.0)
+        latency_diff = d_mean_latency - baseline_latency if baseline_latency is not None else None
+        
+        row = {
             'task_id': task_id,
-            'task_type': data_2d['task_type'],
-            '2d_success_rate': data_2d['2d_success_rate'],
-            '2d_mean_latency': data_2d['2d_mean_latency'],
-            '3d_success': data_3d.get('success', False),
-            '3d_latency': data_3d.get('latency_ms', 0),
+            'task_type': task_type,
+            '2d_success_rate': d_success_rate,
+            '2d_mean_latency': d_mean_latency,
+            '3d_success': 1 if baseline_success else 0,
+            '3d_latency': baseline_latency if baseline_latency is not None else 0.0,
             'success_diff': success_diff,
             'latency_diff': latency_diff
         }
-
-        paired.append(paired_row)
-
+        
+        paired.append(row)
+    
     # Sort by task_id
     paired.sort(key=lambda x: x['task_id'])
-
-    # Verify no null values in critical columns
-    critical_cols = ['task_id', 'task_type', '2d_success_rate', '2d_mean_latency', '3d_success', '3d_latency']
-    for row in paired:
-        for col in critical_cols:
-            if row[col] is None:
-                raise ValueError(f"Null value found in critical column '{col}' for task_id {row['task_id']}")
-
+    
     logger.info(f"Built paired dataset with {len(paired)} rows")
     return paired
 
-
-def write_csv(paired_data: List[Dict[str, Any]], output_path: str) -> None:
+def write_csv(data: List[Dict[str, Any]], output_path: str) -> None:
     """
-    Write the paired dataset to CSV.
-
-    Args:
-        paired_data: List of paired result dicts
-        output_path: Path to output CSV file
+    Write the paired dataset to a CSV file.
+    Validates for null values in critical columns before writing.
     """
-    if not paired_data:
+    if not data:
         raise ValueError("No data to write")
-
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    fieldnames = [
-        'task_id', 'task_type', '2d_success_rate', '2d_mean_latency',
-        '3d_success', '3d_latency', 'success_diff', 'latency_diff'
-    ]
-
+    
+    # Define critical columns that must not be null
+    critical_columns = ['task_id', 'task_type', '2d_success_rate', '2d_mean_latency', 
+                      '3d_success', '3d_latency', 'success_diff', 'latency_diff']
+    
+    # Validate data
+    for i, row in enumerate(data):
+        for col in critical_columns:
+            if col not in row or row[col] is None:
+                raise ValueError(f"Row {i} missing or null value in critical column: {col}")
+    
+    # Write to CSV
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    fieldnames = ['task_id', 'task_type', '2d_success_rate', '2d_mean_latency', 
+                 '3d_success', '3d_latency', 'success_diff', 'latency_diff']
+    
     with open(output_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(paired_data)
-
-    logger.info(f"Wrote paired dataset to {output_path}")
-
+        writer.writerows(data)
+    
+    logger.info(f"Wrote {len(data)} rows to {output_path}")
 
 def main():
-    """Main entry point for assembling the final paired dataset."""
-    parser = argparse.ArgumentParser(description='Assemble final paired dataset')
-    parser.add_argument('--config', type=str, default='data/power_config.yaml',
-                      help='Path to power config file')
-    parser.add_argument('--baseline', type=str, default='results/logs/baseline_run.json',
-                      help='Path to baseline results')
-    parser.add_argument('--runs-dir', type=str, default='results/runs',
-                      help='Directory containing 2D run results')
-    parser.add_argument('--output', type=str, default='results/analysis/final_paired_dataset.csv',
-                      help='Output CSV path')
-
+    """Main entry point for assembling the paired dataset."""
+    parser = argparse.ArgumentParser(description="Assemble final paired dataset")
+    parser.add_argument(
+        '--config', 
+        type=str, 
+        default='data/power_config.yaml',
+        help='Path to power config file'
+    )
+    parser.add_argument(
+        '--baseline',
+        type=str,
+        default='results/logs/baseline_run.json',
+        help='Path to 3D baseline results'
+    )
+    parser.add_argument(
+        '--runs-dir',
+        type=str,
+        default='results/runs',
+        help='Directory containing 2D agent run results'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default='results/analysis/final_paired_dataset.csv',
+        help='Output path for the paired dataset CSV'
+    )
     args = parser.parse_args()
-
+    
     try:
-        # Load config (optional, mainly for validation)
-        if os.path.exists(args.config):
-            config = load_yaml_config_simple(args.config)
-            logger.info(f"Loaded config: {config.get('n_runs', 'N/A')} runs expected")
-
-        # Load baseline results
-        baseline_results = load_baseline_results(args.baseline)
-
-        # Load and aggregate 2D results
-        raw_2d = load_2d_run_results(args.runs_dir)
-        aggregated_2d = aggregate_2d_results(raw_2d)
-
-        # Build paired dataset
-        paired_data = build_paired_dataset(aggregated_2d, baseline_results)
-
-        # Write output
+        # Load config to get n_runs expected (optional validation)
+        config = load_yaml_config_simple(args.config)
+        n_runs_expected = config.get('n_runs', 5)
+        
+        logger.info(f"Loading baseline results from {args.baseline}")
+        baseline_map = load_baseline_results(args.baseline)
+        
+        logger.info(f"Loading 2D run results from {args.runs_dir}")
+        run_results = load_2d_run_results(args.runs_dir)
+        
+        logger.info(f"Aggregating 2D results (expected {n_runs_expected} runs per task)")
+        aggregated_2d = aggregate_2d_results(run_results, n_runs_expected)
+        
+        logger.info("Building paired dataset")
+        paired_data = build_paired_dataset(baseline_map, aggregated_2d)
+        
+        logger.info(f"Writing output to {args.output}")
         write_csv(paired_data, args.output)
-
-        logger.info("Final paired dataset assembly completed successfully")
-
+        
+        logger.info("Paired dataset assembly completed successfully")
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Failed to assemble paired dataset: {e}")
+        logger.error(f"Unexpected error: {e}")
         raise
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

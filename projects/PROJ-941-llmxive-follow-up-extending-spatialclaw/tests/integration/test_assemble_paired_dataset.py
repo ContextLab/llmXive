@@ -1,9 +1,7 @@
 """
-Integration tests for final paired dataset assembly.
-
-Tests the complete flow of merging 2D and 3D results into a single CSV.
+Integration tests for the assemble_paired_dataset module.
+Verifies the end-to-end flow of merging 2D and 3D results.
 """
-
 import os
 import json
 import csv
@@ -12,8 +10,9 @@ import shutil
 import pytest
 from pathlib import Path
 
+# Import the module under test
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 from analysis.assemble_paired_dataset import (
     load_baseline_results,
@@ -24,211 +23,215 @@ from analysis.assemble_paired_dataset import (
     main
 )
 
-
-class TestAssemblePairedDataset:
-    """Test suite for paired dataset assembly."""
-
-    @pytest.fixture
-    def temp_dir(self):
-        """Create a temporary directory for test artifacts."""
-        temp = tempfile.mkdtemp()
-        yield temp
-        shutil.rmtree(temp)
-
-    @pytest.fixture
-    def sample_baseline_data(self):
-        """Generate sample baseline data."""
-        return [
-            {
-                'task_id': 'task_001',
-                'task_type': 'occlusion',
-                'success': True,
-                'latency_ms': 120.5
-            },
-            {
-                'task_id': 'task_002',
-                'task_type': 'depth',
-                'success': False,
-                'latency_ms': 150.0
-            },
-            {
-                'task_id': 'task_003',
-                'task_type': 'relative',
-                'success': True,
-                'latency_ms': 110.0
-            }
-        ]
-
-    @pytest.fixture
-    def sample_2d_run_data(self):
-        """Generate sample 2D run data (multiple runs per task)."""
-        return [
-            # Run 1
-            [
-                {'task_id': 'task_001', 'task_type': 'occlusion', 'success': True, 'latency_ms': 130.0},
-                {'task_id': 'task_002', 'task_type': 'depth', 'success': False, 'latency_ms': 160.0},
-                {'task_id': 'task_003', 'task_type': 'relative', 'success': True, 'latency_ms': 115.0}
-            ],
-            # Run 2
-            [
-                {'task_id': 'task_001', 'task_type': 'occlusion', 'success': True, 'latency_ms': 125.0},
-                {'task_id': 'task_002', 'task_type': 'depth', 'success': True, 'latency_ms': 155.0},
-                {'task_id': 'task_003', 'task_type': 'relative', 'success': False, 'latency_ms': 112.0}
-            ],
-            # Run 3
-            [
-                {'task_id': 'task_001', 'task_type': 'occlusion', 'success': False, 'latency_ms': 140.0},
-                {'task_id': 'task_002', 'task_type': 'depth', 'success': False, 'latency_ms': 170.0},
-                {'task_id': 'task_003', 'task_type': 'relative', 'success': True, 'latency_ms': 108.0}
-            ]
-        ]
-
-    def test_load_baseline_results(self, temp_dir, sample_baseline_data):
-        """Test loading baseline results from JSON."""
-        baseline_path = os.path.join(temp_dir, 'baseline.json')
-        with open(baseline_path, 'w') as f:
-            json.dump(sample_baseline_data, f)
-
-        results = load_baseline_results(baseline_path)
-
-        assert len(results) == 3
-        assert 'task_001' in results
-        assert results['task_001']['success'] is True
-        assert results['task_001']['latency_ms'] == 120.5
-
-    def test_load_2d_run_results(self, temp_dir, sample_2d_run_data):
-        """Test loading multiple 2D run results."""
-        runs_dir = os.path.join(temp_dir, 'runs')
-        os.makedirs(runs_dir)
-
-        for i, run_data in enumerate(sample_2d_run_data):
-            run_path = os.path.join(runs_dir, f'run_{i}.json')
-            with open(run_path, 'w') as f:
-                json.dump(run_data, f)
-
-        results = load_2d_run_results(runs_dir)
-
-        assert len(results) == 3
-        assert len(results['task_001']) == 3
-        assert len(results['task_002']) == 3
-
-    def test_aggregate_2d_results(self, sample_2d_run_data):
-        """Test aggregation of 2D results across runs."""
-        raw_results = {}
-        for run_data in sample_2d_run_data:
-            for item in run_data:
-                task_id = item['task_id']
-                if task_id not in raw_results:
-                    raw_results[task_id] = []
-                raw_results[task_id].append(item)
-
-        aggregated = aggregate_2d_results(raw_results)
-
-        # task_001: 2/3 success, mean latency (130+125+140)/3 = 131.67
-        assert aggregated['task_001']['2d_success_rate'] == pytest.approx(2/3, rel=0.01)
-        assert aggregated['task_001']['2d_mean_latency'] == pytest.approx(131.67, rel=0.01)
-        assert aggregated['task_001']['n_runs'] == 3
-
-    def test_build_paired_dataset(self, sample_baseline_data, sample_2d_run_data):
-        """Test building the paired dataset."""
-        # Load and aggregate 2D
-        raw_2d = {}
-        for run_data in sample_2d_run_data:
-            for item in run_data:
-                task_id = item['task_id']
-                if task_id not in raw_2d:
-                    raw_2d[task_id] = []
-                raw_2d[task_id].append(item)
-        aggregated_2d = aggregate_2d_results(raw_2d)
-
-        # Load baseline
-        baseline_dict = {item['task_id']: item for item in sample_baseline_data}
-
-        # Build paired
-        paired = build_paired_dataset(aggregated_2d, baseline_dict)
-
-        assert len(paired) == 3
-        assert paired[0]['task_id'] == 'task_001'
-        assert 'success_diff' in paired[0]
-        assert 'latency_diff' in paired[0]
-
-        # Verify sorting
-        task_ids = [p['task_id'] for p in paired]
-        assert task_ids == sorted(task_ids)
-
-    def test_write_csv(self, temp_dir, sample_baseline_data, sample_2d_run_data):
-        """Test writing the paired dataset to CSV."""
-        # Load and aggregate
-        raw_2d = {}
-        for run_data in sample_2d_run_data:
-            for item in run_data:
-                task_id = item['task_id']
-                if task_id not in raw_2d:
-                    raw_2d[task_id] = []
-                raw_2d[task_id].append(item)
-        aggregated_2d = aggregate_2d_results(raw_2d)
-        baseline_dict = {item['task_id']: item for item in sample_baseline_data}
-
-        paired = build_paired_dataset(aggregated_2d, baseline_dict)
-
-        output_path = os.path.join(temp_dir, 'paired_dataset.csv')
-        write_csv(paired, output_path)
-
-        assert os.path.exists(output_path)
-
-        # Verify CSV content
-        with open(output_path, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-
-        assert len(rows) == 3
-        assert set(rows[0].keys()) == {
-            'task_id', 'task_type', '2d_success_rate', '2d_mean_latency',
-            '3d_success', '3d_latency', 'success_diff', 'latency_diff'
+@pytest.fixture
+def temp_workspace():
+    """Create a temporary workspace for testing."""
+    temp_dir = tempfile.mkdtemp()
+    
+    # Create directory structure
+    runs_dir = os.path.join(temp_dir, 'results', 'runs')
+    logs_dir = os.path.join(temp_dir, 'results', 'logs')
+    analysis_dir = os.path.join(temp_dir, 'results', 'analysis')
+    
+    os.makedirs(runs_dir, exist_ok=True)
+    os.makedirs(logs_dir, exist_ok=True)
+    os.makedirs(analysis_dir, exist_ok=True)
+    
+    # Create mock baseline results
+    baseline_data = [
+        {
+            "task_id": "task_001",
+            "task_type": "occlusion",
+            "success": True,
+            "latency_ms": 100.5
+        },
+        {
+            "task_id": "task_002",
+            "task_type": "depth",
+            "success": False,
+            "latency_ms": 150.2
+        },
+        {
+            "task_id": "task_003",
+            "task_type": "relative",
+            "success": True,
+            "latency_ms": 120.0
         }
+    ]
+    
+    baseline_path = os.path.join(logs_dir, "baseline_run.json")
+    with open(baseline_path, 'w') as f:
+        json.dump(baseline_data, f)
+    
+    # Create mock 2D run results (5 runs per task)
+    for run_id in range(5):
+        run_data = []
+        # Task 001: 5 successes
+        run_data.append({
+            "task_id": "task_001",
+            "task_type": "occlusion",
+            "success": True,
+            "latency_ms": 200.0 + run_id
+        })
+        # Task 002: 3 successes, 2 failures
+        run_data.append({
+            "task_id": "task_002",
+            "task_type": "depth",
+            "success": run_id < 3,
+            "latency_ms": 250.0 + run_id
+        })
+        # Task 003: 5 successes
+        run_data.append({
+            "task_id": "task_003",
+            "task_type": "relative",
+            "success": True,
+            "latency_ms": 180.0 + run_id
+        })
+        
+        run_path = os.path.join(runs_dir, f"run_{run_id}.json")
+        with open(run_path, 'w') as f:
+            json.dump(run_data, f)
+    
+    yield {
+        'temp_dir': temp_dir,
+        'runs_dir': runs_dir,
+        'baseline_path': baseline_path,
+        'output_path': os.path.join(analysis_dir, "test_paired_dataset.csv")
+    }
+    
+    # Cleanup
+    shutil.rmtree(temp_dir)
 
-    def test_null_value_check(self, temp_dir):
-        """Test that null values in critical columns raise an error."""
-        paired_data = [
-            {
-                'task_id': 'task_001',
-                'task_type': 'occlusion',
-                '2d_success_rate': 0.5,
-                '2d_mean_latency': 100.0,
-                '3d_success': True,
-                '3d_latency': 120.0,
-                'success_diff': -0.5,
-                'latency_diff': -20.0
-            },
-            {
-                'task_id': 'task_002',
-                'task_type': None,  # Null task_type
-                '2d_success_rate': 0.5,
-                '2d_mean_latency': 100.0,
-                '3d_success': True,
-                '3d_latency': 120.0,
-                'success_diff': -0.5,
-                'latency_diff': -20.0
-            }
+def test_load_baseline_results(temp_workspace):
+    """Test loading baseline results."""
+    baseline_map = load_baseline_results(temp_workspace['baseline_path'])
+    
+    assert len(baseline_map) == 3
+    assert 'task_001' in baseline_map
+    assert baseline_map['task_001']['success'] is True
+    assert baseline_map['task_002']['success'] is False
+
+def test_load_2d_run_results(temp_workspace):
+    """Test loading 2D run results."""
+    run_results = load_2d_run_results(temp_workspace['runs_dir'])
+    
+    # 3 tasks * 5 runs = 15 results
+    assert len(run_results) == 15
+
+def test_aggregate_2d_results(temp_workspace):
+    """Test aggregation of 2D results."""
+    run_results = load_2d_run_results(temp_workspace['runs_dir'])
+    aggregated = aggregate_2d_results(run_results, n_runs_expected=5)
+    
+    assert len(aggregated) == 3
+    
+    # Task 001: 5/5 success = 1.0
+    assert aggregated['task_001']['2d_success_rate'] == 1.0
+    assert aggregated['task_001']['n_runs'] == 5
+    
+    # Task 002: 3/5 success = 0.6
+    assert aggregated['task_002']['2d_success_rate'] == 0.6
+    assert aggregated['task_002']['n_runs'] == 5
+
+def test_build_paired_dataset(temp_workspace):
+    """Test building the paired dataset."""
+    baseline_map = load_baseline_results(temp_workspace['baseline_path'])
+    run_results = load_2d_run_results(temp_workspace['runs_dir'])
+    aggregated_2d = aggregate_2d_results(run_results, n_runs_expected=5)
+    
+    paired = build_paired_dataset(baseline_map, aggregated_2d)
+    
+    assert len(paired) == 3
+    
+    # Check sorting
+    task_ids = [row['task_id'] for row in paired]
+    assert task_ids == sorted(task_ids)
+    
+    # Check task_001 specifics
+    task_001 = next(row for row in paired if row['task_id'] == 'task_001')
+    assert task_001['task_type'] == 'occlusion'
+    assert task_001['2d_success_rate'] == 1.0
+    assert task_001['3d_success'] == 1
+    assert task_001['success_diff'] == 0.0  # 1.0 - 1.0
+
+def test_write_csv_and_validation(temp_workspace):
+    """Test writing CSV and null value validation."""
+    baseline_map = load_baseline_results(temp_workspace['baseline_path'])
+    run_results = load_2d_run_results(temp_workspace['runs_dir'])
+    aggregated_2d = aggregate_2d_results(run_results, n_runs_expected=5)
+    paired = build_paired_dataset(baseline_map, aggregated_2d)
+    
+    write_csv(paired, temp_workspace['output_path'])
+    
+    assert os.path.exists(temp_workspace['output_path'])
+    
+    # Read back and verify
+    with open(temp_workspace['output_path'], 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    
+    assert len(rows) == 3
+    
+    # Verify column names
+    expected_cols = ['task_id', 'task_type', '2d_success_rate', '2d_mean_latency', 
+                    '3d_success', '3d_latency', 'success_diff', 'latency_diff']
+    assert list(rows[0].keys()) == expected_cols
+
+def test_main_function(temp_workspace):
+    """Test the main function end-to-end."""
+    # Change to temp dir to simulate real execution
+    old_cwd = os.getcwd()
+    try:
+        os.chdir(temp_workspace['temp_dir'])
+        
+        # Create a minimal config
+        config_path = os.path.join(temp_workspace['temp_dir'], 'data')
+        os.makedirs(config_path, exist_ok=True)
+        with open(os.path.join(config_path, 'power_config.yaml'), 'w') as f:
+            f.write("n_runs: 5\n")
+        
+        # Run main
+        import sys
+        sys.argv = [
+            'test',
+            '--config', os.path.join(config_path, 'power_config.yaml'),
+            '--baseline', temp_workspace['baseline_path'],
+            '--runs-dir', temp_workspace['runs_dir'],
+            '--output', temp_workspace['output_path']
         ]
+        
+        main()
+        
+        assert os.path.exists(temp_workspace['output_path'])
+        
+    finally:
+        os.chdir(old_cwd)
+        sys.argv = ['test']
 
-        output_path = os.path.join(temp_dir, 'paired_dataset.csv')
+def test_missing_baseline_raises_error():
+    """Test that missing baseline file raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        load_baseline_results('/nonexistent/path.json')
 
-        with pytest.raises(ValueError, match="Null value found in critical column"):
-            write_csv(paired_data, output_path)
+def test_missing_runs_dir_raises_error():
+    """Test that missing runs directory raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        load_2d_run_results('/nonexistent/dir')
 
-    def test_missing_task_handling(self, temp_dir, sample_baseline_data):
-        """Test handling of tasks missing in one of the datasets."""
-        # Create 2D data with only 2 tasks
-        raw_2d = {
-            'task_001': [{'task_id': 'task_001', 'task_type': 'occlusion', 'success': True, 'latency_ms': 130.0}],
-            'task_002': [{'task_id': 'task_002', 'task_type': 'depth', 'success': False, 'latency_ms': 160.0}]
+def test_null_value_detection():
+    """Test that null values in critical columns are detected."""
+    data_with_null = [
+        {
+            'task_id': None,  # Critical column null
+            'task_type': 'occlusion',
+            '2d_success_rate': 0.5,
+            '2d_mean_latency': 100.0,
+            '3d_success': 1,
+            '3d_latency': 120.0,
+            'success_diff': -0.5,
+            'latency_diff': -20.0
         }
-        aggregated_2d = aggregate_2d_results(raw_2d)
-        baseline_dict = {item['task_id']: item for item in sample_baseline_data}
-
-        paired = build_paired_dataset(aggregated_2d, baseline_dict)
-
-        # Should only have 2 tasks (task_003 is missing from 2D)
-        assert len(paired) == 2
-        assert 'task_003' not in [p['task_id'] for p in paired]
+    ]
+    
+    with pytest.raises(ValueError, match="missing or null value in critical column"):
+        write_csv(data_with_null, '/tmp/test_null.csv')

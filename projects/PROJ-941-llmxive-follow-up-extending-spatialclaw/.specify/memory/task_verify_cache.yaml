@@ -65,20 +65,6 @@ T037e:
     \ is provided, and there is no evidence that power analysis, statistical tests,\
     \ or sensitivity analysis results were documented. The required artifact is missing,\
     \ so the task is not satisfied."
-T046:
-  c: false
-  h: 1554cbec1b10f3e5f3b5e3dd463ae60d3c02ee1161f03d1cf939a1877919973f
-  r: "The required output file `results/analysis/run_integrity_report.json` is missing,\
-    \ and the provided `code/utils/verify_run.py` is truncated and contains a syntax\
-    \ error (`task_ids = s`). Additionally, no `results/runs/run_*.json` files are\
-    \ present, so the integrity check cannot be performed. The task\u2019s requirements\
-    \ are therefore not satisfied."
-T047:
-  c: false
-  h: dfd84048db8b5b9bcded56a66ef459bd77dc613b667946e8632813df38169197
-  r: "The required output file `results/analysis/final_paired_dataset.csv` is missing\
-    \ from the repository, so the merging, sorting, and null\u2011value checks cannot\
-    \ be verified. The task\u2019s core artifact does not exist."
 T048:
   c: false
   h: cdf1e432064a7501d730a73a571175ba862665492073e0edd2baa2af4324a099
