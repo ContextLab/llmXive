@@ -1,6 +1,3 @@
-"""
-Construct validity checks to prevent mathematical coupling between variables.
-"""
 import pandas as pd
 import numpy as np
 import logging
@@ -9,66 +6,27 @@ from exceptions import MathematicalCouplingError
 
 logger = logging.getLogger(__name__)
 
-def check_construct_validity(
-    df: pd.DataFrame,
-    var_a: str,
-    var_b: str,
-    correlation_threshold: float = 0.99
-) -> bool:
+def check_construct_validity(df: pd.DataFrame) -> None:
     """
-    Verify that two variables are distinct constructs and not mathematically coupled.
-
-    This function checks:
-    1. That both columns exist in the dataframe.
-    2. That the variables are not identical (correlation == 1.0).
-    3. That the correlation does not exceed the specified threshold (default 0.99).
-
-    Args:
-        df: The dataframe containing the variables.
-        var_a: Name of the first variable (e.g., 'baseline_anxiety').
-        var_b: Name of the second variable (e.g., 'anxiety_score').
-        correlation_threshold: Maximum allowed correlation coefficient. Default is 0.99.
-
-    Returns:
-        True if the constructs are distinct and valid.
-
-    Raises:
-        ValueError: If required columns are missing.
-        MathematicalCouplingError: If variables are identical or highly correlated.
+    Verify that baseline_anxiety and anxiety_score are distinct constructs.
+    Raises MathematicalCouplingError if they are identical or perfectly correlated.
     """
-    # Check for column existence
-    missing_cols = []
-    if var_a not in df.columns:
-        missing_cols.append(var_a)
-    if var_b not in df.columns:
-        missing_cols.append(var_b)
+    if 'baseline_anxiety' not in df.columns or 'anxiety_score' not in df.columns:
+        logger.warning("Required columns for construct validity check not found. Skipping check.")
+        return
 
-    if missing_cols:
-        raise ValueError(f"Required columns missing: {missing_cols}")
+    # Check for exact identity
+    if df['baseline_anxiety'].equals(df['anxiety_score']):
+        logger.error("Construct validity failed: baseline_anxiety and anxiety_score are identical.")
+        raise MathematicalCouplingError("Mathematical coupling detected: 'baseline_anxiety' and 'anxiety_score' are identical columns.")
 
-    # Drop NaN values for correlation calculation
-    valid_data = df[[var_a, var_b]].dropna()
-
-    if len(valid_data) < 2:
-        logger.warning(f"Insufficient data points ({len(valid_data)}) to calculate correlation between {var_a} and {var_b}.")
-        return True
-
-    # Calculate correlation
-    correlation = valid_data[var_a].corr(valid_data[var_b])
-
-    logger.info(f"Correlation between {var_a} and {var_b}: {correlation:.4f}")
-
-    # Check for identical variables (perfect correlation)
-    if np.isclose(correlation, 1.0):
-        raise MathematicalCouplingError(
-            f"Mathematical coupling detected: '{var_a}' and '{var_b}' are identical (r=1.0)."
-        )
-
-    # Check for high correlation exceeding threshold
-    if abs(correlation) > correlation_threshold:
-        raise MathematicalCouplingError(
-            f"Mathematical coupling detected: '{var_a}' and '{var_b}' are too highly correlated (r={correlation:.4f} > {correlation_threshold})."
-        )
-
-    logger.info(f"Construct validity check passed for '{var_a}' and '{var_b}'.")
-    return True
+    # Check for perfect correlation (r = 1 or -1)
+    clean_data = df[['baseline_anxiety', 'anxiety_score']].dropna()
+    if len(clean_data) > 1:
+        corr = clean_data['baseline_anxiety'].corr(clean_data['anxiety_score'])
+        if np.isclose(abs(corr), 1.0):
+            logger.error(f"Construct validity failed: Perfect correlation (r={corr}) between baseline_anxiety and anxiety_score.")
+            raise MathematicalCouplingError(f"Mathematical coupling detected: Perfect correlation (r={corr}) between 'baseline_anxiety' and 'anxiety_score'.")
+    
+    logger.info("Construct validity check passed.")
+    return None

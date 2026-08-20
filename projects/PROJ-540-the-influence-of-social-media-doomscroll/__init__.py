@@ -1,19 +1,20 @@
 """
-Project: PROJ-540 - The Influence of Social Media "Doomscrolling" on Anticipatory Anxiety
+PROJ-540: The Influence of Social Media 'Doomscrolling' on Anticipatory Anxiety
 
-This package contains the source code for the automated research pipeline
-investigating the relationship between social media doomscrolling behaviors
-and anticipatory anxiety levels.
-
-Modules:
-    - analysis: Core data analysis and statistical modeling
-    - ingestion: Data retrieval and preprocessing
-    - visualization: Plotting and report generation
+This package contains the core analysis modules for investigating the relationship
+between social media doomscrolling behaviors and anticipatory anxiety levels.
 """
 
 __version__ = "0.1.0"
-__author__ = "llmXive Research Pipeline"
+__project_id__ = "PROJ-540"
 
-# Explicitly mark this directory as a Python package
-# to ensure it is recognized by import systems.
-__path__ = __import__('pkgutil').extend_path(__path__, __name__)
+# Package initialization - ensures this is recognized as a Python package
+# Core modules are imported here to make them accessible as 
+# from projects.PROJ_540 import module_name
+# Note: Actual imports are done on-demand in specific scripts to avoid circular dependencies
+
+# Available submodules (imported when needed):
+# - analysis
+# - utils
+# - models
+# - data_processing

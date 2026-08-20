@@ -35,7 +35,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 [P] Initialize Python 3.11 project with dependencies in `requirements.txt` (e.g., `pandas==2.0.3`, `statsmodels==0.14.0`, `scikit-learn==1.3.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `requests==2.31.0`, `pyyaml==6.0.1`)
+- [X] T002 [P] Initialize Python 3.11 project with dependencies in `requirements.txt` (e.g., `pandas==2.0.3`, `statsmodels==0.14.0`, `scikit-learn==1.3.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `requests==2.31.0`, `pyyaml==6.0.1`)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 - [X] T004 [P] Implement environment configuration management for dataset URLs and random seeds (`code/config.py`)
 - [ ] T004b [P] Implement random seed verification and logging in `code/config.py` (or `code/utils.py`) to ensure seeds are actively applied and logged at runtime, satisfying Constitution Principle I (Reproducibility). Log a warning if a seed is not set.
@@ -67,7 +67,7 @@
 - [X] T011 [US1] Implement schema validation in `code/ingest.py` to ensure columns `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, `gender` exist
 - [X] T012 [US1] Implement listwise deletion in `code/clean.py` for missing predictor/outcome values. **MUST enforce Spec FR-002**: HALT with `PowerLimitationError` if resulting N < 30. If 30 <= N < 100, log 'Low Power' warning and proceed. (Note: The Plan suggests N < 130 for higher power, but the Spec requires N < 30; implement Spec logic and log the Plan's stricter guideline as a comment).
 - [ ] T013 [US1] Save cleaned dataset to `data/processed/analysis_data.csv`
-- [~] T014 [US1] Add logging for row counts, missing value statistics, and power check results
+- [ ] T014 [US1] Add logging for row counts, missing value statistics, and power check results
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -92,7 +92,7 @@
  1. **Invoke** the distinct construct validation function from `code/validity.py` (T019a) to ensure `baseline_anxiety` and `anxiety_score` are distinct.
  2. Implement Linearity, Homoscedasticity (Breusch-Pagan), Normality (Shapiro-Wilk), and VIF checks as separate functions.
  3. Output diagnostic metrics and pass/fail status.
-- [~] T020 [US2] Implement proxy flagging logic for `general_anxiety` vs `anticipatory_anxiety` (FR-008)
+- [ ] T020 [US2] Implement proxy flagging logic for `general_anxiety` vs `anticipatory_anxiety` (FR-008)
 - [ ] T021 [US2] Save regression results to `outputs/regression_results.json` (coefficients, p-values, diagnostics)
 - [ ] T022 [US2] Save correlation results to `outputs/correlation_results.json`
 
@@ -131,8 +131,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Documentation updates in `README.md` and `docs/`
-- [ ] T032 [P] Code cleanup and refactoring: Remove unused imports, extract helper functions
+- [~] T031 [P] Documentation updates in `README.md` and `docs/`
+- [~] T032 [P] Code cleanup and refactoring: Remove unused imports, extract helper functions
 - [ ] T033 [P] Performance optimization: Vectorize pandas operations, use chunking for large files (ensure < 60s on 10k records)
 - [ ] T034 [P] Add specific unit tests for `code/config.py` (seed verification) and `code/robustness.py` (conditional logic) to ensure coverage of new logic.
 - [ ] T035 [P] Run `quickstart.md` validation

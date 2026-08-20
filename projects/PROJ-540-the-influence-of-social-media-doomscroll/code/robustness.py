@@ -4,156 +4,109 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 from scipy import stats
-from config import load_config, ensure_directories, set_seed
+from config import load_config
 from model import fit_regression_model
-import json
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def calculate_engagement_correlation(df: pd.DataFrame) -> float:
-    """
-    Calculate correlation between social_media_engagement and news_exposure_freq.
-    Returns 0.0 if either column is missing or data is insufficient.
-    """
+    """Calculate correlation between social_media_engagement and news_exposure_freq."""
     if 'social_media_engagement' not in df.columns or 'news_exposure_freq' not in df.columns:
-        logger.warning("Required columns for engagement correlation not found.")
+        logger.warning("Columns 'social_media_engagement' or 'news_exposure_freq' not found. Skipping engagement correlation.")
         return 0.0
     
-    clean_data = df[['social_media_engagement', 'news_exposure_freq']].dropna()
-    if len(clean_data) < 3:
-        logger.warning("Insufficient data for correlation calculation.")
+    data = df[['social_media_engagement', 'news_exposure_freq']].dropna()
+    if len(data) < 2:
         return 0.0
     
-    corr, _ = stats.pearsonr(clean_data['social_media_engagement'], clean_data['news_exposure_freq'])
-    return float(corr)
+    corr, _ = stats.pearsonr(data['social_media_engagement'], data['news_exposure_freq'])
+    logger.info(f"Engagement correlation: {corr:.4f}")
+    return corr
 
-def select_high_engagement_subset(df: pd.DataFrame, percentile: float = 75.0) -> pd.DataFrame:
-    """
-    Select the top X percentile of social_media_engagement.
-    Default is top 25% (i.e., >= 75th percentile).
-    """
+def select_high_engagement_subset(df: pd.DataFrame) -> pd.DataFrame:
+    """Select the top 25th percentile of social_media_engagement."""
     if 'social_media_engagement' not in df.columns:
         raise ValueError("Column 'social_media_engagement' not found in dataset.")
     
-    threshold = df['social_media_engagement'].quantile(percentile / 100.0)
+    threshold = df['social_media_engagement'].quantile(0.75)
     subset = df[df['social_media_engagement'] >= threshold].copy()
-    logger.info(f"Selected {len(subset)} rows (top {100 - percentile}% engagement) above threshold {threshold:.2f}")
+    logger.info(f"Selected {len(subset)} rows for high-engagement subset (>= {threshold:.2f}).")
     return subset
 
-def run_robustness_check(
-    full_data_path: str, 
-    output_path: str, 
-    config_path: Optional[str] = None
-) -> Dict[str, Any]:
-    """
-    Re-fit regression on high-engagement subset and compare with full model.
+def run_robustness_check(df: pd.DataFrame) -> Dict[str, Any]:
+    """Run the robustness check on the high-engagement subset."""
+    logger.info("Starting robustness check...")
     
-    1. Load full data.
-    2. Calculate correlation between engagement and news exposure.
-    3. If corr > 0.3, select top 25% engagement subset.
-    4. Fit regression on subset using fit_regression_model from model.py.
-    5. Compare coefficients and significance with full model results (loaded from outputs/regression_results.json).
-    6. Save results to output_path.
-    """
-    config = load_config(config_path)
-    set_seed(config.get('random_seed', 42))
-    ensure_directories(config)
-    
-    # Load full data
-    df_full = pd.read_csv(full_data_path)
-    logger.info(f"Loaded full dataset: {len(df_full)} rows")
-    
-    # Calculate engagement correlation
-    corr_val = calculate_engagement_correlation(df_full)
-    logger.info(f"Engagement-Exposure Correlation: {corr_val:.4f}")
+    # Step 1: Calculate correlation
+    corr = calculate_engagement_correlation(df)
     
     results = {
-        "engagement_correlation": corr_val,
-        "robustness_check_performed": False,
-        "full_model": {},
-        "subset_model": {},
-        "comparison": {}
+        'engagement_correlation': corr,
+        'check_performed': False,
+        'subset_results': None,
+        'full_results': None
     }
     
-    # Load full model results for comparison
-    full_model_file = Path("outputs/regression_results.json")
-    if full_model_file.exists():
-        with open(full_model_file, 'r') as f:
-            results["full_model"] = json.load(f)
-    else:
-        logger.error(f"Full model results not found at {full_model_file}. Cannot compare.")
-        return results
-    
-    # Conditional check per Spec FR-006
-    if corr_val > 0.3:
-        logger.info("Correlation > 0.3. Proceeding with robustness check on high-engagement subset.")
-        df_subset = select_high_engagement_subset(df_full, percentile=75.0)
+    # Step 2: Conditional logic
+    if corr > 0.3:
+        logger.info("Engagement correlation > 0.3. Performing robustness check.")
         
-        if len(df_subset) < 30:
-            logger.warning(f"Subset size ({len(df_subset)}) is below power threshold (30). Skipping fit.")
-            results["robustness_check_performed"] = False
-            results["comparison"]["reason"] = "Subset size below power threshold"
+        # Get full model results first
+        try:
+            full_results = fit_regression_model(df)
+            results['full_results'] = full_results
+            results['check_performed'] = True
+        except Exception as e:
+            logger.error(f"Failed to fit full model: {e}")
             return results
         
-        # Re-fit regression using the shared function from model.py
-        logger.info("Re-fitting regression model on high-engagement subset...")
+        # Select subset
         try:
-            subset_model_results = fit_regression_model(df_subset)
-            results["robustness_check_performed"] = True
-            results["subset_model"] = subset_model_results
+            subset_df = select_high_engagement_subset(df)
+            if len(subset_df) < 30:
+                logger.warning(f"Subset size {len(subset_df)} is too small for regression. Skipping subset fit.")
+                return results
             
-            # Compare coefficients
-            full_coeffs = results["full_model"].get("coefficients", {})
-            subset_coeffs = subset_model_results.get("coefficients", {})
+            # Fit model on subset
+            subset_results = fit_regression_model(subset_df)
+            results['subset_results'] = subset_results
             
-            comparison = {}
-            for var in full_coeffs:
-                if var in subset_coeffs:
-                    full_coef = full_coeffs[var]
-                    subset_coef = subset_coeffs[var]
-                    diff = subset_coef - full_coef
-                    # Check sign consistency
-                    sign_match = (full_coef > 0) == (subset_coef > 0)
-                    comparison[var] = {
-                        "full_coefficient": full_coef,
-                        "subset_coefficient": subset_coef,
-                        "difference": diff,
-                        "sign_consistent": sign_match
-                    }
+            # Compare
+            # Compare news_exposure_freq coefficient
+            full_coef = full_results['coefficients'].get('news_exposure_freq', 0)
+            subset_coef = subset_results['coefficients'].get('news_exposure_freq', 0)
             
-            results["comparison"] = comparison
-            logger.info("Robustness check comparison completed.")
+            results['comparison'] = {
+                'full_coef': full_coef,
+                'subset_coef': subset_coef,
+                'sign_match': (full_coef > 0) == (subset_coef > 0)
+            }
             
         except Exception as e:
-            logger.error(f"Failed to fit subset model: {e}")
-            results["robustness_check_performed"] = False
-            results["comparison"]["error"] = str(e)
+            logger.error(f"Robustness check failed: {e}")
     else:
-        logger.warning(f"Correlation ({corr_val:.4f}) <= 0.3. Skipping robustness check per Spec FR-006.")
-        results["robustness_check_performed"] = False
-        results["comparison"]["reason"] = "Correlation <= 0.3 threshold"
-    
-    # Save results
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Robustness results saved to {output_path}")
+        logger.warning(f"Engagement correlation ({corr:.4f}) <= 0.3. Skipping robustness check.")
     
     return results
 
-def main():
-    """Entry point for robustness check script."""
+def main() -> None:
+    """Main entry point for robustness check."""
     config = load_config()
-    data_path = config.get('processed_data_path', 'data/processed/analysis_data.csv')
-    output_path = config.get('robustness_output_path', 'outputs/robustness_results.json')
+    input_path = Path(config['paths']['processed_data'])
+    output_path = Path(config['paths']['robustness_results'])
     
-    if not Path(data_path).exists():
-        logger.error(f"Input data file not found: {data_path}")
-        return
-    
-    run_robustness_check(data_path, output_path)
+    try:
+        df = pd.read_csv(input_path)
+        results = run_robustness_check(df)
+        
+        import json
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2, default=str)
+        
+        logger.info("Robustness check completed.")
+    except Exception as e:
+        logger.critical(f"Robustness check failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,69 +1,90 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: ModelResult
 description: >-
-  Schema for the output of a predictive model training run, including
-  performance metrics, feature importance, and model metadata.
+  Schema for the output of a trained predictive model, including performance
+  metrics and feature importance rankings.
 type: object
 required:
   - model_type
+  - model_id
+  - training_date
   - metrics
   - feature_importance
-  - timestamp
+  - hyperparameters
 properties:
   model_type:
     type: string
-    description: Type of model trained (e.g., 'RandomForest', 'SVM').
-    minLength: 1
-  dataset_id:
+    description: Type of model used (e.g., RandomForest, SVM)
+    enum:
+      - RandomForest
+      - SVM
+      - LogisticRegression
+      - GradientBoosting
+  model_id:
     type: string
-    description: Identifier of the dataset used for training.
+    description: Unique identifier for this model run
+    pattern: "^[A-Za-z0-9_-]+$"
+  training_date:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when training was completed
+  dataset_source:
+    type: string
+    description: Source of the training data (e.g., synthetic, GEO accession list)
   metrics:
     type: object
-    description: Performance metrics calculated on the validation set.
+    description: Performance metrics calculated on the test set
     required:
-      - score_type
-      - value
+      - r_squared
+      - correlation_coefficient
+      - rmse
     properties:
-      score_type:
-        type: string
-        description: Type of metric (e.g., 'R2', 'Pearson_r').
-        enum:
-          - R2
-          - Pearson_r
-          - MAE
-          - RMSE
-      value:
+      r_squared:
         type: number
-        description: The calculated metric value.
-      cv_scores:
-        type: array
-        description: Optional cross-validation scores.
-        items:
-          type: number
+        description: R² score for regression tasks
+        minimum: -1
+        maximum: 1
+      correlation_coefficient:
+        type: number
+        description: Pearson correlation coefficient between predicted and actual
+        minimum: -1
+        maximum: 1
+      rmse:
+        type: number
+        description: Root Mean Squared Error
+        minimum: 0
+      mean_absolute_error:
+        type: number
+        description: Mean Absolute Error (optional)
+        minimum: 0
   feature_importance:
     type: array
-    description: List of top features and their importance scores.
+    description: List of top features ranked by importance
     items:
       type: object
       required:
         - feature_name
-        - importance
+        - importance_score
+        - rank
       properties:
         feature_name:
           type: string
-          description: Name or ID of the metabolite.
-        importance:
+          description: Name or ID of the metabolite feature
+        importance_score:
           type: number
-          description: Importance score (e.g., Gini importance, coefficient magnitude).
+          description: Normalized importance score (0-1)
+          minimum: 0
+          maximum: 1
+        rank:
+          type: integer
+          description: Rank of the feature (1 = most important)
+          minimum: 1
   hyperparameters:
     type: object
-    description: Hyperparameters used for the model.
+    description: Dictionary of hyperparameters used for training
     additionalProperties: true
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the model was trained.
-  validation_method:
-    type: string
-    description: Method used for validation (e.g., 'k-fold', 'LODO').
-additionalProperties: true
+  training_time_seconds:
+    type: number
+    description: Total time taken to train the model in seconds
+    minimum: 0
+additionalProperties: false

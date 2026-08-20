@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan in `projects/PROJ-455-predicting-plant-stress-resilience/` by executing `mkdir -p code/data code/models code/analysis tests/unit tests/integration tests/contract tests/benchmark contracts data/raw data/processed data/results`.
-- [ ] T002 Initialize Python 3.11 project with dependencies (`pandas==2.0.3`, `scikit-learn==1.3.0`, `numpy==1.24.0`, `requests==2.31.0`, `biopython==1.81`, `pyyaml==6.0.1`, `pytest==7.4.0`) in `requirements.txt`.
-- [ ] T003 [P] Configure linting (flake8/black) by creating `.flake8` and `pyproject.toml` with black settings.
+- [X] T002 Initialize Python 3.11 project with dependencies (`pandas==2.0.3`, `scikit-learn==1.3.0`, `numpy==1.24.0`, `requests==2.31.0`, `biopython==1.81`, `pyyaml==6.0.1`, `pytest==7.4.0`) in `requirements.txt`.
+- [X] T003 [P] Configure linting (flake8/black) by creating `.flake8` and `pyproject.toml` with black settings.
 
 ---
 
@@ -59,10 +59,10 @@
  - T004.1 Create `contracts/dataset.schema.yaml` defining JSON/YAML schema for `MetabolomicProfile`.
  - T004.2 Create `contracts/model_result.schema.yaml` defining JSON/YAML schema for `ModelResult`.
  - T004.3 Create `contracts/recovery.schema.yaml` defining JSON/YAML schema for `RecoveryMetric`.
-- [ ] T005 [P] Implement base data models (`MetabolomicProfile`, `RecoveryMetric`, `RecoveryIndex`) with validation rules in `code/data/models.py` using Pydantic.
+- [X] T005 [P] Implement base data models (`MetabolomicProfile`, `RecoveryMetric`, `RecoveryIndex`) with validation rules in `code/data/models.py` using Pydantic.
 - [X] T006 [P] Setup logging and error handling infrastructure in `code/utils/logging.py` by implementing a `get_logger` function that configures a standard JSON formatter and file/console handlers.
 - [ ] T007 Create the Mechanism-Guided Synthetic Generator in `code/data/generator.py` by implementing `generate_synthetic_data(n_samples, stress_type)` that outputs a Parquet file to `data/raw/synthetic_*.parquet` with embedded ground-truth pathways. <!-- FAILED: unspecified -->
-- [~] T008 [P] Implement the Mock Adapter in `code/data/ingest.py` by creating `MockAdapter` class that calls the synthetic generator and returns a Pandas DataFrame matching `dataset.schema.yaml`.
+- [ ] T008 [P] Implement the Mock Adapter in `code/data/ingest.py` by creating `MockAdapter` class that calls the synthetic generator and returns a Pandas DataFrame matching `dataset.schema.yaml`.
 - [X] T009 [P] Implement the Real Adapter stub in `code/data/ingest.py` by creating `RealAdapter` class with a `fetch(accession_id)` method that validates URL format and returns a stub DataFrame or raises a NotImplementedError.
 - [ ] T009.1 [P] Implement ExternalDatasetManager in `code/data/ingest.py` by creating `ExternalDatasetManager` class that ingests, checksums, and validates multiple independent external datasets (NCBI GEO/Zenodo) for LODO.
 - [ ] T009.2 [P] Implement LODO Data Prep in `code/data/ingest.py` by creating `prepare_lodo_datasets()` function that organizes external datasets into train/test splits for Leave-One-Dataset-Out validation.
@@ -107,23 +107,23 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_result_schema.py`.
-- [~] T021 [P] [US2] Unit test for feature importance extraction in `tests/unit/test_feature_importance.py`. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
-  in "<unicode string>", line 2, column 1:
-    **Implementation Details:**
-    ^
+- [X] T021 [P] [US2] Unit test for feature importance extraction in `tests/unit/test_feature_importance.py`. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+ in "<unicode string>", line 2, column 1:
+ **Implementation Details:**
+ ^
 expected alphabetic or numeric character, but found '*'
-  in "<unicode string>", line 2, column 2:
-    **Implementation Details:**
-     ^) -->
+ in "<unicode string>", line 2, column 2:
+ **Implementation Details:**
+ ^) -->
 
 ### Implementation for User Story 2
 
 - [ ] T022 [US2] Implement `code/models/train.py::train_random_forest(X, y, cv=5)` returning a fitted model and `model_result.schema.yaml` compliant metrics.
-- [ ] T023 [US2] Implement `code/models/train.py::train_svm(X, y, cv=5)` returning a fitted model and metrics.
+- [X] T023 [US2] Implement `code/models/train.py::train_svm(X, y, cv=5)` returning a fitted model and metrics.
 - [ ] T024.1 [US2] Implement `code/models/train.py::calculate_metric(y_true, y_pred, mode)` that returns R² for individual mode and Pearson r for population mode.
-- [ ] T025 [US2] Implement `code/models/train.py::get_top_features(model, n=20)` returning a list of (feature_name, importance) tuples.
-- [ ] T026 [US2] Consume persisted KEGG mapping from processed data in `code/models/train.py` for downstream validation.
-- [ ] T027 [US2] Add logging for model training metrics in `code/models/train.py` to record R²/r, top 5 features, and training time to the configured logger.
+- [X] T025 [US2] Implement `code/models/train.py::get_top_features(model, n=20)` returning a list of (feature_name, importance) tuples.
+- [X] T026 [US2] Consume persisted KEGG mapping from processed data in `code/models/train.py` for downstream validation. <!-- FAILED: unspecified -->
+- [X] T027 [US2] Add logging for model training metrics in `code/models/train.py` to record R²/r, top 5 features, and training time to the configured logger.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,16 +137,16 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Contract test for validation results schema in `tests/contract/test_validation_schema.py`.
-- [ ] T029 [P] [US3] Integration test for cross-stress evaluation in `tests/integration/test_cross_stress_eval.py`.
+- [X] T028 [P] [US3] Contract test for validation results schema in `tests/contract/test_validation_schema.py`.
+- [X] T029 [P] [US3] Integration test for cross-stress evaluation in `tests/integration/test_cross_stress_eval.py`.
 
 ### Implementation for User Story 3
 
 - [ ] T019.2 [US3] Implement `code/analysis/pathway.py::map_to_kegg(df)` function that maps raw metabolite names to KEGG Compound IDs using a local mapping table and persists the IDs as a new column in the processed DataFrame (Moved from T019.1 to align with project structure).
-- [ ] T030 [US3] Implement `code/models/validate.py::lodo_cv(models, datasets)` that executes the Leave-One-Dataset-Out loop (train on N-1, test on held-out) using the synthetic or external datasets, returning a list of scores.
-- [ ] T031 [US3] Implement `code/models/validate.py::cross_stress_eval(model, train_stress, test_stress)` calculating R²_drop or r_drop.
-- [ ] T032 [US3] Implement `code/models/validate.py::permutation_test(model, X, y, n=1000)` returning a p-value.
-- [ ] T033 [US3] Implement `code/analysis/pathway.py::enrichment_analysis(kegg_ids, pathways)` calculating Jaccard similarity and Enrichment p-value.
+- [X] T030 [US3] Implement `code/models/validate.py::lodo_cv(models, datasets)` that executes the Leave-One-Dataset-Out loop (train on N-1, test on held-out) using the synthetic or external datasets, returning a list of scores.
+- [X] T031 [US3] Implement `code/models/validate.py::cross_stress_eval(model, train_stress, test_stress)` calculating R²_drop or r_drop.
+- [X] T032 [US3] Implement `code/models/validate.py::permutation_test(model, X, y, n=1000)` returning a p-value.
+- [X] T033 [US3] Implement `code/analysis/pathway.py::enrichment_analysis(kegg_ids, pathways)` calculating Jaccard similarity and Enrichment p-value.
 - [ ] T034 [US3] Implement `code/analysis/pathway.py::validate_alignment(jaccard, p_value)` returning a boolean flag if Jaccard ≥ 0.3 or p < 0.05.
 - [ ] T035 [US3] Implement `code/models/validate.py` check: if `len(samples) < 50`, skip evaluation and log a warning.
 - [ ] T036 [US3] Implement `code/models/validate.py::baseline_null_model(y)` predicting mean and calculating its R²/r for comparison.

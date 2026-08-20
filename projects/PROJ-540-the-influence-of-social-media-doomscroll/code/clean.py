@@ -3,142 +3,95 @@ import logging
 import sys
 from pathlib import Path
 from typing import Optional, Dict, Any
-
 from config import load_config, ensure_directories, set_seed
-from logging_config import setup_logging
 from exceptions import PowerLimitationError
+from validity import check_construct_validity
+
+logger = logging.getLogger(__name__)
+
+REQUIRED_COLUMNS = [
+    'news_exposure_freq',
+    'anxiety_score',
+    'baseline_anxiety',
+    'age',
+    'gender'
+]
 
 def load_cleaned_data(input_path: Path) -> pd.DataFrame:
-    """
-    Load cleaned data from a CSV file.
-    
-    Args:
-        input_path: Path to the CSV file
-        
-    Returns:
-        DataFrame with the loaded data
-    """
-    logger = logging.getLogger(__name__)
+    """Load the raw dataset from the specified path."""
     logger.info(f"Loading data from {input_path}")
-    
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
-    return df
+    try:
+        df = pd.read_csv(input_path)
+        logger.info(f"Loaded {len(df)} rows from {input_path}")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load data: {e}")
+        raise
 
-def validate_cleaned_data(df: pd.DataFrame) -> bool:
-    """
-    Validate that cleaned data meets minimum requirements.
-    
-    Args:
-        df: DataFrame to validate
-        
-    Returns:
-        True if validation passes
-        
-    Raises:
-        PowerLimitationError: If sample size is below threshold
-    """
-    logger = logging.getLogger(__name__)
+def validate_cleaned_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Validate the schema and check for missing values in required columns."""
+    logger.info("Validating schema and missing values...")
     
     # Check for required columns
-    required_cols = ['news_exposure_freq', 'anxiety_score', 'baseline_anxiety', 'age', 'gender']
-    missing = [col for col in required_cols if col not in df.columns]
+    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
     
-    if missing:
-        raise ValueError(f"Missing required columns in cleaned data: {missing}")
+    # Check construct validity (baseline_anxiety vs anxiety_score)
+    check_construct_validity(df)
     
-    # Check for null values in key columns
-    key_cols = ['news_exposure_freq', 'anxiety_score']
-    null_counts = df[key_cols].isna().sum()
-    if null_counts.any():
-        logger.warning(f"Null values found in key columns after cleaning: {null_counts.to_dict()}")
+    # Count missing values before deletion
+    initial_rows = len(df)
+    missing_counts = df[REQUIRED_COLUMNS].isnull().sum()
+    logger.info(f"Missing value counts before deletion:\n{missing_counts}")
     
-    # Power check (Spec FR-002)
-    n = len(df)
-    if n < 30:
-        error_msg = f"Power limitation: Sample size ({n}) is below minimum threshold of 30."
-        logger.error(error_msg)
-        raise PowerLimitationError(error_msg)
-    elif n < 100:
-        warning_msg = f"Low power warning: Sample size ({n}) is between 30 and 100."
-        logger.warning(warning_msg)
-        logger.warning("Plan guideline suggests N >= 130 for higher power.")
+    # Listwise deletion for predictor/outcome
+    df_clean = df.dropna(subset=REQUIRED_COLUMNS)
+    dropped_rows = initial_rows - len(df_clean)
     
-    return True
+    if dropped_rows > 0:
+        logger.warning(f"Dropped {dropped_rows} rows due to missing values.")
+    
+    # Power check
+    if len(df_clean) < 30:
+        logger.error(f"Sample size {len(df_clean)} is below the hard limit of 30.")
+        raise PowerLimitationError(f"Insufficient sample size: {len(df_clean)} < 30. Analysis cannot proceed.")
+    
+    if len(df_clean) < 100:
+        logger.warning(f"Low power warning: Sample size is {len(df_clean)} (< 100). Results may be underpowered.")
+    
+    logger.info(f"Validation complete. Final sample size: {len(df_clean)}")
+    return df_clean
 
 def save_cleaned_data(df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Save cleaned data to a CSV file.
-    
-    Args:
-        df: DataFrame to save
-        output_path: Path where the cleaned data will be saved
-    """
-    logger = logging.getLogger(__name__)
+    """Save the cleaned dataframe to the specified path."""
+    logger.info(f"Saving cleaned data to {output_path}")
+    ensure_directories(output_path)
     df.to_csv(output_path, index=False)
-    logger.info(f"Cleaned data saved to {output_path}")
-    logger.info(f"Saved {len(df)} rows and {len(df.columns)} columns")
+    logger.info(f"Successfully saved {len(df)} rows to {output_path}")
 
-def main():
-    """Main entry point for data cleaning pipeline."""
-    logger = setup_logging()
+def main() -> None:
+    """Main entry point for the cleaning pipeline."""
     config = load_config()
+    seed = config.get('random_seed')
+    set_seed(seed)
     
-    # Ensure directories exist
-    ensure_directories()
-    
-    # Set random seed for reproducibility
-    set_seed(config.get('random_seed', 42))
-    
-    # Define input and output paths
-    raw_data_path = Path(config.get('paths', {}).get('raw_data', 'data/raw/')) / 'raw_survey_data.csv'
-    processed_data_path = Path(config.get('paths', {}).get('processed_data', 'data/processed/')) / 'analysis_data.csv'
+    input_path = Path(config['paths']['raw_data'])
+    output_path = Path(config['paths']['processed_data'])
     
     try:
-        # Step 1: Load raw data
-        logger.info("Starting data cleaning pipeline...")
-        df = load_cleaned_data(raw_data_path)
-        
-        # Log initial statistics
-        initial_rows = len(df)
-        logger.info(f"Initial dataset size: {initial_rows} rows")
-        
-        # Log missing value statistics
-        key_columns = ['news_exposure_freq', 'anxiety_score', 'baseline_anxiety', 'age', 'gender']
-        missing_stats = {}
-        for col in key_columns:
-            if col in df.columns:
-                missing_count = df[col].isna().sum()
-                missing_pct = (missing_count / len(df)) * 100
-                missing_stats[col] = {'count': int(missing_count), 'percent': round(missing_pct, 2)}
-                logger.info(f"Missing values in '{col}': {missing_count} ({missing_pct:.2f}%)")
-        
-        # Step 2: Perform listwise deletion
-        df_clean = df.dropna(subset=['news_exposure_freq', 'anxiety_score'])
-        
-        final_rows = len(df_clean)
-        deleted_rows = initial_rows - final_rows
-        logger.info(f"After listwise deletion: {final_rows} rows ({deleted_rows} rows removed)")
-        
-        # Step 3: Validate cleaned data (includes power check)
-        validate_cleaned_data(df_clean)
-        
-        # Step 4: Save cleaned data
-        save_cleaned_data(df_clean, processed_data_path)
-        
-        # Final summary logging
+        df_raw = load_cleaned_data(input_path)
+        df_clean = validate_cleaned_data(df_raw)
+        save_cleaned_data(df_clean, output_path)
         logger.info("Data cleaning pipeline completed successfully.")
-        logger.info(f"Final dataset shape: {df_clean.shape}")
-        logger.info(f"Columns: {list(df_clean.columns)}")
-        
-    except (PowerLimitationError, ValueError, FileNotFoundError) as e:
-        logger.error(f"Pipeline failed: {e}")
+    except PowerLimitationError as e:
+        logger.critical(f"Pipeline halted due to power limitation: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during pipeline execution: {e}")
+        logger.critical(f"Pipeline failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

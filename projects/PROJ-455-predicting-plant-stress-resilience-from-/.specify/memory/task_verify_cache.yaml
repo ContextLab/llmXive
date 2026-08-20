@@ -1,0 +1,26 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the directory tree `projects/PROJ-455-predicting-plant-stress-resilience/`
+    with the listed subfolders actually exists; the response contains only the task
+    description and specifications, not the required filesystem artifacts. The implementer
+    must create and show the populated project structure.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `contracts/` directory or schema definition files are present in the provided
+    evidence; the task required defining data schemas in that location, which is missing.
+T008:
+  c: false
+  h: 57972372f19c28f1ec043262547e9cb540d9b4863b90753364dc54ca8c50b434
+  r: "The `MockAdapter` class is present, but it builds a hard\u2011coded DataFrame\
+    \ instead of invoking a synthetic generator, and the required `dataset.schema.yaml`\
+    \ file is missing, so we cannot confirm the DataFrame matches the schema. Both\
+    \ the generator call and the schema reference are absent."
+T022:
+  c: false
+  h: bc64d51f57db46d82e957d2b594f9c67578cc5b1c25d4bbf89d9307467bf6166
+  r: "The repository lacks the required `model_result.schema.yaml` file, and the `train_random_forest`\
+    \ implementation does not compute or return real cross\u2011validation metrics\
+    \ (it uses a placeholder `metric_value: 0.0` and no CV logic). Consequently the\
+    \ function\u2019s output does not meet the schema\u2011compliant metric requirement."

@@ -1,19 +1,15 @@
-"""
-Custom exceptions for the research pipeline.
-"""
-
 class PowerLimitationError(Exception):
-    """Raised when statistical power is insufficient for the analysis."""
+    """Raised when sample size is insufficient for statistical power."""
     pass
 
 class MathematicalCouplingError(Exception):
-    """Raised when mathematical coupling is detected between variables."""
+    """Raised when variables are mathematically coupled (e.g., identical or derived from each other)."""
     pass
 
 class DataValidationError(Exception):
-    """Raised when data validation fails."""
+    """Raised when data validation fails (schema, types, etc.)."""
     pass
 
 class ConfigurationError(Exception):
-    """Raised when configuration is invalid."""
+    """Raised when configuration is invalid or missing."""
     pass

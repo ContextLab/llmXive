@@ -1,52 +1,62 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: MetabolomicProfile
 description: >-
-  Schema for a single plant metabolomic profile containing pre-stress and
-  post-stress metabolite abundances along with metadata required for
-  resilience analysis.
+  Schema for a single metabolomic profile representing a plant sample
+  under specific stress conditions with pre-stress and post-stress measurements.
 type: object
 required:
-  - accession_id
-  - organism
+  - sample_id
   - stress_type
-  - time_point
-  - metabolite_data
+  - pre_stress_metabolites
+  - post_stress_metabolites
+  - recovery_days
+  - recovery_metrics
 properties:
-  accession_id:
+  sample_id:
     type: string
-    description: Unique identifier for the sample (e.g., GEO accession).
-    minLength: 1
-  organism:
-    type: string
-    description: Scientific name of the plant (e.g., 'Arabidopsis thaliana').
-    minLength: 1
+    description: Unique identifier for the sample (e.g., GEO accession + sample index)
+    pattern: "^[A-Za-z0-9_-]+$"
   stress_type:
     type: string
-    description: Type of stress applied (e.g., 'drought', 'heat', 'salt').
+    description: Type of stress applied to the sample
     enum:
       - drought
       - heat
       - cold
       - salt
-      - oxidative
       - pathogen
-      - other
-  time_point:
-    type: string
-    description: Time relative to stress application (e.g., 'pre-stress', '7d_post', '14d_post').
-    minLength: 1
-  replicate_id:
-    type: string
-    description: Optional identifier for biological replicate.
-  metabolite_data:
+      - nutrient_deficiency
+  pre_stress_metabolites:
     type: object
     description: >-
-      Map of metabolite identifiers (KEGG ID or common name) to abundance values.
-      Values must be numeric.
+      Dictionary mapping metabolite names (or KEGG IDs) to their concentrations
+      measured before stress application.
     additionalProperties:
       type: number
+      minimum: 0
+  post_stress_metabolites:
+    type: object
+    description: >-
+      Dictionary mapping metabolite names (or KEGG IDs) to their concentrations
+      measured after stress application.
+    additionalProperties:
+      type: number
+      minimum: 0
+  recovery_days:
+    type: number
+    description: Number of days between stress application and recovery measurement
+    minimum: 0
+  recovery_metrics:
+    type: object
+    description: >-
+      Dictionary of recovery measurements (biomass, survival rate, etc.)
+      used to calculate the RecoveryIndex.
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 100
   metadata:
     type: object
-    description: Optional free-form metadata fields.
+    description: Optional additional metadata (plant species, growth conditions, etc.)
     additionalProperties: true
 additionalProperties: false

@@ -5,3 +5,4 @@ requests==2.31.0
 biopython==1.81
 pyyaml==6.0.1
 pytest==7.4.0
+scipy>=1.10.0

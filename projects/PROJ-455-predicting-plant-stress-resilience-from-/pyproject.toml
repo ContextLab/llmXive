@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-plant-stress-resilience"
+name = "predict-plant-stress-resilience"
 version = "0.1.0"
-description = "Predicting Plant Stress Resilience from Publicly Available Metabolomic Data"
+description = "Predicting plant stress resilience from publicly available metabolomic data"
 requires-python = ">=3.11"
 dependencies = [
     "pandas==2.0.3",
@@ -19,10 +19,11 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "flake8>=6.0.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
-    "pytest-cov>=4.1.0",
+    "flake8==6.1.0",
+    "black==23.7.0",
+    "isort==5.12.0",
+    "pytest-cov==4.1.0",
+    "mypy==1.5.0",
 ]
 
 [tool.black]
@@ -40,24 +41,26 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | \.eggs
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["code", "tests"]
-known_third_party = ["pandas", "numpy", "sklearn", "requests", "Bio", "yaml", "pytest"]
+known_first_party = ["code", "tests", "contracts"]
+known_third_party = ["pandas", "numpy", "sklearn", "requests", "bio", "yaml", "pytest"]
+skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "build", "dist", ".eggs"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+strict_optional = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --strict-markers"
-markers = [
-    "unit: Unit tests",
-    "integration: Integration tests",
-    "contract: Contract tests",
-    "slow: Mark tests that take a long time",
-]
+addopts = "-v --tb=short"
