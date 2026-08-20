@@ -1,70 +1,13 @@
-# Python
+# Ignore large data files, caches, and logs
+data/
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
-venv/
-ENV/
-env/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
+*.pyc
 *.log
 
-# Data (general)
-data/
-
-# EXPLICITLY TRACK REQUIRED DATA DIRECTORIES
-# Constitution Principle V: Versioning Discipline
-# We MUST track configs, results, logs, and state
+# Explicitly track experiment metadata, results, logs, and versioning artifacts
+# Constitution Principle IV (Reproducibility) and V (Versioning Discipline)
 !data/configs/
-!data/configs/*
 !data/results/
-!data/results/*
 !data/logs/
-!data/logs/*
 !state/
-!state/*
-
-# Ignore raw large data if needed, but keep processed
-# data/raw/*
-# data/interim/*
-
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/
-
-# Environment variables
-.env
-
-# Jupyter
-.ipynb_checkpoints
+state/

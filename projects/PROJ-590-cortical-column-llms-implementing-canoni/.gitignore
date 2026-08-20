@@ -1,45 +1,84 @@
-# Python bytecode and cache
-__pycache__/
-*.py[cod]
-*$py.class
-*.pyc
-*.pyo
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# Logs and temporary files
-*.log
-*.tmp
-*.temp
-.env
-.venv
-env/
-venv/
-ENV/
-
-# Data directory (large binary files, results, logs)
+# Data artifacts and logs (exclude large files, keep configs/results/logs tracked)
 data/
 !data/configs/
 !data/results/
 !data/logs/
 
-# State directory (tracked for versioning discipline)
-state/
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# IDE and editor files
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE and Editor files
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+.project
+.settings/
 
 # OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Build artifacts
-dist/
-build/
-*.egg-info/
-*.egg
+# Logs (general, but specific ones tracked above)
+*.log
+data/logs/
+!data/logs/
+
+# State directory (CRITICAL: Must be tracked for Constitution Principle V)
+state/
+!state/
+
+# Temporary files
+*.tmp
+temp/
+.tmp/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# MyPy cache
+.mypy_cache/
+.pytest_cache/
+
+# Ruff cache
+.ruff_cache/
+
+# Logs explicitly excluded from data/ but re-included if needed
+# (Handled by specific !data/logs/ above)

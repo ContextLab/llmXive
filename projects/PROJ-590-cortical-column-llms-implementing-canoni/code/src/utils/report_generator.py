@@ -1,234 +1,258 @@
 """
-Report generation utilities for the Cortical Column LLM project.
-
-This module provides functions to generate analysis reports, including
-the "cost of biological plausibility" curve derived from ablation studies.
+Report generation utilities for cost curve analysis and ablation summaries.
 """
-
 import json
 import os
 import logging
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
+import pandas as pd
+from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+from src.experiments.ablation import load_ablation_configs
+from src.utils.statistics import calculate_scaling_exponent
+
 logger = logging.getLogger(__name__)
 
-# Define the mapping of ablation flags to constraint names
-# These keys correspond to the boolean flags in the ablation configs
-CONSTRAINT_MAPPING = {
-    'no_recurrence': 'recurrence',
-    'no_inhibition': 'inhibition',
-    'no_homeostasis': 'homeostasis'
-}
-
-def load_ablation_results(filepath: str = "data/results/ablation_results.json") -> List[Dict[str, Any]]:
+def load_ablation_results(results_dir: str) -> List[Dict[str, Any]]:
     """
-    Load ablation results from a JSON file.
-
+    Load all ablation result JSON files from a directory.
+    
     Args:
-        filepath: Path to the ablation results JSON file.
-
+        results_dir: Path to directory containing result JSON files.
+        
     Returns:
-        List of result dictionaries.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
+        List of dictionaries containing ablation results.
     """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Ablation results file not found: {filepath}")
+    results = []
+    results_path = Path(results_dir)
+    
+    if not results_path.exists():
+        logger.warning(f"Results directory does not exist: {results_dir}")
+        return results
+        
+    for json_file in results_path.glob("*.json"):
+        try:
+            with open(json_file, 'r') as f:
+                result = json.load(f)
+                result['_source_file'] = json_file.name
+                results.append(result)
+        except (json.JSONDecodeError, IOError) as e:
+            logger.error(f"Failed to load {json_file}: {e}")
+            
+    return results
 
-    with open(filepath, 'r') as f:
-        data = json.load(f)
-
-    # Handle schema variations: {"results": [...]} or direct list
-    if isinstance(data, dict) and 'results' in data:
-        return data['results']
-    elif isinstance(data, list):
-        return data
-    else:
-        raise ValueError(f"Unexpected ablation results schema: {type(data)}")
-
-def load_ablation_stats(filepath: str = "data/results/ablation_stats.json") -> Optional[Dict[str, Any]]:
+def load_ablation_stats(results_dir: str) -> Dict[str, Any]:
     """
-    Load ablation statistics from a JSON file.
-
+    Aggregate statistics from ablation results.
+    
     Args:
-        filepath: Path to the ablation stats JSON file.
-
+        results_dir: Path to directory containing result JSON files.
+        
     Returns:
-        Dictionary of statistics or None if file missing.
+        Dictionary with aggregated statistics.
     """
-    if not os.path.exists(filepath):
-        logger.warning(f"Ablation stats file not found: {filepath}")
-        return None
-
-    with open(filepath, 'r') as f:
-        return json.load(f)
-
-def count_active_constraints(flags: Dict[str, bool]) -> int:
-    """
-    Count the number of active biological constraints based on ablation flags.
-
-    A constraint is considered 'active' if its corresponding 'no_' flag is False.
-    For example, if 'no_recurrence' is False, then 'recurrence' is active.
-
-    Args:
-        flags: Dictionary of boolean flags from ablation config.
-
-    Returns:
-        Integer count of active constraints.
-    """
-    count = 0
-    for flag_key, constraint_name in CONSTRAINT_MAPPING.items():
-        # If the flag exists and is False, the constraint is active
-        if flag_key in flags and not flags[flag_key]:
-            count += 1
-        # If the flag is missing, we assume the constraint is active by default (full model)
-        elif flag_key not in flags:
-            count += 1
-    return count
-
-def generate_cost_curve(ablation_results_path: str = "data/results/ablation_results.json",
-                        output_path: str = "data/results/cost_curve.json") -> Dict[str, Any]:
-    """
-    Generate the "cost of biological plausibility" curve data.
-
-    This function processes ablation study results to create a mapping of
-    (number of active constraints) -> (MAE, Time).
-
-    The output JSON schema is:
-    {
-        "points": [
-            {
-                "constraints": ["recurrence", "inhibition", "homeostasis"],
-                "constraint_count": 3,
-                "mae": 0.0123,
-                "time": 123.45
-            },
-            ...
-        ],
-        "summary": {
-            "full_model_mae": float,
-            "ablated_min_mae": float,
-            "max_cost": float
-        }
-    }
-
-    Args:
-        ablation_results_path: Path to the ablation results JSON.
-        output_path: Path where the cost curve JSON will be written.
-
-    Returns:
-        The generated cost curve dictionary.
-
-    Raises:
-        FileNotFoundError: If ablation results are missing.
-        ValueError: If data is inconsistent.
-    """
-    logger.info(f"Loading ablation results from {ablation_results_path}")
-    results = load_ablation_results(ablation_results_path)
-
+    results = load_ablation_results(results_dir)
+    
     if not results:
-        raise ValueError("Ablation results list is empty. Cannot generate cost curve.")
+        return {}
+        
+    stats = {
+        'count': len(results),
+        'configs': [],
+        'metrics': {},
+        'parameter_counts': [],
+        'training_times': [],
+        'mae_scores': []
+    }
+    
+    for r in results:
+        if 'config' in r:
+            stats['configs'].append(r['config'])
+        if 'metrics' in r:
+            stats['metrics'].update(r['metrics'])
+        if 'parameter_count' in r:
+            stats['parameter_counts'].append(r['parameter_count'])
+        if 'training_time' in r:
+            stats['training_times'].append(r['training_time'])
+        if 'mae' in r:
+            stats['mae_scores'].append(r['mae'])
+            
+    return stats
 
-    cost_curve_points = []
+def count_active_constraints(config: Dict[str, Any]) -> int:
+    """
+    Count the number of active constraints in an ablation configuration.
+    
+    Args:
+        config: Ablation configuration dictionary.
+        
+    Returns:
+        Number of active constraints.
+    """
+    active_count = 0
+    
+    # Check common constraint fields
+    constraint_fields = [
+        'ei_balance_enabled',
+        'homeostatic_scaling',
+        'laminar_connectivity',
+        'local_inhibition',
+        'synaptic_scaling',
+        'gradient_clipping',
+        'activity_regulation'
+    ]
+    
+    for field in constraint_fields:
+        if config.get(field, False):
+            active_count += 1
+            
+    # Also check for explicit constraints list
+    if 'constraints' in config and isinstance(config['constraints'], list):
+        active_count += len([c for c in config['constraints'] if c.get('enabled', False)])
+        
+    return active_count
 
-    # Process each result
-    for result in results:
-        variant_name = result.get('variant', 'unknown')
-        mae = result.get('mae')
-        time_taken = result.get('time')
-
-        if mae is None or time_taken is None:
-            logger.warning(f"Skipping result '{variant_name}' due to missing metrics.")
-            continue
-
-        # Determine active constraints
-        # The result usually comes with the flags used, or we infer from variant name
-        # Assuming the result dict contains the flags used for this variant
-        flags = result.get('flags', {})
-
-        # If flags are not present in result, try to infer from variant name (fallback)
-        if not flags:
-            # Heuristic: if variant is 'full', all active. If 'no_recurrence', etc.
-            flags = {}
-            if 'full' in variant_name.lower():
-                flags = {k: False for k in CONSTRAINT_MAPPING.keys()} # All False = all active
-            else:
-                # Infer from name: 'no_recurrence' -> no_recurrence=True
-                for key in CONSTRAINT_MAPPING.keys():
-                    if key in variant_name.lower():
-                        flags[key] = True
-                    else:
-                        flags[key] = False
-
-        active_count = count_active_constraints(flags)
-        active_constraints_list = [
-            CONSTRAINT_MAPPING[k] for k, v in flags.items()
-            if not v and k in CONSTRAINT_MAPPING
-        ]
-        # Add any default constraints if flags were missing (handled in count_active_constraints logic implicitly, but explicit here for list)
-        # If flags were missing in result, we assumed full in the fallback, so list should be all
-        if not active_constraints_list and flags:
-             # This case happens if flags exist but don't match mapping keys exactly
-             active_constraints_list = list(CONSTRAINT_MAPPING.values()) # Fallback to all if ambiguous
-
-        point = {
-            "constraints": active_constraints_list,
-            "constraint_count": active_count,
-            "mae": float(mae),
-            "time": float(time_taken)
+def generate_cost_curve_data(
+    ablation_results_dir: str,
+    scaling_results_dir: str,
+    output_path: str
+) -> str:
+    """
+    Generate cost curve data combining ablation and scaling study results.
+    
+    This function creates a CSV file containing:
+    - Model size (parameter count)
+    - Training cost (time)
+    - Performance (MAE)
+    - Number of active biological constraints
+    - Scaling exponent estimates
+    
+    Args:
+        ablation_results_dir: Directory containing ablation study results.
+        scaling_results_dir: Directory containing scaling study results.
+        output_path: Path for the output CSV file.
+        
+    Returns:
+        Path to the generated CSV file.
+    """
+    # Load ablation results
+    ablation_stats = load_ablation_stats(ablation_results_dir)
+    ablation_results = load_ablation_results(ablation_results_dir)
+    
+    # Load scaling results
+    scaling_results = []
+    scaling_path = Path(scaling_results_dir)
+    if scaling_path.exists():
+        for json_file in scaling_path.glob("*.json"):
+            try:
+                with open(json_file, 'r') as f:
+                    result = json.load(f)
+                    scaling_results.append(result)
+            except (json.JSONDecodeError, IOError) as e:
+                logger.error(f"Failed to load scaling result {json_file}: {e}")
+    
+    # Build cost curve data
+    cost_curve_data = []
+    
+    # Process ablation results
+    for result in ablation_results:
+        config = result.get('config', {})
+        constraints_count = count_active_constraints(config)
+        
+        row = {
+            'experiment_type': 'ablation',
+            'parameter_count': result.get('parameter_count', 0),
+            'training_time': result.get('training_time', 0),
+            'mae': result.get('mae', float('inf')),
+            'active_constraints': constraints_count,
+            'config_name': config.get('name', 'unknown'),
+            'scaling_exponent': None
         }
-        cost_curve_points.append(point)
-
-    # Sort by constraint count for logical ordering
-    cost_curve_points.sort(key=lambda x: x['constraint_count'])
-
-    # Calculate summary stats
-    full_model = next((p for p in cost_curve_points if p['constraint_count'] == len(CONSTRAINT_MAPPING)), None)
-    ablated_models = [p for p in cost_curve_points if p['constraint_count'] < len(CONSTRAINT_MAPPING)]
-
-    summary = {
-        "full_model_mae": full_model['mae'] if full_model else None,
-        "ablated_min_mae": min(p['mae'] for p in ablated_models) if ablated_models else None,
-        "max_cost": None
-    }
-
-    if summary['full_model_mae'] and summary['ablated_min_mae']:
-        # Cost is the increase in error (MAE) when adding constraints
-        summary['max_cost'] = summary['full_model_mae'] - summary['ablated_min_mae']
-
-    output_data = {
-        "points": cost_curve_points,
-        "summary": summary
-    }
-
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    logger.info(f"Writing cost curve to {output_path}")
-    with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
-
-    return output_data
+        
+        # Try to calculate scaling exponent if we have multiple results
+        if len(ablation_results) > 1:
+            try:
+                params = [r.get('parameter_count', 0) for r in ablation_results]
+                maes = [r.get('mae', 0) for r in ablation_results]
+                if all(p > 0 for p in params) and all(m < float('inf') for m in maes):
+                    exp = calculate_scaling_exponent(params, maes)
+                    row['scaling_exponent'] = exp
+            except Exception as e:
+                logger.warning(f"Could not calculate scaling exponent: {e}")
+                
+        cost_curve_data.append(row)
+    
+    # Process scaling results
+    for result in scaling_results:
+        config = result.get('config', {})
+        constraints_count = count_active_constraints(config)
+        
+        row = {
+            'experiment_type': 'scaling',
+            'parameter_count': result.get('parameter_count', 0),
+            'training_time': result.get('training_time', 0),
+            'mae': result.get('mae', float('inf')),
+            'active_constraints': constraints_count,
+            'config_name': config.get('name', 'unknown'),
+            'scaling_exponent': result.get('scaling_exponent', None)
+        }
+        
+        cost_curve_data.append(row)
+    
+    # Convert to DataFrame and save
+    if cost_curve_data:
+        df = pd.DataFrame(cost_curve_data)
+        
+        # Sort by parameter count
+        df = df.sort_values('parameter_count')
+        
+        # Ensure output directory exists
+        output_path_obj = Path(output_path)
+        output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Save to CSV
+        df.to_csv(output_path, index=False)
+        logger.info(f"Cost curve data saved to {output_path}")
+        
+        # Log summary statistics
+        logger.info(f"Generated {len(df)} cost curve entries")
+        logger.info(f"Parameter range: {df['parameter_count'].min()} - {df['parameter_count'].max()}")
+        logger.info(f"MAE range: {df['mae'].min():.4f} - {df['mae'].max():.4f}")
+        
+        return output_path
+    else:
+        logger.warning("No cost curve data generated - no results found")
+        # Create empty file with headers
+        output_path_obj = Path(output_path)
+        output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            f.write("experiment_type,parameter_count,training_time,mae,active_constraints,config_name,scaling_exponent\n")
+        return output_path
 
 def main():
-    """
-    Main entry point for generating the cost curve report.
-    """
-    logger.info("Starting cost curve generation...")
-    try:
-        result = generate_cost_curve()
-        logger.info(f"Cost curve generation successful. Summary: {result['summary']}")
-        print(json.dumps(result, indent=2))
-    except Exception as e:
-        logger.error(f"Cost curve generation failed: {e}", exc_info=True)
-        raise
+    """Main entry point for cost curve generation."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Generate cost curve data from ablation and scaling studies')
+    parser.add_argument('--ablation-dir', type=str, default='data/results/ablation',
+                      help='Directory containing ablation results')
+    parser.add_argument('--scaling-dir', type=str, default='data/results/scaling',
+                      help='Directory containing scaling results')
+    parser.add_argument('--output', type=str, default='data/results/cost_curve.csv',
+                      help='Output CSV file path')
+    
+    args = parser.parse_args()
+    
+    logging.basicConfig(level=logging.INFO)
+    
+    output_path = generate_cost_curve_data(
+        args.ablation_dir,
+        args.scaling_dir,
+        args.output
+    )
+    
+    print(f"Cost curve data generated at: {output_path}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

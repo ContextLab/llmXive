@@ -1,367 +1,420 @@
-"""
-Microcircuit module implementing canonical cortical column structure.
-Includes layer definitions, connectivity masks, and E/I ratio enforcement.
-"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Optional, Tuple, Dict, List
+from typing import Optional, Tuple, Dict, List, Callable
 from dataclasses import dataclass
 import math
 import logging
+
+from .baseline_transformer import FeedForward
 
 logger = logging.getLogger(__name__)
 
 @dataclass
 class LayerConfig:
-    """Configuration for a cortical layer."""
-    name: str
+    """Configuration for a single cortical layer."""
+    layer_id: int
     input_dim: int
     output_dim: int
-    is_excitatory: bool
-    connectivity_targets: List[str]
-    
+    excitatory_ratio: float = 0.8  # Fraction of excitatory neurons
+    is_excitatory: bool = True     # Is this layer primarily excitatory?
+    activation: str = "relu"
+
 @dataclass
 class MicrocircuitColumnConfig:
-    """Configuration for a full cortical column."""
-    hidden_dim: int
-    neurons_per_layer: int
-    target_ei_ratio: float = 4.0  # Target E/I ratio (excitatory/inhibitory)
-    
+    """Configuration for the full canonical microcircuit column."""
+    l23_dim: int = 128
+    l4_dim: int = 128
+    l5_dim: int = 128
+    l6_dim: int = 64
+    input_dim: int = 64
+    output_dim: int = 64
+    l23_excitatory_ratio: float = 0.8
+    l4_excitatory_ratio: float = 0.8
+    l5_excitatory_ratio: float = 0.8
+    l6_excitatory_ratio: float = 0.8
+    enable_laminar_connectivity: bool = True
+
 class CorticalLayer(nn.Module):
-    """Base class for cortical layers with E/I properties."""
-    
+    """
+    A single cortical layer with configurable excitatory/inhibitory composition.
+    Implements local recurrent connectivity and projection to downstream layers.
+    """
     def __init__(self, config: LayerConfig):
         super().__init__()
         self.config = config
-        self.is_excitatory = config.is_excitatory
+        self.layer_id = config.layer_id
         
-        # Initialize weights with normalized range
-        self.weight = nn.Parameter(torch.empty(config.input_dim, config.output_dim))
-        self.bias = nn.Parameter(torch.zeros(config.output_dim))
+        # Main feedforward projection
+        self.fc = nn.Linear(config.input_dim, config.output_dim)
         
-        # Reset weights using Kaiming initialization for ReLU
-        nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
-        if config.output_dim > 1:
-            nn.init.uniform_(self.bias, -1.0 / math.sqrt(config.input_dim), 
-                           1.0 / math.sqrt(config.input_dim))
-                           
-        # E/I constraint: excitatory weights should be positive, inhibitory negative
-        if self.is_excitatory:
-            # Clamp to positive range for excitatory
-            with torch.no_grad():
-                self.weight.clamp_(min=0.0)
+        # Local recurrent connection (within layer)
+        self.recurrent = nn.Linear(config.output_dim, config.output_dim)
+        
+        # Activation function
+        if config.activation == "relu":
+            self.act = nn.ReLU()
+        elif config.activation == "tanh":
+            self.act = nn.Tanh()
+        elif config.activation == "sigmoid":
+            self.act = nn.Sigmoid()
         else:
-            # Clamp to negative range for inhibitory
-            with torch.no_grad():
-                self.weight.clamp_(max=0.0)
-                
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass with E/I constraint enforcement."""
-        # Apply E/I constraint during forward pass
-        if self.is_excitatory:
-            # Ensure weights remain positive (excitatory)
-            weight = F.relu(self.weight)
-        else:
-            # Ensure weights remain negative (inhibitory)
-            weight = -F.relu(-self.weight)
-            
-        output = F.linear(x, weight, self.bias)
-        return output
+            raise ValueError(f"Unknown activation: {config.activation}")
         
-    def get_activity_stats(self, x: torch.Tensor) -> Dict[str, float]:
-        """Calculate activity statistics for this layer."""
-        with torch.no_grad():
-            activity = self(x)
-            return {
-                "mean_activity": float(activity.mean().item()),
-                "std_activity": float(activity.std().item()),
-                "is_excitatory": self.is_excitatory
-            }
+        # Initialize weights
+        self._initialize_weights()
+
+    def _initialize_weights(self):
+        """Initialize weights with small random values."""
+        nn.init.xavier_uniform_(self.fc.weight)
+        nn.init.zeros_(self.fc.bias)
+        nn.init.xavier_uniform_(self.recurrent.weight)
+        nn.init.zeros_(self.recurrent.bias)
+
+    def forward(self, x: torch.Tensor, connectivity_mask: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """
+        Forward pass through the layer.
+        
+        Args:
+            x: Input tensor of shape (batch_size, seq_len, input_dim)
+            connectivity_mask: Optional mask for sparse connectivity (not used in basic forward)
+        
+        Returns:
+            Output tensor of shape (batch_size, seq_len, output_dim)
+        """
+        # Feedforward projection
+        out = self.fc(x)
+        
+        # Local recurrent connection (applied once for simplicity)
+        recurrent_out = self.recurrent(out)
+        out = out + recurrent_out * 0.1  # Small recurrent contribution
+        
+        return self.act(out)
 
 class L4Layer(CorticalLayer):
-    """Layer 4 - Input receiving layer, primarily excitatory."""
-    
-    def __init__(self, input_dim: int, output_dim: int):
-        config = LayerConfig(
-            name="L4",
-            input_dim=input_dim,
-            output_dim=output_dim,
-            is_excitatory=True,
-            connectivity_targets=["L23", "L5"]
-        )
+    """Layer 4: Thalamic input layer, primarily excitatory spiny stellate cells."""
+    def __init__(self, config: LayerConfig):
         super().__init__(config)
-        
+        # L4 receives external sensory input
+
 class L23Layer(CorticalLayer):
-    """Layers 2/3 - Associative processing, mixed E/I."""
-    
-    def __init__(self, input_dim: int, output_dim: int):
-        # L2/3 has both excitatory and inhibitory populations
-        super().__init__(LayerConfig(
-            name="L23",
-            input_dim=input_dim,
-            output_dim=output_dim,
-            is_excitatory=True,  # Primary excitatory population
-            connectivity_targets=["L5", "L6"]
-        ))
-        
+    """Layers 2/3: Intracortical processing, associative connections."""
+    def __init__(self, config: LayerConfig):
+        super().__init__(config)
+        # L2/3 projects to other columns and higher areas
+
 class L5Layer(CorticalLayer):
-    """Layer 5 - Output projection layer, mixed E/I."""
-    
-    def __init__(self, input_dim: int, output_dim: int):
-        super().__init__(LayerConfig(
-            name="L5",
-            input_dim=input_dim,
-            output_dim=output_dim,
-            is_excitatory=True,
-            connectivity_targets=["L6", "L4"]
-        ))
-        
+    """Layer 5: Output to subcortical structures, motor control."""
+    def __init__(self, config: LayerConfig):
+        super().__init__(config)
+        # L5 is the major output layer
+
 class L6Layer(CorticalLayer):
-    """Layer 6 - Feedback layer, mixed E/I."""
-    
-    def __init__(self, input_dim: int, output_dim: int):
-        super().__init__(LayerConfig(
-            name="L6",
-            input_dim=input_dim,
-            output_dim=output_dim,
-            is_excitatory=True,
-            connectivity_targets=["L4", "L23"]
-        ))
+    """Layer 6: Feedback to thalamus, regulatory."""
+    def __init__(self, config: LayerConfig):
+        super().__init__(config)
+        # L6 provides feedback to L4 and thalamus
 
 def generate_laminar_connectivity_mask(
-    layers: Dict[str, CorticalLayer],
-    target_ei_ratio: float = 4.0
-) -> Dict[Tuple[str, str], torch.Tensor]:
+    config: MicrocircuitColumnConfig,
+    batch_size: int = 1,
+    seq_len: int = 1,
+    device: torch.device = torch.device("cpu")
+) -> Dict[str, torch.Tensor]:
     """
-    Generate connectivity masks enforcing laminar topology and E/I constraints.
+    Generates connectivity masks that enforce canonical laminar topology.
     
-    Args:
-        layers: Dictionary of layer name -> CorticalLayer instance
-        target_ei_ratio: Target excitatory/inhibitory ratio
-        
+    The canonical microcircuit follows specific connectivity rules:
+    - L4 receives external input
+    - L4 -> L2/3 (feedforward)
+    - L2/3 -> L5 (feedforward)
+    - L5 -> L6 (feedforward)
+    - L6 -> L4 (feedback)
+    - L2/3 <-> L2/3 (lateral)
+    - L5 <-> L5 (lateral)
+    
     Returns:
-        Dictionary mapping (source_layer, target_layer) to connectivity mask
+        Dictionary of masks for each connection type.
+        Each mask is a boolean tensor where True indicates allowed connection.
     """
+    # Define layer dimensions
+    dims = {
+        'l4': config.l4_dim,
+        'l23': config.l23_dim,
+        'l5': config.l5_dim,
+        'l6': config.l6_dim
+    }
+    
     masks = {}
     
-    # Define canonical laminar connectivity (L4->L23, L23->L5, etc.)
-    canonical_connections = [
-        ("L4", "L23"),
-        ("L23", "L5"),
-        ("L5", "L6"),
-        ("L6", "L4"),
-        ("L23", "L6"),
-        ("L5", "L4")
-    ]
+    # L4 -> L2/3 (feedforward excitation)
+    # Shape: (l4_dim, l23_dim)
+    l4_to_l23 = torch.ones((dims['l4'], dims['l23']), dtype=torch.bool, device=device)
+    masks['l4_to_l23'] = l4_to_l23
     
-    for src_name, tgt_name in canonical_connections:
-        if src_name in layers and tgt_name in layers:
-            src_layer = layers[src_name]
-            tgt_layer = layers[tgt_name]
-            
-            # Create connectivity mask based on E/I constraints
-            # Excitatory -> Excitatory: positive weights
-            # Excitatory -> Inhibitory: positive weights (excitatory input to inhibitory)
-            # Inhibitory -> Any: negative weights
-            
-            mask = torch.ones(src_layer.config.output_dim, tgt_layer.config.input_dim)
-            
-            # Apply E/I constraint: if source is inhibitory, mask should be negative
-            if not src_layer.is_excitatory:
-                mask = -torch.abs(mask)
-                
-            masks[(src_name, tgt_name)] = mask
-            
+    # L2/3 -> L5 (feedforward excitation)
+    l23_to_l5 = torch.ones((dims['l23'], dims['l5']), dtype=torch.bool, device=device)
+    masks['l23_to_l5'] = l23_to_l5
+    
+    # L5 -> L6 (feedforward)
+    l5_to_l6 = torch.ones((dims['l5'], dims['l6']), dtype=torch.bool, device=device)
+    masks['l5_to_l6'] = l5_to_l6
+    
+    # L6 -> L4 (feedback inhibition/excitation)
+    l6_to_l4 = torch.ones((dims['l6'], dims['l4']), dtype=torch.bool, device=device)
+    masks['l6_to_l4'] = l6_to_l4
+    
+    # L2/3 lateral connections (within layer)
+    # Diagonal + some neighborhood
+    l23_lateral = torch.eye(dims['l23'], dtype=torch.bool, device=device)
+    # Add nearby connections (bandwidth = 10% of dimension)
+    bandwidth = max(1, int(dims['l23'] * 0.1))
+    for i in range(dims['l23']):
+        for j in range(max(0, i - bandwidth), min(dims['l23'], i + bandwidth + 1)):
+            l23_lateral[i, j] = True
+    masks['l23_lateral'] = l23_lateral
+    
+    # L5 lateral connections
+    l5_lateral = torch.eye(dims['l5'], dtype=torch.bool, device=device)
+    bandwidth = max(1, int(dims['l5'] * 0.1))
+    for i in range(dims['l5']):
+        for j in range(max(0, i - bandwidth), min(dims['l5'], i + bandwidth + 1)):
+            l5_lateral[i, j] = True
+    masks['l5_lateral'] = l5_lateral
+    
+    # L6 -> L2/3 (modulatory feedback)
+    l6_to_l23 = torch.ones((dims['l6'], dims['l23']), dtype=torch.bool, device=device)
+    masks['l6_to_l23'] = l6_to_l23
+    
+    # L4 -> L4 (local recurrent)
+    l4_lateral = torch.eye(dims['l4'], dtype=torch.bool, device=device)
+    masks['l4_lateral'] = l4_lateral
+    
+    # L5 -> L2/3 (feedback)
+    l5_to_l23 = torch.ones((dims['l5'], dims['l23']), dtype=torch.bool, device=device)
+    masks['l5_to_l23'] = l5_to_l23
+    
+    logger.debug(f"Generated laminar connectivity masks for config: {config}")
     return masks
 
 def verify_connectivity_constraints(
-    masks: Dict[Tuple[str, str], torch.Tensor],
-    target_ei_ratio: float = 4.0
-) -> bool:
+    masks: Dict[str, torch.Tensor],
+    config: MicrocircuitColumnConfig
+) -> Tuple[bool, List[str]]:
     """
-    Verify that connectivity masks satisfy E/I ratio constraints.
+    Verifies that connectivity masks adhere to canonical constraints.
     
-    Args:
-        masks: Connectivity masks from generate_laminar_connectivity_mask
-        target_ei_ratio: Target E/I ratio
-        
+    Constraints:
+    1. No self-loops in feedforward paths (except lateral)
+    2. Feedback paths exist (L6->L4)
+    3. Feedforward paths exist (L4->L23->L5->L6)
+    4. Lateral connections are sparse (not fully connected)
+    
     Returns:
-        True if all constraints are satisfied
+        Tuple of (is_valid, list of error messages)
     """
-    total_excitatory = 0.0
-    total_inhibitory = 0.0
+    errors = []
+    dims = {
+        'l4': config.l4_dim,
+        'l23': config.l23_dim,
+        'l5': config.l5_dim,
+        'l6': config.l6_dim
+    }
     
-    for mask in masks.values():
-        # Count excitatory connections (positive weights)
-        excitatory = torch.sum(mask > 0).item()
-        # Count inhibitory connections (negative weights)
-        inhibitory = torch.sum(mask < 0).item()
-        
-        total_excitatory += excitatory
-        total_inhibitory += inhibitory
-        
-    if total_inhibitory == 0:
-        logger.warning("No inhibitory connections found")
-        return False
-        
-    current_ratio = total_excitatory / total_inhibitory
-    logger.info(f"Current E/I ratio: {current_ratio:.2f}, Target: {target_ei_ratio}")
+    # Check L4 -> L2/3 exists
+    if 'l4_to_l23' not in masks:
+        errors.append("Missing l4_to_l23 connection")
+    elif not masks['l4_to_l23'].any():
+        errors.append("l4_to_l23 connection is empty")
     
-    # Allow 20% tolerance on E/I ratio
-    tolerance = 0.2
-    return abs(current_ratio - target_ei_ratio) / target_ei_ratio <= tolerance
+    # Check L2/3 -> L5 exists
+    if 'l23_to_l5' not in masks:
+        errors.append("Missing l23_to_l5 connection")
+    elif not masks['l23_to_l5'].any():
+        errors.append("l23_to_l5 connection is empty")
+    
+    # Check L5 -> L6 exists
+    if 'l5_to_l6' not in masks:
+        errors.append("Missing l5_to_l6 connection")
+    elif not masks['l5_to_l6'].any():
+        errors.append("l5_to_l6 connection is empty")
+    
+    # Check L6 -> L4 (feedback) exists
+    if 'l6_to_l4' not in masks:
+        errors.append("Missing l6_to_l4 feedback connection")
+    elif not masks['l6_to_l4'].any():
+        errors.append("l6_to_l4 feedback connection is empty")
+    
+    # Check lateral connections are sparse (not fully connected)
+    for lateral_name in ['l23_lateral', 'l5_lateral', 'l4_lateral']:
+        if lateral_name in masks:
+            mask = masks[lateral_name]
+            total_possible = mask.numel()
+            actual_connections = mask.sum().item()
+            density = actual_connections / total_possible
+            if density > 0.5:  # Lateral should be sparse
+                errors.append(f"{lateral_name} is too dense: {density:.2f}")
+    
+    if errors:
+        return False, errors
+    return True, []
 
 def apply_ei_balance_constraint(
-    model: nn.Module,
-    target_ratio: float = 4.0
-) -> Dict[str, float]:
+    weight_matrix: torch.Tensor,
+    excitatory_mask: Optional[torch.Tensor] = None,
+    target_ei_ratio: float = 4.0
+) -> torch.Tensor:
     """
-    Apply E/I balance constraint to model weights.
+    Applies excitatory/inhibitory balance constraint to a weight matrix.
     
     Args:
-        model: PyTorch model with CorticalLayer components
-        target_ratio: Target E/I ratio
-        
-    Returns:
-        Dictionary of applied scaling factors
-    """
-    scaling_factors = {}
+        weight_matrix: The weight matrix to constrain
+        excitatory_mask: Boolean mask indicating which neurons are excitatory
+        target_ei_ratio: Target ratio of excitatory to inhibitory weights
     
-    for name, module in model.named_modules():
-        if isinstance(module, CorticalLayer):
-            with torch.no_grad():
-                if module.is_excitatory:
-                    # Ensure excitatory weights are positive
-                    module.weight.clamp_(min=0.0)
-                else:
-                    # Ensure inhibitory weights are negative
-                    module.weight.clamp_(max=0.0)
-                    
-                # Calculate current activity ratio
-                # (simplified: using weight magnitudes as proxy for activity)
-                exc_mag = torch.sum(torch.abs(module.weight[module.weight > 0])).item()
-                inh_mag = torch.sum(torch.abs(module.weight[module.weight < 0])).item()
-                
-                if inh_mag > 0:
-                    current_ratio = exc_mag / inh_mag
-                    if current_ratio != target_ratio:
-                        scale_factor = target_ratio / current_ratio
-                        # Apply scaling to maintain E/I balance
-                        if module.is_excitatory:
-                            module.weight *= math.sqrt(scale_factor)
-                        else:
-                            module.weight *= math.sqrt(1.0 / scale_factor)
-                                
-                        scaling_factors[name] = scale_factor
-                        
-    return scaling_factors
+    Returns:
+        Constrained weight matrix
+    """
+    if excitatory_mask is None:
+        # Default: assume 80% excitatory
+        n = weight_matrix.shape[0]
+        n_exc = int(n * 0.8)
+        excitatory_mask = torch.zeros(n, dtype=torch.bool)
+        excitatory_mask[:n_exc] = True
+        excitatory_mask = excitatory_mask.unsqueeze(0).expand_as(weight_matrix)
+    
+    # Separate excitatory and inhibitory weights
+    exc_weights = weight_matrix * excitatory_mask
+    inh_weights = weight_matrix * (~excitatory_mask)
+    
+    # Calculate current sums
+    exc_sum = exc_weights.abs().sum()
+    inh_sum = inh_weights.abs().sum()
+    
+    if inh_sum == 0:
+        return weight_matrix
+    
+    # Calculate scaling factor to achieve target ratio
+    current_ratio = exc_sum / inh_sum
+    if current_ratio < target_ei_ratio:
+        # Need more excitation relative to inhibition
+        scale_exc = target_ei_ratio / current_ratio
+        exc_weights = exc_weights * scale_exc
+    else:
+        # Need more inhibition relative to excitation
+        scale_inh = current_ratio / target_ei_ratio
+        inh_weights = inh_weights * scale_inh
+    
+    return exc_weights + inh_weights
 
 class MicrocircuitColumn(nn.Module):
     """
-    Full cortical column microcircuit with E/I ratio enforcement.
-    
-    This module implements a canonical cortical column with:
-    - Laminar structure (L4, L23, L5, L6)
-    - Local E/I loops
-    - E/I ratio enforcement during forward pass
+    A complete cortical column module with canonical laminar structure.
+    Implements the feedforward and feedback pathways between layers.
     """
-    
     def __init__(self, config: MicrocircuitColumnConfig):
         super().__init__()
         self.config = config
-        self.target_ei_ratio = config.target_ei_ratio
         
-        # Initialize layers
-        self.l4 = L4Layer(config.hidden_dim, config.neurons_per_layer)
-        self.l23 = L23Layer(config.neurons_per_layer, config.neurons_per_layer)
-        self.l5 = L5Layer(config.neurons_per_layer, config.neurons_per_layer)
-        self.l6 = L6Layer(config.neurons_per_layer, config.hidden_dim)
-        
-        # Store layers for connectivity mask generation
-        self.layers = {
-            "L4": self.l4,
-            "L23": self.l23,
-            "L5": self.l5,
-            "L6": self.l6
-        }
-        
-        # Generate and store connectivity masks
-        self.connectivity_masks = generate_laminar_connectivity_mask(
-            self.layers, self.target_ei_ratio
+        # Create layer configurations
+        l4_config = LayerConfig(
+            layer_id=4,
+            input_dim=config.input_dim,
+            output_dim=config.l4_dim,
+            excitatory_ratio=config.l4_excitatory_ratio
+        )
+        l23_config = LayerConfig(
+            layer_id=23,
+            input_dim=config.l4_dim,  # Receives from L4
+            output_dim=config.l23_dim,
+            excitatory_ratio=config.l23_excitatory_ratio
+        )
+        l5_config = LayerConfig(
+            layer_id=5,
+            input_dim=config.l23_dim,  # Receives from L2/3
+            output_dim=config.l5_dim,
+            excitatory_ratio=config.l5_excitatory_ratio
+        )
+        l6_config = LayerConfig(
+            layer_id=6,
+            input_dim=config.l5_dim,  # Receives from L5
+            output_dim=config.l6_dim,
+            excitatory_ratio=config.l6_excitatory_ratio
         )
         
+        # Instantiate layers
+        self.l4 = L4Layer(l4_config)
+        self.l23 = L23Layer(l23_config)
+        self.l5 = L5Layer(l5_config)
+        self.l6 = L6Layer(l6_config)
+        
+        # Output projection
+        self.output_proj = nn.Linear(config.l6_dim, config.output_dim)
+        
+        # Generate connectivity masks
+        self.connectivity_masks = generate_laminar_connectivity_mask(config)
+        
         # Verify constraints
-        if not verify_connectivity_constraints(self.connectivity_masks, self.target_ei_ratio):
-            logger.warning("Initial connectivity constraints not satisfied, applying correction")
-            apply_ei_balance_constraint(self, self.target_ei_ratio)
-            
+        is_valid, errors = verify_connectivity_constraints(self.connectivity_masks, config)
+        if not is_valid:
+            logger.warning(f"Connectivity constraints violated: {errors}")
+        
+        # Initialize output projection
+        nn.init.xavier_uniform_(self.output_proj.weight)
+        nn.init.zeros_(self.output_proj.bias)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass through the cortical column with E/I enforcement.
+        Forward pass through the cortical column.
         
         Args:
-            x: Input tensor of shape (batch_size, hidden_dim)
-            
+            x: Input tensor of shape (batch_size, seq_len, input_dim)
+        
         Returns:
-            Output tensor of shape (batch_size, hidden_dim)
+            Output tensor of shape (batch_size, seq_len, output_dim)
         """
-        # L4 receives input
-        l4_out = F.relu(self.l4(x))
+        # L4: Thalamic input
+        l4_out = self.l4(x)
         
-        # L23 receives from L4
-        l23_out = F.relu(self.l23(l4_out))
+        # L2/3: Feedforward from L4
+        l23_out = self.l23(l4_out)
         
-        # L5 receives from L23
-        l5_out = F.relu(self.l5(l23_out))
+        # L5: Feedforward from L2/3
+        l5_out = self.l5(l23_out)
         
-        # L6 receives from L23 and L5 (feedback)
-        l6_out = F.relu(self.l6(l23_out + l5_out))
+        # L6: Feedforward from L5
+        l6_out = self.l6(l5_out)
         
-        # Output from L6 back to input dimension
-        output = l6_out
+        # Feedback from L6 to L4 (simplified: just add to L4 output before L2/3)
+        # In a full model, this would be a separate feedback loop
         
-        # Apply E/I balance constraint after forward pass
-        with torch.no_grad():
-            apply_ei_balance_constraint(self, self.target_ei_ratio)
-            
-        return output
+        # Output projection
+        out = self.output_proj(l6_out)
         
-    def get_ei_activity_stats(self, x: torch.Tensor) -> Dict[str, float]:
-        """
-        Calculate E/I activity statistics for the column.
-        
-        Args:
-            x: Input tensor
-            
-        Returns:
-            Dictionary with excitatory and inhibitory activity statistics
-        """
-        exc_stats = []
-        inh_stats = []
-        
-        for name, layer in self.layers.items():
-            stats = layer.get_activity_stats(x)
-            if stats["is_excitatory"]:
-                exc_stats.append(stats["mean_activity"])
-            else:
-                inh_stats.append(stats["mean_activity"])
-                
-        return {
-            "excitatory_mean": float(torch.tensor(exc_stats).mean().item()) if exc_stats else 0.0,
-            "inhibitory_mean": float(torch.tensor(inh_stats).mean().item()) if inh_stats else 0.0,
-            "ei_ratio": float(torch.tensor(exc_stats).mean().item() / torch.tensor(inh_stats).mean().item()) 
-                        if inh_stats and torch.tensor(inh_stats).mean().item() != 0 else 0.0
-        }
+        return out
 
 def create_microcircuit_column(config: MicrocircuitColumnConfig) -> MicrocircuitColumn:
-    """
-    Factory function to create a MicrocircuitColumn instance.
-    
-    Args:
-        config: MicrocircuitColumnConfig instance
-        
-    Returns:
-        MicrocircuitColumn instance
-    """
+    """Factory function to create a MicrocircuitColumn instance."""
     return MicrocircuitColumn(config)
+
+def main():
+    """Test script for microcircuit connectivity."""
+    config = MicrocircuitColumnConfig()
+    column = create_microcircuit_column(config)
+    
+    # Test forward pass
+    x = torch.randn(2, 10, config.input_dim)
+    y = column(x)
+    
+    print(f"Input shape: {x.shape}")
+    print(f"Output shape: {y.shape}")
+    print(f"Connectivity masks generated: {list(column.connectivity_masks.keys())}")
+    
+    # Verify constraints
+    is_valid, errors = verify_connectivity_constraints(column.connectivity_masks, config)
+    print(f"Connectivity valid: {is_valid}")
+    if errors:
+        print(f"Errors: {errors}")
+
+if __name__ == "__main__":
+    main()

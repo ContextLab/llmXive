@@ -1,5 +1,7 @@
-project: PROJ-590-cortical-column-llms-implementing-canoni
-created_at: '2026-05-18T00:00:00'
-version: 0.1.0
-artifacts: []
-checksums: {}
+experiment_id: template
+created_at: '2024-01-01T00:00:00'
+version: 0.0.1
+parameters: {}
+metrics: {}
+status: initialized
+notes: Template state file for experiment tracking.

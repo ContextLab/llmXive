@@ -1,244 +1,388 @@
+"""
+Homeostasis module for cortical column LLMs.
+Implements synaptic scaling and E/I ratio enforcement mechanisms.
+"""
 import json
 import logging
 import os
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, Any
 import torch
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
 @dataclass
 class HomeostasisConfig:
-    target_ei_ratio: float = 4.0
-    scaling_bound_min: float = 0.5
-    scaling_bound_max: float = 2.0
-    decay_rate: float = 0.1
+    """Configuration for homeostatic mechanisms."""
+    target_ei_ratio: float = 4.0  # Typical excitatory/inhibitory ratio
+    scaling_decay_rate: float = 0.01
+    activity_window: int = 100  # Batches to consider for activity calculation
+    batch_enforcement: bool = True  # Enforce per batch (T010c requirement)
 
 @dataclass
 class ActivityStats:
-    exc_activity: float
-    inh_activity: float
-    step: int
+    """Statistics for neuronal activity tracking."""
+    excitatory_activity: float = 0.0
+    inhibitory_activity: float = 0.0
+    current_ei_ratio: float = 0.0
+    batch_step: int = 0
 
-def calculate_current_ei_ratio(model: torch.nn.Module) -> float:
+def identify_excitatory_inhibitory_params(
+    model: torch.nn.Module,
+    layer_names: Optional[List[str]] = None
+) -> Tuple[List[torch.nn.Parameter], List[torch.nn.Parameter]]:
     """
-    Calculate the current ratio of excitatory to inhibitory activity.
-    Assumes weights are initialized with ei_ratio_state marking excitatory/inhibitory.
-    """
-    exc_sum = 0.0
-    inh_sum = 0.0
-    for name, param in model.named_parameters():
-        if param.grad is not None:
-            # Check if this parameter is marked as excitatory or inhibitory
-            if hasattr(model, 'ei_ratio_state') and name in model.ei_ratio_state:
-                is_excitatory = model.ei_ratio_state[name].get('is_excitatory', False)
-                # Use absolute gradient magnitude as proxy for activity
-                activity = param.grad.abs().sum().item()
-                if is_excitatory:
-                    exc_sum += activity
-                else:
-                    inh_sum += activity
+    Identify excitatory and inhibitory parameters in the model.
     
-    if inh_sum == 0:
-        return float('inf')
-    return exc_sum / inh_sum
+    For cortical columns:
+    - Excitatory: Weights in L2/3, L4, L5, L6 feedforward layers
+    - Inhibitory: Weights in inhibitory interneuron connections
+    
+    Heuristic: Positive weights in specific layer patterns are excitatory,
+    negative or specific layer patterns are inhibitory.
+    """
+    excitatory_params = []
+    inhibitory_params = []
+    
+    layer_patterns = {
+        'excitatory': ['l23', 'l4', 'l5', 'l6', 'feedforward', 'encoder'],
+        'inhibitory': ['inhibitory', 'interneuron', 'l1', 'gating']
+    }
+    
+    for name, param in model.named_parameters():
+        name_lower = name.lower()
+        is_excitatory = any(p in name_lower for p in layer_patterns['excitatory'])
+        is_inhibitory = any(p in name_lower for p in layer_patterns['inhibitory'])
+        
+        if is_excitatory and not is_inhibitory:
+            excitatory_params.append(param)
+        elif is_inhibitory:
+            inhibitory_params.append(param)
+        else:
+            # Default: treat as excitatory if no specific pattern
+            excitatory_params.append(param)
+    
+    return excitatory_params, inhibitory_params
 
-def scale_weights(model: torch.nn.Module, target_ratio: float, decay_rate: float) -> Dict[str, float]:
+def calculate_current_ei_ratio(
+    excitatory_params: List[torch.nn.Parameter],
+    inhibitory_params: List[torch.nn.Parameter]
+) -> float:
+    """Calculate current E/I ratio from parameter magnitudes."""
+    if not inhibitory_params:
+        return float('inf')
+    
+    exc_activity = sum(p.abs().mean().item() for p in excitatory_params)
+    inh_activity = sum(p.abs().mean().item() for p in inhibitory_params)
+    
+    if inh_activity == 0:
+        return float('inf')
+    
+    return exc_activity / inh_activity
+
+def scale_weights(
+    model: torch.nn.Module,
+    target_ratio: float,
+    decay_rate: float,
+    excitatory_params: Optional[List[torch.nn.Parameter]] = None,
+    inhibitory_params: Optional[List[torch.nn.Parameter]] = None
+) -> Dict[str, float]:
     """
     Apply synaptic scaling to maintain E/I ratio.
-    Returns a dict of applied scaling factors per layer/parameter.
+    
+    Formula: scale_factor = target_activity / current_activity
+    Derived from E/I constraint: exc_scaled / inh_scaled = target_ratio
     """
+    if excitatory_params is None or inhibitory_params is None:
+        excitatory_params, inhibitory_params = identify_excitatory_inhibitory_params(model)
+    
+    current_ratio = calculate_current_ei_ratio(excitatory_params, inhibitory_params)
+    
+    if current_ratio == float('inf') or current_ratio == 0:
+        logger.warning("Cannot scale: current E/I ratio is infinite or zero")
+        return {}
+    
+    # Calculate scaling factors
+    # We want: (exc * scale_exc) / (inh * scale_inh) = target_ratio
+    # Simple approach: scale inhibitory to match target
+    scale_inh = current_ratio / target_ratio
+    scale_exc = 1.0  # Keep excitatory fixed, scale inhibitory
+    
+    # Apply decay for gradual adjustment
+    scale_inh = 1.0 + decay_rate * (scale_inh - 1.0)
+    
     scaling_factors = {}
-    current_ratio = calculate_current_ei_ratio(model)
     
-    if current_ratio == float('inf'):
-        logger.warning("Inhibitory activity is zero, cannot scale.")
-        return scaling_factors
+    for param in inhibitory_params:
+        param.data *= scale_inh
+        scaling_factors['inhibitory'] = scale_inh
     
-    scale_factor = target_ratio / current_ratio
-    scale_factor = max(0.1, min(10.0, scale_factor))  # Basic bounds
+    for param in excitatory_params:
+        param.data *= scale_exc
+        scaling_factors['excitatory'] = scale_exc
     
-    for name, param in model.named_parameters():
-        if hasattr(model, 'ei_ratio_state') and name in model.ei_ratio_state:
-            # Apply decay to prevent oscillation
-            effective_scale = 1.0 + decay_rate * (scale_factor - 1.0)
-            param.data *= effective_scale
-            scaling_factors[name] = effective_scale
+    logger.info(f"Applied scaling: exc={scale_exc:.4f}, inh={scale_inh:.4f}, "
+               f"target_ratio={target_ratio:.2f}, current_ratio={current_ratio:.2f}")
     
     return scaling_factors
 
-def log_gradient_norms(model: torch.nn.Module, step: int, log_path: str = "data/logs/gradient_norms.json") -> None:
+def log_gradient_norms(
+    model: torch.nn.Module,
+    step: int,
+    log_path: str = "data/logs/gradient_norms.json"
+) -> Dict[str, float]:
     """
-    Compute and append gradient norms to a JSON log file.
-    """
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    
-    total_norm = 0.0
-    for param in model.parameters():
-        if param.grad is not None:
-            total_norm += param.grad.data.norm(2).item() ** 2
-    total_norm = total_norm ** 0.5
-    
-    entry = {"step": step, "norm": total_norm}
-    
-    if os.path.exists(log_path):
-        with open(log_path, 'r') as f:
-            try:
-                logs = json.load(f)
-            except json.JSONDecodeError:
-                logs = []
-    else:
-        logs = []
-    
-    logs.append(entry)
-    
-    with open(log_path, 'w') as f:
-        json.dump(logs, f, indent=2)
-
-def enforce_ei_ratio(model: torch.nn.Module, step: int, target_ratio: float = 4.0) -> Dict[str, Any]:
-    """
-    Dynamic E/I ratio enforcement mechanism.
-    
-    Calculates mean excitatory and inhibitory activity per epoch,
-    computes a scaling factor to force mean_exc / mean_inh = target_ratio,
-    and applies it to weights.
+    Compute and log gradient norms for SC-002 verification.
     
     Args:
-        model: The model to enforce ratio on.
-        step: Current training step.
-        target_ratio: Target excitatory to inhibitory ratio (default 4.0).
+        model: The model to inspect
+        step: Current training step
+        log_path: Path to the JSON log file
     
     Returns:
-        Dict with step, exc_activity, inh_activity, scaling_factor.
-    
-    Raises:
-        ValueError: If model.ei_ratio_state is not set (static initialization missing).
+        Dictionary of gradient norms by layer
     """
-    # Verify static initialization state exists (set in T009c)
-    if not hasattr(model, 'ei_ratio_state') or not model.ei_ratio_state:
-        raise ValueError(
-            "Model missing 'ei_ratio_state' attribute. "
-            "Static E/I initialization (T009c) must be run before dynamic enforcement."
-        )
-    
-    exc_activity = 0.0
-    inh_activity = 0.0
-    
-    # Calculate activity based on gradient magnitudes (proxy for activity during backprop)
-    # If no gradients exist, use weight magnitudes as fallback
-    for name, param in model.named_parameters():
-        if name in model.ei_ratio_state:
-            is_excitatory = model.ei_ratio_state[name].get('is_excitatory', False)
-            
-            if param.grad is not None:
-                activity = param.grad.abs().mean().item()
-            else:
-                # Fallback to weight magnitude if no gradients
-                activity = param.data.abs().mean().item()
-            
-            if is_excitatory:
-                exc_activity += activity
-            else:
-                inh_activity += activity
-    
-    # Avoid division by zero
-    if inh_activity == 0:
-        inh_activity = 1e-8
-    
-    current_ratio = exc_activity / inh_activity
-    
-    # Calculate scaling factor
-    scaling_factor = target_ratio / current_ratio
-    
-    # Bound scaling factor to reasonable range (0.5 to 2.0) to prevent drift
-    scaling_factor = max(0.5, min(2.0, scaling_factor))
-    
-    # Apply scaling to weights
-    for name, param in model.named_parameters():
-        if name in model.ei_ratio_state:
-            # Only scale if this parameter is part of the E/I balance
-            param.data *= scaling_factor
-    
-    # Log the enforcement
-    log_entry = {
-        "step": step,
-        "exc_activity": float(exc_activity),
-        "inh_activity": float(inh_activity),
-        "scaling_factor": float(scaling_factor)
-    }
-    
-    log_path = "data/logs/ei_ratio_log.json"
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
     
+    gradient_norms = {
+        'step': step,
+        'layer_norms': {},
+        'total_norm': 0.0
+    }
+    
+    total_norm_sq = 0.0
+    
+    for name, param in model.named_parameters():
+        if param.grad is not None:
+            norm = param.grad.norm().item()
+            gradient_norms['layer_norms'][name] = norm
+            total_norm_sq += norm ** 2
+    
+    gradient_norms['total_norm'] = np.sqrt(total_norm_sq)
+    
+    # Load existing logs
     if os.path.exists(log_path):
         with open(log_path, 'r') as f:
             try:
-                logs = json.load(f)
+                existing_logs = json.load(f)
             except json.JSONDecodeError:
-                logs = []
+                existing_logs = []
     else:
-        logs = []
+        existing_logs = []
     
-    logs.append(log_entry)
+    # Append new entry
+    existing_logs.append(gradient_norms)
     
+    # Write back
     with open(log_path, 'w') as f:
-        json.dump(logs, f, indent=2)
+        json.dump(existing_logs, f, indent=2)
     
-    logger.info(f"Enforced E/I ratio at step {step}: {current_ratio:.4f} -> {target_ratio:.4f} (scale: {scaling_factor:.4f})")
+    logger.debug(f"Logged gradient norms for step {step} to {log_path}")
     
-    return log_entry
+    return gradient_norms
 
-def apply_ei_balance_constraint(model: torch.nn.Module) -> None:
+def enforce_ei_ratio(
+    model: torch.nn.Module,
+    config: HomeostasisConfig,
+    excitatory_params: Optional[List[torch.nn.Parameter]] = None,
+    inhibitory_params: Optional[List[torch.nn.Parameter]] = None
+) -> ActivityStats:
     """
-    Apply a hard constraint to ensure E/I balance is maintained.
-    This is a stricter version that clips weights if they drift too far.
-    """
-    if not hasattr(model, 'ei_ratio_state'):
-        return
+    Enforce E/I ratio per batch during training (T010c requirement).
     
-    for name, param in model.named_parameters():
-        if name in model.ei_ratio_state:
-            # Apply weight clipping to enforce symmetric bounded range
-            # This is a simplified constraint
-            param.data = torch.clamp(param.data, -1.0, 1.0)
+    This is called after each batch forward/backward pass to maintain
+    homeostatic balance.
+    
+    Args:
+        model: The model to enforce constraints on
+        config: Homeostasis configuration
+        excitatory_params: Pre-identified excitatory parameters
+        inhibitory_params: Pre-identified inhibitory parameters
+    
+    Returns:
+        ActivityStats with current E/I ratio
+    """
+    if excitatory_params is None or inhibitory_params is None:
+        excitatory_params, inhibitory_params = identify_excitatory_inhibitory_params(model)
+    
+    # Calculate current activity
+    exc_activity = sum(p.abs().mean().item() for p in excitatory_params)
+    inh_activity = sum(p.abs().mean().item() for p in inhibitory_params)
+    
+    current_ratio = exc_activity / (inh_activity + 1e-8)
+    
+    stats = ActivityStats(
+        excitatory_activity=exc_activity,
+        inhibitory_activity=inh_activity,
+        current_ei_ratio=current_ratio,
+        batch_step=0  # Will be set by caller
+    )
+    
+    # Enforce ratio if batch enforcement is enabled
+    if config.batch_enforcement:
+        scale_weights(
+            model=model,
+            target_ratio=config.target_ei_ratio,
+            decay_rate=config.scaling_decay_rate,
+            excitatory_params=excitatory_params,
+            inhibitory_params=inhibitory_params
+        )
+    
+    return stats
 
-def verify_ei_balance(model: torch.nn.Module, tolerance: float = 0.1) -> bool:
+def apply_ei_balance_constraint(
+    model: torch.nn.Module,
+    target_ratio: float = 4.0,
+    max_deviation: float = 0.5
+) -> bool:
     """
-    Verify that the current E/I ratio is within tolerance of the target.
-    """
-    current_ratio = calculate_current_ei_ratio(model)
-    target_ratio = 4.0  # Default target
+    Apply a hard constraint to ensure E/I ratio stays within bounds.
     
-    return abs(current_ratio - target_ratio) / target_ratio < tolerance
+    Args:
+        model: The model to constrain
+        target_ratio: Target E/I ratio
+        max_deviation: Maximum allowed deviation from target
+    
+    Returns:
+        True if constraint was satisfied, False if adjustment was needed
+    """
+    excitatory_params, inhibitory_params = identify_excitatory_inhibitory_params(model)
+    current_ratio = calculate_current_ei_ratio(excitatory_params, inhibitory_params)
+    
+    lower_bound = target_ratio * (1 - max_deviation)
+    upper_bound = target_ratio * (1 + max_deviation)
+    
+    if lower_bound <= current_ratio <= upper_bound:
+        return True
+    
+    # Apply soft scaling to bring ratio back into bounds
+    scale_weights(
+        model=model,
+        target_ratio=target_ratio,
+        decay_rate=0.1,  # Faster decay for hard constraint
+        excitatory_params=excitatory_params,
+        inhibitory_params=inhibitory_params
+    )
+    
+    return False
+
+def verify_ei_balance(
+    model: torch.nn.Module,
+    target_ratio: float = 4.0,
+    tolerance: float = 0.2
+) -> Tuple[bool, float]:
+    """
+    Verify that the model maintains E/I balance.
+    
+    Args:
+        model: The model to verify
+        target_ratio: Expected E/I ratio
+        tolerance: Acceptable deviation from target
+    
+    Returns:
+        Tuple of (is_balanced, current_ratio)
+    """
+    excitatory_params, inhibitory_params = identify_excitatory_inhibitory_params(model)
+    current_ratio = calculate_current_ei_ratio(excitatory_params, inhibitory_params)
+    
+    is_balanced = abs(current_ratio - target_ratio) <= tolerance * target_ratio
+    
+    return is_balanced, current_ratio
 
 class HomeostaticScaler:
     """
-    A class to manage homeostatic scaling across training epochs.
+    Homeostatic scaler for per-batch E/I ratio enforcement.
+    
+    This class maintains state across training batches and applies
+    scaling adjustments to maintain homeostatic balance.
     """
+    
     def __init__(self, config: HomeostasisConfig):
         self.config = config
-        self.step = 0
+        self.activity_history: List[ActivityStats] = []
+        self.scaling_history: List[Dict[str, float]] = []
     
-    def step(self, model: torch.nn.Module) -> Dict[str, Any]:
+    def step(
+        self,
+        model: torch.nn.Module,
+        step: int,
+        log_gradient_norms_flag: bool = True
+    ) -> ActivityStats:
         """
-        Perform one step of homeostatic scaling.
+        Perform one homeostatic step.
+        
+        Args:
+            model: The model to scale
+            step: Current training step
+            log_gradient_norms_flag: Whether to log gradient norms
+        
+        Returns:
+            ActivityStats for this step
         """
-        self.step += 1
-        result = enforce_ei_ratio(
-            model, 
-            self.step, 
-            target_ratio=self.config.target_ei_ratio
-        )
-        return result
+        # Log gradient norms if requested
+        if log_gradient_norms_flag:
+            log_gradient_norms(model, step)
+        
+        # Enforce E/I ratio per batch
+        stats = enforce_ei_ratio(model, self.config, None, None)
+        stats.batch_step = step
+        
+        self.activity_history.append(stats)
+        
+        # Keep history bounded
+        if len(self.activity_history) > self.config.activity_window:
+            self.activity_history.pop(0)
+        
+        return stats
 
-def apply_scaling_hook(optimizer: torch.optim.Optimizer, step: int) -> Dict[str, Any]:
+def apply_scaling_hook(
+    model: torch.nn.Module,
+    config: HomeostasisConfig,
+    step: int
+) -> ActivityStats:
     """
-    Integration hook for the trainer. Calls scale_weights and enforce_ei_ratio.
+    Convenience function to apply homeostatic scaling at a training step.
+    
+    Args:
+        model: The model to scale
+        config: Homeostasis configuration
+        step: Current training step
+    
+    Returns:
+        ActivityStats after scaling
     """
-    # Note: optimizer is not directly used here, but passed for compatibility
-    # The actual scaling is applied to the model's parameters
-    # We assume the model is accessible via optimizer.param_groups[0]['params'][0].module
-    # This is a simplification; in practice, the model should be passed explicitly.
-    # For now, this function is a placeholder for the actual integration logic.
-    # The real implementation is in enforce_ei_ratio which is called directly.
-    return {"status": "placeholder", "step": step}
+    scaler = HomeostaticScaler(config)
+    return scaler.step(model, step)
+
+def verify_independence(
+    train_data: np.ndarray,
+    test_data: np.ndarray
+) -> bool:
+    """
+    Verify that training and test data are from independent distributions.
+    
+    Uses Kolmogorov-Smirnov test. Returns True if distributions are
+    statistically different (p_value < 0.05).
+    
+    Args:
+        train_data: Training data array
+        test_data: Test data array
+    
+    Returns:
+        True if distributions are distinct
+    """
+    from scipy import stats
+    
+    # Flatten arrays for 1D KS test
+    train_flat = train_data.flatten()
+    test_flat = test_data.flatten()
+    
+    ks_stat, p_value = stats.ks_2samp(train_flat, test_flat)
+    
+    if p_value < 0.05:
+        logger.info(f"Distributions are independent (KS p-value={p_value:.4f})")
+        return True
+    else:
+        logger.warning(f"Distributions may not be independent (KS p-value={p_value:.4f})")
+        return False

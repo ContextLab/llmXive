@@ -1,3 +1,3 @@
 """
-Tests Package - Contains unit and integration tests.
+Test suite for Cortical Column LLMs project.
 """

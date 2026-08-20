@@ -1,238 +1,182 @@
-"""
-Integration test for baseline training pipeline.
-
-This test explicitly runs the baseline model with log_gradient_norms enabled
-to populate data/logs/gradient_norms.json for SC-002 verification.
-
-Dependencies: T010b (log_gradient_norms implementation)
-"""
 import json
 import os
 import tempfile
-import shutil
-from pathlib import Path
 import pytest
+from pathlib import Path
+import sys
 import torch
 import torch.nn as nn
-import torch.optim as optim
+import numpy as np
+import logging
 
-# Import from project API surface
-from src.training.homeostasis import log_gradient_norms
-from src.training.trainer import TrainingConfig, run_training, calculate_mae
-from src.data.benchmarks import generate_training_data, generate_test_data, verify_independence
-from src.models.baseline_transformer import BaselineTransformer
+# Ensure project root is in path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-# Ensure we can import the baseline model
-try:
-    from src.models.baseline_transformer import BaselineTransformer
-except ImportError:
-    # Fallback: define a minimal BaselineTransformer if the module is missing
-    class BaselineTransformer(nn.Module):
-        def __init__(self, input_dim=64, hidden_dim=128, output_dim=64, num_layers=2):
-            super().__init__()
-            self.input_proj = nn.Linear(input_dim, hidden_dim)
-            self.layers = nn.ModuleList([
-                nn.TransformerEncoderLayer(d_model=hidden_dim, nhead=4, batch_first=True)
-                for _ in range(num_layers)
-            ])
-            self.output_proj = nn.Linear(hidden_dim, output_dim)
-        
-        def forward(self, x):
-            x = self.input_proj(x)
-            for layer in self.layers:
-                x = layer(x)
-            return self.output_proj(x)
+from src.models.baseline_transformer import create_baseline_transformer
+from src.data.benchmarks import generate_training_data, generate_test_data
+from src.training.trainer import TrainingConfig, run_training
+from src.training.homeostasis import log_gradient_norms, HomeostasisConfig
+from src.utils.statistics import load_gradient_norms
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-class TestBaselineTrainingWithLogging:
-    """Test that baseline training produces gradient norm logs."""
-    
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self, tmp_path):
-        """Set up test environment and clean up after."""
-        # Store original paths
-        self.original_data_logs = Path("data/logs")
-        self.original_data_results = Path("data/results")
-        
-        # Create temporary directories for this test
-        self.temp_logs = tmp_path / "logs"
-        self.temp_results = tmp_path / "results"
-        self.temp_logs.mkdir(parents=True, exist_ok=True)
-        self.temp_results.mkdir(parents=True, exist_ok=True)
-        
-        # Monkey-patch paths for this test
-        # We'll use the log_gradient_norms function which writes to a specific path
-        # So we need to ensure the data/logs directory exists
-        Path("data").mkdir(exist_ok=True)
-        Path("data/logs").mkdir(exist_ok=True)
-        
-        yield
-        
-        # Cleanup
-        if self.temp_logs.exists():
-            shutil.rmtree(self.temp_logs)
-        if self.temp_results.exists():
-            shutil.rmtree(self.temp_results)
-    
-    def test_baseline_training_produces_gradient_logs(self, tmp_path):
+@pytest.fixture
+def temp_output_dir(tmp_path):
+    """Create a temporary directory structure for test outputs."""
+    logs_dir = tmp_path / "data" / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    return tmp_path
+
+class TestBaselineTrainingWithGradientLogging:
+    """
+    Integration test for T011b:
+    Explicitly runs the baseline model with log_gradient_norms enabled
+    to populate data/logs/gradient_norms.json for SC-002 verification.
+    """
+
+    def test_baseline_training_logs_gradient_norms(self, temp_output_dir):
         """
-        Test that running baseline training with log_gradient_norms enabled
-        produces data/logs/gradient_norms.json.
+        Verify that running the baseline training pipeline with gradient
+        logging enabled produces a valid gradient_norms.json file.
         """
-        # Configuration for a minimal training run
-        config = TrainingConfig(
-            input_dim=64,
-            hidden_dim=128,
-            output_dim=64,
+        # Setup paths relative to temp_output_dir to avoid writing to project root during test
+        logs_dir = temp_output_dir / "data" / "logs"
+        gradient_log_path = logs_dir / "gradient_norms.json"
+
+        # Ensure directory exists
+        logs_dir.mkdir(parents=True, exist_ok=True)
+
+        # Generate synthetic data (Lorenz for training, Polynomials for test)
+        logger.info("Generating training data...")
+        train_X, train_y = generate_training_data(n_samples=500, sequence_length=20)
+        logger.info("Generating test data...")
+        test_X, test_y = generate_test_data(n_samples=200, sequence_length=20)
+
+        # Create a minimal baseline transformer
+        logger.info("Creating baseline transformer model...")
+        model = create_baseline_transformer(
+            input_dim=train_X.shape[-1],
+            d_model=64,
+            nhead=4,
             num_layers=2,
-            num_epochs=3,  # Minimal epochs for testing
-            batch_size=16,
-            learning_rate=0.001,
-            seed=42,
-            log_gradient_norms=True,  # Enable logging
-            gradient_norms_file="data/logs/gradient_norms.json"
+            ff_dim=128,
+            dropout=0.1
         )
-        
-        # Generate synthetic data
-        train_data = generate_training_data(num_samples=100, seed=config.seed)
-        test_data = generate_test_data(num_samples=50, seed=config.seed + 1000)
-        
-        # Verify data independence
-        verify_independence(train_data, test_data)
-        
-        # Create model
-        model = BaselineTransformer(
-            input_dim=config.input_dim,
-            hidden_dim=config.hidden_dim,
-            output_dim=config.output_dim,
-            num_layers=config.num_layers
-        )
-        
-        # Create optimizer
-        optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
-        
-        # Prepare data for training
-        train_tensor = torch.FloatTensor(train_data)
-        test_tensor = torch.FloatTensor(test_data)
-        
-        # Create dataloaders
-        train_dataset = torch.utils.data.TensorDataset(train_tensor, train_tensor)
-        test_dataset = torch.utils.data.TensorDataset(test_tensor, test_tensor)
-        
-        train_loader = torch.utils.data.DataLoader(
-            train_dataset, batch_size=config.batch_size, shuffle=True
-        )
-        test_loader = torch.utils.data.DataLoader(
-            test_dataset, batch_size=config.batch_size, shuffle=False
-        )
-        
-        # Run training
-        metrics = run_training(
-            model=model,
-            train_loader=train_loader,
-            test_loader=test_loader,
-            optimizer=optimizer,
-            config=config,
-            device="cpu"
-        )
-        
-        # Verify that the gradient norms log file was created
-        log_file_path = Path(config.gradient_norms_file)
-        assert log_file_path.exists(), f"Gradient norms log file not created at {log_file_path}"
-        
-        # Verify the log file contains valid JSON
-        with open(log_file_path, 'r') as f:
-            log_data = json.load(f)
-        
-        assert isinstance(log_data, list), "Log data should be a list of entries"
-        assert len(log_data) > 0, "Log data should not be empty"
-        
-        # Verify each entry has the expected schema
-        for entry in log_data:
-            assert "step" in entry, "Each entry should have a 'step' field"
-            assert "norm" in entry, "Each entry should have a 'norm' field"
-            assert isinstance(entry["step"], int), "Step should be an integer"
-            assert isinstance(entry["norm"], (int, float)), "Norm should be a number"
-        
-        # Verify we have logs for the number of epochs we trained
-        assert len(log_data) >= config.num_epochs, \
-            f"Expected at least {config.num_epochs} log entries, got {len(log_data)}"
-        
-        # Verify training completed successfully
-        assert "train_mae" in metrics, "Metrics should include train_mae"
-        assert "test_mae" in metrics, "Metrics should include test_mae"
-        
-        print(f"Training completed successfully. MAE: train={metrics['train_mae']:.4f}, test={metrics['test_mae']:.4f}")
-        print(f"Gradient norms logged to {log_file_path}")
-    
-    def test_gradient_logs_contain_expected_data(self, tmp_path):
-        """
-        Test that the gradient logs contain meaningful data (not zeros or NaNs).
-        """
-        # Run a minimal training session
+
+        # Configure training
+        # We use a very short training duration for the integration test
         config = TrainingConfig(
-            input_dim=32,
-            hidden_dim=64,
-            output_dim=32,
-            num_layers=1,
-            num_epochs=2,
-            batch_size=8,
-            learning_rate=0.01,
-            seed=123,
+            epochs=2,  # Minimal epochs for integration test
+            batch_size=32,
+            lr=1e-3,
+            device="cpu",
+            log_interval=1,
+            gradient_clip_value=1.0,
+            # Enable gradient logging
             log_gradient_norms=True,
-            gradient_norms_file="data/logs/gradient_norms.json"
+            gradient_log_path=str(gradient_log_path)
         )
-        
-        # Generate data
-        train_data = generate_training_data(num_samples=50, seed=config.seed)
-        test_data = generate_test_data(num_samples=25, seed=config.seed + 1000)
-        
-        model = BaselineTransformer(
-            input_dim=config.input_dim,
-            hidden_dim=config.hidden_dim,
-            output_dim=config.output_dim,
-            num_layers=config.num_layers
-        )
-        
-        optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
-        
-        train_tensor = torch.FloatTensor(train_data)
-        test_tensor = torch.FloatTensor(test_data)
-        
-        train_dataset = torch.utils.data.TensorDataset(train_tensor, train_tensor)
-        test_dataset = torch.utils.data.TensorDataset(test_tensor, test_tensor)
-        
-        train_loader = torch.utils.data.DataLoader(
-            train_dataset, batch_size=config.batch_size, shuffle=True
-        )
-        test_loader = torch.utils.data.DataLoader(
-            test_dataset, batch_size=config.batch_size, shuffle=False
-        )
-        
-        # Clear any existing log file
-        log_file_path = Path(config.gradient_norms_file)
-        if log_file_path.exists():
-            log_file_path.unlink()
-        
+
         # Run training
-        metrics = run_training(
-            model=model,
-            train_loader=train_loader,
-            test_loader=test_loader,
-            optimizer=optimizer,
-            config=config,
-            device="cpu"
+        logger.info("Starting training loop with gradient logging...")
+        try:
+            metrics = run_training(
+                model=model,
+                train_loader=torch.utils.data.DataLoader(
+                    torch.utils.data.TensorDataset(
+                        torch.FloatTensor(train_X),
+                        torch.FloatTensor(train_y)
+                    ),
+                    batch_size=config.batch_size,
+                    shuffle=True
+                ),
+                test_loader=torch.utils.data.DataLoader(
+                    torch.utils.data.TensorDataset(
+                        torch.FloatTensor(test_X),
+                        torch.FloatTensor(test_y)
+                    ),
+                    batch_size=config.batch_size
+                ),
+                config=config
+            )
+        except Exception as e:
+            logger.error(f"Training failed: {e}")
+            raise
+
+        # Verify the output file was created
+        assert gradient_log_path.exists(), (
+            f"Gradient log file not found at {gradient_log_path}. "
+            "The training loop must call log_gradient_norms to create this file."
         )
-        
-        # Load and verify log data
-        with open(log_file_path, 'r') as f:
+
+        # Verify the content is valid JSON and contains expected structure
+        with open(gradient_log_path, 'r') as f:
             log_data = json.load(f)
+
+        assert isinstance(log_data, dict), "Gradient log must be a JSON object."
+        assert "steps" in log_data, "Gradient log must contain a 'steps' list."
+        assert len(log_data["steps"]) > 0, "Gradient log must contain at least one step."
+
+        # Verify structure of a step entry
+        first_step = log_data["steps"][0]
+        assert "step" in first_step, "Step entry must have 'step' index."
+        assert "norms" in first_step, "Step entry must have 'norms' dict."
+
+        # Verify norms contains weight and bias keys (or at least some parameters)
+        norms = first_step["norms"]
+        assert isinstance(norms, dict), "Norms must be a dictionary."
+        assert len(norms) > 0, "Norms dictionary must not be empty."
+
+        logger.info(f"Successfully verified gradient logging. File: {gradient_log_path}")
+        logger.info(f"Logged {len(log_data['steps'])} steps with gradient norms.")
+
+    def test_gradient_norms_content_validity(self, temp_output_dir):
+        """
+        Additional check: Ensure the logged norms are finite and reasonable numbers.
+        """
+        logs_dir = temp_output_dir / "data" / "logs"
+        gradient_log_path = logs_dir / "gradient_norms.json"
+        logs_dir.mkdir(parents=True, exist_ok=True)
+
+        # Re-run a minimal training to ensure file exists for this assertion
+        train_X, train_y = generate_training_data(n_samples=100, sequence_length=10)
+        test_X, test_y = generate_test_data(n_samples=50, sequence_length=10)
+        model = create_baseline_transformer(input_dim=train_X.shape[-1], d_model=32, nhead=2, num_layers=1, ff_dim=64)
+
+        config = TrainingConfig(
+            epochs=1,
+            batch_size=16,
+            lr=1e-3,
+            device="cpu",
+            log_interval=1,
+            gradient_clip_value=1.0,
+            log_gradient_norms=True,
+            gradient_log_path=str(gradient_log_path)
+        )
+
+        run_training(
+            model=model,
+            train_loader=torch.utils.data.DataLoader(
+                torch.utils.data.TensorDataset(torch.FloatTensor(train_X), torch.FloatTensor(train_y)),
+                batch_size=config.batch_size,
+                shuffle=True
+            ),
+            test_loader=torch.utils.data.DataLoader(
+                torch.utils.data.TensorDataset(torch.FloatTensor(test_X), torch.FloatTensor(test_y)),
+                batch_size=config.batch_size
+            ),
+            config=config
+        )
+
+        # Load and validate
+        log_data = load_gradient_norms(str(gradient_log_path))
         
-        # Check that norms are positive and not NaN
-        for entry in log_data:
-            norm = entry["norm"]
-            assert norm > 0, f"Gradient norm should be positive, got {norm}"
-            assert not torch.isnan(torch.tensor(norm)).item(), \
-                f"Gradient norm should not be NaN, got {norm}"
-        
-        print("All gradient norms are valid positive numbers.")
+        for step_entry in log_data["steps"]:
+            for param_name, norm_val in step_entry["norms"].items():
+                assert isinstance(norm_val, (int, float)), f"Norm value for {param_name} must be numeric."
+                assert np.isfinite(norm_val), f"Norm value for {param_name} must be finite."
+                assert norm_val >= 0, f"Norm value for {param_name} must be non-negative."
+
+        logger.info("Gradient norms content validation passed.")

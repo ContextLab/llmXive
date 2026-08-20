@@ -5,29 +5,49 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cortical-column-llms"
 version = "0.1.0"
-description = "Implementing Canonical Microcircuits for Universal Computation"
+description = "Implementing Canonical Microcircuits for Universal Computation in LLMs"
+readme = "README.md"
 requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Research Team", email = "research@llmxive.org"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
     "torch>=2.0.0",
     "numpy>=1.24.0",
     "scipy>=1.10.0",
-    "pytest>=7.3.0",
+    "pytest>=7.0.0",
     "psutil>=5.9.0",
-    "ruff>=0.1.0",
+    "pyyaml>=6.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest-timeout>=2.2.0",
     "black>=23.0.0",
-    "isort>=5.12.0",
+    "ruff>=0.1.0",
+    "pytest-cov>=4.0.0",
+    "pytest-timeout>=2.2.0",
 ]
 
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["src*", "scripts*", "tests*"]
+
 [tool.black]
-line-length = 88
-target-version = ["py311"]
+line-length = 100
+target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
     \.git
     | \.hg
@@ -38,30 +58,58 @@ extend-exclude = '''
     | buck-out
     | build
     | dist
-    | data
-    | state
+    | __pycache__
 )/
 '''
 
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["src", "tests", "scripts", "setup_environment", "setup_project"]
-known_third_party = ["torch", "numpy", "scipy", "pytest", "psutil"]
-skip = ["data", "state"]
+[tool.ruff]
+# Match T006a ruff.toml strictness
+line-length = 100
+target-version = "py311"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*", "tests*", "scripts*"]
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"code/tests/*" = ["S101"] # Allow asserts in tests
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["code/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = [
+    "--strict-markers",
+    "--tb=short",
+    "--maxfail=1",
+]
 timeout = 300
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.coverage.run]
+source = ["code/src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
 ]

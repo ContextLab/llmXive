@@ -6,83 +6,170 @@ import datetime
 
 def ensure_directory_structure(root: Path) -> None:
     """
-    Creates the required directory structure for the project.
-    Ensures 'state/*.yaml' is NOT in .gitignore (handled in T003).
+    Create the required directory structure for the project.
+    Ensures tests/unit, tests/integration, scripts, data/results,
+    data/logs, data/configs, and state/ exist.
     """
-    dirs = [
-        "src/models",
-        "src/data",
-        "src/training",
-        "src/experiments",
-        "src/utils",
-        "tests/unit",
-        "tests/integration",
-        "scripts",
-        "data/results",
-        "data/logs",
-        "data/configs",
-        "state"
+    dirs_to_create = [
+        root / "tests" / "unit",
+        root / "tests" / "integration",
+        root / "scripts",
+        root / "data" / "results",
+        root / "data" / "logs",
+        root / "data" / "configs",
+        root / "state",
     ]
 
-    for d in dirs:
-        path = root / d
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
+    for dir_path in dirs_to_create:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        # Ensure __init__.py exists in test directories if not already
+        if "tests" in str(dir_path) and dir_path.is_dir():
+            init_file = dir_path / "__init__.py"
+            if not init_file.exists():
+                init_file.touch()
 
 def create_state_template(root: Path) -> None:
     """
-    Creates a template YAML file in the state directory to ensure it is tracked.
+    Create a template state file in the state/ directory.
+    This file serves as a baseline for experiment versioning.
     """
     state_dir = root / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
     template_path = state_dir / "template.yaml"
-    
-    if not template_path.exists():
-        content = {
-            "project": "PROJ-590-cortical-column-llms-implementing-canoni",
-            "version": "0.1.0",
-            "created_at": datetime.datetime.now().isoformat(),
-            "artifacts": [],
-            "checksums": {}
-        }
-        with open(template_path, "w") as f:
-            yaml.dump(content, f, default_flow_style=False)
-        print(f"Created state template: {template_path}")
-    else:
-        print(f"State template already exists: {template_path}")
 
-def main() -> int:
+    template_content = {
+        "experiment_id": "template",
+        "created_at": datetime.datetime.now().isoformat(),
+        "version": "0.0.1",
+        "parameters": {},
+        "metrics": {},
+        "status": "initialized",
+        "notes": "Template state file for experiment tracking."
+    }
+
+    with open(template_path, "w") as f:
+        yaml.dump(template_content, f, default_flow_style=False)
+
+def ensure_init_files(root: Path) -> None:
     """
-    Main entry point for directory setup.
+    Ensure __init__.py files exist in all required directories.
     """
-    root = Path(__file__).resolve().parent.parent
-    print(f"Project root: {root}")
+    dirs = [
+        root / "tests" / "unit",
+        root / "tests" / "integration",
+        root / "scripts",
+        root / "data" / "results",
+        root / "data" / "logs",
+        root / "data" / "configs",
+        root / "state",
+    ]
+    for dir_path in dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        init_file = dir_path / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+
+def create_gitignore(root: Path) -> None:
+    """
+    Create or update .gitignore to ensure state files are tracked.
+    Explicitly excludes data/, __pycache__, *.pyc, *.log
+    but explicitly includes data/configs, data/results, data/logs, and state/.
+    """
+    gitignore_path = root / ".gitignore"
     
-    ensure_directory_structure(root)
-    create_state_template(root)
+    # Read existing content if present
+    existing_content = ""
+    if gitignore_path.exists():
+        with open(gitignore_path, "r") as f:
+            existing_content = f.read()
     
-    # Verify existence
-    required = [
-        "src/models", "src/data", "src/training", "src/experiments", "src/utils",
-        "tests/unit", "tests/integration", "scripts",
-        "data/results", "data/logs", "data/configs", "state"
+    # Define required patterns
+    ignore_patterns = [
+        "# Python",
+        "__pycache__/",
+        "*.py[cod]",
+        "*$py.class",
+        "*.so",
+        ".Python",
+        "build/",
+        "develop-eggs/",
+        "dist/",
+        "downloads/",
+        "eggs/",
+        ".eggs/",
+        "lib/",
+        "lib64/",
+        "parts/",
+        "sdist/",
+        "var/",
+        "wheels/",
+        "*.egg-info/",
+        ".installed.cfg",
+        "*.egg",
+        "",
+        "# Project specific data",
+        "data/",
+        "!data/configs/",
+        "!data/results/",
+        "!data/logs/",
+        "data/logs/*.log",
+        "",
+        "# State tracking - MUST NOT be ignored",
+        "state/",
+        "!state/*.yaml",
+        "!state/*.json",
+        "",
+        "# Virtual environments",
+        "venv/",
+        "ENV/",
+        "env/",
+        ".env",
+        "",
+        "# IDE",
+        ".idea/",
+        ".vscode/",
+        "*.swp",
+        "*.swo",
+        "",
+        "# OS",
+        ".DS_Store",
+        "Thumbs.db",
     ]
     
-    all_exist = True
-    for d in required:
-        if not (root / d).is_dir():
-            print(f"ERROR: Directory missing: {root / d}")
-            all_exist = False
+    new_content = "\n".join(ignore_patterns) + "\n"
     
-    if not (root / "state" / "template.yaml").exists():
-        print(f"ERROR: State template missing: {root / 'state' / 'template.yaml'}")
-        all_exist = False
+    # Only write if content changed or file doesn't exist
+    if not gitignore_path.exists() or existing_content != new_content:
+        with open(gitignore_path, "w") as f:
+            f.write(new_content)
 
-    if all_exist:
-        print("All directories and state template created successfully.")
-        return 0
-    else:
-        print("Directory creation failed.")
-        return 1
+def main():
+    """
+    Main entry point for directory setup.
+    Creates all required directories and configuration files.
+    """
+    # Determine project root (assuming code/scripts is current dir)
+    current_dir = Path(__file__).resolve()
+    project_root = current_dir.parent.parent
+    
+    print(f"Setting up directory structure at: {project_root}")
+    
+    # Create directories
+    ensure_directory_structure(project_root)
+    
+    # Create state template
+    create_state_template(project_root)
+    
+    # Ensure __init__.py files
+    ensure_init_files(project_root)
+    
+    # Create/update .gitignore
+    create_gitignore(project_root)
+    
+    print("Directory structure setup complete.")
+    print("Created directories: tests/unit, tests/integration, scripts, data/results, data/logs, data/configs, state/")
+    print("Created: state/template.yaml")
+    print("Updated: .gitignore (ensuring state/*.yaml is tracked)")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

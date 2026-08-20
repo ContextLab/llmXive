@@ -1,69 +1,58 @@
 [lint]
+# Enable strict linting rules for the Cortical Column LLM project
+# Following project standards for scientific code quality
 select = [
-  "E",      # pycodestyle errors
-  "W",      # pycodestyle warnings
-  "F",      # Pyflakes
-  "I",      # isort
-  "B",      # flake8-bugbear
-  "C4",     # flake8-comprehensions
-  "UP",     # pyupgrade
-  "ARG",    # flake8-unused-arguments
-  "SIM",    # flake8-simplify
-  "TCH",    # flake8-type-checking
-  "RUF",    # Ruff-specific rules
+  "E",    # pycodestyle errors
+  "W",    # pycodestyle warnings
+  "F",    # Pyflakes
+  "I",    # isort
+  "B",    # flake8-bugbear
+  "C4",   # flake8-comprehensions
+  "UP",   # pyupgrade
+  "S",    # flake8-bandit (security)
+  "T20",  # flake8-print (no print statements)
+  "RUF",  # Ruff-specific rules
+  "NPY",  # NumPy-specific rules
 ]
+
 ignore = [
-  "E501",   # Line too long (handled by formatter)
-  "B904",   # Within an except clause, raise exceptions with raise ... from ... (sometimes verbose for simple re-raises)
-]
-
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files/directories
-extend-exclude = [
-  "__pycache__",
-  "*.pyc",
-  ".venv",
-  "venv",
-  ".git",
-  "data",
-  "state",
+  "E501",  # Line too long (handled by formatter)
+  "S101",  # Use of assert detected (assertions are allowed in tests)
+  "NPY002", # Replace legacy np.random.* call (using torch for ML)
 ]
 
 # Per-file ignores
-per-file-ignores = {}
+[lint.per-file-ignores]
+"tests/*" = [
+  "S101", # Allow assertions in tests
+  "T201", # Allow print in tests for debugging
+]
+"scripts/*" = [
+  "T201", # Allow print in scripts for logging
+]
 
-# Dummy variable names (e.g., for unused arguments)
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+# Maximum line length (formatter handles this, but good to have as reference)
+line-length = 100
 
 # Target Python version
 target-version = "py311"
 
-# Rule specific configurations
-[lint.pyupgrade]
-keep-runtime-typing = true
-
 [lint.isort]
+# Configuration for import sorting
 known-first-party = ["src", "scripts", "tests"]
-known-third-party = ["torch", "numpy", "scipy", "pytest", "psutil", "matplotlib", "yaml"]
 force-sort-within-sections = true
+case-sensitive = true
 lines-after-imports = 2
-combine-as-imports = true
-
-[lint.flake8-unused-arguments]
-ignore-variadic-names = true
 
 [lint.flake8-bugbear]
-extend-immutable-calls = ["torch.jit.script", "torch.jit.trace"]
+# Extend bugbear rules
+extend-immutable-calls = ["fastapi.Depends", "fastapi.params.Depends"]
 
-[lint.mccabe]
-max-complexity = 15
+[format]
+# Use spaces for indentation
+indent-style = "space"
+quote-style = "double"
+line-ending = "auto"
 
-[lint.pep8-naming]
-classmethod-decorators = ["classmethod", "torch.no_grad"]
-
-[lint]
-# Preview mode for stricter rules
-preview = true
+[lint.pydocstyle]
+convention = "google"

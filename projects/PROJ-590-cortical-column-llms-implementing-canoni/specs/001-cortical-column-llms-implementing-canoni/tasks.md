@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -43,17 +43,13 @@
 
 **Purpose**: Project initialization and basic structure. Tasks are split into atomic steps for deterministic execution.
 
-- [ ] T001a [P] Create directory `src/`.
-- [ ] T001b [P] Create directories `models`, `data`, `training`, `experiments`, `utils` inside `src/`.
-- [ ] T001c [P] Create directories `tests/unit`, `tests/integration`, `scripts`, `data/results`, `data/logs`, `data/configs`, `state/`. **CRITICAL**: Ensure `state/*.yaml` is NOT in `.gitignore` to ensure it IS tracked and checksummed as required by Constitution Principle V (Versioning Discipline).
-- [ ] T002 [P] Create `__init__.py` in every `src/` and `tests/` directory.
+- [ ] T001 [P] Initialize Project Structure: Create all required directories (`src/`, `src/models/`, `src/data/`, `src/training/`, `src/experiments/`, `src/utils/`, `tests/unit/`, `tests/integration/`, `scripts/`, `data/results/`, `data/logs/`, `data/configs/`, `state/`). Create `__init__.py` in every `src/` and `tests/` directory. Create `.gitignore` excluding `data/` (except `data/configs/`, `data/results/`, `data/logs/`) and `__pycache__`, `*.pyc`, `*.log`. **CRITICAL**: Ensure `state/*.yaml` is tracked and checksummed as required by Constitution Principle V.
+- [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt` (PyTorch CPU-only, numpy, scipy, pytest, psutil, scikit-learn). **CRITICAL**: `psutil` is a required dependency for resource monitoring in T007b.
 - [ ] T003 [P] Create `.gitignore` file excluding `data/`, `__pycache__`, `*.pyc`, `*.log`. **CRITICAL**: Explicitly include `!data/configs/`, `!data/results/`, `!data/logs/`, `!state/`, and `state/` to ensure experiment metadata, results, logs, and versioning artifacts are tracked for Constitution Principle IV and V.
+- [ ] T003b [P] Implement `scripts/hash_artifacts.sh` and `src/utils/checksum.py` to generate and record SHA256 checksums for all files in `data/configs/`, `data/results/`, `data/logs/`, and `state/`. **CRITICAL**: This task is a MANDATORY prerequisite for any data generation task to satisfy Constitution Principle III (Data Hygiene) and Principle V (Versioning Discipline).
 - [ ] T004 [P] Verify Setup: Run a script to confirm all directories from T001 exist and `state/template.yaml` is present. **Output**: Exit 0 if all present, exit 1 otherwise. **CRITICAL**: This task must pass before Phase 2 starts.
-- [ ] T005 Initialize Python 3.11 project with `requirements.txt` (PyTorch CPU-only, numpy, scipy, pytest, psutil).
-- [ ] T006a [P] Create `ruff.toml` configuration file with strict rules for linting as per project standards.
-- [ ] T006b [P] Create `pyproject.toml` or `black.toml` configuration for formatting as per project standards.
-- [ ] T007 [P] Configure `tests/conftest.py` with `pytest-timeout` settings for unit tests and resource monitoring hooks.
-- [ ] T007b [P] Implement `tests/conftest.py` hooks using `psutil` to assert RSS memory < 7GB and core pinning (via `os.sched_getaffinity` or `taskset` integration) during test execution. This satisfies FR-004 and SC-005 by enforcing resource constraints directly in the Python test harness.
+- [ ] T005 [P] Configure `tests/conftest.py` with `pytest-timeout` settings for unit tests and resource monitoring hooks.
+- [ ] T007b [P] Implement `tests/conftest.py` hooks using `psutil.Process.cpu_affinity()` to assert RSS memory < 7GB and core pinning (via `psutil`) during test execution. **CRITICAL**: `psutil` must be installed (see T002). This satisfies FR-004 and SC-005 by enforcing resource constraints directly in the Python test harness.
 
 ---
 
@@ -65,11 +61,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T008a [P] Implement `src/data/benchmarks.py` for synthetic function generation (Lorenz attractor, Fourier series, polynomial surfaces) with deterministic seeding. **CRITICAL**: Implement distinct generator functions `generate_training_data()` (Lorenz) and `generate_test_data()` (Polynomials/Fourier) to ensure independent distributions for US1 and prevent data leakage.
-- [ ] T008b [P] Implement `src/data/benchmarks.py::verify_independence` function. **Signature**: `def verify_independence(train_data: np.ndarray, test_data: np.ndarray) -> bool`. **Logic**: Perform Kolmogorov-Smirnov (KS) test. **Requirement**: If `p_value < 0.05`, distributions are statistically different (independent). If `p_value >= 0.05`, log the p-value and proceed without raising an exception. **Output**: Return `True` if distributions are distinct; otherwise return false.. **CRITICAL**: This function satisfies Constitution Principle VII and FR-006 by ensuring the test set is from a different distribution.
-- [ ] T008c [P] Implement task to generate independent test data for ablation/generalization metrics.
+- [ ] T008c [P] Implement task to generate independent test data for ablation/generalization metrics. **Output**: `data/results/test_data_polynomial.npy`. **CRITICAL**: Use `polynomial surfaces` as the function family and `distinct seed (seed + 1000)` to ensure statistical independence from T008a's training data (Lorenz).
+- [ ] T008b [P] Implement `src/data/benchmarks.py::verify_independence` function. **Signature**: `def verify_independence(train_data: np.ndarray, test_data: np.ndarray) -> bool`. **Logic**: Verify that the *generators* are distinct by construction (Lorenz vs Polynomials). **Requirement**: If generators are not distinct by design, log an error and raise an exception. **CRITICAL**: This function satisfies Constitution Principle VII and FR-006 by ensuring the test set is from a different distribution by design, not just by statistical test.
 - [ ] T010a [P] Implement core homeostatic scaling logic in `src/training/homeostasis.py`: define `scale_weights(model, target_ratio, decay_rate)` function that applies synaptic scaling to maintain E/I ratio. Use formula: `scale_factor = target_activity / current_activity`. Returns a dict of applied scaling factors. Explicitly derive `target_activity` from the E/I ratio constraint.
 - [ ] T010b [P] Implement gradient norm logging in `src/training/homeostasis.py`: define `log_gradient_norms(model, step)` function that computes and appends gradient norms to `data/logs/gradient_norms.json` for SC-002 verification.
-- [ ] T010c [P] Implement dynamic E/I ratio enforcement mechanism in `src/training/homeostasis.py`: enforce the ratio *per batch* during training, not per epoch.
+- [ ] T010c [P] Implement dynamic E/I ratio enforcement mechanism in `src/training/homeostasis.py`: enforce the 4: ratio as a *structural constraint* (fixed connectivity) that is *preserved* by homeostasis during training, NOT a dynamic per-batch target adjustment. **CRITICAL**: This task clarifies the structural nature of the ratio constraint.
 
 ---
 
@@ -88,11 +84,12 @@
 ### Implementation for User Story 1
 
 - [ ] T009a [US1] Implement `src/models/baseline_transformer.py` (standard Transformer MLP/Attention layers).
-- [ ] T012b_impl [US1] Implement CPU-optimized training loop, gradient clipping, resource monitoring and logging of MAE.
+- [ ] T012b_impl [US1] Implement CPU-optimized training loop in `src/training/trainer.py`, gradient clipping, resource monitoring and logging of MAE. **Output**: `data/logs/training_log.json`. **CRITICAL**: Explicitly log MAE and loss to `data/logs/training_log.json` and enforce resource constraints (limited RAM, limited cores) as per FR-004.
 - [ ] T013 [US1] Create `scripts/run_baseline.sh`.
 - [ ] T013b [US1] Update `scripts/run_baseline.sh` to explicitly call data generation functions for training and testing.
 - [ ] T013c [US1] Implement `src/experiments/baseline_runner.py` to manage experiment configuration and logging.
 - [ ] T015 [US1] Implement `src/experiments/baseline_runner.py::run_and_record_metrics`.
+- [ ] T014 [US1] Implement `src/experiments/baseline_runner.py::validate_generalization` to execute the validation on the independent test set (polynomial surfaces) as required by FR-006 and US-001 Acceptance Scenario 2. **Output**: `data/results/generalization_report.md`.
 
 ---
 
@@ -102,7 +99,11 @@
 
 - [ ] T009d [US2] Implement `src/models/microcircuit.py` layer definitions by creating classes `L23Layer`, `L4Layer`, `L5Layer`, `L6Layer`.
 - [ ] T009f [US2] Implement `src/models/microcircuit.py` connectivity mask generation logic to enforce laminar topology.
-- [ ] T010c (see Phase 2) -- Reused from Foundational phase.
+- [ ] T069 [US2] Implement `src/utils/structure_verifier.py::verify_canonical_topology` to assert that the instantiated `MicrocircuitModule` has the exact connectivity masks for L2/3, L4, L5, L6 as defined in the spec. **Test**: Fail if any unexpected connections exist or if the E/I ratio deviates from 4:1 by > 5%.
+- [ ] T069b [US2] Verify that homeostatic scaling is active and functioning as the default configuration by adding a unit test in `tests/unit/test_homeostasis.py` that asserts the `scale_weights` function modifies weights to restore target activity after a noise perturbation. **Parameters**: Target activity at a specified level, tolerance within an acceptable margin of error.
+- [ ] T070 [US2] Implement `src/training/homeostasis.py::verify_dynamic_ratio` to run *during* the training loop (Phase 3/4) to log and assert the E/I ratio is preserved dynamically (not just structurally) as required by FR-002. **Output**: `data/logs/dynamic_ratio_log.json`.
+- [ ] T071 [US2] Implement `src/utils/statistics.py::verify_gradient_distribution` to verify the *distribution* of gradient norms (SC-002) by comparing the variance and overlap against the baseline. **Output**: `data/logs/gradient_distribution_report.md`.
+- [ ] T048 [US2] Implement `src/models/hybrid_network.py` to instantiate the hybrid network by replacing standard Transformer MLP layers with `MicrocircuitModule`. **CRITICAL**: Verify parameter count is within ±1% of baseline and this verification is a BLOCKING prerequisite for T049 (Scaling).
 
 ---
 
@@ -112,18 +113,18 @@
 
 - [ ] T025a [US3] Implement `src/experiments/ablation.py::generate_ablation_configs`
 - [ ] T025b [US3] Implement `src/experiments/ablation.py::run_ablation_study`.
-- [ ] T026 [US3] Implement `src/experiments/scaling.py`.
-- [ ] T027 [US3] Implement `src/utils/statistics.py`.
-- [ ] T028 [US3] Create `src/utils/report_generator.py::generate_cost_curve_data`
+- [ ] T049 [US3] Implement `src/experiments/scaling.py` to implement a loop that trains models with column counts `[1x, 2x, 4x]` and records `parameter_count` vs `validation_mae` and `training_time`. **Constraint**: Must output `data/results/scaling_law.csv` with columns `columns, params, mae, time_sec`. **CRITICAL**: This task depends on T048 (Hybrid Network Instantiation) being complete and verified.
+- [ ] T050 [US3] Update `src/utils/scaling_analyzer.py` to perform a log-log linear regression on the scaling data. **Requirement**: Calculate and report the scaling exponent `beta` using the formula `log(MAE) ~ beta * log(Parameter Count)`. **Output**: Write a summary to `data/results/scaling_law_report.md` stating the metric used (MAE) and whether the exponent is linear, sublinear, or superlinear. **CRITICAL**: Explicitly state the metric used in the report to satisfy SC-004.
 
 ---
 
-## Phase 6: Reviewer Response - Scaling Laws (Geoffrey West)
+## Phase 6: Cost of Biological Plausibility Analysis (Priority: P2)
 
-**Goal**: Address Geoffrey West's concern regarding scaling exponents and metabolic cost by explicitly measuring and reporting the scaling law.
+**Goal**: Address FR-005 by generating the "cost of biological plausibility" curve using ablation and scaling data.
 
-- [ ] T049 [US3] Extend `src/experiments/scaling.py`
-- [ ] T050 [US3] Update `src/utils/scaling_analyzer.py`.
+- [ ] T074 [US3] Implement `src/utils/cost_curve_generator.py::generate_cost_curve_data` to compute the "cost of biological plausibility" curve by comparing the ablated variants (recurrence, inhibition) against the full model and baseline. **Output**: `data/results/cost_curve_data.csv`.
+- [ ] T075 [US3] Update `src/utils/report_generator.py::generate_cost_curve_report` to visualize the cost curve and explicitly link it to the scaling exponent from T050. **Output**: `data/results/cost_curve_report.md`. **CRITICAL**: This task depends on T074 and T050.
+- [ ] T076 [US3] Implement `src/experiments/cost_analyzer.py::compute_cost_metrics` to explicitly compute the cost curve using the ablation data generated in Phase 5 and the scaling metrics from T050. **Output**: `data/results/cost_metrics.json`. **CRITICAL**: This task ensures the cost curve is generated before the final report.
 
 ---
 
@@ -131,5 +132,15 @@
 
 **Goal**: Address Constitution Principle VI by verifying the implemented microcircuit strictly adheres to the fixed canonical topology.
 
-- [ ] T069 [US2] Implement `src/utils/structure_verifier.py::verify_canonical_topology`
-- [ ] T069b [US2] Verify that homeostatic scaling is active and functioning as the default configuration.
+- [ ] T069 [US2] (Moved to Phase 4) - See Phase 4.
+- [ ] T069b [US2] (Moved to Phase 4) - See Phase 4.
+
+---
+
+## Phase 8: Final Integration and Reporting (Priority: P3)
+
+**Goal**: Consolidate all findings into a final report that explicitly addresses the "Cost of Biological Plausibility" and rejects any "Rule Space" narratives.
+
+- [ ] T080 [US3] Implement `src/experiments/final_verification.py::verify_universal_approximation` to verify the microcircuit models' universal approximation capability using the *same* test harness, dataset (polynomial surfaces), and seed configuration as T014 (Baseline). **Output**: `data/results/universal_approximation_report.md`. **CRITICAL**: Explicitly state that the same test harness is used for microcircuit models as for the baseline.
+- [ ] T081 [US3] Implement `src/utils/report_generator.py::generate_final_report` to consolidate all findings. **Requirement**: The report MUST explicitly state that the "Cost of Biological Plausibility" curve is the primary finding, *replacing any previous 'Rule Space' hypotheses*. **Output**: `data/results/final_report.md`. **CRITICAL**: Explicitly reject the 'Rule Space' narrative and mandate the 'Cost of Plausibility' narrative.
+- [ ] T082 [US3] Implement `scripts/run_final_report.sh` to orchestrate the final verification and reporting pipeline, ensuring all dependencies (T080, T081) are met.

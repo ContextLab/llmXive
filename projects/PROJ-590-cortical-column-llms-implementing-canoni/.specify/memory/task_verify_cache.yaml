@@ -1,19 +1,40 @@
-T011d:
+T006b:
+  c: true
+  h: b655d812671d14781dc01bb9538bbbab1fa73277d3cf8d6387aae128b8f6d6ab
+  r: "The repository contains a non\u2011empty `pyproject.toml` (1,371\u202Fbytes)\
+    \ that includes a `[tool.black]` section with formatting settings, fulfilling\
+    \ the requirement to provide a Black configuration (the optional `black.toml`\
+    \ is not needed)."
+T008c:
   c: false
-  h: 56949d6592cdfc8924709b183d1e044026c4afd1d6a3b897e84ece1ed7cfa8c5
-  r: The `run_with_logging` function is truncated (e.g., ends with `start_time = tim`)
-    and does not contain a complete training loop or a call to `log_gradient_norms`.
-    Additionally, the required `data/logs/gradient_norms_microcircuit.json` file is
-    absent. The task therefore lacks both the full implementation and the expected
-    output artifact.
-T016:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, dataset, or documentation for \u201Cindependent test data for ablation/generalization\
+    \ metrics\u201D is present in the provided artifacts; the implementer did not\
+    \ supply any files or concrete output that generate or describe such test data.\
+    \ Consequently the task requirement is unmet."
+T010b:
   c: false
-  h: 280b4054ce2c9ef2cc64ccf9f5e96500b4ba1349869786e4d4319a959693c5fd
-  r: "The repository lacks the required `data/results/baseline_metrics.json` file,\
-    \ and the provided `src/experiments/baseline_runner.py` does not contain an implementation\
-    \ of the `run_and_record_metrics` method (the file is truncated before any such\
-    \ function). Consequently the task\u2019s core functionality and output artifact\
-    \ are missing."
+  h: a3ddbc3549582cac226faa913d30d6a30e65087016be293b235cbb44904f4760
+  r: "The provided `src/training/homeostasis.py` does not contain a `log_gradient_norms`\
+    \ function (the file is truncated and ends mid\u2011implementation of `scale_weights`).\
+    \ Additionally, the required output file `data/logs/gradient_norms.json` is missing.\
+    \ Both the function definition and the log file are required to satisfy the task."
+T010c#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, model checkpoints, training logs, or evaluation results were provided\
+    \ for any of the three user stories. The required artifacts\u2014Transformer baseline\
+    \ implementation and its validation metrics, the PyTorch cortical\u2011column\
+    \ microcircuit module with connectivity checks, and the ablation\u2011study data/analysis\u2014\
+    are absent, so the task requirements are not satisfied."
+T011b:
+  c: false
+  h: c40f581784f0e9463d1def3f831ac154fa45311c3027bbb9cf1f7957d72f25ff
+  r: "The integration test file exists and is configured to enable gradient logging,\
+    \ but it writes the `gradient_norms.json` file to a temporary directory (`tmp_path/data/logs`)\
+    \ rather than the required `data/logs/gradient_norms.json` in the repository,\
+    \ and the expected JSON file is missing from the project. The task\u2019s requirement\
+    \ to populate `data/logs/gradient_norms.json` is therefore not satisfied."
 T025a:
   c: false
   h: 11e24d9cd6b1a4d6655a6f92dc049f098a4797a79065a8ef80906cbf28af139d
@@ -39,3 +60,15 @@ T031:
     provided `tests/integration/test_gradient_stability.py` only checks logging of
     gradient norms and does not implement or verify the statistical stability test
     described in the task. These essential artifacts and functionality are missing.
+T049:
+  c: false
+  h: dad5ef7429162465e2341f99ac73ba7fae1927563f2ffc4f1dafa39a58232691
+  r: The required artifact `src/experiments/scaling.py` does not exist in the repository,
+    so the task of extending that file cannot have been fulfilled. The implementer
+    must add the missing file with the appropriate extensions.
+T050:
+  c: false
+  h: 832ec11fdf01e9411f02961f150a96464783611551d4a8cfc3aa23fc2c84150e
+  r: The required file `src/utils/scaling_analyzer.py` does not exist in the repository,
+    so the update cannot have been performed. The missing artifact must be added and
+    contain the appropriate updated code to satisfy the task.
