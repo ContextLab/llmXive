@@ -25,22 +25,6 @@ T017:
     \ and there is no code or configuration shown that creates JSON entries with the\
     \ required fields (`molecule_id`, `command`, `exit_code`, `duration`, `peak_memory_mb`).\
     \ The task\u2019s logging and timing requirement is therefore not satisfied."
-T020a:
-  c: false
-  h: 9e1bf6ed234cd7b8258c1990841bdc7936faa8a3e5025601a91290f537d1db7e
-  r: "The repository lacks the required input files (`data/raw/barrier_dataset.csv`\
-    \ and `data/confounds.csv`), so the dependency check cannot pass. Moreover, the\
-    \ provided `code/dft_calculator.py` does not contain the described subset\u2011\
-    selection logic (reading the CSV, counting valid samples, stratified sampling),\
-    \ only unrelated DFT helper functions. The task\u2019s core requirement is therefore\
-    \ unmet."
-T020b:
-  c: false
-  h: fca10fb1a552a4d657fe21f5f796e7b6284a87b525304733ac62a872d0577faa
-  r: "The repository contains a partially\u2011implemented `code/dft_calculator.py`\
-    \ (the file is truncated and does not show the full DFT invocation, StratifiedKFold\
-    \ split, or CSV generation), and the required output `data/descriptors_dft.csv`\
-    \ is absent. The task\u2019s core deliverables are therefore not present."
 T022:
   c: false
   h: 3e81542e33bef2db6878d301a16ad498281375ae17fca73dd6d77d4a7ba61c30

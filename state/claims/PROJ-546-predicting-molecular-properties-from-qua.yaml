@@ -1566,3 +1566,111 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T19:58:28Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: DFTB+ extracts HOMO, LUMO, and Mayer bond orders normalized to eV
+  claim_id: c_34e45fe7
+  context: Implement code/dftb_calculator.py to invoke DFTB+ for geometry optimization
+    and descriptor extraction (HOMO, LUMO, Mayer bond orders) for a single molecule,
+    including unit normalization (eV).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFTB%2B_extracts_HOMO,_LUMO,_and_Mayer_bond_orders_normalized
+  kind: entity_fact
+  raw_text: Invoke DFTB+ for geometry optimization and descriptor extraction (HOMO,
+    LUMO, Mayer bond orders) for a single molecule, including unit normalization (eV).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:47:00Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Psi4 performs B3LYP/def2-SVP calculations on selected subset
+  claim_id: c_ac9aa2cf
+  context: 'Implement code/dft_calculator.py DFT calculation logic: Invoke Psi4 for
+    B3LYP/def2-SVP on the selected subset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Psi4_performs_B3LYP/def2-SVP_calculations_on_selected_subset
+  kind: entity_fact
+  raw_text: Invoke Psi4 for B3LYP/def2-SVP on the selected subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:47:39Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Subset selection uses 50 samples stratified by experimental_barrier if
+    N >= 50
+  claim_id: c_d847bda7
+  context: Read data/raw/barrier_dataset.csv, calculate total valid samples (N). If
+    N >= 50, select 50; else select all. Stratify by experimental_barrier bins using
+    pd.qcut for quantile-based bins; handle N < 5 by using N bins.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select 50 samples if N >= 50, else select all, stratified by experimental_barrier
+    bins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:48:07Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Gaussian noise with sigma 0.01 and 0.05 injected into descriptors
+  claim_id: c_7c24c036
+  context: "Implement code/noise_injection.py to inject Gaussian noise (\u03C3=0.01,\
+    \ \u03C3=0.05) into the descriptor features of the training set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject Gaussian noise with sigma=0.01 and sigma=0.05 into descriptor features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:48:21Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Stability threshold is Spearman rho >= 0.9
+  claim_id: c_a08fcbfc
+  context: 'Compute rank correlation (Spearman''s rho) of the top-ranked descriptors
+    across all sweep combinations. Output: reports/sensitivity.csv with columns for
+    each sweep parameter and resulting top 3 descriptors. Threshold: stable = True
+    if rho >= 0.9.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stability is True if Spearman's rho >= 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:48:39Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 6 hours and memory limit 7 GB
+  claim_id: c_90c44231
+  context: "Validate runtime logs from T033a: verify total runtime \u2264 6 hours\
+    \ and peak memory \u2264 7 GB per Constitution Principle VII (Resource-Bound Execution)\
+    \ and write validation result to reports/runtime_validation.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate total runtime <= 6 hours and peak memory <= 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T03:48:55Z'

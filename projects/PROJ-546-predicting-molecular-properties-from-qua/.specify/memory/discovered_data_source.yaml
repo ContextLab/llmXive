@@ -1,9 +1,10 @@
 status: none
-intent: Zenodo experimental barrier dataset csv download python package dataset
+intent: Zenodo experimental barrier dataset with HOMO and SMILES downloads python
+  package dataset
 required_fields:
 - molecule_id
-- experimental_barrier
 - smiles
-cache_key: 4a98fcc4701b6bf1a34446fa5be932ce4008f0630c2fd21d48dfd5eca63c4594
-searched_at: '2026-08-15T18:43:01.244480+00:00'
+- experimental_barrier_energy
+cache_key: 2490a6ae3abcc7529701b04c8f25fde5581d6639b70767a1647cb7de0415791f
+searched_at: '2026-08-20T03:42:03.274184+00:00'
 retry_count: 1
