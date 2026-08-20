@@ -41803,14 +41803,6 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 3.076942,
-          "ended_at": "2026-08-20T22:14:12.265174Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-08-20T22:14:09.188232Z"
-        },
-        {
-          "agent": "implementer",
           "duration_s": 2.999944,
           "ended_at": "2026-08-20T21:12:42.318690Z",
           "model": "qwen.qwen3.5-122b",
@@ -41880,6 +41872,14 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-05T09:27:28.459605Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 3.575296,
+          "ended_at": "2026-08-05T09:27:28.455995Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-08-05T09:27:24.880699Z"
         }
       ],
       "paper_status": null,
