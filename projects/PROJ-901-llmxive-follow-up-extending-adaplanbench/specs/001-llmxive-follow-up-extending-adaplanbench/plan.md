@@ -7,7 +7,7 @@
 
 This project extends the AdaPlanBench evaluation by isolating tasks with progressive constraint accumulation (≥5 constraints) to test a "dual-track" architecture. The dual-track approach pairs a Small Language Model (SLM) generator with a deterministic, rule-based constraint store. The primary goal is to determine if explicit constraint tracking significantly mitigates violation rates compared to a monolithic SLM baseline as constraint complexity increases, using a Generalized Linear Mixed Model (GLMM) for statistical validation.
 
-**Critical Implementation Note**: To satisfy the CI resource constraints (limited vCPU, 7GB RAM, no external API), the "Monolithic Baseline" is implemented as a local Phi-3-mini instance running *without* the resolver. The comparison tests the architectural intervention (resolver) on the *same* generative model, controlling for model capability. Evaluation of external models (GPT-4, Llama-3-70b) is out of scope for this CI run.
+**Critical Implementation Note**: To satisfy the CI resource constraints (limited vCPU, GB RAM, no external API), the "Monolithic Baseline" is implemented as a local Phi-3-mini instance running *without* the resolver. The comparison tests the architectural intervention (resolver) on the *same* generative model, controlling for model capability. Evaluation of external models (GPT-4, Llama-3-70b) is out of scope for this CI run.
 
 ## Technical Context
 
@@ -15,7 +15,7 @@ This project extends the AdaPlanBench evaluation by isolating tasks with progres
 **Primary Dependencies**: `pandas`, `datasets` (HuggingFace), `statsmodels`, `scikit-learn`, `transformers` (CPU-only, 4-bit quantized), `pyyaml`, `pytest`  
 **Storage**: Local file system (`data/`), JSON/CSV logs  
 **Testing**: `pytest` (unit, integration, contract validation)  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 vCPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: vCPU, 7GB RAM)  
 **Project Type**: Research/Computational Experiment  
 **Performance Goals**: Execute on CPU within 6 hours; memory < 7GB; no GPU dependency for core logic.  
 **Constraints**: No external API calls; strict adherence to data hygiene (checksums); explicit handling of "implicit" constraints as unverified; synthetic proxy generation if real dataset is unavailable.  
