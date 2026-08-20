@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import time
+import threading
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
@@ -61,9 +62,6 @@ class ResourceMonitor:
             sample = self._get_current_usage()
             if sample:
                 self.usage_samples.append(sample)
-                # Log every 10th sample to avoid spam, or just the peak if needed
-                # For now, just log start/stop as per spec, but we accumulate here
-                pass
             time.sleep(self._interval)
 
     def start(self):
@@ -79,7 +77,6 @@ class ResourceMonitor:
         self._monitoring = True
         
         # Start background sampling thread
-        import threading
         self._samples_thread = threading.Thread(target=self._monitoring_loop, daemon=True)
         self._samples_thread.start()
         

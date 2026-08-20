@@ -1,125 +1,126 @@
+import json
 import os
 import sys
-import json
 import time
 import tempfile
-import shutil
+import threading
 from pathlib import Path
+from collections import namedtuple
+from unittest.mock import patch, MagicMock
+
 import pytest
 
-# Add code directory to path to import utils
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Import the class under test
+from code.utils import ResourceMonitor, ResourceUsage
 
-from utils import ResourceMonitor
+# Define a local namedtuple to avoid brittle psutil._common imports
+MockMem = namedtuple('MockMem', ['rss', 'vms'])
+
+class MockProcess:
+    """
+    Mock psutil.Process to simulate memory usage without relying on real psutil internals.
+    """
+    def __init__(self, rss_bytes, vms_bytes):
+        self._rss = rss_bytes
+        self._vms = vms_bytes
+        self._pid = 12345
+
+    def memory_info(self):
+        return MockMem(rss=self._rss, vms=self._vms)
+
+    def cpu_percent(self):
+        # Return a deterministic mock CPU percent
+        return 42.0
+
+    @property
+    def pid(self):
+        return self._pid
 
 class TestResourceMonitor:
     """
     Unit tests for the ResourceMonitor class.
-    Tests instantiation, start/stop logic, and finalization with simulated memory usage.
     """
 
-    def test_init_default(self):
-        """Test initialization with default path."""
+    def test_init_default_path(self):
+        """Test that default output path is set correctly."""
         monitor = ResourceMonitor()
-        assert monitor.start_time is None
-        assert monitor.end_time is None
         assert monitor.output_path == "data/processed/resource_profile.json"
-        assert monitor._monitoring is False
 
-    def test_init_custom_dir(self):
-        """Test initialization with custom processed directory."""
-        custom_dir = "/tmp/test_output"
-        monitor = ResourceMonitor(processed_dir=custom_dir)
-        expected_path = os.path.join(custom_dir, "resource_profile.json")
-        assert monitor.output_path == expected_path
-
-    def test_start_stop_logic(self):
-        """Test that start and stop record times correctly."""
-        monitor = ResourceMonitor()
-        monitor.start()
-        time.sleep(0.2) # Sleep briefly to simulate work
-        monitor.stop()
-        
-        assert monitor.start_time is not None
-        assert monitor.end_time is not None
-        assert monitor.end_time >= monitor.start_time
-
-    def test_finalize_creates_json(self):
-        """Test that finalize writes the correct JSON structure."""
+    def test_init_custom_path(self):
+        """Test that custom output path is set correctly."""
         with tempfile.TemporaryDirectory() as tmpdir:
             monitor = ResourceMonitor(processed_dir=tmpdir)
+            expected = os.path.join(tmpdir, "resource_profile.json")
+            assert monitor.output_path == expected
+
+    def test_start_stop_finalize_with_mock(self):
+        """
+        Test the full lifecycle of the monitor using a MockProcess.
+        Asserts that peak_ram_gb > 0 and total_runtime_hours > 0.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_file = os.path.join(tmpdir, "resource_profile.json")
+            monitor = ResourceMonitor(processed_dir=tmpdir)
+
+            # Mock the _get_current_usage to return a fixed high memory usage
+            # Simulate 2GB RSS
+            mock_rss = 2 * 1024**3 
+            mock_vms = 4 * 1024**3
+            
+            mock_process = MockProcess(mock_rss, mock_vms)
+
+            # Patch psutil.Process to return our mock
+            with patch('code.utils.psutil.Process', return_value=mock_process):
+                monitor.start()
+                
+                # Let it run for a tiny bit to ensure start_time is set
+                time.sleep(0.15) 
+                
+                monitor.stop()
+                profile = monitor.finalize()
+
+            # Verify the file was written
+            assert os.path.exists(output_file), "Output JSON file was not created"
+
+            # Verify content
+            assert "peak_ram_gb" in profile
+            assert "total_runtime_hours" in profile
+
+            # Assertions from requirements
+            assert profile["peak_ram_gb"] > 0, "Peak RAM must be greater than 0"
+            assert profile["total_runtime_hours"] > 0, "Total runtime must be greater than 0"
+
+            # Verify the calculated peak RAM is close to our mock (allow small float variance)
+            # 2GB in GB
+            expected_peak_gb = 2.0
+            assert abs(profile["peak_ram_gb"] - expected_peak_gb) < 0.1, \
+                f"Expected peak RAM ~{expected_peak_gb} GB, got {profile['peak_ram_gb']}"
+
+    def test_finalize_creates_directory(self):
+        """Test that finalize creates the parent directory if it doesn't exist."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            subdir = os.path.join(tmpdir, "sub", "dir")
+            monitor = ResourceMonitor(processed_dir=subdir)
+            
+            # Mock start/stop times to avoid threading issues in test
+            monitor.start_time = time.time()
+            monitor.end_time = time.time() + 1
+            monitor.usage_samples = [ResourceUsage(time.time(), 1.0, 10.0)]
+            
+            monitor.finalize()
+            
+            assert os.path.exists(monitor.output_path)
+
+    def test_no_psutil_graceful_handling(self):
+        """Test behavior when psutil is not available."""
+        with patch('code.utils.psutil', None):
+            monitor = ResourceMonitor()
+            # Should not raise
             monitor.start()
-            time.sleep(0.3) # Simulate some runtime
+            assert monitor.start_time is not None
             monitor.stop()
             profile = monitor.finalize()
             
-            # Check file exists
-            output_path = Path(tmpdir) / "resource_profile.json"
-            assert output_path.exists(), "resource_profile.json was not created"
-            
-            # Check content
-            assert "peak_ram_gb" in profile
-            assert "total_runtime_hours" in profile
-            assert isinstance(profile["peak_ram_gb"], float)
-            assert isinstance(profile["total_runtime_hours"], float)
-
-    def test_simulated_memory_spike(self):
-        """
-        Simulates a scenario where memory usage spikes (e.g., 2GB) and verifies
-        the monitor captures it.
-        
-        Note: Since we cannot easily force the OS to allocate exactly 2GB in a 
-        unit test without side effects, we verify the logic by ensuring the 
-        monitor runs, samples data (even if small), and correctly calculates 
-        positive values. The 'simulation' here is the act of running the monitor
-        during a small allocation loop to ensure the sampling mechanism works.
-        """
-        with tempfile.TemporaryDirectory() as tmpdir:
-            monitor = ResourceMonitor(processed_dir=tmpdir)
-            
-            # Start monitoring
-            monitor.start()
-            
-            # Simulate memory usage by allocating a list of data
-            # This ensures the process RSS increases slightly, which psutil should catch
-            dummy_data = []
-            try:
-                # Allocate ~100MB to ensure a measurable spike if psutil is accurate
-                # This is a safe, clean simulation of "work"
-                for _ in range(10):
-                    dummy_data.append([0.0] * (1024 * 1024)) 
-                    time.sleep(0.05)
-            finally:
-                # Stop monitoring
-                monitor.stop()
-                # Clear data to free memory
-                del dummy_data
-
-            profile = monitor.finalize()
-
-            # Assertions required by task:
-            # The test MUST assert peak_ram_gb > 0 and total_runtime_hours > 0
-            assert profile["peak_ram_gb"] > 0, f"Expected peak_ram_gb > 0, got {profile['peak_ram_gb']}"
-            assert profile["total_runtime_hours"] > 0, f"Expected total_runtime_hours > 0, got {profile['total_runtime_hours']}"
-
-            # Verify the JSON file content matches the return value
-            output_path = Path(tmpdir) / "resource_profile.json"
-            with open(output_path, 'r') as f:
-                saved_profile = json.load(f)
-            
-            assert saved_profile["peak_ram_gb"] == profile["peak_ram_gb"]
-            assert saved_profile["total_runtime_hours"] == profile["total_runtime_hours"]
-
-    def test_finalize_without_start(self):
-        """Test that finalize handles missing start/stop gracefully."""
-        monitor = ResourceMonitor()
-        # Do not call start/stop
-        profile = monitor.finalize()
-        
-        assert "peak_ram_gb" in profile
-        assert "total_runtime_hours" in profile
-        # Runtime should be very small but non-negative
-        assert profile["total_runtime_hours"] >= 0
-        # RAM might be 0 if no samples were taken (psutil unavailable or no samples)
-        # but the structure must be valid.
-        assert isinstance(profile["peak_ram_gb"], float)
+            # With no psutil, peak_ram_gb should be 0.0
+            assert profile["peak_ram_gb"] == 0.0
+            assert profile["total_runtime_hours"] > 0

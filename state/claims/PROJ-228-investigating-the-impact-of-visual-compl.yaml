@@ -426,24 +426,6 @@
   updated_at: '2026-06-30T11:21:49Z'
 - artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
   attempts: 1
-  canonical: peak RAM usage less than 5.5GB
-  claim_id: c_4788183f
-  context: Optimize batch sizes in code/complexity.py to ensure peak RAM usage stays
-    < 5.5GB
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_less_than_5.5GB
-  kind: magnitude
-  raw_text: peak RAM usage stays < 5.5GB
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-30T11:21:51Z'
-- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
-  attempts: 1
   canonical: significance logic observed statistic outside 95 percent confidence interval
     of null distribution
   claim_id: c_46d656f6
@@ -892,24 +874,6 @@
   status: not_enough_info
   updated_at: '2026-07-21T10:37:02Z'
 - artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
-  attempts: 1
-  canonical: HRF model double-gamma with peak 5s and undershoot 15s
-  claim_id: c_30dab66c
-  context: Convolve complexity metrics with canonical HRF using nilearn.glm.first_level.make_regressor
-    (double-gamma model, peak=5s, undershoot=15s) to align with BOLD signal
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/HRF_model_double-gamma_with_peak_5s_and_undershoot_15s
-  kind: entity_fact
-  raw_text: HRF model double-gamma with peak=5s, undershoot=15s
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-21T10:37:04Z'
-- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
   attempts: 2
   canonical: 4mm FWHM smoothing kernel
   claim_id: c_ab1011b0
@@ -1000,3 +964,292 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T10:38:18Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_5c504d6e
+  context: Task T004 defines constants including OpenNeuro ID ds000246.
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000246
+  kind: entity_fact
+  raw_text: The dataset used is OpenNeuro ID ds000246.
+  resolved_value: OpenNeuro dataset ID ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T06:19:51Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma peak 5s undershoot 15s
+  claim_id: c_9315fb07
+  context: Task T004 and T016 specify the HRF model parameters as double-gamma with
+    peak=5s and undershoot=15s.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_model_double-gamma_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: The HRF model is a double-gamma model with a peak of 5 seconds and an
+    undershoot of 15 seconds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:20:50Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Wikidata Q136366870
+  claim_id: c_12150f14
+  context: Task T033 references Wikidata Q136366870 for FDR correction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q136366870
+  kind: entity_fact
+  raw_text: The dataset referenced is identified in Wikidata as Q136366870.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:21:16Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_bf307e37
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    with peak=5s, undershoot=15s
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T06:22:34Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: Plan.md mentions dataset ID ds000248
+  claim_id: c_2f7fed26
+  context: 'Dataset ID: All tasks reference ds000246 as per Spec FR-001. (Note: Plan.md
+    contains a discrepancy mentioning ds000248; tasks enforce ds000246 to comply with
+    the Spec)'
+  evidence:
+    entailment_evidence: Plan.md mentions ds000248 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan.md_mentions_ds000248
+  kind: entity_fact
+  raw_text: Plan.md contains a discrepancy mentioning ds000248
+  resolved_value: Plan.md mentions ds000248
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T06:22:36Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma with peak 5s and undershoot 15s
+  claim_id: c_d8c72b09
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    with peak=5s, undershoot=15s
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_model_double-gamma_with_peak_5s_and_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model double-gamma with peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:23:14Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 2
+  canonical: HRF model double-gamma with peak 5s and undershoot 15s
+  claim_id: c_30dab66c
+  context: Convolve complexity metrics with canonical HRF using nilearn.glm.first_level.make_regressor
+    (double-gamma model, peak=5s, undershoot=15s) to align with BOLD signal
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_model_double-gamma_with_peak_5s_and_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model double-gamma with peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:23:18Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: memory usage peak 6GB
+  claim_id: c_39e66d26
+  context: "Run ingestion script on a single subject; verify CSV output contains time-locked\
+    \ complexity scores and memory usage logs show \u2264 6GB peak"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_peak_6GB
+  kind: entity_fact
+  raw_text: "memory usage logs show \u2264 6GB peak"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:23:53Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: abort if RAM exceeds 6GB
+  claim_id: c_59effc0f
+  context: Add memory monitoring in code/ingestion.py and code/complexity.py to abort
+    if RAM > 6GB
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Abort_if_RAM_exceeds_6GB
+  kind: entity_fact
+  raw_text: abort if RAM > 6GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:24:40Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 4mm FWHM smoothing logic test_smoothing_increases_variance
+  claim_id: c_341dc437
+  context: 'Unit test for 4mm FWHM smoothing logic in tests/unit/test_roi_extraction.py.
+    Test: test_smoothing_increases_variance asserts NotImplementedError before implementation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/4mm_FWHM_smoothing_logic_test_smoothing_increases_variance
+  kind: entity_fact
+  raw_text: 'smoothing logic in tests/unit/test_roi_extraction.py. Test: test_smoothing_increases_variance'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:25:36Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 4mm FWHM kernel
+  claim_id: c_4ef9ec2d
+  context: Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with an appropriate FWHM kernel
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/4mm_FWHM_kernel
+  kind: entity_fact
+  raw_text: 4mm FWHM kernel
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:26:32Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: output mean 0 std 1
+  claim_id: c_652d2ae7
+  context: 'Implement z-score normalization of the mean time-series within the DLPFC
+    ROI. Verify: Output mean ~0, std ~1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: output mean ~0, std ~1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:27:16Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular Block Permutation Block Size 2 times TR
+  claim_id: c_94107a5e
+  context: 'Implement Circular Block Permutation Test with a sufficient number of
+    iterations. Block Size: Calculate as 2 * TR (Repetition Time) to preserve temporal
+    autocorrelation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Circular Block Permutation Test with Block Size: Calculate as 2 * TR
+    (Repetition Time)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:28:34Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: FDR correction Wikidata Q136366870 for entropy and fractal dimension
+  claim_id: c_4723e0e5
+  context: Implement FDR correction ({{claim:c_2be034ca}} (Wikidata Q136366870, https://www.wikidata.org/wiki/Q136366870))
+    for the two metrics (entropy, fractal dimension)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FDR_correction_Wikidata_Q136366870_for_entropy_and_fractal_d
+  kind: entity_fact
+  raw_text: FDR correction (Wikidata Q136366870, https://www.wikidata.org/wiki/Q136366870)
+    for the two metrics (entropy, fractal dimension)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:29:31Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: exclude subjects with excessive motion artifacts
+  claim_id: c_ca3ecf64
+  context: Add logic to exclude subjects with excessive motion artifacts (flagged
+    in logs) from group-level aggregation
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_excessive_motion_artifacts
+  kind: entity_fact
+  raw_text: excludes subjects with excessive motion artifacts
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:30:05Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 2
+  canonical: peak RAM usage less than 5.5GB
+  claim_id: c_4788183f
+  context: Optimize batch sizes in code/complexity.py to ensure peak RAM usage stays
+    < 5.5GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_less_than_5.5GB
+  kind: magnitude
+  raw_text: peak RAM usage stays < 5.5GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:30:45Z'

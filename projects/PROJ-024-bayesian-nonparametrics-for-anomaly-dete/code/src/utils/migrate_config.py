@@ -9,10 +9,12 @@ This script performs the following steps:
 5. Merges the removed keys into the state file under a 'derived_statistics' section.
 6. Saves the updated config and state files.
 7. Verifies the config file size is < 2048 bytes.
+8. Supports --force flag to clear config of non-hyperparameter entries if size exceeds limit.
 """
 import os
 import sys
 import yaml
+import argparse
 from pathlib import Path
 from datetime import datetime
 
@@ -29,6 +31,9 @@ STATE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-024-bayesian-nonparamet
 # Keys to migrate
 DERIVED_KEYS = ['dataset_stats', 'inference_results', 'simulation_metrics']
 
+# Keys to keep in config (hyperparameters, seeds, paths)
+ALLOWED_KEYS = {'hyperparameters', 'seeds', 'paths'}
+
 def load_yaml(path: Path) -> dict:
     if not path.exists():
         print(f"Error: File not found: {path}")
@@ -43,6 +48,10 @@ def save_yaml(path: Path, data: dict):
     print(f"Saved: {path}")
 
 def main():
+    parser = argparse.ArgumentParser(description="Migrate derived statistics from config to state file.")
+    parser.add_argument('--force', action='store_true', help="Force migration: remove all non-hyperparameter keys from config if size exceeds 2KB.")
+    args = parser.parse_args()
+
     print(f"Starting config migration at {datetime.now().isoformat()}")
     print(f"Project Root: {PROJECT_ROOT}")
     print(f"Config path: {CONFIG_PATH}")
@@ -72,7 +81,36 @@ def main():
     else:
         print(f"Migrating keys: {list(migrated_data.keys())}")
 
-    # 3. Load or initialize state file
+    # 3. Check size and apply --force logic if needed
+    config_size = os.path.getsize(CONFIG_PATH)
+    limit = 2048
+    print(f"Config file size before cleanup: {config_size} bytes (limit: {limit} bytes)")
+
+    if config_size > limit:
+        if args.force:
+            print("Config size exceeds limit. Applying --force cleanup...")
+            # Remove any keys not in ALLOWED_KEYS
+            keys_to_remove = [k for k in config if k not in ALLOWED_KEYS]
+            if keys_to_remove:
+                for k in keys_to_remove:
+                    del config[k]
+                print(f"Removed keys: {keys_to_remove}")
+            else:
+                print("No additional keys to remove beyond derived statistics.")
+            
+            # Save cleaned config immediately to re-check size
+            save_yaml(CONFIG_PATH, config)
+            config_size = os.path.getsize(CONFIG_PATH)
+            print(f"Config file size after cleanup: {config_size} bytes")
+        else:
+            print(f"ERROR: Config file size {config_size} exceeds limit {limit}.")
+            print("Run with --force to remove non-hyperparameter entries.")
+            sys.exit(1)
+    elif config_size <= limit and migrated_data:
+        # If we migrated data and size is now OK, save the config
+        save_yaml(CONFIG_PATH, config)
+
+    # 4. Load or initialize state file
     if STATE_PATH.exists():
         state = load_yaml(STATE_PATH)
     else:
@@ -83,24 +121,22 @@ def main():
         }
         print(f"Created new state file: {STATE_PATH}")
 
-    # 4. Merge into state file
+    # 5. Merge into state file
     if "derived_statistics" not in state:
         state["derived_statistics"] = {}
     
     state["derived_statistics"].update(migrated_data)
     state["last_updated"] = datetime.now().isoformat()
 
-    # 5. Save updated files
-    save_yaml(CONFIG_PATH, config)
+    # 6. Save updated state file
     save_yaml(STATE_PATH, state)
 
-    # 6. Verify config size
+    # 7. Final verification
     config_size = os.path.getsize(CONFIG_PATH)
-    limit = 2048
-    print(f"Config file size: {config_size} bytes (limit: {limit} bytes)")
+    print(f"Final Config file size: {config_size} bytes (limit: {limit} bytes)")
     
     if config_size > limit:
-        print(f"ERROR: Config file size {config_size} exceeds limit {limit}.")
+        print(f"ERROR: Config file size {config_size} still exceeds limit {limit} after cleanup.")
         sys.exit(1)
     else:
         print("SUCCESS: Config file size is within limits.")

@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://openneuro.org/datasets/ds000248
   verified_at: '2026-06-30T11:00:09.357862Z'
-- artifact_hash: 8f20388965b477bd841411fb2cd53caa62d1cfd3d954e0567a748a306b51189c
+- artifact_hash: ba45a9aa32165bffc30fb54bde037c960710c0c79b53d4c219480abb3b849603
   artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://en.wikipedia.org/wiki/Samsung_Galaxy_A50
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Samsung_Galaxy_A50
-  verified_at: '2026-07-21T10:38:18.216413Z'
-- artifact_hash: 8f20388965b477bd841411fb2cd53caa62d1cfd3d954e0567a748a306b51189c
+  verified_at: '2026-08-20T06:30:46.135995Z'
+- artifact_hash: ba45a9aa32165bffc30fb54bde037c960710c0c79b53d4c219480abb3b849603
   artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://www.wikidata.org/wiki/Q136366870
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q136366870
-  verified_at: '2026-07-21T10:38:18.216413Z'
+  verified_at: '2026-08-20T06:30:46.135995Z'

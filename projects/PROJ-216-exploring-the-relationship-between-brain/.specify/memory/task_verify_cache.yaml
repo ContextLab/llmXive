@@ -1,38 +1,20 @@
-T004:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `specs/amendment-001-fluid-intelligence-n10.md` file was presented, and no\
-    \ excerpt of its contents was shown. Without the required markdown file containing\
-    \ the exact specified text, the task\u2019s deliverable is missing."
-T005:
-  c: false
-  h: 5ab51a1e1d6fa108258147bafb53268bc4a756fe3c3d870dca6ebed135002adc
-  r: "Only `contracts/download_contract.yaml` is present and contains the required\
-    \ `input` and `output` sections. The other three contract files (`preprocess_contract.yaml`,\
-    \ `graph_contract.yaml`, `stats_contract.yaml`) are missing entirely, so the task\u2019\
-    s requirement of defining all four contracts is not met."
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data-model.md` file was presented, and there is no evidence that it exists
-    or contains the required entity definitions for `Subject`, `GraphMetric`, and
-    `BehavioralScore`. The implementer must add the markdown file with the specified
-    attributes and types.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file is presented or described in the provided evidence,\
-    \ and no contents showing step\u2011by\u2011step reproducible instructions are\
-    \ available. The required documentation artifact is missing."
+  r: No directories or Python script were provided as evidence; the claim that the
+    required folder hierarchy (`data/raw`, `data/interim`, `data/processed`, `tests/unit`,
+    `tests/integration`, `reports`) exists and is logged is unsupported. The implementer
+    must supply the actual directory structure (or a script that creates it) and demonstrate
+    its successful execution.
 T008:
   c: false
-  h: ed5b24bcd50b3a2b71897305f09159ce0ccfde6a9c2705683e83425c1df0ac1e
-  r: The `ResourceMonitor` class in `code/utils.py` is truncated and lacks implementations
-    for `stop()` and `finalize()`, and the background thread start code is incomplete.
-    The unit test file `tests/unit/test_resource_monitor.py` is also cut off (e.g.,
-    `monitor = ResourceMonito`), so it does not fully verify the required behavior.
-    Additionally, the expected output JSON file is missing. These gaps mean the task
-    requirements are not met.
+  h: dae27e603d70f193f1710f005972fe686ecf3b275dd667836d0daa907d557740
+  r: "The provided `code/utils.py` shows only the beginning of the `ResourceMonitor`\
+    \ class (up to the `start` method) and does not include the required `stop()`\
+    \ and `finalize()` implementations, nor the logic to compute peak RAM and total\
+    \ runtime and write the JSON file. Additionally, the unit test file `tests/unit/test_resource_monitor.py`\
+    \ is truncated (it ends mid\u2011assert), making it syntactically invalid and\
+    \ incomplete. The task\u2019s required artifacts are therefore missing or incomplete."
 T025:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2

@@ -1,88 +1,67 @@
-- artifact_hash: 5a3c5cc697e8a035cd77889ea2825896f30373ced7cf7a962282be8070d8e65d
+- artifact_hash: 5b1b3f241148aa8faee26d59f141725fc921f6a3e33486d5b87bd103e5c45ddb
   artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
   cite_id: c-001
   cited_authors: []
-  cited_title: 10.1080/01621459.1992.10475190
-  fetched_title: null
+  cited_title: null
+  fetched_title: "Razvan27/remla_phishing_url \xB7 Datasets at Hugging Face"
   kind: url
-  value: https://doi.org/10.1080/01621459.1992.10475190
+  value: https://huggingface.co/datasets/Razvan27/remla_phishing_url/...`
   verification_status: pending
-  verified_against_url: https://www.tandfonline.com/doi/full/10.1080/01621459.1992.10475190
-  verified_at: '2026-08-16T03:20:39.464135Z'
-- artifact_hash: 5a3c5cc697e8a035cd77889ea2825896f30373ced7cf7a962282be8070d8e65d
+  verified_against_url: https://huggingface.co/datasets/Razvan27/remla_phishing_url
+  verified_at: '2026-08-20T07:08:00.681604Z'
+- artifact_hash: 5b1b3f241148aa8faee26d59f141725fc921f6a3e33486d5b87bd103e5c45ddb
   artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: "txttxt252525/swsdfg \xB7 Datasets at Hugging Face"
   kind: url
-  value: https://doi.org/10.2307/2346101
-  verification_status: mismatch
-  verified_against_url: https://doi.org/10.2307/2346101
-  verified_at: '2026-08-16T03:20:39.464135Z'
-- artifact_hash: 5a3c5cc697e8a035cd77889ea2825896f30373ced7cf7a962282be8070d8e65d
+  value: https://huggingface.co/datasets/txttxt252525/swsdfg/...`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/txttxt252525/swsdfg
+  verified_at: '2026-08-20T07:08:00.681604Z'
+- artifact_hash: 5b1b3f241148aa8faee26d59f141725fc921f6a3e33486d5b87bd103e5c45ddb
   artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: "Data-Gouv-ML/cotations-gros-bovins-vifs \xB7 Datasets at Hugging\
+    \ Face"
   kind: url
-  value: https://doi.org/10.1080/10618600.1992.10474562
-  verification_status: mismatch
-  verified_against_url: https://doi.org/10.1080/10618600.1992.10474562
-  verified_at: '2026-08-16T03:20:39.464135Z'
-- artifact_hash: 5a3c5cc697e8a035cd77889ea2825896f30373ced7cf7a962282be8070d8e65d
+  value: https://huggingface.co/datasets/Data-Gouv-ML/cotations-gros-bovins-vifs/...`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/Data-Gouv-ML/cotations-gros-bovins-vifs
+  verified_at: '2026-08-20T07:08:00.681604Z'
+- artifact_hash: 5b1b3f241148aa8faee26d59f141725fc921f6a3e33486d5b87bd103e5c45ddb
   artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://doi.org/10.1007/978-94-009-4654-3
-  verification_status: mismatch
-  verified_against_url: https://doi.org/10.1007/978-94-009-4654-3
-  verified_at: '2026-08-16T03:20:39.464135Z'
-- artifact_hash: 5a3c5cc697e8a035cd77889ea2825896f30373ced7cf7a962282be8070d8e65d
+  value: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-...`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-
+  verified_at: '2026-08-20T07:08:00.681604Z'
+- artifact_hash: 5b1b3f241148aa8faee26d59f141725fc921f6a3e33486d5b87bd103e5c45ddb
   artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
   cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: doi
-  value: 10.2307/2346101
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.2307/2346101
-  verified_at: '2026-08-16T03:20:39.464135Z'
-- artifact_hash: 5a3c5cc697e8a035cd77889ea2825896f30373ced7cf7a962282be8070d8e65d
+  kind: url
+  value: https://portal.nersc.gov/project/microbiome/HMP2/`
+  verification_status: unreachable
+  verified_against_url: https://portal.nersc.gov/project/microbiome/HMP2/
+  verified_at: '2026-08-20T07:08:00.681604Z'
+- artifact_hash: 5b1b3f241148aa8faee26d59f141725fc921f6a3e33486d5b87bd103e5c45ddb
   artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
   cite_id: c-006
   cited_authors: []
   cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1080/10618600.1992.10474562
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1080/10618600.1992.10474562
-  verified_at: '2026-08-16T03:20:39.464135Z'
-- artifact_hash: 5a3c5cc697e8a035cd77889ea2825896f30373ced7cf7a962282be8070d8e65d
-  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
-  cite_id: c-007
-  cited_authors: []
-  cited_title: null
-  fetched_title: Generalized Collinearity Diagnostics
-  kind: doi
-  value: 10.1080/01621459.1992.10475190
+  fetched_title: Home - The Microsetta Initiative
+  kind: url
+  value: https://americangut.org/`
   verification_status: pending
-  verified_against_url: https://doi.org/10.1080/01621459.1992.10475190
-  verified_at: '2026-08-16T03:20:39.464135Z'
-- artifact_hash: 5a3c5cc697e8a035cd77889ea2825896f30373ced7cf7a962282be8070d8e65d
-  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
-  cite_id: c-008
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1007/978-94-009-4654-3
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1007/978-94-009-4654-3
-  verified_at: '2026-08-16T03:20:39.464135Z'
+  verified_against_url: https://microsetta.ucsd.edu
+  verified_at: '2026-08-20T07:08:00.681604Z'

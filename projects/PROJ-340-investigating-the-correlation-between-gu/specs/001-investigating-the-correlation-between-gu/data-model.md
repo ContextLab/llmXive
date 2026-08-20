@@ -1,66 +1,67 @@
-# Data Model: Gut Microbiome-Sleep Architecture
+# Data Model: Investigating the Correlation Between Gut Microbiome Composition and Sleep Architecture
 
 ## Overview
 
-This document defines the data structures, schemas, and transformations used in the analysis pipeline. It ensures strict adherence to the "Single Source of Truth" (Constitution IV) and "Data Hygiene" (Constitution III) principles.
+This document defines the data structures, schemas, and transformation logic for the project. It ensures that the `ingestion`, `analysis`, and `reporting` modules operate on consistent, validated data.
 
-## Entity Definitions
+## Core Entities
 
 ### 1. MicrobialTaxon
 Represents a specific bacterial species or genus.
-- `taxon_name` (string): Unique identifier (e.g., "Bacteroides_fragilis").
-- `abundance_count` (integer): Raw read count.
-- `relative_abundance` (float): Proportion of total reads (0.0 to 1.0).
-- `taxonomy_level` (string): "Genus", "Species", etc.
-- `clr_value` (float): Centered Log-Ratio transformed value (calculated during preprocessing).
+- **Attributes**:
+  - `taxon_name` (str): The name of the taxon (e.g., "Faecalibacterium prausnitzii").
+  - `abundance_count` (int): Raw count from sequencing.
+  - `relative_abundance` (float): Normalized abundance (0.0 - 1.0).
+  - `zero_inflation_ratio` (float): Proportion of samples with zero count.
+  - `distribution_test` (dict): Results of Shapiro-Wilk test (statistic, p_value).
+  - `pre_screen_status` (bool): True if the taxon passed the abundance/variance pre-screening step.
 
 ### 2. SleepMetric
 Represents a sleep architecture variable.
-- `metric_name` (string): e.g., "REM_duration", "SWS_percentage", "Total_Sleep_Time".
-- `value` (float): Measured value.
-- `unit` (string): "minutes", "percentage", "hours".
+- **Attributes**:
+  - `metric_name` (str): Name of the metric (e.g., "REM_duration", "SWS_percentage").
+  - `value` (float): Measured value for the subject.
+  - `unit` (str): Unit of measurement (e.g., "minutes", "percent").
+  - `outlier_status` (bool): True if the value is an outlier (>1.5x IQR).
 
 ### 3. CorrelationResult
-Output of the statistical analysis.
-- `taxon` (string): Name of the microbial taxon.
-- `sleep_metric` (string): Name of the sleep metric.
-- `correlation_coefficient` (float): r (for Pearson/Spearman) or beta (for ZINB).
-- `p_value_raw` (float): Unadjusted p-value.
-- `p_value_adjusted` (float): BH-adjusted p-value.
-- `is_significant` (boolean): True if `p_value_adjusted < 0.05`.
-- `method_used` (string): "ZINB", "Spearman", "Pearson".
-- `direction` (string): "positive" or "negative".
-- `effect_size_category` (string): "negligible", "weak", "moderate", "strong".
+The output of a statistical test between a taxon and a sleep metric.
+- **Attributes**:
+  - `taxon` (str): Name of the microbial taxon.
+  - `sleep_metric` (str): Name of the sleep metric.
+  - `correlation_coefficient` (float | null): The estimated correlation (r for Pearson/Spearman/SparCC). `null` for ZINB.
+  - `effect_size_beta` (float | null): The estimated log-rate ratio (beta) for ZINB. `null` for correlation methods.
+  - `p_value_raw` (float): Raw p-value.
+  - `p_value_adjusted` (float): Benjamini-Hochberg adjusted p-value.
+  - `is_significant` (bool): True if adjusted p < 0.05.
+  - `method_used` (str): "ZINB", "SparCC", "SpiecEasi", "Spearman", or "Pearson".
+  - `direction` (str): "positive" or "negative" based on the sign of the coefficient or beta.
+  - `effect_size_category` (str): "negligible", "weak", "moderate", or "strong" based on absolute value thresholds.
 
-## Data Flow & Transformations
+### 4. DiagnosticReport
+Aggregated diagnostics for the dataset.
+- **Attributes**:
+  - `collinearity_flags` (list): List of taxa pairs flagged for perfect multicollinearity.
+  - `vif_results` (dict): Map of taxon -> VIF score (calculated on Top-N subset).
+  - `power_analysis` (dict): { "required_n": int, "observed_n": int, "is_underpowered": bool, "metric_used": str }.
+  - `sensitivity_analysis` (dict): { "p_0.01": int, "p_0.05": int, "p_0.10": int }.
+  - `pre_screen_summary` (dict): { "total_taxa": int, "passed_taxa": int }.
 
-1.  **Raw Input**: `data/raw/synthetic_data.csv` (or `real_data.csv`).
-    - Format: CSV.
-    - Columns: `subject_id`, `taxon_1`, `taxon_2`, ..., `REM_duration`, `SWS_duration`, ...
-2.  **Validation**: `code/ingest.py` checks for required columns.
-    - Output: `data/metadata/required_variables.yaml` (if pass) or `data/results/validation_failure_report.json` (if fail).
-3.  **Cleaning**: `code/ingest.py` handles outliers (1.5x IQR) and missing values.
-    - Output: `data/processed/cleaned_data.csv`.
-4.  **Transformation**: `code/analysis.py` applies **CLR transformation** to predictors.
-    - Output: `data/processed/cleaned_data.csv` (updated with CLR columns) or `data/processed/clr_transformed_data.csv`.
-5.  **Analysis**: `code/analysis.py` computes correlations.
-    - Output: `data/results/correlation_results.csv`.
-6.  **Reporting**: `code/reporting.py` aggregates results into JSON.
-    - Output: `data/results/correlation_matrix.json` (Single Source of Truth).
-7.  **Diagnostics**: `code/diagnostics.py` computes VIF and collinearity.
-    - Output: `data/metadata/static_collinearity_map.json`, `data/results/vif_report.json`.
-8.  **Sensitivity**: `code/reporting.py` aggregates sensitivity analysis.
-    - Output: `data/results/sensitivity_analysis.json`.
+## Data Flow
 
-## Data Constraints
+1.  **Raw Input**: CSV/TSV file with columns: `subject_id`, `taxon_A`, `taxon_B`, ..., `REM_duration`, `SWS_duration`.
+2.  **Validation**: Check for required columns. If missing, halt with error.
+3.  **Pre-screening**: Filter taxa by abundance/variance to reduce multiple testing burden.
+4.  **Transformation**:
+    - Calculate relative abundance.
+    - Detect outliers and flag/exclude.
+    - Run distribution tests (Shapiro-Wilk, zero-inflation) on `abundance_count` and `value` attributes.
+5.  **Analysis**: Run selected correlation models (SparCC, ZINB).
+6.  **Correction**: Apply Benjamini-Hochberg correction.
+7.  **Output**: JSON/CSV files containing `CorrelationResult` and `DiagnosticReport`.
 
-- **Zero-Inflation**: Handled by ZINB model selection logic.
-- **Collinearity**: Perfect multicollinearity detected via rank check; VIF > 5 flagged.
-- **Outliers**: Excluded from analysis if > 1.5x IQR from Q1/Q3.
-- **Missing Data**: If required variables are missing, pipeline halts with error.
-- **Compositional**: CLR transformation is mandatory before correlation/VIF.
+## Constraints
 
-## Schema Validation
-
-All CSV inputs must conform to the schema defined in `contracts/dataset_schema.yaml`. The `ingest.py` script validates this before processing.
-The primary output `data/results/correlation_matrix.json` must conform to `contracts/output.schema.yaml`.
+- **No PII**: `subject_id` must be anonymized (e.g., hash or random UUID).
+- **Data Integrity**: Raw data files are never modified; all transformations create new files in `data/processed/`.
+- **Type Safety**: All numeric fields must be float/int; missing values must be explicitly handled (imputed or excluded).

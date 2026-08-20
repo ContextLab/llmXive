@@ -1,75 +1,79 @@
 name: stats_contract
-version: "1.0.0"
-description: Contract for statistical correlation analysis and Bonferroni correction.
+description: Contract for statistical correlation analysis and reporting.
+version: "1.0"
 
 input:
-  type: object
-  properties:
-    graph_metrics_path:
-      type: string
-      description: Path to the aggregated graph metrics CSV.
-    behavioral_scores_path:
-      type: string
-      description: Path to the behavioral scores (Fluid Intelligence) JSON/CSV.
-    correction_method:
-      type: string
-      description: Multiple comparison correction method.
-      enum:
-        - bonferroni
-      const: bonferroni
-  required:
-    - graph_metrics_path
-    - behavioral_scores_path
-    - correction_method
+  graph_metrics_csv:
+    type: file
+    path: data/processed/graph_metrics.csv
+    description: CSV file with graph metrics per subject
+  behavioral_scores:
+    type: file
+    path: data/processed/valid_subjects.json
+    description: JSON file with Fluid Intelligence scores
+  correction_method:
+    type: string
+    description: Multiple comparison correction method
+    required: true
+    default: bonferroni
+    enum: [bonferroni]
 
 output:
-  type: object
-  properties:
-    correlation_results_path:
-      type: string
-      description: Path to the correlation results CSV.
+  correlation_results_csv:
+    type: file
+    path: data/processed/correlation_results.csv
     schema:
-      type: object
-      properties:
-        metric_name:
-          type: string
-        score_type:
-          type: string
-        correlation:
-          type: number
-        p_value:
-          type: number
-        p_adj_bonferroni:
-          type: number
-        cohens_d:
-          type: number
-        ci_lower:
-          type: number
-        ci_upper:
-          type: number
-      required:
-        - metric_name
-        - score_type
-        - correlation
-        - p_value
-        - p_adj_bonferroni
-        - cohens_d
-        - ci_lower
-        - ci_upper
-    scatter_plot_path:
-      type: string
-      description: Path to the generated scatter plot PNG.
-    summary_report_path:
-      type: string
-      description: Path to the generated summary PDF.
-  required:
-    - correlation_results_path
-    - schema
-    - scatter_plot_path
-    - summary_report_path
+      type: array
+      items:
+        type: object
+        properties:
+          metric_name:
+            type: string
+          score_type:
+            type: string
+            enum: [fluid_intelligence]
+          correlation:
+            type: number
+          p_value:
+            type: number
+          p_adj_bonferroni:
+            type: number
+          cohens_d:
+            type: number
+          ci_lower:
+            type: number
+          ci_upper:
+            type: number
+    description: CSV file with correlation results, effect sizes, and confidence intervals
+  scatter_plot:
+    type: file
+    path: reports/scatter_metric_vs_fluid.png
+    description: Scatter plot of metric vs Fluid Intelligence
+  summary_report:
+    type: file
+    path: reports/summary.pdf
+    description: PDF report containing all results, plots, and preprocessing stats
+
+statistical_methods:
+  - name: pearson_correlation
+    description: Pearson correlation coefficient
+  - name: bonferroni_correction
+    description: Bonferroni correction for multiple comparisons (mandated by Constitution Principle VII)
+  - name: cohens_d
+    description: Effect size calculation
+  - name: confidence_interval
+    description: 95% confidence interval for Cohen's d
+  - name: multiple_linear_regression
+    description: Regression controlling for age and gender
 
 validation_rules:
-  - Must apply Bonferroni correction (FR-005 amended).
-  - Must calculate Cohen's d and 95% confidence intervals.
-  - Must halt if no valid Fluid Intelligence scores are found (TRACER: FR-005 Pivot to Bonferroni).
-  - Must reference specs/amendment-001-fluid-intelligence-n10.md for FR-005 compliance.
+  - rule: fluid_intelligence_present
+    description: At least one valid Fluid Intelligence score must exist
+    error_message: "No valid Fluid Intelligence scores found for correlation analysis"
+    action: halt
+  - rule: bonferroni_applied
+    description: Bonferroni correction must be applied to all p-values
+    action: validate
+  - rule: fdr_removed
+    description: No FDR correction logic must be present
+    action: verify_removal

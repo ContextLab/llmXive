@@ -1,78 +1,88 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Gut Microbiome and Sleep Architecture Dataset Schema"
-description: |
-  Schema defining the expected structure of the dataset used for investigating
-  the correlation between gut microbiome composition and sleep architecture.
-  This schema defines the structural requirements for predictors and outcomes.
-  The actual list of required variable names is provided at runtime in
-  data/config/research_design.yaml.
-type: object
+title: "GutMicrobiomeSleepDataset"
+type: "object"
 properties:
-  predictors:
-    type: object
-    description: |
-      Structure definition for gut microbiome predictor variables (taxa).
-      The actual taxa names are defined in data/config/research_design.yaml.
-    properties:
-      type:
-        type: string
-        const: "array"
-        description: "Predictors are defined as a list of strings (taxa names)."
-      items:
-        type: object
-        properties:
-          type:
-            type: string
-            const: "string"
-            description: "Each predictor is a taxon name string."
-        required:
-          - type
-      required:
-        - type
-        - items
-    required:
-      - type
-      - items
-    additionalProperties: false
-  outcomes:
-    type: object
-    description: |
-      Structure definition for sleep architecture outcome variables (metrics).
-      The actual metric names are defined in data/config/research_design.yaml.
-    properties:
-      type:
-        type: string
-        const: "array"
-        description: "Outcomes are defined as a list of strings (metric names)."
-      items:
-        type: object
-        properties:
-          type:
-            type: string
-            const: "string"
-            description: "Each outcome is a sleep metric name string."
-        required:
-          - type
-      required:
-        - type
-        - items
-    required:
-      - type
-      - items
-    additionalProperties: false
   metadata:
-    type: object
-    description: "Optional metadata about the dataset structure."
+    type: "object"
     properties:
-      version:
-        type: string
-        description: "Schema version."
-      description:
-        type: string
-        description: "Human-readable description of the schema."
+      source_file:
+        type: "string"
+        description: "Path to the original raw data file."
+      checksum:
+        type: "string"
+        description: "MD5 checksum of the raw data file."
+      subject_count:
+        type: "integer"
+        description: "Total number of subjects in the dataset."
+      taxon_count:
+        type: "integer"
+        description: "Total number of microbial taxa columns."
     required:
-      - version
+      - "source_file"
+      - "checksum"
+      - "subject_count"
+      - "taxon_count"
+  variables:
+    type: "object"
+    properties:
+      subject_id:
+        type: "string"
+        description: "Unique identifier for each subject."
+      microbial_taxa:
+        type: "array"
+        items:
+          type: "string"
+          description: "Name of a microbial taxon column."
+      sleep_metrics:
+        type: "array"
+        items:
+          type: "string"
+          description: "Name of a sleep metric column (e.g., REM_duration, SWS_duration)."
+    required:
+      - "subject_id"
+      - "microbial_taxa"
+      - "sleep_metrics"
+  validation:
+    type: "object"
+    properties:
+      is_valid:
+        type: "boolean"
+        description: "True if all required variables are present."
+      missing_variables:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of missing required variables."
+      zero_inflation_detected:
+        type: "boolean"
+        description: "True if any taxon has >30% zeros."
+      outliers_detected:
+        type: "boolean"
+        description: "True if any sleep metric has outliers."
+      zero_inflation_warning:
+        type: "boolean"
+        description: "True if zero-inflation warning was triggered and logged."
+      method_selection_log:
+        type: "object"
+        description: "Log of the method selection process."
+        properties:
+          method_used:
+            type: "string"
+            description: "The method selected (ZINB, Spearman, Pearson)."
+          reason:
+            type: "string"
+            description: "Reason for selection."
+        required:
+          - "method_used"
+          - "reason"
+    required:
+      - "is_valid"
+      - "missing_variables"
+      - "zero_inflation_detected"
+      - "outliers_detected"
+      - "zero_inflation_warning"
+      - "method_selection_log"
 required:
-  - predictors
-  - outcomes
-additionalProperties: false
+  - "metadata"
+  - "variables"
+  - "validation"

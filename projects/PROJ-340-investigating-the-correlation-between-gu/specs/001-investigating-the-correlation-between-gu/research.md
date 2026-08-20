@@ -1,101 +1,85 @@
-# Research: Gut Microbiome-Sleep Architecture Correlation
-
-## Summary
-
-This research phase establishes the statistical methodology, data strategy, and feasibility of investigating the correlation between gut microbiome composition and sleep architecture. The primary challenge is the **absence of a verified, open-source dataset** containing both metagenomic sequencing data and concurrent polysomnography/actigraphy metrics for the same subjects. Consequently, the plan relies on a **deterministic synthetic data generation strategy** (Dirichlet-Multinomial) for pipeline validation and robustness testing, while explicitly documenting the data gap for real-world deployment.
+# Research: Investigating the Correlation Between Gut Microbiome Composition and Sleep Architecture
 
 ## Dataset Strategy
 
-### The Data Gap
-A search for public datasets containing both **gut microbiome composition** (taxonomic counts) and **sleep architecture** (REM, SWS, NREM durations/percentages) yielded no verified, directly downloadable sources.
-- **Gut Microbiome**: Abundant in HuggingFace (e.g., Qiita, MG-RAST exports), but rarely paired with sleep data.
-- **Sleep Architecture**: Available in MESA, SHHS, or PhysioNet, but rarely paired with microbiome data.
-- **Joint Datasets**: No open dataset matches the spec requirement (FR-001) for a single cohort with both modalities.
+The project requires a dataset containing both **metagenomic sequencing data** (predictors: microbial taxa abundances) and **sleep architecture metrics** (outcomes: REM duration, SWS duration, etc.) for the same subjects.
 
-**Conclusion**: The project **cannot** proceed with real data in its current scope. The implementation will use a **deterministic synthetic data generator** (`code/synthetic_data.py`) that mimics the statistical properties (zero-inflation, over-dispersion, compositional sum constraint) described in the spec. This allows the pipeline to be tested for robustness, error handling, and statistical correctness (FR-002, FR-003) without violating the "Verified Accuracy" or "Data Hygiene" principles.
+### Verified Datasets
+Based on the provided verified sources, the following datasets were reviewed:
 
-**Fallback Strategy**: If a joint dataset becomes available (e.g., a new PhysioNet study), the pipeline can switch to `--mode real` by removing `validation_mode_flag.json`. The search criteria for such a dataset are: "metagenomic sequencing" AND ("polysomnography" OR "actigraphy") AND "human cohort".
+| Dataset Name | Source URL | Suitability |
+|--------------|------------|-------------|
+| REM (parquet) | ` | **Not Suitable**: Contains phishing URL data, not biological sleep/microbiome data. |
+| SWS (zip) | ` | **Not Suitable**: File name suggests "SWS" but content is likely unrelated. |
+| VIFs (parquet) | ` | **Not Suitable**: Contains cattle pricing data, not human microbiome/sleep. |
+| CPU-only (parquet) | `https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-...` | **Not Suitable**: Contains LLM training scores, not biological data. |
+| Human Microbiome Project (HMP2) | ` | **Not Suitable**: Contains metagenomics but lacks concurrent polysomnography data. |
+| American Gut Project | ` | **Not Suitable**: Public survey data lacks clinical sleep architecture metrics. |
+| Sleep Microbiome Studies (General) | N/A | **Not Suitable**: No single public dataset currently contains both modalities (metagenomics + PSG) for the same subjects. |
 
-### Verified Datasets (for reference only)
-*The following datasets were verified for format/availability but DO NOT contain the required joint variables. They are cited here to demonstrate the search effort and to define what a "real" substitute would look like.*
+### Decision & Rationale
+**Critical Gap Identified**: None of the *verified* datasets provided in the input block, nor any known public dataset, contain the required biological variables (gut microbiome counts + sleep architecture) for the same subjects.
 
-| Dataset Name | Type | Variables Present | Missing Variables | Status |
-|:--- |:--- |:--- |:---:--- |
-| **MESA Sleep** | PhysioNet (Access Gated) | Sleep metrics | Microbiome counts | **Unsuitable** (Access Gated) |
-| **SHHS** | PhysioNet (Access Gated) | Sleep metrics | Microbiome counts | **Unsuitable** (Access Gated) |
-| **Qiita Microbiome** | HuggingFace (Open) | Microbiome counts | Sleep metrics | **Unsuitable** (Missing Outcome) |
-| **HuggingFace: Sleep** | HuggingFace (Open) | Sleep metrics | Microbiome counts | **Unsuitable** (Missing Predictor) |
+**Action Plan**:
+1. **Primary Strategy**: The implementation will be designed to accept a **generic CSV/TSV input** as defined in FR-001. The pipeline will validate the presence of required columns (e.g., `taxon_name`, `abundance`, `REM_duration`, `SWS_duration`) regardless of the source.
+2. **Data Source for Testing**: Since no verified biological dataset exists in the provided list or public repositories with dual modalities, the pipeline will be tested using a **synthetic data generator** (as implied by T090) that mimics the statistical properties of real microbiome/sleep data (zero-inflation, sparsity, non-normality, compositional constraints).
+3. **Real-Data Execution**: The `code/ingestion/loader.py` will include a "Real-Data Gate" (T082). If a valid biological dataset is found (user-provided or verified external), it will be processed. **If no verified source is found, the pipeline succeeds with the "Pipeline Validation on Synthetic Data" artifact, explicitly stating that the research question cannot be empirically answered with the current available data.** The system will **not** fabricate a URL.
 
-*Note: As per the "Verified Accuracy" principle, no URLs for "Gut Microbiome + Sleep" datasets are cited because none exist in the verified block. The plan proceeds with synthetic data.*
+**Conclusion**: The plan proceeds with a **synthetic-first** approach for validation and a **generic loader** for real data. The project is scoped to **Pipeline Validation** due to the absence of empirical data. If a real biological dataset is required for the final run, it must be supplied by the user or sourced from a verified external repository not listed in the "Verified datasets" block.
 
 ## Statistical Methodology
 
-### 1. Preprocessing: Compositional Data Analysis (CoDA)
-Microbiome data is **compositional** (sums to a constant total). Standard correlations on raw counts are invalid due to the closure problem.
-- **Action**: Apply **Centered Log-Ratio (CLR)** transformation to all predictor variables (taxa) before any statistical test.
-- **Formula**: $clr(x_i) = \ln(x_i / g(x))$, where $g(x)$ is the geometric mean of the composition.
-- **Outcome**: This transforms data to Euclidean space, making Pearson/Spearman correlations valid and removing spurious collinearity.
+### 1. Data Processing Sequence
+To address the closure problem and zero-inflation correctly, the data is processed in two parallel streams:
+1. **Raw Counts Stream**: Used for **ZINB** modeling. Zeros are handled via a pseudo-count (e.g., +1) only for the log-part of the ZINB model, but the zero-inflation component models the true zeros.
+2. **Compositional Stream**: Used for **SparCC/SpiecEasi** correlation. Raw counts are transformed using **Centered Log-Ratio (CLR)** transformation. Zeros are handled by adding a small pseudo-count (e.g., 0.5) before log-transformation to avoid `log(0)`.
 
-### 2. Method Selection Logic (FR-002)
-The system will dynamically select the correlation method based on the **CLR-transformed** data distribution:
-1. **Zero-Inflated Negative Binomial (ZINB) / Hurdle Model**: Selected if:
- * Proportion of zeros in raw counts > 30% **OR**
- * Over-dispersion ratio (variance/mean) > 1.5.
- * *Rationale*: Handles excess zeros and over-dispersion. Coefficients are reported as log-rate ratios.
-2. **Spearman Rank Correlation**: Selected if:
- * Proportion of zeros ≤ 30% **AND**
- * Shapiro-Wilk test p-value < 0.05 (non-normal).
- * *Rationale*: Robust to non-normality in CLR space.
-3. **Pearson Correlation**: Selected if:
- * Proportion of zeros ≤ 30% **AND**
- * Shapiro-Wilk test p-value ≥ 0.05 (normal).
- * *Rationale*: Maximum power for normally distributed CLR data.
+### 2. Model Selection Logic (FR-002)
+The system selects the correlation method based on the following priority, strictly adhering to FR-002 and User Story 2:
+1. **Count Data + High Zero-Inflation**: If the data is raw counts AND the proportion of zeros > 30% (per taxon) OR Shapiro-Wilk p < 0.05, select **Zero-Inflated Negative Binomial (ZINB)**.
+ * *Note*: ZINB estimates log-rate ratios (beta), not Pearson's r. The output `correlation_coefficient` field will be `null` for these rows, and `effect_size_beta` will be populated.
+2. **Non-Normal Data**: If the data is non-normal (Shapiro-Wilk p < 0.05) but does not meet the zero-inflation criteria for ZINB, select **Spearman rank correlation**.
+3. **Normal Data**: If the data is normal (Shapiro-Wilk p >= 0.05), select **Pearson correlation**.
 
-### 3. Multiple Comparison Correction (FR-003)
-- **Method**: Benjamini-Hochberg (BH) procedure.
-- **Target**: Control False Discovery Rate (FDR) at q ≤ 0.05.
-- **Implementation**: All raw p-values from the correlation matrix will be adjusted. Results will be flagged as `is_significant` only if `p_adjusted < 0.05`.
+### 3. Compositional Sensitivity Check
+While the primary method selection follows FR-002, **SparCC** (or SpiecEasi) will be run as a **sensitivity check** on the CLR-transformed data. This ensures that the results are robust to the compositional nature of the data, which standard correlations (Spearman/Pearson) may not fully capture. If SparCC results differ significantly from the primary method, this discrepancy will be highlighted in the report.
 
-### 4. Collinearity Diagnostics (FR-006)
-- **Perfect Multicollinearity**: Detected via **Matrix Rank Check** on the CLR-transformed predictor matrix. If rank < number of predictors, the system flags "Perfect Multicollinearity" and excludes the dependent pair from VIF calculation.
-- **Variance Inflation Factor (VIF)**: Calculated for all remaining predictors on the **CLR-transformed** data.
- - Threshold: VIF > 5 triggers a warning.
- - *Note*: The value "33" (flag vif = 33) from the verified facts (Q113106917) is noted but not used as a hard threshold; the standard 5.0 is used for flagging.
-- **Definitional Pairs**: Taxa in the same hierarchy (e.g., Genus A and Family containing Genus A) are checked for linear dependence.
+### 4. Multiple Comparison Correction (FR-003)
+All p-values will be adjusted using the **Benjamini-Hochberg (BH)** procedure to control the False Discovery Rate (FDR) at q ≤ 0.05.
+* *Rationale*: FR-003 and User Story 2 explicitly mandate Benjamini-Hochberg. While Storey's q-value is robust for compositional data, the functional requirements take precedence. Storey's q-value will be used only as a secondary sensitivity check if requested.
 
-### 5. Sensitivity Analysis (FR-005)
-- **Thresholds**: p < 0.01, p < 0.05, p < 0.10.
-- **Metric**: Percentage change in the number of significant findings compared to the baseline (p < 0.05).
-- **Stability Score**: Coefficient of variation of significant counts across thresholds.
+### 5. Collinearity Diagnostics (FR-006)
+- **Perfect Multicollinearity**: Detected via matrix rank check on the predictor matrix. If rank < number of predictors, flag as "Perfect Multicollinearity" and exclude the linearly dependent pair.
+- **VIF Calculation**: VIF is calculated **only on the subset of taxa that passed the pre-screening step** (e.g., top 50 by abundance) to avoid p>>n instability. The rank check is performed internally within the VIF calculation task (T079) before any VIF is computed.
+* *Note*: VIF is a diagnostic for multicollinearity in *multivariate* regression. The primary analysis is pairwise, but VIF is run on the Top-N subset to identify highly correlated taxa that might confound the pairwise results.
 
 ### 6. Power Analysis (US-3)
-- **Target**: Detect correlation r ≥ 0.3 with Power ≥ 0.80 at α = 0.05.
-- **Method**:
- - For **Correlation**: `pwr.r.test` with an inflation factor for the number of tests (FDR).
- - For **ZINB**: Simulation-based power analysis (generate data with known parameters, fit model, estimate power).
-- **Action**: If N < calculated minimum, flag "Power Limitation" in the report.
+A post-hoc power analysis will be conducted.
+* **Correlation Branch**: Calculates minimum sample size for r ≥ 0.3, power ≥ 0.80.
+* **ZINB Branch**: Calculates minimum sample size for a log-rate ratio of [deferred], acknowledging the metric mismatch. The plan explicitly states that a valid power calculation for ZINB requires a specific effect size estimate which is currently unavailable.
+* **Limitation**: With N < 1000 and 2000 tests, the detectable effect size after FDR correction is likely >0.4. The study is flagged as "Underpowered" for r=0.3 if N is insufficient.
 
-### 7. Synthetic Data Generation
-- **Model**: **Dirichlet-Multinomial** distribution.
-- **Properties**: Explicitly models zero-inflation, over-dispersion, and the compositional sum constraint.
-- **Validation**: The generator includes a `ground_truths` mapping to verify that the pipeline correctly detects the injected correlations.
+### 7. Sensitivity Analysis (FR-005)
+Significance will be re-evaluated at thresholds p < 0.01, p < 0.05, and p < 0.10. The percentage change in significant findings will be reported to assess robustness.
 
-## Compute Feasibility
+### 8. Synthetic Data Generation Algorithm
+To address the concern regarding synthetic data validity, the generator (T090) will use a **Dirichlet-Multinomial mixture model** to simulate microbial counts:
+1. **Compositional Constraints**: A Dirichlet distribution generates relative abundances that sum to 1, ensuring the closure problem is respected.
+2. **Zero-Inflation**: A Zero-Inflated Negative Binomial (ZINB) process is applied to the counts to simulate the high sparsity observed in real metagenomic data (proportion of zeros > 30%).
+3. **Correlation Structure**: Specific correlation structures are injected between selected taxa and sleep metrics to allow for validation of the detection pipeline.
+4. **Non-Normality**: The distribution of sleep metrics will be skewed (e.g., log-normal) to trigger the non-normality checks in the pipeline.
 
-- **CPU-First**: All methods (ZINB, Spearman, VIF, Power Analysis) are computationally tractable on a 2-core CPU runner for N < 1000.
-- **Memory**: Estimated < 1 GB RAM for N=1000, 500 taxa.
-- **Time**: Expected runtime < 30 minutes for synthetic data; < 2 hours for real data (if available).
-- **GPU**: Not required. ZINB models in `statsmodels` are CPU-optimized.
+This approach ensures the synthetic data possesses the specific statistical properties (zero-inflation, compositionality, non-normality) required to test the pipeline's method selection logic (ZINB vs. Spearman vs. Pearson) and not just its code execution.
 
-## Ethical & Interpretative Constraints
+## Computational Feasibility
 
-- **Associational Framing**: All reports will explicitly state: "These results represent an associational relationship. No causal claims are made." (FR-004).
-- **Observational Nature**: The plan assumes no randomization; therefore, confounding variables (diet, age, medication) are acknowledged as potential limitations if real data were used.
+- **CPU-First**: The entire pipeline (ZINB, SparCC, VIF, Power) is designed to run on a standard multi-core CPU with moderate RAM.
+- **Reproducibility**: **No GPU fallback is permitted**. All runs must be reproducible on a fresh GitHub Actions runner.
+- **Data Streaming**: If the dataset exceeds memory, `datasets.load_dataset(..., streaming=True)` will be used to process data in chunks.
 
-## References
+## Ethical & Methodological Rigor
 
-- **Benjamini-Hochberg**: Benjamini, Y., & Hochberg, Y. (1995). Controlling the False Discovery Rate. DOI: []
-- **ZINB Models**: Lambert, D. (1992). Zero-Inflated Poisson Regression. DOI: []
-- **VIF**: Fox, J., & Monette, G. (1992). Generalized Collinearity Diagnostics. DOI: [10.1080/01621459.1992.10475190](https://doi.org/10.1080/01621459.1992.10475190)
-- **Compositional Data**: Aitchison, J. (1986). The Statistical Analysis of Compositional Data. DOI: []
-- **Dataset Search**: Verified against PhysioNet, HuggingFace, and UCI repositories. No joint dataset found.
+- **Associational Framing**: All outputs will explicitly state "associational relationship" and avoid causal language (FR-004).
+- **Reproducibility**: Random seeds will be pinned.
+- **Data Hygiene**: Checksums will be recorded for all raw data.
+- **Scope Limitation**: The project explicitly states that the research question cannot be empirically answered with current public data and is scoped to Pipeline Validation.

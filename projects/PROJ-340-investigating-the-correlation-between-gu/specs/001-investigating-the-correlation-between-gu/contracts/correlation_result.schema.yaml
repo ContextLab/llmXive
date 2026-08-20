@@ -12,20 +12,23 @@ items:
       type: string
       description: "Name of the sleep metric."
     correlation_coefficient:
-      type: number
-      description: "Correlation coefficient (r for Pearson/Spearman, beta for ZINB)."
+      type: ["number", "null"]
+      description: "Correlation coefficient (r for Pearson/Spearman/SparCC). Null for ZINB."
+    effect_size_beta:
+      type: ["number", "null"]
+      description: "Log-rate ratio (beta) for ZINB. Null for correlation methods."
     p_value_raw:
       type: number
       description: "Raw p-value."
     p_value_adjusted:
       type: number
-      description: "Benjamini-Hochberg adjusted p-value."
+      description: "Storey's q-value or BH adjusted p-value."
     is_significant:
       type: boolean
       description: "True if p_value_adjusted < 0.05."
     method_used:
       type: string
-      enum: ["ZINB", "Spearman", "Pearson"]
+      enum: ["ZINB", "SparCC", "SpiecEasi", "Spearman", "Pearson"]
       description: "Statistical method used for this pair."
     direction:
       type: string
@@ -34,6 +37,6 @@ items:
     effect_size_category:
       type: string
       enum: ["negligible", "weak", "moderate", "strong"]
-      description: "Categorization of the absolute correlation coefficient."
-  required: ["taxon", "sleep_metric", "correlation_coefficient", "p_value_raw", "p_value_adjusted", "is_significant", "method_used", "direction", "effect_size_category"]
+      description: "Categorization of the absolute correlation coefficient (or absolute beta for ZINB)."
+  required: ["taxon", "sleep_metric", "p_value_raw", "p_value_adjusted", "is_significant", "method_used", "direction", "effect_size_category"]
 additionalProperties: false
