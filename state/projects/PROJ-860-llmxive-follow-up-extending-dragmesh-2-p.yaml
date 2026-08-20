@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-860-llmxive-follow-up-extending-dragmesh-2-p
-last_run_id: 69b1c0a4-41cc-4301-baf2-0655a129d773
+last_run_id: 710cd7f5-9c23-464b-b78a-4bdc1a944db6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p
 title: 'llmXive follow-up: extending "DragMesh-2: Physically Plausible Dexterous Hand-Object
   Interaction wit"'
-updated_at: '2026-08-18T01:01:32.799069Z'
+updated_at: '2026-08-20T10:24:11.158261Z'

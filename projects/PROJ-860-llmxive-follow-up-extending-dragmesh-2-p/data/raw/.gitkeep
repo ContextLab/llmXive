@@ -1,1 +1,2 @@
-# Placeholder for raw data directory
+# This file ensures the data/raw directory is tracked by git.
+# It is empty.

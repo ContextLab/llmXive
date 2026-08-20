@@ -1,22 +1,11 @@
-# llmXive Follow-up: Virtual Tactile Zero-Shot Adaptation
-# Pinned dependencies for Reproducibility (Constitution Principle I)
-# Generated for project: PROJ-860-llmxive-follow-up-extending-dragmesh-2-p
-
-# Physics Simulation (CPU-only enforced in code)
 pybullet==3.2.6
-
-# Numerical Computing & Data Manipulation
-numpy==1.26.4
-scipy==1.13.1
-pandas==2.2.2
+numpy==1.24.3
+scipy==1.11.4
+pandas==2.1.4
+datasets==2.16.1
+pytest==7.4.3
+statsmodels==0.14.1
+requests==2.31.0
+huggingface_hub==0.20.3
 pyyaml==6.0.1
-
-# Dataset Access (HuggingFace)
-datasets==2.20.0
-
-# Statistical Analysis (for t-tests in analysis.py)
-statsmodels==0.14.2
-
-# Testing Framework
-pytest==8.2.2
-pytest-timeout==2.3.1
+tracemalloc

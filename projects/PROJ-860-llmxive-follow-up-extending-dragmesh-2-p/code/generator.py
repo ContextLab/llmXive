@@ -1,9 +1,9 @@
 """
 Novel Object Set Generator for Virtual Tactile Zero-Shot Adaptation.
 
-This module implements the `NovelObjectSet` class to generate randomized
+This module implements the NovelObjectSet class to generate randomized
 articulated geometries with varying friction coefficients for zero-shot
-evaluation (FR-003).
+evaluation.
 """
 
 import os
@@ -13,296 +13,344 @@ import xml.etree.ElementTree as ET
 from typing import List, Dict, Any, Tuple, Optional
 import numpy as np
 
-# Import existing utilities from the project
-from seed_config import set_seeds
-
+# Ensure we can import from the project root if running as script
+if __name__ == "__main__":
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent))
 
 class NovelObjectSet:
     """
-    Generates a set of randomized articulated geometries with friction coefficients
-    uniformly distributed across a specified range.
+    Generates a set of randomized articulated geometries with friction
+    coefficients uniformly distributed across a broad range.
 
-    The generated objects are saved as URDF/XML files to the specified output directory.
-    Each object represents a simple articulated mechanism (e.g., a hinge or slider)
-    with randomized physical properties to simulate diverse tactile interactions.
-
-    Attributes:
-        count (int): Number of objects to generate.
-        seed (int): Random seed for reproducibility.
-        friction_min (float): Minimum friction coefficient.
-        friction_max (float): Maximum friction coefficient.
-        output_dir (str): Directory to save generated files.
+    This class satisfies FR-003 by producing diverse object geometries
+    with controlled physical properties for zero-shot evaluation.
     """
 
-    def __init__(
-        self,
-        count: int,
-        seed: int,
-        friction_min: float,
-        friction_max: float,
-        output_dir: str = "data/generated"
-    ):
+    def __init__(self, count: int, seed: int, friction_min: float, friction_max: float):
         """
-        Initialize the NovelObjectSet generator.
+        Initialize the Novel Object Set generator.
 
         Args:
             count: Number of objects to generate.
             seed: Random seed for reproducibility.
-            friction_min: Minimum friction coefficient (0.0 to 2.5).
-            friction_max: Maximum friction coefficient (0.0 to 2.5).
-            output_dir: Directory to save generated URDF/XML files.
+            friction_min: Minimum friction coefficient (inclusive).
+            friction_max: Maximum friction coefficient (inclusive).
+
+        Raises:
+            ValueError: If parameters are invalid (count <= 0, seed < 0, friction_min > friction_max).
         """
-        if not isinstance(count, int) or count <= 0:
-            raise ValueError("Count must be a positive integer.")
-        if friction_min < 0.0 or friction_max > 2.5 or friction_min > friction_max:
-            raise ValueError(f"Friction must be in [0.0, 2.5] and min <= max. Got [{friction_min}, {friction_max}].")
+        if count <= 0:
+            raise ValueError(f"count must be positive, got {count}")
+        if seed < 0:
+            raise ValueError(f"seed must be non-negative, got {seed}")
+        if friction_min > friction_max:
+            raise ValueError(f"friction_min ({friction_min}) must be <= friction_max ({friction_max})")
+        if friction_min < 0:
+            raise ValueError(f"friction_min must be non-negative, got {friction_min}")
 
         self.count = count
         self.seed = seed
         self.friction_min = friction_min
         self.friction_max = friction_max
-        self.output_dir = output_dir
+        
+        # Initialize random state
+        self.rng = np.random.default_rng(seed)
+        random.seed(seed)
 
-        # Ensure output directory exists
-        os.makedirs(self.output_dir, exist_ok=True)
-
-        # Set random seeds for reproducibility
-        set_seeds(seed)
-
-    def _generate_friction(self) -> float:
+    def _generate_box_geometries(self, obj_id: int) -> Dict[str, Any]:
         """
-        Generate a random friction coefficient uniformly distributed
-        between friction_min and friction_max.
-
-        Returns:
-            float: Random friction coefficient.
-        """
-        return random.uniform(self.friction_min, self.friction_max)
-
-    def _generate_geometry_params(self, object_id: int) -> Dict[str, Any]:
-        """
-        Generate randomized geometric parameters for an object.
+        Generate a simple articulated box geometry definition.
 
         Args:
-            object_id: Unique identifier for the object.
+            obj_id: Unique identifier for the object.
 
         Returns:
-            Dict containing geometry parameters (dimensions, masses, etc.).
+            Dictionary containing URDF-like geometry parameters.
         """
-        # Randomize dimensions within reasonable physical bounds
-        base_size = random.uniform(0.05, 0.15)  # 5cm to 15cm
-        mass = random.uniform(0.1, 1.0)  # 100g to 1kg
-
+        # Generate random dimensions for base and link
+        base_size = self.rng.uniform(0.05, 0.15, 3)
+        link_size = self.rng.uniform(0.03, 0.10, 3)
+        
+        # Generate random joint parameters
+        joint_pos = self.rng.uniform(0.0, 0.1, 3)
+        joint_axis = self.rng.choice([
+            [1, 0, 0], [0, 1, 0], [0, 0, 1]
+        ])
+        
+        # Generate random mass properties
+        base_mass = self.rng.uniform(0.1, 0.5)
+        link_mass = self.rng.uniform(0.05, 0.3)
+        
+        # Generate friction coefficient from uniform distribution
+        friction = self.rng.uniform(self.friction_min, self.friction_max)
+        
         return {
-            "base_size": base_size,
-            "link_size": base_size * random.uniform(0.8, 1.2),
-            "mass": mass,
-            "link_mass": mass * random.uniform(0.5, 1.5),
-            "joint_type": random.choice(["hinge", "slider"]),
-            "object_id": object_id
+            "id": obj_id,
+            "base": {
+                "size": base_size.tolist(),
+                "mass": base_mass
+            },
+            "link": {
+                "size": link_size.tolist(),
+                "mass": link_mass
+            },
+            "joint": {
+                "position": joint_pos.tolist(),
+                "axis": joint_axis.tolist()
+            },
+            "friction": friction
         }
 
-    def _create_urdf(self, params: Dict[str, Any], friction: float) -> str:
+    def _create_urdf_string(self, obj_data: Dict[str, Any]) -> str:
         """
-        Create a URDF string for a simple articulated object.
+        Create a minimal URDF string from object data.
 
         Args:
-            params: Geometry parameters.
-            friction: Friction coefficient for contact materials.
+            obj_data: Dictionary containing object geometry parameters.
 
         Returns:
-            str: URDF XML content.
+            Valid URDF string representation.
         """
-        base_size = params["base_size"]
-        link_size = params["link_size"]
-        mass = params["mass"]
-        link_mass = params["link_mass"]
-        joint_type = params["joint_type"]
-        object_id = params["object_id"]
+        base_size = obj_data["base"]["size"]
+        link_size = obj_data["link"]["size"]
+        joint_pos = obj_data["joint"]["position"]
+        joint_axis = obj_data["joint"]["axis"]
+        base_mass = obj_data["base"]["mass"]
+        link_mass = obj_data["link"]["mass"]
+        friction = obj_data["friction"]
 
-        # Material definition with friction
-        material_xml = f"""
-<material name="tactile_material_{object_id}">
-    <color rgba="0.8 0.8 0.8 1.0"/>
-    <friction>{friction}</friction>
+        # Create URDF structure
+        urdf = f"""<?xml version="1.0"?>
+<robot name="novel_object_{obj_data['id']}">
+  <link name="base_link">
+    <inertial>
+<mass value="{base_mass:.4f}"/>
+<inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+<geometry>
+  <box size="{base_size[0]:.4f} {base_size[1]:.4f} {base_size[2]:.4f}"/>
+</geometry>
+<material name="blue">
+  <color rgba="0.2 0.2 0.8 1.0"/>
 </material>
-        """
-
-        # Base link
-        base_link = f"""
-<link name="base_link">
-    <visual>
-        <geometry>
-            <box size="{base_size} {base_size} {base_size}"/>
-        </geometry>
-        <material name="tactile_material_{object_id}"/>
     </visual>
     <collision>
-        <geometry>
-            <box size="{base_size} {base_size} {base_size}"/>
-        </geometry>
+<geometry>
+  <box size="{base_size[0]:.4f} {base_size[1]:.4f} {base_size[2]:.4f}"/>
+</geometry>
     </collision>
+    <surface>
+<friction>
+  <ode>
+    <mu>{friction:.4f}</mu>
+    <mu2>{friction:.4f}</mu2>
+  </ode>
+</friction>
+    </surface>
+  </link>
+
+  <link name="moving_link">
     <inertial>
-        <mass value="{mass}"/>
-        <inertia ixx="{mass * base_size**2 / 12}" ixy="0.0" ixz="0.0"
-                 iyy="{mass * base_size**2 / 12}" iyz="0.0"
-                 izz="{mass * base_size**2 / 12}"/>
+<mass value="{link_mass:.4f}"/>
+<inertia ixx="0.0005" ixy="0.0" ixz="0.0" iyy="0.0005" iyz="0.0" izz="0.0005"/>
     </inertial>
-</link>
-        """
-
-        # Joint definition
-        if joint_type == "hinge":
-            joint_xml = f"""
-<joint name="joint_{object_id}" type="continuous">
-    <parent link="base_link"/>
-    <child link="link_{object_id}"/>
-    <origin xyz="{base_size/2} 0 0" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="10.0" velocity="1.0"/>
-    <dynamics damping="0.1" friction="{friction}"/>
-</joint>
-            """
-            link_size_z = link_size
-            link_size_x = link_size
-            link_size_y = link_size
-        else:  # slider
-            joint_xml = f"""
-<joint name="joint_{object_id}" type="prismatic">
-    <parent link="base_link"/>
-    <child link="link_{object_id}"/>
-    <origin xyz="{base_size/2} 0 0" rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
-    <limit lower="-0.5" upper="0.5" effort="10.0" velocity="1.0"/>
-    <dynamics damping="0.1" friction="{friction}"/>
-</joint>
-            """
-            link_size_z = link_size
-            link_size_x = link_size
-            link_size_y = link_size
-
-        # Moving link
-        link_xml = f"""
-<link name="link_{object_id}">
     <visual>
-        <geometry>
-            <box size="{link_size_x} {link_size_y} {link_size_z}"/>
-        </geometry>
-        <material name="tactile_material_{object_id}"/>
+<geometry>
+  <box size="{link_size[0]:.4f} {link_size[1]:.4f} {link_size[2]:.4f}"/>
+</geometry>
+<material name="red">
+  <color rgba="0.8 0.2 0.2 1.0"/>
+</material>
     </visual>
     <collision>
-        <geometry>
-            <box size="{link_size_x} {link_size_y} {link_size_z}"/>
-        </geometry>
+<geometry>
+  <box size="{link_size[0]:.4f} {link_size[1]:.4f} {link_size[2]:.4f}"/>
+</geometry>
     </collision>
-    <inertial>
-        <mass value="{link_mass}"/>
-        <inertia ixx="{link_mass * link_size_x**2 / 12}" ixy="0.0" ixz="0.0"
-                 iyy="{link_mass * link_size_y**2 / 12}" iyz="0.0"
-                 izz="{link_mass * link_size_z**2 / 12}"/>
-    </inertial>
-</link>
-        """
+    <surface>
+<friction>
+  <ode>
+    <mu>{friction:.4f}</mu>
+    <mu2>{friction:.4f}</mu2>
+  </ode>
+</friction>
+    </surface>
+  </link>
 
-        # Assemble URDF
-        urdf_content = f"""<?xml version="1.0"?>
-<robot name="novel_object_{object_id}">
-    {material_xml.strip()}
-    {base_link.strip()}
-    {joint_xml.strip()}
-    {link_xml.strip()}
-</robot>
-"""
-        return urdf_content
+  <joint name="prismatic_joint" type="prismatic">
+    <parent link="base_link"/>
+    <child link="moving_link"/>
+    <origin xyz="{joint_pos[0]:.4f} {joint_pos[1]:.4f} {joint_pos[2]:.4f}" rpy="0 0 0"/>
+    <axis xyz="{joint_axis[0]} {joint_axis[1]} {joint_axis[2]}"/>
+    <limit lower="-0.1" upper="0.1" effort="10.0" velocity="1.0"/>
+  </joint>
+</robot>"""
+        return urdf
 
-    def generate(self) -> List[str]:
+    def generate(self, output_dir: str) -> List[str]:
         """
-        Generate the set of novel objects and save them to disk.
+        Generate the novel object set and save to disk.
+
+        Args:
+            output_dir: Directory path where object files will be saved.
 
         Returns:
-            List[str]: Paths to the generated URDF files.
+            List of file paths to the generated URDF files.
+
+        Raises:
+            ValueError: If output_dir is invalid or not writable.
+            IOError: If file writing fails.
         """
+        if not output_dir:
+            raise ValueError("output_dir cannot be empty")
+        
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+        
         generated_files = []
-
+        
         for i in range(self.count):
-            # Generate random parameters
-            friction = self._generate_friction()
-            params = self._generate_geometry_params(i)
-
-            # Create URDF content
-            urdf_content = self._create_urdf(params, friction)
-
-            # Save to file
-            filename = f"novel_object_{params['object_id']:03d}.urdf"
-            filepath = os.path.join(self.output_dir, filename)
-
-            with open(filepath, 'w') as f:
+            obj_id = f"obj_{i:04d}"
+            
+            # Generate geometry data
+            obj_data = self._generate_box_geometries(obj_id)
+            
+            # Create URDF string
+            urdf_content = self._create_urdf_string(obj_data)
+            
+            # Write to file
+            file_path = os.path.join(output_dir, f"{obj_id}.urdf")
+            with open(file_path, 'w') as f:
                 f.write(urdf_content)
-
-            generated_files.append(filepath)
-
+            
+            generated_files.append(file_path)
+        
         return generated_files
+
+    def get_metadata(self) -> Dict[str, Any]:
+        """
+        Get metadata about the generated object set.
+
+        Returns:
+            Dictionary containing generation parameters and statistics.
+        """
+        return {
+            "count": self.count,
+            "seed": self.seed,
+            "friction_min": self.friction_min,
+            "friction_max": self.friction_max,
+            "friction_range": self.friction_max - self.friction_min
+        }
 
 
 def main():
     """
-    Command-line entry point for generating novel object sets.
-
+    Command-line interface for generating novel object sets.
+    
     Usage:
-        python code/generator.py --count 30 --seed 42 --friction-min 0.1 --friction-max 1.2 --output data/generated/
+        python generator.py --count 30 --seed 42 --friction-min 0.1 --friction-max 1.2 --output data/generated/
+    
+    This script generates a set of randomized articulated geometries with
+    friction coefficients uniformly distributed across the specified range.
     """
     import argparse
+    import logging
+    import sys
+    from pathlib import Path
+
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
 
     parser = argparse.ArgumentParser(
-        description="Generate a set of randomized articulated geometries for zero-shot evaluation."
+        description='Generate novel object set for zero-shot evaluation'
     )
     parser.add_argument(
-        "--count", type=int, required=True,
-        help="Number of objects to generate."
+        '--count', 
+        type=int, 
+        required=True,
+        help='Number of objects to generate'
     )
     parser.add_argument(
-        "--seed", type=int, required=True,
-        help="Random seed for reproducibility."
+        '--seed', 
+        type=int, 
+        required=True,
+        help='Random seed for reproducibility'
     )
     parser.add_argument(
-        "--friction-min", type=float, required=True,
-        help="Minimum friction coefficient (0.0 to 2.5)."
+        '--friction-min', 
+        type=float, 
+        required=True,
+        help='Minimum friction coefficient'
     )
     parser.add_argument(
-        "--friction-max", type=float, required=True,
-        help="Maximum friction coefficient (0.0 to 2.5)."
+        '--friction-max', 
+        type=float, 
+        required=True,
+        help='Maximum friction coefficient'
     )
     parser.add_argument(
-        "--output", type=str, default="data/generated",
-        help="Output directory for generated files."
+        '--output', 
+        type=str, 
+        required=True,
+        help='Output directory for generated URDF files'
     )
 
     args = parser.parse_args()
 
-    # Validate arguments
-    if args.friction_min < 0.0 or args.friction_max > 2.5:
-        parser.error("Friction coefficients must be between 0.0 and 2.5.")
-    if args.friction_min > args.friction_max:
-        parser.error("friction-min must be less than or equal to friction-max.")
-
-    # Initialize generator
-    generator = NovelObjectSet(
-        count=args.count,
-        seed=args.seed,
-        friction_min=args.friction_min,
-        friction_max=args.friction_max,
-        output_dir=args.output
-    )
-
-    # Generate objects
-    print(f"Generating {args.count} novel objects with friction in [{args.friction_min}, {args.friction_max}]...")
-    files = generator.generate()
-
-    print(f"Successfully generated {len(files)} objects:")
-    for f in files:
-        print(f"  - {f}")
-
-    print(f"Generation complete. Files saved to: {args.output}")
+    try:
+        logger.info(f"Initializing NovelObjectSet generator with count={args.count}, "
+                   f"seed={args.seed}, friction=[{args.friction_min}, {args.friction_max}]")
+        
+        generator = NovelObjectSet(
+            count=args.count,
+            seed=args.seed,
+            friction_min=args.friction_min,
+            friction_max=args.friction_max
+        )
+        
+        # Ensure output directory is absolute path relative to project root
+        output_path = Path(args.output)
+        if not output_path.is_absolute():
+            # Resolve relative to current working directory
+            output_path = Path.cwd() / output_path
+        
+        logger.info(f"Generating objects to {output_path}")
+        
+        generated_files = generator.generate(str(output_path))
+        
+        metadata = generator.get_metadata()
+        metadata_file = output_path / "metadata.json"
+        
+        import json
+        with open(metadata_file, 'w') as f:
+            json.dump(metadata, f, indent=2)
+        
+        logger.info(f"Successfully generated {len(generated_files)} objects")
+        logger.info(f"Metadata saved to {metadata_file}")
+        
+        # Print summary
+        print(f"Generated {len(generated_files)} novel objects:")
+        print(f"  - Friction range: [{args.friction_min}, {args.friction_max}]")
+        print(f"  - Seed: {args.seed}")
+        print(f"  - Output directory: {output_path}")
+        print(f"  - Metadata file: {metadata_file}")
+        
+    except ValueError as e:
+        logger.error(f"Invalid parameters: {e}")
+        sys.exit(1)
+    except IOError as e:
+        logger.error(f"File I/O error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

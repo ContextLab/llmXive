@@ -3,7 +3,7 @@ Seed configuration and fixation enforcement for llmXive pipeline.
 
 This module implements Constitution Principle I (Reproducibility) and FR-005
 by providing a centralized mechanism to set and enforce random seeds across
-all random number generators used in the pipeline (numpy, random, pybullet).
+all random number generators used in the pipeline (numpy, random, torch, pybullet).
 
 The seed must be set BEFORE any other imports or operations that rely on
 randomness to ensure deterministic behavior across training (T012) and
@@ -72,6 +72,19 @@ def set_seeds(seed: Optional[int] = None) -> int:
     # Set Python random module seed
     random.seed(seed)
 
+    # Set torch seed if available (Constitution Principle I)
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+            # Ensure deterministic behavior for CuDNN (optional but recommended for reproducibility)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+    except ImportError:
+        # PyTorch not installed, skip
+        pass
+
     # Set pybullet seed (if available)
     try:
         import pybullet as p
@@ -139,3 +152,35 @@ def init_reproducibility() -> int:
         int: The seed value that was set.
     """
     return set_seeds()
+
+if __name__ == "__main__":
+    # Self-test to verify seed setting works
+    import sys
+    print(f"Testing seed fixation with default seed...")
+    seed_val = init_reproducibility()
+    print(f"Seeds set to: {seed_val}")
+    
+    # Verify numpy
+    arr1 = np.random.rand(5)
+    seed_val = init_reproducibility()
+    arr2 = np.random.rand(5)
+    assert np.allclose(arr1, arr2), "Numpy seed not deterministic!"
+    
+    # Verify random
+    r1 = [random.random() for _ in range(5)]
+    seed_val = init_reproducibility()
+    r2 = [random.random() for _ in range(5)]
+    assert r1 == r2, "Python random seed not deterministic!"
+    
+    print("SUCCESS: Seed fixation verified for numpy and random.")
+    try:
+        import torch
+        t1 = torch.rand(5)
+        seed_val = init_reproducibility()
+        t2 = torch.rand(5)
+        assert torch.allclose(t1, t2), "Torch seed not deterministic!"
+        print("SUCCESS: Seed fixation verified for torch.")
+    except ImportError:
+        print("INFO: Torch not installed, skipping torch verification.")
+    
+    sys.exit(0)

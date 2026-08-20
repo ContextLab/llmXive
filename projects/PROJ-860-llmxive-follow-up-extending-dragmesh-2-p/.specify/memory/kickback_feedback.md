@@ -4,10 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No directory tree or list of created folders (`code`, `tests`, `data/raw`, `data/generated`, `state/projects`, `data/results`) is provided; without concrete evidence the required repository layout has not been demonstrated.
-- `T001c` (rejected 1x): The script `checksum_config.py` checks for the existence of `requirements.txt` and `pytest.ini`, but both files are missing, so the script would abort and never write real hashes. The YAML file present contains hash values for those non‑existent files, indicating they are fabricated placeholders rather than genuine SHA256 checksums. The required artifacts are therefore not correctly generated.
-- `T002` (rejected 1x): The required file `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/requirements.txt` does not exist, so no pinned dependencies are present at the specified location. The existing `code/requirements.txt` is at a different path and does not fulfill the task.
-- `T003` (rejected 1x): The required file `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/pytest.ini` is missing, and the provided `code/pytest.ini` does not configure a separate 6‑hour timeout for integration tests (it only sets a global 3600‑second timeout). The task therefore remains unfulfilled.
+- `T005c` (rejected 1x): The provided `code/verify_manifest.py` is present, but the shown implementation does not demonstrate handling of an empty manifest (logging a warning and recording a `'MISSING_DATA'` status) and writes the hash under the key `data_raw_manifest` rather than under `artifact_hashes` for `data/raw` as required. Moreover, the state file `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` lacks any entry for the manifest checksum, indicating the script has not recorded the hash correctly. The task’s core requirements are therefore not satisfied.
 
 ## Required change
 

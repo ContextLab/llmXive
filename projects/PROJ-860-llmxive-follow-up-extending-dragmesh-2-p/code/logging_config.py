@@ -1,13 +1,9 @@
 """
-Logging configuration module for the llmXive Virtual Tactile Zero-Shot Adaptation pipeline.
+Logging configuration module for the llmXive Virtual Tactile Zero-Shot Adaptation project.
 
-This module provides centralized logging setup for all pipeline components, ensuring
-consistent log formatting, file paths, and log levels across the project.
-
-Per task T016a: Implements specific file paths and formats for training, evaluation,
-aggregation, analysis, and benchmark logging.
+This module provides centralized logging setup with specific file paths, formats,
+and loggers for different components of the pipeline (training, evaluation, etc.).
 """
-
 import os
 import sys
 import logging
@@ -15,256 +11,194 @@ import logging.handlers
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Project root relative to this file (code/)
-PROJECT_ROOT = Path(__file__).parent.parent.resolve()
-LOG_DIR = PROJECT_ROOT / "data" / "logs"
+# Project root directory (relative to this file's location)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+LOGS_DIR = PROJECT_ROOT / "state" / "logs"
 
-# Ensure log directory exists
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+# Ensure logs directory exists
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Standard log format
+# Log format string
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-# Specific log file paths per task requirements
-LOG_FILES = {
-    "training": LOG_DIR / "training.log",
-    "evaluation": LOG_DIR / "evaluation.log",
-    "aggregation": LOG_DIR / "aggregation.log",
-    "analysis": LOG_DIR / "analysis.log",
-    "benchmark": LOG_DIR / "benchmark.log",
-    "pipeline": LOG_DIR / "pipeline.log",
+# Specific file paths for different loggers
+LOG_FILE_PATHS = {
+    "training": "training.log",
+    "evaluation": "evaluation.log",
+    "aggregation": "aggregation.log",
+    "analysis": "analysis.log",
+    "benchmark": "benchmark.log",
+    "general": "general.log",
 }
 
-# Log levels
-DEFAULT_LEVEL = logging.INFO
-DEBUG_LEVEL = logging.DEBUG
-WARNING_LEVEL = logging.WARNING
-ERROR_LEVEL = logging.ERROR
-
-# Cache for created loggers to avoid reconfiguration
-_logger_cache: Dict[str, logging.Logger] = {}
-
-
-def _get_formatter() -> logging.Formatter:
-    """Return the standard formatter for this project."""
-    return logging.Formatter(LOG_FORMAT, DATE_FORMAT)
-
-
-def _setup_file_handler(logger: logging.Logger, log_file: Path, level: int = DEFAULT_LEVEL) -> None:
+def get_logger(
+    name: str,
+    level: int = logging.INFO,
+    log_to_file: bool = True,
+    log_to_console: bool = True,
+    log_file: Optional[str] = None,
+) -> logging.Logger:
     """
-    Configure a rotating file handler for a logger.
-
+    Get a configured logger instance.
+    
     Args:
-        logger: The logger to configure.
-        log_file: Path to the log file.
-        level: Log level for the handler.
-    """
-    # Ensure parent directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # Rotating file handler: max 10MB, keep 5 backup files
-    handler = logging.handlers.RotatingFileHandler(
-        log_file,
-        maxBytes=10 * 1024 * 1024,  # 10 MB
-        backupCount=5,
-        encoding="utf-8"
-    )
-    handler.setLevel(level)
-    handler.setFormatter(_get_formatter())
-
-    # Avoid adding duplicate handlers
-    if not any(isinstance(h, logging.handlers.RotatingFileHandler) for h in logger.handlers):
-        logger.addHandler(handler)
-
-
-def _setup_console_handler(logger: logging.Logger, level: int = DEFAULT_LEVEL) -> None:
-    """
-    Configure a console handler for a logger.
-
-    Args:
-        logger: The logger to configure.
-        level: Log level for the handler.
-    """
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(level)
-    handler.setFormatter(_get_formatter())
-
-    if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
-        logger.addHandler(handler)
-
-
-def get_logger(name: str, level: int = DEFAULT_LEVEL, log_to_file: bool = True) -> logging.Logger:
-    """
-    Get or create a logger with the given name.
-
-    Args:
-        name: Logger name (typically __name__ of the module).
-        level: Minimum log level.
-        log_to_file: Whether to add a file handler.
-
+        name: Logger name (usually __name__ of the module)
+        level: Logging level (default: INFO)
+        log_to_file: Whether to log to file (default: True)
+        log_to_console: Whether to log to console (default: True)
+        log_file: Optional specific log file name (default: None -> uses 'general.log')
+    
     Returns:
-        Configured logger instance.
+        Configured logger instance
     """
-    if name in _logger_cache:
-        return _logger_cache[name]
-
     logger = logging.getLogger(name)
+    
+    # Avoid adding handlers multiple times
+    if logger.handlers:
+        return logger
+    
     logger.setLevel(level)
-    logger.propagate = False  # Prevent duplicate logs in parent loggers
-
+    
+    # Create formatter
+    formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
+    
+    # Console handler
+    if log_to_console:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(level)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+    
+    # File handler
     if log_to_file:
-        # Default to pipeline.log if no specific file is mapped
-        log_file = LOG_FILES.get("pipeline", LOG_DIR / "pipeline.log")
-        _setup_file_handler(logger, log_file, level)
-
-    _setup_console_handler(logger, level)
-
-    _logger_cache[name] = logger
+        if log_file is None:
+            log_file = LOG_FILE_PATHS["general"]
+        
+        log_path = LOGS_DIR / log_file
+        
+        # Ensure parent directories exist
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Use RotatingFileHandler for large logs
+        file_handler = logging.handlers.RotatingFileHandler(
+            log_path,
+            maxBytes=10 * 1024 * 1024,  # 10 MB
+            backupCount=5,
+            encoding="utf-8",
+        )
+        file_handler.setLevel(level)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+    
     return logger
 
-
-def get_logger_for_module(module_name: str, level: int = DEFAULT_LEVEL) -> logging.Logger:
+def get_logger_for_module(module_name: str) -> logging.Logger:
     """
-    Convenience wrapper for get_logger using the module's __name__.
-
+    Get a logger for a specific module using its name.
+    
     Args:
-        module_name: The module name (e.g., __name__).
-        level: Log level.
-
+        module_name: The module name (e.g., 'train', 'evaluate')
+    
     Returns:
-        Configured logger.
+        Configured logger instance
     """
-    return get_logger(module_name, level)
+    return get_logger(module_name, log_file=f"{module_name}.log")
 
-
-def setup_training_logger(level: int = DEFAULT_LEVEL) -> logging.Logger:
+def setup_training_logger() -> logging.Logger:
     """
-    Setup the training-specific logger.
-
-    Logs training progress, reward adjustments, k_est values, and episode results.
-    File: data/logs/training.log
-
-    Args:
-        level: Log level.
-
+    Set up and return the training logger.
+    
     Returns:
-        Training logger.
+        Configured training logger
     """
-    logger = get_logger("training", level, log_to_file=False)
-    _setup_file_handler(logger, LOG_FILES["training"], level)
-    return logger
+    return get_logger(
+        "training",
+        log_file=LOG_FILE_PATHS["training"],
+        log_to_console=True,
+        log_to_file=True,
+    )
 
-
-def setup_evaluation_logger(level: int = DEFAULT_LEVEL) -> logging.Logger:
+def setup_evaluation_logger() -> logging.Logger:
     """
-    Setup the evaluation-specific logger.
-
-    Logs evaluation metrics, success rates, and policy comparisons.
-    File: data/logs/evaluation.log
-
-    Args:
-        level: Log level.
-
+    Set up and return the evaluation logger.
+    
     Returns:
-        Evaluation logger.
+        Configured evaluation logger
     """
-    logger = get_logger("evaluation", level, log_to_file=False)
-    _setup_file_handler(logger, LOG_FILES["evaluation"], level)
-    return logger
+    return get_logger(
+        "evaluation",
+        log_file=LOG_FILE_PATHS["evaluation"],
+        log_to_console=True,
+        log_to_file=True,
+    )
 
-
-def setup_aggregation_logger(level: int = DEFAULT_LEVEL) -> logging.Logger:
+def setup_aggregation_logger() -> logging.Logger:
     """
-    Setup the aggregation-specific logger.
-
-    Logs data aggregation steps, record validation, and CSV writes.
-    File: data/logs/aggregation.log
-
-    Args:
-        level: Log level.
-
+    Set up and return the aggregation logger.
+    
     Returns:
-        Aggregation logger.
+        Configured aggregation logger
     """
-    logger = get_logger("aggregation", level, log_to_file=False)
-    _setup_file_handler(logger, LOG_FILES["aggregation"], level)
-    return logger
+    return get_logger(
+        "aggregation",
+        log_file=LOG_FILE_PATHS["aggregation"],
+        log_to_console=True,
+        log_to_file=True,
+    )
 
-
-def setup_analysis_logger(level: int = DEFAULT_LEVEL) -> logging.Logger:
+def setup_analysis_logger() -> logging.Logger:
     """
-    Setup the analysis-specific logger.
-
-    Logs statistical test results, p-values, and power calculations.
-    File: data/logs/analysis.log
-
-    Args:
-        level: Log level.
-
+    Set up and return the analysis logger.
+    
     Returns:
-        Analysis logger.
+        Configured analysis logger
     """
-    logger = get_logger("analysis", level, log_to_file=False)
-    _setup_file_handler(logger, LOG_FILES["analysis"], level)
-    return logger
+    return get_logger(
+        "analysis",
+        log_file=LOG_FILE_PATHS["analysis"],
+        log_to_console=True,
+        log_to_file=True,
+    )
 
-
-def setup_benchmark_logger(level: int = DEFAULT_LEVEL) -> logging.Logger:
+def setup_benchmark_logger() -> logging.Logger:
     """
-    Setup the benchmark-specific logger.
-
-    Logs wall-clock times, memory usage, and pipeline component performance.
-    File: data/logs/benchmark.log
-
-    Args:
-        level: Log level.
-
+    Set up and return the benchmark logger.
+    
     Returns:
-        Benchmark logger.
+        Configured benchmark logger
     """
-    logger = get_logger("benchmark", level, log_to_file=False)
-    _setup_file_handler(logger, LOG_FILES["benchmark"], level)
-    return logger
+    return get_logger(
+        "benchmark",
+        log_file=LOG_FILE_PATHS["benchmark"],
+        log_to_console=True,
+        log_to_file=True,
+    )
 
-
-def setup_all_loggers(level: int = DEFAULT_LEVEL) -> Dict[str, logging.Logger]:
+def setup_all_loggers() -> Dict[str, logging.Logger]:
     """
-    Initialize all specialized loggers at once.
-
-    Args:
-        level: Log level for all loggers.
-
+    Set up all loggers and return them in a dictionary.
+    
     Returns:
-        Dictionary mapping logger names to logger instances.
+        Dictionary mapping logger names to logger instances
     """
     return {
-        "training": setup_training_logger(level),
-        "evaluation": setup_evaluation_logger(level),
-        "aggregation": setup_aggregation_logger(level),
-        "analysis": setup_analysis_logger(level),
-        "benchmark": setup_benchmark_logger(level),
-        "pipeline": get_logger("pipeline", level),
+        "training": setup_training_logger(),
+        "evaluation": setup_evaluation_logger(),
+        "aggregation": setup_aggregation_logger(),
+        "analysis": setup_analysis_logger(),
+        "benchmark": setup_benchmark_logger(),
     }
 
-
-def init_logging(level: int = DEFAULT_LEVEL) -> None:
+def init_logging() -> None:
     """
-    Initialize the root logging configuration for the entire pipeline.
-
-    This should be called once at the entry point of any script to ensure
-    consistent logging behavior.
-
-    Args:
-        level: Global log level.
+    Initialize logging for the entire project.
+    
+    This function sets up all loggers and ensures the logs directory exists.
+    It should be called at the start of any main script.
     """
-    logging.basicConfig(
-        level=level,
-        format=LOG_FORMAT,
-        datefmt=DATE_FORMAT,
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    # Ensure our log directory exists
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    # Ensure logs directory exists
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Set up all loggers
+    setup_all_loggers()

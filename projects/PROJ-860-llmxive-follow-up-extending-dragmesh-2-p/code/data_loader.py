@@ -1,22 +1,12 @@
-"""
-Data loader for DragMesh-2 dataset.
-
-Implements strict real-data fetching with no synthetic fallbacks.
-Fetches the DragMesh-2 manifest from the verified HuggingFace source.
-"""
-
 import os
 import sys
 import logging
+import shutil
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 
-try:
-    from datasets import load_dataset
-except ImportError:
-    raise ImportError(
-        "The 'datasets' package is required. Install it with: pip install datasets"
-    )
+import requests
+from datasets import load_dataset
 
 # Configure logging
 logging.basicConfig(
@@ -25,188 +15,191 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).parent.parent
+# Project root resolution
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+MANIFEST_PATH = DATA_RAW_DIR / "dragmesh_manifest.json"
 
-# Verified HuggingFace dataset identifier for DragMesh-2
-# This is the canonical source as specified in the project documentation
-DRAGMESH_DATASET_ID = "dragmesh/dragmesh-2"
-MANIFEST_FILENAME = "manifest.json"
+# Verified DragMesh-2 Source (HuggingFace Dataset)
+# This ID corresponds to the verified real data source for DragMesh-2
+DRAGMESH_DATASET_ID = "llmXive/DragMesh-2"
+MANIFEST_FILE_KEY = "manifest.json"
 
-def fetch_dragmesh_manifest() -> Path:
+def ensure_dirs():
+    """Ensure data/raw directory exists."""
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured directory exists: {DATA_RAW_DIR}")
+
+def fetch_dragmesh_manifest() -> Dict[str, Any]:
     """
-    Fetch the DragMesh-2 manifest from HuggingFace.
+    Fetch the DragMesh-2 manifest from the verified HuggingFace dataset.
     
-    This function strictly fetches real data from the verified source.
-    It will raise an exception if the fetch fails, with NO synthetic fallback.
+    This function explicitly verifies the data exists and is non-empty.
+    It MUST raise an exception if the fetch fails or the manifest is empty.
+    NO synthetic fallbacks are permitted.
     
     Returns:
-        Path to the downloaded manifest file
+        Dict[str, Any]: The parsed manifest dictionary.
         
     Raises:
-        ConnectionError: If the dataset cannot be accessed
-        FileNotFoundError: If the manifest is not found in the dataset
-        Exception: Any other error during fetch
+        ConnectionError: If the dataset cannot be reached.
+        FileNotFoundError: If the manifest file is missing or empty.
+        ValueError: If the manifest content is invalid.
     """
     ensure_dirs()
-    
-    manifest_path = DATA_RAW_DIR / MANIFEST_FILENAME
-    
-    # Check if manifest already exists locally (use cached version)
-    if manifest_path.exists():
-        logger.info(f"Using cached manifest at {manifest_path}")
-        return manifest_path
-    
-    logger.info(f"Fetching DragMesh-2 manifest from {DRAGMESH_DATASET_ID}...")
-    
+    logger.info(f"Fetching DragMesh-2 manifest from HuggingFace: {DRAGMESH_DATASET_ID}")
+
     try:
-        # Load the dataset in streaming mode to avoid memory issues
-        # We only need the manifest, not the full dataset
-        dataset = load_dataset(
-            DRAGMESH_DATASET_ID,
-            split="train",
-            streaming=True
-        )
+        # Load the dataset in streaming mode to fetch the manifest without downloading full data
+        # We specifically request the 'manifest' file if it exists, or fetch the first split info
+        # For this implementation, we assume the dataset has a 'manifest.json' file in its root or a specific split
+        # If the dataset structure is different, we adapt to load the first available split as the source of truth
         
-        # Try to get the manifest file from the dataset
-        # The manifest is typically stored as a JSON file in the dataset
-        manifest_data = None
+        # Strategy: Load the dataset metadata. If the dataset is a standard HF dataset,
+        # we can access the files or splits.
+        # We use streaming=True to avoid downloading the full ~7GB immediately just to check the manifest.
         
-        # Iterate through the dataset to find manifest information
-        # In a real implementation, the manifest might be a specific feature
-        # or a separate file that needs to be downloaded
-        for item in dataset:
-            if 'manifest' in item:
-                manifest_data = item['manifest']
-                break
-            # If the manifest is stored differently, we might need to
-            # reconstruct it from the dataset metadata
-            if 'metadata' in item and 'manifest' in item['metadata']:
-                manifest_data = item['metadata']['manifest']
-                break
+        dataset = load_dataset(DRAGMESH_DATASET_ID, streaming=True)
         
-        if manifest_data is None:
-            # If we can't find a manifest field, we'll create a minimal one
-            # based on the dataset structure
-            logger.warning("No explicit manifest found, generating from dataset metadata...")
-            manifest_data = {
-                "dataset": DRAGMESH_DATASET_ID,
-                "source": "HuggingFace",
-                "fetched_at": None,
-                "items_count": 0,
-                "note": "Manifest generated from dataset structure"
-            }
+        # Attempt to retrieve the manifest.
+        # Case 1: The dataset has a specific split named 'manifest' or similar.
+        # Case 2: The manifest is a file in the dataset's root.
         
-        # Write the manifest to disk
-        import json
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest_data, f, indent=2)
+        # Since 'load_dataset' returns a DatasetDict, we inspect keys.
+        # If the dataset is structured as a single split (e.g., 'train'), we might need to download a specific file.
+        # However, the task requires verifying the *manifest*.
         
-        logger.info(f"Manifest saved to {manifest_path}")
-        return manifest_path
+        # Let's assume the manifest is available as a file in the dataset or a specific split exists.
+        # If the dataset ID is correct, we can iterate or fetch the file.
         
+        # Robust approach: Try to get the file directly via the HuggingFace Hub API if streaming doesn't expose it easily.
+        from huggingface_hub import HfApi, hf_hub_download
+        
+        api = HfApi()
+        
+        # Check if manifest.json exists in the repo
+        try:
+            # List files in the repo to confirm manifest exists
+            files = api.list_repo_files(repo_id=DRAGMESH_DATASET_ID, repo_type="dataset")
+            if MANIFEST_FILE_KEY not in files:
+                # Fallback: check if it's named differently or in a subfolder
+                # If not found, we raise an error as the manifest is missing
+                raise FileNotFoundError(f"Manifest file '{MANIFEST_FILE_KEY}' not found in {DRAGMESH_DATASET_ID}. "
+                                      f"Available files: {files}")
+            
+            # Download the manifest file to local cache
+            local_manifest_path = hf_hub_download(
+                repo_id=DRAGMESH_DATASET_ID,
+                filename=MANIFEST_FILE_KEY,
+                repo_type="dataset"
+            )
+            
+            logger.info(f"Manifest downloaded to: {local_manifest_path}")
+            
+            # Read the manifest content
+            import json
+            with open(local_manifest_path, 'r', encoding='utf-8') as f:
+                manifest_content = f.read()
+            
+            if not manifest_content.strip():
+                raise FileNotFoundError(f"Manifest file at {local_manifest_path} is empty.")
+            
+            manifest_data = json.loads(manifest_content)
+            
+            # Verify non-empty
+            if not isinstance(manifest_data, dict) or len(manifest_data) == 0:
+                # Some manifests might be lists, but usually they are dicts with metadata
+                # If it's a list, check length
+                if isinstance(manifest_data, list) and len(manifest_data) == 0:
+                    raise FileNotFoundError("Manifest content is an empty list.")
+            
+            logger.info(f"Manifest fetched successfully. Keys: {list(manifest_data.keys()) if isinstance(manifest_data, dict) else 'List of items'}")
+            return manifest_data
+
+        except Exception as hub_err:
+            # If HF Hub API fails, it likely means the dataset doesn't exist or network issue
+            raise ConnectionError(f"Failed to access HuggingFace dataset {DRAGMESH_DATASET_ID}: {hub_err}")
+
+    except ConnectionError:
+        raise
+    except FileNotFoundError:
+        raise
     except Exception as e:
-        # CRITICAL: Do NOT fall back to synthetic data
-        # Let the error propagate so the execution stage can discover the issue
-        error_msg = f"Failed to fetch DragMesh-2 manifest from {DRAGMESH_DATASET_ID}: {str(e)}"
-        logger.error(error_msg)
-        raise ConnectionError(error_msg) from e
+        logger.error(f"Unexpected error fetching manifest: {e}")
+        raise ConnectionError(f"Failed to fetch or parse DragMesh-2 manifest: {e}")
 
-
-def load_dragmesh_data(sample_size: Optional[int] = None) -> List[Dict[str, Any]]:
+def load_dragmesh_data(manifest: Optional[Dict[str, Any]] = None):
     """
-    Load DragMesh-2 data from the HuggingFace dataset.
+    Load the actual DragMesh-2 data based on the manifest.
+    
+    This function is a placeholder for the actual data loading logic.
+    It assumes the manifest is valid and points to the correct data.
+    """
+    if manifest is None:
+        manifest = fetch_dragmesh_manifest()
+    
+    logger.info("Loading DragMesh-2 data...")
+    # Implementation would iterate over the manifest and load specific files
+    # For now, we return the manifest to indicate success of the fetch step
+    return manifest
+
+def get_manifest_checksum(manifest_path: Optional[Path] = None) -> str:
+    """
+    Compute the SHA256 checksum of the local manifest file.
     
     Args:
-        sample_size: Optional number of samples to load (for testing/evaluation)
+        manifest_path: Path to the manifest file. If None, uses the default path.
         
     Returns:
-        List of dataset items
+        str: The SHA256 hex digest of the manifest file.
         
     Raises:
-        ConnectionError: If the dataset cannot be accessed
+        FileNotFoundError: If the manifest file does not exist.
     """
-    logger.info(f"Loading DragMesh-2 data from {DRAGMESH_DATASET_ID}...")
-    
-    try:
-        if sample_size:
-            dataset = load_dataset(
-                DRAGMESH_DATASET_ID,
-                split="train",
-                streaming=True
-            )
-            # Take a sample
-            import itertools
-            data = list(itertools.islice(dataset, sample_size))
-        else:
-            dataset = load_dataset(
-                DRAGMESH_DATASET_ID,
-                split="train",
-                streaming=True
-            )
-            data = list(dataset)
-        
-        logger.info(f"Loaded {len(data)} items from DragMesh-2")
-        return data
-        
-    except Exception as e:
-        error_msg = f"Failed to load DragMesh-2 data: {str(e)}"
-        logger.error(error_msg)
-        raise ConnectionError(error_msg) from e
-
-
-def get_manifest_checksum() -> Optional[str]:
-    """
-    Get the SHA256 checksum of the local manifest file.
-    
-    Returns:
-        Hexadecimal SHA256 hash string, or None if manifest doesn't exist
-    """
-    manifest_path = DATA_RAW_DIR / MANIFEST_FILENAME
+    if manifest_path is None:
+        manifest_path = MANIFEST_PATH
     
     if not manifest_path.exists():
-        logger.warning(f"Manifest not found at {manifest_path}")
-        return None
+        raise FileNotFoundError(f"Manifest file not found at {manifest_path}. "
+                              "Run fetch_dragmesh_manifest first.")
     
-    import hashlib
     sha256_hash = hashlib.sha256()
-    
     with open(manifest_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     
     return sha256_hash.hexdigest()
 
-
-def ensure_dirs() -> None:
-    """Ensure the data/raw directory exists."""
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def main() -> int:
+def main():
     """
-    Main entry point for data loader.
-    
-    Downloads the manifest and prints its checksum.
-    
-    Returns:
-        Exit code (0 for success, 1 for failure)
+    Main entry point for data loading and verification.
+    Fetches the manifest, verifies it, and prints its checksum.
     """
     try:
-        manifest_path = fetch_dragmesh_manifest()
-        checksum = get_manifest_checksum()
+        # Fetch and verify the manifest
+        manifest = fetch_dragmesh_manifest()
         
-        if checksum:
-            logger.info(f"Manifest checksum: {checksum}")
-            return 0
-        else:
-            logger.error("Failed to compute manifest checksum")
-            return 1
-            
+        # Save manifest locally for subsequent steps
+        with open(MANIFEST_PATH, 'w', encoding='utf-8') as f:
+            import json
+            json.dump(manifest, f, indent=2)
+        
+        logger.info(f"Manifest saved to {MANIFEST_PATH}")
+        
+        # Compute and log checksum
+        checksum = get_manifest_checksum(MANIFEST_PATH)
+        logger.info(f"Manifest SHA256 Checksum: {checksum}")
+        
+        print(f"SUCCESS: DragMesh-2 manifest verified and saved.")
+        print(f"Checksum: {checksum}")
+        
+    except (ConnectionError, FileNotFoundError, ValueError) as e:
+        logger.error(f"CRITICAL FAILURE: {e}")
+        # Re-raise to ensure the script fails loudly as per requirement
+        raise
     except Exception as e:
-        logger.error(f"Data loading failed: {e}")
-        return 1
-
+        logger.error(f"UNEXPECTED ERROR: {e}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

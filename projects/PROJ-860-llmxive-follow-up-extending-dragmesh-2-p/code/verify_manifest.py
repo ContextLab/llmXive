@@ -2,10 +2,12 @@
 Manifest verification script for DragMesh-2 dataset.
 
 Computes SHA256 checksum of the fetched manifest, compares against expected
-hash (if provided), and records the hash in both the project state file
-and a local checksum file in the data/raw directory.
+hash (if provided), and records the hash in the project state file.
 
 Implements Constitution Principle III: Data Integrity Verification.
+
+IMPORTANT: This script respects read-only constraints on data/raw.
+It does NOT write to data/raw/.checksums. It only writes to state/projects.
 """
 
 import os
@@ -19,7 +21,7 @@ from typing import Optional, Dict, Any
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from data_loader import fetch_dragmesh_manifest, get_manifest_checksum
+from data_loader import fetch_dragmesh_manifest
 from checksum_config import load_state, save_state
 
 # Configure logging
@@ -33,7 +35,6 @@ PROJECT_ROOT = Path(__file__).parent.parent
 STATE_DIR = PROJECT_ROOT / "state" / "projects"
 STATE_FILE = STATE_DIR / "PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml"
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-CHECKSUM_FILE = DATA_RAW_DIR / ".checksums"
 
 # Expected manifest hash (can be updated if the source changes)
 # This is the hash of the DragMesh-2 manifest as fetched from HuggingFace
@@ -64,36 +65,6 @@ def ensure_dirs() -> None:
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def load_expected_checksums() -> Dict[str, str]:
-    """
-    Load existing checksums from the local .checksums file.
-    
-    Returns:
-        Dictionary mapping file names to their expected checksums
-    """
-    if not CHECKSUM_FILE.exists():
-        return {}
-    
-    try:
-        with open(CHECKSUM_FILE, 'r') as f:
-            return yaml.safe_load(f) or {}
-    except Exception as e:
-        logger.warning(f"Could not load existing checksums: {e}")
-        return {}
-
-
-def save_local_checksums(checksums: Dict[str, str]) -> None:
-    """
-    Save checksums to the local .checksums file.
-    
-    Args:
-        checksums: Dictionary mapping file names to checksums
-    """
-    with open(CHECKSUM_FILE, 'w') as f:
-        yaml.dump(checksums, f, default_flow_style=False)
-    logger.info(f"Saved checksums to {CHECKSUM_FILE}")
-
-
 def update_state_file(manifest_hash: str) -> None:
     """
     Update the project state file with the manifest checksum.
@@ -107,7 +78,9 @@ def update_state_file(manifest_hash: str) -> None:
         state['artifact_hashes'] = {}
     
     state['artifact_hashes']['data_raw_manifest'] = manifest_hash
-    state['updated_at'] = os.popen('date -u +"%Y-%m-%dT%H:%M:%SZ"').read().strip()
+    # Use a simple timestamp format without external dependencies
+    from datetime import datetime, timezone
+    state['updated_at'] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     
     save_state(STATE_FILE, state)
     logger.info(f"Updated state file {STATE_FILE} with manifest checksum")
@@ -121,7 +94,7 @@ def verify_manifest_integrity(expected_hash: Optional[str] = None) -> bool:
         expected_hash: Optional expected hash to compare against
         
     Returns:
-        True if verification passes, False otherwise
+        True if verification passes (or if file is missing but logged), False otherwise
     """
     ensure_dirs()
     
@@ -134,7 +107,33 @@ def verify_manifest_integrity(expected_hash: Optional[str] = None) -> bool:
         raise
     
     if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest file not found at {manifest_path}")
+        logger.warning(f"Manifest file not found at {manifest_path}")
+        logger.warning("Recording MISSING_DATA status in state file.")
+        
+        # Record MISSING_DATA status
+        state = load_state(STATE_FILE)
+        if 'artifact_hashes' not in state:
+            state['artifact_hashes'] = {}
+        state['artifact_hashes']['data_raw_manifest'] = 'MISSING_DATA'
+        from datetime import datetime, timezone
+        state['updated_at'] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        save_state(STATE_FILE, state)
+        return False
+    
+    # Check if file is empty
+    if manifest_path.stat().st_size == 0:
+        logger.warning(f"Manifest file at {manifest_path} is empty.")
+        logger.warning("Recording MISSING_DATA status in state file.")
+        
+        # Record MISSING_DATA status
+        state = load_state(STATE_FILE)
+        if 'artifact_hashes' not in state:
+            state['artifact_hashes'] = {}
+        state['artifact_hashes']['data_raw_manifest'] = 'MISSING_DATA'
+        from datetime import datetime, timezone
+        state['updated_at'] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        save_state(STATE_FILE, state)
+        return False
     
     # Compute the checksum
     logger.info(f"Computing SHA256 for {manifest_path}...")
@@ -145,11 +144,6 @@ def verify_manifest_integrity(expected_hash: Optional[str] = None) -> bool:
     if expected_hash and manifest_hash != expected_hash:
         logger.error(f"Checksum mismatch! Expected: {expected_hash}, Got: {manifest_hash}")
         return False
-    
-    # Save to local checksum file
-    local_checksums = load_expected_checksums()
-    local_checksums['dragmesh_manifest'] = manifest_hash
-    save_local_checksums(local_checksums)
     
     # Update project state file
     update_state_file(manifest_hash)
@@ -171,7 +165,7 @@ def main() -> int:
             logger.info("VERIFICATION SUCCESSFUL")
             return 0
         else:
-            logger.error("VERIFICATION FAILED: Checksum mismatch")
+            logger.error("VERIFICATION FAILED: Checksum mismatch or missing data")
             return 1
     except Exception as e:
         logger.error(f"VERIFICATION FAILED: {e}")

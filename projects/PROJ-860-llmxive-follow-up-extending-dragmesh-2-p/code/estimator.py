@@ -15,7 +15,7 @@ class VirtualTactileEstimator:
     """
     Estimates the virtual tactile friction coefficient k_est.
 
-    Formula (FR-001): k_est = |Torque| / |Velocity|
+    Formula (FR-001): k_est = |Delta_tau_hand| / |Delta_v_object|
     Constraints:
       - FR-006: Moving average filter with a configurable window (default=5) to smooth noise.
       - FR-007: Epsilon clamping to prevent division by zero and bound the result.

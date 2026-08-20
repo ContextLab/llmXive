@@ -1,67 +1,85 @@
 import os
+import sys
 import tempfile
 import shutil
 from pathlib import Path
-import sys
 import pytest
 
 # Add the code directory to the path so we can import setup_project
-# Note: In a real test run, the path setup might be handled differently,
-# but for this standalone test file, we assume the structure.
-# We will test the logic by importing the function if possible, or mocking.
-# Since setup_project.py is a script with a main(), we test the logic directly.
+# This assumes the test is run from the project root or with appropriate PYTHONPATH
+code_dir = Path(__file__).parent.parent / "code"
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-def test_directory_creation_logic():
+from setup_project import main
+
+def test_directory_structure_creation(tmp_path):
     """
-    Test that the directory creation logic works correctly.
+    Test that setup_project creates the required directory structure.
     """
-    # Create a temporary directory to act as the project root
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        project_root = Path(tmp_dir)
+    # Change to the temporary directory to simulate the project root
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(tmp_path)
         
-        # Define the directories to create
-        directories = [
+        # Call the main function which creates the directories
+        exit_code = main()
+        
+        # Verify the function returned 0 (success)
+        assert exit_code == 0, "setup_project.main() should return 0 on success"
+        
+        # Define the expected directories relative to tmp_path
+        expected_dirs = [
             "code",
             "tests",
             "data/raw",
             "data/generated",
-            "state/projects",
-            "data/results"
+            "data/results",
+            "state/projects"
         ]
         
-        # Create them
-        for dir_path in directories:
-            full_path = project_root / dir_path
-            full_path.mkdir(parents=True, exist_ok=True)
+        # Verify each directory exists
+        for dir_name in expected_dirs:
+            dir_path = tmp_path / dir_name
+            assert dir_path.exists(), f"Directory {dir_path} should exist after running setup_project"
+            assert dir_path.is_dir(), f"{dir_path} should be a directory"
         
-        # Verify they exist
-        for dir_path in directories:
-            full_path = project_root / dir_path
-            assert full_path.exists(), f"Directory {full_path} was not created."
-            assert full_path.is_dir(), f"{full_path} is not a directory."
-            
-            # Check nested directories
-            if "raw" in dir_path:
-                assert (project_root / "data").exists()
-                assert (project_root / "data" / "raw").exists()
+        # Verify the 'state/projects' nested structure specifically
+        state_projects = tmp_path / "state" / "projects"
+        assert state_projects.exists(), "state/projects should exist"
+        assert state_projects.is_dir(), "state/projects should be a directory"
 
-def test_skip_existing_directories():
+    finally:
+        # Restore the original working directory
+        os.chdir(original_cwd)
+
+def test_idempotency(tmp_path):
     """
-    Test that existing directories are not recreated (idempotency).
+    Test that running setup_project twice does not cause errors.
     """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        project_root = Path(tmp_dir)
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(tmp_path)
         
-        # Create one directory beforehand
-        pre_existing = project_root / "code"
-        pre_existing.mkdir()
+        # Run twice
+        exit_code_1 = main()
+        exit_code_2 = main()
         
-        # Try to "create" it again
-        directories = ["code", "tests"]
-        for dir_path in directories:
-            full_path = project_root / dir_path
-            full_path.mkdir(parents=True, exist_ok=True)
+        assert exit_code_1 == 0
+        assert exit_code_2 == 0
         
-        # Verify the pre-existing one is still there and no error occurred
-        assert pre_existing.exists()
-        assert (project_root / "tests").exists()
+        # Verify structure still exists
+        expected_dirs = [
+            "code",
+            "tests",
+            "data/raw",
+            "data/generated",
+            "data/results",
+            "state/projects"
+        ]
+        
+        for dir_name in expected_dirs:
+            assert (tmp_path / dir_name).exists()
+            
+    finally:
+        os.chdir(original_cwd)

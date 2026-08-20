@@ -1,2 +1,2 @@
-# This directory stores experiment results and logs
-# Output from evaluate.py, aggregate.py, and analysis.py
+# This file ensures the data/results directory is tracked by git.
+# It is empty.

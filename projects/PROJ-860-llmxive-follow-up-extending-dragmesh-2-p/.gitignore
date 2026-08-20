@@ -21,17 +21,10 @@ wheels/
 *.egg
 
 # Virtual environments
+env/
 venv/
 ENV/
-env/
-
-# Data
-data/raw/
-data/generated/
-data/results/
-
-# Logs
-*.log
+.venv
 
 # IDE
 .idea/
@@ -39,11 +32,16 @@ data/results/
 *.swp
 *.swo
 
+# Data and state (except state files)
+data/raw/*
+data/generated/*
+data/results/*
+!data/.gitkeep
+
+# Logs
+*.log
+logs/
+
 # OS
 .DS_Store
 Thumbs.db
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
