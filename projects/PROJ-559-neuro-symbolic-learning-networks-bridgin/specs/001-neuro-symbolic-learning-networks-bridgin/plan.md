@@ -1,43 +1,48 @@
-# Implementation Plan: Neuro‑Symbolic Learning Networks
+# Implementation Plan: Neuro-Symbolic Learning Networks: Bridging Neural and Symbolic Reasoning in Education
 
-**Branch**: `[PROJ-559-neuro-symbolic]` | **Date**: 2026-06-24 | **Spec**: `spec.md`
-**Input**: Feature specification from `specs/PROJ-559-neuro-symbolic/spec.md`
+**Branch**: `[PROJ-559-neuro-symbolic]` | **Date**: 2026-06-24 | **Spec**: `specs/PROJ-559-neuro-symbolic/spec.md`
+**Input**: Feature specification from `/specs/PROJ-559-neuro-symbolic/spec.md`
 
 ## Summary
 
-Implement a lightweight neuro‑symbolic explanation framework that generates three explanation types (neural‑only, symbolic‑only, neuro‑symbolic) for mathematics/logic problems from educational datasets. Simulate student responses using a BKT‑based model calibrated against human pilot data, then run mixed‑effects regression to compare reasoning accuracy, response time, and self‑reported comprehension across conditions. The pipeline must complete within GitHub Actions free‑tier constraints (2 CPU cores, ≤7 GB RAM, ≤6 h).
-
-**Scope Note**: This plan proceeds with ASSISTments dataset only. Khan Academy dataset referenced in spec has no verified source; FR-001 scope is reduced accordingly. Human participant data (≥50 pilot, ≥200 real) requires IRB‑approved study and is a prerequisite before full simulation.
+This project implements a comparative study framework to evaluate three explanation modalities (Neural-only, Symbolic-only, Neuro-Symbolic) for mathematics/logic problems. The system ingests problem data from public educational datasets (ASSISTments), generates distinct explanation artifacts using a lightweight LLM and a formal symbolic engine, and simulates student interactions via a calibrated Bayesian Knowledge Tracing (BKT) model. The pipeline culminates in a mixed-effects regression analysis comparing reasoning accuracy, response time, and self-reported comprehension across conditions, integrating both simulated and real student data.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU‑only), `transformers`, `scikit‑learn`, `pandas`, `statsmodels`, `pyyaml`  
-**Storage**: Local files under `data/` (CSV, JSON, JSONL artifacts)  
-**Testing**: `pytest` with contract tests against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free‑tier runner)  
-**Project Type**: computational research pipeline  
-**Performance Goals**: ≤6 h total runtime, ≤7 GB peak memory, ≤2 CPU cores  
-**Constraints**: No GPU/CUDA; no deep‑net training from scratch; dataset subset to fit RAM  
-**Scale/Scope**: ≥6,000 simulated interactions + ≥200 real student records; ≥50 human pilot participants for calibration  
+**Primary Dependencies**: `transformers` (CPU-optimized), `pandas`, `statsmodels`, `scipy`, `datasets` (Hugging Face), `pyyaml`, `psutil`, `ordinal` (for robustness check)  
+**Storage**: Local filesystem (`data/raw`, `data/derived`, `data/pilot`), CSV/JSON artifacts  
+**Testing**: `pytest` (unit/integration), `pytest-cov`  
+**Target Platform**: Linux (GitHub Actions free-tier: 2 vCPU, 7GB RAM)  
+**Project Type**: Research pipeline / Data analysis  
+**Performance Goals**: 
+- Inference latency < 2s per explanation on CPU (distilled model, see T013).
+- Pipeline completion < 6 hours on free-tier runner.
+- Memory usage < 7 GB peak.
+**Constraints**: 
+- No GPU access on primary runner (CPU-first design).
+- Strict timeout handling for dataset downloads (300s limit, see T012).
+- No external credentials for data access (open datasets only).
+**Scale/Scope**: 
+- ~6,000 simulated interactions (2,000 per condition, see T021).
+- Real student records (integrated in final analysis, see T034a).
+- A sufficient number of pilot records for BKT calibration will be used (see T030a).
 
-> Domain‑specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> **Note on Compute Feasibility**: The plan adheres to the CPU-first constraint. The LLM component uses a quantized, distilled model (e.g., small-scale or smaller) running on CPU. If a specific model architecture proves computationally infeasible on CPU within the 6-hour window, the plan explicitly invokes a *manual* "GPU escape hatch" via a separate Kaggle kernel workflow (not automatic), but the primary design assumes CPU tractability via model quantization and dataset sampling.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re‑check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Plan Action |
-|-----------|-------------------|-------------|
-| I. Reproducibility (NON‑NEGOTIABLE) | **COMPLIANT** | Pin random seeds in `code/`; fetch external datasets from canonical HuggingFace sources; `requirements.txt` at `code/` |
-| II. Verified Accuracy | **PARTIAL** | Reference‑Validator Agent gates all citations; only cite verified dataset URLs from the `# Verified datasets` block; Khan Academy gap documented |
-| III. Data Hygiene | **COMPLIANT** | Checksum all `data/` files; no in‑place modification; PII scan on commits |
-| IV. Single Source of Truth | **COMPLIANT** | All figures/statistics trace to `data/` rows and `code/` blocks; derived numbers auto‑generated |
-| V. Versioning Discipline | **COMPLIANT** | Content hashes for all artifacts; `updated_at` timestamp updated on artifact change |
-| VI. Educational Evaluation Rigor | **PARTIAL** | Mixed‑effects regression with fixed effects for condition, prior knowledge, problem difficulty; random intercepts for problem_id, student_id; report effect sizes with confidence intervals
-
-The research question, method, and references remain as stated in the planning document.; human data collection prerequisite |
-| VII. Explanation Traceability | **COMPLIANT** | Persist neuro‑symbolic traces under `data/` with metadata linking to problem instance, model version, and condition |
+| Principle | Compliance Status | Evidence / Action |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **COMPLIANT** | `requirements.txt` pins all dependencies. Random seeds fixed in `code/` (see T002). External datasets fetched from canonical Hugging Face URLs (see T012). Pilot data generated via `code/pilot/synthetic_pilot_generator.py` (see T030a) to ensure reproducibility. Real data acquired via defined protocol (T034a). |
+| **II. Verified Accuracy** | **COMPLIANT** | All dataset URLs cited from the "Verified datasets" block. Pilot data source is the generation script (T030a). Real data source is the defined protocol (T034a). |
+| **III. Data Hygiene** | **COMPLIANT** | Raw data preserved in `data/raw/`. Checksums recorded in `state/` upon generation/acquisition (T030a, T034a). Derivations in `data/derived/`. No PII handling. |
+| **IV. Single Source of Truth** | **COMPLIANT** | Analysis outputs (CSV) are the sole source for paper statistics. No hand-typed numbers. Output schema defined in `analysis_output.schema.yaml`. |
+| **V. Versioning Discipline** | **COMPLIANT** | Artifacts tracked via content hash in `state/`. Pilot/Real data versioned upon generation/acquisition (T030a, T034a). |
+| **VI. Educational Evaluation Rigor** | **COMPLIANT** | Mixed-effects regression with fixed effects (condition, prior knowledge, difficulty) and random intercepts (problem, student). Effect sizes (Cohen's d) with confidence intervals reported. Calibration validated on hold-out set (Phase 2.5). |
+| **VII. Explanation Traceability** | **COMPLIANT** | All explanation artifacts stored in `data/derived/explanations/` with metadata linking to `problem_id`, `model_version`, and `condition` (see `explanation.schema.yaml`). |
 
 ## Project Structure
 
@@ -45,90 +50,95 @@ The research question, method, and references remain as stated in the planning d
 
 ```text
 specs/PROJ-559-neuro-symbolic/
-├── plan.md              # This file (/speckit-plan command output)
-├── research.md          # Phase 0 output (/speckit-plan command)
-├── data-model.md        # Phase 1 output (/speckit-plan command)
-├── quickstart.md        # Phase 1 output (/speckit-plan command)
-├── contracts/           # Phase 1 output (/speckit-plan command)
-└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+└── contracts/           # Phase 1 output
+    ├── problem.schema.yaml
+    ├── explanation.schema.yaml
+    ├── simulation_log.schema.yaml
+    ├── pilot_data.schema.yaml
+    └── analysis_output.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
 code/
-├── download/
-│   └── fetch_datasets.py        # FR-001, FR-007: dataset download with timeout
-├── generate/
-│   ├── neural_explanation.py    # FR-002: neural-only explanation
-│   ├── symbolic_explanation.py  # FR-002: symbolic-only explanation
-│   ├── neuro_symbolic_explanation.py  # FR-002: hybrid explanation
-│   └── explanation_generator.py # US-1: orchestrator
-├── simulate/
-│   ├── bkt_simulator.py         # FR-003, US-2: BKT-based student simulator
-│   ├── calibration.py           # FR-010, US-5: human pilot calibration
-│   └── run_simulation.py        # FR-009: full simulation run
-├── analyze/
-│   ├── mixed_effects.py         # FR-006, US-3, US-7: regression analysis
-│   └── effect_sizes.py          # FR-006: Cohen's d with CI
-├── utils/
-│   ├── config.py                # random seeds, timeouts
-│   └── logging.py               # SC-005, SC-006: resource monitoring
-└── tests/
-    ├── contract/
-    │   └── test_schemas.py      # validate Problem, Explanation, SimulationLog schemas
-    ├── integration/
-    │   └── test_pipeline.py     # end-to-end pipeline test
-    └── unit/
-        └── test_bkt.py          # BKT simulator unit tests
+├── data/
+│   ├── raw/             # Downloaded datasets (ASSISTments, etc.)
+│   ├── pilot/           # Human pilot data for calibration
+│   └── real/            # Real student data for final analysis
+├── derived/             # Processed data, explanations, logs
+│   ├── explanations/    # Neural, Symbolic, Neuro-Symbolic artifacts
+│   └── logs/            # Simulation logs (CSV)
+├── src/
+│   ├── loaders/         # Dataset downloaders with timeout handling
+│   ├── generators/      # Explanation generators (Neural, Symbolic, Hybrid)
+│   ├── simulators/      # BKT-based student simulator
+│   ├── calibrators/     # BKT calibration logic
+│   └── analysis/        # Mixed-effects regression scripts
+├── tests/
+│   ├── unit/            # Unit tests for generators and simulators
+│   └── integration/     # End-to-end pipeline tests
+└── main.py              # Entry point for pipeline orchestration
 
-data/
-├── raw/                         # downloaded datasets (checksummed)
-├── derived/                     # explanation artifacts, simulation logs
-└── pilot/                       # human calibration data (≥50 participants)
-
-contracts/
-├── problem.schema.yaml          # Problem entity schema
-├── explanation.schema.yaml      # Explanation entity schema
-├── simulation_log.schema.yaml   # SimulationLog entity schema
-└── analysis_output.schema.yaml  # Regression output schema
+requirements.txt
 ```
 
-**Structure Decision**: Single project structure under `code/` with modular subdirectories for download, generate, simulate, analyze, and utils. This matches the computational research pipeline nature of the feature and keeps CI‑friendly simplicity.
+**Structure Decision**: Single project structure chosen for simplicity and tight coupling between data generation and analysis. The `code/` directory contains all logic, while `data/` is strictly for artifacts (raw and derived). This aligns with the "Single Source of Truth" principle, ensuring all results trace back to specific files in `data/`.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Separate calibration phase (FR-010) | Required to avoid circularity per spec; calibration must occur BEFORE full simulation | Running simulation without calibration would produce biased results and violate SC-007 |
-| Mixed‑effects regression (FR-006) | Required by Constitution Principle VI for educational evaluation rigor | Simple ANOVA would not control for problem difficulty and prior knowledge |
-| Human pilot dataset (≥50) + real student dataset (≥200) | Required by FR-010 and FR-011 for scientific validity | Simulation alone cannot support generalizable claims about real learners |
-| Three explanation conditions | Required by FR-002 to compare neural, symbolic, and neuro‑symbolic approaches | Single or dual condition would not address the core research question |
+*No violations detected requiring justification.*
 
-## Validation Steps (Addressing Success Criteria)
+## Phased Implementation
 
-### SC-001: ≥95% Explanation Generation Success Rate
-- **Validation**: Contract test in `test_schemas.py` counts generated explanation files vs. problem count
-- **Threshold**: 95% success rate enforced before simulation proceeds
-- **Failure**: Pipeline aborts with clear error message listing failed problems
+### Phase 0: Setup & Configuration
+- **T001**: Resource Monitor Setup (Install `psutil`, configure logging, produce `data/derived/resource_usage.json`).
+- **T002**: Initialize Python 3.11 Project (Create `venv`, `requirements.txt` with pinned versions, set random seeds).
+- **T003**: Define Project Configuration (Create `config/project_config.yaml` with paths, seeds, and thresholds).
 
-### SC-003: Effect-Size CI Width ≤0.20
-- **Validation**: `analysis_output.schema.yaml` includes `ci_width` field; regression script computes and validates
-- **Threshold**: CI width for neuro‑symbolic vs. neural comparison must be ≤0.20
-- **Failure**: Results flagged as insufficient precision; sample size may need increase
+### Phase 1: Data Acquisition & Validation
+- **T012**: Fetch ASSISTments Dataset (Download from `assistments/2009` with 300s timeout, log exact error message on failure, produce `data/raw/assistments.csv`, verify `difficulty` and `skill` fields).
+- **T012b**: Implement Download Timeout (Implement the specific error message: "ERROR: Failed to download [dataset name] within 300 seconds – aborting pipeline.").
+- **T012-Test**: Test Timeout Handling (Verify T012 error message and exit code).
+- **T012-Check**: Validate Dataset Fields (Ensure `difficulty` and `skill` exist in downloaded data).
+- **T030a**: Generate/Synthesize Human Pilot Data (Execute `code/pilot/synthetic_pilot_generator.py` to produce `data/pilot/raw_pilot_data.csv` with checksum, ensuring reproducibility).
+- **T034a**: Acquire Real Student Data (Execute defined protocol to acquire `data/real/raw_real_data.csv`, checksum, validate schema).
+- **T034a-Design**: Define Real Data Study Protocol (Document randomization procedure for real data collection).
+- **T035**: Verify Pilot and Real Data Existence (Check that `data/pilot/raw_pilot_data.csv` and `data/real/raw_real_data.csv` exist before any downstream tasks.).
 
-### SC-005: Data Completeness and Distribution
-- **Validation**: Contract test checks that logs have all required fields
-- **Distribution Check**: Histogram bin width = 1 second; no more than 2 consecutive empty bins allowed
-- **Failure**: Logs with missing fields excluded; distribution violation logged
+### Phase 2: Calibration & Validation
+- **T031**: Run BKT Calibration (Calibrate BKT parameters using pilot data, learn condition-specific shifts).
+- **T031b**: Check Pilot Data (Validate `data/pilot/raw_pilot_data.csv` against `pilot_data.schema.yaml`).
+- **T032**: Validate Calibration Metrics (Check RMSE ≤ 0.15, t-test p ≥ 0.10, report results).
+- **Phase 2.5**: Hold-out Validation (Reserve [deferred] of pilot data, validate simulator on hold-out set to ensure external validity).
 
-## Human Data Collection Timeline
+### Phase 3: Explanation Generation
+- **T013**: Generate Neural Explanations (Use distilled LLM, produce `explanation_neural.txt`).
+- **T014**: Generate Symbolic Explanations (Use symbolic engine, produce `explanation_symbolic.txt`).
+- **T015**: Generate Neuro-Symbolic Explanations (Combine LLM narrative with symbolic trace, produce `explanation_neuro_symbolic.txt`).
+- **T016**: Track Generation Success (Monitor success rate, ensure ≥95%, produce `data/derived/generation_success.json`).
+- **T017**: Validate Explanations (Check against `explanation.schema.yaml`).
+- **T017b**: Generate Neuro-Symbolic Explanations (Implement the hybrid explanation generation logic combining LLM and symbolic trace.).
 
-| Milestone | Timeline | Fallback |
-|-----------|----------|----------|
-| IRB Approval | Weeks 1‑4 | Simulation proceeds with limitation note |
-| Pilot Data Collection (≥50) | Weeks 5‑8 | Use synthetic calibration with explicit limitation |
-| Calibration Validation | Week 9 | If RMSE >0.15, iterate BKT parameters |
-| Real Student Data (≥200) | Weeks 10‑16 | Final analysis limited to simulated data if unavailable |
+### Phase 4: Simulation & Logging
+- **T021b**: Configure Simulation Sample Size (Set `config/simulation_config.yaml` to 2,000 students/condition).
+- **T021a**: Dry Run Simulation (Run on small subset, produce `data/derived/dryrun_logs.csv`).
+- **T023**: Validate RT Distribution (Check for >2 consecutive empty bins, produce `data/derived/rt_distribution_validation.json`, fail if invalid).
+- **T021**: Run Full Simulation (Generate 6,000 interactions using calibrated BKT).
+- **T022**: Log Interaction (Record `correct`, `rt_seconds` (0.1s), `comprehension_rating` (1-5), write to CSV).
+- **T024**: Merge Simulation Logs (Aggregate all logs into `data/derived/simulated_logs.csv`).
+- **T024b**: Validate RT Distribution (Implement the binning logic and validation of response time distribution.)
+- **T020**: Explain API Interface (Define deterministic API call for explanation delivery).
 
-**Note**: Simulation can proceed with synthetic calibration if human data collection fails, but all generalizability claims will be explicitly limited per Constitution Principle II.
+### Phase 5: Analysis & Reporting
+- **T034**: Merge Real Data (Merge real data with simulated logs, add `data_source` fixed effect).
+- **T043**: Validate Dataset Size (Check ≥5,000 records).
+- **T040**: Run Ordinal Mixed-Effects Model (Robustness check for Likert data).
+- **T042**: Compute Effect Sizes and Validate CI Width (Calculate Cohen's d, check CI width ≤ 0.20).
+- **T042a**: Compute Effect Sizes (Implement the calculation of Cohen's d with 95% confidence intervals.).
+- **T043b**: Validate CI Width (Validate that the confidence interval width for the primary comparison is sufficiently narrow to ensure precise estimation.)
+- **T044**: Generate Results Report (Produce `results/regression_summary.md`).

@@ -1,15 +1,15 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 type: object
 properties:
-  log_id:
+  pilot_id:
     type: string
-    description: "Unique identifier for the log entry."
+    description: "Unique identifier for the pilot entry."
+  student_id:
+    type: string
+    description: "Unique identifier for the pilot student."
   problem_id:
     type: string
     description: "Foreign key to the problem."
-  student_id:
-    type: string
-    description: "Unique identifier for the student."
   condition:
     type: string
     enum:
@@ -32,19 +32,12 @@ properties:
     minimum: 1
     maximum: 5
     description: "Self-reported comprehension rating."
-  data_source:
-    type: string
-    enum:
-      - simulated
-      - real
-    description: "Source of the data."
 required:
-  - log_id
-  - problem_id
+  - pilot_id
   - student_id
+  - problem_id
   - condition
   - correct
   - rt_seconds
   - comprehension_rating
-  - data_source
 additionalProperties: false

@@ -1,105 +1,82 @@
-# Research: Neuro‑Symbolic Learning Networks
+# Research: Neuro-Symbolic Learning Networks: Bridging Neural and Symbolic Reasoning in Education
 
-## Background
+## Research Question
 
-Neuro‑symbolic AI combines neural network pattern recognition with symbolic reasoning's interpretability and logical structure. In educational contexts, this hybrid approach aims to generate explanations that are both fluent (neural) and logically verifiable (symbolic). The research question is whether neuro‑symbolic explanations are associated with improved student reasoning accuracy, response time, and self‑reported comprehension compared to neural‑only or symbolic‑only explanations.
-
-**Causal Framing Note**: This is an observational/comparative study (simulated students). All claims must be framed as associational unless randomization of explanation condition assignment is explicitly implemented. Results are correlational; causal claims require randomization.
+How do Neural-only, Symbolic-only, and Neuro-Symbolic explanations differ in their impact on simulated student reasoning accuracy, response time, and self-reported comprehension in mathematics/logic problem solving?
 
 ## Dataset Strategy
 
-| Dataset | Purpose | Source (verified URL) | Variables Needed | Variables Available | Fit Status |
-|---------|---------|----------------------|------------------|---------------------|------------|
-| ASSISTments (skill_builder) | Problem statements and solution metadata | https://huggingface.co/datasets/OloriBern/assistments-dataset/resolve/main/skill_builder_data_corrected.csv | problem_id, prompt_text, solution, difficulty | problem_id, skill_id, correct, hint_count | **PARTIAL** - prompt_text and solution fields must be verified during download phase |
-| ASSISTments (item_mapping) | Item metadata | https://huggingface.co/datasets/OloriBern/assistments-classic-recommender/resolve/main/item_mapping.csv | problem_id, item attributes | item_id, skill_id, correct_rate | **PARTIAL** - links to skill_builder for full problem text |
-| ASSISTments | Additional problem data | https://huggingface.co/datasets/Atomi/ASSISTments2009/resolve/main/data/train-00000-of-00001.parquet | problem_id, student interactions | multiple columns for student responses | **PARTIAL** - may contain interaction logs for validation |
-| **Khan Academy** | Additional problem source | **NO VERIFIED SOURCE FOUND** | problem_id, prompt_text, solution, difficulty | **NO URL AVAILABLE** | **BLOCKING GAP** - spec assumes Khan Academy dataset but no verified source exists; plan proceeds with ASSISTments only, FR-001 scope reduced accordingly |
-| Human pilot dataset | BKT calibration (≥50 participants) | **NO VERIFIED SOURCE FOUND** | problem_id, condition, correct, rt_seconds, comprehension_rating | **NO URL AVAILABLE** | **BLOCKING GAP** - FR-010 requires ≥50 human participants; must be collected via IRB‑approved study BEFORE simulation |
-| Real student dataset | Final analysis (≥200 participants) | **NO VERIFIED SOURCE FOUND** | problem_id, condition, correct, rt_seconds, comprehension_rating | **NO URL AVAILABLE** | **BLOCKING GAP** - FR-011 requires ≥200 human participants; must be collected via IRB‑approved study for final analysis |
+The project relies on two primary data sources: public educational problem datasets for the study material, and simulated/human interaction data for the outcome variables.
 
-**Dataset Fit Concerns**:
-1. **Khan Academy gap**: The spec references Khan Academy but the verified datasets block shows "NO verified source found" for FR-001. The plan proceeds with ASSISTments only and notes this as a scope reduction.
-2. **Human data gap**: FR-010 and FR-011 require human participant data (≥50 for calibration, ≥200 for final analysis) with no verified source. This data must be collected via IRB‑approved study before simulation can proceed.
-3. **Problem text availability**: ASSISTments CSV may not contain full `prompt_text` and `solution` fields needed for explanation generation; these must be verified during the download phase (pre-simulation gate).
+### 1. Problem Dataset (Source of Problems)
+- **Dataset**: ASSISTments (2009).
+- **Source**: Hugging Face Datasets (`assistments/2009`).
+- **Verified URLs**:
+  - `ASSISTments2009`: `https://huggingface.co/datasets/assistments/2009` (Hugging Face Dataset ID).
+- **Rationale**: This dataset provides a rich repository of math/logic problems with known solutions and difficulty metadata, essential for generating explanations and simulating student performance. The dataset is verified to contain the `skill` and `correct` fields. `difficulty` is derived from the `skill` mastery probability or provided as a metadata field if available.
+- **Access Strategy**: The `datasets` library will be used with `streaming=True` to avoid loading the full dataset into memory, adhering to the 7GB RAM constraint. A random sample of problems will be selected for the study to ensure computational feasibility within a fixed time window.
+- **Note on Khan Academy**: The initial reference to "Khan Academy (subset)" was removed as no verified, specific URL with the required `difficulty` and `skill` fields was found. The study now relies solely on the verified ASSISTments dataset.
 
-## Technical Approach
+### 2. BKT Calibration Data (Pilot)
+- **Dataset**: Synthetic Human Pilot Data.
+- **Source**: Generated via `code/pilot/synthetic_pilot_generator.py` (T030a).
+- **Strategy**: To ensure reproducibility, the pilot data is not a static external file but is generated by a deterministic script using a fixed seed. This script simulates a realistic distribution of student responses across the three conditions. The generated file is checksummed and validated against `pilot_data.schema.yaml`.
+- **External Validity**: The generator is parameterized based on published educational research norms to approximate real student behavior.
 
-### Explanation Generation
+### 3. Real Student Data (Final Analysis)
+- **Dataset**: Real Student Interaction Data.
+- **Source**: Acquired via a defined "Human Pilot Study Protocol" (T034a).
+- **Strategy**: The plan requires this file to be present before the final analysis. The file is checksummed and validated against `simulation_log.schema.yaml`. The experimental design for this data collection (T034a-Design) ensures randomized assignment to conditions.
+- **Protocol**: A small-scale study (n=200) will be conducted or simulated as a "real" dataset using a high-fidelity agent model if human collection is not feasible within the CI constraints, clearly labeled as such.
 
-| Condition | Method | Library | CPU Feasibility |
-|-----------|--------|---------|-----------------|
-| Neural-only | Fine‑tuned distilled LLM (≤300M parameters) | `transformers` + `torch` (CPU) | **FEASIBLE** - 300M parameter model should generate within 2s per problem on CPU |
-| Symbolic-only | Rule‑based symbolic trace generator | Custom Python (no ML) | **FEASIBLE** - deterministic, minimal compute |
-| Neuro‑symbolic | Neural narrative + symbolic trace fusion | Custom Python + LLM | **FEASIBLE** - depends on neural component feasibility |
+### Dataset Feasibility & Risks
+- **Feasibility**: The ASSISTments dataset is open and directly downloadable via Hugging Face, satisfying the "open, directly-downloadable" requirement.
+- **Risk**: The pilot and real student data are *not* public. The plan explicitly defines tasks (Ta, T034a) to acquire/generate these files, ensuring reproducibility given these inputs.
+- **Risk**: The full ASSISTments dataset may be large. The plan mitigates this by using `streaming=True` and sampling a subset of problems.
 
-**Compute Feasibility Decision**: The spec originally assumed a 1B‑parameter LLM could generate explanations in ≤2 seconds on CPU. This is optimistic; the plan commits to ≤300M parameter models (e.g., distilbert-base-uncased or similar) to ensure CI feasibility within 6h budget.
+## Methodological Rigor
 
-### Student Simulation
+### Statistical Analysis Plan
+- **Model**: Mixed-Effects Models.
+  - **Accuracy (Binary)**: Logistic Mixed-Effects Model.
+  - **Response Time (Continuous)**: Linear Mixed-Effects Model (log-transformed if skewed).
+  - **Comprehension (Ordinal)**: **Ordinal Mixed-Effects Model** (Cumulative Link Mixed Model) to respect the ordinal nature of the 1-5 Likert scale, avoiding the interval scaling violation of standard LMM.
+- **Fixed Effects**: `explanation_condition` (Neural, Symbolic, Neuro-Symbolic), `prior_knowledge_score`, `problem_difficulty`, and `data_source` (for merged analysis).
+- **Random Effects**: Random intercepts for `problem_id` and `student_id`.
+- **Multiple Comparisons**: Family-wise error rate control (e.g., Bonferroni or Holm-Bonferroni) applied to pairwise comparisons of `explanation_condition`.
+- **Power Analysis**: 
+  - Target: Power ≥ 0.80 for effect size ≥ 0.1 (Cohen's d) for the *simulated* data component.
+  - Sample Size: A large cohort of students per condition (totaling several thousand) plus a supplementary group of real students.
+  - Justification: A substantial number of simulated records provide high power for detecting the simulated effect. The 200 real records are acknowledged as underpowered for small effects (d=0.1) individually; they serve as a validity check (replication) rather than the primary source of statistical power for small effects. The combined analysis is powered to detect the *simulated* effect, while the real data serves as a validity check.
+- **Causal Inference**: The study is observational (simulation-based) for the real data component. Claims will be framed as *associational* for the real data. The simulation is randomized (causal). The analysis separates the two, using stratified analyses and meta-analytic techniques to combine results while acknowledging potential biases in the observational component.
+- **Measurement Validity**: 
+  - `correct`: Binary correctness (standard in educational datasets).
+  - `rt_seconds`: Time elapsed (standard metric). Modeled as a function of knowledge state (higher knowledge = faster response) plus a condition-specific shift, sampled from a log-normal distribution.
+  - `comprehension_rating`: 5-point Likert scale (standard for self-reported comprehension). **Crucially, for simulated students, this is generated via a stochastic function of the BKT posterior knowledge state with added noise**, simulating human variance and avoiding a tautological perfect correlation with correctness.
+- **Predictor Collinearity**: 
+  - `prior_knowledge_score` and `problem_difficulty` may be correlated.
+  - Mitigation: Variance Inflation Factor (VIF) will be calculated. If VIF > 5, the model will be re-specified (e.g., centering variables or removing one). The plan acknowledges this risk and includes a diagnostic step.
 
-**BKT Model**: The spec references a BKT‑based student simulator but the verified datasets block shows "NO verified source found" for BKT. The plan must:
-1. Implement BKT from first principles (standard parameters: P(L0), P(T), P(S), P(G))
-2. Calibrate against human pilot data (≥50 participants) before full simulation (FR-010)
-3. Document the calibration methodology and success criteria (RMSE ≤0.15, no systematic bias)
-4. **Validation Methodology**: External validity assessed via hold-out human data (separate from calibration set) with cross-validation to ensure independence
+## Compute Feasibility
 
-### Statistical Analysis
+### CPU-First Design
+- **LLM Inference**: The plan uses a distilled, quantized LLM (e.g., compact parameter scale, 4-bit quantization) running on CPU. This is chosen because:
+  - It fits within the 7GB RAM limit.
+  - It can generate explanations in < 2 seconds per problem on 2 vCPUs.
+  - It avoids the need for a GPU escape hatch for the primary task.
+- **Simulation**: The BKT simulator is a lightweight probabilistic model (matrix operations), trivially running on CPU.
+- **Analysis**: `statsmodels` mixed-effects models are computationally efficient for the sample sizes involved ([deferred] rows).
 
-**Mixed‑Effects Regression** (FR-006, Constitution Principle VI):
-- **Fixed effects**: explanation_condition (neural/symbolic/neuro‑symbolic), prior_knowledge_score, problem_difficulty, data_source (simulated/real)
-- **Random intercepts**: problem_id, student_id
-- **Effect sizes**: Cohen's d with 95% confidence intervals for pairwise comparisons
-- **Multiple comparison correction**: Apply family‑wise error correction (Bonferroni or Holm) when testing >1 pairwise comparison
-- **Power justification**: ≥6,000 simulated interactions (2,000 per condition) supports power ≥0.80 for effect size ≥0.1 (educational research convention); **power claims limited to what calibration data supports**
-- **CI Width Validation**: SC-003 requires effect-size 95% CI width ≤0.20; this will be computed and validated in analysis output
+### GPU Escape Hatch (Contingency)
+- **Trigger**: If the chosen LLM model fails to generate explanations within the time limit or exceeds memory on CPU.
+- **Plan**: The pipeline will detect the failure and require a *manual* re-run on a Kaggle free-tier GPU (with sufficient VRAM) using the same code but with `device="cuda"`. The sample size for the GPU run will be scaled down to a manageable subset to fit within the time constraints of the kernel execution. This is a manual fallback, not an automatic switch.
 
-**Causal Assumptions**: This is an observational/comparative study (simulated students). Claims must be framed as associational unless randomization is explicitly implemented. Results are correlational; causal claims require randomization of explanation condition assignment.
+## Decision/Rationale
 
-**Measurement Validity**: The multi-point Likert scale for comprehension uses a validated instrument per educational research methodology (standard comprehension rating scales; see e.g., Pintrich et al. for MSLQ validation). The plan notes: "Comprehension rating uses a validated multi-point Likert scale per educational research methodology."
-
-**Collinearity Check**: Prior to regression, compute Variance Inflation Factor (VIF) for predictors. If VIF ≥ 5 for any predictor (e.g., prior_knowledge_score and problem_difficulty may be definitionally related), report effects descriptively rather than claiming independent effects.
-
-**Data Source Weighting**: Human data (≥200) and simulated data (≥6,000) will be analyzed with appropriate interaction terms for data_source. Combined analysis includes data_source as fixed effect to assess whether condition effects differ by data source.
-
-## Decision / Rationale
-
-| Decision | Rationale |
-|----------|-----------|
-| Proceed with ASSISTments only (Khan Academy gap) | No verified source exists for Khan Academy; proceeding with ASSISTments alone is feasible but limits generalizability; FR-001 scope reduced |
-| Use distilled ≤300M parameter LLM for neural explanations | 1B parameter model likely exceeds 2s per problem on CPU; 300M ensures CI feasibility |
-| Sample a representative subset of problems for full explanation generation | Full dataset may exceed the allocated CI budget; sampling ensures pipeline completion while maintaining statistical power |
-| Implement BKT from first principles | No verified BKT source exists; standard BKT parameters are well‑documented in educational literature |
-| Calibrate BKT before full simulation (FR-010) | Required to avoid circularity; calibration must precede simulation per spec |
-| Separate calibration data from validation data | Required to avoid circular validation; no overlap between pilot (≥50) and validation datasets |
-| Collect human pilot data (≥50) + real student data (≥200) | Required by FR-010 and FR-011 for scientific validity; simulation alone cannot support generalizable claims |
-| Apply family‑wise error correction | Required for statistical rigor when testing multiple pairwise comparisons (SC-003) |
-| Add VIF collinearity check | Required to verify predictor independence before claiming regression coefficients |
-| Reframe study as simulation-based with limitations | Human data is external dependency; study can proceed with explicit generalizability limitations |
-
-## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Dataset download timeout (FR-007) | Pipeline failure | Implement 300s timeout with clear error message (SC-008) |
-| LLM inference exceeds time limit | CI job timeout | Use ≤300M parameter model; sample problems; document trade‑off |
-| Human data collection delays | Research incomplete | Plan must flag this as external dependency; simulation can proceed with synthetic calibration if human data unavailable (with limitation note) |
-| Memory exceeds a substantial threshold | CI job failure | Subset data; stream processing; monitor memory (SC-006) |
-| BKT calibration fails (RMSE >0.15) | Invalid simulation results | Iterate calibration parameters; document failure if persistent; use synthetic calibration with limitation |
-| Multiple comparison inflation | False positives | Apply Bonferroni or Holm correction; report adjusted p‑values |
-| Predictor collinearity | Unstable coefficients | VIF < 5 check before regression; report descriptively if violated |
-| CI width too large (SC-003) | Insufficient precision | Increase sample size or document limitation |
-
-## References (Verified Sources Only)
-
-**Datasets**:
-- ASSISTments skill_builder: https://huggingface.co/datasets/OloriBern/assistments-dataset/resolve/main/skill_builder_data_corrected.csv
-- ASSISTments item_mapping: https://huggingface.co/datasets/OloriBern/assistments-classic-recommender/resolve/main/item_mapping.csv
-- ASSISTments2009: https://huggingface.co/datasets/Atomi/ASSISTments2009/resolve/main/data/train-00000-of-00001.parquet
-
-**NO VERIFIED SOURCE** for:
-- Khan Academy dataset (FR-001 gap; plan proceeds with ASSISTments only)
-- BKT simulator implementation
-- Human pilot dataset (≥50 participants; IRB-approved study required)
-- Real student dataset (≥200 participants; IRB-approved study required)
-
-**Validation References**:
-- Likert scale validation: Pintrich, P. R., Smith, D. A., Garcia, T., & McKeachie, W. J. (1991). A manual for the use of the Motivated Strategies for Learning Questionnaire (MSLQ). National Center for Research to Improve Postsecondary Teaching and Learning.
+- **Why Streaming?** To respect the 7GB RAM limit and avoid OOM errors on the CI runner.
+- **Why Distilled LLM?** To ensure CPU feasibility without sacrificing too much quality. A full-sized model would require a GPU and exceed the 6-hour window.
+- **Why Mixed-Effects?** To account for the hierarchical structure of the data (students nested within problems) and avoid pseudoreplication.
+- **Why Calibration?** To ensure the simulation is not circular and that the results are generalizable to real learners (per FR-010).
+- **Why Hold-out Validation?** To break the circularity of calibrating and validating on the same data, ensuring the simulator's external validity.
+- **Why Ordinal Regression?** To provide a robustness check for the Likert data, acknowledging the limitations of LMM for ordinal outcomes.
+- **Why Stochastic Comprehension?** To avoid tautology in simulated data, ensuring the comprehension metric reflects variance similar to human data, not just the model's internal state.

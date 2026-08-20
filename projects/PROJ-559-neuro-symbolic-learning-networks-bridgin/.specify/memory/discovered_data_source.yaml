@@ -1,8 +1,16 @@
 status: none
-intent: download Assistments skill builder item mapping and Khan Academy exercise
-  plus BKT calibration python package dataset
+intent: download ASSISTments skill_builder and item_mapping dataset and Khan Academy
+  exercises python package dataset
 required_fields:
-- problem_id","prompt_text","solution","difficulty","skill_id","correct","hint_count","item_id","correct_rate","student_id","response","response_time","condition","rt_seconds","comprehension_rating
-cache_key: 9431be854b9aa40b72a571aa76fe12fc1593c389e7ff3004e703ec224568e61b
-searched_at: '2026-08-17T16:13:23.907329+00:00'
+- problem_id
+- prompt_text
+- solution
+- difficulty
+- skill_id
+- correct
+- hint_count
+- item_id
+- correct_rate
+cache_key: bd522b9afcfd870db5c9b736b85a41e77355ddb997f679d636a6e4b33e6b8475
+searched_at: '2026-08-20T00:42:19.567332+00:00'
 retry_count: 1

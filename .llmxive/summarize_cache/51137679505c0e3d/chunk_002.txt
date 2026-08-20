@@ -1,0 +1,92 @@
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `stephen-wolfram-simulated__2026-06-13__research.md`
+
+---
+action_items: []
+artifact_hash: b11d07ad0a3356e7bc79572d8db0b89bde4ea33cb2b465cc8a0f45b4c0bed13f
+artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/idea/research_question_validation.md
+backend: dartmouth
+feedback: 'It is now nearly twenty years since I began the project that became A New
+  Kind of Science, and the central insight remains: what looks like complexity in
+  nature often arises from simple underlying rules. The proposal to combine neural
+  intuition with symbolic reasoning is of the right order, but I find myself asking
+  whether the project has been properly *run* rather than only analyzed.
+
+
+  The research question frames this as a pedagogical relationship between two kinds
+  of explanations. But here is '
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-06-13T23:52:50.920734Z'
+reviewer_kind: llm
+reviewer_name: stephen-wolfram-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+It is now nearly twenty years since I began the project that became A New Kind of Science, and the central insight remains: what looks like complexity in nature often arises from simple underlying rules. The proposal to combine neural intuition with symbolic reasoning is of the right order, but I find myself asking whether the project has been properly *run* rather than only analyzed.
+
+The research question frames this as a pedagogical relationship between two kinds of explanations. But here is what I would want to
+
+*[truncated]*
+
+## `stephen-wolfram-simulated__2026-05-26__research.md`
+
+---
+action_items: []
+artifact_hash: 8feea6cc53eee8da86ae650030070ff3120a8d085dd8d52b84d956c6b11bbfa2
+artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/idea/neuro-symbolic-learning-networks-bridgin.md
+backend: dartmouth
+feedback: "It is now nearly twenty years since I began the project that became A New\
+  \ Kind of Science, and one of the central conclusions was that the computational\
+  \ universe is full of phenomena that cannot be predicted by analysis alone\u2014\
+  you have to just run them. What I find notable here is the explicit framing of neural\
+  \ and symbolic reasoning as two complementary systems that need bridging. This is\
+  \ exactly right, but I would ask: has the relevant rule-space for this bridging\
+  \ been searched exhaustively by "
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-05-26T18:19:06.057573Z'
+reviewer_kind: llm
+reviewer_name: stephen-wolfram-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+It is now nearly twenty years since I began the project that became A New Kind of Science, and one of the central conclusions was that the computational universe is full of phenomena that cannot be predicted by analysis alone—you have to just run them. What I find notable here is the explicit framing of neural and symbolic reasoning as two complementary systems that need bridging. This is exactly right, but I would ask: has the relevant rule-space for this bridging been searched exh
+
+*[truncated]*
+
+## `john-von-neumann-simulated__2026-05-24__research.md`
+
+---
+action_items: []
+artifact_hash: 8feea6cc53eee8da86ae650030070ff3120a8d085dd8d52b84d956c6b11bbfa2
+artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/idea/neuro-symbolic-learning-networks-bridgin.md
+backend: dartmouth
+feedback: "It is the purpose of this section to consider the structural implications\
+  \ of bridging neural and symbolic reasoning. The author is neither a neurologist\
+  \ nor a psychiatrist, but a mathematician, and I must note a critical divergence\
+  \ in the proposed architecture. \n\nWe shall now consider the distinction between\
+  \ the continuous and the discrete. The biological neuron operates on a threshold\
+  \ logic subject to noise and probabilistic firing, whereas the digital machine relies\
+  \ on exact arithmetic and err"
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-05-24T21:20:31.974980Z'
+reviewer_kind: llm
+reviewer_name: john-von-neumann-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+It is the purpose of this section to consider the structural implications of bridging neural and symbolic reasoning. The author is neither a neurologist nor a psychiatrist, but a mathematician, and I must note a critical divergence in the proposed architecture. 
+
+We shall now consider the distinction between the continuous and the discrete. The biological neuron operates on a threshold logic subject to noise and probabilistic firing, whereas the digital machine relies on exact arithm
+
+*[truncated]*
+
