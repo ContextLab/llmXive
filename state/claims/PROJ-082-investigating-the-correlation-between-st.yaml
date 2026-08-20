@@ -1758,3 +1758,214 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T12:50:09Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: requirements file contains specific packages
+  claim_id: c_cff3fd85
+  context: 'Create `code/requirements.txt` with pinned versions for `pandas`, `numpy`,
+    `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`, `ruff`, `black`.
+    Output: `code/requirements.txt`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Requirements_file_contains_specific_packages
+  kind: entity_fact
+  raw_text: Create `code/requirements.txt` with pinned versions for `pandas`, `numpy`,
+    `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`, `ruff`, `black`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:15:06Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: minimum python version
+  claim_id: c_5b916302
+  context: 'Create `code/requirements.txt` with pinned versions for `pandas`, `numpy`,
+    `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`, `ruff`, `black`.
+    Output: `code/requirements.txt`. Constraint: Must specify `python>=3.11`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must specify `python>=3.11`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:15:19Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: meta analysis skipped if study count is less than 10
+  claim_id: c_9aff2e29
+  context: 'If N < 10: Set `status: \"skipped\"", `reason: \"Insufficient studies\"",
+    and include `N` in the output. CRITICAL: If N < 10, this task MUST explicitly
+    set `status: \"skipped\"` to signal the orchestrator (T016) to invoke T015b immediately.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Meta_analysis_skipped_if_study_count_is_less_than_10
+  kind: magnitude
+  raw_text: 'If N < 10, set `status: \"skipped\"`, `reason: \"Insufficient studies\"`,
+    and include `N` in the output.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:15:31Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: egger's regression reports values if study count is at least 10
+  claim_id: c_fa2eca14
+  context: 'If N >= 10, report the intercept and p-value. If N < 10 or `meta_status.status`
+    is \"skipped\", output the exact string `egger_skipped_reason: \"Skipped: Insufficient
+    studies (N < 10) for Egger''s regression\"` as a runtime value in the result JSON.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Egger%27s_regression_reports_values_if_study_count_is_at_least
+  kind: magnitude
+  raw_text: If N >= 10, report the intercept and p-value.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:16:20Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: bonferroni correction requires at least 2 tracts and 10 studies
+  claim_id: c_92e1ae5b
+  context: "Execute ONLY if k \u2265 2 tracts AND N \u2265 10."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_requires_at_least_2_tracts_and_10_stud
+  kind: magnitude
+  raw_text: "If k \u2265 2 tracts AND N \u2265 10."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:17:50Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: fallback to mock data if real data is unavailable
+  claim_id: c_f560377d
+  context: If real data is missing or invalid, check for mock data files (`data/raw/mock_studies_*.csv`.)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_mock_data_if_real_data_is_unavailable
+  kind: entity_fact
+  raw_text: If valid data is missing or invalid, check for mock data files (`data/raw/mock_studies_*.csv`).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:18:11Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: narrative synthesis if study count less than 10
+  claim_id: c_eade9a16
+  context: 'If N < 10, generate the structured text content for the narrative review.
+    Output: Write `data/derived/narrative_content.md`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Narrative_synthesis_if_study_count_less_than_10
+  kind: magnitude
+  raw_text: If N < 10, generate the structured text content for the narrative review.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:18:53Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: random seed value
+  claim_id: c_eef54c2f
+  context: 'If `code/config/config.yaml` is missing, use default seed 42 and **write**
+    `seed: 42` to the file to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:19:16Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: random seed value
+  claim_id: c_61d21eea
+  context: 'If `code/config/config.yaml` is missing, use default seed 43 and **write**
+    `seed: 43` to the file to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed 43.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:19:16Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: random seed value
+  claim_id: c_f1cca64d
+  context: 'If `code/config/config.yaml` is missing, use default seed 44 and **write**
+    `seed: 44` to the file to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed 44.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:19:16Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: mock data contains 5 tracts
+  claim_id: c_77c007f5
+  context: 'Constraint: Ensure exactly 5 distinct tract names are used across the
+    15 studies to satisfy SC-004.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure exactly 5 distinct tract names are used across the 15 studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:19:36Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: no studies message if count is less than 10
+  claim_id: c_a2925fc6
+  context: 'If input CSV is empty (N=0), output a specific header `# No studies found`
+    and a JSON metadata block:'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/No_studies_message_if_count_is_less_than_10
+  kind: magnitude
+  raw_text: 'If N < 10, output a specific header `# No studies found` and a JSON metadata
+    block:'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T02:20:27Z'
