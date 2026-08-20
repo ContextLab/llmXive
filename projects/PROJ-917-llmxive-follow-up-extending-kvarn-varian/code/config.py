@@ -29,6 +29,9 @@ class Config:
     SIMULATION_DIR: str = "data/simulation"
     
     # Epsilon sweep values for sensitivity analysis (T005b)
+    # Defined to span multiple orders of magnitude as required by FR-007.
+    # These values serve as the initial hardcoded defaults to break circular dependencies
+    # before empirical bounds are derived in T005c.
     EPSILON_SWEEP_VALUES: List[float] = field(default_factory=lambda: [
         1e-8, 1e-7, 1e-6, 1e-5, 1e-4
     ])

@@ -1,16 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `code/` directory (or its subfolders `data_generation`,
-    `models`, `simulation`, `analysis`) is present; the artifact is missing, so the
-    initialization task is not satisfied.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/` directory tree (subfolders `raw`, `processed`,
-    `models`, `simulation`) is provided; the claim is unsubstantiated and the deliverable
-    cannot be confirmed. The implementer must supply a directory listing or screenshots
-    showing the created folders.
 T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,13 +12,6 @@ T001d:
   r: No checksum file was presented in `state/projects/...yaml`, nor any evidence
     that a checksumming script was run on the `data/` directory. The required artifact
     is missing, so the task is not satisfied.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides only a research feature specification and user stories; there
-    are no ruff or black configuration files, no linting/formatting setup scripts,
-    nor any evidence that linting or formatting tools have been integrated into the
-    project. Consequently, the required artifact for task T003 is missing.
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

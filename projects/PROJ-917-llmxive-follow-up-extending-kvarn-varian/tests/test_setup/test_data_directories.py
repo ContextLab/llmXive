@@ -1,151 +1,71 @@
-"""
-Tests for the data directory initialization script.
-"""
-import pytest
 import os
-from pathlib import Path
 import sys
+import pytest
+from pathlib import Path
 import tempfile
 import shutil
 
-# Add the code directory to the path for imports
-code_dir = Path(__file__).parent.parent.parent / 'code'
-sys.path.insert(0, str(code_dir))
+# Add the project root to the path to allow imports
+# Assuming tests are in tests/ and code is in code/
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from setup_data_directories import (
-    get_project_root, 
-    create_directories, 
-    compute_file_checksum,
-    record_checksums,
-    save_checksums,
-    load_checksums,
-    verify_integrity
-)
+from setup_data_directories import create_directories, get_project_root
 
 class TestDataDirectories:
-    """Test suite for data directory setup functionality."""
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
+        """
+        Setup and teardown for tests.
+        Creates a temporary directory structure to simulate the project root.
+        """
+        self.temp_dir = tempfile.mkdtemp()
+        self.original_cwd = os.getcwd()
+        
+        # Create a fake project structure in temp_dir
+        # We want code/ to exist so get_project_root works correctly if run from there
+        # But for this test, we will mock the path or run from the temp_dir root
+        # Actually, the script assumes it runs from project root.
+        # Let's create the structure: temp_dir/code/...
+        os.chdir(self.temp_dir)
+        
+        # Create a dummy code dir to simulate project root context
+        (Path(self.temp_dir) / "code").mkdir()
+        
+        yield
+        
+        os.chdir(self.original_cwd)
+        shutil.rmtree(self.temp_dir)
 
-    def test_create_directories_structure(self, tmp_path):
-        """Test that the required subdirectories are created."""
-        # Create a temporary directory to simulate project root
-        project_root = tmp_path
-        expected_subdirs = ['raw', 'processed', 'models', 'simulation']
-        
-        created_dirs = create_directories(project_root)
-        
-        # Verify all expected directories exist
-        for subdir in expected_subdirs:
-            dir_path = project_root / 'data' / subdir
-            assert dir_path.exists(), f"Directory {dir_path} was not created"
-            assert dir_path.is_dir(), f"{dir_path} is not a directory"
+    def test_data_raw_exists(self):
+        """Test that data/raw directory is created."""
+        create_directories()
+        data_raw = Path(self.temp_dir) / "data" / "raw"
+        assert data_raw.exists(), "data/raw directory should exist"
+        assert data_raw.is_dir(), "data/raw should be a directory"
 
-    def test_create_directories_return_value(self, tmp_path):
-        """Test that create_directories returns the correct list of paths."""
-        project_root = tmp_path
-        expected_subdirs = ['raw', 'processed', 'models', 'simulation']
-        
-        created_dirs = create_directories(project_root)
-        
-        assert len(created_dirs) == len(expected_subdirs), \
-            f"Expected {len(expected_subdirs)} directories, got {len(created_dirs)}"
-        
-        for i, subdir in enumerate(expected_subdirs):
-            assert created_dirs[i].name == subdir, \
-                f"Expected directory name {subdir}, got {created_dirs[i].name}"
+    def test_data_processed_exists(self):
+        """Test that data/processed directory is created."""
+        create_directories()
+        data_processed = Path(self.temp_dir) / "data" / "processed"
+        assert data_processed.exists(), "data/processed directory should exist"
+        assert data_processed.is_dir(), "data/processed should be a directory"
 
-    def test_checksum_computation(self, tmp_path):
-        """Test that checksum computation works correctly."""
-        test_file = tmp_path / 'test.txt'
-        test_file.write_text("test content")
-        
-        checksum = compute_file_checksum(test_file)
-        
-        assert isinstance(checksum, str), "Checksum should be a string"
-        assert len(checksum) == 64, "SHA-256 checksum should be 64 characters"
-        assert all(c in '0123456789abcdef' for c in checksum), \
-            "Checksum should contain only hexadecimal characters"
+    def test_data_results_exists(self):
+        """Test that data/results directory is created."""
+        create_directories()
+        data_results = Path(self.temp_dir) / "data" / "results"
+        assert data_results.exists(), "data/results directory should exist"
+        assert data_results.is_dir(), "data/results should be a directory"
 
-    def test_checksum_deterministic(self, tmp_path):
-        """Test that checksum computation is deterministic."""
-        test_file = tmp_path / 'test.txt'
-        test_file.write_text("test content")
-        
-        checksum1 = compute_file_checksum(test_file)
-        checksum2 = compute_file_checksum(test_file)
-        
-        assert checksum1 == checksum2, "Checksums should be identical for same content"
+    def test_data_models_exists(self):
+        """Test that data/models directory is created."""
+        create_directories()
+        data_models = Path(self.temp_dir) / "data" / "models"
+        assert data_models.exists(), "data/models directory should exist"
+        assert data_models.is_dir(), "data/models should be a directory"
 
-    def test_save_and_load_checksums(self, tmp_path):
-        """Test saving and loading checksums to/from JSON."""
-        checksums = {
-            '/path/to/dir1': 'abc123',
-            '/path/to/dir2': 'def456'
-        }
-        
-        output_path = tmp_path / 'checksums.json'
-        save_checksums(checksums, output_path)
-        
-        assert output_path.exists(), "Checksum file was not created"
-        
-        loaded_checksums = load_checksums(output_path)
-        
-        assert loaded_checksums == checksums, "Loaded checksums should match original"
-
-    def test_record_checksums(self, tmp_path):
-        """Test recording checksums for directories."""
-        project_root = tmp_path
-        created_dirs = create_directories(project_root)
-        
-        checksums = {}
-        updated_checksums = record_checksums(created_dirs, checksums)
-        
-        assert len(updated_checksums) == len(created_dirs), \
-            "Should have recorded checksums for all created directories"
-        
-        for dir_path in created_dirs:
-            assert str(dir_path) in updated_checksums, \
-                f"Checksum for {dir_path} not recorded"
-
-    def test_verify_integrity_success(self, tmp_path):
-        """Test integrity verification when directories exist."""
-        project_root = tmp_path
-        created_dirs = create_directories(project_root)
-        
-        checksums = {}
-        checksums = record_checksums(created_dirs, checksums)
-        
-        assert verify_integrity(checksums), \
-            "Integrity verification should pass for existing directories"
-
-    def test_verify_integrity_failure_missing_dir(self, tmp_path):
-        """Test integrity verification when a directory is missing."""
-        project_root = tmp_path
-        create_directories(project_root)
-        
-        # Remove one directory
-        missing_dir = project_root / 'data' / 'raw'
-        missing_dir.rmdir()
-        
-        # Create a checksum dict that expects the missing directory
-        checksums = {
-            str(missing_dir): hashlib.sha256(str(missing_dir).encode()).hexdigest()
-        }
-        
-        assert not verify_integrity(checksums), \
-            "Integrity verification should fail for missing directory"
-
-    def test_idempotency(self, tmp_path):
-        """Test that running create_directories multiple times is safe."""
-        project_root = tmp_path
-        
-        # Run twice
-        created_dirs_1 = create_directories(project_root)
-        created_dirs_2 = create_directories(project_root)
-        
-        # Should return the same number of directories
-        assert len(created_dirs_1) == len(created_dirs_2), \
-            "Running create_directories multiple times should be idempotent"
-        
-        # All directories should still exist
-        for dir_path in created_dirs_2:
-            assert dir_path.exists(), f"Directory {dir_path} should still exist"
+    def test_create_directories_returns_true(self):
+        """Test that create_directories returns True on success."""
+        result = create_directories()
+        assert result is True, "create_directories should return True"

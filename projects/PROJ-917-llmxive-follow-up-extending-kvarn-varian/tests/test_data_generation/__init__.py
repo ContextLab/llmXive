@@ -1,3 +1,1 @@
-"""
-Tests for data generation module.
-"""
+"""Tests for data generation module."""

@@ -1,7 +1,3 @@
-"""
-Setup script to initialize the code/ directory structure for the llmXive project.
-Creates subdirectories: data_generation, models, simulation, analysis.
-"""
 import os
 import sys
 from pathlib import Path
@@ -15,81 +11,90 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def get_project_root() -> Path:
-    """
-    Returns the project root directory (parent of the 'code' directory).
-    Assumes this script is located at code/setup_code_structure.py
-    """
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    return code_dir.parent
+    """Returns the project root directory."""
+    return Path(__file__).resolve().parent.parent
 
 def create_directories(root: Path) -> None:
-    """
-    Creates the required directory structure under code/.
-    """
-    code_dir = root / "code"
-    subdirs = ["data_generation", "models", "simulation", "analysis"]
+    """Creates the required directory structure for the project."""
+    # Define all required directories relative to project root
+    directories = [
+        root / "code" / "analysis",
+        root / "code" / "data_generation",
+        root / "code" / "data_generation" / "utils",
+        root / "code" / "model_training",
+        root / "code" / "simulation",
+        root / "code" / "tests" / "test_analysis",
+        root / "code" / "tests" / "test_data_generation",
+        root / "code" / "tests" / "test_model_training",
+        root / "code" / "tests" / "test_simulation",
+        root / "data" / "raw",
+        root / "data" / "processed",
+        root / "data" / "results",
+        root / "data" / "models",
+        root / "data" / "metrics",
+        root / "data" / "analysis",
+        root / "figures",
+        root / "state" / "projects",
+        root / "specs",
+    ]
 
-    for subdir in subdirs:
-        dir_path = code_dir / subdir
+    for dir_path in directories:
         dir_path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created directory: {dir_path}")
-
-    # Ensure __init__.py files exist to make them packages
-    for subdir in subdirs:
-        init_file = code_dir / subdir / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            logger.info(f"Created __init__.py in: {code_dir / subdir}")
+        logger.info(f"Created directory: {dir_path.relative_to(root)}")
 
 def verify_structure(root: Path) -> bool:
-    """
-    Verifies that all required directories and __init__.py files exist.
-    Returns True if structure is valid, False otherwise.
-    """
-    code_dir = root / "code"
-    required_dirs = ["data_generation", "models", "simulation", "analysis"]
-    all_valid = True
+    """Verifies that the required directory structure exists."""
+    required_dirs = [
+        "code",
+        "code/analysis",
+        "code/data_generation",
+        "code/model_training",
+        "code/simulation",
+        "code/tests",
+        "data",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "data/models",
+        "data/metrics",
+        "data/analysis",
+        "figures",
+        "state/projects",
+        "specs",
+    ]
 
-    logger.info("Verifying directory structure...")
+    missing = []
+    for rel_path in required_dirs:
+        full_path = root / rel_path
+        if not full_path.is_dir():
+            missing.append(rel_path)
 
-    for subdir in required_dirs:
-        dir_path = code_dir / subdir
-        if not dir_path.is_dir():
-            logger.error(f"Missing directory: {dir_path}")
-            all_valid = False
-        else:
-            init_file = dir_path / "__init__.py"
-            if not init_file.exists():
-                logger.warning(f"Missing __init__.py in: {dir_path}")
-                # We created them in create_directories, so this shouldn't happen
-            else:
-                logger.info(f"Verified: {dir_path}")
+    if missing:
+        logger.error(f"Missing directories: {', '.join(missing)}")
+        return False
 
-    return all_valid
+    logger.info("All required directories verified.")
+    return True
 
 def main() -> int:
-    """
-    Main entry point for the setup script.
-    Returns 0 on success, 1 on failure.
-    """
+    """Main entry point for directory initialization."""
     try:
         root = get_project_root()
-        logger.info(f"Project root detected at: {root}")
+        logger.info(f"Project root: {root}")
 
-        # Create directories
+        logger.info("Creating directory structure...")
         create_directories(root)
 
-        # Verify structure
-        if verify_structure(root):
-            logger.info("Directory structure initialization completed successfully.")
-            return 0
-        else:
-            logger.error("Directory structure verification failed.")
+        logger.info("Verifying structure...")
+        if not verify_structure(root):
+            logger.error("Structure verification failed.")
             return 1
 
+        logger.info("Directory initialization completed successfully.")
+        return 0
+
     except Exception as e:
-        logger.exception(f"An error occurred during setup: {e}")
+        logger.exception(f"Error during initialization: {e}")
         return 1
 
 if __name__ == "__main__":

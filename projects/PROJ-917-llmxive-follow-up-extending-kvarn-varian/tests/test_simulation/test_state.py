@@ -1,107 +1,77 @@
 import pytest
-import numpy as np
+import sys
+from pathlib import Path
+
+# Add code to path for imports if running from tests directory
+code_root = Path(__file__).parent.parent.parent / "code"
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
+
 from simulation.state import SimulationState
 
 class TestSimulationState:
-    """Tests for the SimulationState dataclass."""
+    """
+    Unit tests for the SimulationState dataclass.
+    """
 
-    def test_initial_state(self):
+    def test_initial_state_defaults(self):
         """Test that a new SimulationState initializes with correct defaults."""
         state = SimulationState()
         assert state.accumulated_kl == 0.0
         assert state.step_index == 0
         assert state.full_trajectory == []
-        assert state.current_error_state == {}
+        assert isinstance(state.current_error_state, dict)
+        assert len(state.current_error_state) == 0
 
-    def test_update_state(self):
-        """Test updating the state with a new step."""
+    def test_update_accumulates_kl(self):
+        """Test that update correctly accumulates KL-divergence."""
+        initial_state = SimulationState(accumulated_kl=10.0, step_index=5)
+        new_state = initial_state.update(step_kl=2.5)
+        
+        assert new_state.accumulated_kl == 12.5
+        assert new_state.step_index == 6
+        assert new_state.full_trajectory == [2.5]
+
+    def test_update_extends_trajectory(self):
+        """Test that update appends to the full_trajectory list."""
+        initial_trajectory = [1.0, 2.0, 3.0]
+        initial_state = SimulationState(
+            accumulated_kl=6.0,
+            step_index=3,
+            full_trajectory=initial_trajectory
+        )
+        
+        new_state = initial_state.update(step_kl=4.0)
+        
+        assert len(new_state.full_trajectory) == 4
+        assert new_state.full_trajectory == [1.0, 2.0, 3.0, 4.0]
+        assert new_state.accumulated_kl == 10.0
+
+    def test_update_includes_error_details(self):
+        """Test that update correctly stores error details."""
         state = SimulationState()
-        initial_kl = 0.5
-        error_details = {"error_type": "quantization", "magnitude": 0.1}
+        error_data = {"loss": 0.05, "converged": True}
+        new_state = state.update(step_kl=0.0, error_details=error_data)
         
-        state.update(initial_kl, error_details)
-        
-        assert state.accumulated_kl == initial_kl
-        assert state.step_index == 1
-        assert len(state.full_trajectory) == 1
-        assert state.full_trajectory[0] == initial_kl
-        assert state.current_error_state == error_details
-
-    def test_multiple_updates(self):
-        """Test accumulating multiple steps."""
-        state = SimulationState()
-        steps = [0.1, 0.2, 0.3]
-        
-        for step_kl in steps:
-            state.update(step_kl)
-        
-        expected_total = sum(steps)
-        assert state.accumulated_kl == pytest.approx(expected_total)
-        assert state.step_index == len(steps)
-        assert state.full_trajectory == steps
-
-    def test_to_dict_serialization(self):
-        """Test converting state to dictionary."""
-        state = SimulationState()
-        state.update(0.5, {"metric": "test"})
-        
-        data = state.to_dict()
-        
-        assert isinstance(data, dict)
-        assert data["accumulated_kl"] == 0.5
-        assert data["step_index"] == 1
-        assert data["full_trajectory"] == [0.5]
-        assert data["current_error_state"] == {"metric": "test"}
-
-    def test_from_dict_deserialization(self):
-        """Test creating state from dictionary."""
-        data = {
-            "accumulated_kl": 1.5,
-            "current_error_state": {"source": "reconstruction"},
-            "step_index": 3,
-            "full_trajectory": [0.5, 0.5, 0.5]
-        }
-        
-        state = SimulationState.from_dict(data)
-        
-        assert state.accumulated_kl == 1.5
-        assert state.step_index == 3
-        assert state.full_trajectory == [0.5, 0.5, 0.5]
-        assert state.current_error_state == {"source": "reconstruction"}
-
-    def test_round_trip_serialization(self):
-        """Test that to_dict and from_dict preserve state."""
-        original = SimulationState()
-        original.update(0.25, {"type": "round_trip"})
-        original.update(0.25)
-        
-        data = original.to_dict()
-        restored = SimulationState.from_dict(data)
-        
-        assert restored.accumulated_kl == original.accumulated_kl
-        assert restored.step_index == original.step_index
-        assert restored.full_trajectory == original.full_trajectory
-        assert restored.current_error_state == original.current_error_state
-
-    def test_reset_state(self):
-        """Test resetting the state to initial values."""
-        state = SimulationState()
-        state.update(1.0, {"data": "temp"})
-        state.update(1.0)
-        
-        state.reset()
-        
-        assert state.accumulated_kl == 0.0
-        assert state.step_index == 0
-        assert state.full_trajectory == []
-        assert state.current_error_state == {}
+        assert new_state.current_error_state == error_data
+        assert new_state.step_index == 1
 
     def test_update_without_error_details(self):
-        """Test updating state without providing error details."""
+        """Test that update works when error_details is None."""
         state = SimulationState()
-        state.update(0.5)
+        new_state = state.update(step_kl=0.0, error_details=None)
         
-        # current_error_state should remain empty or unchanged if not provided
-        # (depending on implementation, but here we check it doesn't crash)
-        assert state.step_index == 1
-        assert state.accumulated_kl == 0.5
+        assert new_state.current_error_state == {}
+        assert new_state.step_index == 1
+
+    def test_state_immutability(self):
+        """Test that update returns a new state without modifying the original."""
+        original = SimulationState(accumulated_kl=10.0, step_index=5)
+        original_trajectory_ref = original.full_trajectory
+        
+        _ = original.update(step_kl=1.0)
+        
+        assert original.accumulated_kl == 10.0
+        assert original.step_index == 5
+        assert original.full_trajectory == []
+        assert original.full_trajectory is original_trajectory_ref

@@ -1,3 +1,1 @@
-"""
-Test suite for llmXive project.
-"""
+# Tests package initialization

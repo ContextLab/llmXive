@@ -3790,3 +3790,309 @@
   source_type: external
   status: verified
   updated_at: '2026-08-18T20:47:39Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: 30 independent simulation runs required for statistical power
+  claim_id: c_1d66aff5
+  context: 'Crucial: T030b must produce exactly 30 files (run_001.json to run_030.json)
+    via batch_runner.py using seed offsets, where n=30 is mandatory.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T030b must produce exactly 30 files (run_001.json to run_030.json) via
+    batch_runner.py using seed offsets, where n=30 is mandatory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T04:59:37Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis target power greater than or equal to 0.8
+  claim_id: c_43b5264f
+  context: 'Requirement: Source for n=30: Standard statistical power analysis for
+    paired t-tests (target power >= 0.8).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: magnitude
+  raw_text: Target power for the statistical power analysis is >= 0.8.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T04:59:57Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Simulation horizon is 1000 steps
+  claim_id: c_1816df2d
+  context: 'Requirement: Must execute a configurable number of steps (default 1000,
+    defined in code/config.py per Plan.md). ... Each run must be of 1000 steps (per
+    Plan.md Phase 3 T006).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "A Monte Carlo simulation with 20,000 sample paths and 1,000 time steps\
+        \ produces results that closely match the theoretical values predicted by\
+        \ the It\xF4 isometry. As shown in the table above, the absolute errors between\
+        \ the simulated left-hand side"
+      source_id: "It\xF4 isometry"
+      url: "https://en.wikipedia.org/wiki/It\xF4_isometry"
+      value: 1,000
+    filled: true
+  kind: numeric
+  raw_text: The simulation horizon is 1000 steps.
+  resolved_value: 1,000
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T05:00:07Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP hidden layer dimension is 64
+  claim_id: c_2f3089bc
+  context: 'Requirement: Architecture: Input(variable dimension) -> Hidden(64, ReLU)
+    -> Hidden(64, ReLU) -> Output(1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hidden layer dimensions of the MLP model are 64 units.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:01:09Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Quantization step size Delta calculated as (max - min) / 255
+  claim_id: c_7e4c786a
+  context: "Requirement: Must include a derivation artifact (comment or docstring)\
+    \ explaining the formula. Requirement: Must explicitly reference the simulation\
+    \ horizon for consistency. Requirement: \u0394 must be calculated as (config.QUANTIZATION_MAX\
+    \ - config.QUANTIZATION_MIN) / 255 based on the Uniform INT8 range defined in\
+    \ the simulation setup..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The quantization range for the theoretical lower bound calculation uses
+    an INT8 range divided by 255.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:01:31Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Theoretical lower bound equals Delta squared divided by 12 times steps
+  claim_id: c_99bc7f69
+  context: 'Requirement: Must calculate the lower bound using the formula Lower Bound
+    = (Delta^2 / 12) * Steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical lower bound formula is (Delta^2 / 12) * Steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:02:55Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Epsilon sweep values range from 1e-8 to 1e-4
+  claim_id: c_331ec22d
+  context: 'Note: Initial bounds are defined theoretically (e.g., 1e-8 to 1e-4) to
+    avoid circular dependency; empirical bounds are derived in T005c.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The epsilon sweep values range from 1e-8 to 1e-4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:03:40Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default epsilon floor is 1e-6
+  claim_id: c_d68170fa
+  context: 'Requirement: Setup environment configuration management in code/config.py
+    with a Config dataclass containing CPU_ONLY=True, EPSILON_FLOOR=1e-6...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default epsilon floor value is 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:04:07Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Number of matrices generated is 10000
+  claim_id: c_5533105a
+  context: 'Verification: Assert count == 10,000. ... Note: Explicitly sets NUM_MATRICES=10000
+    per FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of matrices to generate is 10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:04:36Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Number of simulation runs is 30
+  claim_id: c_1f85bd0f
+  context: 'Requirement: Execute batch_runner.py to generate exactly 30 independent
+    simulation runs. ... Requirement: Source for n=30: Standard statistical power
+    analysis for paired t-tests (target power >= 0.8).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of simulation runs is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:05:04Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Generate 10,000 synthetic attention matrices
+  claim_id: c_5be2ad84
+  context: T017c requires generating matrices per FR-001 and verifying the count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert count == 10,000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:06:41Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis target of 0.8 for paired t-tests
+  claim_id: c_fe8f210d
+  context: The sample size of 30 is justified by standard statistical power analysis
+    for paired t-tests.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: Target power >= 0.8
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T05:06:56Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Simulation horizon of 1000 steps
+  claim_id: c_ecdada0a
+  context: T027d specifies a configurable number of steps with a default of 1000 defined
+    in config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default 1000 steps defined in code/config.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:07:28Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP architecture has two hidden layers of size 64
+  claim_id: c_0046cb3b
+  context: T022 specifies the MLP model architecture with two hidden layers of 64
+    neurons using ReLU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hidden(64, ReLU) -> Hidden(64, ReLU)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:07:50Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Quantization step size Delta calculated as range divided by 255
+  claim_id: c_9a398cde
+  context: T032 defines the theoretical lower bound calculation using the uniform
+    INT8 range formula.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Delta = (config.QUANTIZATION_MAX - config.QUANTIZATION_MIN) / 255
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:08:17Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Theoretical lower bound formula for accumulated KL-divergence
+  claim_id: c_5cbf1b35
+  context: T032 specifies the formula for calculating the theoretical lower bound
+    based on uniform quantization.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lower Bound = (Delta^2 / 12) * Steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T05:09:42Z'

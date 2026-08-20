@@ -1,3 +1,1 @@
-"""
-Tests for simulation module.
-"""
+"""Tests for simulation module."""
