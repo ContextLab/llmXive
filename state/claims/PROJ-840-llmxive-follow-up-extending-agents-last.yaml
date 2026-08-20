@@ -2731,3 +2731,448 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T00:45:34Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: golden fixture contains 5 State Persistence Error and 5 Reasoning Deficit
+    entries
+  claim_id: c_ff286512
+  context: Verification step for T015c requires checking the distribution of labels
+    in the generated data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify exactly 5 entries are 'State Persistence Error' and 5 are 'Reasoning
+    Deficit'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:12:43Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: normalization protocol uses 1e-6 floating point tolerance
+  claim_id: c_8062a8b4
+  context: Task T011 specifies the exact tolerance constant for comparing floating-point
+    values.
+  evidence:
+    asserted: '-6.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Compare floating-point values with a tolerance of e-6.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T09:12:44Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: baseline tasks re-run 10 static traces 10 times with seeds 42-51
+  claim_id: c_22ed48e2
+  context: Task T023 specifies the experimental design for the baseline execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Re-run each of the 10 static traces M=10 times with a range of seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:13:21Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: sensitivity experiments use seeds 42 through 51
+  claim_id: c_9f05572d
+  context: Tasks T028a, T028b, and T028c specify the seed range for re-running traces.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seeds 42, 43,..., 51 for sensitivity experiments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:13:55Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: sensitivity experiments test checkpoint intervals of 1, 3, and 5
+  claim_id: c_d326221a
+  context: Tasks T028a, T028b, and T028c define the specific intervals for the sensitivity
+    analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run tasks with checkpointing wrapper enabled at checkpoint_interval=1,
+    3, and 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:14:07Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: state reconstruction validation halts if accuracy is below 0.95
+  claim_id: c_edc0a00e
+  context: Task T013b sets a threshold for the state reconstruction validation gate.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/State_reconstruction_validation_halts_if_accuracy_is_below_0
+  kind: magnitude
+  raw_text: Halt if accuracy is less than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:14:45Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: memory limit is 7GB and time limit is 6 hours
+  claim_id: c_5c5a79a8
+  context: Task T022 specifies the resource constraints for the CPU-only task runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure execution stays within 7GB RAM and 6h limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:15:17Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: local LLM classifier uses Q4_K_M quantization
+  claim_id: c_f52d84be
+  context: Task T014 specifies the model quantization level for the semantic classifier.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Local_LLM_classifier_uses_Q4_K_M_quantization
+  kind: entity_fact
+  raw_text: Use a Q4_K_M quantization model for the local LLM classifier.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:16:22Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: CPU-only task runner uses Q_K_M quantization
+  claim_id: c_69410507
+  context: Task T021 specifies the quantization level for the runner.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU-only_task_runner_uses_Q_K_M_quantization
+  kind: entity_fact
+  raw_text: Use Q_K_M quantization for the CPU-only task runner.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:16:59Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: statistical power calculation uses alpha 0.05
+  claim_id: c_99a63179
+  context: Task T026a specifies the alpha parameter for the McNemar's test power calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate statistical power using alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:17:41Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: statistical power limitation flagged if below 0.80
+  claim_id: c_4a66454f
+  context: Task T026a requires reporting a limitation if the calculated power falls
+    below this threshold.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_limitation_flagged_if_below_0.80
+  kind: magnitude
+  raw_text: Flag statistical power limitation if power is less than 0.80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:18:33Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: statistical method changed from Mixed-Effects Logistic Regression to
+    McNemar's test
+  claim_id: c_bdfe054a
+  context: Task T026b updates the plan to resolve a contradiction with the specification.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: McNemar's test
+      source_id: Q1434261
+      url: https://www.wikidata.org/wiki/Q1434261
+      value: McNemar's test
+    filled: true
+  kind: entity_fact
+  raw_text: Replace 'Mixed-Effects Logistic Regression' with 'McNemar's test' in the
+    Plan.
+  resolved_value: McNemar's test
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T09:18:59Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: synthetic dataset contains 10 static traces
+  claim_id: c_bb45dd24
+  context: Multiple tasks (T015a, T015b, T023) refer to a fixed set of 10 scenarios/traces.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contains exactly 10 static traces.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:19:28Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 0
+  canonical: Normalization protocol uses 1e-6 floating-point tolerance
+  claim_id: c_17388581
+  context: 'T011 [US1] Implement Normalization Protocol: Steps: (a) Compare floating-point
+    values with a tolerance of e-6 (fixed constant)...'
+  evidence:
+    asserted: '-6.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Compare floating-point values with a tolerance of e-6.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T09:20:20Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: Dataset contains 5 State Persistence Error and 5 Reasoning Deficit entries
+  claim_id: c_15cf19e5
+  context: 'T015c [US1] Execute Generation & Verify Artifact: Verify the file exists,
+    is non-empty, and contains a set of entries where ground_truth_label is one of
+    [''State Persistence Error'', ''Reasoning Deficit'', ''Pass'']. Distribution Check:
+    Verify exactly 5 entries are ''State Persistence Error'' and 5 are ''Reasoning
+    Deficit''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify exactly 5 entries are 'State Persistence Error' and 5 are 'Reasoning
+    Deficit'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:20:26Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: State Reconstruction validation gate halts if accuracy is below 0.95
+  claim_id: c_3756f5d3
+  context: 'T013b [US1] Gate: Execute State Reconstruction validation... Halt: If
+    status is ''FAIL'' (accuracy < 0.95), exit with code 1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/State_Reconstruction_validation_gate_halts_if_accuracy_is_be
+  kind: magnitude
+  raw_text: Halt if accuracy is less than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:20:30Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: Baseline tasks re-run 10 times per trace with 10 seeds
+  claim_id: c_0c65f672
+  context: 'T023 [US2] Execute Baseline Tasks: Run on all 10 static traces from T015c.
+    Re-run each of the 10 static traces M=10 times with a range of seeds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Re-run each of the 10 static traces M=10 times with a range of seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:20:30Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: Execution seeds range from 42 to 51
+  claim_id: c_02362f22
+  context: 'T023 [US2] Execute Baseline Tasks: Command: python code/intervention/runner.py
+    --input data/raw/golden_fixture.json --seeds 42..51 --reps 10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seeds 42-51 for execution noise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:21:01Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: Memory limit for execution is 7GB RAM
+  claim_id: c_d3bcf5dc
+  context: T022 [US2] Add memory monitoring and timeout logging in code/intervention/runner.py
+    to ensure execution stays within 7GB RAM and 6h limit
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_limit_for_execution_is_7GB_RAM
+  kind: entity_fact
+  raw_text: Ensure execution stays within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:21:56Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: Execution time limit is 6 hours
+  claim_id: c_3690d6e9
+  context: T022 [US2] Add memory monitoring and timeout logging in code/intervention/runner.py
+    to ensure execution stays within 7GB RAM and 6h limit
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure execution stays within 6h limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:22:41Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: Sensitivity experiments run at intervals N=1, N=3, and N=5
+  claim_id: c_09e3b5f4
+  context: T028a [US2] Run Sensitivity Experiment N=1... T028b [US2] Run Sensitivity
+    Experiment N=3... T028c [US2] Run Sensitivity Experiment N=5...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run tasks with checkpoint_interval=1, 3, and 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:23:18Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: Statistical power calculation uses alpha of 0.05
+  claim_id: c_0b3d958e
+  context: T026a [US3] Implement McNemar's test... Calculate and report the statistical
+    power of the test given the sample size using statsmodels.stats.power.zt_ind_solve_power
+    (alpha=0.05, effect size derived from contingency table).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Use alpha=0.05 for statistical power calculation.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T09:23:34Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: Statistical power limitation flagged if below 0.80
+  claim_id: c_3f51811d
+  context: T026a [US3] Implement McNemar's test... If power < 0.80, flag this limitation
+    in the report.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_limitation_flagged_if_below_0.80
+  kind: magnitude
+  raw_text: Flag limitation if statistical power is less than 0.80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:23:36Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: Local LLM classifier uses Q4_K_M quantization
+  claim_id: c_a077bf45
+  context: T014 [US1] Implement Local LLM classifier in code/classification/semantic_classifier.py
+    using llama-cpp-python (Q4_K_M) to label failures...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Local_LLM_classifier_uses_Q4_K_M_quantization
+  kind: entity_fact
+  raw_text: Use Q4_K_M quantization for the local LLM classifier.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:24:24Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: CPU-only task runner uses Q_K_M quantization
+  claim_id: c_cac19ec5
+  context: T021 [US2] Implement CPU-only task runner in code/intervention/runner.py
+    using llama-cpp-python with Q_K_M quantization (FR-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU-only_task_runner_uses_Q_K_M_quantization
+  kind: entity_fact
+  raw_text: Use Q_K_M quantization for the CPU-only task runner.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T09:24:28Z'

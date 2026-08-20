@@ -28,16 +28,16 @@ from code.utils.seeds import set_seed, get_seed_state
 # Constants for the 10 scenarios (5 State Persistence, 5 Reasoning Deficit)
 # These map scenario indices to their specific types and descriptions
 SCENARIOS = [
-    {"id": 0, "type": "state_persistence", "description": "Editing deleted file A"},
-    {"id": 1, "type": "state_persistence", "description": "Editing deleted file B"},
-    {"id": 2, "type": "state_persistence", "description": "Reading non-existent file C"},
-    {"id": 3, "type": "state_persistence", "description": "Writing to read-only file D"},
-    {"id": 4, "type": "state_persistence", "description": "Overwriting locked file E"},
-    {"id": 5, "type": "reasoning_deficit", "description": "Logical error in loop condition"},
-    {"id": 6, "type": "reasoning_deficit", "description": "Incorrect variable initialization"},
-    {"id": 7, "type": "reasoning_deficit", "description": "Off-by-one error in array access"},
-    {"id": 8, "type": "reasoning_deficit", "description": "Missing null check before dereference"},
-    {"id": 9, "type": "reasoning_deficit", "description": "Incorrect type casting logic"},
+    {"id": 0, "type": "State Persistence Error", "description": "SP_01: Edit file A.txt after it was deleted in step 2."},
+    {"id": 1, "type": "State Persistence Error", "description": "SP_02: Read variable x after it was reset to None in step 1."},
+    {"id": 2, "type": "State Persistence Error", "description": "SP_03: Move file B.txt to a directory that was deleted in step 3."},
+    {"id": 3, "type": "State Persistence Error", "description": "SP_04: Write to file C.txt after the file handle was closed in step 1."},
+    {"id": 4, "type": "State Persistence Error", "description": "SP_05: Execute command on process P1 after it was terminated in step 2."},
+    {"id": 5, "type": "Reasoning Deficit", "description": "RD_01: Open A.txt (exists) but read the wrong line (logical planning error)."},
+    {"id": 6, "type": "Reasoning Deficit", "description": "RD_02: Calculate sum([1, 2]) but return 4 (arithmetic logic error)."},
+    {"id": 7, "type": "Reasoning Deficit", "description": "RD_03: Sort list [3, 1, 2] but return [1, 3, 2] (sorting logic error)."},
+    {"id": 8, "type": "Reasoning Deficit", "description": "RD_04: Filter list [1, 2, 3] for >1 but return [2] (missing element logic error)."},
+    {"id": 9, "type": "Reasoning Deficit", "description": "RD_05: Concatenate strings \"a\" and \"b\" but return \"ba\" (order logic error)."},
 ]
 
 def generate_golden_fixture(seed_base: int = 42, num_tasks: int = 10, output_path: Optional[str] = None) -> List[Dict[str, Any]]:

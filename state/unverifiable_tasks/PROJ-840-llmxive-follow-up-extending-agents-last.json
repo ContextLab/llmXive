@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-840-llmxive-follow-up-extending-agents-last",
+  "tasks": [
+    {
+      "task_key": "T015b",
+      "reject_count": 1,
+      "last_reason": "The repository contains `code/data/generator.py`, but the required output file `data/raw/golden_fixture.json` is absent, and the provided snippet does not show a CLI entry point that writes the JSON to that path. The task\u2019s core deliverable \u2013 a script that generates and saves the 10 scenario traces to `data/raw/golden_fixture.json` \u2013 is therefore not satisfied.",
+      "first_seen": "2026-08-20T09:24:34.943941+00:00",
+      "last_seen": "2026-08-20T09:24:34.943941+00:00"
+    },
+    {
+      "task_key": "T015c",
+      "reject_count": 1,
+      "last_reason": "The required artifact `data/raw/golden_fixture.json` is absent; without the file the existence, non\u2011emptiness, label distribution, and checksum checks cannot be performed. The implementer must run `code/data/generator.py` to create the JSON file in the specified location.",
+      "first_seen": "2026-08-20T09:24:38.832946+00:00",
+      "last_seen": "2026-08-20T09:24:38.832946+00:00"
+    }
+  ],
+  "updated_at": "2026-08-20T09:24:38.832946+00:00"
+}
