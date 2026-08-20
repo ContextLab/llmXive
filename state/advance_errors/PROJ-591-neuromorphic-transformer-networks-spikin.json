@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-  "stage": "clarified",
-  "class": "permanent",
-  "fingerprint": "unreachable_reference",
-  "consecutive_count": 0,
-  "first_seen": "2026-06-29T13:50:35.727185+00:00",
-  "last_seen": "2026-07-15T14:14:25.697896+00:00",
-  "retry_after": null,
-  "last_error": "research.md reference is unreachable: 'https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip' (HTTP 301). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "evidence": "research.md reference is unreachable: 'https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip' (HTTP 301). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
-  "status": "cleared"
+  "stage": "in_progress",
+  "class": "transient",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-08-20T11:09:54.048201+00:00",
+  "last_seen": "2026-08-20T11:09:54.048201+00:00",
+  "retry_after": "2026-08-20T11:19:54.048201+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(transient attempt 1): <html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.31.3</center>\r\n</body>\r\n</html> | qwen.qwen3.5-122b(transient attempt 2): <html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.31.3</center>\r\n</body>\r\n</html> | qwen.qwen3.5-122b(transient attempt 3): <html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.31.3</center>\r\n</body>\r\n</html> | google.gemma-3-27b-it(transient attempt 1): <html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><cen",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(transient attempt 1): <html> <head><title>502 Bad Gateway</title></head> <body> <center><h1>502 Bad Gateway</h1></center> <hr><cente",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
 }
