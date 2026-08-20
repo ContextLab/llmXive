@@ -1,105 +1,84 @@
-# Forecast Schema for Poll Aggregation Pipeline
-# Defines the expected structure for forecast outputs (frequentist and Bayesian)
-
 $schema: http://json-schema.org/draft-07/schema#
-title: PollAggregationForecast
-description: Forecast results from frequentist and Bayesian models
+title: Forecast Dataset Schema
+description: >
+  Schema for the aggregated forecast outputs produced by the frequentist and Bayesian models.
+  This schema ensures consistency in reporting point estimates, uncertainty intervals, and
+  model metadata.
 
 type: object
+required:
+  - week_bin
+  - model_type
+  - candidate
+  - state
+  - forecast_value
+  - lower_bound
+  - upper_bound
+  - prediction_date
+
 properties:
-  metadata:
+  week_bin:
+    type: string
+    format: date
+    description: "Start date of the weekly bin for which the forecast was made."
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  
+  model_type:
+    type: string
+    enum:
+      - "simple_average"
+      - "weighted_average"
+      - "bayesian_random_walk"
+    description: "The forecasting model used to generate the prediction."
+  
+  candidate:
+    type: string
+    minLength: 1
+    description: "Name of the candidate."
+  
+  state:
+    type: string
+    description: "US State code or 'US' for national."
+    minLength: 1
+    maxLength: 2
+  
+  forecast_value:
+    type: number
+    description: "Point forecast (percentage vote share)."
+  
+  lower_bound:
+    type: number
+    description: "Lower bound of the confidence/credible interval (e.g., 2.5% for 95% CI)."
+  
+  upper_bound:
+    type: number
+    description: "Upper bound of the confidence/credible interval (e.g., 97.5% for 95% CI)."
+  
+  prediction_date:
+    type: string
+    format: date
+    description: "Date the forecast was generated (execution timestamp)."
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  
+  method_details:
     type: object
+    description: "Optional metadata specific to the model (e.g., R-hat, effective samples)."
     properties:
-      model_type:
-        type: string
-        enum: [frequentist_simple, frequentist_weighted, bayesian_random_walk]
-        description: Type of model used for forecasting
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of forecast generation
-      input_data_hash:
-        type: string
-        pattern: '^[a-f0-9]{64}$'
-        description: SHA-256 hash of the input dataset
-      forecast_horizon:
-        type: string
-        description: Description of the forecast horizon (e.g., 'Election Day')
-    required:
-      - model_type
-      - generated_at
-      - input_data_hash
-      - forecast_horizon
-      
-  columns:
-    type: array
-    description: Expected columns in the forecast output
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-        dtype:
-          type: string
-          enum: [int64, float64, object, datetime64[ns], bool]
-        description:
-          type: string
-      required:
-        - name
-        - dtype
-        - description
-        
-  forecast_metrics:
-    type: object
-    properties:
-      rmse:
-        type: number
-        minimum: 0
-        description: Root Mean Squared Error
-      mae:
-        type: number
-        minimum: 0
-        description: Mean Absolute Error
-      coverage_rate:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: Proportion of true values falling within confidence/credible intervals
       r_hat:
         type: number
         minimum: 1.0
-        description: R-hat convergence statistic (Bayesian only, optional)
-        nullable: true
-    required:
-      - rmse
-      - mae
-      
-  validation_rules:
-    type: object
-    properties:
-      required_columns:
-        type: array
-        items:
-          type: string
-        description: List of columns that must be present (varies by model type)
-      vote_share_range:
-        type: object
-        properties:
-          min:
-            type: number
-            minimum: 0
-            maximum: 100
-          max:
-            type: number
-            minimum: 0
-            maximum: 100
-        description: Valid range for vote share predictions
-      confidence_interval_level:
-        type: number
-        description: Confidence/Credible interval level (e.g., 0.95)
-        
-required:
-  - metadata
-  - columns
-  - forecast_metrics
-  - validation_rules
+        description: "R-hat convergence statistic (Bayesian models only)."
+      effective_samples:
+        type: integer
+        minimum: 0
+        description: "Number of effective samples (Bayesian models only)."
+      weight_normalization:
+        type: string
+        description: "Description of weight normalization (Frequentist models only)."
+  
+  actual_outcome:
+    type: number
+    nullable: true
+    description: "Actual election result if available (for post-election evaluation)."
+
+additionalProperties: false

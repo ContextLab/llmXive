@@ -1,0 +1,20 @@
+T012:
+  c: false
+  h: 5d48cf35695b02e798af023f8f130616965298cff1a5237911ffa316d18f671b
+  r: "The required output file `data/raw/twin_primes.csv` does not exist, so the script\u2019\
+    s execution cannot be verified for row count or NaN values. The missing CSV means\
+    \ the task\u2019s core deliverable is absent."
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or console log showing the computation of the Hardy\u2011Littlewood\
+    \ expected twin\u2011prime count and the deviation percentage is present. The\
+    \ required artifact (evidence of the calculation and logged deviation) is missing,\
+    \ so the task is not satisfied."
+T015:
+  c: false
+  h: b912b4770988c3fa9be18b3493bf54103259988663983ea64e0e681ff677f143
+  r: The provided `code/validate_schema.py` is truncated (ends abruptly at `fields
+    =`) and thus cannot perform validation. Moreover, the required data file `data/raw/twin_primes.csv`
+    and the schema file `contracts/twin_prime_schema.schema.yaml` are absent, so the
+    script has nothing to validate against. The task therefore remains unfinished.

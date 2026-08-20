@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "statistical-poll-aggregation"
+version = "0.1.0"
+description = "Statistical Analysis of Publicly Available Election Poll Aggregates"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "pymc",
+    "arviz",
+    "requests",
+    "pyyaml",
+    "statsmodels",
+    "pytest",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+src = ["code", "src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "C4"]
+ignore = ["E501", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"tests/*" = ["S101", "D100", "D103"]

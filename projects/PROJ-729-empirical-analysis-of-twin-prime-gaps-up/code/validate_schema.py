@@ -26,30 +26,55 @@ def validate_field(value: Any, field_def: Dict[str, Any]) -> List[str]:
     field_type = field_def['type']
     constraints = field_def.get('constraints', {})
 
+    # Handle null/empty checks first
+    if value is None or value == '':
+        if not constraints.get('nullable', False):
+            errors.append(f"{field_name}: Value cannot be null")
+        return errors
+
     # Type checking
     if field_type == 'integer':
-        if not isinstance(value, int):
-            try:
-                value = int(value)
-            except (ValueError, TypeError):
-                errors.append(f"{field_name}: Expected integer, got {type(value)}")
-                return errors
+        try:
+            int_val = int(value)
+            # Ensure it's not a float string like "3.0" if strict integer is required
+            # But typically CSV reads strings, so int("3") is fine.
+            # We just need to ensure it parses as an integer.
+        except (ValueError, TypeError):
+            errors.append(f"{field_name}: Expected integer, got {type(value).__name__} (value: {value})")
+            return errors
     elif field_type == 'number':
-        if not isinstance(value, (int, float)):
-            try:
-                value = float(value)
-            except (ValueError, TypeError):
-                errors.append(f"{field_name}: Expected number, got {type(value)}")
-                return errors
+        try:
+            float(value)
+        except (ValueError, TypeError):
+            errors.append(f"{field_name}: Expected number, got {type(value).__name__} (value: {value})")
+            return errors
+    elif field_type == 'string':
+        if not isinstance(value, str):
+            errors.append(f"{field_name}: Expected string, got {type(value).__name__}")
+            return errors
 
     # Constraint checking
     if 'minimum' in constraints:
-        if value < constraints['minimum']:
-            errors.append(f"{field_name}: Value {value} is less than minimum {constraints['minimum']}")
+        try:
+            num_val = float(value)
+            if num_val < constraints['minimum']:
+                errors.append(f"{field_name}: Value {num_val} is less than minimum {constraints['minimum']}")
+        except (ValueError, TypeError):
+            # Already handled by type check, but safety net
+            pass
 
-    if 'nullable' in constraints:
-        if not constraints['nullable'] and (value is None or value == ''):
-            errors.append(f"{field_name}: Value cannot be null")
+    if 'maximum' in constraints:
+        try:
+            num_val = float(value)
+            if num_val > constraints['maximum']:
+                errors.append(f"{field_name}: Value {num_val} is greater than maximum {constraints['maximum']}")
+        except (ValueError, TypeError):
+            pass
+
+    if 'pattern' in constraints:
+        import re
+        if not re.match(constraints['pattern'], str(value)):
+            errors.append(f"{field_name}: Value '{value}' does not match pattern {constraints['pattern']}")
 
     return errors
 
@@ -60,11 +85,15 @@ def validate_csv(data_path: Path, schema: Dict[str, Any]) -> bool:
     row_count = 0
 
     fields = schema.get('fields', [])
+    if not fields:
+        logger.warning("Schema has no fields defined.")
+        return True
+
     field_names = [f['name'] for f in fields]
     field_defs = {f['name']: f for f in fields}
 
     try:
-        with open(data_path, 'r') as f:
+        with open(data_path, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             
             # Check header
@@ -87,6 +116,9 @@ def validate_csv(data_path: Path, schema: Dict[str, Any]) -> bool:
                         errors.append("... (truncated)")
                         break
 
+    except FileNotFoundError:
+        errors.append(f"Data file not found: {data_path}")
+        return False
     except Exception as e:
         errors.append(f"Error reading CSV: {e}")
         return False

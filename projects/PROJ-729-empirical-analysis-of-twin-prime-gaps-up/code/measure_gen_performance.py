@@ -1,126 +1,116 @@
+"""
+Measure execution time and peak memory usage for the twin prime generation pipeline.
+
+This script runs the generate_primes.py pipeline, captures resource usage metrics,
+and saves them to data/results/performance_gen.json as required by task T014b.
+
+The metrics are captured using:
+- time.perf_counter() for execution time
+- resource.getrusage(resource.RUSAGE_SELF) for peak memory (maxrss)
+
+Output: data/results/performance_gen.json
+"""
 import sys
 import time
 import json
 import resource
 import os
 import logging
-from pathlib import Path
 
-# Import from existing API surface
+# Add project root to path to import sibling modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from generate_primes import main as generate_main
 from config import get_config, ensure_directories
-from utils import setup_logging, get_memory_usage_mb
+
+def setup_logging():
+    """Configure logging for the performance measurement script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    return logging.getLogger(__name__)
+
+def get_memory_usage_mb():
+    """
+    Get current memory usage in MB.
+    Uses resource.getrusage for cross-platform compatibility.
+    """
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    # maxrss is in KB on Linux, MB on macOS
+    # Normalize to MB
+    if sys.platform == 'darwin':
+        return usage.ru_maxrss
+    else:
+        return usage.ru_maxrss / 1024.0
 
 def main():
     """
-    Measure and record execution time and peak memory usage for the generation pipeline.
-    Output: data/results/performance_gen.json
+    Run the generation pipeline and measure performance metrics.
+    
+    Returns:
+        dict: Performance metrics including execution time and peak memory
     """
-    # Setup logging
-    logger = setup_logging("measure_gen_performance")
-    
+    logger = setup_logging()
+    logger.info("Starting performance measurement for twin prime generation pipeline")
+
+    # Get configuration
     config = get_config()
-    ensure_directories()
+    output_dir = config.get('data_dirs', {}).get('results', 'data/results')
     
-    results_dir = Path(config['paths']['results'])
-    output_path = results_dir / "performance_gen.json"
+    # Ensure output directory exists
+    ensure_directories([output_dir])
     
-    logger.info(f"Measuring performance for generation pipeline. Output: {output_path}")
+    metrics_file = os.path.join(output_dir, 'performance_gen.json')
     
-    # We need to re-run the generation to measure it, or we can assume T014 just ran.
-    # The task says: "Must run sequentially immediately after T014 to capture metrics of the just-completed run."
-    # However, T014 (generate_primes.py) might not have exposed its metrics.
-    # To be safe and accurate, we will re-run the generation logic here within this script
-    # to capture the exact metrics for this specific run, as T014 might have been a dry-run or previous attempt.
-    # But the task implies T014 already generated the data.
-    # Let's check if the data exists first. If it does, we can't measure the *past* run's memory/time easily without instrumentation.
-    # The standard approach for this task type in this pipeline is to wrap the generation or re-run it.
-    # Given T014 is marked completed, the file likely exists.
-    # To strictly "measure" the pipeline as requested, we should re-run the generation logic.
-    # However, re-running a 10^9 prime generation might be too slow for a test environment if T014 already took time.
-    # Let's assume the task requires us to run the generation *now* to get the metrics, 
-    # effectively replacing the "just completed run" with "this run".
-    
-    # Alternative interpretation: T014 generated the file. We are just reporting metrics.
-    # But we can't report metrics for a run we didn't instrument.
-    # Therefore, we must implement the generation and measurement together here, 
-    # or assume T014's code is the one to be executed.
-    # Since T014 is a separate file, and we are implementing T014b, 
-    # the most robust way is to re-execute the generation logic here to capture metrics,
-    # OR import and run the main logic of generate_primes if it exposes a function.
-    # Looking at the API surface: generate_primes has 'main'. It likely runs the whole thing.
-    # We will re-run the generation to ensure we have fresh metrics.
-    # Note: In a real CI/CD, T014b would be a wrapper or a step that runs T014.
-    # Here, we will re-implement the generation logic briefly or call it if possible.
-    # Since we cannot easily call main() and capture its internal memory without modification,
-    # and T014 is already "completed", we will assume the file exists and we need to 
-    # measure the *time to generate* (which implies re-running) or we just record the file stats.
-    # The task says "Measure... execution time... for the generation pipeline".
-    # This implies running the pipeline.
-    
-    logger.info("Starting generation and measurement...")
-    
-    start_time = time.time()
-    
-    # We need to import primesieve. It was in requirements.txt (T002).
+    # Record start time
+    start_time = time.perf_counter()
+    logger.info(f"Starting generation at {start_time}")
+
+    # Capture initial memory
+    initial_memory = get_memory_usage_mb()
+    logger.info(f"Initial memory usage: {initial_memory:.2f} MB")
+
     try:
-        import primesieve
-    except ImportError:
-        logger.error("primesieve not found. Please install it via pip.")
-        sys.exit(1)
-    
-    # Generate twin primes up to 10^9
-    LIMIT = 10**9
-    logger.info(f"Generating twin primes up to {LIMIT}...")
-    
-    # primesieve.generate_twin_primes(limit) returns a list of tuples (p, p+2)
-    # We need to compute gaps between consecutive pairs.
-    # p_n is the first prime of the n-th pair.
-    # p_{n+1} is the first prime of the (n+1)-th pair.
-    # delta = p_{n+1} - p_n
-    
-    twin_primes = primesieve.generate_twin_primes(LIMIT)
-    
-    # Calculate gaps
-    if len(twin_primes) < 2:
-        logger.warning("Not enough twin primes to calculate gaps.")
-        gaps = []
-        normalized_gaps = []
-    else:
-        gaps = []
-        normalized_gaps = []
-        for i in range(len(twin_primes) - 1):
-            p_n = twin_primes[i][0]
-            p_next = twin_primes[i+1][0]
-            delta = p_next - p_n
-            gaps.append(delta)
-            # normalized_gap = delta / log(p_n)
-            if p_n > 0:
-                norm_gap = delta / math.log(p_n)
-            else:
-                norm_gap = 0.0
-            normalized_gaps.append(norm_gap)
-    
-    end_time = time.time()
+        # Run the generation pipeline
+        # Note: This will generate the twin_primes.csv file
+        logger.info("Executing generate_primes pipeline...")
+        generate_main()
+        logger.info("Generation pipeline completed successfully")
+    except Exception as e:
+        logger.error(f"Generation pipeline failed: {e}")
+        raise
+
+    # Record end time
+    end_time = time.perf_counter()
     execution_time = end_time - start_time
-    
-    # Get peak memory
-    peak_memory_mb = get_memory_usage_mb()
-    
-    # Save metrics
+    logger.info(f"Generation completed in {execution_time:.2f} seconds")
+
+    # Capture peak memory
+    peak_memory = get_memory_usage_mb()
+    logger.info(f"Peak memory usage: {peak_memory:.2f} MB")
+
+    # Prepare metrics dictionary
     metrics = {
-        "execution_time_seconds": execution_time,
-        "peak_memory_mb": peak_memory_mb,
-        "twin_prime_count": len(twin_primes),
-        "gap_count": len(gaps)
+        'execution_time_seconds': round(execution_time, 4),
+        'peak_memory_mb': round(peak_memory, 2),
+        'initial_memory_mb': round(initial_memory, 2),
+        'memory_delta_mb': round(peak_memory - initial_memory, 2),
+        'timestamp': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+        'status': 'success'
     }
-    
-    with open(output_path, 'w') as f:
+
+    # Save metrics to JSON file
+    with open(metrics_file, 'w') as f:
         json.dump(metrics, f, indent=2)
     
-    logger.info(f"Performance metrics saved to {output_path}")
-    logger.info(f"Execution time: {execution_time:.2f}s")
-    logger.info(f"Peak memory: {peak_memory_mb:.2f} MB")
-    logger.info(f"Twin prime count: {len(twin_primes)}")
+    logger.info(f"Performance metrics saved to {metrics_file}")
+    print(json.dumps(metrics, indent=2))
+    
+    return metrics
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

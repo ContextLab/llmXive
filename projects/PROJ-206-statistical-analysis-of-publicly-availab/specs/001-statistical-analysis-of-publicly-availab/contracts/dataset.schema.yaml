@@ -1,79 +1,88 @@
-# Dataset Schema for Poll Aggregation Pipeline
-# Defines the expected structure for the harmonized poll data (data/processed/poll_data_cleaned.csv)
-# Used for validation before downstream processing (weights, models)
-
 $schema: http://json-schema.org/draft-07/schema#
-title: PollAggregationDataset
-description: Harmonized election poll data with calculated weights and dates
+title: Poll Dataset Schema
+description: >
+  Schema for the harmonized and cleaned poll data used in the statistical analysis pipeline.
+  This schema enforces data types, required fields, and constraints derived from the 
+  FiveThirtyEight API and the project's data harmonization rules.
 
 type: object
-properties:
-  metadata:
-    type: object
-    properties:
-      source:
-        type: string
-        description: Data source identifier (e.g., 'fivethirtyeight')
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of data generation
-      version:
-        type: string
-        description: Schema version
-      record_count:
-        type: integer
-        minimum: 0
-        description: Total number of records in the dataset
-    required:
-      - source
-      - generated_at
-      - version
-      - record_count
-    
-  columns:
-    type: array
-    description: Expected column definitions in the dataset
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-        dtype:
-          type: string
-          enum: [int64, float64, object, datetime64[ns]]
-        description:
-          type: string
-      required:
-        - name
-        - dtype
-        - description
-        
-  validation_rules:
-    type: object
-    properties:
-      required_columns:
-        type: array
-        items:
-          type: string
-        description: List of columns that must be present
-      date_format:
-        type: string
-        description: Expected date format (ISO 8601)
-      min_polls_per_cycle:
-        type: integer
-        minimum: 3
-        description: Minimum distinct cycles required
-      min_recent_polls:
-        type: integer
-        minimum: 5
-        description: Minimum polls in 30 days preceding election
-      max_duplicate_dates_per_pollster:
-        type: integer
-        maximum: 1
-        description: Maximum allowed duplicate dates per pollster (0 means no dups)
-        
 required:
-  - metadata
-  - columns
-  - validation_rules
+  - date
+  -pollster
+  - vote_share
+  - sample_size
+  - historical_rmse
+  - election_cycle
+  - candidate
+  - state
+  - poll_type
+
+properties:
+  date:
+    type: string
+    format: date
+    description: "ISO 8601 date (YYYY-MM-DD) of the poll. Harmonized to a standard format."
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  
+  pollster:
+    type: string
+    minLength: 1
+    description: "Name of the polling organization or pollster."
+  
+  vote_share:
+    type: number
+    minimum: 0.0
+    maximum: 100.0
+    description: "Percentage of vote share for the candidate. Range [0, 100]."
+  
+  sample_size:
+    type: integer
+    minimum: 1
+    description: "Number of respondents in the poll. Must be a positive integer."
+  
+  historical_rmse:
+    type: number
+    minimum: 0.0
+    description: "Historical RMSE weight for the pollster. Calculated from previous election cycles."
+    default: 0.0
+  
+  election_cycle:
+    type: integer
+    description: "Year of the election cycle (e.g., 2016, 2020)."
+    minimum: 1900
+    maximum: 2100
+  
+  candidate:
+    type: string
+    minLength: 1
+    description: "Name of the candidate being polled."
+  
+  state:
+    type: string
+    description: "US State code (e.g., 'US', 'PA', 'TX'). 'US' for national polls."
+    minLength: 1
+    maxLength: 2
+  
+  poll_type:
+    type: string
+    enum:
+      - "Likely Voters"
+      - "Registered Voters"
+      - "All Adults"
+      - "Other"
+    description: "Type of population sampled."
+  
+  week_bin:
+    type: string
+    format: date
+    description: "The start date of the weekly bin this poll belongs to (for aggregation)."
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+    nullable: true
+  
+  weight:
+    type: number
+    minimum: 0.0
+    description: "Inverse-RMSE weight normalized to sum to 1.0 within the bin."
+    nullable: true
+
+additionalProperties: false

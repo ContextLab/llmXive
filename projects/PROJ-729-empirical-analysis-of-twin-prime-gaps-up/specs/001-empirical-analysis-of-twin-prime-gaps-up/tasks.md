@@ -75,8 +75,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float 1.8205 for input p=3, p_next=5. **Verification**: Use tolerance `assert abs(val - 1.8205) < 1e-4 ` to handle floating point precision.
-- [ ] T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py` (verify file creation and row count)
+- [X] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float 1.8205 for input p=3, p_next=5. **Verification**: Use tolerance `assert abs(val - 1.8205) < 1e-4 ` to handle floating point precision.
+- [X] T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py` (verify file creation and row count)
 
 ### Implementation for User Story 1
 
@@ -85,7 +85,7 @@
  - Must compute `delta = p_{n+1} - p_n` (gap between starts of consecutive pairs)
  - Must compute `normalized_gap = delta / log(p_n)`
  - Must handle edge cases (log(0 (Theorem DB: math/0506067, https://arxiv.org/abs/math/0506067)) guards)
-- [~] T013b [US1] [FR-002] [SC-001] Compute expected twin prime count using Hardy-Littlewood constant and compare against actual count. **Verification**: Log the deviation percentage between actual count and theoretical expectation in the console output. <!-- FAILED: unspecified -->
+- [ ] T013b [US1] [FR-002] [SC-001] Compute expected twin prime count using Hardy-Littlewood constant and compare against actual count. **Verification**: Log the deviation percentage between actual count and theoretical expectation in the console output. <!-- FAILED: unspecified -->
 - [X] T014 [US1] [FR-007] [SC-004] [SC-005] Implement CSV output and memory monitoring in `code/generate_primes.py`
  - Ensure RAM usage < 2 GiB and execution time < 45 mins
  - Output columns: `p`, `p_next`, `delta`, `normalized_gap`
@@ -200,7 +200,7 @@ Goldston, Pintz, Yıldırım (n.d.) (Addresses Rockmore Review)
  - Discuss the robustness of the claim given the finite sample size.
  - Explicitly state the limitations of the CPU-only approach on the tail behavior.
 - [ ] T037 [P] Update `specs/001-twin-prime-gaps/research.md` to include the missing lineage paragraph before the validation verdict (Addresses Rockmore Review)
- - **Content**: Insert the following specific paragraph: "The normalized gap metric Δₙ / log pₙ derives from Cramér's probabilistic model of primes, which posits that prime gaps follow an exponential distribution. [UNRESOLVED-CLAIM: c_32ba7555 — status=not_enough_info] This heuristic was refined by Goldston, Pintz, and Yıldıldırım (2005) in the context of small gaps between primes, and is consistent with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for twin primes."
+ - **Content**: Insert the following specific paragraph: "The normalized gap metric Δₙ / log pₙ derives from Cramér's probabilistic model of primes, which posits that prime gaps follow an exponential distribution. [UNRESOLVED-CLAIM: c_9afb23b4 — status=not_enough_info] This heuristic was refined by Goldston, Pintz, and Yıldıldırım (2005) in the context of small gaps between primes, and is consistent with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for twin primes."
 
 ---
 

@@ -1,5 +1,6 @@
-'|between context distribution gap goldston heuristic ld pintz prime refined regarding small':
-  quote: arXiv:math/0506067v1 [math.NT] 3 Jun 2005
-  source_id: math/0506067
-  url: https://arxiv.org/abs/math/0506067
-  value: '0'
+'|between context gap goldston heuristic ld pintz prime refined small':
+  quote: "in\uFB01nitely many prime pairs that di\uFB00er by at most 16. The aim of\
+    \ this article is to explain"
+  source_id: math/0605696
+  url: https://arxiv.org/abs/math/0605696
+  value: '16'

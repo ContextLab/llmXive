@@ -42,3 +42,29 @@ T028:
     \ script, sample output, or test showing the new phrasing), the task requirement\
     \ is not met. The missing deliverable is the implementation and evidence of the\
     \ new framing in the output reports."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research.md` file was presented or described, and no mathematical formulations
+    or documentation of the architectural exceptions (T021, T026, T009b) were provided.
+    The required artifact is missing, so the task is not satisfied.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` file was found in the provided artifacts, and thus there are
+    no Polish-language instructions for running the full pipeline on CPU. The required
+    documentation is missing.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides only the feature specification and user stories; there are
+    no checksum files, verification logs, or any evidence that artifacts in `state/projects/`
+    have been checked for valid checksums, nor any audit showing that data was not
+    manually fabricated. The required artifacts to prove checksum validation and data
+    integrity are missing.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README.md file or excerpt showing a summary of the comparative results and\
+    \ limitations was provided. Without the documented updates, the task\u2019s requirement\
+    \ is not met."
