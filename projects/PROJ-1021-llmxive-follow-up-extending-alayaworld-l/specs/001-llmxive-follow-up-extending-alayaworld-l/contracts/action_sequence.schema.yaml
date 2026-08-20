@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Action Sequence"
+description: "Discrete list of user inputs driving the simulation."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the sequence"
+  seed:
+    type: "integer"
+    description: "Random seed used for generation"
+  actions:
+    type: "array"
+    description: "List of actions performed in the sequence"
+    items:
+      type: "object"
+      properties:
+        timestamp:
+          type: "integer"
+          description: "Frame index when the action occurs"
+        action_type:
+          type: "string"
+          description: "Type of action (e.g., 'hit', 'summon', 'die')"
+        target_id:
+          type: "string"
+          description: "ID of the target object"
+      required: ["timestamp", "action_type"]
+required: ["id", "seed", "actions"]

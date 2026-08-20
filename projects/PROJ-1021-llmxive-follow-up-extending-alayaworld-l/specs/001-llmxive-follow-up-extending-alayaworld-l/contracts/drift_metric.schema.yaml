@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Drift Metric"
+description: "Final calculated score for a sequence comparing symbolic and visual states. Decomposed into 'Intrinsic Drift' (caused by mock's injected errors) and 'Observational Noise' (CV error)."
+type: "object"
+properties:
+  sequence_id:
+    type: "string"
+    description: "Unique identifier for the sequence"
+  mode:
+    type: "string"
+    enum: ["baseline", "hybrid"]
+    description: "Whether the run used the vanilla or hybrid approach"
+  semantic_drift_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized score representing the divergence between logical and visual states"
+  intrinsic_drift:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Drift caused by the mock's injected generative errors (the target of correction)"
+  observational_noise:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Drift caused by CV measurement error"
+  permanence_violations:
+    type: "integer"
+    minimum: 0
+    description: "Count of objects visually alive but logically dead"
+  phantom_objects:
+    type: "integer"
+    minimum: 0
+    description: "Count of objects visually alive but logically missing"
+  render_failures:
+    type: "integer"
+    minimum: 0
+    description: "Count of state mismatches due to teleportation or unrenderable states"
+  cv_accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Validation accuracy of the CV pipeline on the annotated subset (expected to be < 85% due to injected errors)"
+  is_valid:
+    type: "boolean"
+    description: "True if CV accuracy >= 85%, otherwise the score is invalid (for validation purposes only)"
+  resource_usage:
+    type: "object"
+    properties:
+      peak_ram_mb:
+        type: "number"
+        description: "Peak memory usage in Megabytes"
+      wall_clock_seconds:
+        type: "number"
+        description: "Total execution time in seconds"
+    required: ["peak_ram_mb", "wall_clock_seconds"]
+required: ["sequence_id", "mode", "semantic_drift_score", "intrinsic_drift", "observational_noise", "is_valid"]

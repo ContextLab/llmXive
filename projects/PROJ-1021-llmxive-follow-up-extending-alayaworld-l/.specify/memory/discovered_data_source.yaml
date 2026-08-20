@@ -1,0 +1,17 @@
+status: none
+intent: AlayaWorld interactive video symbolic state dataset python package dataset
+required_fields:
+- video_path
+- action_sequence
+- action_timestamps
+- frame_index
+- object_id
+- object_class
+- position_xyz
+- orientation_quat
+- health_points
+- alive_flag
+- bounding_box
+cache_key: c32cb50cedc25cbea7aee572c29292219cf47d9fe12a312cf1b3c992e75b3c11
+searched_at: '2026-08-20T23:19:45.179024+00:00'
+retry_count: 1

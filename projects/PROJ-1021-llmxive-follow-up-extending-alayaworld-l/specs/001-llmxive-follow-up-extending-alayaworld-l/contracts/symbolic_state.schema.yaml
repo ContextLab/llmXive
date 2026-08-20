@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Symbolic State Log"
+description: "Deterministic ground truth trajectory of object states (HP, inventory, position) derived from the rule-based symbolic engine."
+type: "object"
+properties:
+  sequence_id:
+    type: "string"
+    description: "Unique identifier for the sequence"
+  states:
+    type: "array"
+    description: "Time-series of object states"
+    items:
+      type: "object"
+      properties:
+        frame_index:
+          type: "integer"
+          description: "Frame index in the video sequence"
+        object_id:
+          type: "string"
+          description: "Unique ID of the tracked object"
+        hp:
+          type: "integer"
+          description: "Current health points (0 indicates dead)"
+        inventory:
+          type: "array"
+          description: "List of items currently held by the object"
+          items:
+            type: "string"
+        state:
+          type: "string"
+          enum: ["Alive", "Dead", "Teleported", "Missing"]
+          description: "Current logical state of the object"
+        position:
+          type: "object"
+          properties:
+            x:
+              type: "number"
+            y:
+              type: "number"
+          required: ["x", "y"]
+      required: ["frame_index", "object_id", "hp", "state"]
+required: ["sequence_id", "states"]
