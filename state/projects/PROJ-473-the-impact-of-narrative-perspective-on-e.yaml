@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-473-the-impact-of-narrative-perspective-on-e
-last_run_id: c6a377d1-e260-4daf-8ae8-c900e8f114e5
+last_run_id: f78c76c2-5a75-42bc-bc48-764a5371db40
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e
 title: The Impact of Narrative Perspective on Empathy and Moral Judgement
-updated_at: '2026-08-18T21:56:37.019793Z'
+updated_at: '2026-08-20T09:57:42.940021Z'

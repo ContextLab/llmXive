@@ -1,11 +1,13 @@
-langdetect  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-pandas  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
-scikit-learn  # auto-added: imported by run-book but missing from venv
-spacy  # auto-added: imported by run-book but missing from venv
-analysis  # auto-added: imported by run-book but missing from venv
-datasets  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
-seaborn  # auto-added: imported by run-book but missing from venv
+spaCy==3.7.2
+scikit-learn==1.4.0
+pandas==2.2.0
+matplotlib==3.8.2
+statsmodels==0.14.1
+langdetect==1.0.9
+pyyaml==6.0.1
+requests==2.31.0
+textstat==0.7.3
+wordfreq==3.1.0
+pytest==7.4.3
+gutenberg==1.0.0
+datasets==2.14.0

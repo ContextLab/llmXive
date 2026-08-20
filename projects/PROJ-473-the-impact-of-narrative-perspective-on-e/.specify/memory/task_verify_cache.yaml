@@ -1,20 +1,10 @@
 T004:
   c: true
-  h: 6cdb59581dd24ce7713a1d1b251c88b75874f4a2d621e1b44bc5921b3c640ca3
-  r: "The `code/config.py` file exists, is non\u2011empty, sets `np.random.seed`,\
-    \ defines `PRIMARY_MATCHING_THRESHOLD = 0.30`, and defines `GOLD_STANDARD_ANNOTATIONS_PATH`\
-    \ as `data/raw/gold_standard_annotations.csv` along with many other required paths\
-    \ and hyperparameters. The missing CSV file is not required by the task, which\
-    \ only asked for the path constant."
-T016:
-  c: false
-  h: 1e544c53ca598573ece852bdb8b92098b3cfebe31908e53461d14f6ca60c3641
-  r: "The required output file `data/processed/perspective_features.json` does not\
-    \ exist, so the extraction pipeline has not produced the JSON records with the\
-    \ specified schema. Additionally, the provided `code/main.py` snippet does not\
-    \ show a concrete CLI implementation for the `extract` subcommand or the edge\u2011\
-    case handling described, leaving the core task unverified. The missing artifact\
-    \ must be generated and conform to the schema for the task to be considered complete."
+  h: cdf93744ce336dccb95d759ed0fa8c0e647ea4236ac509dc4ece7e73d5b60640
+  r: "The `code/config.py` file exists, is non\u2011empty, defines `PRIMARY_MATCHING_THRESHOLD\
+    \ = 0.30` and `GOLD_STANDARD_ANNOTATIONS_PATH = \"data/raw/gold_standard_annotations.csv\"\
+    `, sets a NumPy random seed, and provides path\u2011related configuration and\
+    \ logging setup as required. The missing CSV file is not part of the task specification."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -24,15 +14,13 @@ T018:
     \ is not satisfied. The next implementer must add and commit the logging implementation\
     \ (e.g., a log statement in the extraction script and a sample log file) and provide\
     \ the corresponding artifact."
-T025#1:
+T024:
   c: false
-  h: 00922122919c9edef236935e9b48cc22eeef859e430da4837fd039d1b378c997
-  r: "The repository lacks the required `data/processed/matching_results.json` file,\
-    \ and `code/config.py` does not define a `PRIMARY_MATCHING_THRESHOLD` constant\
-    \ (it uses a different key). Moreover, the provided `code/main.py` is truncated\
-    \ and does not show a `match` sub\u2011command that parses the CLI arguments and\
-    \ runs only the matching logic. These missing/incorrect pieces prevent the task\
-    \ from being satisfied."
+  h: d6f31f8be59d391b400a8941c6f92e1133695e0f03e53b18fa5cc63d1c56fc78
+  r: The repository lacks the required `prepare_sensitivity_thresholds()` implementation
+    in `code/data_loader.py` (the file only shows a partial `fetch_gutenberg_stories`
+    function) and the expected output file `data/processed/thresholds.json` does not
+    exist. Both the function and its JSON output are missing, so the task is not satisfied.
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -56,3 +44,19 @@ T030:
     \ etc.) with unfinished logic, no OSF download, no SHA\u2011256 hashing, no filtering,\
     \ and no CSV generation. Moreover, the required `data/processed/reader_response.csv`\
     \ does not exist. The task\u2019s core requirements are therefore unmet."
+T032:
+  c: false
+  h: 02cfe23d91c35317657cca215316fcd793ebfe24a3a8481dd17960a109fc94bb
+  r: "The repository lacks the required input files (`data/processed/perspective_features.json`,\
+    \ `data/processed/aligned_reader_response.csv`) and the output CSV (`data/processed/aligned_dataset.csv`).\
+    \ Moreover, `code/data_collection.py` is truncated (the merge line is incomplete)\
+    \ and does not implement the required mean\u2011IRI aggregation logic. The task\
+    \ therefore is not fulfilled."
+T041:
+  c: false
+  h: 75dbeb06682f92eb675e42747d87ca4be49af4541cedcf8c5425caf697a4e97c
+  r: "The repository lacks the required output file `data/processed/analysis_results.json`\
+    \ (and the input `aligned_dataset.csv`), and the provided `code/main.py` snippet\
+    \ shows no implementation of an `analyze` sub\u2011command that would generate\
+    \ the JSON with the specified keys. Consequently the task\u2019s CLI, output schema,\
+    \ and verification steps are not satisfied."
