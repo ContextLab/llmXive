@@ -4,25 +4,20 @@ import numpy as np
 
 @dataclass
 class VideoClip:
-    clip_id: str
-    file_path: str
+    path: str
     duration: float
-    frame_count: int
+    fps: int
     resolution: Tuple[int, int]
-    metadata: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class FeatureVector:
-    clip_id: str
-    features: np.ndarray
-    feature_names: List[str]
-    extraction_timestamp: Optional[str] = None
+    optical_flow: Optional[np.ndarray] = None
+    hog_density: Optional[np.ndarray] = None
+    audio_features: Optional[np.ndarray] = None
 
 @dataclass
 class DimensionScore:
-    dimension_name: str
-    correlation: float
-    confidence_interval_lower: float
-    confidence_interval_upper: float
-    status: str  # "feature-sufficient" or "VLM-required"
-    p_value: Optional[float] = None
+    dimension: str
+    score: float
+    confidence_interval: Tuple[float, float]
+    status: str # "feature-sufficient" or "VLM-required"

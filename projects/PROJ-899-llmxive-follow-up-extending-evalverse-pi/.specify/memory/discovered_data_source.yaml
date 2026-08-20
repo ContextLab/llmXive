@@ -1,0 +1,14 @@
+status: none
+intent: EvalVerse video quality assessment dataset download human expert sub-dimension
+  scores python package dataset
+required_fields:
+- video_id
+- video_path
+- camera_smoothness_score
+- lighting_consistency_score
+- other_subdimension_scores
+- human_expert_overall_score
+- vlm_reference_score
+cache_key: ab7aa666f584334047968bda0ef37d87f9129638d078ce58208150028ec5153f
+searched_at: '2026-08-20T06:37:29.041653+00:00'
+retry_count: 1

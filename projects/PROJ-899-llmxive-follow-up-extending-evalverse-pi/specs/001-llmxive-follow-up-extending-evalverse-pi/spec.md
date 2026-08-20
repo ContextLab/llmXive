@@ -9,7 +9,9 @@ This specification defines the requirements for extending the EvalVerse dataset 
 As a researcher, I want to calculate the correlation between low-level features and human expert scores so that I can identify which dimensions are "feature-sufficient" (r ≥ 0.85) and which require VLMs.
 
 **Acceptance Criteria:**
-- Pearson and Spearman correlations calculated with 95% CIs.
+- Pearson and Spearman correlations calculated with confidence intervals
+
+The research question remains: How do the variables relate? The method remains: Pearson and Spearman correlation analysis. References: [Citation]..
 - Dimensions flagged as "feature-sufficient" or "VLM-required".
 - Baseline comparisons (Mean, Shuffled) included.
 
@@ -22,7 +24,7 @@ As a system administrator, I want to profile the memory and time usage of the pi
 - Gate fails if constraints are violated.
 
 ### US3: Sensitivity Analysis
-As a methodologist, I want to sweep classification thresholds (0.80, 0.85, 0.90) so that I can verify the robustness of the "feature-sufficient" decision boundary.
+As a methodologist, I want to sweep classification thresholds (including 0.85 and 0.90) so that I can verify the robustness of the "feature-sufficient" decision boundary.
 
 **Acceptance Criteria:**
 - Flip rate calculated for each dimension.

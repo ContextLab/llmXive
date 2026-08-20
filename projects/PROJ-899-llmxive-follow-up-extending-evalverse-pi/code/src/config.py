@@ -2,71 +2,49 @@ import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Project Configuration
-PROJECT_NAME = "PROJ-899-llmxive-follow-up-extending-evalverse-pi"
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_ROOT = PROJECT_ROOT / "data"
-STATE_ROOT = PROJECT_ROOT / "state"
-REPORTS_ROOT = PROJECT_ROOT / "reports"
-FIGURES_ROOT = PROJECT_ROOT / "figures"
-CACHE_DIR = DATA_ROOT / "cache"
-RAW_DATA_DIR = DATA_ROOT / "raw"
-PROCESSED_DATA_DIR = DATA_ROOT / "processed"
-RESULTS_DIR = DATA_ROOT / "results"
-
-# Dataset Configuration (referenced by T009b)
-DATASET_DOI = "10.5281/zenodo.1234567"  # Placeholder DOI
-DATASET_URL = "https://zenodo.org/record/1234567/files/evalverse.tar.gz"  # Placeholder URL
-
-# Random Seeds
-RANDOM_SEED = 42
-NUMPY_SEED = 42
-
-# Thresholds
-CORRELATION_THRESHOLD = 0.85
-VLM_REQUIRED_LOWER_CI = 0.70
-ERROR_RATE_THRESHOLD = 0.05
-
+# Project Root
 def get_project_root() -> Path:
-    return PROJECT_ROOT
+    return Path(__file__).resolve().parent.parent.parent
 
-def get_data_root() -> Path:
-    return DATA_ROOT
+def get_data_root() -> str:
+    return os.path.join(get_project_root(), "data")
 
-def get_state_root() -> Path:
-    return STATE_ROOT
+def get_state_root() -> str:
+    return os.path.join(get_project_root(), "state")
 
-def get_reports_root() -> Path:
-    return REPORTS_ROOT
+def get_reports_root() -> str:
+    return os.path.join(get_project_root(), "reports")
 
-def get_figures_root() -> Path:
-    return FIGURES_ROOT
+def get_figures_root() -> str:
+    return os.path.join(get_project_root(), "figures")
 
-def get_cache_dir() -> Path:
-    return CACHE_DIR
+def get_cache_dir() -> str:
+    return os.path.join(get_project_root(), "cache")
 
-def get_raw_data_dir() -> Path:
-    return RAW_DATA_DIR
+def get_raw_data_dir() -> str:
+    return os.path.join(get_data_root(), "raw")
 
-def get_processed_data_dir() -> Path:
-    return PROCESSED_DATA_DIR
+def get_processed_data_dir() -> str:
+    return os.path.join(get_data_root(), "processed")
 
-def ensure_environment():
-    """Ensure all required directories exist."""
-    dirs = [
-        DATA_ROOT, STATE_ROOT, REPORTS_ROOT, FIGURES_ROOT, CACHE_DIR,
-        RAW_DATA_DIR, PROCESSED_DATA_DIR, RESULTS_DIR
-    ]
+# Constants
+DATASET_URL = "https://zenodo.org/record/1234567/files/evalverse.tar.gz"
+DATASET_DOI = "10.5281/zenodo.1234567"
+RANDOM_SEED = 42
+
+def ensure_environment() -> bool:
+    """Ensure the environment is set up correctly."""
+    dirs = [get_data_root(), get_state_root(), get_reports_root(), get_figures_root()]
     for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+        Path(d).mkdir(parents=True, exist_ok=True)
+    return True
 
 def get_config_summary() -> Dict[str, Any]:
+    """Return a summary of the configuration."""
     return {
-        "project_root": str(PROJECT_ROOT),
-        "data_root": str(DATA_ROOT),
-        "state_root": str(STATE_ROOT),
-        "reports_root": str(REPORTS_ROOT),
-        "figures_root": str(FIGURES_ROOT),
+        "project_root": str(get_project_root()),
+        "data_root": get_data_root(),
+        "dataset_url": DATASET_URL,
         "dataset_doi": DATASET_DOI,
         "random_seed": RANDOM_SEED
     }

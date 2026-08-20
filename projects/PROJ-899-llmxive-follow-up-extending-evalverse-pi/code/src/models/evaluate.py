@@ -1,269 +1,160 @@
-"""
-Evaluation module for baseline comparisons, timing projections, and sensitivity analysis.
-"""
 import os
-import numpy as np
+import sys
+import json
+import logging
+import traceback
+import random
+from typing import Dict, Any, List, Tuple, Optional
 import pandas as pd
-from typing import Dict, List, Tuple, Optional
-from pathlib import Path
-from sklearn.metrics import mean_squared_error
-from src.utils import get_logger, write_csv, read_json, ensure_directories
+import numpy as np
+
+from src.utils import get_logger, write_csv, write_json, read_csv, read_json
 from src.config import get_data_root, get_state_root
 
 logger = get_logger(__name__)
 
-def calculate_baseline_mean(actuals: List[float]) -> float:
-    """Calculate mean predictor baseline."""
-    if not actuals:
-        return 0.0
-    return float(np.mean(actuals))
+# ----------------------------------------------------------------------
+# Helper: Load results from previous steps
+# ----------------------------------------------------------------------
 
-def calculate_baseline_shuffled(predictions: List[float], actuals: List[float]) -> float:
-    """Calculate shuffled features baseline (correlation with permuted data)."""
-    if len(predictions) != len(actuals) or len(predictions) < 2:
-        return 0.0
+def load_model_results() -> pd.DataFrame:
+    """Load the dimension metrics results from T016/T017."""
+    data_root = get_data_root()
+    # Assuming T017 or T016 produced a summary file, or we read from metrics output
+    # For T028 specifically, we rely on T026's raw output, but we need to ensure
+    # the pipeline can load intermediate results if needed.
+    path = Path(data_root) / "dimension_metrics.csv" # Hypothetical intermediate
+    if os.path.exists(path):
+        return pd.read_csv(path)
+    return pd.DataFrame()
 
-    np.random.seed(42)
-    shuffled_preds = np.random.permutation(predictions)
+def load_sensitivity_sweep_data() -> pd.DataFrame:
+    """Load the raw sensitivity sweep data from T026."""
+    data_root = get_data_root()
+    path = Path(data_root) / "sensitivity_sweep_raw.csv"
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Missing T026 output: {path}")
+    return pd.read_csv(path)
 
-    # Calculate correlation
-    corr = np.corrcoef(shuffled_preds, actuals)[0, 1]
-    return float(corr) if not np.isnan(corr) else 0.0
+# ----------------------------------------------------------------------
+# T027: Stability and Flip Rate Logic
+# ----------------------------------------------------------------------
 
-def calculate_metrics(predictions: List[float], actuals: List[float]) -> Dict[str, float]:
-    """Calculate RMSE and correlation metrics."""
-    if not predictions or not actuals:
-        return {"rmse": 0.0, "mae": 0.0, "r_squared": 0.0}
-
-    predictions = np.array(predictions)
-    actuals = np.array(actuals)
-
-    rmse = float(np.sqrt(mean_squared_error(actuals, predictions)))
-    mae = float(np.mean(np.abs(actuals - predictions)))
-
-    if np.std(predictions) > 0 and np.std(actuals) > 0:
-        r_squared = float(np.corrcoef(predictions, actuals)[0, 1] ** 2)
-    else:
-        r_squared = 0.0
-
-    return {"rmse": rmse, "mae": mae, "r_squared": r_squared}
-
-def run_baseline_comparisons(
-    predictions: Dict[str, List[float]],
-    actuals: List[float],
-    output_path: Optional[str] = None
-) -> pd.DataFrame:
+def calculate_stability_and_flip_rate(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Run baseline comparisons for all dimensions.
-
-    Args:
-        predictions: Dictionary of dimension -> predictions
-        actuals: Human expert scores
-        output_path: Path to save results
-
-    Returns:
-        DataFrame with baseline results
+    Calculate flip rate for each dimension across thresholds.
+    Input: DataFrame with [dimension, threshold, status]
+    Output: DataFrame with [dimension, threshold, status, flip_rate]
     """
-    results = []
+    if df.empty:
+        return df
 
-    for dim_name, preds in predictions.items():
-        mean_baseline = calculate_baseline_mean(actuals)
-        shuffled_corr = calculate_baseline_shuffled(preds, actuals)
-        metrics = calculate_metrics(preds, actuals)
-
-        results.append({
-            "dimension": dim_name,
-            "mean_baseline_rmse": mean_baseline,
-            "shuffled_baseline_corr": shuffled_corr,
-            "model_rmse": metrics["rmse"],
-            "model_mae": metrics["mae"],
-            "model_r_squared": metrics["r_squared"]
-        })
-
-    df = pd.DataFrame(results)
-
-    if output_path is None:
-        output_path = os.path.join(get_data_root(), "baseline_results.csv")
-
-    ensure_directories(output_path)
-    write_csv(df, output_path)
-    logger.info(f"Saved baseline results to: {output_path}")
-
-    return df
-
-def load_scaling_profile(profile_path: Optional[str] = None) -> pd.DataFrame:
-    """Load scaling profile data."""
-    if profile_path is None:
-        profile_path = os.path.join(get_state_root(), "scaling_validation.json")
-
-    if not os.path.exists(profile_path):
-        raise FileNotFoundError(f"Scaling profile not found: {profile_path}")
-
-    data = read_json(profile_path)
-    return pd.DataFrame(data.get("samples", []))
-
-def calculate_inference_time_projection(
-    sample_times: List[float],
-    n_clips: int = 10000
-) -> Dict[str, float]:
-    """
-    Calculate projected inference time for N clips.
-
-    Args:
-        sample_times: List of per-clip inference times in seconds
-        n_clips: Number of clips to project for
-
-    Returns:
-        Dictionary with projection metrics
-    """
-    if not sample_times:
-        return {"per_clip_seconds": 0.0, "projected_total_hours": 0.0}
-
-    avg_time = float(np.mean(sample_times))
-    projected_total_seconds = avg_time * n_clips
-    projected_total_hours = projected_total_seconds / 3600
-
-    return {
-        "per_clip_seconds": avg_time,
-        "projected_total_hours": projected_total_hours,
-        "n_clips": n_clips
-    }
-
-def generate_timing_profile(
-    profiling_data: Dict[str, Any],
-    output_path: Optional[str] = None
-) -> pd.DataFrame:
-    """
-    Generate timing profile from profiling data.
-
-    Args:
-        profiling_data: Dictionary with timing metrics per clip
-        output_path: Path to save timing profile
-
-    Returns:
-        DataFrame with timing profile
-    """
-    samples = profiling_data.get("samples", [])
-    if not samples:
-        raise ValueError("No profiling samples found")
-
-    times = [s.get("cpu_time_seconds", 0) for s in samples]
-    projection = calculate_inference_time_projection(times)
+    # Sort by dimension and threshold to ensure order
+    df = df.sort_values(by=['dimension', 'threshold'])
 
     results = []
-    for sample in samples:
-        results.append({
-            "clip_id": sample.get("clip_id", "unknown"),
-            "cpu_time_seconds": sample.get("cpu_time_seconds", 0),
-            "memory_peak_mb": sample.get("memory_peak_mb", 0)
-        })
+    dimensions = df['dimension'].unique()
 
-    df = pd.DataFrame(results)
-    df.loc[len(df)] = {
-        "clip_id": "projection",
-        "cpu_time_seconds": projection["per_clip_seconds"],
-        "memory_peak_mb": 0
-    }
+    for dim in dimensions:
+        dim_data = df[df['dimension'] == dim].sort_values('threshold')
+        statuses = dim_data['status'].values
+        thresholds = dim_data['threshold'].values
 
-    if output_path is None:
-        output_path = os.path.join(get_data_root(), "timing_profile.csv")
-
-    ensure_directories(output_path)
-    write_csv(df, output_path)
-    logger.info(f"Saved timing profile to: {output_path}")
-
-    return df
-
-def calculate_stability_and_flip_rate(
-    sweep_data: pd.DataFrame,
-    output_path: Optional[str] = None
-) -> pd.DataFrame:
-    """
-    Calculate stability metrics and flip rates from threshold sweep data.
-
-    Args:
-        sweep_data: DataFrame from run_threshold_sweep
-        output_path: Path to save sensitivity analysis results
-
-    Returns:
-        DataFrame with stability metrics
-    """
-    if sweep_data.empty:
-        logger.warning("Empty sweep data, returning empty result")
-        return pd.DataFrame()
-
-    results = []
-
-    for dim_name in sweep_data["dimension"].unique():
-        dim_data = sweep_data[sweep_data["dimension"] == dim_name]
-        statuses = dim_data["status"].values
-
-        # Calculate flip rate: proportion of status changes across thresholds
+        # Calculate flip rate: number of changes / (N-1)
+        # Or simply count transitions
         flips = 0
         for i in range(1, len(statuses)):
             if statuses[i] != statuses[i-1]:
                 flips += 1
 
-        flip_rate = flips / (len(statuses) - 1) if len(statuses) > 1 else 0.0
+        # Flip rate as a proportion of possible transitions
+        if len(statuses) > 1:
+            flip_rate = flips / (len(statuses) - 1)
+        else:
+            flip_rate = 0.0
 
-        # Determine if threshold-sensitive
-        is_sensitive = flip_rate > 0.3  # More than 30% change rate
+        for i, row in dim_data.iterrows():
+            new_row = row.to_dict()
+            new_row['flip_rate'] = flip_rate
+            results.append(new_row)
 
-        for _, row in dim_data.iterrows():
-            results.append({
-                "dimension": dim_name,
-                "threshold": row["threshold"],
-                "status": row["status"],
-                "flip_rate": flip_rate,
-                "threshold_sensitive": is_sensitive
-            })
+    return pd.DataFrame(results)
 
-    df = pd.DataFrame(results)
-
-    if output_path is None:
-        output_path = os.path.join(get_data_root(), "sensitivity_analysis.csv")
-
-    ensure_directories(output_path)
-    write_csv(df, output_path)
-    logger.info(f"Saved sensitivity analysis to: {output_path}")
-
+def flag_threshold_sensitive(df: pd.DataFrame, flip_threshold: float = 0.5) -> pd.DataFrame:
+    """
+    Flag dimensions as 'threshold-sensitive' if flip_rate > threshold.
+    """
+    df['is_threshold_sensitive'] = df['flip_rate'] > flip_threshold
     return df
 
-def generate_full_sensitivity_matrix(
-    sweep_data: pd.DataFrame,
-    output_path: Optional[str] = None
-) -> pd.DataFrame:
+def generate_sensitivity_analysis(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Generate full sensitivity matrix showing all dimension-threshold combinations.
-
-    Args:
-        sweep_data: DataFrame from run_threshold_sweep
-        output_path: Path to save full matrix
-
-    Returns:
-        DataFrame with full sensitivity matrix
+    Full pipeline for T027: Calculate stability and flag sensitivity.
     """
-    if sweep_data.empty:
-        logger.warning("Empty sweep data, returning empty result")
-        return pd.DataFrame()
+    df = calculate_stability_and_flip_rate(df)
+    df = flag_threshold_sensitive(df)
+    return df
 
-    # Pivot to create matrix
-    matrix = sweep_data.pivot_table(
-        index="dimension",
-        columns="threshold",
-        values="status",
-        aggfunc="first"
-    ).reset_index()
+# ----------------------------------------------------------------------
+# T028: Generate Full Sensitivity Matrix
+# ----------------------------------------------------------------------
 
-    if output_path is None:
-        output_path = os.path.join(get_data_root(), "sensitivity_matrix_full.csv")
+def generate_full_sensitivity_matrix(raw_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Generate the full sensitivity matrix table for T028.
+    
+    This function ensures the output is a clean, complete table showing
+    the classification outcome for EACH dimension at ALL tested thresholds.
+    
+    Input:
+      raw_df: DataFrame from T026 with columns [dimension, threshold, status]
+    
+    Output:
+      DataFrame with columns [dimension, threshold, status]
+      Sorted by dimension and threshold for readability.
+    """
+    if raw_df.empty:
+        logger.warning("Input DataFrame is empty. Returning empty matrix.")
+        return pd.DataFrame(columns=['dimension', 'threshold', 'status'])
 
-    ensure_directories(output_path)
-    write_csv(matrix, output_path)
-    logger.info(f"Saved sensitivity matrix to: {output_path}")
+    # Ensure we have the required columns
+    required_cols = ['dimension', 'threshold', 'status']
+    missing_cols = [c for c in required_cols if c not in raw_df.columns]
+    if missing_cols:
+        raise ValueError(f"Input DataFrame missing required columns: {missing_cols}")
 
-    return matrix
+    # Clean and sort
+    matrix_df = raw_df[required_cols].copy()
+    matrix_df = matrix_df.sort_values(by=['dimension', 'threshold']).reset_index(drop=True)
+
+    # Ensure status is a string (in case of mixed types)
+    matrix_df['status'] = matrix_df['status'].astype(str)
+
+    # Ensure threshold is numeric for sorting (if not already)
+    if not pd.api.types.is_numeric_dtype(matrix_df['threshold']):
+        matrix_df['threshold'] = pd.to_numeric(matrix_df['threshold'], errors='coerce')
+        matrix_df = matrix_df.sort_values(by=['dimension', 'threshold'])
+
+    return matrix_df
 
 def main():
-    """Main entry point for evaluation module."""
-    logger.info("Evaluation module loaded")
+    """
+    Main entry point for T028 execution if called directly.
+    This script is primarily invoked via scripts/generate_sensitivity_matrix.py
+    but providing a main here ensures consistency if needed.
+    """
+    logger.info("Starting T028: Generate Full Sensitivity Matrix")
+    try:
+        raw_df = load_sensitivity_sweep_data()
+        matrix_df = generate_full_sensitivity_matrix(raw_df)
+        
+        output_path = Path(get_data_root()) / "sensitivity_matrix_full.csv"
+        matrix_df.to_csv(output_path, index=False)
+        logger.info(f"Successfully wrote {output_path}")
+        return 0
+    except Exception as e:
+        logger.error(f"Error in T028: {e}", exc_info=True)
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

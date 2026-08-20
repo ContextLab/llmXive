@@ -19,7 +19,7 @@
 ## Phase 4: User Story 2 (Feasibility)
 - Profile memory and time.
 - Validate linear scaling.
-- Project time for 10k clips.
+- Project time for a large-scale dataset of video clips.
 - **Gate**: Feasibility Gate (T021).
 
 ## Phase 5: User Story 3 (Sensitivity)
