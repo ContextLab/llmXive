@@ -1,18 +1,6 @@
-- artifact_hash: 26b54fca78223d6ffb2cdf0fc9d12d1240f2416b4f70fc5776c9937b6024fedf
+- artifact_hash: a3cec8fc9f843d08e7bcdc4d2a3f44bf41223aaccdd00ff52373bd9bd82ed150
   artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2601.08725] Malware Detection based on API Calls: A Reproducibility
-    Study'
-  kind: url
-  value: https://arxiv.org/abs/2601.08725
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2601.08725
-  verified_at: '2026-08-18T06:28:53.453510Z'
-- artifact_hash: 26b54fca78223d6ffb2cdf0fc9d12d1240f2416b4f70fc5776c9937b6024fedf
-  artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: Vif - Wikidata
@@ -20,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q113106917
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-08-18T06:28:53.453510Z'
+  verified_at: '2026-08-21T05:50:52.361092Z'

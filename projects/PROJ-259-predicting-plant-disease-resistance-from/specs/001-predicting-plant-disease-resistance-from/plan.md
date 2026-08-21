@@ -6,7 +6,7 @@
 
 This plan implements a reproducible, CPU-tractable pipeline to predict plant disease resistance using paired genomic (SNP) and metabolomic data. **Crucially, due to the confirmed absence of public, matched multi-omics plant datasets (see Research.md), the pipeline executes in "Simulation Mode" by default.** In this mode, the system generates synthetic data with known signal structures to validate the *pipeline logic* (preprocessing, feature selection, modeling, and statistical testing). 
 
-The system attempts to retrieve public data (if available), preprocesses it (variant calling, normalization), performs rigorous feature selection (LASSO/RF with sensitivity sweeps), trains Elastic-Net/Gradient-Boosting models with 5-fold cross-validation, and validates via permutation testing. The pipeline strictly adheres to the GitHub Actions free-tier constraints (2 CPU, 7 GB RAM, 6h runtime) and enforces data integrity checks (minimum 100 paired samples). 
+The system attempts to retrieve public data (if available), preprocesses it (variant calling, normalization), performs rigorous feature selection (LASSO/RF with sensitivity sweeps), trains Elastic-Net/Gradient-Boosting models with cross-validation, and validates via permutation testing. The pipeline strictly adheres to the GitHub Actions free-tier constraints (2 CPU, 7 GB RAM, 6h runtime) and enforces data integrity checks (minimum 100 paired samples). 
 
 **Scope Note**: The "Accuracy ≥ 75%" and "p < 0.05" success criteria in this phase apply to **Pipeline Validation** (i.e., the code correctly identifies the injected signals in synthetic data). They do not constitute scientific validation of the biological hypothesis, which remains blocked until a real matched dataset is discovered.
 

@@ -12,3 +12,10 @@ T028:
     \ required logic to filter and rank features by selection frequency and BH\u2011\
     adjusted p\u2011value\u202F<\u202F0.05. The artifact is missing, so the task\u2019\
     s functional requirement is not satisfied."
+T042:
+  c: false
+  h: 93f026e1380b19c0072b82c0645f530471274ed980d5b8fc9386728eb589ab7d
+  r: "The provided `code/data/download.py` does not show the required critical\u2011\
+    warning log message nor an explicit immediate call to `generate_synthetic.py`,\
+    \ and the mandatory `data_manifest.yaml` file is absent, so the provenance update\
+    \ (`source: SIMULATED`) cannot be verified."
