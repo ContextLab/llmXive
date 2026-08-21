@@ -25,14 +25,6 @@ T035b:
   r: The `code/stats/power_analysis.py` file is truncated (e.g., an unfinished line
     in `validate_budget`) and contains no logic to write `data/power_analysis_report.json`.
     Moreover, the required JSON report file is missing from the repository.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, logs, or report artifacts were supplied to demonstrate that a 2\u2011\
-    D\u2011only execution kernel was implemented, that imports of 3\u2011D libraries\
-    \ are blocked, that stochasticity control is enforced, or that performance metrics\
-    \ and a paired 2D/3D comparison report were generated. The required deliverables\
-    \ are missing."
 T037a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -65,6 +57,12 @@ T037e:
     \ is provided, and there is no evidence that power analysis, statistical tests,\
     \ or sensitivity analysis results were documented. The required artifact is missing,\
     \ so the task is not satisfied."
+T047:
+  c: false
+  h: dfd84048db8b5b9bcded56a66ef459bd77dc613b667946e8632813df38169197
+  r: "The required output file `results/analysis/final_paired_dataset.csv` does not\
+    \ exist, so the aggregation, merging, and verification steps cannot be confirmed.\
+    \ The missing CSV means the task\u2019s core deliverable is absent."
 T048:
   c: false
   h: cdf1e432064a7501d730a73a571175ba862665492073e0edd2baa2af4324a099
@@ -80,3 +78,20 @@ T052:
   r: The required artifact `results/logs/pipeline_run.log` does not exist, so the
     full pipeline execution cannot be verified. No log file is present to confirm
     that the data generation, baseline, 2D agent, and stats steps were run successfully.
+T057:
+  c: false
+  h: 1e90fdb5f9f7505c9b2b00b9f037b214214d70ef1a676219fda41903acb2dcb5
+  r: "The `code/stats/tests.py` file exists but the provided excerpt does not show\
+    \ any implementation that performs a Shapiro\u2011Wilk normality check on latency\
+    \ differences and automatically switches between a paired t\u2011test and a Wilcoxon\
+    \ signed\u2011rank test, nor does it write a decision log. Moreover, the required\
+    \ log file `results/analysis/statistical_methodology_log.md` is completely missing.\
+    \ The task\u2019s core requirement of detecting non\u2011normal data and recording\
+    \ the rationale is therefore not fulfilled."
+T059:
+  c: false
+  h: eb3506d5a83805f5c545b866c5f9a3bbd3cfaf910cc6c998a25a178688f8245a
+  r: "The repository contains `code/stats/analyze_projection_loss.py`, but the file\
+    \ is truncated and does not show a complete implementation that writes the required\
+    \ JSON results. Moreover, the expected output file `results/analysis/projection_loss_breakdown.json`\
+    \ is absent. The task\u2019s quantitative answer is therefore not produced."

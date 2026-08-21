@@ -7,6 +7,5 @@ pytest
 statsmodels
 datasets
 huggingface_hub
-
-# T048 Additional dependencies (if any, though scipy is already listed)
-# No new dependencies required for T048 as scipy is already in requirements.txt
+# New dependencies for T060 (if any, currently using standard lib + existing)
+# No new dependencies required for T060

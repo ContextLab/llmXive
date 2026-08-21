@@ -1,377 +1,389 @@
 """
-Final Statistical Report Generation for SpatialClaw Restriction Study.
+Final Statistical Report Generation (T048)
 
-This module executes the statistical tests and sensitivity analysis against
-the final paired dataset and generates a comprehensive Markdown report.
+Executes statistical tests and sensitivity analysis against the final paired dataset
+and generates a comprehensive Markdown report.
 """
-
 import os
 import csv
 import json
 import logging
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
+from scipy.stats import wilcoxon, chi2_contingency, shapiro, ttest_rel
 
-import numpy as np
-from scipy import stats as scipy_stats
+# Ensure the stats module is in the path when run as script
+import sys
+import glob
 
-from stats.tests import run_mcnemar_test, run_wilcoxon_test, apply_bonferroni_correction
-from stats.sensitivity import run_sensitivity_analysis, load_comparison_results
+# Add parent directory to path to resolve imports if run directly
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 
-# Configure logging for this module
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from stats.tests import (
+    load_paired_dataset,
+    group_by_task_type,
+    extract_success_pairs,
+    extract_latency_pairs,
+    run_mcnemar_test,
+    check_normality,
+    run_ttest,
+    run_wilcoxon_test,
+    apply_bonferroni_correction,
+    run_statistical_tests
 )
+from stats.sensitivity import (
+    load_comparison_results_for_flat_analysis,
+    run_flat_object_sensitivity_analysis,
+    write_flat_object_sensitivity_csv
+)
+from stats.analyze_projection_loss import run_projection_loss_analysis
+from utils.verify_baseline_consistency import load_json_file
+from utils.budget_report import load_budget_report
+
 logger = logging.getLogger(__name__)
 
-INPUT_DATASET_PATH = "results/analysis/final_paired_dataset.csv"
-SENSITIVITY_INPUT_PATH = "results/analysis/depth_threshold_sweep.csv"
-OUTPUT_REPORT_PATH = "results/analysis/final_statistical_report.md"
-OUTPUT_STATS_JSON_PATH = "results/analysis/statistical_test_results.json"
+RESULTS_DIR = "results/analysis"
+DATA_DIR = "data/raw"
 
-def load_paired_dataset(path: str) -> List[Dict[str, Any]]:
-    """Load the final paired dataset from CSV."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Input dataset not found: {path}")
+def load_paired_dataset(filepath: str) -> List[Dict[str, Any]]:
+    """Load the final paired dataset CSV."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Paired dataset not found at {filepath}")
     
     data = []
-    with open(path, 'r', newline='', encoding='utf-8') as f:
+    with open(filepath, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Convert numeric strings to float
-            numeric_fields = ['2d_success_rate', '2d_mean_latency', '3d_success', '3d_latency', 'success_diff', 'latency_diff']
-            processed_row = {}
-            for key, value in row.items():
-                if key in numeric_fields:
-                    try:
-                        processed_row[key] = float(value)
-                    except ValueError:
-                        processed_row[key] = None
-                else:
-                    processed_row[key] = value
-            data.append(processed_row)
+            # Convert numeric fields
+            row['2d_success_rate'] = float(row['2d_success_rate'])
+            row['2d_mean_latency'] = float(row['2d_mean_latency'])
+            row['3d_success'] = int(row['3d_success']) # 0 or 1
+            row['3d_latency'] = float(row['3d_latency'])
+            row['success_diff'] = float(row['success_diff'])
+            row['latency_diff'] = float(row['latency_diff'])
+            data.append(row)
     return data
 
 def group_by_task_type(data: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
-    """Group data by task_type for per-type analysis."""
+    """Group data by task_type."""
     groups = {}
     for row in data:
-        t_type = row.get('task_type', 'unknown')
+        t_type = row['task_type']
         if t_type not in groups:
             groups[t_type] = []
         groups[t_type].append(row)
     return groups
 
-def extract_success_pairs(data: List[Dict[str, Any]]) -> Tuple[List[int], List[int]]:
-    """Extract binary success pairs for McNemar's test."""
-    # We need paired binary outcomes: (2d_success, 3d_success)
-    # Since 2d_success_rate is a proportion from multiple runs, we treat >0.5 as success for the test
-    # or use the raw boolean if available. Here we assume the aggregated rate implies the majority outcome.
-    # For a strict paired test on the *dataset* level, we often look at the mean success rate difference.
-    # However, McNemar requires binary counts per pair. 
-    # Given the schema has '2d_success_rate' (float) and '3d_success' (float/bool), 
-    # we will construct a contingency table based on the aggregated rates per task type.
-    
-    # Actually, for the report, we perform the test on the *aggregated* counts per task type.
-    # We sum the successes and total counts.
-    return [], [] # Placeholder, logic moved to group-level aggregation
+def extract_success_pairs(group: List[Dict[str, Any]]) -> Tuple[List[int], List[int]]:
+    """Extract 2D success rate (as 0/1 for McNemar approximation) and 3D success."""
+    # Note: McNemar requires binary outcomes. We use the aggregated success rate 
+    # thresholded at 0.5 or use the raw 3D success vs mean 2D success rate.
+    # For strict McNemar, we need per-task binary outcomes. 
+    # Since we have aggregated rates, we will use a threshold: success_rate >= 0.5 -> 1
+    # This is a pragmatic adaptation for the aggregated dataset.
+    s_2d = [1 if float(r['2d_success_rate']) >= 0.5 else 0 for r in group]
+    s_3d = [int(r['3d_success']) for r in group]
+    return s_2d, s_3d
 
-def calculate_aggregated_counts(data: List[Dict[str, Any]]) -> Dict[str, Dict[str, int]]:
-    """Calculate aggregated success/failure counts per task type."""
-    counts = {}
-    for row in data:
-        t_type = row.get('task_type', 'unknown')
-        if t_type not in counts:
-            counts[t_type] = {'2d_success': 0, '2d_fail': 0, '3d_success': 0, '3d_fail': 0, 'n': 0}
-        
-        # Treat 2d_success_rate >= 0.5 as success for binary classification in McNemar
-        # Treat 3d_success >= 0.5 as success
-        s_2d = 1 if (row.get('2d_success_rate') or 0) >= 0.5 else 0
-        s_3d = 1 if (row.get('3d_success') or 0) >= 0.5 else 0
-        
-        counts[t_type]['n'] += 1
-        if s_2d == 1 and s_3d == 1:
-            counts[t_type]['both_success'] = counts[t_type].get('both_success', 0) + 1
-        elif s_2d == 1 and s_3d == 0:
-            counts[t_type]['2d_only'] = counts[t_type].get('2d_only', 0) + 1
-        elif s_2d == 0 and s_3d == 1:
-            counts[t_type]['3d_only'] = counts[t_type].get('3d_only', 0) + 1
-        else:
-            counts[t_type]['both_fail'] = counts[t_type].get('both_fail', 0) + 1
-    
-    return counts
+def extract_latency_pairs(group: List[Dict[str, Any]]) -> Tuple[List[float], List[float]]:
+    """Extract latency pairs."""
+    l_2d = [float(r['2d_mean_latency']) for r in group]
+    l_3d = [float(r['3d_latency']) for r in group]
+    return l_2d, l_3d
 
 def run_statistical_tests(data: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Run McNemar and Wilcoxon tests on the dataset."""
-    results = {
-        'timestamp': datetime.now().isoformat(),
-        'task_types': {},
-        'global_summary': {}
-    }
-    
+    """Run all required statistical tests and return results."""
     groups = group_by_task_type(data)
-    task_types = list(groups.keys())
-    
-    # Bonferroni correction factor
-    alpha = 0.05
-    correction_factor = len(task_types) if len(task_types) > 0 else 1
-    
-    all_p_values = []
+    results = {
+        "test_methodology_log": [],
+        "tests": {}
+    }
 
-    for t_type, rows in groups.items():
-        # Prepare data for Wilcoxon (continuous metric: latency difference or success rate diff)
-        # We use 'success_diff' (2d - 3d) for Wilcoxon signed-rank test on performance degradation
-        diffs = [r.get('success_diff') for r in rows if r.get('success_diff') is not None]
-        latencies_2d = [r.get('2d_mean_latency') for r in rows if r.get('2d_mean_latency') is not None]
-        latencies_3d = [r.get('3d_latency') for r in rows if r.get('3d_latency') is not None]
+    for task_type, group in groups.items():
+        logger.info(f"Running tests for {task_type}")
         
-        # Filter out None values for Wilcoxon
-        valid_diffs = [d for d in diffs if d is not None]
-        valid_lat_2d = [l for l in latencies_2d if l is not None]
-        valid_lat_3d = [l for l in latencies_3d if l is not None]
-
-        # 1. McNemar's Test (Binary Success/Failure)
-        counts = calculate_aggregated_counts(rows)
-        # We need to re-calculate contingency per task type from the raw rows
-        # Re-doing the logic locally for accuracy
-        b = 0 # 2d success, 3d fail
-        c = 0 # 2d fail, 3d success
-        for r in rows:
-            s_2d = 1 if (r.get('2d_success_rate') or 0) >= 0.5 else 0
-            s_3d = 1 if (r.get('3d_success') or 0) >= 0.5 else 0
-            if s_2d == 1 and s_3d == 0:
-                b += 1
-            elif s_2d == 0 and s_3d == 1:
-                c += 1
+        # 1. Normality Check (Shapiro-Wilk) on latency differences
+        l_2d, l_3d = extract_latency_pairs(group)
+        diffs = [a - b for a, b in zip(l_2d, l_3d)]
         
-        mcnemar_result = None
-        if b + c > 0:
-            # Use scipy.stats.chi2_contingency or manual calculation for small samples
-            # McNemar statistic: (|b - c| - 1)^2 / (b + c) with continuity correction
-            stat = ((abs(b - c) - 1) ** 2) / (b + c)
-            p_val = 1 - scipy_stats.chi2.cdf(stat, 1)
-            mcnemar_result = {
-                'b': b, 'c': c, 'statistic': stat, 'p_value': p_val,
-                'significant': p_val < (alpha / correction_factor)
-            }
-            all_p_values.append(p_val)
-
-        # 2. Wilcoxon Signed-Rank Test (Continuous Latency or Success Diff)
-        wilcoxon_result = None
-        if len(valid_lat_2d) > 1 and len(valid_lat_3d) > 1:
-            try:
-                stat, p_val = scipy_stats.wilcoxon(valid_lat_2d, valid_lat_3d)
-                wilcoxon_result = {
-                    'statistic': stat, 'p_value': p_val,
-                    'significant': p_val < (alpha / correction_factor),
-                    'metric': 'latency_ms'
-                }
-                all_p_values.append(p_val)
-            except Exception as e:
-                logger.warning(f"Wilcoxon failed for {t_type}: {e}")
-
-        # Apply Bonferroni to collected p-values at the end? 
-        # Or apply per test? The task asks for Bonferroni corrected p-values.
-        # We will store raw and then correct in the summary.
+        is_normal = True
+        test_name = "t-test"
         
-        results['task_types'][t_type] = {
-            'n_samples': len(rows),
-            'mcnemar': mcnemar_result,
-            'wilcoxon': wilcoxon_result
+        if len(diffs) >= 3: # Shapiro requires at least 3 samples
+            stat, p_val = shapiro(diffs)
+            log_entry = f"Shapiro-Wilk for {task_type}: W={stat:.4f}, p={p_val:.4f}"
+            results["test_methodology_log"].append(log_entry)
+            
+            if p_val < 0.05:
+                is_normal = False
+                test_name = "Wilcoxon"
+                results["test_methodology_log"].append(f"  -> Normality violated, switching to Wilcoxon")
+            else:
+                results["test_methodology_log"].append(f"  -> Normality assumed, using t-test")
+        else:
+            results["test_methodology_log"].append(f"Shapiro-Wilk skipped for {task_type} (N < 3)")
+
+        # 2. Latency Comparison
+        if test_name == "t-test":
+            stat, p_val = ttest_rel(l_2d, l_3d)
+        else:
+            stat, p_val = wilcoxon(l_2d, l_3d)
+        
+        results["tests"][f"{task_type}_latency"] = {
+            "test": test_name,
+            "statistic": float(stat),
+            "p_value_raw": float(p_val),
+            "p_value_corrected": 0.0 # Will be corrected later
         }
 
-    # Global Bonferroni Correction
-    corrected_alpha = alpha / max(1, len(all_p_values))
-    results['global_summary'] = {
-        'alpha': alpha,
-        'correction_method': 'Bonferroni',
-        'correction_factor': len(all_p_values),
-        'corrected_alpha': corrected_alpha,
-        'tests_run': len(all_p_values)
-    }
+        # 3. Success Comparison (McNemar approximation using binary threshold)
+        s_2d, s_3d = extract_success_pairs(group)
+        # Construct contingency table:
+        # a: 2D=1, 3D=1
+        # b: 2D=1, 3D=0
+        # c: 2D=0, 3D=1
+        # d: 2D=0, 3D=0
+        a = sum(1 for x, y in zip(s_2d, s_3d) if x == 1 and y == 1)
+        b = sum(1 for x, y in zip(s_2d, s_3d) if x == 1 and y == 0)
+        c = sum(1 for x, y in zip(s_2d, s_3d) if x == 0 and y == 1)
+        d = sum(1 for x, y in zip(s_2d, s_3d) if x == 0 and y == 0)
+        
+        contingency = [[a, b], [c, d]]
+        try:
+            chi2, p_val_mcnemar, _, _ = chi2_contingency(contingency, correction=True)
+            results["tests"][f"{task_type}_success"] = {
+                "test": "McNemar (Chi2 approx)",
+                "statistic": float(chi2),
+                "p_value_raw": float(p_val_mcnemar),
+                "p_value_corrected": 0.0,
+                "contingency": contingency
+            }
+        except Exception as e:
+            results["tests"][f"{task_type}_success"] = {
+                "test": "McNemar",
+                "error": str(e),
+                "contingency": contingency
+            }
+
+    # Apply Bonferroni Correction
+    n_tests = len(results["tests"])
+    if n_tests > 0:
+        alpha = 0.05
+        corrected_alpha = alpha / n_tests
+        for key in results["tests"]:
+            if "p_value_raw" in results["tests"][key]:
+                raw_p = results["tests"][key]["p_value_raw"]
+                results["tests"][key]["p_value_corrected"] = min(raw_p * n_tests, 1.0)
+                results["tests"][key]["corrected_alpha"] = corrected_alpha
+                results["tests"][key]["significant"] = results["tests"][key]["p_value_corrected"] < alpha
 
     return results
 
-def load_sensitivity_data() -> Optional[List[Dict[str, Any]]]:
-    """Load sensitivity analysis data if available."""
-    path = SENSITIVITY_INPUT_PATH
-    if not os.path.exists(path):
-        logger.warning(f"Sensitivity data not found at {path}")
-        return None
-    
+def load_sensitivity_data() -> Dict[str, Any]:
+    """Load sensitivity analysis results."""
+    sensitivity_file = os.path.join(RESULTS_DIR, "flat_object_sensitivity.csv")
     data = []
-    with open(path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            try:
+    if os.path.exists(sensitivity_file):
+        with open(sensitivity_file, 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
                 data.append({
-                    'threshold_value': float(row['threshold_value']),
-                    'false_positive_rate': float(row['false_positive_rate']),
-                    'false_negative_rate': float(row['false_negative_rate'])
+                    "epsilon": float(row["epsilon"]),
+                    "fpr": float(row["false_positive_rate"]),
+                    "fnr": float(row["false_negative_rate"])
                 })
-            except (ValueError, KeyError):
-                continue
     return data
 
-def generate_report_markdown(stats_results: Dict[str, Any], sensitivity_data: Optional[List[Dict[str, Any]]]) -> str:
+def generate_report_markdown(
+    stats_results: Dict[str, Any], 
+    sensitivity_data: List[Dict[str, Any]],
+    projection_loss_data: Optional[Dict[str, Any]] = None,
+    baseline_determinism_report: Optional[str] = None
+) -> str:
     """Generate the final Markdown report."""
     lines = []
-    lines.append("# Final Statistical Report: SpatialClaw Restriction Study")
-    lines.append("")
-    lines.append(f"**Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    lines.append("")
-    lines.append("## Executive Summary")
+    lines.append("# Final Statistical Report: SpatialClaw Restriction")
+    lines.append(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     lines.append("")
     
-    # Conclusion on "Loss Ceiling" Hypothesis
-    lines.append("### Conclusion on 'Loss Ceiling' Hypothesis")
+    # Executive Summary / Conclusion on Loss Ceiling Hypothesis
+    lines.append("## 1. Executive Summary & Hypothesis Conclusion")
+    lines.append("")
+    lines.append("**Hypothesis:** The 2D-restricted agent will exhibit statistically significant performance degradation (higher latency, lower success) compared to the 3D baseline, primarily due to 'projection loss' in occlusion tasks.")
     lines.append("")
     
-    significant_degradation = False
-    for t_type, data in stats_results.get('task_types', {}).items():
-        mcnemar = data.get('mcnemar')
-        if mcnemar and mcnemar.get('significant'):
-            if mcnemar.get('c', 0) > mcnemar.get('b', 0):
-                significant_degradation = True
-                break
+    significant_latencies = 0
+    significant_successes = 0
+    total_tests = 0
     
-    if significant_degradation:
-        lines.append("**Conclusion**: The null hypothesis is rejected. There is statistically significant evidence")
-        lines.append("that the 2D-restricted agent suffers performance degradation (loss ceiling) compared to the 3D baseline")
-        lines.append("across specific task types. The restriction to 2D operations imposes a measurable ceiling on agent capability.")
+    for key, res in stats_results.get("tests", {}).items():
+        if "significant" in res:
+            total_tests += 1
+            if res["significant"]:
+                if "latency" in key:
+                    significant_latencies += 1
+                elif "success" in key:
+                    significant_successes += 1
+
+    lines.append(f"**Statistical Significance (Bonferroni corrected, α=0.05):**")
+    lines.append(f"- Latency tests: {significant_latencies}/{total_tests // 2} showed significant difference.")
+    lines.append(f"- Success tests: {significant_successes}/{total_tests // 2} showed significant difference.")
+    lines.append("")
+    
+    if significant_latencies > 0 or significant_successes > 0:
+        lines.append("✅ **Conclusion:** The data supports the hypothesis. The 2D restriction introduces a measurable 'loss ceiling', resulting in statistically significant performance degradation compared to the 3D baseline.")
     else:
-        lines.append("**Conclusion**: The null hypothesis cannot be rejected with statistical significance at the corrected alpha level.")
-        lines.append("While performance differences may exist, they are not statistically significant enough to confirm a strict 'loss ceiling'")
-        lines.append("hypothesis across the tested dataset. The 2D agent performs comparably to the 3D baseline within statistical variance.")
+        lines.append("⚠️ **Conclusion:** No statistically significant degradation was detected after correction. The 2D restriction may not impose a significant 'loss ceiling' for the tested tasks, or the sample size was insufficient.")
+    lines.append("")
+
+    # Methodology Log
+    lines.append("## 2. Statistical Methodology")
+    lines.append("")
+    lines.append("The following tests were selected based on normality checks (Shapiro-Wilk) on latency differences:")
+    lines.append("")
+    for log in stats_results.get("test_methodology_log", []):
+        lines.append(f"- {log}")
+    lines.append("")
+
+    # Detailed Results
+    lines.append("## 3. Detailed Statistical Results")
+    lines.append("")
     
-    lines.append("")
-    lines.append(f"**Corrected Alpha (Bonferroni)**: {stats_results['global_summary']['corrected_alpha']:.6f}")
-    lines.append("")
-
-    lines.append("## Statistical Test Results")
-    lines.append("")
-    
-    for t_type, data in stats_results.get('task_types', {}).items():
-        lines.append(f"### Task Type: {t_type}")
-        lines.append("")
-        lines.append(f"- **Sample Size**: {data['n_samples']}")
-        lines.append("")
-        
-        # McNemar
-        lines.append("#### McNemar's Test (Success/Failure Binary Outcome)")
-        lines.append("")
-        if data.get('mcnemar'):
-            m = data['mcnemar']
-            lines.append(f"| Metric | Value |")
-            lines.append(f"|---|---|")
-            lines.append(f"| Statistic | {m['statistic']:.4f} |")
-            lines.append(f"| Raw P-Value | {m['p_value']:.6f} |")
-            lines.append(f"| Significant (Bonferroni) | {'Yes' if m['significant'] else 'No'} |")
-            lines.append(f"| 2D Success / 3D Fail (b) | {m['b']} |")
-            lines.append(f"| 2D Fail / 3D Success (c) | {m['c']} |")
+    for task_type in ["occlusion", "depth", "relative"]:
+        if f"{task_type}_latency" in stats_results["tests"]:
+            lines.append(f"### {task_type.capitalize()} Tasks")
             lines.append("")
-        else:
-            lines.append("*Not enough data for binary contingency.*")
+            lines.append("| Metric | Test | Statistic | P-Value (Raw) | P-Value (Bonferroni) | Significant? |")
+            lines.append("| :--- | :--- | :--- | :--- | :--- | :--- |")
+            
+            # Latency
+            lat_res = stats_results["tests"][f"{task_type}_latency"]
+            sig_mark = "Yes" if lat_res.get("significant", False) else "No"
+            lines.append(f"| Latency | {lat_res['test']} | {lat_res['statistic']:.4f} | {lat_res['p_value_raw']:.4f} | {lat_res['p_value_corrected']:.4f} | {sig_mark} |")
+            
+            # Success
+            if f"{task_type}_success" in stats_results["tests"]:
+                succ_res = stats_results["tests"][f"{task_type}_success"]
+                if "error" not in succ_res:
+                    sig_mark = "Yes" if succ_res.get("significant", False) else "No"
+                    lines.append(f"| Success | {succ_res['test']} | {succ_res['statistic']:.4f} | {succ_res['p_value_raw']:.4f} | {succ_res['p_value_corrected']:.4f} | {sig_mark} |")
+                    lines.append(f"  *Contingency Table:* {succ_res['contingency']}")
+                else:
+                    lines.append(f"| Success | Error | - | - | - | - |")
+                    lines.append(f"  *Error:* {succ_res['error']}")
             lines.append("")
 
-        # Wilcoxon
-        lines.append("#### Wilcoxon Signed-Rank Test (Latency/Performance Metric)")
-        lines.append("")
-        if data.get('wilcoxon'):
-            w = data['wilcoxon']
-            lines.append(f"| Metric | Value |")
-            lines.append(f"|---|---|")
-            lines.append(f"| Statistic | {w['statistic']:.4f} |")
-            lines.append(f"| Raw P-Value | {w['p_value']:.6f} |")
-            lines.append(f"| Significant (Bonferroni) | {'Yes' if w['significant'] else 'No'} |")
-            lines.append("")
-        else:
-            lines.append("*Not enough data for continuous metric.*")
-            lines.append("")
-
-    lines.append("## Sensitivity Analysis")
+    # Sensitivity Analysis
+    lines.append("## 4. Sensitivity Analysis (Flat Objects)")
     lines.append("")
     if sensitivity_data:
-        lines.append("### Depth Threshold Sensitivity")
+        lines.append("Effect of varying epsilon (zero-depth variance tolerance) on false positive/negative rates:")
         lines.append("")
-        lines.append("The following table shows the False Positive Rate (FPR) and False Negative Rate (FNR) for depth estimation errors across different thresholds.")
-        lines.append("")
-        lines.append("| Threshold | FPR | FNR |")
-        lines.append("|---|---|---|")
+        lines.append("| Epsilon | False Positive Rate | False Negative Rate |")
+        lines.append("| :--- | :--- | :--- |")
         for row in sensitivity_data:
-            lines.append(f"| {row['threshold_value']:.2f} | {row['false_positive_rate']:.4f} | {row['false_negative_rate']:.4f} |")
+            lines.append(f"| {row['epsilon']:.4f} | {row['fpr']:.4f} | {row['fnr']:.4f} |")
         lines.append("")
-        
-        # Determine optimal threshold if data exists
-        if sensitivity_data:
-            min_total_error = float('inf')
-            best_thresh = None
-            for row in sensitivity_data:
-                total = row['false_positive_rate'] + row['false_negative_rate']
-                if total < min_total_error:
-                    min_total_error = total
-                    best_thresh = row['threshold_value']
-            
-            lines.append(f"**Optimal Threshold (Min FPR+FNR)**: {best_thresh:.2f}")
-            lines.append("")
     else:
-        lines.append("*Sensitivity analysis data not available.*")
+        lines.append("No sensitivity data available.")
         lines.append("")
 
-    lines.append("## Methodology Notes")
+    # Projection Loss Breakdown
+    lines.append("## 5. Failure Attribution (Projection Loss vs Action Restriction)")
     lines.append("")
-    lines.append("- **McNemar's Test**: Used for paired binary data (Success/Failure) to determine if the 2D restriction significantly alters success rates.")
-    lines.append("- **Wilcoxon Signed-Rank Test**: Used for paired continuous data (Latency) to assess performance degradation.")
-    lines.append("- **Bonferroni Correction**: Applied to account for multiple comparisons across task types.")
+    if projection_loss_data:
+        total_failures = projection_loss_data.get("total_failures", 0)
+        projection_losses = projection_loss_data.get("projection_loss_count", 0)
+        action_restrictions = projection_loss_data.get("action_restriction_count", 0)
+        
+        lines.append(f"- **Total 2D Failures:** {total_failures}")
+        lines.append(f"- **Attributed to Projection Loss:** {projection_losses} ({(projection_losses/total_failures*100) if total_failures > 0 else 0:.1f}%)")
+        lines.append(f"- **Attributed to Action Restriction:** {action_restrictions} ({(action_restrictions/total_failures*100) if total_failures > 0 else 0:.1f}%)")
+        lines.append("")
+    else:
+        lines.append("No projection loss breakdown available.")
+        lines.append("")
+
+    # Baseline Determinism
+    lines.append("## 6. Baseline Determinism Verification")
     lines.append("")
-    lines.append("---")
-    lines.append("*End of Report*")
+    if baseline_determinism_report:
+        lines.append(baseline_determinism_report)
+    else:
+        lines.append("Baseline determinism verification report not found.")
+    lines.append("")
+
+    # Budget Compliance
+    lines.append("## 7. Budget Compliance")
+    lines.append("")
+    budget_file = os.path.join(RESULTS_DIR, "budget_compliance_report.json")
+    if os.path.exists(budget_file):
+        with open(budget_file, 'r') as f:
+            budget_data = json.load(f)
+            lines.append(f"- **Total Runtime:** {budget_data.get('total_runtime_seconds', 'N/A')}s")
+            lines.append(f"- **Budget Limit:** {budget_data.get('budget_limit_seconds', 'N/A')}s")
+            lines.append(f"- **Status:** {budget_data.get('status', 'N/A')}")
+    else:
+        lines.append("Budget compliance report not found.")
+    lines.append("")
 
     return "\n".join(lines)
 
 def main():
-    """Main entry point for report generation."""
-    logger.info(f"Starting Final Statistical Report Generation (Task T048)")
-    
-    try:
-        # 1. Load Data
-        logger.info(f"Loading paired dataset from {INPUT_DATASET_PATH}")
-        data = load_paired_dataset(INPUT_DATASET_PATH)
-        if not data:
-            raise ValueError("Loaded dataset is empty.")
-        logger.info(f"Loaded {len(data)} records.")
+    """Main entry point for T048."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
-        # 2. Run Statistical Tests
-        logger.info("Running statistical tests (McNemar, Wilcoxon)...")
-        stats_results = run_statistical_tests(data)
-        
-        # Save raw stats to JSON for reproducibility
-        with open(OUTPUT_STATS_JSON_PATH, 'w', encoding='utf-8') as f:
-            json.dump(stats_results, f, indent=2)
-        logger.info(f"Saved raw stats to {OUTPUT_STATS_JSON_PATH}")
+    paired_dataset_path = os.path.join(RESULTS_DIR, "final_paired_dataset.csv")
+    output_path = os.path.join(RESULTS_DIR, "final_statistical_report.md")
 
-        # 3. Load Sensitivity Data
-        logger.info("Loading sensitivity data...")
-        sensitivity_data = load_sensitivity_data()
-
-        # 4. Generate Report
-        logger.info("Generating Markdown report...")
-        report_content = generate_report_markdown(stats_results, sensitivity_data)
-
-        # 5. Write Report
-        os.makedirs(os.path.dirname(OUTPUT_REPORT_PATH), exist_ok=True)
-        with open(OUTPUT_REPORT_PATH, 'w', encoding='utf-8') as f:
-            f.write(report_content)
-        
-        logger.info(f"Report successfully written to {OUTPUT_REPORT_PATH}")
-        print(f"SUCCESS: Final Statistical Report generated at {OUTPUT_REPORT_PATH}")
-        return 0
-
-    except Exception as e:
-        logger.error(f"Report generation failed: {e}", exc_info=True)
-        print(f"FAILED: {e}")
+    if not os.path.exists(paired_dataset_path):
+        logger.error(f"Paired dataset not found at {paired_dataset_path}. Did T047 run?")
         return 1
 
+    logger.info("Loading paired dataset...")
+    data = load_paired_dataset(paired_dataset_path)
+    logger.info(f"Loaded {len(data)} task instances.")
+
+    logger.info("Running statistical tests...")
+    stats_results = run_statistical_tests(data)
+
+    logger.info("Loading sensitivity data...")
+    sensitivity_data = load_sensitivity_data()
+
+    logger.info("Loading projection loss breakdown...")
+    projection_loss_data = None
+    pl_file = os.path.join(RESULTS_DIR, "projection_loss_breakdown.json")
+    if os.path.exists(pl_file):
+        with open(pl_file, 'r') as f:
+            projection_loss_data = json.load(f)
+
+    logger.info("Loading baseline determinism report...")
+    baseline_report = None
+    bd_file = os.path.join(RESULTS_DIR, "baseline_determinism_report.md")
+    if os.path.exists(bd_file):
+        with open(bd_file, 'r') as f:
+            baseline_report = f.read()
+
+    logger.info("Generating Markdown report...")
+    report = generate_report_markdown(
+        stats_results, 
+        sensitivity_data, 
+        projection_loss_data, 
+        baseline_report
+    )
+
+    logger.info(f"Writing report to {output_path}...")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(report)
+
+    logger.info("T048 Complete. Report generated.")
+    return 0
+
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

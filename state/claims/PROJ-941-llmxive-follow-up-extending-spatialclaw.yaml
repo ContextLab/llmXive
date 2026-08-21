@@ -743,3 +743,385 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T01:19:47Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 3 of 3 latency tests showed significant difference
+  claim_id: c_ef40afab
+  context: "Statistical Significance (Bonferroni corrected, \u03B1=0.05): Latency\
+    \ tests: 3/3 showed significant difference."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Latency tests: 3/3 showed significant difference.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:03:58Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: 2 of 3 success tests showed significant difference
+  claim_id: c_9cbf52d2
+  context: "Statistical Significance (Bonferroni corrected, \u03B1=0.05): Success\
+    \ tests: 2/3 showed significant difference."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Success tests: 2/3 showed significant difference.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:04:31Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Occlusion latency Wilcoxon statistic 12.5 raw p 0.0012 Bonferroni p 0.0036
+  claim_id: c_b2634c1f
+  context: Occlusion Tasks Latency Wilcoxon Statistic 12.5000 P-Value (Raw) 0.0012
+    P-Value (Bonferroni) 0.0036 Significant? Yes
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Latency Wilcoxon statistic was 12.5000 with a raw p-value of 0.0012 and
+    Bonferroni p-value of 0.0036.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:05:09Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Occlusion success McNemar statistic 15.2 raw p 0.0001 Bonferroni p 0.0003
+  claim_id: c_05605ed1
+  context: Success McNemar (Chi2 approx) 15.2000 0.0001 0.0003 Yes *Contingency Table:*
+    [[120, 15], [5, 60]]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Occlusion Success McNemar statistic was 15.2000 with a raw p-value of
+    0.0001 and Bonferroni p-value of 0.0003.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:05:53Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Depth latency Wilcoxon statistic 18.0 raw p 0.0045 Bonferroni p 0.0135
+  claim_id: c_2b8f7c6a
+  context: Depth Tasks Latency Wilcoxon 18.0000 0.0045 0.0135 Yes
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Depth Latency Wilcoxon statistic was 18.0000 with a raw p-value of 0.0045
+    and Bonferroni p-value of 0.0135.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:06:36Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Depth success McNemar statistic 8.5 raw p 0.0035 Bonferroni p 0.0105
+  claim_id: c_03f5f55b
+  context: Success McNemar (Chi2 approx) 8.5000 0.0035 0.0105 Yes *Contingency Table:*
+    [[100, 20], [10, 70]]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Depth Success McNemar statistic was 8.5000 with a raw p-value of 0.0035
+    and Bonferroni p-value of 0.0105.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:07:16Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Relative latency t-test statistic 3.245 raw p 0.0015 Bonferroni p 0.0045
+  claim_id: c_77845915
+  context: Relative Tasks Latency t-test 3.2450 0.0015 0.0045 Yes
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Relative Latency t-test statistic was 3.2450 with a raw p-value of 0.0015
+    and Bonferroni p-value of 0.0045.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:07:54Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Relative success McNemar statistic 2.1 raw p 0.147 Bonferroni p 0.441
+  claim_id: c_9ed40a82
+  context: Success McNemar (Chi2 approx) 2.1000 0.1470 0.4410 No *Contingency Table:*
+    [[90, 10], [5, 95]]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Relative Success McNemar statistic was 2.1000 with a raw p-value of 0.1470
+    and Bonferroni p-value of 0.4410.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:08:48Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Epsilon 0.0 false positive rate 0.05 false negative rate 0.02
+  claim_id: c_99ac35ec
+  context: 'Effect of varying epsilon (zero-depth variance tolerance) on false positive/negative
+    rates: | Epsilon | False Positive Rate | False Negative Rate | 0.0000 | 0.0500
+    | 0.0200 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At epsilon 0.0000, the false positive rate was 0.0500 and false negative
+    rate was 0.0200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:09:32Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Epsilon 0.01 false positive rate 0.045 false negative rate 0.025
+  claim_id: c_95fc7daa
+  context: 'Effect of varying epsilon (zero-depth variance tolerance) on false positive/negative
+    rates: | Epsilon | False Positive Rate | False Negative Rate | 0.0100 | 0.0450
+    | 0.0250 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At epsilon 0.0100, the false positive rate was 0.0450 and false negative
+    rate was 0.0250.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:10:08Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Epsilon 0.02 false positive rate 0.04 false negative rate 0.03
+  claim_id: c_3a3e5dd3
+  context: 'Effect of varying epsilon (zero-depth variance tolerance) on false positive/negative
+    rates: | Epsilon | False Positive Rate | False Negative Rate | 0.0200 | 0.0400
+    | 0.0300 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At epsilon 0.0200, the false positive rate was 0.0400 and false negative
+    rate was 0.0300.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:10:40Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Epsilon 0.05 false positive rate 0.035 false negative rate 0.04
+  claim_id: c_28cc1310
+  context: 'Effect of varying epsilon (zero-depth variance tolerance) on false positive/negative
+    rates: | Epsilon | False Positive Rate | False Negative Rate | 0.0500 | 0.0350
+    | 0.0400 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At epsilon 0.0500, the false positive rate was 0.0350 and false negative
+    rate was 0.0400.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:11:32Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Epsilon 0.1 false positive rate 0.03 false negative rate 0.055
+  claim_id: c_7041a785
+  context: 'Effect of varying epsilon (zero-depth variance tolerance) on false positive/negative
+    rates: | Epsilon | False Positive Rate | False Negative Rate | 0.1000 | 0.0300
+    | 0.0550 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At epsilon 0.1000, the false positive rate was 0.0300 and false negative
+    rate was 0.0550.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:12:04Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Total 2D failures 50 35 attributed to projection loss 15 attributed to
+    action restriction
+  claim_id: c_26b1edb0
+  context: 'Failure Attribution (Projection Loss vs Action Restriction): Total 2D
+    Failures: 50 Attributed to Projection Loss: 35 (70.0%) Attributed to Action Restriction:
+    15 (30.0%)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total 2D Failures were 50, with 35 (70.0%) attributed to Projection Loss
+    and 15 (30.0%) attributed to Action Restriction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:12:43Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Baseline determinism verification 10 tasks identical seeds results matched
+    bit-for-bit
+  claim_id: c_2ab1f38f
+  context: 'Baseline Determinism Verification: Ran 10 tasks twice with identical seeds.
+    All results matched bit-for-bit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline determinism verification ran 10 tasks twice with identical seeds
+    and all results matched bit-for-bit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:13:21Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/final_statistical_report.md
+  attempts: 1
+  canonical: Total runtime 180.5s budget limit 300s
+  claim_id: c_605cb8ff
+  context: 'Budget Compliance: Total Runtime: 180.5s Budget Limit: 300s Status: PASS'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total Runtime was 180.5s against a Budget Limit of 300s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:14:06Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/statistical_methodology_log.md
+  attempts: 1
+  canonical: Sample size of 20 for occlusion task
+  claim_id: c_6a55adb8
+  context: '### occlusion - Sample Size: 20 - Shapiro-Wilk p-value: 0.0312'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Size: 20'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:17:40Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/statistical_methodology_log.md
+  attempts: 1
+  canonical: Shapiro-Wilk p-value of 0.0312 for occlusion task
+  claim_id: c_e71c07c5
+  context: '### occlusion - Sample Size: 20 - Shapiro-Wilk p-value: 0.0312'
+  evidence:
+    asserted: '0.0312'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Shapiro-Wilk p-value: 0.0312'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T05:17:41Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/statistical_methodology_log.md
+  attempts: 1
+  canonical: Sample size of 20 for depth task
+  claim_id: c_3aeb447b
+  context: '### depth - Sample Size: 20 - Shapiro-Wilk p-value: 0.1540'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Size: 20'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:17:41Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/statistical_methodology_log.md
+  attempts: 1
+  canonical: Shapiro-Wilk p-value of 0.1540 for depth task
+  claim_id: c_45df8fa7
+  context: '### depth - Sample Size: 20 - Shapiro-Wilk p-value: 0.1540'
+  evidence:
+    asserted: '0.154'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Shapiro-Wilk p-value: 0.1540'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T05:17:41Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/statistical_methodology_log.md
+  attempts: 1
+  canonical: Sample size of 20 for relative task
+  claim_id: c_f6976f85
+  context: '### relative - Sample Size: 20 - Shapiro-Wilk p-value: 0.0085'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Size: 20'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:17:41Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/results/analysis/statistical_methodology_log.md
+  attempts: 1
+  canonical: Shapiro-Wilk p-value of 0.0085 for relative task
+  claim_id: c_963b20cb
+  context: '### relative - Sample Size: 20 - Shapiro-Wilk p-value: 0.0085'
+  evidence:
+    asserted: '0.0085'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Shapiro-Wilk p-value: 0.0085'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T05:17:41Z'
