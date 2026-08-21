@@ -463,3 +463,198 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-20T00:11:17Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: OSF Reproducibility Project dataset source
+  claim_id: c_c487100b
+  context: Implement code/download.py with real data fetch logic... using huggingface_hub
+    to fetch osf/reproducibility_project dataset
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OSF_Reproducibility_Project_dataset_source
+  kind: entity_fact
+  raw_text: The OSF Reproducibility Project dataset is the source for the data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T01:38:53Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: slope_year coefficient is primary drift metric
+  claim_id: c_ace96436
+  context: The slope_year coefficient from the Full LMM is the primary drift metric.
+    Extract slope_year, se_year, ci_lower, ci_upper (Wald method) from the Full LMM's
+    fixed effects.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Slope_year_coefficient_is_primary_drift_metric
+  kind: entity_fact
+  raw_text: The primary drift metric is the slope_year coefficient from the Full Linear
+    Mixed-Effects Model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T01:39:09Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: LMM includes random intercepts for field and original_study_id
+  claim_id: c_da11d0bf
+  context: The model formula MUST include (1|field) + (1|original_study_id) unconditionally.
+    NO dynamic exclusion of random effects is permitted.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LMM_includes_random_intercepts_for_field_and_original_study
+  kind: entity_fact
+  raw_text: The LMM model formula includes random intercepts for field and original_study_id
+    unconditionally.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T01:39:18Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Minimum 1,000 permutations fallback
+  claim_id: c_97696c65
+  context: 'Fallback: If memory or time limits are exceeded, fallback to a minimum
+    of 1,000 permutations.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_1,000_permutations_fallback
+  kind: entity_fact
+  raw_text: The fallback for permutation tests is a minimum of 1,000 permutations
+    if resource limits are exceeded.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T01:39:28Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Pipeline execution 6-hour CPU limit
+  claim_id: c_bdc3f287
+  context: Run full pipeline on a static subset to verify end-to-end execution within
+    6-hour CPU limit (FR-010).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline execution target is to complete within a 6-hour CPU limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T01:39:34Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Permutation test 300 second timeout
+  claim_id: c_2aab2ae3
+  context: Trigger fallback if time_elapsed > 300 seconds OR psutil.Process().memory_info().rss
+    > 6 * 1024**3 bytes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test triggers a fallback if wall-clock duration exceeds
+    300 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T01:39:36Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Permutation test 6 GB memory limit
+  claim_id: c_5dd6d820
+  context: Trigger fallback if time_elapsed > 300 seconds OR psutil.Process().memory_info().rss
+    > 6 * 1024**3 bytes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test triggers a fallback if memory usage exceeds 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T01:39:39Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Permutation test 5 hour termination
+  claim_id: c_1776cc20
+  context: Terminate early if > 5 hours, flag as 'approximate'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test terminates early if the duration exceeds 5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T01:39:46Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Title-token-overlap >= 0.7 validation
+  claim_id: c_4cbdbfa8
+  context: "Include a step to verify the dataset metadata (title-token-overlap \u2265\
+    \ 0.7) matches the 'OSF Reproducibility Project' source to ensure data integrity."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Title-token-overlap_%3E=_0.7_validation
+  kind: magnitude
+  raw_text: The validation requires a title-token-overlap score of at least 0.7 to
+    match the OSF Reproducibility Project source.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T01:39:49Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis includes alpha 0.1
+  claim_id: c_fe52cc32
+  context: Ensure results/sensitivity_report.json contains entries for a range of
+    alpha values including and 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis reports drift significance rates across a range
+    of alpha values including 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T01:48:42Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: DerSimonian-Laird weighting method
+  claim_id: c_b32433e6
+  context: Implement code/robustness.py function for inverse-variance weighting with
+    heterogeneity adjustment (DerSimonian-Laird) to combine residual power drift estimates.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DerSimonian-Laird_weighting_method
+  kind: entity_fact
+  raw_text: The DerSimonian-Laird method is used for inverse-variance weighting with
+    heterogeneity adjustment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T01:50:41Z'

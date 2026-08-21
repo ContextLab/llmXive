@@ -59,13 +59,6 @@ T027:
     \ are not implemented. Additionally, the required output file `results/null_distribution_implied_power.csv`\
     \ does not exist. Consequently, the task\u2019s functional and output requirements\
     \ are unmet."
-T033a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `README.md` file (or its contents) was presented, so we cannot
-    confirm that it was updated with a pipeline overview and usage instructions as
-    required. The implementer must provide the actual README file showing the requested
-    documentation.
 T034:
   c: false
   h: c4c124e9199c7003013bd0bda28a7b2a540b017793745f61b390e241b57d2b5e
@@ -74,8 +67,9 @@ T034:
     \ respected. The task\u2019s verification condition is not satisfied."
 T034a:
   c: false
-  h: eae2b55a5acb37189bf570641c35915b50ea48666891640ee45e250eb5456841
-  r: The repository contains `code/timing.py`, but the file ends abruptly (the `save_timing_report`
-    function is incomplete) and there is no evidence that it writes `results/timing_report.json`.
-    Moreover, the expected output file `results/timing_report.json` is absent from
-    the project. The required timing report is therefore not generated.
+  h: 2b944f2bd20abb1a310724accc9f0f3ee513c9263ce34236c1759c36c9475408
+  r: The provided `code/timing.py` is incomplete (the `main()` function ends abruptly
+    with `save_timing_` and never calls `save_timing_report` or writes the JSON file).
+    Consequently, no `results/timing_report.json` was created, so the required output
+    does not exist. The implementation must be finished and the script run to produce
+    the timing report.

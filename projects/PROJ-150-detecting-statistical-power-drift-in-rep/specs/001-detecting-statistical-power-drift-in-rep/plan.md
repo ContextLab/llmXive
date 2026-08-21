@@ -138,7 +138,7 @@ projects/PROJ-150-detecting-statistical-power-drift-in-rep/
   - Output: `results/permutation_pvalue.json` (validated against `contracts/permutation_result.schema.yaml`).
 - [ ] **T021**: **Sensitivity Analysis**.
   - Read `results/lmm_final_summary.json`.
-  - Sweep alpha {,, 0.1}.
+  - Sweep alpha across a range of values..
   - Output: `results/sensitivity_report.json` (validated against `contracts/sensitivity_report.schema.yaml`).
 - [ ] **T025**: **Field-Specific Stratification**.
   - Fit LMM separately for each `field` using `power_residual ~ year`.
@@ -160,7 +160,7 @@ projects/PROJ-150-detecting-statistical-power-drift-in-rep/
 ### Phase 4: Visualization & Reporting
 - [ ] **T013**: **Visualization**.
   - Read `data/derived/residuals.csv` and `results/lmm_final_summary.json`.
-  - Generate scatter plot of `power_residual` vs. `year` with fitted line and 95% CI.
+  - Generate scatter plot of `power_residual` vs. `year` with fitted line and confidence interval.
   - Output: `results/power_drift_plot.png`.
 - [ ] **T032**: **State Update (Phase 4)**. Update `state.yaml` with hash of `results/power_drift_plot.png`.
 
