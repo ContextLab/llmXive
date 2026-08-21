@@ -7,127 +7,88 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+import lightgbm as lgb
 from sklearn.model_selection import GroupKFold
 from sklearn.metrics import mean_absolute_error, r2_score
-import lightgbm as lgb
 
 from config import Config, load_config
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 def derive_dominant_element(composition: Dict[str, float]) -> str:
     """
-    Derive the dominant element (highest mass fraction) from a composition dict.
-    
-    Args:
-        composition: Dictionary mapping element symbols to mass fractions.
-    
-    Returns:
-        The symbol of the element with the highest mass fraction.
+    Derive the dominant element from a composition dictionary.
+    Returns the element symbol with the highest mass fraction.
     """
     if not composition:
-        raise ValueError("Empty composition provided")
+        raise ValueError("Composition dictionary is empty")
     return max(composition, key=composition.get)
+
 
 def load_data(config: Config) -> pd.DataFrame:
     """
-    Load the preprocessed data from the clean_data.csv file.
-    
-    Args:
-        config: Configuration object containing paths.
-    
-    Returns:
-        DataFrame containing the clean data.
+    Load the processed data from the clean_data.csv file.
     """
     data_path = config.data_dir / "clean_data.csv"
     if not data_path.exists():
         raise FileNotFoundError(f"Data file not found: {data_path}")
     
     df = pd.read_csv(data_path)
-    logger.info(f"Loaded data with {len(df)} rows from {data_path}")
+    
+    # Parse composition column if it's a string representation of a dict
+    if 'composition' in df.columns and isinstance(df['composition'].iloc[0], str):
+        df['composition'] = df['composition'].apply(lambda x: eval(x) if isinstance(x, str) else x)
+    
     return df
 
-def prepare_features_and_target(df: pd.DataFrame, config: Config) -> Tuple[pd.DataFrame, pd.Series, pd.Series]:
-    """
-    Prepare features (X), target (y_residual), and groups (dominant_element) for training.
-    
-    Args:
-        df: Cleaned DataFrame.
-        config: Configuration object.
-    
-    Returns:
-        Tuple of (X_features, y_residual, groups)
-    """
-    # Determine feature columns (exclude non-feature columns)
-    exclude_cols = ['composition', 'density', 'density_baseline', 'density_residual', 'dominant_element']
-    feature_cols = [col for col in df.columns if col not in exclude_cols]
-    
-    if not feature_cols:
-        raise ValueError("No feature columns found in the dataset.")
-    
-    X = df[feature_cols]
-    
-    # Target is the residual density
-    if 'density_residual' not in df.columns:
-        raise ValueError("Column 'density_residual' not found in data. Run feature engineering first.")
-    y = df['density_residual']
-    
-    # Groups for Group K-Fold: dominant element
-    # If 'dominant_element' column doesn't exist, derive it from composition
-    if 'dominant_element' not in df.columns:
-        logger.info("Deriving dominant_element column from composition...")
-        # Assuming 'composition' column contains stringified dicts or JSON
-        # If it's a string representation of a dict, we need to parse it
-        try:
-            # Try to parse as JSON if it's a string
-            if isinstance(df['composition'].iloc[0], str):
-                df['dominant_element'] = df['composition'].apply(
-                    lambda x: derive_dominant_element(json.loads(x))
-                )
-            else:
-                df['dominant_element'] = df['composition'].apply(
-                    lambda x: derive_dominant_element(x)
-                )
-        except Exception as e:
-            logger.error(f"Failed to parse composition column: {e}")
-            raise
-    else:
-        logger.info("Using existing 'dominant_element' column for grouping.")
-    
-    groups = df['dominant_element']
-    
-    logger.info(f"Prepared {len(X)} samples with {len(feature_cols)} features.")
-    logger.info(f"Groups distribution: {groups.value_counts().to_dict()}")
-    
-    return X, y, groups
 
-def train_model(X: pd.DataFrame, y: pd.Series, groups: pd.Series, config: Config) -> lgb.Booster:
+def prepare_features_and_target(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Train a LightGBM Gradient Boosting Regressor using Group K-Fold cross-validation.
-    
-    Args:
-        X: Feature matrix.
-        y: Target vector (residual density).
-        groups: Group labels for Group K-Fold.
-        config: Configuration object.
-    
-    Returns:
-        Trained LightGBM Booster model.
+    Prepare features and target for training.
+    Returns X, y_residual, and groups (dominant_element).
     """
-    n_splits = 5
-    logger.info(f"Training with Group K-Fold (k={n_splits}) to prevent data leakage by dominant element.")
+    # Feature columns (exclude composition, density, residual_density, dominant_element)
+    feature_cols = [
+        'mean_atomic_mass', 'mean_atomic_radius', 'electronegativity_variance',
+        'atomic_radius_mismatch', 'packing_efficiency', 
+        'atomic_fraction_1', 'atomic_fraction_2', 'atomic_fraction_3', 'atomic_fraction_4'
+    ]
     
-    gkf = GroupKFold(n_splits=n_splits)
+    # Filter to only available columns
+    available_feature_cols = [col for col in feature_cols if col in df.columns]
     
-    # Store metrics for each fold
+    if not available_feature_cols:
+        raise ValueError("No feature columns found in the dataframe")
+    
+    X = df[available_feature_cols].values
+    y_residual = df['residual_density'].values
+    
+    # Derive dominant element for grouping
+    df['dominant_element'] = df['composition'].apply(derive_dominant_element)
+    groups = df['dominant_element'].values
+    
+    return X, y_residual, groups
+
+
+def train_model(X: np.ndarray, y: np.ndarray, groups: np.ndarray, config: Config) -> Any:
+    """
+    Train a LightGBM Gradient Boosting Regressor using Group K-Fold.
+    """
+    logger.info("Starting model training with Group K-Fold")
+    
+    # Initialize Group K-Fold
+    gkf = GroupKFold(n_splits=5)
+    
+    # Store fold metrics
     fold_maes = []
     fold_r2s = []
     
-    # Prepare LightGBM datasets
+    # Prepare LightGBM dataset
     train_data = lgb.Dataset(X, label=y)
     
-    # LightGBM parameters
+    # Training parameters
     params = {
         'objective': 'regression',
         'metric': 'mae',
@@ -141,15 +102,16 @@ def train_model(X: pd.DataFrame, y: pd.Series, groups: pd.Series, config: Config
         'seed': config.seed
     }
     
-    best_model = None
-    
+    # Perform Group K-Fold cross-validation
     for fold, (train_idx, val_idx) in enumerate(gkf.split(X, y, groups)):
-        X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
-        y_train, y_val = y.iloc[train_idx], y.iloc[val_idx]
-        groups_train = groups.iloc[train_idx]
+        logger.info(f"Training fold {fold + 1}/5")
         
-        # Create validation sets with group info (though LightGBM doesn't use groups in validation directly)
-        train_set = lgb.Dataset(X_train, label=y_train)
+        X_train, X_val = X[train_idx], X[val_idx]
+        y_train, y_val = y[train_idx], y[val_idx]
+        groups_train, groups_val = groups[train_idx], groups[val_idx]
+        
+        # Create LightGBM datasets
+        train_set = lgb.Dataset(X_train, label=y_train, feature_name='auto')
         val_set = lgb.Dataset(X_val, label=y_val, reference=train_set)
         
         # Train model
@@ -161,7 +123,7 @@ def train_model(X: pd.DataFrame, y: pd.Series, groups: pd.Series, config: Config
             callbacks=[lgb.early_stopping(stopping_rounds=50, verbose=False)]
         )
         
-        # Evaluate
+        # Predict and evaluate
         y_pred = model.predict(X_val)
         mae = mean_absolute_error(y_val, y_pred)
         r2 = r2_score(y_val, y_pred)
@@ -169,68 +131,97 @@ def train_model(X: pd.DataFrame, y: pd.Series, groups: pd.Series, config: Config
         fold_maes.append(mae)
         fold_r2s.append(r2)
         
-        logger.info(f"Fold {fold+1}/{n_splits}: MAE={mae:.4f}, R²={r2:.4f}")
+        logger.info(f"Fold {fold + 1} - MAE: {mae:.4f}, R²: {r2:.4f}")
     
-    # Train final model on full data
-    logger.info("Training final model on full dataset...")
-    final_train_set = lgb.Dataset(X, label=y)
-    best_model = lgb.train(
+    # Calculate mean metrics
+    mean_mae = np.mean(fold_maes)
+    mean_r2 = np.mean(fold_r2s)
+    
+    logger.info(f"Cross-validation - Mean MAE: {mean_mae:.4f}, Mean R²: {mean_r2:.4f}")
+    
+    # Train final model on full dataset
+    logger.info("Training final model on full dataset")
+    final_model = lgb.train(
         params,
-        final_train_set,
-        num_boost_round=1000,
-        callbacks=[lgb.early_stopping(stopping_rounds=50, verbose=False)]
+        train_data,
+        num_boost_round=1000
     )
     
-    # Log aggregate metrics
-    logger.info(f"Mean CV MAE: {np.mean(fold_maes):.4f} (+/- {np.std(fold_maes):.4f})")
-    logger.info(f"Mean CV R²: {np.mean(fold_r2s):.4f} (+/- {np.std(fold_r2s):.4f})")
+    # Log feature importance
+    importance = final_model.feature_importance(importance_type='gain')
+    feature_names = X.columns if hasattr(X, 'columns') else [f'feature_{i}' for i in range(len(importance))]
     
-    return best_model
+    importance_df = pd.DataFrame({
+        'feature': feature_names,
+        'importance': importance
+    }).sort_values('importance', ascending=False)
+    
+    logger.info("Top 5 features by importance:")
+    for _, row in importance_df.head(5).iterrows():
+        logger.info(f"  {row['feature']}: {row['importance']:.2f}")
+    
+    return final_model, mean_mae, mean_r2
 
-def save_model(model: lgb.Booster, config: Config) -> Path:
+
+def save_model(model: Any, config: Config) -> Path:
     """
     Save the trained model to disk.
-    
-    Args:
-        model: Trained LightGBM Booster.
-        config: Configuration object.
-    
-    Returns:
-        Path to the saved model file.
     """
     model_path = config.model_dir / "model.pkl"
     model_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # LightGBM models can be saved as text or binary
-    # We'll use pickle for the Booster object as requested in the spec
     with open(model_path, 'wb') as f:
         pickle.dump(model, f)
     
     logger.info(f"Model saved to {model_path}")
     return model_path
 
+
 def main():
-    """Main entry point for model training."""
+    """
+    Main entry point for model training.
+    """
     config = load_config()
     
     try:
         # Load data
+        logger.info("Loading processed data")
         df = load_data(config)
         
         # Prepare features and target
-        X, y, groups = prepare_features_and_target(df, config)
+        logger.info("Preparing features and target")
+        X, y_residual, groups = prepare_features_and_target(df)
         
         # Train model
-        model = train_model(X, y, groups, config)
+        logger.info("Training LightGBM model")
+        model, mean_mae, mean_r2 = train_model(X, y_residual, groups, config)
         
         # Save model
-        save_model(model, config)
+        model_path = save_model(model, config)
         
-        logger.info("Model training completed successfully.")
+        # Log final metrics
+        logger.info(f"Training complete. Mean MAE: {mean_mae:.4f}, Mean R²: {mean_r2:.4f}")
+        
+        # Save metrics to file for downstream tasks
+        metrics = {
+            'model_mae': float(mean_mae),
+            'model_r2': float(mean_r2),
+            'model_path': str(model_path),
+            'training_status': 'success'
+        }
+        
+        metrics_path = config.report_dir / "metrics.json"
+        metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(metrics_path, 'w') as f:
+            json.dump(metrics, f, indent=2)
+        
+        logger.info(f"Metrics saved to {metrics_path}")
         
     except Exception as e:
-        logger.error(f"Model training failed: {e}", exc_info=True)
+        logger.error(f"Training failed: {str(e)}", exc_info=True)
         raise
+
 
 if __name__ == "__main__":
     main()

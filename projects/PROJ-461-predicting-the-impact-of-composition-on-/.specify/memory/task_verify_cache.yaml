@@ -1,3 +1,48 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or evidence of the required folders (`code/data`, `code/features`,\
+    \ `code/models`, `code/analysis`, `data`, `models`, `reports`, `tests/unit`, `tests/contract`,\
+    \ `tests/integration`) is provided, so we cannot confirm that the project structure\
+    \ was actually created. The implementer must supply a file\u2011tree snapshot\
+    \ or similar proof that these directories exist and are non\u2011empty."
+T003:
+  c: false
+  h: f71619fd4b184b4cf46c46ce31d3bfc4e45152aef23eb896da15bbf5995b2264
+  r: The `pyproject.toml` correctly includes the `[tool.black]` configuration, but
+    the required `.ruff.toml` file is missing entirely, so the linting tool configuration
+    is not provided as specified. The next implementer must add a `.ruff.toml` containing
+    `line-length = 88` and `target-version = "py310"`.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/`, `models/`, or `reports/` directory, nor a `.gitignore`
+    file with the required exclusion patterns, was provided. The required artifacts
+    are missing, so the task is not satisfied.
+T006:
+  c: true
+  h: 43a2447c06c8ac074a48e0e31c72ae934b0105558337b1a9b04a9f70d452b8e6
+  r: "The repository contains a non\u2011empty `code/utils/schema_validator.py` with\
+    \ a correctly implemented `load_schema(path)` function that reads JSON/YAML schema\
+    \ files and returns a `jsonschema.Draft7Validator` instance, satisfying the task\u2019\
+    s core requirement. The missing schema files are a separate dependency (T008)\
+    \ and do not invalidate the utility implementation itself."
+T010:
+  c: false
+  h: 36285dc507f606d0da85edee125e2e081ac85154b07b1611e0498e4dbebec8e2
+  r: The `tests/contract/test_dataset_schema.py` file is present, but the required
+    schema file `contracts/dataset.schema.yaml` does not exist, causing the test to
+    fail at load time. Additionally, there is no evidence that `data/clean_data.csv`
+    is present. Without the schema (and data) the contract test cannot verify the
+    dataset, so the task is not genuinely completed.
+T012:
+  c: false
+  h: 3071f2938b41fcce9eb0421748a4c9b1d78bd812582cc832f836f1b8df2946ce
+  r: "The provided `code/data/download.py` contains only placeholder URLs, comments,\
+    \ and no concrete download logic, timeout handling, exponential backoff, or file\u2011\
+    writing code; the file is truncated and does not implement the required behavior.\
+    \ Moreover, the expected output `data/raw_data.csv` is absent. Both the implementation\
+    \ and the required artifact are missing."
 T013:
   c: false
   h: 4aedd64059de8ab824d8db24e8ae902badb48cc1539477dc78b5359de62f6576
@@ -17,13 +62,6 @@ T016:
     \ required log format (`LOG: Data source selected: {source} | Rows: {count} |\
     \ Status: {status}`) the claim cannot be verified. The implementer must supply\
     \ the updated script/module and example log output confirming the behavior."
-T021:
-  c: false
-  h: 476ad33127aa86c0bed1c6a1a59b555b1221e1ad3ed8413b66e8dcb30792e906
-  r: The provided `code/features/engineering.py` snippet does not contain any implementation
-    of the Packing Efficiency Proxy calculation or the addition of a `packing_efficiency`
-    column, and the required output file `data/clean_data.csv` is absent. Both the
-    core functionality and the expected saved CSV are missing.
 T023:
   c: false
   h: 476ad33127aa86c0bed1c6a1a59b555b1221e1ad3ed8413b66e8dcb30792e906

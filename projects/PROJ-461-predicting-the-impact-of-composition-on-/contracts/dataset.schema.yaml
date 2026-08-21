@@ -1,54 +1,49 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Metallic Glass Dataset Schema
-description: Schema for the clean metallic glass composition and density dataset.
+description: Schema for the cleaned metallic glass dataset used in density prediction.
 type: object
 required:
   - composition
   - density
-  - dominant_element
 properties:
   composition:
     type: string
-    description: String representation of the composition (e.g., "Fe50Ni30B20" or JSON string).
-    minLength: 1
+    description: JSON string representation of the elemental composition (e.g., '{"Zr": 0.6, "Cu": 0.4}').
+    nullable: false
   density:
     type: number
-    description: Measured density of the metallic glass in g/cm³.
-    minimum: 0
-  dominant_element:
-    type: string
-    description: The element with the highest mass fraction in the composition.
-    pattern: "^[A-Z][a-z]?$"
-  atomic_mass:
+    description: Density of the metallic glass in g/cm³.
+    nullable: false
+  mean_atomic_mass:
     type: number
-    description: Weighted average atomic mass of the composition.
-    minimum: 0
-  atomic_radius:
+    description: Mean atomic mass of the composition.
+    nullable: true
+  mean_atomic_radius:
     type: number
-    description: Weighted average atomic radius of the composition.
-    minimum: 0
+    description: Mean atomic radius of the composition.
+    nullable: true
   electronegativity_variance:
     type: number
-    description: Variance of electronegativity values in the composition.
-    minimum: 0
+    description: Variance of electronegativity values.
+    nullable: true
   atomic_radius_mismatch:
     type: number
-    description: Atomic radius mismatch descriptor.
-    minimum: 0
+    description: Atomic radius mismatch parameter.
+    nullable: true
   packing_efficiency:
     type: number
-    description: Packing efficiency proxy descriptor.
-    minimum: 0
-    maximum: 1
-  density_baseline:
+    description: Packing efficiency proxy.
+    nullable: true
+  rho_baseline:
     type: number
     description: Baseline density calculated via linear mixing rule.
-    minimum: 0
-  density_residual:
+    nullable: true
+  rho_residual:
     type: number
     description: Residual density (actual - baseline).
-  atomic_fractions:
+    nullable: true
+  dominant_element:
     type: string
-    description: JSON string representation of atomic fractions dictionary.
-additionalProperties: true
-nullable: false
+    description: Element with the highest mass fraction.
+    nullable: true
+additionalProperties: false

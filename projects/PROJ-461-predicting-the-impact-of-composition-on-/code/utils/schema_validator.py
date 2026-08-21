@@ -100,8 +100,7 @@ def load_and_validate(schema_path: Union[str, Path], data_path: Union[str, Path]
         logger.exception(f"Unexpected error during validation: {e}")
         return False, [str(e)]
 
-# Convenience wrappers for specific schemas if needed, 
-# but generic load_schema is sufficient for dynamic loading.
+# Convenience wrappers for specific schemas
 def get_dataset_validator() -> Draft7Validator:
     """Load the dataset schema validator."""
     return load_schema(Path("contracts/dataset.schema.yaml"))

@@ -1,13 +1,15 @@
 """
 Project setup script to create the directory structure for the metallic glass density prediction project.
+This script creates all necessary directories as defined in the implementation plan.
 """
 import os
 from pathlib import Path
 
 
 def setup_directories():
-    """Create the required directory structure."""
-    base_path = Path(".")
+    """Create the project directory structure."""
+    root = Path(__file__).parent.parent
+    
     directories = [
         "code/data",
         "code/features",
@@ -20,18 +22,24 @@ def setup_directories():
         "tests/contract",
         "tests/integration",
     ]
-
+    
     for dir_path in directories:
-        full_path = base_path / dir_path
+        full_path = root / dir_path
         full_path.mkdir(parents=True, exist_ok=True)
         print(f"Created directory: {full_path}")
-
-    print("Project structure setup complete.")
+    
+    return True
 
 
 def main():
-    """Entry point for the setup script."""
-    setup_directories()
+    """Main entry point for the setup script."""
+    print("Setting up project directory structure...")
+    success = setup_directories()
+    if success:
+        print("Project structure created successfully.")
+    else:
+        print("Failed to create project structure.")
+        exit(1)
 
 
 if __name__ == "__main__":

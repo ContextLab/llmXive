@@ -24,7 +24,6 @@ wheels/
 venv/
 ENV/
 env/
-.venv/
 
 # IDE
 .idea/
@@ -33,28 +32,32 @@ env/
 *.swo
 *~
 
-# Data Artifacts (Generated)
-# Exclude all CSV, PKL, PNG, HTML files except metrics.json
-data/*.csv
-data/*.pkl
-data/*.npy
-data/*.parquet
-models/*.pkl
-models/*.pt
-models/*.h5
-reports/*.png
-reports/*.jpg
-reports/*.html
-reports/*.pdf
-logs/*.log
-
-# Exceptions: Keep metrics.json
-!reports/metrics.json
-
 # OS
 .DS_Store
 Thumbs.db
 
-# Local config
-.env
-config.local.yaml
+# Project Specific Artifacts
+# Exclude generated data files (CSV)
+data/*.csv
+
+# Exclude generated model files (PKL)
+models/*.pkl
+
+# Exclude generated report images (PNG)
+reports/*.png
+figures/*.png
+
+# Exclude generated HTML reports
+reports/*.html
+docs/*.html
+
+# Keep metrics.json (Single Source of Truth)
+!reports/metrics.json
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+.tmp/

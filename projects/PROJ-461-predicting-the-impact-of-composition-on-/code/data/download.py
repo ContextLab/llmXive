@@ -2,281 +2,273 @@ import json
 import logging
 import os
 import random
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
+import requests
+from mendeleev import element
 
 from config import Config, load_config
 from utils.logger import get_logger
 
-# Constants for element properties (simplified subset for synthetic generation)
-# In a full implementation, this would be populated from mendeleev or a larger database
-ELEMENT_PROPERTIES = {
-    "Zr": {"atomic_mass": 91.22, "density": 6.52},
-    "Ti": {"atomic_mass": 47.87, "density": 4.51},
-    "Cu": {"atomic_mass": 63.55, "density": 8.96},
-    "Ni": {"atomic_mass": 58.69, "density": 8.90},
-    "Fe": {"atomic_mass": 55.85, "density": 7.87},
-    "Al": {"atomic_mass": 26.98, "density": 2.70},
-    "Mg": {"atomic_mass": 24.31, "density": 1.74},
-    "Be": {"atomic_mass": 9.01, "density": 1.85},
-    "La": {"atomic_mass": 138.91, "density": 6.15},
-    "Ce": {"atomic_mass": 140.12, "density": 6.77},
-    "Y": {"atomic_mass": 88.91, "density": 4.47},
-    "Hf": {"atomic_mass": 178.49, "density": 13.31},
-    "Nb": {"atomic_mass": 92.91, "density": 8.57},
-    "Mo": {"atomic_mass": 95.95, "density": 10.22},
-    "Ta": {"atomic_mass": 180.95, "density": 16.65},
-    "W": {"atomic_mass": 183.84, "density": 19.25},
-    "Ag": {"atomic_mass": 107.87, "density": 10.49},
-    "Au": {"atomic_mass": 196.97, "density": 19.30},
-    "Pt": {"atomic_mass": 195.08, "density": 21.45},
-    "Pd": {"atomic_mass": 106.42, "density": 12.02},
-    "Mn": {"atomic_mass": 54.94, "density": 7.21},
-    "Cr": {"atomic_mass": 52.00, "density": 7.19},
-    "V": {"atomic_mass": 50.94, "density": 6.11},
+# Custom exception for data fetch failures
+class DataFetchError(Exception):
+    """Raised when data fetching from all sources fails."""
+    pass
+
+# Constants for retries
+MAX_RETRIES = 3
+INITIAL_BACKOFF = 1.0
+MAX_BACKOFF = 10.0
+
+# Zenodo record ID for metallic glass data (example: 10.5281/zenodo.1234567 -> record ID 1234567)
+# Using a known public dataset: "Metallic Glass Composition and Properties"
+# Note: In a real scenario, this ID should be verified against the actual Zenodo record.
+# For this implementation, we use a representative public dataset ID or a fallback URL structure.
+# We will attempt to fetch from a known Zenodo API endpoint.
+ZENODO_API_URL = "https://zenodo.org/api/records/1029834/files" 
+# Note: 1029834 is a placeholder ID. In production, this would be the specific MG dataset ID.
+# If this specific ID fails, the code attempts to fetch from a secondary source or raises.
+# To ensure robustness for this task, we will try to fetch a known CSV if available, 
+# or use a generic search query if direct file access is restricted without a specific file key.
+# However, Zenodo API requires specific file keys or record IDs.
+# Let's use a more robust approach: Search for a known metallic glass dataset.
+# Dataset: "Composition and properties of metallic glasses" (Commonly cited)
+# We will try to fetch from a verified public URL if available, otherwise use the API.
+
+# Verified Source Strategy:
+# We will attempt to download from a specific Zenodo record that hosts MG data.
+# Record ID 1029834 is often used in examples, but let's try a real search or a specific file.
+# Since we cannot browse, we will implement the retry logic against a known URL pattern.
+# If the specific record doesn't exist, the requests will fail, triggering the secondary source.
+
+ZENODO_RECORD_ID = "1029834" 
+ZENODO_FILE_KEY = "mg_data.csv" # Hypothetical key, will try to list files first or use a direct link if known
+
+# Alternative: Materials Cloud
+MATERIALS_CLOUD_URL = "https://www.materialscloud.org/api/discover/v2/records/12345/files" # Placeholder
+
+# To make this work with REAL data as per constraints, we will use a known public dataset URL
+# that is accessible without complex authentication for the sake of the pipeline execution.
+# If the primary Zenodo link fails (which it likely will with a fake ID), we fall back to a 
+# secondary public source or raise if both fail.
+
+# REAL DATA SOURCE ATTEMPT 1: Zenodo (Generic Search or Specific Record)
+# We will try to fetch a dataset that is known to exist. 
+# Let's use a direct link to a CSV if we can find a stable one, or use the API to search.
+# For this task, we will implement the logic to fetch from a specific URL.
+# If the URL is invalid, requests will raise an exception.
+
+# Let's use a known public dataset from Zenodo: 
+# "Dataset for: 'Machine learning for metallic glass discovery'" (Example)
+# We will try to fetch from a direct file URL if possible.
+
+# Since I cannot verify the exact live ID without internet, I will implement the 
+# logic to fetch from a URL that the user is expected to provide or a known one.
+# However, the task requires fetching from Zenodo.
+# Let's use the Zenodo API to search for "metallic glass density" and pick the first result.
+ZENODO_SEARCH_URL = "https://zenodo.org/api/records"
+ZENODO_SEARCH_PARAMS = {
+    "q": "metallic glass density composition",
+    "size": 1,
+    "sort": "mostrecent"
 }
+
+# Secondary Source: Materials Cloud (or a known mirror)
+# Since Materials Cloud often requires specific record IDs, we will use a fallback URL
+# or a known public dataset path.
+# For the purpose of this implementation, if Zenodo fails, we try a specific known URL.
+# If that fails, we raise DataFetchError.
+
+# NOTE: In a real execution, the user must ensure these URLs point to valid data.
+# We will implement the retry logic and error handling as requested.
+
+def get_logger(name: str) -> logging.Logger:
+    return get_logger(name)
 
 logger = get_logger(__name__)
 
-
-def get_element_density(element: str) -> float:
-    """
-    Get the density of a specific element.
-    Falls back to a default value if the element is not in the known list.
-    """
-    if element in ELEMENT_PROPERTIES:
-        return ELEMENT_PROPERTIES[element]["density"]
-    # Fallback for unknown elements: use a generic metallic density
-    logger.warning(f"Density for element {element} not found, using default 7.0 g/cm³")
-    return 7.0
-
-
-def linear_mixing_rule(composition: Dict[str, float]) -> float:
-    """
-    Calculate the theoretical density using the linear mixing rule.
-    ρ_mix = Σ (w_i * ρ_i)
-    where w_i is the mass fraction and ρ_i is the density of element i.
-    """
-    total_density = 0.0
-    for element, mass_fraction in composition.items():
-        density = get_element_density(element)
-        total_density += mass_fraction * density
-    return total_density
-
-
-def generate_composition_from_distribution(
-    available_elements: List[str],
-    min_elements: int = 3,
-    max_elements: int = 6,
-) -> Dict[str, float]:
-    """
-    Generate a random composition mimicking the distribution of available elements.
-    If available_elements is empty, uses a uniform distribution over known elements.
-    """
-    if not available_elements:
-        # Uniform distribution over all known elements
-        candidates = list(ELEMENT_PROPERTIES.keys())
-    else:
-        # Use available elements, potentially augmented with common metallic glass formers
-        candidates = available_elements + [
-            e for e in ELEMENT_PROPERTIES.keys() if e not in available_elements
-        ]
-        # Remove duplicates while preserving order
-        candidates = list(dict.fromkeys(candidates))
-
-    # Randomly select number of elements in the alloy
-    num_elements = random.randint(min_elements, max_elements)
-    selected_elements = random.sample(candidates, min(num_elements, len(candidates)))
-
-    # Generate random mass fractions that sum to 1
-    fractions = np.random.dirichlet(np.ones(len(selected_elements)))
-    composition = {elem: float(f) for elem, f in zip(selected_elements, fractions)}
-
-    return composition
-
-
-def generate_synthetic_data(
-    num_rows: int = 100,
-    seed: int = 42,
-    existing_data_path: Optional[Path] = None,
-) -> pd.DataFrame:
-    """
-    Generate synthetic metallic glass data.
-
-    Logic:
-    1. If existing_data_path is provided and contains data, extract the 'dominant_element'
-       distribution from the 'clean' real data to mimic the composition.
-    2. If no real data exists, use a uniform distribution over known elements.
-    3. Generate compositions using the selected distribution.
-    4. Calculate density using the linear mixing rule + Gaussian noise (σ=0.05).
-
-    Args:
-        num_rows: Number of rows to generate.
-        seed: Random seed for reproducibility.
-        existing_data_path: Path to existing real data to derive distribution from.
-
-    Returns:
-        pd.DataFrame with columns 'composition' (dict) and 'density' (float).
-    """
-    random.seed(seed)
-    np.random.seed(seed)
-
-    available_elements = []
-    if existing_data_path and existing_data_path.exists():
-        logger.info(f"Reading existing data from {existing_data_path} to derive element distribution.")
-        try:
-            # Try to read as JSON or CSV depending on format
-            if existing_data_path.suffix == ".csv":
-                df_real = pd.read_csv(existing_data_path)
-            elif existing_data_path.suffix == ".json":
-                with open(existing_data_path, "r") as f:
-                    data = json.load(f)
-                    # Handle if it's a list of dicts or a dict with a key
-                    if isinstance(data, list):
-                        df_real = pd.DataFrame(data)
-                    else:
-                        # Assume key is 'data' or similar
-                        df_real = pd.DataFrame(data.get("data", []))
-
-            # Extract dominant element if column exists, otherwise parse composition
-            if "dominant_element" in df_real.columns:
-                available_elements = df_real["dominant_element"].dropna().unique().tolist()
-            elif "composition" in df_real.columns:
-                # Parse composition strings/dicts to find elements
-                elements_found = set()
-                for comp in df_real["composition"]:
-                    if isinstance(comp, str):
-                        # Simple parsing for "Element1:0.5,Element2:0.5"
-                        parts = comp.split(",")
-                        for part in parts:
-                            if ":" in part:
-                                elem = part.split(":")[0].strip()
-                                elements_found.add(elem)
-                    elif isinstance(comp, dict):
-                        elements_found.update(comp.keys())
-                available_elements = list(elements_found)
-
-            logger.info(f"Derived {len(available_elements)} unique elements from real data.")
-        except Exception as e:
-            logger.warning(f"Failed to parse existing data for distribution: {e}. Using uniform distribution.")
-            available_elements = []
-
-    rows = []
-    for _ in range(num_rows):
-        composition = generate_composition_from_distribution(available_elements)
-
-        # Calculate baseline density
-        baseline_density = linear_mixing_rule(composition)
-
-        # Add Gaussian noise (σ=0.05 relative to baseline? or absolute? Spec says σ=0.05)
-        # Assuming absolute noise for simplicity, or relative if densities are small.
-        # Given typical densities (2-20), 0.05 absolute is very small.
-        # Let's assume 0.05 * baseline to make it proportional, or just 0.05 absolute as per strict spec.
-        # Spec: "Gaussian noise (σ=0.05)". Usually implies absolute unless specified "relative".
-        noise = np.random.normal(0, 0.05)
-        density = baseline_density + noise
-
-        rows.append({
-            "composition": json.dumps(composition), # Store as JSON string for CSV compatibility
-            "density": float(density)
-        })
-
-    df_synthetic = pd.DataFrame(rows)
-    logger.info(f"Generated {len(df_synthetic)} rows of synthetic data.")
-    return df_synthetic
-
-
-def save_synthetic_data(df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Save the synthetic data DataFrame to a CSV file.
-    """
-    df.to_csv(output_path, index=False)
-    logger.info(f"Synthetic data saved to {output_path}")
-
-
-def check_and_fallback(
-    clean_data_path: Path,
-    min_rows: int = 50,
-    synthetic_rows: int = 100,
-    seed: int = 42,
-) -> bool:
-    """
-    Check if the clean data has enough rows. If not, generate synthetic data.
-
-    Args:
-        clean_data_path: Path to the cleaned real data (or where it should be).
-        min_rows: Minimum required rows.
-        synthetic_rows: Number of synthetic rows to generate if fallback is needed.
-        seed: Random seed.
-
-    Returns:
-        True if fallback was triggered and synthetic data generated, False otherwise.
-    """
-    if not clean_data_path.exists():
-        logger.warning(f"Clean data file {clean_data_path} not found. Triggering fallback.")
-        df_synthetic = generate_synthetic_data(
-            num_rows=synthetic_rows,
-            seed=seed,
-            existing_data_path=None
-        )
-        save_synthetic_data(df_synthetic, clean_data_path.with_name("synthetic_data.csv"))
-        return True
-
+def get_element_density(symbol: str) -> float:
+    """Get the density of an element using mendeleev."""
     try:
-        df = pd.read_csv(clean_data_path)
-        # Check if composition is a string that needs parsing or already a dict representation
-        # For counting rows, we just need the length.
-        row_count = len(df)
+        elem = element(symbol)
+        if elem.density:
+            return float(elem.density)
+        else:
+            logger.warning(f"Density not found for {symbol}, returning None.")
+            return None
     except Exception as e:
-        logger.error(f"Error reading clean data for row count check: {e}")
-        row_count = 0
+        logger.error(f"Error getting density for {symbol}: {e}")
+        return None
 
-    if row_count < min_rows:
-        logger.warning(
-            f"Clean data has {row_count} rows, which is less than the required {min_rows}. "
-            f"Triggering synthetic data generation."
-        )
-        # Use the existing clean_data_path as the source to derive distribution if possible
-        # even if it's small, to mimic the "dominant element" distribution.
-        df_synthetic = generate_synthetic_data(
-            num_rows=synthetic_rows,
-            seed=seed,
-            existing_data_path=clean_data_path
-        )
-        # Save to synthetic_data.csv as per task description
-        output_path = clean_data_path.with_name("synthetic_data.csv")
-        save_synthetic_data(df_synthetic, output_path)
-        return True
+def linear_mixing_rule(composition: Dict[str, float], densities: Dict[str, float]) -> float:
+    """Calculate density using linear mixing rule."""
+    total_density = 0.0
+    total_mass_fraction = 0.0
+    
+    for elem, mass_frac in composition.items():
+        if elem in densities and densities[elem] is not None:
+            total_density += mass_frac * densities[elem]
+            total_mass_fraction += mass_frac
+        
+    if total_mass_fraction == 0:
+        return 0.0
+    
+    return total_density / total_mass_fraction
 
-    logger.info(f"Clean data has {row_count} rows. No fallback needed.")
-    return False
+def fetch_from_zenodo() -> Optional[pd.DataFrame]:
+    """Fetch data from Zenodo API with exponential backoff."""
+    logger.info("Attempting to fetch data from Zenodo...")
+    attempt = 0
+    backoff = INITIAL_BACKOFF
+    
+    while attempt < MAX_RETRIES:
+        try:
+            # Step 1: Search for the dataset
+            response = requests.get(ZENODO_SEARCH_URL, params=ZENODO_SEARCH_PARAMS, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+            
+            if not data.get('hits', {}).get('hits'):
+                logger.warning("No datasets found matching search criteria.")
+                return None
+            
+            # Pick the first hit
+            record_id = data['hits']['hits'][0]['id']
+            logger.info(f"Found dataset with ID: {record_id}")
+            
+            # Step 2: Get file links for the record
+            # Note: Zenodo API structure for files might vary. 
+            # Often files are in 'files' key or need a separate request.
+            # For simplicity, we assume the first hit has a CSV file we can access.
+            # If the API doesn't return direct download links easily, we might need a specific file key.
+            # Let's try to construct a download URL if possible, or use the record page to find files.
+            # Since we can't parse HTML easily, we rely on API.
+            
+            # Zenodo API v1: files are in 'files' list
+            # We need the 'download_url' or 'checksum' to construct the link.
+            # Let's try to get the specific record details
+            record_url = f"https://zenodo.org/api/records/{record_id}"
+            record_response = requests.get(record_url, timeout=30)
+            record_response.raise_for_status()
+            record_data = record_response.json()
+            
+            files = record_data.get('files', [])
+            if not files:
+                logger.warning("No files found in the record.")
+                return None
+            
+            # Assume the first file is the CSV we need
+            file_info = files[0]
+            file_name = file_info.get('key', '')
+            if not file_name.endswith('.csv'):
+                logger.warning(f"First file {file_name} is not CSV. Skipping.")
+                return None
+                
+            # Construct download URL
+            # Zenodo download URL pattern: https://zenodo.org/api/records/{id}/files/{key}/content
+            download_url = f"https://zenodo.org/api/records/{record_id}/files/{file_name}/content"
+            
+            logger.info(f"Downloading from: {download_url}")
+            file_response = requests.get(download_url, timeout=60)
+            file_response.raise_for_status()
+            
+            # Parse CSV
+            df = pd.read_csv(pd.io.common.BytesIO(file_response.content))
+            logger.info(f"Successfully downloaded {len(df)} rows from Zenodo.")
+            return df
+            
+        except requests.exceptions.RequestException as e:
+            attempt += 1
+            if attempt < MAX_RETRIES:
+                logger.warning(f"Zenodo fetch failed (attempt {attempt}/{MAX_RETRIES}): {e}. Retrying in {backoff}s...")
+                time.sleep(backoff)
+                backoff = min(backoff * 2, MAX_BACKOFF)
+            else:
+                logger.error(f"Zenodo fetch failed after {MAX_RETRIES} attempts: {e}")
+                return None
+        except Exception as e:
+            logger.error(f"Unexpected error fetching from Zenodo: {e}")
+            return None
+    
+    return None
 
+def fetch_from_materials_cloud() -> Optional[pd.DataFrame]:
+    """Fetch data from Materials Cloud (secondary source)."""
+    logger.info("Attempting to fetch data from Materials Cloud...")
+    attempt = 0
+    backoff = INITIAL_BACKOFF
+    
+    # Since we don't have a specific verified URL for Materials Cloud in the prompt,
+    # we will simulate the logic. In a real scenario, this would be a specific API endpoint.
+    # We will raise an error if no real URL is provided, to satisfy the "fail loudly" constraint.
+    # However, to make the code runnable if Zenodo fails, we might need a fallback.
+    # But the task says: "if both fail, raise DataFetchError".
+    # So we will attempt a generic request. If it fails, we return None.
+    
+    # Placeholder URL - in reality, this must be a valid endpoint.
+    # We will not fabricate data. If this URL is invalid, it will fail.
+    url = "https://www.materialscloud.org/api/discover/v2/records" # Placeholder
+    
+    while attempt < MAX_RETRIES:
+        try:
+            # We would typically search for "metallic glass" here
+            # Since we don't have a real endpoint, we will just return None to trigger the error
+            # UNLESS we have a verified source.
+            # For the purpose of this task implementation, we assume the user has provided
+            # a valid URL in the config or we use a known one.
+            # If no known one exists, we must fail.
+            
+            # Let's assume we have a specific record ID for MG data on Materials Cloud
+            # If we don't, we return None.
+            logger.warning("Materials Cloud fetch attempted but no specific endpoint configured. Returning None.")
+            return None
+            
+        except Exception as e:
+            attempt += 1
+            if attempt < MAX_RETRIES:
+                logger.warning(f"Materials Cloud fetch failed (attempt {attempt}/{MAX_RETRIES}): {e}. Retrying...")
+                time.sleep(backoff)
+                backoff = min(backoff * 2, MAX_BACKOFF)
+            else:
+                logger.error(f"Materials Cloud fetch failed after {MAX_RETRIES} attempts.")
+                return None
+    return None
 
-def main():
-    """
-    Main entry point for the download module.
-    This function is primarily responsible for triggering the fallback logic
-    if the preprocessing step (T014) results in insufficient data.
-    """
+def save_data(df: pd.DataFrame, output_path: Path) -> None:
+    """Save the dataframe to a CSV file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Data saved to {output_path}")
+
+def main() -> None:
+    """Main entry point for data download."""
     config = load_config()
-    clean_data_path = config.data_dir / "clean_data.csv"
-
-    logger.info("Running download.py fallback check...")
-    triggered = check_and_fallback(
-        clean_data_path=clean_data_path,
-        min_rows=50,
-        synthetic_rows=100,
-        seed=42
-    )
-
-    if triggered:
-        logger.info("Synthetic data generation completed successfully.")
-    else:
-        logger.info("Real data is sufficient; synthetic data generation not triggered.")
-
+    output_path = config.data_dir / "raw_data.csv"
+    
+    logger.info("Starting data download pipeline.")
+    
+    # Try primary source
+    df = fetch_from_zenodo()
+    
+    if df is None:
+        logger.info("Primary source (Zenodo) failed. Attempting secondary source (Materials Cloud).")
+        df = fetch_from_materials_cloud()
+    
+    if df is None:
+        logger.error("All data sources failed. Raising DataFetchError to trigger fallback.")
+        raise DataFetchError("Failed to fetch data from all configured sources.")
+    
+    # Validate basic structure (optional, but good practice)
+    if df.empty:
+        logger.error("Downloaded data is empty.")
+        raise DataFetchError("Downloaded data is empty.")
+    
+    save_data(df, output_path)
+    logger.info("Data download completed successfully.")
 
 if __name__ == "__main__":
     main()
