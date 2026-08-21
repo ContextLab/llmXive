@@ -11,3 +11,8 @@ scipy
 # The placeholder ``numpy`` package is overridden at runtime by ``numpy_real``.
 # ``numpy_real`` simply re‑exports the real NumPy distribution; it does not
 # need to be listed separately because it imports the standard ``numpy``.
+torch-geometric  # auto-added: verified real data source (discovery)
+matplotlib  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv
+rdkit  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv

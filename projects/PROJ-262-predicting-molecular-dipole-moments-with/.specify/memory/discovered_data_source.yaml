@@ -1,31 +1,12 @@
-status: verified
-kind: pypi_package
-ref: torch-geometric
-access_python: "import os, sys, subprocess\n\ndef ensure_package(pkg):\n    try:\n\
-  \        __import__(pkg)\n    except ImportError:\n        subprocess.check_call([sys.executable,\
-  \ \"-m\", \"pip\", \"install\", \"--quiet\", pkg])\n\nensure_package(\"torch\")\n\
-  ensure_package(\"torch_geometric\")\n\nfrom torch_geometric.datasets import QM9\n\
-  \nds = QM9(root=os.path.expanduser(\"~/.torch_geometric/QM9\"))\nprint(f\"RECORDS={len(ds)}\"\
-  )\n\nsample = ds[0]\nfields = []\nif hasattr(sample, \"z\"):\n    fields.append(\"\
-  atom_types\")\nif hasattr(sample, \"pos\"):\n    fields.append(\"atom_coordinates_3d\"\
-  )\nif hasattr(sample, \"edge_index\"):\n    fields.append(\"bond_connectivity\"\
-  )\nif hasattr(sample, \"mol_id\"):\n    fields.append(\"molecule_id\")\nif hasattr(sample,\
-  \ \"fingerprint\"):\n    fields.append(\"morgan_fingerprint\")\nif hasattr(sample,\
-  \ \"coulomb_matrix\"):\n    fields.append(\"coulomb_matrix\")\nprint(\"FIELDS=\"\
-  \ + \",\".join(fields))"
-record_count: 130831
-sample_fields:
-- atom_types
-- atom_coordinates_3d
-- bond_connectivity
-field_coverage: 0.5
+status: none
+intent: download QM9 dataset DOI 10.1038/sdata.2014.22 python package dataset
 required_fields:
 - molecule_id
 - atom_types
-- atom_coordinates_3d
+- 3D_coordinates
 - bond_connectivity
-- morgan_fingerprint
-- coulomb_matrix
-intent: QM9 molecule dataset python package DeepChem download figshare python package
-  dataset
-cache_key: 69279b3e25a1aaf1bd4cf65f19ea442e0cce4526fa6ea4823a6ec89068cac7bd
+- Morgan_fingerprint
+- Coulomb_matrix
+cache_key: e6d20e6090aa30f621feec5bc45cc891c9c0e5888ec0924d0768e2d5fc653b45
+searched_at: '2026-08-21T18:00:32.391799+00:00'
+retry_count: 1

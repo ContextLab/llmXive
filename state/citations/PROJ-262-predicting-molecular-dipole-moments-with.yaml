@@ -20,17 +20,6 @@
   verification_status: unreachable
   verified_against_url: https://oeis.org/A008299
   verified_at: '2026-06-24T21:21:17.157543Z'
-- artifact_hash: 73af7d33cc5e038ee8141ac7a1b99cd75f40aef9999b851332a40971364782dd
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Quantum chemistry structures and properties of 134 kilo molecules
-  kind: doi
-  value: 10.1038/sdata.2014.22
-  verification_status: pending
-  verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-08-17T21:36:16.898519Z'
 - artifact_hash: 338bb045b719ef8ead178f108430f34332ce6ed653dd5b17f35cbd84727ccc5b
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
   cite_id: c-001
@@ -53,3 +42,38 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-08-19T01:14:14.058400Z'
+- artifact_hash: 4784af9c1144744310e83a1cafdb2665803b399430e5e850617a2d4763544412
+  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[0804.4361] Improving Coverage Accuracy of Block Bootstrap Confidence
+    Intervals'
+  kind: url
+  value: https://arxiv.org/abs/0804.4361
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/0804.4361
+  verified_at: '2026-08-21T18:24:33.025051Z'
+- artifact_hash: 4784af9c1144744310e83a1cafdb2665803b399430e5e850617a2d4763544412
+  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2405.13996] Detecting Gait Abnormalities in Foot-Floor Contacts
+    During Walking Through Footstep-Induced Structural Vibrations'
+  kind: url
+  value: https://arxiv.org/abs/2405.13996
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2405.13996
+  verified_at: '2026-08-21T18:24:33.025051Z'
+- artifact_hash: 4784af9c1144744310e83a1cafdb2665803b399430e5e850617a2d4763544412
+  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Quantum chemistry structures and properties of 134 kilo molecules
+  kind: doi
+  value: 10.1038/sdata.2014.22
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1038/sdata.2014.22
+  verified_at: '2026-08-21T18:24:33.025051Z'

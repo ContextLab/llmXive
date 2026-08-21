@@ -5,185 +5,307 @@ import pandas as pd
 from typing import List, Dict, Any
 import sys
 from pathlib import Path
-import tarfile
-import numpy.lib.format
 
-def extract_3d_features(input_path: Path, molecules_output_path: Path, features_output_path: Path):
+# Add project root to path to resolve relative imports if run as script
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+# Import the real data loader used in the pipeline
+from data.download_qm9 import download_qm9
+from data.create_subset import create_reproducible_subset
+
+# Atom type mapping based on QM9 element indices (0: H, 1: C, 2: N, 3: O, 4: F)
+ATOM_TYPES = {0: 'H', 1: 'C', 2: 'N', 3: 'O', 4: 'F'}
+ATOM_ELECTRONEGATIVITY = {
+    'H': 2.20, 'C': 2.55, 'N': 3.04, 'O': 3.44, 'F': 3.98
+}
+
+def extract_3d_features(
+    subset_path: str | Path,
+    output_path: str | Path,
+    raw_data_dir: str | Path = "data/raw"
+) -> Path:
     """
-    Extracts 3D features (coordinates, atom types, bond connectivity) from the QM9 dataset.
-    QM9 data is typically stored in .npz format with keys: 'atom_numbers', 'coordinates', 'dipole', etc.
+    Extract 3D coordinates, atom types, and bond connectivity from the QM9 subset.
     
-    This function assumes the input_path points to the directory containing the extracted QM9 .npz files
-    or a specific .npz file if the subset step produced one.
-    For this implementation, we assume the 'create_subset' step produced a CSV with molecule_id and
-    a reference to the 3D data, OR we re-scan the raw directory for the specific molecules.
+    This function:
+    1. Loads the molecule subset from the parquet file created by T016b.
+    2. Downloads the QM9 dataset if not present.
+    3. Parses the .xyz files for each molecule in the subset.
+    4. Extracts atom types, 3D coordinates, and bond connectivity (distance-based).
+    5. Computes derived features: bond lengths, bond angles, and electronegativity differences.
+    6. Validates for NaN values and missing coordinates.
+    7. Saves the processed features to a Parquet file.
     
-    Given the complexity of mapping a CSV subset back to raw .npz binary data without a pre-built index,
-    this function will attempt to load the raw .npz data directly if the input is a directory,
-    and then filter it based on the molecule IDs if possible, or just process the first N molecules
-    if the subset logic was applied to the raw file list.
-    
-    NOTE: In a production pipeline, 'create_subset' should ideally produce a manifest or a filtered .npz.
-    Here we assume the input_path is the directory of extracted QM9 data and we process a subset of molecules.
+    Args:
+        subset_path: Path to the molecule subset parquet file.
+        output_path: Path to save the processed 3D features.
+        raw_data_dir: Directory where QM9 raw data is stored.
+        
+    Returns:
+        Path to the output file.
     """
+    subset_path = Path(subset_path)
+    output_path = Path(output_path)
+    raw_data_dir = Path(raw_data_dir)
     
-    # If input_path is a directory, look for the main QM9 .npz file
-    if input_path.is_dir():
-        # Common QM9 file name
-        npz_file = input_path / "dsgdml.npy" # Often named this in some distributions
-        if not npz_file.exists():
-            # Try to find any .npz
-            candidates = list(input_path.glob("*.npz")) + list(input_path.glob("*.npy"))
-            if not candidates:
-                raise FileNotFoundError(f"No .npz/.npy files found in {input_path}")
-            npz_file = candidates[0]
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load subset
+    if not subset_path.exists():
+        raise FileNotFoundError(f"Subset file not found: {subset_path}")
+    
+    subset_df = pd.read_parquet(subset_path)
+    molecule_ids = subset_df['molecule_id'].tolist()
+    
+    # Download QM9 if necessary
+    qm9_dir = download_qm9(raw_data_dir)
+    molecules_path = qm9_dir / "molecules"
+    
+    if not molecules_path.exists():
+        raise FileNotFoundError(f"QM9 molecules directory not found: {molecules_path}")
+    
+    processed_features = []
+    excluded_molecules = []
+    
+    for mol_id in molecule_ids:
+        # Construct filename for the molecule
+        # QM9 molecules are stored as <molecule_id>.xyz
+        xyz_file = molecules_path / f"{mol_id}.xyz"
+        
+        if not xyz_file.exists():
+            excluded_molecules.append({
+                'molecule_id': mol_id,
+                'exclusion_reason': 'missing_3d',
+                'exclusion_timestamp': pd.Timestamp.now().isoformat()
+            })
+            continue
+        
+        try:
+            # Parse XYZ file
+            atoms, coords, connectivity = parse_xyz_file(xyz_file)
+            
+            # Check for NaN or missing coordinates
+            if np.any(np.isnan(coords)):
+                excluded_molecules.append({
+                    'molecule_id': mol_id,
+                    'exclusion_reason': 'invalid_structure',
+                    'exclusion_timestamp': pd.Timestamp.now().isoformat()
+                })
+                continue
+            
+            # Extract features
+            features = extract_molecule_features(atoms, coords, connectivity)
+            features['molecule_id'] = mol_id
+            processed_features.append(features)
+            
+        except Exception as e:
+            excluded_molecules.append({
+                'molecule_id': mol_id,
+                'exclusion_reason': f'invalid_structure: {str(e)}',
+                'exclusion_timestamp': pd.Timestamp.now().isoformat()
+            })
+            continue
+    
+    # Save excluded molecules report
+    if excluded_molecules:
+        excluded_df = pd.DataFrame(excluded_molecules)
+        excluded_report_path = output_path.parent / "excluded_molecules.csv"
+        excluded_df.to_csv(excluded_report_path, index=False)
+        print(f"Excluded {len(excluded_molecules)} molecules. Report saved to {excluded_report_path}")
+    
+    if not processed_features:
+        raise RuntimeError("No molecules successfully processed. Check QM9 data availability and format.")
+    
+    # Create DataFrame from processed features
+    features_df = pd.DataFrame(processed_features)
+    
+    # Validate no NaN values in feature vectors
+    if features_df.isnull().any().any():
+        nan_cols = features_df.columns[features_df.isnull().any()]
+        raise ValueError(f"NaN values found in features for columns: {list(nan_cols)}")
+    
+    # Save to Parquet
+    features_df.to_parquet(output_path, index=False)
+    print(f"Successfully extracted 3D features for {len(processed_features)} molecules.")
+    print(f"Output saved to: {output_path}")
+    
+    return output_path
+
+def parse_xyz_file(xyz_path: Path) -> tuple[List[str], np.ndarray, List[tuple[int, int, float]]]:
+    """
+    Parse an XYZ file and extract atoms, coordinates, and connectivity.
+    
+    Args:
+        xyz_path: Path to the XYZ file.
+        
+    Returns:
+        Tuple of (atoms, coords, connectivity)
+        - atoms: List of atom type strings (e.g., 'C', 'H')
+        - coords: NumPy array of shape (n_atoms, 3) with coordinates
+        - connectivity: List of (atom_idx1, atom_idx2, bond_length) tuples
+    """
+    with open(xyz_path, 'r') as f:
+        lines = f.readlines()
+    
+    if len(lines) < 2:
+        raise ValueError(f"Invalid XYZ file: {xyz_path}")
+    
+    # First line: number of atoms
+    n_atoms = int(lines[0].strip())
+    
+    # Second line: comment (can be ignored for our purposes)
+    # Remaining lines: atom type and coordinates
+    atoms = []
+    coords = []
+    
+    for line in lines[2:2+n_atoms]:
+        parts = line.strip().split()
+        if len(parts) < 4:
+            continue
+        
+        atom_type = parts[0]
+        x, y, z = map(float, parts[1:4])
+        
+        atoms.append(atom_type)
+        coords.append([x, y, z])
+    
+    if len(atoms) != n_atoms:
+        raise ValueError(f"Mismatch in atom count for {xyz_path}: expected {n_atoms}, got {len(atoms)}")
+    
+    coords = np.array(coords)
+    
+    # Compute connectivity based on distance threshold
+    connectivity = compute_connectivity(coords)
+    
+    return atoms, coords, connectivity
+
+def compute_connectivity(coords: np.ndarray, bond_threshold: float = 1.7) -> List[tuple[int, int, float]]:
+    """
+    Compute bond connectivity based on interatomic distances.
+    
+    Args:
+        coords: NumPy array of shape (n_atoms, 3)
+        bond_threshold: Maximum distance for a bond to exist (in Angstroms)
+        
+    Returns:
+        List of (atom_idx1, atom_idx2, bond_length) tuples
+    """
+    n_atoms = len(coords)
+    connectivity = []
+    
+    for i in range(n_atoms):
+        for j in range(i + 1, n_atoms):
+            dist = np.linalg.norm(coords[i] - coords[j])
+            if dist < bond_threshold:
+                connectivity.append((i, j, dist))
+    
+    return connectivity
+
+def extract_molecule_features(
+    atoms: List[str],
+    coords: np.ndarray,
+    connectivity: List[tuple[int, int, float]]
+) -> Dict[str, Any]:
+    """
+    Extract features for a single molecule.
+    
+    Args:
+        atoms: List of atom type strings
+        coords: NumPy array of shape (n_atoms, 3)
+        connectivity: List of (atom_idx1, atom_idx2, bond_length) tuples
+        
+    Returns:
+        Dictionary of features
+    """
+    n_atoms = len(atoms)
+    
+    # Basic molecular properties
+    atom_types_encoded = [list(ATOM_TYPES.values()).index(atom) for atom in atoms]
+    electronegativity_values = [ATOM_ELECTRONEGATIVITY[atom] for atom in atoms]
+    
+    # Bond features
+    bond_lengths = [bond[2] for bond in connectivity]
+    n_bonds = len(connectivity)
+    avg_bond_length = np.mean(bond_lengths) if bond_lengths else 0.0
+    min_bond_length = np.min(bond_lengths) if bond_lengths else 0.0
+    max_bond_length = np.max(bond_lengths) if bond_lengths else 0.0
+    
+    # Electronegativity differences along bonds
+    if connectivity:
+        electronegativity_diffs = []
+        for i, j, _ in connectivity:
+            diff = abs(electronegativity_values[i] - electronegativity_values[j])
+            electronegativity_diffs.append(diff)
+        avg_electronegativity_diff = np.mean(electronegativity_diffs)
+        max_electronegativity_diff = np.max(electronegativity_diffs)
     else:
-        npz_file = input_path
+        avg_electronegativity_diff = 0.0
+        max_electronegativity_diff = 0.0
+    
+    # 3D geometric features
+    center_of_mass = np.mean(coords, axis=0)
+    coords_centered = coords - center_of_mass
+    radius_of_gyration = np.sqrt(np.mean(np.sum(coords_centered**2, axis=1)))
+    
+    # Dipole moment vector (simplified: based on electronegativity and geometry)
+    # In reality, this would come from QM calculations, but we can compute a proxy
+    # for feature extraction purposes.
+    # Note: The actual dipole moment is in the QM9 data and will be used as the target.
+    
+    # Compile features
+    features = {
+        'n_atoms': n_atoms,
+        'n_bonds': n_bonds,
+        'avg_bond_length': avg_bond_length,
+        'min_bond_length': min_bond_length,
+        'max_bond_length': max_bond_length,
+        'avg_electronegativity_diff': avg_electronegativity_diff,
+        'max_electronegativity_diff': max_electronegativity_diff,
+        'radius_of_gyration': radius_of_gyration,
+        # Store atom types as a string for simplicity
+        'atom_types': ','.join(atoms),
+        # Store coordinates as a flattened list (can be reshaped later)
+        'coordinates': coords.flatten().tolist(),
+        # Store connectivity as a list of tuples (flattened for storage)
+        'connectivity': [(i, j, round(d, 4)) for i, j, d in connectivity],
+    }
+    
+    return features
 
-    print(f"Loading 3D data from {npz_file}...")
+def main():
+    """Main entry point for the script."""
+    import argparse
     
-    # Load QM9 data
-    # QM9 structure: usually a dictionary or a structured array
-    try:
-        data = np.load(npz_file, allow_pickle=True)
-    except Exception as e:
-        raise RuntimeError(f"Failed to load {npz_file}: {e}")
+    parser = argparse.ArgumentParser(description="Extract 3D features from QM9 subset")
+    parser.add_argument(
+        "--subset-path",
+        type=str,
+        default="data/processed/subset_final.parquet",
+        help="Path to the molecule subset parquet file"
+    )
+    parser.add_argument(
+        "--output-path",
+        type=str,
+        default="data/processed/features_3d.parquet",
+        help="Path to save the processed 3D features"
+    )
+    parser.add_argument(
+        "--raw-data-dir",
+        type=str,
+        default="data/raw",
+        help="Directory where QM9 raw data is stored"
+    )
     
-    # Handle different loading formats
-    if isinstance(data, np.ndarray) and data.dtype == object:
-        # It might be a 1D array of dictionaries or objects
-        raw_data = data[0] if len(data) > 0 else data
-    else:
-        raw_data = data
-
-    # Extract standard QM9 keys
-    # Keys often include: 'atom_numbers', 'coordinates', 'dipole', 'mu', 'alpha', 'homo', 'lumo', 'gap', 'r2', 'zpve', 'U0', 'U', 'H', 'G', 'Cv'
-    # We need: molecule_id (index), atoms, coordinates, dipole
+    args = parser.parse_args()
     
-    if not isinstance(raw_data, dict):
-        # If it's a structured array, convert to dict-like access
-        # This is a fallback for specific QM9 versions
-        if hasattr(raw_data, 'item'):
-            raw_data = raw_data.item()
-        else:
-            # If it's just a list of molecules
-            raw_data = {'atoms': raw_data} # Fallback, unlikely
-
-    # Check for expected keys
-    if 'atom_numbers' not in raw_data:
-        # Try alternative keys
-        if 'Z' in raw_data:
-            raw_data['atom_numbers'] = raw_data['Z']
-        else:
-            raise KeyError("Could not find 'atom_numbers' or 'Z' in QM9 data.")
-    
-    if 'coordinates' not in raw_data:
-        if 'R' in raw_data:
-            raw_data['coordinates'] = raw_data['R']
-        else:
-            raise KeyError("Could not find 'coordinates' or 'R' in QM9 data.")
-    
-    if 'dipole' not in raw_data:
-        if 'mu' in raw_data:
-            raw_data['dipole'] = raw_data['mu']
-        else:
-            raise KeyError("Could not find 'dipole' or 'mu' in QM9 data.")
-
-    atom_numbers = raw_data['atom_numbers']
-    coordinates = raw_data['coordinates']
-    dipole = raw_data['dipole']
-
-    # Determine number of molecules
-    # atom_numbers shape: (N_molecules, N_atoms_max) or (N_molecules, 1, N_atoms_max) depending on version
-    # coordinates shape: (N_molecules, N_atoms_max, 3)
-    if atom_numbers.ndim == 1:
-        # All atoms flattened? Unlikely for QM9. Assume 2D.
-        # Sometimes it's (N_atoms_total,) and we need to know molecule boundaries.
-        # Standard QM9 is (N_molecules, 29) for 29 atoms max.
-        n_molecules = atom_numbers.shape[0] // 29 # Approximation if 1D
-        if atom_numbers.shape[0] % 29 != 0:
-            # Fallback: assume 2D
-            pass
-        else:
-             atom_numbers = atom_numbers.reshape(-1, 29)
-             coordinates = coordinates.reshape(-1, 29, 3)
-             dipole = dipole.reshape(-1) if dipole.ndim == 1 else dipole
-    else:
-        n_molecules = atom_numbers.shape[0]
-
-    print(f"Found {n_molecules} molecules in source data.")
-
-    # We need to select a subset. The input_path here is the raw data dir.
-    # The 'create_subset' step should have told us WHICH molecules to take.
-    # Since we don't have a manifest here, we will take the first 10,000 molecules
-    # as a demonstration of the 3D extraction logic.
-    # In a real flow, we would read the subset CSV and map molecule IDs to indices.
-    # For QM9, molecule_id is often just the index (0 to 133885).
-    
-    subset_size = 10000
-    if n_molecules < subset_size:
-        subset_size = n_molecules
-        print(f"WARNING: Only {n_molecules} molecules available. Using all.")
-    
-    selected_indices = list(range(subset_size))
-    
-    molecules_data = []
-    features_3d_data = []
-    
-    for idx in selected_indices:
-        mol_atoms = atom_numbers[idx]
-        mol_coords = coordinates[idx]
-        mol_dipole = dipole[idx]
-        
-        # Filter out padding atoms (usually atomic number 0)
-        # QM9 molecules have variable length, padded with 0
-        valid_mask = mol_atoms > 0
-        actual_atoms = mol_atoms[valid_mask]
-        actual_coords = mol_coords[valid_mask]
-        
-        molecule_id = f"qm9_{idx}"
-        
-        molecules_data.append({
-            'molecule_id': molecule_id,
-            'atoms': actual_atoms.tolist(),
-            'coordinates': actual_coords.tolist(),
-            'dipole': float(mol_dipole)
-        })
-        
-        # Features for GNN: typically just the graph structure (atoms, coords)
-        # We can also compute basic 3D stats here if needed, but raw coords are the input
-        features_3d_data.append({
-            'molecule_id': molecule_id,
-            'num_atoms': len(actual_atoms),
-            'atom_types': actual_atoms.tolist(),
-            'coords': actual_coords.tolist(),
-            'dipole_magnitude': float(np.linalg.norm(mol_dipole))
-        })
-
-    # Create DataFrames
-    df_molecules = pd.DataFrame(molecules_data)
-    df_features = pd.DataFrame(features_3d_data)
-    
-    # Convert lists to proper types for Parquet (Parquet supports lists)
-    # Ensure no NaNs
-    if df_features['dipole_magnitude'].isna().any():
-        print("WARNING: NaN found in dipole magnitude. Dropping rows.", file=sys.stderr)
-        df_molecules = df_molecules.dropna(subset=['dipole'])
-        df_features = df_features.dropna(subset=['dipole_magnitude'])
-
-    print(f"Writing molecules data to {molecules_output_path}...")
-    df_molecules.to_parquet(molecules_output_path, index=False)
-    
-    print(f"Writing 3D features to {features_output_path}...")
-    df_features.to_parquet(features_output_path, index=False)
-    
-    print(f"Successfully processed {len(df_molecules)} molecules.")
+    extract_3d_features(
+        subset_path=args.subset_path,
+        output_path=args.output_path,
+        raw_data_dir=args.raw_data_dir
+    )
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=str, required=True, help="Path to QM9 data (dir or npy)")
-    parser.add_argument("--molecules-output", type=str, required=True)
-    parser.add_argument("--features-output", type=str, required=True)
-    args = parser.parse_args()
-    extract_3d_features(Path(args.input), Path(args.molecules_output), Path(args.features_output))
+    main()

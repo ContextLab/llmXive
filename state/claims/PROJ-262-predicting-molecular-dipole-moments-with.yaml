@@ -15540,23 +15540,6 @@
   updated_at: '2026-08-05T01:46:14Z'
 - artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   attempts: 1
-  canonical: perform paired t-tests with alpha 0.05
-  claim_id: c_1ac4cec1
-  context: "T041 [US3] Implement paired t\u2011tests (\u03B1 = 0.05) comparing RMSE\
-    \ distributions in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py`\
-    \ (FR\u2011008, SC\u2011004)"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Implement paired t\u2011tests (\u03B1 = 0.05) comparing RMSE distributions"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-05T01:46:49Z'
-- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  attempts: 1
   canonical: limit study to gas-phase DFT data single conformer per molecule
   claim_id: c_06aaf0dc
   context: 'T093 [P] Update `research.md` with explicit limitations: gas-phase DFT
@@ -15658,25 +15641,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T01:51:04Z'
-- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  attempts: 1
-  canonical: QM9 download memory usage under 8GB
-  claim_id: c_b7527477
-  context: "T102 [P] [US1] Integration test for QM9 download pipeline with memory\
-    \ profiling (tests/integration/test_qm9_download.py) \u2013 Implement test_qm9_download_memory_under_8gb\
-    \ to verify memory usage stays within 8GB limit during download."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/QM9_download_memory_usage_under_8GB
-  kind: entity_fact
-  raw_text: verify memory usage stays within 8GB limit during download
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-05T01:52:26Z'
 - artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   attempts: 2
   canonical: enforce memory constraint less than 8 GB
@@ -16594,3 +16558,1347 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T21:36:13Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: verify DOI 10.1038/sdata.2014.22 exists in local reference registry
+  claim_id: c_e7a5aca5
+  context: T015 [Foundational] [P] Verify DOI 10.1038/sdata.2014.22 exists in local
+    reference registry and record its hash in `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml`
+    (depends on T090, T091).
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Verify DOI 10.1038/sdata.2014.22 exists in local reference registry and
+    record its hash in `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:02:08Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: train SchNet-style GNN and Random Forest on 50 epochs with patience 10
+  claim_id: c_1fd72a46
+  context: "Goal: Train lightweight SchNet\u2011style GNN and Random Forest baseline\
+    \ on identical train/test splits, evaluate both on held\u2011out test set using\
+    \ MAE and RMSE for dipole moments (50 epochs with early stopping patience=10)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train lightweight SchNet\u2011style GNN and Random Forest baseline on\
+    \ identical train/test splits, evaluate both on held\u2011out test set using MAE\
+    \ and RMSE for dipole moments (50 epochs with early stopping patience=10)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:02:55Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: compute MAE and RMSE against QM9 DFT reference values
+  claim_id: c_3392a225
+  context: "T032 [US2] Compute MAE/RMSE against QM9 DFT reference values (not experimental)\
+    \ (fulfills FR\u2011011) using the DFT reference data already present in the QM9\
+    \ dataset."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_MAE_and_RMSE_against_QM9_DFT_reference_values
+  kind: entity_fact
+  raw_text: Compute MAE/RMSE against QM9 DFT reference values (not experimental) using
+    the DFT reference data already present in the QM9 dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:03:20Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: compute 95% confidence intervals via bootstrap
+  claim_id: c_6ac9c374
+  context: "T034 [US2] Generate `results/metrics.csv` with columns `seed`, `model`,\
+    \ `mae`, `rmse`, `mae_ci_lower`, `mae_ci_upper`, `rmse_ci_lower`, `rmse_ci_upper`\
+    \ \u2013 CI computed via bootstrap (95\u202F% confidence) within this task."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: set to be 0 .05, 0.10, 0.90 and 0.95. For each method, the coverage probability
+      source_id: '0804.4361'
+      url: https://arxiv.org/abs/0804.4361
+      value: '0.95'
+    filled: true
+  kind: numeric
+  raw_text: "CI computed via bootstrap (95\u202F% confidence) within this task"
+  resolved_value: '0.95'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:03:43Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: verify at least 3 distinct structural features
+  claim_id: c_8dfe5d3e
+  context: "T040 [US3] Rank structural contributions (e.g., electronegative atom placement,\
+    \ local bond angles) and (FR\u2011007, SC\u2011002). This task must explicitly\
+    \ count and verify at least 3 distinct features."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_3_distinct_structural_features
+  kind: magnitude
+  raw_text: This task must explicitly count and verify at least 3 distinct features
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:04:12Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: perform paired t-tests with alpha 0.05
+  claim_id: c_1ac4cec1
+  context: "T041 [US3] Implement paired t\u2011tests (\u03B1 = 0.05) comparing RMSE\
+    \ distributions in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py`\
+    \ (FR\u2011008, SC\u2011004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement paired t\u2011tests (\u03B1 = 0.05) comparing RMSE distributions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:04:28Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: verify dipole magnitude prediction stable within 0.01 D under rotation
+  claim_id: c_cf97ed1d
+  context: T301 [P] [US2] Implement a geometric invariance test in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/geometry_invariance.py`
+    that rotates molecules by random angles and verifies the dipole magnitude prediction
+    remains stable within 0.01 D.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: rotates molecules by random angles and verifies the dipole magnitude prediction
+    remains stable within 0.01 D
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:04:47Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: ground truth is QM DFT data with BLYP/augmented split-valence basis set
+  claim_id: c_bd4b6b75
+  context: 'T250 [Doc] [US1/US2/US3] Update `research.md` to include a section titled
+    "## Limitations and Scope Boundaries" that explicitly states: ... (2) QM DFT data
+    (BLYP/augmented split-valence basis set with polarization functions) is the sole
+    ground truth'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_is_QM_DFT_data_with_BLYP/augmented_split-valenc
+  kind: entity_fact
+  raw_text: QM DFT data (BLYP/augmented split-valence basis set with polarization
+    functions) is the sole ground truth
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:05:05Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: ground truth is QM DFT with BLYP/polarized double-zeta basis set
+  claim_id: c_2b35cf23
+  context: 'T306 [Doc] Update `research.md` to include a "Validation Protocol" section
+    that explicitly states: (1) Ground truth is QM DFT (BLYP/polarized double-zeta
+    basis set)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_is_QM_DFT_with_BLYP/polarized_double-zeta_basis
+  kind: entity_fact
+  raw_text: Ground truth is QM DFT (BLYP/polarized double-zeta basis set)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:05:33Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Verify DOI 10.1038/sdata.2014.22 exists in local registry
+  claim_id: c_6aa0a132
+  context: T015 [Foundational] [P] Verify DOI 10.1038/sdata.2014.22 exists in local
+    reference registry and record its hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+    (depends on T090, T091). This is a prerequisite for US1.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Verify DOI 10.1038/sdata.2014.22 exists in local reference registry and
+    record its hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:06:34Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Compute MAE and RMSE against QM9 DFT reference values
+  claim_id: c_abd4dc01
+  context: "T032 [US2] Compute MAE/RMSE against QM9 DFT reference values (not experimental)\
+    \ (fulfills FR\u2011011) using the DFT reference data already present in the QM9\
+    \ dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute MAE/RMSE against QM9 DFT reference values (not experimental)\
+    \ (fulfills FR\u2011011) using the DFT reference data already present in the QM9\
+    \ dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:06:37Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Generate results/metrics.csv with seed, model, mae, rmse, and confidence
+    interval columns
+  claim_id: c_2a127441
+  context: "T034 [US2] Generate results/metrics.csv with columns seed, model, mae,\
+    \ rmse, mae_ci_lower, mae_ci_upper, rmse_ci_lower, rmse_ci_upper \u2013 {{claim:c_6ac9c374}}\
+    \ (0804.4361, https://arxiv.org/abs/0804.4361)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Generate results/metrics.csv with columns seed, model, mae, rmse, mae_ci_lower,\
+    \ mae_ci_upper, rmse_ci_lower, rmse_ci_upper \u2013 {{claim:c_6ac9c374}} (0804.4361,\
+    \ https://arxiv.org/abs/0804.4361)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:07:10Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Verify at least 3 distinct structural features contribute to dipole prediction
+  claim_id: c_590aad85
+  context: "T040 [US3] Rank structural contributions (e.g., electronegative atom placement,\
+    \ local bond angles) and (FR\u2011007, SC\u2011002). This task must explicitly\
+    \ count and verify at least 3 distinct features."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_3_distinct_structural_features_contribute_to
+  kind: magnitude
+  raw_text: "Rank structural contributions (e.g., electronegative atom placement,\
+    \ local bond angles) and (FR\u2011007, SC\u2011002). This task must explicitly\
+    \ count and verify at least 3 distinct features."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:07:17Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Perform paired t-tests with alpha 0.05 on RMSE distributions
+  claim_id: c_63175dbd
+  context: "T041 [US3] Implement paired t\u2011tests (\u03B1 = 0.05) comparing RMSE\
+    \ distributions in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py\
+    \ (FR\u2011008, SC\u2011004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement paired t\u2011tests (\u03B1 = 0.05) comparing RMSE distributions\
+    \ in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py\
+    \ (FR\u2011008, SC\u2011004)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:07:26Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Verify dipole magnitude prediction stability within 0.01 D under random
+    rotation
+  claim_id: c_119d223e
+  context: 'T301 [P] [US2] Implement a geometric invariance test in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/geometry_invariance.py
+    that rotates molecules by random angles and verifies the dipole magnitude prediction
+    remains stable within 0.01 D. Output: results/geometry_invariance_report.json.
+    (Addresses Constitution Principle VI and Plan.md Constitution Check).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a geometric invariance test in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/geometry_invariance.py
+    that rotates molecules by random angles and verifies the dipole magnitude prediction
+    remains stable within 0.01 D.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:07:35Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: subset_final.parquet contains final molecule list from QM9 dataset
+  claim_id: c_32e8e07c
+  context: T016b [US1] Implement subset reduction logic in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/create_subset.py
+    (seed 42).
+  evidence:
+    entailment_evidence: Subset final.parquet contains final molecule list from QM9
+      d
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Subset_final.parquet_contains_final_molecule_list_from_QM9_d
+  kind: entity_fact
+  raw_text: This task creates an initial subset, runs the monitor (T016a), and if
+    the flag is set, re-executes with a smaller target to output data/processed/subset_final.parquet
+    with the final molecule list.
+  resolved_value: subset_final.parquet contains final molecule list from QM9 dataset
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:08:48Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: results/metrics.csv contains seed, model, mae, rmse, and confidence interval
+    columns
+  claim_id: c_ecbd41ef
+  context: "T034 [US2] Generate results/metrics.csv with columns seed, model, mae,\
+    \ rmse, mae_ci_lower, mae_ci_upper, rmse_ci_lower, rmse_ci_upper \u2013 {{claim:c_6ac9c374}}\
+    \ (0804.4361, https://arxiv.org/abs/0804.4361)."
+  evidence:
+    entailment_evidence: csv contains seed, model, mae, rmse, and con
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Results/metrics.csv_contains_seed,_model,_mae,_rmse,_and_con
+  kind: entity_fact
+  raw_text: Generate results/metrics.csv with columns seed, model, mae, rmse, mae_ci_lower,
+    mae_ci_upper, rmse_ci_lower, rmse_ci_upper
+  resolved_value: results/metrics.csv contains seed, model, mae, rmse, and confidence
+    interval columns
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:08:52Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: metrics.csv contains seed model mae rmse and confidence interval columns
+  claim_id: c_3f8cd8a8
+  context: "T034 [US2] Generate results/metrics.csv with columns seed, model, mae,\
+    \ rmse, mae_ci_lower, mae_ci_upper, rmse_ci_lower, rmse_ci_upper \u2013 {{claim:c_6ac9c374}}\
+    \ (0804.4361, https://arxiv.org/abs/0804.4361)."
+  evidence:
+    entailment_evidence: csv contains seed, model, mae, rmse, and con
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Results/metrics.csv_contains_seed,_model,_mae,_rmse,_and_con
+  kind: entity_fact
+  raw_text: Generate results/metrics.csv with columns seed, model, mae, rmse, mae_ci_lower,
+    mae_ci_upper, rmse_ci_lower, rmse_ci_upper
+  resolved_value: results/metrics.csv contains seed, model, mae, rmse, and confidence
+    interval columns
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:09:32Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: DOI 10.1038/sdata.2014.22 verified in local registry
+  claim_id: c_a32fe275
+  context: T091 [P] Run reference-validator to verify DOI 10.1038/sdata.2014.22 local
+    metadata and record hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+    (no external URL fetching, satisfies Constitution Principle II).
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Verify DOI 10.1038/sdata.2014.22 local metadata and record hash
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:09:49Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: QM9 download memory usage under 8GB
+  claim_id: c_b7527477
+  context: "T102 [P] [US1] Integration test for QM9 download pipeline with memory\
+    \ profiling (tests/integration/test_qm9_download.py) \u2013 Implement test_qm9_download_memory_under_8gb\
+    \ to verify memory usage stays within 8GB limit during download."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/QM9_download_memory_usage_under_8GB
+  kind: entity_fact
+  raw_text: verify memory usage stays within 8GB limit during download
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:10:27Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: GNN training 50 epochs early stopping patience 10
+  claim_id: c_1d597f51
+  context: 'Independent Test: Verify training with 50 epochs and early stopping (patience=10),
+    both models produce MAE and RMSE scores on test set, and Confidence intervals
+    are computed across random seeds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: training with 50 epochs and early stopping (patience=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:10:33Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: MAE RMSE computed against QM9 DFT reference values
+  claim_id: c_b4feaffe
+  context: "T032 [US2] Compute MAE/RMSE against QM9 DFT reference values (not experimental)\
+    \ (fulfills FR\u2011011) using the DFT reference data already present in the QM9\
+    \ dataset."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MAE_RMSE_computed_against_QM9_DFT_reference_values
+  kind: entity_fact
+  raw_text: Compute MAE/RMSE against QM9 DFT reference values (not experimental)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:10:42Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: dipole magnitude prediction stable within 0.01 D under rotation
+  claim_id: c_d453746c
+  context: T301 [P] [US2] Implement a geometric invariance test in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/geometry_invariance.py
+    that rotates molecules by random angles and verifies the dipole magnitude prediction
+    remains stable within 0.01 D.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify the dipole magnitude prediction remains stable within 0.01 D
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:10:50Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Summary includes MAE RMSE with 95 percent confidence interval
+  claim_id: c_f2d47327
+  context: "T058 [P] Summary includes MAE/RMSE with 95 % CI, top\u2011k feature importance\
+    \ entries, paired\u2011t\u2011test p\u2011values, and links to generated figures."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Summary includes MAE/RMSE with 95 % CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:10:58Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: state file schema includes completed_at artifact_hashes SHA-256 and updated_at
+  claim_id: c_d45ffd1c
+  context: "T059 [P] State file state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml\
+    \ follows YAML schema with completed_at, artifact_hashes (SHA\u2011256 per file),\
+    \ and updated_at."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "State file state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml\
+    \ follows YAML schema with completed_at, artifact_hashes (SHA\u2011256 per file),\
+    \ and updated_at"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:11:02Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM DFT BLYP augmented split-valence basis set with polarization functions
+    is sole ground truth
+  claim_id: c_0fbf3175
+  context: 'T250 [Doc] [US1/US2/US3] Update research.md to include a section titled
+    "## Limitations and Scope Boundaries" that explicitly states: ... (2) QM DFT data
+    (BLYP/augmented split-valence basis set with polarization functions) is the sole
+    ground truth...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/QM_DFT_BLYP_augmented_split-valence_basis_set_with_polarizat
+  kind: entity_fact
+  raw_text: QM DFT data (BLYP/augmented split-valence basis set with polarization
+    functions) is the sole ground truth
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:11:06Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Ground truth is QM DFT BLYP polarized double-zeta basis set
+  claim_id: c_c6a73ac9
+  context: 'T306 [Doc] Update research.md to include a "Validation Protocol" section
+    that explicitly states: (1) Ground truth is QM DFT (BLYP/polarized double-zeta
+    basis set)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_is_QM_DFT_BLYP_polarized_double-zeta_basis_set
+  kind: entity_fact
+  raw_text: Ground truth is QM DFT (BLYP/polarized double-zeta basis set)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:11:09Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: Verify DOI 10.1038/sdata.2014.22 exists in local registry
+  claim_id: c_474ca7d6
+  context: T091 [P] Run reference-validator to verify DOI 10.1038/sdata.2014.22 local
+    metadata and record hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+    (no external URL fetching, satisfies Constitution Principle II).
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Run reference-validator to verify DOI 10.1038/sdata.2014.22 local metadata
+    and record hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:12:08Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: Generate results/metrics.csv with seed, model, mae, rmse and confidence
+    intervals
+  claim_id: c_90b6cc7e
+  context: "T034 [US2] Generate results/metrics.csv with columns seed, model, mae,\
+    \ rmse, mae_ci_lower, mae_ci_upper, rmse_ci_lower, rmse_ci_upper \u2013 {{claim:c_6ac9c374}}\
+    \ (0804.4361, https://arxiv.org/abs/0804.4361)."
+  evidence:
+    entailment_evidence: csv contains seed, model, mae, rmse, and con
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Results/metrics.csv_contains_seed,_model,_mae,_rmse,_and_con
+  kind: entity_fact
+  raw_text: Generate results/metrics.csv with columns seed, model, mae, rmse, mae_ci_lower,
+    mae_ci_upper, rmse_ci_lower, rmse_ci_upper
+  resolved_value: results/metrics.csv contains seed, model, mae, rmse, and confidence
+    interval columns
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:12:11Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Ground truth is QM DFT data using BLYP/augmented split-valence basis
+    set with polarization functions
+  claim_id: c_943c8806
+  context: 'T250 [Doc] [US1/US2/US3] Update research.md to include a section titled
+    ''## Limitations and Scope Boundaries'' that explicitly states: ... (2) QM DFT
+    data (BLYP/augmented split-valence basis set with polarization functions) is the
+    sole ground truth...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_is_QM_DFT_data_using_BLYP/augmented_split-valen
+  kind: entity_fact
+  raw_text: Use QM DFT data (BLYP/augmented split-valence basis set with polarization
+    functions) as the sole ground truth
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:13:10Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Ground truth is QM DFT data using BLYP/polarized double-zeta basis set
+  claim_id: c_21a554d0
+  context: 'T306 [Doc] Update research.md to include a ''Validation Protocol'' section
+    that explicitly states: (1) Ground truth is QM DFT (BLYP/polarized double-zeta
+    basis set)...'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1813: BLYP'
+      source_id: Q138548786
+      url: https://www.wikidata.org/wiki/Q138548786
+      value: BLYP
+    filled: true
+  kind: entity_fact
+  raw_text: Use QM DFT data (BLYP/polarized double-zeta basis set) as ground truth
+  resolved_value: BLYP
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:13:18Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: DOI 10.1038/sdata.2014.22 exists in local reference registry
+  claim_id: c_f773c782
+  context: T015 [Foundational] [P] Verify DOI 10.1038/sdata.2014.22 exists in local
+    reference registry and record its hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+    (depends on T090, T091). This is a prerequisite for US1.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Verify DOI 10.1038/sdata.2014.22 exists in local reference registry and
+    record its hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:14:02Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Train SchNet-style GNN and Random Forest on QM9 with 50 epochs and early
+    stopping patience 10
+  claim_id: c_8c842b47
+  context: "Goal: Train lightweight SchNet\u2011style GNN and Random Forest baseline\
+    \ on identical train/test splits, evaluate both on held\u2011out test set using\
+    \ MAE and RMSE for dipole moments (50 epochs with early stopping patience=10)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train lightweight SchNet\u2011style GNN and Random Forest baseline on\
+    \ identical train/test splits, evaluate both on held\u2011out test set using MAE\
+    \ and RMSE for dipole moments (50 epochs with early stopping patience=10)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:14:28Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Models trained with 50 epochs and patience 10 produce MAE, RMSE, and
+    confidence intervals
+  claim_id: c_7a9c2621
+  context: 'Independent Test: Verify training with 50 epochs and early stopping (patience=10),
+    both models produce MAE and RMSE scores on test set, and Confidence intervals
+    are computed across random seeds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify training with 50 epochs and early stopping (patience=10), both
+    models produce MAE and RMSE scores on test set, and Confidence intervals are computed
+    across random seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:14:59Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: At least 3 distinct structural features are ranked and verified
+  claim_id: c_fa49f89a
+  context: "T040 [US3] Rank structural contributions (e.g., electronegative atom placement,\
+    \ local bond angles) and (FR\u2011007, SC\u2011002). This task must explicitly\
+    \ count and verify at least 3 distinct features."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_3_distinct_structural_features_are_ranked_and_verif
+  kind: magnitude
+  raw_text: This task must explicitly count and verify at least 3 distinct features
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:15:03Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: Dipole magnitude prediction stable within 0.01 D under random rotation
+  claim_id: c_9d8445b0
+  context: T301 [P] [US2] Implement a geometric invariance test in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/geometry_invariance.py
+    that rotates molecules by random angles and verifies the dipole magnitude prediction
+    remains stable within 0.01 D.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify dipole magnitude prediction remains stable within 0.01 D when molecules
+    are rotated by random angles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:15:07Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Summary includes MAE and RMSE with 95 percent confidence intervals
+  claim_id: c_8b7ad280
+  context: "T058 [P] Summary includes MAE/RMSE with 95 % CI, top\u2011k feature importance\
+    \ entries, paired\u2011t\u2011test p\u2011values, and links to generated figures."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Summary includes MAE/RMSE with 95 % CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:15:10Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM DFT data with BLYP/augmented split-valence basis set with polarization
+    functions is sole ground truth
+  claim_id: c_b0f20796
+  context: 'T250 [Doc] [US1/US2/US3] Update research.md to include a section titled
+    "## Limitations and Scope Boundaries" that explicitly states: (1) Physical measurement
+    validation is out-of-scope; (2) QM DFT data (BLYP/augmented split-valence basis
+    set with polarization functions) is the sole ground truth'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/QM_DFT_data_with_BLYP/augmented_split-valence_basis_set_with
+  kind: entity_fact
+  raw_text: Qm DFT data (BLYP/augmented split-valence basis set with polarization
+    functions) is the sole ground truth
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:15:14Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Ground truth is QM DFT with BLYP/polarized double-zeta basis set
+  claim_id: c_79aebb06
+  context: 'T306 [Doc] Update research.md to include a "Validation Protocol" section
+    that explicitly states: (1) Ground truth is QM DFT (BLYP/polarized double-zeta
+    basis set)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_is_QM_DFT_with_BLYP/polarized_double-zeta_basis
+  kind: entity_fact
+  raw_text: Ground truth is QM DFT (BLYP/polarized double-zeta basis set)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:15:17Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Memory constraint enforced below 8 GB
+  claim_id: c_527c81fa
+  context: "T052 [P] Enforce memory constraint (< 8 GB) (@memory_limit(8*1024**3))\
+    \ in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/memory_constraint.py\
+    \ (FR\u2011013)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce memory constraint (< 8 GB)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:15:20Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 download memory usage stays within 8 GB limit
+  claim_id: c_c21c0901
+  context: "T102 [P] [US1] Integration test for QM9 download pipeline with memory\
+    \ profiling (tests/integration/test_qm9_download.py) \u2013 Implement test_qm9_download_memory_under_8gb\
+    \ to verify verify memory usage stays within 8GB limit during download."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: test_qm9_download_memory_under_8gb to verify verify memory usage stays
+    within 8GB limit during download
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:15:33Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: Verify DOI 10.1038/sdata.2014.22 exists in local reference registry
+  claim_id: c_492e0d16
+  context: T015 [Foundational] [P] Verify DOI 10.1038/sdata.2014.22 exists in local
+    reference registry and record its hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+    (depends on T090, T091). This is a prerequisite for US1.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Verify DOI 10.1038/sdata.2014.22 exists in local reference registry and
+    record its hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:16:25Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: Generate results/metrics.csv with columns seed, model, mae, rmse, mae_ci_lower,
+    mae_ci_upper, rmse_ci_lower, rmse_ci_upper
+  claim_id: c_e5b3e724
+  context: "T034 [US2] Generate results/metrics.csv with columns seed, model, mae,\
+    \ rmse, mae_ci_lower, mae_ci_upper, rmse_ci_lower, rmse_ci_upper \u2013 {{claim:c_6ac9c374}}\
+    \ (0804.4361, https://arxiv.org/abs/0804.4361)."
+  evidence:
+    entailment_evidence: csv contains seed, model, mae, rmse, and con
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Results/metrics.csv_contains_seed,_model,_mae,_rmse,_and_con
+  kind: entity_fact
+  raw_text: Generate results/metrics.csv with columns seed, model, mae, rmse, mae_ci_lower,
+    mae_ci_upper, rmse_ci_lower, rmse_ci_upper
+  resolved_value: results/metrics.csv contains seed, model, mae, rmse, and confidence
+    interval columns
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:16:27Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Verify dipole magnitude prediction remains stable within 0.01 D when
+    molecules are rotated by random angles
+  claim_id: c_005a44f2
+  context: 'T301 [P] [US2] Implement a geometric invariance test in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/geometry_invariance.py
+    that rotates molecules by random angles and Verify dipole magnitude prediction
+    remains stable within 0.01 D when molecules are rotated by random angles. Output:
+    results/geometry_invariance_report.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify dipole magnitude prediction remains stable within 0.01 D when molecules
+    are rotated by random angles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:16:49Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Perform paired t-tests with alpha 0.05 comparing RMSE distributions
+  claim_id: c_bed11120
+  context: "T041 [US3] Implement paired t-tests (\u03B1 = 0.05) comparing RMSE distributions\
+    \ in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py\
+    \ (FR-008, SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform paired t-tests (alpha = 0.05) comparing RMSE distributions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:17:01Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Count and verify at least 3 distinct features
+  claim_id: c_d06457dc
+  context: T040 [US3] Rank structural contributions (e.g., electronegative atom placement,
+    local bond angles) and (FR-007, SC-002). This task must explicitly count and verify
+    at least 3 distinct features.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q47604
+        url: https://www.wikidata.org/wiki/Q47604
+        value: '12500'
+      quote: 'P31: YouTube channel'
+      source_id: Q126592664
+      url: https://www.wikidata.org/wiki/Q126592664
+      value: '3'
+    filled: true
+  kind: magnitude
+  raw_text: Verify at least 3 distinct features are counted and verified
+  resolved_value: '3'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:17:11Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Train SchNet-style GNN and Random Forest baseline for 50 epochs with
+    early stopping patience 10
+  claim_id: c_feb0824e
+  context: 'Goal: Train lightweight SchNet-style GNN and Random Forest baseline on
+    identical train/test splits, evaluate both on held-out test set using MAE and
+    RMSE for dipole moments (50 epochs with early stopping patience=10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train lightweight SchNet-style GNN and Random Forest baseline on identical
+    train/test splits, evaluate both on held-out test set using MAE and RMSE for dipole
+    moments (50 epochs with early stopping patience=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:17:13Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Enforce memory constraint of 8 GB
+  claim_id: c_23d13f92
+  context: T052 [P] Enforce memory constraint (< 8 GB) (@memory_limit(8*1024**3))
+    in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/memory_constraint.py
+    (FR-013)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce memory constraint (< 8 GB) using @memory_limit(8*1024**3)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:17:32Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Track elapsed time against 6 hour limit
+  claim_id: c_12c30e79
+  context: T016a [US1] Implement runtime monitoring wrapper in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/runtime_monitor.py
+    that tracks elapsed time against the 6h limit. If the limit is approached, it
+    triggers a subset reduction flag.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement runtime monitoring wrapper that tracks elapsed time against
+    the 6h limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:17:48Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM DFT data with BLYP/augmented split-valence basis set with polarization
+    functions is the sole ground truth
+  claim_id: c_785c2e7f
+  context: 'T250 [Doc] [US1/US2/US3] Update research.md to include a section titled
+    ''## Limitations and Scope Boundaries'' that explicitly states: (1) Physical measurement
+    validation is out-of-scope; (2) QM DFT data (BLYP/augmented split-valence basis
+    set with polarization functions) is the sole ground truth; (3) Hydration effects
+    and conformational ensembles are out-of-scope; (4) The model predicts DFT values,
+    not experimental reality.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/QM_DFT_data_with_BLYP/augmented_split-valence_basis_set_with
+  kind: entity_fact
+  raw_text: QM DFT data (BLYP/augmented split-valence basis set with polarization
+    functions) is the sole ground truth
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:17:52Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 3D coordinate extraction outputs final processed features
+  claim_id: c_12fbe252
+  context: "Implement 3D coordinate, atom type, and bond connectivity extraction in\
+    \ projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/preprocess_3d.py\
+    \ (FR\u2011002, depends on T016b). This task also outputs the final processed\
+    \ features."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/3D_coordinate_extraction_outputs_final_processed_features
+  kind: entity_fact
+  raw_text: This task also outputs the final processed features.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:19:17Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Random Forest baseline uses only Morgan fingerprints and topological
+    counts, excluding Coulomb matrices
+  claim_id: c_d95ec47d
+  context: "Implement 2D Morgan fingerprints and Coulomb matrix generation in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/extract_2d_descriptors.py\
+    \ (FR\u2011003, depends on T016b). Note: Generates Coulomb matrices as 3D-derived\
+    \ artifacts for potential future use, but explicitly excludes them from the Random\
+    \ Forest baseline inputs which must use ONLY Morgan fingerprints and topological\
+    \ counts per plan.md methodology."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_baseline_uses_only_Morgan_fingerprints_and_top
+  kind: entity_fact
+  raw_text: Generates Coulomb matrices as 3D-derived artifacts for potential future
+    use, but explicitly excludes them from the Random Forest baseline inputs which
+    must use ONLY Morgan fingerprints and topological counts per plan.md methodology.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:19:39Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Random Forest baseline training uses only 2D features excluding Coulomb
+    matrices
+  claim_id: c_fc955707
+  context: "Train Random Forest baseline with seeds in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py\
+    \ \u2013 also records RMSE variance and confidence intervals. Note: Uses ONLY\
+    \ 2D features (Morgan fingerprints, topological counts) as defined in plan.md,\
+    \ explicitly excluding Coulomb matrices."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_baseline_training_uses_only_2D_features_exclud
+  kind: entity_fact
+  raw_text: Uses ONLY 2D features (Morgan fingerprints, topological counts) as defined
+    in plan.md, explicitly excluding Coulomb matrices.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:19:58Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: MAE/RMSE computed against QM9 DFT reference values not experimental data
+  claim_id: c_0057c765
+  context: "Compute MAE/RMSE against QM9 DFT reference values (not experimental) (fulfills\
+    \ FR\u2011011) using the DFT reference data already present in the QM9 dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute MAE/RMSE against QM9 DFT reference values (not experimental)\
+    \ (fulfills FR\u2011011) using the DFT reference data already present in the QM9\
+    \ dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:20:01Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Verify at least 3 distinct structural contribution features
+  claim_id: c_9d2ac9f2
+  context: "Rank structural contributions (e.g., electronegative atom placement, local\
+    \ bond angles) and (FR\u2011007, SC\u2011002). This task must explicitly count\
+    \ and verify at least 3 (Wikidata Q126592664, https://www.wikidata.org/wiki/Q126592664)\
+    \ distinct features."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_3_distinct_structural_contribution_features
+  kind: magnitude
+  raw_text: This task must explicitly count and verify at least 3 (Wikidata Q126592664,
+    https://www.wikidata.org/wiki/Q126592664) distinct features.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:20:05Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Dipole magnitude prediction stable within 0.01 D under random rotation
+  claim_id: c_8221315f
+  context: Implement a geometric invariance test in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/geometry_invariance.py
+    that rotates molecules by random angles and Verify dipole magnitude prediction
+    remains stable within 0.01 D when molecules are rotated by random angles.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify dipole magnitude prediction remains stable within 0.01 D when molecules
+    are rotated by random angles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:20:07Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM DFT BLYP augmented split-valence basis set with polarization functions
+    is sole ground truth
+  claim_id: c_e97a1ea1
+  context: 'Update research.md to include a section titled ''## Limitations and Scope
+    Boundaries'' that explicitly states: (1) Physical measurement validation is out-of-scope;
+    (2) QM DFT data (BLYP/augmented split-valence basis set with polarization functions)
+    is the sole ground truth; (3) Hydration effects and conformational ensembles are
+    out-of-scope; (4) The model predicts DFT values, not experimental reality.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/QM_DFT_BLYP_augmented_split-valence_basis_set_with_polarizat
+  kind: entity_fact
+  raw_text: QM DFT data (BLYP/augmented split-valence basis set with polarization
+    functions) is the sole ground truth
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:20:11Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Ground truth is QM DFT BLYP polarized double-zeta basis set
+  claim_id: c_f0725c7c
+  context: 'Update research.md to include a ''Validation Protocol'' section that explicitly
+    states: (1) Ground truth is QM DFT (BLYP/polarized double-zeta basis set), (2)
+    Experimental validation is out-of-scope per FR-011, (3) The ''evidentiary standard''
+    is internal consistency across multiple seeds and geometric invariance, addressing
+    Marie Curie''s and Rosalind Franklin''s requests for explicit validation standards.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_is_QM_DFT_BLYP_polarized_double-zeta_basis_set
+  kind: entity_fact
+  raw_text: Ground truth is QM DFT (BLYP/polarized double-zeta basis set)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:20:15Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: DOI 10.1038/sdata.2014.22 exists in local reference registry
+  claim_id: c_1133c4ac
+  context: T015 [Foundational] [P] Verify DOI 10.1038/sdata.2014.22 exists in local
+    reference registry and record its hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+    (depends on T090, T091).
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Verify DOI 10.1038/sdata.2014.22 exists in local reference registry
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:21:34Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 download memory usage under 8GB
+  claim_id: c_0aba809e
+  context: "T102 [P] [US1] Integration test for QM9 download pipeline with memory\
+    \ profiling (tests/integration/test_qm9_download.py) \u2013 Implement test_qm9_download_memory_under_8gb\
+    \ to verify verify memory usage stays within 8GB limit during download."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/QM9_download_memory_usage_under_8GB
+  kind: entity_fact
+  raw_text: Verify memory usage stays within 8GB limit during download
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:22:00Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: GNN and Random Forest trained for 50 epochs with early stopping patience
+    10
+  claim_id: c_b422b767
+  context: "Phase 4: User Story 2 \u2013 Model Training and Evaluation Pipeline (Priority:\
+    \ P2) Goal: Train lightweight SchNet\u2011style GNN and Random Forest baseline\
+    \ on identical train/test splits, evaluate both on held\u2011out test set using\
+    \ MAE and RMSE for dipole moments (50 epochs with early stopping patience=10)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train lightweight SchNet\u2011style GNN and Random Forest baseline on\
+    \ identical train/test splits, evaluate both on held\u2011out test set using MAE\
+    \ and RMSE for dipole moments (50 epochs with early stopping patience=10)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:22:02Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: MAE RMSE computed against QM9 DFT reference values not experimental
+  claim_id: c_19b82439
+  context: "T032 [US2] Compute MAE/RMSE against QM9 DFT reference values (not experimental)\
+    \ (fulfills FR\u2011011) using the DFT reference data already present in the QM9\
+    \ dataset."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MAE_RMSE_computed_against_QM9_DFT_reference_values_not_exper
+  kind: entity_fact
+  raw_text: Compute MAE/RMSE against QM9 DFT reference values (not experimental)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:22:06Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Metrics generation reference arXiv 0804.4361
+  claim_id: c_a92f24e5
+  context: "T034 [US2] Generate results/metrics.csv with columns seed, model, mae,\
+    \ rmse, mae_ci_lower, mae_ci_upper, rmse_ci_lower, rmse_ci_upper \u2013 {{claim:c_6ac9c374}}\
+    \ (0804.4361, https://arxiv.org/abs/0804.4361)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reference 0804.4361 for metrics generation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:22:19Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: Paired t-tests performed with alpha 0.05 on RMSE distributions
+  claim_id: c_794ef907
+  context: "T041 [US3] Implement paired t\u2011tests (\u03B1 = 0.05) comparing RMSE\
+    \ distributions in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py\
+    \ (FR\u2011008, SC\u2011004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement paired t\u2011tests (\u03B1 = 0.05) comparing RMSE distributions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:22:22Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Dipole magnitude prediction stable within 0.01 D under random rotation
+  claim_id: c_b22801d1
+  context: T301 [P] [US2] Implement a geometric invariance test in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/geometry_invariance.py
+    that rotates molecules by random angles and Verify dipole magnitude prediction
+    remains stable within 0.01 D when molecules are rotated by random angles.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify dipole magnitude prediction remains stable within 0.01 D when molecules
+    are rotated by random angles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:22:24Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: GNN attention weights mapped to bond lengths and angles using matplotlib
+  claim_id: c_64b63c38
+  context: T307 [P] [US3] Implement a 'feature contribution visualization' in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/physical_contribution.py
+    that maps GNN attention weights to specific bond lengths and angles using matplotlib.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GNN_attention_weights_mapped_to_bond_lengths_and_angles_usin
+  kind: entity_fact
+  raw_text: Map GNN attention weights to specific bond lengths and angles using matplotlib
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:24:01Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Ground truth is QM DFT BLYP polarized double-zeta basis set
+  claim_id: c_99b75d59
+  context: 'T306 [Doc] Update research.md to include a ''Validation Protocol'' section
+    that explicitly states: (1) Ground truth is QM DFT (BLYP/polarized double-zeta
+    basis set), (2) Experimental validation is out-of-scope per FR-011...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_is_QM_DFT_BLYP_polarized_double-zeta_basis_set
+  kind: entity_fact
+  raw_text: Ground truth is QM DFT (BLYP/polarized double-zeta basis set)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T18:24:05Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: At least 3 distinct features verified in structural contributions
+  claim_id: c_6dea8fa2
+  context: "T040 [US3] Rank structural contributions (e.g., electronegative atom placement,\
+    \ local bond angles) and (FR\u2011007, SC\u2011002). This task must explicitly\
+    \ count and verify at least 3 (Wikidata Q126592664, https://www.wikidata.org/wiki/Q126592664)\
+    \ distinct features."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:2405.13996v2 [eess.SP] 5 Aug 2024
+      source_id: '2405.13996'
+      url: https://arxiv.org/abs/2405.13996
+      value: '3'
+    filled: true
+  kind: magnitude
+  raw_text: Verify at least 3 distinct features in structural contributions
+  resolved_value: '3'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T18:24:30Z'

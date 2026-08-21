@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a computational pipeline to determine the extent to which 3D conformational geometry provides independent predictive information for molecular dipole moments beyond 2D connectivity and atom types. The technical approach involves downloading the QM9 dataset via PyTorch Geometric, extracting strictly 2D descriptors (Morgan fingerprints, topological counts) for the baseline, and 3D graph features (coordinates, connectivity) for the GNN. A lightweight SchNet-style GNN and a Random Forest baseline are trained and evaluated on identical train/test splits across 5 random seeds. Statistical significance is assessed via paired t-tests on per-molecule absolute errors with Confidence Intervals computed via bootstrapping. The pipeline strictly adheres to the constraint of operating within 6 hours on 2 CPU cores and 8GB RAM (managed to fit 7GB runner limits), utilizing the QM9 DFT-calculated dipole moments as the ground truth, explicitly excluding physical experimental validation as out-of-scope per the project assumptions (FR-011).
+This feature implements a computational pipeline to determine the extent to which 3D conformational geometry provides independent predictive information for molecular dipole moments beyond 2D connectivity and atom types. The technical approach involves downloading the QM9 dataset via PyTorch Geometric, extracting strictly 2D descriptors (Morgan fingerprints, topological counts) for the baseline, and 3D graph features (coordinates, connectivity) for the GNN. A lightweight SchNet-style GNN and a Random Forest baseline are trained and evaluated on identical train/test splits across multiple random seeds. Statistical significance is assessed via paired t-tests on per-molecule absolute errors with Confidence Intervals computed via bootstrapping. The pipeline strictly adheres to the constraint of operating within 6 hours on 2 CPU cores and 8GB RAM (managed to fit 7GB runner limits), utilizing the QM9 DFT-calculated dipole moments as the ground truth, explicitly excluding physical experimental validation as out-of-scope per the project assumptions (FR-011).
 
 ## Technical Context
 
@@ -137,7 +137,7 @@ if hasattr(sample, "mu"):
 print("FIELDS=" + ",".join(fields))
 ```
 
-**Subset Selection Logic**: The loader will filter the full dataset for non-null dipoles, stratify by dipole magnitude into 10 bins, and sample [deferred] molecules per bin to create a representative subset of N=10,000. This ensures statistical power while fitting the 6-hour runtime.
+**Subset Selection Logic**: The loader will filter the full dataset for non-null dipoles, stratify by dipole magnitude into multiple bins, and sample [deferred] molecules per bin to create a representative subset of N=10,000. This ensures statistical power while fitting the 6-hour runtime.
 
 **Data Source Consistency**: The HuggingFace Parquet URL mentioned in prior drafts is deprecated. The canonical source is the `torch_geometric.datasets.QM9` loader, which fetches the same verified data. All references to HuggingFace URLs in `research.md` and `spec.md` must be updated to reflect this canonical loader.
 

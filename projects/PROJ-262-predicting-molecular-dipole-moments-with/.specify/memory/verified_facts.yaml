@@ -1,7 +1,5 @@
-'|bootstrap ci computed via':
-  quote: In this example, the bootstrapped 95% (percentile) confidence-interval for
-    the population median is (26, 28.5), which is close to the interval for  (25.98,
-    28.46) for the smoothed bootstrap.
-  source_id: Bootstrapping (statistics)
-  url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
-  value: (26, 28.5)
+'|contribution distinct feature least structural verify':
+  quote: arXiv:2405.13996v2 [eess.SP] 5 Aug 2024
+  source_id: '2405.13996'
+  url: https://arxiv.org/abs/2405.13996
+  value: '3'
