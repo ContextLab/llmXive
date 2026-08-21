@@ -1,1 +1,3 @@
-# Integration tests package initialization
+"""
+llmXive Research Pipeline - Integration Tests Module
+"""

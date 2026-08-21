@@ -1,3 +1,17 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other proof is provided showing that `projects/294-evaluating-code-testability/`
+    and its required subfolders (`code/`, `data/`, `state/`, `results/`, `tests/`,
+    `docs/`) actually exist; the evidence is absent.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no evidence that `__init__.py` files actually exist in `code/`,\
+    \ `tests/`, `tests/unit/`, or `tests/integration/`. Without seeing these files\
+    \ (or a directory listing showing them), we cannot verify that the required artifacts\
+    \ were created. The implementer must add the missing `__init__.py` files (or provide\
+    \ a manifest showing they are present and non\u2011empty)."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -6,50 +20,14 @@ T003:
     \ evidence, nor any documentation showing that flake8/black have been set up and\
     \ integrated into the project. Without such artifacts, the requirement to configure\
     \ linting and formatting tools is not satisfied."
-T010:
+T008:
   c: false
-  h: f24305ec680b80d529a70507f5a80a734ee91d8db56103db5180871877e4be8b
-  r: "The repository contains a partially\u2011implemented `code/download_data.py`,\
-    \ but the script is truncated (e.g., the `save_to_jsonl` function is incomplete)\
-    \ and does not show the required JSON\u2011to\u2011Parquet conversion or SHA256\
-    \ computation. Moreover, the expected output artifacts `data/raw/humaneval.json`\
-    \ and `data/raw/humaneval.parquet` are absent. The task therefore is not fully\
-    \ satisfied."
-T011:
-  c: false
-  h: 4b2c4081ced8fe02788d00ed61e2077df8e7a19e335f8f097b12da991efff59f
-  r: "The script `code/extract_human_reference.py` exists and looks correct, but the\
-    \ required input file `data/raw/humaneval.parquet` is missing, and consequently\
-    \ the expected output `data/generated/human_samples.json` was never created. Without\
-    \ the source data and the resulting JSONL file, the task\u2019s core requirement\u2014\
-    extracting and saving human reference code\u2014is not satisfied. The missing\
-    \ parquet file (or a generated version of it) and the resulting JSONL output must\
-    \ be provided."
-T012:
-  c: false
-  h: fa5aadef1abc14fb7f17cd9bc0dd6013bf5fb6c4d4fde0437ce0131f5ea5a16f
-  r: "The provided `code/generate_code.py` is incomplete (truncated) and we cannot\
-    \ verify that it contains the required batched generation, exponential\u2011backoff\
-    \ retry, prompt\u2011template loading, or GPU\u2011escape\u2011hatch logic. Moreover,\
-    \ the required input dataset `data/raw/humaneval.parquet`, the prompt template\
-    \ `code/prompt_templates/humaneval.txt`, and the expected output `data/generated/codegen_samples.json`\
-    \ are all missing. The task therefore remains unfinished."
-T013:
-  c: false
-  h: 3571d00308b2efd1a0ac2cd02c8996c913ec96c904fcff55ff427cbca2bd5408
-  r: "The repository does not contain a `code/errors.log` file, and the shown portion\
-    \ of `code/generate_code.py` lacks any try/except blocks for `RuntimeError`, `TimeoutError`,\
-    \ or `MemoryError`, nor does it write to an errors log or set `generated_code`\
-    \ to `null`/`status` to `'failed'`. The required error\u2011handling logic and\
-    \ logging artifact are missing."
-T014a:
-  c: false
-  h: 52605d3c05cfd80efb31f94c47ea07ecc33c0ab1634e3d5a80eed6aa9a2f0881
-  r: "The required input files `data/generated/human_samples.json` and `data/generated/codegen_samples.json`\
-    \ are absent, and the provided `code/analyze_metrics.py` is incomplete (truncated)\
-    \ with no logic that actually runs `radon cc`/`radon hal` over all tasks or writes\
-    \ the specified intermediate JSON. Consequently the task\u2019s functional requirement\
-    \ is not met."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that `data/raw/`,
+    `data/generated/`, and `data/analysis/` actually exist, nor any confirmation that
+    a `state/` directory was avoided. The implementer must supply proof (e.g., a tree
+    listing or screenshots) that the required directories were created and that `state/`
+    was not created in this location.
 T017:
   c: false
   h: f358d1fe8d912ac4a3887c34949be0a60351738dcbe551103dc6388fe5ca4dcc
@@ -57,13 +35,6 @@ T017:
     \ provided `code/analyze_metrics.py` is incomplete (truncated) with no evidence\
     \ that it writes the JSON or enforces the non\u2011null constraints. The task\u2019\
     s core deliverable is missing."
-T042:
-  c: false
-  h: 9eae7611da2d1092232dd954dc9af7bfcfd3b4d334b24d78db79d9cf7efa3b1a
-  r: "The repository lacks the required `data/analysis/valid_task_ids.json` file,\
-    \ and the shown portion of `code/analyze_metrics.py` does not contain any logic\
-    \ for detecting null coverage or writing a subset of task IDs as specified. The\
-    \ task\u2019s core functionality and output artifact are missing."
 T046:
   c: false
   h: 77d3d316ac0b5f1c1dc853a7adcfa99192e475df4b2ff4b1dfd6c5f25bc973d2

@@ -2,98 +2,125 @@
 Unit tests for T011: extract_human_reference.py
 """
 import os
+import sys
 import json
 import tempfile
-import pytest
+import unittest
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+from unittest.mock import patch, MagicMock
 
-# Import the function to test
-from extract_human_reference import extract_human_references
+# Add project root to path if needed
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
+from extract_human_reference import extract_human_references, main
+from utils import set_task_id, setup_logging
 
-def test_extract_human_references_creates_jsonl():
-    """Test that the function creates a valid JSONL file."""
-    # Create temporary directory and files
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "input.parquet")
-        output_path = os.path.join(tmpdir, "output.jsonl")
+class TestExtractHumanReference(unittest.TestCase):
+    
+    def setUp(self):
+        """Create temporary directory structure for testing."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.raw_dir = os.path.join(self.temp_dir, "data", "raw")
+        self.generated_dir = os.path.join(self.temp_dir, "data", "generated")
+        os.makedirs(self.raw_dir, exist_ok=True)
+        os.makedirs(self.generated_dir, exist_ok=True)
         
-        # Create mock parquet data
+        # Create a mock parquet file
+        self.parquet_path = os.path.join(self.raw_dir, "humaneval.parquet")
         data = {
             "task_id": ["HumanEval/0", "HumanEval/1"],
             "prompt": ["def add(a, b):\n    pass", "def multiply(a, b):\n    pass"],
             "canonical_solution": ["return a + b", "return a * b"],
-            "test": ["", ""],
+            "test": ["assert add(1, 2) == 3", "assert multiply(2, 3) == 6"],
             "entry_point": ["add", "multiply"]
         }
         df = pd.DataFrame(data)
         table = pa.Table.from_pandas(df)
-        pq.write_table(table, input_path)
+        pq.write_table(table, self.parquet_path)
         
-        # Run extraction
-        count = extract_human_references(input_path, output_path)
+        self.output_path = os.path.join(self.generated_dir, "human_samples.json")
+
+    def tearDown(self):
+        """Clean up temporary files."""
+        import shutil
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+
+    @patch('extract_human_reference.setup_logging')
+    @patch('extract_human_reference.get_logger')
+    @patch('extract_human_reference.set_task_id')
+    def test_extract_successful(self, mock_set_task, mock_get_logger, mock_setup_log):
+        """Test successful extraction of human references."""
+        mock_logger = MagicMock()
+        mock_get_logger.return_value = mock_logger
+        mock_setup_log.return_value = mock_logger
         
-        # Verify count
-        assert count == 2
+        count = extract_human_references(self.parquet_path, self.output_path)
         
-        # Verify output file exists and is valid JSONL
-        assert os.path.exists(output_path)
-        with open(output_path, "r") as f:
+        self.assertEqual(count, 2)
+        self.assertTrue(os.path.exists(self.output_path))
+        
+        # Verify content
+        with open(self.output_path, 'r') as f:
             lines = f.readlines()
-        assert len(lines) == 2
         
-        # Verify JSON structure
-        for line in lines:
-            record = json.loads(line)
-            assert "task_id" in record
-            assert "prompt" in record
-            assert "canonical_solution" in record
-            assert isinstance(record["task_id"], str)
-            assert isinstance(record["prompt"], str)
-            assert isinstance(record["canonical_solution"], str)
+        self.assertEqual(len(lines), 2)
+        
+        # Parse first line
+        record = json.loads(lines[0])
+        self.assertEqual(record["task_id"], "HumanEval/0")
+        self.assertEqual(record["prompt"], "def add(a, b):\n    pass")
+        self.assertEqual(record["canonical_solution"], "return a + b")
+        
+        # Verify logging
+        mock_logger.info.assert_called()
 
+    @patch('extract_human_reference.setup_logging')
+    @patch('extract_human_reference.get_logger')
+    @patch('extract_human_reference.set_task_id')
+    def test_input_not_found(self, mock_set_task, mock_get_logger, mock_setup_log):
+        """Test that RuntimeError is raised if input file is missing."""
+        mock_logger = MagicMock()
+        mock_get_logger.return_value = mock_logger
+        mock_setup_log.return_value = mock_logger
+        
+        missing_path = os.path.join(self.raw_dir, "nonexistent.parquet")
+        
+        with self.assertRaises(RuntimeError) as context:
+            extract_human_references(missing_path, self.output_path)
+        
+        self.assertIn("Input file not found", str(context.exception))
 
-def test_extract_human_references_preserves_fields():
-    """Test that task_id and prompt fields are preserved exactly."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "input.parquet")
-        output_path = os.path.join(tmpdir, "output.jsonl")
+    @patch('extract_human_reference.extract_human_references')
+    @patch('extract_human_reference.setup_logging')
+    @patch('extract_human_reference.set_task_id')
+    def test_main_success(self, mock_set_task, mock_setup_log, mock_extract):
+        """Test main function returns 0 on success."""
+        mock_logger = MagicMock()
+        mock_setup_log.return_value = mock_logger
+        mock_extract.return_value = 164
         
-        # Create mock data with specific values
-        test_task_id = "HumanEval/42"
-        test_prompt = "def factorial(n):\n    \"\"\"Compute factorial of n.\"\"\"\n    pass"
-        test_solution = "if n <= 1:\n    return 1\nreturn n * factorial(n-1)"
+        result = main()
         
-        data = {
-            "task_id": [test_task_id],
-            "prompt": [test_prompt],
-            "canonical_solution": [test_solution],
-            "test": [""],
-            "entry_point": ["factorial"]
-        }
-        df = pd.DataFrame(data)
-        table = pa.Table.from_pandas(df)
-        pq.write_table(table, input_path)
-        
-        # Run extraction
-        extract_human_references(input_path, output_path)
-        
-        # Verify output
-        with open(output_path, "r") as f:
-            record = json.loads(f.readline())
-        
-        assert record["task_id"] == test_task_id
-        assert record["prompt"] == test_prompt
-        assert record["canonical_solution"] == test_solution
+        self.assertEqual(result, 0)
+        mock_extract.assert_called_once()
 
-
-def test_extract_human_references_raises_on_missing_input():
-    """Test that function raises RuntimeError for missing input file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "nonexistent.parquet")
-        output_path = os.path.join(tmpdir, "output.jsonl")
+    @patch('extract_human_reference.extract_human_references')
+    @patch('extract_human_reference.setup_logging')
+    @patch('extract_human_reference.set_task_id')
+    def test_main_failure(self, mock_set_task, mock_setup_log, mock_extract):
+        """Test main function returns 1 on failure."""
+        mock_logger = MagicMock()
+        mock_setup_log.return_value = mock_logger
+        mock_extract.side_effect = RuntimeError("Test error")
         
-        with pytest.raises(RuntimeError, match="Input file not found"):
-            extract_human_references(input_path, output_path)
+        result = main()
+        
+        self.assertEqual(result, 1)
+        mock_logger.error.assert_called()
+
+if __name__ == '__main__':
+    unittest.main()

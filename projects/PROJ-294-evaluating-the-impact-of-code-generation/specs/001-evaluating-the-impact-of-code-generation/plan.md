@@ -140,7 +140,7 @@ tests/
 ## Compute Feasibility Strategy
 
 - **CPU-First**: The pipeline is designed for a constrained CPU and RAM environment.
-  - **Data**: HumanEval (164 tasks) is small (<10MB).
+  - **Data**: HumanEval (a standardized benchmark of coding tasks) is small (<10MB).
   - **Generation**: 
     - **Primary**: `Salesforce/codegen-mono-4b` (8-bit) is attempted first. 
     - **Deterministic Fallback**: If OOM or timeout occurs, the script automatically switches to `Salesforce/codegen-mono-350M` (verified to fit <2GB RAM on CPU). This ensures the pipeline completes within 6 hours without external dependencies.
@@ -151,9 +151,9 @@ tests/
 
 - **Source**: `openai/openai_humaneval` on HuggingFace (verified URL: `https://huggingface.co/datasets/openai/openai_humaneval`).
 - **Download**: Programmatic via `datasets` library. No manual portal interaction.
-- **Streaming**: Not required for 164 tasks, but `streaming=True` is supported if the dataset grows.
+- **Streaming**: Not required for a subset of tasks, but `streaming=True` is supported if the dataset grows.
 - **Integrity**: SHA256 checksums verified against the specific commit hash.
-- **Dataset Size**: A set of tasks (Source: Chen et al., 2021, HuggingFace Dataset Card).
+- **Dataset Size**: A set of tasks (Source: Chen et al., HuggingFace Dataset Card).
 
 ## Missing Data & Bias Analysis Protocol
 

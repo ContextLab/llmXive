@@ -1,7 +1,6 @@
 """
 Shared utilities for the llmXive research pipeline.
-
-Provides logging setup, task ID management, checksums, and safe JSON operations.
+Provides logging, task ID management, hashing, and directory utilities.
 """
 import hashlib
 import json
@@ -9,124 +8,132 @@ import logging
 import os
 import uuid
 from datetime import datetime
-from typing import Optional, Any, Dict
+from typing import Optional, Dict, Any, List
 
-# Global state for task ID
-_TASK_ID: Optional[str] = None
-_LOGGERS: Dict[str, logging.Logger] = {}
+# Global state for task context
+_current_task_id: Optional[str] = None
+_logger_instance: Optional[logging.Logger] = None
 
 class TaskIdFilter(logging.Filter):
-    """Logging filter to inject task_id into log records."""
+    """Filter to inject task_id into log records."""
     def filter(self, record):
-        record.task_id = get_task_id() or "UNKNOWN"
+        if _current_task_id:
+            record.task_id = _current_task_id
+        else:
+            record.task_id = "N/A"
         return True
 
-def set_task_id(tid: str) -> None:
-    """Set the global task ID."""
-    global _TASK_ID
-    _TASK_ID = tid
+def set_task_id(task_id: str) -> None:
+    """Set the current task ID for logging context."""
+    global _current_task_id
+    _current_task_id = task_id
 
 def get_task_id() -> Optional[str]:
-    """Get the current global task ID."""
-    return _TASK_ID
+    """Get the current task ID."""
+    return _current_task_id
 
 def get_unique_id() -> str:
-    """Generate a unique ID string."""
+    """Generate a unique ID for this run."""
     return str(uuid.uuid4())
 
 def get_timestamp() -> str:
-    """Get current timestamp in ISO format."""
+    """Get current timestamp string."""
     return datetime.now().isoformat()
 
-def setup_logging(task_id: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logging(
+    task_id: Optional[str] = None,
+    level: int = logging.INFO,
+    log_file: Optional[str] = None
+) -> logging.Logger:
     """
-    Set up and return a logger with consistent formatting.
-
-    Accepts various call signatures for flexibility:
+    Setup logging configuration.
+    
+    Accepts flexible arguments to support various call patterns:
     - setup_logging()
-    - setup_logging(task_id="T010")
+    - setup_logging(task_id="T001")
     - setup_logging(task_id=TASK_ID)
     - setup_logging(level=logging.DEBUG)
-    - setup_logging("T010")  # Positional task_id
-
+    
     Args:
-        task_id: Optional task ID to inject into logs. Can be string, int (level), or None.
-                If an integer is passed, it is treated as the logging level.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
-
+        task_id: Optional task ID to include in logs
+        level: Logging level (default: INFO)
+        log_file: Optional path to log file
+        
     Returns:
-        Configured logger instance.
+        Configured logger instance
     """
-    # Handle flexible arguments
-    if isinstance(task_id, int):
-        # If an integer is passed, treat as level
-        level = task_id
-        task_id = None
-    elif isinstance(task_id, str):
-        # If a string is passed, treat as task_id
-        pass
-
-    if task_id:
-        set_task_id(task_id)
-
-    logger_name = f"llmXive.{get_task_id() or 'root'}"
-    logger = logging.getLogger(logger_name)
-
-    # Avoid adding handlers multiple times
-    if logger.handlers:
-        logger.setLevel(level)
-        return logger
-
+    global _logger_instance
+    
+    # If logger already exists and we aren't reconfiguring, return it
+    if _logger_instance and not log_file and not task_id:
+        return _logger_instance
+    
+    logger = logging.getLogger("llmXive")
     logger.setLevel(level)
-
-    # Create console handler
-    handler = logging.StreamHandler()
-    handler.setLevel(level)
-
+    
+    # Clear existing handlers to avoid duplicates
+    if logger.handlers:
+        logger.handlers.clear()
+    
     # Create formatter
     formatter = logging.Formatter(
         '%(asctime)s [%(levelname)s] [%(task_id)s] - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-
-    # Add filter for task_id
-    handler.addFilter(TaskIdFilter())
-
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-    # Add to registry
-    _LOGGERS[logger_name] = logger
-
+    
+    # Add task ID filter
+    task_filter = TaskIdFilter()
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+    console_handler.addFilter(task_filter)
+    logger.addHandler(console_handler)
+    
+    # File handler if requested
+    if log_file:
+        ensure_directory(log_file)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        file_handler.addFilter(task_filter)
+        logger.addHandler(file_handler)
+    
+    # Set global context if task_id provided
+    if task_id:
+        set_task_id(task_id)
+    
+    _logger_instance = logger
     return logger
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
-    """Get a logger by name, creating it if necessary."""
-    if name is None:
-        name = f"llmXive.{get_task_id() or 'root'}"
-    if name not in _LOGGERS:
-        return setup_logging()
-    return _LOGGERS[name]
+def get_logger() -> logging.Logger:
+    """Get the global logger instance."""
+    global _logger_instance
+    if _logger_instance is None:
+        # Initialize with defaults if not set up yet
+        _logger_instance = setup_logging()
+    return _logger_instance
 
 def log_info(msg: str) -> None:
     """Log an info message."""
-    logger = get_logger()
-    logger.info(msg)
+    get_logger().info(msg)
 
 def log_error(msg: str) -> None:
     """Log an error message."""
-    logger = get_logger()
-    logger.error(msg)
+    get_logger().error(msg)
+
+def log_warning(msg: str) -> None:
+    """Log a warning message."""
+    get_logger().warning(msg)
 
 def compute_sha256(file_path: str) -> str:
     """
-    Compute the SHA256 hash of a file.
-
+    Compute SHA256 hash of a file.
+    
     Args:
-        file_path: Path to the file.
-
+        file_path: Path to the file
+        
     Returns:
-        Hexadecimal string of the SHA256 hash.
+        Hex digest of the SHA256 hash
     """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -134,52 +141,62 @@ def compute_sha256(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def verify_checksum(file_path: str, expected_checksum: str) -> bool:
+def verify_checksum(file_path: str, expected_hash: str) -> bool:
     """
-    Verify a file's checksum against an expected value.
-
+    Verify file checksum against expected hash.
+    
     Args:
-        file_path: Path to the file.
-        expected_checksum: Expected SHA256 hash.
-
+        file_path: Path to the file
+        expected_hash: Expected SHA256 hash
+        
     Returns:
-        True if checksum matches, False otherwise.
+        True if hash matches, False otherwise
     """
-    actual_checksum = compute_sha256(file_path)
-    return actual_checksum == expected_checksum
+    actual_hash = compute_sha256(file_path)
+    return actual_hash == expected_hash
 
-def ensure_directory(dir_path: str) -> None:
-    """Ensure a directory exists, creating it if necessary."""
-    if not os.path.exists(dir_path):
+def ensure_directory(file_path: str) -> str:
+    """
+    Ensure the directory containing the file path exists.
+    
+    Args:
+        file_path: Path to a file (not a directory)
+        
+    Returns:
+        The created/existing directory path
+    """
+    dir_path = os.path.dirname(file_path)
+    if dir_path and not os.path.exists(dir_path):
         os.makedirs(dir_path, exist_ok=True)
+    return dir_path
 
-def safe_json_loads(json_str: str) -> Optional[Any]:
+def safe_json_loads(data: str) -> Optional[Dict[str, Any]]:
     """
-    Safely parse a JSON string.
-
+    Safely parse JSON string.
+    
     Args:
-        json_str: JSON string to parse.
-
+        data: JSON string
+        
     Returns:
-        Parsed object or None if parsing fails.
+        Parsed dict or None if invalid
     """
     try:
-        return json.loads(json_str)
+        return json.loads(data)
     except (json.JSONDecodeError, TypeError):
         return None
 
-def safe_json_dumps(obj: Any, indent: int = 2) -> str:
+def safe_json_dumps(obj: Any, **kwargs) -> str:
     """
-    Safely serialize an object to JSON string.
-
+    Safely serialize object to JSON string.
+    
     Args:
-        obj: Object to serialize.
-        indent: Indentation level.
-
+        obj: Object to serialize
+        **kwargs: Additional args for json.dumps
+        
     Returns:
-        JSON string or empty string if serialization fails.
+        JSON string
     """
-    try:
-        return json.dumps(obj, indent=indent, default=str)
-    except (TypeError, ValueError):
-        return ""
+    return json.dumps(obj, **kwargs)
+
+# Import sys here to avoid circular imports if needed
+import sys

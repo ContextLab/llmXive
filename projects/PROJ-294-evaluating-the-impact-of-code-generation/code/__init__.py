@@ -1,1 +1,3 @@
-# Code package initialization
+"""
+Code package for llmXive research pipeline.
+"""
