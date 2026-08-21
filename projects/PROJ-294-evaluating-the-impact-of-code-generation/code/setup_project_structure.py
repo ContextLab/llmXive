@@ -1,125 +1,92 @@
 import os
 import sys
 import logging
-
-from utils import setup_logging, get_logger, set_task_id, get_task_id
+from datetime import datetime
+from utils import setup_logging, get_logger, set_task_id, get_unique_id
 
 def ensure_directory(path: str) -> bool:
-    """
-    Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        path: The directory path to ensure exists.
-        
-    Returns:
-        True if the directory exists or was created successfully, False otherwise.
-    """
+    """Create a directory if it does not exist, including parent directories."""
     try:
         os.makedirs(path, exist_ok=True)
         return True
     except OSError as e:
-        logger = get_logger()
-        if logger:
-            log_error(f"Failed to create directory {path}: {e}")
+        logging.error(f"Failed to create directory {path}: {e}")
         return False
 
 def create_init_file(path: str) -> bool:
-    """
-    Create an empty __init__.py file in the specified directory.
-    
-    Args:
-        path: The directory path where __init__.py should be created.
-        
-    Returns:
-        True if the file was created or already exists, False otherwise.
-    """
+    """Create an empty __init__.py file in the given directory."""
     init_path = os.path.join(path, "__init__.py")
     try:
-        if not os.path.exists(init_path):
-            with open(init_path, "w") as f:
-                f.write("")
+        with open(init_path, "w") as f:
+            f.write("# Auto-generated init file\n")
         return True
     except IOError as e:
-        logger = get_logger()
-        if logger:
-            log_error(f"Failed to create __init__.py in {path}: {e}")
+        logging.error(f"Failed to create __init__.py at {init_path}: {e}")
         return False
 
 def main():
     """
-    Main entry point for creating the project directory structure.
-    
-    Creates the following directories under the project root:
-    - code/
-    - data/
-    - state/
-    - results/
-    - tests/
-    - docs/
-    
-    Also creates __init__.py files in code/ and tests/ directories.
+    T001a: Create directory structure at projects/PROJ-294-evaluating-the-impact-of-code-generation/
+    Creates: code/, data/, results/, tests/, docs/
+    Also creates __init__.py in code/ and tests/ as per T001c logic embedded here for setup.
     """
-    # Initialize logging
+    # Initialize logging for the task
     logger = setup_logging(task_id="T001a")
-    logger.info("Starting directory structure setup (T001a)")
-    
-    # Define the project root (current working directory)
-    project_root = os.getcwd()
-    
-    # Define the subdirectories to create
-    subdirectories = [
+    logger.info("Starting directory structure creation for PROJ-294")
+
+    base_dir = os.path.join("projects", "PROJ-294-evaluating-the-impact-of-code-generation")
+    required_dirs = [
         "code",
         "data",
-        "state",
         "results",
         "tests",
-        "docs"
+        "docs",
+        "state"  # T001b requirement
     ]
-    
-    # Create each directory
-    for subdir in subdirectories:
-        full_path = os.path.join(project_root, subdir)
+
+    # Create base directory
+    if not ensure_directory(base_dir):
+        logger.error("Failed to create base project directory.")
+        sys.exit(1)
+
+    # Create subdirectories
+    for subdir in required_dirs:
+        full_path = os.path.join(base_dir, subdir)
         if ensure_directory(full_path):
             logger.info(f"Created directory: {full_path}")
         else:
-            logger.error(f"Failed to create directory: {full_path}")
-            return 1
-    
-    # Create __init__.py files in code/ and tests/
-    init_directories = [
-        "code",
-        "tests"
+            logger.warning(f"Directory already exists or failed to create: {full_path}")
+
+    # T001c: Create __init__.py files
+    init_dirs = [
+        os.path.join(base_dir, "code"),
+        os.path.join(base_dir, "tests"),
+        os.path.join(base_dir, "tests", "unit"),
+        os.path.join(base_dir, "tests", "integration")
     ]
-    
-    for subdir in init_directories:
-        full_path = os.path.join(project_root, subdir)
-        if create_init_file(full_path):
-            logger.info(f"Created __init__.py in: {full_path}")
-        else:
-            logger.error(f"Failed to create __init__.py in: {full_path}")
-            return 1
-    
-    # Create additional __init__.py files for test subdirectories
-    test_subdirs = [
-        "tests/unit",
-        "tests/integration"
-    ]
-    
-    for subdir in test_subdirs:
-        full_path = os.path.join(project_root, subdir)
+
+    for init_dir in init_dirs:
+        ensure_directory(init_dir)  # Ensure unit/integration exist
+        if create_init_file(init_dir):
+            logger.info(f"Created __init__.py in {init_dir}")
+
+    # Create data subdirectories as per T008
+    data_subdirs = ["raw", "generated", "analysis"]
+    data_base = os.path.join(base_dir, "data")
+    for subdir in data_subdirs:
+        full_path = os.path.join(data_base, subdir)
         if ensure_directory(full_path):
-            logger.info(f"Created directory: {full_path}")
-            if create_init_file(full_path):
-                logger.info(f"Created __init__.py in: {full_path}")
-            else:
-                logger.error(f"Failed to create __init__.py in: {full_path}")
-                return 1
-        else:
-            logger.error(f"Failed to create directory: {full_path}")
-            return 1
-    
-    logger.info("Directory structure setup completed successfully")
-    return 0
+            logger.info(f"Created data subdirectory: {full_path}")
+
+    # Create results subdirectories
+    results_subdirs = ["figures"]
+    results_base = os.path.join(base_dir, "results")
+    for subdir in results_subdirs:
+        full_path = os.path.join(results_base, subdir)
+        if ensure_directory(full_path):
+            logger.info(f"Created results subdirectory: {full_path}")
+
+    logger.info("Directory structure creation completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,8 +1,3 @@
-"""
-Report Generator Module (T030, T031)
-
-Generates visualizations and Markdown report.
-"""
 import os
 import sys
 import json
@@ -10,118 +5,119 @@ import logging
 import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend
 import matplotlib.pyplot as plt
-from typing import List, Dict, Any, Optional
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from utils import setup_logging, get_logger, set_task_id, get_task_id, log_info, log_error
-
-TASK_ID = "T030"
+from typing import Dict, Any, List
+from utils import setup_logging, get_logger, set_task_id, get_task_id
 
 def ensure_figures_dir():
-    os.makedirs("results/figures", exist_ok=True)
+    """Ensure results/figures/ directory exists."""
+    path = "results/figures"
+    os.makedirs(path, exist_ok=True)
+    return path
 
-def load_metrics_data(file_path: str = "data/analysis/metrics.json") -> List[Dict[str, Any]]:
-    """Load metrics data."""
-    with open(file_path, 'r') as f:
+def load_metrics_data() -> List[Dict[str, Any]]:
+    path = "data/analysis/metrics.json"
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Metrics file not found: {path}")
+    with open(path, "r") as f:
         return json.load(f)
 
-def load_statistical_results(file_path: str = "state/statistical_results.json") -> Dict[str, Any]:
-    """Load statistical results."""
-    if not os.path.exists(file_path):
+def load_statistical_results() -> Dict[str, Any]:
+    path = "data/analysis/statistical_results.json"
+    if not os.path.exists(path):
         return {}
-    with open(file_path, 'r') as f:
+    with open(path, "r") as f:
         return json.load(f)
 
 def extract_metric_values(metrics: List[Dict[str, Any]], metric_name: str) -> Dict[str, List[float]]:
-    """Extract metric values grouped by source type."""
-    groups = {}
+    """Extract metric values by source type."""
+    result = {"human": [], "codegen": []}
     for m in metrics:
-        source = m['source_type']
-        val = m.get(metric_name)
-        if val is not None:
-            if source not in groups:
-                groups[source] = []
-            groups[source].append(val)
-    return groups
+        if m["source_type"] in result:
+            result[m["source_type"]].append(m.get(metric_name, 0))
+    return result
 
 def calculate_summary_stats(values: List[float]) -> Dict[str, float]:
     """Calculate summary statistics."""
     if not values:
-        return {}
+        return {"mean": 0, "std": 0, "min": 0, "max": 0}
     return {
         "mean": sum(values) / len(values),
+        "std": (sum((x - sum(values)/len(values))**2 for x in values) / len(values))**0.5,
         "min": min(values),
         "max": max(values)
     }
 
-def plot_histogram(values: List[float], title: str, output_path: str):
-    """Plot histogram."""
+def plot_histogram(values: Dict[str, List[float]], metric_name: str, output_path: str):
+    """Plot histogram for a metric."""
     plt.figure(figsize=(10, 6))
-    plt.hist(values, bins=20, alpha=0.7, edgecolor='black')
-    plt.title(title)
-    plt.xlabel("Value")
+    for source, vals in values.items():
+        if vals:
+            plt.hist(vals, alpha=0.5, label=source, bins=20)
+    plt.title(f"Histogram of {metric_name}")
+    plt.xlabel(metric_name)
     plt.ylabel("Frequency")
+    plt.legend()
     plt.savefig(output_path)
     plt.close()
 
-def plot_boxplot(groups: Dict[str, List[float]], title: str, output_path: str):
-    """Plot boxplot."""
+def plot_boxplot(values: Dict[str, List[float]], metric_name: str, output_path: str):
+    """Plot boxplot for a metric."""
     plt.figure(figsize=(10, 6))
-    data = [groups[k] for k in sorted(groups.keys())]
-    labels = sorted(groups.keys())
-    plt.boxplot(data, labels=labels)
-    plt.title(title)
-    plt.ylabel("Value")
+    data = [v for v in values.values() if v]
+    plt.boxplot(data, labels=list(values.keys()))
+    plt.title(f"Boxplot of {metric_name}")
+    plt.ylabel(metric_name)
     plt.savefig(output_path)
     plt.close()
 
 def generate_all_plots(metrics: List[Dict[str, Any]]):
-    """Generate all required plots."""
-    ensure_figures_dir()
+    """Generate all plots."""
+    figures_dir = ensure_figures_dir()
+    metrics_to_plot = ["cyclomatic_complexity", "halstead_volume", "branch_coverage_potential", "pass_rate"]
     
-    for metric in ['cyclomatic_complexity', 'halstead_volume']:
-        groups = extract_metric_values(metrics, metric)
-        for source, vals in groups.items():
-            plot_histogram(vals, f"{metric} - {source}", f"results/figures/{metric}_{source}.png")
-        
-        if len(groups) > 1:
-            plot_boxplot(groups, f"{metric} Comparison", f"results/figures/{metric}_comparison.png")
+    for metric in metrics_to_plot:
+        values = extract_metric_values(metrics, metric)
+        plot_histogram(values, metric, os.path.join(figures_dir, f"{metric}_hist.png"))
+        plot_boxplot(values, metric, os.path.join(figures_dir, f"{metric}_boxplot.png"))
 
 def format_sensitivity_comparison(results: Dict[str, Any]) -> str:
-    """Format sensitivity comparison for report."""
+    """Format sensitivity comparison results."""
+    if not results:
+        return "No sensitivity data available."
     return json.dumps(results, indent=2)
 
-def generate_markdown_report(metrics: List[Dict[str, Any]], stats: Dict[str, Any]) -> str:
-    """Generate Markdown report."""
-    report = "# Research Report\n\n"
-    report += "## Summary\n\n"
-    report += f"Total samples: {len(metrics)}\n\n"
-    
-    report += "## Statistical Results\n\n"
-    report += "```json\n"
-    report += json.dumps(stats, indent=2)
-    report += "\n```\n"
-    
-    report += "## Figures\n\n"
-    report += "See `results/figures/` directory.\n"
-    
-    return report
+def generate_markdown_report(metrics: List[Dict[str, Any]], stats: Dict[str, Any]):
+    """Generate the final Markdown report."""
+    report_path = "results_report.md"
+    with open(report_path, "w") as f:
+        f.write("# Research Report\n\n")
+        f.write("## Metrics Summary\n\n")
+        f.write(f"Total samples: {len(metrics)}\n\n")
+        
+        # Add statistical results
+        f.write("## Statistical Analysis\n\n")
+        if stats:
+            f.write(f"Power: {stats.get('power', 0):.2%}\n")
+            f.write(f"Sample size: {stats.get('sample_size', 0)}\n")
+        
+        f.write("\n## Figures\n\n")
+        f.write("See `results/figures/` for generated plots.\n")
 
 def main():
-    """Main entry point for T030-T031."""
-    logger = setup_logging(task_id=TASK_ID)
+    logger = setup_logging(task_id="T030")
+    logger.info("Starting Report Generation (T030)")
     
-    metrics = load_metrics_data()
-    stats = load_statistical_results()
+    try:
+        metrics = load_metrics_data()
+        stats = load_statistical_results()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
     
     generate_all_plots(metrics)
-    report = generate_markdown_report(metrics, stats)
+    generate_markdown_report(metrics, stats)
     
-    with open("results_report.md", 'w') as f:
-        f.write(report)
-    
-    log_info(TASK_ID, "Report generated.")
+    logger.info("Report generation completed.")
 
 if __name__ == "__main__":
     main()

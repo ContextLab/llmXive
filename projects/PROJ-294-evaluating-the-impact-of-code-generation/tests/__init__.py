@@ -1,3 +1,4 @@
+# tests package for PROJ-294-evaluating-the-impact-of-code-generation
 """
-Tests package for llmXive research pipeline.
+This package contains all test modules for the project.
 """

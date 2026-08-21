@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T06:58:53.500697Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-294-evaluating-the-impact-of-code-generation
-last_run_id: bdb6812f-6d0d-4fbb-bf43-fbcb4bdeece8
+last_run_id: f88b6c72-f443-416d-a815-8c0cb9b41420
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation Models on Code Testability
-updated_at: '2026-08-21T04:33:41.067316Z'
+updated_at: '2026-08-21T20:07:54.555396Z'

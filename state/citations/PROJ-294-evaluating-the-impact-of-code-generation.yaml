@@ -97,3 +97,15 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1037/R42259-000
   verified_at: '2026-08-17T23:15:32.671748Z'
+- artifact_hash: 86509fdb36b8204ce8442cfc35d278eaad9b7308e41242a7b9a996f94b3e62ff
+  artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1501.05788] Simulation-based Sensitivity Analysis for Non-ignorable
+    Missing Data'
+  kind: url
+  value: https://arxiv.org/abs/1501.05788
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1501.05788
+  verified_at: '2026-08-21T20:07:45.346691Z'

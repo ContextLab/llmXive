@@ -1,3 +1,4 @@
+# tests/integration package for PROJ-294-evaluating-the-impact-of-code-generation
 """
-llmXive Research Pipeline - Integration Tests Module
+This package contains integration tests for system components.
 """
