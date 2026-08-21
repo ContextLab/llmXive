@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "data_file": "data/raw/participants.csv",
+    "required": []
+  }
+]

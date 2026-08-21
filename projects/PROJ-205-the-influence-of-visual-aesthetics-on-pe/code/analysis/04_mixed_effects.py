@@ -1,119 +1,195 @@
+"""
+Mixed-effects model analysis for the Visual Aesthetics Credibility Study.
+
+This script:
+1. Loads wide-format data
+2. Runs linear mixed-effects model with condition as fixed effect and participant as random effect
+3. Includes age and education as covariates
+4. Checks for model convergence
+5. Outputs results to JSON
+"""
+
 import os
 import sys
 import json
 import random
 import numpy as np
+import pandas as pd
 
-# Seed pinning for reproducibility (Task T031)
+# Set seeds for reproducibility
 np.random.seed(42)
 random.seed(42)
 
 from pathlib import Path
 
 def get_project_root():
-    """Get the root directory of the project."""
-    return Path(__file__).resolve().parent.parent.parent
+    """Get the project root directory."""
+    current = Path(__file__).resolve()
+    while current.parent != current:
+        if (current / "data").exists() and (current / "code").exists():
+            return current
+        current = current.parent
+    return Path.cwd()
+
+PROJECT_ROOT = get_project_root()
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
 def load_wide_data_for_mixed(input_path):
-    """Load data for mixed effects analysis."""
-    import pandas as pd
+    """
+    Load wide-format data and reshape to long format for mixed-effects model.
+    
+    Args:
+        input_path: Path to the wide-format CSV file
+    
+    Returns:
+        pandas DataFrame in long format
+    """
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
     df = pd.read_csv(input_path)
     
-    # Ensure we have the necessary columns
-    required_cols = ['participant_id', 'Age', 'Education']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
+    # Verify required columns exist
+    required_cols = [
+        "credibility_Professional",
+        "credibility_Minimalist",
+        "credibility_Low-Quality",
+        "credibility_Neutral"
+    ]
     
-    # Reshape to long format for mixed effects
-    credibility_cols = [col for col in df.columns if col.startswith('credibility_')]
-    if not credibility_cols:
-        raise ValueError("No credibility columns found. Data may not be in wide format.")
+    missing = [col for col in required_cols if col not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
     
-    df_long = df.melt(
-        id_vars=['participant_id', 'Age', 'Education'],
+    # Reshape to long format
+    conditions = ["Professional", "Minimalist", "Low-Quality", "Neutral"]
+    credibility_cols = [f"credibility_{cond}" for cond in conditions]
+    
+    # Keep only necessary columns
+    df_subset = df[["participant_id", "age", "education"] + credibility_cols].copy()
+    
+    # Melt to long format
+    df_long = df_subset.melt(
+        id_vars=["participant_id", "age", "education"],
         value_vars=credibility_cols,
-        var_name='condition',
-        value_name='credibility'
+        var_name="condition",
+        value_name="credibility"
     )
-    df_long['condition'] = df_long['condition'].str.replace('credibility_', '')
+    
+    # Extract condition name from column name
+    df_long["condition"] = df_long["condition"].str.replace("credibility_", "")
+    
+    # Drop rows with NaN credibility
+    df_long = df_long.dropna(subset=["credibility"])
     
     return df_long
 
 def run_mixed_effects_model(df):
-    """Run mixed effects linear model."""
-    import pandas as pd
-    import statsmodels.api as sm
-    from statsmodels.regression.mixed_linear_model import MixedLM
+    """
+    Run linear mixed-effects model.
     
-    # Prepare data
-    df_long = df.copy()
+    Formula: credibility ~ condition + age + education + (1|participant_id)
     
-    # Convert condition to categorical
-    df_long['condition'] = df_long['condition'].astype('category')
+    Args:
+        df: Long-format DataFrame
     
-    # Fit mixed effects model
-    # Fixed effects: condition, age, education
-    # Random effects: participant_id (random intercept)
-    model = MixedLM.from_formula(
-        'credibility ~ C(condition) + Age + Education',
-        groups='participant_id',
-        data=df_long
-    )
+    Returns:
+        dict: Model results including coefficients and convergence status
+    """
+    import statsmodels.formula.api as smf
+    import warnings
     
-    result = model.fit()
+    # Suppress convergence warnings for cleaner output
+    warnings.filterwarnings("ignore", category=UserWarning)
     
-    return result
+    # Fit model
+    try:
+        model = smf.mixedlm(
+            "credibility ~ C(condition) + age + education",
+            df,
+            groups=df["participant_id"]
+        )
+        result = model.fit()
+        
+        convergence_failed = False
+    except Exception as e:
+        # Model failed to converge or other error
+        convergence_failed = True
+        result = None
+    
+    if convergence_failed or result is None:
+        return {
+            "convergence_failed": True,
+            "error": "Model failed to converge or encountered an error",
+            "condition_coef": None,
+            "condition_p": None,
+            "age_coef": None,
+            "education_coef": None,
+            "r_squared": None
+        }
+    
+    # Extract condition coefficients (relative to reference category)
+    # The reference category is the first one alphabetically: "Low-Quality"
+    condition_params = {}
+    for param_name, param in result.params.items():
+        if param_name.startswith("C(condition)"):
+            condition_params[param_name] = param
+    
+    # Extract p-values
+    condition_pvalues = {}
+    for param_name, param in result.pvalues.items():
+        if param_name.startswith("C(condition)"):
+            condition_pvalues[param_name] = param
+    
+    # Get age and education coefficients
+    age_coef = result.params.get("age", None)
+    education_coef = result.params.get("education", None)
+    
+    # Calculate pseudo R-squared (marginal)
+    # This is a simplified approximation
+    try:
+        r_squared = result.prsquared if hasattr(result, 'prsquared') else None
+    except:
+        r_squared = None
+    
+    return {
+        "convergence_failed": False,
+        "condition_coef": {k: float(v) for k, v in condition_params.items()},
+        "condition_p": {k: float(v) for k, v in condition_pvalues.items()},
+        "age_coef": float(age_coef) if age_coef is not None else None,
+        "education_coef": float(education_coef) if education_coef is not None else None,
+        "r_squared": float(r_squared) if r_squared is not None else None
+    }
 
 def main():
-    """Main entry point for mixed effects analysis."""
-    parser = argparse.ArgumentParser(description='Run mixed effects model on survey data')
-    parser.add_argument('--input', type=str, required=True, help='Path to input CSV file')
-    parser.add_argument('--output', type=str, required=True, help='Path to output JSON file')
-    
+    """Main entry point for mixed-effects analysis."""
+    parser = argparse.ArgumentParser(description="Run mixed-effects model analysis")
+    parser.add_argument("--input", type=str, required=True, help="Path to wide-format CSV")
+    parser.add_argument("--output", type=str, required=True, help="Path to output JSON")
     args = parser.parse_args()
     
-    # Load data
+    print(f"Loading data from {args.input}...")
     df = load_wide_data_for_mixed(args.input)
     
-    # Run mixed effects model
-    result = run_mixed_effects_model(df)
+    print(f"Loaded {len(df)} observations from {df['participant_id'].nunique()} participants.")
     
-    # Extract coefficients
-    params = result.params
+    print("Running mixed-effects model...")
+    results = run_mixed_effects_model(df)
     
-    # Find condition coefficients (C(condition)[T.X])
-    condition_coef = None
-    condition_p = None
-    
-    for param_name, param_val in params.items():
-        if param_name.startswith('C(condition)[T.'):
-            condition_name = param_name.replace('C(condition)[T.', '').replace(']', '')
-            condition_coef = float(param_val)
-            # Get p-value
-            p_val = result.pvalues[param_name]
-            condition_p = float(p_val)
-            break
-    
-    # Prepare output
-    output = {
-        'condition_coef': condition_coef,
-        'condition_p': condition_p,
-        'log_likelihood': float(result.llf),
-        'n_groups': result.n_groups,
-        'nobs': result.nobs,
-        'converged': result.converged
-    }
+    if results["convergence_failed"]:
+        print("Warning: Model failed to converge.")
+        # Log warning to file
+        log_path = DATA_PROCESSED_DIR / "mixed_effects_warnings.log"
+        with open(log_path, "a") as f:
+            f.write(f"{args.input}: {results.get('error', 'Unknown error')}\n")
+    else:
+        print("Model converged successfully.")
     
     # Write output
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, 'w') as f:
-        json.dump(output, f, indent=2)
+    with open(args.output, "w") as f:
+        json.dump(results, f, indent=2)
     
-    print(f"Mixed effects analysis complete. Results saved to {args.output}")
+    print(f"Results written to {args.output}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

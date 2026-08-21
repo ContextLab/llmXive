@@ -44,27 +44,11 @@ T020:
     \ or the required clearing of state on submission or abandonment. Consequently,\
     \ the required client\u2011side state\u2011management implementation cannot be\
     \ verified."
-T023f:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or CSV file demonstrating the session\u2011state flagging logic\
-    \ (detecting missing timestamps or partial submissions and writing `session_timeout`\
-    \ and `submission_status` flags) was provided. Without an actual implementation\
-    \ artifact, the claim cannot be verified. The required implementation and resulting\
-    \ data output are missing."
-T024:
-  c: false
-  h: 6dc9f1661196c4a2f717342053b7f54fa3e53cfd6b9c78b8f2c508eda004f06a
-  r: "The repository contains a partially\u2011written `code/analysis/01_preprocess.py`,\
-    \ but the file is truncated (the `reshape_to_wide` function is incomplete) and\
-    \ it never writes the excluded rows to `data/processed/excluded_audit.csv`. Moreover,\
-    \ the required input file `data/raw/submissions.csv` and the output audit CSV\
-    \ are both missing. Consequently the task\u2019s specifications are not satisfied."
-T030:
-  c: false
-  h: bc5a34644df61516a37d8a5ec8b524eed2afd73798c8502022f21a540f397b35
-  r: "The `code/analysis/03_report.py` script is present and appears to generate the\
-    \ required summary fields, but the expected output file `data/processed/analysis_results.json`\
-    \ is missing, indicating the script has not been executed or does not produce\
-    \ the required artifact. The missing JSON file must be created (non\u2011empty)\
-    \ for the task to be considered complete."
+T045:
+  c: true
+  h: 36f739dfedef3b414a780411bcc13ea6ecf8ec7f55ea4a30cc2d538c6b15c560
+  r: "The `code/analysis/01_preprocess.py` file contains the `_handle_missing_data`\
+    \ function that raises a `FileNotFoundError` with the required message in production\
+    \ mode, and in development mode creates `data/processed/no_data_report.json` with\
+    \ the exact required message and exits with code\u202F0. No mock data generation\
+    \ is present."

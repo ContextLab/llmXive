@@ -1,73 +1,86 @@
+"""
+Report generation script for the Visual Aesthetics Credibility Study.
+
+This script:
+1. Loads ANOVA and pairwise results from JSON files
+2. Generates a summary report
+3. Saves results to analysis_results.json
+"""
+
 import os
 import sys
 import json
 import random
 import numpy as np
+from pathlib import Path
 
-# Seed pinning for reproducibility (Task T031)
+# Set seeds for reproducibility
 np.random.seed(42)
 random.seed(42)
 
-from pathlib import Path
-
 def get_project_root():
-    """Get the root directory of the project."""
-    return Path(__file__).resolve().parent.parent.parent
+    """Get the project root directory."""
+    current = Path(__file__).resolve()
+    while current.parent != current:
+        if (current / "data").exists() and (current / "code").exists():
+            return current
+        current = current.parent
+    return Path.cwd()
+
+PROJECT_ROOT = get_project_root()
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
 def load_json_file(file_path):
-    """Load a JSON file."""
-    with open(file_path, 'r') as f:
+    """Load JSON file and return contents."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"JSON file not found: {file_path}")
+    
+    with open(file_path, "r") as f:
         return json.load(f)
 
-def generate_summary_report(anova_path, pairwise_path):
-    """Generate a summary report from ANOVA and pairwise results."""
-    anova_results = load_json_file(anova_path)
-    pairwise_results = load_json_file(pairwise_path)
+def generate_summary_report(anova_results, pairwise_results):
+    """
+    Generate a summary report combining ANOVA and pairwise results.
     
-    # Extract key metrics
-    f_stat = anova_results.get('f_stat')
-    df = anova_results.get('df', [])
-    p_val = anova_results.get('p_val')
-    eta_sq = anova_results.get('eta_sq')
+    Args:
+        anova_results: Dictionary with ANOVA results
+        pairwise_results: Dictionary with pairwise test results
     
-    # Format pairwise results
-    pairwise_summary = []
-    for pair in pairwise_results.get('pairwise', []):
-        pairwise_summary.append({
-            'comparison': pair['comparison'],
-            'p_val': pair['p_value_bonferroni'],
-            'cohens_d': pair['cohens_d']
-        })
-    
-    # Create summary
-    summary = {
-        'f_stat': f_stat,
-        'df': df,
-        'p_val': p_val,
-        'eta_sq': eta_sq,
-        'pairwise': pairwise_summary
+    Returns:
+        dict: Summary report
+    """
+    report = {
+        "f_stat": anova_results.get("f_stat"),
+        "df": anova_results.get("df"),
+        "n": anova_results.get("n"),
+        "p_val": anova_results.get("p_val"),
+        "eta_sq": anova_results.get("eta_sq"),
+        "bonferroni_factor": anova_results.get("bonferroni_factor", pairwise_results.get("bonferroni_factor", 6)),
+        "pairwise": pairwise_results.get("pairwise", [])
     }
     
-    return summary
+    return report
 
 def main():
     """Main entry point for report generation."""
-    parser = argparse.ArgumentParser(description='Generate summary report from analysis results')
-    parser.add_argument('--anova', type=str, required=True, help='Path to ANOVA results JSON')
-    parser.add_argument('--pairwise', type=str, required=True, help='Path to pairwise results JSON')
-    parser.add_argument('--output', type=str, required=True, help='Path to output report JSON')
+    anova_path = DATA_PROCESSED_DIR / "anova_results.json"
+    pairwise_path = DATA_PROCESSED_DIR / "pairwise_results.json"
+    output_path = DATA_PROCESSED_DIR / "analysis_results.json"
     
-    args = parser.parse_args()
+    print("Loading ANOVA results...")
+    anova_results = load_json_file(anova_path)
     
-    # Generate report
-    report = generate_summary_report(args.anova, args.pairwise)
+    print("Loading pairwise results...")
+    pairwise_results = load_json_file(pairwise_path)
+    
+    print("Generating summary report...")
+    report = generate_summary_report(anova_results, pairwise_results)
     
     # Write output
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(report, f, indent=2)
     
-    print(f"Report generated. Saved to {args.output}")
+    print(f"Report written to {output_path}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
