@@ -1,3 +1,3 @@
 """
-Main source package for the llmXive reaction mechanism prediction pipeline.
+llmXive Research Pipeline - Source Package
 """

@@ -29,7 +29,7 @@ def setup_environment(config_path: Optional[str] = None) -> Dict[str, Any]:
     # Ensure logger is initialized before any log_operation calls
     logger = get_logger()
     log_operation("setup_environment", config_path=config_path)
-    
+
     config = get_config(config_path)
     logger.info("Environment setup complete")
     return config
@@ -115,12 +115,12 @@ def main() -> None:
 
     # Setup logging immediately
     logger = setup_logging("data/logs/pipeline.log")
-    
+
     try:
         log_operation("main_start", task=args.task, config=args.config)
-        
+
         config = setup_environment(args.config)
-        
+
         # Inject limit if provided for T033 validation
         if args.limit is not None:
             config['generation_limit'] = args.limit
@@ -141,9 +141,9 @@ def main() -> None:
             run_archiver(config)
         elif args.task == "full":
             run_full_pipeline(config)
-        
+
         log_operation("task_complete", task=args.task)
-        
+
     except Exception as e:
         log_operation("task_failed", task=args.task, error=str(e))
         # Ensure logger is available even if setup failed partially

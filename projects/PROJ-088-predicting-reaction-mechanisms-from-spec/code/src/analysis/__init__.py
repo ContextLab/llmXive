@@ -1,3 +1,3 @@
 """
-Analysis package for feature importance and validation.
+Analysis module for DFT calculations, feature importance, and validation.
 """

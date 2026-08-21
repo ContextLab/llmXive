@@ -207,6 +207,10 @@
     "classified_at": "2026-07-16T18:43:15Z",
     "verdict": false
   },
+  "PROJ-104-evaluating-the-use-of-llms-for-automated::1.6.0": {
+    "classified_at": "2026-08-21T12:35:38Z",
+    "verdict": false
+  },
   "PROJ-1040-llmxive-follow-up-extending-ideas-have-g::1.6.0": {
     "classified_at": "2026-07-22T01:08:09Z",
     "verdict": false

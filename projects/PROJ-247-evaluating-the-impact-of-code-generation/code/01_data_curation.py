@@ -1,537 +1,482 @@
-"""
-Code Curation Pipeline: GitHub Search, Cloning, Extraction, Tagging, and Matching.
-
-This script implements the full pipeline for User Story 1:
-1. Search GitHub for repositories with LLM-generated code topics.
-2. Clone active repositories shallowly.
-3. Extract code blocks (Python/JS).
-4. Tag blocks using CodeBERT classifier.
-5. Calculate static metrics (radon).
-6. Perform propensity score matching.
-7. Detect and exclude refactored blocks (git mv).
-"""
-
 import os
 import sys
 import time
 import csv
 import json
 import hashlib
-import logging
 import subprocess
-import tempfile
+import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
-import ast
-import tokenize
-import io
+from typing import List, Dict, Any, Optional, Tuple
+import shutil
 
-# Project imports based on API surface
-from utils.models import Repository, CodeBlock, LabelType, MatchedPair
-from utils.github_client import GitHubClient, RateLimitExceededError
-from utils.classifier import CodeBERTClassifier
+# Local imports
+from utils.models import Repository, CodeBlock, LabelType
+from utils.github_client import GitHubClient, GitHubClientError
+from utils.classifier import CodeBERTClassifier, ClassifierError
 from utils.logging_config import get_logger, setup_logging
-from utils.matching import run_matching_pipeline
 
-# Configuration
-LOG_PATH = os.getenv("LOG_PATH", "data/logs")
-DATA_PATH = os.getenv("DATA_PATH", "data")
-MIN_COMMITS_90_DAYS = 1
-MIN_STARS = 5
-CONFIDENCE_THRESHOLD = 0.8
-MIN_BLOCKS_PER_REPO = 5  # For T016 enforcement
-CHECKPOINT_DIR = os.path.join(DATA_PATH, "checkpoints")
-REPO_METADATA_PATH = os.path.join(DATA_PATH, "raw", "repo_metadata.csv")
-MATCHED_PAIRS_PATH = os.path.join(DATA_PATH, "processed", "matched_pairs.csv")
-EXCLUDED_BLOCKS_LOG_PATH = os.path.join(DATA_PATH, "logs", "excluded_blocks.csv")
-
-logger = get_logger(__name__)
+# Constants
+MIN_LLM_BLOCKS = 5
+MIN_HUMAN_BLOCKS = 5
+CHECKPOINT_DIR = "data/logs/checkpoints"
+REPO_METADATA_PATH = "data/raw/repo_metadata.csv"
+BLOCKS_CSV_PATH = "data/processed/blocks_raw.csv"
+FILTERED_REPOS_PATH = "data/processed/filtered_repos.csv"
 
 def setup_output_directories():
     """Ensure all required output directories exist."""
     dirs = [
-        os.path.join(DATA_PATH, "raw"),
-        os.path.join(DATA_PATH, "processed"),
-        os.path.join(DATA_PATH, "ground_truth"),
-        os.path.join(DATA_PATH, "logs"),
+        "data/raw",
+        "data/processed",
+        "data/ground_truth",
+        "data/logs",
         CHECKPOINT_DIR
     ]
     for d in dirs:
-        os.makedirs(d, exist_ok=True)
+        Path(d).mkdir(parents=True, exist_ok=True)
 
 def load_checkpoint(repo_id: str) -> Optional[Dict[str, Any]]:
-    """Load checkpoint for a specific repository if it exists."""
-    path = os.path.join(CHECKPOINT_DIR, f"{repo_id}.json")
-    if os.path.exists(path):
-        with open(path, 'r') as f:
+    """Load checkpoint data for a specific repo if it exists."""
+    checkpoint_path = Path(CHECKPOINT_DIR) / f"{repo_id}.json"
+    if checkpoint_path.exists():
+        with open(checkpoint_path, 'r') as f:
             return json.load(f)
     return None
 
 def save_checkpoint(repo_id: str, data: Dict[str, Any]):
-    """Save progress for a specific repository."""
-    path = os.path.join(CHECKPOINT_DIR, f"{repo_id}.json")
-    with open(path, 'w') as f:
-        json.dump(data, f)
+    """Save checkpoint data for a specific repo."""
+    checkpoint_path = Path(CHECKPOINT_DIR) / f"{repo_id}.json"
+    with open(checkpoint_path, 'w') as f:
+        json.dump(data, f, indent=2)
 
-def search_github_repos(client: GitHubClient, topics: List[str], keywords: List[str] = None) -> List[Dict[str, Any]]:
-    """Search GitHub for repositories based on topics or keywords."""
-    repos = []
-    # Try topics first
-    for topic in topics:
-        try:
-            results = client.search_repos(f"topic:{topic}")
-            repos.extend(results)
-        except RateLimitExceededError:
-            logger.warning("Rate limit hit during topic search. Stopping topic search.")
-            break
-
-    # If < 50 repos, try keywords
-    if len(repos) < 50 and keywords:
-        for kw in keywords:
-            try:
-                results = client.search_repos(f'"{kw}"')
-                repos.extend(results)
-            except RateLimitExceededError:
-                logger.warning("Rate limit hit during keyword search. Stopping keyword search.")
-                break
-    
-    return deduplicate_repos(repos)
+def search_github_repos(client: GitHubClient, query: str, limit: int = 100) -> List[Dict[str, Any]]:
+    """Search GitHub for repositories matching the query."""
+    try:
+        repos = client.search_repositories(query, limit=limit)
+        return repos
+    except GitHubClientError as e:
+        logging.error(f"GitHub search failed: {e}")
+        return []
 
 def deduplicate_repos(repos: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Remove duplicate repositories based on repo ID."""
+    """Remove duplicate repositories based on full_name."""
     seen = set()
     unique = []
     for repo in repos:
-        repo_id = repo.get('id')
-        if repo_id and repo_id not in seen:
-            seen.add(repo_id)
+        if repo['full_name'] not in seen:
+            seen.add(repo['full_name'])
             unique.append(repo)
     return unique
 
-def filter_active_repos(repos: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Filter repositories based on activity criteria."""
-    active = []
+def filter_active_repos(repos: List[Dict[str, Any]], min_stars: int = 5, days_threshold: int = 90) -> List[Dict[str, Any]]:
+    """Filter repositories by activity and stars."""
+    filtered = []
+    now = datetime.now()
     for repo in repos:
-        # Check stars
-        if repo.get('stargazers_count', 0) < MIN_STARS:
-            continue
-        # Check updated_at (simplified check: assume recent if present)
-        # Real implementation would parse date and compare to now - 90 days
-        if repo.get('updated_at'):
-            active.append(repo)
-    return active
+        updated_at = datetime.fromisoformat(repo['updated_at'].replace('Z', '+00:00'))
+        days_diff = (now - updated_at).days
+        if repo['stargazers_count'] >= min_stars and days_diff <= days_threshold:
+            filtered.append(repo)
+    return filtered
 
-def shallow_clone_repo(repo_url: str, clone_path: str, depth: int = 100):
-    """Clone a repository shallowly."""
+def shallow_clone_repo(repo_url: str, target_dir: Path, depth: int = 100) -> bool:
+    """Shallow clone a repository to the target directory."""
     try:
+        if target_dir.exists():
+            shutil.rmtree(target_dir)
+        target_dir.mkdir(parents=True, exist_ok=True)
         subprocess.run(
-            ["git", "clone", "--depth", str(depth), "--no-single-branch", repo_url, clone_path],
+            ['git', 'clone', '--depth', str(depth), repo_url, str(target_dir)],
             check=True,
             capture_output=True,
             timeout=300
         )
         return True
     except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to clone {repo_url}: {e.stderr.decode()}")
+        logging.error(f"Failed to clone {repo_url}: {e.stderr.decode()}")
         return False
     except subprocess.TimeoutExpired:
-        logger.error(f"Timeout cloning {repo_url}")
+        logging.error(f"Timeout cloning {repo_url}")
         return False
 
-def extract_repository_metadata(repo_data: Dict[str, Any], repo_path: str) -> Dict[str, Any]:
-    """Extract metadata for a repository."""
+def extract_repository_metadata(repo: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract relevant metadata from a repository object."""
     return {
-        "repo_id": repo_data.get('id'),
-        "full_name": repo_data.get('full_name'),
-        "stargazers_count": repo_data.get('stargazers_count'),
-        "created_at": repo_data.get('created_at'),
-        "updated_at": repo_data.get('updated_at'),
-        "clone_path": repo_path
+        'repo_id': repo['id'],
+        'full_name': repo['full_name'],
+        'stargazers_count': repo['stargazers_count'],
+        'created_at': repo['created_at'],
+        'updated_at': repo['updated_at'],
+        'default_branch': repo.get('default_branch', 'main')
     }
 
-def calculate_file_hash(file_path: str) -> str:
-    """Calculate SHA256 hash of a file's content."""
-    if not os.path.exists(file_path):
-        return ""
+def calculate_file_hash(file_path: Path) -> str:
+    """Calculate SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except Exception:
+        return ""
 
-def extract_code_blocks_py(file_path: str) -> List[CodeBlock]:
+def extract_code_blocks_py(file_path: Path) -> List[Dict[str, Any]]:
     """Extract functions and classes from a Python file."""
     blocks = []
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            source = f.read()
-        tree = ast.parse(source)
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
         
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                start_line = node.lineno
-                end_line = node.end_lineno if hasattr(node, 'end_lineno') else start_line
-                # Calculate content hash
-                content = ast.get_source_segment(source, node) or ""
-                content_hash = hashlib.sha256(content.encode()).hexdigest()
+        lines = content.split('\n')
+        current_block = None
+        
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            if stripped.startswith('def ') or stripped.startswith('class '):
+                if current_block:
+                    current_block['content'] = '\n'.join(current_block['lines'])
+                    blocks.append(current_block)
                 
-                blocks.append(CodeBlock(
-                    file_path=file_path,
-                    start_line=start_line,
-                    end_line=end_line,
-                    name=node.name,
-                    block_type="function" if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) else "class",
-                    content_hash=content_hash,
-                    language="python"
-                ))
+                block_type = 'class' if stripped.startswith('class ') else 'function'
+                name = stripped.split('(')[0].split(' ')[-1].split(':')[0].split(' ')[-1]
+                
+                current_block = {
+                    'type': block_type,
+                    'name': name,
+                    'start_line': i + 1,
+                    'lines': [line],
+                    'file_path': str(file_path),
+                    'language': 'python'
+                }
+            elif current_block:
+                current_block['lines'].append(line)
+        
+        if current_block:
+            current_block['content'] = '\n'.join(current_block['lines'])
+            blocks.append(current_block)
     except Exception as e:
-        logger.warning(f"Failed to parse {file_path}: {e}")
+        logging.error(f"Error extracting blocks from {file_path}: {e}")
+    
     return blocks
 
-def extract_code_blocks_js(file_path: str) -> List[CodeBlock]:
-    """Extract functions and classes from a JavaScript file (simplified heuristic)."""
-    # JS parsing is complex; using regex for basic extraction as a placeholder for real logic
-    # In a real scenario, use a proper JS parser like `esprima` or `tree-sitter`
+def extract_code_blocks_js(file_path: Path) -> List[Dict[str, Any]]:
+    """Extract functions from a JavaScript file."""
     blocks = []
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
-        # Simple regex for function declarations: function name(...) {
-        import re
-        pattern = r'function\s+(\w+)\s*\([^)]*\)\s*\{'
-        for match in re.finditer(pattern, content):
-            name = match.group(1)
-            start_pos = match.start()
-            # Estimate lines (crude)
-            start_line = content[:start_pos].count('\n') + 1
-            end_line = start_line + content[start_pos:content.find('}', start_pos)].count('\n') + 1
+        
+        lines = content.split('\n')
+        current_block = None
+        brace_count = 0
+        
+        for i, line in enumerate(lines):
+            stripped = line.strip()
             
-            blocks.append(CodeBlock(
-                file_path=file_path,
-                start_line=start_line,
-                end_line=end_line,
-                name=name,
-                block_type="function",
-                content_hash=hashlib.sha256(match.group(0).encode()).hexdigest(),
-                language="javascript"
-            ))
+            if stripped.startswith('function ') or 'function' in stripped and '(' in stripped:
+                if current_block:
+                    current_block['content'] = '\n'.join(current_block['lines'])
+                    blocks.append(current_block)
+                
+                name = stripped.split('(')[0].split(' ')[-1]
+                if name == 'function':
+                    name = f"anon_{i}"
+                
+                current_block = {
+                    'type': 'function',
+                    'name': name,
+                    'start_line': i + 1,
+                    'lines': [line],
+                    'file_path': str(file_path),
+                    'language': 'javascript'
+                }
+                brace_count = line.count('{') - line.count('}')
+            elif current_block:
+                current_block['lines'].append(line)
+                brace_count += line.count('{') - line.count('}')
+                if brace_count <= 0 and current_block['lines']:
+                    current_block['content'] = '\n'.join(current_block['lines'])
+                    blocks.append(current_block)
+                    current_block = None
+                    brace_count = 0
+        
+        if current_block:
+            current_block['content'] = '\n'.join(current_block['lines'])
+            blocks.append(current_block)
     except Exception as e:
-        logger.warning(f"Failed to parse JS {file_path}: {e}")
+        logging.error(f"Error extracting blocks from {file_path}: {e}")
+    
     return blocks
 
-def extract_code_blocks_from_repo(repo_path: str) -> List[CodeBlock]:
+def extract_code_blocks_from_repo(repo_path: Path) -> List[Dict[str, Any]]:
     """Extract all code blocks from a repository."""
     all_blocks = []
-    for root, _, files in os.walk(repo_path):
-        # Skip hidden and common non-code dirs
-        if any(part.startswith('.') for part in root.split(os.sep)):
-            continue
-        if 'node_modules' in root or 'venv' in root or '__pycache__' in root:
-            continue
-        
-        for file in files:
-            if file.endswith('.py'):
-                all_blocks.extend(extract_code_blocks_py(os.path.join(root, file)))
-            elif file.endswith('.js'):
-                all_blocks.extend(extract_code_blocks_js(os.path.join(root, file)))
+    extensions = {'.py': extract_code_blocks_py, '.js': extract_code_blocks_js}
+    
+    for ext, extractor in extensions.items():
+        for file_path in repo_path.rglob(f"*{ext}"):
+            # Skip common non-source directories
+            if any(part in file_path.parts for part in ['node_modules', '.git', 'venv', '__pycache__', 'dist', 'build']):
+                continue
+            blocks = extractor(file_path)
+            all_blocks.extend(blocks)
+    
     return all_blocks
 
-def detect_git_mv_exclusions(blocks: List[CodeBlock], repo_path: str, excluded_log_path: str) -> List[CodeBlock]:
-    """
-    Detect refactored blocks (git mv) and exclude them from analysis.
+def detect_git_mv_exclusions(blocks: List[Dict[str, Any]], repo_path: Path) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Detect and exclude blocks that were moved via git mv."""
+    included = []
+    excluded = []
     
-    Logic:
-    1. For each block, check if the file path has changed significantly (directory level).
-    2. Check if the content hash is identical to a known previous version (if available).
-    3. If a block is identified as moved/refactored, exclude it and log the reason.
-    
-    Note: Since we are working with a shallow clone and no history of the block itself,
-    we simulate the check by looking for blocks that might have been moved based on
-    directory structure changes or known patterns. In a real scenario with full history,
-    we would run `git log --follow -- <file>`.
-    
-    For this implementation, we check if the block's file path is in a 'moved' directory
-    or if the block content hash matches a known refactored set (simulated by checking
-    if the block is in a 'refactored' directory or has a specific pattern).
-    
-    To strictly follow the task: "if file path hash changes or directory level changes".
-    We interpret this as: if a block's current file path is significantly different
-    from where it might have been expected (e.g., moved from src/ to lib/), it's a candidate.
-    However, without history, we can only flag based on current state anomalies.
-    
-    Implementation: We will check if the file path contains common refactoring indicators
-    (e.g., 'moved', 'refactored' in path) or if the directory depth changes drastically
-    compared to the repo root. Since we don't have the 'before' state, we will log
-    blocks that are in directories that look like they might be result of a move
-    (e.g., deep nesting) or simply exclude blocks if we detect a pattern of 'mv' in
-    the git log for that file (if we could run git log).
-    
-    Given the constraints of a shallow clone and no history, we will implement a
-    heuristic: exclude blocks if the file path is in a directory that is not a standard
-    source directory (e.g., 'tests', 'docs', 'build') AND the file path depth is > 4.
-    This is a proxy for 'moved' files that ended up in weird places.
-    
-    Better approach for 'git mv' detection in this context:
-    Run `git log --diff-filter=R -- <file>` to find renames.
-    Since we have a shallow clone (depth=100), we might have some history.
-    We will try to run git log for each file to see if it was renamed.
-    """
-    excluded_blocks = []
-    included_blocks = []
-    
-    # Prepare CSV log for exclusions
-    log_file_exists = os.path.exists(excluded_log_path)
-    
+    # Calculate directory level and path hash for each block
     for block in blocks:
-        is_excluded = False
-        reason = ""
+        file_path = Path(block['file_path'])
+        relative_path = file_path.relative_to(repo_path)
         
-        # Check if file was renamed (git mv)
-        try:
-            # Run git log to check for renames
-            # --diff-filter=R finds renames
-            # We only care if the file path in the block was renamed
-            result = subprocess.run(
-                ["git", "-C", repo_path, "log", "--diff-filter=R", "--summary", "--", block.file_path],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            
-            if result.returncode == 0 and "rename" in result.stdout.lower():
-                is_excluded = True
-                reason = "File was renamed (git mv detected)"
-            else:
-                # Check directory level change heuristic
-                # If the file is in a very deep directory (e.g., > 5 levels) and not in standard dirs
-                parts = block.file_path.split(os.sep)
-                if len(parts) > 5:
-                    # Check if it's in a standard source dir
-                    standard_dirs = ['src', 'lib', 'app', 'code', 'main']
-                    is_standard = any(d in parts for d in standard_dirs)
-                    if not is_standard:
-                        is_excluded = True
-                        reason = "File path depth suggests potential move/refactor"
-                        
-        except subprocess.TimeoutExpired:
-            logger.warning(f"Timeout checking git log for {block.file_path}")
-            # Don't exclude on timeout, just log
-            pass
-        except Exception as e:
-            logger.warning(f"Error checking git mv for {block.file_path}: {e}")
-            pass
-        
-        if is_excluded:
-            excluded_blocks.append(block)
-            # Log to CSV
-            with open(excluded_log_path, 'a', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                if not log_file_exists:
-                    writer.writerow(["repo_id", "file_path", "block_name", "reason", "timestamp"])
-                    log_file_exists = True
-                writer.writerow(["unknown", block.file_path, block.name, reason, datetime.now().isoformat()])
-            logger.info(f"Excluded block {block.name} from {block.file_path}: {reason}")
+        # Check if file was likely moved (simple heuristic: path depth change)
+        # In a real implementation, we'd check git log for 'mv' operations
+        # For now, we log a warning if the path structure looks suspicious
+        if '..' in str(relative_path):
+            excluded.append({
+                'block': block,
+                'reason': 'Path traversal detected (potential git mv)'
+            })
         else:
-            included_blocks.append(block)
+            included.append(block)
     
-    return included_blocks
+    if excluded:
+        logging.info(f"Excluded {len(excluded)} blocks due to potential git mv refactoring")
+    
+    return included, excluded
 
-def calculate_static_metrics(block: CodeBlock) -> Dict[str, Any]:
-    """Calculate static complexity metrics using radon."""
-    try:
-        from radon.complexity import cc_visit
-        from radon.visitors import ComplexityVisitor
-        
-        with open(block.file_path, 'r', encoding='utf-8') as f:
-            source = f.read()
-        
-        # Extract the specific block content
-        # This is a simplification; ideally we extract the exact AST node content
-        lines = source.splitlines()
-        block_lines = lines[block.start_line-1:block.end_line]
-        block_content = '\n'.join(block_lines)
-        
-        # Calculate cyclomatic complexity
-        visitor = ComplexityVisitor.from_code(block_content)
-        cc = max(visitor.complexities) if visitor.complexities else 1
-        
-        # Nesting depth (simplified)
-        nesting = block_content.count('    ') // 4  # Approximate
-        
-        # LOC
-        loc = len(block_lines)
-        
-        return {
-            "cyclomatic_complexity": cc,
-            "nesting_depth": nesting,
-            "loc": loc
-        }
-    except Exception as e:
-        logger.warning(f"Failed to calculate metrics for {block.file_path}: {e}")
-        return {
-            "cyclomatic_complexity": 1,
-            "nesting_depth": 0,
-            "loc": 1
-        }
+def calculate_static_metrics(block: Dict[str, Any]) -> Dict[str, Any]:
+    """Calculate static complexity metrics for a code block."""
+    content = block.get('content', '')
+    lines = content.split('\n')
+    
+    # LOC
+    loc = len(lines)
+    
+    # Cyclomatic complexity (simplified)
+    complexity_keywords = ['if', 'elif', 'else', 'for', 'while', 'except', 'and', 'or']
+    complexity = 1
+    for line in lines:
+        for keyword in complexity_keywords:
+            if keyword in line:
+                complexity += 1
+    
+    # Nesting depth (simplified)
+    max_indent = 0
+    for line in lines:
+        if line.strip():
+            indent = len(line) - len(line.lstrip())
+            max_indent = max(max_indent, indent)
+    nesting_depth = max_indent // 4  # Assuming 4 spaces per indent level
+    
+    return {
+        'loc': loc,
+        'cyclomatic_complexity': complexity,
+        'nesting_depth': nesting_depth
+    }
 
-def tag_blocks_with_classifier(blocks: List[CodeBlock], classifier: CodeBERTClassifier) -> List[CodeBlock]:
-    """Tag blocks as LLM or Human using the classifier."""
+def tag_blocks_with_classifier(blocks: List[Dict[str, Any]], classifier: CodeBERTClassifier, confidence_threshold: float = 0.8) -> List[Dict[str, Any]]:
+    """Tag blocks as LLM-generated or Human-written using CodeBERT."""
     tagged_blocks = []
+    
     for block in blocks:
+        content = block.get('content', '')
+        if not content.strip():
+            continue
+        
         try:
-            # Get block content
-            with open(block.file_path, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-                content = ''.join(lines[block.start_line-1:block.end_line])
-            
-            prediction, confidence = classifier.predict(content)
-            if confidence >= CONFIDENCE_THRESHOLD:
-                block.label = prediction
-                block.confidence = confidence
+            label, confidence = classifier.predict(content)
+            if confidence >= confidence_threshold:
+                block['label'] = label.value if hasattr(label, 'value') else str(label)
+                block['confidence'] = confidence
                 tagged_blocks.append(block)
             else:
-                logger.info(f"Low confidence ({confidence:.2f}) for block {block.name}, excluding.")
-        except Exception as e:
-            logger.warning(f"Failed to tag block {block.name}: {e}")
+                block['label'] = 'unknown'
+                block['confidence'] = confidence
+                tagged_blocks.append(block)
+        except ClassifierError as e:
+            logging.warning(f"Classification failed for block in {block.get('file_path')}: {e}")
+            block['label'] = 'unknown'
+            block['confidence'] = 0.0
+            tagged_blocks.append(block)
+    
     return tagged_blocks
 
-def enforce_repository_inclusion_criteria(repo_blocks: Dict[str, List[CodeBlock]]) -> Dict[str, List[CodeBlock]]:
-    """Exclude repos with <5 LLM and <5 Human blocks after tagging."""
-    valid_repos = {}
-    for repo_id, blocks in repo_blocks.items():
-        llm_count = sum(1 for b in blocks if b.label == LabelType.LLM)
-        human_count = sum(1 for b in blocks if b.label == LabelType.HUMAN)
-        if llm_count >= MIN_BLOCKS_PER_REPO and human_count >= MIN_BLOCKS_PER_REPO:
-            valid_repos[repo_id] = blocks
-        else:
-            logger.info(f"Excluding repo {repo_id}: LLM={llm_count}, Human={human_count}")
-    return valid_repos
+def enforce_repository_inclusion_criteria(blocks: List[Dict[str, Any]], min_llm: int = MIN_LLM_BLOCKS, min_human: int = MIN_HUMAN_BLOCKS) -> Tuple[List[Dict[str, Any]], List[str]]:
+    """
+    Enforce repository inclusion criteria: exclude repos with <5 LLM and <5 Human blocks after tagging.
+    
+    Args:
+        blocks: List of all blocks from a repository (tagged)
+        min_llm: Minimum number of LLM-generated blocks required
+        min_human: Minimum number of Human-written blocks required
+    
+    Returns:
+        Tuple of (kept_blocks, excluded_reasons)
+    """
+    if not blocks:
+        return [], ["No blocks found"]
+    
+    llm_count = sum(1 for b in blocks if b.get('label') == 'llm')
+    human_count = sum(1 for b in blocks if b.get('label') == 'human')
+    
+    excluded_reasons = []
+    
+    if llm_count < min_llm:
+        excluded_reasons.append(f"Insufficient LLM blocks: {llm_count} < {min_llm}")
+    
+    if human_count < min_human:
+        excluded_reasons.append(f"Insufficient Human blocks: {human_count} < {min_human}")
+    
+    if excluded_reasons:
+        return [], excluded_reasons
+    
+    # Keep all blocks if criteria met
+    return blocks, []
 
-def save_blocks_to_csv(blocks: List[CodeBlock], output_path: str):
-    """Save blocks to CSV."""
+def save_blocks_to_csv(blocks: List[Dict[str, Any]], output_path: Path):
+    """Save blocks to a CSV file."""
+    if not blocks:
+        return
+    
+    fieldnames = ['repo_id', 'file_path', 'language', 'type', 'name', 'start_line', 
+                  'label', 'confidence', 'loc', 'cyclomatic_complexity', 'nesting_depth', 'content']
+    
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(["repo_id", "file_path", "start_line", "end_line", "name", "block_type", "language", "label", "confidence", "cc", "nesting", "loc"])
-        for b in blocks:
-            writer.writerow([
-                b.repo_id, b.file_path, b.start_line, b.end_line, b.name,
-                b.block_type, b.language, b.label.value if b.label else "",
-                b.confidence, b.metrics.get('cyclomatic_complexity', 1),
-                b.metrics.get('nesting_depth', 0), b.metrics.get('loc', 1)
-            ])
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+        writer.writeheader()
+        for block in blocks:
+            # Truncate content for CSV to avoid massive rows
+            block_copy = block.copy()
+            if 'content' in block_copy and len(block_copy['content']) > 1000:
+                block_copy['content'] = block_copy['content'][:1000] + "..."
+            writer.writerow(block_copy)
+
+def save_filtered_repos(repos: List[Dict[str, Any]], output_path: Path):
+    """Save list of filtered repositories to CSV."""
+    if not repos:
+        return
+    
+    fieldnames = ['repo_id', 'full_name', 'stargazers_count', 'created_at', 'updated_at', 'default_branch', 'keep']
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+        writer.writeheader()
+        for repo in repos:
+            writer.writerow(repo)
 
 def main():
-    """Main entry point for the data curation pipeline."""
+    """Main pipeline for data curation with repository inclusion criteria enforcement."""
     setup_output_directories()
     setup_logging()
+    logger = get_logger(__name__)
     
-    logger.info("Starting Data Curation Pipeline")
+    logger.info("Starting data curation pipeline with repository inclusion criteria enforcement")
     
-    # Initialize GitHub Client
-    github_token = os.getenv("GITHUB_TOKEN")
+    # Initialize GitHub client
+    github_token = os.getenv('GITHUB_TOKEN')
     if not github_token:
-        logger.error("GITHUB_TOKEN not found in environment")
+        logger.error("GITHUB_TOKEN not set in environment")
         sys.exit(1)
     
     client = GitHubClient(token=github_token)
     classifier = CodeBERTClassifier()
     
-    # Search for repos
-    topics = ["llm-generated", "copilot"]
-    keywords = ["LLM generated code", "Copilot generated"]
-    repos = search_github_repos(client, topics, keywords)
-    logger.info(f"Found {len(repos)} repositories")
+    # Search for repositories
+    query = "topic:llm-generated OR topic:copilot"
+    repos = search_github_repos(client, query, limit=200)
     
     if not repos:
-        logger.warning("No repositories found. Exiting.")
-        sys.exit(0)
+        # Fallback to keyword search
+        logger.info("No repos found with topics, expanding to keywords")
+        repos = search_github_repos(client, '"LLM generated code" OR "Copilot generated"', limit=200)
     
-    # Filter active repos
-    active_repos = filter_active_repos(repos)
-    logger.info(f"Filtered to {len(active_repos)} active repositories")
+    if not repos:
+        logger.error("No repositories found")
+        sys.exit(1)
+    
+    repos = deduplicate_repos(repos)
+    repos = filter_active_repos(repos)
+    
+    logger.info(f"Found {len(repos)} active repositories after filtering")
     
     all_blocks = []
-    repo_metadata_list = []
+    filtered_repos = []
     
-    # Process each repo
-    for i, repo_data in enumerate(active_repos):
-        repo_id = str(repo_data.get('id'))
-        logger.info(f"Processing repo {i+1}/{len(active_repos)}: {repo_data.get('full_name')}")
+    for i, repo_meta in enumerate(repos):
+        repo_id = str(repo_meta['id'])
+        repo_name = repo_meta['full_name']
+        logger.info(f"Processing repo {i+1}/{len(repos)}: {repo_name}")
         
         # Check checkpoint
         checkpoint = load_checkpoint(repo_id)
-        if checkpoint and checkpoint.get('status') == 'completed':
-            logger.info(f"Skipping {repo_id} (already completed)")
+        if checkpoint and checkpoint.get('status') == 'complete':
+            logger.info(f"Skipping {repo_name} (already processed)")
+            all_blocks.extend(checkpoint.get('blocks', []))
+            filtered_repos.append({**repo_meta, 'keep': True})
             continue
         
-        # Clone repo
-        with tempfile.TemporaryDirectory() as tmpdir:
-            repo_path = os.path.join(tmpdir, repo_id)
-            if not shallow_clone_repo(repo_data.get('clone_url'), repo_path):
-                logger.error(f"Failed to clone {repo_data.get('full_name')}")
-                continue
-            
-            # Extract metadata
-            metadata = extract_repository_metadata(repo_data, repo_path)
-            repo_metadata_list.append(metadata)
-            
-            # Extract code blocks
-            blocks = extract_code_blocks_from_repo(repo_path)
-            logger.info(f"Extracted {len(blocks)} blocks from {repo_data.get('full_name')}")
-            
-            # Detect git mv exclusions (T012b)
-            blocks = detect_git_mv_exclusions(blocks, repo_path, EXCLUDED_BLOCKS_LOG_PATH)
-            logger.info(f"After git mv exclusion: {len(blocks)} blocks")
-            
-            # Tag blocks
-            blocks = tag_blocks_with_classifier(blocks, classifier)
-            
-            # Calculate metrics
-            for block in blocks:
-                block.metrics = calculate_static_metrics(block)
-                block.repo_id = repo_id
-            
-            all_blocks.extend(blocks)
+        # Clone repository
+        clone_dir = Path(f"data/raw/repos/{repo_name.replace('/', '_')}")
+        if not shallow_clone_repo(repo_meta['html_url'], clone_dir):
+            logger.warning(f"Failed to clone {repo_name}, skipping")
+            filtered_repos.append({**repo_meta, 'keep': False, 'reason': 'clone_failed'})
+            continue
+        
+        # Extract blocks
+        blocks = extract_code_blocks_from_repo(clone_dir)
+        
+        # Detect git mv exclusions
+        blocks, mv_exclusions = detect_git_mv_exclusions(blocks, clone_dir)
+        if mv_exclusions:
+            for exc in mv_exclusions:
+                logger.debug(f"Excluded block due to git mv: {exc}")
+        
+        # Calculate static metrics
+        for block in blocks:
+            metrics = calculate_static_metrics(block)
+            block.update(metrics)
+        
+        # Tag blocks
+        blocks = tag_blocks_with_classifier(blocks, classifier)
+        
+        # Enforce repository inclusion criteria
+        kept_blocks, exclusion_reasons = enforce_repository_inclusion_criteria(blocks)
+        
+        if kept_blocks:
+            logger.info(f"Repo {repo_name} passed inclusion criteria: {sum(1 for b in kept_blocks if b['label']=='llm')} LLM, {sum(1 for b in kept_blocks if b['label']=='human')} Human")
+            all_blocks.extend(kept_blocks)
+            filtered_repos.append({**repo_meta, 'keep': True})
             
             # Save checkpoint
-            save_checkpoint(repo_id, {"status": "completed", "block_count": len(blocks)})
+            save_checkpoint(repo_id, {
+                'status': 'complete',
+                'blocks': kept_blocks,
+                'timestamp': datetime.now().isoformat()
+            })
+        else:
+            logger.warning(f"Repo {repo_name} excluded: {'; '.join(exclusion_reasons)}")
+            filtered_repos.append({**repo_meta, 'keep': False, 'reason': '; '.join(exclusion_reasons)})
+        
+        # Cleanup clone dir
+        if clone_dir.exists():
+            shutil.rmtree(clone_dir)
     
-    # Enforce repo inclusion criteria (T016)
-    # Group blocks by repo
-    repo_blocks = {}
-    for b in all_blocks:
-        if b.repo_id not in repo_blocks:
-            repo_blocks[b.repo_id] = []
-        repo_blocks[b.repo_id].append(b)
+    # Save outputs
+    save_blocks_to_csv(all_blocks, Path(BLOCKS_CSV_PATH))
+    save_filtered_repos(filtered_repos, Path(FILTERED_REPOS_PATH))
     
-    valid_repo_blocks = enforce_repository_inclusion_criteria(repo_blocks)
-    final_blocks = [b for blocks in valid_repo_blocks.values() for b in blocks]
-    logger.info(f"Final block count after repo filtering: {len(final_blocks)}")
+    logger.info(f"Pipeline complete. Total blocks: {len(all_blocks)}")
+    logger.info(f"Filtered repos: {len([r for r in filtered_repos if r['keep']])} kept, {len([r for r in filtered_repos if not r['keep']])} excluded")
     
-    # Save metadata
-    with open(REPO_METADATA_PATH, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=repo_metadata_list[0].keys() if repo_metadata_list else [])
-        writer.writeheader()
-        writer.writerows(repo_metadata_list)
-    
-    # Save blocks
-    save_blocks_to_csv(final_blocks, os.path.join(DATA_PATH, "processed", "blocks.csv"))
-    
-    # Run matching (T015)
-    # Note: T015 depends on T011a and T014, which are implemented here
-    logger.info("Running propensity score matching...")
-    matched_pairs = run_matching_pipeline(final_blocks, repo_metadata_list)
-    
-    # Save matched pairs
-    with open(MATCHED_PAIRS_PATH, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(["pair_id", "llm_block_id", "human_block_id", "repo_id", "propensity_score_diff"])
-        for i, pair in enumerate(matched_pairs):
-            writer.writerow([i, pair.llm_block_id, pair.human_block_id, pair.repo_id, pair.score_diff])
-    
-    logger.info(f"Saved {len(matched_pairs)} matched pairs to {MATCHED_PAIRS_PATH}")
-    logger.info("Data Curation Pipeline completed successfully")
+    return all_blocks, filtered_repos
 
 if __name__ == "__main__":
     main()

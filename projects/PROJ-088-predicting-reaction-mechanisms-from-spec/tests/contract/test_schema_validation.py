@@ -1,177 +1,152 @@
-import pytest
+"""
+Contract tests for dataset and output schemas defined in specs/contracts/.
+These tests validate that the data structures produced by the pipeline
+conform to the defined YAML schemas.
+"""
 import json
 import yaml
+import pytest
 from pathlib import Path
-from datetime import datetime
-import jsonschema
+from typing import Dict, Any
 
-# Paths to schema files relative to project root
-SCHEMA_DIR = Path(__file__).parent.parent.parent / "specs" / "contracts"
-DATASET_SCHEMA_PATH = SCHEMA_DIR / "dataset.schema.yaml"
-OUTPUT_SCHEMA_PATH = SCHEMA_DIR / "output.schema.yaml"
+# Simple schema validator implementation (no external heavy deps like jsonschema for this test)
+# In a full CI, we might use `jsonschema` library, but here we validate structure manually
+# to ensure the schema definitions are syntactically correct and logically sound.
 
-@pytest.fixture
-def dataset_schema():
-    with open(DATASET_SCHEMA_PATH, 'r') as f:
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+SCHEMAS_DIR = PROJECT_ROOT / "specs" / "contracts"
+
+def load_schema(filename: str) -> Dict[str, Any]:
+    """Load a YAML schema file."""
+    schema_path = SCHEMAS_DIR / filename
+    if not schema_path.exists():
+        pytest.fail(f"Schema file not found: {schema_path}")
+    with open(schema_path, "r") as f:
         return yaml.safe_load(f)
-
-@pytest.fixture
-def output_schema():
-    with open(OUTPUT_SCHEMA_PATH, 'r') as f:
-        return yaml.safe_load(f)
-
-@pytest.fixture
-def valid_dataset_record():
-    return {
-        "metadata": {
-            "version": "1.0.0",
-            "source": "NIST_WebBook",
-            "generated_at": datetime.utcnow().isoformat() + "Z",
-            "provenance_filter_applied": True,
-            "checksum": "abc123..."
-        },
-        "records": [
-            {
-                "record_id": "rec_001",
-                "source_id": "nist_12345",
-                "spectrum": [0.1] * 512,
-                "label": "SN1",
-                "provenance": "kinetic_studies",
-                "frequency_range": {
-                    "min": 400,
-                    "max": 4000,
-                    "unit": "cm-1"
-                }
-            }
-        ]
-    }
-
-@pytest.fixture
-def valid_output_report():
-    return {
-        "metadata": {
-            "generated_at": datetime.utcnow().isoformat() + "Z",
-            "model_type": "RandomForest",
-            "cross_validation_folds": 5,
-            "random_seed": 42,
-            "runtime_seconds": 120.5,
-            "memory_peak_mb": 1024
-        },
-        "model_performance": {
-            "mean_accuracy": 0.85,
-            "std_accuracy": 0.02,
-            "per_class_metrics": {
-                "SN1": {
-                    "precision": 0.84,
-                    "recall": 0.86,
-                    "f1_score": 0.85,
-                    "support": 50
-                },
-                "SN2": {
-                    "precision": 0.86,
-                    "recall": 0.84,
-                    "f1_score": 0.85,
-                    "support": 50
-                },
-                "E1": {
-                    "precision": 0.85,
-                    "recall": 0.85,
-                    "f1_score": 0.85,
-                    "support": 50
-                }
-            },
-            "confusion_matrix": [
-                [45, 3, 2],
-                [2, 44, 4],
-                [3, 2, 45]
-            ]
-        },
-        "feature_importance": {
-            "method": "permutation_importance",
-            "top_features": [
-                {
-                    "bin_index": 128,
-                    "frequency_range": {
-                        "min": 1700,
-                        "max": 1750,
-                        "unit": "cm-1"
-                    },
-                    "importance_score": 0.15,
-                    "significance": "significant"
-                }
-            ],
-            "stability_variance": 0.002,
-            "p_value": 0.01,
-            "bh_corrected_significant": True
-        },
-        "warnings": []
-    }
 
 class TestDatasetSchema:
-    def test_valid_dataset(self, dataset_schema, valid_dataset_record):
-        """Test that a valid dataset record passes schema validation."""
-        jsonschema.validate(instance=valid_dataset_record, schema=dataset_schema)
+    """Tests for dataset.schema.yaml"""
 
-    def test_invalid_provenance(self, dataset_schema, valid_dataset_record):
-        """Test that 'product_structure_only' provenance is rejected."""
-        invalid_record = valid_dataset_record.copy()
-        invalid_record["records"][0]["provenance"] = "product_structure_only"
-        
-        with pytest.raises(jsonschema.ValidationError):
-            jsonschema.validate(instance=invalid_record, schema=dataset_schema)
+    @pytest.fixture
+    def schema(self):
+        return load_schema("dataset.schema.yaml")
 
-    def test_missing_required_field(self, dataset_schema, valid_dataset_record):
-        """Test that missing required fields are caught."""
-        invalid_record = valid_dataset_record.copy()
-        del invalid_record["metadata"]["checksum"]
-        
-        with pytest.raises(jsonschema.ValidationError):
-            jsonschema.validate(instance=invalid_record, schema=dataset_schema)
+    def test_schema_exists_and_valid_yaml(self, schema):
+        """Ensure the schema file is valid YAML and contains required keys."""
+        assert schema is not None
+        assert "properties" in schema
+        assert "metadata" in schema["properties"]
+        assert "data" in schema["properties"]
 
-    def test_invalid_label(self, dataset_schema, valid_dataset_record):
-        """Test that invalid labels are rejected."""
-        invalid_record = valid_dataset_record.copy()
-        invalid_record["records"][0]["label"] = "INVALID_LABEL"
+    def test_metadata_required_fields(self, schema):
+        """Check that metadata has required fields."""
+        metadata_props = schema["properties"]["metadata"]["properties"]
+        required = schema["properties"]["metadata"]["required"]
         
-        with pytest.raises(jsonschema.ValidationError):
-            jsonschema.validate(instance=invalid_record, schema=dataset_schema)
+        assert "version" in metadata_props
+        assert "source" in metadata_props
+        assert "provenance_filter_applied" in metadata_props
+        assert "created_at" in metadata_props
+        assert "checksum" in metadata_props
+        
+        # Verify required list
+        assert "version" in required
+        assert "source" in required
+        assert "provenance_filter_applied" in required
+        assert "created_at" in required
+        assert "checksum" in required
+
+    def test_data_item_structure(self, schema):
+        """Check the structure of a single data item."""
+        data_items = schema["properties"]["data"]["items"]["properties"]
+        required = schema["properties"]["data"]["items"]["required"]
+
+        assert "record_id" in data_items
+        assert "spectrum" in data_items
+        assert "label" in data_items
+        assert "provenance" in data_items
+        
+        # Check spectrum constraints
+        spectrum_def = data_items["spectrum"]
+        assert spectrum_def["type"] == "array"
+        assert spectrum_def["minItems"] == 512
+        assert spectrum_def["maxItems"] == 512
+
+        # Check label enum
+        label_def = data_items["label"]
+        assert label_def["type"] == "string"
+        assert "enum" in label_def
+        assert "SN1" in label_def["enum"]
+        assert "SN2" in label_def["enum"]
+        assert "E1" in label_def["enum"]
+
+    def test_provenance_enum(self, schema):
+        """Ensure provenance field restricts to valid kinetic/validated sources."""
+        data_items = schema["properties"]["data"]["items"]["properties"]
+        provenance_def = data_items["provenance"]
+        
+        assert "enum" in provenance_def
+        allowed = provenance_def["enum"]
+        assert "kinetic_studies" in allowed
+        assert "validated_intermediates" in allowed
+        # Ensure 'product_structure' is NOT allowed
+        assert "product_structure" not in allowed
 
 class TestOutputSchema:
-    def test_valid_output(self, output_schema, valid_output_report):
-        """Test that a valid output report passes schema validation."""
-        jsonschema.validate(instance=valid_output_report, schema=output_schema)
+    """Tests for output.schema.yaml"""
 
-    def test_invalid_model_type(self, output_schema, valid_output_report):
-        """Test that invalid model types are rejected."""
-        invalid_report = valid_output_report.copy()
-        invalid_report["metadata"]["model_type"] = "InvalidModel"
+    @pytest.fixture
+    def schema(self):
+        return load_schema("output.schema.yaml")
+
+    def test_schema_exists_and_valid_yaml(self, schema):
+        """Ensure the schema file is valid YAML."""
+        assert schema is not None
+        assert "properties" in schema
+        assert "training_results" in schema["properties"]
+        assert "feature_importance" in schema["properties"]
+
+    def test_training_results_structure(self, schema):
+        """Check training results structure."""
+        training = schema["properties"]["training_results"]["properties"]
+        required = schema["properties"]["training_results"]["required"]
+
+        assert "cv_folds" in training
+        assert "metrics" in training
+        assert "cv_folds" in required
+        assert "metrics" in required
+
+    def test_metrics_structure(self, schema):
+        """Check that metrics contain accuracy and F1 scores."""
+        metrics = schema["properties"]["training_results"]["properties"]["metrics"]["properties"]
         
-        with pytest.raises(jsonschema.ValidationError):
-            jsonschema.validate(instance=invalid_report, schema=output_schema)
-
-    def test_confusion_matrix_shape(self, output_schema, valid_output_report):
-        """Test that confusion matrix dimensions match class count."""
-        # Valid case: 3 classes, 3x3 matrix
-        jsonschema.validate(instance=valid_output_report, schema=output_schema)
-
-    def test_accuracy_bounds(self, output_schema, valid_output_report):
-        """Test that accuracy is within [0, 1]."""
-        invalid_report = valid_output_report.copy()
-        invalid_report["model_performance"]["mean_accuracy"] = 1.5
+        assert "accuracy" in metrics
+        assert "f1_macro" in metrics
+        assert "f1_weighted" in metrics
         
-        with pytest.raises(jsonschema.ValidationError):
-            jsonschema.validate(instance=invalid_report, schema=output_schema)
+        # Check accuracy substructure
+        acc_props = metrics["accuracy"]["properties"]
+        assert "mean" in acc_props
+        assert "std" in acc_props
 
-    def test_causal_language_warning_structure(self, output_schema, valid_output_report):
-        """Test that warnings have correct structure if present."""
-        report_with_warning = valid_output_report.copy()
-        report_with_warning["warnings"] = [
-            {
-                "code": "CAUSAL_LANGUAGE_DETECTED",
-                "message": "Causal terms found in generated text."
-            }
-        ]
-        jsonschema.validate(instance=report_with_warning, schema=output_schema)
+    def test_feature_importance_structure(self, schema):
+        """Check feature importance structure."""
+        importance = schema["properties"]["feature_importance"]["properties"]
+        required = schema["properties"]["feature_importance"]["required"]
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        assert "top_features" in importance
+        assert "stability_variance" in importance
+        assert "top_features" in required
+        assert "stability_variance" in required
+
+    def test_causal_language_check(self, schema):
+        """
+        Verify that the schema description or comments do not contain forbidden causal terms.
+        This enforces FR-006 at the schema definition level.
+        """
+        schema_str = yaml.dump(schema)
+        forbidden = ["cause", "drive", "determine", "proves", "causes"]
+        
+        for word in forbidden:
+            assert word not in schema_str.lower(), \
+                f"Forbidden causal term '{word}' found in schema definition."

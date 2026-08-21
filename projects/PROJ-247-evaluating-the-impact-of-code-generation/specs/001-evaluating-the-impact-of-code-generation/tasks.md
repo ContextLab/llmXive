@@ -112,8 +112,8 @@
 - [ ] T029 [US3] Implement Sensitivity Analysis: adjust effect sizes using misclassification rates from `manual_labels.csv` (ground truth).
 - [ ] T029b [US3] Read existing classifier precision/recall metrics from `data/ground_truth/classifier_metrics.json` (produced by T017b). Compare against SC-006 threshold (0.85) defined in `code/utils/config.py`. Report pass/fail and document any failure as a limitation in `docs/paper/limitations.md` without re-calculating. (Depends on T017b)
 - [ ] T030 [US3] Generate visualizations: box plots and density plots for churn/latency using `matplotlib` (CPU-only); save as PNG <10MB.
-- [~] T031 [US3] Perform post-hoc power analysis on final matched pair count using `scipy.stats.power_analysis` with effect size=0.5, alpha=0.05, targeting ≥0.80 power.
-- [~] T032 [US3] Generate final report summary: p-values, effect sizes (Cohen's d), bias-corrected confidence intervals, and FDR.
+- [ ] T031 [US3] Perform post-hoc power analysis on final matched pair count using `scipy.stats.power_analysis` with effect size=0.5, alpha=0.05, targeting ≥0.80 power.
+- [ ] T032 [US3] Generate final report summary: p-values, effect sizes (Cohen's d), bias-corrected confidence intervals, and FDR.
 - [ ] T033 [US3] Save all statistical artifacts to `data/processed/statistical_results.json` and `docs/paper/`.
 
 **Checkpoint**: All user stories should now be independently functional

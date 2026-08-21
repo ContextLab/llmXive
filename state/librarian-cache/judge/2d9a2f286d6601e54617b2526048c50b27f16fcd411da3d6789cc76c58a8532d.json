@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.20461",
+  "judged_at": "2026-08-21T12:35:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the use of llms for automated documentation generation from code commits computer science",
+  "rationale": "This paper satisfies criterion (b) as it measures the dependent variable of \"automatic summarization\" (a core component of documentation generation) using LLMs, providing an empirical baseline and methodological framework for generating summaries from text, which is directly relevant to the user's domain of automated documentation. Additionally, it fits criterion (d) as a foundational methodology paper for applying conformal prediction to ensure content coverage in LLM summarization, a key conce",
+  "relevant": true
+}

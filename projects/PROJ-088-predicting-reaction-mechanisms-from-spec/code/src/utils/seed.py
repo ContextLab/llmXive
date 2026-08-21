@@ -1,190 +1,175 @@
 """
-Seed pinning utility for reproducibility (Reproducibility Principle I).
+Seed pinning utility for reproducibility (Principle I).
 
 This module provides functions to set and verify random seeds across
 Python's random, NumPy, and other relevant libraries to ensure
 reproducible experiments.
 """
-
 import os
 import random
 import hashlib
 from typing import Optional, Dict, Any, List
 import numpy as np
-
 from .logging import log_info, log_warning, log_error
 
 # Default seed value for reproducibility
 DEFAULT_SEED = 42
-
-# Mapping of environment variables for seed configuration
-SEED_ENV_VARS = {
-    "PYTHONHASHSEED": "python_hash_seed",
-    "NPY_SEED": "numpy_seed",
-    "RANDOM_SEED": "random_seed",
-}
-
+SEED_ENV_VAR = "LMMXIVE_RANDOM_SEED"
 
 def get_default_seed() -> int:
-    """Return the default seed value."""
+    """
+    Retrieve the default seed, checking environment variables first.
+    
+    Returns:
+        int: The seed value to use (from environment or default).
+    """
+    env_seed = os.getenv(SEED_ENV_VAR)
+    if env_seed is not None:
+        try:
+            return int(env_seed)
+        except ValueError:
+            log_warning(f"Invalid seed value in environment variable {SEED_ENV_VAR}: {env_seed}. Using default.")
     return DEFAULT_SEED
 
-
-def _hash_seed(seed: int) -> str:
-    """Generate a deterministic hash for a seed value."""
-    return hashlib.sha256(str(seed).encode()).hexdigest()[:16]
-
-
-def set_seed(seed: Optional[int] = None, verbose: bool = True) -> Dict[str, Any]:
+def set_seed(seed: Optional[int] = None) -> int:
     """
-    Set random seeds for reproducibility across all relevant libraries.
-
+    Set the random seed for all relevant libraries.
+    
     Args:
-        seed: The seed value to use. If None, uses DEFAULT_SEED.
-        verbose: If True, log the seed configuration.
-
+        seed (int, optional): The seed value. If None, uses the default.
+        
     Returns:
-        A dictionary containing the seed values and their hashes.
+        int: The seed value that was set.
+        
+    Raises:
+        ValueError: If the seed is negative.
     """
     if seed is None:
-        seed = DEFAULT_SEED
-
-    # Ensure seed is an integer
-    try:
-        seed = int(seed)
-    except (ValueError, TypeError) as e:
-        msg = f"Invalid seed value: {seed}. Must be an integer."
-        log_error(msg)
-        raise ValueError(msg) from e
-
-    seed_info: Dict[str, Any] = {
-        "seed": seed,
-        "hash": _hash_seed(seed),
-        "libraries": {},
-    }
-
-    # Set Python's random seed
+        seed = get_default_seed()
+        
+    if seed < 0:
+        raise ValueError(f"Seed must be non-negative, got {seed}")
+    
+    # Set seed for Python's random module
     random.seed(seed)
-    seed_info["libraries"]["random"] = seed
-
-    # Set NumPy's random seed
+    
+    # Set seed for NumPy
     np.random.seed(seed)
-    seed_info["libraries"]["numpy"] = seed
+    
+    # Log the action
+    log_info(f"Random seed set to {seed}")
+    
+    return seed
 
-    # Set PYTHONHASHSEED for hash reproducibility (must be set before interpreter starts)
-    # This is informational; actual setting happens via environment variable
-    os.environ["PYTHONHASHSEED"] = str(seed)
-    seed_info["libraries"]["python_hash"] = seed
-
-    if verbose:
-        log_info(f"Random seed set to {seed} (hash: {seed_info['hash']})")
-        log_info(f"Libraries configured: {list(seed_info['libraries'].keys())}")
-
-    return seed_info
-
-
-def get_seed_hash(seed: Optional[int] = None) -> str:
+def get_seed_hash(seed: int) -> str:
     """
     Generate a deterministic hash for a seed value.
-
+    
     Args:
-        seed: The seed value to hash. If None, uses DEFAULT_SEED.
-
+        seed (int): The seed value.
+        
     Returns:
-        A hexadecimal string representing the hash of the seed.
+        str: A hexadecimal hash string representing the seed.
     """
-    if seed is None:
-        seed = DEFAULT_SEED
-    return _hash_seed(int(seed))
+    return hashlib.sha256(str(seed).encode()).hexdigest()[:16]
 
-
-def verify_seed_consistency(seed: int, actual_seeds: Dict[str, int]) -> bool:
+def verify_seed_consistency(seed: int) -> bool:
     """
-    Verify that the actual seeds match the expected seed.
-
+    Verify that the current random state matches the expected seed.
+    
+    This is a basic check by re-seeding and comparing a generated value.
+    
     Args:
-        seed: The expected seed value.
-        actual_seeds: A dictionary of library names to their actual seed values.
-
+        seed (int): The seed to verify against.
+        
     Returns:
-        True if all actual seeds match the expected seed, False otherwise.
+        bool: True if the generated value matches the expected value.
     """
-    for lib, actual_seed in actual_seeds.items():
-        if actual_seed != seed:
-            msg = f"Seed mismatch for {lib}: expected {seed}, got {actual_seed}"
-            log_warning(msg)
-            return False
-
-    log_info("All seeds are consistent")
-    return True
-
+    # Save current state
+    current_state = random.getstate()
+    np_state = np.random.get_state()
+    
+    try:
+        # Set the seed
+        set_seed(seed)
+        
+        # Generate a test value
+        test_val = random.random()
+        
+        # Reset to original state
+        random.setstate(current_state)
+        np.random.set_state(np_state)
+        
+        # Generate the same test value again with the seed
+        set_seed(seed)
+        expected_val = random.random()
+        
+        # Compare
+        return abs(test_val - expected_val) < 1e-15
+    finally:
+        # Ensure state is restored
+        random.setstate(current_state)
+        np.random.set_state(np_state)
 
 class SeedContext:
     """
     Context manager for temporary seed setting.
-
-    Ensures that seeds are reset to their previous values after the context
-    exits, allowing for controlled randomness within a specific scope.
-
-    Example:
+    
+    Usage:
         with SeedContext(42):
-            # Code that needs reproducible randomness
-            result = model.train()
-        # Randomness restored to previous state
+            # code that needs deterministic randomness
+            pass
+        # randomness restored to previous state
     """
-
-    def __init__(self, seed: Optional[int] = None):
-        self.seed = seed if seed is not None else DEFAULT_SEED
-        self._previous_seeds: Dict[str, int] = {}
-
-    def __enter__(self) -> "SeedContext":
-        # Store current seeds
-        self._previous_seeds["random"] = random.getstate()
-        self._previous_seeds["numpy"] = np.random.get_state()
-
-        # Set new seeds
-        set_seed(self.seed, verbose=False)
+    
+    def __init__(self, seed: int):
+        self.seed = seed
+        self.random_state = None
+        self.np_state = None
+        
+    def __enter__(self):
+        # Save current states
+        self.random_state = random.getstate()
+        self.np_state = np.random.get_state()
+        
+        # Set new seed
+        set_seed(self.seed)
         return self
-
+        
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # Restore previous seeds
-        random.setstate(self._previous_seeds["random"])
-        np.random.set_state(self._previous_seeds["numpy"])
+        # Restore previous states
+        random.setstate(self.random_state)
+        np.random.set_state(self.np_state)
         return False
 
-
-def generate_experiment_id(seed: Optional[int] = None, prefix: str = "exp") -> str:
+def generate_experiment_id(seed: Optional[int] = None) -> str:
     """
     Generate a unique experiment ID based on the seed and timestamp.
-
+    
     Args:
-        seed: The seed value to include in the ID. If None, uses DEFAULT_SEED.
-        prefix: A prefix for the experiment ID.
-
+        seed (int, optional): The seed to base the ID on.
+        
     Returns:
-        A unique experiment ID string.
+        str: A unique experiment identifier.
     """
     if seed is None:
-        seed = DEFAULT_SEED
-
+        seed = get_default_seed()
+        
+    timestamp = str(os.getpid()) + str(hash(os.urandom(8)))
     seed_hash = get_seed_hash(seed)
-    # Include a truncated timestamp for uniqueness across runs with same seed
-    from datetime import datetime
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    
+    return f"exp_{seed_hash}_{timestamp}"
 
-    return f"{prefix}_{seed_hash}_{timestamp}"
-
-
-def get_environment_seeds() -> Dict[str, Optional[int]]:
+def get_environment_seeds() -> Dict[str, Any]:
     """
-    Check for seed values set via environment variables.
-
+    Collect all relevant seed information from the environment.
+    
     Returns:
-        A dictionary mapping library names to their seed values from environment,
-        or None if not set.
+        dict: A dictionary containing seed information.
     """
-    result = {}
-    for env_var, lib_name in SEED_ENV_VARS.items():
-        value = os.getenv(env_var)
-        result[lib_name] = int(value) if value is not None else None
-    return result
+    return {
+        "default_seed": get_default_seed(),
+        "env_seed": os.getenv(SEED_ENV_VAR),
+        "current_random_seed": random.getstate()[1][0] if hasattr(random.getstate(), '__getitem__') else None,
+        "numpy_seed": np.random.get_state()[1][0] if hasattr(np.random.get_state(), '__getitem__') else None,
+    }

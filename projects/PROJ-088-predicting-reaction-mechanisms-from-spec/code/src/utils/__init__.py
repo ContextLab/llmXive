@@ -1,3 +1,3 @@
 """
-Utility functions for logging, I/O, and reproducibility.
+Utility module for logging, I/O, and seeding.
 """

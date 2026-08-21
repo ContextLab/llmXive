@@ -1,3 +1,3 @@
 """
-Test package for the reaction mechanism prediction pipeline.
+llmXive Research Pipeline - Test Package
 """

@@ -1,79 +1,100 @@
-# Dataset Schema for Reaction Mechanism Prediction
-# Defines the structure of input data for the ML pipeline
-# Used for validation of ingested data from NIST and PubChem sources
+%YAML 1.2
+---
+# Schema for the processed reaction mechanism dataset
+# Used for validation of data ingestion and preprocessing outputs
+# Corresponds to US1: Data Ingestion and Preprocessing Pipeline
 
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: ReactionMechanismDataset
 description: >
-  Schema for spectroscopic data (IR/NMR) with reaction mechanism labels.
-  Enforces FR-001 (fixed-length fingerprints) and FR-008 (provenance requirements).
+  A structured dataset containing spectroscopic fingerprints and reaction mechanism labels.
+  Data is derived from NIST WebBook and PubChem, filtered by provenance (kinetic studies only).
 
 type: object
 required:
   - metadata
-  - spectra
-  - labels
-  - provenance
+  - data
 
 properties:
   metadata:
     type: object
-    description: Dataset-level metadata
+    description: Metadata about the dataset generation
     required:
       - version
       - source
-      - generated_at
-      - seed
+      - provenance_filter_applied
+      - created_at
       - checksum
     properties:
       version:
         type: string
-        pattern: '^\d+\.\d+\.\d+$'
-        description: Semantic version of the dataset
+        description: Schema version (e.g., "1.0.0")
       source:
-        type: string
-        enum:
-          - NIST
-          - PubChem
-          - combined
-        description: Origin of the data
-      generated_at:
+        type: array
+        description: List of original data sources
+        items:
+          type: string
+          enum:
+            - "NIST_WebBook_IR"
+            - "PubChem_NMR"
+      provenance_filter_applied:
+        type: boolean
+        description: True if non-kinetic studies were excluded (FR-008)
+      created_at:
         type: string
         format: date-time
         description: ISO 8601 timestamp of generation
-      seed:
-        type: integer
-        description: Random seed used for reproducibility
       checksum:
         type: string
-        pattern: '^[a-f0-9]{64}$'
-        description: SHA-256 checksum of the raw data
+        description: SHA-256 checksum of the data payload (Principle III)
+      row_count:
+        type: integer
+        minimum: 0
+        description: Total number of valid records
 
-  spectra:
+  data:
     type: array
-    description: Processed spectroscopic data
-    minItems: 1
+    description: Array of reaction records
     items:
       type: object
       required:
-        - id
-        - fingerprint
-        - frequency_range
+        - record_id
+        - spectrum
+        - label
+        - provenance
       properties:
-        id:
+        record_id:
           type: string
-          description: Unique identifier for the spectrum
-        fingerprint:
+          description: Unique identifier for the record
+        spectrum:
           type: array
+          description: Binned and normalized spectrum (512 elements)
           items:
             type: number
-            minimum: 0.0
-            maximum: 1.0
+            format: float
           minItems: 512
           maxItems: 512
-          description: Normalized, binned spectrum (512-element vector)
+        label:
+          type: string
+          description: Reaction mechanism class
+          enum:
+            - "SN1"
+            - "SN2"
+            - "E1"
+            - "E2"
+            - "Unknown"
+        provenance:
+          type: string
+          description: Source of the label validation
+          enum:
+            - "kinetic_studies"
+            - "validated_intermediates"
+        original_source_id:
+          type: string
+          description: ID from the original database (NIST/PubChem)
         frequency_range:
           type: object
+          description: Original frequency range of the spectrum
           required:
             - min
             - max
@@ -85,105 +106,6 @@ properties:
               type: number
             unit:
               type: string
-              enum:
-                - cm-1
-                - ppm
-                - Hz
-        metadata:
-          type: object
-          description: Optional spectrum-level metadata
-          properties:
-            reaction_id:
-              type: string
-            compound_name:
-              type: string
-            conditions:
-              type: object
-
-  labels:
-    type: array
-    description: Reaction mechanism labels
-    minItems: 1
-    items:
-      type: object
-      required:
-        - spectrum_id
-        - mechanism
-        - confidence
-      properties:
-        spectrum_id:
-          type: string
-          description: Reference to spectrum id
-        mechanism:
-          type: string
-          enum:
-            - SN1
-            - SN2
-            - E1
-            - E2
-            - Addition
-            - Elimination
-            - Unknown
-          description: Primary reaction mechanism class
-        confidence:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: Confidence score from literature validation
-        source:
-          type: string
-          enum:
-            - kinetic_studies
-            - validated_intermediates
-          description: Provenance category (FR-008)
-
-  provenance:
-    type: array
-    description: Provenance tracking for each entry
-    items:
-      type: object
-      required:
-        - spectrum_id
-        - original_source
-        - extraction_method
-        - validation_status
-      properties:
-        spectrum_id:
-          type: string
-        original_source:
-          type: string
-          description: Original database entry ID
-        extraction_method:
-          type: string
-          description: How the spectrum was extracted
-        validation_status:
-          type: string
-          enum:
-            - validated
-            - inferred
-            - manual_review
-        literature_references:
-          type: array
-          items:
-            type: string
-          description: DOI or PMID references
-
-  statistics:
-    type: object
-    description: Dataset-level statistics
-    properties:
-      total_samples:
-        type: integer
-        minimum: 0
-      class_distribution:
-        type: object
-        additionalProperties:
-          type: integer
-      missing_values:
-        type: integer
-        minimum: 0
-      outlier_count:
-        type: integer
-        minimum: 0
+              enum: ["cm-1", "ppm"]
 
 additionalProperties: false

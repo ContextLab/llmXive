@@ -162,16 +162,16 @@ description: "Task list template for feature implementation"
 
 - [X] T041 [P] [Runtime] **Runtime Measurement**: Implement a timer in `code/main.py` with `limit_seconds: 21600` (6 hours). **Depends on T015**.
 - [X] T060 [P] [Runtime] **Performance Profiling**: Add profiling in `code/main.py`. **Depends on T015**.
-- [ ] T093 [P] [Reporting] **Final Report Generation**: Generate a report in `code/main.py`. **Depends on T015**.
-- [ ] T099 [P] [Data Integrity] **Final Data Integrity Audit**: Perform an audit in `code/main.py`. **Depends on T015**.
-- [ ] T097 [P] [Data Integrity] **Dataset Metadata Extraction**: Implement a function in `code/loaders.py`. **Depends on T015**.
-- [ ] T095 [P] [Data Integrity] **Threshold Sweep Consistency Check**: Add a check in `code/main.py`. **Depends on T015**.
-- [ ] T091 [P] [Data Integrity] **Data Hygiene Logging**: Add logging in `code/loaders.py`. **Depends on T015**.
-- [ ] T090 [P] [Data Integrity] **Edge Case: Single Variable Dataset**: Add a check in `code/loaders.py`. **Depends on T015**.
-- [ ] T089 [P] [Data Integrity] **P-Value Distribution Analysis**: Add a diagnostic in `code/main.py`. **Depends on T015**.
-- [ ] T084 [P] [Data Integrity] **Sensitivity Analysis Threshold Range Validation**: Add a check in `code/main.py`. **Depends on T015**.
-- [ ] T082 [P] [Data Integrity] **Dataset Variable Type Enforcement**: Add a check in `code/loaders.py`. **Depends on T015**.
-- [ ] T075 [P] [Data Integrity] **Threshold Sweep Edge Case**: Add a check in `code/main.py`. **Depends on T015**.
+- [X] T093 [P] [Reporting] **Final Report Generation**: Generate a report in `code/main.py`. **Depends on T015**.
+- [X] T099 [P] [Data Integrity] **Final Data Integrity Audit**: Perform an audit in `code/main.py`. **Depends on T015**.
+- [X] T097 [P] [Data Integrity] **Dataset Metadata Extraction**: Implement a function in `code/loaders.py`. **Depends on T015**.
+- [X] T095 [P] [Data Integrity] **Threshold Sweep Consistency Check**: Add a check in `code/main.py`. **Depends on T015**.
+- [X] T091 [P] [Data Integrity] **Data Hygiene Logging**: Add logging in `code/loaders.py`. **Depends on T015**.
+- [X] T090 [P] [Data Integrity] **Edge Case: Single Variable Dataset**: Add a check in `code/loaders.py`. **Depends on T015**.
+- [X] T089 [P] [Data Integrity] **P-Value Distribution Analysis**: Add a diagnostic in `code/main.py`. **Depends on T015**.
+- [X] T084 [P] [Data Integrity] **Sensitivity Analysis Threshold Range Validation**: Add a check in `code/main.py`. **Depends on T015**.
+- [X] T082 [P] [Data Integrity] **Dataset Variable Type Enforcement**: Add a check in `code/loaders.py`. **Depends on T015**.
+- [X] T075 [P] [Data Integrity] **Threshold Sweep Edge Case**: Add a check in `code/main.py`. **Depends on T015**.
 - [X] T073 [P] [Data Integrity] **Clustering Coefficient Robustness**: Add a check in `code/stats_engine.py`. **Depends on T015**.
 - [ ] T072 [P] [Data Integrity] **Variable Count Verification**: Add a check in `code/main.py`. **Depends on T015**.
 - [ ] T071 [P] [Data Integrity] **Concrete Compressive Strength Handling**: Update `code/loaders.py`. **Depends on T015**.

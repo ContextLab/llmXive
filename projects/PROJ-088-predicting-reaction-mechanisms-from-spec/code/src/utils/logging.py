@@ -1,101 +1,88 @@
 """
-Logging utilities for the llmXive research pipeline.
+Logging and edge case handling utilities for the llmXive research pipeline.
 
-Provides standardized logging functions, edge case flagging, and data quality
-monitoring to ensure reproducibility and traceability of research results.
+Provides structured logging, edge case flagging, and data quality issue tracking
+to ensure reproducibility and transparency in scientific computations.
 """
-
 import logging
 import sys
 from datetime import datetime
 from typing import Optional, Any, Dict, List
 from pathlib import Path
+import json
 
-# Global logger instance
-_logger: Optional[logging.Logger] = None
-_log_level: int = logging.INFO
+# Global storage for tracking issues across the pipeline
 _edge_cases: List[Dict[str, Any]] = []
 _data_quality_issues: List[Dict[str, Any]] = []
 _provenance_mismatches: List[Dict[str, Any]] = []
 _label_validation_issues: List[Dict[str, Any]] = []
 
-# Edge case categories for structured tracking
-EDGE_CASE_CATEGORIES = {
-    "missing_data": "Missing or incomplete data entries",
-    "outliers": "Statistical outliers detected",
-    "provenance_mismatch": "Provenance metadata inconsistency",
-    "label_validation": "Label validation failures",
-    "class_imbalance": "Class distribution imbalance",
-    "data_quality": "General data quality issues",
-    "configuration": "Configuration or setup warnings",
-    "performance": "Performance or resource warnings"
-}
+# Default logger configuration
+_default_logger: Optional[logging.Logger] = None
+_log_level: int = logging.INFO
 
-def get_logger() -> logging.Logger:
+def get_logger(name: str = "llmXive") -> logging.Logger:
     """
-    Get or create the global logger instance.
+    Get or create a named logger with standard formatting.
     
-    Returns:
-        logging.Logger: The configured logger instance
-    """
-    global _logger
-    if _logger is None:
-        _logger = logging.getLogger("llmXive")
-        _logger.setLevel(_log_level)
+    Args:
+        name: Logger name (defaults to 'llmXive')
         
-        # Create console handler if none exists
-        if not _logger.handlers:
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setLevel(_log_level)
-            
-            # Create formatter
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S'
-            )
-            console_handler.setFormatter(formatter)
-            _logger.addHandler(console_handler)
-    
-    return _logger
+    Returns:
+        Configured logger instance
+    """
+    global _default_logger
+    if _default_logger is None:
+        _default_logger = logging.getLogger(name)
+        _default_logger.setLevel(_log_level)
+        
+        # Console handler
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(_log_level)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        console_handler.setFormatter(formatter)
+        _default_logger.addHandler(console_handler)
+        
+    return logging.getLogger(name)
 
 def set_log_level(level: int) -> None:
     """
     Set the global logging level.
     
     Args:
-        level: Logging level (e.g., logging.DEBUG, logging.INFO, logging.WARNING)
+        level: Logging level (e.g., logging.DEBUG, logging.WARNING)
     """
-    global _log_level, _logger
+    global _log_level, _default_logger
     _log_level = level
-    if _logger is not None:
-        _logger.setLevel(level)
-        for handler in _logger.handlers:
+    if _default_logger:
+        _default_logger.setLevel(level)
+        for handler in _default_logger.handlers:
             handler.setLevel(level)
 
 def setup_logger(
     name: str = "llmXive",
-    log_file: Optional[Union[str, Path]] = None,
+    log_file: Optional[Path] = None,
     level: int = logging.INFO
 ) -> logging.Logger:
     """
-    Setup and configure the logger with optional file output.
+    Set up a logger with optional file output.
     
     Args:
         name: Logger name
         log_file: Optional path to log file
         level: Logging level
-    
+        
     Returns:
-        logging.Logger: Configured logger instance
+        Configured logger instance
     """
-    global _logger, _log_level
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
     
-    _log_level = level
-    _logger = logging.getLogger(name)
-    _logger.setLevel(level)
-    
-    # Clear existing handlers
-    _logger.handlers.clear()
+    # Remove existing handlers to avoid duplicates
+    logger.handlers.clear()
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
@@ -105,301 +92,203 @@ def setup_logger(
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     console_handler.setFormatter(formatter)
-    _logger.addHandler(console_handler)
+    logger.addHandler(console_handler)
     
     # File handler if specified
     if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_path)
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
-        _logger.addHandler(file_handler)
-    
-    return _logger
+        logger.addHandler(file_handler)
+        
+    return logger
 
-def log_warning(message: str, category: Optional[str] = None, **kwargs: Any) -> None:
-    """
-    Log a warning message with optional category.
-    
-    Args:
-        message: Warning message
-        category: Optional category for categorization
-        **kwargs: Additional metadata to include
-    """
-    logger = get_logger()
-    if category:
-        message = f"[{category}] {message}"
-    logger.warning(message)
-    
-    # Track in data quality issues if needed
-    if category in ["data_quality", "outliers", "class_imbalance"]:
-        _data_quality_issues.append({
-            "timestamp": datetime.now().isoformat(),
-            "message": message,
-            "category": category,
-            **kwargs
-        })
+def log_info(logger: logging.Logger, message: str, **kwargs) -> None:
+    """Log an informational message."""
+    logger.info(f"[INFO] {message}", extra=kwargs)
 
-def log_error(message: str, **kwargs: Any) -> None:
-    """
-    Log an error message.
-    
-    Args:
-        message: Error message
-        **kwargs: Additional metadata
-    """
-    logger = get_logger()
-    logger.error(message)
+def log_warning(logger: logging.Logger, message: str, **kwargs) -> None:
+    """Log a warning message."""
+    logger.warning(f"[WARNING] {message}", extra=kwargs)
 
-def log_critical(message: str, **kwargs: Any) -> None:
-    """
-    Log a critical error message.
-    
-    Args:
-        message: Critical error message
-        **kwargs: Additional metadata
-    """
-    logger = get_logger()
-    logger.critical(message)
+def log_error(logger: logging.Logger, message: str, **kwargs) -> None:
+    """Log an error message."""
+    logger.error(f"[ERROR] {message}", extra=kwargs)
 
-def log_info(message: str, **kwargs: Any) -> None:
-    """
-    Log an informational message.
-    
-    Args:
-        message: Info message
-        **kwargs: Additional metadata
-    """
-    logger = get_logger()
-    logger.info(message)
+def log_critical(logger: logging.Logger, message: str, **kwargs) -> None:
+    """Log a critical message."""
+    logger.critical(f"[CRITICAL] {message}", extra=kwargs)
 
 def flag_edge_case(
     category: str,
     description: str,
-    data_context: Optional[Dict[str, Any]] = None,
-    severity: str = "warning"
+    context: Optional[Dict[str, Any]] = None,
+    severity: str = "medium"
 ) -> None:
     """
-    Flag an edge case for later review and analysis.
+    Flag an edge case encountered during processing.
     
     Args:
-        category: Edge case category (must be in EDGE_CASE_CATEGORIES)
-        description: Description of the edge case
-        data_context: Optional context about the data where this occurred
-        severity: Severity level ("warning", "error", "critical")
+        category: Category of edge case (e.g., 'data_missing', 'outlier', 'boundary')
+        description: Human-readable description
+        context: Additional context data
+        severity: Severity level ('low', 'medium', 'high', 'critical')
     """
-    if category not in EDGE_CASE_CATEGORIES:
-        raise ValueError(f"Invalid edge case category: {category}. "
-                       f"Valid categories: {list(EDGE_CASE_CATEGORIES.keys())}")
-    
-    edge_case = {
+    entry = {
         "timestamp": datetime.now().isoformat(),
         "category": category,
-        "category_description": EDGE_CASE_CATEGORIES[category],
         "description": description,
-        "data_context": data_context or {},
-        "severity": severity
+        "severity": severity,
+        "context": context or {}
     }
-    
-    _edge_cases.append(edge_case)
-    
-    # Log based on severity
-    logger = get_logger()
-    log_message = f"[EDGE CASE] [{category}] {description}"
-    
-    if severity == "critical":
-        logger.critical(log_message)
-    elif severity == "error":
-        logger.error(log_message)
-    else:
-        logger.warning(log_message)
+    _edge_cases.append(entry)
+
+def get_edge_cases() -> List[Dict[str, Any]]:
+    """Get all recorded edge cases."""
+    return _edge_cases.copy()
+
+def clear_edge_cases() -> None:
+    """Clear all recorded edge cases."""
+    _edge_cases.clear()
 
 def log_data_quality_issue(
+    source: str,
     issue_type: str,
-    description: str,
-    affected_records: Optional[int] = None,
-    severity: str = "warning"
+    message: str,
+    affected_rows: Optional[int] = None,
+    recommendation: Optional[str] = None
 ) -> None:
     """
-    Log a data quality issue with structured metadata.
+    Log a data quality issue detected during ingestion or preprocessing.
     
     Args:
-        issue_type: Type of data quality issue
-        description: Description of the issue
-        affected_records: Number of affected records
-        severity: Severity level
+        source: Data source where issue was found
+        issue_type: Type of issue (e.g., 'missing_values', 'invalid_range', 'inconsistent_format')
+        message: Description of the issue
+        affected_rows: Number of rows affected
+        recommendation: Suggested remediation
     """
-    issue = {
+    entry = {
         "timestamp": datetime.now().isoformat(),
+        "source": source,
         "issue_type": issue_type,
-        "description": description,
-        "affected_records": affected_records,
-        "severity": severity
+        "message": message,
+        "affected_rows": affected_rows,
+        "recommendation": recommendation
     }
+    _data_quality_issues.append(entry)
+    log_warning(logging.getLogger("llmXive"), f"Data Quality Issue in {source}: {message}")
+
+def get_data_quality_issues() -> List[Dict[str, Any]]:
+    """Get all recorded data quality issues."""
+    return _data_quality_issues.copy()
+
+def clear_data_quality_issues() -> None:
+    """Clear all recorded data quality issues."""
+    _data_quality_issues.clear()
+
+def log_provenance_mismatch(
+    row_id: Any,
+    expected_provenance: str,
+    actual_provenance: str,
+    action_taken: str
+) -> None:
+    """
+    Log a provenance mismatch where data did not meet inclusion criteria.
     
-    _data_quality_issues.append(issue)
-    
-    logger = get_logger()
-    log_message = f"[DATA QUALITY] [{issue_type}] {description}"
-    if affected_records:
-        log_message += f" (affecting {affected_records} records)"
-    
-    if severity == "critical":
-        logger.critical(log_message)
-    elif severity == "error":
-        logger.error(log_message)
-    else:
-        logger.warning(log_message)
+    Args:
+        row_id: Identifier of the row
+        expected_provenance: Expected provenance type
+        actual_provenance: Actual provenance found
+        action_taken: Action taken (e.g., 'excluded', 'flagged')
+    """
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "row_id": str(row_id),
+        "expected_provenance": expected_provenance,
+        "actual_provenance": actual_provenance,
+        "action_taken": action_taken
+    }
+    _provenance_mismatches.append(entry)
+    log_warning(
+        logging.getLogger("llmXive"),
+        f"Provenance mismatch for row {row_id}: expected '{expected_provenance}', "
+        f"found '{actual_provenance}'. Action: {action_taken}"
+    )
+
+def get_provenance_mismatches() -> List[Dict[str, Any]]:
+    """Get all recorded provenance mismatches."""
+    return _provenance_mismatches.copy()
+
+def clear_provenance_mismatches() -> None:
+    """Clear all recorded provenance mismatches."""
+    _provenance_mismatches.clear()
 
 def log_label_validation_issue(
-    label: str,
-    issue: str,
-    sample_id: Optional[str] = None,
-    context: Optional[Dict[str, Any]] = None
+    sample_id: Any,
+    label: Optional[str],
+    reason: str,
+    validation_type: str = "label_check"
 ) -> None:
     """
     Log an issue with label validation.
     
     Args:
-        label: The problematic label
-        issue: Description of the validation issue
-        sample_id: Optional sample identifier
-        context: Additional context
+        sample_id: Identifier of the sample
+        label: The label value (or None if missing)
+        reason: Reason for the validation issue
+        validation_type: Type of validation performed
     """
-    issue_record = {
+    entry = {
         "timestamp": datetime.now().isoformat(),
+        "sample_id": str(sample_id),
         "label": label,
-        "issue": issue,
-        "sample_id": sample_id,
-        "context": context or {}
+        "reason": reason,
+        "validation_type": validation_type
     }
-    
-    _label_validation_issues.append(issue_record)
-    
-    logger = get_logger()
-    msg = f"[LABEL VALIDATION] Label '{label}': {issue}"
-    if sample_id:
-        msg += f" (sample: {sample_id})"
-    logger.warning(msg)
-
-def log_provenance_mismatch(
-    expected: str,
-    actual: str,
-    source: str,
-    record_id: Optional[str] = None
-) -> None:
-    """
-    Log a provenance metadata mismatch.
-    
-    Args:
-        expected: Expected provenance value
-        actual: Actual provenance value found
-        source: Data source where mismatch occurred
-        record_id: Optional record identifier
-    """
-    mismatch = {
-        "timestamp": datetime.now().isoformat(),
-        "expected": expected,
-        "actual": actual,
-        "source": source,
-        "record_id": record_id
-    }
-    
-    _provenance_mismatches.append(mismatch)
-    
-    logger = get_logger()
-    msg = f"[PROVENANCE MISMATCH] Expected '{expected}', got '{actual}' from {source}"
-    if record_id:
-        msg += f" (record: {record_id})"
-    logger.warning(msg)
-
-def get_edge_cases() -> List[Dict[str, Any]]:
-    """
-    Get all flagged edge cases.
-    
-    Returns:
-        List of edge case dictionaries
-    """
-    return _edge_cases.copy()
-
-def get_data_quality_issues() -> List[Dict[str, Any]]:
-    """
-    Get all logged data quality issues.
-    
-    Returns:
-        List of data quality issue dictionaries
-    """
-    return _data_quality_issues.copy()
-
-def get_provenance_mismatches() -> List[Dict[str, Any]]:
-    """
-    Get all logged provenance mismatches.
-    
-    Returns:
-        List of provenance mismatch dictionaries
-    """
-    return _provenance_mismatches.copy()
+    _label_validation_issues.append(entry)
+    log_warning(
+        logging.getLogger("llmXive"),
+        f"Label validation issue for sample {sample_id}: {reason}"
+    )
 
 def get_label_validation_issues() -> List[Dict[str, Any]]:
-    """
-    Get all label validation issues.
-    
-    Returns:
-        List of label validation issue dictionaries
-    """
+    """Get all recorded label validation issues."""
     return _label_validation_issues.copy()
 
-def clear_edge_cases() -> None:
-    """Clear all flagged edge cases."""
-    global _edge_cases
-    _edge_cases.clear()
-
-def clear_data_quality_issues() -> None:
-    """Clear all data quality issues."""
-    global _data_quality_issues
-    _data_quality_issues.clear()
-
-def clear_provenance_mismatches() -> None:
-    """Clear all provenance mismatches."""
-    global _provenance_mismatches
-    _provenance_mismatches.clear()
-
 def clear_label_validation_issues() -> None:
-    """Clear all label validation issues."""
-    global _label_validation_issues
+    """Clear all recorded label validation issues."""
     _label_validation_issues.clear()
 
-def generate_edge_case_report() -> Dict[str, Any]:
+def generate_edge_case_report(output_path: Optional[Path] = None) -> Optional[Path]:
     """
-    Generate a summary report of all edge cases and issues.
+    Generate a comprehensive JSON report of all tracked issues.
     
+    Args:
+        output_path: Optional path to write the report. If None, returns the dict.
+        
     Returns:
-        Dictionary containing summary statistics and details
+        Path to the generated report file, or the report dict if no path provided.
     """
-    return {
-        "timestamp": datetime.now().isoformat(),
-        "edge_cases": {
-            "total": len(_edge_cases),
-            "by_category": {
-                cat: sum(1 for ec in _edge_cases if ec["category"] == cat)
-                for cat in EDGE_CASE_CATEGORIES.keys()
-            },
-            "details": _edge_cases
-        },
-        "data_quality_issues": {
-            "total": len(_data_quality_issues),
-            "details": _data_quality_issues
-        },
-        "provenance_mismatches": {
-            "total": len(_provenance_mismatches),
-            "details": _provenance_mismatches
-        },
-        "label_validation_issues": {
-            "total": len(_label_validation_issues),
-            "details": _label_validation_issues
+    report = {
+        "generated_at": datetime.now().isoformat(),
+        "edge_cases": _edge_cases,
+        "data_quality_issues": _data_quality_issues,
+        "provenance_mismatches": _provenance_mismatches,
+        "label_validation_issues": _label_validation_issues,
+        "summary": {
+            "total_edge_cases": len(_edge_cases),
+            "total_data_quality_issues": len(_data_quality_issues),
+            "total_provenance_mismatches": len(_provenance_mismatches),
+            "total_label_validation_issues": len(_label_validation_issues)
         }
     }
-
-# Initialize logger on module import
-get_logger()
+    
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2, default=str)
+        return output_path
+    
+    return report

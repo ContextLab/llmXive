@@ -1,25 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`src/`, `tests/`, `specs/001-predicting-reaction-mechanisms/`,\
-    \ `data/`, `state/projects/`) is provided; the claim lacks any artifact listing\
-    \ or screenshots confirming their existence. The implementer must supply a directory\
-    \ listing or similar proof that these folders have been created and are non\u2011\
-    empty."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `__init__.py` files are presented for any of the `src/` or `tests/` subdirectories;
-    the claim lacks any artifact evidence showing those files exist or contain appropriate
-    package initialization code. The required package marker files are missing.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.flake8`, `black.toml`, or a `pre-commit` config) are present in the provided
-    evidence, so the requirement to set up ruff/flake8 and black has not been demonstrated.
-    The implementer must add the actual configuration artifacts and show they are
-    functional.
 T010:
   c: false
   h: ce4b84710aaa0388d36bc2c91d64b49a65d193da9751d41e317f278d1c59b0f4

@@ -1,0 +1,375 @@
+{
+  "fetched_at": "2026-08-21T12:35:58Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Evaluating the Use of LLMs for Automated Documentation Generation from Code Commits",
+      "target_n": 5
+    },
+    "duration_seconds": 47.743,
+    "ended_at": "2026-08-21T12:35:58Z",
+    "expansion": null,
+    "extracted_queries": [
+      "commit message summarization code documentation",
+      "commit message generation neural machine translation",
+      "code-to-text summarization dataset benchmark",
+      "documentation quality evaluation automated metrics",
+      "semantic traceability link recovery commit code"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2509.20461"
+      ]
+    },
+    "per_query_hit_count": {
+      "Evaluating the Use of LLMs for Automated Documentation Generation from Code Commits computer science": 3,
+      "code-to-text summarization dataset benchmark": 3,
+      "commit message generation neural machine translation": 3,
+      "commit message summarization code documentation": 3,
+      "documentation quality evaluation automated metrics": 3,
+      "semantic traceability link recovery commit code": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2303.12869",
+          "rationale": "The paper focuses on generating code from natural language (code-text generation), which is the inverse direction of the user's question regarding generating documentation (natural language) from code commits. While both involve code and text, the paper does not measure the mechanism, variables, or empirical setting of automated documentation generation, nor does it serve as a foundational baseline for that specific task.",
+          "title": "JaCoText: A Pretrained Model for Java Code-Text Generation"
+        },
+        {
+          "primary_pointer": "2504.14964",
+          "rationale": "The paper focuses on LLMs generating source code to solve programming problems, whereas the user's question concerns using LLMs to generate documentation from code commits. These are distinct tasks (code synthesis vs. documentation generation) with different inputs (problem statements vs. commit history) and outputs (executable code vs. explanatory text), meaning the paper does not measure the same mechanism, variables, or domain required for inclusion in a literature review on the user's specif",
+          "title": "Evaluating Code Generation of LLMs in Advanced Computer Science Problems"
+        },
+        {
+          "primary_pointer": "2607.28282",
+          "rationale": "The paper focuses on a general framework for evaluating LLM-generated text quality using pairwise comparisons and Elo ratings, which does not address the specific mechanism of generating documentation from code commits or the domain of software engineering documentation. While it discusses LLM evaluation, it lacks the specific context (code-to-doc generation) or the specific variables (documentation quality metrics derived from commits) required to be a canonical reference for the user's narrow ",
+          "title": "(Towards) Scalable Reliable Automated Evaluation with Large Language Models"
+        },
+        {
+          "primary_pointer": "2601.11688",
+          "rationale": "The paper focuses on \"Traceability Link Recovery\" (mapping specifications to code) rather than \"Automated Documentation Generation\" (creating documentation from code), representing a distinct construct that shares only the broad domain of LLMs and code. While both involve LLMs and code, the direction of information flow and the specific task (recovery vs. generation) are fundamentally different, failing to meet the criteria for same-mechanism evidence or shared variables under the strict inclusi",
+          "title": "SpecMap: Hierarchical LLM Agent for Datasheet-to-Code Traceability Link Recovery in Systems Engineering"
+        },
+        {
+          "primary_pointer": "2508.12232",
+          "rationale": "The paper focuses on \"issue-to-commit link recovery\" (traceability), which is a distinct construct from \"automated documentation generation\" (summarization/explanation), and does not measure the same mechanism, variables, or empirical outcomes required by the user's question. While both involve LLMs and code commits, the specific task of linking issues to commits does not satisfy the criteria for inclusion in a literature review about generating documentation from those commits.",
+          "title": "LinkAnchor: An Autonomous LLM-Based Agent for Issue-to-Commit Link Recovery"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-21T12:35:10Z",
+    "term_input": {
+      "normalized": "evaluating the use of llms for automated documentation generation from code commits computer science",
+      "raw": "Evaluating the Use of LLMs for Automated Documentation Generation from Code Commits computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-21T12:35:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present ComSum, a data set of 7 million commit messages for text summarization. When documenting commits, software code changes, both a message and its summary are posted. We gather and filter those to curate developers' work summarization data set. Along with its growing size, practicality and challenging language domain, the data set benefits from the living field of empirical software engineering. As commits follow a typology, we propose to not only evaluate outputs by Rouge, but by their meaning preservation.",
+          "claimed_authors": [
+            "Leshem Choshen",
+            "Idan Amit"
+          ],
+          "claimed_title": "ComSum: Commit Messages Summarization and Meaning Preservation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.10763"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='ComSum: Commit Messages Summarization and Meaning Preservation')",
+        "failed_at": "2026-08-21T12:35:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A crucial difference between single- and multi-document summarization is how salient content manifests itself in the document(s). While such content may appear at the beginning of a single document, essential information is frequently reiterated in a set of documents related to a particular topic, resulting in an endorsement effect that increases information salience. In this paper, we model the cross-document endorsement effect and its utilization in multiple document summarization. Our method generates a synopsis from each document, which serves as an endorser to identify salient content from other documents. Strongly endorsed text segments are used to enrich a neural encoder-decoder model to consolidate them into an abstractive summary. The method has a great potential to learn from fewer examples to identify salient content, which alleviates the need for costly retraining when the set of documents is dynamically adjusted. Through extensive experiments on benchmark multi-document summarization datasets, we demonstrate the effectiveness of our proposed method over strong published baselines. Finally, we shed light on future research directions and discuss broader challenges of this task using a case study.",
+          "claimed_authors": [
+            "Logan Lebanoff",
+            "Bingqing Wang",
+            "Zhe Feng",
+            "Fei Liu"
+          ],
+          "claimed_title": "Modeling Endorsement for Multi-Document Abstractive Summarization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.07844"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='Modeling Endorsement for Multi-Document Abstractive Summarization')",
+        "failed_at": "2026-08-21T12:35:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The basic concept in Neural Machine Translation (NMT) is to train a large Neural Network that maximizes the translation performance on a given parallel corpus. NMT is then using a simple left-to-right beam-search decoder to generate new translations that approximately maximize the trained conditional probability. The current beam search strategy generates the target sentence word by word from left-to- right while keeping a fixed amount of active candidates at each time step. First, this simple search is less adaptive as it also expands candidates whose scores are much worse than the current best. Secondly, it does not expand hypotheses if they are not within the best scoring candidates, even if their scores are close to the best one. The latter one can be avoided by increasing the beam size until no performance improvement can be observed. While you can reach better performance, this has the draw- back of a slower decoding speed. In this paper, we concentrate on speeding up the decoder by applying a more flexible beam search strategy whose candidate size may vary at each time step depending on the candidate scores. We speed up the original decoder by up to 43% for the two language pairs German-English and Chinese-English without losing any translation quality.",
+          "claimed_authors": [
+            "Markus Freitag",
+            "Yaser Al-Onaizan"
+          ],
+          "claimed_title": "Beam Search Strategies for Neural Machine Translation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1702.01806"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='Beam Search Strategies for Neural Machine Translation')",
+        "failed_at": "2026-08-21T12:35:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The quality of machine translation is rapidly evolving. Today one can find several machine translation systems on the web that provide reasonable translations, although the systems are not perfect. In some specific domains, the quality may decrease. A recently proposed approach to this domain is neural machine translation. It aims at building a jointly-tuned single neural network that maximizes translation performance, a very different approach from traditional statistical machine translation. Recently proposed neural machine translation models often belong to the encoder-decoder family in which a source sentence is encoded into a fixed length vector that is, in turn, decoded to generate a translation. The present research examines the effects of different training methods on a Polish-English Machine Translation system used for medical data. The European Medicines Agency parallel text corpus was used as the basis for training of neural and statistical network-based translation systems. The main machine translation evaluation metrics have also been used in analysis of the systems. A comparison and implementation of a real-time medical translator is the main focus of our experiments.",
+          "claimed_authors": [
+            "Krzysztof Wołk",
+            "Krzysztof Marasek"
+          ],
+          "claimed_title": "Neural-based machine translation for medical text domain. Based on European Medicines Agency leaflet texts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1509.08644"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='Neural-based machine translation for medical text domain. Based on European Medicines Agency leaflet texts')",
+        "failed_at": "2026-08-21T12:35:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Transfer learning has been proven as an effective technique for neural machine translation under low-resource conditions. Existing methods require a common target language, language relatedness, or specific training tricks and regimes. We present a simple transfer learning method, where we first train a \"parent\" model for a high-resource language pair and then continue the training on a lowresource pair only by replacing the training corpus. This \"child\" model performs significantly better than the baseline trained for lowresource pair only. We are the first to show this for targeting different languages, and we observe the improvements even for unrelated languages with different alphabets.",
+          "claimed_authors": [
+            "Tom Kocmi",
+            "Ondřej Bojar"
+          ],
+          "claimed_title": "Trivial Transfer Learning for Low-Resource Neural Machine Translation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.00357"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='Trivial Transfer Learning for Low-Resource Neural Machine Translation')",
+        "failed_at": "2026-08-21T12:35:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-08-21T12:35:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the problem of reader-aware multi-document summarization (RA-MDS) and introduce a new dataset for this problem. To tackle RA-MDS, we extend a variational auto-encodes (VAEs) based MDS framework by jointly considering news documents and reader comments. To conduct evaluation for summarization performance, we prepare a new dataset. We describe the methods for data collection, aspect annotation, and summary writing as well as scrutinizing by experts. Experimental results show that reader comments can improve the summarization performance, which also demonstrates the usefulness of the proposed dataset. The annotated dataset for RA-MDS is available online.",
+          "claimed_authors": [
+            "Piji Li",
+            "Lidong Bing",
+            "Wai Lam"
+          ],
+          "claimed_title": "Reader-Aware Multi-Document Summarization: An Enhanced Model and The First Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.01065"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='Reader-Aware Multi-Document Summarization: An Enhanced Model and The First Dataset')",
+        "failed_at": "2026-08-21T12:35:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We release Naver-News-KO, a Korean news summarization dataset of 27,400 (document, summary) pairs collected from Naver News over a ten-day window in July 2022 across two categories (Economy and IT/Science; 77/23 split), with train/validation/test partitions of 22,194 / 2,466 / 2,740 and a mean per-record document-to-summary character-compression ratio of 6.03x. The dataset has been publicly hosted on the Hugging Face Hub since January 2023 and, as of May 2026, receives approximately 33,000 downloads per month; community-maintained Korean summarization models fine-tuned on it include Gemma-2B-ko and Gemma2-9B variants. This technical report (i) documents the collection protocol, the column schema, and the split construction, (ii) reports corpus-level statistics (length distributions, compression ratio, and a measured 16.8% near-duplicate title-Jaccard overlap between test and train that users should be aware of), (iii) positions the resource against other open Korean summarization corpora, (iv) provides a Lead-3 extractive reference point (ROUGE-1 55.1, ROUGE-L 50.6) and two reproducible fine-tuned baselines -- KoBART (R-1 56.6, BERTScore-F1 81.5) and Gemma-2B-ko with LoRA (R-1 55.3, BERTScore-F1 78.3) -- with release-time training scripts, and (v) clarifies the licensing and intended-use scope of the resource. The goal is to provide a citable reference for downstream work that already uses this dataset, not to propose a new benchmark.",
+          "claimed_authors": [
+            "Daekeun Kim"
+          ],
+          "claimed_title": "Naver-News-KO: A Korean News Summarization Dataset for Open-Source Fine-Tuning of Summarization Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.20442"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='Naver-News-KO: A Korean News Summarization Dataset for Open-Source Fine-Tuning of Summarization Models')",
+        "failed_at": "2026-08-21T12:35:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Computing devices and associated software govern everyday life, and form the backbone of safety critical systems in banking, healthcare, automotive and other fields. Increasing system complexity, quickly evolving technologies and paradigm shifts have kept software quality research at the forefront. Standards such as ISO's 25010 express it in terms of sub-characteristics such as maintainability, reliability and security. A significant body of literature attempts to link these subcharacteristics with software metric values, with the end goal of creating a metric-based model of software product quality. However, research also identifies the most important existing barriers. Among them we mention the diversity of software application types, development platforms and languages. Additionally, unified definitions to make software metrics truly language-agnostic do not exist, and would be difficult to implement given programming language levels of variety. This is compounded by the fact that many existing studies do not detail their methodology and tooling, which precludes researchers from creating surveys to enable data analysis on a larger scale. In our paper, we propose a comprehensive study of metric values in the context of three complex, open-source applications. We align our methodology and tooling with that of existing research, and present it in detail in order to facilitate comparative evaluation. We study metric values during the entire 18-year development history of our target applications, in order to capture the longitudinal view that we found lacking in existing literature. We identify metric dependencies and check their consistency across applications and their versions. At each step, we carry out comparative evaluation with existing research and present our results.",
+          "claimed_authors": [
+            "Arthur-Jozsef Molnar",
+            "Alexandra Neamţu",
+            "Simona Motogna"
+          ],
+          "claimed_title": "Evaluation of Software Product Quality Metrics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.01557"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='Evaluation of Software Product Quality Metrics')",
+        "failed_at": "2026-08-21T12:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluation methodologies for language models increasingly combine multiple signals, from automated metrics and LLM-as-judge ratings to human assessments and benchmark suite results. When these signals are aggregated via averaging, evaluation confidence can then substantially exceed the reliability of the weakest signal: a phenomenon we call trust inflation in evaluation. We argue that evaluation scores should be treated as epistemic claims with three properties: formality (human evaluation provides stronger evidence than an automated metric), scope (a benchmark result applies to the tested distribution, not universally), and validity windows (benchmark results expire as contamination accumulates and distributions shift). Several converging research traditions (chain-of-thought analysis, possibilistic logic, and algebraic theory) establish weakest-link aggregation as the conservative endpoint of a parameterized operator family controlled by a single pessimism parameter. Drawing on those traditions, and on concrete lessons from building an evaluation harness for agentic AI, we propose that evaluation results carry explicit metadata (formality tier, scope declaration, and expiration date) to make their epistemic status transparent. We illustrate the cost of mean aggregation on the public HELM leaderboard: across 54 frontier models on ten scenarios, the top-five models ranked by mean score and by weakest-link are completely disjoint.",
+          "claimed_authors": [
+            "Sankalp Gilda",
+            "Shlok Gilda"
+          ],
+          "claimed_title": "Position: Evaluation Scores Are Perishable Knowledge Claims",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.26191"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='Position: Evaluation Scores Are Perishable Knowledge Claims')",
+        "failed_at": "2026-08-21T12:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pre-Requirement Specification traceability is the activity of capturing relations between requirements and their sources, in particular user needs. Requirements are formal technical specifications in the solution space; needs are natural language expressions codifying user expectations in the problem space. Current traceability techniques are challenged by the complexity gap that results from the disparity between the spaces, and thereby, often neglect traceability to and from requirements. We identify the existence of an intermediary region -- the transition space -- which structures the progression from needs to requirements. More specifically, our approach to developing change-tolerant systems, termed Capabilities Engineering, identifies highly cohesive, minimally coupled, optimized functional abstractions called Capabilities in the transition space. These Capabilities link the problem and solution spaces through directives (entities derived from user needs). Directives connect the problem and transition spaces; Capabilities link the transition and solution spaces. Furthermore, the process of Capabilities Engineering addresses specific traceability challenges. It supports the evolution of traces, provides semantic and structural information about dependencies, incorporates human factors, generates traceability relations with negligible overhead, and thereby, fosters pre-Requirement Specification traceability.",
+          "claimed_authors": [
+            "Ramya Ravichandar",
+            "James D. Arthur",
+            "Manuel Pérez-Quiñones"
+          ],
+          "claimed_title": "Pre-Requirement Specification Traceability: Bridging the Complexity Gap through Capabilities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "cs/0703012"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Use of LLMs for Automated Documentation Generation from Code Comm', candidate_title='Pre-Requirement Specification Traceability: Bridging the Complexity Gap through Capabilities')",
+        "failed_at": "2026-08-21T12:35:40Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bruce Kuwahara",
+            "Chen-Yuan Lin",
+            "Xiao Shi Huang",
+            "Kin Kwan Leung",
+            "Jullian Arta Yapeter",
+            "Ilya Stanevich",
+            "Felipe Perez",
+            "Jesse C. Cresswell"
+          ],
+          "title": "Document Summarization with Conformal Importance Guarantees",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.20461",
+        "summary": "Automatic summarization systems have advanced rapidly with large language models (LLMs), yet they still lack reliable guarantees on inclusion of critical content in high-stakes domains like healthcare, law, and finance. In this work, we introduce Conformal Importance Summarization, the first framework for importance-preserving summary generation which uses conformal prediction to provide rigorous, distribution-free coverage guarantees. By calibrating thresholds on sentence-level importance scores, we enable extractive document summarization with user-specified coverage and recall rates over critical content. Our method is model-agnostic, requires only a small calibration set, and seamlessly integrates with existing black-box LLMs. Experiments on established summarization benchmarks demonstrate that Conformal Importance Summarization achieves the theoretically assured information coverage rate. Our work suggests that Conformal Importance Summarization can be combined with existing techniques to achieve reliable, controllable automatic summarization, paving the way for safer deployment of AI summarization tools in critical applications. Code is available at https://github.com/layer6ai-labs/conformal-importance-summarization.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.20461",
+          "http_status": 200,
+          "pdf_sample_score": 0.2353,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-21T12:35:39Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the use of llms for automated documentation generation from code commits computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

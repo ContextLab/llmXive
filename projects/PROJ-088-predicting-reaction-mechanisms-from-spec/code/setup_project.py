@@ -3,46 +3,45 @@ import sys
 from pathlib import Path
 
 def get_project_root() -> Path:
-    """Return the project root directory (parent of the code/ directory)."""
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    return code_dir.parent
+    """Return the project root directory (parent of this script)."""
+    return Path(__file__).resolve().parent
 
-def create_directories() -> None:
+def create_directories(project_root: Path) -> None:
     """Create the required project directory structure."""
-    root = get_project_root()
-    
-    # Define directories to create based on T001a requirements
-    directories = [
-        root / "src",
-        root / "tests",
-        root / "specs" / "001-predicting-reaction-mechanisms",
-        root / "data",
-        root / "state" / "projects",
-        # Additional subdirectories needed for the project structure
-        root / "src" / "ingestion",
-        root / "src" / "modeling",
-        root / "src" / "analysis",
-        root / "src" / "utils",
-        root / "tests" / "unit",
-        root / "tests" / "integration",
-        root / "tests" / "contract",
-        root / "data" / "raw",
-        root / "data" / "processed",
-        root / "data" / "results",
-        root / "data" / "reference",
-        root / "state" / "projects" / "PROJ-088-predicting-reaction-mechanisms-from-spec",
+    required_dirs = [
+        "src",
+        "tests",
+        "specs/001-predicting-reaction-mechanisms",
+        "data",
+        "state/projects",
+        # Additional standard directories for completeness
+        "data/raw",
+        "data/processed",
+        "data/reference",
+        "data/results",
+        "figures",
+        "state",
+        "specs/contracts",
+        "src/utils",
+        "src/ingestion",
+        "src/modeling",
+        "src/analysis",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
     ]
-    
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory.relative_to(root)}")
+
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path.relative_to(project_root)}")
 
 def main() -> None:
     """Main entry point for project setup."""
-    print("Setting up project directory structure...")
-    create_directories()
-    print("Project setup complete.")
+    project_root = get_project_root()
+    print(f"Setting up project structure in: {project_root}")
+    create_directories(project_root)
+    print("Project structure setup complete.")
 
 if __name__ == "__main__":
     main()

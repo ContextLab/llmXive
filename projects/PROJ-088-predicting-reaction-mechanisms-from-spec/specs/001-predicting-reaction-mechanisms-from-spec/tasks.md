@@ -59,7 +59,7 @@
 - [ ] T004 Setup `src/utils/logging.py` for warning/flagging logic (edge case handling)
 - [ ] T005 [P] Implement `src/utils/io.py` for checksum generation and file I/O helpers (Principle III)
 - [ ] T006 Create base schema definitions in `specs/contracts/` (dataset.schema.yaml, output.schema.yaml)
-- [ ] T007 [P] Setup `src/ingestion/__init__.py` and `src/modeling/__init__.py` package structures
+- [X] T007 [P] Setup `src/ingestion/__init__.py` and `src/modeling/__init__.py` package structures
 - [ ] T008 Configure random seed pinning utility in `src/utils/seed.py` (Reproducibility Principle I)
 - [ ] T033a [P] [Foundational] Create `src/analysis/dft_setup.py` and `data/reference/literature_db.json` to support dynamic literature cross-reference and local DFT calculations (FR-010 prerequisite)
 

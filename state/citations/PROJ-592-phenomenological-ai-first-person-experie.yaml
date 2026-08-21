@@ -35,14 +35,3 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/phenomenological-ai
   verified_at: '2026-06-30T02:43:37.373188Z'
-- artifact_hash: d5bdf477dbbd99dddc129bd2a5904ac4c87835f49888e8991a11613ef551a2bc
-  artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF \xB7 Hugging Face"
-  kind: url
-  value: https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
-  verification_status: pending
-  verified_against_url: https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
-  verified_at: '2026-08-12T13:10:31.703803Z'

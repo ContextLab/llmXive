@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-proj-088"
+name = "predicting-reaction-mechanisms"
 version = "0.1.0"
-description = "Predicting Reaction Mechanisms from Spectroscopic Data"
+description = "Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning"
 requires-python = ">=3.11"
 dependencies = [
     "scikit-learn",
@@ -17,59 +17,89 @@ dependencies = [
     "pytest",
     "pubchempy",
     "pyscf",
+    "ruff",
+    "black",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*", "tests*"]
+[tool.ruff]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = [
+    "E501",   # Line too long (handled by black)
+    "B008",   # Do not perform function call in argument defaults (common in ML)
+    "B006",   # Do not use mutable data structures for argument defaults (common in ML)
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific directories that are not part of the main source.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "state",
+    "specs",
+]
+
+# Same as the default for `src` layout.
+src = ["code/src", "code/tests", "code/scripts"]
+
+# Allow unused variables in `__init__.py` files to support package structure.
+per-file-ignores = { "code/src/__init__.py" = ["F401", "F403"], "code/tests/__init__.py" = ["F401"] }
+
+# Assume Python 3.11
+target-version = "py311"
+
+[tool.ruff.isort]
+known-first-party = ["src", "tests", "scripts"]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | state
+  | specs
 )/
 '''
 
-[tool.ruff]
-# Same as Black.
-line-length = 88
-target-version = "py311"
-src = ["src", "tests"]
-
-[tool.ruff.lint]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "ARG", "SIM"]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function calls in argument defaults (common in ML configs)
-    "SIM105", # Use contextlib.suppress (optional preference)
-]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow assert in tests
-"src/utils/logging.py" = ["F401"] # Allow unused imports if re-exporting
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["."]
+testpaths = ["code/tests"]
+pythonpath = ["code/src", "code/scripts", "code/tests"]
+addopts = "-v --tb=short"
 filterwarnings = [
     "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
+    "ignore::UserWarning"
 ]
