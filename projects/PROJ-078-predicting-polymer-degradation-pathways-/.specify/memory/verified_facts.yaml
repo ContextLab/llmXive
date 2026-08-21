@@ -54,13 +54,3 @@
   source_id: '2511.14546'
   url: https://arxiv.org/abs/2511.14546
   value: '25'
-'|alpha analysi power':
-  quote: '0.05'
-  source_id: Power (statistics)
-  url: https://en.wikipedia.org/wiki/Power_(statistics)
-  value: '0.05'
-'|analysi effect power size':
-  quote: 0.0 0.5 1.0 1.5 2.0
-  source_id: '1809.02623'
-  url: https://arxiv.org/abs/1809.02623
-  value: '0.5'

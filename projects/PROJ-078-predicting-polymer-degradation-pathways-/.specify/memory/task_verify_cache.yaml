@@ -20,13 +20,20 @@ T012:
     \ the required artifact implementing the NIST/Materials Project download with\
     \ rate\u2011limit backoff. The task cannot be verified as completed without the\
     \ actual script (and its behavior)."
-T014:
+T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `preprocess.py` (or any code) was supplied; the claim provides only a description
-    of the required functionality without the actual script, so the required artifact
-    is missing. The task cannot be considered completed until a concrete implementation
-    that converts SMILES to RDKit molecular graphs and handles valid records is present.
+  r: "No `ingest.py` script or any code, data files, or logs were provided; the claim\
+    \ lacks the required artifact that downloads NIST and Materials Project records\
+    \ with rate\u2011limit backoff. The task cannot be verified as completed without\
+    \ the actual implementation."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `preprocess.py` script or any code was presented; there is no evidence that\
+    \ SMILES strings are converted to RDKit molecular graphs with the specified parameters,\
+    \ nor that non\u2011polyesters are filtered by detecting the `C(=O)O` ester pattern.\
+    \ The required artifact is missing, so the task is not satisfied."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

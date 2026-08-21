@@ -7,3 +7,5 @@ numpy
 pyyaml
 requests
 statsmodels
+matplotlib  # auto-added: imported by run-book but missing from venv
+networkx  # auto-added: imported by run-book but missing from venv
