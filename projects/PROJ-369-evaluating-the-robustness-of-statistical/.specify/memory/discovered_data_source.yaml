@@ -1,24 +1,37 @@
 status: verified
 kind: pypi_package
 ref: yfinance
-access_python: "import yfinance as yf, pandas as pd\n\nticker = \"AAPL\"\n# Download\
-  \ recent daily price history\ndf = yf.Ticker(ticker).history(period=\"5d\")\n# Ensure\
-  \ datetime column\nif df.index.name != \"Date\":\n    df = df.reset_index()\nelse:\n\
-  \    df = df.reset_index().rename(columns={df.index.name: \"Date\"})\n# Keep only\
-  \ needed columns and map to required names\ndf = df[[\"Date\", \"Close\"]].copy()\n\
-  df = df.rename(columns={\"Date\": \"datetime\", \"Close\": \"value\"})\n# Add series\
-  \ identifier\ndf[\"series_id\"] = ticker\nrecords = len(df)\nprint(f\"RECORDS={records}\"\
-  )\nprint(\"FIELDS=datetime,value,series_id\")"
+access_python: 'import yfinance as yf, pandas as pd
+
+  ticker = "AAPL"
+
+  # Download recent daily closing prices
+
+  df = yf.download(ticker, period="5d", interval="1d")
+
+  # Keep date, close price and add series identifier
+
+  df = df.reset_index()[["Date", "Close"]]
+
+  df["series_id"] = ticker
+
+  # Rename to required field names
+
+  df = df.rename(columns={"Date": "timestamp", "Close": "value"})
+
+  print(f"RECORDS={len(df)}")
+
+  print("FIELDS=timestamp,value,series_id")'
 record_count: 5
 sample_fields:
-- datetime
+- timestamp
 - value
 - series_id
 field_coverage: 1.0
 required_fields:
-- datetime
+- timestamp
 - value
 - series_id
-intent: download NOAA climate, Yahoo Finance stock, and UK National Grid load time
-  series python package dataset
-cache_key: 88fb61784ad5bd746d5319203c4b659579e16ac0e0b359334e640c0a49ed1e60
+intent: continuous time series NOAA weather Yahoo Finance UK National Grid load python
+  package dataset
+cache_key: 5a9f488c498212d7948de8bdad2a56bb2efd39be89ee02cd507c7bea0a22b796

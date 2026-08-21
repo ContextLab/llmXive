@@ -1,151 +1,135 @@
-"""
-Unit tests for T050: Regression input verification.
-"""
+import pytest
 import json
 import tempfile
 from pathlib import Path
-import pytest
-import pandas as pd
 import numpy as np
-
-from src.analysis.regression import verify_regression_inputs
-
+from src.analysis.regression import verify_regression_inputs, RegressionError
 
 class TestRegressionInputVerification:
-    """Tests for verify_regression_inputs function."""
+    """Unit tests for T037b feature filtering and input verification logic."""
 
-    def _create_temp_error_rates(self, data: list, filename: str = "error_rates.csv") -> Path:
-        """Create a temporary error_rates.csv file."""
-        df = pd.DataFrame(data)
-        with tempfile.NamedTemporaryFile(mode='w', suffix=filename, delete=False) as f:
-            df.to_csv(f, index=False)
-        return Path(f.name)
+    def setup_method(self):
+        """Set up temporary files for testing."""
+        self.temp_dir = Path(tempfile.mkdtemp())
+        self.error_rates_path = self.temp_dir / "error_rates.json"
+        self.filtered_features_path = self.temp_dir / "filtered_features.json"
+        self.hurst_path = self.temp_dir / "hurst_estimates.json"
 
-    def _create_temp_features(self, data: list, filename: str = "features.json") -> Path:
-        """Create a temporary filtered_features.json file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix=filename, delete=False) as f:
-            json.dump(data, f)
-        return Path(f.name)
-
-    def test_valid_inputs(self):
-        """Test with valid, matching inputs."""
+    def test_verify_inputs_valid(self):
+        """Test verification passes with valid inputs."""
+        # Create valid error rates
         error_data = [
-            {'dataset_id': '1', 'hurst': 0.7, 'error_rate': 0.05},
-            {'dataset_id': '2', 'hurst': 0.8, 'error_rate': 0.10},
+            {"dataset_id": "ds1", "hurst": 0.7, "error_rate": 0.05},
+            {"dataset_id": "ds2", "hurst": 0.8, "error_rate": 0.10}
         ]
-        feature_data = [
-            {'dataset_id': '1', 'hurst': 0.7, 'acf_lag1': 0.5},
-            {'dataset_id': '2', 'hurst': 0.8, 'acf_lag1': 0.6},
+        with open(self.error_rates_path, 'w') as f:
+            json.dump(error_data, f)
+
+        # Create valid filtered features
+        features_data = {
+            "included_features": ["hurst"],
+            "excluded_features": ["Max_ACF_Lag"]
+        }
+        with open(self.filtered_features_path, 'w') as f:
+            json.dump(features_data, f)
+
+        # Create valid hurst estimates
+        hurst_data = [
+            {"dataset_id": "ds1", "hurst": 0.7},
+            {"dataset_id": "ds2", "hurst": 0.8}
         ]
+        with open(self.hurst_path, 'w') as f:
+            json.dump(hurst_data, f)
 
-        err_path = self._create_temp_error_rates(error_data)
-        feat_path = self._create_temp_features(feature_data)
+        result = verify_regression_inputs(
+            self.error_rates_path,
+            self.filtered_features_path,
+            self.hurst_path
+        )
+        assert result['valid'] is True
 
-        try:
-            is_valid, msg = verify_regression_inputs(str(err_path), str(feat_path))
-            assert is_valid is True
-            assert "PASSED" in msg
-        finally:
-            err_path.unlink()
-            feat_path.unlink()
+    def test_verify_inputs_missing_file(self):
+        """Test verification fails when a required file is missing."""
+        # Create only one file
+        error_data = [{"dataset_id": "ds1", "hurst": 0.7, "error_rate": 0.05}]
+        with open(self.error_rates_path, 'w') as f:
+            json.dump(error_data, f)
 
-    def test_mismatched_dataset_ids(self):
-        """Test when dataset_ids do not match."""
+        with pytest.raises(RegressionError, match="not found"):
+            verify_regression_inputs(
+                self.error_rates_path,
+                self.filtered_features_path, # Missing
+                self.hurst_path
+            )
+
+    def test_verify_inputs_nan_values(self):
+        """Test verification fails when NaN or Inf values are present."""
+        # Create error rates with NaN
         error_data = [
-            {'dataset_id': '1', 'hurst': 0.7, 'error_rate': 0.05},
-            {'dataset_id': '3', 'hurst': 0.8, 'error_rate': 0.10},
+            {"dataset_id": "ds1", "hurst": 0.7, "error_rate": float('nan')}
         ]
-        feature_data = [
-            {'dataset_id': '1', 'hurst': 0.7, 'acf_lag1': 0.5},
-            {'dataset_id': '2', 'hurst': 0.8, 'acf_lag1': 0.6},
-        ]
+        with open(self.error_rates_path, 'w') as f:
+            json.dump(error_data, f)
 
-        err_path = self._create_temp_error_rates(error_data)
-        feat_path = self._create_temp_features(feature_data)
+        # Create valid filtered features
+        features_data = {"included_features": ["hurst"], "excluded_features": []}
+        with open(self.filtered_features_path, 'w') as f:
+            json.dump(features_data, f)
 
-        try:
-            is_valid, msg = verify_regression_inputs(str(err_path), str(feat_path))
-            assert is_valid is False
-            assert "mismatch" in msg.lower()
-        finally:
-            err_path.unlink()
-            feat_path.unlink()
+        with pytest.raises(RegressionError, match="NaN or Inf"):
+            verify_regression_inputs(
+                self.error_rates_path,
+                self.filtered_features_path,
+                self.hurst_path
+            )
 
-    def test_nan_in_hurst(self):
-        """Test when hurst column has NaN."""
+    def test_verify_inputs_id_mismatch(self):
+        """Test verification fails when dataset IDs do not match."""
+        # Create error rates with ds1, ds2
         error_data = [
-            {'dataset_id': '1', 'hurst': np.nan, 'error_rate': 0.05},
-            {'dataset_id': '2', 'hurst': 0.8, 'error_rate': 0.10},
+            {"dataset_id": "ds1", "hurst": 0.7, "error_rate": 0.05},
+            {"dataset_id": "ds2", "hurst": 0.8, "error_rate": 0.10}
         ]
-        feature_data = [
-            {'dataset_id': '1', 'hurst': 0.7, 'acf_lag1': 0.5},
-            {'dataset_id': '2', 'hurst': 0.8, 'acf_lag1': 0.6},
+        with open(self.error_rates_path, 'w') as f:
+            json.dump(error_data, f)
+
+        # Create valid filtered features
+        features_data = {"included_features": ["hurst"], "excluded_features": []}
+        with open(self.filtered_features_path, 'w') as f:
+            json.dump(features_data, f)
+
+        # Create hurst with ds1, ds3 (mismatch)
+        hurst_data = [
+            {"dataset_id": "ds1", "hurst": 0.7},
+            {"dataset_id": "ds3", "hurst": 0.9}
         ]
+        with open(self.hurst_path, 'w') as f:
+            json.dump(hurst_data, f)
 
-        err_path = self._create_temp_error_rates(error_data)
-        feat_path = self._create_temp_features(feature_data)
+        with pytest.raises(RegressionError, match="Dataset ID mismatch"):
+            verify_regression_inputs(
+                self.error_rates_path,
+                self.filtered_features_path,
+                self.hurst_path
+            )
 
-        try:
-            is_valid, msg = verify_regression_inputs(str(err_path), str(feat_path))
-            assert is_valid is False
-            assert "NaN/Inf" in msg
-        finally:
-            err_path.unlink()
-            feat_path.unlink()
-
-    def test_inf_in_error_rate(self):
-        """Test when error_rate column has Inf."""
+    def test_verify_inputs_inf_values(self):
+        """Test verification fails when Inf values are present."""
+        # Create error rates with Inf
         error_data = [
-            {'dataset_id': '1', 'hurst': 0.7, 'error_rate': np.inf},
-            {'dataset_id': '2', 'hurst': 0.8, 'error_rate': 0.10},
+            {"dataset_id": "ds1", "hurst": 0.7, "error_rate": float('inf')}
         ]
-        feature_data = [
-            {'dataset_id': '1', 'hurst': 0.7, 'acf_lag1': 0.5},
-            {'dataset_id': '2', 'hurst': 0.8, 'acf_lag1': 0.6},
-        ]
+        with open(self.error_rates_path, 'w') as f:
+            json.dump(error_data, f)
 
-        err_path = self._create_temp_error_rates(error_data)
-        feat_path = self._create_temp_features(feature_data)
+        # Create valid filtered features
+        features_data = {"included_features": ["hurst"], "excluded_features": []}
+        with open(self.filtered_features_path, 'w') as f:
+            json.dump(features_data, f)
 
-        try:
-            is_valid, msg = verify_regression_inputs(str(err_path), str(feat_path))
-            assert is_valid is False
-            assert "NaN/Inf" in msg
-        finally:
-            err_path.unlink()
-            feat_path.unlink()
-
-    def test_missing_error_rates_file(self):
-        """Test when error_rates file does not exist."""
-        feature_data = [
-            {'dataset_id': '1', 'hurst': 0.7, 'acf_lag1': 0.5},
-        ]
-        feat_path = self._create_temp_features(feature_data)
-
-        try:
-            is_valid, msg = verify_regression_inputs("nonexistent.csv", str(feat_path))
-            assert is_valid is False
-            assert "not found" in msg.lower()
-        finally:
-            feat_path.unlink()
-
-    def test_duplicate_dataset_ids(self):
-        """Test when dataset_ids are duplicated in error_rates."""
-        error_data = [
-            {'dataset_id': '1', 'hurst': 0.7, 'error_rate': 0.05},
-            {'dataset_id': '1', 'hurst': 0.75, 'error_rate': 0.06},
-        ]
-        feature_data = [
-            {'dataset_id': '1', 'hurst': 0.7, 'acf_lag1': 0.5},
-        ]
-
-        err_path = self._create_temp_error_rates(error_data)
-        feat_path = self._create_temp_features(feature_data)
-
-        try:
-            is_valid, msg = verify_regression_inputs(str(err_path), str(feat_path))
-            assert is_valid is False
-            assert "Duplicate" in msg
-        finally:
-            err_path.unlink()
-            feat_path.unlink()
+        with pytest.raises(RegressionError, match="NaN or Inf"):
+            verify_regression_inputs(
+                self.error_rates_path,
+                self.filtered_features_path,
+                self.hurst_path
+            )

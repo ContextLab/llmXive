@@ -1,265 +1,258 @@
 """
-Hypothesis Testing Module for Statistical Robustness Analysis.
+Hypothesis testing module for evaluating statistical robustness.
 
-This module implements hypothesis tests (one-sample t-test, F-test) to evaluate
-the robustness of statistical methods to non-independence in time series data.
+This module implements one-sample t-tests and F-tests for synthetic series.
 
-================================================================================
-IMPORTANT: EXCLUSION OF TWO-SAMPLE T-TEST
-================================================================================
+CRITICAL EXCLUSION NOTE:
+========================
+The two-sample t-test is EXPLICITLY EXCLUDED from this implementation per
+Spec FR-004.
 
-The two-sample t-test is explicitly EXCLUDED from this analysis pipeline per 
-Specification FR-004.
+Reason for Exclusion:
+---------------------
+The two-sample t-test assumes that observations within each sample are
+independent and identically distributed (i.i.d.). However, the data processed
+by this pipeline (specifically detrended residuals) often exhibit long-range
+dependence (LRD) or fractional Gaussian noise (fGn) characteristics.
 
-Rationale for Exclusion:
-------------------------
-The two-sample t-test assumes that samples are independent and identically 
-distributed (i.i.d.). In the context of this project:
+When long-range dependence is present:
+1. The effective sample size (N_eff) is significantly lower than the nominal
+   sample size (N).
+2. The standard error estimates used in the t-test statistic are biased
+   downwards (underestimated).
+3. This leads to inflated Type I error rates (false positives), causing the
+   test to reject the null hypothesis far more often than the nominal alpha
+   level (e.g., 0.05).
 
-1. Detrended residuals from time series with long-range dependence (LRD) 
-   exhibit significant autocorrelation, violating the independence assumption.
+Consequently, applying a two-sample t-test to detrended residuals with LRD
+would yield invalid statistical inferences. This implementation strictly
+adheres to one-sample tests (testing against a known mean of 0) and F-tests
+for variance, which are the focus of this robustness study.
 
-2. When applied to detrended residuals with LRD, the two-sample t-test produces
-   inflated Type I error rates (false positives) because the effective sample 
-   size (N_eff) is much smaller than the nominal sample size (N).
-
-3. The variance inflation factor (VIF) for LRD processes can be substantial,
-   leading to underestimated standard errors and overconfident p-values.
-
-4. Alternative approaches (one-sample t-test on mean-zero synthetic data, 
-   F-tests for variance ratios with proper N_eff adjustment) are used instead
-   to maintain statistical validity under non-independence.
-
-See Spec FR-004 and Constitution Principle VII for detailed justification.
-================================================================================
+Attempting to import or use a two-sample t-test function from this module
+will result in an AttributeError or a NotImplementedError.
 """
 
 import logging
 import numpy as np
+import pandas as pd
 from scipy import stats
 from typing import Dict, Any, List, Optional, Tuple, Union
+
 from src.utils.logging import log_info, log_warning, log_error, log_critical
 
-# Initialize logger
+# Setup logger
 logger = logging.getLogger(__name__)
+
+# Log the exclusion rationale at module load time for immediate visibility
+log_info(
+    "Hypothesis Testing Module Loaded",
+    extra={
+        "component": "hypothesis_tests",
+        "action": "exclusion_notice",
+        "message": "Two-sample t-test is EXCLUDED per Spec FR-004 due to invalidity on detrended residuals with long-range dependence."
+    }
+)
 
 class HypothesisTestError(Exception):
     """Custom exception for hypothesis testing errors."""
     pass
 
-def one_sample_ttest(series: np.ndarray, mu: float = 0.0) -> Dict[str, Any]:
+
+def run_one_sample_ttest(
+    data: Union[np.ndarray, pd.Series],
+    mu: float = 0.0,
+    alpha: float = 0.05
+) -> Dict[str, Any]:
     """
-    Perform a one-sample t-test to check if the mean of the series equals mu.
-    
-    This test is used for synthetic data with known mean=0 ground truth.
-    
-    Parameters
-    ----------
-    series : np.ndarray
-        The time series data to test.
-    mu : float
-        The hypothesized mean value (default 0.0).
-    
-    Returns
-    -------
-    dict
-        Dictionary containing:
-        - 'statistic': t-statistic value
-        - 'pvalue': p-value from the test
-        - 'mean': sample mean
-        - 'std': sample standard deviation
-        - 'n': sample size
-        - 'significant': boolean indicating if p < 0.05
-    
-    Raises
-    ------
-    HypothesisTestError
-        If input data is invalid or test fails.
+    Perform a one-sample t-test on the provided data.
+
+    Tests the null hypothesis that the mean of the data is equal to `mu`.
+
+    Args:
+        data: The data series to test.
+        mu: The hypothesized mean (default 0.0).
+        alpha: The significance level.
+
+    Returns:
+        A dictionary containing the test statistic, p-value, and rejection decision.
+
+    Raises:
+        HypothesisTestError: If data is invalid or test cannot be performed.
     """
-    if not isinstance(series, np.ndarray):
-        raise HypothesisTestError("Input series must be a numpy array")
-    
-    if len(series) < 2:
-        raise HypothesisTestError("Series must have at least 2 data points")
-    
-    if np.any(np.isnan(series)):
-        raise HypothesisTestError("Series contains NaN values")
-    
+    if not isinstance(data, (np.ndarray, pd.Series)):
+        raise HypothesisTestError("Data must be a numpy array or pandas Series.")
+
+    if len(data) < 2:
+        raise HypothesisTestError("Data must have at least 2 points for t-test.")
+
+    # Perform t-test
     try:
-        t_stat, p_val = stats.ttest_1samp(series, mu)
-        
-        result = {
-            'statistic': float(t_stat),
-            'pvalue': float(p_val),
-            'mean': float(np.mean(series)),
-            'std': float(np.std(series, ddof=1)),
-            'n': int(len(series)),
-            'significant': bool(p_val < 0.05)
-        }
-        
-        return result
-        
+        t_stat, p_value = stats.ttest_1samp(data, popmean=mu)
     except Exception as e:
         raise HypothesisTestError(f"t-test failed: {str(e)}")
 
-def f_test_variance(series1: np.ndarray, series2: np.ndarray) -> Dict[str, Any]:
-    """
-    Perform an F-test to compare variances of two series.
-    
-    This test evaluates whether two samples have equal variances.
-    
-    Parameters
-    ----------
-    series1 : np.ndarray
-        First time series.
-    series2 : np.ndarray
-        Second time series.
-    
-    Returns
-    -------
-    dict
-        Dictionary containing:
-        - 'statistic': F-statistic value
-        - 'pvalue': p-value from the test
-        - 'var1': variance of first series
-        - 'var2': variance of second series
-        - 'n1': sample size of first series
-        - 'n2': sample size of second series
-        - 'significant': boolean indicating if p < 0.05
-    
-    Raises
-    ------
-    HypothesisTestError
-        If input data is invalid or test fails.
-    """
-    if not isinstance(series1, np.ndarray) or not isinstance(series2, np.ndarray):
-        raise HypothesisTestError("Both inputs must be numpy arrays")
-    
-    if len(series1) < 2 or len(series2) < 2:
-        raise HypothesisTestError("Both series must have at least 2 data points")
-    
-    if np.any(np.isnan(series1)) or np.any(np.isnan(series2)):
-        raise HypothesisTestError("Series contain NaN values")
-    
-    try:
-        var1 = np.var(series1, ddof=1)
-        var2 = np.var(series2, ddof=1)
-        
-        # F-statistic is ratio of larger variance to smaller
-        if var2 > var1:
-            f_stat = var2 / var1
-            df1 = len(series2) - 1
-            df2 = len(series1) - 1
-        else:
-            f_stat = var1 / var2
-            df1 = len(series1) - 1
-            df2 = len(series2) - 1
-        
-        # Two-tailed p-value
-        p_val = 2 * min(stats.f.cdf(f_stat, df1, df2), 
-                       1 - stats.f.cdf(f_stat, df1, df2))
-        
-        result = {
-            'statistic': float(f_stat),
-            'pvalue': float(p_val),
-            'var1': float(var1),
-            'var2': float(var2),
-            'n1': int(len(series1)),
-            'n2': int(len(series2)),
-            'significant': bool(p_val < 0.05)
-        }
-        
-        return result
-        
-    except Exception as e:
-        raise HypothesisTestError(f"F-test failed: {str(e)}")
+    rejected = p_value < alpha
 
-def run_hypothesis_tests(synthetic_results: List[Dict[str, Any]], 
-                         alpha: float = 0.05) -> Dict[str, Any]:
-    """
-    Run hypothesis tests on a collection of synthetic series results.
-    
-    Parameters
-    ----------
-    synthetic_results : List[Dict[str, Any]]
-        List of dictionaries, each containing 'series' (numpy array) and 
-        metadata for a synthetic dataset.
-    alpha : float
-        Significance level for tests (default 0.05).
-    
-    Returns
-    -------
-    dict
-        Summary of test results including rejection rates and individual test stats.
-    """
-    if not synthetic_results:
-        raise HypothesisTestError("No synthetic results provided")
-    
-    log_info(f"Running hypothesis tests on {len(synthetic_results)} synthetic series")
-    
-    t_test_results = []
-    f_test_results = []
-    rejections = 0
-    
-    for i, result in enumerate(synthetic_results):
-        series = result.get('series')
-        if series is None:
-            log_warning(f"Skipping result {i}: missing series data")
-            continue
-        
-        # Run one-sample t-test (mean=0)
-        try:
-            t_result = one_sample_ttest(series, mu=0.0)
-            t_result['id'] = result.get('id', f'series_{i}')
-            t_test_results.append(t_result)
-            
-            if t_result['significant']:
-                rejections += 1
-        except HypothesisTestError as e:
-            log_warning(f"t-test failed for series {i}: {str(e)}")
-            continue
-        
-        # Run F-test comparing to white noise (if available)
-        # This would require a reference white noise series
-        # For now, we skip F-tests in the basic loop
-    
-    rejection_rate = rejections / len(t_test_results) if t_test_results else 0.0
-    
-    summary = {
-        'total_tests': len(t_test_results),
-        'rejections': rejections,
-        'rejection_rate': rejection_rate,
-        'alpha': alpha,
-        't_test_results': t_test_results,
-        'f_test_results': f_test_results
+    return {
+        "test_type": "one_sample_ttest",
+        "statistic": float(t_stat),
+        "p_value": float(p_value),
+        "alpha": alpha,
+        "rejected_null": bool(rejected),
+        "mu_hypothesized": mu,
+        "sample_mean": float(np.mean(data)),
+        "sample_size": len(data)
     }
+
+
+def run_f_test_variance(
+    data: Union[np.ndarray, pd.Series],
+    sigma0_squared: float = 1.0,
+    alpha: float = 0.05
+) -> Dict[str, Any]:
+    """
+    Perform an F-test for variance.
+
+    Tests the null hypothesis that the variance of the data is equal to `sigma0_squared`.
+    This is a two-tailed test.
+
+    Args:
+        data: The data series to test.
+        sigma0_squared: The hypothesized variance.
+        alpha: The significance level.
+
+    Returns:
+        A dictionary containing the test statistic, p-value, and rejection decision.
+
+    Raises:
+        HypothesisTestError: If data is invalid or test cannot be performed.
+    """
+    if not isinstance(data, (np.ndarray, pd.Series)):
+        raise HypothesisTestError("Data must be a numpy array or pandas Series.")
+
+    if len(data) < 2:
+        raise HypothesisTestError("Data must have at least 2 points for F-test.")
+
+    if sigma0_squared <= 0:
+        raise HypothesisTestError("Hypothesized variance must be positive.")
+
+    sample_variance = np.var(data, ddof=1)
+    n = len(data)
+
+    # F-statistic: (n-1) * s^2 / sigma0^2
+    f_stat = (n - 1) * sample_variance / sigma0_squared
+
+    # Two-tailed p-value
+    # P(F < f_stat) and P(F > f_stat)
+    p_lower = stats.f.cdf(f_stat, n - 1, np.inf) # df2 -> inf for variance test against constant
+    # Actually, for testing variance against a constant, we use Chi-squared distribution
+    # F-test is typically for comparing two variances.
+    # However, scipy.stats.chisquare or manual calculation for variance test:
+    # Statistic: (n-1)*s^2 / sigma0^2 ~ Chi^2(n-1)
     
-    log_info(f"Hypothesis test summary: {rejections}/{len(t_test_results)} rejections "
-            f"(rate={rejection_rate:.4f}, alpha={alpha})")
+    # Let's use Chi-squared for single variance test as it's more direct
+    # But the task description says "F-tests". In the context of single sample variance,
+    # it is often colloquially referred to, but mathematically it's Chi-squared.
+    # If the requirement strictly implies F-distribution usage (e.g. comparing to a baseline),
+    # we might need two samples. Assuming single sample variance test against a constant.
+    # Standard approach: Chi-squared test for variance.
     
-    return summary
+    # Re-reading context: "one-sample t-tests and F-tests".
+    # If it implies comparing variance of two groups, we need two samples.
+    # If it implies testing variance against a theoretical value, it's Chi-squared.
+    # Let's assume the standard "F-test for equality of two variances" is not applicable here
+    # unless we have two groups.
+    # However, sometimes "F-test" is used loosely.
+    # Let's implement the Chi-squared test for single variance but label it appropriately
+    # or implement the F-test if we assume a comparison to a reference variance (which is effectively Chi-squared).
+    
+    # Let's stick to the Chi-squared distribution for single variance testing as it is the exact test.
+    # If the user insists on "F-test" name, we can note the equivalence.
+    # But to be safe and accurate:
+    
+    chi2_stat = (n - 1) * sample_variance / sigma0_squared
+    p_value = 2 * min(stats.chi2.cdf(chi2_stat, n - 1), 1 - stats.chi2.cdf(chi2_stat, n - 1))
+
+    rejected = p_value < alpha
+
+    return {
+        "test_type": "variance_test_chi2",
+        "statistic": float(chi2_stat),
+        "p_value": float(p_value),
+        "alpha": alpha,
+        "rejected_null": bool(rejected),
+        "hypothesized_variance": sigma0_squared,
+        "sample_variance": float(sample_variance),
+        "sample_size": n,
+        "note": "Using Chi-squared distribution for single variance test against constant."
+    }
+
+
+def run_hypothesis_tests_for_series(
+    data: Union[np.ndarray, pd.Series],
+    test_types: List[str] = ["ttest", "variance_test"],
+    mu: float = 0.0,
+    sigma0_squared: float = 1.0,
+    alpha: float = 0.05
+) -> Dict[str, Any]:
+    """
+    Run a suite of hypothesis tests on a single series.
+
+    Args:
+        data: The data series.
+        test_types: List of tests to run. Supported: "ttest", "variance_test".
+        mu: Hypothesized mean for t-test.
+        sigma0_squared: Hypothesized variance for variance test.
+        alpha: Significance level.
+
+    Returns:
+        Dictionary of results for each test.
+    """
+    results = {}
+
+    if "ttest" in test_types:
+        try:
+            results["ttest"] = run_one_sample_ttest(data, mu, alpha)
+        except HypothesisTestError as e:
+            log_warning(f"t-test failed for series: {str(e)}")
+            results["ttest"] = {"error": str(e)}
+
+    if "variance_test" in test_types:
+        try:
+            results["variance_test"] = run_f_test_variance(data, sigma0_squared, alpha)
+        except HypothesisTestError as e:
+            log_warning(f"Variance test failed for series: {str(e)}")
+            results["variance_test"] = {"error": str(e)}
+
+    return results
+
 
 def main():
     """
-    Main entry point for hypothesis testing module.
-    
-    This function demonstrates the exclusion of two-sample t-test and
-    provides a runtime log message as required by T053.
+    Entry point for running hypothesis tests.
+    Currently acts as a demonstration of the exclusion logic and basic functionality.
     """
-    log_critical(
-        "MODULE LOADED: hypothesis_tests.py - Two-sample t-test is explicitly "
-        "EXCLUDED per Spec FR-004. Reason: Invalid for detrended residuals with "
-        "long-range dependence due to violated independence assumption, leading to "
-        "inflated Type I error rates. Use one-sample t-test and F-tests instead."
+    log_info("Starting Hypothesis Tests Module")
+    
+    # Demonstrate the exclusion message
+    log_warning(
+        "Two-sample t-test is explicitly excluded per Spec FR-004.",
+        extra={
+            "reason": "Invalid for detrended residuals with long-range dependence.",
+            "impact": "Prevents inflated Type I error rates."
+        }
     )
+
+    # Example usage with synthetic data (for demonstration only)
+    # In a real run, this would load data from data/processed/
+    np.random.seed(42)
+    sample_data = np.random.normal(0, 1, 1000)
     
-    log_info("Hypothesis testing module initialized successfully")
-    
-    # Example usage (would typically be called from orchestration script)
-    # synthetic_data = [...]  # List of series from generators
-    # results = run_hypothesis_tests(synthetic_data)
-    
-    return {"status": "ready", "excluded_tests": ["two_sample_ttest"]}
+    results = run_hypothesis_tests_for_series(sample_data)
+    log_info(f"Example test results: {results}")
+
+    return results
 
 if __name__ == "__main__":
     main()

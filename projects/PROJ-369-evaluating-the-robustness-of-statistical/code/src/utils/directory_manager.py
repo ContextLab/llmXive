@@ -8,10 +8,10 @@ from src.utils.logging import setup_logger, log_info, log_error
 
 def setup_project_directories():
     """
-    T001 Helper: Creates the required directory structure.
-    """
-    project_root = get_path()
+    T001 Implementation Helper: Creates the required directory structure.
     
+    Returns a list of created paths.
+    """
     required_dirs = [
         "src",
         "src/data",
@@ -28,56 +28,60 @@ def setup_project_directories():
         "specs",
         "state"
     ]
-    
+
+    project_root = get_path()
     created_paths = []
     logger = setup_logger("directory_manager")
-    
+
+    log_info(logger, f"Setting up project structure at: {project_root}")
+
     for dir_path in required_dirs:
-        full_path = project_root / dir_path
+        full_path = Path(project_root) / dir_path
         try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_paths.append(str(full_path))
-            log_info(logger, f"Directory created: {full_path}")
+            if not full_path.exists():
+                full_path.mkdir(parents=True, exist_ok=True)
+                created_paths.append(str(full_path))
+                log_info(logger, f"Created directory: {full_path}")
+            else:
+                created_paths.append(str(full_path))
+                log_info(logger, f"Directory exists: {full_path}")
         except Exception as e:
-            log_error(logger, f"Failed to create directory {full_path}: {e}")
+            log_error(logger, f"Failed to create {full_path}: {str(e)}")
             raise
     
     return created_paths
 
 def initialize_checksums(created_paths: List[str]):
     """
-    T001 Helper: Generates the structure_manifest.json.
+    T001 Implementation Helper: Initializes the structure manifest.
+    
+    Creates state/structure_manifest.json with the list of created paths.
     """
     project_root = get_path()
+    manifest_path = Path(project_root) / "state" / "structure_manifest.json"
+    
+    ensure_dirs([str(Path(project_root) / "state")])
+
     manifest = {
-        "created_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "created_at": datetime.datetime.now().isoformat(),
         "project_root": str(project_root),
-        "directories": created_paths,
-        "count": len(created_paths)
+        "directories_created": created_paths,
+        "total_count": len(created_paths),
+        "errors": [],
+        "status": "success"
     }
-    
-    state_dir = project_root / "state"
-    state_dir.mkdir(parents=True, exist_ok=True)
-    manifest_path = state_dir / "structure_manifest.json"
-    
-    with open(manifest_path, "w", encoding="utf-8") as f:
+
+    with open(manifest_path, 'w', encoding='utf-8') as f:
         json.dump(manifest, f, indent=2)
     
-    log_info(setup_logger("directory_manager"), f"Manifest written to {manifest_path}")
+    log_info(None, f"Structure manifest written to: {manifest_path}")
     return manifest_path
 
 def main():
-    """
-    Entry point for T001 execution.
-    """
-    try:
-        created = setup_project_directories()
-        initialize_checksums(created)
-        return 0
-    except Exception as e:
-        log_error(setup_logger("directory_manager"), f"Setup failed: {e}")
-        return 1
+    """Entry point for directory setup script."""
+    created = setup_project_directories()
+    manifest = initialize_checksums(created)
+    print(f"Project structure ready. Manifest: {manifest}")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

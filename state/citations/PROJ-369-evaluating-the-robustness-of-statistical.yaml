@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/maurice/traffic/resolve/main/traffic.csv
   verified_at: '2026-08-04T17:06:00.756414Z'
-- artifact_hash: dea4081912bd27aff31c82a21b85e4df1cccae8402dc87ecb5db1219a6320cff
+- artifact_hash: dc4cab47da6b02407acd71a633930c6ad3de4d06c654855952af56dd69eb4f91
   artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,4 +85,4 @@
   value: https://www.nationalgrideso.com/document/174276/download`
   verification_status: pending
   verified_against_url: https://www.nationalgrideso.com/document/174276/download
-  verified_at: '2026-08-21T00:07:10.520709Z'
+  verified_at: '2026-08-21T00:53:32.830689Z'
