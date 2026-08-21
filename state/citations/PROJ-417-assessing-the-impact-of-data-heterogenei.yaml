@@ -20,14 +20,3 @@
   verification_status: pending
   verified_against_url: https://osf.io/9k2v6/
   verified_at: '2026-07-26T17:55:59.065186Z'
-- artifact_hash: 37655babe388eb5f5646fcbaacfc489ecf5f7cb3a53bb6d314350b31714311ff
-  artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: OSF
-  kind: url
-  value: https://osf.io/...`
-  verification_status: pending
-  verified_against_url: https://osf.io/
-  verified_at: '2026-08-21T17:05:04.731146Z'

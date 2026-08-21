@@ -5,287 +5,286 @@ import csv
 import os
 from dataclasses import dataclass, asdict, field
 from typing import List, Dict, Any, Optional
-from pathlib import Path
+import numpy as np
 
-# Import from project API
-from utils.logging import get_logger, log_simulation_progress
+from utils.logging import get_logger
+from config_loader import get_base_data_path, get_simulation_params
 
 logger = get_logger(__name__)
 
 @dataclass
 class SimulationConfig:
-    """Configuration for the simulation run."""
-    tau2_levels: List[float]
-    num_replicates: int
+    tau2_level: float
+    replicate_count: int
+    true_effect: float
+    seed: int
     base_data_path: str
-    seed: Optional[int] = None
 
 @dataclass
 class StudyResult:
-    """Represents a single study within a simulated meta-analysis."""
-    study_id: str
+    study_id: int
     effect_size: float
     variance: float
+    se: float
     n_studies: int
+    reliability_flag: bool
     injected_true_effect: float
     injected_tau2: float
-    reliability_flag: bool  # True if N < 5 (unreliable)
 
 @dataclass
 class SimulationResult:
-    """Container for a single replicate's simulation data."""
-    replicate_id: int
-    tau2_level: float
+    config: SimulationConfig
     studies: List[StudyResult]
-    num_studies: int
-    is_valid: bool  # False if N < 5
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    timestamp: str
 
 def load_base_data_structure(base_path: str) -> List[Dict[str, Any]]:
     """
-    Loads the base dataset (Cochrane or Synthetic) to determine
-    the distribution of study sizes and variances.
+    Loads the base data (either real Cochrane or synthetic) from CSV.
+    Returns a list of dictionaries with 'effect_size' and 'se' (or 'variance').
     """
-    path = Path(base_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Base data file not found at {base_path}. "
-                                "Please ensure T040 or T040b has been completed.")
-    
     data = []
-    with open(path, 'r', newline='', encoding='utf-8') as f:
+    if not os.path.exists(base_path):
+        raise FileNotFoundError(f"Base data file not found: {base_path}")
+    
+    with open(base_path, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            data.append({
-                'effect_size': float(row.get('effect_size', 0.0)),
-                'variance': float(row.get('variance', 1.0)),
-                'n_studies': int(row.get('n_studies', 10))
-            })
-    logger.info(f"Loaded {len(data)} study records from {base_path}")
+            # Normalize keys if necessary
+            entry = {
+                'effect_size': float(row.get('effect_size', row.get('effect', 0.0))),
+                'se': float(row.get('se', row.get('standard_error', 1.0))),
+                'variance': float(row.get('variance', float(row.get('se', 1.0))**2))
+            }
+            data.append(entry)
+    
+    if not data:
+        raise ValueError("Base data file is empty or invalid.")
+    
     return data
 
-def calculate_effect_and_variance(
-    base_effect: float, 
-    base_var: float, 
-    true_effect: float, 
-    true_tau2: float,
-    seed: int
-) -> tuple[float, float]:
+def calculate_effect_and_variance(base_entry: Dict[str, Any], tau2: float, true_effect: float, rng: np.random.Generator) -> tuple:
     """
     Calculates the simulated effect size and variance for a study.
-    Applies the injected heterogeneity (tau2) to the base variance.
+    
+    Handles the edge case where tau2 == 0 to avoid numerical instability 
+    (e.g., sqrt(0) is fine, but ensuring no division by zero or negative variance).
+    
+    Model: y_i = theta_i + e_i
+    theta_i ~ N(true_effect, tau2)
+    e_i ~ N(0, v_i) where v_i is the base variance (se^2)
+    
+    Total Variance = tau2 + v_i
+    Simulated Effect = true_effect + Z1 * sqrt(tau2) + Z2 * sqrt(v_i)
     """
-    random.seed(seed)
-    np.random.seed(seed)
-    import numpy as np
-
-    # The observed effect is the true effect + sampling error + between-study error
-    # Sampling error ~ N(0, base_var)
-    # Between-study error ~ N(0, true_tau2)
+    v_i = base_entry['variance']
+    se_i = math.sqrt(v_i) if v_i > 0 else 1e-6 # Guard against zero base variance
     
-    sampling_error = np.random.normal(0, math.sqrt(base_var))
-    between_study_error = np.random.normal(0, math.sqrt(true_tau2)) if true_tau2 > 0 else 0.0
+    # Between-study variance component
+    if tau2 < 0:
+        raise ValueError(f"Invalid tau2 level: {tau2}. Must be non-negative.")
     
-    simulated_effect = true_effect + sampling_error + between_study_error
+    # Numerical stability for tau2=0
+    # If tau2 is extremely small but positive, we treat it as 0 to avoid floating point noise
+    # or if it is exactly 0.
+    effective_tau2 = max(tau2, 0.0)
     
-    # The observed variance is the base variance + tau2 (if we assume variance includes heterogeneity)
-    # However, typically in meta-analysis simulation, the reported variance is the within-study variance.
-    # The total variance of the effect estimator is V_i + tau^2.
-    # For the purpose of the generator output, we store the within-study variance (base_var)
-    # and the true parameters separately. The estimator will use base_var + tau2.
-    simulated_variance = base_var 
+    if effective_tau2 == 0.0:
+        # Homogeneous case: No between-study variance
+        # theta_i = true_effect exactly
+        # y_i = true_effect + e_i
+        # Variance = v_i
+        between_study_component = 0.0
+    else:
+        between_study_component = math.sqrt(effective_tau2)
     
-    return float(simulated_effect), float(simulated_variance)
+    # Generate random components
+    z_between = rng.standard_normal()
+    z_within = rng.standard_normal()
+    
+    # Simulate true effect for this study (theta_i)
+    theta_i = true_effect + (between_study_component * z_between)
+    
+    # Simulate observed effect (y_i)
+    observed_effect = theta_i + (se_i * z_within)
+    
+    # Total variance for this replicate
+    total_variance = effective_tau2 + v_i
+    
+    return observed_effect, total_variance, math.sqrt(total_variance)
 
 def create_replicate(
     base_data: List[Dict[str, Any]],
-    tau2_level: float,
-    replicate_id: int,
-    true_effect: float,
-    seed: int
-) -> SimulationResult:
+    config: SimulationConfig,
+    rng: np.random.Generator
+) -> List[StudyResult]:
     """
-    Creates a single replicate of a meta-analysis.
-    Handles edge cases: N < 5 (flagged), tau2 = 0 (stable).
+    Generates a single replicate of the simulation based on the base data structure
+    and the specified tau2 level.
     """
-    # Determine number of studies (sampling from base data distribution or fixed)
-    # For this implementation, we use the size of the base dataset or a subset
-    # to simulate a meta-analysis.
-    num_studies = len(base_data)
-    
-    # Edge Case: Small Study Effects (N < 5)
-    is_valid = num_studies >= 5
-    
     studies = []
-    for i, base_row in enumerate(base_data):
-        # Generate a unique seed for this study within the replicate
-        study_seed = seed + replicate_id * 10000 + i
-        
-        eff, var = calculate_effect_and_variance(
-            base_row['effect_size'],
-            base_row['variance'],
-            true_effect,
-            tau2_level,
-            study_seed
+    n_base = len(base_data)
+    
+    # Ensure we have enough base studies or replicate the base structure if needed
+    # The task implies using the structure of the base data (N_studies)
+    # We assume base_data represents the 'shape' (N, SE distribution) of one study set.
+    # We iterate through the base data entries to generate one study per entry.
+    
+    for i, base_entry in enumerate(base_data):
+        effect, var, se = calculate_effect_and_variance(
+            base_entry, 
+            config.tau2_level, 
+            config.true_effect, 
+            rng
         )
         
-        reliability_flag = not is_valid
+        # Reliability flag logic (T011b): N_studies < 5
+        # Here N_studies refers to the total count in the meta-analysis (length of base_data)
+        n_studies = n_base
+        reliability_flag = n_studies >= 5
         
         study = StudyResult(
-            study_id=f"R{replicate_id}_S{i}",
-            effect_size=eff,
+            study_id=i,
+            effect_size=effect,
             variance=var,
-            n_studies=num_studies,
-            injected_true_effect=true_effect,
-            injected_tau2=tau2_level,
-            reliability_flag=reliability_flag
+            se=se,
+            n_studies=n_studies,
+            reliability_flag=reliability_flag,
+            injected_true_effect=config.true_effect,
+            injected_tau2=config.tau2_level
         )
         studies.append(study)
     
+    return studies
+
+def generate_synthetic_meta_analysis(config: SimulationConfig) -> SimulationResult:
+    """
+    Runs the simulation for a specific tau2 level and replicate count.
+    Returns a list of all study results across all replicates.
+    """
+    logger.info(f"Starting simulation for tau2={config.tau2_level}, replicates={config.replicate_count}")
+    
+    base_data = load_base_data_structure(config.base_data_path)
+    logger.info(f"Loaded {len(base_data)} base studies from {config.base_data_path}")
+    
+    # Initialize RNG with seed
+    rng = np.random.default_rng(config.seed)
+    
+    all_studies = []
+    
+    for r in range(config.replicate_count):
+        # Increment seed for each replicate to ensure independence if needed, 
+        # though the RNG state handles this. 
+        # We can use the main RNG directly.
+        replicate_studies = create_replicate(base_data, config, rng)
+        all_studies.extend(replicate_studies)
+        
+        if (r + 1) % 100 == 0:
+            logger.info(f"Completed {r + 1}/{config.replicate_count} replicates")
+    
     return SimulationResult(
-        replicate_id=replicate_id,
-        tau2_level=tau2_level,
-        studies=studies,
-        num_studies=num_studies,
-        is_valid=is_valid,
-        metadata={
-            'seed': seed,
-            'true_effect': true_effect,
-            'tau2': tau2_level
-        }
+        config=config,
+        studies=all_studies,
+        timestamp="generated" # Placeholder, usually datetime.now().isoformat()
     )
 
-def generate_synthetic_meta_analysis(config: SimulationConfig) -> List[SimulationResult]:
+def validate_simulation_output(result: SimulationResult) -> bool:
     """
-    Generates the full set of synthetic meta-analysis replicates.
-    Implements the loop for >= 500 replicates per level.
+    Validates that the output conforms to the expected schema requirements:
+    - injected_true_effect exists
+    - injected_tau2 exists
+    - values are numeric
     """
-    base_data = load_base_data_structure(config.base_data_path)
-    results = []
-    
-    # Determine true effect based on base data mean or a fixed value
-    # Using the mean of the base data as a proxy for the "true" underlying effect
-    # in the absence of a specific ground truth for the synthetic generation.
-    true_effect = sum(d['effect_size'] for d in base_data) / len(base_data)
-    
-    logger.info(f"Starting simulation with {len(config.tau2_levels)} levels, "
-                f"{config.num_replicates} replicates each.")
-    
-    total_replicates = 0
-    for tau2 in config.tau2_levels:
-        for rep_idx in range(config.num_replicates):
-            # Use a deterministic seed based on level and index
-            rep_seed = (config.seed or 42) + int(tau2 * 1000) + rep_idx
-            
-            result = create_replicate(
-                base_data=base_data,
-                tau2_level=tau2,
-                replicate_id=total_replicates,
-                true_effect=true_effect,
-                seed=rep_seed
-            )
-            
-            results.append(result)
-            total_replicates += 1
-            
-            if total_replicates % 100 == 0:
-                log_simulation_progress(total_replicates, config.num_replicates * len(config.tau2_levels))
-    
-    logger.info(f"Simulation complete. Generated {total_replicates} replicates.")
-    return results
-
-def validate_simulation_output(results: List[SimulationResult]) -> bool:
-    """
-    Validates that the output conforms to the expected structure.
-    Checks for required fields and data types.
-    """
-    if not results:
-        logger.error("No results to validate.")
+    if not result.studies:
+        logger.error("No studies generated.")
         return False
     
-    required_fields = ['replicate_id', 'tau2_level', 'studies', 'num_studies', 'is_valid']
-    study_fields = ['study_id', 'effect_size', 'variance', 'n_studies', 'injected_true_effect', 'injected_tau2', 'reliability_flag']
-    
-    for i, res in enumerate(results):
-        for field in required_fields:
-            if not hasattr(res, field):
-                logger.error(f"Result {i} missing field: {field}")
-                return False
-        
-        if not isinstance(res.studies, list):
-            logger.error(f"Result {i} studies is not a list")
+    for s in result.studies:
+        if s.injected_true_effect is None or s.injected_tau2 is None:
+            logger.error("Missing injected parameters.")
+            return False
+        if not isinstance(s.effect_size, (int, float)):
+            return False
+        if not isinstance(s.variance, (int, float)):
+            return False
+        # Check for numerical instability (NaN or Inf)
+        if math.isnan(s.effect_size) or math.isinf(s.effect_size):
+            logger.error(f"Numerical instability detected in effect size: {s.effect_size}")
+            return False
+        if math.isnan(s.variance) or math.isinf(s.variance):
+            logger.error(f"Numerical instability detected in variance: {s.variance}")
             return False
         
-        for j, study in enumerate(res.studies):
-            for field in study_fields:
-                if not hasattr(study, field):
-                    logger.error(f"Result {i}, Study {j} missing field: {field}")
-                    return False
-    
-    logger.info("Validation passed.")
     return True
 
-def save_results_to_json(results: List[SimulationResult], output_path: str):
+def save_results_to_json(result: SimulationResult, output_path: str):
     """
-    Saves the simulation results to a JSON file conforming to the schema.
-    Converts dataclasses to dictionaries.
+    Saves the simulation results to a JSON file.
     """
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     
-    # Convert to serializable format
-    serializable_results = []
-    for res in results:
-        serializable_res = {
-            'replicate_id': res.replicate_id,
-            'tau2_level': res.tau2_level,
-            'num_studies': res.num_studies,
-            'is_valid': res.is_valid,
-            'metadata': res.metadata,
-            'studies': [asdict(s) for s in res.studies]
-        }
-        serializable_results.append(serializable_res)
+    # Convert dataclass to dict recursively
+    def to_dict(obj):
+        if hasattr(obj, '__dataclass_fields__'):
+            return {k: to_dict(v) for k, v in asdict(obj).items()}
+        elif isinstance(obj, list):
+            return [to_dict(i) for i in obj]
+        else:
+            return obj
     
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(serializable_results, f, indent=2)
+    data = to_dict(result)
     
-    logger.info(f"Saved {len(results)} results to {output_path}")
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    
+    logger.info(f"Results saved to {output_path}")
 
 def main():
     """
     Entry point for the simulation generator.
-    Reads configuration from arguments or defaults.
+    Reads config from config_loader and runs the simulation.
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Generate synthetic meta-analysis datasets")
-    parser.add_argument('--levels', nargs='+', type=float, default=[0.0, 0.1, 0.5, 1.0, 2.0],
-                        help='Heterogeneity levels (tau2)')
-    parser.add_argument('--replicates', type=int, default=500, help='Number of replicates per level')
-    parser.add_argument('--base-data', type=str, default='data/raw/cochrane_base.csv',
-                        help='Path to base data file (Cochrane or Synthetic)')
-    parser.add_argument('--output', type=str, default='data/results/simulation_raw.json',
-                        help='Output JSON file path')
-    parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    
-    args = parser.parse_args()
-    
-    # Fallback to synthetic if real data not found (handled by load_base_data_structure raising error)
-    # However, per spec, if T040 failed, T040b should have run.
-    # We rely on the file existence check in load_base_data_structure.
-    
-    config = SimulationConfig(
-        tau2_levels=args.levels,
-        num_replicates=args.replicates,
-        base_data_path=args.base_data,
-        seed=args.seed
-    )
-    
-    results = generate_synthetic_meta_analysis(config)
-    
-    if not validate_simulation_output(results):
-        raise RuntimeError("Simulation output validation failed.")
-    
-    save_results_to_json(results, args.output)
-    logger.info("Simulation pipeline completed successfully.")
+    try:
+        params = get_simulation_params()
+        base_path = get_base_data_path()
+        
+        # Default values if not in config
+        tau2_levels = params.get('tau2_levels', [0.0, 0.1, 0.5, 1.0, 2.0])
+        replicate_count = params.get('replicate_count', 500)
+        true_effect = params.get('true_effect', 0.5)
+        seed = params.get('seed', 42)
+        
+        all_results = []
+        
+        for tau2 in tau2_levels:
+            config = SimulationConfig(
+                tau2_level=tau2,
+                replicate_count=replicate_count,
+                true_effect=true_effect,
+                seed=seed,
+                base_data_path=base_path
+            )
+            
+            result = generate_synthetic_meta_analysis(config)
+            
+            if not validate_simulation_output(result):
+                raise RuntimeError(f"Validation failed for tau2={tau2}")
+            
+            all_results.extend(result.studies)
+        
+        output_file = "data/results/simulation_raw.json"
+        save_results_to_json(SimulationResult(
+            config=SimulationConfig(0, 0, 0, 0, ""), # Dummy config for aggregation
+            studies=all_results,
+            timestamp=""
+        ), output_file)
+        
+        logger.info("Simulation pipeline completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"Simulation failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

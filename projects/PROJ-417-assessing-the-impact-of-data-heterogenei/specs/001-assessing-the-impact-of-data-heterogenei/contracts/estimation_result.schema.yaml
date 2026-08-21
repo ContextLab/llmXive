@@ -1,83 +1,78 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: EstimationResult
-description: |
-  Schema for the estimation results produced by applying meta-analysis estimators
-  (Fixed-Effects, DerSimonian-Laird, REML) to simulated or real datasets.
-  This entity captures the pooled effect estimates, confidence intervals,
-  heterogeneity statistics, and reliability flags.
+description: >
+  Schema for the results of meta-analysis estimation procedures.
+  Defines the structure for aggregated metrics including heterogeneity
+  statistics (I^2, Q), pooled estimates, and reliability flags.
+  Required by SC-002 and FR-001.
 type: object
 required:
-  - study_id
-  - estimator_type
-  - pooled_effect
-  - se_pooled
+  - pooled_estimate
   - ci_lower
   - ci_upper
-  - I_squared
-  - Q_statistic
-  - N_studies
+  - i_squared
+  - q_statistic
+  - n_studies
+  - tau2_estimate
+  - estimator_type
   - reliability_flag
-  - tau2_estimated
+  - replicate_id
+  - tau2_level
 properties:
-  study_id:
+  replicate_id:
     type: string
-    description: "Unique identifier for the study or replicate (e.g., 'rep_001_tau2_0.1')"
+    description: Unique identifier for the simulation replicate.
+  tau2_level:
+    type: number
+    description: The injected true heterogeneity level (tau^2) for this replicate.
   estimator_type:
     type: string
-    description: "The estimator used (e.g., 'FixedEffects', 'DerSimonianLaird', 'REML')"
     enum:
       - FixedEffects
       - DerSimonianLaird
       - REML
-  pooled_effect:
+    description: The estimation method used.
+  pooled_estimate:
     type: number
-    description: "The pooled effect size estimate"
-  se_pooled:
-    type: number
-    description: "Standard error of the pooled effect"
+    description: The pooled effect size estimate.
   ci_lower:
     type: number
-    description: "Lower bound of the confidence interval"
+    description: Lower bound of the confidence interval.
   ci_upper:
     type: number
-    description: "Upper bound of the confidence interval"
-  I_squared:
+    description: Upper bound of the confidence interval.
+  i_squared:
     type: number
-    description: "I^2 statistic representing the percentage of total variation across studies due to heterogeneity rather than chance"
-    minimum: 0
-    maximum: 100
-  Q_statistic:
+    description: >
+      I^2 statistic representing the percentage of variation across studies
+      due to heterogeneity rather than chance. Range [0, 100].
+  q_statistic:
     type: number
-    description: "Cochran's Q statistic for testing heterogeneity"
-    minimum: 0
-  N_studies:
+    description: Cochran's Q statistic for heterogeneity.
+  n_studies:
     type: integer
-    description: "Number of studies included in this meta-analysis"
-    minimum: 1
+    description: Number of studies included in the meta-analysis.
+  tau2_estimate:
+    type: number
+    description: Estimated between-study variance.
   reliability_flag:
     type: boolean
-    description: |
-      Flag indicating the reliability of the result.
-      Set to False if N_studies < 5 (Small Study Effects risk).
-      Set to True otherwise.
-  tau2_estimated:
+    description: >
+      Indicates data reliability. Set to False if N_studies < 5
+      (Small Study Effects threshold per T011b). True otherwise.
+  bias:
     type: number
-    description: "Estimated between-study variance (tau-squared)"
-    minimum: 0
-  injected_true_effect:
-    type: number
-    description: "The ground truth effect size injected during simulation (if applicable)"
     nullable: true
-  injected_tau2:
-    type: number
-    description: "The ground truth heterogeneity injected during simulation (if applicable)"
+    description: Difference between pooled_estimate and injected_true_effect.
+  coverage_flag:
+    type: boolean
     nullable: true
+    description: True if the confidence interval contains the true effect.
   convergence_status:
     type: string
-    description: "Status of the estimator convergence (e.g., 'success', 'failed', 'max_iter_reached')"
     enum:
       - success
-      - failed
-      - max_iter_reached
-    default: "success"
+      - failure
+      - skipped
+    description: Status of the estimation algorithm convergence.
 additionalProperties: false

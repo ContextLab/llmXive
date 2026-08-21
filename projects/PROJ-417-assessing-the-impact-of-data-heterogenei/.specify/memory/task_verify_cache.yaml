@@ -4,21 +4,3 @@ T006c:
   r: "The required file `code/config_loader.py` does not exist, so there is no implementation\
     \ that parses `code/config.yaml` or handles `FileNotFoundError` with fallback\
     \ logic. The task\u2019s core artifact is missing."
-T010:
-  c: false
-  h: 621bc64f788fb6f4ba15ff7b93163f043983275242770487023a036ba5d05615
-  r: "The repository contains a partially implemented `generator.py`, but it lacks\
-    \ a complete replication loop for the five \u03C4\xB2 levels and does not produce\
-    \ any output files. Moreover, the required schema file `contracts/simulated_dataset.schema.yaml`\
-    \ is missing, so the output cannot be validated against the contract. The next\
-    \ implementer must add the full simulation loop (\u2265500 replicates per level),\
-    \ ensure the generated datasets include the `injected_true_effect` and `injected_tau2`\
-    \ columns, and provide the missing schema file."
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `generator.py` file or code snippet was provided, and there is no evidence\
-    \ that any logic handling the \u03C4\xB2\u202F=\u202F0 edge case was added. Without\
-    \ the actual implementation (or a description of the changes) we cannot confirm\
-    \ the required functionality exists. The next implementer must supply the updated\
-    \ `generator.py` showing the zero\u2011variance handling logic."

@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-417-assessing-the-impact-of-data-heterogenei",
+  "tasks": [
+    {
+      "task_key": "T010",
+      "reject_count": 1,
+      "last_reason": "The repository lacks the required `contracts/simulated_dataset.schema.yaml` file, so the generator cannot be verified to produce schema\u2011conforming output. Moreover, the provided `generator.py` is incomplete (truncated) and does not show a loop that creates \u2265500 replicates for each heterogeneity level nor writes results with the required `injected_true_effect` and `injected_tau2` columns. Both the schema and full implementation are missing.",
+      "first_seen": "2026-08-21T17:33:31.257602+00:00",
+      "last_seen": "2026-08-21T17:33:31.257602+00:00"
+    },
+    {
+      "task_key": "T012",
+      "reject_count": 1,
+      "last_reason": "No `generator.py` file or code snippet was provided, and there is no evidence that any logic handling the \u03c4\u00b2\u202f=\u202f0 edge case was added. Without the actual implementation (or a description of the changes) we cannot confirm the required functionality exists. The next implementer must supply the updated `generator.py` showing the zero\u2011variance handling logic.",
+      "first_seen": "2026-08-21T17:33:31.258794+00:00",
+      "last_seen": "2026-08-21T17:33:31.258794+00:00"
+    }
+  ],
+  "updated_at": "2026-08-21T17:33:31.258794+00:00"
+}

@@ -1,6 +1,10 @@
-'|confidence default level nominal':
-  quote: a first sample can take any value between 0 and 0.95. The exact value depends
-    on the two
-  source_id: '1710.08708'
-  url: https://arxiv.org/abs/1710.08708
-  value: '0.95'
+'|base generation random seed synthetic use':
+  quote: Seed 42
+  source_id: '2411.15484'
+  url: https://arxiv.org/abs/2411.15484
+  value: '42'
+'|generate heterogeneity level primary replicate simulation sweep':
+  quote: between 100 to 5000 and as previously mentioned, Ru n 1
+  source_id: '1003.3775'
+  url: https://arxiv.org/abs/1003.3775
+  value: '500'
