@@ -10,7 +10,7 @@ This project implements a comparative study to validate the "overfitting-as-a-fe
 2.  **Increase Statistical Power**: Train **5 independent seeds** per architecture (N=5 per group) to enable valid Mixed-Model ANOVA.
 3.  **Validate Generalization**: Include a cross-domain validation step on a held-out dataset (WikiText).
 
-The implementation constructs the strict "Micro-Corpus", trains 10 models (5 AR, 5 MDM) for A sufficient number of epochs. on CPU-optimized loops, and performs statistical analysis on the Generalization Gap trajectories.
+The implementation constructs the strict "Micro-Corpus", trains A set of models (5 AR, 5 MDM) for A sufficient number of epochs. on CPU-optimized loops, and performs statistical analysis on the Generalization Gap trajectories.
 
 ## Technical Context
 
@@ -22,7 +22,7 @@ The implementation constructs the strict "Micro-Corpus", trains 10 models (5 AR,
 **Project Type**: Computational Research / Machine Learning Experiment.  
 **Performance Goals**: Complete 100 epochs for 10 models (5 seeds x 2 arch) on 1M tokens within 6 hours wall-clock time; peak RAM < 7GB.  
 **Constraints**: Strict token count (MM); no GPU available for training (CPU-first); no access-gated datasets.  
-**Scale/Scope**: Two M-parameter models (multiple seeds each); M token dataset; multiple epochs; 1 statistical analysis pipeline.
+**Scale/Scope**: Two M-parameter models (multiple seeds each); M token dataset; multiple epochs; a single statistical analysis pipeline.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

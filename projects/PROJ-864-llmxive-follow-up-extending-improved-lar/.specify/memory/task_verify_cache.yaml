@@ -1,11 +1,19 @@
+T000#1:
+  c: false
+  h: c0f4ee8ad50828ed99ff011d2c19c9c55edc16d45663aa972a6851c19e05da26
+  r: "The `verify_scope.py` script is truncated and does not contain the logic to\
+    \ write `data/artifacts/scope_change_record.json`. Moreover, the required JSON\
+    \ output file is missing from the repository. The task\u2019s core requirement\u2014\
+    producing the approved scope change record\u2014is therefore not satisfied."
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that the required directories (`projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`,\
-    \ `data/`, `tests/`, `state/`) actually exist; the response contains only the\
-    \ task description without any file\u2011system listing or screenshots. The implementer\
-    \ must supply concrete proof (e.g., a directory tree dump or file listings) that\
-    \ these folders have been created and are non\u2011empty."
+  h: 6c3f469119350f0273f760d69b90c7210c0fd353b7168142a522e87a90f354e9
+  r: "The required `data/artifacts/scope_change_record.json` file is missing, and\
+    \ `code/data/generate_config.py` is truncated (ends with an orphan \u201Cr\u201D\
+    ) and never writes `code/config.yaml`. Consequently the script does not fulfill\
+    \ the specified logic, even though a `code/config.yaml` file is present. The task\
+    \ needs a complete `generate_config.py` that reads the JSON, checks `approved`,\
+    \ and writes the config, plus the missing scope record JSON."
 T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

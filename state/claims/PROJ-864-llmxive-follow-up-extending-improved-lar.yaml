@@ -1480,3 +1480,1168 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T07:50:43Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Power analysis with effect size 0.25, alpha 0.05, 2 groups, 100 repeated
+    measures
+  claim_id: c_1cf9a6de
+  context: 'Logic: Read regime (1M) and epochs from code/config.yaml. Perform a priori
+    power analysis using pingouin.power_anova with effect_size=0.25, alpha=0.05, n_groups=2,
+    n_repeated=100.'
+  evidence:
+    asserted: '0.25'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Perform a priori power analysis using pingouin.power_anova with effect_size=0.25,
+    alpha=0.05, n_groups=2, n_repeated=100.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T07:45:13Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Binary search for model parameters with estimated VRAM under 6.0 GB
+  claim_id: c_caaf0b8f
+  context: 'Binary search for max embed_dim and num_layers such that estimated VRAM
+    < 6.0 GB. Search Bounds: low=128, high=2048.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Binary search for max embed_dim and num_layers such that estimated VRAM
+    < 6.0 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:45:13Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Enforce max epochs from config.yaml
+  claim_id: c_bd045aac
+  context: 'Logic: Use torch.compile on CPU. Enforce max epochs from code/config.yaml.'
+  evidence:
+    entailment_evidence: Enforce max epochs from config.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Enforce_max_epochs_from_config.yaml
+  kind: entity_fact
+  raw_text: Enforce max epochs from code/config.yaml.
+  resolved_value: Enforce max epochs from config.yaml
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T07:45:15Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Run multiple seeds per architecture for defined epochs
+  claim_id: c_539dca20
+  context: 'Logic: Read regime and approved from code/config.yaml. If approved is
+    false, HALT. If true, run multiple seeds per architecture for epochs defined in
+    config.yaml.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_multiple_seeds_per_architecture_for_defined_epochs
+  kind: entity_fact
+  raw_text: Run multiple seeds per architecture for epochs defined in config.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:46:03Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Enforce seed count of 5
+  claim_id: c_750b943a
+  context: 'Design: Enforce -seed design (raise FatalError if seed count != 5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce -seed design (raise FatalError if seed count != 5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:46:41Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Assert max RAM under 6.5 GB
+  claim_id: c_0f803a71
+  context: 'Logic: Read training_logs.csv, find max RAM value, assert < 6.5 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert max RAM value < 6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:46:42Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 0
+  canonical: Power analysis with effect size 0.25, alpha 0.05, 2 groups, 100 repeated
+    measures
+  claim_id: c_da004c70
+  context: Perform a priori power analysis using pingouin.power_anova with effect_size=0.25,
+    alpha=0.05, n_groups=2, n_repeated=100.
+  evidence:
+    asserted: '0.25'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Perform a priori power analysis using pingouin.power_anova with effect_size=0.25,
+    alpha=0.05, n_groups=2, n_repeated=100.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T07:47:48Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 0
+  canonical: Enforce maximum epochs from config file
+  claim_id: c_4e15d5b8
+  context: 'Logic: Use torch.compile on CPU. Enforce max epochs from code/config.yaml.'
+  evidence:
+    entailment_evidence: Enforce max epochs from config.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Enforce_max_epochs_from_config.yaml
+  kind: entity_fact
+  raw_text: Enforce max epochs from code/config.yaml.
+  resolved_value: Enforce max epochs from config.yaml
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T07:47:49Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Tests are optional and only included if explicitly requested in feature
+    specification
+  claim_id: c_52f97bcc
+  context: 'Input: Design documents from /specs/001-llmxive-follow-up-extending-improved-lar/...
+    Tests: The examples below include test tasks.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_and_only_included_if_explicitly_requested
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:48:56Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Micro-Corpus token count between 1,000,000 and 1,010,000 with disk footprint
+    under 14GB
+  claim_id: c_9d8bc2bf
+  context: 'Independent Test: The system can be tested by successfully loading the
+    constructed Micro-Corpus into memory on a standard CPU runner...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be tested by successfully loading the constructed Micro-Corpus\
+    \ into memory on a standard CPU runner, verifying the token count is \u2265 1,000,000\
+    \ and \u2264 1,010,000, and confirming the total disk footprint is <14GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:48:56Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Token count verification within 1% of target
+  claim_id: c_0c6aec2d
+  context: "Logic: Read token_target from code/config.yaml. Verify token count is\
+    \ within \xB11% of token_target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the token count is within \xB11% of token_target."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:48:56Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Halt and log Balance Imbalance error if data source exhausts before target
+  claim_id: c_e3cb4ab2
+  context: Interleave chunks using a balanced round-robin algorithm with chunk_size=10000.
+    If one source exhausts before reaching the target, halt and log 'Balance Imbalance'
+    error.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Halt_and_log_Balance_Imbalance_error_if_data_source_exhausts
+  kind: entity_fact
+  raw_text: If one source exhausts before reaching the target, halt and log 'Balance
+    Imbalance' error.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:49:42Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Fetch bigcode/the-stack python subset and gutenberg text subset via streaming
+  claim_id: c_cb781b76
+  context: 'Fetch bigcode/the-stack (subset: data/python) and gutenberg (subset: text)
+    streams using datasets.load_dataset(..., streaming=True).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_bigcode/the-stack_python_subset_and_gutenberg_text_sub
+  kind: entity_fact
+  raw_text: 'Fetch bigcode/the-stack (subset: data/python) and gutenberg (subset:
+    text) streams using datasets.load_dataset(..., streaming=True).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:50:25Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Interleave data chunks using round-robin with chunk size 10000
+  claim_id: c_41283e43
+  context: Interleave chunks using a balanced round-robin algorithm with chunk_size=10000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Interleave chunks using a balanced round-robin algorithm with chunk_size=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:51:03Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Log warning if power analysis result is less than 0.8
+  claim_id: c_17c25fac
+  context: If power < 0.8, log a WARNING (do NOT halt) and record the actual power
+    value.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_power_analysis_result_is_less_than_0.8
+  kind: magnitude
+  raw_text: If power < 0.8, log a WARNING (do NOT halt) and record the actual power
+    value.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:52:23Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Binary search for model parameters keeping estimated VRAM under 6.0 GB
+  claim_id: c_50166a7f
+  context: Binary search for max embed_dim and num_layers such that estimated VRAM
+    < 6.0 GB.
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Binary search for max embed_dim and num_layers such that estimated VRAM
+    < 6.0 GB.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T07:52:23Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Binary search bounds low 128 and high 2048
+  claim_id: c_2da32bf3
+  context: 'Search Bounds: low=128, high=2048.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Search Bounds: low=128, high=2048.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:52:58Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Download failure raises RuntimeError with no synthetic fallback message
+  claim_id: c_5bca7f6d
+  context: 'Logic: Wrap dataset fetch in try/except; if fetch fails, raise RuntimeError
+    with message ''Real data fetch failed; no synthetic fallback allowed''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_failure_raises_RuntimeError_with_no_synthetic_fallb
+  kind: entity_fact
+  raw_text: raise_on_download_failure() raises RuntimeError with message 'Real data
+    fetch failed; no synthetic fallback allowed'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:53:32Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Log epoch, train loss, val loss, gap, time, RAM, and seed ID
+  claim_id: c_7a18fd22
+  context: 'Logic: Log epoch, train_loss, val_loss, gap, time, ram, and seed_id.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_epoch,_train_loss,_val_loss,_gap,_time,_RAM,_and_seed_ID
+  kind: entity_fact
+  raw_text: Log epoch, train_loss, val_loss, gap, time, ram, and seed_id.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:54:21Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Calculate accuracy and perplexity on held-out test set per epoch
+  claim_id: c_0b5a5c53
+  context: Include calculation of accuracy and perplexity on held-out test set per
+    epoch.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_accuracy_and_perplexity_on_held-out_test_set_per_e
+  kind: entity_fact
+  raw_text: Include calculation of accuracy and perplexity on held-out test set per
+    epoch.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:55:10Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Save final model weights for each seed to checkpoints directory
+  claim_id: c_20492cb2
+  context: 'Checkpoint Saving: MUST SAVE final model weights for each seed to data/artifacts/checkpoints/
+    (e.g., model_seed_{seed_id}_final.pt) as part of this task execution.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Save_final_model_weights_for_each_seed_to_checkpoints_direct
+    source_value: https://en.wikipedia.org/wiki/Save_final_model_weights_for_each_seed_to_checkpoints_direct
+    subject: Save final model weights for each seed to checkpoints directory
+  kind: relational
+  raw_text: MUST SAVE final model weights for each seed to data/artifacts/checkpoints/
+    (e.g., model_seed_{seed_id}_final.pt) as part of this task execution.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:55:48Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Raise FatalError if batch size drops below 4
+  claim_id: c_d0f61995
+  context: If batch size < 4, raise FatalError. Apply identical logic to both AR and
+    MDM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If batch size < 4, raise FatalError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:55:48Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Enforce 5 seed design; raise FatalError if seed count is not 5
+  claim_id: c_1d74834c
+  context: 'Design: Enforce -seed design (raise FatalError if seed count != 5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce -seed design (raise FatalError if seed count != 5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:55:48Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Download WikiText-2 raw v1 dataset
+  claim_id: c_90388cc0
+  context: 'Logic: Download WikiText-2 dataset using datasets.load_dataset(''wikitext'',
+    ''wikitext-2-raw-v1'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download WikiText-2 dataset using datasets.load_dataset('wikitext', 'wikitext-2-raw-v1').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:56:18Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Assert maximum RAM usage is less than 6.5 GB
+  claim_id: c_0eab4eb7
+  context: 'Logic: Read training_logs.csv, find max RAM value, assert < 6.5 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_maximum_RAM_usage_is_less_than_6.5_GB
+  kind: magnitude
+  raw_text: Read training_logs.csv, find max RAM value, assert < 6.5 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:56:57Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Requirements file with specific pinned package versions
+  claim_id: c_a7bda35c
+  context: 'Create projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/requirements.txt
+    with pinned versions: transformers>=4.40.0...'
+  evidence:
+    asserted: '4.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Create requirements.txt with pinned versions: transformers>=4.40.0, datasets>=2.18.0,
+    torch>=2.2.0, scikit-learn>=1.4.0, scipy>=1.12.0, pandas>=2.2.0, pyyaml>=6.0,
+    huggingface_hub>=0.21.0, pingouin>=0.5.3.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T07:56:57Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Ruff configuration with line length 100
+  claim_id: c_1a16b435
+  context: 'Create ruff.toml with content: ... line-length = 100'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create ruff.toml with line-length = 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:57:45Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Black configuration with line length 100 and Python 3.10 target
+  claim_id: c_4caf5a80
+  context: 'and pyproject.toml with [tool.black] section: ... line-length = 100 target-version
+    = [''py310'']'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create pyproject.toml with [tool.black] section: line-length = 100, target-version
+    = [''py310''].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:58:52Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 0
+  canonical: 'Power analysis parameters: effect_size 0.25, alpha 0.05, n_groups 2,
+    n_repeated 100'
+  claim_id: c_03df57bd
+  context: 'Logic: Read regime (1M) and epochs from code/config.yaml. Perform a priori
+    power analysis using pingouin.power_anova with effect_size=0.25, alpha=0.05, n_groups=2,
+    n_repeated=100.'
+  evidence:
+    asserted: '0.25'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Perform a priori power analysis using pingouin.power_anova with effect_size=0.25,
+    alpha=0.05, n_groups=2, n_repeated=100.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T08:00:04Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 0
+  canonical: Binary search for model parameters to fit within 6.0 GB VRAM
+  claim_id: c_9c522ec8
+  context: 'Binary search for max embed_dim and num_layers such that estimated VRAM
+    < 6.0 GB. Search Bounds: low=128, high=2048.'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Binary search for max embed_dim and num_layers such that estimated VRAM
+    < 6.0 GB.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T08:00:04Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 2
+  canonical: Micro-Corpus token count between 1,000,000 and 1,010,000 with disk footprint
+    under 14GB
+  claim_id: c_4d1ecb3c
+  context: "Independent Test: The system can be tested by successfully loading the\
+    \ constructed Micro-Corpus into memory on a standard CPU runner, verifying the\
+    \ token count is \u2265 1,000,000 and \u2264 1,010,000, and confirming the total\
+    \ disk footprint is <14GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be tested by successfully loading the constructed Micro-Corpus\
+    \ into memory on a standard CPU runner, verifying the token count is \u2265 1,000,000\
+    \ and \u2264 1,010,000, and confirming the total disk footprint is <14GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:00:07Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Micro-Corpus test set contains zero HumanEval samples
+  claim_id: c_f43dbc25
+  context: 'Logic: Verify that the micro_corpus_test.jsonl (generated by T016) contains
+    no HumanEval samples.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Micro-Corpus_test_set_contains_zero_HumanEval_samples
+  kind: entity_fact
+  raw_text: Verify that the micro_corpus_test.jsonl contains no HumanEval samples.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:00:51Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Experimental design requires exactly 5 seeds
+  claim_id: c_df4a4de2
+  context: 'Design: Enforce -seed design (raise FatalError if seed count != 5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce -seed design (raise FatalError if seed count != 5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:00:51Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Minimum batch size allowed is 4
+  claim_id: c_01c49c07
+  context: If batch size < 4, raise FatalError. Apply identical logic to both AR and
+    MDM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If batch size < 4, raise FatalError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:00:51Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage must be less than 6.5 GB
+  claim_id: c_a056eab3
+  context: 'Logic: Read training_logs.csv, find max RAM value, assert < 6.5 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_must_be_less_than_6.5_GB
+  kind: magnitude
+  raw_text: Assert max RAM value < 6.5 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:01:40Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Spec and Plan must specify 1M token regime without larger references
+  claim_id: c_38d646d5
+  context: 'Logic: Read spec.md and plan.md. Verify that both specify a large-scale
+    token regime (no references to significantly larger token counts in critical paths).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spec_and_Plan_must_specify_1M_token_regime_without_larger_re
+  kind: entity_fact
+  raw_text: Verify that both specify a large-scale token regime (no references to
+    significantly larger token counts in critical paths).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:02:33Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Configuration token target set to 1000000
+  claim_id: c_af83aa89
+  context: 'If true, write code/config.yaml with keys: regime (set to 1M), approved
+    (set to true), model_params (dict), token_target (int: 1000000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Write code/config.yaml with token_target int: 1000000.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:02:57Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 0
+  canonical: power analysis parameters effect_size 0.25 alpha 0.05 n_groups 2 n_repeated
+    100
+  claim_id: c_7f6fcb58
+  context: Perform a priori power analysis using pingouin.power_anova with effect_size=0.25,
+    alpha=0.05, n_groups=2, n_repeated=100. If power < 0.8, log a WARNING (do NOT
+    halt) and record the actual power value.
+  evidence:
+    asserted: '0.25'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Perform a priori power analysis using pingouin.power_anova with effect_size=0.25,
+    alpha=0.05, n_groups=2, n_repeated=100
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T08:04:12Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 0
+  canonical: feasibility search for max embed_dim and num_layers under 6.0 GB VRAM
+  claim_id: c_1e2456db
+  context: 'Binary search for max embed_dim and num_layers such that estimated VRAM
+    < 6.0 GB. Search Bounds: low=128, high=2048.'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Binary search for max embed_dim and num_layers such that estimated VRAM
+    < 6.0 GB
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T08:04:13Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: micro-corpus token count between 1000000 and 1010000
+  claim_id: c_79d544e1
+  context: "The system can be tested by successfully loading the constructed Micro-Corpus\
+    \ into memory on a standard CPU runner, verifying the token count is \u2265 1,000,000\
+    \ and \u2264 1,010,000, and confirming the total disk footprint is <14GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the token count is \u2265 1,000,000 and \u2264 1,010,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:04:17Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: micro-corpus disk footprint less than 14GB
+  claim_id: c_b45fb012
+  context: "The system can be tested by successfully loading the constructed Micro-Corpus\
+    \ into memory on a standard CPU runner, verifying the token count is \u2265 1,000,000\
+    \ and \u2264 1,010,000, and confirming the total disk footprint is <14GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Micro-corpus_disk_footprint_less_than_14GB
+  kind: magnitude
+  raw_text: confirming the total disk footprint is <14GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:05:00Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: power analysis warning threshold 0.8
+  claim_id: c_ea821566
+  context: Perform a priori power analysis using pingouin.power_anova with effect_size=0.25,
+    alpha=0.05, n_groups=2, n_repeated=100. If power < 0.8, log a WARNING (do NOT
+    halt) and record the actual power value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If power < 0.8, log a WARNING
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:05:00Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: corpus validation token count within 1 percent of target
+  claim_id: c_d3c70417
+  context: "Verify token count is within \xB11% of token_target. If count < 99% of\
+    \ target, HALT with error 'Insufficient Data'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the token count is within \xB11% of token_target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:05:01Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: corpus validation halt if count below 99 percent of target
+  claim_id: c_2d537217
+  context: "Verify token count is within \xB11% of token_target. If count < 99% of\
+    \ target, HALT with error 'Insufficient Data'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If count < 99% of target, HALT with error 'Insufficient Data'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:05:01Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: feasibility search bounds low 128 high 2048
+  claim_id: c_cd00d90c
+  context: 'Binary search for max embed_dim and num_layers such that estimated VRAM
+    < 6.0 GB. Search Bounds: low=128, high=2048.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Search Bounds: low=128, high=2048'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:05:02Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: timeout error raised after 6 hours
+  claim_id: c_0a9cf34f
+  context: Track start time and return elapsed seconds; check_timeout() raises TimeoutError
+    if > 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: check_timeout() raises TimeoutError if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:05:02Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: fatal error raised if batch size below 4
+  claim_id: c_f958cdc6
+  context: Implement logic in train_loop.py to catch MemoryError or OOM, halve the
+    batch size, and retry. If batch size < 4, raise FatalError.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If batch size < 4, raise FatalError
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:05:02Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: fatal error raised if seed count not equal to 5
+  claim_id: c_a7776858
+  context: 'Design: Enforce -seed design (raise FatalError if seed count != 5). Note:
+    This implementation satisfies Spec FR-005 as Mixed-Model is a valid instantiation
+    of Repeated-Measures ANOVA for this design (Plan Phase 4).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce -seed design (raise FatalError if seed count != 5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:05:03Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: success criterion threshold absolute delta_r greater than or equal to
+    0.5
+  claim_id: c_5030f449
+  context: "Calculate Difference: Compute delta_r = abs(r_AR - r_MDM). Evaluate the\
+    \ result against the success criterion threshold (|delta_r| \u2265 0.5) defined\
+    \ in SC-002 and report pass/fail status."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_criterion_threshold_absolute_delta_r_greater_than_or
+  kind: magnitude
+  raw_text: "Evaluate the result against the success criterion threshold (|delta_r|\
+    \ \u2265 0.5)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:05:32Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: verify peak RAM less than 6.5 GB
+  claim_id: c_12943be2
+  context: 'Implement verify_ram.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/.
+    Logic: Read training_logs.csv, find max RAM value, assert < 6.5 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_RAM_less_than_6.5_GB
+  kind: magnitude
+  raw_text: assert < 6.5 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:06:10Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: fetch bigcode the-stack data/python and gutenberg text streams
+  claim_id: c_29beaca9
+  context: 'Read token_target (1M) from code/config.yaml. Fetch bigcode/the-stack
+    (subset: data/python) and gutenberg (subset: text) streams using datasets.load_dataset(...,
+    streaming=True).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_bigcode_the-stack_data/python_and_gutenberg_text_strea
+  kind: entity_fact
+  raw_text: 'Fetch bigcode/the-stack (subset: data/python) and gutenberg (subset:
+    text) streams'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:06:46Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: interleave chunks round-robin with chunk size 10000
+  claim_id: c_c36abda2
+  context: Interleave chunks using a balanced round-robin algorithm with chunk_size=10000.
+    If one source exhausts before reaching the target, halt and log 'Balance Imbalance'
+    error.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Interleave chunks using a balanced round-robin algorithm with chunk_size=10000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:06:47Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: required python packages and minimum versions
+  claim_id: c_9ab4e3fb
+  context: 'Initialize Python project with requirements.txt: Create projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/requirements.txt
+    with pinned versions: transformers>=4.40.0, datasets>=2.18.0, torch>=2.2.0, scikit-learn>=1.4.0,
+    scipy>=1.12.0, pandas>=2.2.0, pyyaml>=6.0, huggingface_hub>=0.21.0, pingouin>=0.5.3.'
+  evidence:
+    asserted: '4.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Install transformers>=4.40.0, datasets>=2.18.0, torch>=2.2.0, scikit-learn>=1.4.0,
+    scipy>=1.12.0, pandas>=2.2.0, pyyaml>=6.0, huggingface_hub>=0.21.0, pingouin>=0.5.3
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T08:06:47Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: ruff line length 100
+  claim_id: c_4668cb93
+  context: 'Create ruff.toml with content: select = ["E", "F", "I", "W"] ignore =
+    ["E501", "W503"] line-length = 100'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length = 100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:07:29Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: black target version py310
+  claim_id: c_1ed63545
+  context: 'and pyproject.toml with [tool.black] section: [tool.black] line-length
+    = 100 target-version = [''py310'']'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Black_target_version_py310
+  kind: entity_fact
+  raw_text: target-version = ['py310']
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:07:59Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: download wikitext-2 dataset version wikitext-2-raw-v1
+  claim_id: c_8177e6cf
+  context: 'Implement evaluate_wikitext.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/.
+    Logic: Download WikiText-2 dataset using datasets.load_dataset(''wikitext'', ''wikitext-2-raw-v1'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download WikiText-2 dataset using datasets.load_dataset('wikitext', 'wikitext-2-raw-v1')
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:07:59Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 0
+  canonical: 'Power analysis parameters: effect_size 0.25, alpha 0.05, 2 groups, 100
+    repeated measures'
+  claim_id: c_64f8796f
+  context: 'Implement Power Analysis (1M): Implement `power_analysis.py`. Logic: Read
+    `regime` (1M) and `epochs` from `code/config.yaml`. Perform a priori power analysis...'
+  evidence:
+    asserted: '0.25'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Perform a priori power analysis using `pingouin.power_anova` with effect_size=0.25,
+    alpha=0.05, n_groups=2, n_repeated=100.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T08:08:53Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Micro-Corpus token count between 1,000,000 and 1,010,000 with disk footprint
+    under 14GB
+  claim_id: c_0842d7cb
+  context: 'Goal: Build a strict ''Micro-Corpus'' of 1M tokens from open-source data.
+    Independent Test: The system can be tested by successfully loading the constructed
+    Micro-Corpus...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be tested by successfully loading the constructed Micro-Corpus\
+    \ into memory on a standard CPU runner, verifying the token count is \u2265 1,000,000\
+    \ and \u2264 1,010,000, and confirming the total disk footprint is <14GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:08:55Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'Model parameter estimation formula: 2 * d_model^2 * num_layers + d_model
+    * vocab_size'
+  claim_id: c_d3dadee7
+  context: 'Implement Feasibility Calculation. Algorithm: Use `psutil` to measure
+    RAM usage of a dummy tensor allocation loop. Estimate model parameters using formula...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Estimate model parameters using formula: `Params \u2248 2 * d_model^2\
+    \ * num_layers + d_model * vocab_size`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:09:44Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'Feasibility search constraint: estimated VRAM less than 6.0 GB'
+  claim_id: c_656b0490
+  context: 'Binary search for max `embed_dim` and `num_layers` such that estimated
+    VRAM < 6.0 GB. Search Bounds: `low=128`, `high=2048`.'
+  evidence:
+    entailment_evidence: 'Feasibility search constraint: estimated VRAM less than
+      6.0'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Feasibility_search_constraint:_estimated_VRAM_less_than_6.0
+  kind: magnitude
+  raw_text: Binary search for max `embed_dim` and `num_layers` such that estimated
+    VRAM < 6.0 GB.
+  resolved_value: 'Feasibility search constraint: estimated VRAM less than 6.0 GB'
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T08:09:49Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'Corpus validation tolerance: within 1% of target token count'
+  claim_id: c_a634004f
+  context: "Implement Validate. Logic: Read `token_target` from `code/config.yaml`.\
+    \ Verify token count is within \xB11% of `token_target`. If count < 99% of target,\
+    \ HALT..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify token count is within \xB11% of `token_target`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:09:50Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'ANOVA design requirement: exactly 5 seeds'
+  claim_id: c_6d403402
+  context: 'Implement ANOVA. Design: Enforce -seed design (raise FatalError if seed
+    count != 5). Note: This implementation satisfies Spec FR-005...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce -seed design (raise FatalError if seed count != 5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:09:50Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'Peak RAM verification threshold: less than 6.5 GB'
+  claim_id: c_67d63455
+  context: 'Verify Peak RAM. Logic: Read `training_logs.csv`, find max RAM value,
+    assert < 6.5 GB. Traceability: Spec FR-007.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_verification_threshold:_less_than_6.5_GB
+  kind: magnitude
+  raw_text: Assert max RAM value < 6.5 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:09:55Z'

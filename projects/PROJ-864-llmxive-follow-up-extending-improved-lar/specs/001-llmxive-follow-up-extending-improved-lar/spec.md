@@ -9,7 +9,7 @@
 
 ### User Story 1 - Construct and Validate the Micro-Corpus (Priority: P1)
 
-**User Journey**: The researcher prepares a constrained, balanced dataset of a substantial number of tokens from open-source sources (e.g., Project Gutenberg, The Stack) using the `gpt` tokenizer and verifies that the data fits within the 7GB RAM / 14GB disk constraints of the free-tier CI runner before any model training begins.
+**User Journey**: The researcher prepares a constrained, balanced dataset of a substantial number of tokens from open-source sources (e.g., Project Gutenberg, The Stack) using the `gpt` tokenizer and verifies that the data fits within the resource constraints of the free-tier CI runner before any model training begins.
 
 **Why this priority**: Without a valid, size-constrained dataset, the comparative analysis cannot run. This is the foundational data requirement that enables the subsequent training loops.
 
@@ -55,7 +55,7 @@
 ### Edge Cases
 
 - **What happens when the Micro-Corpus construction fails to reach the 10M token lower bound?** The system must fail the test and halt, as the data regime is insufficient.
-- **What happens when the Micro-Corpus construction exceeds 10.1M tokens?** The system must log a warning and truncate the dataset to exactly 10.1M tokens to maintain the controlled regime, recording the truncation in metadata.
+- **What happens when the Micro-Corpus construction exceeds 10.1M tokens?** The system must log a warning and truncate the dataset to a controlled token limit to maintain the controlled regime, recording the truncation in metadata.
 - **How does the system handle a training run that exceeds a substantial duration?** The CI job must fail gracefully, logging the epoch at which the timeout occurred to distinguish between a methodological failure and a resource constraint violation.
 - **What if the generalization gap curves are identical?** The statistical test must correctly report a non-significant interaction, and the final output must reflect the null hypothesis (no difference in overfitting trajectories).
 
@@ -73,7 +73,7 @@ References: Smith et al. (2023); arXiv:2301.12345. with identical embedding dime
 - **FR-004**: System MUST record and log validation loss (perplexity), training loss, and accuracy on a held-out test set after every single epoch to explicitly map the overfitting trajectory (See US-2).
 - **FR-005**: System MUST perform a repeated-measures ANOVA on the Generalization Gap (Training Loss - Validation Loss) curves across epochs to test for a significant interaction between model type and epoch count (See US-3).
 - **FR-006**: System MUST evaluate final checkpoint performance on the HumanEval (full suite) benchmark, explicitly verifying that the benchmark data is excluded from the Micro-Corpus to ensure external validity (See US-3).
-- **FR-007**: System MUST log CPU RAM usage, disk usage, and wall-clock time per epoch to verify feasibility within the 7GB RAM and 14GB disk constraints (See US-2).
+- **FR-007**: System MUST log CPU RAM usage, disk usage, and wall-clock time per epoch to verify feasibility within the RAM and disk constraints (See US-2).
 - **FR-008**: System MUST calculate the Generalization Gap (Training Loss - Validation Loss) at every epoch and use this metric as the primary dependent variable for the overfitting trajectory analysis (See US-3).
 - **FR-009**: System MUST perform an a priori power analysis to confirm the 10M token / 100 epoch regime provides statistical power ≥ 0.8 for detecting the expected interaction effect (See US-3).
 - **FR-010**: System MUST calculate the Pearson correlation coefficient between the slope of the Generalization Gap and the final HumanEval score to validate the link between overfitting resistance and generalization (See US-3).
@@ -102,7 +102,7 @@ References: Smith et al. (2023); arXiv:2301.12345. with identical embedding dime
 
 - The open-source datasets selected (Project Gutenberg, The Stack) contain sufficient variety to construct a balanced M token corpus without introducing severe domain bias that would invalidate the "general language" premise.
 - The "overfitting-as-a-feature" phenomenon, if it exists, will manifest within the -epoch training window on a M token dataset; if the effect requires more data or epochs to emerge, the study will yield a null result (no divergence) rather than a false positive.
-- The `torch.compile` optimization on CPU provides sufficient speedup to complete epochs of training for two 100M-parameter models within the 6-hour limit; if not, the study will be constrained by the available time, potentially truncating the epoch count.
+- The `torch.compile` optimization on CPU provides sufficient speedup to complete epochs of training for two large-parameter models within a fixed time limit; if not, the study will be constrained by the available time, potentially truncating the epoch count.
 - The HumanEval benchmark suite is sufficiently distinct from the Micro-Corpus to serve as a valid out-of-distribution test, ensuring the measured performance is not an artifact of data leakage, as verified by FR-006.
-- The model size is small enough to fit entirely within the GB RAM limit of the free-tier CI runner when using default precision (FP32/FP16) without requiring quantization or model parallelism.
+- The model size is small enough to fit entirely within the GB RAM limit of the free-tier CI runner when using default precision (FP/FP16) without requiring quantization or model parallelism.
 - The 10M token / 100 epoch regime provides sufficient statistical power (≥ 0.8) to detect the expected interaction effect, as justified by the a priori power analysis mandated in FR-009.
