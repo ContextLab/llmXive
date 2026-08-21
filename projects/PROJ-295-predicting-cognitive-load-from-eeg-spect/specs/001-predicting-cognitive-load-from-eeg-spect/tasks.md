@@ -47,7 +47,7 @@
 
 - [X] T002 Initialize Python 3.11 project with pinned dependencies (`mne`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `requests`) in `requirements.txt`
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
-- [X] T004 Create `pipeline_config.yaml` with default signal processing parameters (1–45 Hz bandpass, 250 Hz downsampling, ICA settings)
+- [X] T004 Create `pipeline_config.yaml` with default signal processing parameters (1–45 Hz bandpass [UNRESOLVED-CLAIM: c_ab094105 — status=not_enough_info], 250 Hz downsampling [UNRESOLVED-CLAIM: c_8a62abc3 — status=not_enough_info], ICA settings)
 
 ---
 
@@ -58,7 +58,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 Implement `code/config.py` to load `pipeline_config.yaml` and environment variables
-- [X] T006 Implement `code/data/loader.py` with chunked loading logic (by `epoch_id`) to ensure memory safety (≤ 6.5 GB)
+- [X] T006 Implement `code/data/loader.py` with chunked loading logic (by `epoch_id`) to ensure memory safety (≤ 6.5 GB) [UNRESOLVED-CLAIM: c_11672b91 — status=not_enough_info]
 - [ ] T007 [P] Implement `code/data/manifest.yaml` generator that MUST automatically fetch and verify dataset URL, version, and checksums from the source to satisfy Constitution Principle VI. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 - [X] T008 [P] Implement `code/data/download.py` with a strict verification gate: fetch `ds000246`, check for `gaze.tsv`; if missing, raise a `FileNotFoundError` with a clear message and flag spec for `ds003465` fallback. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 
@@ -78,11 +78,11 @@
 
 - [X] T010 [P] [US1] Unit test for chunked loading logic in `tests/unit/test_loader.py` (verify memory peak < 7GB)
 - [X] T011 [P] [US1] Unit test for dataset verification gate in `tests/unit/test_download.py` (verify halt on missing gaze data)
-- [ ] T012 [P] [US1] Integration test for full preprocessing pipeline in `tests/integration/test_preprocess.py` (verify ICA removal and epoch retention > 70%)
+- [X] T012 [P] [US1] Integration test for full preprocessing pipeline in `tests/integration/test_preprocess.py` (verify ICA removal and epoch retention > 70% [UNRESOLVED-CLAIM: c_5ec06b78 — status=not_enough_info])
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `code/data/preprocess.py` with full module logic: (1) Apply a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4) to remove DC offset and drift, (2) Apply a {{claim:c_6dd4b25e}} (Wikipedia: Noise (electronics), https://en.wikipedia.org/wiki/Noise_(electronics)) (FR-001), (3) {{claim:c_a6915f96}} (FR-001), (4) Apply ICA for eye-blink artifact removal (FR-002), (5) Segment data into epochs aligned with behavioral events (FR-002), (6) Explicitly exclude subjects with > 50% rejected epochs to prevent bias (Edge Case), (7) Calculate and log epoch retention rate; halt if < 70% (SC-004), and (8) Log the final exclusion count. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T014 [US1] Implement `code/data/preprocess.py` with full module logic: (1) Apply a Butterworth bandpass filter (1 Hz high-pass [UNRESOLVED-CLAIM: c_6d70e758 — status=not_enough_info], 45 Hz low-pass [UNRESOLVED-CLAIM: c_73bae7ac — status=not_enough_info], order=4) to remove DC offset and drift, (2) Apply a {{claim:c_6dd4b25e}} (Wikipedia: Noise (electronics), https://en.wikipedia.org/wiki/Noise_(electronics)) (FR-001), (3) {{claim:c_a6915f96}} (FR-001), (4) Apply ICA for eye-blink artifact removal (FR-002), (5) Segment data into epochs aligned with behavioral events (FR-002), (6) Explicitly exclude subjects with > 50% rejected epochs [UNRESOLVED-CLAIM: c_4699b8e6 — status=not_enough_info] to prevent bias (Edge Case), (7) Calculate and log epoch retention rate; halt if < 70% [UNRESOLVED-CLAIM: c_51ac35d5 — status=refuted] (SC-004), and (8) Log the final exclusion count. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,12 +104,12 @@
 
 ### Implementation for User Story 2
 
-- [X] T023 [P] [US2] Implement `code/features/extract.py` to compute PSDusing Welch's method (FR-003) with built-in **chunked loading logic** to ensure memory safety during PSD computation on the full dataset (SC-002), extracting mean power for theta (4–7 Hz) and alpha (8–12 Hz (Wikipedia: Alpha wave, https://en.wikipedia.org/wiki/Alpha_wave)) bands per channel [UNRESOLVED-CLAIM: c_eddfa29f — status=verified]. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
-- [X] T024 [US2] Implement `code/features/extract.py` function `compute_theta_alpha_ratio` to handle division-by-zero using `EPSILON = 1e-9` with logic `alpha_power + EPSILON` (Edge Case). **Must run after T023.**
+- [X] T023 [P] [US2] Implement `code/features/extract.py` to compute PSDusing Welch's method (FR-003) with built-in **chunked loading logic** to ensure memory safety during PSD computation on the full dataset (SC-002), extracting mean power for {{claim:c_3485d1a1}} (Wikipedia: Electroencephalography, https://en.wikipedia.org/wiki/Electroencephalography) and alpha ) bands per channel. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T024 [US2] Implement `code/features/extract.py` function `compute_theta_alpha_ratio` to handle division-by-zero using `EPSILON = 1e-9 [UNRESOLVED-CLAIM: c_a2e1b666 — status=not_enough_info]` with logic `alpha_power + EPSILON` (Edge Case). **Must run after T023.**
 - [X] T026 [US2] Implement `code/features/labels.py` to derive continuous cognitive load score from gaze variance per epoch (FR-004). **Must run only after `data/processed/clean_epochs` artifact is produced.**
 - [X] T027 [US2] Implement `code/features/labels.py` to normalize labels via min-max scaling per subject (FR-004). **Must run after T026.**
-- [X] T030 [US2] Implement `code/features/validity.py` to identify epochs with > 5% missing sensor data and **EXCLUDE them** from the final dataset (FR-003)
-- [ ] T031 [US2] Implement `code/features/validity.py` to flag missing sensors.
+- [X] T030 [US2] Implement `code/features/validity.py` to identify epochs with > 5% missing sensor data [UNRESOLVED-CLAIM: c_b3028af7 — status=not_enough_info] and **EXCLUDE them** from the final dataset (FR-003)
+- [X] T031 [US2] Implement `code/features/validity.py` to flag missing sensors.
 - [ ] T031b [US2] Implement `code/features/validity.py` to explicitly **measure and report** the stability and non-zero nature of extracted power values across subjects (SC-005). **Must run after T024.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -133,11 +133,11 @@
 ### Implementation for User Story 3
 
 - [ ] T036 [US3] Implement `code/models/train.py` to calculate the dynamic subject split size honoring the constraint (use a standard training/testing split) before training. **Must run before T035.**
-- [ ] T035 [P] [US3] Implement `code/models/train.py` to perform **subject-wise 5-fold cross-validation** and create a **distinct, non-overlapping held-out test set** (FR-005, FR-006). **Must run after T036 and T030.** **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [ ] T035 [P] [US3] Implement `code/models/train.py` to perform **{{claim:c_b784936d}} (2604.10702, https://arxiv.org/abs/2604.10702)** and create a **distinct, non-overlapping held-out test set** (FR-005, FR-006). **Must run after T036 and T030.** **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 - [ ] T037 [US3] Implement `code/models/evaluate.py` to compute Pearson correlation and RMSE on held-out test set (FR-006)
 - [ ] T038 [US3] Implement `code/models/evaluate.py` to compare model performance against a mean-baseline predictor (FR-006)
 - [ ] T039 [US3] Implement `code/models/evaluate.py` to apply Bonferroni correction to channel-wise correlations (FR-007)
-- [ ] T040 [US3] Implement `code/models/evaluate.py` to perform permutation testing for global significance: run **1000 (OEIS A000040, https://oeis.org/A000040) permutations [UNRESOLVED-CLAIM: c_ac92aad1 — status=not_enough_info]**, shuffle labels, output p-value in `results/model_metrics.json` (Plan Phase 4)
+- [ ] T040 [US3] Implement `code/models/evaluate.py` to perform permutation testing for global significance: run **1000 (OEIS A000040, https://oeis.org/A000040) permutations **, shuffle labels, output p-value in `results/model_metrics.json` (Plan Phase 4)
 - [ ] T041 [US3] Implement `code/models/sensitivity.py` to vary gaze variance calculation windows (configured in `pipeline_config.yaml`), re-evaluate R², and store results in `results/sensitivity_report.csv` (FR-008). **Must run after T035.**
 - [ ] T044 [US3] Implement `code/main.py` to orchestrate the full pipeline: Data -> Features -> Model -> Report. **Must specify CLI arguments (`--data-dir`, `--output-dir`), expected output paths, and verify `main.py` runs end-to-end producing `results/model_metrics.json`.** **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 
@@ -199,7 +199,7 @@ Task: "Unit test for chunked loading logic in tests/unit/test_loader.py"
 Task: "Unit test for dataset verification gate in tests/unit/test_download.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement code/data/preprocess.py to apply 1–45 Hz bandpass filter, ICA, and exclusion logic"
+Task: "Implement code/data/preprocess.py to apply 1–45 Hz bandpass [UNRESOLVED-CLAIM: c_ab094105 — status=not_enough_info] filter, ICA, and exclusion logic"
 ```
 
 ---

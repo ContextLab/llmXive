@@ -1,9 +1,30 @@
-'|en filter http hz line noise notch org remove wiki wikipedia':
-  quote: "Notch filters \u2013 Notch filters or band-rejection filters are useful\
-    \ for eliminating a specific noise frequency. For example, power lines within\
-    \ a building run at 50 or 60 Hz line frequency. A sensitive circuit will pick\
-    \ up this frequency as noise. A notch filter tuned to the line frequency can remove\
-    \ the noise."
-  source_id: Noise (electronics)
-  url: https://en.wikipedia.org/wiki/Noise_(electronics)
-  value: 50 or 60
+'|alpha':
+  quote: "Alpha waves, or the alpha rhythm, are neural oscillations in the frequency\
+    \ range of 8\u201312 Hz likely originating from the synchronous and coherent (in\
+    \ phase or constructive) neocortical neuronal electrical activity possibly involving\
+    \ thalamic pacemaker cells. Historically, they are also called \"Berger's waves\"\
+    \ after Hans Berger, who first described them when he invented the EEG in 1924."
+  source_id: Alpha wave
+  url: https://en.wikipedia.org/wiki/Alpha_wave
+  value: "8\u201312 Hz"
+'|cross fold subject validation wise':
+  quote: cross-validation across both backbones, totaling 180 trained models, and
+    (ii)
+  source_id: '2604.10702'
+  url: https://arxiv.org/abs/2604.10702
+  value: '180'
+'|theta':
+  quote: "A healthy human EEG will show certain patterns of activity that correlate\
+    \ with how awake a person is. The range of frequencies one observes are between\
+    \ 1 and 30 Hz, and amplitudes will vary between 20 and 100 \u03BCV. The observed\
+    \ frequencies are subdivided into various groups: alpha (8\u201313 Hz), beta (13\u2013\
+    30 Hz), delta (0.5\u20134 Hz), and theta (4\u20137 Hz). Alpha waves are observed\
+    \ when a person is in a state of relaxed wakefulness and are mostly prominent\
+    \ over the parietal and occipital sites. During intense mental activity, beta\
+    \ waves are more prominent in frontal areas as well as other regions. If a relaxed\
+    \ person is told to open their eyes, one observes alpha activity decreasing and\
+    \ an increase in beta activity. Theta and delta waves are not generally seen in\
+    \ wakefulness \u2013 if they are, it is a sign of brain dysfunction."
+  source_id: Electroencephalography
+  url: https://en.wikipedia.org/wiki/Electroencephalography
+  value: "4\u20137 Hz"

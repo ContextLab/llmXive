@@ -1227,22 +1227,6 @@
   status: verified
   updated_at: '2026-07-09T13:16:30Z'
 - artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
-  attempts: 1
-  canonical: Perform subject-wise 5-fold cross-validation
-  claim_id: c_68149829
-  context: Implement code/models/train.py to perform subject-wise 5-fold cross-validation
-    and create a distinct, non-overlapping held-out test set (FR-005, FR-006).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: perform subject-wise 5-fold cross-validation
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-09T13:16:55Z'
-- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
   attempts: 0
   canonical: Apply 50 Hz notch filter for line noise
   claim_id: c_243eee2d
@@ -1868,24 +1852,6 @@
   status: not_enough_info
   updated_at: '2026-07-29T01:16:28Z'
 - artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
-  attempts: 2
-  canonical: Exclude epochs with more than 5% missing sensor data
-  claim_id: c_f8400501
-  context: Implement code/features/validity.py to identify epochs with > 5% missing
-    sensor data and EXCLUDE them from the final dataset (FR-003)
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Exclude_epochs_with_more_than_5%25_missing_sensor_data
-  kind: magnitude
-  raw_text: Identify epochs with > 5% missing sensor data and exclude them
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-29T01:16:55Z'
-- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
   attempts: 1
   canonical: Fetch and verify dataset ds000246
   claim_id: c_8fd0945b
@@ -2002,3 +1968,437 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T01:18:24Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with more than 50% rejected epochs
+  claim_id: c_408e8b7c
+  context: 'Implement code/data/preprocess.py with full module logic: ... (6) Explicitly
+    exclude subjects with > 50% rejected epochs to prevent bias...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_more_than_50%25_rejected_epochs
+  kind: magnitude
+  raw_text: Explicitly exclude subjects with > 50% rejected epochs to prevent bias
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:20:13Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Halt if epoch retention rate is less than 70%
+  claim_id: c_1aea4c27
+  context: 'Implement code/data/preprocess.py with full module logic: ... (7) Calculate
+    and log epoch retention rate; halt if < 70% (SC-004)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_epoch_retention_rate_is_less_than_70%25
+  kind: magnitude
+  raw_text: Calculate and log epoch retention rate; halt if < 70%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:20:39Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Compute spectral power features and generate cognitive load labels from
+    gaze variance
+  claim_id: c_909bc0ee
+  context: 'Goal: Compute spectral power features (theta/alpha) and generate continuous
+    cognitive load labels from gaze variance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_spectral_power_features_and_generate_cognitive_load
+  kind: entity_fact
+  raw_text: Compute spectral power features (theta/alpha) and generate continuous
+    cognitive load labels from gaze variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:21:11Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Extract mean power for theta 4-7 Hz and alpha 8-12 Hz bands
+  claim_id: c_295d6ccc
+  context: "...extracting mean power for theta (4\u20137 Hz) and alpha (8\u201312\
+    \ Hz (Wikipedia: Alpha wave, https://en.wikipedia.org/wiki/Alpha_wave)) bands\
+    \ per channel."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extract mean power for theta (4\u20137 Hz) and alpha (8\u201312 Hz) bands\
+    \ per channel."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:21:39Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 3
+  canonical: Exclude epochs with more than 5% missing sensor data
+  claim_id: c_f8400501
+  context: Implement code/features/validity.py to identify epochs with > 5% missing
+    sensor data and EXCLUDE them from the final dataset (FR-003)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_epochs_with_more_than_5%25_missing_sensor_data
+  kind: magnitude
+  raw_text: Identify epochs with > 5% missing sensor data and exclude them
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:22:16Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 2
+  canonical: Perform subject-wise 5-fold cross-validation
+  claim_id: c_68149829
+  context: Implement code/models/train.py to perform subject-wise 5-fold cross-validation
+    and create a distinct, non-overlapping held-out test set (FR-005, FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform subject-wise 5-fold cross-validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:22:51Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Run 1000 permutations for global significance testing
+  claim_id: c_b66f53fb
+  context: 'Implement code/models/evaluate.py to perform permutation testing for global
+    significance: run 1000 (OEIS A000040, https://oeis.org/A000040) permutations,
+    shuffle labels, output p-value in results/model_metrics.json'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Perform permutation testing for global significance: run 1000 permutations,
+    shuffle labels, output p-value in results/model_metrics.json'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:23:16Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: 1000 permutations for global significance testing
+  claim_id: c_607764bb
+  context: 'Implement code/models/evaluate.py to perform permutation testing for global
+    significance: run 1000 (OEIS A000040, https://oeis.org/A000040) permutations ,
+    shuffle labels, output p-value in results/model_metrics.json'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 permutations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:26:27Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: 1-45 Hz bandpass filter applied in pipeline
+  claim_id: c_ab094105
+  context: "Create pipeline_config.yaml with default signal processing parameters\
+    \ (1\u201345 Hz bandpass, 250 Hz downsampling, ICA settings)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "1\u201345 Hz bandpass"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:26:53Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: 250 Hz downsampling applied in pipeline
+  claim_id: c_8a62abc3
+  context: "Create pipeline_config.yaml with default signal processing parameters\
+    \ (1\u201345 Hz bandpass, 250 Hz downsampling, ICA settings)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 250 Hz downsampling
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:27:21Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Memory safety constraint of 6.5 GB for chunked loading
+  claim_id: c_11672b91
+  context: "Implement code/data/loader.py with chunked loading logic (by epoch_id)\
+    \ to ensure memory safety (\u2264 6.5 GB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "memory safety (\u2264 6.5 GB)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:27:22Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Epoch retention rate greater than 70% required
+  claim_id: c_5ec06b78
+  context: Integration test for full preprocessing pipeline in tests/integration/test_preprocess.py
+    (verify ICA removal and epoch retention > 70%)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Epoch_retention_rate_greater_than_70%25_required
+  kind: magnitude
+  raw_text: epoch retention > 70%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:27:43Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: 1 Hz high-pass filter applied
+  claim_id: c_6d70e758
+  context: Apply a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4)
+    to remove DC offset and drift
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1 Hz high-pass
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:28:08Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: 45 Hz low-pass filter applied
+  claim_id: c_73bae7ac
+  context: Apply a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4)
+    to remove DC offset and drift
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 45 Hz low-pass
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:28:39Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Butterworth filter order of 4
+  claim_id: c_7f788cef
+  context: Apply a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4)
+    to remove DC offset and drift
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter order=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:29:01Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Subjects with more than 50% rejected epochs excluded
+  claim_id: c_4699b8e6
+  context: Explicitly exclude subjects with > 50% rejected epochs to prevent bias
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_more_than_50%25_rejected_epochs_excluded
+  kind: magnitude
+  raw_text: exclude subjects with > 50% rejected epochs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:29:36Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if epoch retention is less than 70%
+  claim_id: c_51ac35d5
+  context: Calculate and log epoch retention rate; halt if < 70%
+  evidence:
+    candidates:
+    - - ''
+      - 70.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_epoch_retention_is_less_than_70%25
+  kind: magnitude
+  raw_text: halt if < 70%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-21T15:30:14Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Theta band defined as 4-7 Hz
+  claim_id: c_3485d1a1
+  context: "Extracting mean power for theta (4\u20137 Hz) and alpha (8\u201312 Hz)\
+    \ bands per channel"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "A healthy human EEG will show certain patterns of activity that correlate\
+        \ with how awake a person is. The range of frequencies one observes are between\
+        \ 1 and 30 Hz, and amplitudes will vary between 20 and 100 \u03BCV. The observed\
+        \ frequencies are subdivided into various groups: alpha (8\u201313 Hz), beta\
+        \ (13\u201330 Hz), delta (0.5\u20134 Hz), and theta (4\u20137 Hz). Alpha waves\
+        \ are observed when a person is in a state of relaxed wakefulness and are\
+        \ mostly prominent over the parietal and occipital sites. During intense mental\
+        \ activity, beta waves are more prominent in frontal areas as well as other\
+        \ regions. If a relaxed person is told to open their eyes, one observes alpha\
+        \ activity decreasing and an increase in beta activity. Theta and delta waves\
+        \ are not generally seen in wakefulness \u2013 if they are, it is a sign of\
+        \ brain dysfunction."
+      source_id: Electroencephalography
+      url: https://en.wikipedia.org/wiki/Electroencephalography
+      value: "4\u20137 Hz"
+    filled: true
+  kind: numeric
+  raw_text: "theta (4\u20137 Hz)"
+  resolved_value: "4\u20137 Hz"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T15:30:27Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Alpha band defined as 8-12 Hz
+  claim_id: c_fcf51670
+  context: "Extracting mean power for theta (4\u20137 Hz) and alpha (8\u201312 Hz\
+    \ (Wikipedia: Alpha wave, https://en.wikipedia.org/wiki/Alpha_wave)) bands per\
+    \ channel"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Alpha waves, or the alpha rhythm, are neural oscillations in the frequency\
+        \ range of 8\u201312 Hz likely originating from the synchronous and coherent\
+        \ (in phase or constructive) neocortical neuronal electrical activity possibly\
+        \ involving thalamic pacemaker cells. Historically, they are also called \"\
+        Berger's waves\" after Hans Berger, who first described them when he invented\
+        \ the EEG in 1924."
+      source_id: Alpha wave
+      url: https://en.wikipedia.org/wiki/Alpha_wave
+      value: "8\u201312 Hz"
+    filled: true
+  kind: numeric
+  raw_text: "alpha (8\u201312 Hz)"
+  resolved_value: "8\u201312 Hz"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T15:30:36Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: EPSILON value of 1e-9 used for division-by-zero handling
+  claim_id: c_a2e1b666
+  context: Implement code/features/extract.py function compute_theta_alpha_ratio to
+    handle division-by-zero using EPSILON = 1e-9 with logic alpha_power + EPSILON
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: EPSILON = 1e-9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:31:17Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Epochs with more than 5% missing sensor data identified
+  claim_id: c_b3028af7
+  context: Implement code/features/validity.py to identify epochs with > 5% missing
+    sensor data and EXCLUDE them from the final dataset
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Epochs_with_more_than_5%25_missing_sensor_data_identified
+  kind: magnitude
+  raw_text: '> 5% missing sensor data'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:31:46Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Subject-wise 5-fold cross-validation performed
+  claim_id: c_b784936d
+  context: Implement code/models/train.py to perform subject-wise 5-fold cross-validation
+    and create a distinct, non-overlapping held-out test set
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: cross-validation across both backbones, totaling 180 trained models,
+        and (ii)
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '180'
+    filled: true
+  kind: numeric
+  raw_text: subject-wise 5-fold cross-validation
+  resolved_value: '180'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T15:32:19Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Dataset ds003465 used as fallback
+  claim_id: c_40ce9d9c
+  context: If gaze.tsv is missing, raise a FileNotFoundError with a clear message
+    and flag spec for ds003465 fallback
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds003465_used_as_fallback
+  kind: entity_fact
+  raw_text: ds003465 fallback
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:33:01Z'

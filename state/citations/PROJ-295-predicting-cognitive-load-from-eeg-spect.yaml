@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://mne.tools/
   verified_at: '2026-07-06T00:07:03.708298Z'
-- artifact_hash: 09beeaa85a16d564056ababe75ef202190a3e043155ab4151276e6adf140359c
+- artifact_hash: 502cf629319661e5c927fc33af11329dd04680c3cb1232d8fc4d4cb29a191914
   artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,21 +41,34 @@
   value: https://en.wikipedia.org/wiki/Noise_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Noise
-  verified_at: '2026-07-29T01:18:25.097058Z'
-- artifact_hash: 09beeaa85a16d564056ababe75ef202190a3e043155ab4151276e6adf140359c
+  verified_at: '2026-08-21T15:33:02.157305Z'
+- artifact_hash: 502cf629319661e5c927fc33af11329dd04680c3cb1232d8fc4d4cb29a191914
   artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: Alpha wave - Wikipedia
+  fetched_title: Electroencephalography - Wikipedia
   kind: url
-  value: https://en.wikipedia.org/wiki/Alpha_wave
+  value: https://en.wikipedia.org/wiki/Electroencephalography
   verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Alpha_wave
-  verified_at: '2026-07-29T01:18:25.097058Z'
-- artifact_hash: 09beeaa85a16d564056ababe75ef202190a3e043155ab4151276e6adf140359c
+  verified_against_url: https://en.wikipedia.org/wiki/Electroencephalography
+  verified_at: '2026-08-21T15:33:02.157305Z'
+- artifact_hash: 502cf629319661e5c927fc33af11329dd04680c3cb1232d8fc4d4cb29a191914
   artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
   cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2604.10702] Backbone-Conditional Behavior of Modality Gating in
+    Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism
+    Analysis'
+  kind: url
+  value: https://arxiv.org/abs/2604.10702
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2604.10702
+  verified_at: '2026-08-21T15:33:02.157305Z'
+- artifact_hash: 502cf629319661e5c927fc33af11329dd04680c3cb1232d8fc4d4cb29a191914
+  artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -63,4 +76,4 @@
   value: https://oeis.org/A000040
   verification_status: pending
   verified_against_url: https://oeis.org/A000040
-  verified_at: '2026-07-29T01:18:25.097058Z'
+  verified_at: '2026-08-21T15:33:02.157305Z'
