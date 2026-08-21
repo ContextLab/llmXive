@@ -7,11 +7,10 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.eggs/
-*.egg-info/
-dist/
+.Python
 build/
 develop-eggs/
+dist/
 downloads/
 eggs/
 .eggs/
@@ -21,6 +20,8 @@ parts/
 sdist/
 var/
 wheels/
+*.egg-info/
+.installed.cfg
 *.egg
 
 # PyInstaller
@@ -35,11 +36,10 @@ pip-delete-this-directory.txt
 htmlcov/
 .coverage
 .coverage.*
-.tox/
-.nox/
+cache/
+nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
 .hypothesis/
 .pytest_cache/
 
@@ -56,41 +56,35 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
 # OS
 .DS_Store
 Thumbs.db
 
 # Project specific
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/logs/*
-!data/logs/.gitkeep
-reports/*
-!reports/.gitkeep
+data/raw/*.csv
+data/raw/*.zip
+data/raw/*.parquet
+data/processed/*.csv
+data/processed/*.json
+data/processed/*.parquet
+data/logs/*.log
+reports/*.pdf
+reports/*.png
 state/
-logs/
-.pytest_cache/
-.mypy_cache/
+*.yaml
+!.gitignore
+!requirements.txt
+!README.md
+!spec.md
+!plan.md
+!tasks.md
+!research.md
+!data-model.md
+!quickstart.md

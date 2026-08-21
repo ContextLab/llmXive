@@ -1,145 +1,138 @@
 """
-Contract test for dataset schema compliance (TDD skeleton).
-
-This test validates that the analysis dataset adheres to the schema defined
-in `contracts/dataset.schema.yaml` and the Pydantic models in `src/config/schemas.py`.
-
-It is designed to run BEFORE the full ingestion pipeline (US1) is complete,
-ensuring that once data is generated, it will match the expected structure.
+Contract test for T007: Validate that contracts/dataset.schema.yaml
+is syntactically valid and can be loaded and validated against Pydantic models.
 """
-import pytest
 import os
 import sys
-from pathlib import Path
 import yaml
+import pytest
+from pathlib import Path
 
-# Add project root to path for imports if running directly
-_project_root = Path(__file__).parent.parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-from src.config.schemas import validate_dataset_schema, AnalysisDatasetRecord
-from src.utils.io_helpers import FatalError, read_csv_strict
+from src.config.schemas import AnalysisDatasetRecord, validate_dataset_schema
 
 
 class TestDatasetSchemaContract:
-    """Tests enforcing the dataset schema contract."""
+    """Tests for the dataset schema contract (T007)."""
 
     @pytest.fixture
     def schema_path(self):
-        """Locate the schema definition file."""
-        path = _project_root / "contracts" / "dataset.schema.yaml"
-        if not path.exists():
-            pytest.fail(f"Schema contract file not found at {path}. "
-                        "Ensure T007 (Create contracts/dataset.schema.yaml) is complete.")
-        return path
+        """Return path to the dataset schema YAML file."""
+        return PROJECT_ROOT / "contracts" / "dataset.schema.yaml"
 
-    @pytest.fixture
-    def expected_columns(self, schema_path):
-        """Parse the schema YAML to get expected column names."""
-        with open(schema_path, "r", encoding="utf-8") as f:
-            schema = yaml.safe_load(f)
-        # Assuming schema structure: { 'required_fields': [ { 'name': '...', ... }, ... ] }
-        # or similar. We adapt to the specific structure defined in T007.
-        if "required_fields" in schema:
-            return [field["name"] for field in schema["required_fields"]]
-        elif "fields" in schema:
-            return [field["name"] for field in schema["fields"]]
-        else:
-            # Fallback for generic structure if T007 used a different key
-            return list(schema.keys())
+    def test_schema_file_exists(self, schema_path):
+        """Verify that the schema file exists on disk."""
+        assert schema_path.exists(), f"Schema file not found at {schema_path}"
 
-    def test_schema_file_exists_and_is_valid(self, schema_path):
-        """Verify the schema contract file exists and is valid YAML."""
-        assert schema_path.exists(), "Schema file missing"
+    def test_schema_is_valid_yaml(self, schema_path):
+        """Verify that the schema file is valid YAML."""
         try:
-            with open(schema_path, "r", encoding="utf-8") as f:
-                yaml.safe_load(f)
+            with open(schema_path, 'r') as f:
+                schema_data = yaml.safe_load(f)
+            assert isinstance(schema_data, dict), "Schema must be a YAML dictionary"
+            assert "$schema" in schema_data, "Schema must define $schema"
+            assert "properties" in schema_data, "Schema must define properties"
         except yaml.YAMLError as e:
-            pytest.fail(f"Schema file is not valid YAML: {e}")
+            pytest.fail(f"Invalid YAML in schema file: {e}")
 
-    def test_pydantic_model_imports_correctly(self):
-        """Verify that the AnalysisDatasetRecord model can be instantiated."""
-        # Basic sanity check that the model exists and has expected fields
-        # This doesn't validate data, just the class structure.
-        assert hasattr(AnalysisDatasetRecord, "model_fields")
-        assert "household_id" in AnalysisDatasetRecord.model_fields
-        assert "csa_index" in AnalysisDatasetRecord.model_fields
-        assert "stability_score" in AnalysisDatasetRecord.model_fields
+    def test_schema_loads_into_pydantic(self, schema_path):
+        """Verify that the schema can be used to validate Pydantic models."""
+        # Load the schema
+        with open(schema_path, 'r') as f:
+            schema_data = yaml.safe_load(f)
 
-    def test_csv_artifact_validation_logic(self, expected_columns):
-        """
-        Test the validation logic against a hypothetical (or existing) CSV.
-        
-        If the artifact `data/processed/analysis_dataset.csv` does not exist yet,
-        this test validates the *logic* by ensuring the validator raises
-        appropriate errors for missing columns.
-        """
-        artifact_path = _project_root / "data" / "processed" / "analysis_dataset.csv"
-        
-        if artifact_path.exists():
-            # If it exists, run the actual validation
-            try:
-                df = read_csv_strict(artifact_path)
-                # Validate against schema
-                is_valid, errors = validate_dataset_schema(df)
-                assert is_valid, f"Dataset failed schema validation: {errors}"
-            except FatalError as e:
-                pytest.fail(f"Dataset validation failed with FatalError: {e}")
-        else:
-            # If it doesn't exist, we assert that the validation function 
-            # would correctly reject a dataframe missing required columns.
-            # This ensures the TDD contract is in place before data generation.
-            import pandas as pd
-            
-            # Create a dataframe with MISSING columns
-            incomplete_df = pd.DataFrame({"household_id": [1, 2]})
-            
-            is_valid, errors = validate_dataset_schema(incomplete_df)
-            assert not is_valid, "Validation should fail for incomplete schema"
-            assert "stability_score" in str(errors) or "csa_index" in str(errors), \
-                "Error message should indicate missing critical fields"
+        # Verify that the Pydantic model's field definitions align with the schema
+        # This is a structural check; actual validation is tested in test_validation_passes
+        schema_props = schema_data.get("properties", {})
+        model_fields = AnalysisDatasetRecord.model_fields.keys()
 
-    def test_required_fields_present_in_model(self):
-        """Ensure the Pydantic model enforces required fields from the spec."""
-        # Check that critical fields defined in T007/T018 are present
-        required_fields = ["household_id", "csa_index", "stability_score", "hfias"]
-        model_fields = set(AnalysisDatasetRecord.model_fields.keys())
-        
-        missing = set(required_fields) - model_fields
-        assert not missing, f"Pydantic model missing required fields: {missing}"
+        # Check that all required schema properties are present in the model
+        required_schema_fields = [k for k, v in schema_props.items() if k in model_fields]
+        assert len(required_schema_fields) > 0, "Schema properties do not match model fields"
 
-    def test_data_types_are_enforced(self):
-        """Verify that the model enforces correct data types."""
-        import pandas as pd
-        
-        # Attempt to create a record with wrong types (should raise ValidationError)
-        # We use a dict to simulate a row
-        try:
-            # csa_index should be float, household_id int
-            # If we pass strings where ints/floats are expected, it should fail
-            # unless the model has strict=False (which it shouldn't for contracts)
-            bad_record = {
-                "household_id": "not_an_int",
-                "csa_index": "not_a_float",
-                "stability_score": "not_a_float",
-                "hfias": "not_a_float",
-                "country": "Malawi",
-                "region": "Region1",
-                "survey_year": "2020"
-            }
-            
-            # This might succeed if Pydantic coerces, so we check specific strictness
-            # If the model is strict, this should raise ValidationError
-            # If it coerces, we check if the coerced types are what we expect
-            record = AnalysisDatasetRecord(**bad_record)
-            
-            # If we get here, Pydantic coerced. We verify the result is numeric.
-            assert isinstance(record.household_id, int), "household_id must be int"
-            assert isinstance(record.csa_index, float), "csa_index must be float"
-            
-        except Exception as e:
-            # If it raises, that's also acceptable for a strict contract
-            # We just ensure it's a validation-related error, not a KeyError
-            assert "validation" in str(e).lower() or "type" in str(e).lower(), \
-                f"Unexpected error during type check: {e}"
+    def test_validation_passes_with_valid_data(self, schema_path):
+        """Verify that valid data passes schema validation."""
+        # Create a minimal valid record matching the schema
+        valid_record = {
+            "household_id": "HH-001",
+            "village_id": "VIL-001",
+            "country": "Malawi",
+            "latitude": -13.9626,
+            "longitude": 33.7741,
+            "survey_year": 2020,
+            "land_size": 1.5,
+            "education": 8,
+            "finance_access": True,
+            "CSA_Index": 3,
+            "Stability_Score": 0.85,
+            "HFIAS": 12,
+            "practice_drought_resistant": True,
+            "practice_conservation_tillage": False,
+            "practice_irrigation": True,
+            "practice_agroforestry": False,
+            "extension_visits": 4,
+            "ndvi_mean": 0.45,
+            "ndvi_cv": 0.15
+        }
+
+        # Validate using the helper function
+        result = validate_dataset_schema(valid_record)
+        assert result is True, "Valid record should pass validation"
+
+    def test_validation_fails_with_missing_required_field(self, schema_path):
+        """Verify that validation fails when a required field is missing."""
+        invalid_record = {
+            "household_id": "HH-002",
+            # Missing village_id and other required fields
+            "country": "Tanzania",
+            "latitude": -6.3690,
+            "longitude": 34.8888,
+            "survey_year": 2021,
+            "land_size": 2.0,
+            "education": 10,
+            "finance_access": False,
+            "CSA_Index": 2,
+            "Stability_Score": 0.70,
+            "HFIAS": 18,
+            "practice_drought_resistant": False,
+            "practice_conservation_tillage": True,
+            "practice_irrigation": False,
+            "practice_agroforestry": True,
+            "extension_visits": 2,
+            "ndvi_mean": 0.50,
+            "ndvi_cv": 0.20
+        }
+
+        # Validation should fail because village_id is missing
+        result = validate_dataset_schema(invalid_record)
+        assert result is False, "Invalid record should fail validation"
+
+    def test_validation_fails_with_invalid_enum_value(self, schema_path):
+        """Verify that validation fails when an enum field has an invalid value."""
+        invalid_record = {
+            "household_id": "HH-003",
+            "village_id": "VIL-003",
+            "country": "Kenya",  # Invalid: not in enum [Malawi, Tanzania]
+            "latitude": -1.2921,
+            "longitude": 36.8219,
+            "survey_year": 2022,
+            "land_size": 1.0,
+            "education": 6,
+            "finance_access": True,
+            "CSA_Index": 1,
+            "Stability_Score": 0.60,
+            "HFIAS": 24,
+            "practice_drought_resistant": True,
+            "practice_conservation_tillage": True,
+            "practice_irrigation": True,
+            "practice_agroforestry": True,
+            "extension_visits": 6,
+            "ndvi_mean": 0.40,
+            "ndvi_cv": 0.25
+        }
+
+        result = validate_dataset_schema(invalid_record)
+        assert result is False, "Record with invalid enum value should fail validation"

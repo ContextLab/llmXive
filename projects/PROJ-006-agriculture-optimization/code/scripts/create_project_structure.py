@@ -1,53 +1,53 @@
-"""
-Script to create the initial project directory structure for llmXive research projects.
-Creates standard directories: src/, tests/, contracts/, data/ (with subdirs).
-"""
 import os
 from pathlib import Path
 
 def ensure_dir(path: Path) -> None:
-    """Create directory if it doesn't exist."""
+    """Ensure a directory exists, creating it if necessary."""
     path.mkdir(parents=True, exist_ok=True)
 
 def main() -> None:
-    """Create the standard project structure."""
-    # Determine project root (assuming this script is in code/scripts/)
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
+    """Create the standard project directory structure."""
+    # Determine project root (parent of the 'scripts' directory)
+    current_file = Path(__file__).resolve()
+    scripts_dir = current_file.parent
+    root = scripts_dir.parent
 
-    # Define required directories
+    # Define the directory structure to create
     directories = [
-        project_root / "src",
-        project_root / "src" / "cli",
-        project_root / "src" / "config",
-        project_root / "src" / "data",
-        project_root / "src" / "data" / "collectors",
-        project_root / "src" / "data" / "generators",
-        project_root / "src" / "data" / "processing",
-        project_root / "src" / "models",
-        project_root / "src" / "services",
-        project_root / "src" / "analysis",
-        project_root / "src" / "utils",
-        project_root / "tests",
-        project_root / "tests" / "contract",
-        project_root / "tests" / "integration",
-        project_root / "tests" / "unit",
-        project_root / "contracts",
-        project_root / "data",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "logs",
-        project_root / "data" / "remote-sensing",
-        project_root / "reports",
-        project_root / "specs",
-        project_root / "docs",
+        "code/src",
+        "code/src/utils",
+        "code/src/config",
+        "code/src/cli",
+        "code/src/data",
+        "code/src/data/collectors",
+        "code/src/data/processing",
+        "code/src/data/generators",
+        "code/src/analysis",
+        "code/src/services",
+        "code/src/models",
+        "code/tests",
+        "code/tests/unit",
+        "code/tests/integration",
+        "code/tests/contract",
+        "code/contracts",
+        "code/data",
+        "code/data/raw",
+        "code/data/processed",
+        "code/data/logs",
+        "code/specs",
+        "code/specs/001-climate-smart-eval",
+        "code/reports",
+        "code/figures",
     ]
 
-    for directory in directories:
-        ensure_dir(directory)
-        print(f"Created: {directory.relative_to(project_root)}")
+    print(f"Creating project structure at: {root}")
+    
+    for dir_path in directories:
+        full_path = root / dir_path
+        ensure_dir(full_path)
+        print(f"  Created: {dir_path}")
 
-    print(f"\nProject structure created successfully in: {project_root}")
+    print("Project structure creation complete.")
 
 if __name__ == "__main__":
     main()

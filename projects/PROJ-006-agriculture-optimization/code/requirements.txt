@@ -1,25 +1,18 @@
 # Core dependencies
 pandas>=2.0.0
 numpy>=1.24.0
-pyyaml>=6.0
 pydantic>=2.0.0
-
-# Data processing
+pyyaml>=6.0
+requests>=2.31.0
 geopandas>=0.13.0
 rasterio>=1.3.0
 shapely>=2.0.0
-
-# Statistics
 statsmodels>=0.14.0
-scipy>=1.11.0
+matplotlib>=3.7.0
+reportlab>=4.0.0
 
-# HTTP requests
-requests>=2.31.0
-
-# Testing
+# Development dependencies
 pytest>=7.4.0
-
-# Linting/Formatting
 black>=23.0.0
 flake8>=6.1.0
 isort>=5.12.0

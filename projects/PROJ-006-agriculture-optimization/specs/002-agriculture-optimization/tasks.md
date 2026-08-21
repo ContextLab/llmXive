@@ -24,8 +24,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `contracts/`, `data/`)
-- [ ] T002 Create `src/utils/state_manager.py` to handle artifact hashing and update `state/projects/PROJ-006-agriculture-optimization.yaml` with content hashes for `data/raw/*` and `data/processed/*`.
+- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `contracts/`, `data/`). **Verification**: Run `ls -R` to confirm all directories exist and are empty.
+- [ ] T002 Create `src/utils/state_manager.py` to handle artifact hashing and update `state/projects/PROJ-006-agriculture-optimization.yaml` with content hashes for `data/raw/*` and `data/processed/*`. **Verification**: Run a dry-run hash calculation on a dummy file to confirm the update mechanism works.
 - [ ] T003 [P] Configure linting and formatting tools (black, flake8, isort) and `.gitignore`
 - [X] T004 Create `src/config/constants.py` with random seeds, paths, and cloud cover thresholds {0.6, 0.7, 0.8}
 - [X] T005 Create `src/config/schemas.py` for internal contract definitions
@@ -37,12 +37,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 Create `contracts/dataset.schema.yaml` defining expected columns (household_id, CSA_Index, Stability_Score, HFIAS, etc.)
-- [ ] T008 Create `contracts/output.schema.yaml` defining regression output structure
+- [ ] T007 Create `contracts/dataset.schema.yaml` defining expected columns (household_id, CSA_Index, Stability_Score, HFIAS, etc.). **Verification**: Write a small Python script to load this YAML and validate it against `pydantic` or `jsonschema` to ensure it is syntactically valid and loadable.
+- [ ] T008 Create `contracts/output.schema.yaml` defining regression output structure. **Verification**: Write a small Python script to load this YAML and validate it against `pydantic` or `jsonschema` to ensure it is syntactically valid and loadable.
 - [X] T009 Implement `src/utils/io_helpers.py` with strict CSV/Parquet I/O and checksum verification
-- [X] T010 [P] Create `src/data/generators/synthetic_generator.py` for CI validation. **Logic**: If real data is missing, generate a statistically realistic synthetic dataset for CI validation automatically. Do NOT raise a `FatalError`; the pipeline must proceed with synthetic data for CI to satisfy Plan.md "Synthetic Fallback" constraints.
-- [ ] T011 Setup `data/raw/`, `data/processed/`, `data/logs/` directory structure
+- [ ] T010 Implement `src/data/generators/synthetic_generator.py` as a **utility only**. **Logic**: This script MUST NOT be called automatically by the pipeline. It exists solely for manual data generation if a user explicitly runs it. The pipeline must NOT invoke this to bypass real data requirements. **Requirements**: Use Multivariate Normal distributions for continuous variables (land_size, education) and Bernoulli for binary variables (finance_access, practice_*), with a fixed random seed (e.g., 42) to ensure deterministic generation. Correlations between variables must mimic real survey data (e.g., positive correlation between education and finance access).
+- [ ] T010a Implement integration wiring in `src/cli/run_pipeline.py` to enforce "Fail Loudly" behavior (prerequisite: T010). **Logic**: Check for `--synthetic` flag (default: False). If real data is missing and `--synthetic` is NOT provided, raise a `FatalError` immediately with the message: "Real data missing. Use --synthetic flag for CI validation or provide real data in data/raw/". Do NOT call the synthetic generator automatically.
+- [ ] T010b Configure the CI workflow (`.github/workflows/ci.yml`) to invoke the pipeline with `--synthetic` flag when real data is missing, ensuring automated reproducibility. **Verification**: Run a dry-run CI job to confirm the flag is passed and the synthetic generator is invoked.
+- [ ] T011 Setup `data/raw/`, `data/processed/`, `data/logs/` directory structure. **Verification**: Run `ls -R data/` to confirm directory tree exists.
 - [X] T012 Create `src/cli/validate.py` to enforce schema contracts on ingestion
+- [X] T012a [P] Implement integration wiring in `src/cli/run_pipeline.py` to enforce "Fail Loudly" behavior (prerequisite: T010). **Logic**: Check for `--synthetic` flag (default: False). If real data is missing and `--synthetic` is NOT provided, raise a `FatalError` immediately with the message: "Real data missing. Use --synthetic flag for CI validation or provide real data in data/raw/". Do NOT call the synthetic generator automatically. (Note: This task is a duplicate of T010a; T010a is the authoritative version. T012a is removed in the final list.)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,14 +63,15 @@
 - [X] T014 [P] [US1] Write integration test skeleton for ingestion pipeline in `tests/integration/test_ingestion.py` (validates implementation of T015-T022).
 - [X] T015 [US1] [FR-001] Implement `src/data/collectors/survey_collector.py`. Specifics: Construct canonical World Bank microdata URL (Malawi/Tanzania), handle authentication, extract fields (`household_id`, `latitude`, `longitude`, `practice_*`, `extension_visits`, `finance_access`, `hlias`, `land_size`, `education`). **Include Region Selection Logic**: Resolve specific country and generate URL. **Include Caching Logic**: Check local storage, verify checksums against cache manifest, download only if missing/mismatch. Log download errors.
 - [X] T016 [US1] Implement `src/data/collectors/remote_sensing_collector.py` to fetch Sentinel-2 L2A (S2MSI2A) imagery from the Copernicus Data Space Ecosystem API. Specifics: Use `requests` with OAuth2, filter by `cloud_cover < 0.8`, download granules covering survey coordinates.
-- [X] T017 [US1] Implement `src/data/processing/spatial_join.py` to link household coordinates to satellite pixels. Specifics: Apply a **spatial buffer** (fuzzing logic) around household coordinates to handle LSMS-ISA privacy fuzzing. Use `geopandas.sjoin` or `rasterio` to extract mean NDVI for the buffer area.
-- [X] T017a [US1] Implement verification step in `src/data/processing/spatial_join.py` to calculate and log the percentage of households successfully joined. **Logic**: If linkage < 95% OR N < 300, immediately invoke the aggregation routine defined in T021 to trigger village-level aggregation. Log `MISSING_SATELLITE_DATA` for excluded regions.
-- [ ] T018 [US1] Implement `src/data/processing/feature_engineering.py` to construct CSA_Index and Stability_Score. **Logic**: Map `survey_year` + `country` to growing season months; calculate NDVI time-series CV; compute Stability_Score (1/CV); sum binary practice indicators for CSA Index. **Ensure** `village_id` is derived or retained in the output dataset for clustering. **Validate** CSA Index construction against the "survey data schema definition" documented in `data-model.md` (not just the derived contract).
+- [ ] T017 [US1] [FR-002] Implement `src/data/processing/spatial_join.py` to link household coordinates to satellite pixels. Specifics: Apply a **spatial buffer** (fuzzing logic) around household coordinates to handle LSMS-ISA privacy fuzzing. Use `geopandas.sjoin` or `rasterio` to extract mean NDVI for the buffer area. **Parameters**: Use a geodesic buffer radius of a moderate spatial scale. **Verification**: Ensure the join logic is deterministic and logs the number of matches.
+- [ ] T017a [US1] Implement verification step in `src/data/processing/spatial_join.py` to calculate and log the percentage of households successfully joined. **Logic**: Calculate linkage percentage = (matched households / total valid households). Log the result in `data/logs/ingestion_errors.log` in JSON format with level ERROR if linkage < 95% or N < 300. Log `MISSING_SATELLITE_DATA` for excluded regions.
+- [ ] T017c [US1] Implement explicit validation step in `src/data/processing/spatial_join.py` to verify the 95% linkage threshold (SC-001). **Logic**: If linkage < 95% OR N < 300, trigger the aggregation routine defined in T021. If linkage >= 95% and N >= 300, log success and produce `data/logs/linkage_validation.json` with the calculated percentage and total valid households.
+- [ ] T017b [US1] Implement documentation generation in `src/data/processing/spatial_join.py` to record the specific geospatial fuzzing radius (1km) and temporal window (growing season months) used for NDVI aggregation. **Output**: Update `data-model.md` or create `data/processed/spatial_alignment_doc.json` with these parameters to satisfy Constitution Principle VII.
+- [ ] T018 [US1] [FR-003] Implement `src/data/processing/feature_engineering.py` to construct CSA_Index and Stability_Score. **Logic**: Map `survey_year` + `country` to growing season months (e.g., Malawi: Oct-Mar, Tanzania: Mar-May); calculate NDVI time-series CV; compute Stability_Score (1/CV); sum binary practice indicators for CSA Index. **Ensure** `village_id` is derived or retained in the output dataset for clustering. **Validate** CSA Index construction against the "survey data schema definition" documented in `data-model.md` (not just the derived contract) and `contracts/dataset.schema.yaml`. **Verification**: Run a validation check to ensure all required fields exist and match the schema.
+- [ ] T021 [US1] Implement village-level aggregation fallback in `src/data/processing/feature_engineering.py` with explicit conditional logic: If triggered by T017a, aggregate to village level using 'village_id' as key and 'mean' as function for CSA_Index and Stability_Score. **Verification**: Ensure the aggregated dataset retains the `village_id` column and has N >= 300.
+- [ ] T021a [US1] Implement verification step in `src/data/processing/feature_engineering.py` to confirm that the aggregated dataset meets statistical power requirements: verify effective sample size >= 300. If N < 300 after aggregation, raise a `FatalError` with a detailed log of the missing sample size.
 - [ ] T019 [US1] Implement `src/cli/run_pipeline.py` to orchestrate ingestion, joining, and feature engineering, ensuring it is parameterized for sensitivity analysis sweeps.
-- [ ] T010a [US1] Implement integration wiring in `src/cli/run_pipeline.py` to enforce T010's 'fail loudly' behavior (prerequisite: T010): check for `--synthetic` flag before calling collectors; if missing and real data absent, ensure T010's synthetic generator is called automatically, not a manual error.
 - [ ] T020 [US1] Add error handling for missing coordinates and log exclusions to `data/logs/ingestion_errors.log`.
-- [ ] T021 [US1] Implement village-level aggregation fallback in `src/data/processing/feature_engineering.py` with explicit conditional logic: If triggered by T017a, aggregate to village level using 'village_id' as key and 'mean' as function for CSA_Index and Stability_Score. [UNRESOLVED-CLAIM: c_28dfe1dd — status=not_enough_info]
-- [ ] T021a [US1] Implement verification step in `src/data/processing/feature_engineering.py` to confirm that the aggregated dataset meets statistical power requirements: verify effective sample size >= 300 [UNRESOLVED-CLAIM: c_e5b278cc — status=not_enough_info].
 - [ ] T022 [US1] Generate `data/processed/analysis_dataset.csv` and validate against schema.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -84,7 +88,7 @@
 
 - [ ] T023 [P] [US2] Write contract test skeleton for regression output in `tests/contract/test_regression_output.py` (TDD).
 - [ ] T024 [P] [US2] Write integration test skeleton for model execution in `tests/integration/test_regression.py` (validates T025).
-- [ ] T025 [US2] Implement `src/analysis/run_regression.py` to fit Model 1 (Stability_Score) and Model 2 (HFIAS) using statsmodels. **Requirements**: Use Cluster-Robust Standard Errors (clustered by `village_id`) for heteroskedasticity and spatial autocorrelation. Calculate VIF scores for all predictors and {{claim:c_0b367ab0}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917). Apply Bonferroni correction (alpha=0.0167). [UNRESOLVED-CLAIM: c_adef09aa — status=not_enough_info] Output initial results to `data/processed/regression_results.json`.
+- [ ] T025 [US2] Implement `src/analysis/run_regression.py` to fit Model 1 (Stability_Score) and Model 2 (HFIAS) using statsmodels. **Requirements**: Use Cluster-Robust Standard Errors (clustered by `village_id`) for heteroskedasticity and spatial autocorrelation. Calculate VIF scores for all predictors using `statsmodels.stats.outliers_influence.variance_inflation_factor` on the design matrix. Apply Bonferroni correction (alpha=0.0167). **Output**: Write initial results to `data/processed/regression_results.json` including fields: `adjusted_alpha`, `bonferroni_corrected_p_values`, `coefficients`, `vif_scores`.
 - [ ] T026 [US2] Generate regression summary tables including coefficients, p-values, and VIF scores in `data/processed/regression_results.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -101,9 +105,10 @@
 
 - [ ] T028 [P] [US3] Write contract test skeleton for sensitivity output in `tests/contract/test_sensitivity.py` (TDD).
 - [ ] T029 [P] [US3] Write integration test skeleton for report generation in `tests/integration/test_report.py` (validates T030-T035).
-- [ ] T030 [US3] Implement `src/analysis/sensitivity_check.py` to sweep cloud cover thresholds **{0.6, 0.7, 0.8}**. **Logic**: Filter the *existing* NDVI time-series aggregation (from T018) based on the new cloud cover threshold; re-calculate Stability_Score and CSA_Index if the filter changes the dataset composition; re-run regression logic on the filtered subset. **Output**: Write variation in `CSA_Index` coefficient magnitude to `data/processed/sensitivity_results.csv` and generate `reports/sensitivity_plot.png`.
+- [ ] T030 [US3] Implement `src/analysis/sensitivity_check.py` to sweep cloud cover thresholds across a representative set of values. **Logic**: Filter the *existing* NDVI time-series aggregation (from T018) based on the new cloud cover threshold; re-calculate Stability_Score and CSA_Index if the filter changes the dataset composition; re-run regression logic on the filtered subset. **Output**: Write variation in `CSA_Index` coefficient magnitude to `data/processed/sensitivity_results.csv` and generate `reports/sensitivity_plot.png`.
 - [ ] T032a [US3] Implement sensitivity plot generation in `src/analysis/sensitivity_check.py` showing variation in `CSA_Index` coefficient magnitude across thresholds.
-- [X] T032 [US3] Implement `src/services/report_generator.py` to generate `reports/final_report.pdf` using matplotlib/reportlab. **Mandatory**: Programmatically inject the "associational" nature disclaimer, the Bonferroni adjustment method, and the specific numerical threshold alpha=0.0167 into the report header/footer. This task replaces the manual check in T033.
+- [ ] T035a [US3] Implement explicit interpretation logic in `src/analysis/sensitivity_check.py` to analyze the `sensitivity_results.csv` and calculate 'max_delta_coefficient' and 'std_coefficient'. Write these metrics to `data/processed/sensitivity_metrics.json` and generate a summary paragraph for the final report. **Verification**: Ensure the JSON file contains the calculated metrics.
+- [ ] T032 [US3] Implement `src/services/report_generator.py` to generate `reports/final_report.pdf` using matplotlib/reportlab. **Mandatory**: Programmatically inject the "associational" nature disclaimer, the Bonferroni adjustment method, the specific numerical threshold alpha=0.0167, and the summary paragraph from T035a into the report header/footer. This task replaces the manual check in T033.
 - [ ] T034 [US3] Include limitations section (observational design, spatial fuzzing, sample size) in the report generator logic.
 - [ ] T035 [US3] Generate final PDF report with all tables, plots, and disclaimers by calling the generator in T032.
 
@@ -129,11 +134,11 @@
 
 **Goal**: Ensure actual code, data, and results exist to validate the pipeline, resolving the "Implementation Gap", "No Data Artifacts", and "Spec TODOs" findings.
 
-- [ ] T041a [US1] **Execute Data Pipeline**: Run `src/cli/run_pipeline.py` locally (with `--synthetic` if real data unavailable) to generate `data/processed/analysis_dataset.csv`.
+- [ ] T045 [P] **Create Missing Source Files**: Implement all missing source files listed in `plan.md` structure (e.g., `src/models/`, `src/services/`, `src/cli/run_pipeline.py`) to match the claimed task completion status. **Note**: Ensure file paths align with actual implementations in T025/T030 (e.g., `src/analysis/run_regression.py`).
+- [ ] T041a [US1] **Re-run Pipeline for Reproducibility**: Run `src/cli/run_pipeline.py` locally (using the synthetic generator via `--synthetic` flag as configured in T010b, or a specific documented real data file if available) to generate `data/processed/analysis_dataset.csv`.
 - [ ] T041b [US1] **Verify Data Artifacts**: Confirm `data/processed/analysis_dataset.csv` exists, has >300 records, and passes `contracts/dataset.schema.yaml` validation.
 - [ ] T042a [US2] **Execute Analysis Pipeline**: Run `src/analysis/run_regression.py` locally to generate `data/processed/regression_results.json` with valid coefficients and p-values.
-- [ ] T043a [US3] **Execute Reporting Pipeline**: Run `src/analysis/sensitivity_check.py` and `src/services/report_generator.py` locally to generate `reports/sensitivity_results.csv` and `reports/final_report.pdf`.
-- [ ] T045 [P] **Create Missing Source Files**: Implement all missing source files listed in `plan.md` structure (e.g., `src/models/`, `src/services/`, `src/cli/run_pipeline.py`) to match the claimed task completion status. **Note**: Ensure file paths align with actual implementations in T025/T030 (e.g., `src/analysis/run_regression.py`).
+- [ ] T043a [US3] **Execute Reporting Pipeline**: Run `src/analysis/sensitivity_check.py` and `src/services/report_generator.py` locally to generate `reports/sensitivity_results.csv`, `reports/sensitivity_metrics.json`, and `reports/final_report.pdf`.
 - [ ] T046 [P] **Create Test Infrastructure**: Generate all test files (`tests/contract/`, `tests/integration/`, `tests/unit/`) referenced in US1-US3 tasks to ensure TDD compliance.
 - [ ] T047 [P] **Create Dependency Manifest**: Generate `requirements.txt` with pinned dependency versions (pandas, numpy, statsmodels, geopandas, rasterio, etc.).
 - [ ] T048 [P] **Create Reproducibility Artifacts**: Generate `Dockerfile`, `docker-compose.yml`, and `README.md` with installation and reproduction steps.
@@ -141,7 +146,7 @@
 - [ ] T051 [P] **Filesystem Hygiene Check**: Verify all files are in correct locations per `plan.md` (e.g., `specs/001-climate-smart-eval/` for specs, `src/` for code, `contracts/` for schemas).
 - [ ] T052 [P] **Data Provenance Documentation**: Create `data/raw/.provenance.yaml` documenting source URLs, download timestamps, API versions, and license/attribution for all raw data.
 - [ ] T053a [P] **Create Data Model Document**: Generate `data-model.md` with variable definitions and schema details.
-- [ ] T053b [P] **Sample Size Justification**: Add power analysis or sample-size justification in `data-model.md` for the target N > 1000 [UNRESOLVED-CLAIM: c_96171177 — status=not_enough_info] (or village aggregation logic).
+- [ ] T053b [P] **Sample Size Justification**: Add power analysis or sample-size justification in `data-model.md` for the target N > 1000 (or village aggregation logic). **Logic**: Use a standard power analysis approximation (e.g., G*Power or rule-of-thumb N > 1000 for multivariate regression) to justify the sample size. Document the calculation and assumptions.
 - [ ] T054 [P] **Missing Data Strategy**: Document missing value imputation and outlier detection strategies in `data-model.md` and implement in `src/data/processing/`.
 - [ ] T055 [P] **Final Verification**: Re-run all integration tests against the newly generated artifacts to confirm the pipeline is reproducible from a clean checkout.
 
@@ -234,7 +239,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Integrity**: Never use synthetic data unless real data is unavailable AND the script fails loudly (no silent fallbacks).
+- **Data Integrity**: Never use synthetic data unless real data is unavailable AND the script fails loudly (no silent fallbacks). Manual injection is required for CI.
 - **Compute Feasibility**: All tasks must run on CPU-only free tier with limited RAM and disk resources. Use streaming for large datasets.
 - **Reproducibility**: All artifacts (data, results, reports) must be generated by the pipeline, not hand-crafted.
 - **Research Quality**: Spec must contain a falsifiable hypothesis and specific research gap; no TODOs allowed in final spec.

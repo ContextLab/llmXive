@@ -1,41 +1,62 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-*.egg-info/
-dist/
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Data
-data/raw/*.csv
-data/raw/*.parquet
-data/processed/*.csv
-data/processed/*.parquet
-data/processed/*.json
-data/logs/*.log
-data/.provenance.yaml
-
-# Reports
-reports/*.pdf
-reports/*.png
-reports/*.csv
-
-# State
-state/projects/*.yaml
-
-# Environment
-.env
-.venv/
+# Virtual environments
 venv/
+ENV/
+env/
+.venv/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Data (Raw data is usually gitignored, processed might be tracked depending on policy)
+data/raw/*
+!data/raw/.gitkeep
+data/logs/*
+!data/logs/.gitkeep
+
+# Reports
+reports/*.pdf
+reports/*.png
+!reports/.gitkeep
+
+# Environment variables
+.env
+.env.local
 
 # OS
 .DS_Store
