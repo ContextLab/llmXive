@@ -658,3 +658,340 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T01:50:41Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: fetch osf/reproducibility_project data.csv using huggingface_hub
+  claim_id: c_4d7ed98b
+  context: Implement code/download.py with real data fetch logic (no synthetic fallbacks)
+    using huggingface_hub to fetch the osf/reproducibility_project dataset, specifically
+    the data.csv file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_osf/reproducibility_project_data.csv_using_huggingface
+  kind: entity_fact
+  raw_text: The system fetches the osf/reproducibility_project dataset, specifically
+    the data.csv file, using huggingface_hub.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:27:19Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: require title-token-overlap >= 0.7 with OSF Reproducibility Project
+  claim_id: c_8fead42c
+  context: "Verify dataset metadata by calculating title-token-overlap (cosine similarity\
+    \ of tokenized titles) between the fetched dataset title and 'OSF Reproducibility\
+    \ Project'; require overlap \u2265 0.7."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/require_title-token-overlap_%3E=_0.7_with_OSF_Reproducibility_
+  kind: magnitude
+  raw_text: Dataset metadata verification requires a title-token-overlap (cosine similarity
+    of tokenized titles) of at least 0.7 with the string 'OSF Reproducibility Project'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:28:14Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: LMM model power_residual ~ year + (1|field) + (1|original_study_id)
+  claim_id: c_499820b6
+  context: Compute post-hoc power estimates and test for temporal decline using a
+    Linear Mixed-Effects Model (LMM) with power_residual as the outcome, year as a
+    fixed effect, and random intercepts for field AND original_study_id.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: original_study_id)
+    relation: field) + (1
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/LMM_model_power_residual_~_year_+_(1_field)_+_(1_original_st
+    source_value: https://en.wikipedia.org/wiki/LMM_model_power_residual_~_year_+_(1_field)_+_(1_original_st
+    subject: LMM model power_residual ~ year + (1
+  kind: relational
+  raw_text: The primary statistical workflow uses a Linear Mixed-Effects Model with
+    power_residual as the outcome, year as a fixed effect, and random intercepts for
+    field and original_study_id.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:28:46Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: pilot OLS model power_est ~ effect_size + sample_size
+  claim_id: c_6cad0081
+  context: Fit power_est ~ effect_size + sample_size to capture the deterministic
+    relationship. Save model to data/derived/pilot_ols_model.pkl.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pilot_OLS_model_power_est_~_effect_size_%2B_sample_size
+  kind: entity_fact
+  raw_text: The pilot OLS model fits power_est ~ effect_size + sample_size to capture
+    the deterministic relationship.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:29:17Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Full LMM fit power_residual ~ year + (1|field) + (1|original_study_id)
+  claim_id: c_1efd6db0
+  context: 'Fit the Full LMM: power_residual ~ year + (1|field) + (1|original_study_id).'
+  evidence:
+    entailment_evidence: Full LMM fit power residual ~ year + (1 field) + (1 original
+    entailment_status: grounded
+    object: original_study_id)
+    relation: field) + (1
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Full_LMM_fit_power_residual_~_year_+_(1_field)_+_(1_original
+    source_value: https://en.wikipedia.org/wiki/Full_LMM_fit_power_residual_~_year_+_(1_field)_+_(1_original
+    subject: Full LMM fit power_residual ~ year + (1
+  kind: relational
+  raw_text: 'The primary hypothesis test fits a Full LMM: power_residual ~ year +
+    (1|field) + (1|original_study_id).'
+  resolved_value: Full LMM fit power_residual ~ year + (1|field) + (1|original_study_id)
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T17:29:19Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: LMM must include both (1|field) and (1|original_study_id) random effects
+  claim_id: c_5290e5a5
+  context: DO NOT conditionally exclude random effects based on T011b flags. The model
+    MUST always include both (1|field) and (1|original_study_id) as per FR-002.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: original_study_id) random effects
+    relation: field) and (1
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/LMM_must_include_both_(1_field)_and_(1_original_study_id)_ra
+    source_value: https://en.wikipedia.org/wiki/LMM_must_include_both_(1_field)_and_(1_original_study_id)_ra
+    subject: LMM must include both (1
+  kind: relational
+  raw_text: The model must always include random effects for both field and original_study_id
+    without conditional exclusion based on grouping validation flags.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:29:50Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: LRT compares Full LMM vs Reduced LMM power_residual ~ (1|field) + (1|original_study_id)
+  claim_id: c_aac12850
+  context: Perform a Likelihood-Ratio Test (LRT) comparing the Full LMM against a
+    Reduced LMM (power_residual ~ (1|field) + (1|original_study_id)).
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: original_study_id)
+    relation: field) + (1
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/LRT_compares_Full_LMM_vs_Reduced_LMM_power_residual_~_(1_fie
+    source_value: https://en.wikipedia.org/wiki/LRT_compares_Full_LMM_vs_Reduced_LMM_power_residual_~_(1_fie
+    subject: LRT compares Full LMM vs Reduced LMM power_residual ~ (1
+  kind: relational
+  raw_text: A Likelihood-Ratio Test compares the Full LMM against a Reduced LMM defined
+    as power_residual ~ (1|field) + (1|original_study_id).
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:30:39Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: permutation test target 10000 iterations
+  claim_id: c_b4ff0678
+  context: 'Implement code/robustness.py function for non-parametric permutation test:
+    shuffle year labels (FR-004). Target: 10,000 permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-parametric permutation test targets 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:31:04Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: permutation test fallback to 1000 if time > 300s or memory > 6GB
+  claim_id: c_6c995a6d
+  context: 'Fallback: If time_elapsed > 300 seconds OR psutil.Process().memory_info().rss
+    > 6 * 1024**3 bytes, fallback to 1,000 permutations and flag as ''approximate''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the permutation test exceeds 300 seconds or 6 GB of RAM, it falls back
+    to 1,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:31:23Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: p-value consistency if diff < 0.01 or same significance at 0.05
+  claim_id: c_102a0fd2
+  context: consistency_check is True if abs(p_parametric - p_empirical) < 0.01 OR
+    if both p-values indicate the same significance status (both < 0.05 or both >=
+    0.05).
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Consistency between parametric and empirical p-values is defined as an
+    absolute difference less than 0.01 or both indicating the same significance status
+    at alpha 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T17:31:23Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis alpha thresholds 0.05 and 0.1
+  claim_id: c_58a34c10
+  context: Ensure results/sensitivity_report.json contains entries for a range of
+    alpha values including 0.05 and 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis reports drift significance rates for alpha thresholds
+    including 0.05 and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:31:53Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: DerSimonian-Laird inverse-variance weighting for cross-field aggregation
+  claim_id: c_90a35bde
+  context: Implement code/robustness.py function for inverse-variance weighting with
+    heterogeneity adjustment (DerSimonian-Laird) to combine residual power drift estimates
+    across fields.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DerSimonian-Laird_inverse-variance_weighting_for_cross-field
+  kind: entity_fact
+  raw_text: The cross-field aggregation uses DerSimonian-Laird inverse-variance weighting
+    with heterogeneity adjustment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:32:51Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: skip fields with n_studies == 1 in aggregation
+  claim_id: c_54fa3c1a
+  context: Skip fields where n_studies == 1 (as flagged in T011b) to avoid undefined
+    random effects.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fields with only one study (n_studies == 1) are skipped during cross-field
+    aggregation to avoid undefined random effects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:33:22Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: input permutation shuffles effect_size and sample_size holding year constant
+  claim_id: c_ee720f07
+  context: 'Implement code/robustness.py function for input permutation framework:
+    shuffle effect_size and sample_size while holding year constant (FR-007).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Input_permutation_shuffles_effect_size_and_sample_size_holdi
+  kind: entity_fact
+  raw_text: The input permutation framework shuffles effect_size and sample_size columns
+    while holding the year column constant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:33:42Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: non-linearity check compares ns(year, df=3) AIC to linear model AIC
+  claim_id: c_020b4880
+  context: Fit a model with ns(year, df=3) (natural splines) and compare its AIC to
+    the linear model (power_residual ~ year).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-linearity check fits a model with natural splines (ns(year, df=3))
+    and compares its AIC to the linear model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:34:07Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: pipeline runs within 6 hours on CPU
+  claim_id: c_dde3ec34
+  context: All tasks are designed to run on CPU-only runners (multiple cores, sufficient
+    RAM) within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline is designed to run on CPU-only runners within a 6-hour
+    limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:34:23Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: pipeline verified on first 100 rows of data
+  claim_id: c_5cffc9d0
+  context: Run full pipeline on a static subset (first 100 rows of data/raw/data.csv)
+    to verify end-to-end execution within 6-hour CPU limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is verified on a static subset of the first 100 rows of data/raw/data.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T17:34:50Z'

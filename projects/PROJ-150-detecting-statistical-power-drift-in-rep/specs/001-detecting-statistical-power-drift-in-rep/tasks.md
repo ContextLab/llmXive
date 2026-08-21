@@ -55,11 +55,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 [P] Create `code/__init__.py` and establish package structure
-- [X] T006 Implement `code/download.py` with real data fetch logic (no synthetic fallbacks) using `huggingface_hub` to fetch the `osf/reproducibility_project` dataset, specifically the `data.csv` file. **Logic**: 
-  1. Attempt to fetch using `datasets.load_dataset("osf/reproducibility_project", split="train", streaming=True)` if file size > 100MB, else `read_csv`.
-  2. Verify dataset metadata by calculating **title-token-overlap** (cosine similarity of tokenized titles) between the fetched dataset title and "OSF Reproducibility Project"; require overlap ≥ 0.7.
-  3. **CRITICAL**: If the dataset fetch fails (network error, 404), raise `DataFetchError`. Do NOT fall back to synthetic data.
-  4. **Verification**: Ensure the loader yields rows correctly and handles chunking if triggered. **Output**: A reusable data loader function in `code/download.py`. **Dependency**: T006 must complete before T011a. (FR-010, Plan Compute Constraints, Constitution Principle II)
+- [X] T006 Implement `code/download.py` with real data fetch logic (no synthetic fallbacks) using `huggingface_hub` to fetch the `osf/reproducibility_project` dataset, specifically the `data.csv` file. **Logic**:
+ 1. Attempt to fetch using `datasets.load_dataset("osf/reproducibility_project", split="train", streaming=True)` if file size > 100MB, else `read_csv`.
+ 2. Verify dataset metadata by calculating **title-token-overlap** (cosine similarity of tokenized titles) between the fetched dataset title and "OSF Reproducibility Project"; require overlap ≥ 0.7.
+ 3. **CRITICAL**: If the dataset fetch fails (network error, 404), raise `DataFetchError`. Do NOT fall back to synthetic data.
+ 4. **Verification**: Ensure the loader yields rows correctly and handles chunking if triggered. **Output**: A reusable data loader function in `code/download.py`. **Dependency**: T006 must complete before T011a. (FR-010, Plan Compute Constraints, Constitution Principle II)
 - [X] T007 Implement `code/validate_source.py` for URL reachability and title-token-overlap (≥ 0.7) validation
 - [X] T008 [P] Create `code/update_state.py` to compute SHA-256 hashes and update project state file
 - [X] T009 Setup `pytest` configuration and base test fixtures in `tests/conftest.py`
@@ -83,45 +83,54 @@
 
 ### Implementation for User Story 1
 
-- [X] T011a [US1] Implement `code/preprocess.py` to filter rows with missing `year`, `effect_size`, or `sample_size` (FR-008). **Logic**: If the data file is missing, raise a `DataFetchError`. If a row has missing values, skip the row and log a warning with the row index and reason. **Dependency**: T011a depends on T006 (data loader). **Verification**: Ensure `data/derived/cleaned_data.csv` exists and contains no NaN values in critical columns. Do NOT generate synthetic data.
+- [ ] T011a [US1] **Implement Preprocessing & Power Calculation**.
+  - **CRITICAL BLOCKER**: This task MUST be implemented to generate `data/derived/cleaned_data.csv`. All downstream tasks (T011b, T011c, T013, T020, T025, T027) depend on this artifact.
+  - **Logic**:
+    1. Load raw data from `data/raw/data.csv` (produced by T006).
+    2. **Missing File**: If `data/raw/data.csv` is missing, raise `DataFetchError`.
+    3. **Missing Rows (FR-008)**: Filter out rows where `year`, `effect_size`, or `sample_size` are missing/NaN. **DO NOT** generate synthetic data. Log a warning for each skipped row: `WARNING: Skipping row {index} due to missing {column}`.
+    4. **Power Calculation (FR-001)**: Calculate `power_estimate` for remaining rows using Cohen's *d*, sample size, and α=0.05.
+    5. **Output**: Save `data/derived/cleaned_data.csv` with columns: `study_id`, `year`, `field`, `original_study_id`, `effect_size`, `sample_size`, `power_estimate`.
+  - **Verification**: Ensure `data/derived/cleaned_data.csv` exists, contains no NaN in critical columns, and has fewer rows than the raw input (if any missing data existed). (FR-001, FR-008) **Depends on T006**.
 
-- [X] T011b [US1] Implement `code/preprocess.py` to validate grouping variables (`field`, `original_study_id`) for variance and cardinality. **Logic**: Check that each grouping factor has > 1 unique level and non-zero variance in the target variable. 
-  - **Handling**: If a factor has only 1 level (single study), flag it as "single_level" for **exclusion from the dataset** in downstream modeling (to avoid convergence errors). 
-  - **Alternative Path**: If a field has zero variance but > 1 level, attempt to **collapse** the field by merging it with the nearest neighbor field or excluding it from the random effect structure if the model fails to converge.
-  - **Output**: Save `data/derived/grouping_validation.json` with status per factor. 
-  - **Schema Requirement**: The JSON MUST contain keys: `{"field": {"status": "valid"|"single_level"|"zero_variance", "count": <int>}, "original_study_id": {"status": "valid"|"single_level"|"zero_variance", "count": <int>}}`. 
-  - **Verification**: Ensure `data/derived/grouping_validation.json` exists, lists all factors with their validity status, and specifically marks factors with single studies or zero variance as "single_level" or "zero_variance" with the correct count. (Edge Cases: Zero Variance) **Depends on T011a**.
+- [ ] T011b [US1] Implement `code/preprocess.py` to validate grouping variables (`field`, `original_study_id`) for variance and cardinality. **Logic**: Check that each grouping factor has > 1 unique level and non-zero variance in the target variable.
+ - **Handling**: If a factor has only 1 level (single study), flag it as "single_level" for **exclusion from the dataset** in downstream modeling (to avoid convergence errors).
+ - **Alternative Path**: If a field has zero variance but > 1 level, attempt to **collapse** the field by merging it with the nearest neighbor field or excluding it from the random effect structure if the model fails to converge.
+ - **Output**: Save `data/derived/grouping_validation.json` with status per factor.
+ - **Schema Requirement**: The JSON MUST contain keys: `{"field": {"status": "valid"|"single_level"|"zero_variance", "count": <int>}, "original_study_id": {"status": "valid"|"single_level"|"zero_variance", "count": <int>}}`.
+ - **Verification**: Ensure `data/derived/grouping_validation.json` exists, lists all factors with their validity status, and specifically marks factors with single studies or zero variance as "single_level" or "zero_variance" with the correct count. (Edge Cases: Zero Variance) **Depends on T011a**.
 
-- [X] T011c [US1] Implement `code/models.py` to execute the primary statistical workflow:
- 1. **Pilot OLS Model**: Fit `power_est ~ effect_size + sample_size` to capture the deterministic relationship. Save model to `data/derived/pilot_ols_model.pkl`.
+- [ ] T011c [US1] Implement `code/models.py` to execute the primary statistical workflow:
+ 1. **Pilot OLS Model**: Fit `power_est ~ effect_size + sample_size` to capture the deterministic relationship. Save model to `data/derived/pilot_ols_model.pkl`. **Note**: This step explicitly removes `effect_size` and `sample_size` (covariates) to satisfy FR-002's requirement to "control for input drift" before modeling the residual trend.
  2. **Residualization**: Calculate `power_residual = power_est - predicted_power`. Save `data/derived/residuals.csv` with columns `study_id`, `year`, `field`, `original_study_id`, `power_residual`.
- 3. **Field Composition Check**: Read `data/derived/grouping_validation.json`. If any field is flagged as "single_level" or "zero_variance", calculate the proportion of such fields. If the proportion exceeds 10%, set `refit_with_proportion = True`.
+ 3. **Field Composition Check**: Read `data/derived/grouping_validation.json`. Identify groups flagged as "single_level" or "zero_variance".
  4. **Primary Hypothesis Test**: Load `data/derived/residuals.csv`. Fit the **Full LMM**: `power_residual ~ year + (1|field) + (1|original_study_id)`.
- - **Constraint Handling**: **DO NOT** conditionally exclude random effects based on T011b flags. The model MUST always include both `(1|field)` and `(1|original_study_id)` as per FR-002. If convergence fails due to single-level groups, the task must fail and log an error, requiring manual intervention or dataset filtering (handled by T011b exclusion logic).
- - **Conditional Refit**: If `refit_with_proportion` is True, refit the model with `+ field_proportion` as a covariate.
- 5. **Extract Primary Metrics**: Extract `slope_year`, `se_year`, `ci_lower`, `ci_upper` (Wald method) from the Full LMM's fixed effects.
- 6. **Significance Validation**: Perform a Likelihood-Ratio Test (LRT) comparing the Full LMM against a Reduced LMM (`power_residual ~ (1|field) + (1|original_study_id)`). Extract `p_value_lrt`, `chi2_statistic`, `df_diff`.
- 7. **Unified Output**: Save the full model summary, reduced model summary, LRT results, and the `year` slope/SE into a SINGLE file: `results/lmm_final_summary.json`. This file must contain keys: `slope_year`, `se_year`, `ci_lower`, `ci_upper`, `p_value_lrt`, `chi2_statistic`, `df_diff`, `refit_with_proportion`.
+ - **Constraint Handling**: **Dynamically construct the random effects formula** to exclude groups flagged as "single_level" or "zero_variance" by T011b. If a group has only 1 study, do NOT include it as a random effect (to avoid convergence errors). This satisfies the spec's Edge Cases requirement for graceful handling.
+ - **Note**: Do NOT introduce a "field_proportion" covariate or any heuristic threshold (e.g., 10%). The spec requires exclusion/collapse, not covariate adjustment.
+ 5. **Execute Likelihood-Ratio Test (LRT)**:
+ - Fit the **Reduced LMM**: `power_residual ~ (1|field) + (1|original_study_id)` (no `year` fixed effect).
+ - Perform the LRT comparing the Full LMM against the Reduced LMM.
+ - Extract `p_value_lrt`, `chi2_statistic`, `df_diff`.
+ 6. **Extract Primary Metrics**: Extract `slope_year`, `se_year`, `ci_lower`, `ci_upper` (Wald method) from the Full LMM's fixed effects.
+ 7. **Unified Output**: Save the full model summary, reduced model summary, LRT results, and the `year` slope/SE into a SINGLE file: `results/lmm_final_summary.json`. This file must contain keys: `slope_year`, `se_year`, `ci_lower`, `ci_upper`, `p_value_lrt`, `chi2_statistic`, `df_diff`.
  **Verification**:
- - Ensure `results/lmm_final_summary.json` contains valid floats for all keys, specifically `slope_year` derived from the **Full LMM on `power_residual`**.
+ - Ensure `results/lmm_final_summary.json` contains valid floats for all keys, specifically `slope_year` derived from the **Full LMM on `power_residual`** and `p_value_lrt` from the explicit LRT step.
  - Ensure the LRT p-value is correctly calculated and reported. (FR-002, FR-003, FR-009, Constitution Principle VII, SC-001, Plan T011c Conditional Step) **Depends on T011b** (for residuals input and validation).
 
-- [X] T012 [US1] Implement `code/models.py` to verify convergence of the LMM fitted in T011c.
+- [ ] T012 [US1] Implement `code/models.py` to verify convergence of the LMM fitted in T011c.
  **Logic**: Check convergence status flags from the LMM solver. If convergence failed, log a warning and attempt to refit with adjusted optimizer controls.
  **Schema Validation**: Validate `results/lmm_final_summary.json` against `contracts/drift_model_output.schema.yaml`.
  **Output**: Ensure the JSON passes schema validation.
  **Verification**: Ensure the task fails if the schema validation fails. (Plan T012) **Depends on T011c**.
 
-- [X] T013 [US1] Implement `code/visualize.py` to generate a scatter plot of **residual power vs. year**.
+- [ ] T013 [US1] Implement `code/visualize.py` to generate a scatter plot of **residual power vs. year**.
  **Definition**: Residuals are `power_residual` from `data/derived/residuals.csv` (produced by T011c).
  **Input**: `data/derived/residuals.csv`.
  **Output**: Save plot to `results/power_drift_scatter.png`.
  **Verification**:
  - Ensure `results/power_drift_scatter.png` exists, has non-zero dimensions, and contains a regression line showing the drift trend **with 95% confidence intervals** (shaded region or error bars). (FR-009) **Depends on T012** (for model summary) and **T011c** (for residuals).
 
-- [X] T014 [US1] Add error handling for missing data (skip row, log warning with row index and reason) and zero-variance fields (FR-008). Log format: `WARNING: Skipping row {index} due to {reason}`. Handle specific errors: `NaN` in `effect_size` or `sample_size`, and `ZeroDivisionError` in power calculation.
-
-- [X] T015 [US1] Add logging for User Story 1 operations and data filtering steps.
+- [ ] T015 [US1] Add logging for User Story 1 operations and data filtering steps.
 
 **Checkpoint**: At this point, User Story 1 (Core Drift Analysis) should be fully functional and testable independently
 
@@ -141,13 +150,13 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/robustness.py` function for non-parametric permutation test: **shuffle `year` labels** (FR-004). **Target**: 10,000 permutations. **Fallback**: If `time_elapsed > 300` seconds OR `psutil.Process().memory_info().rss > 6 * 1024**3` bytes, fallback to **1,000 permutations** and flag as "approximate". **Detection Mechanism**: Use `psutil` to monitor memory and `time` to track duration. **Input**: Drift coefficient (slope_year) from `results/lmm_final_summary.json` and `data/derived/cleaned_data.csv`. **Output**: Empirical p-value for the drift slope in `results/permutation_pvalue.json`. **Verification**: Ensure `results/permutation_pvalue.json` includes an `iterations_run` field (set to 10000 or 1000) and a `status` field (e.g., 'exact' or 'approximate'). **CRITICAL**: Verify that if `iterations_run` < 10000, the `status` field is explicitly set to "approximate". (FR-004) **Depends on T012**.
+- [ ] T020 [US2] Implement `code/robustness.py` function for non-parametric permutation test: **shuffle `year` labels** (FR-004). **Target**: 10,000 permutations. **Fallback**: If `psutil.Process().memory_info().rss > 6 * 1024**3` bytes OR if the **estimated time to complete 10,000 permutations** (calculated as `time_per_perm * 10000` based on the first 10 permutations) exceeds **A duration of approximately two hours. (2 hours)**, fallback to **A large number of permutations** and flag as "approximate". **Detection Mechanism**: Use `psutil` to monitor memory and `time` to track duration of the first 10 permutations. **Input**: Drift coefficient (slope_year) from `results/lmm_final_summary.json` and `data/derived/cleaned_data.csv`. **Output**: Empirical p-value for the drift slope in `results/permutation_pvalue.json`. **Verification**: Ensure `results/permutation_pvalue.json` includes an `iterations_run` field (set to 10000 or 1000) and a `status` field (e.g., 'exact' or 'approximate'). **CRITICAL**: Verify that if `iterations_run` < 10000, the `status` field is explicitly set to "approximate". (FR-004) **Depends on T012**.
 
-- [X] T020b [US2] Implement `code/robustness.py` to load `results/lmm_final_summary.json` and `results/permutation_pvalue.json`, compare the parametric p-value with the empirical p-value, and generate `results/permutation_consistency.json`. **Logic**: `consistency_check` is True if `abs(p_parametric - p_empirical) < 0.01` OR if both p-values indicate the same significance status (both < 0.05 or both >= 0.05). **Output**: `results/permutation_consistency.json` containing `consistency_check` (boolean) and `p_value_difference` (float). **Verification**: Ensure `results/permutation_consistency.json` contains the required keys and the consistency logic is correctly applied. (SC-002, US-2 Acceptance Scenario 1) **Depends on T020**.
+- [ ] T020b [US2] Implement `code/robustness.py` to load `results/lmm_final_summary.json` and `results/permutation_pvalue.json`, compare the parametric p-value with the empirical p-value, and generate `results/permutation_consistency.json`. **Logic**: Calculate `p_value_difference = abs(p_parametric - p_empirical)`. Generate a `robustness_statement` (string) describing whether the results are consistent (e.g., "p-values are within 0.01" or "p-values diverge"). **Output**: `results/permutation_consistency.json` containing `p_value_difference` (float) and `robustness_statement` (string). **Verification**: Ensure `results/permutation_consistency.json` contains the required keys and the difference is correctly calculated. (SC-002, US-2 Acceptance Scenario 1) **Depends on T020**.
 
-- [X] T021 [US2] Implement `code/robustness.py` function for sensitivity analysis sweeping alpha across a range of significance levels including conventional thresholds and report the resulting drift significance rates. **Input**: `results/lmm_final_summary.json`. **Output**: `results/sensitivity_report.json`. **Verification**: Ensure `results/sensitivity_report.json` contains entries for a range of alpha values including 0.05 and 0.1. Each entry must include `drift_significant` (boolean) and `p_value` (float). Additionally, ensure the report explicitly contains a text statement concluding whether the drift is driven by a specific alpha choice or holds across the tested range. **Schema Validation**: Validate `results/sensitivity_report.json` against `contracts/sensitivity_report.schema.yaml`. (FR-005, SC-003, Plan T021) **Depends on T012**.
+- [ ] T021 [US2] Implement `code/robustness.py` function for sensitivity analysis sweeping alpha across a range of significance levels including conventional thresholds and report the resulting drift significance rates. **Input**: `results/lmm_final_summary.json`. **Output**: `results/sensitivity_report.json`. **Verification**: Ensure `results/sensitivity_report.json` contains entries for a range of alpha values including and 0.1. Each entry must include `drift_significant` (boolean) and `p_value` (float). Additionally, ensure the report explicitly contains a text statement concluding whether the drift is driven by a specific alpha choice or holds across the tested range. **Schema Validation**: Validate `results/sensitivity_report.json` against `contracts/sensitivity_report.schema.yaml`. (FR-005, SC-003, Plan T021) **Depends on T012**.
 
-- [X] T022 [US2] Integrate permutation and sensitivity results into the final report generation in `code/main.py`
+- [ ] T022 [US2] Integrate permutation and sensitivity results into the final report generation in `code/main.py`
 
 - [X] T023 [US2] Add logic to handle permutation convergence failures and flag results as "approximate" (Edge Case)
 
@@ -169,23 +178,29 @@
 
 ### Implementation for User Story 3
 
-- [X] T025 [US3] Implement `code/robustness.py` to stratify the cleaned data by `field`, fit a separate LMM for each field using `power_residual ~ year + (1|field) + (1|original_study_id)` to extract the `year` slope and standard error. **Constraint**: **Skip fields** where `n_studies == 1` (as flagged in T011b) to avoid undefined random effects. **Note**: This uses the residualized power calculated in T011c (`power_residual` from `data/derived/residuals.csv`) to ensure we are aggregating **residual power drift estimates** as required by FR-006. **Input**: `data/derived/residuals.csv`. **Output**: Save `results/field_slopes.csv` with columns: `field`, `slope_year`, `se_slope`, `n_studies`. **Verification**: Ensure the file contains one row per valid field and that slopes are derived from `power_residual` (not raw power). (FR-006, US-3 Acceptance Scenario 1, Plan T025) **Depends on T011c**.
+- [ ] T025 [US3] Implement `code/robustness.py` to stratify the cleaned data by `field`, fit a separate LMM for each field using `power_residual ~ year + (1|field) + (1|original_study_id)` to extract the `year` slope and standard error. **Constraint**: **Skip fields** where `n_studies == 1` (as flagged in T011b) to avoid undefined random effects. **Note**: This uses the residualized power calculated in T011c (`power_residual` from `data/derived/residuals.csv`) to ensure we are aggregating **residual power drift estimates** as required by FR-006. **Input**: `data/derived/residuals.csv`. **Output**: Save `results/field_slopes.csv` with columns: `field`, `slope_year`, `se_slope`, `n_studies`. **Verification**: Ensure the file contains one row per valid field and that slopes are derived from `power_residual` (not raw power). (FR-006, US-3 Acceptance Scenario 1, Plan T025) **Depends on T011c**.
 
-- [X] T026 [US3] Implement `code/robustness.py` function for inverse-variance weighting with heterogeneity adjustment (DerSimonian-Laird) to combine **residual power drift estimates** (adjusted slopes) across fields. **Algorithm**: Calculate heterogeneity (Q-statistic, tau-squared) and apply inverse-variance weighting to the `slope_year` and `se_slope` from `results/field_slopes.csv` (produced by T025). **Input**: `results/field_slopes.csv`. **Output**: Aggregated drift estimate and confidence interval in `results/aggregated_drift.json`. **Comparison**: Generate `results/comparison_aggregated_vs_lmm.json` comparing the aggregated drift estimate against the primary mixed-model slope (from `results/lmm_final_summary.json` produced by T012). **Verification**: Ensure the file contains both values and the consistency check (keys: `consistency_score` float, `method` string). (FR-006, US-3 Acceptance Scenario 3, SC-004) **Depends on T025**.
+- [ ] T026 [US3] Implement `code/robustness.py` function for inverse-variance weighting with heterogeneity adjustment (DerSimonian-Laird) to combine **residual power drift estimates** (adjusted slopes) across fields. **Algorithm**: Calculate heterogeneity (Q-statistic, tau-squared) and apply inverse-variance weighting to the `slope_year` and `se_slope` from `results/field_slopes.csv` (produced by T025). **Input**: `results/field_slopes.csv`. **Output**: Aggregated drift estimate and confidence interval in `results/aggregated_drift.json`. **Comparison**: Generate `results/comparison_aggregated_vs_lmm.json` comparing the aggregated drift estimate against the primary mixed-model slope (from `results/lmm_final_summary.json` produced by T012). **Verification**: Ensure the file contains both values and the consistency check (keys: `consistency_score` float, `method` string). (FR-006, US-3 Acceptance Scenario 3, SC-004) **Depends on T025**.
 
-- [X] T027 [US3] Implement `code/robustness.py` function for input permutation framework: **shuffle `effect_size` and `sample_size` while holding `year` constant** (FR-007). **Target**: [deferred] (10,000) permutations. **Fallback**: **1,000 permutations** if resource limits are exceeded (use same detection mechanism as T020). **Algorithm**: For each iteration, randomly shuffle the `effect_size` and `sample_size` columns in `data/derived/cleaned_data.csv` while keeping the `year` column unchanged. Re-use the `fit_lmm` function from `code/models.py` to refit the model on the permuted data to generate a null distribution of slopes. **Output**:
- 1. Generate `results/null_distribution_implied_power.csv` with columns: `simulated_drift`, `count`.
- 2. **Generate `results/input_permutation_summary.json`**: This JSON must contain `observed_slope` (from T012), `p_value` (empirical p-value derived from comparing observed slope to the null distribution), and `methodology` (string describing the permutation process).
- 3. **Generate `results/input_permutation_pvalue.json`** for consistency.
- **Verification**: Ensure `results/input_permutation_summary.json` exists and contains the required keys. Ensure `results/null_distribution_implied_power.csv` contains a sufficient number of rows (with a fallback count) to support robust estimation. **CRITICAL**: Verify that the `year` column in the input data was held constant during the permutation process by including a metadata field `methodology: input_permutation_year_fixed` in the output JSON. (FR-007, US-3 Acceptance Scenario 2, Plan T027) **Depends on T012** (for observed slope) and **T011c** (for residuals data).
+- [ ] T027 [US3] Implement `code/robustness.py` function for input permutation framework: **shuffle `effect_size` and `sample_size` while holding `year` constant** (FR-007). **Target**: 10,000 permutations. **Fallback**: **A sufficient number of permutations** if `psutil.Process().memory_info().rss > 6 * 1024**3` bytes OR if the **estimated time to complete 10,000 permutations** (calculated as `time_per_perm * 10000` based on the first 10 permutations) exceeds **A duration of several hours. (2 hours)**. **Algorithm**:
+ 1. **Input**: Read `data/derived/cleaned_data.csv` (produced by T011a).
+ 2. **Load Pilot Model**: Load the **fixed coefficients** from `data/derived/pilot_ols_model.pkl` (produced by T011c). **DO NOT** re-estimate the OLS model.
+ 3. **Permutation**: For each iteration, randomly shuffle the `effect_size` and `sample_size` columns in the loaded data while keeping the `year` column unchanged.
+ 4. **Recalculation**: Recalculate `power_estimate` and `power_residual` for the permuted data by **applying the fixed coefficients** from the loaded pilot model.
+ 5. **Refit**: Refit the LMM (`power_residual ~ year + (1|field) + (1|original_study_id)`) on the recalculated residuals to generate a null distribution of slopes.
+ 6. **Output**:
+    - Generate `results/null_distribution_implied_power.csv` with columns: `simulated_drift`, `count`.
+    - **Generate `results/input_permutation_summary.json`**: This JSON must contain `observed_slope` (from T012), `p_value` (empirical p-value derived from comparing observed slope to the null distribution), and `methodology` (string describing the permutation process, explicitly stating "fixed pilot coefficients").
+    - **Generate `results/input_permutation_pvalue.json`** for consistency.
+ **Verification**: Ensure `results/input_permutation_summary.json` exists and contains the required keys. Ensure `results/null_distribution_implied_power.csv` contains a sufficient number of rows (with a fallback count) to support robust estimation. **CRITICAL**: Verify that the `year` column in the input data was held constant during the permutation process by including a metadata field `methodology: input_permutation_year_fixed` in the output JSON. (FR-007, US-3 Acceptance Scenario 2, Plan T027) **Depends on T012** (for observed slope), **T011c** (for pilot model and residuals logic), and **T011a** (for input data).
 
-- [X] T028 [US3] Implement `code/robustness.py` to perform the **Non-Linearity Check**.
+- [ ] T028 [US3] Implement `code/robustness.py` to perform the **Non-Linearity Check**.
  **Logic**: Fit a model with `ns(year, df=3)` (natural splines) and compare its AIC to the linear model (`power_residual ~ year`).
  **Input**: `data/derived/residuals.csv`.
  **Output**: `results/nonlinearity_check.json` containing `linear_aic`, `spline_aic`, `delta_aic`, and `preferred_model`.
  **Verification**: Ensure the file contains valid AIC values and a clear preferred model selection. (Plan T028) **Depends on T012**.
 
-- [X] T029 [US3] Update `code/visualize.py` to plot the null distribution of the input-permutation drift and compare observed slope (US-3)
+- [ ] T029 [US3] Update `code/visualize.py` to plot the null distribution of the input-permutation drift and compare observed slope (US-3)
 
 - [X] T030 [US3] Integrate cross-field aggregation and input permutation results into the final report JSON (US-3)
 
@@ -197,19 +212,19 @@
 
 **Purpose**: Finalization, versioning, and pipeline orchestration
 
-- [X] T031 [P] Implement `code/main.py` pipeline orchestrator to sequence download, validation, LMM fitting, robustness checks, and reporting
+- [ ] T031 [P] Implement `code/main.py` pipeline orchestrator to sequence download, validation, LMM fitting, robustness checks, and reporting
 
-- [X] T032 [P] Run `code/update_state.py` to compute SHA-256 hashes for all `data/derived/` and `results/` files (Phase 6). **Logic**: 
-  1. Compute SHA-256 hashes for every file in `data/derived/`, `results/*.json`, `results/*.csv`, and `results/*.png`.
-  2. Update `state.yaml` with `artifact_hashes` map (keys are relative file paths from project root).
-  3. **CRITICAL**: If a hash mismatch is detected compared to the previous state, **invalidate** or **reset** dependent review records/stages by updating the `current_stage` to `human_input_needed` or triggering a re-run flag.
-  4. Update `updated_at` timestamp.
+- [X] T032 [P] Run `code/update_state.py` to compute SHA-256 hashes for all `data/derived/` and `results/` files (Phase 6). **Logic**:
+ 1. Compute SHA-256 hashes for every file in `data/derived/`, `results/*.json`, `results/*.csv`, and `results/*.png`.
+ 2. Update `state.yaml` with `artifact_hashes` map (keys are relative file paths from project root).
+ 3. **CRITICAL**: If a hash mismatch is detected compared to the previous state, **invalidate** or **reset** dependent review records/stages by updating the `current_stage` to `human_input_needed` or triggering a re-run flag.
+ 4. Update `updated_at` timestamp.
  **Verification**: Run `update_state.py` manually in the test environment and confirm it successfully modifies the `current_stage` key in the state file and includes the full file list in `artifact_hashes`. (FR-010, Constitution Principle V) **Depends on T031**.
 
-- [X] T033a [P] **Create** `README.md` in project root with pipeline overview and usage instructions. **Content**: Must include sections: `[Project Overview, Installation, Usage, Output Artifacts]`. **Generation**: Use a concrete command (e.g., `cat > README.md << 'EOF' ...`) to ensure the file is created with the specified content. **Verification**: Ensure `README.md` exists and contains all required sections. (Plan Phase 4)
+- [X] T033a [P] **Create** `README.md` in project root with pipeline overview and usage instructions. **Content**: Must include sections: `[Project Overview, Installation, Usage, Output Artifacts]`. **Generation**: Use a concrete command (e.g., `cat > README.md << 'EOF'...`) to ensure the file is created with the specified content. **Verification**: Ensure `README.md` exists and contains all required sections. (Plan Phase 4)
 
 - [X] T033b [P] Create `docs/methodology.md` documenting the LMM methodology, residualization process, and aggregation logic.
-- [X] T034 [P] Run full pipeline on a **static subset** (first 100 rows of `data/raw/data.csv`) to verify end-to-end execution within **6-hour** CPU limit (FR-010). **Runner Constraints**: Verify on a runner with a multi-core processor and sufficient memory. **Verification**: Check for existence of `results/timing_report.json`.
+- [ ] T034 [P] Run full pipeline on a **static subset** (The initial rows of the dataset will be examined to identify patterns in the early-stage data distribution. of `data/raw/data.csv`) to verify end-to-end execution within **6-hour** CPU limit (FR-010). **Runner Constraints**: Verify on a runner with a multi-core processor and sufficient memory. **Verification**: Check for existence of `results/timing_report.json`.
 - [X] T034a [P] Implement `code/timing.py` to instrument pipeline execution and generate `results/timing_report.json` with start/end times, total duration, and `phase_durations` dictionary. **Verification**: Ensure the JSON contains keys for `data_prep_duration`, `model_fitting_duration`, and `robustness_duration`. (Plan T032)
 - [X] T035a [P] Run linter (ruff/flake8) on `code/` and fix all warnings (Success: zero warnings)
 - [X] T035b [P] Run formatter (black) on `code/` and verify no changes are needed (Success: no diff)
@@ -274,7 +289,7 @@
 - **T020** must complete before **T020b** (permutation result before consistency check).
 - **T011c** must complete before **T025** (Residuals produced before field-specific modeling).
 - **T025** must complete before **T026** (field slopes before aggregation).
-- **T012** must complete before **T027** (slope extraction before input permutation validation).
+- **T012**, **T011c**, and **T011a** must complete before **T027** (slope extraction, pilot model, and input data before input permutation validation).
 - **T033a**, **T034**, **T034a** must complete before **T039**, **T040**, **T041** (Documentation and timing infrastructure must exist before verification tasks can be performed).
 
 ---
@@ -327,8 +342,9 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, cross-story dependencies that break independence
 - **Data Integrity**: `code/download.py` (T006) MUST fail loudly on real data fetch failure; no synthetic fallbacks allowed. **Exception**: If the fetch succeeds but returns partial columns, proceed with available data (Spec Assumptions).
-- **Methodology**: Tasks implement the Linear Mixed-Effects Model (LMM) as required by Spec FR-002, FR-003, and FR-009. The model includes random intercepts for `field` AND `original_study_id` **without conditional exclusion**. The primary drift metric is the `slope_year` from the **Full Model** on `power_residual`.
+- **Methodology**: Tasks implement the Linear Mixed-Effects Model (LMM) as required by Spec FR-002, FR-003, and FR-009. The model includes random intercepts for `field` AND `original_study_id` **with conditional exclusion for single-level groups** to handle Edge Cases gracefully. The primary drift metric is the `slope_year` from the **Full Model** on `power_residual`.
 - **Compute Feasibility**: All tasks are designed to run on CPU-only runners (multiple cores, sufficient RAM) within 6 hours. Permutation tests use vectorized `numpy` operations and chunked processing to fit memory constraints. Streaming logic (T006) is implemented as a conditional fallback for large files, respecting the Spec's assumption that the dataset fits in RAM.
 - **Revision Concern**: T033a, T033b, T034, and T034a added to ensure documentation of the LMM methodology is complete and the pipeline is verified end-to-end within the **6-hour** CPU limit as required by FR-010 and the Constitution.
 - **New Revision Concerns**: T039, T040, and T041 added to explicitly address reviewer concerns about methodology documentation, phase-level timing analysis, and end-to-end reproducibility verification.
 - **Task Placement**: T006 now contains all data loading logic, removing the need for T036/T037. T011a depends on T006.
+- **Critical Path**: T011a is the primary blocker for the entire pipeline. It must be implemented to generate `data/derived/cleaned_data.csv`.

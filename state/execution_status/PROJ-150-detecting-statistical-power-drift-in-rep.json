@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-150-detecting-statistical-power-drift-in-rep",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/models.py; 5 command(s) failed: python code/preprocess.py --download-only (rc=1); python code/main.py (rc=1); python code/preprocess.py (rc=1); 3 declared deliverable(s) absent: data/derived/cleaned_data.csv; data/derived/grouping_validation.json; data/raw/data.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/preprocess.py --download-only -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/preprocess.py\", line 5, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/main.py -> rc=1\n    ERROR: huggingface_hub is not installed. Please run: pip install huggingface_hub",
+    "python code/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/preprocess.py\", line 5, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/models.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/models.py': [Errno 2] No such file or directory",
+    "python code/robustness.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/robustness.py\", line 7, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/visualize.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/visualize.py\", line 7, in <module>\n    import matplotlib.pyplot as plt\nModuleNotFoundError: No module named 'matplotlib'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-21T17:22:10Z"
+}

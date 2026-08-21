@@ -17,6 +17,10 @@ from logging_config import (
     log_zero_variance_field
 )
 
+class DataFetchError(Exception):
+    """Custom exception for data fetching/loading failures."""
+    pass
+
 def load_raw_data(data_path: str) -> pd.DataFrame:
     """
     Loads the raw CSV data.
@@ -26,15 +30,25 @@ def load_raw_data(data_path: str) -> pd.DataFrame:
         
     Returns:
         Pandas DataFrame.
+        
+    Raises:
+        DataFetchError: If the data file is missing or unreadable.
     """
     logger = get_module_logger(__name__)
     log_operation_start(logger, "Load Raw Data")
     
     if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Raw data file not found: {data_path}")
+        error_msg = f"Raw data file not found: {data_path}"
+        logger.error(error_msg)
+        raise DataFetchError(error_msg)
         
-    df = pd.read_csv(data_path)
-    logger.info(f"Loaded {len(df)} rows from {data_path}")
+    try:
+        df = pd.read_csv(data_path)
+        logger.info(f"Loaded {len(df)} rows from {data_path}")
+    except Exception as e:
+        error_msg = f"Failed to read CSV file {data_path}: {str(e)}"
+        logger.error(error_msg)
+        raise DataFetchError(error_msg)
     
     log_operation_complete(logger, "Load Raw Data")
     return df
@@ -57,17 +71,25 @@ def validate_grouping_variables(df: pd.DataFrame, grouping_vars: list) -> dict:
     
     for var in grouping_vars:
         if var not in df.columns:
-            validation_results[var] = {"valid": False, "reason": f"Column '{var}' not found"}
+            validation_results[var] = {"status": "missing", "count": 0, "reason": f"Column '{var}' not found"}
             log_skipped_row(logger, -1, f"Grouping variable '{var}' missing from data")
             continue
         
         unique_count = df[var].nunique()
-        # Check for zero variance (only 1 unique value)
+        
+        # Check for single level (zero variance)
         if unique_count <= 1:
-            validation_results[var] = {"valid": False, "unique_levels": unique_count, "reason": "Zero or low variance"}
+            validation_results[var] = {
+                "status": "single_level", 
+                "count": unique_count, 
+                "reason": "Only one unique level found"
+            }
             log_zero_variance_field(logger, var, unique_count)
         else:
-            validation_results[var] = {"valid": True, "unique_levels": unique_count}
+            validation_results[var] = {
+                "status": "valid", 
+                "count": unique_count
+            }
             logger.info(f"Grouping variable '{var}' is valid with {unique_count} levels.")
     
     log_operation_complete(logger, "Validate Grouping Variables")
@@ -119,31 +141,45 @@ def main():
     # Load data
     try:
         df = load_raw_data(raw_data_path)
-    except FileNotFoundError as e:
+    except DataFetchError as e:
         logger.error(str(e))
-        return
+        sys.exit(1)
     
     rows_before = len(df)
     
     # Filter rows with missing critical columns
     # FR-008: Filter rows with missing year, effect_size, or sample_size
     critical_cols = ['year', 'effect_size', 'sample_size']
-    missing_mask = df[critical_cols].isnull().any(axis=1)
     
-    if missing_mask.any():
-        logger.warning(f"Found {missing_mask.sum()} rows with missing critical data.")
-        # Log skipped rows (FR-014)
-        for idx in df.index[missing_mask]:
-            row = df.loc[idx]
-            reasons = []
-            for col in critical_cols:
-                if pd.isna(row[col]):
-                    reasons.append(f"NaN in {col}")
-            reason_str = ", ".join(reasons)
-            log_skipped_row(logger, idx, reason_str)
+    # Ensure critical columns exist
+    missing_cols = [col for col in critical_cols if col not in df.columns]
+    if missing_cols:
+        logger.warning(f"Missing expected columns: {missing_cols}. Proceeding with available data.")
+    
+    # Identify rows with missing values in critical columns
+    # We check only columns that exist
+    available_critical_cols = [col for col in critical_cols if col in df.columns]
+    
+    if available_critical_cols:
+        missing_mask = df[available_critical_cols].isnull().any(axis=1)
         
-        df_cleaned = df.dropna(subset=critical_cols)
+        if missing_mask.any():
+            logger.warning(f"Found {missing_mask.sum()} rows with missing critical data.")
+            # Log skipped rows (FR-014)
+            for idx in df.index[missing_mask]:
+                row = df.loc[idx]
+                reasons = []
+                for col in available_critical_cols:
+                    if pd.isna(row[col]):
+                        reasons.append(f"NaN in {col}")
+                reason_str = ", ".join(reasons)
+                log_skipped_row(logger, idx, reason_str)
+            
+            df_cleaned = df.dropna(subset=available_critical_cols)
+        else:
+            df_cleaned = df.copy()
     else:
+        logger.warning("No critical columns found to filter on. Keeping all rows.")
         df_cleaned = df.copy()
     
     rows_after = len(df_cleaned)

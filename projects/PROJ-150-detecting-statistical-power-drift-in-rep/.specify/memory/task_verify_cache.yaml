@@ -19,13 +19,6 @@ T011:
   r: The required integration test file `tests/integration/test_lmm_pipeline.py` does
     not exist, so the specified test `test_lmm_pipeline_full_run` is missing. Without
     this artifact, the task is not satisfied.
-T011a:
-  c: false
-  h: cf136fc8626ca8dcb5d11600f580fdcd8b520ed8ed9fd61b76d2441f491167e3
-  r: "The repository lacks the required output file `data/derived/cleaned_data.csv`,\
-    \ and the shown portion of `code/preprocess.py` does not contain any logic that\
-    \ filters rows with missing `year`, `effect_size`, or `sample_size` nor logs warnings\
-    \ for such rows. Consequently the task\u2019s core requirement is not satisfied."
 T011b:
   c: false
   h: 68642a0cbea1231eab05b236e17e8efa350c271feb7a3191c8a16f7cfff3537c
