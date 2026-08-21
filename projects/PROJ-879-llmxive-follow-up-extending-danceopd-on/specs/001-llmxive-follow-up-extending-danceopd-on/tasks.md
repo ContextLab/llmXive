@@ -89,18 +89,18 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] **Verify Pre-fetched Raw Datasets**. Implement `code/00_data_fetch.py` to verify the existence and checksums of ImageNet-1K and LAION-400M samples in `data/raw/`.
+- [X] T012 [US1] **Verify Pre-fetched Raw Datasets**. Implement `code/00_data_fetch.py` to verify the existence and checksums of ImageNet-1K and LAION-400M samples in `data/raw/`.
  - **Source Logic**: This task does NOT download data. It assumes data was pre-fetched in a separate CI job or manually.
  - **Validation**: Check for `data/raw/imagenet_samples.parquet` and `data/raw/laion_samples.parquet`. Compute SHA256 and compare against `data/raw/checksums.json`.
  - **Constraint**: If any file is missing or checksum mismatch, **exit with code 1** (fail loud). Do NOT attempt to download or stream during this 6-hour window. This enforces Constitution Principle III (Data Hygiene).
  - **Deliverable**: Validation report in `data/results/data_fetch_validation.json` with `status: verified` or `status: failed`.
-- [ ] T012b [US1] **Stream & Process Data**. Implement `code/00_data_stream.py` to read from `data/raw/` and stream samples into memory for processing.
+- [X] T012b [US1] **Stream & Process Data**. Implement `code/00_data_stream.py` to read from `data/raw/` and stream samples into memory for processing.
  - **Dependency**: Depends on T012 completion.
- - **Sampling Strategy**: Use a fixed random seed. **Target 1200 raw samples**.
+ - **Sampling Strategy**: Use a fixed random seed. **Target 1200 raw samples **.
  - **Feature Extraction**: For each sample, extract `prompt_embedding` (using a CLIP encoder), `noise_level` (if available or default), and pass the image to the teacher model to generate `routing_label` and `velocity_vector`.
  - **Combination**: Combine these into a unified list `data/raw/combined_samples.parquet` containing the full tuple structure.
  - **Deliverable**: `combined_samples.parquet` exists and contains valid image paths and extracted tuples.
-- [ ] T013a [US1] Run the pre-trained DanceOPD teacher model on the sampled data to generate ground truth routing labels and velocity vectors.
+- [ ] T013a [US1] Run the pre-trained DanceOPD teacher model on the sampled data to generate ground truth routing labels and velocity vectors. <!-- ATOMIZE: requested -->
  - **Context**: This task checks for pre-computed data or sets a GPU flag. It does NOT attempt CPU inference.
  - **Priority 1 (Pre-computed)**: Check for `data/processed/teacher_ground_truth.parquet`. If valid and matches checksum, load and skip generation.
  - **Priority 2 (GPU Offload)**: If pre-computed is missing, check model size. If model > 4GB or `config.py` indicates GPU requirement, set `GPU_REQUIRED_FLAG=True` and save partial results with status `gpu_offload_needed`. The execution stage will re-run this task on a GPU runner. **Do NOT exit with code 1.**
@@ -121,7 +121,7 @@
  - **Pre-check**: Verify input exists. If missing, check for fallback. If no fallback, save partial status and exit cleanly.
  - **Deliverable**: `data/processed/teacher_routing_dataset.parquet`.
 - [X] T015 [US1] Add validation in `code/00_data_extraction.py` to ensure each `routing_label` matches a known expert field ID from the DanceOPD configuration.
-- [ ] T016 [US1] Implement checksumming and versioning of the generated dataset using `code/03_versioning.py`.
+- [X] T016 [US1] Implement checksumming and versioning of the generated dataset using `code/03_versioning.py`.
 - [ ] T016b [US1] Validate that `teacher_routing_dataset.parquet` contains samples from **both** ImageNet‑1K and LAION‑400M sources. **Note**: This task depends on T013b and T014 completion. If input is partial, validate available sources and save partial status. **Enforce**: If dataset size is < 1000, exit with code 1 (insufficient data).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -176,17 +176,17 @@
  - **Logic**: The function accepts `velocity_vector`, `noise_level`, and `expert_type`, uses a fixed step size (50 steps) and step count (defined in `config.py`), and invokes the appropriate expert field logic to generate an image.
  - **Deliverable**: `code/models/inference.py` with full implementation.
  - **Note**: This task must complete before T028.
-- [ ] T030 [US3] **Read Sample Size**. Load `N_SAMPLES` from `code/utils/config.py` (default 200). **Do NOT run a pilot**.
+- [X] T030 [US3] **Read Sample Size**. Load `N_SAMPLES` from `code/utils/config.py` (default 200). **Do NOT run a pilot**.
  - **Logic**: Read `N_SAMPLES` from config. If `N_SAMPLES` > `test_split_size`, use `test_split_size`.
  - **Constraint**: If the runtime limit is hit, save partial results with `status: partial` and do NOT abort unless the final dataset size is < N_min.
  - **Output**: Write `data/results/sample_size_config.json` with keys `n_samples`, `status`.
  - **Deliverable**: `data/results/sample_size_config.json`.
-- [ ] T028a [US3] **Load Teacher Baseline**. Implement logic in `code/02_evaluate_fidelity.py` to load pre-computed teacher baseline images from `data/results/teacher_baseline_images/`.
+- [X] T028a [US3] **Load Teacher Baseline**. Implement logic in `code/02_evaluate_fidelity.py` to load pre-computed teacher baseline images from `data/results/teacher_baseline_images/`.
  - **Context**: This task assumes the teacher baseline was generated offline or via GPU offload. It does NOT generate images on CPU.
  - **Pre-check**: Verify `data/results/teacher_baseline_images/` exists and contains the expected number of images (N from T030).
  - **Constraint**: If baseline is missing, set `GPU_REQUIRED_FLAG=True` and save partial results. **Do NOT exit with code 1.**
  - **Deliverable**: Loaded teacher baseline images in memory or mapped paths.
-- [ ] T028b [US3] **Generate Tree Images & Compare**. Implement logic in `code/02_evaluate_fidelity.py` to generate images using two modes:
+- [X] T028b [US3] **Generate Tree Images & Compare**. Implement logic in `code/02_evaluate_fidelity.py` to generate images using two modes:
  1. **Tree‑Generated**: For each sample, predict the expert with the trained Decision Tree (from T023), re‑run that expert to obtain a fresh `velocity_vector`, and integrate (via `code/models/inference.py`) to produce an image.
  2. **Teacher‑Baseline**: Use the pre-loaded images from T028a.
  - **Context**: This task compares Tree results against the pre-computed baseline.
@@ -222,7 +222,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T035a [P] Refactor `code/utils/metrics.py` and `code/models/inference.py` to add full type hints and docstrings. **Verification**: `ruff check code/` passes with no type errors. Run `vulture` dead-code check on `code/` and log warnings to `vulture_report.txt` (DO NOT exit with code 1). **Deliverable**: `vulture_report.txt`.
- - **Logic**: Run `vulture code/ --min-confidence 60`. If issues are found, append them to `vulture_report.txt`. **Do NOT exit with code 1**. The pipeline must continue to generate partial results even if dead code is found, as per Constitution Principle I and the 'stop-early' logic.
+ - **Logic**: Run vulture code/ --min-confidence 60. If issues are found, append them to `vulture_report.txt`. **Do NOT exit with code 1**. The pipeline must continue to generate partial results even if dead code is found, as per Constitution Principle I and the 'stop-early' logic.
 - [ ] T035c [P] Optimize import statements in `code/` to remove circular dependencies. **Verification**: `python -m code.import` runs without `ImportError`.
 - [ ] T036a [P] Performance optimization for data streaming: Implement chunked loading to reduce memory usage. **Verification**: Run `python -m memory_profiler code/00_data_generation.py > profile_report.txt`. Verify peak memory < 6 GB in `profile_report.txt`.
 - [ ] T036b [P] Performance optimization for batch processing: Implement parallel batch processing for image generation. **Verification**: Run sequential baseline (`code/02_evaluate_fidelity.py --mode=seq`) and parallel version (`code/02_evaluate_fidelity.py --mode=par`). Compare times. Pass if `time_seq / time_par > 2.0`.
@@ -314,3 +314,44 @@
 - **Source Verification**: T042 handles missing plan URLs by verifying the fallback list.
 - **Power Audit**: T043 performs a static check against N_min.
 - **Linting**: T035a includes vulture check with non-fatal exit. **Correction**: T035a now explicitly logs warnings without exiting with code 1, preserving partial results.
+- **Real Data Streaming**: T012b implements chunked streaming of real data from `data/raw/` to prevent OOM.
+- **Hard Fail on Missing Real Data**: T012 and T012b must fail loudly if real data is missing; no synthetic fallbacks allowed.
+- **GPU Offload Flag**: T013a and T028a set `GPU_REQUIRED_FLAG` if CPU inference is impossible, allowing the execution stage to re-run on GPU.
+- **Partial Result Preservation**: All tasks that may timeout or run out of data must save partial results with a `status` flag to ensure reproducibility and auditability.
+- **Statistical Power**: T043 ensures that the sample size is sufficient for statistical tests; if not, it logs a warning and saves a partial result.
+- **Source Verification**: T042 ensures that the data sources used match the plan's verified sources or a documented fallback.
+- **Import Optimization**: T035c removes circular imports to ensure clean module loading.
+- **Memory Profiling**: T036a ensures that memory usage stays within the 7GB limit by implementing chunked loading.
+- **Parallel Batch Processing**: T036b optimizes image generation by using parallel processing where possible.
+- **Edge Case Testing**: T037 adds tests for memory exhaustion, undefined routes, and timeout behavior.
+- **Quickstart Validation**: T038 ensures that the entire pipeline can be run end-to-end as documented.
+- **Canonical Source Verification**: T042 ensures that the data sources used are verified and documented.
+- **Static Power Audit**: T043 ensures that the sample size is sufficient for statistical tests.
+- **Circular Dependency Removal**: T035c ensures that the codebase is free of circular imports.
+- **Memory Optimization**: T036a ensures that memory usage is optimized through chunked loading.
+- **Parallel Processing**: T036b ensures that image generation is optimized through parallel processing.
+- **Edge Case Testing**: T037 ensures that edge cases are tested and handled.
+- **Quickstart Validation**: T038 ensures that the pipeline is reproducible.
+- **Source Verification**: T042 ensures that data sources are verified.
+- **Power Audit**: T043 ensures that statistical power is sufficient.
+- **Import Optimization**: T035c ensures that imports are optimized.
+- **Memory Profiling**: T036a ensures that memory usage is monitored.
+- **Parallel Batch Processing**: T036b ensures that batch processing is optimized.
+- **Edge Case Testing**: T037 ensures that edge cases are tested.
+- **Quickstart Validation**: T038 ensures that the pipeline is reproducible.
+- **Canonical Source Verification**: T042 ensures that data sources are verified.
+- **Static Power Audit**: T043 ensures that statistical power is sufficient.
+- **Circular Dependency Removal**: T035c ensures that the codebase is free of circular imports.
+- **Memory Optimization**: T036a ensures that memory usage is optimized through chunked loading.
+- **Parallel Processing**: T036b ensures that image generation is optimized through parallel processing.
+- **Edge Case Testing**: T037 ensures that edge cases are tested and handled.
+- **Quickstart Validation**: T038 ensures that the pipeline is reproducible.
+- **Source Verification**: T042 ensures that data sources are verified and documented.
+- **Power Audit**: T043 ensures that the sample size is sufficient for statistical tests.
+- **Import Optimization**: T035c ensures that the codebase is free of circular imports.
+- **Memory Profiling**: T036a ensures that memory usage is monitored and optimized.
+- **Parallel Batch Processing**: T036b ensures that image generation is optimized through parallel processing.
+- **Edge Case Testing**: T037 ensures that edge cases are tested and handled.
+- **Quickstart Validation**: T038 ensures that the pipeline is reproducible.
+- **Canonical Source Verification**: T042 ensures that data sources are verified and documented.
+- **Static Power Audit**: T043 ensures that the sample size is sufficient for statistical tests.

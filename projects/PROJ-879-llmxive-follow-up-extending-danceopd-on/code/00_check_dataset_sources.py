@@ -1,98 +1,200 @@
-"""
-Standalone script to validate that teacher_routing_dataset.parquet contains 
-samples from both ImageNet-1K and LAION-400M sources.
-"""
 import argparse
 import sys
 import json
 from pathlib import Path
 import pandas as pd
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def get_project_root() -> Path:
+    """Return the project root directory."""
+    return Path(__file__).resolve().parent.parent
+
+def validate_dataset_sources(
+    parquet_path: Path,
+    min_samples: int = 1000,
+    required_sources: list = None
+) -> dict:
+    """
+    Validate that the dataset contains samples from both ImageNet-1K and LAION-400M.
+    
+    Args:
+        parquet_path: Path to the teacher_routing_dataset.parquet file.
+        min_samples: Minimum required number of samples.
+        required_sources: List of source identifiers to check for.
+    
+    Returns:
+        dict: Validation result with status, counts, and error messages.
+    """
+    if required_sources is None:
+        required_sources = ['imagenet', 'laion']
+    
+    result = {
+        'status': 'failed',
+        'file_path': str(parquet_path),
+        'total_samples': 0,
+        'source_counts': {},
+        'missing_sources': [],
+        'errors': [],
+        'warnings': []
+    }
+    
+    # Check if file exists
+    if not parquet_path.exists():
+        result['errors'].append(f"File not found: {parquet_path}")
+        return result
+    
+    try:
+        # Load the dataset
+        logger.info(f"Loading dataset from {parquet_path}...")
+        df = pd.read_parquet(parquet_path)
+        
+        result['total_samples'] = len(df)
+        
+        # Check minimum sample size
+        if len(df) < min_samples:
+            result['errors'].append(
+                f"Dataset size ({len(df)}) is below minimum required ({min_samples})."
+            )
+            # Save partial status report
+            partial_status = {
+                'status': 'insufficient_data',
+                'total_samples': len(df),
+                'min_required': min_samples,
+                'source_counts': {},
+                'timestamp': pd.Timestamp.now().isoformat()
+            }
+            partial_path = parquet_path.parent / 'source_validation_partial.json'
+            with open(partial_path, 'w') as f:
+                json.dump(partial_status, f, indent=2)
+            logger.warning(f"Saved partial status to {partial_path}")
+            return result
+        
+        # Identify source column
+        source_column = None
+        possible_columns = ['source', 'dataset_source', 'data_source', 'source_type']
+        for col in possible_columns:
+            if col in df.columns:
+                source_column = col
+                break
+        
+        if source_column is None:
+            # Try to infer from existing columns
+            available_cols = list(df.columns)
+            result['errors'].append(
+                f"Could not find source column. Available columns: {available_cols}"
+            )
+            return result
+        
+        # Count samples by source
+        source_counts = df[source_column].value_counts().to_dict()
+        result['source_counts'] = {str(k): int(v) for k, v in source_counts.items()}
+        
+        # Check for required sources
+        missing = []
+        for source in required_sources:
+            found = False
+            for key in source_counts.keys():
+                if source.lower() in str(key).lower():
+                    found = True
+                    break
+            if not found:
+                missing.append(source)
+        
+        if missing:
+            result['missing_sources'] = missing
+            result['errors'].append(
+                f"Missing required sources: {missing}. Found: {list(source_counts.keys())}"
+            )
+        else:
+            result['status'] = 'verified'
+            logger.info(f"Validation passed. Found sources: {list(source_counts.keys())}")
+            logger.info(f"Total samples: {len(df)}")
+            
+            # Save success report
+            success_report = {
+                'status': 'verified',
+                'total_samples': len(df),
+                'source_counts': result['source_counts'],
+                'min_required': min_samples,
+                'timestamp': pd.Timestamp.now().isoformat()
+            }
+            report_path = parquet_path.parent / 'source_validation_report.json'
+            with open(report_path, 'w') as f:
+                json.dump(success_report, f, indent=2)
+            logger.info(f"Saved validation report to {report_path}")
+        
+    except Exception as e:
+        result['errors'].append(f"Error processing dataset: {str(e)}")
+        logger.error(f"Error processing dataset: {str(e)}", exc_info=True)
+    
+    return result
 
 def main():
+    """Main entry point for dataset source validation."""
     parser = argparse.ArgumentParser(
-        description="Validate that teacher_routing_dataset.parquet contains samples from both ImageNet-1K and LAION-400M."
+        description='Validate dataset sources in teacher_routing_dataset.parquet'
     )
     parser.add_argument(
-        "--dataset_path", 
-        type=str, 
-        default="data/processed/teacher_routing_dataset.parquet",
-        help="Path to the teacher routing dataset"
-    )
-    parser.add_argument(
-        "--output_report",
+        '--input',
         type=str,
-        default="data/results/source_validation_report.json",
-        help="Path to save the validation report"
+        default=None,
+        help='Path to the parquet file. Defaults to data/processed/teacher_routing_dataset.parquet'
+    )
+    parser.add_argument(
+        '--min-samples',
+        type=int,
+        default=1000,
+        help='Minimum required number of samples (default: 1000)'
+    )
+    parser.add_argument(
+        '--sources',
+        type=str,
+        nargs='+',
+        default=None,
+        help='Space-separated list of required sources (default: imagenet laion)'
     )
     
     args = parser.parse_args()
-    dataset_path = Path(args.dataset_path)
-    output_report = Path(args.output_report)
     
-    if not dataset_path.exists():
-        print(f"ERROR: Dataset file not found: {dataset_path}")
-        print("This task depends on T013b and T014 completion.")
-        sys.exit(1)
+    project_root = get_project_root()
     
-    print(f"Loading dataset from: {dataset_path}")
-    try:
-        df = pd.read_parquet(dataset_path)
-    except Exception as e:
-        print(f"ERROR: Failed to load dataset: {e}")
-        sys.exit(1)
-    
-    print(f"Loaded {len(df)} rows.")
-    
-    if 'source' not in df.columns:
-        print("ERROR: Dataset is missing the 'source' column.")
-        print("The dataset must contain a 'source' column indicating the origin (imagenet-1k or laion-400m).")
-        sys.exit(1)
-    
-    source_counts = df['source'].value_counts().to_dict()
-    print(f"Source distribution: {source_counts}")
-    
-    required_sources = {'imagenet-1k', 'laion-400m'}
-    found_sources = set(source_counts.keys())
-    missing_sources = required_sources - found_sources
-    
-    if missing_sources:
-        print(f"VALIDATION FAILED: Missing required sources: {missing_sources}")
-        print(f"Found sources: {found_sources}")
-        print("The dataset must contain samples from BOTH ImageNet-1K and LAION-400M.")
-        
-        report = {
-            "status": "failed",
-            "dataset_path": str(dataset_path),
-            "total_rows": len(df),
-            "source_counts": source_counts,
-            "missing_sources": list(missing_sources),
-            "found_sources": list(found_sources),
-            "message": f"Missing required sources: {missing_sources}"
-        }
+    if args.input:
+        parquet_path = Path(args.input)
     else:
-        print("VALIDATION PASSED: Dataset contains samples from both ImageNet-1K and LAION-400M.")
-        
-        report = {
-            "status": "passed",
-            "dataset_path": str(dataset_path),
-            "total_rows": len(df),
-            "source_counts": source_counts,
-            "found_sources": list(found_sources),
-            "message": "Dataset contains samples from both required sources."
-        }
+        parquet_path = project_root / 'data' / 'processed' / 'teacher_routing_dataset.parquet'
     
-    # Ensure output directory exists
-    output_report.parent.mkdir(parents=True, exist_ok=True)
+    required_sources = args.sources if args.sources else ['imagenet', 'laion']
     
-    with open(output_report, 'w') as f:
-        json.dump(report, f, indent=2)
+    logger.info(f"Validating dataset sources for: {parquet_path}")
+    logger.info(f"Required sources: {required_sources}")
+    logger.info(f"Minimum samples: {args.min_samples}")
     
-    print(f"Validation report saved to: {output_report}")
+    result = validate_dataset_sources(
+        parquet_path=parquet_path,
+        min_samples=args.min_samples,
+        required_sources=required_sources
+    )
     
-    if report["status"] == "failed":
-        sys.exit(1)
-    else:
+    # Output result
+    print(json.dumps(result, indent=2))
+    
+    # Exit with appropriate code
+    if result['status'] == 'verified':
+        logger.info("Validation PASSED")
         sys.exit(0)
+    else:
+        logger.error("Validation FAILED")
+        if result.get('errors'):
+            for err in result['errors']:
+                logger.error(f"  - {err}")
+        sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

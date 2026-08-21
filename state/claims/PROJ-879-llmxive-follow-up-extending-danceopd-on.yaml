@@ -797,26 +797,6 @@
   updated_at: '2026-08-17T06:02:47Z'
 - artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
   attempts: 1
-  canonical: system produces dataset with at least 1000 rows
-  claim_id: c_b0e46576
-  context: "Independent Test for User Story 1: The system produces a CSV/Parquet file\
-    \ with \u22651,000 rows, valid expert identifiers, and consistent velocity vector\
-    \ dimensions."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/System_produces_dataset_with_at_least_1000_rows
-  kind: magnitude
-  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
-    \ identifiers, and consistent velocity vector dimensions."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-17T06:02:49Z'
-- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
-  attempts: 1
   canonical: integration test verifies dataset has at least 1000 rows
   claim_id: c_e5447d85
   context: "T011 [P] [US1] Integration test for data generation pipeline... Logic:\
@@ -1993,3 +1973,810 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-20T05:37:20Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Teacher routing ground truth dataset contains at least 1000 rows
+  claim_id: c_2f94722d
+  context: "Independent Test for User Story 1: Generate Teacher Routing Ground Truth.\
+    \ The system produces a CSV/Parquet file with \u22651,000 rows, valid expert identifiers,\
+    \ and consistent velocity vector dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_routing_ground_truth_dataset_contains_at_least_1000
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:51:19Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Data streaming targets 1200 raw samples
+  claim_id: c_d51cc564
+  context: 'Sampling Strategy: Use a fixed random seed. Target 1200 raw samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target 1200 raw samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:51:38Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Decision trees trained for max_depth values from 2 to 20
+  claim_id: c_41ed863e
+  context: "Implement a loop to train DecisionTreeClassifier (scikit\u2011learn, CPU)\
+    \ for max_depth values systematically varying from 2 to 20 (step 1) in code/01_train_trees.py.\
+    \ Logic: Train a tree for each depth d in 2, 3,..., 20."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a tree for each depth d in 2, 3,..., 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:52:04Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: N_SAMPLES default is 200
+  claim_id: c_9fb37f6a
+  context: Load N_SAMPLES from code/utils/config.py (default 200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:52:48Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Paired t-test uses alpha 0.05
+  claim_id: c_e97957e0
+  context: Perform a paired t-test on per-sample CLIP scores (two-tailed, alpha=0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:53:06Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Vulture dead-code check uses minimum confidence 60
+  claim_id: c_682166b1
+  context: 'Logic: Run vulture code/ --min-confidence 60. If issues are found, append
+    them to vulture_report.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run vulture code/ --min-confidence 60
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:53:21Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Data streaming peak memory must be less than 6 GB
+  claim_id: c_c029367a
+  context: 'Verification: Run python -m memory_profiler code/00_data_generation.py
+    > profile_report.txt. Verify peak memory < 6 GB in profile_report.txt.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_streaming_peak_memory_must_be_less_than_6_GB
+  kind: magnitude
+  raw_text: Verify peak memory < 6 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:53:38Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Parallel batch processing must be more than twice as fast as sequential
+  claim_id: c_90fdeea3
+  context: Compare times. Pass if time_seq / time_par > 2.0.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Parallel_batch_processing_must_be_more_than_twice_as_fast_as
+  kind: magnitude
+  raw_text: Pass if time_seq / time_par > 2.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:54:09Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: 'CI constraints: 7 GB RAM and 6 hours runtime'
+  claim_id: c_6918738f
+  context: "Critical Constraint: All tasks must run on CPU\u2011only CI with minimal\
+    \ computational resources (limited CPU cores and RAM, \u22647 GB RAM, \u22646\
+    \ hours total runtime)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "limited CPU cores and RAM, \u22647 GB RAM, \u22646 hours total runtime"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:54:09Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Total runtime limit is 6 hours
+  claim_id: c_5fb9efe6
+  context: "Critical Constraint: All tasks must run on CPU\u2011only CI with minimal\
+    \ computational resources (limited CPU cores and RAM, \u22647 GB RAM, \u22646\
+    \ hours total runtime)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u22646 hours total runtime"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:54:09Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: GPU offload triggered if model size exceeds 4 GB
+  claim_id: c_8bdfc03c
+  context: If model > 4GB or config.py indicates GPU requirement, set GPU_REQUIRED_FLAG=True
+    and save partial results with status gpu_offload_needed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: model > 4GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:54:10Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Budget estimation uses rate of 5 minutes per sample
+  claim_id: c_192cb864
+  context: 'Budget Check: T030c uses a static rate (5 min/sample) for budget estimation,
+    not a pilot run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5 min/sample
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:54:51Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Hard timeout of 6 hours implemented
+  claim_id: c_f8210a80
+  context: "T032 implements a hard 6\u2011hour timeout using signal.SIGALRM to prevent\
+    \ CI hangs and ensure partial results are saved."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "hard 6\u2011hour timeout"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:55:17Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 2
+  canonical: system produces dataset with at least 1000 rows
+  claim_id: c_b0e46576
+  context: "Independent Test for User Story 1: The system produces a CSV/Parquet file\
+    \ with \u22651,000 rows, valid expert identifiers, and consistent velocity vector\
+    \ dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_produces_dataset_with_at_least_1000_rows
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:58:24Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: teacher_ground_truth parquet has at least 1000 rows
+  claim_id: c_bad7148d
+  context: "Integration test for data generation pipeline in tests/integration/test_data_generation.py.\
+    \ Logic: Verify teacher_ground_truth.parquet exists, has \u22651000 rows, and\
+    \ valid routing labels matching the teacher's known architecture."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth_parquet_has_at_least_1000_rows
+  kind: magnitude
+  raw_text: "Verify teacher_ground_truth.parquet exists, has \u22651000 rows, and\
+    \ valid routing labels matching the teacher's known architecture."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:58:42Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: target 1200 raw samples
+  claim_id: c_63c7255e
+  context: 'Sampling Strategy: Use a fixed random seed. Target 1200 raw samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target 1200 raw samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:58:42Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: train decision tree classifiers for max_depth from 2 to 20
+  claim_id: c_0e546ade
+  context: Implement a loop to train DecisionTreeClassifier (scikit-learn, CPU) for
+    max_depth values systematically varying from 2 to 20 (step 1) in code/01_train_trees.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a DecisionTreeClassifier for max_depth values systematically varying
+    from 2 to 20 (step 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:59:02Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: euler integrator uses 50 steps
+  claim_id: c_dc5a117d
+  context: 'Implement CPU-only Euler integrator in code/models/inference.py. Logic:
+    The function accepts velocity_vector, noise_level, and expert_type, uses a fixed
+    step size (50 steps) and step count (defined in config.py).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The function accepts velocity_vector, noise_level, and expert_type, uses
+    a fixed step size (50 steps) and step count (defined in config.py).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:59:21Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: N_SAMPLES default is 200
+  claim_id: c_5ce87272
+  context: Load N_SAMPLES from code/utils/config.py (default 200). Do NOT run a pilot.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Read N_SAMPLES from code/utils/config.py (default 200).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T02:59:39Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: 1-hour timeout for tree generation phase
+  claim_id: c_8edf7dcc
+  context: 'Primary Path: Generate tree-generated images on CPU. Set a strict 1-hour
+    timeout for the Tree Generation phase.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set a strict 1-hour timeout for the Tree Generation phase.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:00:01Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: paired t-test on per-sample CLIP scores with alpha 0.05
+  claim_id: c_3efccbbc
+  context: 'Perform statistical tests on the results from T030a. Logic: Perform a
+    bootstrap hypothesis test on the FID distribution. Perform a paired t-test on
+    per-sample CLIP scores (two-tailed, alpha=0.05).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a paired t-test on per-sample CLIP scores (two-tailed, alpha=0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:00:26Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: parallel speedup ratio greater than 2.0
+  claim_id: c_76aafaaf
+  context: 'Verification: Run sequential baseline and parallel version. Compare times.
+    Pass if time_seq / time_par > 2.0.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Parallel_speedup_ratio_greater_than_2.0
+  kind: magnitude
+  raw_text: Pass if time_seq / time_par > 2.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:00:49Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: CI constraints 7 GB RAM and 6 hours runtime
+  claim_id: c_7583028f
+  context: "Critical Constraint: All tasks must run on CPU-only CI with minimal computational\
+    \ resources (limited CPU cores and RAM, \u22647 GB RAM, \u22646 hours total runtime)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU-only CI with minimal computational resources\
+    \ (limited CPU cores and RAM, \u22647 GB RAM, \u22646 hours total runtime)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:00:50Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: budget estimation rate 5 min per sample
+  claim_id: c_3a32d753
+  context: 'Budget Check: T030c uses a static rate (5 min/sample) for budget estimation,
+    not a pilot run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T030c uses a static rate (5 min/sample) for budget estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:01:04Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Generate synthetic dataset with at least 1000 rows and valid expert identifiers
+  claim_id: c_01f93adc
+  context: "Independent Test for User Story 1: The system produces a CSV/Parquet file\
+    \ with \u22651,000 rows, valid expert identifiers, and consistent velocity vector\
+    \ dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_dataset_with_at_least_1000_rows_and_valid
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:02:50Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Target 1200 raw samples for data streaming
+  claim_id: c_7f6cbefe
+  context: 'Sampling Strategy: Use a fixed random seed. Target 1200 raw samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target 1200 raw samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:02:51Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Train Decision Tree with max_depth 5 and report reproducible validation
+    accuracy
+  claim_id: c_e34f7fdf
+  context: 'Independent Test for User Story 2: A tree with max_depth=5 is saved and
+    reports a reproducible validation accuracy on a held-out test split.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a Decision Tree with max_depth=5 and report a reproducible validation
+    accuracy on a held-out test split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:03:09Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Train Decision Tree models with max_depth from 2 to 20 step 1
+  claim_id: c_19bafdca
+  context: Implement a loop to train DecisionTreeClassifier (scikit-learn, CPU) for
+    max_depth values systematically varying from 2 to 20 (step 1) in code/01_train_trees.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a DecisionTreeClassifier for max_depth values systematically varying
+    from 2 to 20 with a step of 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:03:27Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 2
+  canonical: Euler integrator uses 50 steps
+  claim_id: c_db0456f7
+  context: The function accepts velocity_vector, noise_level, and expert_type, uses
+    a fixed step size (50 steps) and step count (defined in config.py), and invokes
+    the appropriate expert field logic to generate an image.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: uses a fixed step size (50 steps)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:03:27Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Default N_SAMPLES is 200
+  claim_id: c_ced284a8
+  context: Load N_SAMPLES from code/utils/config.py (default 200). Do NOT run a pilot.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load N_SAMPLES from code/utils/config.py with a default of 200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:03:45Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Tree Generation phase has 1-hour timeout
+  claim_id: c_d5d5fe23
+  context: 'Primary Path: Generate tree-generated images on CPU. Set a strict 1-hour
+    timeout for the Tree Generation phase.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set a strict 1-hour timeout for the Tree Generation phase.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:03:45Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Paired t-test on CLIP scores with alpha 0.05
+  claim_id: c_878fad14
+  context: Perform a paired t-test on per-sample CLIP scores (two-tailed, alpha=0.05).
+    Ensure input lists are aligned.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a paired t-test on per-sample CLIP scores with two-tailed alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:04:05Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Run vulture with min-confidence 60
+  claim_id: c_09576e0c
+  context: Run vulture code/ --min-confidence 60. If issues are found, append them
+    to vulture_report.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run vulture code/ with --min-confidence 60.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:04:06Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Verify peak memory less than 6 GB
+  claim_id: c_a1905081
+  context: Verify peak memory < 6 GB in profile_report.txt.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_memory_less_than_6_GB
+  kind: magnitude
+  raw_text: Verify peak memory usage is less than 6 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:04:23Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Parallel batch processing speedup ratio greater than 2.0
+  claim_id: c_219e3ef5
+  context: Compare times. Pass if time_seq / time_par > 2.0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Parallel_batch_processing_speedup_ratio_greater_than_2.0
+  kind: magnitude
+  raw_text: Pass if time_seq / time_par > 2.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:04:25Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: 'CI constraints: 7 GB RAM and 6 hours runtime'
+  claim_id: c_1eb9bf61
+  context: "Critical Constraint: All tasks must run on CPU-only CI with minimal computational\
+    \ resources (limited CPU cores and RAM, \u22647 GB RAM, \u22646 hours total runtime)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU-only CI with limited CPU cores and RAM, \u2264\
+    7 GB RAM, \u22646 hours total runtime."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:04:26Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Implement 6-hour timeout using signal.SIGALRM
+  claim_id: c_a7acd2d2
+  context: T032 implements a hard 6-hour timeout using signal.SIGALRM to prevent CI
+    hangs and ensure partial results are saved.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a hard 6-hour timeout using signal.SIGALRM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:04:55Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: generate synthetic dataset with at least 1000 rows
+  claim_id: c_26503972
+  context: "Independent Test for User Story 1: The system produces a CSV/Parquet file\
+    \ with \u22651,000 rows, valid expert identifiers, and consistent velocity vector\
+    \ dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_dataset_with_at_least_1000_rows
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:05Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: target 1200 raw samples for data streaming
+  claim_id: c_b449619a
+  context: 'Sampling Strategy: Use a fixed random seed. Target 1200 raw samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed random seed. Target 1200 raw samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:25Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: train decision trees with max_depth varying from 2 to 20
+  claim_id: c_5ac3a420
+  context: 'Logic: Train a tree for each depth d in 2, 3,..., 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a tree for each depth d in 2, 3,..., 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:26Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: euler integrator uses 50 steps
+  claim_id: c_bb994f7c
+  context: The function accepts velocity_vector, noise_level, and expert_type, uses
+    a fixed step size (50 steps) and step count (defined in config.py), and invokes
+    the appropriate expert field logic to generate an image.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: uses a fixed step size (50 steps) and step count (defined in config.py)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:26Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: default sample size N_SAMPLES is 200
+  claim_id: c_67b12807
+  context: Load N_SAMPLES from code/utils/config.py (default 200). Do NOT run a pilot.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load N_SAMPLES from code/utils/config.py (default 200).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:45Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: tree generation phase has 1-hour timeout
+  claim_id: c_4159a29b
+  context: 'Primary Path: Generate tree-generated images on CPU. Set a strict 1-hour
+    timeout for the Tree Generation phase.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set a strict 1-hour timeout for the Tree Generation phase.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:45Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 2
+  canonical: run vulture with min-confidence 60
+  claim_id: c_cbfa623c
+  context: 'Logic: Run vulture code/ --min-confidence 60. If issues are found, append
+    them to vulture_report.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run vulture code/ --min-confidence 60.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:46Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 2
+  canonical: verify peak memory less than 6 GB
+  claim_id: c_425f94af
+  context: 'Verification: Run python -m memory_profiler code/00_data_generation.py
+    > profile_report.txt. Verify peak memory < 6 GB in profile_report.txt.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_memory_less_than_6_GB
+  kind: magnitude
+  raw_text: Verify peak memory < 6 GB in profile_report.txt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:48Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: parallel batch processing speedup ratio greater than 2.0
+  claim_id: c_55ba9e50
+  context: 'Verification: Run sequential baseline and parallel version. Compare times.
+    Pass if time_seq / time_par > 2.0.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Parallel_batch_processing_speedup_ratio_greater_than_2.0
+  kind: magnitude
+  raw_text: Pass if time_seq / time_par > 2.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:50Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: cpu-only ci constraints 7 gb ram 6 hours runtime
+  claim_id: c_8e4c463d
+  context: "Critical Constraint: All tasks must run on CPU\u2011only CI with minimal\
+    \ computational resources (limited CPU cores and RAM, \u22647 GB RAM, \u22646\
+    \ hours total runtime)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU\u2011only CI with minimal computational resources\
+    \ (limited CPU cores and RAM, \u22647 GB RAM, \u22646 hours total runtime)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:51Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: cpu-only ci constraints 6 hours runtime
+  claim_id: c_93fcc6b1
+  context: "Critical Constraint: All tasks must run on CPU\u2011only CI with minimal\
+    \ computational resources (limited CPU cores and RAM, \u22647 GB RAM, \u22646\
+    \ hours total runtime)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU\u2011only CI with minimal computational resources\
+    \ (limited CPU cores and RAM, \u22647 GB RAM, \u22646 hours total runtime)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:51Z'

@@ -1,21 +1,11 @@
-T013a:
+T016b:
   c: false
-  h: 16433e4f6d0cf5aac76d62dc0148ff701d37cdddf09fbdc82d793bddc2bd05b4
-  r: "The provided `code/00_teacher_inference.py` contains only placeholder stubs\
-    \ (e.g., `load_teacher_model` returns `None`, no GPU detection, no actual inference,\
-    \ and no logic to write `teacher_ground_truth.parquet`). The required fallback\
-    \ file `data/raw/teacher_ground_truth.parquet` is missing, and the script does\
-    \ not abort with a clear error when neither GPU inference nor a verified fallback\
-    \ is available. Consequently, the task\u2019s primary and fallback requirements\
-    \ are not met."
-T020:
-  c: false
-  h: 478616cc2ab0af44f3eeeafefef0d62fd70e1c6fce3e8ca494d86158773fa1fc
-  r: The `code/01_train_trees.py` script is present but the required input file `data/processed/teacher_routing_dataset.parquet`
-    does not exist, so the splitting logic cannot be exercised. Additionally, the
-    script is truncated (e.g., the `train_trees` function is incomplete), indicating
-    the implementation is not finished. The missing dataset and incomplete code must
-    be provided to satisfy the task.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No validation script, log, or result file was provided showing that `teacher_routing_dataset.parquet`\
+    \ was inspected for source provenance, that both ImageNet\u20111K and LAION\u2011\
+    400M samples are present, and that the dataset size check (\u2265\u202F1000 rows)\
+    \ was performed (or that the process exited with code\u202F1 otherwise). The required\
+    \ artifact is missing."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
