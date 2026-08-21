@@ -1,3 +1,2 @@
-"""
-Test package for llmXive project.
-"""
+# Tests package for llmXive research pipeline
+pass

@@ -1,6 +1,6 @@
 torch
-rdkit
 torch-geometric
+rdkit
 scikit-learn
 pandas
 datasets
@@ -8,5 +8,10 @@ networkx
 psutil
 pyyaml
 requests
+chembl_webresource_client
+ruff
+black
+flake8
+isort
 scipy
-pytest
+numpy

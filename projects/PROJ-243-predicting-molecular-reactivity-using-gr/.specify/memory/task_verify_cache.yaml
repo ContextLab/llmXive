@@ -1,47 +1,15 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/raw` directory being present or created is provided; the
-    response contains only task description and specifications without any filesystem
-    artifact. The required directory is missing, so the task is not satisfied.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/processed` directory (or any files within it) is provided;
-    the claim cannot be verified without the actual artifact present. The required
-    data directory is missing from the supplied artifacts.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that a `data/assets` directory exists (or contains
-    any files). Without a visible directory or confirmation of its creation, the requirement
-    cannot be verified as satisfied. The implementer must add the `data/assets` folder
-    (and optionally populate it) and provide proof of its presence.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that the required directories (`code`, `artifacts`,
-    `tests`) actually exist or contain any files; without such artifacts the task
-    requirement is not satisfied.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.flake8`, `ruff.toml`, `pyproject.toml`
-    with Black settings) or related setup scripts are present in the provided evidence,
-    so the requirement to configure flake8/ruff and Black has not been satisfied.
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `artifacts/logs/` directory, log files, or `artifacts/metrics.json` were presented,
     and no code/configuration showing a logging setup was provided. Consequently the
     required logging infrastructure is missing.
-T009:
+T010b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: 'No evidence of a logging infrastructure was presented: there are no files or
-    code shown under `artifacts/logs/` nor a `artifacts/metrics.json`, and no description
-    of how structured logs are written. The required artifacts are missing, so the
-    task is not satisfied.'
+  h: 609f89e7f02909c53b12c351f1ca0826aa7f5b652203aa384ff225c420c06d73
+  r: "Both required files (`data/raw/reference_substructures_raw.csv` and `data/raw/checksums.json`)\
+    \ are missing, so no checksum verification could be performed. The task\u2019\
+    s core artifact is absent, making the claim unsubstantiated."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -49,12 +17,6 @@ T013:
     the claim lacks any tangible artifact demonstrating conversion of SMILES to graphs
     with the specified node and edge features. The required implementation and its
     output are missing.
-T014c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required files (`artifacts/exclusion_report.json` and, if
-    sampling occurred, `artifacts/memory_adjustment.log`) was provided; the claim
-    cannot be verified because the artifacts are missing.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

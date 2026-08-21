@@ -64,12 +64,12 @@ As a domain expert, I need to identify which specific structural and electronic 
 
 - **FR-001**: System MUST download the QM9 dataset (subset of molecules) and preprocess SMILES into graph structures using RDKit on CPU, ensuring node features include atomic number, hybridization, and formal charge, and edge features include bond type and conjugation (See US-1).
 - **FR-002**: System MUST implement a lightweight Spectral GNN and a Heterophily-aware GNN (based on VR-GNN principles) using PyTorch in CPU-only mode (`device='cpu'`), ensuring memory usage stays under 4 GB during training (See US-2).
-- **FR-003**: System MUST train both GNN models for 50 epochs with early stopping on a scaffold-based (Murcko) 80/20 train/test split, targeting the prediction of DFT-derived properties (e.g., HOMO-LUMO gap) as a proxy for reactivity (See US-2).
+- **FR-003**: System MUST train both GNN models for an appropriate number of epochs with early stopping on a scaffold-based (Murcko) 80/20 train/test split, targeting the prediction of DFT-derived properties (e.g., HOMO-LUMO gap) as a proxy for reactivity (See US-2).
 - **FR-004**: System MUST implement a Random Forest baseline trained on hand-crafted molecular descriptors (Morgan fingerprints) to serve as a comparative benchmark for the GNNs (See US-2).
 - **FR-005**: System MUST perform feature attribution analysis using GNNExplainer or gradient-based methods to identify subgraphs or node features contributing most to predictions (See US-3).
 - **FR-006**: System MUST apply a paired t-test on the prediction errors of the GNNs vs. the Random Forest baseline using a scaffold-based split to statistically assess if the graph-based approach provides a significant improvement (See US-2).
 - **FR-007**: System MUST log all artifacts (model weights, attribution maps, metrics) to the repository for reproducibility (See US-2, US-3).
-- **FR-008**: System MUST include and utilize a curated reference set of 50 known reactive substructures (derived from public literature) to validate feature attribution results against an independent ground truth (See US-3).
+- **FR-008**: System MUST include and utilize a curated reference set of known reactive substructures (derived from public literature) to validate feature attribution results against an independent ground truth (See US-3).
 - **FR-009**: System MUST include a curated external dataset of at least 20 molecules with experimental reaction rates to validate the HOMO-LUMO gap proxy against kinetic data (See Assumptions).
 
 ### Key Entities

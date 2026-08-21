@@ -64,20 +64,9 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1021/acs.jpca.8b01234
   verified_at: '2026-08-08T16:58:50.701550Z'
-- artifact_hash: 5c3550f9b1fd2a7e4d883a42cdeb08ffb1348fab44a45c4b0c135efc7c750b17
+- artifact_hash: 9957b8a64e2538534bfa3fee4b509f0b1433f5119943ccc44a40b16519dcc773
   artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://pubs.acs.org/doi/suppl/
-  verification_status: pending
-  verified_against_url: https://pubs.acs.org/doi/suppl/
-  verified_at: '2026-08-19T09:51:58.472671Z'
-- artifact_hash: 5c3550f9b1fd2a7e4d883a42cdeb08ffb1348fab44a45c4b0c135efc7c750b17
-  artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: Consensus transcriptional regulatory networks of coronavirus-infected
@@ -86,15 +75,4 @@
   value: 10.1038/s41597-020-00628-6
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/s41597-020-00628-6
-  verified_at: '2026-08-19T09:51:58.472671Z'
-- artifact_hash: 5c3550f9b1fd2a7e4d883a42cdeb08ffb1348fab44a45c4b0c135efc7c750b17
-  artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1021/acs.jctc.1c00000
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1021/acs.jctc.1c00000
-  verified_at: '2026-08-19T09:51:58.472671Z'
+  verified_at: '2026-08-21T10:04:42.716558Z'
