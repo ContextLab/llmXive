@@ -3,9 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-cold-rolling-texture"
+name = "llmxive-project"
 version = "0.1.0"
-description = "Predicting the impact of cold rolling reduction on texture evolution in FCC metals"
+description = "Predicting the Impact of Cold Rolling Reduction on Texture Evolution"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "orix",
@@ -16,40 +17,34 @@ dependencies = [
     "pyyaml",
     "requests",
     "pytest",
-    "pydantic"
-]
-
-[project.optional-dependencies]
-dev = [
-    "flake8",
-    "black",
-    "isort",
-    "pre-commit"
+    "pydantic",
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
     | \.venv
-    | venv
-    | data
+    | _build
+    | buck-out
     | build
     | dist
+    | data
+    | docs
+    | \.eggs
+    | \.ipynb_checkpoints
 )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 88
-known_first_party = ["code"]
-skip = [".git", ".venv", "venv", "data", "build", "dist"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+line_length = 100
+known_first_party = ["analysis", "config", "data", "features", "models", "utils", "setup_linting"]
+known_third_party = ["orix", "sklearn", "shap", "pandas", "numpy", "yaml", "requests", "pytest", "pydantic"]
+skip = ["data", "docs", ".eggs", "build", "dist"]

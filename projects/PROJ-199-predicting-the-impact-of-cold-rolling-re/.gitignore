@@ -16,20 +16,16 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
 # Virtual Environments
-.venv/
-env/
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
+.venv/
 
 # IDEs
 .vscode/
@@ -43,46 +39,48 @@ venv.bak/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-*.ipynb_checkpoints
 
-# Data
-data/raw/*.csv
-data/raw/*.parquet
-data/raw/*.h5
-data/raw/*.npy
-data/raw/*.npz
-data/processed/*.csv
-data/processed/*.parquet
-data/processed/*.h5
-data/processed/*.npy
-data/processed/*.npz
-data/interim/*.csv
-data/interim/*.parquet
-data/interim/*.h5
-data/interim/*.npy
-data/interim/*.npz
-data/*.csv
-data/*.parquet
-data/*.h5
-data/*.npy
-data/*.npz
-
-# Logs
-*.log
-logs/
-
-# Testing
+# pytest
+.pytest_cache/
 .coverage
 htmlcov/
-.pytest_cache/
-.mypy_cache/
+coverage.xml
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Local configuration
+# Project specific: Data
+# Do not track raw data, large processed files, or model checkpoints
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/interim/*
+!data/interin/.gitkeep
+data/*.parquet
+data/*.csv
+data/*.h5
+data/*.nc
+data/*.mat
+data/*.zip
+data/*.tar.gz
+
+# Project specific: Figures and Models
+figures/*.png
+figures/*.pdf
+figures/*.jpg
+models/*.pkl
+models/*.h5
+models/*.pt
+models/*.pth
+
+# Logs
+logs/
+*.log
+
+# Configuration secrets (if any)
 .env
 .env.local
-.env.*.local
-config_local.py
+secrets.json
+config_secrets.yaml

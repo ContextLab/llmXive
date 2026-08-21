@@ -55,7 +55,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T002a [P] Create `requirements.txt` at `projects/PROJ-037-investigating-the-correlation-between-gu/` with dependencies: `pandas`, `scikit-learn`, `scipy`, `statsmodels`, `biom-format`, `skbio`, `numpy`, `matplotlib`, `seaborn`, `requests`, `biopython`. **Note**: Do NOT use `american-gut` package; use `biom-format` and `skbio` with manual download scripts as defined in plan.md.
-- [ ] T002b [P] Create virtual environment (`python -m venv venv`) and install requirements in `code/` context <!-- FAILED: unspecified -->
+- [ ] T002b [P] Create virtual environment (`python -m venv venv`) and install requirements in `code/` context <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools in `setup.cfg` or `pyproject.toml`
 - [X] T004 [P] Create `code/__init__.py` and utility modules for configuration and logging in `code/utils/`
 - [ ] T006a [P] Define data validation schema in `code/schemas.py` matching `contracts/dataset.schema.yaml` (specify column types: participant_id=str, shannon=float, etc.)
@@ -152,9 +152,9 @@
 - [ ] T043 [P] Documentation updates in `docs/` and `README.md`
 - [ ] T044 Code cleanup and refactoring
 - [ ] T045 Performance optimization across all stories (ensure < 6h runtime on N=200)
-- [~] T046 [P] Additional unit tests (if requested) in `tests/unit/`
-- [~] T047 Security hardening (data handling)
-- [ ] T048 Run `quickstart.md` validation
+- [ ] T046 [P] Additional unit tests (if requested) in `tests/unit/`
+- [ ] T047 Security hardening (data handling)
+- [ ] T048 Run `quickstart.md` validation <!-- FAILED: unspecified -->
 
 ---
 

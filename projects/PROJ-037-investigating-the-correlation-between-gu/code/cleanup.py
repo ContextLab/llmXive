@@ -1,14 +1,14 @@
 """
-Code cleanup and refactoring utility for PROJ-037.
+Code cleanup and refactoring module for PROJ-037.
 
-This script performs the following cleanup tasks:
-1. Removes temporary files and directories
-2. Consolidates duplicate imports
-3. Standardizes logging configurations
-4. Removes unused dependencies from requirements.txt
-5. Fixes common linting issues
-6. Validates all module imports
+This module implements automated cleanup tasks including:
+- Removing unused imports
+- Standardizing logging calls
+- Enforcing PEP 8 style guidelines
+- Consolidating duplicate functions
+- Removing debug artifacts
 """
+
 import os
 import sys
 import re
@@ -16,518 +16,399 @@ import ast
 import logging
 import subprocess
 from pathlib import Path
-from typing import Set, List, Dict, Tuple, Optional
-from collections import defaultdict
-
-from config import get_config
-from utils.logging_utils import setup_logging, get_logger
-from utils.seeding import set_seed
+from typing import List, Set, Dict, Tuple, Optional
 
 # Configure logging
-logger = get_logger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Standard imports that are commonly used in the project
+STANDARD_IMPORTS = {
+    'os', 'sys', 're', 'ast', 'logging', 'subprocess', 'json', 'csv',
+    'pathlib', 'typing', 'collections', 'itertools', 'functools',
+    'warnings', 'math', 'random', 'datetime', 'time', 'hashlib',
+    'pickle', 'gzip', 'bz2', 'zipfile', 'tarfile', 'tempfile',
+    'shutil', 'glob', 'fnmatch', 'string', 'io', 'argparse',
+    'dataclasses', 'enum', 'abc', 'copy', 'operator', 'statistics',
+    'numpy', 'pandas', 'scipy', 'sklearn', 'matplotlib', 'seaborn',
+    'biom', 'skbio', 'biopython', 'requests'
+}
+
+# Patterns to identify debug artifacts
+DEBUG_PATTERNS = [
+    r'print\s*\([^)]*debug[^)]*\)',
+    r'#\s*DEBUG',
+    r'#\s*TODO',
+    r'#\s*FIXME',
+    r'#\s*XXX',
+    r'#\s*HACK',
+    r'logging\.debug\s*\(',
+    r'logger\.debug\s*\('
+]
+
+# Patterns to identify placeholder code
+PLACEHOLDER_PATTERNS = [
+    r'pass\s*#\s*TODO',
+    r'raise\s+NotImplementedError',
+    r'raise\s+Exception\s*\(',
+    r'#\s*implement\s+me',
+    r'#\s*stub'
+]
 
 class CodeCleanup:
-    """Handles code cleanup and refactoring tasks."""
-
+    """
+    Main class for automated code cleanup and refactoring.
+    """
+    
     def __init__(self, project_root: Path):
+        """
+        Initialize the CodeCleanup instance.
+        
+        Args:
+            project_root: Path to the project root directory
+        """
         self.project_root = project_root
-        self.code_dir = project_root / "code"
-        self.tests_dir = project_root / "tests"
-        self.data_dir = project_root / "data"
-        self.docs_dir = project_root / "docs"
+        self.code_dir = project_root / 'code'
+        self.tests_dir = project_root / 'tests'
+        self.stats = {
+            'files_processed': 0,
+            'imports_removed': 0,
+            'debug_artifacts_removed': 0,
+            'placeholders_found': 0,
+            'style_violations_fixed': 0,
+            'errors_encountered': 0
+        }
+    
+    def find_python_files(self) -> List[Path]:
+        """
+        Find all Python files in the project.
         
-        # Track files to process
-        self.python_files: List[Path] = []
-        self.imports_by_file: Dict[Path, Set[str]] = defaultdict(set)
-        self.used_names: Dict[Path, Set[str]] = defaultdict(set)
+        Returns:
+            List of Path objects for all .py files
+        """
+        python_files = []
+        for directory in [self.code_dir, self.tests_dir]:
+            if directory.exists():
+                python_files.extend(directory.rglob('*.py'))
+        return python_files
+    
+    def remove_unused_imports(self, file_path: Path) -> Tuple[int, List[str]]:
+        """
+        Remove unused imports from a Python file.
         
-    def scan_python_files(self) -> None:
-        """Scan all Python files in the project."""
-        logger.info("Scanning Python files...")
-        self.python_files = list(self.code_dir.rglob("*.py"))
-        self.python_files.extend(self.tests_dir.rglob("*.py"))
-        logger.info(f"Found {len(self.python_files)} Python files")
-
-    def analyze_imports(self) -> None:
-        """Analyze imports across all Python files."""
-        logger.info("Analyzing imports...")
-        for file_path in self.python_files:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                
-                tree = ast.parse(content)
-                
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.Import):
-                        for alias in node.names:
-                            self.imports_by_file[file_path].add(alias.name)
-                    elif isinstance(node, ast.ImportFrom):
-                        module = node.module or ""
-                        for alias in node.names:
-                            self.imports_by_file[file_path].add(f"{module}.{alias.name}")
-            except SyntaxError as e:
-                logger.warning(f"Syntax error in {file_path}: {e}")
-            except Exception as e:
-                logger.error(f"Error analyzing {file_path}: {e}")
-
-    def consolidate_imports(self) -> int:
-        """Consolidate duplicate imports within files."""
-        count = 0
-        logger.info("Consolidating imports...")
+        Args:
+            file_path: Path to the Python file
         
-        for file_path in self.python_files:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    lines = f.readlines()
-                
+        Returns:
+            Tuple of (number of imports removed, list of removed imports)
+        """
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            tree = ast.parse(content)
+            
+            # Collect all imported names
+            imported_names = set()
+            import_nodes = []
+            
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    for alias in node.names:
+                        name = alias.asname if alias.asname else alias.name
+                        imported_names.add(name)
+                        import_nodes.append((node, alias))
+                elif isinstance(node, ast.ImportFrom):
+                    module = node.module or ''
+                    for alias in node.names:
+                        name = alias.asname if alias.asname else alias.name
+                        imported_names.add(name)
+                        import_nodes.append((node, alias))
+            
+            # Collect all used names
+            used_names = set()
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Name):
+                    used_names.add(node.id)
+                elif isinstance(node, ast.Attribute):
+                    # Handle attribute access like pandas.DataFrame
+                    if isinstance(node.value, ast.Name):
+                        used_names.add(node.value.id)
+            
+            # Find unused imports
+            unused = imported_names - used_names - {'__name__', '__doc__', '__file__'}
+            removed_count = 0
+            removed_list = []
+            
+            if unused:
+                # Rebuild the file without unused imports
+                lines = content.splitlines()
                 new_lines = []
-                seen_imports = set()
-                import_block_start = -1
-                import_block_end = -1
+                skip_until_blank = False
                 
                 for i, line in enumerate(lines):
-                    stripped = line.strip()
+                    if skip_until_blank:
+                        if line.strip() == '':
+                            skip_until_blank = False
+                        continue
                     
-                    # Detect import statements
-                    if stripped.startswith('import ') or stripped.startswith('from '):
-                        if import_block_start == -1:
-                            import_block_start = i
-                        import_block_end = i
-                        
-                        # Extract the import statement
-                        if stripped.startswith('import '):
-                            parts = stripped.split('import')
-                            if len(parts) > 1:
-                                imports = [p.strip() for p in parts[1].split(',') if p.strip()]
-                                for imp in imports:
-                                    if imp not in seen_imports:
-                                        seen_imports.add(imp)
-                                        new_lines.append(f"import {imp}\n")
-                                    else:
-                                        count += 1
-                        elif stripped.startswith('from '):
-                            parts = stripped.split('import')
-                            if len(parts) > 1:
-                                module = parts[0].replace('from', '').strip()
-                                imports = [p.strip() for p in parts[1].split(',') if p.strip()]
-                                for imp in imports:
-                                    full_import = f"{module}.{imp}"
-                                    if full_import not in seen_imports:
-                                        seen_imports.add(full_import)
-                                        new_lines.append(f"from {module} import {imp}\n")
-                                    else:
-                                        count += 1
-                    else:
-                        if import_block_start != -1 and i > import_block_end:
-                            import_block_start = -1
-                            import_block_end = -1
+                    # Check if this line contains an unused import
+                    is_unused_import = False
+                    for unused_name in unused:
+                        if re.search(rf'\b{re.escape(unused_name)}\b', line):
+                            # Check if it's actually an import statement
+                            if re.match(r'^\s*(from\s+\S+\s+)?import\s+', line):
+                                is_unused_import = True
+                                removed_count += 1
+                                removed_list.append(unused_name)
+                                break
+                    
+                    if not is_unused_import:
                         new_lines.append(line)
                 
-                # Write back if changes were made
-                if count > 0:
-                    with open(file_path, 'w', encoding='utf-8') as f:
-                        f.writelines(new_lines)
-                    logger.debug(f"Consolidated imports in {file_path}")
-                    
-            except Exception as e:
-                logger.error(f"Error consolidating imports in {file_path}: {e}")
+                # Write the cleaned file
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write('\n'.join(new_lines))
+            
+            return removed_count, removed_list
+            
+        except Exception as e:
+            logger.error(f"Error processing {file_path}: {e}")
+            self.stats['errors_encountered'] += 1
+            return 0, []
+    
+    def remove_debug_artifacts(self, file_path: Path) -> int:
+        """
+        Remove debug artifacts from a Python file.
         
-        return count
-
-    def remove_unused_imports(self) -> int:
-        """Remove unused imports from files."""
-        count = 0
-        logger.info("Removing unused imports...")
+        Args:
+            file_path: Path to the Python file
         
-        for file_path in self.python_files:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                
-                tree = ast.parse(content)
-                
-                # Collect all names used in the file
-                used_names = set()
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.Name):
-                        used_names.add(node.id)
-                    elif isinstance(node, ast.Attribute):
-                        # Handle attribute access like os.path.join
-                        current = node
-                        while isinstance(current, ast.Attribute):
-                            current = current.value
-                        if isinstance(current, ast.Name):
-                            used_names.add(current.id)
-                
-                # Find unused imports
-                unused_imports = set()
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.Import):
-                        for alias in node.names:
-                            name = alias.asname if alias.asname else alias.name.split('.')[0]
-                            if name not in used_names:
-                                unused_imports.add(alias.name)
-                    elif isinstance(node, ast.ImportFrom):
-                        module = node.module or ""
-                        for alias in node.names:
-                            name = alias.asname if alias.asname else alias.name
-                            full_name = f"{module}.{name}" if module else name
-                            if name not in used_names and full_name not in used_names:
-                                unused_imports.add(f"{module}.{name}")
-                
-                # Remove unused imports
-                if unused_imports:
-                    lines = content.splitlines(keepends=True)
-                    new_lines = []
-                    skip_next = False
-                    
-                    for i, line in enumerate(lines):
-                        stripped = line.strip()
-                        
-                        if stripped.startswith('import ') or stripped.startswith('from '):
-                            should_skip = False
-                            
-                            if stripped.startswith('import '):
-                                parts = stripped.split('import')
-                                if len(parts) > 1:
-                                    imports = [p.strip() for p in parts[1].split(',')]
-                                    for imp in imports:
-                                        base_name = imp.split('.')[0]
-                                        if imp in unused_imports or base_name in unused_imports:
-                                            should_skip = True
-                                            break
-                            
-                            elif stripped.startswith('from '):
-                                parts = stripped.split('import')
-                                if len(parts) > 1:
-                                    module = parts[0].replace('from', '').strip()
-                                    imports = [p.strip() for p in parts[1].split(',')]
-                                    for imp in imports:
-                                        full_name = f"{module}.{imp}"
-                                        if full_name in unused_imports or imp in unused_imports:
-                                            should_skip = True
-                                            break
-                            
-                            if not should_skip:
-                                new_lines.append(line)
-                            else:
-                                count += 1
-                        else:
-                            new_lines.append(line)
-                    
-                    # Write back
-                    with open(file_path, 'w', encoding='utf-8') as f:
-                        f.writelines(new_lines)
-                    logger.debug(f"Removed unused imports from {file_path}")
-                    
-            except Exception as e:
-                logger.error(f"Error removing unused imports in {file_path}: {e}")
+        Returns:
+            Number of debug artifacts removed
+        """
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            original_content = content
+            removed_count = 0
+            
+            for pattern in DEBUG_PATTERNS:
+                matches = re.findall(pattern, content, re.IGNORECASE)
+                removed_count += len(matches)
+                content = re.sub(pattern, '', content, flags=re.IGNORECASE)
+            
+            if content != original_content:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(content)
+            
+            return removed_count
+            
+        except Exception as e:
+            logger.error(f"Error processing {file_path}: {e}")
+            self.stats['errors_encountered'] += 1
+            return 0
+    
+    def check_placeholders(self, file_path: Path) -> int:
+        """
+        Check for placeholder code in a Python file.
         
-        return count
-
-    def standardize_logging(self) -> int:
-        """Standardize logging configurations across files."""
-        count = 0
-        logger.info("Standardizing logging configurations...")
+        Args:
+            file_path: Path to the Python file
         
-        # Pattern to match old-style logging calls
-        old_patterns = [
-            r'logging\.getLogger\(__name__\)',
-            r'logger\s*=\s*logging\.getLogger',
-            r'logging\.basicConfig',
-        ]
+        Returns:
+            Number of placeholders found
+        """
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            placeholder_count = 0
+            
+            for pattern in PLACEHOLDER_PATTERNS:
+                matches = re.findall(pattern, content, re.IGNORECASE)
+                placeholder_count += len(matches)
+            
+            return placeholder_count
+            
+        except Exception as e:
+            logger.error(f"Error processing {file_path}: {e}")
+            self.stats['errors_encountered'] += 1
+            return 0
+    
+    def standardize_logging(self, file_path: Path) -> int:
+        """
+        Standardize logging calls in a Python file.
         
-        for file_path in self.python_files:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                
-                modified = False
-                
-                # Replace old logging patterns with standardized imports
-                for pattern in old_patterns:
-                    if re.search(pattern, content):
-                        modified = True
-                        break
-                
-                if modified:
-                    # Ensure standard logging import and setup
-                    if 'from utils.logging_utils import setup_logging, get_logger' not in content:
-                        # Add import after other imports
-                        lines = content.splitlines(keepends=True)
-                        new_lines = []
-                        import_section_end = -1
-                        
-                        for i, line in enumerate(lines):
-                            if line.strip().startswith('import ') or line.strip().startswith('from '):
-                                import_section_end = i
-                            elif import_section_end != -1:
-                                # Insert logging import
-                                new_lines.append("from utils.logging_utils import setup_logging, get_logger\n")
-                                new_lines.append("\n")
-                                import_section_end = -1
-                                modified = True
-                            
-                            new_lines.append(line)
-                        
-                        if modified:
-                            with open(file_path, 'w', encoding='utf-8') as f:
-                                f.writelines(new_lines)
-                            count += 1
-                            logger.debug(f"Standardized logging in {file_path}")
-                    
-            except Exception as e:
-                logger.error(f"Error standardizing logging in {file_path}: {e}")
+        Args:
+            file_path: Path to the Python file
         
-        return count
-
-    def clean_temp_files(self) -> int:
-        """Remove temporary files and directories."""
-        count = 0
-        logger.info("Cleaning temporary files...")
+        Returns:
+            Number of logging statements standardized
+        """
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            original_content = content
+            standardized_count = 0
+            
+            # Replace common logging patterns with standard format
+            patterns = [
+                (r'print\s*\(\s*["\']([^"\']*)["\'].*\)', r'logger.info(\1)'),
+                (r'print\s*\(\s*f["\']([^"\']*)["\'].*\)', r'logger.info(\1)'),
+                (r'logging\.info\s*\(', r'logger.info('),
+                (r'logging\.warning\s*\(', r'logger.warning('),
+                (r'logging\.error\s*\(', r'logger.error('),
+                (r'logging\.debug\s*\(', r'logger.debug('),
+                (r'logging\.critical\s*\(', r'logger.critical('),
+            ]
+            
+            for pattern, replacement in patterns:
+                matches = re.findall(pattern, content)
+                standardized_count += len(matches)
+                content = re.sub(pattern, replacement, content)
+            
+            if content != original_content:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(content)
+            
+            return standardized_count
+            
+        except Exception as e:
+            logger.error(f"Error processing {file_path}: {e}")
+            self.stats['errors_encountered'] += 1
+            return 0
+    
+    def run_black_formatting(self, file_path: Path) -> bool:
+        """
+        Run black formatting on a Python file.
         
-        temp_patterns = [
-            "__pycache__",
-            "*.pyc",
-            "*.pyo",
-            "*.pyd",
-            ".Python",
-            "build",
-            "develop-eggs",
-            "dist",
-            "downloads",
-            "eggs",
-            ".eggs",
-            "lib",
-            "lib64",
-            "parts",
-            "sdist",
-            "var",
-            "wheels",
-            "*.egg-info",
-            ".installed.cfg",
-            "*.egg",
-            "MANIFEST",
-            "*.log",
-            ".DS_Store",
-            "Thumbs.db",
-        ]
+        Args:
+            file_path: Path to the Python file
         
-        for pattern in temp_patterns:
-            matches = list(self.project_root.rglob(pattern))
-            for match in matches:
-                try:
-                    if match.is_dir():
-                        import shutil
-                        shutil.rmtree(match)
-                    else:
-                        match.unlink()
-                    count += 1
-                    logger.debug(f"Removed {match}")
-                except Exception as e:
-                    logger.warning(f"Could not remove {match}: {e}")
+        Returns:
+            True if formatting was successful, False otherwise
+        """
+        try:
+            result = subprocess.run(
+                ['black', '--quiet', str(file_path)],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            return result.returncode == 0
+        except Exception as e:
+            logger.warning(f"Could not run black on {file_path}: {e}")
+            return False
+    
+    def process_file(self, file_path: Path) -> Dict[str, int]:
+        """
+        Process a single Python file for cleanup.
         
-        return count
-
-    def validate_requirements(self) -> Tuple[List[str], List[str]]:
-        """Validate requirements.txt and identify unused dependencies."""
-        logger.info("Validating requirements.txt...")
+        Args:
+            file_path: Path to the Python file
         
-        requirements_file = self.project_root / "requirements.txt"
-        if not requirements_file.exists():
-            logger.warning("requirements.txt not found")
-            return [], []
-        
-        with open(requirements_file, 'r', encoding='utf-8') as f:
-            requirements = [line.strip() for line in f if line.strip() and not line.startswith('#')]
-        
-        # Extract all imported modules from Python files
-        imported_modules = set()
-        for file_path in self.python_files:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                
-                tree = ast.parse(content)
-                
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.Import):
-                        for alias in node.names:
-                            imported_modules.add(alias.name.split('.')[0])
-                    elif isinstance(node, ast.ImportFrom):
-                        if node.module:
-                            imported_modules.add(node.module.split('.')[0])
-            except:
-                continue
-        
-        # Map common package names to import names
-        package_to_import = {
-            'pandas': 'pandas',
-            'scikit-learn': 'sklearn',
-            'scipy': 'scipy',
-            'statsmodels': 'statsmodels',
-            'biom-format': 'biom',
-            'skbio': 'skbio',
-            'numpy': 'numpy',
-            'matplotlib': 'matplotlib',
-            'seaborn': 'seaborn',
-            'requests': 'requests',
-            'biopython': 'Bio',
-            'pytest': 'pytest',
-            'flake8': 'flake8',
-            'black': 'black',
+        Returns:
+            Dictionary of cleanup statistics for this file
+        """
+        file_stats = {
+            'imports_removed': 0,
+            'debug_artifacts_removed': 0,
+            'placeholders_found': 0,
+            'logging_standardized': 0
         }
         
-        used_deps = []
-        unused_deps = []
+        logger.info(f"Processing {file_path}")
         
-        for req in requirements:
-            # Handle version specifiers
-            pkg_name = req.split('>=')[0].split('<=')[0].split('==')[0].split('~=')[0].split('!=')[0].strip()
-            pkg_name = pkg_name.replace('-', '_').lower()
-            
-            import_name = package_to_import.get(pkg_name, pkg_name)
-            
-            if import_name in imported_modules or pkg_name in imported_modules:
-                used_deps.append(req)
-            else:
-                # Check if it's a development tool
-                if pkg_name in ['pytest', 'flake8', 'black', 'mypy', 'isort']:
-                    used_deps.append(req)
-                else:
-                    unused_deps.append(req)
+        # Remove unused imports
+        removed, _ = self.remove_unused_imports(file_path)
+        file_stats['imports_removed'] = removed
+        self.stats['imports_removed'] += removed
         
-        logger.info(f"Found {len(used_deps)} used dependencies and {len(unused_deps)} unused dependencies")
-        return used_deps, unused_deps
-
-    def fix_requirements(self) -> None:
-        """Update requirements.txt to remove unused dependencies."""
-        logger.info("Fixing requirements.txt...")
+        # Remove debug artifacts
+        debug_removed = self.remove_debug_artifacts(file_path)
+        file_stats['debug_artifacts_removed'] = debug_removed
+        self.stats['debug_artifacts_removed'] += debug_removed
         
-        requirements_file = self.project_root / "requirements.txt"
-        if not requirements_file.exists():
-            logger.warning("requirements.txt not found")
-            return
+        # Check for placeholders
+        placeholders = self.check_placeholders(file_path)
+        file_stats['placeholders_found'] = placeholders
+        self.stats['placeholders_found'] += placeholders
         
-        used_deps, unused_deps = self.validate_requirements()
+        # Standardize logging
+        logging_std = self.standardize_logging(file_path)
+        file_stats['logging_standardized'] = logging_std
+        self.stats['style_violations_fixed'] += logging_std
         
-        if unused_deps:
-            logger.warning(f"Removing {len(unused_deps)} unused dependencies: {unused_deps}")
-            
-            with open(requirements_file, 'w', encoding='utf-8') as f:
-                f.write("# Core dependencies\n")
-                for dep in used_deps:
-                    f.write(f"{dep}\n")
-                
-                if unused_deps:
-                    f.write("\n# Previously unused dependencies (commented out)\n")
-                    for dep in unused_deps:
-                        f.write(f"# {dep}\n")
-            
-            logger.info("Updated requirements.txt")
-
-    def run_linting(self) -> bool:
-        """Run linting tools to check code quality."""
-        logger.info("Running linting checks...")
+        # Run black formatting
+        if self.run_black_formatting(file_path):
+            self.stats['style_violations_fixed'] += 1
         
-        try:
-            # Run flake8
-            result = subprocess.run(
-                ['flake8', str(self.code_dir), str(self.tests_dir)],
-                capture_output=True,
-                text=True,
-                cwd=self.project_root
-            )
-            
-            if result.returncode != 0:
-                logger.warning("flake8 found issues:")
-                logger.warning(result.stdout)
-                return False
-            
-            logger.info("flake8 passed")
-            return True
-            
-        except FileNotFoundError:
-            logger.warning("flake8 not installed, skipping")
-            return True
-        except Exception as e:
-            logger.error(f"Error running flake8: {e}")
-            return False
-
-    def run_formatting(self) -> bool:
-        """Run code formatting tools."""
-        logger.info("Running code formatting...")
+        self.stats['files_processed'] += 1
         
-        try:
-            # Run black
-            result = subprocess.run(
-                ['black', '--check', str(self.code_dir), str(self.tests_dir)],
-                capture_output=True,
-                text=True,
-                cwd=self.project_root
-            )
-            
-            if result.returncode != 0:
-                logger.warning("black found formatting issues:")
-                logger.warning(result.stdout)
-                return False
-            
-            logger.info("black passed")
-            return True
-            
-        except FileNotFoundError:
-            logger.warning("black not installed, skipping")
-            return True
-        except Exception as e:
-            logger.error(f"Error running black: {e}")
-            return False
-
-    def run(self) -> None:
-        """Execute all cleanup tasks."""
+        return file_stats
+    
+    def run_cleanup(self) -> Dict[str, int]:
+        """
+        Run cleanup on all Python files in the project.
+        
+        Returns:
+            Dictionary of overall cleanup statistics
+        """
         logger.info("Starting code cleanup...")
         
-        # Set random seed for reproducibility
-        set_seed(42)
+        python_files = self.find_python_files()
+        logger.info(f"Found {len(python_files)} Python files to process")
         
-        # Scan files
-        self.scan_python_files()
+        for file_path in python_files:
+            self.process_file(file_path)
         
-        # Analyze imports
-        self.analyze_imports()
+        logger.info(f"Cleanup complete. Processed {self.stats['files_processed']} files.")
+        logger.info(f"Removed {self.stats['imports_removed']} unused imports.")
+        logger.info(f"Removed {self.stats['debug_artifacts_removed']} debug artifacts.")
+        logger.info(f"Found {self.stats['placeholders_found']} placeholders.")
+        logger.info(f"Fixed {self.stats['style_violations_fixed']} style violations.")
         
-        # Perform cleanup tasks
-        count = 0
-        count += self.consolidate_imports()
-        count += self.remove_unused_imports()
-        count += self.standardize_logging()
-        count += self.clean_temp_files()
-        self.fix_requirements()
+        if self.stats['errors_encountered'] > 0:
+            logger.warning(f"Encountered {self.stats['errors_encountered']} errors during cleanup.")
         
-        logger.info(f"Cleanup complete. Modified {count} files.")
-        
-        # Run linting and formatting checks
-        self.run_linting()
-        self.run_formatting()
-        
-        logger.info("Code cleanup finished successfully")
-
+        return self.stats.copy()
 
 def main():
     """Main entry point for the cleanup script."""
-    # Setup logging
-    setup_logging()
-    logger = get_logger(__name__)
+    parser = argparse.ArgumentParser(description='Code cleanup and refactoring tool')
+    parser.add_argument(
+        '--project-root',
+        type=Path,
+        default=Path('.'),
+        help='Path to the project root directory'
+    )
+    parser.add_argument(
+        '--verbose',
+        action='store_true',
+        help='Enable verbose output'
+    )
     
-    # Get project root
-    project_root = Path(__file__).parent.parent
+    args = parser.parse_args()
     
-    # Run cleanup
-    cleanup = CodeCleanup(project_root)
-    cleanup.run()
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
     
-    logger.info("Cleanup completed successfully")
+    cleanup = CodeCleanup(args.project_root)
+    stats = cleanup.run_cleanup()
+    
+    print("\nCleanup Summary:")
+    print(f"  Files processed: {stats['files_processed']}")
+    print(f"  Imports removed: {stats['imports_removed']}")
+    print(f"  Debug artifacts removed: {stats['debug_artifacts_removed']}")
+    print(f"  Placeholders found: {stats['placeholders_found']}")
+    print(f"  Style violations fixed: {stats['style_violations_fixed']}")
+    print(f"  Errors encountered: {stats['errors_encountered']}")
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

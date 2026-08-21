@@ -1,15 +1,26 @@
-"""
-Setup script to create the project directory structure for PROJ-037.
-This script creates the required folders under the project root.
-"""
 import os
 from pathlib import Path
 
-def create_project_structure():
-    # Define the base project directory
-    base_dir = Path("projects/PROJ-037-investigating-the-correlation-between-gu")
+def create_project_structure(base_path: str = "projects/PROJ-037-investigating-the-correlation-between-gu") -> None:
+    """
+    Creates the standard project directory structure for PROJ-037.
     
-    # Define subdirectories to create
+    Directories created:
+    - data/raw
+    - data/processed
+    - data/outputs
+    - code
+    - tests
+    - docs
+    
+    Args:
+        base_path: The root directory for the project structure. Defaults to the 
+                   project-specific path.
+    """
+    root = Path(base_path)
+    root.mkdir(parents=True, exist_ok=True)
+    
+    # Define subdirectories relative to root
     subdirs = [
         "data/raw",
         "data/processed",
@@ -19,26 +30,17 @@ def create_project_structure():
         "docs"
     ]
     
-    # Create the base directory
-    base_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Created base directory: {base_dir}")
-    
-    # Create subdirectories
-    created_dirs = []
     for subdir in subdirs:
-        full_path = base_dir / subdir
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(full_path)
-        print(f"Created directory: {full_path}")
+        dir_path = root / subdir
+        dir_path.mkdir(parents=True, exist_ok=True)
+        # Create .gitkeep files to ensure empty directories are tracked by git
+        (dir_path / ".gitkeep").touch()
     
-    # Create __init__.py files to make directories proper Python packages
-    # for code and tests
-    (base_dir / "code" / "__init__.py").touch()
-    (base_dir / "tests" / "__init__.py").touch()
-    print("Created __init__.py files in code/ and tests/")
-    
-    print(f"\nProject structure successfully created at: {base_dir}")
-    return base_dir
+    print(f"Project structure created at: {root.resolve()}")
+
+def main():
+    """Entry point for script execution."""
+    create_project_structure()
 
 if __name__ == "__main__":
-    create_project_structure()
+    main()

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-10T04:22:25.688103Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: other
 human_escalation_reason: null
 id: PROJ-1032-llmxive-follow-up-extending-https-arxiv
-last_run_id: 11a35155-2346-40cb-bd7c-80c94f574baa
+last_run_id: 2466d00a-8d30-4849-a8e4-7399dca2367c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "https://arxiv.org/abs/2607.07508"'
-updated_at: '2026-08-15T15:20:08.415723Z'
+updated_at: '2026-08-21T00:32:48.061657Z'

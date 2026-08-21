@@ -1,26 +1,14 @@
-# Core data processing
 pandas>=1.5.0
-numpy>=1.21.0
-scipy>=1.7.0
 scikit-learn>=1.0.0
-
-# Microbiome analysis
-biom-format>=2.1.0
-skbio>=0.5.0
-
-# Statistical analysis
+scipy>=1.9.0
 statsmodels>=0.13.0
-
-# Visualization
-matplotlib>=3.5.0
-seaborn>=0.11.0
-
-# Data handling
+biom-format>=2.1.14
+skbio>=0.5.7
+numpy>=1.23.0
+matplotlib>=3.6.0
+seaborn>=0.12.0
 requests>=2.28.0
-biopython>=1.79
-
-# Security (standard library only, no additional packages needed)
-# Note: Security hardening uses only Python standard library modules
-
-# Testing
+biopython>=1.80
 pytest>=7.0.0
+black>=22.0.0
+flake8>=5.0.0

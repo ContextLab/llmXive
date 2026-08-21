@@ -273,3 +273,117 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T21:53:24Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: generate 500 synthetic search trajectories
+  claim_id: c_9c410fd4
+  context: Implement `generate_trajectories.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/generate_trajectories.py`
+    to create exactly **500** trajectories (citing **FR-001**) with controlled density
+    (low/med/high) and critical evidence injection.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: create exactly 500 trajectories
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:33:54Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: output JSON file size less than or equal to 100 MB
+  claim_id: c_d4b9844f
+  context: "**Deliverable**: Output JSON to `data/raw/` with file size \u2264 100\
+    \ MB, including metadata for evidence turn index and density value."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_JSON_file_size_less_than_or_equal_to_100_MB
+  kind: magnitude
+  raw_text: "output JSON to `data/raw/` with file size \u2264 100 MB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:34:27Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: entropy per token matches requested density within 0.01 bits per token
+    tolerance
+  claim_id: c_bc0748e7
+  context: "The system can be tested by running the generator with fixed seeds and\
+    \ verifying that the output JSON file contains a sufficient number of trajectories\
+    \ where the calculated entropy per token for injected evidence blocks matches\
+    \ the requested density levels (low, medium, high) within a tolerance of \xB1\
+    0.01 bits/token."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "calculated entropy per token for injected evidence blocks matches the\
+    \ requested density levels (low, medium, high) within a tolerance of \xB10.01\
+    \ bits/token"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:34:44Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: composite density formula is 0.6 times Shannon Entropy plus 0.4 times
+    Technical Token Ratio
+  claim_id: c_81c27546
+  context: Implement `heuristics.py` utility in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/utils/heuristics.py`
+    to define the technical token list and the composite density formula `0.6 * Shannon_Entropy
+    + 0.4 * Technical_Token_Ratio` (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: composite density formula `0.6 * Shannon_Entropy + 0.4 * Technical_Token_Ratio`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:34:58Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: agent fails for retention horizon less than 5 turns on high density evidence
+  claim_id: c_1362af66
+  context: "The system must correctly report \"failure\" when the retention horizon\
+    \ is set to < 5 turns for high-density evidence, and \"success\" when \u2265 5\
+    \ turns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Agent_fails_for_retention_horizon_less_than_5_turns_on_high
+  kind: magnitude
+  raw_text: "failure when the retention horizon is set to < 5 turns for high-density\
+    \ evidence, and success when \u2265 5 turns"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:36:34Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: generate 3D surface plot with PNG size less than or equal to 5 MB
+  claim_id: c_0977332c
+  context: "Implement `visualize_results.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/visualize_results.py`\
+    \ to generate a 3D surface plot (PNG \u2264 5 MB) with axes: Masking Horizon (X),\
+    \ Semantic Density (Y), Success Rate (Z) (FR-004, SC-002)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_3D_surface_plot_with_PNG_size_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "3D surface plot (PNG \u2264 5 MB)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:36:59Z'

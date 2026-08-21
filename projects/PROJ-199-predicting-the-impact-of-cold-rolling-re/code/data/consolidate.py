@@ -1,231 +1,210 @@
+"""
+Consolidation module for aggregating processed EBSD datasets into a single Parquet file.
+
+This module implements T015: Generate consolidated Parquet output to 
+data/processed/cleaned_ebsd.parquet with metadata (material, reduction, confidence).
+
+It reads all processed datasets from the data/processed directory (excluding the 
+final consolidated file), validates their structure, and writes a unified Parquet 
+file with appropriate metadata.
+"""
+
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import List, Optional, Dict, Any
+
 import pandas as pd
-import pyarrow.parquet as pq
-import json
-from datetime import datetime
 
-from config import get_data_path, get_reductions, get_seed, ConfigurationError
 from utils.logging import get_logger
-from data.preprocess import process_ebsd_dataset
-from data.exclusion import apply_exclusion_logic
-from data.models import EbsdDatasetMetadata
+from config import get_data_path
 
+# Configure logger
 logger = get_logger(__name__)
 
+
 def load_all_processed_datasets(
-    base_path: Optional[Path] = None,
-    reductions: Optional[List[int]] = None
+    source_dir: Optional[Path] = None,
+    exclude_files: Optional[List[str]] = None
 ) -> pd.DataFrame:
     """
-    Load all processed EBSD datasets from the data/interim directory,
-    apply exclusion logic, and consolidate them into a single DataFrame.
-
+    Load all processed EBSD datasets from the source directory.
+    
     Args:
-        base_path: Base directory for data (defaults to config)
-        reductions: List of reduction levels to include (defaults to config)
-
+        source_dir: Directory containing processed EBSD data files. Defaults to 
+                   data/processed from config.
+        exclude_files: List of filenames to exclude (e.g., the consolidated output file).
+                      Defaults to ['cleaned_ebsd.parquet'].
+                      
     Returns:
-        Consolidated DataFrame with all valid samples
+        pd.DataFrame: Concatenated DataFrame of all processed datasets.
+                      
+    Raises:
+        FileNotFoundError: If no valid processed files are found.
+        ValueError: If the processed files have incompatible schemas.
     """
-    if base_path is None:
-        base_path = get_data_path()
+    if source_dir is None:
+        data_path = get_data_path()
+        source_dir = data_path / "processed"
     
-    if reductions is None:
-        try:
-            reductions = get_reductions()
-        except ConfigurationError as e:
-            logger.error(f"Configuration error: {e}")
-            raise
-
-    interim_path = base_path / "interim"
-    processed_path = base_path / "processed"
+    if not source_dir.exists():
+        raise FileNotFoundError(f"Processed data directory not found: {source_dir}")
     
-    if not interim_path.exists():
-        logger.warning(f"Interim directory not found: {interim_path}")
-        return pd.DataFrame()
-
-    all_dataframes = []
-    metadata_records = []
-
-    # Iterate through material directories
-    for material_dir in sorted(interim_path.iterdir()):
-        if not material_dir.is_dir():
+    exclude_files = exclude_files or ["cleaned_ebsd.parquet"]
+    
+    # Find all Parquet and CSV files
+    pattern_files = list(source_dir.glob("*.parquet")) + list(source_dir.glob("*.csv"))
+    valid_files = [f for f in pattern_files if f.name not in exclude_files]
+    
+    if not valid_files:
+        raise FileNotFoundError(
+            f"No valid processed data files found in {source_dir} "
+            f"(excluding {exclude_files})"
+        )
+    
+    logger.info(f"Found {len(valid_files)} processed data files to consolidate")
+    
+    dfs = []
+    for file_path in valid_files:
+        logger.info(f"Loading: {file_path.name}")
+        if file_path.suffix == ".parquet":
+            df = pd.read_parquet(file_path)
+        elif file_path.suffix == ".csv":
+            df = pd.read_csv(file_path)
+        else:
+            logger.warning(f"Skipping unsupported file format: {file_path}")
             continue
-
-        material_name = material_dir.name
         
-        # Process each reduction level
-        for reduction in reductions:
-            input_file = material_dir / f"{material_name}_reduction_{reduction}_processed.parquet"
-            
-            if not input_file.exists():
-                logger.warning(f"Missing processed file: {input_file}")
-                continue
-
-            try:
-                # Load the processed dataset
-                df = pd.read_parquet(input_file)
-                
-                if df.empty:
-                    logger.info(f"Empty dataset for {material_name} at {reduction}% reduction")
-                    continue
-
-                # Add metadata columns
-                df['material'] = material_name
-                df['reduction'] = reduction
-                df['source_file'] = input_file.name
-                df['processed_at'] = datetime.now().isoformat()
-
-                # Apply exclusion logic (T014)
-                df_excluded, exclusion_stats = apply_exclusion_logic(df)
-                
-                if len(df_excluded) == 0:
-                    logger.warning(f"All samples excluded for {material_name} at {reduction}% reduction")
-                    continue
-
-                # Log exclusion stats
-                total_before = len(df)
-                total_after = len(df_excluded)
-                excluded_count = total_before - total_after
-                logger.info(
-                    f"Excluded {excluded_count} samples ({100*excluded_count/total_before:.1f}%) "
-                    f"for {material_name} at {reduction}% reduction"
-                )
-
-                all_dataframes.append(df_excluded)
-
-                # Record metadata
-                metadata_records.append({
-                    'material': material_name,
-                    'reduction': reduction,
-                    'total_points_before': total_before,
-                    'total_points_after': total_after,
-                    'excluded_points': excluded_count,
-                    'exclusion_reason': 'low_reliability',
-                    'source_file': str(input_file),
-                    'processed_at': datetime.now().isoformat()
-                })
-
-            except Exception as e:
-                logger.error(f"Error processing {input_file}: {e}")
-                continue
-
-    if not all_dataframes:
-        logger.warning("No valid data found to consolidate")
-        return pd.DataFrame()
-
-    # Concatenate all dataframes
-    consolidated_df = pd.concat(all_dataframes, ignore_index=True)
+        # Validate required columns exist
+        required_cols = {"material", "reduction", "confidence_index", "sample_id"}
+        if not required_cols.issubset(df.columns):
+            missing = required_cols - set(df.columns)
+            logger.warning(
+                f"File {file_path.name} missing required columns: {missing}. "
+                f"Attempting to proceed with available columns."
+            )
+        
+        dfs.append(df)
     
-    # Sort by material and reduction for consistency
-    consolidated_df = consolidated_df.sort_values(['material', 'reduction'])
+    if not dfs:
+        raise FileNotFoundError("No valid data could be loaded from processed files")
     
-    # Reset index
-    consolidated_df = consolidated_df.reset_index(drop=True)
+    # Concatenate all DataFrames
+    consolidated_df = pd.concat(dfs, ignore_index=True)
+    logger.info(f"Consolidated {len(consolidated_df)} total records")
     
-    # Save metadata
-    if metadata_records:
-        metadata_df = pd.DataFrame(metadata_records)
-        metadata_path = processed_path / "consolidation_metadata.json"
-        with open(metadata_path, 'w') as f:
-            json.dump(metadata_records, f, indent=2)
-        logger.info(f"Saved consolidation metadata to {metadata_path}")
-
     return consolidated_df
+
 
 def write_consolidated_parquet(
     df: pd.DataFrame,
     output_path: Optional[Path] = None,
-    include_metadata: bool = True
+    metadata: Optional[Dict[str, Any]] = None
 ) -> Path:
     """
-    Write the consolidated DataFrame to Parquet format with metadata.
-
+    Write the consolidated DataFrame to a Parquet file with metadata.
+    
     Args:
-        df: Consolidated DataFrame
-        output_path: Output file path (defaults to data/processed/cleaned_ebsd.parquet)
-        include_metadata: Whether to include metadata in the Parquet file
-
+        df: The consolidated DataFrame to write.
+        output_path: Path for the output Parquet file. Defaults to 
+                    data/processed/cleaned_ebsd.parquet.
+        metadata: Optional metadata dictionary to embed in the Parquet file.
+                
     Returns:
-        Path to the output file
+        Path: The path to the written Parquet file.
+                
+    Raises:
+        ValueError: If the DataFrame is empty or missing required columns.
     """
+    if df.empty:
+        raise ValueError("Cannot write empty DataFrame to Parquet")
+    
+    required_cols = {"material", "reduction", "confidence_index", "sample_id"}
+    if not required_cols.issubset(df.columns):
+        missing = required_cols - set(df.columns)
+        raise ValueError(
+            f"DataFrame missing required columns for consolidation: {missing}"
+        )
+    
     if output_path is None:
-        base_path = get_data_path()
-        output_path = base_path / "processed" / "cleaned_ebsd.parquet"
+        data_path = get_data_path()
+        output_path = data_path / "processed" / "cleaned_ebsd.parquet"
     
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Add metadata to Parquet file
-    if include_metadata and not df.empty:
-        # Create metadata dictionary
-        metadata = {
-            'created_at': datetime.now().isoformat(),
-            'total_samples': len(df),
-            'materials': df['material'].unique().tolist(),
-            'reductions': sorted(df['reduction'].unique().tolist()),
-            'version': '1.0',
-            'pipeline': 'llmXive-US1-consolidation'
+    
+    # Prepare metadata
+    if metadata is None:
+        metadata = {}
+    
+    # Add standard metadata
+    standard_meta = {
+        "consolidated_at": pd.Timestamp.now().isoformat(),
+        "source": "llmXive pipeline T015",
+        "total_records": len(df),
+        "materials": sorted(df["material"].unique().tolist()),
+        "reductions": sorted(df["reduction"].unique().tolist()),
+        "confidence_range": {
+            "min": float(df["confidence_index"].min()),
+            "max": float(df["confidence_index"].max())
         }
-        
-        # Convert metadata to bytes for Parquet schema
-        metadata_bytes = json.dumps(metadata).encode('utf-8')
-        
-        # Write with metadata
-        table = pq.Table.from_pandas(df)
-        new_metadata = table.schema.metadata
-        if new_metadata:
-            new_metadata[b'llmXive_metadata'] = metadata_bytes
-        else:
-            new_metadata = {b'llmXive_metadata': metadata_bytes}
-        
-        table = table.replace_schema_metadata(new_metadata)
-        pq.write_table(table, output_path)
-    else:
-        df.to_parquet(output_path, index=False)
-
-    logger.info(f"Consolidated data written to {output_path} with {len(df)} samples")
+    }
+    
+    # Merge with user-provided metadata
+    final_metadata = {**standard_meta, **metadata}
+    
+    # Write to Parquet with metadata
+    # PyArrow is used under the hood by pandas for Parquet I/O
+    df.to_parquet(
+        output_path,
+        engine="pyarrow",
+        index=False,
+        # Store metadata in Parquet file properties
+        custom_metadata=final_metadata
+    )
+    
+    logger.info(f"Successfully wrote consolidated Parquet to: {output_path}")
+    logger.info(f"  - Records: {len(df)}")
+    logger.info(f"  - Materials: {standard_meta['materials']}")
+    logger.info(f"  - Reductions: {standard_meta['reductions']}")
+    
     return output_path
 
-def main():
-    """Main entry point for data consolidation."""
-    logger.info("Starting EBSD data consolidation (T015)")
+
+def main() -> None:
+    """
+    Main entry point for the consolidation script.
+    
+    This function:
+    1. Loads all processed EBSD datasets from data/processed
+    2. Validates and consolidates them
+    3. Writes the result to data/processed/cleaned_ebsd.parquet
+    """
+    logger.info("Starting EBSD data consolidation (Task T015)")
     
     try:
         # Load all processed datasets
         consolidated_df = load_all_processed_datasets()
         
-        if consolidated_df.empty:
-            logger.error("No data to consolidate. Exiting.")
-            sys.exit(1)
+        # Write consolidated output
+        output_path = write_consolidated_parquet(
+            consolidated_df,
+            metadata={"pipeline_version": "1.0.0", "task_id": "T015"}
+        )
         
-        # Write to Parquet
-        output_path = write_consolidated_parquet(consolidated_df)
+        logger.info(f"Consolidation complete. Output: {output_path}")
         
-        # Print summary
-        logger.info("Consolidation Summary:")
-        logger.info(f"  Total samples: {len(consolidated_df)}")
-        logger.info(f"  Materials: {consolidated_df['material'].unique().tolist()}")
-        logger.info(f"  Reductions: {sorted(consolidated_df['reduction'].unique().tolist())}")
-        logger.info(f"  Output file: {output_path}")
-        
-        # Verify file exists and is readable
-        if output_path.exists():
-            verify_df = pd.read_parquet(output_path)
-            logger.info(f"Verification: Read back {len(verify_df)} samples")
-            assert len(verify_df) == len(consolidated_df), "Sample count mismatch"
-            logger.info("Verification successful")
-        else:
-            logger.error(f"Output file not found: {output_path}")
-            sys.exit(1)
-            
+    except FileNotFoundError as e:
+        logger.error(f"File not found error: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Consolidation failed: {e}")
-        raise
+        logger.exception(f"Unexpected error during consolidation: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

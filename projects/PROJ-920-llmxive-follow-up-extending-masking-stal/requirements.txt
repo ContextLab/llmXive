@@ -1,8 +1,7 @@
-# Existing dependencies
-numpy
-scipy
-statsmodels
-matplotlib
-pandas
-scikit-learn
-# Ensure mpl_toolkits is available (part of matplotlib)
+numpy>=1.24.0
+pandas>=2.0.0
+statsmodels>=0.14.0
+matplotlib>=3.7.0
+scipy>=1.10.0
+pytest>=7.3.0
+patsy>=0.5.3

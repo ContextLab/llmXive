@@ -1,3 +1,1 @@
-# This directory stores cleaned, filtered, and processed EBSD data.
-# Output files include cleaned_ebsd.parquet and descriptors.csv.
-# Intermediate results from the preprocessing pipeline are stored here.
+# Placeholder file to ensure this directory is tracked by Git

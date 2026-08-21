@@ -1,183 +1,134 @@
 """
-Unit tests for extrapolation flagging module (T028).
+Unit tests for extrapolation flagging logic.
 """
 
 import pytest
 import numpy as np
 import pandas as pd
-from unittest.mock import patch, MagicMock
-from pathlib import Path
-import sys
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from code.models.extrapolation import (
-    get_plausible_reduction_range,
-    calculate_confidence_penalty,
-    flag_extrapolation,
-    validate_prediction_bounds
+from models.extrapolation import (
+    is_extrapolation,
+    apply_confidence_penalty,
+    flag_predictions,
+    MIN_PLAUSIBLE_REDUCTION,
+    MAX_PLAUSIBLE_REDUCTION,
+    EXTRAPOLATION_PENALTY_FACTOR,
+    NEAR_BOUNDARY_PENALTY_FACTOR
 )
-from config import ConfigurationError
 
 
-class TestGetPlausibleReductionRange:
-    """Tests for get_plausible_reduction_range function."""
+class TestIsExtrapolation:
+    def test_within_range(self):
+        """Test values well within the valid range."""
+        is_ext, reason = is_extrapolation(50.0)
+        assert not is_ext
+        assert "safe interpolation range" in reason.lower()
 
-    @patch('code.models.extrapolation.get_reductions')
-    def test_returns_correct_range_with_reductions(self, mock_get_reductions):
-        """Test that function returns correct range with valid reductions."""
-        mock_get_reductions.return_value = [10, 20, 30, 40, 50]
+    def test_below_minimum(self):
+        """Test values below minimum plausible reduction."""
+        is_ext, reason = is_extrapolation(-5.0)
+        assert is_ext
+        assert "below minimum" in reason.lower()
 
-        min_val, max_val = get_plausible_reduction_range()
+    def test_above_maximum(self):
+        """Test values above maximum plausible reduction."""
+        is_ext, reason = is_extrapolation(100.0)
+        assert is_ext
+        assert "above maximum" in reason.lower()
 
-        # Expected: 10 * 0.9 = 9.0, 50 * 1.1 = 55.0
-        assert abs(min_val - 9.0) < 0.01
-        assert abs(max_val - 55.0) < 0.01
+    def test_near_lower_boundary(self):
+        """Test values near the lower boundary."""
+        # Default min is 0.0, margin is 5.0, so 3.0 should trigger near-boundary
+        is_ext, reason = is_extrapolation(3.0)
+        assert not is_ext  # Not extrapolation, just near boundary
+        assert "near lower boundary" in reason.lower()
 
-    @patch('code.models.extrapolation.get_reductions')
-    def test_raises_error_when_no_reductions(self, mock_get_reductions):
-        """Test that function raises ConfigurationError when no reductions."""
-        mock_get_reductions.return_value = []
-
-        with pytest.raises(ConfigurationError, match="No reduction levels defined"):
-            get_plausible_reduction_range()
-
-    @patch('code.models.extrapolation.get_reductions')
-    def test_raises_error_when_none_reductions(self, mock_get_reductions):
-        """Test that function raises ConfigurationError when reductions is None."""
-        mock_get_reductions.return_value = None
-
-        with pytest.raises(ConfigurationError, match="No reduction levels defined"):
-            get_plausible_reduction_range()
-
-
-class TestCalculateConfidencePenalty:
-    """Tests for calculate_confidence_penalty function."""
-
-    def test_zero_penalty_inside_range(self):
-        """Test that penalty is zero inside plausible range."""
-        penalty = calculate_confidence_penalty(30.0, (20.0, 40.0))
-        assert penalty == 0.0
-
-    def test_positive_penalty_below_range(self):
-        """Test that penalty is positive when below range."""
-        penalty = calculate_confidence_penalty(10.0, (20.0, 40.0), penalty_factor=0.1)
-        # Distance = 20 - 10 = 10, penalty = 10 * 0.1 = 1.0
-        assert abs(penalty - 1.0) < 0.01
-
-    def test_positive_penalty_above_range(self):
-        """Test that penalty is positive when above range."""
-        penalty = calculate_confidence_penalty(50.0, (20.0, 40.0), penalty_factor=0.1)
-        # Distance = 50 - 40 = 10, penalty = 10 * 0.1 = 1.0
-        assert abs(penalty - 1.0) < 0.01
-
-    def test_penalty_capped_at_one(self):
-        """Test that penalty is capped at 1.0."""
-        # Very large distance should still result in penalty <= 1.0
-        penalty = calculate_confidence_penalty(200.0, (20.0, 40.0), penalty_factor=0.1)
-        assert penalty <= 1.0
-
-    def test_custom_penalty_factor(self):
-        """Test that custom penalty factor is applied correctly."""
-        penalty = calculate_confidence_penalty(10.0, (20.0, 40.0), penalty_factor=0.05)
-        # Distance = 10, penalty = 10 * 0.05 = 0.5
-        assert abs(penalty - 0.5) < 0.01
+    def test_near_upper_boundary(self):
+        """Test values near the upper boundary."""
+        # Default max is 95.0, margin is 5.0, so 92.0 should trigger near-boundary
+        is_ext, reason = is_extrapolation(92.0)
+        assert not is_ext
+        assert "near upper boundary" in reason.lower()
 
 
-class TestFlagExtrapolation:
-    """Tests for flag_extrapolation function."""
+class TestApplyConfidencePenalty:
+    def test_no_penalty_interpolation(self):
+        """Test confidence remains unchanged in safe range."""
+        original_conf = 0.9
+        adj_conf, reason, is_ext = apply_confidence_penalty(original_conf, 50.0)
+        assert adj_conf == original_conf
+        assert not is_ext
+        assert "no penalty" in reason.lower()
 
-    @patch('code.models.extrapolation.get_plausible_reduction_range')
-    def test_flags_extrapolated_predictions(self, mock_get_range):
-        """Test that extrapolated predictions are correctly flagged."""
-        mock_get_range.return_value = (20.0, 40.0)
+    def test_extrapolation_penalty_applied(self):
+        """Test confidence is reduced for extrapolated values."""
+        original_conf = 0.9
+        adj_conf, reason, is_ext = apply_confidence_penalty(original_conf, 100.0)
+        expected = original_conf * EXTRAPOLATION_PENALTY_FACTOR
+        assert np.isclose(adj_conf, expected)
+        assert is_ext
+        assert "extrapolation penalty" in reason.lower()
 
+    def test_near_boundary_penalty_applied(self):
+        """Test confidence is reduced for near-boundary values."""
+        original_conf = 0.9
+        adj_conf, reason, is_ext = apply_confidence_penalty(original_conf, 3.0)
+        expected = original_conf * NEAR_BOUNDARY_PENALTY_FACTOR
+        assert np.isclose(adj_conf, expected)
+        assert not is_ext  # Near boundary is not extrapolation
+        assert "near-boundary penalty" in reason.lower()
+
+
+class TestFlagPredictions:
+    def test_flag_predictions_dataframe(self):
+        """Test flagging on a sample DataFrame."""
         data = {
-            'reduction': [10.0, 30.0, 50.0],
-            'confidence': [0.9, 0.8, 0.7]
+            'reduction': [10.0, 50.0, 98.0, -2.0],
+            'confidence': [0.9, 0.8, 0.7, 0.6]
         }
         df = pd.DataFrame(data)
 
-        result = flag_extrapolation(df)
+        result = flag_predictions(df)
 
-        # First and third should be flagged
-        assert result['is_extrapolation'].iloc[0] is True
-        assert result['is_extrapolation'].iloc[1] is False
-        assert result['is_extrapolation'].iloc[2] is True
+        assert 'adjusted_confidence' in result.columns
+        assert 'extrapolation_flags' in result.columns
 
-        # Penalties should be non-zero for flagged
-        assert result['extrapolation_penalty'].iloc[0] > 0
-        assert result['extrapolation_penalty'].iloc[1] == 0.0
-        assert result['extrapolation_penalty'].iloc[2] > 0
+        # Check specific rows
+        # Row 0: 10.0 -> safe
+        assert result.iloc[0]['adjusted_confidence'] == 0.9
+        assert not result.iloc[0]['extrapolation_flags']['is_extrapolation']
 
-    @patch('code.models.extrapolation.get_plausible_reduction_range')
-    def test_adjusts_confidence_when_present(self, mock_get_range):
-        """Test that confidence is adjusted when confidence column exists."""
-        mock_get_range.return_value = (20.0, 40.0)
+        # Row 2: 98.0 -> extrapolation (above 95.0)
+        assert result.iloc[2]['adjusted_confidence'] < 0.7
+        assert result.iloc[2]['extrapolation_flags']['is_extrapolation']
 
+        # Row 3: -2.0 -> extrapolation (below 0.0)
+        assert result.iloc[3]['adjusted_confidence'] < 0.6
+        assert result.iloc[3]['extrapolation_flags']['is_extrapolation']
+
+    def test_missing_column_raises_error(self):
+        """Test that missing required columns raise ValueError."""
+        data = {'reduction': [10.0]}
+        df = pd.DataFrame(data)
+
+        with pytest.raises(ValueError):
+            flag_predictions(df)
+
+    def test_custom_column_names(self):
+        """Test using custom column names."""
         data = {
-            'reduction': [10.0, 30.0],
-            'confidence': [0.9, 0.8]
+            'red_val': [50.0],
+            'conf_score': [0.85]
         }
         df = pd.DataFrame(data)
 
-        result = flag_extrapolation(df)
+        result = flag_predictions(
+            df,
+            reduction_col='red_val',
+            confidence_col='conf_score',
+            output_col='new_conf',
+            flags_col='new_flags'
+        )
 
-        # Adjusted confidence should exist
-        assert 'confidence_adjusted' in result.columns
-
-        # First row should have lower adjusted confidence
-        assert result['confidence_adjusted'].iloc[0] < result['confidence'].iloc[0]
-        # Second row should be unchanged (inside range)
-        assert result['confidence_adjusted'].iloc[1] == result['confidence'].iloc[1]
-
-
-class TestValidatePredictionBounds:
-    """Tests for validate_prediction_bounds function."""
-
-    @patch('code.models.extrapolation.get_plausible_reduction_range')
-    def test_validation_passes_when_all_in_bounds(self, mock_get_range):
-        """Test validation passes when all predictions are in bounds."""
-        mock_get_range.return_value = (20.0, 40.0)
-
-        data = {
-            'reduction': [25.0, 30.0, 35.0]
-        }
-        df = pd.DataFrame(data)
-
-        results = validate_prediction_bounds(df)
-
-        assert results['validation_passed'] is True
-        assert results['in_bounds'] == 3
-        assert results['below_min'] == 0
-        assert results['above_max'] == 0
-
-    @patch('code.models.extrapolation.get_plausible_reduction_range')
-    def test_validation_fails_when_out_of_bounds(self, mock_get_range):
-        """Test validation fails when predictions are out of bounds."""
-        mock_get_range.return_value = (20.0, 40.0)
-
-        data = {
-            'reduction': [10.0, 50.0, 30.0]  # 10 below, 50 above
-        }
-        df = pd.DataFrame(data)
-
-        results = validate_prediction_bounds(df)
-
-        assert results['validation_passed'] is False
-        assert results['below_min'] == 1
-        assert results['above_max'] == 1
-        assert results['in_bounds'] == 1
-
-    @patch('code.models.extrapolation.get_plausible_reduction_range')
-    def test_handles_empty_dataframe(self, mock_get_range):
-        """Test validation handles empty dataframe gracefully."""
-        mock_get_range.return_value = (20.0, 40.0)
-
-        df = pd.DataFrame(columns=['reduction'])
-
-        results = validate_prediction_bounds(df)
-
-        assert results['validation_passed'] is False
-        assert results['reason'] == "No predictions to validate"
+        assert 'new_conf' in result.columns
+        assert 'new_flags' in result.columns

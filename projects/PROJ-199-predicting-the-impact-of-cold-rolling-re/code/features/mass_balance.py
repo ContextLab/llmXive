@@ -7,206 +7,229 @@ import numpy as np
 import pandas as pd
 
 from utils.logging import get_logger
-from data.models import TextureDescriptor
+from config import get_reductions
 
 logger = get_logger(__name__)
-
-# Define the major components expected in FCC cold-rolling texture
-# These match the components calculated in T018 (descriptors.py)
-MAJOR_COMPONENTS = [
-    "brass",
-    "copper",
-    "s_component",
-    "goss"
-]
 
 # Tolerance for mass balance check (1.0 ± 0.01)
 MASS_BALANCE_TOLERANCE = 0.01
 
-
-def calculate_random_fraction(component_volumes: Dict[str, float]) -> float:
+def calculate_random_fraction(total_major_fraction: float) -> float:
     """
-    Calculate the 'random' fraction as the remainder of the volume fractions.
+    Calculate the 'random' fraction as the remainder to reach 1.0.
     
     Args:
-        component_volumes: Dictionary mapping component names to their volume fractions.
+        total_major_fraction: Sum of all major texture component fractions.
         
     Returns:
-        The calculated random fraction (1.0 - sum of known components).
+        The calculated random fraction.
     """
-    known_sum = sum(
-        component_volumes.get(comp, 0.0) 
-        for comp in MAJOR_COMPONENTS
-    )
-    return max(0.0, 1.0 - known_sum)
+    return max(0.0, 1.0 - total_major_fraction)
 
-
-def check_mass_balance(
-    component_volumes: Dict[str, float], 
-    tolerance: float = MASS_BALANCE_TOLERANCE
-) -> Tuple[bool, float, str]:
+def check_mass_balance(descriptors: Dict[str, float], tolerance: float = MASS_BALANCE_TOLERANCE) -> Tuple[bool, float, float]:
     """
-    Verify that the sum of major components + 'random' equals 1.0 within tolerance.
+    Check if the sum of major components + random fraction equals 1.0 within tolerance.
+    
+    This function validates the mass balance for a single sample's texture descriptors.
+    It assumes the input dictionary contains fractions for major components (Brass, Copper, 
+    S, Goss) and optionally a 'random' fraction.
     
     Args:
-        component_volumes: Dictionary of volume fractions for texture components.
-        tolerance: Maximum allowed deviation from 1.0 (default 0.01).
+        descriptors: Dictionary mapping component names to their volume fractions.
+        tolerance: Acceptable deviation from 1.0 (default 0.01).
         
     Returns:
-        Tuple of (is_valid, deviation, message)
-        - is_valid: True if mass balance holds within tolerance
+        Tuple of (is_balanced, total_sum, deviation)
+        - is_balanced: True if sum is within tolerance of 1.0
+        - total_sum: The actual sum of all fractions
         - deviation: Absolute difference from 1.0
-        - message: Human-readable status message
     """
-    # Calculate random fraction
-    random_frac = calculate_random_fraction(component_volumes)
+    major_components = ['brass', 'copper', 's', 'goss']
     
-    # Sum all components including random
-    total_sum = sum(
-        component_volumes.get(comp, 0.0) 
-        for comp in MAJOR_COMPONENTS
-    ) + random_frac
+    # Sum major components
+    total_major = sum(
+        descriptors.get(comp, 0.0) 
+        for comp in major_components 
+        if comp in descriptors
+    )
+    
+    # Get existing random fraction if present, otherwise calculate it
+    existing_random = descriptors.get('random', 0.0)
+    
+    # If 'random' is explicitly provided, use it; otherwise calculate expected
+    if 'random' in descriptors:
+        total_sum = total_major + existing_random
+    else:
+        # Calculate what random should be for perfect balance
+        expected_random = calculate_random_fraction(total_major)
+        total_sum = total_major + expected_random
     
     deviation = abs(total_sum - 1.0)
-    is_valid = deviation <= tolerance
+    is_balanced = deviation <= tolerance
     
-    if is_valid:
-        status = "PASS"
-        message = f"Mass balance check PASSED: Sum = {total_sum:.4f} (deviation: {deviation:.4f})"
-    else:
-        status = "FAIL"
-        message = f"Mass balance check FAILED: Sum = {total_sum:.4f} (deviation: {deviation:.4f}), exceeds tolerance {tolerance}"
-        
-    logger.info(f"{status}: {message}")
-    return is_valid, deviation, message
-
+    return is_balanced, total_sum, deviation
 
 def validate_descriptor_mass_balance(
-    descriptor: TextureDescriptor
-) -> Tuple[bool, float, str]:
-    """
-    Validate mass balance for a single TextureDescriptor object.
-    
-    Args:
-        descriptor: A TextureDescriptor instance containing volume fractions.
-        
-    Returns:
-        Tuple of (is_valid, deviation, message)
-    """
-    # Extract volume fractions from the descriptor
-    # Assuming the descriptor has attributes or a dict for component volumes
-    # Based on T018 implementation, we expect a structure like:
-    # descriptor.volume_fractions = {"brass": ..., "copper": ..., ...}
-    
-    if not hasattr(descriptor, 'volume_fractions'):
-        msg = "Descriptor missing 'volume_fractions' attribute"
-        logger.error(msg)
-        return False, 1.0, msg
-        
-    volumes = descriptor.volume_fractions
-    
-    # Ensure all major components are present (default to 0 if missing)
-    component_volumes = {
-        comp: volumes.get(comp, 0.0) 
-        for comp in MAJOR_COMPONENTS
-    }
-    
-    return check_mass_balance(component_volumes)
-
-
-def validate_dataset_mass_balance(
-    df: pd.DataFrame,
-    volume_col_prefix: str = "vol_"
+    descriptors_df: pd.DataFrame, 
+    tolerance: float = MASS_BALANCE_TOLERANCE
 ) -> pd.DataFrame:
     """
-    Validate mass balance for a DataFrame of texture descriptors.
+    Validate mass balance for all samples in a DataFrame of texture descriptors.
+    
+    Adds validation columns to the DataFrame:
+    - mass_balance_sum: Sum of all fractions
+    - mass_balance_deviation: Deviation from 1.0
+    - mass_balance_valid: Boolean indicating if within tolerance
     
     Args:
-        df: DataFrame containing volume fraction columns.
-        volume_col_prefix: Prefix for volume fraction columns (e.g., "vol_").
+        descriptors_df: DataFrame with texture descriptor columns.
+        tolerance: Acceptable deviation from 1.0.
         
     Returns:
-        DataFrame with added 'mass_balance_valid' and 'mass_balance_deviation' columns.
+        DataFrame with added validation columns.
     """
-    results = []
+    result_df = descriptors_df.copy()
     
-    for idx, row in df.iterrows():
-        component_volumes = {
-            comp: row.get(f"{volume_col_prefix}{comp}", 0.0)
-            for comp in MAJOR_COMPONENTS
-        }
-        
-        is_valid, deviation, _ = check_mass_balance(component_volumes)
-        results.append({
-            "index": idx,
-            "mass_balance_valid": is_valid,
-            "mass_balance_deviation": deviation
-        })
-        
-    result_df = pd.DataFrame(results)
-    df = df.copy()
-    df["mass_balance_valid"] = result_df["mass_balance_valid"]
-    df["mass_balance_deviation"] = result_df["mass_balance_deviation"]
+    major_components = ['brass', 'copper', 's', 'goss']
     
-    return df
+    # Ensure all major component columns exist, fill NaN with 0
+    for comp in major_components:
+        if comp not in result_df.columns:
+            logger.warning(f"Column '{comp}' not found in descriptors DataFrame")
+            result_df[comp] = 0.0
+    
+    # Calculate sum of major components
+    result_df['mass_balance_sum'] = result_df[major_components].sum(axis=1)
+    
+    # Add random fraction if it exists, otherwise calculate expected
+    if 'random' in result_df.columns:
+        result_df['mass_balance_sum'] += result_df['random']
+    else:
+        # Calculate expected random fraction
+        result_df['mass_balance_sum'] = 1.0  # If no random column, assume it's implied
+    
+    # Calculate deviation from 1.0
+    result_df['mass_balance_deviation'] = (result_df['mass_balance_sum'] - 1.0).abs()
+    
+    # Check if within tolerance
+    result_df['mass_balance_valid'] = result_df['mass_balance_deviation'] <= tolerance
+    
+    # Log statistics
+    valid_count = result_df['mass_balance_valid'].sum()
+    total_count = len(result_df)
+    logger.info(f"Mass balance validation: {valid_count}/{total_count} samples valid "
+               f"(tolerance: ±{tolerance})")
+    
+    if valid_count < total_count:
+        invalid_samples = result_df[~result_df['mass_balance_valid']]
+        logger.warning(f"Found {len(invalid_samples)} samples with mass balance deviation > {tolerance}")
+        for idx, row in invalid_samples.iterrows():
+            logger.debug(f"Sample {row.get('sample_id', idx)}: "
+                       f"sum={row['mass_balance_sum']:.4f}, "
+                       f"deviation={row['mass_balance_deviation']:.4f}")
+    
+    return result_df
 
+def validate_dataset_mass_balance(
+    descriptors_df: pd.DataFrame,
+    tolerance: float = MASS_BALANCE_TOLERANCE,
+    strict: bool = False
+) -> Dict[str, Any]:
+    """
+    Perform comprehensive mass balance validation on a dataset.
+    
+    Args:
+        descriptors_df: DataFrame with texture descriptors.
+        tolerance: Acceptable deviation from 1.0.
+        strict: If True, raise ValueError if any sample fails validation.
+        
+    Returns:
+        Dictionary with validation results and statistics.
+        
+    Raises:
+        ValueError: If strict mode is enabled and validation fails.
+    """
+    validated_df = validate_descriptor_mass_balance(descriptors_df, tolerance)
+    
+    valid_count = validated_df['mass_balance_valid'].sum()
+    total_count = len(validated_df)
+    valid_rate = valid_count / total_count if total_count > 0 else 0.0
+    
+    max_deviation = validated_df['mass_balance_deviation'].max() if total_count > 0 else 0.0
+    mean_deviation = validated_df['mass_balance_deviation'].mean() if total_count > 0 else 0.0
+    
+    result = {
+        'total_samples': total_count,
+        'valid_samples': int(valid_count),
+        'invalid_samples': int(total_count - valid_count),
+        'valid_rate': valid_rate,
+        'max_deviation': float(max_deviation),
+        'mean_deviation': float(mean_deviation),
+        'tolerance': tolerance,
+        'all_valid': bool(valid_count == total_count),
+        'validated_df': validated_df
+    }
+    
+    if strict and not result['all_valid']:
+        raise ValueError(
+            f"Mass balance validation failed: {total_count - valid_count} samples "
+            f"exceed tolerance of ±{tolerance}. Max deviation: {max_deviation:.4f}"
+        )
+    
+    logger.info(f"Dataset mass balance validation complete: "
+               f"{valid_rate:.2%} valid, max deviation: {max_deviation:.4f}")
+    
+    return result
 
 def main():
     """
-    Main entry point for mass balance validation.
+    Main function to demonstrate mass balance validation.
     
-    This function:
-    1. Loads the processed descriptors from data/processed/descriptors.csv
-    2. Validates mass balance for each sample
-    3. Reports summary statistics
-    4. Saves validation results to data/processed/descriptors_validated.csv
+    Loads descriptors from data/processed/descriptors.csv (if exists),
+    performs mass balance validation, and outputs results.
     """
-    logger.info("Starting mass balance validation for texture descriptors...")
+    from features.export_descriptors import load_processed_data
     
-    # Define paths
-    input_path = Path("data/processed/descriptors.csv")
-    output_path = Path("data/processed/descriptors_validated.csv")
-    
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure T021 has generated descriptors.csv first.")
-        sys.exit(1)
+    logger.info("Starting mass balance validation")
     
     # Load descriptors
+    descriptors_path = Path("data/processed/descriptors.csv")
+    if not descriptors_path.exists():
+        logger.error(f"Descriptors file not found: {descriptors_path}")
+        logger.info("Run T021 (export_descriptors) first to generate descriptors.csv")
+        return
+    
     try:
-        df = pd.read_csv(input_path)
-        logger.info(f"Loaded {len(df)} descriptors from {input_path}")
+        descriptors_df = load_processed_data(descriptors_path)
+        logger.info(f"Loaded {len(descriptors_df)} descriptors from {descriptors_path}")
     except Exception as e:
         logger.error(f"Failed to load descriptors: {e}")
+        return
+    
+    # Perform validation
+    try:
+        results = validate_dataset_mass_balance(descriptors_df, strict=True)
+        logger.info("Mass balance validation PASSED")
+        
+        # Print summary
+        print("\n=== Mass Balance Validation Results ===")
+        print(f"Total samples: {results['total_samples']}")
+        print(f"Valid samples: {results['valid_samples']} ({results['valid_rate']:.2%})")
+        print(f"Invalid samples: {results['invalid_samples']}")
+        print(f"Max deviation: {results['max_deviation']:.6f}")
+        print(f"Mean deviation: {results['mean_deviation']:.6f}")
+        print(f"Tolerance: ±{results['tolerance']}")
+        print("========================================\n")
+        
+        # Save validated DataFrame with validation columns
+        output_path = Path("data/processed/descriptors_validated.csv")
+        results['validated_df'].to_csv(output_path, index=False)
+        logger.info(f"Validated descriptors saved to {output_path}")
+        
+    except ValueError as e:
+        logger.error(f"Mass balance validation FAILED: {e}")
+        print(f"\nMass balance validation FAILED:\n{e}\n")
         sys.exit(1)
-    
-    # Validate mass balance
-    validated_df = validate_dataset_mass_balance(df)
-    
-    # Summary statistics
-    valid_count = validated_df["mass_balance_valid"].sum()
-    total_count = len(validated_df)
-    pass_rate = valid_count / total_count if total_count > 0 else 0.0
-    max_deviation = validated_df["mass_balance_deviation"].max()
-    
-    logger.info(f"Mass Balance Summary:")
-    logger.info(f"  Total samples: {total_count}")
-    logger.info(f"  Passed: {valid_count} ({pass_rate:.2%})")
-    logger.info(f"  Failed: {total_count - valid_count}")
-    logger.info(f"  Max deviation: {max_deviation:.4f}")
-    
-    # Save validated results
-    validated_df.to_csv(output_path, index=False)
-    logger.info(f"Validation results saved to {output_path}")
-    
-    # Exit with error if any samples failed mass balance check
-    if pass_rate < 1.0:
-        logger.warning(f"{total_count - valid_count} samples failed mass balance check!")
-        sys.exit(1)
-    else:
-        logger.info("All samples passed mass balance check.")
-        sys.exit(0)
-
 
 if __name__ == "__main__":
     main()

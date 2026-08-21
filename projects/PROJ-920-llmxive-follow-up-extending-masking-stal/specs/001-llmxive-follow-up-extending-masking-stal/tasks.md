@@ -58,7 +58,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [P] Implement `entropy.py` utility in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/utils/entropy.py` to calculate Shannon Entropy on UTF-8 byte-level tokens (FR-008). <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [X] T007 [P] Implement `entropy.py` utility in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/utils/entropy.py` to calculate Shannon Entropy on UTF-8 byte-level tokens (FR-008). <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
@@ -74,7 +74,7 @@
 
 **Goal**: Generate a set of synthetic search trajectories with parameterized semantic density and ground-truth critical evidence injection.
 
-**Independent Test**: The system can be tested by running the generator with fixed seeds and verifying that the output JSON file contains a sufficient number of trajectories where the calculated entropy per token for injected evidence blocks matches the requested density levels (low, medium, high) within a tolerance of ±0.01 bits/token [UNRESOLVED-CLAIM: c_ad807f09 — status=not_enough_info].
+**Independent Test**: The system can be tested by running the generator with fixed seeds and verifying that the output JSON file contains a sufficient number of trajectories where the calculated entropy per token for injected evidence blocks matches the requested density levels (low, medium, high) within a tolerance of ±0.01 bits/token.
 
 ### Implementation for User Story 1
 
@@ -92,15 +92,15 @@
 
 ### Implementation for User Story 2
 
-- [~] T012 [US2] Implement the "Heuristic Solver" in `simulate_agent.py` using the specific logistic function `P(retrieval) = sigmoid(α * (density - threshold))` to determine success probabilistically (FR-009). **Requirement**: Explicitly define `α` (scaling) and `threshold` (critical density) as configurable constants (e.g., in a config file or function arguments) with default values to ensure reproducibility (Constitution Principle I).
-- [~] T013 [US2] Implement success logic in `simulate_agent.py`: `1 if (critical_evidence_turn_index >= current_turn - retention_horizon + 1) AND (agent_heuristic_success = true), else 0`. **Requirement**: Explicitly instruct the implementer to **sample** from the logistic function defined in T012/FR-009 to determine the boolean `agent_heuristic_success` (FR-002, FR-009). **Verification**: Include logic to handle the edge case where critical evidence is at the very last turn ($T$) to ensure horizon $T$ retains it correctly (Edge Case, FR-002).
+- [ ] T012 [US2] Implement the "Heuristic Solver" in `simulate_agent.py` using the specific logistic function `P(retrieval) = sigmoid(α * (density - threshold))` to determine success probabilistically (FR-009). **Requirement**: Explicitly define `α` (scaling) and `threshold` (critical density) as configurable constants (e.g., in a config file or function arguments) with default values to ensure reproducibility (Constitution Principle I).
+- [ ] T013 [US2] Implement success logic in `simulate_agent.py`: `1 if (critical_evidence_turn_index >= current_turn - retention_horizon + 1) AND (agent_heuristic_success = true), else 0`. **Requirement**: Explicitly instruct the implementer to **sample** from the logistic function defined in T012/FR-009 to determine the boolean `agent_heuristic_success` (FR-002, FR-009). **Verification**: Include logic to handle the edge case where critical evidence is at the very last turn ($T$) to ensure horizon $T$ retains it correctly (Edge Case, FR-002).
 - [X] T014 [US2] Implement `simulate_agent.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/simulate_agent.py` to load trajectories and apply retention horizons (1 to T) using the logic from T012/T013. **Verification**: Ensure the system correctly reports "failure" for horizon < 5 and "success" for horizon ≥ 5 given ground truth (US-2 Acceptance 1 & 2).
-- [~] T015 [US2] Implement streaming approach in `simulate_agent.py` to write simulation results to `data/processed/` immediately after each batch to manage RAM (Edge Case, FR-005)
+- [ ] T015 [US2] Implement streaming approach in `simulate_agent.py` to write simulation results to `data/processed/` immediately after each batch to manage RAM (Edge Case, FR-005)
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T016 [P] [US2] Contract test for simulation output schema in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/contract/test_simulation_output.py`
-- [~] T017 [P] [US2] Integration test for horizon masking logic in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/integration/test_horizon_masking.py`
+- [ ] T017 [P] [US2] Integration test for horizon masking logic in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/integration/test_horizon_masking.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -115,8 +115,8 @@
 ### Implementation for User Story 3
 
 - [X] T018 [US3] Implement `analyze_results.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/analyze_results.py` to load simulation logs and perform logistic regression using `statsmodels`. **Requirement**: Include **natural splines with a flexible number of degrees of freedom** for the 'horizon' variable. **Deliverable**: Expose the degrees of freedom (`df`) parameter as a CLI argument or config variable to ensure flexibility (FR-003).
-- [~] T019 [US3] Implement validation in `analyze_results.py` to check the minimum sample size for statistical power and verify that the interaction term is significant at p < 0.05 (FR-003).
-- [~] T020 [US3] Extract and output regression coefficients and **p-values** for the `density * horizon` interaction term to a summary file. **Requirement**: Explicitly calculate and report the **p-value** and significance test result to measure against the null hypothesis (SC-001, FR-003). **Deliverable**: Write output to `output/regression_summary.json` (FR-006, SC-001).
+- [ ] T019 [US3] Implement validation in `analyze_results.py` to check the minimum sample size for statistical power and verify that the interaction term is significant at p < 0.05 (FR-003).
+- [ ] T020 [US3] Extract and output regression coefficients and **p-values** for the `density * horizon` interaction term to a summary file. **Requirement**: Explicitly calculate and report the **p-value** and significance test result to measure against the null hypothesis (SC-001, FR-003). **Deliverable**: Write output to `output/regression_summary.json` (FR-006, SC-001).
 - [X] T021 [US3] Implement `visualize_results.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/visualize_results.py` to generate a 3D surface plot (PNG ≤ 5 MB) with axes: Masking Horizon (X), Semantic Density (Y), Success Rate (Z) (FR-004, SC-002).
 - [~] T022 [US3] Generate a summary text file stating whether the hypothesis (positive correlation between density and optimal horizon) was supported. **Requirement**: This file must be **automatically generated by `analyze_results.py`** as part of the pipeline, not manually. **Deliverable**: Write output to `output/hypothesis_summary.txt` (US-3, Acceptance 3).
 
@@ -143,8 +143,8 @@
 - [X] T032 Code cleanup: Standardize import orders in `code/simulate_agent.py` using `isort`
 - [X] T033 Code cleanup: Standardize import orders in `code/analyze_results.py` using `isort`
 - [~] T034 Performance optimization: Optimize loops in `simulate_agent.py` to ensure runtime < 6h and RAM < 7 GB (FR-005, SC-003, SC-004)
-- [ ] T035 [P] Additional unit tests in `tests/unit/`
-- [ ] T036 Run quickstart.md validation
+- [~] T035 [P] Additional unit tests in `tests/unit/`
+- [~] T036 Run quickstart.md validation
 
 ---
 

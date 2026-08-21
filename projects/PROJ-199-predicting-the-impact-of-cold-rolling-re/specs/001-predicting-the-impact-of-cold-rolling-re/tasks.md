@@ -82,12 +82,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `code/data/download.py` to fetch EBSD data from HuggingFace (dataset ID specified in research.md Section 2.1) OR fallback to local synthetic generation (FR-001). **Priority**: Real data ingestion first. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T011 [P] [US1] Implement `code/data/download.py` to fetch EBSD data from HuggingFace (dataset ID specified in research.md Section 2.1) OR fallback to local synthetic generation (FR-001). **Priority**: Real data ingestion first. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T011b [US1] Implement `code/data/generate_synthetic.py` as a **FALLBACK ONLY** mechanism, triggered strictly if T011 (real data download) fails. Generate synthetic EBSD data with pinned seeds. Reduction levels MUST be read from `code/config.py`; if values are missing, raise a `ConfigurationError` immediately. (Plan: Dataset Fit Note)
 - [X] T012 [US1] Implement `code/data/preprocess.py` to filter confidence index < 0.1 and re-index orientations to FCC symmetry using `orix`. Reduction levels MUST be read from `code/config.py`; if values are missing, raise a `ConfigurationError` immediately. (FR-002)
 - [ ] T013 [US1] Add error handling for missing reduction levels or corrupted files, logging warnings and proceeding (US-1 Scenario 3)
 - [ ] T014 [US1] Implement exclusion logic: flag samples where >50% of points are filtered as "low reliability" and EXCLUDE them from the final training set (Edge Case)
-- [ ] T015 [US1] Generate consolidated Parquet output to `data/processed/cleaned_ebsd.parquet` with metadata (material, reduction, confidence)
+- [X] T015 [US1] Generate consolidated Parquet output to `data/processed/cleaned_ebsd.parquet` with metadata (material, reduction, confidence)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -148,8 +148,8 @@
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T031 [P] [US4] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`
-- [ ] T032 [P] [US4] Integration test for variance decomposition in `tests/integration/test_variance_decomposition.py`
+- [ ] T031 [P] [US4] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`
+- [X] T032 [P] [US4] Integration test for variance decomposition in `tests/integration/test_variance_decomposition.py`
 
 ### Implementation for User Story 4
 

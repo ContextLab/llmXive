@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 82caefcad1ed674def5b4cf70b7da496c90443824bbad09bce18a4eb44282ab0
+  artifact_path: projects/PROJ-037-investigating-the-correlation-between-gu/docs/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Home - The Microsetta Initiative
+  kind: url
+  value: https://americangut.org/
+  verification_status: pending
+  verified_against_url: https://microsetta.ucsd.edu
+  verified_at: '2026-08-21T00:28:57.395847Z'
+- artifact_hash: 82caefcad1ed674def5b4cf70b7da496c90443824bbad09bce18a4eb44282ab0
+  artifact_path: projects/PROJ-037-investigating-the-correlation-between-gu/docs/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Home - Open Humans
+  kind: url
+  value: https://www.openhumans.org/
+  verification_status: pending
+  verified_against_url: https://www.openhumans.org/
+  verified_at: '2026-08-21T00:28:57.395847Z'

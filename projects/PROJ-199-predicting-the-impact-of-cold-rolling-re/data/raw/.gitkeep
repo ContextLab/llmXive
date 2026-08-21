@@ -1,3 +1,1 @@
-# This directory stores raw, unprocessed EBSD data files downloaded from external sources.
-# Do not modify files in this directory directly.
-# All raw data must be processed through the pipeline in code/data/preprocess.py.
+# Placeholder file to ensure this directory is tracked by Git

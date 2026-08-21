@@ -36,3 +36,44 @@ T006:
     \ The implementer\u2019s claim lacks any file\u2011system listing, screenshots,\
     \ or other artifacts confirming the creation of these folders. The required directories\
     \ are therefore missing."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `simulate_agent.py` file or code snippet was provided showing a heuristic\
+    \ solver that uses the logistic function\u202F`P(retrieval) = sigmoid(\u03B1 *\
+    \ (density - threshold))`. Likewise, there is no evidence that `\u03B1` and `threshold`\
+    \ are defined as configurable constants with defaults. The required implementation\
+    \ and configuration are missing."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code changes to `simulate_agent.py` are present, and there is no implementation
+    that samples from the logistic function to set `agent_heuristic_success` nor logic
+    handling the edge case where critical evidence occurs on the final turn. The required
+    artifact (updated script with the specified success logic) is missing.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a modified `simulate_agent.py` that streams results to `data/processed/`
+    after each batch is provided; the required artifact is missing, so the task is
+    not satisfied.
+T017:
+  c: false
+  h: 972f2f370fcf9478489a7eaeead7fdc92ce354ef6bc605b1d09440b5ede86570
+  r: The required integration test file `tests/integration/test_horizon_masking.py`
+    does not exist in the repository, so the claimed implementation is missing the
+    essential artifact. The task cannot be considered completed until this test file
+    is added with appropriate test code.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analyze_results.py` file or code snippet was provided, and there is no evidence\
+    \ that validation for minimum sample size or interaction\u2011term significance\
+    \ (p\u202F<\u202F0.05) was added. The required implementation is missing."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/regression_summary.json` file was presented, and no regression results\
+    \ (coefficients, p\u2011values, or significance test) are visible in the provided\
+    \ evidence. The required JSON summary with the interaction term\u2019s p\u2011\
+    value is missing."

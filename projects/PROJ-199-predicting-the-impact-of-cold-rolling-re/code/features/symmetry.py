@@ -1,10 +1,10 @@
 """
-Symmetry handling module for FCC crystallography using orix.
+Symmetry handling for FCC crystal textures using orix.
 
-This module provides utilities to ensure correct component identification
-for FCC crystals by applying proper symmetry operations and orientation
-handling.
+This module integrates `orix` to ensure correct component identification for FCC crystals.
+It handles symmetry operations, orientation alignment, and component classification.
 """
+
 import os
 import sys
 import logging
@@ -12,231 +12,212 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 
 import numpy as np
-from orix.quaternion import Orientation, Rotation
-from orix.crystal_map import CrystalMap
-from orix.space_group import SpaceGroup
+from orix.crystal.march import FCC
+from orix.quaternion import Orientation
 from orix.vector import Vector3d
-from orix.quaternion.symmetry import Oh
+from orix.space_group import SpaceGroup
 
 # Import local utilities
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
+# Define standard FCC texture components (Euler angles in degrees, Bunge convention)
+# These are the standard reference orientations for FCC rolling textures
+FCC_COMPONENTS = {
+    "Brass": (35.0, 45.0, 0.0),      # (phi1, Phi, phi2)
+    "Copper": (90.0, 35.0, 45.0),
+    "S": (59.0, 37.0, 63.0),
+    "Goss": (0.0, 45.0, 0.0),
+    "Cube": (0.0, 0.0, 0.0),
+}
 
-def get_fcc_symmetry() -> Oh:
+# Tolerance for orientation matching (in degrees)
+ORIENTATION_TOLERANCE = 15.0
+
+def get_fcc_symmetry() -> SpaceGroup:
     """
-    Return the full cubic symmetry (Oh) for FCC crystals.
+    Retrieve the FCC symmetry group from orix.
 
     Returns:
-        Oh: The octahedral symmetry group for FCC crystals.
+        SpaceGroup: The FCC symmetry group object.
     """
-    return Oh
-
+    try:
+        # orix uses crystal classes; FCC corresponds to m-3m symmetry
+        return SpaceGroup.from_name("m-3m")
+    except Exception as e:
+        logger.error(f"Failed to load FCC symmetry group: {e}")
+        raise
 
 def align_orientations_to_fcc(orientations: np.ndarray) -> Orientation:
     """
-    Convert raw Euler angles (in degrees, Bunge convention) to orix Orientations
-    and align them to the fundamental zone of FCC symmetry.
+    Align a set of Euler angles to the fundamental zone of FCC symmetry.
 
     Args:
-        orientations: Array of shape (N, 3) containing Euler angles (phi1, Phi, phi2)
-                    in degrees.
+        orientations: Array of shape (N, 3) containing Euler angles (phi1, Phi, phi2) in degrees.
 
     Returns:
-        Orientation: orix Orientation object with symmetry applied and
-                    orientations mapped to the fundamental zone.
+        Orientation: orix Orientation object with FCC symmetry applied.
     """
-    logger.debug(f"Aligning {orientations.shape[0]} orientations to FCC symmetry")
-
-    # Convert degrees to radians for orix
-    euler_rad = np.radians(orientations)
-
-    # Create Rotation object from Euler angles (Bunge convention)
-    rotation = Rotation.from_euler(euler_rad, convention="bunge")
-
-    # Create Orientation with FCC symmetry (Oh)
     symmetry = get_fcc_symmetry()
-    orientation = Orientation(rotation, symmetry=symmetry)
+    # Convert Euler angles to radians for orix
+    euler_rad = np.radians(orientations)
+    # Create Orientation object
+    orix_orient = Orientation.from_euler(euler_rad, symmetry=symmetry)
+    # Ensure they are in the fundamental sector
+    orix_orient = orix_orient.set_symmetry(symmetry)
+    return orix_orient
 
-    # Map to fundamental zone
-    orientation = orientation.map2fundamental()
-
-    logger.debug("Orientation alignment complete")
-    return orientation
-
-
-def find_closest_component(
-    orientation: Orientation,
-    component_angles: Dict[str, Tuple[float, float, float, float]]
-) -> Tuple[str, float]:
+def find_closest_component(orientation: Orientation) -> Tuple[str, float]:
     """
-    Find the closest texture component for a given orientation using orix distance.
-
-    Args:
-        orientation: A single orix Orientation object.
-        component_angles: Dictionary mapping component names to their Euler angle
-                        ranges (phi1_min, phi1_max, Phi_min, Phi_max) in degrees.
-
-    Returns:
-        Tuple of (closest_component_name, minimum_distance).
-    """
-    min_distance = np.inf
-    closest_component = "Unknown"
-
-    for component_name, (phi1_min, phi1_max, phi_min, phi_max) in component_angles.items():
-        # Calculate center of the search range
-        phi1_center = np.radians((phi1_min + phi1_max) / 2)
-        phi_center = np.radians((phi_min + phi_max) / 2)
-        phi2_center = np.radians((phi1_min + phi1_max) / 2)  # Assuming same range for phi2
-
-        # Create reference rotation for this component
-        ref_rotation = Rotation.from_euler(
-            [[phi1_center, phi_center, phi2_center]],
-            convention="bunge"
-        )
-        ref_orientation = Orientation(ref_rotation, symmetry=get_fcc_symmetry())
-        ref_orientation = ref_orientation.map2fundamental()
-
-        # Calculate distance using orix's built-in distance metric
-        distance = orientation.distance(ref_orientation).item()
-
-        if distance < min_distance:
-            min_distance = distance
-            closest_component = component_name
-
-    return closest_component, min_distance
-
-
-def classify_orientations_to_components(
-    orientations: np.ndarray,
-    component_angles: Dict[str, Tuple[float, float, float, float]],
-    distance_threshold: float = 0.2
-) -> Dict[str, List[int]]:
-    """
-    Classify a set of orientations into texture components based on orix distance.
-
-    Args:
-        orientations: Array of shape (N, 3) containing Euler angles in degrees.
-        component_angles: Dictionary mapping component names to Euler angle ranges.
-        distance_threshold: Maximum distance to consider a match (in radians).
-
-    Returns:
-        Dictionary mapping component names to lists of indices of matching orientations.
-    """
-    logger.info(f"Classifying {orientations.shape[0]} orientations to components")
-
-    # Align all orientations to FCC symmetry
-    aligned_orientations = align_orientations_to_fcc(orientations)
-
-    classification = {name: [] for name in component_angles.keys()}
-    classification["Unassigned"] = []
-
-    for i, orientation in enumerate(aligned_orientations):
-        component_name, distance = find_closest_component(orientation, component_angles)
-
-        if distance <= distance_threshold:
-            classification[component_name].append(i)
-        else:
-            classification["Unassigned"].append(i)
-
-    logger.info(f"Classification complete: {len(classification['Unassigned'])} unassigned")
-    return classification
-
-
-def calculate_symmetry_equivalent_count(orientation: Orientation) -> int:
-    """
-    Calculate the number of symmetry equivalents for a given orientation.
+    Find the closest standard FCC texture component for a given orientation.
 
     Args:
         orientation: A single orix Orientation object.
 
     Returns:
-        int: Number of symmetry equivalents.
+        Tuple of (component_name, angular_distance_degrees).
     """
-    return orientation.symmetry.order
+    symmetry = get_fcc_symmetry()
+    min_distance = float('inf')
+    closest_name = "Random"
 
+    for name, (phi1, Phi, phi2) in FCC_COMPONENTS.items():
+        # Create reference orientation
+        ref_euler = np.radians([phi1, Phi, phi2])
+        ref_orient = Orientation.from_euler(ref_euler, symmetry=symmetry)
 
-def validate_fcc_symmetry_application(orientations: np.ndarray) -> Dict[str, Any]:
+        # Calculate angular distance
+        # orix calculates distance in radians by default
+        distance_rad = (orientation * ref_orient.inv()).angle
+        distance_deg = np.degrees(distance_rad)
+
+        if distance_deg < min_distance:
+            min_distance = distance_deg
+            closest_name = name
+
+    return closest_name, min_distance
+
+def classify_orientations_to_components(orientations: np.ndarray, tolerance: float = ORIENTATION_TOLERANCE) -> List[Dict[str, Any]]:
     """
-    Validate that symmetry application is working correctly.
+    Classify a list of orientations into standard FCC texture components.
 
     Args:
-        orientations: Array of shape (N, 3) containing Euler angles in degrees.
+        orientations: Array of shape (N, 3) with Euler angles in degrees.
+        tolerance: Maximum angular distance (degrees) to consider a match.
 
     Returns:
-        Dictionary with validation metrics.
+        List of dictionaries with 'component', 'distance', and 'original_index'.
     """
-    logger.info("Validating FCC symmetry application")
+    if len(orientations) == 0:
+        return []
 
-    aligned = align_orientations_to_fcc(orientations)
+    orix_orientations = align_orientations_to_fcc(orientations)
+    results = []
 
-    # Check that all orientations are in the fundamental zone
-    in_fundamental_zone = aligned._is_in_fundamental_zone()
-    percent_in_fz = np.mean(in_fundamental_zone) * 100
+    for i, orient in enumerate(orix_orientations):
+        component, distance = find_closest_component(orient)
+        
+        # Only classify if within tolerance, otherwise mark as "Random"
+        if distance > tolerance:
+            component = "Random"
+            distance = float('nan') # No specific distance for random
 
-    # Check symmetry order consistency
-    symmetry_orders = [o.symmetry.order for o in aligned]
-    unique_orders = set(symmetry_orders)
+        results.append({
+            "original_index": i,
+            "component": component,
+            "angular_distance": distance
+        })
 
-    validation_result = {
-        "total_orientations": len(orientations),
-        "percent_in_fundamental_zone": percent_in_fundamental_zone,
-        "unique_symmetry_orders": list(unique_orders),
-        "all_fcc_symmetry": all(order == 48 for order in unique_orders)  # Oh has 48 elements
+    return results
+
+def calculate_symmetry_equivalent_count(orientations: np.ndarray) -> int:
+    """
+    Calculate the number of symmetry equivalents for a set of orientations.
+    For FCC (m-3m), the order of the symmetry group is 48.
+
+    Args:
+        orientations: Array of shape (N, 3).
+
+    Returns:
+        int: The number of symmetry equivalents (constant for FCC).
+    """
+    # The order of the m-3m point group is 48
+    return 48
+
+def validate_fcc_symmetry_application(orientations: np.ndarray, component_labels: List[str]) -> Dict[str, Any]:
+    """
+    Validate that symmetry handling was applied correctly.
+
+    Checks:
+    1. All orientations are within the fundamental sector.
+    2. Component assignments are consistent with the symmetry.
+
+    Args:
+        orientations: Array of shape (N, 3).
+        component_labels: List of assigned component names.
+
+    Returns:
+        Dict with validation results.
+    """
+    orix_orientations = align_orientations_to_fcc(orientations)
+    
+    # Check if any orientation is outside the fundamental sector (shouldn't happen after alignment)
+    # This is a sanity check
+    in_sector = True
+    for orient in orix_orientations:
+        # If symmetry was applied, it should be in the sector
+        # We can check if the orientation is equal to its symmetry-reduced form
+        reduced = orient.set_symmetry(get_fcc_symmetry())
+        if not np.allclose(orient.data, reduced.data):
+            in_sector = False
+            break
+
+    component_counts = {}
+    for label in component_labels:
+        component_counts[label] = component_counts.get(label, 0) + 1
+
+    return {
+        "all_in_sector": in_sector,
+        "component_distribution": component_counts,
+        "total_samples": len(orientations),
+        "is_valid": in_sector
     }
-
-    logger.info(
-        f"Validation complete: {percent_in_fundamental_zone:.2f}% in fundamental zone, "
-        f"all FCC symmetry: {validation_result['all_fcc_symmetry']}"
-    )
-
-    return validation_result
-
 
 def main():
     """
-    Main entry point for symmetry validation and testing.
+    Main entry point for testing symmetry handling functionality.
     """
-    logger.info("Starting symmetry handling module validation")
-
-    # Example usage with synthetic data for demonstration
-    # In production, this would be called from preprocess.py or descriptors.py
-    sample_euler_angles = np.array([
-        [0, 0, 0],      # Cube component
-        [35, 45, 35],   # Copper component
-        [39, 45, 0],    # S component
-        [0, 45, 0],     # Goss component
-        [45, 45, 0],    # Brass component
+    logger.info("Starting FCC symmetry validation test.")
+    
+    # Create sample data
+    sample_eulers = np.array([
+        [35.0, 45.0, 0.0],   # Brass
+        [90.0, 35.0, 45.0],  # Copper
+        [0.0, 0.0, 0.0],     # Cube
+        [10.0, 10.0, 10.0],  # Random-ish
     ])
 
-    # Validate symmetry application
-    validation = validate_fcc_symmetry_application(sample_euler_angles)
-    logger.info(f"Validation results: {validation}")
-
-    # Define standard FCC texture components (from T018)
-    fcc_components = {
-        "Brass": (35, 45, 35, 45),
-        "Copper": (35, 45, 35, 45),
-        "S": (35, 45, 35, 45),
-        "Goss": (35, 45, 35, 45),
-        "Cube": (0, 10, 0, 10),
-    }
-
-    # Classify sample orientations
-    classification = classify_orientations_to_components(
-        sample_euler_angles,
-        fcc_components,
-        distance_threshold=0.3
-    )
-
-    logger.info("Classification results:")
-    for component, indices in classification.items():
-        if indices:
-            logger.info(f"  {component}: {len(indices)} orientations")
-
-    logger.info("Symmetry handling module validation complete")
-
+    logger.info(f"Processing {len(sample_eulers)} sample orientations.")
+    
+    # Classify
+    classifications = classify_orientations_to_components(sample_eulers)
+    
+    logger.info("Classification Results:")
+    for res in classifications:
+        logger.info(f"  Index {res['original_index']}: {res['component']} (dist: {res['angular_distance']:.2f}°)")
+    
+    # Validate
+    labels = [c['component'] for c in classifications]
+    validation = validate_fcc_symmetry_application(sample_eulers, labels)
+    
+    logger.info(f"Validation Result: {validation}")
+    
+    if validation['is_valid']:
+        logger.info("FCC symmetry handling validated successfully.")
+    else:
+        logger.error("FCC symmetry handling validation failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

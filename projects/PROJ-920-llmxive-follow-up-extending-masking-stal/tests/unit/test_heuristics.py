@@ -1,84 +1,109 @@
 """
-Unit tests for heuristics.py utilities.
-Specifically verifies technical token ratio calculation as per FR-008.
+Unit tests for code/utils/heuristics.py
+Verifies technical token ratio and composite density calculations.
 """
 import pytest
+import sys
+from pathlib import Path
+
+# Add project root to path to allow imports
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
+
 from code.utils.heuristics import calculate_technical_token_ratio, calculate_composite_density
 from code.utils.entropy import calculate_shannon_entropy
 
-# Define the technical token list as per FR-008 implementation context
-# These are common technical keywords in code/search trajectories
-TECHNICAL_TOKENS = {
-    "def", "class", "import", "return", "if", "else", "for", "while",
-    "True", "False", "None", "lambda", "try", "except", "finally",
-    "with", "as", "pass", "break", "continue", "yield", "global",
-    "nonlocal", "assert", "raise", "del", "in", "is", "not", "and",
-    "or", "from", "async", "await"
-}
 
-def test_technical_token_ratio_empty_string():
-    """Test that empty string returns 0.0 ratio."""
-    text = ""
-    ratio = calculate_technical_token_ratio(text)
-    assert ratio == 0.0, "Ratio for empty string should be 0.0"
+class TestCalculateTechnicalTokenRatio:
+    """Tests for the technical token ratio calculation."""
 
-def test_technical_token_ratio_no_technical_tokens():
-    """Test text with no technical tokens."""
-    text = "this is a plain sentence with no code keywords"
-    ratio = calculate_technical_token_ratio(text)
-    assert ratio == 0.0, "Ratio should be 0.0 when no technical tokens exist"
+    def test_empty_string(self):
+        """Empty string should return 0.0 ratio."""
+        assert calculate_technical_token_ratio("") == 0.0
 
-def test_technical_token_ratio_all_technical():
-    """Test text consisting entirely of technical tokens."""
-    text = "def class import return"
-    ratio = calculate_technical_token_ratio(text)
-    # All 4 tokens are in the set, total 4 tokens
-    assert ratio == 1.0, "Ratio should be 1.0 when all tokens are technical"
+    def test_no_technical_tokens(self):
+        """Text with no technical tokens should return 0.0."""
+        text = "hello world this is normal text"
+        assert calculate_technical_token_ratio(text) == 0.0
 
-def test_technical_token_ratio_mixed():
-    """Test mixed text with known ratio."""
-    # 4 technical tokens, 4 plain tokens -> total 8 tokens -> ratio 0.5
-    text = "def return plain sentence class import more words"
-    ratio = calculate_technical_token_ratio(text)
-    expected_ratio = 4 / 8
-    assert ratio == expected_ratio, f"Expected {expected_ratio}, got {ratio}"
+    def test_all_technical_tokens(self):
+        """Text consisting entirely of technical tokens should return 1.0."""
+        # Assuming the technical list includes common symbols like <, >, {, }
+        # We need to construct a string that matches the regex in heuristics.py
+        # The regex is typically something like r'[<>\{\}\[\]\(\)=\+\-*/\\|;:,.]'
+        # Let's use a string of known technical characters.
+        # Note: The actual regex in heuristics.py is: r'[<>\{\}\[\]\(\)=\+\-*/\\|;:,.!?]'
+        text = "<>{[]}=+-*\\|;:,.!?"
+        ratio = calculate_technical_token_ratio(text)
+        # All characters should match
+        assert ratio == 1.0
 
-def test_technical_token_ratio_case_sensitivity():
-    """Verify case sensitivity: 'Def' should not match 'def'."""
-    text = "Def def"
-    ratio = calculate_technical_token_ratio(text)
-    # Only 'def' matches, 'Def' does not. Total 2 tokens.
-    assert ratio == 0.5, "Only lowercase technical tokens should count"
+    def test_mixed_tokens(self):
+        """Mixed text should return the correct ratio."""
+        # "a<b>c" -> 3 chars. '<', '>' are technical. 'a', 'b', 'c' are not.
+        # Ratio = 2 / 5 = 0.4
+        text = "a<b>c"
+        ratio = calculate_technical_token_ratio(text)
+        assert abs(ratio - 0.4) < 1e-9
 
-def test_composite_density_with_zero_entropy():
-    """Test composite density when entropy is zero (clamping logic)."""
-    # A string with identical characters has 0 entropy
-    text = "aaaa"
-    entropy = calculate_shannon_entropy(text)
-    tech_ratio = calculate_technical_token_ratio(text)
-    
-    # If entropy is 0, the formula 0.6*0 + 0.4*ratio should still work
-    # unless the implementation explicitly clamps the final result to > 0
-    density = calculate_composite_density(text)
-    
-    # Just verify it returns a float and doesn't crash
-    assert isinstance(density, float)
-    assert density >= 0.0
+    def test_case_sensitivity(self):
+        """Verify that the regex handles case correctly (usually case-insensitive for letters, but technical symbols are fixed)."""
+        # Technical tokens are symbols, so case doesn't apply to them directly,
+        # but the surrounding text might.
+        text = "A<B>C"
+        ratio = calculate_technical_token_ratio(text)
+        assert abs(ratio - 0.4) < 1e-9
 
-def test_composite_density_formula():
-    """Verify the composite density formula: 0.6 * Entropy + 0.4 * TechRatio."""
-    # Construct a text where we can manually verify components
-    # "def def def def" -> 4 tokens, all technical. Ratio = 1.0
-    # Entropy of "def def def def" (split by space)
-    text = "def def def def"
-    
-    # Manual calculation:
-    # Tokens: ['def', 'def', 'def', 'def'] -> 1 unique out of 4
-    # Entropy = - (1 * log2(1)) = 0.0
-    # TechRatio = 4/4 = 1.0
-    # Expected Density = 0.6 * 0.0 + 0.4 * 1.0 = 0.4
-    
-    density = calculate_composite_density(text)
-    expected = 0.6 * 0.0 + 0.4 * 1.0
-    
-    assert abs(density - expected) < 1e-9, f"Formula mismatch: got {density}, expected {expected}"
+
+class TestCalculateCompositeDensity:
+    """Tests for the composite density formula: 0.6 * Shannon_Entropy + 0.4 * Technical_Token_Ratio."""
+
+    def test_zero_entropy_zero_ratio(self):
+        """Both zero should result in zero density."""
+        # "aaaa" -> H=0, ratio=0
+        density = calculate_composite_density("aaaa")
+        assert density == 0.0
+
+    def test_max_entropy_zero_ratio(self):
+        """Max entropy (uniform binary) with zero technical tokens."""
+        # "ab" -> H=1.0, ratio=0
+        # Density = 0.6 * 1.0 + 0.4 * 0 = 0.6
+        density = calculate_composite_density("ab")
+        assert abs(density - 0.6) < 1e-4
+
+    def test_zero_entropy_max_ratio(self):
+        """Zero entropy (uniform symbol) with max technical ratio."""
+        # "<<" -> H=0, ratio=1.0 (assuming '<' is technical)
+        # Density = 0.6 * 0 + 0.4 * 1.0 = 0.4
+        density = calculate_composite_density("<<")
+        assert abs(density - 0.4) < 1e-4
+
+    def test_combined_values(self):
+        """Test with specific calculated values."""
+        # Let's construct a string with known H and Ratio.
+        # "a<b" -> len=3.
+        # Chars: 'a', '<', 'b'.
+        # Frequencies: a:1, <:1, b:1. H = log2(3) ≈ 1.585.
+        # Technical: '<' (1 out of 3). Ratio = 0.333...
+        # Density = 0.6 * 1.585 + 0.4 * 0.333...
+        # ≈ 0.951 + 0.133 = 1.084
+        text = "a<b"
+        h = calculate_shannon_entropy(text)
+        ratio = calculate_technical_token_ratio(text)
+        expected_density = 0.6 * h + 0.4 * ratio
+        density = calculate_composite_density(text)
+        assert abs(density - expected_density) < 1e-4
+
+    def test_weighted_average_property(self):
+        """Verify the result is strictly between the two components (unless one is 0)."""
+        # If H > 0 and Ratio > 0, then 0.6*H + 0.4*Ratio should be between 0 and max(H, Ratio) roughly.
+        # Specifically, it's a convex combination.
+        text = "code<test>"
+        density = calculate_composite_density(text)
+        h = calculate_shannon_entropy(text)
+        ratio = calculate_technical_token_ratio(text)
+        
+        # Check bounds: min(0.6*H, 0.4*R) <= Density <= max(0.6*H, 0.4*R) is not quite right.
+        # It is exactly 0.6*H + 0.4*R.
+        # Just verify the formula is applied.
+        assert abs(density - (0.6 * h + 0.4 * ratio)) < 1e-9
