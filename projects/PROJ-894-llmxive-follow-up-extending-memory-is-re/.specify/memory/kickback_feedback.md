@@ -4,12 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T019b` (rejected 1x): The required `data/processed/greedy_results.csv` file does not exist, and the provided `code/runner.py` is incomplete (truncated) and only contains a generic placeholder implementation that does not actually run the Greedy strategy or write the required columns to a CSV. The task’s core output is therefore missing.
-- `T019c` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/noisy_lazy_results.csv
-- `T013` (rejected 1x): The provided `code/runner.py` is truncated and does not contain logic to compute normalized accuracy, record nodes visited, latency, status, or write these fields to `data/processed/baseline_results.csv`. Moreover, the required `baseline_results.csv` file is absent. The task’s core output artifact is missing and the runner implementation is incomplete.
-- `T019d` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/noisy_greedy_results.csv
-- `T024a` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/statistical_results.json
-- `T024b` (rejected 1x): No statistical analysis artifact (e.g., a CSV or report showing paired t‑test or Wilcoxon results, p‑values, confidence intervals, or Point‑Biserial correlation) was provided. The claim lacks the required output files or documented results, so the task’s requirement is not satisfied.
+- `T011a` (rejected 1x): The `data/raw/locomo.jsonl` file does not exist, so the required output was never produced. Additionally, the script’s schema‑mismatch error includes extra text instead of the exact `ValueError("Dataset schema mismatch")` message. The task’s core requirement—downloading the dataset and saving it with the correct columns—is therefore not satisfied.
+- `T011c` (rejected 1x): The repository lacks the required output file `data/processed/graphs/graph_noise_42.json`, and `code/data_loader.py` does not contain any logic that calls `inject_noise` to create and save a noisy graph dataset. Consequently the specified pytest check cannot be satisfied. The script must be extended to generate the noisy graph and write the non‑empty JSON file at the expected path.
+- `T013b` (rejected 1x): The repository contains a generic `code/runner.py`, but it does not implement a “noisy baseline” execution, does not log the required fields to `data/processed/noisy_baseline_results.csv`, and does not map T006/T037 states to a CSV status column. Moreover, the expected CSV file `data/processed/noisy_baseline_results.csv` is absent. The task therefore remains unfinished.
+- `T019a` (rejected 1x): The repository contains a `code/runner.py` file, but it does not include logic that writes the required fields (`task_id`, `accuracy`, `nodes_visited`, `latency_ms`, `evidence_threshold`, `status`) to `data/processed/lazy_results.csv`, and the CSV file itself is absent. Consequently the Lazy execution runner and its output file are not actually implemented.
+- `T020` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/sensitivity_analysis.csv
 
 ## Required change
 

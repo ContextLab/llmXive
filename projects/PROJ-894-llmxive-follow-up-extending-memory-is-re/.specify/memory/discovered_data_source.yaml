@@ -1,10 +1,14 @@
 status: none
-intent: LoCoMo benchmark HuggingFace datasets download python package dataset
+intent: LoCoMo MC10 benchmark dataset download HuggingFace datasets python package
+  dataset
 required_fields:
 - id
 - question
-- context
 - answer
-cache_key: a8bd77c7f18e0dfe64cc51af5f4a588e918f3b9d6fe5662d089588447e1dcef0
-searched_at: '2026-08-10T19:10:07.152417+00:00'
+- graph_nodes
+- graph_edges
+- supporting_facts
+- metadata
+cache_key: 1c8ad0f29797d17f21db633d3ea8f67da9133205f6c29f99bac44379b6d6bfd2
+searched_at: '2026-08-21T20:13:55.025547+00:00'
 retry_count: 1

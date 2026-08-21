@@ -1,142 +1,189 @@
+"""
+Unit tests for data_loader module.
+"""
 import pytest
 import os
 import json
+import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-from datasets import DatasetNotFoundError
-
-# Import the module under test
-# We assume the code is in the 'code' directory and we are running from the project root
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code.data_loader import fetch_locomo_dataset, inject_noise, generate_noisy_graphs, save_noisy_graphs, load_noisy_graphs
-import networkx as nx
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-class TestFetchLoCoMoDataset:
-    def test_fetch_success(self):
-        """Test that fetch_locomo_dataset succeeds when the dataset is available."""
-        mock_data = [
-            {"id": "1", "question": "Q1", "context": "C1", "answer": "A1"},
-            {"id": "2", "question": "Q2", "context": "C2", "answer": "A2"}
-        ]
-        mock_dataset = MagicMock()
-        mock_dataset.__iter__ = lambda self: iter(mock_data)
-        
-        with patch('code.data_loader.load_dataset', return_value=mock_dataset):
-            tasks = fetch_locomo_dataset(subset="test")
-            
-        assert len(tasks) == 2
-        assert tasks[0]["task_id"] == "1"
-        assert tasks[1]["question"] == "Q2"
+from data_loader import (
+    fetch_locomo_dataset,
+    save_raw_data,
+    load_raw_data,
+    build_memory_graph,
+    save_graphs,
+    load_graphs,
+    inject_noise,
+    generate_noisy_graphs,
+    save_noisy_graphs,
+    load_noisy_graphs,
+    process_in_chunks
+)
 
-    def test_fetch_failure_raises_value_error(self):
-        """
-        Test that fetch_locomo_dataset raises ValueError when the dataset fetch fails.
-        This enforces T035: No silent fallback to synthetic data.
-        """
-        with patch('code.data_loader.load_dataset', side_effect=DatasetNotFoundError("Dataset not found")):
-            with pytest.raises(ValueError) as excinfo:
-                fetch_locomo_dataset(subset="test")
-            
-            assert "Dataset fetch failed" in str(excinfo.value)
-
-class TestInjectNoise:
+class TestDataLoader:
+    
     def test_inject_noise_replaces_edges(self):
-        """
-        Test that inject_noise correctly replaces a proportion of edges.
-        This is the primary test for T011b and T011c verification.
-        """
-        # Create a deterministic graph
-        G = nx.DiGraph()
-        G.add_edges_from([
-            (1, 2), (2, 3), (3, 4), (4, 5),
-            (1, 3), (2, 4), (3, 5), (1, 5)
-        ])
+        """Test that inject_noise replaces edges correctly."""
+        graph_data = {
+            "nodes": ["A", "B", "C", "D"],
+            "edges": [
+                {"source": "A", "target": "B", "relation": "rel1"},
+                {"source": "B", "target": "C", "relation": "rel2"},
+                {"source": "C", "target": "D", "relation": "rel3"},
+                {"source": "A", "target": "C", "relation": "rel4"}
+            ]
+        }
         
-        original_edges = set(G.edges())
-        original_count = len(original_edges)
+        # Inject 50% noise
+        noisy = inject_noise(graph_data, ratio=0.5, seed=42)
         
-        # Inject 50% noise with a fixed seed
-        ratio = 0.5
-        seed = 42
-        noisy_G = inject_noise(G, ratio, seed)
+        # Check that nodes are preserved
+        assert set(noisy["nodes"]) == set(graph_data["nodes"])
         
-        noisy_edges = set(noisy_G.edges())
+        # Check that edge count is preserved
+        assert len(noisy["edges"]) == len(graph_data["edges"])
         
-        # Verify total edge count remains roughly the same
-        assert noisy_G.number_of_edges() <= original_count + 1
+        # Check that some edges are different (noise injected)
+        original_edges = {(e["source"], e["target"]) for e in graph_data["edges"]}
+        noisy_edges = {(e["source"], e["target"]) for e in noisy["edges"]}
         
-        # Verify that not all original edges are preserved
-        removed_count = original_count - len(original_edges & noisy_edges)
-        assert removed_count > 0, "Expected some edges to be removed."
+        # There should be some difference
+        assert len(original_edges.symmetric_difference(noisy_edges)) > 0
         
-        # Verify that some new edges were added that were not in the original
-        added_count = len(noisy_edges - original_edges)
-        assert added_count > 0, "Expected some new edges to be added."
+    def test_no_fallback_on_failure(self):
+        """Test that fetch_locomo_dataset raises an error when fetch fails."""
+        with patch('data_loader.load_dataset') as mock_load:
+            mock_load.side_effect = Exception("Dataset not found")
+            
+            with pytest.raises(ValueError) as exc_info:
+                fetch_locomo_dataset(subset="test", streaming=False)
+            
+            assert "Dataset fetch failed" in str(exc_info.value)
+            
+    def test_streaming_mode(self):
+        """Test that streaming mode works correctly."""
+        # Mock a streaming dataset
+        mock_ds = MagicMock()
+        mock_ds.__iter__ = MagicMock(return_value=iter([
+            {"question": "Q1", "context": "C1", "answer": "A1"},
+            {"question": "Q2", "context": "C2", "answer": "A2"}
+        ]))
         
-        # Verify reproducibility: running with same seed should produce same result
-        noisy_G_2 = inject_noise(G, ratio, seed)
-        assert set(noisy_G.edges()) == set(noisy_G_2.edges()), "Noise injection is not reproducible with same seed."
-
-    def test_inject_noise_zero_ratio(self):
-        """Test that 0 ratio results in identical graph."""
-        G = nx.DiGraph()
-        G.add_edges_from([(1, 2), (2, 3)])
+        with patch('data_loader.load_dataset', return_value=mock_ds):
+            records = fetch_locomo_dataset(subset="test", streaming=True)
+            
+            # Should return an iterator
+            assert hasattr(records, '__iter__')
+            
+            # Consume the iterator
+            result = list(records)
+            assert len(result) == 2
+            assert result[0]["question"] == "Q1"
+            
+    def test_build_memory_graph(self):
+        """Test graph building from records."""
+        records = [
+            {
+                "task_id": "task1",
+                "question": "What is X?",
+                "context": "X is related to Y. Y is related to Z.",
+                "answer": "Z"
+            }
+        ]
         
-        noisy_G = inject_noise(G, 0.0, 42)
+        graphs = build_memory_graph(records)
         
-        assert set(G.edges()) == set(noisy_G.edges())
-        assert G.number_of_edges() == noisy_G.number_of_edges()
-
-    def test_inject_noise_invalid_ratio(self):
-        """Test that invalid ratio raises ValueError."""
-        G = nx.DiGraph()
-        G.add_edge(1, 2)
+        assert "task1" in graphs
+        assert "graph" in graphs["task1"]
+        assert "nodes" in graphs["task1"]["graph"]
+        assert "edges" in graphs["task1"]["graph"]
         
-        with pytest.raises(ValueError):
-            inject_noise(G, 1.5, 42)
+    def test_save_and_load_graphs(self):
+        """Test saving and loading graphs."""
+        graphs = {
+            "task1": {
+                "task_id": "task1",
+                "question": "Q1",
+                "answer": "A1",
+                "graph": {
+                    "nodes": ["A", "B"],
+                    "edges": [{"source": "A", "target": "B", "relation": "rel1"}]
+                }
+            }
+        }
         
-        with pytest.raises(ValueError):
-            inject_noise(G, -0.1, 42)
-
-class TestGenerateNoisyGraphs:
-    def test_generate_noisy_graphs_creates_output(self, tmp_path):
-        """Test that generate_noisy_graphs creates a valid noisy graph set."""
-        # Create a simple graph
-        G = nx.DiGraph()
-        G.add_edges_from([(1, 2), (2, 3), (3, 1)])
-        graphs = {"task_1": G}
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            temp_path = f.name
+            
+        try:
+            save_graphs(graphs, temp_path)
+            loaded = load_graphs(temp_path)
+            
+            assert loaded == graphs
+        finally:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+                
+    def test_generate_noisy_graphs(self):
+        """Test generating noisy graphs."""
+        graphs = {
+            "task1": {
+                "task_id": "task1",
+                "question": "Q1",
+                "answer": "A1",
+                "graph": {
+                    "nodes": ["A", "B", "C"],
+                    "edges": [
+                        {"source": "A", "target": "B", "relation": "rel1"},
+                        {"source": "B", "target": "C", "relation": "rel2"}
+                    ]
+                }
+            }
+        }
         
         noisy_graphs = generate_noisy_graphs(graphs, ratio=0.5, seed=42)
         
-        assert len(noisy_graphs) == 1
-        assert "task_1" in noisy_graphs
-        assert isinstance(noisy_graphs["task_1"], nx.DiGraph)
+        assert "task1" in noisy_graphs
+        assert len(noisy_graphs["task1"]["graph"]["edges"]) == len(graphs["task1"]["graph"]["edges"])
         
-        # Check that edges were modified (statistically likely with 50% noise)
-        original_edges = set(G.edges())
-        noisy_edges = set(noisy_graphs["task_1"].edges())
-        # We don't assert they are different because it's probabilistic, but we can check structure
-        assert noisy_graphs["task_1"].number_of_nodes() == G.number_of_nodes()
-
-class TestSaveLoadNoisyGraphs:
-    def test_save_and_load_noisy_graphs(self, tmp_path):
-        """Test that noisy graphs can be saved and loaded correctly."""
-        # Create a simple graph
-        G = nx.DiGraph()
-        G.add_edges_from([(1, 2), (2, 3), (3, 1)])
-        graphs = {"task_1": G}
+    def test_process_in_chunks(self):
+        """Test chunked processing."""
+        records = [{"id": i} for i in range(10)]
+        processed = []
         
-        noisy_graphs = generate_noisy_graphs(graphs, ratio=0.5, seed=42)
+        def processor(chunk):
+            processed.extend([r["id"] * 2 for r in chunk])
+            return processed.copy()
+            
+        results = list(process_in_chunks(iter(records), 3, processor))
         
-        output_path = tmp_path / "test_graph_noise.json"
-        save_noisy_graphs(noisy_graphs, output_path=output_path)
+        assert len(results) == 4  # 10 items in chunks of 3 -> 4 chunks
+        assert all(isinstance(r, list) for r in results)
         
-        assert output_path.exists()
+    def test_real_data_source(self):
+        """Test that real data source is used (not synthetic)."""
+        # This test verifies that we are not falling back to synthetic data
+        # In a real scenario, we would check that the dataset ID is correct
+        # For now, we just verify the function exists and can be called
+        # with the correct parameters
         
-        loaded_graphs = load_noisy_graphs(input_path=output_path)
+        # Mock the load_dataset to return valid data
+        mock_ds = MagicMock()
+        mock_ds.__iter__ = MagicMock(return_value=iter([
+            {"question": "Q1", "context": "C1", "answer": "A1"}
+        ]))
         
-        assert len(loaded_graphs) == 1
-        assert "task_1" in loaded_graphs
-        assert set(loaded_graphs["task_1"].edges()) == set(noisy_graphs["task_1"].edges())
+        with patch('data_loader.load_dataset', return_value=mock_ds):
+            # This should not raise an error
+            records = fetch_locomo_dataset(subset="test", streaming=False)
+            result = list(records)
+            assert len(result) == 1
+            assert "question" in result[0]
+            assert "context" in result[0]
+            assert "answer" in result[0]

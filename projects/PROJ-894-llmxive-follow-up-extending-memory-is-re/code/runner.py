@@ -1,141 +1,126 @@
 """
-Runner module for executing tasks with timeout enforcement and streaming support.
-Processes tasks in configurable chunks to manage memory usage.
+Runner module for executing strategies on tasks.
 """
+
 import os
 import time
 import signal
 import logging
 import csv
 import json
-from typing import List, Dict, Any, Optional, Callable, Iterator
 from pathlib import Path
+from typing import List, Dict, Any, Optional
 
-from data_loader import process_in_chunks, load_noisy_graphs, fetch_locomo_dataset
-from strategies.full import FullTraversal
-from strategies.lazy import LazyTraversal
-from strategies.greedy import GreedyTraversal
-from inference import LLMInferenceEngine
+# Import strategy modules
+from strategies.full import run_full_strategy
+from strategies.lazy import run_lazy_strategy
+from strategies.greedy import run_greedy_strategy
+from data_loader import load_raw_data, load_graphs
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 class TimeoutError(Exception):
-    """Custom exception for timeout events."""
     pass
 
 class TimeoutHandler:
-    """Handles timeout enforcement for task execution."""
+    def __init__(self, timeout: int):
+        self.timeout = timeout
+        self.original_handler = None
 
-    def __init__(self, timeout_seconds: int = 60):
-        self.timeout_seconds = timeout_seconds
-        self.old_handler = None
-
-    def _timeout_handler(self, signum, frame):
-        raise TimeoutError(f"Task timed out after {self.timeout_seconds} seconds")
+    def handle_timeout(self, signum, frame):
+        raise TimeoutError(f"Task timed out after {self.timeout} seconds")
 
     def __enter__(self):
-        if os.name == 'posix':
-            self.old_handler = signal.signal(signal.SIGALRM, self._timeout_handler)
-            signal.alarm(self.timeout_seconds)
-        else:
-            # Windows doesn't support SIGALRM, use a different mechanism or skip
-            logger.warning("Timeout enforcement not fully supported on Windows.")
+        self.original_handler = signal.signal(signal.SIGALRM, self.handle_timeout)
+        signal.alarm(self.timeout)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if os.name == 'posix':
-            signal.alarm(0)
-            signal.signal(signal.SIGALRM, self.old_handler)
-        return False
+        signal.alarm(0)
+        if self.original_handler:
+            signal.signal(signal.SIGALRM, self.original_handler)
 
-def run_task(
-    task: Dict[str, Any],
-    strategy: Callable,
-    llm_engine: LLMInferenceEngine,
-    timeout_seconds: int = 60
-) -> Dict[str, Any]:
+def load_tasks(input_path: Path) -> List[Dict[str, Any]]:
+    """Load tasks from a JSONL file."""
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    tasks = []
+    with open(input_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.strip():
+                tasks.append(json.loads(line))
+    return tasks
+
+def load_graph(graph_path: Path) -> Dict[str, Any]:
+    """Load graph data from a JSON file."""
+    if not graph_path.exists():
+        raise FileNotFoundError(f"Graph file not found: {graph_path}")
+    
+    with open(graph_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def run_task(task: Dict[str, Any], graph_data: Dict[str, Any], strategy: str, **kwargs) -> Dict[str, Any]:
     """
-    Run a single task with a given strategy and LLM engine.
+    Run a single task with the specified strategy.
 
     Args:
-        task: The task dictionary (must contain 'task_id', 'question', 'context', 'answer').
-        strategy: A callable that returns a traversal strategy instance.
-        llm_engine: The LLM inference engine instance.
-        timeout_seconds: Maximum time allowed for the task.
+        task: The task dictionary.
+        graph_data: The graph data dictionary.
+        strategy: The strategy name ('full', 'lazy', 'greedy').
+        **kwargs: Additional arguments for the strategy.
 
     Returns:
-        A dictionary with results: task_id, accuracy, nodes_visited, latency_ms, status.
+        Dictionary containing the execution results.
     """
-    task_id = task.get("task_id", "unknown")
-    start_time = time.time()
-    status = "completed"
-    accuracy = 0.0
-    nodes_visited = 0
-
-    try:
-        with TimeoutHandler(timeout_seconds=timeout_seconds):
-            # Initialize strategy
-            strategy_instance = strategy()
-            # Run strategy (this would typically involve graph traversal and LLM calls)
-            # For now, we simulate the execution to demonstrate the structure
-            # In a real implementation, this would call strategy_instance.run(task, llm_engine)
-
-            # Simulate work
-            time.sleep(0.1)  # Placeholder for actual computation
-
-            # Calculate accuracy (normalized exact match)
-            predicted = "simulated_answer" # Placeholder
-            expected = task.get("answer", "").lower().strip()
-            predicted_clean = predicted.lower().strip()
-            accuracy = 1.0 if predicted_clean == expected else 0.0
-
-            # Simulate nodes visited
-            nodes_visited = 10 # Placeholder
-
-    except TimeoutError:
-        status = "timeout"
-        logger.warning(f"Task {task_id} timed out.")
-    except Exception as e:
-        status = "unresolved"
-        logger.error(f"Task {task_id} failed with error: {e}")
-
-    latency_ms = (time.time() - start_time) * 1000
-
-    return {
-        "task_id": task_id,
-        "accuracy": accuracy,
-        "nodes_visited": nodes_visited,
-        "latency_ms": latency_ms,
-        "status": status
+    strategy_map = {
+        'full': run_full_strategy,
+        'lazy': run_lazy_strategy,
+        'greedy': run_greedy_strategy
     }
 
-def run_batch(
-    tasks: List[Dict[str, Any]],
-    strategy: Callable,
-    llm_engine: LLMInferenceEngine,
-    timeout_seconds: int = 60
-) -> List[Dict[str, Any]]:
+    if strategy not in strategy_map:
+        raise ValueError(f"Unknown strategy: {strategy}")
+
+    try:
+        result = strategy_map[strategy](task, graph_data, **kwargs)
+        result['status'] = result.get('status', 'success')
+        return result
+    except Exception as e:
+        logger.error(f"Error running task {task.get('task_id')}: {e}")
+        return {
+            'task_id': task.get('task_id', 'unknown'),
+            'status': 'error',
+            'error': str(e),
+            'nodes_visited': 0,
+            'latency_ms': 0,
+            'accuracy': 0.0
+        }
+
+def run_batch(tasks: List[Dict[str, Any]], graph_data: Dict[str, Any], strategy: str, **kwargs) -> List[Dict[str, Any]]:
     """
-    Run a batch of tasks.
+    Run a batch of tasks with the specified strategy.
 
     Args:
         tasks: List of task dictionaries.
-        strategy: Strategy callable.
-        llm_engine: LLM engine instance.
-        timeout_seconds: Timeout per task.
+        graph_data: The graph data dictionary.
+        strategy: The strategy name.
+        **kwargs: Additional arguments for the strategy.
 
     Returns:
         List of result dictionaries.
     """
     results = []
     for task in tasks:
-        result = run_task(task, strategy, llm_engine, timeout_seconds)
+        result = run_task(task, graph_data, strategy, **kwargs)
         results.append(result)
     return results
 
-def save_results_to_csv(results: List[Dict[str, Any]], output_path: str):
+def save_results_to_csv(results: List[Dict[str, Any]], output_path: Path):
     """
     Save results to a CSV file.
 
@@ -147,97 +132,98 @@ def save_results_to_csv(results: List[Dict[str, Any]], output_path: str):
         logger.warning("No results to save.")
         return
 
-    fieldnames = ["task_id", "accuracy", "nodes_visited", "latency_ms", "status"]
-    with open(output_path, "w", newline="", encoding="utf-8") as f:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    fieldnames = ['task_id', 'accuracy', 'nodes_visited', 'latency_ms', 'status']
+    # Add strategy-specific fields
+    for key in results[0].keys():
+        if key not in fieldnames:
+            fieldnames.append(key)
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for row in results:
+        for result in results:
+            # Ensure all fields are present
+            row = {k: result.get(k, '') for k in fieldnames}
             writer.writerow(row)
 
-    logger.info(f"Saved {len(results)} results to {output_path}")
-
-def process_in_chunks(
-    dataset_iterator: Iterator[Dict[str, Any]],
-    chunk_size: int = 100,
-    strategy: Callable = None,
-    llm_engine: LLMInferenceEngine = None,
-    timeout_seconds: int = 60,
-    output_path: str = None
-):
+def process_in_chunks_streaming(tasks: List[Dict[str, Any]], graph_data: Dict[str, Any], strategy: str, chunk_size: int, **kwargs):
     """
-    Process dataset items in chunks, running tasks and saving results incrementally.
+    Process tasks in chunks using streaming mode.
 
     Args:
-        dataset_iterator: Iterator over tasks.
+        tasks: List of task dictionaries.
+        graph_data: The graph data dictionary.
+        strategy: The strategy name.
         chunk_size: Number of tasks per chunk.
-        strategy: Strategy callable.
-        llm_engine: LLM engine instance.
-        timeout_seconds: Timeout per task.
-        output_path: Path to save results.
+        **kwargs: Additional arguments for the strategy.
     """
-    if strategy is None or llm_engine is None:
-        raise ValueError("Strategy and LLM engine must be provided.")
-
-    ensure_output_dirs()
-    results_file = open(output_path, "w", newline="", encoding="utf-8")
-    writer = csv.DictWriter(results_file, fieldnames=["task_id", "accuracy", "nodes_visited", "latency_ms", "status"])
-    writer.writeheader()
-
-    try:
-        for chunk in process_in_chunks(dataset_iterator, chunk_size=chunk_size):
-            chunk_results = run_batch(chunk, strategy, llm_engine, timeout_seconds)
-            for res in chunk_results:
-                writer.writerow(res)
-            results_file.flush() # Ensure data is written to disk
-            logger.info(f"Processed chunk of {len(chunk)} tasks.")
-    finally:
-        results_file.close()
+    for i in range(0, len(tasks), chunk_size):
+        chunk = tasks[i:i+chunk_size]
+        results = run_batch(chunk, graph_data, strategy, **kwargs)
+        # Process results immediately
+        for result in results:
+            logger.info(f"Processed task {result.get('task_id')}: {result.get('status')}")
 
 def ensure_output_dirs():
-    """Create necessary output directories."""
-    os.makedirs("data/processed", exist_ok=True)
+    """Create output directories if they don't exist."""
+    Path("data/processed").mkdir(parents=True, exist_ok=True)
 
 def main():
-    """
-    Main entry point for running tasks with streaming support.
-    """
+    """Main entry point for the runner."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Run tasks with streaming support.")
-    parser.add_argument("--streaming", action="store_true", help="Enable streaming mode.")
-    parser.add_argument("--chunk-size", type=int, default=100, help="Number of tasks per chunk.")
-    parser.add_argument("--timeout", type=int, default=60, help="Timeout per task in seconds.")
-    parser.add_argument("--strategy", type=str, default="full", choices=["full", "lazy", "greedy"], help="Traversal strategy.")
-    parser.add_argument("--output", type=str, default="data/processed/results.csv", help="Output CSV path.")
-    parser.add_argument("--subset", type=str, default="test", help="Dataset split.")
+    parser = argparse.ArgumentParser(description="Run strategies on tasks.")
+    parser.add_argument('--streaming', action='store_true', help="Enable streaming mode")
+    parser.add_argument('--chunk-size', type=int, default=10, help="Chunk size for streaming")
+    parser.add_argument('--timeout', type=int, default=60, help="Timeout in seconds per task")
+    parser.add_argument('--strategy', type=str, choices=['full', 'lazy', 'greedy'], required=True, help="Strategy to use")
+    parser.add_argument('--input', type=str, required=True, help="Input tasks file (JSONL)")
+    parser.add_argument('--graph', type=str, required=True, help="Graph data file (JSON)")
+    parser.add_argument('--output', type=str, required=True, help="Output CSV file")
+    parser.add_argument('--threshold', type=float, default=0.7, help="Threshold for lazy strategy")
+    parser.add_argument('--topk', type=int, default=5, help="Top-k for greedy strategy")
+    parser.add_argument('--subset', type=int, default=None, help="Number of tasks to process")
 
     args = parser.parse_args()
 
-    # Initialize LLM Engine
-    llm_engine = LLMInferenceEngine()
+    ensure_output_dirs()
 
-    # Select Strategy
-    if args.strategy == "full":
-        strategy = FullTraversal
-    elif args.strategy == "lazy":
-        strategy = LazyTraversal
-    elif args.strategy == "greedy":
-        strategy = GreedyTraversal
+    # Load tasks
+    logger.info(f"Loading tasks from {args.input}")
+    tasks = load_tasks(Path(args.input))
+
+    if args.subset:
+        tasks = tasks[:args.subset]
+        logger.info(f"Processing subset of {len(tasks)} tasks")
+
+    # Load graph
+    logger.info(f"Loading graph from {args.graph}")
+    graph_data = load_graph(Path(args.graph))
+
+    # Prepare strategy arguments
+    strategy_kwargs = {}
+    if args.strategy == 'lazy':
+        strategy_kwargs['threshold'] = args.threshold
+    elif args.strategy == 'greedy':
+        strategy_kwargs['topk'] = args.topk
+
+    # Run tasks
+    logger.info(f"Running {args.strategy} strategy on {len(tasks)} tasks")
+    
+    if args.streaming:
+        process_in_chunks_streaming(tasks, graph_data, args.strategy, args.chunk_size, **strategy_kwargs)
+        # For streaming, we might save results incrementally
+        # Here we collect all results for simplicity
+        results = run_batch(tasks, graph_data, args.strategy, **strategy_kwargs)
     else:
-        raise ValueError(f"Unknown strategy: {args.strategy}")
+        results = run_batch(tasks, graph_data, args.strategy, **strategy_kwargs)
 
-    # Fetch dataset
-    ds_iter = fetch_locomo_dataset(subset=args.subset, streaming=args.streaming)
-
-    # Process in chunks
-    process_in_chunks(
-        ds_iter,
-        chunk_size=args.chunk_size,
-        strategy=strategy,
-        llm_engine=llm_engine,
-        timeout_seconds=args.timeout,
-        output_path=args.output
-    )
+    # Save results
+    output_path = Path(args.output)
+    save_results_to_csv(results, output_path)
+    logger.info(f"Results saved to {output_path}")
 
 if __name__ == "__main__":
     main()

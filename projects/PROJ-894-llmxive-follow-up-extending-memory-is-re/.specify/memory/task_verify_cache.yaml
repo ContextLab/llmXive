@@ -1,34 +1,20 @@
-T011a:
+T013:
   c: false
-  h: 92f3e342d057efb4171ae98417ed8e268758e5dbe08130d12027abe9a777ba29
-  r: "The `code/data_loader.py` script is present and contains the required download\
-    \ and CSV\u2011saving logic (including raising `ValueError(\"Dataset fetch failed\"\
-    )`), but the expected output file `data/raw/locomo.csv` does not exist. The task\
-    \ is considered incomplete until the script is executed (or the CSV is provided)\
-    \ and the required CSV file is present."
-T011c:
+  h: 49910aaa12d25fd4e6721057c73ee27e80d968a68d49184bf11b44c55a572ce3
+  r: "The `data/processed/baseline_results.csv` file does not exist, and the provided\
+    \ `code/runner.py` snippet shows no logic that writes the required columns (`task_id`,\
+    \ `accuracy`, `nodes_visited`, `latency_ms`, `status`) to that CSV or maps degenerate/unresolved\
+    \ states to the `status` column. The implementation therefore does not meet the\
+    \ task\u2019s specifications."
+T019b:
   c: false
-  h: a6851f52e015556be320cd0fbad4b9a2949688d7a7c8ab93f323b148edf48dfe
-  r: "The required output file `data/processed/graphs/graph_noise_42.json` is absent,\
-    \ and the provided `code/data_loader.py` (truncated) contains no code that generates\
-    \ a graph, calls `inject_noise`, and writes the noisy graph to the specified path.\
-    \ Consequently the task\u2019s core requirement is not fulfilled."
-T013b:
-  c: false
-  h: 391ba653c4a7c8c195b3281bfb8982e33c208d90afa6386ea88ddecb0c07a04a
-  r: The required output file `data/processed/noisy_baseline_results.csv` is missing,
-    and `code/runner.py` does not contain a complete implementation that runs the
-    noisy baseline on synthetic graphs or writes the required columns (including mapping
-    degenerate/unresolved states to the `status` column). The runner code is truncated
-    and lacks the execution loop and CSV logging logic.
-T019a:
-  c: false
-  h: 3880dc51a85d75b9beda1e41cca6f73c26aee130debfff195ac5e1d64f3ecc0c
-  r: The repository contains a `code/runner.py` file, but it is truncated, does not
-    implement logging of the required `evidence_threshold` field, and does not write
-    results to `data/processed/lazy_results.csv`. Moreover, the `lazy_results.csv`
-    file is absent. Consequently the required output artifact is missing and the runner
-    does not fully satisfy the specification.
+  h: 37bae22bb7895952b285075d69110a7702eadb6fad3980edb93f8c8319691411
+  r: "The repository contains a `code/runner.py` file, but it does not include logic\
+    \ that writes the required columns (`task_id`, `accuracy`, `nodes_visited`, `latency_ms`,\
+    \ `evidence_threshold`, `status`) to `data/processed/greedy_results.csv`. Moreover,\
+    \ the expected output file `data/processed/greedy_results.csv` is absent from\
+    \ the project. The task\u2019s core requirement\u2014producing the CSV with the\
+    \ specified fields for the Greedy strategy\u2014is therefore not met."
 T042:
   c: false
   h: 075a4075f4a74f58f77684da496eb853e6dacda150e2b9d334085c8e1d312939
