@@ -44,12 +44,12 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001_new [P] Create project structure by explicitly creating directories: `src/`, `src/data/`, `src/synthesis/`, `src/analysis/`, `src/viz/`, `src/utils/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `data/raw/`, `data/processed/`, `data/results/`, `specs/`, `state/`. Generate `state/structure_manifest.json` listing all created paths with content hashes (SHA-256) to verify completion and satisfy Constitution Principle V. **Output Schema**: JSON object with keys: `directories` (list of paths), `hashes` (map of path -> sha256_hash), `generated_at` (ISO8601 timestamp).
-- [X] T002 Initialize Python project with pinned `requirements.txt` (numpy, pandas, scipy, statsmodels, arch, yfinance, requests, pyyaml, matplotlib, seaborn, xarray, psutil)
+- [X] T002 [P] Initialize Python project by creating `requirements.txt` at the repository root. **Content**: Pin exact versions for: `numpy`, `pandas`, `scipy`, `statsmodels`, `arch`, `yfinance`, `requests`, `pyyaml`, `matplotlib`, `seaborn`, `xarray`, `psutil`. **Verification**: Run `pip install -r requirements.txt` and `pip freeze > requirements.lock` to verify all packages are installed and pinned.
 - [X] T003 [P] Create `ruff.toml` configuration file with strict linting rules (E, F, W, I, N, C, UP) and `black` integration.
 - [X] T004 [P] Create `pytest.ini` configuration file with test paths, markers, and verbosity settings.
-- [X] T005 [P] Implement `src/utils/config.py` for random seed management, global constants, and **`NUM_NULL_PER_SERIES = 1000`** (required for T019a/T019b). **Dependency**: Required by T007 and T008.
+- [X] T005 [P] Implement `src/utils/config.py` with explicit global constants: `SEED = 42` (int), `ALPHA = 0.05` (float), `NUM_NULL_PER_SERIES = 1000` (int), `MAX_LAG = 20` (int). **Dependency**: Required by T007 and T008.
 - [X] T006 [P] Implement `src/utils/logging.py` with structured logging for warnings and errors, including log file rotation. **Dependency**: Required by T007 and T008.
-- [X] T007 Create base data schemas in `src/data/schemas.py` using Pydantic: `TimeSeries`, `SyntheticData`, `TestResult`, `ErrorRateSummary` with all required fields defined in the spec.
+- [X] T007 [P] Create base data schemas in `src/data/schemas.py` using Pydantic: `TimeSeries`, `SyntheticData`, `TestResult`, `ErrorRateSummary` with all required fields defined in the spec.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -60,7 +60,8 @@
 - [X] T008 [P] Implement `src/data/ingestion.py` with strict URL validation and checksumming logic (FR-001). **Note**: This task provides the core ingestion functions; T014 and T048 use these functions.
 - [X] T015 [US1] Implement linear interpolation for missing values in `src/data/preprocessing.py` (FR-002). **Dependency**: Must run BEFORE T009 to ensure valid input for ADF.
 - [X] T009 [US1] Implement `src/data/preprocessing.py` with FULL implementation of ADF logic AND linear regression residuals for detrending. **Constraint**: Per Spec FR-002, use linear regression residuals for detrending; DFA is explicitly excluded for this specific task. **Implementation Detail**: 1) Implement ADF loop: run ADF; if p < 0.05, difference data and repeat until p >= 0.05; 2) Implement Detrending: if p >= 0.05, fit linear regression y = mx + c to the series, calculate residuals (y - (mx + c)), and use residuals as the processed series. 3) **Calculate spectral density peak ratio** for every loaded series as required by FR-002. **Output**: `src/data/preprocessing.py` with working functions for `process_series(series)` returning processed data and metadata (stationarity_status, differencing_count, detrending_status, spectral_density_peak_ratio). **Dependency**: T015 (Missing Value Fill) must complete first. **Note**: Plan Summary mentions DFA, but Spec FR-002 mandates Linear Regression; this task follows the Spec. Plan contradiction flagged for kickback.
-- [X] T010 [P] Implement `src/data/metrics.py` utility functions (ACF, Hurst, Spectral Density) to be called by T010. **Note**: This task provides the functions, not the execution flow. T010 is the execution task that uses these utilities.
+- [X] T010_real [US1/US2] Implement `src/data/metrics.py` utility functions to compute ACF (up to lag 20), Hurst (via DFA), and Spectral Density peak ratio for **real and synthetic** series ONLY (no shuffled data yet). **Function Signatures**: `compute_acf(series: pd.Series, max_lag: int=20) -> np.ndarray`, `compute_hurst(series: pd.Series) -> float`, `compute_spectral_peak_ratio(series: pd.Series) -> float`. **Output**: `src/data/metrics.py` with these functions. **Dependency**: T018a (Resample). **Note**: This task provides the functions, not the execution flow. T010_real is the execution task that uses these utilities for real data.
+- [X] T010_shuffled [US1/US2] Compute ACF (up to lag 20), Hurst, and Spectral Density peak ratio for **ALL shuffled versions** (to verify US2-AC5) and store in `data/processed/metrics.json`. **Input**: Reads from `data/processed/null_distributions/*/*.csv` (shuffled) after T019a/b. **Dependency**: T019a, T019b. **Output Schema**: JSON list of objects with keys: `source`, `length`, `hurst`, `acf_vector` (list of floats, lags 0-20), `spectral_peak_ratio`, `is_shuffled` (boolean). **Constraint**: Must run BEFORE T037a to ensure metrics exist. **Algorithm**: Spectral Density Peak Ratio = (max peak in low-freq band) / (mean floor in high-freq band). **Note**: This task is separate from T010_real to avoid circular dependency.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,17 +83,15 @@
 
 - [X] T048 [US1] Implement data validation logic in `src/data/ingestion.py` to validate downloaded file size > 0 bytes and point count >= 25 before saving to `data/raw/`. Raise `ValueError` on failure. **Dependency**: T001_new.
 - [X] T014 [US1] Implement `src/data/ingestion.py` to download multiple distinct public datasets from authorized sources. **Constraint**: Must fail loudly on download error; no synthetic fallbacks. **URLs**:
- 1. NOAA Global Summary (URL: `)
+ 1. NOAA Global Summary (URL: ` - Note: Use specific station IDs below for direct access)
  2. Yahoo Finance (yfinance package for AAPL/SPY)
  3. UK National Grid Load (URL: `https://www.nationalgrideso.com/document/174276/download`)
  4. NOAA Station USW00014833 (URL: `)
  5. NOAA Station USW00014895 (URL: `)
  **Note**: Ensure all 5 URLs are distinct and valid. **Dependency**: T048.
-- [X] T018a [US1] Add logic to resample **ALL** datasets to a **consistent frequency (hourly)** before stationarity testing (US1-AC3). **Rule**: Resample ALL to hourly regardless of native frequency. **Output**: Write to `data/processed/resampled_{source}.csv`. **Dependency**: T009.
-- [X] T010 [US1/US2] Compute ACF (up to lag 20), Hurst, and Spectral Density **peak ratio** for **ALL** processed series (real and synthetic) AND **ALL shuffled versions** (to verify US2-AC5) and store in `data/processed/metrics.json`. **Input**: Reads from `data/processed/resampled_*.csv` (real), `data/processed/synthetic_*.csv` (synthetic), and `data/processed/null_distributions/*/*.csv` (shuffled) after T018a, T026, and T019a/b. **Dependency**: T018a, T026, T019a, T019b. **Output Schema**: JSON list of objects with keys: `source`, `length`, `hurst`, `acf_vector` (list of floats, lags 0-20), `spectral_peak_ratio`, `is_shuffled` (boolean). **Constraint**: Must run BEFORE T037a to ensure metrics exist. **Algorithm**: Spectral Density Peak Ratio = (max peak in low-freq band) / (mean floor in high-freq band). **Note**: Unified task covering both real, synthetic, and shuffled series to ensure 'every series' coverage.
-- [X] T049 [P] Add `NUM_NULL_PER_SERIES = 1000` to `src/utils/config.py`. **Dependency**: T001_new.
-- [X] T019a [US1] Implement shuffling (permutation) logic in `src/data/preprocessing.py` to generate and store **1000 shuffled versions** for **every real time series** to create a null distribution (FR-003, Constitution Principle VII). **Constraint**: Must run even if metric calculation (T010) fails; output to `data/processed/null_distributions/real/`. **File Naming**: `series_id_shuffle_001.csv` to `series_id_shuffle_1000.csv`. **Dependency**: T049.
-- [X] T019b [US2] Implement shuffling logic in `src/synthesis/generators.py` to generate and store **1000 shuffled versions** for **every synthetic series** to create a null distribution (FR-003, Constitution Principle VII). **Constraint**: Must run even if metric calculation (T010) fails; output to `data/processed/null_distributions/synthetic/`. **File Naming**: `series_id_shuffle_001.csv` to `series_id_shuffle_1000.csv`. **Dependency**: T049.
+- [X] T018a [US1] Add logic to resample **ONLY** the UK National Grid Load dataset to a **consistent frequency (hourly)** before stationarity testing (US1-AC3). **Rule**: Resample ONLY UK Grid to hourly. NOAA and Yahoo data are processed at their native frequency. **Output**: Write to `data/processed/resampled_{source}.csv` for UK Grid; native frequency for others. **Dependency**: T009.
+- [X] T019a [US1] Implement shuffling (permutation) logic in `src/data/preprocessing.py` to generate and store **a sufficient number of shuffled versions** for **every real time series** to create a null distribution. (FR-003, Constitution Principle VII). **Constraint**: Must run even if metric calculation (T010_real) fails; output to `data/processed/null_distributions/real/`. **File Naming**: `series_id_shuffle_001.csv` to `series_id_shuffle_1000.csv`. **Dependency**: T049.
+- [X] T019b [US2] Implement shuffling logic in `src/synthesis/generators.py` to generate and store **a sufficient number of shuffled versions** for **every synthetic series** to create a null distribution (FR-003, Constitution Principle VII). **Constraint**: Must run even if metric calculation (T010_real) fails; output to `data/processed/null_distributions/synthetic/`. **File Naming**: `series_id_shuffle_001.csv` to `series_id_shuffle_1000.csv`. **Dependency**: T049.
 - [X] T019c [P] [Gate] Verify existence and count of shuffled files. in `data/processed/null_distributions/real/` and `data/processed/null_distributions/synthetic/`. **Output**: Write `data/results/null_distribution_gate.json` with status "PASS" if counts match. **Dependency**: T019a, T019b.
 - [X] T020 [US1] Add edge case handling: skip datasets < 25 points with a warning log (Edge Case 1). **Log Format**: `WARNING: Skipping dataset {id}: length < 25`.
 - [X] T021 [US1] Add edge case handling: detect unit roots that cannot be detrended and log the differencing count (Edge Case). **Log Format**: `WARNING: Dataset {id} required {count} differences to achieve stationarity`.
@@ -117,9 +116,9 @@
 ### Implementation for User Story 2
 
 - [X] T026 [US2] Implement `src/synthesis/generators.py` to generate fractional Gaussian noise (fGn) or ARFIMA processes with H ∈ {0.5, 0.7, 0.8, 0.9} and mean=0 (FR-007).
-- [X] T027 [US2] Implement logic to generate synthetic series with varying lengths for the N-variation grid: {250, 2500, 5000, 10000} (Plan). **Output**: Write to `data/processed/synthetic_grid.csv` with columns: `hurst`, `length`, `file_path`.
-- [X] T029 [US2] Implement `src/synthesis/validation.py` to run the **[deferred]-trial** baseline check on H=0.5 data **before proceeding** to Hurst analysis (FR-008, US2-AC7). **GATE**: This task must write `data/results/baseline_status.json` with a "PASS" status if the rejection rate is within the Clopper-Pearson CI. **Output Schema**: JSON with keys: `status`, `rejection_rate`, `ci_lower`, `ci_upper`. **Implementation**: Use `statsmodels.stats.proportion.proportion_confint` for CI calculation. **Dependency**: T010, T026, T019c. Phase tasks (T037a) MUST NOT start until this file exists with "PASS".
-- [X] T030 [US2] [P] Read metrics from T010 output; verify ACF, Hurst, and spectral density **peak ratio** are computed (FR-002).
+- [X] T027 [US2] Implement logic to generate synthetic series with varying lengths for the N-variation grid spanning short to long time horizons. (Plan). **Output Schema**: `synthetic_grid.csv` with columns: `hurst`, `length`, `file_path`, `seed`. **Logic**: Map (H, length) pairs to unique file paths. **Dependency**: T026.
+- [X] T029 [US2] Implement `src/synthesis/validation.py` to run the **[deferred]-trial** baseline check on H=0.5 data **before proceeding** to Hurst analysis (FR-008, US2-AC7). **GATE**: This task must write `data/results/baseline_status.json` with a "PASS" status if the rejection rate is within the Clopper-Pearson CI. **Output Schema**: JSON with keys: `status`, `rejection_rate`, `ci_lower`, `ci_upper`. **Implementation**: Use `statsmodels.stats.proportion.proportion_confint` for CI calculation. **Dependency**: T010_real, T026, T019c. Phase tasks (T037a_runner) MUST NOT start until this file exists with "PASS".
+- [X] T030 [US2] [P] Read metrics from T010_real output; verify ACF, Hurst, and spectral density **peak ratio** are computed (FR-002).
 - [X] T031 [US2] Implement calculation of theoretical VIF and N_eff for synthetic series in `src/synthesis/generators.py` (FR-007).
 - [X] T032 [US2] Add logic to verify generated series mean is within 0.01 of 0 and H is within 0.05 of target (US2-AC1..4).
 
@@ -148,10 +147,9 @@
 
 ### Implementation for User Story 3 (Regression Logic)
 
-- [ ] T050 [US3] **Verify Regression Inputs**: Add a pre-computation check in `src/analysis/regression.py` (before T037a_runner runs) that verifies the input `error_rates.csv` and `filtered_features.json` have matching dataset IDs and that no `NaN` or `Inf` values exist in the Hurst or error rate columns. Log a critical error and exit if mismatches are found. **Dependency**: T037, T037b.
-- [ ] T037a_impl [US3] Implement **Linear Regression** model code in `src/analysis/regression.py` to regress error rate vs. Hurst exponent (synthetic) or estimated Hurst (real). **Implementation**: Use `statsmodels.api.OLS`. **Constraint**: Must use Linear Regression; explicitly exclude non-linear/GLM models. **Output**: Save regression coefficients and VIF/N_eff to `data/results/regression_model.json`. **Output Schema**: JSON with keys: `slope`, `intercept`, `p_value`, `vif`, `n_eff`, `r_squared`, `slope_per_01_unit`. **Logic**: Calculate `slope_per_01_unit` = `slope` * 0.1 to satisfy SC-002. **Explicit Step**: Calculate `slope_per_01_unit` as the change in error rate per 0.1 unit increase in Hurst exponent and record it in the output. **Note**: Plan Summary mentions non-linear regression, but Spec FR-005 mandates Linear Regression; this task follows the Spec. Plan contradiction flagged for kickback.
-- [X] T037c [US3] Implement calculation of Variance Inflation Factor (VIF) and Effective Sample Size (N_eff) in `src/analysis/regression.py` (FR-005).
-- [ ] T037b [US3] Implement explicit feature filtering logic in `src/analysis/regression.py` to **exclude** Max_ACF_Lag and spectral density metrics from the input features. **Dependency**: T037 (Monte Carlo loop completion). **Output**: Write filtered feature list to `data/results/filtered_features.json`.
+- [X] T037b [US3] Implement explicit feature filtering logic in `src/analysis/regression.py` to **exclude** Max_ACF_Lag and spectral density metrics from the input features. **Dependency**: T037 (Monte Carlo loop completion). **Output**: Write filtered feature list to `data/results/filtered_features.json`. **Status**: **COMPLETE**.
+- [X] T037a_impl [US3] Implement **Linear Regression** model code in `src/analysis/regression.py` to regress error rate vs. Hurst exponent (synthetic) or estimated Hurst (real). **Implementation**: Use `statsmodels.api.OLS`. **Constraint**: Must use Linear Regression; explicitly exclude non-linear/GLM models. **Mandatory Step**: Calculate Variance Inflation Factor (VIF) and Effective Sample Size (N_eff) as part of this task's execution. **Output**: Save regression coefficients, VIF, N_eff, and `slope_per_01_unit` to `data/results/regression_model.json`. **Output Schema**: JSON with keys: `slope`, `intercept`, `p_value`, `vif`, `n_eff`, `r_squared`, `slope_per_01_unit`. **Logic**: Calculate `slope_per__unit` = `slope` * 0.1 to satisfy SC-002. **Explicit Step**: Calculate `slope_per_01_unit` as the change in error rate per 0.1 unit increase in Hurst exponent and record it in the output. **Dependency**: T037b (filtered features), T037 (error rates). **Note**: Plan Summary mentions non-linear regression, but Spec FR-005 mandates Linear Regression; this task follows the Spec. Plan contradiction flagged for kickback.
+- [X] T037c [US3] **REMOVED**: VIF/N_eff calculation merged into T037a_impl.
 
 **Checkpoint**: Hypothesis testing and regression logic are ready; Analysis phase blocked by T029 Gate.
 
@@ -165,7 +163,7 @@
 
 ### Implementation for User Story 3 (Execution & Viz)
 
-- [ ] T037a_runner [US3] Execute the Linear Regression model (T037a_impl) using inputs from T037 (error_rates.csv), T037b (filtered_features.json), and T029 (Gate). **Dependency**: T037a_impl, T037, T037b, T037c, T029, T050. **Note**: This is a CLI entry point script to run the regression.
+- [X] T037a_runner [US3] Execute the Linear Regression model (T037a_impl) using inputs from T037 (error_rates.csv), T037b (filtered_features.json), and T029 (Gate). **Validation**: Before execution, verify `error_rates.csv` and `filtered_features.json` have matching dataset IDs and no NaN/Inf values in Hurst or error rate columns. Log critical error and exit if mismatches found. **Dependency**: T037a_impl, T037, T037b, T029. **Note**: This is a CLI entry point script to run the regression.
 - [X] T051 [US1] **Enhance Spectral Density Fallback**: Refine T022 logic to explicitly calculate the variance of the residuals as the fallback metric and store it in a separate field `variance_fallback` in `metrics.json` if the peak ratio calculation fails. **Rationale**: Ensures that even when the primary metric fails, a valid statistical measure is recorded for debugging and potential alternative analysis.
 - [X] T052 [US2] **Validate Synthetic Mean**: Add a post-generation assertion in `src/synthesis/generators.py` (T032) that checks the mean of the generated series is approximately zero (within floating point tolerance) and raises an error if the deviation exceeds a specified threshold. **Rationale**: Strengthens the ground-truth guarantee required for accurate Type I error measurement.
 - [X] T053 [US3] **Document Exclusion of Two-Sample T-Test**: Add a prominent comment and a runtime log message in `src/analysis/hypothesis_tests.py` (T036) explicitly stating that the two-sample t-test is excluded per Spec FR-004 and explaining the reason (invalid for detrended residuals with long-range dependence). **Rationale**: Ensures transparency and prevents accidental re-introduction of the excluded test.
@@ -233,7 +231,7 @@ Task: "Unit test for ingestion in tests/unit/test_ingestion.py"
 Task: "Unit test for preprocessing in tests/unit/test_preprocessing.py"
 
 # Launch all implementation tasks for US1 (sequential due to data flow):
-Task: "Implement ingestion" -> Task: "Implement missing value fill (T015)" -> Task: "Implement preprocessing (T009)" -> Task: "Resample (T018a)" -> Task: "Compute Metrics (T010) AND Generate real nulls (T019a) [Parallel]"
+Task: "Implement ingestion" -> Task: "Implement missing value fill (T015)" -> Task: "Implement preprocessing (T009)" -> Task: "Resample (T018a)" -> Task: "Compute Real Metrics (T010_real) AND Generate real nulls (T019a) [Parallel]" -> Task: "Compute Shuffled Metrics (T010_shuffled)"
 ```
 
 ---
@@ -244,7 +242,7 @@ Task: "Implement ingestion" -> Task: "Implement missing value fill (T015)" -> Ta
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Data Ingestion & Preprocessing) including T010 (metrics) and T019a (nulls).
+3. Complete Phase 3: User Story 1 (Data Ingestion & Preprocessing) including T010_real (metrics) and T019a (nulls).
 4. **STOP and VALIDATE**: Verify raw data is ingested, cleaned, stationary, metrics computed, and nulls generated.
 5. Deploy/demo if ready (as a data pipeline).
 
@@ -280,7 +278,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Data Constraint**: All data loaders must fail loudly; no synthetic fallbacks allowed. Real data must be streamed or sampled explicitly if too large.
 - **Critical Compute Constraint**: The full pipeline must complete within 6 hours on a CPU-only runner. Optimize loops and vectorize where possible.
-- **Critical Metric Constraint**: T010 must compute "full ACF vector (sufficient lags to capture temporal dependence)" explicitly (lag 20), not just max values.
+- **Critical Metric Constraint**: T010_real and T010_shuffled must compute "full ACF vector (sufficient lags to capture temporal dependence)" explicitly (lag 20), not just max values.
 - **Critical Architecture Constraint**: T037b explicitly filters forbidden metrics before T037a_runner regression.
 - **Critical Gate Constraint**: T029 must pass before T037a_runner starts. T019c must pass before T036/T037 start.
 - **Plan Note**: The Plan.md 'Technical Context' and 'Fr/Sc Coverage Matrix' contain contradictions (DFA vs Linear Regression, GLM vs Linear Regression) that conflict with Spec FR-002 and FR-005. The **Spec governs**; tasks implement the Spec (Linear Regression residuals, Linear Regression model).

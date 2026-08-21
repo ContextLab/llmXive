@@ -107,7 +107,7 @@ data/
 | FR-004 | Req | `src/analysis/hypothesis_tests.py` implements one-sample t-test and F-test; excludes two-sample. |
 | FR-005 | Req | `src/analysis/regression.py` implements non-linear/GLM regression of error rate vs. H and log(N_eff); includes interaction term; excludes Max_ACF_Lag1 as predictor. |
 | FR-006 | Req | `src/viz/plots.py` generates ACF, scatter, QQ-plots, VIF curves. |
-| FR-007 | Req | `src/synthesis/generators.py` generates fGn/ARFIMA with H={, a moderate threshold, 0.9} and N={a range of sample sizes from small to large, including representative small, medium, and large cohorts}; calculates theoretical VIF/N_eff. |
+| FR-007 | Req | `src/synthesis/generators.py` generates fGn/ARFIMA with H={, a moderate threshold, a high value} and N={a range of sample sizes from small to large, including representative small, medium, and large cohorts}; calculates theoretical VIF/N_eff. |
 | FR-008 | Req | `src/synthesis/validation.py` verifies baseline validity (H=0.5, A series of trials) before proceeding. |
 | SC-001 | Metric | Measured in `src/analysis/hypothesis_tests.py` against nominal α=0.05. |
 | SC-002 | Metric | Measured in `src/analysis/regression.py` (slope, p-value, non-linear fit). |

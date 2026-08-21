@@ -42,42 +42,20 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/maurice/traffic/resolve/main/traffic.csv
   verified_at: '2026-08-04T17:06:00.756414Z'
-- artifact_hash: dc4cab47da6b02407acd71a633930c6ad3de4d06c654855952af56dd69eb4f91
+- artifact_hash: f9be86e887eb3adde0b237be0c877a37760a8df10854c7099b35e44e2806347f
   artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: USW00014833.dly
+  fetched_title: null
   kind: url
-  value: https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/all/USW00014833.dly`
-  verification_status: pending
-  verified_against_url: https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014833.dly
-  verified_at: '2026-08-21T00:07:10.520709Z'
-- artifact_hash: dea4081912bd27aff31c82a21b85e4df1cccae8402dc87ecb5db1219a6320cff
+  value: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/`
+  verification_status: mismatch
+  verified_against_url: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/
+  verified_at: '2026-08-21T06:16:24.525486Z'
+- artifact_hash: f9be86e887eb3adde0b237be0c877a37760a8df10854c7099b35e44e2806347f
   artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: USW00014895.dly
-  kind: url
-  value: https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/all/USW00014895.dly`
-  verification_status: pending
-  verified_against_url: https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014895.dly
-  verified_at: '2026-08-21T00:07:10.520709Z'
-- artifact_hash: dea4081912bd27aff31c82a21b85e4df1cccae8402dc87ecb5db1219a6320cff
-  artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: Met Office Hadley Centre observations datasets
-  kind: url
-  value: https://www.metoffice.gov.uk/hadobs/hadukgrid/`
-  verification_status: pending
-  verified_against_url: https://www.metoffice.gov.uk/hadobs/hadukgrid/
-  verified_at: '2026-08-21T00:07:10.520709Z'
-- artifact_hash: dea4081912bd27aff31c82a21b85e4df1cccae8402dc87ecb5db1219a6320cff
-  artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
-  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -85,4 +63,26 @@
   value: https://www.nationalgrideso.com/document/174276/download`
   verification_status: pending
   verified_against_url: https://www.nationalgrideso.com/document/174276/download
-  verified_at: '2026-08-21T00:53:32.830689Z'
+  verified_at: '2026-08-21T06:16:24.525486Z'
+- artifact_hash: f9be86e887eb3adde0b237be0c877a37760a8df10854c7099b35e44e2806347f
+  artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/USW00014833.csv`
+  verification_status: mismatch
+  verified_against_url: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/USW00014833.csv
+  verified_at: '2026-08-21T06:16:24.525486Z'
+- artifact_hash: f9be86e887eb3adde0b237be0c877a37760a8df10854c7099b35e44e2806347f
+  artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/USW00014895.csv`
+  verification_status: mismatch
+  verified_against_url: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/USW00014895.csv
+  verified_at: '2026-08-21T06:16:24.525486Z'

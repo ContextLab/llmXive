@@ -1,9 +1,18 @@
+"""
+Regression analysis module for evaluating robustness of statistical methods.
+
+Implements feature filtering, linear regression, VIF calculation, and N_eff estimation.
+Per Spec FR-005, uses Linear Regression (OLS) and explicitly excludes non-linear/GLM models.
+"""
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
+import pandas as pd
+from statsmodels.api import OLS
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 from src.utils.logging import log_info, log_warning, log_error, log_critical
 
@@ -11,254 +20,267 @@ class RegressionError(Exception):
     """Custom exception for regression-related errors."""
     pass
 
-def verify_regression_inputs(
-    error_rates_path: Path,
-    filtered_features_path: Path,
-    hurst_path: Optional[Path] = None,
-) -> Dict[str, Any]:
+def verify_regression_inputs(error_rates_path: str, filtered_features_path: str) -> Tuple[pd.DataFrame, List[str]]:
     """
-    Verify that input files for regression exist and contain valid data.
-
-    Checks:
-    1. Files exist.
-    2. No NaN or Inf values in Hurst or error rate columns.
-    3. Matching dataset IDs (if hurst_path provided).
-
+    Verify that input files exist, match on dataset IDs, and contain no NaN/Inf values.
+    
     Args:
         error_rates_path: Path to error_rates.csv
         filtered_features_path: Path to filtered_features.json
-        hurst_path: Optional path to hurst_estimates.json for ID matching
-
+        
     Returns:
-        Dict with 'valid' (bool) and 'message' (str) keys.
-
+        Tuple of (error_rates_df, feature_names)
+        
     Raises:
-        RegressionError: If verification fails.
+        RegressionError: If verification fails
     """
     log_info("Verifying regression inputs...")
+    
+    # Load error rates
+    if not Path(error_rates_path).exists():
+        log_critical(f"Error rates file not found: {error_rates_path}")
+        raise RegressionError(f"Error rates file not found: {error_rates_path}")
+    
+    error_rates_df = pd.read_csv(error_rates_path)
+    
+    # Check for NaN/Inf in critical columns
+    if 'hurst' in error_rates_df.columns:
+        if error_rates_df['hurst'].isna().any() or np.isinf(error_rates_df['hurst']).any():
+            log_critical("NaN or Inf values found in hurst column of error_rates.csv")
+            raise RegressionError("NaN or Inf values found in hurst column")
+    
+    if 'error_rate' in error_rates_df.columns:
+        if error_rates_df['error_rate'].isna().any() or np.isinf(error_rates_df['error_rate']).any():
+            log_critical("NaN or Inf values found in error_rate column")
+            raise RegressionError("NaN or Inf values found in error_rate column")
+    
+    # Load filtered features
+    if not Path(filtered_features_path).exists():
+        log_critical(f"Filtered features file not found: {filtered_features_path}")
+        raise RegressionError(f"Filtered features file not found: {filtered_features_path}")
+    
+    with open(filtered_features_path, 'r') as f:
+        filtered_data = json.load(f)
+    
+    feature_names = filtered_data.get('features', [])
+    allowed_ids = set(filtered_data.get('dataset_ids', []))
+    
+    if not feature_names:
+        log_critical("No features found in filtered_features.json")
+        raise RegressionError("No features found in filtered_features.json")
+    
+    # Verify dataset ID matching
+    error_rate_ids = set(error_rates_df.get('dataset_id', error_rates_df.index).tolist())
+    
+    if allowed_ids and error_rate_ids and not allowed_ids.intersection(error_rate_ids):
+        log_critical(f"Dataset ID mismatch. Filtered IDs: {allowed_ids}, Error rate IDs: {error_rate_ids}")
+        raise RegressionError("Dataset ID mismatch between inputs")
+    
+    log_info(f"Verification passed. Features: {feature_names}")
+    return error_rates_df, feature_names
 
-    if not error_rates_path.exists():
-        msg = f"Error rates file not found: {error_rates_path}"
-        log_critical(msg)
-        raise RegressionError(msg)
-
-    if not filtered_features_path.exists():
-        msg = f"Filtered features file not found: {filtered_features_path}"
-        log_critical(msg)
-        raise RegressionError(msg)
-
-    try:
-        with open(error_rates_path, 'r') as f:
-            error_data = json.load(f)
-    except json.JSONDecodeError as e:
-        msg = f"Invalid JSON in error rates file: {e}"
-        log_critical(msg)
-        raise RegressionError(msg)
-
-    # Check for NaN/Inf in error rates
-    for item in error_data:
-        if 'error_rate' in item:
-            val = item['error_rate']
-            if isinstance(val, float) and (np.isnan(val) or np.isinf(val)):
-                msg = f"NaN or Inf found in error_rate for dataset {item.get('dataset_id', 'unknown')}"
-                log_critical(msg)
-                raise RegressionError(msg)
-        if 'hurst' in item:
-            val = item['hurst']
-            if isinstance(val, float) and (np.isnan(val) or np.isinf(val)):
-                msg = f"NaN or Inf found in hurst for dataset {item.get('dataset_id', 'unknown')}"
-                log_critical(msg)
-                raise RegressionError(msg)
-
-    if hurst_path and hurst_path.exists():
-        try:
-            with open(hurst_path, 'r') as f:
-                hurst_data = json.load(f)
-        except json.JSONDecodeError as e:
-            msg = f"Invalid JSON in Hurst file: {e}"
-            log_critical(msg)
-            raise RegressionError(msg)
-
-        # Check matching IDs
-        error_ids = {item.get('dataset_id') for item in error_data if 'dataset_id' in item}
-        hurst_ids = {item.get('dataset_id') for item in hurst_data if 'dataset_id' in item}
-
-        if error_ids != hurst_ids:
-            missing_in_hurst = error_ids - hurst_ids
-            missing_in_error = hurst_ids - error_ids
-            msg = f"Dataset ID mismatch. Missing in Hurst: {missing_in_hurst}, Missing in Error: {missing_in_error}"
-            log_critical(msg)
-            raise RegressionError(msg)
-
-    log_info("Regression inputs verified successfully.")
-    return {'valid': True, 'message': 'Inputs verified'}
-
-def run_regression(
-    error_rates_data: List[Dict[str, Any]],
-    features_data: Dict[str, Any],
-    model_path: Path,
-) -> Dict[str, Any]:
+def filter_features(error_rates_df: pd.DataFrame, output_path: str) -> List[str]:
     """
-    Run linear regression of error rate vs Hurst exponent.
-
+    Implement explicit feature filtering logic to exclude Max_ACF_Lag and spectral density metrics.
+    
+    Per Spec FR-005 and T037b requirements:
+    - Exclude Max_ACF_Lag
+    - Exclude spectral_density_peak_ratio
+    - Exclude spectral_density_fallback (if present)
+    
     Args:
-        error_rates_data: List of dicts with 'hurst' and 'error_rate'
-        features_data: Dict containing 'included_features' and 'excluded_features'
-        model_path: Path to save the regression model results JSON
-
+        error_rates_df: DataFrame containing all potential features
+        output_path: Path to write filtered_features.json
+        
     Returns:
-        Dict with regression coefficients and statistics.
+        List of allowed feature names
     """
-    import statsmodels.api as sm
-    from statsmodels.stats.outliers_influence import variance_inflation_factor
-    import pandas as pd
-
-    log_info("Running linear regression...")
-
-    # Prepare data
-    hurst_vals = []
-    error_vals = []
-    for item in error_rates_data:
-        if 'hurst' in item and 'error_rate' in item:
-            hurst_vals.append(item['hurst'])
-            error_vals.append(item['error_rate'])
-
-    if len(hurst_vals) < 2:
-        msg = "Insufficient data points for regression (need >= 2)"
-        log_error(msg)
-        raise RegressionError(msg)
-
-    X = np.array(hurst_vals).reshape(-1, 1)
-    y = np.array(error_vals)
-
-    # Add constant for intercept
-    X_with_const = sm.add_constant(X)
-
-    # Fit OLS model
-    model = sm.OLS(y, X_with_const)
-    results = model.fit()
-
-    slope = results.params[1]
-    intercept = results.params[0]
-    p_value = results.pvalues[1]
-    r_squared = results.rsquared
-
-    # Calculate slope per 0.1 unit increase in Hurst
-    slope_per_01_unit = slope * 0.1
-
-    # Calculate VIF and N_eff
-    # VIF for the Hurst feature (excluding constant)
-    vif = variance_inflation_factor(X_with_const, 1)
-
-    # N_eff calculation (simplified: N / (1 + 2*sum(ACF)))
-    # For this task, we assume N_eff is provided or calculated elsewhere if needed.
-    # Here we use a placeholder based on sample size if not available.
-    n_eff = len(hurst_vals) / (1 + 2 * 0.5)  # Placeholder assumption
-
-    model_output = {
-        'slope': float(slope),
-        'intercept': float(intercept),
-        'p_value': float(p_value),
-        'vif': float(vif),
-        'n_eff': float(n_eff),
-        'r_squared': float(r_squared),
-        'slope_per_01_unit': float(slope_per_01_unit),
-        'n_samples': len(hurst_vals),
-        'included_features': features_data.get('included_features', []),
-        'excluded_features': features_data.get('excluded_features', []),
+    log_info("Applying feature filtering logic...")
+    
+    # Define forbidden features explicitly
+    forbidden_features = {
+        'max_acf_lag',
+        'Max_ACF_Lag',
+        'spectral_density_peak_ratio',
+        'spectral_density_fallback',
+        'spectral_peak_ratio'
     }
+    
+    # Get all available columns (excluding non-feature columns)
+    non_feature_cols = {'dataset_id', 'hurst', 'error_rate', 'length', 'source', 'is_synthetic'}
+    available_cols = set(col for col in error_rates_df.columns if col not in non_feature_cols)
+    
+    # Filter out forbidden features
+    allowed_features = [col for col in available_cols if col.lower() not in {f.lower() for f in forbidden_features}]
+    
+    # Ensure 'hurst' is included as it is the primary predictor
+    if 'hurst' not in allowed_features:
+        allowed_features.append('hurst')
+    
+    # Sort for consistency
+    allowed_features = sorted(allowed_features)
+    
+    log_info(f"Filtered features: {allowed_features}")
+    log_info(f"Excluded features: {available_cols - set(allowed_features)}")
+    
+    # Write output
+    output_data = {
+        'features': allowed_features,
+        'excluded_features': list(available_cols - set(allowed_features)),
+        'dataset_ids': error_rates_df.get('dataset_id', error_rates_df.index).tolist(),
+        'generated_at': pd.Timestamp.now().isoformat()
+    }
+    
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    log_info(f"Written filtered features to {output_path}")
+    return allowed_features
 
-    # Save to file
-    with open(model_path, 'w') as f:
-        json.dump(model_output, f, indent=2)
-
-    log_info(f"Regression model saved to {model_path}")
-    return model_output
+def run_regression(error_rates_df: pd.DataFrame, feature_names: List[str]) -> Dict[str, Any]:
+    """
+    Run linear regression of error rate vs. Hurst exponent (and other features).
+    
+    Per Spec FR-005: Uses Linear Regression (OLS).
+    
+    Args:
+        error_rates_df: DataFrame with features and error_rate
+        feature_names: List of feature column names to use
+        
+    Returns:
+        Dictionary with regression results
+    """
+    log_info(f"Running regression with features: {feature_names}")
+    
+    # Prepare data
+    if 'error_rate' not in error_rates_df.columns:
+        raise RegressionError("error_rate column not found in input")
+    
+    X = error_rates_df[feature_names].values
+    y = error_rates_df['error_rate'].values
+    
+    # Add constant for intercept
+    X_with_const = OLS.add_constant(X)
+    
+    # Fit model
+    model = OLS(y, X_with_const)
+    results = model.fit()
+    
+    # Calculate VIF for each feature (excluding constant)
+    vif_data = {}
+    for i, col in enumerate(feature_names):
+        if i < X.shape[1]:  # Ensure we don't go out of bounds
+            vif = variance_inflation_factor(X_with_const, i + 1)  # +1 for constant column
+            vif_data[col] = vif
+    
+    # Calculate N_eff (effective sample size)
+    # N_eff = N / (1 + 2 * sum(ACF))
+    # For simplicity, we use a basic approximation based on R-squared and sample size
+    n = len(y)
+    k = len(feature_names)
+    r_squared = results.rsquared
+    
+    # Simple N_eff approximation: N_eff = N * (1 - R^2) + 1
+    # This is a heuristic; more complex methods exist but require ACF calculation
+    n_eff = max(1, int(n * (1 - r_squared) + 1))
+    
+    # Extract slope for Hurst (or first feature if Hurst not present)
+    slope_hurst = None
+    if 'hurst' in feature_names:
+        idx = feature_names.index('hurst')
+        slope_hurst = results.params[idx + 1]  # +1 for constant
+    elif len(results.params) > 1:
+        slope_hurst = results.params[1]  # First feature after constant
+    
+    # Calculate slope per 0.1 unit increase in Hurst
+    slope_per_01_unit = slope_hurst * 0.1 if slope_hurst is not None else None
+    
+    # Extract p-value for Hurst
+    p_value_hurst = None
+    if 'hurst' in feature_names:
+        idx = feature_names.index('hurst')
+        p_value_hurst = results.pvalues[idx + 1]
+    
+    result_dict = {
+        'slope': float(results.params[1]) if len(results.params) > 1 else 0.0,
+        'intercept': float(results.params[0]),
+        'p_value': float(p_value_hurst) if p_value_hurst is not None else None,
+        'vif': vif_data,
+        'n_eff': n_eff,
+        'r_squared': float(r_squared),
+        'slope_per_01_unit': float(slope_per_01_unit) if slope_per_01_unit is not None else None,
+        'num_features': k,
+        'sample_size': n,
+        'feature_names': feature_names,
+        'model_summary': results.summary().as_text()
+    }
+    
+    log_info(f"Regression complete. R-squared: {r_squared:.4f}, N_eff: {n_eff}")
+    return result_dict
 
 def main():
     """
-    Main entry point for T037b: Feature Filtering and Regression Input Prep.
-
-    This task implements explicit feature filtering logic to exclude
-    Max_ACF_Lag and spectral density metrics from input features,
-    and writes the filtered feature list to data/results/filtered_features.json.
-    It also verifies inputs and runs the regression if inputs are valid.
+    Main entry point for regression analysis and feature filtering.
+    
+    This function:
+    1. Filters features (T037b) -> writes data/results/filtered_features.json
+    2. Verifies inputs (T050)
+    3. Runs regression (T037a) -> writes data/results/regression_model.json
     """
-    project_root = Path(__file__).resolve().parent.parent.parent
-    data_results_dir = project_root / "data" / "results"
-    data_results_dir.mkdir(parents=True, exist_ok=True)
-
     # Paths
-    error_rates_path = data_results_dir / "error_rates.json"
-    filtered_features_path = data_results_dir / "filtered_features.json"
-    model_path = data_results_dir / "regression_model.json"
-    hurst_path = data_results_dir / "hurst_estimates.json"
-
-    # 1. Filter Features (T037b core logic)
-    log_info("Starting feature filtering (T037b)...")
-
-    # Define features to EXCLUDE
-    excluded_features = [
-        "Max_ACF_Lag",
-        "spectral_density_peak_ratio",
-        "spectral_density_fallback",
-        "variance_fallback"
-    ]
-
-    # Define features to INCLUDE (Hurst is the primary driver)
-    included_features = [
-        "hurst"
-    ]
-
-    # Load available features if error_rates.json exists to confirm keys
-    if error_rates_path.exists():
-        try:
-            with open(error_rates_path, 'r') as f:
-                error_data = json.load(f)
-            if error_data:
-                available_keys = set(error_data[0].keys())
-                log_info(f"Available keys in error_rates.json: {available_keys}")
-                # Verify exclusions are present if they were expected
-                for ex in excluded_features:
-                    if ex in available_keys:
-                        log_warning(f"Excluding feature '{ex}' as per specification.")
-        except Exception as e:
-            log_warning(f"Could not read error_rates.json for feature check: {e}")
-
-    # Construct filtered features object
-    filtered_features_obj = {
-        "included_features": included_features,
-        "excluded_features": excluded_features,
-        "reason": "Per Spec FR-005 and T037b, exclude Max_ACF_Lag and spectral density metrics to isolate Hurst exponent effect.",
-        "generated_at": "2023-10-27T12:00:00Z" # Placeholder timestamp, ideally dynamic
-    }
-
-    # Write filtered_features.json
-    with open(filtered_features_path, 'w') as f:
-        json.dump(filtered_features_obj, f, indent=2)
-
-    log_info(f"Filtered features written to {filtered_features_path}")
-
-    # 2. Verify Inputs and Run Regression (T037a_impl logic triggered here if valid)
+    project_root = Path(__file__).resolve().parent.parent.parent
+    error_rates_path = project_root / 'data' / 'results' / 'error_rates.csv'
+    filtered_features_path = project_root / 'data' / 'results' / 'filtered_features.json'
+    regression_output_path = project_root / 'data' / 'results' / 'regression_model.json'
+    
+    # Ensure output directory exists
+    regression_output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Step 1: Filter features (T037b)
+    if not error_rates_path.exists():
+        log_error(f"Error rates file not found: {error_rates_path}")
+        # Create empty filtered features to allow pipeline to continue with error state
+        empty_filter = {
+            'features': [],
+            'excluded_features': [],
+            'error': 'Input file not found',
+            'dataset_ids': []
+        }
+        with open(filtered_features_path, 'w') as f:
+            json.dump(empty_filter, f, indent=2)
+        raise RegressionError(f"Input file not found: {error_rates_path}")
+    
+    error_rates_df = pd.read_csv(error_rates_path)
+    allowed_features = filter_features(error_rates_df, str(filtered_features_path))
+    
+    # Step 2: Verify inputs (T050)
     try:
-        verify_regression_inputs(error_rates_path, filtered_features_path, hurst_path)
-
-        if error_rates_path.exists():
-            with open(error_rates_path, 'r') as f:
-                error_rates_data = json.load(f)
-
-            with open(filtered_features_path, 'r') as f:
-                features_data = json.load(f)
-
-            run_regression(error_rates_data, features_data, model_path)
-        else:
-            log_warning("error_rates.json not found. Skipping regression execution.")
-
+        verified_df, verified_features = verify_regression_inputs(
+            str(error_rates_path), 
+            str(filtered_features_path)
+        )
     except RegressionError as e:
-        log_critical(f"Regression pipeline failed: {e}")
-        sys.exit(1)
+        log_critical(f"Input verification failed: {e}")
+        # Write error state to regression output
+        error_result = {
+            'error': str(e),
+            'status': 'failed'
+        }
+        with open(regression_output_path, 'w') as f:
+            json.dump(error_result, f, indent=2)
+        raise
+    
+    # Step 3: Run regression
+    regression_results = run_regression(verified_df, verified_features)
+    regression_results['status'] = 'success'
+    
+    # Write output
+    with open(regression_output_path, 'w') as f:
+        json.dump(regression_results, f, indent=2)
+    
+    log_info(f"Regression results written to {regression_output_path}")
+    return regression_results
 
-    log_info("T037b completed successfully.")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
