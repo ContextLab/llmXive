@@ -1,10 +1,5 @@
-'|default false positive threshold':
-  quote: "The type I error rate is the probability of rejecting the null hypothesis\
-    \ given that it is true. The test is designed to keep the type I error rate below\
-    \ a prespecified bound called the significance level, usually denoted by the Greek\
-    \ letter \u03B1 (alpha) and is also called the alpha level. Usually, the significance\
-    \ level is set to 0.05 (5%), implying that it is acceptable to have a 5% probability\
-    \ of incorrectly rejecting the true null hypothesis."
-  source_id: Type I and type II errors
-  url: https://en.wikipedia.org/wiki/Type_I_and_type_II_errors
-  value: '0.05'
+4|alpha apply bonferroni correction hypothesi multiple test:
+  quote: '0.0125'
+  source_id: "Holm\u2013Bonferroni method"
+  url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+  value: '0.0125'

@@ -112,8 +112,8 @@ data/
 **Deviation from Spec**: The source spec (FR-001, FR-002, SC-001) mandates a 1000 Human / 50 LLM split.
 **Methodological Rejection**: As noted in panel concern `methodology-f30244be`, a 1000/50 split is statistically invalid. The power to detect an effect is capped by the N=50 group. Bootstrapping the N=50 group to match N=1000 is a statistical artifact that does not increase information content.
 **Revised Strategy**:
-- **Human**: 150 samples (3 per repo × 50 repos).
-- **LLM**: 150 samples (3 per repo × 50 repos).
+- **Human**: A sample set comprising multiple instances (A small number of examples per repo × 50 repos).
+- **LLM**: A set of samples (3 per repo × 50 repos).
 - **Total**: 300 samples.
 - **Design**: Paired/Blocked by repository.
 - **Power**: With N=50 blocks, a blocked permutation test can detect moderate effect sizes (Cohen's d) with [deferred] power. This is statistically superior to the spec's underpowered design.

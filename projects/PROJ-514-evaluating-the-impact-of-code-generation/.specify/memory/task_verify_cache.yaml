@@ -33,10 +33,3 @@ T037:
     \ provides only the specification text. The required sensitivity\u2011analysis\
     \ visualizations (e.g., box plots) and associated statistical outputs are missing,\
     \ so the task is not genuinely completed."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided artifacts pertain to a code\u2011smell analysis study and contain\
-    \ no code, configuration, or documentation related to implementing a robust GitHub\
-    \ API rate\u2011limit backoff mechanism. Consequently, the required implementation\
-    \ for task T038 is missing."

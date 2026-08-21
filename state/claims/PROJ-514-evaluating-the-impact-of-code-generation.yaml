@@ -4098,28 +4098,6 @@
   updated_at: '2026-08-13T22:00:27Z'
 - artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: 50 repositories identified with at least 3 distinct commits adding .py
-    or .java files
-  claim_id: c_32db631c
-  context: 'Pre-Scan Constraint: Perform a pre-scan to identify exactly 50 repositories
-    that have at least 3 distinct commits adding a.py or.java file. Repository Age
-    Filter: Explicitly mandate filtering repositories where created_at is at least
-    5 years prior to the current date to satisfy Spec FR-001.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/50_repositories_identified_with_at_least_3_distinct_commits
-  kind: magnitude
-  raw_text: Perform a pre-scan to identify exactly 50 repositories that have at least
-    3 distinct commits adding a.py or.java file.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-13T22:01:54Z'
-- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
   canonical: cProfile run on run_pmd.py with representative files
   claim_id: c_c5cff3a0
   context: 'T032.1 [P] Profile PMD execution: Action: Run cProfile on code/_static_analysis/run_pmd.py
@@ -4684,3 +4662,1011 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T00:20:52Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  attempts: 1
+  canonical: 50 repositories with 3 human and 3 LLM samples each
+  claim_id: c_c7933f10
+  context: The study employs a Blocked Permutation Test where the blocking variable
+    is the repository_id. For each of the 50 selected repositories, we collect...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'For each of the 50 selected repositories, we collect: 1. Human Samples:
+    3 distinct commits adding .py or .java files... 2. LLM Samples: 3 generated samples
+    per task'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:50:57Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  attempts: 1
+  canonical: 150 human samples and 150 LLM samples total
+  claim_id: c_0203a84a
+  context: 'For each of the 50 selected repositories, we collect: 1. Human Samples:
+    3 distinct commits... 2. LLM Samples: 3 generated samples per task... This results
+    in a total dataset of 150 human samples and 150 LLM samples...'
+  evidence:
+    entailment_evidence: 150 human samples and 150 LLM samples total
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/150_human_samples_and_150_LLM_samples_total
+  kind: causal
+  raw_text: This results in a total dataset of 150 human samples and 150 LLM samples,
+    paired by repository and issue context.
+  resolved_value: 150 human samples and 150 LLM samples total
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T14:51:00Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  attempts: 1
+  canonical: Sample count reduced from 1000+ to 150 per group
+  claim_id: c_d144c0f8
+  context: 'The original specification (Section 4.3 of spec.md) outlined an aspirational
+    target of 1000 samples with a 50/50 split. Due to practical constraints... the
+    study scope was adjusted. Key Implementation Reality: Sample Count: Reduced from
+    1000+ to 150 per group (300 total).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Count: Reduced from 1000+ to 150 per group (300 total).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:51:38Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: 'Dependency versions pinned: requests 2.31.0, GitPython 3.1.40, pandas
+    2.2.1, scipy 1.13.0, matplotlib 3.9.0, pyyaml 6.0.1, pytest 8.2.0'
+  claim_id: c_8448a532
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002 Initialize Python project
+    with code/requirements.txt.'
+  evidence:
+    asserted: '2.31'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin dependencies to exact versions for reproducibility (e.g., requests==2.31.0,
+    GitPython==3.1.40, pandas==2.2.1, scipy==1.13.0, matplotlib==3.9.0, pyyaml==6.0.1,
+    pytest==8.2.0).
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T14:52:16Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Reference set source: Python Standard Library v3.12.0'
+  claim_id: c_b574733e
+  context: 'Phase 2: Foundational - T022.5 Implement generate_reference_set.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch a verified reference set from a canonical source: Python Standard
+    Library v3.12.0 (Commit SHA: v3.12.0 on GitHub).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:52:49Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Reference set SHA-256 checksum: 0833189063301564788240434855658048380930101234567890123456789012'
+  claim_id: c_0febb5c8
+  context: 'Phase 2: Foundational - T022.5 Implement generate_reference_set.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Verify the SHA-256 checksum of the downloaded tarball against the hardcoded
+    canonical hash: 0833189063301564788240434855658048380930101234567890123456789012.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:53:06Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Repository selection criteria: stars > 100 and created more than 5 years
+    ago'
+  claim_id: c_6e47b4db
+  context: 'Phase 3: User Story 1 - T012 Implement fetch_human_samples.py.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Repository_selection_criteria:_stars_%3E_100_and_created_more_
+  kind: magnitude
+  raw_text: Query GitHub API for candidate repositories with stars:>100 AND created:<{current_date
+    - 5 years}.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:53:25Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Pre-scan target: exactly 50 repositories with at least 3 distinct commits
+    adding .py or .java files'
+  claim_id: c_5c6491fa
+  context: 'Phase 3: User Story 1 - T012 Implement fetch_human_samples.py.'
+  evidence:
+    candidates:
+    - - ''
+      - 50.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Pre-scan_target:_exactly_50_repositories_with_at_least_3_dis
+  kind: magnitude
+  raw_text: Perform a pre-scan to identify exactly 50 repositories that have at least
+    3 distinct commits adding a.py or.java file.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-21T14:54:16Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Repository age filter: at least 5 years old'
+  claim_id: c_ecc107de
+  context: 'Phase 3: User Story 1 - T012 Implement fetch_human_samples.py.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Repository_age_filter:_at_least_5_years_old
+  kind: magnitude
+  raw_text: Filter repositories where created_at is at least 5 years prior to the
+    current date.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:54:37Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Total human samples collected: 150'
+  claim_id: c_1b2645f7
+  context: 'Phase 3: User Story 1 - T012 Implement fetch_human_samples.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total samples collected (3 per repository \xD7 50 repositories = 150\
+    \ samples)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:54:51Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sample size updated from >=1000 to 150 per spec.md Section 4.3 Deviation
+    Log
+  claim_id: c_597d32e9
+  context: 'Phase 3: User Story 1 - T012 Implement fetch_human_samples.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "This target aligns with the Deviation Log in spec.md (Section 4.3) which\
+    \ updates the original \u22651000 requirement to 150 for statistical validity\
+    \ (Balanced Blocked Design)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:55:07Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Task derivation: select exactly 1 unique issue per repository from 3
+    human samples'
+  claim_id: c_f3c7f38c
+  context: 'Phase 3: User Story 1 - T012.5 Implement export_task_descriptions.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Stratified Sampling: From the human samples collected (3 per repo), group
+    them by repository_id. For each of the repositories, select exactly 1 unique issue.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:55:26Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Task file validation: exactly 50 tasks required'
+  claim_id: c_cf050c16
+  context: 'Phase 3: User Story 1 - T013 Implement generate_llm_samples.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Input Validation: Verify the existence of data/intermediate/tasks.json
+    and validate that it contains exactly 50 tasks with the expected schema.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:55:57Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'LLM samples generated: 150 total (3 per task across 50 tasks)'
+  claim_id: c_28f8b789
+  context: 'Phase 3: User Story 1 - T013 Implement generate_llm_samples.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (Total 150 samples across 50 tasks).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:56:22Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Static analysis targets 4 code smell categories: Long Method, Duplicated
+    Code, Feature Envy, Long Parameter List'
+  claim_id: c_b1f55c0c
+  context: 'Phase 4: User Story 2 - Goal description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run CPU-tractable static analysis (PMD/SonarQube CLI) on a representative
+    set of samples to extract metrics for four code smell categories (Long Method,
+    Duplicated Code, Feature Envy, Long Parameter List).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:56:23Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Analysis process limits: 2 GB memory, 2 minute timeout'
+  claim_id: c_add64f2f
+  context: 'Phase 4: User Story 2 - T021 Implement run_pmd.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce per-process memory limit (\u22642 GB) and 2-minute timeout per\
+    \ file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:56:41Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Statistical correction: Bonferroni for 4 tests at alpha <= 0.05'
+  claim_id: c_6732690c
+  context: 'Phase 5: User Story 3 - T027 Implement compare_distributions.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction for the multiple hypothesis tests (4 tests,\
+    \ \u03B1 \u2264 0.05) to control family-wise error rate."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:56:55Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Data processing chunk size: 1000 rows'
+  claim_id: c_f34cbc1e
+  context: 'Phase N: Polish - T032.2 Implement generator-based chunking.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Process data in chunks of 1000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:57:21Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Unit test coverage target: >= 90%'
+  claim_id: c_cce7ceac
+  context: 'Phase N: Polish - T033 Additional unit tests.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target: Achieve \u226590% line coverage for these modules."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:57:22Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Permutation test sanity check: identical distributions yield p=1.0'
+  claim_id: c_b75cccf8
+  context: 'Phase N: Polish - T043 Add Blocked Permutation Test Sanity Check.'
+  evidence:
+    asserted: '1.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Verify the permutation test logic with a known synthetic dataset where
+    the ground truth is known (e.g., two identical distributions should yield p=1.0).
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T14:57:23Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  attempts: 1
+  canonical: 50 repositories selected based on star count and repository name
+  claim_id: c_d1f2dab6
+  context: 'The implemented design collects: - 50 repositories selected based on star
+    count (descending) and repository name (ascending) for deterministic selection.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implemented design collects 50 repositories selected based on star
+    count (descending) and repository name (ascending) for deterministic selection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:58:28Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  attempts: 1
+  canonical: 3 distinct commits per repository analyzed
+  claim_id: c_e50d462a
+  context: '- 3 distinct commits per repository that added Python or Java files.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study analyzes 3 distinct commits per repository that added Python
+    or Java files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:58:46Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  attempts: 1
+  canonical: 150 total human-written samples
+  claim_id: c_0b6b60aa
+  context: "- 150 total human-written samples (3 samples \xD7 50 repositories)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study includes 150 total human-written samples derived from 3 samples
+    across 50 repositories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:59:08Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  attempts: 1
+  canonical: 150 total LLM-generated samples
+  claim_id: c_0d141680
+  context: '- 150 total LLM-generated samples (3 samples per task, derived from the
+    same 50 issues used for human samples).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study includes 150 total LLM-generated samples derived from the same
+    50 issues used for human samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:59:34Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  attempts: 1
+  canonical: 300-sample dataset with 150 human and 150 LLM samples
+  claim_id: c_73d88f24
+  context: The design implements a 300-sample dataset (150 human, 150 LLM) to ensure
+    statistical power while remaining within computational bounds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The design implements a 300-sample dataset consisting of 150 human and
+    150 LLM samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T14:59:50Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  attempts: 1
+  canonical: Bonferroni correction applied to 4 code smell categories
+  claim_id: c_566a9606
+  context: Applies Bonferroni correction for multiple hypothesis testing (4 code smell
+    categories).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Blocked Permutation Test applies Bonferroni correction for multiple
+    hypothesis testing across 4 code smell categories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:00:11Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  attempts: 1
+  canonical: Python Standard Library v3.12.0 used as reference set
+  claim_id: c_4ccad674
+  context: The reference set (Python Standard Library v3.12.0) is fetched with checksum
+    verification to ensure tool validity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reference set used is the Python Standard Library v3.12.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:00:26Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: 'Pin dependencies: requests 2.31.0, GitPython 3.1.40, pandas 2.2.1, scipy
+    1.13.0, matplotlib 3.9.0, pyyaml 6.0.1, pytest 8.2.0'
+  claim_id: c_dbad8ed7
+  context: 'T002 Initialize Python project with code/requirements.txt: Pin dependencies
+    to exact versions for reproducibility (e.g., requests==2.31.0, GitPython==3.1.40,
+    pandas==2.2.1, scipy==1.13.0, matplotlib==3.9.0, pyyaml==6.0.1, pytest==8.2.0).'
+  evidence:
+    asserted: '2.31'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin dependencies to exact versions for reproducibility (e.g., requests==2.31.0,
+    GitPython==3.1.40, pandas==2.2.1, scipy==1.13.0, matplotlib==3.9.0, pyyaml==6.0.1,
+    pytest==8.2.0).
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T15:01:01Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Reference set source: Python Standard Library v3.12.0, commit SHA v3.12.0'
+  claim_id: c_684a6282
+  context: 'T022.5 Source: Fetch a verified reference set from a canonical source:
+    Python Standard Library v3.12.0 (Commit SHA: v3.12.0 on GitHub).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch a verified reference set from a canonical source: Python Standard
+    Library v3.12.0 (Commit SHA: v3.12.0 on GitHub).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:01:16Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Reference set SHA-256 checksum: 0833189063301564788240434855658048380930101234567890123456789012'
+  claim_id: c_c64f2e57
+  context: 'T022.5 Action: Verify the SHA-256 checksum of the downloaded tarball against
+    the hardcoded canonical hash: 0833189063301564788240434855658048380930101234567890123456789012
+    (Replace with actual verified hash of v3.12.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Verify the SHA-256 checksum of the downloaded tarball against the hardcoded
+    canonical hash: 0833189063301564788240434855658048380930101234567890123456789012.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:01:17Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Identify 50 repositories with at least 3 distinct commits adding .py
+    or .java files
+  claim_id: c_2e114f9a
+  context: 'T012 Pre-Scan Constraint: Perform a pre-scan to identify exactly 50 repositories
+    that have at least 3 distinct commits adding a.py or.java file.'
+  evidence:
+    candidates:
+    - - Donate Create account Log in Identify
+      - 50.0
+    - - Identify 50 repositories with at least
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Identify_50_repositories_with_at_least_3_distinct_commits_ad
+  kind: magnitude
+  raw_text: Perform a pre-scan to identify exactly 50 repositories that have at least
+    3 distinct commits adding a.py or.java file.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-21T15:01:20Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Filter repositories created at least 5 years prior to current date
+  claim_id: c_00329803
+  context: 'T012 Repository Age Filter: Explicitly mandate filtering repositories
+    where created_at is at least 5 years prior to the current date to satisfy Spec
+    FR-001.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_repositories_created_at_least_5_years_prior_to_curren
+  kind: magnitude
+  raw_text: Explicitly mandate filtering repositories where created_at is at least
+    5 years prior to the current date.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:01:41Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Total samples collected: 150 (3 per repository across 50 repositories)'
+  claim_id: c_b1576f03
+  context: "T012 Constraint: Total samples collected (3 per repository \xD7 50 repositories\
+    \ = 150 samples). This target aligns with the Deviation Log in spec.md (Section\
+    \ 4.3) which updates the original \u22651000 requirement to 150 for statistical\
+    \ validity."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total samples collected (3 per repository \xD7 50 repositories = 150\
+    \ samples)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:01:42Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Spec deviation log updates sample requirement from >=1000 to 150
+  claim_id: c_0bbf5bc4
+  context: "T012 Constraint: This target aligns with the Deviation Log in spec.md\
+    \ (Section 4.3) which updates the original \u22651000 requirement to 150 for statistical\
+    \ validity (Balanced Blocked Design)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Deviation Log in spec.md (Section 4.3) updates the original \u2265\
+    1000 requirement to 150 for statistical validity."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:01:55Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Select exactly 1 unique issue per repository from 3 human samples
+  claim_id: c_030acb5e
+  context: 'T012.5 Logic: Stratified Sampling: From the human samples collected (3
+    per repo), group them by repository_id. For each of the repositories, select exactly
+    1 unique issue.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: From the human samples collected (3 per repo), group them by repository_id.
+    For each of the repositories, select exactly 1 unique issue.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:02:12Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generate 150 LLM samples across 50 tasks (3 per task)
+  claim_id: c_c20a8b82
+  context: 'T013 Sampling: Generate 3 samples per task (Total 150 samples across 50
+    tasks).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (Total 150 samples across 50 tasks).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:02:13Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Parallel execution limit: 2GB RAM per process'
+  claim_id: c_73867703
+  context: 'T021 Parallel Execution: Implement parallel execution using concurrent.futures.ProcessPoolExecutor
+    to process multiple files simultaneously, respecting the 2GB RAM limit per process.'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Parallel_execution_limit:_2GB_RAM_per_process
+  kind: entity_fact
+  raw_text: Implement parallel execution using concurrent.futures.ProcessPoolExecutor
+    to process multiple files simultaneously, respecting the 2GB RAM limit per process.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-21T15:02:47Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Per-process limits: 2 GB RAM, 2-minute timeout'
+  claim_id: c_c1ca6e98
+  context: "T021 Limits: Enforce per-process memory limit (\u22642 GB) and 2-minute\
+    \ timeout per file."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce per-process memory limit (\u22642 GB) and 2-minute timeout per\
+    \ file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:02:48Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction for 4 hypothesis tests at alpha <= 0.05
+  claim_id: c_91c52fa3
+  context: "T027 Correction: Apply Bonferroni correction for the multiple hypothesis\
+    \ tests (4 tests, \u03B1 \u2264 0.05) to control family-wise error rate."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction for the multiple hypothesis tests (4 tests,\
+    \ \u03B1 \u2264 0.05) to control family-wise error rate."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:02:49Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Data processing chunk size: 1000 rows'
+  claim_id: c_6d8186b5
+  context: 'T032.2 Action: Refactor code/02_static_analysis/aggregate_metrics.py (T024)
+    to use generators instead of loading all rows into a list. Process data in chunks
+    of 1000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Process data in chunks of 1000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:02:50Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Unit test coverage target: 90% line coverage'
+  claim_id: c_f9b48a2c
+  context: "T033 Target: Achieve \u226590% line coverage for these modules."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Achieve \u226590% line coverage for these modules."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:02:51Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Permutation test sanity check: identical distributions yield p=1.0'
+  claim_id: c_a3e7c9d6
+  context: 'T043 Action: Create tests/unit/test_permutation_sanity.py to verify the
+    permutation test logic with a known synthetic dataset where the ground truth is
+    known (e.g., two identical distributions should yield p=1.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Two identical distributions should yield p=1.0 in the permutation test
+    sanity check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:03:08Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 150 total samples collected from 50 repositories (3 per repository) replacing
+    original 1000 requirement
+  claim_id: c_0eea10d3
+  context: 'Extraction: For each of the selected repositories, extract a set of distinct
+    commits that added a.py or.java file. Do not skip repositories. Fresh Commit Verification:
+    Use the GitHub API to fetch the specific commit''s diff context (parent commit
+    and changed files) to verify is_fresh_commit status. Do NOT use git clone --depth
+    1 as it truncates history and prevents verification of the commit''s context relative
+    to its parent.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total samples collected (3 per repository \xD7 50 repositories = 150\
+    \ samples). This target aligns with the Deviation Log in spec.md (Section 4.3)\
+    \ which updates the original \u22651000 requirement to 150 for statistical validity\
+    \ (Balanced Blocked Design)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:04:33Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Reference set source is Python Standard Library v3.12.0
+  claim_id: c_c087b704
+  context: 'Source: Fetch a verified reference set from a canonical source: Python
+    Standard Library v3.12.0 (Commit SHA: v3.12.0 on GitHub). Action: 1. Download
+    the tarball from . 2. Verify the SHA-256 checksum of the downloaded tarball against
+    the hardcoded canonical hash: 0833189063301564788240434855658048380930101234567890123456789012
+    (Replace with actual verified hash of ).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch a verified reference set from a canonical source: Python Standard
+    Library v3.12.0 (Commit SHA: v3.12.0 on GitHub).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:04:34Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Output must contain exactly 50 tasks
+  claim_id: c_4ea45106
+  context: 'Constraint: The repo_id and issue_id in the output MUST match exactly
+    the set of human samples collected in T012 to preserve the Blocked Design. The
+    output MUST contain a specified number of tasks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output MUST contain a specified number of tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:04:36Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 3 samples per task generated for 50 tasks totaling 150 samples
+  claim_id: c_e2d3b44b
+  context: 'Sampling: Generate 3 samples per task (Total 150 samples across 50 tasks).
+    Storage: Save files to data/raw/llm_samples/ with metadata JSON sidecars containing
+    task_id, model_id, model_version, api_endpoint, exact_prompt, prompt_hash, generation_seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (Total 150 samples across 50 tasks).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:04:37Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 3 human samples per repository derived from exactly 1 unique issue
+  claim_id: c_19d2d513
+  context: 'Logic: Stratified Sampling: From the human samples collected (3 per repo),
+    group them by repository_id. For each of the repositories, select exactly 1 unique
+    issue. Ensure all 3 human samples per repository are derived from the same single
+    issue to guarantee a balanced mapping.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly 1 unique issue for each of the repositories, ensuring all
+    3 human samples per repository are derived from the same single issue.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:04:51Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 2
+  canonical: 50 repositories identified with at least 3 distinct commits adding .py
+    or .java files
+  claim_id: c_32db631c
+  context: 'Pre-Scan Constraint: Perform a pre-scan to identify exactly 50 repositories
+    that have at least 3 distinct commits adding a.py or.java file. Repository Age
+    Filter: Explicitly mandate filtering repositories where created_at is at least
+    5 years prior to the current date to satisfy Spec FR-001.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/50_repositories_identified_with_at_least_3_distinct_commits
+  kind: magnitude
+  raw_text: Perform a pre-scan to identify exactly 50 repositories that have at least
+    3 distinct commits adding a.py or.java file.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:04:54Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Repositories filtered by age of at least 5 years
+  claim_id: c_4aec1b67
+  context: 'Pre-Scan Constraint: Perform a pre-scan to identify exactly 50 repositories
+    that have at least 3 distinct commits adding a.py or.java file. Repository Age
+    Filter: Explicitly mandate filtering repositories where created_at is at least
+    5 years prior to the current date to satisfy Spec FR-001.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Repositories_filtered_by_age_of_at_least_5_years
+  kind: magnitude
+  raw_text: Filter repositories where created_at is at least 5 years prior to the
+    current date.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:04:56Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for 4 hypothesis tests at alpha 0.05
+  claim_id: c_706e3a78
+  context: "Correction: Apply Bonferroni correction for the multiple hypothesis tests\
+    \ (4 tests, \u03B1 \u2264 0.05) to control family-wise error rate. Metrics: Calculate\
+    \ effect sizes (Cohen's d or equivalent for permutation tests)."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.0125'
+      source_id: "Holm\u2013Bonferroni method"
+      url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+      value: '0.0125'
+    filled: true
+  kind: numeric
+  raw_text: Apply Bonferroni correction for 4 multiple hypothesis tests with alpha
+    <= 0.05.
+  resolved_value: '0.0125'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T15:05:03Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 2 GB memory limit and 2 minute timeout per file
+  claim_id: c_bb06f0d0
+  context: "Parallel Execution: Implement parallel execution using concurrent.futures.ProcessPoolExecutor\
+    \ to process multiple files simultaneously, respecting the 2GB RAM limit per process.\
+    \ This addresses the need for efficient CI execution. Limits: Enforce per-process\
+    \ memory limit (\u22642 GB) and 2-minute timeout per file."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce per-process memory limit of 2 GB and 2-minute timeout per file.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:05:22Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Data processed in chunks of 1000 rows
+  claim_id: c_d737f9ac
+  context: 'Action: Refactor code/02_static_analysis/aggregate_metrics.py (T024) to
+    use generators instead of loading all rows into a list. Process data in chunks
+    of 1000 rows. Verification: Ensure memory usage remains within acceptable limits
+    during processing of samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Process data in chunks of 1000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:05:23Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 90% line coverage target for validators and config modules
+  claim_id: c_8e2bdcc2
+  context: "Action: Write unit tests for code/utils/validators.py and code/utils/config.py.\
+    \ Target: Achieve \u226590% line coverage for these modules."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Achieve 90% line coverage for validators.py and config.py modules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:05:24Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: GitHub API query for repositories with > 100 stars and age > 5 years
+  claim_id: c_82edaa55
+  context: 'Algorithm: Query GitHub API for candidate repositories with stars:>100
+    AND created:<{current_date - 5 years}. Pre-Scan Constraint: Perform a pre-scan
+    to identify exactly 50 repositories that have at least 3 distinct commits adding
+    a.py or.java file.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query GitHub API for candidate repositories with stars > 100 AND created
+    < 5 years prior to current date.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:05:25Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Study uses associational language and excludes causal claims
+  claim_id: c_57008f5e
+  context: 'Language: Enforce associational language (e.g., associated with, correlated
+    with) and explicitly exclude causal claims (per Spec FR-007 rejection). Conclusion
+    Requirement: The Conclusion section MUST explicitly state the study is observational
+    and uses associational language, strictly avoiding causal claims.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_uses_associational_language_and_excludes_causal_claims
+  kind: entity_fact
+  raw_text: The study uses associational language and explicitly excludes causal claims.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T15:05:48Z'
