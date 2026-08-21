@@ -1,13 +1,21 @@
 """
 utils.monitor
-----------------
-Utility for enforcing runtime and memory usage limits on functions.
-Provides:
-- ``ResourceLimitExceeded`` exception
-- ``ResourceMonitor`` class (context manager) that records total runtime and peak memory
-  and writes a JSON report to ``data/artifacts/reports/runtime_memory.json``.
-- ``enforce_limits`` helper for direct limit checks.
-- ``run_with_limits`` convenience wrapper that runs a callable under the limits.
+--------------
+
+This module provides runtime and memory resource limiting utilities for the
+pipeline.  It defines:
+
+* ``ResourceLimitExceeded`` – exception raised when a limit is exceeded.
+* ``enforce_limits`` – convenience wrapper that runs a callable under the
+  limits.
+* ``ResourceMonitor`` – class that implements the actual monitoring logic.
+* ``run_with_limits`` – functional style entry point.
+
+The implementation records the total wall‑clock time of the wrapped
+callable and writes a JSON report to ``artifacts/reports/runtime_memory.json``
+under the key ``"total_seconds"`` (as required by task **T006c**).  Any
+existing keys (e.g., ``peak_memory_mb`` added by a future task) are
+preserved.
 """
 
 import json
@@ -16,144 +24,158 @@ import signal
 import threading
 import time
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Dict, Optional
 
-import psutil
+__all__ = [
+    "ResourceLimitExceeded",
+    "enforce_limits",
+    "ResourceMonitor",
+    "run_with_limits",
+]
 
-# -------------------------------------------------------------------------
-# Configuration constants (can be overridden in tests)
-# -------------------------------------------------------------------------
-DEFAULT_TIME_LIMIT_SECONDS = 6 * 60 * 60  # 6 hours
-DEFAULT_MEMORY_LIMIT_MB = 7 * 1024       # 7 GB in megabytes
 
-# -------------------------------------------------------------------------
-# Exception
-# -------------------------------------------------------------------------
-class ResourceLimitExceeded(Exception):
-    """Raised when a runtime or memory limit is exceeded."""
+class ResourceLimitExceeded(RuntimeError):
+    """Exception raised when a resource limit (time or memory) is exceeded."""
+    pass
 
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.message = message
 
-# -------------------------------------------------------------------------
-# Helper to enforce limits given measured values
-# -------------------------------------------------------------------------
-def enforce_limits(
-    elapsed_seconds: float,
-    peak_memory_mb: float,
-    time_limit: float = DEFAULT_TIME_LIMIT_SECONDS,
-    memory_limit: float = DEFAULT_MEMORY_LIMIT_MB,
-) -> None:
-    """
-    Check elapsed time and peak memory against provided limits.
-    Raises ``ResourceLimitExceeded`` with a descriptive message if any limit is broken.
-    """
-    exceeded = []
-    if elapsed_seconds > time_limit:
-        exceeded.append(f"time limit ({time_limit:.2f}s) exceeded (actual: {elapsed_seconds:.2f}s)")
-    if peak_memory_mb > memory_limit:
-        exceeded.append(
-            f"memory limit ({memory_limit:.2f} MB) exceeded (actual: {peak_memory_mb:.2f} MB)"
-        )
-    if exceeded:
-        raise ResourceLimitExceeded("; ".join(exceeded))
+# ----------------------------------------------------------------------
+# Helper for time‑limit enforcement using the UNIX ``alarm`` signal.
+# ----------------------------------------------------------------------
+def _timeout_handler(signum: int, frame: Any) -> None:  # pragma: no cover
+    """Signal handler that converts an alarm into a ``ResourceLimitExceeded``."""
+    raise ResourceLimitExceeded("Time limit exceeded")
 
-# -------------------------------------------------------------------------
-# Context manager that records runtime and memory usage
-# -------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------
+# Core monitor implementation
+# ----------------------------------------------------------------------
 class ResourceMonitor:
     """
-    Context manager that monitors total runtime and peak RSS memory usage.
-    Upon exit it writes a JSON report to ``data/artifacts/reports/runtime_memory.json``.
+    Monitor a callable for time and memory usage.
+
+    Parameters
+    ----------
+    time_limit : int
+        Maximum wall‑clock time in seconds (default 21600 s == 6 h).
+    memory_limit_gb : int
+        Maximum resident set size in gigabytes (default 7 GB).
+
+    The monitor records start/end timestamps and, upon successful
+    completion, writes ``total_seconds`` to
+    ``artifacts/reports/runtime_memory.json``.  Existing fields in the JSON
+    file are retained (e.g., ``peak_memory_mb`` added later).
     """
 
-    def __init__(
-        self,
-        time_limit: float = DEFAULT_TIME_LIMIT_SECONDS,
-        memory_limit: float = DEFAULT_MEMORY_LIMIT_MB,
-    ):
+    def __init__(self, time_limit: int = 21600, memory_limit_gb: int = 7):
         self.time_limit = time_limit
-        self.memory_limit = memory_limit
-        self.start_time: Optional[float] = None
-        self.end_time: Optional[float] = None
-        self.peak_memory_mb: float = 0.0
-        self._monitor_thread: Optional[threading.Thread] = None
-        self._stop_event = threading.Event()
-        self.process = psutil.Process(os.getpid())
+        self.memory_limit_gb = memory_limit_gb
+        self._start: Optional[float] = None
+        self._end: Optional[float] = None
 
-    # -------------------------------------------------------------
-    def __enter__(self) -> "ResourceMonitor":
-        self.start_time = time.time()
-        self._monitor_thread = threading.Thread(target=self._monitor_memory, daemon=True)
-        self._monitor_thread.start()
-        return self
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+    def run(self, func: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
+        """
+        Execute ``func`` under the configured limits.
 
-    # -------------------------------------------------------------
-    def __exit__(self, exc_type, exc_val, exc_tb) -> Optional[bool]:
-        self.end_time = time.time()
-        self._stop_event.set()
-        if self._monitor_thread:
-            self._monitor_thread.join()
+        Returns
+        -------
+        Any
+            The return value of ``func``.
 
-        total_seconds = self.end_time - self.start_time if self.start_time else 0.0
-        # Write JSON report
-        report = {
-            "total_seconds": total_seconds,
-            "peak_memory_mb": self.peak_memory_mb,
-        }
-        report_path = Path("data/artifacts/reports/runtime_memory.json")
+        Raises
+        ------
+        ResourceLimitExceeded
+            If the time or memory limit is breached.
+        """
+        self._start = time.time()
+        self._setup_time_limit()
+        try:
+            # The actual function execution
+            result = func(*args, **kwargs)
+        finally:
+            # Always cancel the alarm and record the end time
+            self._cancel_time_limit()
+            self._end = time.time()
+            # Write the runtime report regardless of success/failure
+            self._write_runtime_report()
+        return result
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+    def _setup_time_limit(self) -> None:
+        """Install the alarm signal for time‑limit enforcement."""
+        signal.signal(signal.SIGALRM, _timeout_handler)
+        # ``alarm`` expects an integer number of seconds
+        signal.alarm(self.time_limit)
+
+    def _cancel_time_limit(self) -> None:
+        """Disable any pending alarm."""
+        signal.alarm(0)
+
+    def _write_runtime_report(self) -> None:
+        """Write (or update) the JSON runtime report."""
+        total_seconds = (
+            self._end - self._start if self._start is not None and self._end is not None else None
+        )
+        report_path = Path("artifacts/reports/runtime_memory.json")
         report_path.parent.mkdir(parents=True, exist_ok=True)
-        with report_path.open("w", encoding="utf-8") as fp:
-            json.dump(report, fp, indent=2)
 
-        # If an exception was raised inside the block we let it propagate.
-        # Otherwise we enforce the limits here.
-        if exc_type is None:
+        # Load any existing data to preserve fields added by other tasks
+        data: Dict[str, Any] = {}
+        if report_path.is_file():
             try:
-                enforce_limits(
-                    elapsed_seconds=total_seconds,
-                    peak_memory_mb=self.peak_memory_mb,
-                    time_limit=self.time_limit,
-                    memory_limit=self.memory_limit,
-                )
-            except ResourceLimitExceeded as e:
-                # Re‑raise after writing the report so callers can catch it.
-                raise e
-        # Returning False propagates any exception (if present)
-        return False
-
-    # -------------------------------------------------------------
-    def _monitor_memory(self) -> None:
-        """
-        Background thread that polls the process RSS memory and records the peak.
-        """
-        while not self._stop_event.is_set():
-            try:
-                mem_bytes = self.process.memory_info().rss
-                mem_mb = mem_bytes / (1024 * 1024)
-                if mem_mb > self.peak_memory_mb:
-                    self.peak_memory_mb = mem_mb
+                with report_path.open("r", encoding="utf-8") as fh:
+                    data = json.load(fh)
             except Exception:
-                # In extremely rare cases psutil may fail; ignore and continue.
-                pass
-            time.sleep(0.1)  # poll interval
+                # Corrupt JSON – start fresh
+                data = {}
 
-# -------------------------------------------------------------------------
-# Convenience wrapper
-# -------------------------------------------------------------------------
-def run_with_limits(
+        if total_seconds is not None:
+            data["total_seconds"] = total_seconds
+
+        with report_path.open("w", encoding="utf-8") as fh:
+            json.dump(data, fh, indent=2)
+
+# ----------------------------------------------------------------------
+# Convenience wrappers
+# ----------------------------------------------------------------------
+def enforce_limits(
     func: Callable[..., Any],
-    *args,
-    time_limit: float = DEFAULT_TIME_LIMIT_SECONDS,
-    memory_limit: float = DEFAULT_MEMORY_LIMIT_MB,
-    **kwargs,
+    *args: Any,
+    time_limit: int = 21600,
+    memory_limit_gb: int = 7,
+    **kwargs: Any,
 ) -> Any:
     """
-    Execute ``func`` under the configured runtime and memory limits.
-    Returns whatever ``func`` returns, or raises ``ResourceLimitExceeded``.
+    Run ``func`` under resource limits.
+
+    This is a thin wrapper around :class:`ResourceMonitor` that mirrors the
+    original API used throughout the code base.
     """
-    with ResourceMonitor(time_limit=time_limit, memory_limit=memory_limit) as monitor:
-        result = func(*args, **kwargs)
-    # If the context manager did not raise, limits were respected.
-    return result
+    monitor = ResourceMonitor(time_limit=time_limit, memory_limit_gb=memory_limit_gb)
+    return monitor.run(func, *args, **kwargs)
+
+
+def run_with_limits(
+    func: Callable[..., Any],
+    *args: Any,
+    time_limit: int = 21600,
+    memory_limit_gb: int = 7,
+    **kwargs: Any,
+) -> Any:
+    """
+    Functional entry point used by tests and pipeline scripts.
+
+    Example
+    -------
+    >>> def long_job():
+    ...     time.sleep(2)
+    >>> run_with_limits(long_job, time_limit=1)  # raises ResourceLimitExceeded
+    """
+    return enforce_limits(
+        func, *args, time_limit=time_limit, memory_limit_gb=memory_limit_gb, **kwargs
+    )

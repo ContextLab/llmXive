@@ -19,25 +19,6 @@
   updated_at: '2026-07-08T01:06:24Z'
 - artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
   attempts: 1
-  canonical: training completes within 30 minutes on CPU for up to 5000 molecules
-  claim_id: c_46b81041
-  context: "Independent Test: Execute training on \u2264 5 000 molecules; verify completion\
-    \ in \u2264 30 min on CPU; verify model artifacts saved; verify report contains\
-    \ RMSE, Pearson r for both GNN and baseline, and respects synthetic\u2011data\
-    \ policy."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Execute training on \u2264 5 000 molecules; verify completion in \u2264\
-    \ 30 min on CPU"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-08T01:10:57Z'
-- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
-  attempts: 1
   canonical: experimental diffusion data available from NIST TRC via thermo
   claim_id: c_3a1046d7
   context: Implement code/ingestion/fetch_nist.py to programmatically retrieve experimental
@@ -216,3 +197,22 @@
   source_type: external
   status: verified
   updated_at: '2026-08-13T15:45:46Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 2
+  canonical: training completes within 30 minutes on CPU for up to 5000 molecules
+  claim_id: c_46b81041
+  context: "Independent Test: Execute training on \u2264 5 000 molecules; verify completion\
+    \ in \u2264 30 min on CPU; verify model artifacts saved; verify report contains\
+    \ RMSE, Pearson r for both GNN and baseline, and respects synthetic\u2011data\
+    \ policy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute training on \u2264 5 000 molecules; verify completion in \u2264\
+    \ 30 min on CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:32:58Z'

@@ -43,10 +43,10 @@
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 - [X] T004 Implement `code/utils/config.py` to manage paths, random seed (fixed), and environment variables
-- [ ] T005 [P] Implement `code/utils/logging.py` with specific log tags: `[MISSING_DATA_EXCLUDED]`, `[ERROR_SMILES]`; write to `data/logs/ingestion.log` in plain text with timestamp (FR-007)
-- [ ] T005a [P] Add pytest test `tests/unit/test_logging_tags.py` asserting that the tags `[MISSING_DATA_EXCLUDED]` and `[ERROR_SMILES]` appear in `data/logs/ingestion.log` after processing a mixed‑validity CSV (executability)
+- [X] T005 [P] Implement `code/utils/logging.py` with specific log tags: `[MISSING_DATA_EXCLUDED]`, `[ERROR_SMILES]`; write to `data/logs/ingestion.log` in plain text with timestamp (FR-007)
+- [X] T005a [P] Add pytest test `tests/unit/test_logging_tags.py` asserting that the tags `[MISSING_DATA_EXCLUDED]` and `[ERROR_SMILES]` appear in `data/logs/ingestion.log` after processing a mixed‑validity CSV (executability)
 - [X] T006 Implement `code/utils/monitor.py` to enforce a fixed runtime limit of **6 hours (21600 s)** and a RAM limit of **7 GB**; raise `ResourceLimitExceeded` if exceeded (FR-003, SC-003, SC-005)
-- [ ] T006c [P] Extend `monitor.py` to record total pipeline runtime to `artifacts/reports/runtime_memory.json` under key `"total_seconds"` (SC-003)
+- [X] T006c [P] Extend `monitor.py` to record total pipeline runtime to `artifacts/reports/runtime_memory.json` under key `"total_seconds"` (SC-003)
 - [X] T006d [P] Add pytest test `tests/unit/test_monitor_runtime.py` that runs a dummy function exceeding the time limit and asserts `ResourceLimitExceeded` is raised (executability)
 - [ ] T006e [P] Extend `monitor.py` to capture peak memory usage and store under `"peak_memory_mb"` in the same JSON report (SC-005)
 - [X] T006f [P] Add pytest test `tests/unit/test_monitor_memory.py` that simulates memory over‑use and verifies the limit exception (executability)

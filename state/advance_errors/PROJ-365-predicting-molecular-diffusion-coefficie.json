@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-365-predicting-molecular-diffusion-coefficie",
+  "stage": "in_progress",
+  "class": "transient",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-08-21T03:37:12.022684+00:00",
+  "last_seen": "2026-08-21T03:37:12.022684+00:00",
+  "retry_after": "2026-08-21T03:47:12.022684+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: no available server | local: transformers is not installed; required by local backend",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: no available server | local: transformers is not installed; required by local backend",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
+}

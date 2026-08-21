@@ -77,7 +77,7 @@
   verification_status: mismatch
   verified_against_url: https://zenodo.org/records/8224376/files/diffusion_dataset.csv
   verified_at: '2026-07-08T01:01:43.474437Z'
-- artifact_hash: 75ca35955f2275c95d9f48d70117fd9fd9d99103a7a8606e1f8499d655486a94
+- artifact_hash: d64b7699169943edfc083a122952356f468ee1855ac33b083288d8cf19d06ddc
   artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -87,4 +87,4 @@
   value: https://www.wikidata.org/wiki/Q3274587
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q3274587
-  verified_at: '2026-08-13T15:45:52.045397Z'
+  verified_at: '2026-08-21T03:33:42.677455Z'

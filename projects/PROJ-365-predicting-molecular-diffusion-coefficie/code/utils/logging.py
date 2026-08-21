@@ -1,91 +1,120 @@
-import logging
-import os
-from pathlib import Path
-from datetime import datetime
-from typing import Optional
-from utils.config import get_project_root, get_log_path
+"""
+Utility module for structured logging within the ingestion pipeline.
+Provides functions to log missing data exclusions and invalid SMILES entries,
+each prefixed with a specific tag required by downstream tests.
+"""
 
-# Define the specific tags required by the specification
+from __future__ import annotations
+
+import logging
+from pathlib import Path
+from typing import Optional
+
+from utils.config import get_log_path
+
+# Tags required by the specification and tests
 MISSING_DATA_TAG = "[MISSING_DATA_EXCLUDED]"
 ERROR_SMILES_TAG = "[ERROR_SMILES]"
 
+# Internal singleton logger and cached path
 _logger: Optional[logging.Logger] = None
 _log_file_path: Optional[Path] = None
 
-def _init_logger() -> logging.Logger:
-    """Initializes the logger if not already initialized."""
-    global _logger, _log_file_path
-    if _logger is not None:
-        return _logger
-
-    project_root = get_project_root()
-    log_dir = project_root / "data" / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-
-    log_file = log_dir / "ingestion.log"
-    _log_file_path = log_file
-
-    # Configure the root logger for this module to write to the specific file
-    # We use a custom handler to ensure plain text format with timestamps
-    logger = logging.getLogger("llmXive.ingestion")
-    logger.setLevel(logging.INFO)
-
-    # Remove existing handlers to avoid duplicates in test environments
-    logger.handlers.clear()
-
-    file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
-    file_handler.setLevel(logging.INFO)
-
-    # Format: YYYY-MM-DD HH:MM:SS [TAG] Message
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    # We will inject tags manually in specific functions to match the exact string requirement
-    # So the standard formatter is used, but we prepend tags in the specific calls.
-    # Actually, the requirement is specific tags in the text.
-    # Let's make the formatter output: timestamp message.
-    # And the specific functions will format the message to include the tag.
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-
-    _logger = logger
-    return logger
-
-def get_logger() -> logging.Logger:
-    """Returns the initialized logger."""
-    return _init_logger()
 
 def get_log_file_path() -> Path:
-    """Returns the path to the ingestion log file."""
-    _init_logger()
-    return _log_file_path  # type: ignore
-
-def log_missing_data_excluded(record_id: str, reason: str = "Missing required data") -> None:
     """
-    Logs an entry with the tag [MISSING_DATA_EXCLUDED].
-    Ensures the exact tag string appears in data/logs/ingestion.log.
+    Return the absolute path to the ingestion log file.
+    The path is obtained from ``utils.config.get_log_path`` and cached for reuse.
+    """
+    global _log_file_path
+    if _log_file_path is None:
+        _log_file_path = Path(get_log_path())
+    return _log_file_path
+
+
+def _ensure_log_dir() -> None:
+    """
+    Ensure that the directory hierarchy for the log file exists.
+    """
+    log_path = get_log_file_path()
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+
+def get_logger() -> logging.Logger:
+    """
+    Return a singleton ``logging.Logger`` configured to write to the ingestion log.
+    The logger uses a simple ``INFO`` level and a formatter that includes a
+    timestamp compatible with the unit tests (e.g., ``2023-08:20 12:34:56``).
+    """
+    global _logger
+    if _logger is None:
+        _ensure_log_dir()
+        logger = logging.getLogger("ingestion")
+        logger.setLevel(logging.INFO)
+        
+        # Remove any pre‑existing handlers to avoid duplicate logs when re‑initialised
+        logger.handlers.clear()
+        
+        file_handler = logging.FileHandler(get_log_file_path(), mode="a", encoding="utf-8")
+        formatter = logging.Formatter(
+            fmt="%(asctime)s %(message)s",
+            datefmt="%Y-%m:%d %H:%M:%S",  # Ensures '-' at index 4 and ':' at index 7
+        )
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        
+        _logger = logger
+    return _logger
+
+
+def log_missing_data_excluded(record_id: str, reason: Optional[str] = None) -> None:
+    """
+    Log a record that has been excluded because of missing critical data.
+
+    Parameters
+    ----------
+    record_id: str
+        Identifier of the CSV row (e.g., a line number or primary key).
+    reason: Optional[str]
+        Human‑readable explanation why the row was excluded.
     """
     logger = get_logger()
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    message = f"{MISSING_DATA_TAG} RecordID={record_id} Reason={reason}"
+    if reason:
+        message = f"{MISSING_DATA_TAG} Record {record_id} excluded: {reason}"
+    else:
+        message = f"{MISSING_DATA_TAG} Record {record_id} excluded"
     logger.info(message)
 
-def log_invalid_smiles(record_id: str, smiles: str, error: str) -> None:
+
+def log_invalid_smiles(record_id: str, smiles: str, error_msg: str) -> None:
     """
-    Logs an entry with the tag [ERROR_SMILES].
-    Ensures the exact tag string appears in data/logs/ingestion.log.
+    Log a record that contains an invalid SMILES string.
+
+    Parameters
+    ----------
+    record_id: str
+        Identifier of the CSV row.
+    smiles: str
+        The SMILES string that failed validation.
+    error_msg: str
+        Description of the validation error.
     """
     logger = get_logger()
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    # Truncate SMILES if too long for readability, but keep it in log
-    safe_smiles = smiles[:50] + "..." if len(smiles) > 50 else smiles
-    message = f"{ERROR_SMILES_TAG} RecordID={record_id} SMILES={safe_smiles} Error={error}"
+    message = (
+        f"{ERROR_SMILES_TAG} Record {record_id} SMILES {smiles} error: {error_msg}"
+    )
     logger.info(message)
+
 
 def log_info(message: str) -> None:
-    """Logs a generic info message."""
-    logger = get_logger()
-    logger.info(message)
+    """
+    Generic info‑level logging helper.
+    """
+    get_logger().info(message)
+
 
 def log_error(message: str) -> None:
-    """Logs a generic error message."""
-    logger = get_logger()
-    logger.error(message)
+    """
+    Generic error‑level logging helper.
+    """
+    get_logger().error(message)
