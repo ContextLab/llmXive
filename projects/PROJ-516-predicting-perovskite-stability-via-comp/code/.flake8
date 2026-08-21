@@ -1,14 +1,15 @@
 [flake8]
-max-line-length = 100
+max-line-length = 88
 extend-ignore = E203, W503
-exclude = .git,__pycache__,build,dist,.eggs
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    env,
+    build,
+    dist,
+    *.egg-info
 per-file-ignores =
-    # Allow unused imports in __init__.py
+    # Allow wildcard imports in __init__.py if present
     */__init__.py: F401
-    # Allow unused arguments in model definitions
-    */model_training.py: ARG001
-max-complexity = 15
-count = True
-statistics = True
-show-source = True
-max-doc-length = 120

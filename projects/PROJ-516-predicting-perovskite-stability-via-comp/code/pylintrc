@@ -1,0 +1,42 @@
+[MAIN]
+ignore=tests,venv,.venv,env,build,dist,*.egg-info
+persistent=yes
+load-plugins=
+
+[MESSAGES CONTROL]
+disable=
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0903,  # too-few-public-methods
+    R0913,  # too-many-arguments
+    R0914,  # too-many-locals
+    W0511,  # fixme
+    W1203,  # logging-fstring-interpolation (we use f-strings intentionally sometimes)
+    C0301,  # line-too-long (handled by black/flake8)
+    C0302,  # too-many-lines
+    R0801,  # duplicate-code
+    E1101,  # no-member (pymatgen dynamic attributes often trigger this)
+    R0401,  # cyclic-import
+    R0402,  # consider-using-from-import
+    W0613,  # unused-argument
+    W0621,  # redefined-outer-name
+
+[DESIGN]
+max-args=10
+max-locals=20
+max-returns=6
+max-branches=15
+max-statements=60
+max-attributes=15
+max-public-methods=25
+
+[FORMAT]
+max-line-length=88
+expected-line-ending-format=LF
+
+[BASIC]
+good-names=i,j,k,ex,Run,_,f,t
+
+[TYPECHECK]
+ignored-modules=pymatgen

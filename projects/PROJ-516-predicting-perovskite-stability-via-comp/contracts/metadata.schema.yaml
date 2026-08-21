@@ -1,51 +1,81 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: PerovskiteEntry Instrumentation Metadata
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PerovskiteEntry Instrumentation Metadata"
 description: >
-  Schema for instrumentation metadata extracted from source data,
-  specifically focusing on TGA model and measurement uncertainty.
-  Adheres to the requirements of US1 and the feedback from reviewer marie-curie-simulated
-  regarding the critical nature of instrument precision.
+  Schema for instrumentation metadata associated with perovskite thermal stability
+  measurements (TGA). Defines the TGA model, temperature uncertainty, and flags
+  indicating whether the uncertainty is explicitly reported or defaulted.
+  This schema supports the "Verified Accuracy" requirement by ensuring all
+  stability measurements carry quantified uncertainty bounds.
 type: object
 required:
-  - entry_id
-  - source
+  - perovskite_id
   - tga_model
-  - uncertainty
+  - uncertainty_value
+  - uncertainty_unit
   - uncertainty_source
 properties:
-  entry_id:
+  perovskite_id:
     type: string
-    description: Unique identifier for the perovskite entry (matches source data).
-  source:
-    type: string
-    description: Original data source (e.g., NREL, Materials Project).
+    description: "Unique identifier for the perovskite entry (e.g., formula or database ID)"
+    pattern: "^[A-Za-z0-9_.-]+$"
+    examples:
+      - "CsPbI3"
+      - "FAPbI3"
+      - "MAPbBr3"
+
   tga_model:
     type: string
-    description: Specific model of the Thermogravimetric Analyzer used.
+    description: "Manufacturer and model of the Thermogravimetric Analyzer used"
     minLength: 1
-  uncertainty:
+    examples:
+      - "TA Instruments Q500"
+      - "Mettler Toledo TGA/DSC 3+"
+      - "Netzsch STA 449 F3"
+      - "PerkinElmer TGA 4000"
+
+  uncertainty_value:
     type: number
     description: >
-      The uncertainty bound (± value) for the TGA temperature measurement (T_d).
-      Represents the precision of the instrument or the estimated error margin.
-      Unit: degrees Celsius (°C).
-    minimum: 0
+      Numerical value of the temperature uncertainty (e.g., 5.0 for ±5°C).
+      Must be positive.
+    exclusiveMinimum: 0
+    examples:
+      - 5.0
+      - 10.0
+
+  uncertainty_unit:
+    type: string
+    description: "Unit of the uncertainty value"
+    enum:
+      - "Celsius"
+      - "Kelvin"
+      - "K"
+      - "°C"
+    default: "Celsius"
+
   uncertainty_source:
     type: string
-    enum:
-      - explicit
-      - default
     description: >
-      Indicates whether the uncertainty was explicitly stated in the source
-      (explicit) or assigned a default fallback value (default) due to missing info.
-  instrument_manufacturer:
-    type: string
-    description: Optional manufacturer name if available.
+      Source of the uncertainty value.
+      - 'instrument_spec': Value derived from the manufacturer's specification for the specific model.
+      - 'reported_value': Value explicitly reported in the source publication or dataset.
+      - 'default_bound': Value assigned because no specific uncertainty was provided (e.g., ±10°C default).
+    enum:
+      - "instrument_spec"
+      - "reported_value"
+      - "default_bound"
+
+  is_default_uncertainty:
+    type: boolean
+    description: >
+      Flag indicating if the uncertainty is a default fallback (e.g., ±10°C)
+      rather than a specific measurement or instrument spec. Used for weighting
+      in model training (lower weight for default uncertainty).
+    default: false
+
   notes:
     type: string
-    description: Optional notes regarding the measurement conditions or instrument calibration.
-  extracted_at:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the metadata was extracted.
+    description: "Optional notes regarding the measurement conditions or uncertainty derivation"
+    maxLength: 500
+
 additionalProperties: false

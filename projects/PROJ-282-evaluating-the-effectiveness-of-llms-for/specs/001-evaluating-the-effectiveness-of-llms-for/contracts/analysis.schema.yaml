@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisMetric Schema"
+description: "Schema for statistical analysis results."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the metric (e.g., 'Pearson_r', 'McNemar_p')."
+  feature_name:
+    type: "string"
+    description: "Name of the feature or comparison (e.g., 'ast_depth', 'LLM_vs_Static')."
+  value:
+    type: "number"
+    description: "The calculated value of the metric."
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value."
+  adjusted_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni corrected p-value."
+  language:
+    type: "string"
+    description: "Language subset or 'all'."
+  significance:
+    type: "string"
+    enum:
+      - "Significant"
+      - "Not_Significant"
+    description: "Statistical significance status."
+  notes:
+    type: "string"
+    description: "Optional commentary."
+required:
+  - "metric_name"
+  - "feature_name"
+  - "value"
+  - "p_value"
+  - "adjusted_p_value"
+  - "language"
+  - "significance"
+additionalProperties: false

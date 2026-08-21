@@ -7,19 +7,6 @@ T013:
     \ output file `data/raw/dst_indices.csv` is absent. The task\u2019s core requirement\u2014\
     downloading Dst data and saving it to the specified CSV\u2014is therefore not\
     \ satisfied."
-T013b:
-  c: false
-  h: 2839062c29f57db00b95a3b879590713810ae08ae7ea41fbc2cde3e15863fbe9
-  r: "The repository lacks the required `data/raw/kp_indices.csv` file, and the provided\
-    \ `code/ingest.py` contains only stub functions for Dst indices and does not implement\
-    \ downloading Kp indices or writing/validating them against a schema. Consequently,\
-    \ the task\u2019s core requirement is not fulfilled."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `aligned_events.csv` (or any derived file) containing the required `is_recurrent`\
-    \ flag was provided. The evidence lacks the primary dataset with the recurrent\u2011\
-    activity flag, so the task\u2019s core requirement is not demonstrated."
 T017:
   c: false
   h: 7d6a797ebe2192b79a300201d2c4b25514aac3de2e3756dbe63a9f8f1d4fcdff
@@ -27,14 +14,6 @@ T017:
     \ `data/source_manifest.yaml` still shows the aligned_events entry with status\
     \ \u201CPending\u201D and no checksum values. Both the CSV output and the manifest\
     \ updates are missing."
-T018:
-  c: false
-  h: 21529a69b3738a9ba861fb947bafad7694fd22dbeba4e3ce9fe7d90c898a37e7
-  r: The repository lacks the required `contracts/aligned_event.schema.yaml` file,
-    so the validator cannot actually check the CSV against the schema. Moreover, `code/validate.py`
-    only defines validation functions and does not contain any logic that prevents
-    writing `aligned_events.csv` or updating `data/source_manifest.yaml` when validation
-    fails. Both the schema and the blocking behavior are missing.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

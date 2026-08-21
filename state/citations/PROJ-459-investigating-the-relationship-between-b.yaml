@@ -53,3 +53,14 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64744c52d56974d0c055f4b5/a54a7513b67a4ebf6197661ef814cc2bb21acadb658748e196d60974e312314e?X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.csv%3B+filename%3D%22data.csv%22%3B&user_id=public&Expires=1782969045&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ3NDRjNTJkNTY5NzRkMGMwNTVmNGI1L2E1NGE3NTEzYjY3YTRlYmY2MTk3NjYxZWY4MTRjYzJiYjIxYWNhZGI2NTg3NDhlMTk2ZDYwOTc0ZTMxMjMxNGVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYXRhLmNzdiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyOTY5MDQ1fX19XX0_&Signature=MEYCIQCo4nUD-dXkZFFfIHH5sK0xyrjco9zi1YMZ-DkMk6YSdQIhAIEBmbquTNZTPd%7E574ryC%7EmnXPXY1PjG0QxOlf2oZdpu&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-02T04:10:03.998645Z'
+- artifact_hash: 62242324ce362097ce1fbe066b93541645f36466f80435fc1b030b6ed1b0e6c7
+  artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Python - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Python_
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Python
+  verified_at: '2026-08-21T21:52:19.562199Z'

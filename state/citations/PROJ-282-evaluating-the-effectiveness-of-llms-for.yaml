@@ -1,25 +1,3 @@
-- artifact_hash: e4726ba0cf85854cc7508f208335ccc5e29ed10e17e0bc1ddade24a0f45ba604
-  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: test-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/claudios/VulDeePecker/resolve/main/data/test-00000-of-00001.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/659876acd108fc317f333db2/72ac2c72059ae4ed017d649b823e0c1ecb680aeb55eefdc4e1eca3c72759437b?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&Expires=1786598456&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU5ODc2YWNkMTA4ZmMzMTdmMzMzZGIyLzcyYWMyYzcyMDU5YWU0ZWQwMTdkNjQ5YjgyM2UwYzFlY2I2ODBhZWI1NWVlZmRjNGUxZWNhM2M3Mjc1OTQzN2JcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODY1OTg0NTZ9fX1dfQ__&Signature=MEYCIQCEFTzt4QY120O3pKw05GzDgd627Wu8yBUnpTV9%7EKEpegIhAJ-kLwMZOEsLkFm2-sBsN4pY3qK6xV342e8Ra4-mb7vZ&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-13T04:20:56.151749Z'
-- artifact_hash: e4726ba0cf85854cc7508f208335ccc5e29ed10e17e0bc1ddade24a0f45ba604
-  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/jsvuln/jsvulndb/resolve/main/data/test.parquet`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/jsvuln/jsvulndb/resolve/main/data/test.parquet
-  verified_at: '2026-08-13T04:20:56.151749Z'
 - artifact_hash: 9578aa68443db194168fbf14fca45591b50bb60ed0e3e9111d4843759a82d6b8
   artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
   cite_id: c-001
@@ -43,3 +21,36 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2607.07974
   verified_at: '2026-08-17T21:36:27.081863Z'
+- artifact_hash: a87524948c60b5a9be26c0b0c025d5717089f0a471621ca7c6cb9299ee661ced
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/vuldeepecker/vuldeepecker`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/vuldeepecker/vuldeepecker
+  verified_at: '2026-08-21T21:38:23.742562Z'
+- artifact_hash: a87524948c60b5a9be26c0b0c025d5717089f0a471621ca7c6cb9299ee661ced
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/nist/juliet-c-cpp-test-suite`
+  verification_status: mismatch
+  verified_against_url: https://github.com/nist/juliet-c-cpp-test-suite
+  verified_at: '2026-08-21T21:38:23.742562Z'
+- artifact_hash: a87524948c60b5a9be26c0b0c025d5717089f0a471621ca7c6cb9299ee661ced
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/jsvulndb/jsvulndb`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/jsvulndb/jsvulndb
+  verified_at: '2026-08-21T21:38:23.742562Z'

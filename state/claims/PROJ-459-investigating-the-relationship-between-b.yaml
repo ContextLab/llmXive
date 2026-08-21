@@ -2579,3 +2579,556 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T13:47:25Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sample size requirement overridden from N=50 to N>=85 by plan
+  claim_id: c_ba735603
+  context: 'Load metadata and verify sample size N >= 85. Note: The Spec''s assumption
+    of N=50 is explicitly overridden by the Plan''s power requirement. If N < 85,
+    log ERR_UNDERPOWERED and halt execution unconditionally.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Spec's assumption of N=50 is explicitly overridden by the Plan's power
+    requirement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:41:01Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Null distribution validation uses 1000 permutations per plan
+  claim_id: c_97187335
+  context: 'Run null distribution validation with 1,000 permutations (per Plan override
+    of Spec FR-010). Rationale: The Plan mandates a large number of permutations for
+    robust false positive rate estimation, overriding the Spec''s initial value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plan mandates 1,000 permutations for the null distribution validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:41:22Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Plan specifies N=85 and 1000 permutations vs Spec N=50 and 100 permutations
+  claim_id: c_d3bbd4f7
+  context: The Plan specifies N=85 and 1,000+ permutations, while the Spec specifies
+    N=50 (runtime) and 100 permutations. Tasks follow the Plan's active requirements
+    (1,000 permutations, N>=85 hard gate) where the Plan explicitly overrides the
+    Spec.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies N=85 and 1,000+ permutations, while the Spec specifies
+    N=50 (runtime) and 100 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:42:08Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas maps DMN to 7, Auditory to 4, Salience to 2 in Yeo 7-network
+    parcellation
+  claim_id: c_d7642182
+  context: Implement code/utils/atlas.py to load Schaefer atlas and map ROIs to Yeo
+    7-network parcellation (DMN=7, Auditory=4, Salience=2). Define load_atlas() and
+    map_to_yeo() functions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer atlas maps ROIs to Yeo 7-network parcellation with DMN=7,
+    Auditory=4, Salience=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:42:56Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses window sizes of 20, 30, and 40 TRs
+  claim_id: c_38656a9b
+  context: The sensitivity analysis is tested by verifying that the system runs the
+    pipeline with window sizes of 20, 30, and 40 TRs and reports the correlation stability
+    of the resulting metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis runs the pipeline with window sizes of 20, 30,
+    and 40 TRs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:43:22Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Subjects with more than 10% corrupted fMRI volumes are excluded
+  claim_id: c_d2101a53
+  context: 'Define exclude_subjects_by_missing_data(confounds_df: pd.DataFrame, threshold:
+    float = 0.1) -> list[str] to flag subjects with >10% corrupted fMRI volumes.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_more_than_10%25_corrupted_fMRI_volumes_are_exclu
+  kind: magnitude
+  raw_text: The pipeline excludes subjects with >10% corrupted fMRI volumes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:43:43Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Subjects with more than 0.5mm framewise displacement are excluded
+  claim_id: c_6b16e91b
+  context: 'Define exclude_subjects_by_motion(confounds_df: pd.DataFrame, fd_threshold:
+    float = 0.5) -> list[str] to flag subjects with excessive head motion (>0.5mm
+    FD).'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline excludes subjects with excessive head motion defined as >0.5mm
+    FD.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T21:43:43Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Power analysis targets power of 0.8 for effect size of 0.3
+  claim_id: c_31e8d164
+  context: "Implement code/analysis/stats.py to perform post-hoc power analysis (target:\
+    \ power \u2265 0.8 for |r| \u2265 0.3). Define compute_power(sample_size: int,\
+    \ effect_size: float)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis targets power \u2265 0.8 for |r| \u2265 0.3."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:43:44Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sliding-window dynamic connectivity uses 30 TR window and 5 TR step
+  claim_id: c_fd4ea0eb
+  context: 'Implement code/analysis/metrics.py for sliding-window dynamic connectivity
+    (window=30 TRs, step=5 TRs). Define compute_dynamic_connectivity(time_series:
+    np.array, window_size: int, step: int).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sliding-window dynamic connectivity uses a window of 30 TRs and a
+    step of 5 TRs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:44:09Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Dataset IDs ds000030 and ds000208 are used
+  claim_id: c_5ffa70c0
+  context: Create code/config.py with paths, hyperparameters (window sizes, TRs),
+    and dataset IDs (ds000030, ds000208). Include a mechanism to switch dataset IDs
+    if validation fails.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_IDs_ds000030_and_ds000208_are_used
+  kind: entity_fact
+  raw_text: The dataset IDs used are ds000030 and ds000208.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:45:05Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Python version 3.11 is used
+  claim_id: c_fabac1fd
+  context: Initialize Python 3.11 project with requirements.txt containing pinned
+    versions.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Guido van Rossum began working on Python in the late 1980s as a successor
+        to the ABC programming language. Python 3.0, released in 2008, was a major
+        revision and not completely backward-compatible with earlier versions. Beginning
+        with Python 3.5, capabilities and keywords for typing were added to the language,
+        allowing optional static typing. As of 2026, the Python Software Foundation
+        supports Python 3.10, 3.11, 3.12, 3.13, and 3.14, following the project's
+        annual release cycle and five-year support policy. Python 3.15.0rc1 (which
+        defaults to UTF-8) is out in preview, and the stable release is expected to
+        launch in October 2026. Earlier versions in the 3.x series have reached end-of-life
+        and no longer receive security updates.
+      source_id: Python (programming language)
+      url: https://en.wikipedia.org/wiki/Python_(programming_language)
+      value: '3.11'
+    filled: true
+  kind: numeric
+  raw_text: The Python version is 3.11.
+  resolved_value: '3.11'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T21:45:13Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Nilearn version 0.10.1 is used
+  claim_id: c_d2a3664b
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: nilearn==0.10.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nilearn version is 0.10.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:45:37Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Networkx version 3.2.1 is used
+  claim_id: c_351b1b57
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: ...networkx==3.2.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The networkx version is 3.2.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:45:55Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Scikit-learn version 1.3.2 is used
+  claim_id: c_af304c32
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: ...scikit-learn==1.3.2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scikit-learn version is 1.3.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:46:11Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Pandas version 2.1.4 is used
+  claim_id: c_b7d71849
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: ...pandas==2.1.4...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pandas version is 2.1.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:46:30Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Numpy version 1.26.2 is used
+  claim_id: c_8c534afb
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: ...numpy==1.26.2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The numpy version is 1.26.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:46:46Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Scipy version 1.11.4 is used
+  claim_id: c_8856d0cf
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: ...scipy==1.11.4...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scipy version is 1.11.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:47:08Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: PyYAML version 6.0.1 is used
+  claim_id: c_4ec79e1c
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: ...pyyaml==6.0.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pyyaml version is 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:47:27Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Pytest version 7.4.3 is used
+  claim_id: c_2d6ce3d8
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: ...pytest==7.4.3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pytest version is 7.4.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:47:51Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Statsmodels version 0.14.0 is used
+  claim_id: c_4878ee67
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: ...statsmodels==0.14.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statsmodels version is 0.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:48:06Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Nibabel version 5.2.0 is used
+  claim_id: c_337f3223
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: ...nibabel==5.2.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nibabel version is 5.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:48:22Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 0
+  canonical: 'Python 3.11 project dependencies: nilearn 0.10.1, networkx 3.2.1, scikit-learn
+    1.3.2, pandas 2.1.4, numpy 1.26.2, scipy 1.11.4, pyyaml 6.0.1, pytest 7.4.3, statsmodels
+    0.14.0, nibabel 5.2.0'
+  claim_id: c_09f1c30e
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: nilearn==0.10.1, networkx==3.2.1, scikit-learn==1.3.2, pandas==2.1.4,
+    numpy==1.26.2, scipy==1.11.4, pyyaml==6.0.1, pytest==7.4.3, statsmodels==0.14.0,
+    nibabel==5.2.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T21:50:08Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Yeo 7-network parcellation mapping: DMN=7, Auditory=4, Salience=2'
+  claim_id: c_d9c6e2e5
+  context: 'Phase 2: Foundational - Task T005'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Map ROIs to Yeo 7-network parcellation (DMN=7, Auditory=4, Salience=2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:50:33Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Minimum sample size requirement N >= 85 overrides previous assumption
+    of N=50
+  claim_id: c_14300ca0
+  context: 'Phase 2: Foundational - Task T012c (Power Check)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify sample size N >= 85. The Spec's assumption of N=50 is explicitly
+    overridden by the Plan's power requirement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:50:51Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Exclusion threshold for corrupted fMRI volumes: >10%'
+  claim_id: c_c627c448
+  context: 'Phase 2: Foundational - Task T012c (Corruption Check)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag subjects with >10% corrupted fMRI volumes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:50:51Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Exclusion threshold for head motion: >0.5mm Framewise Displacement'
+  claim_id: c_7d49e8e7
+  context: 'Phase 2: Foundational - Task T012c (Motion Check)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag subjects with excessive head motion (>0.5mm FD).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:50:52Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Sliding-window parameters: window=30 TRs, step=5 TRs'
+  claim_id: c_f6db6158
+  context: 'Phase 4: User Story 2 - Task T023'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sliding-window dynamic connectivity with window=30 TRs, step=5
+    TRs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:51:14Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis window sizes: 20, 30, and 40 TRs'
+  claim_id: c_a3077224
+  context: 'Phase 4: User Story 2 - Task T026'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run sensitivity analysis with window sizes 20, 30, and 40 TRs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:51:46Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Post-hoc power analysis target: power >= 0.8 for effect size |r| >=
+    0.3'
+  claim_id: c_b2d9164f
+  context: 'Phase 5: User Story 3 - Task T033'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.3'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Post-hoc_power_analysis_target:_power_%3E=_0.8_for_effect_size
+    source_value: https://en.wikipedia.org/wiki/Post-hoc_power_analysis_target:_power_>=_0.8_for_effect_size
+    subject: 'Post-hoc power analysis target: power >= 0.8 for effect size'
+  kind: relational
+  raw_text: "Target: power \u2265 0.8 for |r| \u2265 0.3 in post-hoc power analysis."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:52:18Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Underpowered flag threshold: power < 0.8'
+  claim_id: c_93701a7a
+  context: 'Phase 5: User Story 3 - Task T035'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag results as 'Underpowered' if power < 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:52:18Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Plan requirements: N=85, 1,000+ permutations; Spec requirements: N=50,
+    100 permutations'
+  claim_id: c_450dffd2
+  context: Notes section regarding Plan-Spec Conflicts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plan specifies N=85 and 1,000+ permutations, while the Spec specifies
+    N=50 (runtime) and 100 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:52:19Z'

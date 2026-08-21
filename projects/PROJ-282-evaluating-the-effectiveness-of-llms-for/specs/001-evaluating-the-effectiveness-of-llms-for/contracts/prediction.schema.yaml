@@ -1,43 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "PredictionResult"
-description: "Schema for LLM and Static Analyzer prediction results"
+title: "PredictionResult Schema"
+description: "Schema for LLM and Static Analyzer prediction results."
 type: "object"
 properties:
   snippet_id:
     type: "string"
-    description: "Unique identifier for the code snippet"
+    description: "Reference to the CodeSnippet ID."
   model_type:
     type: "string"
     enum:
-      - "LLM_ZeroShot"
+      - "LLM"
       - "Bandit"
       - "Cppcheck"
-    description: "Type of model that generated the prediction"
+    description: "Type of model or tool used."
   predicted_label:
     type: "string"
     enum:
       - "Vulnerable"
       - "Safe"
       - "Uncertain"
-    description: "Binary or uncertain label predicted by the model"
+    description: "Predicted vulnerability status."
   predicted_category:
     type: "string"
-    description: "Specific vulnerability category (e.g., 'SQLi', 'CWE-89')"
+    description: "Predicted vulnerability category or 'none'."
   confidence_score:
     type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Model confidence score (if available)"
-  is_correct:
-    type: "boolean"
-    description: "Whether the prediction matches the ground truth"
+    minimum: 0
+    maximum: 1
+    description: "Confidence score if available."
   inference_time_ms:
     type: "number"
-    description: "Time taken for inference in milliseconds"
+    minimum: 0
+    description: "Time taken for inference in milliseconds."
+  is_correct:
+    type: "boolean"
+    description: "Whether the prediction matches the ground truth."
 required:
-  - snippet_id
-  - model_type
-  - predicted_label
-  - is_correct
-  - inference_time_ms
+  - "snippet_id"
+  - "model_type"
+  - "predicted_label"
+  - "predicted_category"
+  - "inference_time_ms"
+  - "is_correct"
 additionalProperties: false

@@ -14,3 +14,117 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T11:18:08Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Compute Spearman rank correlation between log10(flare flux) and Dst,
+    and CME speed and Dst with p-values
+  claim_id: c_0c3fdc38
+  context: 'Phase 4: User Story 2 - Statistical Correlation Analysis. Implementation
+    tasks for US2 include computing correlations.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Spearman_rank_correlation_between_log10(flare_flux)
+  kind: entity_fact
+  raw_text: "Implement `code/analysis.py` to compute Spearman rank correlation (log10(flare\
+    \ flux)\u2192Dst and CME speed\u2192Dst) with p-values"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:21:58Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: 'Selection logic for VIF > 5: switch to univariate models or Ridge regression,
+    selecting the model with higher absolute correlation'
+  claim_id: c_44708c51
+  context: Task T024 describes the Selection Logic for Variance Inflation Factor (VIF)
+    calculation in Phase 4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, switch to separate univariate models or Ridge regression;
+    select the univariate model with the higher absolute correlation coefficient
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:21:58Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Post-hoc power analysis logs a warning if sample size N is less than
+    30
+  claim_id: c_d312782d
+  context: Task T025 specifies the condition for logging a warning during post-hoc
+    power analysis in Phase 4.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Post-hoc_power_analysis_logs_a_warning_if_sample_size_N_is_l
+  kind: magnitude
+  raw_text: Log warning if N < 30 during post-hoc power analysis
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:22:47Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Non-linear piecewise model tested if R-squared is less than 0.1
+  claim_id: c_0c8e78a9
+  context: Task T026 describes the logic for testing non-linear models in Phase 4.
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Test non-linear (piecewise) model if R\xB2 < 0.1 and report the improvement\
+    \ in fit"
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T21:22:47Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split uses 2021-2023 as the test/validation period
+  claim_id: c_7f874071
+  context: Task T032 defines the mandatory time-series split logic for User Story
+    3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train on events from an earlier historical period and Test/Validate on
+    events from 2021-2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:23:02Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Threshold defined per NOAA SWPC Geomagnetic Storms definition
+  claim_id: c_ffda4d5a
+  context: Task T034b specifies the citation mechanism for the Dst definition for
+    significant geomagnetic storm thresholds.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Threshold_defined_per_NOAA_SWPC_Geomagnetic_Storms_definitio
+  kind: entity_fact
+  raw_text: 'Threshold defined per NOAA SWPC: [URL]'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T21:23:32Z'

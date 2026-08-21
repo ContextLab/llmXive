@@ -35,11 +35,43 @@ T012:
     \ the task\u2019s core requirement\u2014fetching, validating, filtering for `T_d`\
     \ entries, and persisting them to the specified CSV\u2014has not been demonstrably\
     \ fulfilled."
+T013b:
+  c: false
+  h: 7eca4083e44075184c2b642ef1ee0fed9b10e1ae2020a34cd614e260b268bd25
+  r: "The `data/raw/metadata.json` file is present, but the required schema file `contracts/metadata.schema.yaml`\
+    \ is missing, so there is no way to verify that the JSON adheres to the specified\
+    \ contract. The task\u2019s core requirement\u2014producing metadata that conforms\
+    \ to the schema\u2014has not been satisfied."
 T014:
   c: false
-  h: 7a80a8566ec6a0c0b86813d8905f0f739a73254d8f454d89a29e21b389f31777
-  r: The repository contains a `code/feature_engineering.py` file, but its content
-    is truncated and does not show the full logic for computing the required descriptors
-    or writing them to a CSV. Moreover, the expected output file `data/processed/descriptors.csv`
-    is absent. Both the generation of the descriptor matrix and the creation of the
-    CSV output are missing, so the task is not fulfilled.
+  h: f63af815f7acd0b881540c18fd9df343552a8e855262e59d5a9cc2302d619a4b
+  r: "The required output file `data/processed/descriptors.csv` does not exist, and\
+    \ the provided `code/feature_engineering.py` is only partially shown (truncated)\
+    \ with no evidence that it actually computes all requested descriptors or writes\
+    \ the CSV. The task\u2019s core deliverable is therefore missing."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided that implements the required exclusion\
+    \ of entries with\u202F\u2265\u202F2 missing descriptor values or records the\
+    \ count of excluded entries. The evidence is empty, so the task\u2019s core requirement\
+    \ is not satisfied."
+T016:
+  c: false
+  h: e325778d9f023218f8f612b4ae5324d66f9fc3427225feeb2e9f2a608987f3f9
+  r: "The required output file `data/processed/vif_report.csv` does not exist, so\
+    \ the VIF diagnostic computation and reporting have not been delivered. Without\
+    \ this CSV the task\u2019s core requirement is unmet."
+T019:
+  c: false
+  h: 86c0f6d2a8a0c60b9a89c1b0ce5fc9bde3fc8a06cd99769c519f5a284e44e764
+  r: "The required integration test file `tests/integration/test_pipeline_runtime.py`\
+    \ is missing, so no test exists to verify the full pipeline runtime constraint.\
+    \ The task\u2019s primary artifact is absent, making the implementation incomplete."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or configuration file implementing k\u2011fold cross\u2011\
+    validation with stratification by perovskite family was presented. The claim lacks\
+    \ any artifact (e.g., a Python module using `StratifiedKFold` or documentation\
+    \ of the setup), so the requirement is not satisfied."

@@ -1,59 +1,76 @@
-# Quickstart: Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in Open-Source Code
+# Quickstart: Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities
 
 ## Prerequisites
 
 - Python 3.11+
 - Git
-- `bandit` and `cppcheck` installed globally (or via Docker)
-- Standard GitHub Actions runner with sufficient RAM and CPU cores to support the research question using the specified method (Citation: [DOI/arXiv/author-year]).
+- 16GB RAM (recommended for local dev, 7GB required for CI)
+- Access to HuggingFace Hub (for datasets and models)
 
-## Setup
+## Installation
 
-1. **Clone the Repository**:
+1. **Clone and Setup Environment**
    ```bash
    git clone <repo-url>
    cd projects/PROJ-282-evaluating-the-effectiveness-of-llms-for
-   ```
-
-2. **Install Dependencies**:
-   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    pip install -r requirements.txt
    ```
 
-3. **Download Datasets**:
-   Run the ingestion script to fetch and checksum data:
+2. **Verify Dependencies**
    ```bash
-   python src/data/ingest.py --download
+   python -c "import torch; import transformers; import datasets; print('OK')"
    ```
-   *Note*: This will fetch VulDeePecker and JSVulnDB from Hugging Face. For NIST Juliet, it will `git clone` the official repository.
 
-4. **Extract Features**:
-   ```bash
-   python src/data/feature_extractor.py --run
-   ```
-   This generates `data/processed/features.parquet` and logs `data/logs/stratification_verification.json` and `data/logs/dataset_substitution_justification.json`.
+## Data Download
 
-5. **Run Inference & Baselines**:
-   ```bash
-   python src/main.py --run-inference --run-baseline
-   ```
-   This executes LLM zero-shot inference and static analyzers, saving results to `data/results/predictions.csv`.
+The pipeline automatically downloads datasets from verified sources on first run.
+```bash
+# Run the download script
+python src/data/download.py
+```
+*Output*: `data/raw/vuldeepecker.parquet`, `data/raw/nist_juliet.jsonl`, `data/raw/jsvulndb.parquet`.
 
-6. **Perform Statistical Analysis**:
+## Running the Pipeline
+
+Execute the full pipeline (Download -> Features -> Inference -> Analysis):
+```bash
+python src/main.py --config config/default.yaml
+```
+
+### Specific Steps
+
+1. **Feature Extraction Only**
    ```bash
-   python src/models/regression.py --run-analysis
+   python src/data/feature_extractor.py --input data/raw/ --output data/processed/features.parquet
    ```
-   This generates `data/results/analysis_metrics.csv` and plots.
+
+2. **LLM Inference Only**
+   ```bash
+   python src/models/llm_inference.py --input data/processed/features.parquet --output data/processed/predictions_llm.parquet
+   ```
+
+3. **Statistical Analysis Only**
+   ```bash
+   python src/analysis/regression.py --input data/processed/analysis_dataset.parquet --output data/processed/metrics.json
+   ```
 
 ## Verification
 
-- Check `data/logs/stratification_verification.json` to ensure balanced sampling.
-- Check `data/logs/dataset_substitution_justification.json` for dataset source changes.
-- Verify `data/results/analysis_metrics.csv` contains non-null p-values and adjusted p-values.
-- Run `pytest tests/` to ensure all unit and integration tests pass.
+Check that all required artifacts exist:
+```bash
+# Verify logs
+ls data/logs/orchestration_log.json
+ls data/logs/linting_config.json
+
+# Verify results
+ls data/processed/metrics.json
+ls data/processed/sensitivity_analysis.json
+```
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce `--sample-size` in `ingest.py` or enable `--streaming`.
-- **Parsing Error**: Check `data/logs/parse_errors.log` for malformed code snippets.
-- **Timeout**: If runtime exceeds a predetermined threshold, the pipeline will automatically reduce the sample size.
+- **OOM Error**: Reduce `batch_size` in `config/default.yaml` to 1.
+- **Model Load Fail**: Ensure `HF_HOME` is set and internet is available for initial download.
+- **Dataset Missing**: Check `data/raw` for checksums. Re-run `download.py`.

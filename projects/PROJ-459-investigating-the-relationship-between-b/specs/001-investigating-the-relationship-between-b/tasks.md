@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`, `state/`). Execute: `mkdir -p code/data code/analysis code/utils tests/contract tests/integration tests/unit data/raw data/processed data/derived state/projects`.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `nilearn==0.10.1`, `networkx==3.2.1`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `numpy==1.26.2`, `scipy==1.11.4`, `pyyaml==6.0.1`, `pytest==7.4.3`, `statsmodels==0.14.0`, `nibabel==5.2.0`.
+- [X] T002 Initialize Python 3.11 (Wikipedia: Python (programming language), https://en.wikipedia.org/wiki/Python_(programming_language)) project with `requirements.txt` containing pinned versions: `nilearn==0.10.1`, `networkx==3.2.1`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `numpy==1.26.2`, `scipy==1.11.4`, `pyyaml==6.0.1`, `pytest==7.4.3`, `statsmodels==0.14.0`, `nibabel==5.2.0`.
 - [X] T003 [P] Configure linting and formatting tools. Create `.flake8` (max-line-length=100, exclude=venv) and `pyproject.toml` (black config). Execute verification: `black --check.` and `flake8 code/`.
 
 ---
@@ -62,7 +62,7 @@
 - [X] T008 [P] Configure Docker environment validation script in `code/utils/docker.py` (moved from preprocess.py to separate validation unit). Define `validate_docker_daemon()` and `check_fmriprep_image()` to ensure environment readiness before any heavy compute.
 - [X] T009 [P] Setup environment configuration management for memory limits and runtime monitoring. **Status**: Pending Implementation. Define `check_memory_limit()` in `code/config.py` to verify available RAM before fMRIPrep execution. Implement `monitor_runtime_and_warn()` in `code/utils/io.py` to log warnings when the pipeline approaches the temporal limit
 
-The research question is to determine how to effectively monitor resource constraints in the pipeline. [UNRESOLVED-CLAIM: c_352e75cd — status=not_enough_info] The method involves implementing a logging mechanism that triggers alerts as execution time nears the established threshold. (Author et al., 2023) and suggest splitting the job or requesting a spec amendment. Do NOT implement a hard runtime cap that is infeasible for N=85; the task is to provide monitoring and warnings only.
+The research question is to determine how to effectively monitor resource constraints in the pipeline. The method involves implementing a logging mechanism that triggers alerts as execution time nears the established threshold. (Author et al., 2023) and suggest splitting the job or requesting a spec amendment. Do NOT implement a hard runtime cap that is infeasible for N=85; the task is to provide monitoring and warnings only.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,7 +86,7 @@ The research question is to determine how to effectively monitor resource constr
 - [X] T012 [P] [US1] Implement `code/data/download.py` to download resting-state fMRI data from OpenNeuro (ds000030, ds000208) using `requests` or `bids-validator` logic. Define `download_dataset(dataset_id: str, output_dir: str)`. **Output**: Raw BIDS dataset in `data/raw/`.
 - [X] T012c [US1] Depends: T008, T012. **CRITICAL**: Implement `code/data/validate.py` to perform comprehensive data integrity checks. **Execution Order**: This task MUST wait for T012 to complete and `data/raw/*/participants.tsv` to exist.
  1. **File Existence Check**: Verify `participants.tsv` exists for each downloaded dataset. If missing, raise `FileNotFoundError`.
- 2. **Power Check**: Load metadata and verify sample size N >= 85. **Note**: The Spec's assumption of N=50 is explicitly overridden by the Plan's power requirement. [UNRESOLVED-CLAIM: c_03b7445e — status=not_enough_info] If N < 85, log `ERR_UNDERPOWERED` and halt execution unconditionally.
+ 2. **Power Check**: Load metadata and verify sample size N >= 85. **Note**: The Spec's assumption of N=50 is explicitly overridden by the Plan's power requirement. If N < 85, log `ERR_UNDERPOWERED` and halt execution unconditionally.
  3. **Variable Validation**: Check `participants.tsv` for 'musical_genre'. If missing, attempt fallback to 'STOMP-R'. If both missing, raise `DataValidationError` (code `ERR_DATA_MISSING`) with a clear message listing the specific missing field name.
  4. **Corruption Check**: Define `exclude_subjects_by_missing_data(confounds_df: pd.DataFrame, threshold: float = 0.1) -> list[str]` to flag subjects with >10% corrupted fMRI volumes.
  5. **Motion Check**: Define `exclude_subjects_by_motion(confounds_df: pd.DataFrame, fd_threshold: float = 0.5) -> list[str]` to flag subjects with excessive head motion (>0.5mm FD).
@@ -176,8 +176,8 @@ The research question is to determine how to effectively monitor resource constr
 
 **Purpose**: Resolve blocking contradictions identified in the Plan regarding Sample Size (N=85 vs N=50) and Permutation Count (100 vs 1000+), and ensure strict data source verification.
 
-- [ ] T046 [US1] **CRITICAL**: Update `code/data/validate.py` to enforce the Plan's power requirement (N ≥ 85) as a hard gate. If the available dataset in `data/raw` contains fewer than 85 subjects, the script MUST raise `DataValidationError` with code `ERR_UNDERPOWERED` and exit. Do NOT proceed to preprocessing with N=50. **Note**: The Spec's assumption of N=50 is explicitly overridden by the Plan.
-- [ ] T047 [US3] **CRITICAL**: Update `code/analysis/stats.py` to execute 1,000 permutations for the null distribution validation (FR-010) instead of the Spec's 100. This aligns with the Plan's requirement for robust false positive rate estimation. Update `compute_power` documentation to reflect the increased computational cost.
+- [X] T046 [US1] **CRITICAL**: Update `code/data/validate.py` to enforce the Plan's power requirement (N ≥ 85) as a hard gate. If the available dataset in `data/raw` contains fewer than 85 subjects, the script MUST raise `DataValidationError` with code `ERR_UNDERPOWERED` and exit. Do NOT proceed to preprocessing with N=50. **Note**: The Spec's assumption of N=50 is explicitly overridden by the Plan.
+- [X] T047 [US3] **CRITICAL**: Update `code/analysis/stats.py` to execute 1,000 permutations for the null distribution validation (FR-010) instead of the Spec's 100. This aligns with the Plan's requirement for robust false positive rate estimation. Update `compute_power` documentation to reflect the increased computational cost.
 - [ ] T048 [US1] **CRITICAL**: Implement a strict "Fail Loudly" mechanism in `code/data/download.py` **ONLY for dataset unreachability**. If the OpenNeuro fetch fails (dataset missing), raise `ConnectionError`. However, if the dataset is present but the primary variable ('musical_genre') is missing, the script MUST **NOT** halt; it MUST attempt to switch to the 'STOMP-R' proxy variable. If 'STOMP-R' is also missing, then raise `DataValidationError` (code `ERR_DATA_MISSING`). This ensures FR-001b fallback logic is preserved while maintaining data source integrity.
 - [ ] T048b [US1] **CRITICAL**: Implement the 'switch to STOMP-R' fallback logic in `code/data/validate.py`. If 'musical_genre' is missing, check for 'STOMP-R'. If found, log a warning and use 'STOMP-R' as the proxy. If both are missing, raise `DataValidationError` (code `ERR_DATA_MISSING`) with the specific missing field name.
 - [ ] T049 [US1] **CRITICAL**: Update `code/data/validate.py` to explicitly log the specific missing field name when `musical_genre` or `STOMP-R` is absent, ensuring the `ERR_DATA_MISSING` error message provides actionable debugging information for the researcher.
@@ -275,4 +275,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Note on Plan-Spec Conflicts**: The Plan specifies N=85 and 1,000+ permutations, while the Spec specifies N=50 (runtime) and 100 permutations. Tasks follow the Plan's active requirements (1,000 permutations, N>=85 hard gate) where the Plan explicitly overrides the Spec. The Spec's N=50 assumption is flagged as invalid and ignored. T009 implements monitoring instead of a hard cap.
+- **Note on Plan-Spec Conflicts**: The Plan specifies N=85 and 1,000+ permutations, while the Spec specifies N=50 (runtime) and 100 permutations. [UNRESOLVED-CLAIM: c_450dffd2 — status=not_enough_info] Tasks follow the Plan's active requirements (1,000 permutations, N>=85 hard gate) where the Plan explicitly overrides the Spec. The Spec's N=50 assumption is flagged as invalid and ignored. T009 implements monitoring instead of a hard cap.

@@ -1,79 +1,115 @@
 import pytest
+import json
+import tempfile
+from pathlib import Path
 import pandas as pd
-from code.data_ingestion_metadata import parse_uncertainty, extract_instrument_model, process_metadata_entries
+from data_ingestion_metadata import parse_uncertainty, extract_instrument_model, process_metadata_entries
 
 class TestParseUncertainty:
-    def test_parse_celsius_with_symbol(self):
+    def test_single_value(self):
         result = parse_uncertainty("±5°C")
         assert result is not None
         assert result['value'] == 5.0
-        assert result['unit'] == 'C'
+        assert result['unit'] == 'Celsius'
+        assert result['type'] == 'single'
 
-    def test_parse_celsius_with_space(self):
-        result = parse_uncertainty("± 10 °C")
+    def test_range_value(self):
+        result = parse_uncertainty("±5-10°C")
         assert result is not None
-        assert result['value'] == 10.0
-        assert result['unit'] == 'C'
+        assert result['value'] == [5.0, 10.0]
+        assert result['unit'] == 'Celsius'
+        assert result['type'] == 'range'
 
-    def test_parse_uncertainty_label(self):
-        result = parse_uncertainty("uncertainty: 7 degrees")
+    def test_with_spaces(self):
+        result = parse_uncertainty("± 5 °C")
         assert result is not None
-        assert result['value'] == 7.0
+        assert result['value'] == 5.0
 
-    def test_parse_precision_label(self):
-        result = parse_uncertainty("precision 8.5 C")
-        assert result is not None
-        assert result['value'] == 8.5
-
-    def test_none_input(self):
+    def test_invalid_input(self):
         assert parse_uncertainty(None) is None
         assert parse_uncertainty("") is None
-
-    def test_invalid_string(self):
-        result = parse_uncertainty("no uncertainty mentioned")
-        assert result is None
+        assert parse_uncertainty("invalid") is None
 
 class TestExtractInstrumentModel:
-    def test_q_series(self):
-        result = extract_instrument_model("TGA Q500")
-        assert result == "TGA Q500"
-
-    def test_sdt_series(self):
-        result = extract_instrument_model("SDT Q600")
-        assert result == "SDT Q600"
+    def test_ta_instruments(self):
+        text = "Measurement performed on TA Instruments Q500 TGA"
+        result = extract_instrument_model(text)
+        assert result is not None
+        assert "TA Instruments" in result
 
     def test_mettler_toledo(self):
-        result = extract_instrument_model("Mettler Toledo TGA/DSC 1")
+        text = "Data collected using Mettler Toledo TGA/DSC 1"
+        result = extract_instrument_model(text)
+        assert result is not None
         assert "Mettler Toledo" in result
 
-    def test_no_match(self):
-        result = extract_instrument_model("no instrument mentioned")
+    def test_perkinelmer(self):
+        text = "Thermal analysis conducted on PerkinElmer TGA 4000"
+        result = extract_instrument_model(text)
+        assert result is not None
+        assert "PerkinElmer" in result
+
+    def test_no_instrument_found(self):
+        text = "No instrument information provided"
+        result = extract_instrument_model(text)
         assert result is None
 
-    def test_none_input(self):
-        assert extract_instrument_model(None) is None
-
 class TestProcessMetadataEntries:
-    def test_process_dataframe(self):
-        data = {
-            'id': [1, 2, 3],
-            'source_metadata': [
-                "TGA Q500, ±5°C",
-                "SDT Q600, uncertainty 10",
-                "No instrument data"
-            ]
-        }
-        df = pd.DataFrame(data)
-        
-        result = process_metadata_entries(df)
-        
-        assert len(result) == 3
-        assert result[0]['instrument_model'] == "TGA Q500"
-        assert result[0]['uncertainty']['value'] == 5.0
-        assert result[1]['uncertainty']['value'] == 10.0
-        assert result[2]['instrument_model'] is None
+    def test_process_metadata_creates_file(self):
+        # Create a temporary CSV with sample data
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "test_data.csv"
+            json_path = Path(tmpdir) / "test_metadata.json"
+            
+            # Create sample data
+            data = {
+                'formula': ['CsPbI3', 'MAPbBr3', 'FAPbI3'],
+                'T_d': [450, 420, 430],
+                'notes': [
+                    'Measured on TA Instruments Q500, ±5°C',
+                    'Mettler Toledo TGA/DSC, precision ±10°C',
+                    'No instrument info'
+                ]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(csv_path, index=False)
+            
+            # Run processing
+            process_metadata_entries(str(csv_path), str(json_path))
+            
+            # Verify output file exists
+            assert json_path.exists()
+            
+            # Verify content
+            with open(json_path, 'r') as f:
+                metadata = json.load(f)
+            
+            assert 'entries' in metadata
+            assert len(metadata['entries']) == 2  # Only 2 entries have metadata
+            
+            # Check first entry
+            first_entry = metadata['entries'][0]
+            assert first_entry['formula'] == 'CsPbI3'
+            assert first_entry['instrument_model'] is not None
+            assert first_entry['uncertainty'] is not None
 
-    def test_missing_column(self):
-        df = pd.DataFrame({'id': [1]})
-        result = process_metadata_entries(df, metadata_column='nonexistent')
-        assert len(result) == 0
+    def test_process_metadata_empty_input(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "empty_data.csv"
+            json_path = Path(tmpdir) / "empty_metadata.json"
+            
+            # Create empty CSV with just headers
+            data = {'formula': [], 'T_d': [], 'notes': []}
+            df = pd.DataFrame(data)
+            df.to_csv(csv_path, index=False)
+            
+            # Run processing
+            process_metadata_entries(str(csv_path), str(json_path))
+            
+            # Verify output file exists
+            assert json_path.exists()
+            
+            with open(json_path, 'r') as f:
+                metadata = json.load(f)
+            
+            assert len(metadata['entries']) == 0

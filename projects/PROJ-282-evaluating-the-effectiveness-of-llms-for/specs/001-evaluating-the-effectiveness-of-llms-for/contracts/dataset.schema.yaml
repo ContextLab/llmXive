@@ -1,43 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CodeSnippet Dataset Schema"
-description: "Schema for raw code snippets (Canonical SSoT)."
-type: object
+description: "Schema for the raw and processed code snippet data."
+type: "object"
 properties:
   id:
-    type: string
-    description: "Unique identifier for the snippet"
+    type: "string"
+    description: "Unique identifier for the snippet."
   language:
-    type: string
+    type: "string"
     enum:
-      - "python"
-      - "c"
-      - "javascript"
-    description: "Programming language of the snippet"
+      - "C"
+      - "Python"
+      - "JavaScript"
+    description: "Programming language of the snippet."
   source_code:
-    type: string
-    description: "Raw source code content"
+    type: "string"
+    description: "The source code content, truncated if necessary."
   ground_truth_label:
-    type: string
+    type: "string"
     enum:
-      - "vulnerable"
-      - "safe"
-      - "unknown"
-    description: "Ground truth vulnerability status"
+      - "Vulnerable"
+      - "Safe"
+    description: "Ground truth vulnerability status."
   ground_truth_category:
-    type: string
-    nullable: true
-    description: "CWE category or vulnerability type"
-  source_dataset:
-    type: string
-    description: "Name of the source dataset"
-  truncated:
-    type: boolean
-    description: "Indicates if code was truncated for context window"
+    type: "string"
+    description: "Specific vulnerability category (e.g., SQLi, XSS)."
+  dataset_source:
+    type: "string"
+    description: "Source dataset name (e.g., VulDeePecker, NIST_Juliet, JSVulnDB)."
 required:
-  - id
-  - language
-  - source_code
-  - ground_truth_label
-  - source_dataset
-  - truncated
+  - "id"
+  - "language"
+  - "source_code"
+  - "ground_truth_label"
+  - "ground_truth_category"
+  - "dataset_source"
 additionalProperties: false

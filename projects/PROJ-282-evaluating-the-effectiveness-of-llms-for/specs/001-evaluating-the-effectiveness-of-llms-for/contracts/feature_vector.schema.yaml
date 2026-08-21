@@ -32,6 +32,15 @@ properties:
     type: "string"
     enum: ["C", "Python", "JavaScript"]
     description: "Language of the snippet for stratification."
+  dataset_source:
+    type: "string"
+    description: "Source dataset name (e.g., VulDeePecker, NIST_Juliet, JSVulnDB)."
+  obfuscation_level:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Optional: Obfuscation level if available in dataset."
+    nullable: true
 required:
   - snippet_id
   - ast_depth
@@ -41,4 +50,5 @@ required:
   - sanitization_present
   - parse_error
   - language
+  - dataset_source
 additionalProperties: false

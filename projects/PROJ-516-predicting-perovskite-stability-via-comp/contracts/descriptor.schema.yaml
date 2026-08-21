@@ -1,10 +1,10 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: CompositionalDescriptor
-description: |
-  Schema for CompositionalDescriptor entities representing
-  computed compositional fingerprints for perovskite stability analysis.
-  Defines elemental fractions, weighted averages, and variance metrics
-  derived from chemical formulas.
+description: >
+  Schema for the CompositionalDescriptor entity representing computed
+  chemical and physical features derived from perovskite composition.
+  Used to validate the output of feature_engineering.py and downstream
+  model inputs.
 type: object
 required:
   - formula
@@ -17,85 +17,74 @@ required:
   - weighted_first_ionization_energy
   - variance_ionic_radius
   - variance_electronegativity
+  - variance_formation_enthalpy
+  - variance_first_ionization_energy
 properties:
   formula:
     type: string
-    description: "Normalized chemical formula (e.g., 'CsPbI3')"
-    pattern: "^[A-Za-z0-9_]+$"
+    description: "The parsed chemical formula (e.g., 'CsPbI3')."
+    pattern: "^[A-Za-z0-9]+$"
   
   atomic_fraction_A:
     type: number
-    description: "Atomic fraction of the A-site cation"
+    description: "Atomic fraction of the A-site cation."
     minimum: 0.0
     maximum: 1.0
   
   atomic_fraction_B:
     type: number
-    description: "Atomic fraction of the B-site cation"
+    description: "Atomic fraction of the B-site cation."
     minimum: 0.0
     maximum: 1.0
   
   atomic_fraction_X:
     type: number
-    description: "Atomic fraction of the X-site anion"
+    description: "Atomic fraction of the X-site anion."
     minimum: 0.0
     maximum: 1.0
   
   weighted_ionic_radius:
     type: number
-    description: "Composition-weighted average ionic radius (Angstroms)"
+    description: "Composition-weighted average ionic radius (Å)."
   
   weighted_electronegativity:
     type: number
-    description: "Composition-weighted average electronegativity (Pauling scale)"
+    description: "Composition-weighted average electronegativity (Pauling scale)."
   
   weighted_formation_enthalpy:
     type: number
-    description: "Composition-weighted average formation enthalpy (eV/atom)"
+    description: "Composition-weighted average formation enthalpy (eV/atom)."
   
   weighted_first_ionization_energy:
     type: number
-    description: "Composition-weighted average first ionization energy (eV)"
+    description: "Composition-weighted average first ionization energy (eV)."
   
   variance_ionic_radius:
     type: number
-    description: "Variance of ionic radii across the composition"
+    description: "Variance of ionic radii across the composition."
     minimum: 0.0
   
   variance_electronegativity:
     type: number
-    description: "Variance of electronegativity across the composition"
+    description: "Variance of electronegativity values across the composition."
     minimum: 0.0
   
-  t_d:
+  variance_formation_enthalpy:
     type: number
-    nullable: true
-    description: "Thermal decomposition temperature (°C) from TGA, if available"
+    description: "Variance of formation enthalpy values across the composition."
+    minimum: 0.0
   
-  t_d_uncertainty:
+  variance_first_ionization_energy:
     type: number
-    nullable: true
-    description: "Uncertainty bound for T_d (±°C), derived from instrument metadata"
+    description: "Variance of first ionization energy values across the composition."
+    minimum: 0.0
   
+  # Optional metadata fields if present in the dataset
   perovskite_family:
     type: string
-    description: "Classification of perovskite family (e.g., 'halide', 'oxide')"
-    enum:
-      - halide
-      - oxide
-      - nitride
-      - other
+    description: "Optional classification of the perovskite family."
   
   source_id:
     type: string
-    description: "Unique identifier from the source database (e.g., NREL ID)"
-  
-  computed_at:
-    type: string
-    format: date-time
-    description: "ISO 8601 timestamp when descriptors were computed"
-  
-  checksum:
-    type: string
-    description: "SHA-256 checksum of the raw input data used for this computation"
+    description: "Optional identifier from the source database."
 additionalProperties: false

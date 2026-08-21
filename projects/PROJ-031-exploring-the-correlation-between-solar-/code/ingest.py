@@ -8,254 +8,256 @@ import logging
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+# Configuration
+SWPC_FTP_HOST = "ftp.swpc.noaa.gov"
+SWPC_HTTP_BASE = "https://www.swpc.noaa.gov/products"
+KP_URL_TEMPLATE = "https://www.swpc.noaa.gov/products/kp-index"
+KP_DATA_URL = "https://www.swpc.noaa.gov/indices/kp.csv" # Direct data link if available, otherwise scrape
+# Fallback to the specific known data file structure often used by SWPC for indices
+# SWPC typically hosts Kp in text files like 'kp.csv' or similar in the indices directory
+KP_RAW_URL = "https://www.swpc.noaa.gov/indices/kp.csv"
+
+# Logging setup
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants
-SWPC_FTP_HOST = "ftp.swpc.noaa.gov"
-SWPC_FTP_DIR = "pub/lists/indices/"
-KP_URL_TEMPLATE = "https://services.swpc.noaa.gov/products/noaa-planetary-k-indices.csv"
-KP_DATA_PATH = "data/raw/kp_indices.csv"
-MANIFEST_PATH = "data/source_manifest.yaml"
-
 def ensure_directories():
-    """Ensure required directories exist."""
-    os.makedirs("data/raw", exist_ok=True)
-    os.makedirs("data/processed", exist_ok=True)
-    os.makedirs("results", exist_ok=True)
+    """Ensure required data directories exist."""
+    dirs = ['data/raw', 'data/processed', 'results', 'results/figures']
+    for d in dirs:
+        os.makedirs(d, exist_ok=True)
 
 def log_message(msg: str):
-    """Log a message with timestamp."""
     logger.info(msg)
 
 def load_manifest() -> Dict[str, Any]:
-    """Load the source manifest YAML file."""
-    if not os.path.exists(MANIFEST_PATH):
-        return {"sources": {}}
-    try:
-        with open(MANIFEST_PATH, 'r') as f:
-            return yaml.safe_load(f)
-    except Exception as e:
-        logger.error(f"Failed to load manifest: {e}")
-        return {"sources": {}}
+    manifest_path = "data/source_manifest.yaml"
+    if os.path.exists(manifest_path):
+        with open(manifest_path, 'r') as f:
+            import yaml
+            return yaml.safe_load(f) or {}
+    return {"sources": {}}
 
 def save_manifest(manifest: Dict[str, Any]):
-    """Save the source manifest YAML file."""
-    with open(MANIFEST_PATH, 'w') as f:
-        yaml.dump(manifest, f, default_flow_style=False)
+    manifest_path = "data/source_manifest.yaml"
+    with open(manifest_path, 'w') as f:
+        import yaml
+        yaml.dump(manifest, f)
 
-def update_manifest_entry(source_name: str, status: str, details: str = None, checksum: str = None):
-    """Update a specific entry in the source manifest."""
+def update_manifest_entry(name: str, url: str, status: str, timestamp: str = None):
     manifest = load_manifest()
     if "sources" not in manifest:
         manifest["sources"] = {}
     
-    manifest["sources"][source_name] = {
+    entry = {
+        "url": url,
         "status": status,
-        "last_updated": datetime.now().isoformat(),
-        "details": details or "",
-        "checksum": checksum or ""
+        "last_updated": timestamp or datetime.now().isoformat(),
+        "file": f"data/raw/{name}.csv"
     }
+    manifest["sources"][name] = entry
     save_manifest(manifest)
+    log_message(f"Updated manifest for {name}: {status}")
 
-def connect_to_swpc() -> Optional[ftplib.FTP]:
-    """Connect to NOAA SWPC FTP server."""
+def connect_to_swpc():
+    """Attempt to connect to SWPC FTP to verify connectivity."""
     try:
         ftp = ftplib.FTP(SWPC_FTP_HOST)
         ftp.login()
-        logger.info(f"Successfully connected to {SWPC_FTP_HOST}")
-        return ftp
+        ftp.quit()
+        return True
     except Exception as e:
-        logger.error(f"Failed to connect to SWPC FTP: {e}")
-        return None
+        log_message(f"FTP connection failed: {e}")
+        return False
 
-def fetch_dst_indices() -> List[Dict[str, Any]]:
-    """
-    Fetch Dst indices from NOAA SWPC.
-    This is a stub implementation as per task T013 requirements.
-    """
-    log_message("Fetching Dst indices...")
-    # Placeholder: In a real implementation, this would download from FTP
-    # For now, return empty list to indicate no data
-    return []
+# --- Dst Indices (Existing Implementation) ---
 
 def fetch_dst_indices_http() -> List[Dict[str, Any]]:
-    """
-    Fetch Dst indices via HTTP as a fallback.
-    """
-    log_message("Attempting to fetch Dst indices via HTTP...")
-    # Placeholder: In a real implementation, this would use requests
-    return []
-
-def write_dst_data(data: List[Dict[str, Any]], path: str = "data/raw/dst_indices.csv"):
-    """
-    Write Dst data to CSV.
-    This is a stub implementation as per task T013 requirements.
-    """
-    log_message(f"Writing Dst data to {path}...")
-    # Placeholder: In a real implementation, this would write to CSV
-    pass
-
-def fetch_kp_indices() -> List[Dict[str, Any]]:
-    """
-    Fetch Kp indices from NOAA SWPC.
-    
-    Retrieves the latest Kp index data from the official NOAA SWPC product
-    URL. The data is returned as a list of dictionaries with keys:
-    'time', 'kp', 'ap'.
-    
-    Returns:
-        List[Dict[str, Any]]: List of Kp index records.
-        
-    Raises:
-        RuntimeError: If the fetch fails and no data can be retrieved.
-    """
-    log_message("Fetching Kp indices from NOAA SWPC...")
-    
+    """Fetch Dst indices via HTTP."""
+    # SWPC Dst data URL
+    url = "https://www.swpc.noaa.gov/indices/dst.csv"
     try:
-        response = requests.get(KP_URL_TEMPLATE, timeout=30)
+        response = requests.get(url, timeout=30)
         response.raise_for_status()
-        
         # Parse CSV content
-        reader = csv.DictReader(io.StringIO(response.text))
+        lines = response.text.strip().split('\n')
         data = []
-        
-        for row in reader:
-            # Clean up the data
-            clean_row = {
-                'time': row.get('Time', '').strip(),
-                'kp': row.get('Kp', '').strip(),
-                'ap': row.get('Ap', '').strip()
-            }
-            
-            # Only include rows with valid data
-            if clean_row['time'] and clean_row['kp']:
-                data.append(clean_row)
-        
-        if not data:
-            raise ValueError("No valid data found in response")
-        
-        log_message(f"Successfully fetched {len(data)} Kp records")
+        # Skip header if present, usually first line is comments or header
+        # Format: Date, Time, Dst, Error
+        for line in lines[1:]: # Skip header
+            if not line.strip():
+                continue
+            parts = line.split(',')
+            if len(parts) >= 3:
+                try:
+                    # Date format: YYYY-MM-DD, Time: HH:MM
+                    date_str = parts[0].strip()
+                    time_str = parts[1].strip()
+                    dst_val = int(parts[2].strip())
+                    data.append({
+                        "timestamp": f"{date_str} {time_str}:00",
+                        "dst": dst_val
+                    })
+                except (ValueError, IndexError):
+                    continue
         return data
-        
-    except requests.exceptions.RequestException as e:
-        log_message(f"Failed to fetch Kp indices via HTTP: {e}")
-        raise RuntimeError(f"Failed to fetch Kp indices: {e}")
     except Exception as e:
-        log_message(f"Error parsing Kp indices: {e}")
-        raise RuntimeError(f"Error parsing Kp indices: {e}")
+        log_message(f"Failed to fetch Dst indices: {e}")
+        return []
+
+def write_dst_data(data: List[Dict[str, Any]]):
+    output_path = "data/raw/dst_indices.csv"
+    if not data:
+        log_message("No Dst data to write.")
+        return
+    
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["timestamp", "dst"])
+        writer.writeheader()
+        writer.writerows(data)
+    log_message(f"Wrote {len(data)} Dst records to {output_path}")
+
+# --- Kp Indices (Task T013b Implementation) ---
 
 def fetch_kp_indices_http() -> List[Dict[str, Any]]:
     """
-    Alias for fetch_kp_indices to maintain API consistency.
+    Fetch Kp indices from NOAA SWPC.
+    Kp is a 3-hour index. The standard format is often a text file with columns:
+    Date, Time, Kp, Ap, etc.
+    Source: https://www.swpc.noaa.gov/indices/kp.csv
     """
-    return fetch_kp_indices()
+    url = KP_RAW_URL
+    data = []
+    
+    try:
+        log_message(f"Fetching Kp indices from {url}")
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        
+        lines = response.text.strip().split('\n')
+        
+        # Parse lines. SWPC kp.csv usually has headers or starts with data.
+        # Format often: YYYY/MM/DD, HH, Kp, Ap, ...
+        # We need to handle potential header rows.
+        
+        start_index = 0
+        if lines and 'Year' in lines[0] or 'Date' in lines[0]:
+            start_index = 1
+        
+        for line in lines[start_index:]:
+            if not line.strip():
+                continue
+            parts = line.split(',')
+            # Expected: Date, Time, Kp, Ap, ...
+            # Kp is often a float like 0.0, 0.3, 0.7, 1.0...
+            if len(parts) >= 3:
+                try:
+                    date_str = parts[0].strip().replace('/', '-') # Normalize to YYYY-MM-DD
+                    time_str = parts[1].strip()
+                    # Time is often 00, 03, 06, 09, etc. Format as HH:00
+                    if time_str.isdigit() and len(time_str) == 2:
+                        time_str = f"{time_str}:00"
+                    
+                    kp_val = float(parts[2].strip())
+                    
+                    data.append({
+                        "timestamp": f"{date_str} {time_str}:00",
+                        "kp": kp_val
+                    })
+                except (ValueError, IndexError) as e:
+                    # Skip malformed lines
+                    continue
+        
+        if not data:
+            log_message("No valid Kp data found in response.")
+        else:
+            log_message(f"Successfully parsed {len(data)} Kp records.")
+            
+        return data
+
+    except requests.exceptions.RequestException as e:
+        log_message(f"Failed to fetch Kp indices via HTTP: {e}")
+        return []
+    except Exception as e:
+        log_message(f"Unexpected error fetching Kp indices: {e}")
+        return []
 
 def validate_kp_schema(data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
     """
-    Validate Kp data against expected schema.
-    
-    Args:
-        data: List of Kp index dictionaries
-        
-    Returns:
-        Tuple[bool, List[str]]: (is_valid, list_of_errors)
+    Validate Kp data against basic schema requirements:
+    - Must have 'timestamp' and 'kp' keys
+    - 'kp' must be a float between 0.0 and 9.0
+    - 'timestamp' must be a valid string format (YYYY-MM-DD HH:MM:SS)
     """
     errors = []
-    required_fields = ['time', 'kp', 'ap']
-    
     if not data:
-        errors.append("Data list is empty")
+        errors.append("No data provided for validation.")
         return False, errors
     
+    valid_count = 0
     for i, row in enumerate(data):
-        for field in required_fields:
-            if field not in row:
-                errors.append(f"Row {i}: Missing required field '{field}'")
-            elif not row[field]:
-                errors.append(f"Row {i}: Empty value for required field '{field}'")
+        if 'timestamp' not in row or 'kp' not in row:
+            errors.append(f"Row {i}: Missing 'timestamp' or 'kp' key.")
+            continue
         
-        # Validate Kp is a number (or 'x' for extreme values)
-        if 'kp' in row and row['kp']:
-            kp_val = row['kp']
-            if kp_val != 'x':
-                try:
-                    float(kp_val)
-                except ValueError:
-                    errors.append(f"Row {i}: Invalid Kp value '{kp_val}'")
+        try:
+            kp_val = float(row['kp'])
+            if not (0.0 <= kp_val <= 9.0):
+                errors.append(f"Row {i}: Kp value {kp_val} out of range [0.0, 9.0].")
+            else:
+                valid_count += 1
+        except (ValueError, TypeError):
+            errors.append(f"Row {i}: Invalid Kp value '{row['kp']}'.")
     
-    return len(errors) == 0, errors
+    if valid_count == 0:
+        return False, errors
+    
+    return True, errors
 
-def write_kp_data(data: List[Dict[str, Any]], path: str = KP_DATA_PATH):
-    """
-    Write Kp indices to CSV file.
-    
-    Args:
-        data: List of Kp index dictionaries
-        path: Output file path
-    """
+def write_kp_data(data: List[Dict[str, Any]]):
+    """Write Kp indices to data/raw/kp_indices.csv."""
+    output_path = "data/raw/kp_indices.csv"
     if not data:
-        log_message("No data to write for Kp indices")
+        log_message("No Kp data to write.")
         return
     
-    ensure_directories()
-    
-    fieldnames = ['time', 'kp', 'ap']
-    with open(path, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["timestamp", "kp"])
         writer.writeheader()
         writer.writerows(data)
-    
-    log_message(f"Successfully wrote {len(data)} Kp records to {path}")
+    log_message(f"Wrote {len(data)} Kp records to {output_path}")
 
 def main():
-    """
-    Main entry point for Kp index ingestion.
-    
-    This function:
-    1. Fetches Kp indices from NOAA SWPC
-    2. Validates the data against the schema
-    3. Writes the data to data/raw/kp_indices.csv
-    4. Updates the source manifest with status and checksum
-    """
-    log_message("Starting Kp index ingestion...")
+    """Main entry point for Kp index ingestion (T013b)."""
+    log_message("Starting Kp index ingestion (Task T013b)...")
+    ensure_directories()
     
     # Fetch data
-    try:
-        kp_data = fetch_kp_indices()
-    except RuntimeError as e:
-        log_message(f"CRITICAL: Failed to fetch Kp data: {e}")
-        update_manifest_entry("kp_indices", "Failed", str(e))
-        return
+    kp_data = fetch_kp_indices_http()
     
-    # Validate schema
+    if not kp_data:
+        log_message("Failed to retrieve Kp data. Updating manifest with 'Failed' status.")
+        update_manifest_entry("kp_indices", KP_RAW_URL, "Failed")
+        # Do not write file if fetch failed, to avoid empty/placeholder files
+        return 1
+    
+    # Validate
     is_valid, errors = validate_kp_schema(kp_data)
     if not is_valid:
-        log_message(f"Schema validation failed: {errors}")
-        update_manifest_entry("kp_indices", "Validation Failed", "; ".join(errors))
-        return
+        log_message(f"Kp data validation failed with {len(errors)} errors. Aborting write.")
+        for err in errors[:5]: # Log first 5 errors
+            log_message(f"  - {err}")
+        update_manifest_entry("kp_indices", KP_RAW_URL, "Validation Failed")
+        return 1
     
-    # Write data
+    # Write
     write_kp_data(kp_data)
     
-    # Calculate checksum
-    import hashlib
-    with open(KP_DATA_PATH, 'rb') as f:
-        checksum = hashlib.sha256(f.read()).hexdigest()
+    # Update Manifest
+    update_manifest_entry("kp_indices", KP_RAW_URL, "Success")
     
-    # Update manifest
-    update_manifest_entry(
-        "kp_indices", 
-        "Success", 
-        f"Fetched {len(kp_data)} records", 
-        checksum
-    )
-    
-    log_message("Kp index ingestion completed successfully")
+    log_message("Task T013b completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -44,14 +44,19 @@ def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[boo
     for field, value in record.items():
         if field in field_types:
             expected_type = field_types[field].get("type")
-            if expected_type == "string" and not isinstance(value, str):
-                errors.append(f"Field '{field}' should be string, got {type(value).__name__}")
-            elif expected_type == "number" and not isinstance(value, (int, float)):
-                errors.append(f"Field '{field}' should be number, got {type(value).__name__}")
-            elif expected_type == "integer" and not isinstance(value, int):
-                errors.append(f"Field '{field}' should be integer, got {type(value).__name__}")
-            elif expected_type == "boolean" and not isinstance(value, bool):
-                errors.append(f"Field '{field}' should be boolean, got {type(value).__name__}")
+            if expected_type == "string":
+                if not isinstance(value, str):
+                    errors.append(f"Field '{field}' should be string, got {type(value).__name__}")
+            elif expected_type == "number":
+                # Allow int or float for numbers
+                if not isinstance(value, (int, float)):
+                    errors.append(f"Field '{field}' should be number, got {type(value).__name__}")
+            elif expected_type == "integer":
+                if not isinstance(value, int):
+                    errors.append(f"Field '{field}' should be integer, got {type(value).__name__}")
+            elif expected_type == "boolean":
+                if not isinstance(value, bool):
+                    errors.append(f"Field '{field}' should be boolean, got {type(value).__name__}")
     
     return len(errors) == 0, errors
 
@@ -101,6 +106,10 @@ def block_write_if_invalid(
     """
     Validate the CSV file and block further processing if invalid.
     Returns True if valid (processing can continue), False if invalid.
+    
+    This function is designed to be called BEFORE writing the final CSV
+    or updating the manifest. If it returns False, the caller MUST abort
+    the write operation.
     """
     try:
         is_valid, total, valid, errors = validate_aligned_events(csv_path, schema_path)
@@ -123,6 +132,7 @@ def block_write_if_invalid(
         
     except Exception as e:
         logger.error(f"Validation error: {str(e)}")
+        # If schema loading fails or file missing, we must block
         return False
 
 def main():

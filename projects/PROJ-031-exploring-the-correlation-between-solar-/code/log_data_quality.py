@@ -1,11 +1,9 @@
 """
-Data Quality Logging Module for Solar Flare - Geomagnetic Storm Correlation Project.
+Module for logging data quality metrics for the solar flare and geomagnetic storm correlation project.
 
-This module calculates and logs data quality metrics, specifically counts of missing
-values for key predictors (CME speeds, flare fluxes) and alignment success rates.
-It operates on the aligned events dataset produced by the US1 pipeline.
+This module calculates counts of missing values for key predictors (CME speeds, flares, etc.)
+and alignment success rates, writing the metrics to a log file.
 """
-
 import os
 import sys
 import csv
@@ -15,210 +13,214 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
-# Ensure logging is configured
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/processed/data_quality.log')
-    ]
-)
-logger = logging.getLogger(__name__)
+# Configure logging
+LOG_DIR = Path("results")
+LOG_FILE = LOG_DIR / "data_quality.log"
 
-# Constants
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-ALIGNED_EVENTS_PATH = PROCESSED_DIR / "aligned_events.csv"
-QUALITY_REPORT_PATH = PROCESSED_DIR / "data_quality_metrics.json"
+def ensure_log_directory():
+    """Ensure the log directory exists."""
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-
-def load_aligned_events(filepath: Path) -> List[Dict[str, Any]]:
-    """
-    Load the aligned events CSV file.
-
-    Args:
-        filepath: Path to the aligned_events.csv file.
-
-    Returns:
-        List of dictionaries representing rows.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or malformed.
-    """
-    if not filepath.exists():
-        raise FileNotFoundError(f"Aligned events file not found: {filepath}")
-
-    events = []
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        if not reader.fieldnames:
-            raise ValueError("CSV file is empty or has no header.")
+def setup_logging():
+    """Configure logging to write to both file and console."""
+    ensure_log_directory()
+    
+    # Clear existing handlers to avoid duplicates in repeated runs
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
         
-        for row in reader:
-            events.append(row)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(LOG_FILE),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
 
-    if not events:
-        logger.warning("Aligned events file contains no data rows.")
+def load_aligned_events(file_path: str = "data/processed/aligned_events.csv") -> List[Dict[str, Any]]:
+    """
+    Load the aligned events dataset from the specified CSV file.
     
-    return events
-
-
-def calculate_missing_counts(events: List[Dict[str, Any]]) -> Dict[str, int]:
-    """
-    Calculate counts of missing values for key predictor columns.
-
-    Missing values are identified as empty strings, 'NaN', 'null', or None.
-
     Args:
-        events: List of event dictionaries.
-
+        file_path: Path to the aligned events CSV file.
+        
     Returns:
-        Dictionary mapping column names to missing counts.
+        List of dictionaries representing the rows in the CSV.
+        
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        Exception: If there is an error reading the file.
     """
-    target_columns = [
-        'cme_speed_kms', 
-        'cme_width_deg', 
-        'flare_flux_w_m2', 
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Aligned events file not found: {file_path}")
+    
+    data = []
+    try:
+        with open(file_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                data.append(row)
+    except Exception as e:
+        logging.error(f"Error reading aligned events file: {e}")
+        raise
+    
+    return data
+
+def calculate_missing_counts(data: List[Dict[str, Any]]) -> Dict[str, int]:
+    """
+    Calculate the count of missing values for key predictor columns.
+    
+    Args:
+        data: List of dictionaries representing the rows in the aligned events dataset.
+        
+    Returns:
+        Dictionary mapping column names to their missing value counts.
+    """
+    # Define key predictor columns to check for missing values
+    key_columns = [
+        'cme_speed', 
+        'cme_width', 
+        'flare_flux', 
         'flare_class',
-        'dst_min'
+        'dst_min',
+        'kp_max'
     ]
     
-    missing_counts = {col: 0 for col in target_columns}
-    total_rows = len(events)
-
-    for event in events:
-        for col in target_columns:
-            val = event.get(col, '')
-            if val is None or str(val).strip() == '' or str(val).lower() in ('nan', 'null', 'none'):
+    missing_counts = {col: 0 for col in key_columns}
+    total_rows = len(data)
+    
+    for row in data:
+        for col in key_columns:
+            value = row.get(col, '')
+            # Check for various representations of missing data
+            if value is None or value == '' or value == 'nan' or value == 'NaN' or value == 'null':
                 missing_counts[col] += 1
+    
+    missing_counts['total_rows'] = total_rows
+    return missing_counts
 
-    return missing_counts, total_rows
-
-
-def calculate_alignment_success_rate(events: List[Dict[str, Any]]) -> Dict[str, Any]:
+def calculate_alignment_success_rate(data: List[Dict[str, Any]], match_column: str = 'solar_event_id') -> Dict[str, Any]:
     """
-    Calculate the rate of successful solar event matching.
-
+    Calculate the success rate of aligning solar events with geomagnetic storms.
+    
     Args:
-        events: List of event dictionaries.
-
+        data: List of dictionaries representing the rows in the aligned events dataset.
+        match_column: The column name that indicates a successful match (e.g., 'solar_event_id').
+        
     Returns:
-        Dictionary with total storms, matched storms, and success rate.
+        Dictionary containing the alignment success rate and counts.
     """
-    total_storms = len(events)
-    if total_storms == 0:
+    if not data:
         return {
-            'total_storms': 0,
-            'matched_storms': 0,
-            'match_rate': 0.0,
-            'unmatched_storms': 0
+            'total_events': 0,
+            'matched_events': 0,
+            'unmatched_events': 0,
+            'success_rate': 0.0
         }
-
-    # A storm is considered "matched" if it has a non-null solar event identifier
-    # Assuming 'flare_id' or 'cme_id' serves as the match indicator
-    matched_count = 0
-    for event in events:
-        flare_id = event.get('flare_id', '')
-        cme_id = event.get('cme_id', '')
-        if flare_id and str(flare_id).strip() != '' or cme_id and str(cme_id).strip() != '':
-            matched_count += 1
-
-    match_rate = matched_count / total_storms if total_storms > 0 else 0.0
-
+    
+    total_events = len(data)
+    matched_events = sum(1 for row in data if row.get(match_column) and row.get(match_column) not in ['', 'nan', 'NaN', 'null'])
+    unmatched_events = total_events - matched_events
+    success_rate = (matched_events / total_events) * 100 if total_events > 0 else 0.0
+    
     return {
-        'total_storms': total_storms,
-        'matched_storms': matched_count,
-        'unmatched_storms': total_storms - matched_count,
-        'match_rate': round(match_rate, 4)
+        'total_events': total_events,
+        'matched_events': matched_events,
+        'unmatched_events': unmatched_events,
+        'success_rate': success_rate
     }
 
-
-def log_data_quality_metrics(events: List[Dict[str, Any]], output_path: Path) -> Dict[str, Any]:
+def log_data_quality_metrics(data: List[Dict[str, Any]], output_file: Optional[str] = None) -> Dict[str, Any]:
     """
-    Calculate all data quality metrics, log them, and save to a JSON report.
-
+    Calculate and log comprehensive data quality metrics.
+    
     Args:
-        events: List of event dictionaries.
-        output_path: Path to save the JSON report.
-
+        data: List of dictionaries representing the rows in the aligned events dataset.
+        output_file: Optional path to write the metrics to a JSON file.
+        
     Returns:
-        The metrics dictionary.
+        Dictionary containing all calculated metrics.
     """
-    logger.info("Starting data quality metrics calculation...")
+    logger = logging.getLogger(__name__)
+    
+    logger.info("=" * 60)
+    logger.info("DATA QUALITY METRICS REPORT")
+    logger.info("=" * 60)
     
     # Calculate missing counts
-    missing_counts, total_rows = calculate_missing_counts(events)
+    missing_counts = calculate_missing_counts(data)
+    logger.info("\nMISSING VALUE COUNTS:")
+    logger.info(f"Total rows: {missing_counts['total_rows']}")
+    for col, count in missing_counts.items():
+        if col != 'total_rows':
+            percentage = (count / missing_counts['total_rows'] * 100) if missing_counts['total_rows'] > 0 else 0
+            logger.info(f"  {col}: {count} ({percentage:.2f}%)")
     
-    # Calculate alignment success
-    alignment_stats = calculate_alignment_success_rate(events)
-
-    # Compile metrics
+    # Calculate alignment success rate
+    alignment_stats = calculate_alignment_success_rate(data)
+    logger.info("\nALIGNMENT SUCCESS RATE:")
+    logger.info(f"  Total events: {alignment_stats['total_events']}")
+    logger.info(f"  Matched events: {alignment_stats['matched_events']}")
+    logger.info(f"  Unmatched events: {alignment_stats['unmatched_events']}")
+    logger.info(f"  Success rate: {alignment_stats['success_rate']:.2f}%")
+    
+    # Calculate recurrent activity flag statistics
+    recurrent_count = sum(1 for row in data if row.get('is_recurrent', 'False') in ['True', 'true', '1', 1])
+    total_rows = len(data)
+    recurrent_percentage = (recurrent_count / total_rows * 100) if total_rows > 0 else 0
+    logger.info("\nRECURRENT ACTIVITY STATISTICS:")
+    logger.info(f"  Recurrent events: {recurrent_count}")
+    logger.info(f"  Non-recurrent events: {total_rows - recurrent_count}")
+    logger.info(f"  Recurrent percentage: {recurrent_percentage:.2f}%")
+    
+    # Prepare metrics dictionary
     metrics = {
-        'timestamp': datetime.utcnow().isoformat(),
-        'dataset_source': str(ALIGNED_EVENTS_PATH),
-        'total_records': total_rows,
-        'missing_value_counts': missing_counts,
-        'alignment_statistics': alignment_stats,
-        'summary': {
-            'highest_missing_rate_column': None,
-            'highest_missing_rate_value': 0.0
+        'timestamp': datetime.now().isoformat(),
+        'missing_counts': missing_counts,
+        'alignment_stats': alignment_stats,
+        'recurrent_stats': {
+            'recurrent_count': recurrent_count,
+            'non_recurrent_count': total_rows - recurrent_count,
+            'recurrent_percentage': recurrent_percentage
         }
     }
-
-    # Determine highest missing rate
-    if total_rows > 0:
-        max_col = None
-        max_rate = 0.0
-        for col, count in missing_counts.items():
-            rate = count / total_rows
-            if rate > max_rate:
-                max_rate = rate
-                max_col = col
-        metrics['summary']['highest_missing_rate_column'] = max_col
-        metrics['summary']['highest_missing_rate_value'] = round(max_rate, 4)
-
-    # Log results
-    logger.info(f"Total records processed: {total_rows}")
-    logger.info(f"Missing value counts: {missing_counts}")
-    logger.info(f"Alignment match rate: {alignment_stats['match_rate']:.2%}")
     
-    if max_col and max_rate > 0.5:
-        logger.warning(f"High missing rate ({max_rate:.2%}) detected in column: {max_col}")
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write JSON report
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(metrics, f, indent=2)
+    # Write to JSON file if output_file is specified
+    if output_file:
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(metrics, f, indent=2)
+        logger.info(f"\nMetrics written to: {output_file}")
     
-    logger.info(f"Data quality metrics report saved to: {output_path}")
-
+    logger.info("=" * 60)
+    
     return metrics
 
-
 def main():
-    """
-    Entry point for the data quality logging script.
-    """
-    logger.info(f"Data Quality Logger started.")
+    """Main entry point for the data quality logging script."""
+    setup_logging()
+    logger = logging.getLogger(__name__)
     
-    if not ALIGNED_EVENTS_PATH.exists():
-        logger.error(f"Required input file not found: {ALIGNED_EVENTS_PATH}")
-        logger.error("Please ensure T017 (write_aligned_output) has completed successfully.")
-        sys.exit(1)
-
     try:
-        events = load_aligned_events(ALIGNED_EVENTS_PATH)
-        metrics = log_data_quality_metrics(events, QUALITY_REPORT_PATH)
+        # Load aligned events data
+        logger.info("Loading aligned events data...")
+        aligned_events_path = "data/processed/aligned_events.csv"
+        data = load_aligned_events(aligned_events_path)
+        logger.info(f"Loaded {len(data)} events from {aligned_events_path}")
+        
+        # Log data quality metrics
+        metrics_output_path = "results/data_quality_metrics.json"
+        log_data_quality_metrics(data, output_file=metrics_output_path)
+        
         logger.info("Data quality logging completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Error during data quality logging: {e}", exc_info=True)
+        logger.error(f"An unexpected error occurred: {e}")
         sys.exit(1)
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

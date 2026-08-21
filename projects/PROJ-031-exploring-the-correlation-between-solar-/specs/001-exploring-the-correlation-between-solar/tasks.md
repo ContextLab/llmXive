@@ -111,7 +111,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement `code/analysis.py` to compute Spearman rank correlation (log10(flare flux)→Dst and CME speed→Dst) with p-values
+- [X] T022 [US2] Implement `code/analysis.py` to compute Spearman rank correlation (log10(flare flux)→Dst and CME speed→Dst) with p-values [UNRESOLVED-CLAIM: c_0c3fdc38 — status=not_enough_info]
 - [ ] T023 [US2] Implement linear regression modeling (flare vs. CME as separate predictors) and calculate R²
 - [ ] T024 [US2] Implement Variance Inflation Factor (VIF) calculation. **Selection Logic**: If VIF > 5, switch to separate univariate models or Ridge regression. **Specific Logic**: The Plan mandates selecting the **univariate model with the higher absolute correlation coefficient** if VIF > 5. **Output**: Record the chosen fallback strategy (e.g., "univariate_flare") and the **selected univariate R²** to `results/metrics.json` under the key `selected_model_r2`. The joint R² is NOT reported if the joint model is discarded.
 - [ ] T023b [US2] Implement multiple-comparison correction using the **Bonferroni** method (as per Plan). **Output**: Write corrected p-values to `results/metrics.json` under `corrected_p_values` and explicitly record the method used under `correction_method` (value: "bonferroni"). **Documentation**: Explicitly document in the code comments and output rationale that "Bonferroni selected per Plan.md, overriding FR-005 flexibility".
@@ -140,7 +140,7 @@
 - [ ] T032 [US3] Implement time-series split logic: **Train** on events from **an earlier historical period**, **Test/Validate** on events from **2021-2023**. **Input**: This task MUST consume `data/processed/aligned_events.csv` from T017. This fixed split is mandatory per FR-011.
 - [ ] T033 [US3] Implement threshold identification for severe storms (Dst ≤ significant negative threshold)
 - [ ] T034 [US3] Implement sensitivity analysis sweeping cutoffs over a specific set of representative velocity thresholds..
-- [ ] T034b [US3] Implement citation mechanism: **Use the specific NOAA SWPC "Geomagnetic Storms" definition URL ` hardcoded in the code** to cite the Dst definition for significant geomagnetic storm thresholds.. **Do not perform runtime network checks.** Inject this verified URL into `results/metrics.json` under the key `threshold_citation_url` and into `README.md` with the exact string format: "Threshold defined per NOAA SWPC: [URL]".
+- [ ] T034b [US3] Implement citation mechanism: **Use the specific NOAA SWPC "Geomagnetic Storms" definition URL ` hardcoded in the code** to cite the Dst definition for significant geomagnetic storm thresholds.. **Do not perform runtime network checks.** Inject this verified URL into `results/metrics.json` under the key `threshold_citation_url` and into `README.md` with the exact string format: "Threshold defined per NOAA SWPC: [URL] [UNRESOLVED-CLAIM: c_ffda4d5a — status=not_enough_info]".
 - [ ] T035 [US3] Compute and report True Positive Rate (detection rate) variation across cutoffs on the hold-out set
 - [ ] T036 [US3] If no significant threshold is found, explicitly report this with justification
 - [ ] T037 [US3] Update `results/metrics.json` with threshold candidates, sensitivity results, and citation (including output from T034b)
