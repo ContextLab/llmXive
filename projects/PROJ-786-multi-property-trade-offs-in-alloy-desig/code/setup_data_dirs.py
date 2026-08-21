@@ -1,35 +1,45 @@
 """
-Script to setup the data directory structure for the project.
-Creates data/raw and data/processed directories with .gitkeep files.
+Setup script for data directory structure.
+Creates raw and processed data directories with .gitkeep files.
 """
 import os
 from pathlib import Path
 
-def setup_data_directories():
+def setup_data_directories(project_root: Path = None):
     """
-    Creates the required data directory structure:
-    - data/raw
-    - data/processed
-
-    Ensures .gitkeep files are present in each directory to track them in version control.
+    Creates the required data directory structure.
+    
+    Args:
+        project_root: Path to the project root. If None, uses current working directory.
+        
+    Returns:
+        dict: Dictionary of created directory paths
     """
-    base_dir = Path(__file__).resolve().parent.parent
-    data_dir = base_dir / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
-
-    # Create directories if they don't exist
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-
+    if project_root is None:
+        project_root = Path.cwd()
+    
+    # Define data directories relative to project root
+    data_raw = project_root / "data" / "raw"
+    data_processed = project_root / "data" / "processed"
+    
+    # Create directories
+    data_raw.mkdir(parents=True, exist_ok=True)
+    data_processed.mkdir(parents=True, exist_ok=True)
+    
     # Create .gitkeep files to ensure directories are tracked by git
-    (raw_dir / ".gitkeep").touch(exist_ok=True)
-    (processed_dir / ".gitkeep").touch(exist_ok=True)
-
-    print(f"Created directory structure: {data_dir}")
-    print(f"  - {raw_dir}")
-    print(f"  - {processed_dir}")
-    print("Added .gitkeep files to ensure directories are tracked by version control.")
+    (data_raw / ".gitkeep").touch()
+    (data_processed / ".gitkeep").touch()
+    
+    created_dirs = {
+        "data_raw": str(data_raw),
+        "data_processed": str(data_processed)
+    }
+    
+    print(f"Created data directory structure:")
+    for name, path in created_dirs.items():
+        print(f"  {name}: {path}")
+    
+    return created_dirs
 
 if __name__ == "__main__":
     setup_data_directories()

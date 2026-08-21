@@ -4,11 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`) or any command‑line instructions are present in the provided evidence, so the requirement to configure ruff and black is not satisfied. The implementer must add the appropriate configuration files and demonstrate that they are functional.
-- `T004` (rejected 1x): No evidence of a `data/raw` or `data/processed` directory (with non‑empty `.gitkeep` files) was provided; the claim cannot be verified against any actual artifacts. The required directory structure and placeholder files are missing.
-- `T008` (rejected 1x): No code, configuration files, or documentation for error handling or structured logging were provided; the claim cannot be verified against any tangible artifact. The required logging infrastructure is missing.
-- `T015` (rejected 1x): The repository contains a `code/main.py` file, but it is truncated and does not show a complete orchestration that calls both ingestion and encoding and writes `data/processed/encoded_alloys.csv`. Moreover, the expected output file `data/processed/encoded_alloys.csv` is absent from the project. The required artifact is missing, so the task is not satisfied.
-- `T016` (rejected 1x): No code, tests, or documentation were provided that adds validation to ensure feature vectors contain at least two periodic descriptors per element. The required artifact (e.g., a function/module with the validation logic and corresponding unit tests) is missing, so the task is not satisfied.
+- `T001` (rejected 1x): No evidence of the required `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/` directory tree or the `.gitkeep` placeholder files is present; the implementer’s claim is not backed by any actual artifacts on disk. The missing directory structure must be created and populated with the required placeholder files.
 
 ## Required change
 

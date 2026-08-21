@@ -5,69 +5,73 @@ import os
 import tempfile
 from pathlib import Path
 import pytest
-import sys
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+from code.setup_data_dirs import setup_data_directories
 
-from setup_data_dirs import setup_data_directories
 
-def test_setup_data_directories_creates_dirs():
-    """Test that setup_data_directories creates the required directories."""
-    # Create a temporary directory to act as the project root
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
+class TestSetupDataDirectories:
+    """Tests for the setup_data_directories function."""
+
+    def test_creates_raw_directory(self, tmp_path):
+        """Test that the raw data directory is created."""
+        result = setup_data_directories(tmp_path)
         
-        # Mock the project root by temporarily changing the working directory
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmpdir)
-            
-            # Create a dummy code directory structure to match the script's expectation
-            code_dir = tmpdir_path / "code"
-            code_dir.mkdir(exist_ok=True)
-            (code_dir / "__init__.py").touch()
-            
-            # Run the function
-            setup_data_directories()
-            
-            # Verify directories were created
-            data_dir = tmpdir_path / "data"
-            raw_dir = data_dir / "raw"
-            processed_dir = data_dir / "processed"
-            
-            assert data_dir.exists(), "data directory should exist"
-            assert raw_dir.exists(), "data/raw directory should exist"
-            assert processed_dir.exists(), "data/processed directory should exist"
-            
-            # Verify .gitkeep files were created
-            assert (raw_dir / ".gitkeep").exists(), "data/raw/.gitkeep should exist"
-            assert (processed_dir / ".gitkeep").exists(), "data/processed/.gitkeep should exist"
-            
-        finally:
-            os.chdir(original_cwd)
+        assert "data_raw" in result
+        assert Path(result["data_raw"]).exists()
+        assert Path(result["data_raw"]).is_dir()
 
-def test_setup_data_directories_idempotent():
-    """Test that running setup_data_directories multiple times doesn't cause errors."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        original_cwd = os.getcwd()
+    def test_creates_processed_directory(self, tmp_path):
+        """Test that the processed data directory is created."""
+        result = setup_data_directories(tmp_path)
         
-        try:
-            os.chdir(tmpdir)
-            code_dir = tmpdir_path / "code"
-            code_dir.mkdir(exist_ok=True)
-            (code_dir / "__init__.py").touch()
-            
-            # Run twice
-            setup_data_directories()
-            setup_data_directories()
-            
-            # Verify still exists
-            data_dir = tmpdir_path / "data"
-            assert data_dir.exists()
-            assert (data_dir / "raw").exists()
-            assert (data_dir / "processed").exists()
-            
-        finally:
-            os.chdir(original_cwd)
+        assert "data_processed" in result
+        assert Path(result["data_processed"]).exists()
+        assert Path(result["data_processed"]).is_dir()
+
+    def test_creates_gitkeep_in_raw(self, tmp_path):
+        """Test that .gitkeep file is created in raw directory."""
+        result = setup_data_directories(tmp_path)
+        raw_dir = Path(result["data_raw"])
+        
+        assert (raw_dir / ".gitkeep").exists()
+        assert (raw_dir / ".gitkeep").is_file()
+
+    def test_creates_gitkeep_in_processed(self, tmp_path):
+        """Test that .gitkeep file is created in processed directory."""
+        result = setup_data_directories(tmp_path)
+        processed_dir = Path(result["data_processed"])
+        
+        assert (processed_dir / ".gitkeep").exists()
+        assert (processed_dir / ".gitkeep").is_file()
+
+    def test_returns_correct_paths(self, tmp_path):
+        """Test that the function returns correct directory paths."""
+        result = setup_data_directories(tmp_path)
+        
+        expected_raw = tmp_path / "data" / "raw"
+        expected_processed = tmp_path / "data" / "processed"
+        
+        assert result["data_raw"] == str(expected_raw)
+        assert result["data_processed"] == str(expected_processed)
+
+    def test_handles_existing_directories(self, tmp_path):
+        """Test that the function handles existing directories gracefully."""
+        # Create directories beforehand
+        (tmp_path / "data" / "raw").mkdir(parents=True)
+        (tmp_path / "data" / "processed").mkdir(parents=True)
+        
+        # Should not raise an exception
+        result = setup_data_directories(tmp_path)
+        
+        assert "data_raw" in result
+        assert "data_processed" in result
+
+    def test_gitkeep_files_are_empty(self, tmp_path):
+        """Test that .gitkeep files are empty (as expected for placeholders)."""
+        result = setup_data_directories(tmp_path)
+        
+        raw_gitkeep = Path(result["data_raw"]) / ".gitkeep"
+        processed_gitkeep = Path(result["data_processed"]) / ".gitkeep"
+        
+        assert raw_gitkeep.stat().st_size == 0
+        assert processed_gitkeep.stat().st_size == 0

@@ -388,3 +388,442 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T13:17:32Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: spec.md version history confirms pivot to bulk and shear moduli
+  claim_id: c_f922c069
+  context: 'Phase 0: Spec Alignment (COMPLETED - VERIFICATION). Purpose: The spec.md
+    Version History (v1.1/v1.2) confirms the pivot to ''Bulk and Shear Moduli'' is
+    already complete.'
+  evidence:
+    asserted: '1.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The spec.md Version History (v1.1/v1.2) confirms the pivot to 'Bulk and
+    Shear Moduli' is already complete.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T03:00:13Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: data ingestion must use real OQMD data via HuggingFace
+  claim_id: c_7ef19e55
+  context: 'Notes: Critical Data Constraint: All data ingestion tasks MUST use real,
+    reachable URLs (OQMD via HuggingFace) and NEVER synthesize fake input data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_must_use_real_OQMD_data_via_HuggingFace
+  kind: entity_fact
+  raw_text: All data ingestion tasks MUST use real, reachable URLs (OQMD via HuggingFace)
+    and NEVER synthesize fake input data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:00:40Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: modeling tasks must run on cpu with 2 cores and less than 7gb ram
+  claim_id: c_51edc34a
+  context: 'Notes: Hardware Constraint: All modeling tasks MUST run on CPU (2 cores,
+    <7GB RAM). No CUDA, no 8-bit/4-bit quantization, no large LLMs.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Modeling_tasks_must_run_on_cpu_with_2_cores_and_less_than_7g
+  kind: magnitude
+  raw_text: All modeling tasks MUST run on CPU (2 cores, <7GB RAM).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:01:01Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: spec updated to target bulk shear moduli and k-means clustering per v1.2
+  claim_id: c_f85f831d
+  context: 'Notes: Spec Alignment: Spec is already updated to target **Bulk/Shear
+    Moduli** and **K-Means clustering** per v1.2.'
+  evidence:
+    asserted: '1.2'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The spec is already updated to target Bulk/Shear Moduli and K-Means clustering
+    per v1.2.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T03:01:02Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps correlation cutoff from 0.5 to 0.95 with
+    step 0.05
+  claim_id: c_65d076f9
+  context: 'T032 [US3]: Implement sensitivity analysis in code/cluster_analysis.py
+    to sweep decoupling threshold (correlation cutoff) values across a scientifically
+    valid range from 0.5 to 0.95 with step size 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps decoupling threshold (correlation cutoff)
+    values across a scientifically valid range from 0.5 to 0.95 with step size 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:01:23Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: nsga-ii uses population 100 generations 50 cx_prob 0.9 mut_prob 0.1
+  claim_id: c_6525e496
+  context: 'T023 [US2]: Implement NSGA-II logic in code/pareto_optimization.py using
+    deap with population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk,
+    Shear].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The NSGA-II logic uses population=100, generations=50, cx_prob=0.9, mut_prob=0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:01:46Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: nsga-ii evolution loop enforces 6 hour runtime limit
+  claim_id: c_8b0dddb7
+  context: 'T023 [US2]: ...explicitly implementing a signal.alarm based timeout handler
+    wrapping the evolution loop to enforce the 6h runtime limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The NSGA-II evolution loop includes a signal.alarm based timeout handler
+    to enforce the 6h runtime limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:02:07Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: k-means clustering performed with k=5 determined via elbow method
+  claim_id: c_b6d54634
+  context: 'T030 [US3]: Implement code/cluster_analysis.py to perform K-Means clustering
+    on elemental fractions with k=5 (determined via Elbow Method).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: K-Means clustering is performed with k=5 determined via the Elbow Method.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:03:53Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: loso-cv used to validate generalizability
+  claim_id: c_b701d094
+  context: 'T021 [US2]: Implement Leave-One-System-Out Cross-Validation (LOSO-CV)
+    in code/model_training.py to validate generalizability.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Loso-cv_used_to_validate_generalizability
+  kind: entity_fact
+  raw_text: Leave-One-System-Out Cross-Validation (LOSO-CV) is used to validate generalizability.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:04:36Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: gradient boosting regressor models trained with n_jobs=2
+  claim_id: c_984f3dea
+  context: 'T020 [P] [US2]: Implement code/model_training.py to train separate GradientBoostingRegressor
+    models for Bulk and Shear moduli using n_jobs=2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GradientBoostingRegressor models are trained with n_jobs=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:04:56Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: data insufficient for statistical analysis if n < 500
+  claim_id: c_1739d519
+  context: 'T010 [P] [US1]: ...Assert that when input has < 500 rows ... the script
+    logs the specific warning ''Insufficient data for statistical analysis (N < 500)''...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/data_insufficient_for_statistical_analysis_if_n_%3C_500
+  kind: magnitude
+  raw_text: Data is considered insufficient for statistical analysis if the number
+    of valid entries is less than 500.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:05:23Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: project requires python 3.11
+  claim_id: c_0df9ca8e
+  context: 'T002 [P]: Initialize Python 3.11 project with requirements.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:05:43Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: memory usage must be less than 7gb during nsga-ii
+  claim_id: c_4031e2a3
+  context: 'T039: Performance optimization (ensure memory usage < 7GB during NSGA-II).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_must_be_less_than_7gb_during_nsga-ii
+  kind: magnitude
+  raw_text: Memory usage must be less than 7GB during NSGA-II optimization.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:06:07Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 0
+  canonical: spec.md version history v1.1 v1.2 confirms pivot to bulk and shear moduli
+  claim_id: c_cfc698e6
+  context: 'Phase 0: Spec Alignment (COMPLETED - VERIFICATION) Purpose: The spec.md
+    Version History (v1.1/v1.2) confirms the pivot to ''Bulk and Shear Moduli'' is
+    already complete.'
+  evidence:
+    asserted: '1.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The spec.md Version History (v1.1/v1.2) confirms the pivot to 'Bulk and
+    Shear Moduli' is already complete.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T03:08:12Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: OQMD elastic properties dataset available at OQMD/elastic_properties
+    on HuggingFace
+  claim_id: c_70058e9b
+  context: T012 [US1] Implement code/data_ingestion.py to fetch OQMD data via HuggingFace
+    datasets.load_dataset('OQMD/elastic_properties')
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OQMD_elastic_properties_dataset_available_at_OQMD/elastic_pr
+  kind: entity_fact
+  raw_text: The OQMD dataset is available via HuggingFace at 'OQMD/elastic_properties'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:08:42Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps correlation cutoff from 0.5 to 0.95 with
+    step 0.05
+  claim_id: c_5709222c
+  context: T032 [US3] Implement sensitivity analysis in code/cluster_analysis.py to
+    sweep decoupling threshold (correlation cutoff) values across a scientifically
+    valid range from 0.5 to 0.95 with step size 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps decoupling threshold values from 0.5 to
+    0.95 with a step size of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:09:06Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: NSGA-II uses population 100 and 50 generations
+  claim_id: c_dbbb4390
+  context: T023 [US2] Implement NSGA-II logic in code/pareto_optimization.py using
+    deap with population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk,
+    Shear].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The NSGA-II algorithm uses a population of 100 and 50 generations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:09:30Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: NSGA-II uses crossover probability 0.9 and mutation probability 0.1
+  claim_id: c_c9c37e99
+  context: T023 [US2] Implement NSGA-II logic in code/pareto_optimization.py using
+    deap with population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk,
+    Shear].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The NSGA-II algorithm uses a crossover probability of 0.9 and mutation
+    probability of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:09:49Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: NSGA-II evolution loop has 6 hour timeout handler
+  claim_id: c_32798bef
+  context: T023 [US2] ...explicitly implementing a signal.alarm based timeout handler
+    wrapping the evolution loop to enforce the 6h runtime limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The NSGA-II evolution loop includes a signal.alarm based timeout handler
+    to enforce a 6-hour runtime limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:10:26Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: K-Means clustering uses k=5 determined via Elbow Method
+  claim_id: c_a631fa96
+  context: T030 [US3] Implement code/cluster_analysis.py to perform K-Means clustering
+    on elemental fractions with k=5 (determined via Elbow Method).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The K-Means clustering uses k=5, determined via the Elbow Method.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:06Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: contract test requires R squared greater than 0.6
+  claim_id: c_0793fe1d
+  context: "T018 [P] [US2] Contract test for model output schema in tests/contract/test_model_output.py:\
+    \ assert R\xB2 > 0.6, assert Pareto points are non-dominated."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Contract_test_requires_R_squared_greater_than_0.6
+  kind: magnitude
+  raw_text: "The contract test requires R\xB2 scores to be greater than 0.6."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:12:37Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: data ingestion exits with warning if valid entries less than 500
+  claim_id: c_27908e9b
+  context: T014 [US1] Add logic in code/data_ingestion.py to log 'Insufficient data
+    for statistical analysis (N < 500)' and exit with code 0 if valid entries < 500.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_exits_with_warning_if_valid_entries_less_than
+  kind: magnitude
+  raw_text: The data ingestion script logs a warning and exits if the number of valid
+    entries is less than 500.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:13:25Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: GradientBoostingRegressor models trained with n_jobs=2
+  claim_id: c_10a44bcb
+  context: T020 [P] [US2] Implement code/model_training.py to train separate GradientBoostingRegressor
+    models for Bulk and Shear moduli using n_jobs=2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GradientBoostingRegressor models are trained using n_jobs=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:13:45Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: modeling tasks run on CPU with less than 7GB RAM limit
+  claim_id: c_4f35c878
+  context: 'Hardware Constraint: All modeling tasks MUST run on CPU (2 cores, <7GB
+    RAM). No CUDA, no 8-bit/4-bit quantization, no large LLMs.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Modeling_tasks_run_on_CPU_with_less_than_7GB_RAM_limit
+  kind: magnitude
+  raw_text: The modeling tasks must run on CPU with a memory limit of less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T03:14:33Z'

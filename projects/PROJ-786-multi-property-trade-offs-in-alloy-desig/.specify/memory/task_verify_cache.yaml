@@ -1,44 +1,34 @@
-T000a:
+T000:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file is present in the provided evidence, and thus we cannot\
-    \ verify that FR\u2011001, FR\u2011003, and US\u20111 have been edited to replace\
-    \ \u201Cyield strength and elongation\u201D with \u201CBulk and Shear Moduli (DFT\
-    \ Proxies)\u201D. The required artifact is missing."
-T000b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file was presented, nor any excerpt showing that SC\u2011\
-    001 was changed to mention \u201CDFT\u2011derived physical bounds (Rule of Mixtures\
-    \ for Bulk/Shear)\u201D. Without the actual file content, the required artifact\
-    \ cannot be verified. The implementer must supply the modified `spec.md` containing\
-    \ the revised SC\u2011001 text."
-T000c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file was provided, nor any excerpt showing that FR\u2011\
-    005 now contains the phrase \u201CBulk and Shear Moduli\u201D. Without the actual\
-    \ document content, we cannot confirm the required regex match, so the deliverable\
+  r: "The provided excerpt shows that `spec.md` contains the required version entries\
+    \ and that the listed functional requirements, success criteria, and user story\
+    \ reference Bulk and Shear Moduli, but there is no actual log confirming the verification\
+    \ nor a git commit updating the file. The task\u2019s required output artifact\
     \ is missing."
-T000d:
+T003:
+  c: true
+  h: b8ad8072f2ffb36b808074852d7581842eac10e212395eb848988bc633c75b69
+  r: "The provided `pyproject.toml` (1855\u202Fbytes) contains full `[tool.black]`\
+    \ and `[tool.ruff]` configurations, fulfilling the requirement to configure linting\
+    \ and formatting. Separate `.ruff.toml` and `.black.toml` files are not needed\
+    \ because the settings are correctly placed in `pyproject.toml`."
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file is provided or shown, so we cannot verify that US\u2011\
-    1 Acceptance\u202F1 now references \u201CBulk and Shear Moduli\u201D instead of\
-    \ \u201Cyield strength/elongation\u201D. The required artifact is missing."
-T000e:
+  r: No evidence was presented showing that the `data/raw` and `data/processed` directories
+    exist and contain a `.gitkeep` file each; without these artifacts the requirement
+    cannot be confirmed. The implementer must add the directory structure and the
+    placeholder `.gitkeep` files.
+T005:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec.md` file or its contents were provided for inspection, so we cannot\
-    \ confirm that FR\u2011003 was updated to reference \u201CBulk and Shear Moduli\u201D\
-    \ as required. The deliverable is missing."
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/`\
-    \ directory tree or the `.gitkeep` placeholder files is present; the implementer\u2019\
-    s claim is not backed by any actual artifacts on disk. The missing directory structure\
-    \ must be created and populated with the required placeholder files."
+  h: ddda77f7f40937ab8b9e20fcec588f88695a72da2365530fd9da2341175563a3
+  r: "The required `state/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig.yaml`\
+    \ file does not exist, and the provided `code/versioning.py` script (truncated)\
+    \ contains only hash\u2011computation utilities without any code that updates\
+    \ the YAML\u2019s `artifact_hashes` map, sets an `updated_at` timestamp, or outputs\
+    \ the updated YAML and log as required. The task\u2019s core functionality is\
+    \ therefore missing."
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

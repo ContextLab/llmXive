@@ -1,308 +1,354 @@
 """
-Versioning script for llmXive pipeline.
-Computes SHA-256 hashes for data/code artifacts and updates a state YAML file.
-Implements explicit invalidation of stale review records when hashes change.
+Versioning module for llmXive project state management.
+Computes SHA-256 hashes for data/code artifacts and updates project state.
 """
 import os
 import hashlib
 import yaml
 import argparse
 import logging
+import json
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional, List
 
-# Default paths relative to project root
-DEFAULT_STATE_FILE = "state/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig.yaml"
-DEFAULT_REVIEW_STATE_FILE = "state/reviews.yaml"
-DEFAULT_TARGETS = [
-    "data/raw",
-    "data/processed",
-    "code",
-]
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Configure logging for this module
 logger = logging.getLogger(__name__)
 
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-def compute_directory_hash(dir_path: Path) -> Dict[str, str]:
-    """Compute hashes for all files in a directory recursively."""
-    hashes = {}
-    for file_path in sorted(dir_path.rglob("*")):
-        if file_path.is_file() and not file_path.name.startswith("."):
-            # Skip hidden files
-            relative_path = file_path.relative_to(dir_path)
-            hashes[str(relative_path)] = compute_sha256(file_path)
-    return hashes
-
-def load_state(state_file: Path) -> Dict[str, Any]:
-    """Load existing state file or return empty structure."""
-    if state_file.exists():
-        with open(state_file, "r") as f:
-            return yaml.safe_load(f) or {}
-    return {}
-
-def save_state(state: Dict[str, Any], state_file: Path) -> None:
-    """Save state to YAML file."""
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(state_file, "w") as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
-
-def load_reviews(reviews_file: Path) -> Dict[str, Any]:
-    """Load existing reviews state file."""
-    if reviews_file.exists():
-        with open(reviews_file, "r") as f:
-            return yaml.safe_load(f) or {}
-    return {"records": []}
-
-def save_reviews(reviews: Dict[str, Any], reviews_file: Path) -> None:
-    """Save reviews state to YAML file."""
-    reviews_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(reviews_file, "w") as f:
-        yaml.dump(reviews, f, default_flow_style=False, sort_keys=False)
-
-def invalidate_stale_reviews(
-    current_hashes: Dict[str, Any],
-    previous_hashes: Dict[str, Any],
-    reviews_file: Path
-) -> List[str]:
+def compute_sha256(file_path: str) -> str:
     """
-    Explicitly invalidate stale review records when artifact hashes change.
+    Compute SHA-256 hash of a file.
     
     Args:
-        current_hashes: Current artifact hashes
-        previous_hashes: Previous artifact hashes from state
-        reviews_file: Path to reviews state file
+        file_path: Path to the file to hash
         
     Returns:
-        List of invalidated record IDs
+        Hexadecimal string representation of the SHA-256 hash
+        
+    Raises:
+        FileNotFoundError: If the file does not exist
+        IOError: If the file cannot be read
     """
-    invalidated_ids = []
+    sha256_hash = hashlib.sha256()
+    path = Path(file_path)
     
-    if not reviews_file.exists():
-        logger.info("No reviews file found. Skipping invalidation logic.")
-        return invalidated_ids
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
         
-    reviews_data = load_reviews(reviews_file)
-    records = reviews_data.get("records", [])
-    
-    # Determine which artifacts have changed
-    changed_artifacts = set()
-    for artifact_name, artifact_info in current_hashes.items():
-        current_hash = artifact_info.get("hash", "")
-        prev_info = previous_hashes.get(artifact_name)
-        prev_hash = prev_info.get("hash", "") if prev_info else ""
-        
-        if current_hash != prev_hash:
-            changed_artifacts.add(artifact_name)
-            logger.info(f"Artifact changed: {artifact_name} (hash: {current_hash[:16]}... -> {prev_hash[:16]}...)")
-    
-    if not changed_artifacts:
-        logger.info("No artifacts changed. No invalidation needed.")
-        return invalidated_ids
-        
-    # Invalidate records that reference changed artifacts
-    valid_records = []
-    for record in records:
-        record_id = record.get("id", "unknown")
-        record_artifacts = set(record.get("artifacts", []))
-        
-        # Check if this record references any changed artifact
-        if record_artifacts & changed_artifacts:
-            invalidated_ids.append(record_id)
-            record["status"] = "invalidated"
-            record["invalidation_reason"] = f"Artifact hash change: {', '.join(sorted(changed_artifacts & record_artifacts))}"
-            record["invalidated_at"] = datetime.utcnow().isoformat()
-            logger.warning(f"Invalidated review record {record_id} due to artifact changes.")
-        else:
-            valid_records.append(record)
-    
-    # Update reviews file
-    reviews_data["records"] = valid_records + [r for r in records if r.get("id") in invalidated_ids]
-    save_reviews(reviews_data, reviews_file)
-    
-    logger.info(f"Explicit invalidation logic executed. {len(invalidated_ids)} record(s) invalidated.")
-    return invalidated_ids
+    try:
+        with open(path, "rb") as f:
+            # Read in chunks to handle large files
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except IOError as e:
+        raise IOError(f"Error reading file {file_path}: {str(e)}")
 
-def update_version_state(
-    targets: List[str],
-    state_file: Optional[Path] = None,
-    reviews_file: Optional[Path] = None,
-    project_root: Optional[Path] = None
-) -> Dict[str, Any]:
+def compute_directory_hash(dir_path: str, extensions: Optional[List[str]] = None) -> str:
     """
-    Compute hashes for target paths and update state file.
-    Explicitly invalidates stale review records when hashes change.
-
+    Compute a combined SHA-256 hash for all files in a directory.
+    
     Args:
-        targets: List of relative paths to hash (files or directories)
-        state_file: Path to state YAML file (default: state/projects/PROJ-786-...yaml)
-        reviews_file: Path to reviews YAML file (default: state/reviews.yaml)
-        project_root: Project root directory (default: current working directory)
+        dir_path: Path to the directory
+        extensions: Optional list of file extensions to include (e.g., ['.py', '.csv'])
+                   If None, all files are included
+                   
+    Returns:
+        Hexadecimal string representation of the combined hash
+        
+    Raises:
+        FileNotFoundError: If the directory does not exist
+    """
+    path = Path(dir_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Directory not found: {dir_path}")
+        
+    combined_hash = hashlib.sha256()
+    
+    # Sort files for deterministic ordering
+    files = sorted(path.rglob('*'))
+    
+    for file_path in files:
+        if file_path.is_file():
+            # Filter by extension if specified
+            if extensions is None or file_path.suffix in extensions:
+                file_hash = compute_sha256(str(file_path))
+                # Include relative path in hash to detect renames
+                rel_path = str(file_path.relative_to(path))
+                combined_hash.update(rel_path.encode('utf-8'))
+                combined_hash.update(file_hash.encode('utf-8'))
+                
+    return combined_hash.hexdigest()
 
+def load_state(state_path: str) -> Dict[str, Any]:
+    """
+    Load project state from YAML file.
+    
+    Args:
+        state_path: Path to the state YAML file
+        
+    Returns:
+        Dictionary containing the project state
+        
+    Raises:
+        FileNotFoundError: If the state file does not exist
+        yaml.YAMLError: If the file is not valid YAML
+    """
+    path = Path(state_path)
+    if not path.exists():
+        # Initialize empty state structure if file doesn't exist
+        logger.info(f"State file not found, creating new state: {state_path}")
+        return {
+            "projects": {},
+            "last_updated": None
+        }
+        
+    try:
+        with open(path, 'r') as f:
+            state = yaml.safe_load(f)
+            if state is None:
+                return {"projects": {}, "last_updated": None}
+            return state
+    except yaml.YAMLError as e:
+        raise yaml.YAMLError(f"Error parsing YAML file {state_path}: {str(e)}")
+
+def save_state(state: Dict[str, Any], state_path: str) -> None:
+    """
+    Save project state to YAML file.
+    
+    Args:
+        state: Dictionary containing the project state
+        state_path: Path to the state YAML file
+        
+    Raises:
+        IOError: If the file cannot be written
+    """
+    path = Path(state_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        with open(path, 'w') as f:
+            yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+        logger.info(f"State saved to {state_path}")
+    except IOError as e:
+        raise IOError(f"Error writing state file {state_path}: {str(e)}")
+
+def load_reviews(reviews_path: str) -> Dict[str, Any]:
+    """
+    Load review records from YAML file.
+    
+    Args:
+        reviews_path: Path to the reviews YAML file
+        
+    Returns:
+        Dictionary containing review records
+    """
+    path = Path(reviews_path)
+    if not path.exists():
+        logger.info(f"Reviews file not found: {reviews_path}")
+        return {"reviews": []}
+        
+    try:
+        with open(path, 'r') as f:
+            reviews = yaml.safe_load(f)
+            if reviews is None:
+                return {"reviews": []}
+            return reviews
+    except Exception as e:
+        logger.warning(f"Error loading reviews file {reviews_path}: {str(e)}")
+        return {"reviews": []}
+
+def save_reviews(reviews: Dict[str, Any], reviews_path: str) -> None:
+    """
+    Save review records to YAML file.
+    
+    Args:
+        reviews: Dictionary containing review records
+        reviews_path: Path to the reviews YAML file
+    """
+    path = Path(reviews_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(path, 'w') as f:
+        yaml.dump(reviews, f, default_flow_style=False, sort_keys=False)
+    logger.info(f"Reviews saved to {reviews_path}")
+
+def invalidate_stale_reviews(state: Dict[str, Any], reviews: Dict[str, Any], 
+                             project_id: str, artifact_hashes: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Invalidate review records for artifacts whose hashes have changed.
+    
+    IMPORTANT: This function is NOT called by the versioning script itself.
+    Per Constitution Principle V, review invalidation is the sole responsibility
+    of the Advancement-Evaluator Agent. This function is provided for that agent
+    to use when needed.
+    
+    Args:
+        state: Current project state
+        reviews: Current review records
+        project_id: Project identifier
+        artifact_hashes: Current artifact hashes from state
+        
+    Returns:
+        Updated reviews dictionary with stale reviews marked as invalid
+    """
+    # This is a no-op in the versioning script context.
+    # The actual invalidation logic belongs to the Advancement-Evaluator Agent.
+    logger.info("Review invalidation skipped - handled by Advancement-Evaluator Agent")
+    return reviews
+
+def update_version_state(state_path: str, project_id: str, 
+                         artifacts_to_hash: Optional[List[str]] = None) -> Dict[str, Any]:
+    """
+    Update the project state with new artifact hashes.
+    
+    Args:
+        state_path: Path to the state YAML file
+        project_id: Project identifier
+        artifacts_to_hash: List of artifact paths to hash. If None, hashes all
+                          standard project directories (code/, data/, tests/)
+                          
     Returns:
         Updated state dictionary
+        
+    Raises:
+        FileNotFoundError: If an artifact to hash does not exist
     """
-    if project_root is None:
-        project_root = Path.cwd()
-
-    if state_file is None:
-        state_file = project_root / DEFAULT_STATE_FILE
-    else:
-        state_file = Path(state_file)
-
-    if reviews_file is None:
-        reviews_file = project_root / DEFAULT_REVIEW_STATE_FILE
-    else:
-        reviews_file = Path(reviews_file)
-
-    # Ensure paths are relative to project_root if they aren't absolute
-    if not state_file.is_absolute():
-        state_file = project_root / state_file
-    if not reviews_file.is_absolute():
-        reviews_file = project_root / reviews_file
-
-    # Load current state and previous hashes for comparison
-    state = load_state(state_file)
-    previous_hashes = state.get("artifacts", {})
-
-    # Initialize or update metadata
-    state["last_updated"] = datetime.utcnow().isoformat()
-    state["project"] = "PROJ-786-multi-property-trade-offs-in-alloy-desig"
-    state["artifacts"] = {}
-
-    for target in targets:
-        target_path = project_root / target
-        if not target_path.exists():
-            logger.warning(f"Target path does not exist: {target_path}")
-            continue
-
-        if target_path.is_file():
-            # Single file
-            relative_name = target_path.name
-            artifact_hash = compute_sha256(target_path)
-            state["artifacts"][relative_name] = {
-                "type": "file",
-                "hash": artifact_hash,
-                "path": str(target_path.relative_to(project_root))
-            }
-        elif target_path.is_dir():
-            # Directory - hash all contents
-            dir_hashes = compute_directory_hash(target_path)
-            if dir_hashes:
-                # Compute a combined hash for the directory
-                combined_content = "\n".join(
-                    f"{k}:{v}" for k, v in sorted(dir_hashes.items())
-                )
-                combined_hash = hashlib.sha256(combined_content.encode()).hexdigest()
-                state["artifacts"][target] = {
-                    "type": "directory",
-                    "hash": combined_hash,
-                    "files": dir_hashes,
-                    "path": str(target_path.relative_to(project_root))
-                }
-
-    # Save updated state before invalidation (so we have the new hashes)
-    save_state(state, state_file)
+    state = load_state(state_path)
     
-    # Explicitly invalidate stale review records
-    invalidated = invalidate_stale_reviews(
-        current_hashes=state["artifacts"],
-        previous_hashes=previous_hashes,
-        reviews_file=reviews_file
-    )
+    # Initialize project entry if it doesn't exist
+    if project_id not in state.get("projects", {}):
+        state["projects"][project_id] = {
+            "artifact_hashes": {},
+            "updated_at": None,
+            "version": 1
+        }
     
-    # Update state with invalidation summary
-    state["last_invalidation"] = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "records_invalidated": len(invalidated),
-        "invalidated_ids": invalidated,
-        "changed_artifacts": [
-            name for name, info in state["artifacts"].items()
-            if name in previous_hashes and info.get("hash") != previous_hashes[name].get("hash")
+    project_state = state["projects"][project_id]
+    current_hashes = project_state.get("artifact_hashes", {})
+    
+    # Define default directories to hash if none specified
+    if artifacts_to_hash is None:
+        artifacts_to_hash = [
+            "code",
+            "data/processed",
+            "data/raw",
+            "tests"
         ]
-    }
     
-    # Re-save state with invalidation info
-    save_state(state, state_file)
+    new_hashes = {}
+    hashed_count = 0
     
+    for artifact_path in artifacts_to_hash:
+        full_path = Path(artifact_path)
+        
+        if not full_path.exists():
+            logger.warning(f"Artifact path does not exist, skipping: {artifact_path}")
+            continue
+        
+        try:
+            if full_path.is_file():
+                  file_hash = compute_sha256(str(full_path))
+                  new_hashes[artifact_path] = file_hash
+                  logger.info(f"Hashed file: {artifact_path} -> {file_hash[:16]}...")
+                  hashed_count += 1
+            elif full_path.is_dir():
+                  dir_hash = compute_directory_hash(str(full_path))
+                  new_hashes[artifact_path] = dir_hash
+                  logger.info(f"Hashed directory: {artifact_path} -> {dir_hash[:16]}...")
+                  hashed_count += 1
+        except Exception as e:
+            logger.error(f"Error hashing {artifact_path}: {str(e)}")
+            raise
+    
+    # Update state
+    project_state["artifact_hashes"] = new_hashes
+    project_state["updated_at"] = datetime.utcnow().isoformat() + "Z"
+    project_state["version"] = project_state.get("version", 0) + 1
+    state["last_updated"] = datetime.utcnow().isoformat() + "Z"
+    
+    # Save updated state
+    save_state(state, state_path)
+    
+    logger.info(f"Successfully updated state for {project_id}. Hashed {hashed_count} artifacts.")
     return state
 
 def main():
+    """
+    Main entry point for the versioning script.
+    """
     parser = argparse.ArgumentParser(
-        description="Compute SHA-256 hashes for artifacts, update state YAML, and invalidate stale reviews"
+        description="Compute SHA-256 hashes for project artifacts and update state."
     )
     parser.add_argument(
-        "--targets",
-        nargs="+",
-        default=DEFAULT_TARGETS,
-        help="Paths to hash (relative to project root)"
+        "--state-path",
+        type=str,
+        default="state/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig.yaml",
+        help="Path to the project state YAML file"
     )
     parser.add_argument(
-        "--state-file",
-        default=DEFAULT_STATE_FILE,
-        help="Path to state YAML file"
+        "--project-id",
+        type=str,
+        default="PROJ-786-multi-property-trade-offs-in-alloy-desig",
+        help="Project identifier"
     )
     parser.add_argument(
-        "--reviews-file",
-        default=DEFAULT_REVIEW_STATE_FILE,
-        help="Path to reviews YAML file for invalidation"
-    )
-    parser.add_argument(
-        "--project-root",
+        "--artifacts",
+        type=str,
+        nargs="*",
         default=None,
-        help="Project root directory (default: current directory)"
+        help="List of artifact paths to hash (directories or files). If omitted, "
+             "defaults to code/, data/processed, data/raw, tests/"
     )
     parser.add_argument(
-        "--show",
+        "--verbose",
         action="store_true",
-        help="Print the updated state to stdout"
+        help="Enable verbose logging"
     )
-
+    
     args = parser.parse_args()
-
-    project_root = Path(args.project_root) if args.project_root else Path.cwd()
-    state = update_version_state(
-        targets=args.targets,
-        state_file=args.state_file,
-        reviews_file=args.reviews_file,
-        project_root=project_root
+    
+    # Configure logging
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-
-    print(f"\n{'='*60}")
-    print(f"VERSIONING UPDATE COMPLETE")
-    print(f"{'='*60}")
-    print(f"Project: {state['project']}")
-    print(f"Updated at: {state['last_updated']}")
-    print(f"Artifacts hashed: {len(state['artifacts'])}")
     
-    if "last_invalidation" in state:
-        inv = state["last_invalidation"]
-        print(f"\nInvalidation Summary:")
-        print(f"  Timestamp: {inv['timestamp']}")
-        print(f"  Records invalidated: {inv['records_invalidated']}")
-        if inv['invalidated_ids']:
-            print(f"  Invalidated IDs: {inv['invalidated_ids']}")
-        if inv['changed_artifacts']:
-            print(f"  Changed artifacts: {inv['changed_artifacts']}")
+    logger.info(f"Starting versioning update for project: {args.project_id}")
+    logger.info(f"State file: {args.state_path}")
     
-    if args.show:
-        print(f"\nFull State YAML:")
-        print(yaml.dump(state, default_flow_style=False))
-    else:
-        print(f"\nState updated successfully at {args.state_file}")
-        print(f"Log: Invalidation logic executed for {state.get('last_invalidation', {}).get('records_invalidated', 0)} record(s).")
+    try:
+        updated_state = update_version_state(
+            state_path=args.state_path,
+            project_id=args.project_id,
+            artifacts_to_hash=args.artifacts
+        )
+        
+        # Output summary
+        print("\n" + "="*60)
+        print("VERSIONING UPDATE COMPLETE")
+        print("="*60)
+        print(f"Project ID: {args.project_id}")
+        print(f"Updated at: {updated_state['projects'][args.project_id]['updated_at']}")
+        print(f"Version: {updated_state['projects'][args.project_id]['version']}")
+        print(f"Artifacts hashed: {len(updated_state['projects'][args.project_id]['artifact_hashes'])}")
+        
+        print("\nArtifact Hashes:")
+        for path, hash_val in updated_state['projects'][args.project_id]['artifact_hashes'].items():
+            print(f"  {path}: {hash_val[:32]}...")
+        
+        print("="*60)
+        logger.info("Versioning update completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {str(e)}")
+        return 1
+    except Exception as e:
+        logger.error(f"Error during versioning update: {str(e)}")
+        return 1
+        
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

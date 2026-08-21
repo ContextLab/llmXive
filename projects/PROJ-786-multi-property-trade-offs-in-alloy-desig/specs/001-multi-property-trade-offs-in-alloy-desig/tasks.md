@@ -21,16 +21,12 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-## Phase 0: Spec Alignment (CRITICAL - BLOCKS ALL OTHER WORK)
+## Phase 0: Spec Alignment (COMPLETED - VERIFICATION)
 
-**Purpose**: The current spec mandates "yield strength and elongation" but the plan pivots to "Bulk and Shear Moduli". This phase MUST be completed to update the spec before any implementation proceeds.
-**Execution Order**: These tasks are marked **[S]** (Sequential) because they all edit `spec.md`. They must be executed in order to avoid merge conflicts and ensure consistent state.
+**Purpose**: The spec.md Version History (v1.1/v1.2) confirms the pivot to "Bulk and Shear Moduli" is already complete. This phase verifies the spec content matches the plan's requirements and synchronizes the tasks.
+**Status**: **VERIFICATION ONLY**.
 
-- [ ] T000a [S] [Spec] Update `spec.md` FR-001, FR-003, US-1 to replace "yield strength and elongation" with "Bulk and Shear Moduli (DFT Proxies)". **Verification**: Verify FR-001 text matches regex for "Bulk and Shear Moduli". **Deliverable**: Updated `spec.md` file. <!-- FAILED: unspecified -->
-- [ ] T000b [S] [Spec] Update `spec.md` SC-001 to replace "thermodynamic limits (Rule of Mixtures) for yield strength/elongation" with "DFT-derived physical bounds (Rule of Mixtures for Bulk/Shear)". **Verification**: Verify SC-001 text matches regex for "Bulk/Shear". **Deliverable**: Updated `spec.md` file.
-- [ ] T000c [S] [Spec] Update `spec.md` FR-005, SC-002 to replace "strength and ductility" with "Bulk and Shear Moduli". **Verification**: Verify FR-005 text matches regex for "Bulk and Shear Moduli". **Deliverable**: Updated `spec.md` file.
-- [ ] T000d [S] [Spec] Update `spec.md` US-1 Acceptance 1 to reference "Bulk and Shear Moduli" instead of "yield strength/elongation". **Verification**: Verify text matches. **Deliverable**: Updated `spec.md` file.
-- [ ] T000e [S] [Spec] Update `spec.md` FR-003 to reference "Bulk and Shear Moduli" as the target for gradient-boosting regressors. **Verification**: Verify FR-003 text matches. **Deliverable**: Updated `spec.md` file.
+- [ ] T000 [P] Verify and Synchronize Spec.md with Bulk/Shear Moduli Pivot: Open `specs/001-multi-property-trade-offs/spec.md`. Verify that `Version History` contains v1.1 and v1.2 entries explicitly referencing "Bulk and Shear Moduli". **CRITICAL**: Verify that `FR-001`, `FR-003`, `FR-005`, `SC-001`, and `US-1` explicitly reference these targets in their body text. If the content is missing or refers to "Yield Strength/Elongation", the task fails and requires an immediate update to `spec.md` to reflect the DFT proxy approach. **Output**: A log confirming the spec is aligned or a git commit updating the spec to v1.2 standards.
 
 ---
 
@@ -48,17 +44,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, numpy, scipy, deap, matplotlib, seaborn, requests, pyyaml, pyarrow, pymatgen, mendeleev, python-dotenv).
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools.
+- [X] T002 [P] Initialize Python 3.11 project with `requirements.txt`. **Requirement**: Pin ALL dependencies to `major.minor.patch` (e.g., `pandas==2.0.0`, `scikit-learn==1.3.0`). Include: pandas, scikit-learn, numpy, scipy, deap, matplotlib, seaborn, requests, pyyaml, pyarrow, pymatgen, mendeleev, python-dotenv.
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools. Create `pyproject.toml` or `.ruff.toml` and `.black.toml` with project-specific rules.
 - [ ] T004 [P] Setup `data/raw` and `data/processed` directory structure with `.gitkeep`.
-- [X] T005 [P] Implement `code/versioning.py` script to compute SHA-256 hashes for data/code artifacts, update `state/projects/PROJ-786-...yaml` `artifact_hashes` map, set `updated_at` timestamp, and **explicitly invalidate stale review records** when hashes change. **Verification**: Script must output the updated YAML and a log confirming invalidation logic execution.
-- [X] T005b [P] Verify `code/versioning.py` runs successfully on a dummy artifact and updates state YAML correctly.
-- [X] T006 [P] Implement robust `.env` loading using `python-dotenv` in `code/config.py`. Ensure it gracefully handles missing `.env` files by loading defaults from a `config_default.yaml`. Expose `variance_threshold`, `random_seed`, and `data_source` as global constants.
-- [X] T007 [P] Create base data models (Pydantic/JSON schema) for `AlloyEntry` in `code/models/alloy_entry.py`.
-- [ ] T008 [P] Configure error handling and logging infrastructure (structured logs).
-- [X] T009 [P] Implement `code/utils/convex_hull.py` wrapper for `scipy.spatial.ConvexHull` and `Delaunay` point-in-hull testing.
+- [ ] T005 [P] Implement `code/versioning.py` script to compute SHA-256 hashes for data/code artifacts, update `state/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig.yaml` `artifact_hashes` map, and set `updated_at` timestamp. **Note**: This script must NOT invalidate review records; that logic is the sole responsibility of the Advancement-Evaluator Agent per Constitution Principle V. **Verification**: Script must output the updated YAML and a log confirming hash computation.
+- [ ] T005b [P] Verify `code/versioning.py` runs successfully on a dummy artifact and updates `state/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig.yaml` correctly.
+- [ ] T006 [P] Implement robust `.env` loading using `python-dotenv` in `code/config.py`. Ensure it gracefully handles missing `.env` files by loading defaults from a `config_default.yaml`. Expose `variance_threshold`, `random_seed`, and `data_source` as global constants.
+- [ ] T007 [P] Create base data models (Pydantic/JSON schema) for `AlloyEntry` in `code/models/alloy_entry.py`. Define fields: `composition` (str), `bulk_modulus` (float), `shear_modulus` (float), and any necessary metadata.
+- [ ] T008 [P] Configure error handling and logging infrastructure (structured logs). Create `code/logging_config.py` to set up a global logger with JSON formatting and file rotation.
+- [ ] T009 [P] Implement `code/utils/convex_hull.py` wrapper for `scipy.spatial.ConvexHull` and `Delaunay` point-in-hull testing.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel (after Phase 0 spec update).
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel.
 
 ---
 
@@ -66,25 +62,25 @@
 
 **Goal**: Ingest public alloy data (OQMD via HuggingFace), filter for **Bulk and Shear Moduli** (DFT proxies), encode compositions, and output a clean CSV.
 
-**Independent Test**: Run `code/data_ingestion.py` against a small OQMD subset; verify `data/processed/encoded_alloys.csv` exists, contains no nulls in key columns, and has correct feature vector dimensions.
+**Independent Test**: Run `code/main.py` (orchestration) which calls ingestion and encoding; verify `data/processed/encoded_alloys.csv` exists, contains no nulls in key columns, and has correct feature vector dimensions.
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`: Assert that when input has < 500 rows (generate a dummy CSV with 499 rows), the script logs the specific warning "Insufficient data for statistical analysis (N < 500)" and exits with code 0. Assert that when input has >= 500 rows, no warning is logged and exit code is 0.
-- [X] T011 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_pipeline.py`: assert `data/processed/encoded_alloys.csv` exists and has correct columns.
+- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`: Assert that when input has < 500 rows (generate a dummy CSV with 499 rows using `pandas.DataFrame` matching the schema in `code/models/alloy_entry.py` with columns `composition`, `bulk_modulus`, `shear_modulus`), the script logs the specific warning "Insufficient data for statistical analysis (N < 500)" and exits with code 0. Assert that when input has >= 500 rows, no warning is logged and exit code is 0.
+- [ ] T011 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_pipeline.py`: assert `data/processed/encoded_alloys.csv` exists and has correct columns.
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] **Depends: T000a** Implement `code/data_ingestion.py` to fetch OQMD data via HuggingFace `datasets.load_dataset('OQMD/elastic_properties')`, filter for entries with `bulk_modulus` and `shear_modulus` > 0, and exclude missing data. **Note**: This task implements the DFT proxy approach AFTER spec update (T000a).
-- [X] T013 [P] [US1] Implement `code/feature_encoder.py` to encode compositions using elemental fractions and periodic descriptors (atomic radius, electronegativity) fetched via `pymatgen` or `mendeleev` for all elements present.
-- [X] T014 [US1] Add logic in `code/data_ingestion.py` to log "Insufficient data for statistical analysis (N < 500)" and exit with code 0 if valid entries < 500.
-- [ ] T015 [US1] Implement `code/main.py` orchestration step to run ingestion and encoding, saving results to `data/processed/encoded_alloys.csv`.
-- [ ] T016 [US1] Add validation to ensure feature vectors include at least two periodic descriptors per element.
-- [ ] T017 [US1] Add logging for data ingestion counts (total fetched, filtered, encoded).
+- [ ] T012 [US1] Implement `code/data_ingestion.py` to fetch OQMD data via HuggingFace `datasets.load_dataset('OQMD/elastic_properties')`, filter for entries with `bulk_modulus` and `shear_modulus` > 0, and exclude missing data. **Note**: This task implements the DFT proxy approach.
+- [ ] T013 [P] [US1] Implement `code/feature_encoder.py` to encode compositions using elemental fractions and periodic descriptors (atomic radius, electronegativity) fetched via `pymatgen` or `mendeleev` for all elements present.
+- [ ] T014 [US1] Add logic in `code/data_ingestion.py` to log "Insufficient data for statistical analysis (N < 500)" and exit with code 0 if valid entries < 500.
+- [ ] T015 [US1] Implement `code/main.py` orchestration step to run ingestion and encoding, saving results to `data/processed/encoded_alloys.csv`. **Dependency**: T012 and T013 must be implemented before T015 can be fully tested, but T015 can be created in parallel.
+- [ ] T016 [US1] Add validation to ensure feature vectors include at least two periodic descriptors per element. Implement this in `code/feature_encoder.py` and add a corresponding test.
+- [ ] T017 [US1] Add logging for data ingestion counts (total fetched, filtered, encoded) using the infrastructure from T008.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (after T000a-d).
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
 ---
 
@@ -96,13 +92,13 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] **Depends: T000e** Implement `code/model_training.py` to train separate GradientBoostingRegressor models for Bulk and Shear moduli using `n_jobs=2` and `max_memory=7GB` constraints. **Note**: Targets Bulk/Shear Moduli AFTER spec update (T000e).
-- [X] T021 [US2] Implement Leave-One-System-Out Cross-Validation (LOSO-CV) in `code/model_training.py` to validate generalizability.
-- [X] T022 [US2] Implement uncertainty calculation (cross-validation variance) in `code/model_training.py` and flag regions exceeding threshold.
+- [ ] T020 [P] [US2] Implement `code/model_training.py` to train separate GradientBoostingRegressor models for Bulk and Shear moduli using `n_jobs=2`. **Memory Constraint**: Do NOT use `max_memory` (unsupported); instead, enforce memory limits via `max_depth` and `subsample` parameters, and monitor peak memory usage using the `resource` module to ensure compliance with the <7GB RAM constraint.
+- [ ] T021 [US2] Implement Leave-One-System-Out Cross-Validation (LOSO-CV) in `code/model_training.py` to validate generalizability. **Output**: Must generate `data/processed/loso_test_points.csv` containing the held-out test data and `data/processed/model_validation_report.json` containing system-level variance, coverage stats, and a flag for unreliable regions.
+- [ ] T022 [US2] Implement uncertainty calculation (cross-validation variance) in `code/model_training.py` and flag regions exceeding threshold.
 - [ ] T022b [US2] **Depends: T021, T022** Implement logic to explicitly link LOSO-CV results to uncertainty metrics by generating `data/processed/model_validation_report.json` containing system-level variance, coverage stats, and a flag for unreliable regions.
-- [X] T023 [US2] Implement NSGA-II logic in `code/pareto_optimization.py` using `deap` with population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk, Shear]. **Includes**: Generating synthetic points within convex hull, evaluating them, clamping predictions to physical limits (moduli > 0), flagging extrapolated points, and implementing timeout handling (signal.alarm) to enforce 6h runtime limit.
-- [ ] T024 [US2] **Depends: T000b, T024b** Implement metric calculation: % of test points dominated by frontier and % of frontier dominating empirical set against **DFT-derived physical bounds (Rule of Mixtures for Bulk/Shear)** calculated in T024b.
-- [ ] T024b [US2] **Depends: T000b** Implement `code/physics_bounds.py` to calculate DFT-derived Rule of Mixtures bounds for Bulk and Shear Moduli based on elemental properties. Output: `data/processed/theoretical_bounds.json`.
+- [ ] T023 [US2] **Depends: T020** Implement NSGA-II logic in `code/pareto_optimization.py` using `deap` with population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk, Shear]. **Includes**: Generating synthetic points within convex hull, evaluating them (using trained models from T020), clamping predictions to physical limits (moduli > 0), flagging extrapolated points, and **explicitly implementing a `signal.alarm` based timeout handler** wrapping the evolution loop to enforce the 6h runtime limit.
+- [ ] T024 [US2] **Depends: T023, T022b, T024b** Implement metric calculation: % of test points (from `data/processed/loso_test_points.csv`) dominated by frontier and % of frontier dominating empirical set against **Rule of Mixtures bounds** calculated in T024b.
+- [ ] T024b [US2] **Depends: T000, T007** Implement `code/physics_bounds.py` to calculate Rule of Mixtures bounds for Bulk and Shear Moduli based on elemental properties. Output: `data/processed/theoretical_bounds.json`.
 - [ ] T025 [US2] Add logic to clamp predictions to physical limits (e.g., moduli > 0) and flag extrapolated points.
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
@@ -110,7 +106,7 @@
 - [ ] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`: assert R² > 0.6, assert Pareto points are non-dominated.
 - [ ] T019 [P] [US2] Integration test for Pareto generation in `tests/integration/test_pareto_generation.py`: assert synthetic points are within convex hull.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (after T000a, T000e, T000b).
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
 ---
 
@@ -122,15 +118,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] **Depends: T000c** Implement `code/cluster_analysis.py` to perform K-Means clustering on elemental fractions with k=5 (determined via Elbow Method). **Note**: Targets Bulk/Shear Moduli AFTER spec update (T000c).
+- [ ] T030 [US3] Implement `code/cluster_analysis.py` to perform K-Means clustering on elemental fractions with k=5 (determined via Elbow Method).
 - [ ] T031 [US3] Implement correlation calculation between Bulk and Shear Moduli for *each cluster* to find the minimum correlation region. Output: `data/processed/correlation_stats.csv`.
 - [ ] T030b [US3] Identify the specific cluster with the minimum correlation (Decoupled Region) based on the output of T031. **Dependency**: Must complete T031 first.
 - [ ] T034 [US3] Implement logic to flag regions where prediction variance exceeds the configured threshold (FR-006).
-- [ ] T032 [US3] **Depends: T000c** Implement sensitivity analysis in `code/cluster_analysis.py` to sweep **decoupling threshold (correlation cutoff)** values across a representative range. **Requirement**: Calculate and output a `robustness_score` (variance of region sizes across cutoffs) to validate threshold robustness. Output: `data/processed/sensitivity_analysis.csv` with columns: `cutoff`, `region_size`, `mean_correlation`, `robustness_score`. **Dependency**: Must complete T030b first to define the baseline region.
+- [ ] T032 [US3] **Depends: T030b, T030** Implement sensitivity analysis in `code/cluster_analysis.py` to sweep **decoupling threshold (correlation cutoff)** values across a scientifically valid range from **0.5 to 0.95** with step size 0.05. **Requirement**: Calculate and output a `robustness_score` (variance of the size of the cluster with the minimum correlation across cutoffs) to validate threshold robustness. Output: `data/processed/sensitivity_analysis.csv` with columns: `cutoff`, `region_size`, `mean_correlation`, `robustness_score`.
 - [ ] T032b [US3] **Depends: T032** Implement validation logic to compare `sensitivity_analysis.csv` results against SC-003 requirements and output `data/results/robustness_validation.json` confirming threshold robustness.
 - [ ] T033 [US3] Implement `code/visualization.py` to generate a 2D plot showing compositional space, decoupled regions, and Pareto frontier.
-- [ ] T035 [US3] Implement calculation of global vs. local correlation coefficients for SC-002.
-- [ ] T035b [US3] **Depends: T000c, T035** Implement logic to explicitly calculate the delta/ratio between local and global correlation coefficients to satisfy SC-002 measurement requirement. **Dependency**: Must complete T035 first.
+- [ ] T035 [US3] **Depends: T031** Implement calculation of global vs. local correlation coefficients for SC-002, including the explicit calculation of the delta/ratio between local and global coefficients in a single atomic step. Output: `data/processed/correlation_stats.csv` (updated) and a summary log.
 - [ ] T036 [US3] Add logging for identified decoupled region properties (cluster ID, correlation coefficient, size).
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
@@ -138,7 +133,7 @@
 - [ ] T028 [P] [US3] Contract test for visualization output in `tests/contract/test_visualization.py`: assert `data/results/decoupling_plot.png` is generated, is non-empty, and contains the expected legend labels: "Pareto Frontier", "Decoupled Region", "Empirical Data".
 - [ ] T029 [P] [US3] Integration test for decoupling analysis in `tests/integration/test_decoupling_analysis.py`: assert min correlation cluster is identified correctly.
 
-**Checkpoint**: All user stories should now be independently functional (after T000a-c).
+**Checkpoint**: All user stories should now be independently functional.
 
 ---
 
@@ -159,19 +154,19 @@
 
 ### Phase Dependencies
 
-- **Phase 0 (Spec Alignment)**: NO dependencies - MUST be completed FIRST. Blocks all other phases. **Executed Sequentially [S]**.
-- **Setup (Phase 1)**: Depends on Phase 0 completion.
+- **Phase 0 (Spec Alignment)**: **VERIFICATION ONLY**. Spec is already updated per v1.2; T000 confirms this.
+- **Setup (Phase 1)**: No dependencies.
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion AND Phase 0 completion.
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion.
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) AND Phase 0 - No dependencies on other stories.
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) AND Phase 0 - Depends on US1 data output (`data/processed/encoded_alloys.csv`).
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) AND Phase 0 - Depends on US2 model outputs and US1 data.
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories.
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (`data/processed/encoded_alloys.csv`).
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model outputs and US1 data.
 
 ### Within Each User Story
 
@@ -210,16 +205,15 @@ Task: "Implement code/feature_encoder.py..."
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 0: Spec Alignment (CRITICAL) - **Sequential**
-2. Complete Phase 1: Setup
-3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-4. Complete Phase 3: User Story 1
-5. **STOP and VALIDATE**: Test User Story 1 independently
-6. Deploy/demo if ready
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Phase 0 + Setup + Foundational → Foundation ready
+1. Complete Phase 1 + Phase 2 → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
@@ -229,7 +223,7 @@ Task: "Implement code/feature_encoder.py..."
 
 With multiple developers:
 
-1. Team completes Phase 0 (Sequential) + Setup + Foundational together
+1. Team completes Phase 1 + Phase 2 together
 2. Once Foundational is done:
  - Developer A: User Story 1
  - Developer B: User Story 2
@@ -250,8 +244,9 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Data Constraint**: All data ingestion tasks MUST use real, reachable URLs (OQMD via HuggingFace) and NEVER synthesize fake input data.
 - **Hardware Constraint**: All modeling tasks MUST run on CPU (2 cores, <7GB RAM). No CUDA, no 8-bit/4-bit quantization, no large LLMs.
-- **Spec Alignment**: All tasks now explicitly target **Bulk/Shear Moduli** and **K-Means clustering** as per updated plan. **Phase 0 tasks (T000a-e) MUST be completed to update the spec to match these targets.**
-- **Ordering Note**: T030b (Identify Min Correlation) MUST precede T032 (Sensitivity Analysis). T032 is marked [~] (Incomplete) and depends on T030b. T035b depends on T035.
-- **Timeout Handling**: T023 includes explicit timeout logic to enforce the 6h runtime constraint.
-- **Output Artifacts**: T024b outputs `data/processed/theoretical_bounds.json`. T031/T035 output `data/processed/correlation_stats.csv`. T032 outputs `data/processed/sensitivity_analysis.csv` with robustness_score. T032b outputs `data/results/robustness_validation.json`.
-- **Dependency Enforcement**: Tasks T012, T020, T030, T024, T035b explicitly depend on Phase 0 tasks (T000a-e) to ensure spec is updated before implementation.
+- **Spec Alignment**: Spec is already updated to target **Bulk/Shear Moduli** and **K-Means clustering** per v1.2. Phase 0 is now a verification step (T000) that actively verifies content.
+- **Ordering Note**: T030b (Identify Min Correlation) MUST precede T032 (Sensitivity Analysis). T032 defines sweep range [0.5, 0.95] and step 0.05. T035 depends on T031. T024 depends on T023, T022b, and T024b.
+- **Timeout Handling**: T023 includes explicit `signal.alarm` implementation to enforce the 6h runtime constraint.
+- **Output Artifacts**: T024b outputs `data/processed/theoretical_bounds.json`. T031/T035 output `data/processed/correlation_stats.csv`. T032 outputs `data/processed/sensitivity_analysis.csv` with robustness_score. T032b outputs `data/results/robustness_validation.json`. T021/T022b output `data/processed/loso_test_points.csv` and `data/processed/model_validation_report.json`.
+- **Dependency Enforcement**: Tasks T012, T020, T030, T024, T035 explicitly depend on upstream artifacts to ensure data flow integrity.
+- **Memory Management**: T020 uses `max_depth` and `subsample` for memory control, not `max_memory`.
