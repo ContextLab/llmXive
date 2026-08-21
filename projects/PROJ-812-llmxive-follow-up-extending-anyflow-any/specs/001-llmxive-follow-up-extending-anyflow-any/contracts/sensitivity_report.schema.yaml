@@ -1,26 +1,43 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Report Schema"
+description: "Schema for the sensitivity analysis output (code/analysis.py)."
 type: object
 properties:
   threshold:
     type: number
-    description: "Classification threshold value"
-    enum:
-      - 0.01
-      - 0.05
-      - 0.1
+    description: "Classification threshold used (e.g., 0.01, 0.05, 0.1)."
+  baseline_n:
+    type: integer
+    description: "Baseline resolution (Euler steps) used."
+  tp:
+    type: integer
+    description: "True Positives count."
+  fp:
+    type: integer
+    description: "False Positives count."
+  tn:
+    type: integer
+    description: "True Negatives count."
+  fn:
+    type: integer
+    description: "False Negatives count."
+  accuracy:
+    type: number
+    description: "Classification accuracy."
   false_positive_rate:
     type: number
-    description: "False positive rate at this threshold"
-    minimum: 0.0
-    maximum: 1.0
+    description: "False Positive Rate (FP / (FP + TN))."
   false_negative_rate:
     type: number
-    description: "False negative rate at this threshold"
-    minimum: 0.0
-    maximum: 1.0
+    description: "False Negative Rate (FN / (FN + TP))."
 required:
   - threshold
+  - baseline_n
+  - tp
+  - fp
+  - tn
+  - fn
+  - accuracy
   - false_positive_rate
   - false_negative_rate
 additionalProperties: false
-description: "Schema for data/processed/sensitivity_report.csv"

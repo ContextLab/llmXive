@@ -1,35 +1,45 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Divergence Metrics Schema"
+description: "Schema for the output of the flow-map divergence calculation (code/inference.py)."
 type: object
 properties:
   video_id:
     type: string
-    description: "Foreign key to VideoClip"
-  divergence_score:
+    description: "Unique identifier for the video clip."
+  divergence_value:
     type: number
-    description: "L2 distance between model prediction and Euler baseline"
-    minimum: 0.0
-  euler_steps:
+    description: "Computed flow-map divergence score (MSE normalized by dimension)."
+  baseline_n:
     type: integer
-    description: "Number of steps used in Euler baseline (500 or 200)"
-    enum:
-      - 200
-      - 500
-  inference_time_sec:
-    type: number
-    description: "Time taken for inference in seconds"
-    minimum: 0.0
+    description: "Number of Euler steps used for the baseline (e.g., 500, 200)."
+  features:
+    type: object
+    description: "Temporal pattern features extracted from the divergence trajectory."
+    properties:
+      kurtosis:
+        type: number
+        description: "Kurtosis of the divergence trajectory."
+      temporal_clustering:
+        type: number
+        description: "Clustering coefficient of the trajectory."
+    required:
+      - kurtosis
+      - temporal_clustering
   status:
     type: string
-    description: "Status of the inference"
     enum:
-      - success
-      - error
-      - skipped
+      - "success"
+      - "failed"
+      - "skipped"
+    description: "Status of the inference for this clip."
+  error_msg:
+    type: string
+    description: "Error message if status is 'failed' or 'skipped'."
+    nullable: true
 required:
   - video_id
-  - divergence_score
-  - euler_steps
-  - inference_time_sec
+  - divergence_value
+  - baseline_n
+  - features
   - status
 additionalProperties: false
-description: "Schema for data/processed/divergence_metrics.csv"

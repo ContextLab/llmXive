@@ -1,0 +1,11 @@
+status: none
+intent: UCF101 Kinetics DAVIS video clips continuous motion discontinuity annotations
+  python package dataset
+required_fields:
+- video_id
+- video_path
+- source_dataset
+- continuity_score
+cache_key: b4aeeb7fe92d2b5da100d6279487d171774fc281daf33a2ee99d8ca026f575b3
+searched_at: '2026-08-21T16:12:31.005176+00:00'
+retry_count: 1

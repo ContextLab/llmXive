@@ -2,78 +2,108 @@
 
 ## Prerequisites
 
-*   Python 3.10+
-*   7GB+ RAM
-*   14GB+ Disk Space
-*   Access to HuggingFace (for manifest download and dataset loading)
+*   Python 3.11+
+*   Git
+*   Sufficient free disk space (for video clips and model weights)
+*   Internet access (for Hugging Face downloads)
+*   **System Dependencies**: `ffmpeg`, `libsm6`, `libxext6` (for OpenCV video decoding)
 
 ## Installation
 
-1.  **Clone the repository** (if not already done).
-2.  **Create a virtual environment**:
+1.  **Clone the repository** and navigate to the project directory:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-812-llmxive-follow-up-extending-anyflow-any
+    ```
+
+2.  **Install System Dependencies** (for video decoding):
+    ```bash
+    # On GitHub Actions (ubuntu-latest)
+    sudo apt-get update && sudo apt-get install -y ffmpeg libsm6 libxext6
+    ```
+
+3.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-3.  **Install dependencies**:
+
+4.  **Install dependencies**:
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins `torch` (CPU wheel), `onnxruntime`, `opencv-python`, `datasets`, etc.*
+    *Note: `requirements.txt` pins `torch` to a CPU-only version, `onnxruntime`, and `opencv-python-headless`.*
 
-## Data Preparation
-
-1.  **Download the Manifest**:
-    The script will automatically fetch the `a_checkpoint_manifest.json` from the verified HuggingFace URL.
-2.  **Run the Download Script**:
+5.  **Verify setup**:
     ```bash
-    python code/download.py
+    python -c "import torch; print('CPU:', torch.backends.mps.is_available() or torch.cuda.is_available() == False)"
     ```
-    *This downloads 500 clips (16 frames @ 30fps) from Kinetics-400/UCF101 using the manifest IDs and saves them to `data/raw/`.*
-    *   *Fallback*: If manifest IDs fail, it uses a pre-defined list of Kinetics video IDs.
-3.  **Manual Annotation**:
-    *   Open `data/annotations/continuity_scores.csv` (or the annotation tool provided).
-    *   Review each clip and assign a `score` (0.0–1.0) based on visual continuity.
-    *   **Important**: Do not use any model outputs for scoring.
-    *   Save the file when complete.
 
-## Execution
+## Running the Pipeline
 
-1.  **Run the Inference Pipeline**:
-    ```bash
-    python code/inference.py
-    ```
-    *This loads the AnyFlow model (ONNX), computes divergence scores, and saves `data/processed/divergence_metrics.csv`.*
-    *   *Pre-flight check*: If runtime > 5.5h, RK4 steps are reduced to N=200.
+The pipeline consists of five sequential steps. Run them in order.
 
-2.  **Run the Analysis Pipeline**:
-    ```bash
-    python code/analysis.py
-    ```
-    *This performs correlation analysis, sensitivity checks, and variance validation.*
-    *   Outputs: `correlation_results.json`, `sensitivity_report.csv`, `variance_report.csv`.
+### Step 0: Pre-flight Verification
+Validates dataset URLs and model weights before download.
+```bash
+python code/download.py --verify-only
+```
 
-3.  **Verify Stability (Constitution Check)**:
-    ```bash
-    python code/analysis.py --verify-stability
-    ```
-    *This step perturbs divergence scores by ±1% noise and re-computes the correlation to ensure stability within ±0.05 tolerance, as required by Principle VI.*
+### Step 1: Data Download
+Download video clips from UCF and DAVIS 2017.
+```bash
+python code/download.py --output data/raw/videos --count 500
+```
+*Output*: `data/raw/videos/` (folder of .mp4 files)
+
+### Step 2: Calibration & Annotation
+Opens a CLI interface for human annotators to score clips.
+1.  **Calibration**: First, score 20 synthetic clips to verify accuracy (≥ 90%).
+2.  **Pilot**: Score 50 clips with two annotators to calculate Kappa (≥ 0.81).
+3.  **Main**: Score remaining clips.
+```bash
+python code/annotate.py --input data/raw/videos --output data/raw/ground_truth.csv
+```
+*Note*: This step requires human interaction. Follow the 5-point Likert rubric. The script will automatically record `annotator_id` (via CLI prompt) and `timestamp` (via `datetime.now()`).
+*Output*: `data/raw/ground_truth.csv`
+
+### Step 3: Validation & Variance Check
+Checks data quality, calculates variance, and performs the stability check (Constitution VI).
+```bash
+python code/validate.py --ground-truth data/raw/ground_truth.csv --output data/processed/
+```
+*Output*: `data/processed/variance_report.csv` (includes Kappa and stability check results)
+
+### Step 4: Inference & Metric Calculation
+Computes flow-map divergence for all clips (CPU-only).
+```bash
+python code/inference.py --input data/raw/videos --ground-truth data/raw/ground_truth.csv --output data/processed/divergence_metrics.csv
+```
+*Note*: This step includes a pilot check (30 clips) to determine if N=500 is feasible. If not, it automatically switches to N=200.
+*Output*: `data/processed/divergence_metrics.csv`
+
+### Step 5: Analysis & Reporting
+Performs correlation, regression, sensitivity analysis, and generates the final report.
+```bash
+python code/analysis.py --divergence data/processed/divergence_metrics.csv --ground-truth data/raw/ground_truth.csv --variance data/processed/variance_report.csv --output data/processed/
+python code/report.py --output data/processed/final_report.md
+```
+*Output*: `data/processed/correlation_results.csv`, `data/processed/sensitivity_report.csv`, `data/processed/final_report.md` (includes variance_report.csv)
 
 ## Verification
 
-1.  **Check Outputs**:
-    *   Ensure `data/processed/correlation_results.json` contains `pearson_r`, `spearman_rho`, and `p_value`.
-    *   Ensure `data/processed/variance_report.csv` shows `threshold_met: true`.
-    *   Ensure `data/processed/stability_check.json` (generated by `--verify-stability`) shows `stability_met: true`.
-2.  **Run Tests**:
+To verify the pipeline ran correctly:
+1.  Check `data/processed/variance_report.csv` for Kappa (≥ 0.81) and stability check.
+2.  Check `data/processed/correlation_results.csv` for Pearson $r$ and p-value.
+3.  Check `data/processed/final_report.md` to ensure `variance_report.csv` is embedded.
+4.  Run the unit tests:
     ```bash
-    pytest tests/
+    pytest tests/unit/
     ```
-    *Validates contract schemas and unit logic.*
 
 ## Troubleshooting
 
-*   **Runtime Error**: If the script fails due to memory, ensure no other heavy processes are running. The script uses batch processing.
-*   **Variance Error**: If `variance < 0.05`, re-annotate the clips to ensure a wider distribution of scores.
-*   **Model Load Error**: Verify the ONNX model file is present in the expected path (as defined in `code/inference.py`).
-*   **Data Fetch Error**: If the manifest IDs fail, check the logs for the fallback Kinetics IDs used.
+*   **Out of Memory**: Reduce `--batch-size` in `inference.py` (default: a smaller value).
+*   **Runtime Timeout**: If the pilot check fails, the script will automatically switch to N=200. If N=200 also fails, the script will exit with an error.
+*   **CUDA Error**: Ensure `torch` is installed from the CPU-only wheel. The script should not use CUDA.
+*   **Video Decode Error**: Ensure `ffmpeg` is installed on the system.

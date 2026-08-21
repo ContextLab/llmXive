@@ -1,30 +1,39 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for the correlation and regression results (code/analysis.py)."
 type: object
 properties:
   pearson_r:
     type: number
-    description: "Pearson correlation coefficient"
+    description: "Pearson correlation coefficient."
+  pearson_p_value:
+    type: number
+    description: "P-value for Pearson correlation."
   spearman_rho:
     type: number
-    description: "Spearman rank correlation coefficient"
-  p_value:
+    description: "Spearman rank correlation coefficient."
+  spearman_p_value:
     type: number
-    description: "P-value for the correlation test"
-    minimum: 0.0
-    maximum: 1.0
-  relationship_type:
+    description: "P-value for Spearman correlation."
+  logistic_regression_accuracy:
+    type: number
+    description: "Accuracy of the multivariate logistic regression model."
+  logistic_regression_p_value:
+    type: number
+    description: "P-value for logistic regression significance."
+  analysis_type:
     type: string
-    description: "Type of relationship (must be 'Associational')"
-    const: "Associational"
-  variance_score:
-    type: number
-    description: "Variance of the continuity scores"
-    minimum: 0.0
+    enum:
+      - "correlation"
+      - "fisher_exact"
+    description: "Type of analysis performed (correlation or Fisher's Exact Test for bimodal data)."
+  note:
+    type: string
+    description: "Additional notes (e.g., 'Bimodal data detected, used Fisher's Exact Test')."
 required:
   - pearson_r
+  - pearson_p_value
   - spearman_rho
-  - p_value
-  - relationship_type
-  - variance_score
+  - spearman_p_value
+  - analysis_type
 additionalProperties: false
-description: "Schema for data/processed/correlation_results.json"

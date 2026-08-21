@@ -2,87 +2,69 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and file formats used in the project. All data is stored in `data/` and validated against the contracts in `contracts/`.
+This document defines the data structures, schemas, and relationships for the project. All data artifacts are stored in `data/` and versioned via checksums.
 
-## Entity Definitions
+## Entities
 
-### VideoClip
-A short video segment extracted from a public repository.
-*   **Attributes**:
-    *   `video_id`: Unique string identifier (e.g., `kinetics_001`).
-    *   `source_url`: Original URL of the video (from manifest).
-    *   `file_path`: Local path to the 16-frame clip.
-    *   `frame_count`: Integer (always 16).
-    *   `fps`: Integer (always 30).
-    *   `has_cut`: Boolean (derived from stratified sampling metadata).
+### 1. VideoClip
+A short video segment (16 frames @ 30fps) extracted from a source repository.
+*   **ID**: `video_id` (string, unique)
+*   **Source**: `source_url` (string, URL of original repository)
+*   **Path**: `local_path` (string, relative path to `.mp4` file in `data/raw/`)
+*   **Frames**: `num_frames` (int, fixed at 16)
+*   **FPS**: `fps` (int, fixed at 30)
+*   **Category**: `category` (string, e.g., "continuous", "cut", "mixed")
 
-### ContinuityScore
-Manual ground-truth label for a `VideoClip`.
-*   **Attributes**:
-    *   `video_id`: Foreign key to `VideoClip`.
-    *   `score`: Float, range [0.0, 1.0].
-    *   `annotator_id`: String (identifier for the human annotator).
-    *   `timestamp`: ISO 8601 timestamp.
+### 2. ContinuityScore
+Manual ground-truth label assigned by a human annotator.
+*   **VideoID**: `video_id` (string, FK to VideoClip)
+*   **Score**: `score` (float, 0.0 to 1.0, derived from 1-5 Likert scale)
+*   **Annotator**: `annotator_id` (string, captured at script start)
+*   **Timestamp**: `annotated_at` (ISO 8601, captured automatically)
+*   **Rubric**: `rubric_version` (string, e.g., "v1.0-Likert5")
 
-### DivergenceMetric
-Computed instability metric for a `VideoClip`.
-*   **Attributes**:
-    *   `video_id`: Foreign key to `VideoClip`.
-    *   `divergence_score`: Float (L2 distance).
-    *   `euler_steps`: Integer (N=500 or N=200).
-    *   `inference_time_sec`: Float.
-    *   `status`: String ("success", "error", "skipped").
+### 3. DivergenceMetric
+Computed numerical instability score for a video clip.
+*   **VideoID**: `video_id` (string, FK to VideoClip)
+*   **Metric**: `divergence_value` (float)
+*   **BaselineSteps**: `baseline_n` (int, e.g., 500, 200)
+*   **Features**: `features` (JSON, containing `kurtosis`, `temporal_clustering`, etc.)
+*   **Status**: `status` (string, "success", "failed", "skipped")
+*   **Error**: `error_msg` (string, if failed)
 
-### CorrelationResult
-Output of the statistical analysis.
-*   **Attributes**:
-    *   `pearson_r`: Float.
-    *   `spearman_rho`: Float.
-    *   `p_value`: Float.
-    *   `relationship_type`: String ("Associational").
-    *   `variance_score`: Float.
+### 4. SensitivityReport
+Aggregated results of threshold and resolution sweeps.
+*   **Threshold**: `threshold` (float, e.g., 0.01, 0.05)
+*   **BaselineSteps**: `baseline_n` (int)
+*   **TruePositive**: `tp` (int)
+*   **FalsePositive**: `fp` (int)
+*   **TrueNegative**: `tn` (int)
+*   **FalseNegative**: `fn` (int)
+*   **Accuracy**: `accuracy` (float)
 
-## File Formats
-
-### `data/raw/clip_metadata.csv`
-*   **Format**: CSV
-*   **Columns**: `video_id`, `source_url`, `file_path`, `has_cut`
-*   **Description**: Inventory of downloaded clips.
-
-### `data/annotations/continuity_scores.csv`
-*   **Format**: CSV
-*   **Columns**: `video_id`, `score`, `annotator_id`, `timestamp`
-*   **Description**: Manual ground-truth labels.
-
-### `data/processed/divergence_metrics.csv`
-*   **Format**: CSV
-*   **Columns**: `video_id`, `divergence_score`, `euler_steps`, `inference_time_sec`, `status`
-*   **Description**: Computed model instability metrics.
-
-### `data/processed/correlation_results.json`
-*   **Format**: JSON
-*   **Description**: Final statistical results (Pearson, Spearman, p-value, variance).
-
-### `data/processed/sensitivity_report.csv`
-*   **Format**: CSV
-*   **Columns**: `threshold`, `false_positive_rate`, `false_negative_rate`
-*   **Description**: Sensitivity analysis for thresholds {0.01, 0.05, 0.1}.
-
-### `data/processed/variance_report.csv`
-*   **Format**: CSV
-*   **Columns**: `metric`, `variance`, `threshold_met`
-*   **Description**: Variance check for `continuity_score`.
+### 5. VarianceReport
+Statistical summary of the ContinuityScore distribution and stability check.
+*   **Variance**: `variance` (float)
+*   **Mean**: `mean` (float)
+*   **StdDev**: `std_dev` (float)
+*   **Bimodal**: `is_bimodal` (boolean, result of Hartigan's Dip Test)
+*   **DipPValue**: `dip_p_value` (float)
+*   **Kappa**: `kappa` (float, inter-annotator agreement from pilot)
+*   **StabilityMet**: `stability_met` (boolean, result of Constitution VI check)
+*   **DeltaR**: `delta_r` (float, change in correlation after noise perturbation)
 
 ## Data Flow
 
-1.  **Ingestion**: `download.py` creates `clip_metadata.csv`.
-2.  **Annotation**: Manual process creates `continuity_scores.csv`.
-3.  **Inference**: `inference.py` creates `divergence_metrics.csv`.
-4.  **Analysis**: `analysis.py` creates `correlation_results.json`, `sensitivity_report.csv`, `variance_report.csv`.
+1.  **Download**: `download.py` (with pre-flight URL check) → `data/raw/videos/` (VideoClip)
+2.  **Calibration**: `annotate.py` (calibration mode) → `data/raw/calibration_scores.csv`
+3.  **Annotation**: `annotate.py` (main mode) → `data/raw/ground_truth.csv` (ContinuityScore)
+4.  **Validation**: `validate.py` → `data/processed/variance_report.csv` (VarianceReport)
+5.  **Inference**: `inference.py` → `data/processed/divergence_metrics.csv` (DivergenceMetric)
+6.  **Analysis**: `analysis.py` → `data/processed/correlation_results.csv`, `data/processed/sensitivity_report.csv` (SensitivityReport)
+7.  **Reporting**: `report.py` (embeds `variance_report.csv`) → Final Report
 
 ## Constraints
 
-*   **Score Range**: `continuity_score` must be in [0.0, 1.0].
-*   **Divergence**: `divergence_score` must be non-negative.
-*   **Variance**: `variance_score` must be ≥ 0.05 for analysis to proceed.
-*   **No PII**: No personally identifiable information in `data/`.
+*   **Immutability**: `data/raw` files are never modified. Derivations are written to new files in `data/processed`.
+*   **Checksums**: Every file in `data/` has a corresponding SHA256 hash in `data/checksums.txt`.
+*   **Schema Validation**: All CSVs must conform to the schemas defined in `contracts/`.

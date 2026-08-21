@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-11T11:41:56Z",
+  "fetched_at": "2026-08-21T15:46:39Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil\"",
       "target_n": 5
     },
-    "duration_seconds": 48.97,
-    "ended_at": "2026-07-11T11:41:56Z",
+    "duration_seconds": 33.358,
+    "ended_at": "2026-08-21T15:46:39Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -19,79 +19,79 @@
         ],
         [
           2,
-          "On-policy flow map distillation for video generation"
+          "On-policy flow map distillation"
         ],
         [
           3,
-          "Consistency models for arbitrary step video synthesis"
+          "Variable-step video generation diffusion"
         ],
         [
           4,
-          "Flow matching with policy distillation in generative video"
+          "Flow matching for video synthesis"
         ],
         [
           5,
-          "Arbitrary-step sampling in video diffusion transformers"
+          "Adaptive timestep video diffusion"
         ],
         [
           6,
-          "One-step video generation via flow distillation"
+          "Distillation of video diffusion trajectories"
         ],
         [
           7,
-          "On-policy training for diffusion model acceleration"
+          "Continuous-time video diffusion models"
         ],
         [
           8,
-          "Video generation with flexible inference steps"
+          "Consistency models for video generation"
         ],
         [
           9,
-          "Flow map distillation techniques in generative AI"
+          "Policy-based distillation in generative models"
         ],
         [
           10,
-          "Multi-step to single-step video diffusion distillation"
+          "Step-agnostic video diffusion architectures"
         ],
         [
           11,
-          "Consistency distillation for video diffusion models"
+          "Rectified flow for video synthesis"
         ],
         [
           12,
-          "Adaptive step video synthesis with flow matching"
+          "Few-step video generation via distillation"
         ],
         [
           13,
-          "Policy optimization for diffusion model speedup"
+          "Trajectory matching in diffusion models"
         ],
         [
           14,
-          "Any-step inference in latent video diffusion"
+          "On-policy learning for generative flow"
         ],
         [
           15,
-          "Flow-based generative models for video prediction"
+          "Multi-scale video diffusion distillation"
         ],
         [
           16,
-          "Accelerating video diffusion via on-policy distillation"
+          "Efficient video generation with flow matching"
         ],
         [
           17,
-          "Variable-step sampling strategies for video generation"
+          "Any-time inference for diffusion models"
         ],
         [
           18,
-          "Distilled flow maps for efficient video synthesis"
+          "Temporal consistency in video diffusion distillation"
         ],
         [
           19,
-          "One-shot video generation using flow matching"
+          "Flow map optimization for video synthesis"
         ],
         [
           20,
-          "Reinforcement learning for diffusion model step reduction"
+          "Generalized diffusion steps for video generation"
         ]
       ],
       "original_term": "",
@@ -102,11 +102,11 @@
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "flow matching distillation video generation",
-      "AnyFlow on-policy reinforcement learning",
-      "video diffusion model step-wise distillation",
-      "trajectory consistency video generation evaluation",
-      "imitation learning flow map alignment"
+      "flow matching distillation policy gradient",
+      "AnyFlow video generation temporal consistency",
+      "on-policy reinforcement learning diffusion trajectory",
+      "video diffusion model frame interpolation fidelity",
+      "flow map regularization trajectory optimization"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2405.03150"
+        "2605.13724"
       ]
     },
     "per_query_hit_count": {
-      "AnyFlow on-policy reinforcement learning": 3,
-      "flow matching distillation video generation": 3,
-      "imitation learning flow map alignment": 3,
+      "AnyFlow video generation temporal consistency": 3,
+      "flow map regularization trajectory optimization": 3,
+      "flow matching distillation policy gradient": 3,
       "llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil\" computer science": 3,
-      "trajectory consistency video generation evaluation": 2,
-      "video diffusion model step-wise distillation": 3
+      "on-policy reinforcement learning diffusion trajectory": 3,
+      "video diffusion model frame interpolation fidelity": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -149,7 +149,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-11T11:41:07Z",
+    "started_at": "2026-08-21T15:46:05Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"anyflow: any-step video diffusion model with on-policy flow map distil\" computer science",
       "raw": "llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil\" computer science"
@@ -168,7 +168,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-11T11:41:37Z",
+        "failed_at": "2026-08-21T15:46:32Z",
         "reason": "query_irrelevant"
       },
       {
@@ -187,7 +187,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-11T11:41:37Z",
+        "failed_at": "2026-08-21T15:46:32Z",
         "reason": "query_irrelevant"
       },
       {
@@ -205,7 +205,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-11T11:41:37Z",
+        "failed_at": "2026-08-21T15:46:32Z",
         "reason": "query_irrelevant"
       },
       {
@@ -226,7 +226,7 @@
           "primary_pointer": "2302.14416"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='DREAM: Efficient Dataset Distillation by Representative Matching')",
-        "failed_at": "2026-07-11T11:41:37Z",
+        "failed_at": "2026-08-21T15:46:32Z",
         "reason": "query_irrelevant"
       },
       {
@@ -244,134 +244,7 @@
           "primary_pointer": "2405.10988"
         },
         "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Flow Score Distillation for Diverse Text-to-3D Generation')",
-        "failed_at": "2026-07-11T11:41:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Distribution Matching Distillation (DMD) facilitates efficient inference by distilling multi-step diffusion models into few-step variants. Concurrently, Reinforcement Learning (RL) has emerged as a vital tool for aligning generative models with human preferences. While both represent critical post-training stages for large-scale diffusion models, existing studies typically treat them as independent, sequential processes, leaving a systematic framework for their unification largely unexplored. In this work, we demonstrate that jointly optimizing these two objectives yields mutual benefits: RL enables more preference-aware and controllable distillation rather than uniformly compressing the full data distribution, while DMD serves as an effective regularizer to mitigate reward hacking during RL training. Building on these insights, we propose DMDR, a unified framework that incorporates Reward-Tilted Distribution Matching optimization alongside two dynamic distillation training strategies in the initial stage, followed by the joint DMD and RL optimization in the second stage. Extensive experiments demonstrate that DMDR achieves state-of-the-art visual quality and prompt adherence among few-step generation methods, even surpassing the performance of its multi-step teacher model.",
-          "claimed_authors": [
-            "Dengyang Jiang",
-            "Dongyang Liu",
-            "Zanyi Wang",
-            "Qilong Wu",
-            "Liuzhuozheng Li",
-            "Hengzhuang Li",
-            "Xin Jin",
-            "David Liu",
-            "Changsheng Lu",
-            "Zhen Li",
-            "Bo Zhang",
-            "Mengmeng Wang",
-            "Steven Hoi",
-            "Peng Gao",
-            "Harry Yang"
-          ],
-          "claimed_title": "Distribution Matching Distillation Meets Reinforcement Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2511.13649"
-        },
-        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Distribution Matching Distillation Meets Reinforcement Learning')",
-        "failed_at": "2026-07-11T11:41:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
-          "claimed_authors": [
-            "Abdul Wahab",
-            "Raksha Kumaraswamy",
-            "Martha White"
-          ],
-          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.12375"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
-        "failed_at": "2026-07-11T11:41:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Many currently deployed Reinforcement Learning agents work in an environment shared with humans, be them co-workers, users or clients. It is desirable that these agents adjust to people's preferences, learn faster thanks to their help, and act safely around them. We argue that most current approaches that learn from human feedback are unsafe: rewarding or punishing the agent a-posteriori cannot immediately prevent it from wrong-doing. In this paper, we extend Policy Gradient to make it robust to external directives, that would otherwise break the fundamentally on-policy nature of Policy Gradient. Our technique, Directed Policy Gradient (DPG), allows a teacher or backup policy to override the agent before it acts undesirably, while allowing the agent to leverage human advice or directives to learn faster. Our experiments demonstrate that DPG makes the agent learn much faster than reward-based approaches, while requiring an order of magnitude less advice.",
-          "claimed_authors": [
-            "Hélène Plisnier",
-            "Denis Steckelmacher",
-            "Tim Brys",
-            "Diederik M. Roijers",
-            "Ann Nowé"
-          ],
-          "claimed_title": "Directed Policy Gradient for Safe Reinforcement Learning with Human Advice",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1808.04096"
-        },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Directed Policy Gradient for Safe Reinforcement Learning with Human Advice')",
-        "failed_at": "2026-07-11T11:41:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Diffusion generative models have recently become a powerful technique for creating and modifying high-quality, coherent video content. This survey provides a comprehensive overview of the critical components of diffusion models for video generation, including their applications, architectural design, and temporal dynamics modeling. The paper begins by discussing the core principles and mathematical formulations, then explores various architectural choices and methods for maintaining temporal consistency. A taxonomy of applications is presented, categorizing models based on input modalities such as text prompts, images, videos, and audio signals. Advancements in text-to-video generation are discussed to illustrate the state-of-the-art capabilities and limitations of current approaches. Additionally, the survey summarizes recent developments in training and evaluation practices, including the use of diverse video and image datasets and the adoption of various evaluation metrics to assess model performance. The survey concludes with an examination of ongoing challenges, such as generating longer videos and managing computational costs, and offers insights into potential future directions for the field. By consolidating the latest research and developments, this survey aims to serve as a valuable resource for researchers and practitioners working with video diffusion models. Website: https://github.com/ndrwmlnk/Awesome-Video-Diffusion-Models",
-          "claimed_authors": [
-            "Andrew Melnik",
-            "Michal Ljubljanac",
-            "Cong Lu",
-            "Qi Yan",
-            "Weiming Ren",
-            "Helge Ritter"
-          ],
-          "claimed_title": "Video Diffusion Models: A Survey",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2405.03150"
-        },
-        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Video Diffusion Models: A Survey')",
-        "failed_at": "2026-07-11T11:41:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In contrast with traditional video, omnidirectional video enables spherical viewing direction with support for head-mounted displays, providing an interactive and immersive experience. Unfortunately, to the best of our knowledge, there are few visual quality assessment (VQA) methods, either subjective or objective, for omnidirectional video coding. This paper proposes both subjective and objective methods for assessing quality loss in encoding omnidirectional video. Specifically, we first present a new database, which includes the viewing direction data from several subjects watching omnidirectional video sequences. Then, from our database, we find a high consistency in viewing directions across different subjects. The viewing directions are normally distributed in the center of the front regions, but they sometimes fall into other regions, related to video content. Given this finding, we present a subjective VQA method for measuring difference mean opinion score (DMOS) of the whole and regional omnidirectional video, in terms of overall DMOS (O-DMOS) and vectorized DMOS (V-DMOS), respectively. Moreover, we propose two objective VQA methods for encoded omnidirectional video, in light of human perception characteristics of omnidirectional video. One method weighs the distortion of pixels with regard to their distances to the center of front regions, which considers human preference in a panorama. The other method predicts viewing directions according to video content, and then the predicted viewing directions are leveraged to allocate weights to the distortion of each pixel in our objective VQA method. Finally, our experimental results verify that both the subjective and objective methods proposed in this paper advance state-of-the-art VQA for omnidirectional video.",
-          "claimed_authors": [
-            "Mai Xu",
-            "Chen Li",
-            "Zulin Wang",
-            "Zhenzhong Chen",
-            "Zhenyu Guan"
-          ],
-          "claimed_title": "Assessing Visual Quality of Omnidirectional Videos",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1709.06342"
-        },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Assessing Visual Quality of Omnidirectional Videos')",
-        "failed_at": "2026-07-11T11:41:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Graph-based diffusion models have shown promising results in terms of generating high-quality solutions to NP-complete (NPC) combinatorial optimization (CO) problems. However, those models are often inefficient in inference, due to the iterative evaluation nature of the denoising diffusion process. This paper proposes to use progressive distillation to speed up the inference by taking fewer steps (e.g., forecasting two steps ahead within a single step) during the denoising process. Our experimental results show that the progressively distilled model can perform inference 16 times faster with only 0.019% degradation in performance on the TSP-50 dataset.",
-          "claimed_authors": [
-            "Junwei Huang",
-            "Zhiqing Sun",
-            "Yiming Yang"
-          ],
-          "claimed_title": "Accelerating Diffusion-based Combinatorial Optimization Solvers by Progressive Distillation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2308.06644"
-        },
-        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Accelerating Diffusion-based Combinatorial Optimization Solvers by Progressive Distillation')",
-        "failed_at": "2026-07-11T11:41:37Z",
+        "failed_at": "2026-08-21T15:46:32Z",
         "reason": "query_irrelevant"
       },
       {
@@ -390,94 +263,238 @@
           "primary_pointer": "2201.11632"
         },
         "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Deep Video Prior for Video Consistency and Propagation')",
-        "failed_at": "2026-07-11T11:41:37Z",
+        "failed_at": "2026-08-21T15:46:33Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Video generation models have demonstrated great capabilities of producing impressive monocular videos, however, the generation of 3D stereoscopic video remains under-explored. We propose a pose-free and training-free approach for generating 3D stereoscopic videos using an off-the-shelf monocular video generation model. Our method warps a generated monocular video into camera views on stereoscopic baseline using estimated video depth, and employs a novel frame matrix video inpainting framework. The framework leverages the video generation model to inpaint frames observed from different timestamps and views. This effective approach generates consistent and semantically coherent stereoscopic videos without scene optimization or model fine-tuning. Moreover, we develop a disocclusion boundary re-injection scheme that further improves the quality of video inpainting by alleviating the negative effects propagated from disoccluded areas in the latent space. We validate the efficacy of our proposed method by conducting experiments on videos from various generative models, including Sora [4 ], Lumiere [2], WALT [8 ], and Zeroscope [ 42]. The experiments demonstrate that our method has a significant improvement over previous methods. The code will be released at \\url{https://daipengwa.github.io/SVG_ProjectPage}.",
+          "claimed_abstract": "Human processes video reasoning in a sequential spatio-temporal reasoning logic, we first identify the relevant frames (\"when\") and then analyse the spatial relationships (\"where\") between key objects, and finally leverage these relationships to draw inferences (\"what\"). However, can Video Large Language Models (Video-LLMs) also \"reason through a sequential spatio-temporal logic\" in videos? Existing Video-LLM benchmarks primarily focus on assessing object presence, neglecting relational reasoning. Consequently, it is difficult to measure whether a model truly comprehends object interactions (actions/events) in videos or merely relies on pre-trained \"memory\" of co-occurrences as biases in generating answers. In this work, we introduce a Video Spatio-Temporal Reasoning (V-STaR) benchmark to address these shortcomings. The key idea is to decompose video understanding into a Reverse Spatio-Temporal Reasoning (RSTR) task that simultaneously evaluates what objects are present, when events occur, and where they are located while capturing the underlying Chain-of-thought (CoT) logic. To support this evaluation, we construct a dataset to elicit the spatial-temporal reasoning process of Video-LLMs. It contains coarse-to-fine CoT questions generated by a semi-automated GPT-4-powered pipeline, embedding explicit reasoning chains to mimic human cognition. Experiments from 14 Video-LLMs on our V-STaR reveal significant gaps between current Video-LLMs and the needs for robust and consistent spatio-temporal reasoning.",
           "claimed_authors": [
-            "Peng Dai",
-            "Feitong Tan",
-            "Qiangeng Xu",
-            "David Futschik",
-            "Ruofei Du",
-            "Sean Fanello",
-            "Xiaojuan Qi",
-            "Yinda Zhang"
+            "Zixu Cheng",
+            "Jian Hu",
+            "Ziquan Liu",
+            "Chenyang Si",
+            "Wei Li",
+            "Shaogang Gong"
           ],
-          "claimed_title": "SVG: 3D Stereoscopic Video Generation via Denoising Frame Matrix",
+          "claimed_title": "V-STaR: Benchmarking Video-LLMs on Video Spatio-Temporal Reasoning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2407.00367"
+          "claimed_year": 2025,
+          "primary_pointer": "2503.11495"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='SVG: 3D Stereoscopic Video Generation via Denoising Frame Matrix')",
-        "failed_at": "2026-07-11T11:41:37Z",
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='V-STaR: Benchmarking Video-LLMs on Video Spatio-Temporal Reasoning')",
+        "failed_at": "2026-08-21T15:46:33Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Imitation learning is an effective alternative approach to learn a policy when the reward function is sparse. In this paper, we consider a challenging setting where an agent and an expert use different actions from each other. We assume that the agent has access to a sparse reward function and state-only expert observations. We propose a method which gradually balances between the imitation learning cost and the reinforcement learning objective. In addition, this method adapts the agent's policy based on either mimicking expert behavior or maximizing sparse reward. We show, through navigation scenarios, that (i) an agent is able to efficiently leverage sparse rewards to outperform standard state-only imitation learning, (ii) it can learn a policy even when its actions are different from the expert, and (iii) the performance of the agent is not bounded by that of the expert, due to the optimized usage of sparse rewards.",
+          "claimed_abstract": "Reinforcement learning (RL) research has demonstrated success in both physical and simulated domains; however, the predominant methodology remains rooted in simulations. The predominance of simulations makes translating research to physical reality uncertain for both algorithms and researchers. We propose a physical platform that is designed to simplify the transition. In this paper, we present the Open Ant: a physical variant of the commonly used Gymnasium Ant environment, along with a simulation. We demonstrate that competent walking policies can be learned from scratch in approximately one hour directly from the physical robot's experience for two substantially different RL algorithms: SARSA($λ$) and Soft Actor-Critic (SAC). Separately, we show policies that were learned in simulation transfer to reality. We also examine how well the platform supports a nimble experimental ecosystem. Specifically, we observe the speed with which new users from diverse backgrounds achieve their first success with the platform, and how easily the platform can be repaired and updated when hardware issues arise. Both the hardware design and software are available as open-source on GitHub for ease of customization. In summary, we advocate for the use of the Open Ant for RL researchers who frequently use simulated environments, so they can more easily include robot experiments in their evaluations.",
           "claimed_authors": [
-            "Konrad Zolna",
-            "Negar Rostamzadeh",
-            "Yoshua Bengio",
-            "Sungjin Ahn",
-            "Pedro O. Pinheiro"
+            "Elena Sorina Lupu",
+            "Patrick Spieler",
+            "Khurram Javed",
+            "Kris De Asis",
+            "John D. Martin",
+            "Martha Steenstrup",
+            "Joseph Modayil"
           ],
-          "claimed_title": "Reinforced Imitation in Heterogeneous Action Space",
+          "claimed_title": "The Open Ant: A Robot Platform for Reinforcement Learning Research",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1904.03438"
+          "claimed_year": 2026,
+          "primary_pointer": "2607.18488"
         },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Reinforced Imitation in Heterogeneous Action Space')",
-        "failed_at": "2026-07-11T11:41:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='The Open Ant: A Robot Platform for Reinforcement Learning Research')",
+        "failed_at": "2026-08-21T15:46:33Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In this paper we present a complete study of an end-to-end imitation learning system for speed control of a real car, based on a neural network with a Long Short Term Memory (LSTM). To achieve robustness and generalization from expert demonstrations, we propose data augmentation and label augmentation that are relevant for imitation learning in longitudinal control context. Based on front camera image only, our system is able to correctly control the speed of a car in simulation environment, and in a real car on a challenging test track. The system also shows promising results in open road context.",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
           "claimed_authors": [
-            "Laurent George",
-            "Thibault Buhet",
-            "Emilie Wirbel",
-            "Gaetan Le-Gall",
-            "Xavier Perrotton"
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
           ],
-          "claimed_title": "Imitation Learning for End to End Vehicle Longitudinal Control with Forward Camera",
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-08-21T15:46:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Unmanned aerial vehicles (UAVs) are now beginning to be deployed for enhancing the network performance and coverage in wireless communication. However, due to the limitation of their on-board power and flight time, it is challenging to obtain an optimal resource allocation scheme for the UAV-assisted Internet of Things (IoT). In this paper, we design a new UAV-assisted IoT systems relying on the shortest flight path of the UAVs while maximising the amount of data collected from IoT devices. Then, a deep reinforcement learning-based technique is conceived for finding the optimal trajectory and throughput in a specific coverage area. After training, the UAV has the ability to autonomously collect all the data from user nodes at a significant total sum-rate improvement while minimising the associated resources used. Numerical results are provided to highlight how our techniques strike a balance between the throughput attained, trajectory, and the time spent. More explicitly, we characterise the attainable performance in terms of the UAV trajectory, the expected reward and the total sum-rate.",
+          "claimed_authors": [
+            "Khoi Khac Nguyen",
+            "Trung Q. Duong",
+            "Tan Do-Duy",
+            "Holger Claussen",
+            "and Lajos Hanzo"
+          ],
+          "claimed_title": "3D UAV Trajectory and Data Collection Optimisation via Deep Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.03129"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='3D UAV Trajectory and Data Collection Optimisation via Deep Reinforcement Learning')",
+        "failed_at": "2026-08-21T15:46:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video Frame Interpolation (VFI) is a core low-level vision task that synthesizes intermediate frames between existing ones while ensuring spatial and temporal coherence. Over the past decades, VFI methodologies have evolved from classical motion compensation-based approach to a wide spectrum of deep learning-based approaches, including kernel-, flow-, hybrid-, phase-, GAN-, Transformer-, Mamba-, and most recently, diffusion-based models. We introduce AceVFI, a comprehensive and up-to-date review of the VFI field, covering over 250 representative papers. We systematically categorize VFI methods based on their core design principles and architectural characteristics. Further, we classify them into two major learning paradigms: Center-Time Frame Interpolation (CTFI) and Arbitrary-Time Frame Interpolation (ATFI). We analyze key challenges in VFI, including large motion, occlusion, lighting variation, and non-linear motion. In addition, we review standard datasets, loss functions, evaluation metrics. We also explore VFI applications in other domains and highlight future research directions. This survey aims to serve as a valuable reference for researchers and practitioners seeking a thorough understanding of the modern VFI landscape.",
+          "claimed_authors": [
+            "Dahyeon Kye",
+            "Changhyun Roh",
+            "Sukhun Ko",
+            "Chanho Eom",
+            "Jihyong Oh"
+          ],
+          "claimed_title": "AceVFI: A Comprehensive Survey of Advances in Video Frame Interpolation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.01061"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='AceVFI: A Comprehensive Survey of Advances in Video Frame Interpolation')",
+        "failed_at": "2026-08-21T15:46:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose a novel motion-compensated frame rate up-conversion (MC-FRUC) algorithm. The proposed algorithm creates interpolated frames by first estimating motion vectors using unilateral (jointing forward and backward) and bilateral motion estimation. Then motion vectors are combined based on adaptive threshold, in order to creates high-quality interpolated frames and reduce block artifacts. Since motion-compensated frame interpolation along unilateral motion trajectories yields holes, a new algorithm is introduced to resolve this problem. The experimental results show that the quality of the interpolated frames using the proposed algorithm is much higher than the existing algorithms.",
+          "claimed_authors": [
+            "Hanieh Naderi",
+            "Mohammad Rahmati"
+          ],
+          "claimed_title": "Triple Motion Estimation and Frame Interpolation based on Adaptive Threshold for Frame Rate Up-Conversion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.03621"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Triple Motion Estimation and Frame Interpolation based on Adaptive Threshold for Frame Rate Up-Conversion')",
+        "failed_at": "2026-08-21T15:46:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video restoration (e.g., video super-resolution) aims to restore high-quality frames from low-quality frames. Different from single image restoration, video restoration generally requires to utilize temporal information from multiple adjacent but usually misaligned video frames. Existing deep methods generally tackle with this by exploiting a sliding window strategy or a recurrent architecture, which either is restricted by frame-by-frame restoration or lacks long-range modelling ability. In this paper, we propose a Video Restoration Transformer (VRT) with parallel frame prediction and long-range temporal dependency modelling abilities. More specifically, VRT is composed of multiple scales, each of which consists of two kinds of modules: temporal mutual self attention (TMSA) and parallel warping. TMSA divides the video into small clips, on which mutual attention is applied for joint motion estimation, feature alignment and feature fusion, while self attention is used for feature extraction. To enable cross-clip interactions, the video sequence is shifted for every other layer. Besides, parallel warping is used to further fuse information from neighboring frames by parallel feature warping. Experimental results on five tasks, including video super-resolution, video deblurring, video denoising, video frame interpolation and space-time video super-resolution, demonstrate that VRT outperforms the state-of-the-art methods by large margins ($\\textbf{up to 2.16dB}$) on fourteen benchmark datasets.",
+          "claimed_authors": [
+            "Jingyun Liang",
+            "Jiezhang Cao",
+            "Yuchen Fan",
+            "Kai Zhang",
+            "Rakesh Ranjan",
+            "Yawei Li",
+            "Radu Timofte",
+            "Luc Van Gool"
+          ],
+          "claimed_title": "VRT: A Video Restoration Transformer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12288"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='VRT: A Video Restoration Transformer')",
+        "failed_at": "2026-08-21T15:46:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces and investigates a regularity condition in the asymptotic sense for optimization problems whose objective functions are polynomial. Under this regularity condition, the normalization argument in asymptotic analysis enables us to see the solution existence as well as the solution stability of these problems. We prove a Frank-Wolfe type theorem for regular optimization problems and an Eaves type theorem for non-regular pseudoconvex optimization problems. Moreover, we show results on the stability such as upper semicontinuity and local upper-Hölder stability of the solution map of polynomial optimization problems. At the end of the paper, we discuss the genericity of the regularity condition.",
+          "claimed_authors": [
+            "Vu Trung Hieu"
+          ],
+          "claimed_title": "On the solution existence and stability of polynomial optimization problems",
           "claimed_venue": "arXiv",
           "claimed_year": 2018,
-          "primary_pointer": "1812.05841"
+          "primary_pointer": "1808.06100"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Imitation Learning for End to End Vehicle Longitudinal Control with Forward Camera')",
-        "failed_at": "2026-07-11T11:41:37Z",
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='On the solution existence and stability of polynomial optimization problems')",
+        "failed_at": "2026-08-21T15:46:33Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In order for a robot to be a generalist that can perform a wide range of jobs, it must be able to acquire a wide variety of skills quickly and efficiently in complex unstructured environments. High-capacity models such as deep neural networks can enable a robot to represent complex skills, but learning each skill from scratch then becomes infeasible. In this work, we present a meta-imitation learning method that enables a robot to learn how to learn more efficiently, allowing it to acquire new skills from just a single demonstration. Unlike prior methods for one-shot imitation, our method can scale to raw pixel inputs and requires data from significantly fewer prior tasks for effective learning of new skills. Our experiments on both simulated and real robot platforms demonstrate the ability to learn new tasks, end-to-end, from a single visual demonstration.",
+          "claimed_abstract": "This paper concerns state constrained optimal control problems, in which the dynamic constraint takes the form of a differential inclusion. If the differential inclusion does not depend on time, then the Hamiltonian, evaluated along the optimal state trajectory and the co-state trajectory, is independent of time. If the differential inclusion is Lipschitz continuous, then the Hamitonian, evaluated along the optimal state trajectory and the co-state trajectory, is Lipschitz continuous. These two well-known results are examples of the following principle: the Hamiltonian, evaluated along the optimal state trajectory and the co-state trajectory, inherits the regularity properties of the differential inclusion, regarding its time dependence. We show that this principle also applies to another kind of regularity: if the differential inclusion has bounded variation with respect to time, then the Hamiltonian, evaluated along the optimal state trajectory and the co-state trajectory, has bounded variation. Two applications of these newly found properties are demonstrated. One is to derive improved conditions which guarantee the nondegeneracy of necessary conditions of optimality, in the form of a Hamiltonian inclusion. The other application is to derive new, less restrictive, conditions under which minimizers in the calculus of variations have bounded slope. The analysis is based on a new, local, concept of differential inclusions that have bounded variation with respect to the time variable, in which conditions are imposed on the multifunction involved, only in a neighborhood of a given state trajectory.",
           "claimed_authors": [
-            "Chelsea Finn",
-            "Tianhe Yu",
-            "Tianhao Zhang",
-            "Pieter Abbeel",
-            "Sergey Levine"
+            "Michele Palladino",
+            "Richard B. Vinter"
           ],
-          "claimed_title": "One-Shot Visual Imitation Learning via Meta-Learning",
+          "claimed_title": "Regularity of the Hamiltonian along Optimal Trajectories",
           "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1709.04905"
+          "claimed_year": 2019,
+          "primary_pointer": "1912.11863"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='One-Shot Visual Imitation Learning via Meta-Learning')",
-        "failed_at": "2026-07-11T11:41:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Regularity of the Hamiltonian along Optimal Trajectories')",
+        "failed_at": "2026-08-21T15:46:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We examine the characteristics of mean flow and scalar concentration characteristics of a turbulent boundary layer flow impinging on a cluster of tall obstacles (which can also be interpreted as a porous obstruction). The cluster is created with a group of cylinders of diameter $d$ and height $h$ arranged in a circular patch of diameter $D$.The solidity of the patch/obstruction is defined by $φ$ (the total planar area covered by cylinders), which is systematically varied ($0.098 \\leq φ\\leq 1$) by increasing the number of cylinders in a patch ($N_c$). A point source is placed at ground level upstream of the patch and its transport around the patch is examined. Time-averaged velocity and scalar fields, obtained from simultaneous planar PIV-PLIF (particle image velocimetry-planar laser-induced fluorescence) measurements, reveal that the characteristics of wake and flow above porous patches are heavily influenced by $φ$. In particular, we observe that the horizontal and vertical extent of the wake and scalar concentration downstream of the patches decreases and increases with $φ$, respectively. Here, the recirculation bubble is shifted closer to the trailing edge of the patches as $φ$ increases, limiting the flow from convecting downstream, decreasing the scalar concentration and virtually `extending' the patch in streamwise direction. As the bubble forms in the trailing edge, vertical bleeding increases and hence the concentration increases above patch where the cylinders appear to be `extend' vertically towards the freestream.",
+          "claimed_authors": [
+            "Dea Daniella Wangsawijaya",
+            "Claudia Nicolai",
+            "Bharathram Ganapathisubramani"
+          ],
+          "claimed_title": "Time-averaged velocity and scalar fields of the flow surrounding a group of cylinders",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.02266"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Time-averaged velocity and scalar fields of the flow surrounding a group of cylinders')",
+        "failed_at": "2026-08-21T15:46:33Z",
         "reason": "query_irrelevant"
       }
     ],
     "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhen Fang",
+            "Wenxuan Huang",
+            "Yu Zeng",
+            "Yiming Zhao",
+            "Shuang Chen",
+            "Kaituo Feng",
+            "Yunlong Lin",
+            "Lin Chen",
+            "Zehui Chen",
+            "Shaosheng Cao",
+            "Feng Zhao"
+          ],
+          "title": "Flow-OPD: On-Policy Distillation for Flow Matching Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.08063",
+        "summary": "Existing Flow Matching (FM) text-to-image models suffer from two critical bottlenecks under multi-task alignment: the reward sparsity induced by scalar-valued rewards, and the gradient interference arising from jointly optimizing heterogeneous objectives, which together give rise to a 'seesaw effect' of competing metrics and pervasive reward hacking. Inspired by the success of On-Policy Distillation (OPD) in the large language model community, we propose Flow-OPD, the first unified post-training framework that integrates on-policy distillation into Flow Matching models. Flow-OPD adopts a two-stage alignment strategy: it first cultivates domain-specialized teacher models via single-reward GRPO fine-tuning, allowing each expert to reach its performance ceiling in isolation; it then establishes a robust initial policy through a Flow-based Cold-Start scheme and seamlessly consolidates heterogeneous expertise into a single student via a three-step orchestration of on-policy sampling, task-routing labeling, and dense trajectory-level supervision. We further introduce Manifold Anchor Regularization (MAR), which leverages a task-agnostic teacher to provide full-data supervision that anchors generation to a high-quality manifold, effectively mitigating the aesthetic degradation commonly observed in purely RL-driven alignment. Built upon Stable Diffusion 3.5 Medium, Flow-OPD raises the GenEval score from 63 to 92 and the OCR accuracy from 59 to 94, yielding an overall improvement of roughly 10 points over vanilla GRPO, while preserving image fidelity and human-preference alignment and exhibiting an emergent 'teacher-surpassing' effect. These results establish Flow-OPD as a scalable alignment paradigm for building generalist text-to-image models. The codes and weights will be released in: https://github.com/CostaliyA/Flow-OPD .",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.08063",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3571,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-21T15:46:32Z"
+        }
+      },
       {
         "bibliographic_info": {
           "authors": [
@@ -500,13 +517,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2605.13724",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2916,
           "query_relevance_score": 0.5714,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-11T11:41:37Z"
+          "verified_at": "2026-08-21T15:46:32Z"
         }
       },
       {
@@ -530,13 +547,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2405.03150",
           "http_status": 200,
-          "pdf_sample_score": 0.2716,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.75,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-11T11:41:44Z"
+          "verified_at": "2026-08-21T15:46:37Z"
         }
       }
     ]
