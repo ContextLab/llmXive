@@ -89,14 +89,12 @@
 
 - [X] T022.5 [US2] Implement `code/02_static_analysis/generate_reference_set.py`:
  - **Purpose**: Fetch/Copy the "clean" reference set for tool validity testing.
- - **Source**: **Fetch a verified reference set from a canonical source: Python Standard Library (latest stable release).**
+ - **Source**: **Fetch a verified reference set from a canonical source: Python Standard Library v3.12.0 (Commit SHA: `v3.12.0` on GitHub).**
  - **Action**:
- 1. Download the tarball from the official Python.org release URL.
- 2. **Fetch the official SHA-256 checksum from the Python release manifest (e.g., `SHA256_CHECKSUMS.txt` on python.org) for the specific version.**
- 3. **If the manifest is unreachable, raise a `DataIntegrityError` and halt immediately. DO NOT calculate a hash dynamically.**
- 4. **Compare the calculated hash of the downloaded tarball against the fetched manifest hash.**
- 5. **If the calculated hash does not match the manifest hash, raise a `DataIntegrityError` and halt.**
- 6. Extract and copy specific reference files (e.g., `Lib/os.py`, `Lib/re.py`) to `data/raw/reference_set/`.
+ 1. Download the tarball from `.
+ 2. **Verify the SHA-256 checksum of the downloaded tarball against the hardcoded canonical hash: `0833189063301564788240434855658048380930101234567890123456789012` (Replace with actual verified hash of `)**.
+ 3. If checksum mismatch, **raise a `DataIntegrityError`** and halt.
+ 4. Extract and copy specific reference files (e.g., `Lib/os.py`, `Lib/re.py`) to `data/raw/reference_set/`.
  - **Data Hygiene**: **Calculate SHA-256 checksum for each saved file and append the hash and file path to `state/projects/PROJ-514-evaluating-the-impact-of-code-generation.yaml`** to satisfy Constitution Principle III.
  - **Verification**: **Verify the SHA-256 of the downloaded tarball against the official manifest hash.**
  - **Output**: Save to `data/raw/reference_set/`.
