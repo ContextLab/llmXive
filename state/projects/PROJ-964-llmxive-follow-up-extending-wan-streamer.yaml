@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-964-llmxive-follow-up-extending-wan-streamer
-last_run_id: f189102e-5096-4cf8-9047-ae9f550d7949
+last_run_id: edf5ff2a-31bb-47e2-ac16-1f39503dd194
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer
 title: 'llmXive follow-up: extending "Wan-Streamer v0.1: End-to-end Real-time Interactive
   Foundation Models"'
-updated_at: '2026-08-20T05:55:32.414654Z'
+updated_at: '2026-08-21T02:37:02.937583Z'

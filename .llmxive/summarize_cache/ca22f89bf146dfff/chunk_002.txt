@@ -1,0 +1,13 @@
+- **SC-006**: Uncertainty score calibration is measured against the actual prediction error, requiring a significant correlation between high uncertainty scores and high prediction errors (See FR-002, US-2).
+- **SC-007**: Proxy MOS validity is measured against human ratings (if available), requiring a correlation (r ≥ 0.8). **If no human data exists, the system MUST log "Assumption Validated (No Human Data Available)".** (See FR-004, US-3).
+- **SC-008**: Power analysis is measured against the expected variance of the FID metric, ensuring the sample size is sufficient to reject the null hypothesis of 'degradation > 5%' with [deferred] power (See FR-016).
+
+## Assumptions
+
+- **Assumption about dataset availability**: The Wan-Streamer v0.1 training logs and pre-trained weights are accessible via the official repository or public archive and contain the necessary latent trajectory data for the target timeframe. **If unavailable, the system MUST fall back to the canonical VoxCeleb2 dataset as per FR-019.**
+- **Assumption about CPU feasibility**: A representative sample of the total training data is sufficient to train a lightweight RNN model within the 6-hour CPU runtime limit while maintaining statistical power for the correlation analysis.
+- **Assumption about metric validity**: The CLIP-based video-text similarity or pre-trained video quality assessment model serves as a valid proxy for Mean Opinion Score (MOS) in the absence of human raters for this specific domain, provided the correlation validation (r ≥ 0.8) is met. **If a domain-specific video quality model (e.g., ViFi-CLIP) is available, it MUST be used instead.**
+- **Assumption about turn-taking labels**: The semantic and prosodic signals derived from the input audio/text are sufficient to distinguish "low-information" turns from "high-information" interruptions with a precision of at least 0.7.
+- **Assumption about inference constraints**: The "no GPU" constraint applies strictly; all training and inference must be performed using standard CPU floating-point operations without quantization libraries that require CUDA.
+- **Assumption about power limitations**: If the full dataset exceeds memory limits, the sampling strategy (random or stratified) will preserve the distribution of turn-taking events and latent delta magnitudes.
+- **Assumption about causal inference**: The randomized counterfactual intervention (FR-008) is sufficient to establish the causal effect of the skip action, overcoming the limitations of observational correlation.

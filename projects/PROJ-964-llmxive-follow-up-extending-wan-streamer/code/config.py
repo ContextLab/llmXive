@@ -20,6 +20,11 @@ VOXCEB2_DATASET_SPLIT = "train"
 # If not, the pipeline will attempt to fetch using the name and revision above.
 DATASET_PATH = None 
 
+# --- Sampling Configuration (FR-015) ---
+# Default sample size used if power analysis is unavailable.
+# Set to a value that typically results in a dataset < 1GB for CPU processing.
+DEFAULT_SAMPLE_SIZE = 50000
+
 # Configuration Summary
 def get_config_summary() -> dict:
     """
@@ -36,6 +41,7 @@ def get_config_summary() -> dict:
             "split": VOXCEB2_DATASET_SPLIT,
         },
         "dataset_path": str(DATASET_PATH) if DATASET_PATH else "Not set (will fetch from HF)",
+        "default_sample_size": DEFAULT_SAMPLE_SIZE,
         "seed": 42,
     }
 

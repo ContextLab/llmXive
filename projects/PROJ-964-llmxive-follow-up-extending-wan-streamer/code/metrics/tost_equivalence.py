@@ -10,272 +10,246 @@ import pandas as pd
 import numpy as np
 from statsmodels.stats.weightstats import ttost_ind
 
-# Import project utilities
-from utils.config import get_config_summary
-from data.validate_logs import check_logs_exist
+# Import project config utilities if available, otherwise define minimal path handling
+# The project API surface lists code/config.py but does not expose a direct 'load_config' for this module.
+# We will implement the logic to read the 'data_source' from the standard config file location or fallback.
+try:
+    from config import get_config_summary
+    CONFIG_AVAILABLE = True
+except ImportError:
+    CONFIG_AVAILABLE = False
+    logging.warning("code/config.py not found or incomplete. Proceeding with defaults.")
+
+# Constants
+TOST_DELTA = 0.05
+ALPHA = 0.05
+HYBRID_OUTPUT_PATH = "data/processed/hybrid_output.parquet"
+TOST_RESULTS_PATH = "data/metrics/tost_results.csv"
+LOG_PATH = "data/logs/tost_execution.log"
+STATE_YAML_PATH = "state.yaml"
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/logs/tost_equivalence.log')
+        logging.FileHandler(LOG_PATH),
+        logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
-def load_hybrid_output(output_path: str = 'data/processed/hybrid_output.parquet') -> pd.DataFrame:
+
+def load_hybrid_output(path: str) -> pd.DataFrame:
     """
     Load the hybrid output parquet file.
+    Expects columns: frame_id, latency, fid_score, skip_flag (at minimum).
     """
-    if not os.path.exists(output_path):
-        raise FileNotFoundError(f"Hybrid output file not found: {output_path}")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Hybrid output file not found at {path}")
     
-    logger.info(f"Loading hybrid output from {output_path}")
-    df = pd.read_parquet(output_path)
-    logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
+    logger.info(f"Loading hybrid output from {path}")
+    df = pd.read_parquet(path)
     
-    required_cols = ['frame_id', 'latency', 'fid_score', 'skip_flag']
+    required_cols = ['fid_score', 'latency']
     missing_cols = [c for c in required_cols if c not in df.columns]
     if missing_cols:
-        raise ValueError(f"Missing required columns in hybrid output: {missing_cols}")
+        raise ValueError(f"Hybrid output missing required columns: {missing_cols}")
     
     return df
 
-def load_baseline_metrics() -> Dict[str, Any]:
-    """
-    Load baseline metrics for comparison.
-    If data_source is 'voxceleb2', we use a linear interpolation baseline.
-    If data_source is 'wan-streamer', we use Wan-Streamer baseline.
-    """
-    config = get_config_summary()
-    data_source = config.get('data_source', 'wan-streamer')
-    
-    logger.info(f"Data source detected: {data_source}")
-    
-    # For this implementation, we assume the baseline metrics are derived
-    # from the non-skipped frames in the hybrid output itself (the 'full solver' frames)
-    # or from a separate baseline file if provided.
-    # Per task T050 logic, we switch baseline calculation method if necessary.
-    # Here we simulate loading a baseline or deriving it.
-    
-    # We will derive the baseline from the hybrid output where skip_flag == False
-    # This represents the "Full Solver" performance.
-    # In a real scenario, this might come from a separate 'baseline_output.parquet'
-    # but given the task dependencies, we use the hybrid output's non-skipped frames.
-    
-    return {
-        'source': data_source,
-        'description': f"Baseline derived from non-skipped frames in hybrid output (data_source={data_source})"
-    }
 
-def perform_tost_test(
-    group_a: np.ndarray, 
-    group_b: np.ndarray, 
-    equivalence_margin: float = 0.05, 
-    alpha: float = 0.05
-) -> Dict[str, Any]:
+def load_baseline_metrics(config: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Load or compute baseline metrics based on data_source.
+    
+    Logic:
+    - If data_source == 'wan-streamer': Use Wan-Streamer baseline.
+      Since we don't have a specific file for this in the API, we assume the baseline 
+      is the 'full solver' frames from the hybrid output (where skip_flag is False).
+      Or, if the hybrid simulation compares against a known baseline, we might need 
+      to load that. Given the constraints, we will derive the baseline from the 
+      'non-skipped' frames in the hybrid output as the 'Full Solver' reference.
+      
+    - If data_source == 'voxceleb2': Use full generation baseline.
+      Similarly, we treat the non-skipped frames as the baseline for comparison 
+      against the skipped (hybrid) frames.
+      
+    Note: The task description implies comparing the 'Hybrid' (skipped) quality 
+    against a 'Full' (non-skipped) quality baseline.
+    """
+    # We assume the 'baseline' is the quality of frames processed by the full solver
+    # (i.e., where skip_flag is False).
+    # The 'hybrid' group is the quality of frames where skip_flag is True (or the 
+    # specific intervention group defined in T047/T050).
+    
+    # For TOST, we need two groups of quality metrics (e.g., FID).
+    # Group 1: Full Solver Frames (Baseline)
+    # Group 2: Skipped Frames (Hybrid/Intervention)
+    
+    # We will return the two series here to keep the function simple, 
+    # but the signature returns a DataFrame for consistency with the prompt's 
+    # 'load_baseline_metrics' expectation if it implies loading a separate file.
+    # However, since the prompt says "switch baseline calculation method", 
+    # we will just return the two groups derived from the single source of truth 
+    # (hybrid_output) which contains both.
+    
+    # Re-reading T050: "generate the HybridOutput artifact ... required for FID/MOS calculation"
+    # The TOST test compares the quality of the hybrid approach vs the baseline.
+    # In a skip-architecture, the baseline is "Full Solver" and hybrid is "Skip + Fallback".
+    # We assume the dataframe contains the resulting FID for each frame.
+    
+    # We will return a dict with the two groups to be consumed by perform_tost_test
+    return None # Handled directly in run_tost_equivalence_tests
+
+
+def perform_tost_test(group1: List[float], group2: List[float], delta: float = TOST_DELTA, alpha: float = ALPHA) -> Dict[str, Any]:
     """
     Perform Two One-Sided Tests (TOST) for equivalence.
     
     Args:
-        group_a: Array of values for group A (e.g., skipped frames FID)
-        group_b: Array of values for group B (e.g., full solver FID)
-        equivalence_margin: The delta (Δ) for equivalence (default 0.05)
-        alpha: Significance level (default 0.05)
+        group1: List of metric values for the baseline (e.g., Full Solver FID).
+        group2: List of metric values for the treatment (e.g., Hybrid/Skipped FID).
+        delta: Equivalence margin.
+        alpha: Significance level.
         
     Returns:
-        Dictionary with TOST results including p-values and conclusion.
+        Dict with p-values and equivalence decision.
     """
-    if len(group_a) == 0 or len(group_b) == 0:
-        return {
-            'error': 'One of the groups is empty',
-            'p_value_lower': None,
-            'p_value_upper': None,
-            'equivalent': False
-        }
-
+    if len(group1) < 2 or len(group2) < 2:
+        raise ValueError("Both groups must have at least 2 samples for TOST.")
+    
     try:
-        # statsmodels ttost_ind returns (p-value_lower, p-value_upper, statistic_lower, statistic_upper)
-        # We are testing if the difference is within [-delta, +delta]
-        p_lower, p_upper, stat_lower, stat_upper = ttost_ind(
-            group_a, group_b, 
-            low=-equivalence_margin, 
-            upp=equivalence_margin, 
-            usevar='pooled'
-        )
+        # ttost_ind returns (p_lower, p_upper)
+        # We test:
+        # H0_1: mean1 - mean2 <= -delta  (Lower bound test)
+        # H0_2: mean1 - mean2 >= delta   (Upper bound test)
+        # Equivalence is rejected if either p-value >= alpha.
         
-        # For equivalence, both p-values must be < alpha
+        p_lower, p_upper = ttost_ind(group1, group2, low=-delta, upp=delta, usevar='pooled')
+        
         is_equivalent = (p_lower < alpha) and (p_upper < alpha)
         
         return {
-            'p_value_lower': float(p_lower),
-            'p_value_upper': float(p_upper),
-            'statistic_lower': float(stat_lower),
-            'statistic_upper': float(stat_upper),
-            'equivalence_margin': equivalence_margin,
-            'alpha': alpha,
-            'equivalent': is_equivalent,
-            'n_a': len(group_a),
-            'n_b': len(group_b),
-            'mean_a': float(np.mean(group_a)),
-            'mean_b': float(np.mean(group_b)),
-            'diff_mean': float(np.mean(group_a) - np.mean(group_b))
+            "p_value_lower": float(p_lower),
+            "p_value_upper": float(p_upper),
+            "is_equivalent": bool(is_equivalent),
+            "delta": delta,
+            "alpha": alpha,
+            "n1": len(group1),
+            "n2": len(group2),
+            "mean1": float(np.mean(group1)),
+            "mean2": float(np.mean(group2)),
+            "diff": float(np.mean(group1) - np.mean(group2))
         }
-        
     except Exception as e:
-        logger.error(f"TOST test failed: {str(e)}")
-        return {
-            'error': str(e),
-            'p_value_lower': None,
-            'p_value_upper': None,
-            'equivalent': False
-        }
+        logger.error(f"TOST test failed: {e}")
+        raise
 
-def run_tost_equivalence_tests(
-    hybrid_df: pd.DataFrame, 
-    metric_columns: List[str] = ['fid_score', 'latency'],
-    equivalence_margin: float = 0.05
-) -> List[Dict[str, Any]]:
+
+def run_tost_equivalence_tests(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """
-    Run TOST equivalence tests for specified metrics.
-    Compares skipped frames (skip_flag=True) vs full solver frames (skip_flag=False).
+    Run TOST tests on the hybrid output data.
+    
+    We perform TOST on the primary quality metric: FID.
+    We compare the FID of 'Full Solver' frames (skip_flag=False) vs 'Skipped' frames (skip_flag=True).
     """
-    results = []
+    if 'fid_score' not in df.columns:
+        raise ValueError("FID score column missing from hybrid output.")
     
-    # Split data
-    skipped = hybrid_df[hybrid_df['skip_flag'] == True]
-    full_solver = hybrid_df[hybrid_df['skip_flag'] == False]
+    baseline_group = df[df['skip_flag'] == False]['fid_score'].tolist()
+    hybrid_group = df[df['skip_flag'] == True]['fid_score'].tolist()
     
-    logger.info(f"Skipped frames: {len(skipped)}, Full solver frames: {len(full_solver)}")
+    logger.info(f"Baseline (Full Solver) group size: {len(baseline_group)}")
+    logger.info(f"Hybrid (Skipped) group size: {len(hybrid_group)}")
     
-    if len(skipped) == 0 or len(full_solver) == 0:
-        logger.warning("Cannot perform TOST: one group is empty.")
-        # Create a result indicating failure to run
-        for col in metric_columns:
-            results.append({
-                'metric': col,
-                'status': 'failed',
-                'reason': 'Empty group',
-                'equivalent': False
-            })
-        return results
+    if len(baseline_group) == 0 or len(hybrid_group) == 0:
+        raise ValueError("One of the groups is empty. Cannot perform TOST.")
+    
+    results = perform_tost_test(baseline_group, hybrid_group)
+    results['metric'] = 'fid_score'
+    results['comparison'] = 'full_solver_vs_skipped'
+    
+    return [results]
 
-    for metric in metric_columns:
-        if metric not in hybrid_df.columns:
-            logger.warning(f"Metric column {metric} not found, skipping.")
-            results.append({
-                'metric': metric,
-                'status': 'skipped',
-                'reason': f'Column {metric} not found'
-            })
-            continue
 
-        group_a = skipped[metric].values
-        group_b = full_solver[metric].values
-        
-        logger.info(f"Running TOST for {metric}: Skipping vs Full")
-        
-        tost_result = perform_tost_test(group_a, group_b, equivalence_margin)
-        
-        result_entry = {
-            'metric': metric,
-            'equivalence_margin': equivalence_margin,
-            'n_skipped': len(group_a),
-            'n_full': len(group_b),
-            'mean_skipped': tost_result.get('mean_a'),
-            'mean_full': tost_result.get('mean_b'),
-            'diff_mean': tost_result.get('diff_mean'),
-            'p_value_lower': tost_result.get('p_value_lower'),
-            'p_value_upper': tost_result.get('p_value_upper'),
-            'equivalent': tost_result.get('equivalent', False),
-            'status': 'completed' if 'error' not in tost_result else 'failed'
-        }
-        
-        if 'error' in tost_result:
-            result_entry['reason'] = tost_result['error']
-        
-        results.append(result_entry)
-        
-        if result_entry['equivalent']:
-            logger.info(f"TOST PASSED for {metric}: p_lower={result_entry['p_value_lower']:.4f}, p_upper={result_entry['p_value_upper']:.4f}")
-        else:
-            logger.warning(f"TOST FAILED for {metric}: p_lower={result_entry['p_value_lower']}, p_upper={result_entry['p_value_upper']}")
-            
-    return results
-
-def save_tost_results(results: List[Dict[str, Any]], output_path: str = 'data/metrics/tost_results.csv') -> None:
+def save_tost_results(results: List[Dict[str, Any]], output_path: str):
     """
     Save TOST results to a CSV file.
     """
     if not results:
-        logger.warning("No results to save.")
-        return
-
+        raise ValueError("No results to save.")
+    
     df_results = pd.DataFrame(results)
-    
-    # Ensure directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
     df_results.to_csv(output_path, index=False)
     logger.info(f"TOST results saved to {output_path}")
+
+
+def update_state_yaml(validation_status: str, output_path: str = STATE_YAML_PATH):
+    """
+    Update state.yaml with the TOST validation status.
+    """
+    import yaml
     
-    # Log summary
-    passed = sum(1 for r in results if r.get('equivalent', False))
-    total = len(results)
-    logger.info(f"TOST Summary: {passed}/{total} metrics passed equivalence test (delta={results[0]['equivalence_margin'] if results else 0.05})")
+    state = {}
+    if os.path.exists(output_path):
+        with open(output_path, 'r') as f:
+            state = yaml.safe_load(f) or {}
+    
+    state['tost_validation'] = validation_status
+    
+    with open(output_path, 'w') as f:
+        yaml.dump(state, f)
+    
+    logger.info(f"Updated state.yaml: tost_validation = {validation_status}")
+
 
 def main():
-    parser = argparse.ArgumentParser(description='Run TOST equivalence tests for hybrid inference metrics.')
-    parser.add_argument('--input', type=str, default='data/processed/hybrid_output.parquet',
-                        help='Path to hybrid output parquet file')
-    parser.add_argument('--output', type=str, default='data/metrics/tost_results.csv',
-                        help='Path to output CSV file')
-    parser.add_argument('--metrics', type=str, nargs='+', default=['fid_score', 'latency'],
-                        help='Metrics to test for equivalence')
-    parser.add_argument('--delta', type=float, default=0.05,
-                        help='Equivalence margin (delta)')
-    parser.add_argument('--alpha', type=float, default=0.05,
-                        help='Significance level')
-    
+    """
+    Main entry point for T049.
+    """
+    parser = argparse.ArgumentParser(description="Run TOST equivalence tests for hybrid inference quality.")
+    parser.add_argument("--input", type=str, default=HYBRID_OUTPUT_PATH, help="Path to hybrid output parquet.")
+    parser.add_argument("--output", type=str, default=TOST_RESULTS_PATH, help="Path to save TOST results CSV.")
+    parser.add_argument("--state", type=str, default=STATE_YAML_PATH, help="Path to state.yaml.")
     args = parser.parse_args()
     
     try:
-        # Check if T050 output exists
-        if not os.path.exists(args.input):
-            logger.error(f"Input file not found: {args.input}")
-            logger.error("TOST VALIDATION SKIPPED: T050 hybrid output missing.")
-            
-            # Create a skipped result file
-            Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-            with open(args.output, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(['metric', 'status', 'reason'])
-                for m in args.metrics:
-                    writer.writerow([m, 'skipped', 'T050 hybrid output missing'])
-            return
+        # 1. Load Hybrid Output
+        df = load_hybrid_output(args.input)
         
-        # Load data
-        hybrid_df = load_hybrid_output(args.input)
+        # 2. Run TOST
+        results = run_tost_equivalence_tests(df)
         
-        # Run tests
-        results = run_tost_equivalence_tests(hybrid_df, args.metrics, args.delta)
-        
-        # Save results
+        # 3. Save Results
         save_tost_results(results, args.output)
         
-        # Check if all passed
-        all_passed = all(r.get('equivalent', False) for r in results if r.get('status') == 'completed')
+        # 4. Update State
+        # Check if p-value < 0.05 (is_equivalent)
+        # The task says: "verify p-value < 0.05". In TOST, we need both p-values < alpha.
+        # We use the 'is_equivalent' flag from perform_tost_test.
+        passed = results[0].get('is_equivalent', False)
+        status = 'passed' if passed else 'failed'
         
-        if all_passed:
-            logger.info("All TOST tests passed. Equivalence established.")
+        update_state_yaml(status, args.state)
+        
+        if passed:
+            logger.info("TOST Validation PASSED: Quality metrics are equivalent within delta.")
         else:
-            logger.warning("Some TOST tests failed. Equivalence not fully established.")
+            logger.warning("TOST Validation FAILED: Quality metrics are NOT equivalent within delta.")
             
+        # Return success code
+        sys.exit(0)
+        
+    except FileNotFoundError as e:
+        logger.error(f"Input file missing: {e}")
+        logger.info("TOST VALIDATION SKIPPED (File Missing)")
+        update_state_yaml('skipped', args.state)
+        sys.exit(0) # Graceful exit as per fallback instruction
     except Exception as e:
-        logger.critical(f"TOST validation failed with error: {str(e)}")
-        logger.error("TOST VALIDATION SKIPPED due to critical error.")
-        raise
+        logger.error(f"TOST execution failed: {e}")
+        update_state_yaml('failed', args.state)
+        sys.exit(1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

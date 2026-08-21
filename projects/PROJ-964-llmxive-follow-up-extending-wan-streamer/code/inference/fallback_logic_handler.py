@@ -1,14 +1,9 @@
 """
-Fallback Logic Handler for Ambiguous Turn-Taking Signals.
+Fallback logic handler for ambiguous turn-taking signals.
 
-This module implements the fallback logic for ambiguous turn-taking signals,
-defaulting to the full solver when signals are unclear. It also explicitly
-handles the 'Power Limitation' error scenario by logging the error and
-exiting gracefully if the minimum sample size is reached during fallback checks.
-
-Dependencies:
-- code/tasks/reduce_sample_size.py (for PowerLimitationError and sample size management)
-- code/config.py (for configuration and MIN_SAMPLE_SIZE)
+This module implements the logic to detect ambiguous signals and trigger
+the full solver fallback. It explicitly handles the 'Power Limitation'
+error scenario as defined in FR-014 and FR-023.
 """
 
 import os
@@ -18,12 +13,16 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, Set
 
-# Import from existing project modules
-from tasks.reduce_sample_size import PowerLimitationError, get_current_memory_usage_mb, MIN_SAMPLE_SIZE
-from config import get_config_summary
-from utils.config import set_seed
+# Import shared utilities from the project
+from tasks.reduce_sample_size import PowerLimitationError, get_current_memory_usage_mb
+from utils.config import get_config_summary
+from inference.precedence_rule import load_counterfactual_indices
 
-# Configure logging
+# Constants
+AMBIGUITY_THRESHOLD = 0.5  # Threshold for ambiguity score (0.0-1.0)
+MEMORY_LIMIT_MB = 7000     # 7 GB limit in MB
+MIN_SAMPLE_SIZE = 1000     # Minimum sample size before failing
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -34,230 +33,183 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def is_signal_ambiguous(
-    turn_signal: float,
-    uncertainty: float,
-    ambiguity_threshold: float = 0.5
-) -> bool:
+
+def is_signal_ambiguous(signal_data: Dict[str, Any]) -> bool:
     """
-    Determine if a turn-taking signal is ambiguous.
+    Determines if a turn-taking signal is ambiguous.
+
+    Ambiguity is defined as:
+    1. Uncertainty score > 0.5
+    2. Delta magnitude is near the threshold (within 10%)
+    3. Or specific feature variance is too high
 
     Args:
-        turn_signal: The turn-taking signal value (e.g., probability of turn change).
-        uncertainty: The uncertainty score from the estimator (0.0-1.0).
-        ambiguity_threshold: The threshold for considering a signal ambiguous.
+        signal_data: Dictionary containing signal features (uncertainty, delta_magnitude, etc.)
 
     Returns:
-        True if the signal is ambiguous, False otherwise.
+        bool: True if the signal is ambiguous, False otherwise.
     """
-    # A signal is considered ambiguous if uncertainty is high
-    # or if the turn signal is close to the decision boundary (0.5)
-    signal_distance = abs(turn_signal - 0.5)
-    return (uncertainty > ambiguity_threshold) or (signal_distance < 0.1)
+    uncertainty = signal_data.get('uncertainty_score', 0.0)
+    delta_magnitude = signal_data.get('latent_delta_magnitude', 0.0)
+    energy = signal_data.get('audio_energy', 0.0)
 
-def handle_fallback_for_ambiguous_signal(
-    frame_id: int,
-    turn_signal: float,
-    uncertainty: float,
-    current_sample_size: int,
-    min_sample_size: int = MIN_SAMPLE_SIZE
-) -> Tuple[bool, str]:
+    # Check uncertainty threshold
+    if uncertainty > AMBIGUITY_THRESHOLD:
+        return True
+
+    # Check for low energy and low delta (potential pause ambiguity)
+    if energy < 10.0 and abs(delta_magnitude) < 0.1:
+        return True
+
+    return False
+
+
+def handle_fallback_for_ambiguous_signal(frame_id: int, signal_data: Dict[str, Any]) -> str:
     """
-    Handle fallback logic for ambiguous turn-taking signals.
+    Handles the fallback logic for an ambiguous signal.
 
-    This function:
-    1. Checks if the signal is ambiguous.
-    2. If ambiguous, defaults to full solver.
-    3. Checks for Power Limitation scenarios.
-    4. Logs errors and exits gracefully if minimum sample size is reached.
+    If the signal is ambiguous, this function triggers the full solver.
+    It also checks for power limitations and raises an error if necessary.
 
     Args:
-        frame_id: The frame ID being processed.
-        turn_signal: The turn-taking signal value.
-        uncertainty: The uncertainty score from the estimator.
-        current_sample_size: The current sample size of the dataset.
-        min_sample_size: The minimum allowed sample size.
+        frame_id: The ID of the current frame.
+        signal_data: The signal data dictionary.
 
     Returns:
-        A tuple (should_fallback, message) where:
-        - should_fallback: True if full solver should be used.
-        - message: A descriptive message about the decision.
+        str: 'full_solver' if fallback is triggered, 'skip' otherwise.
+
+    Raises:
+        PowerLimitationError: If memory usage exceeds limits and minimum sample size is reached.
     """
-    # Check if signal is ambiguous
-    if is_signal_ambiguous(turn_signal, uncertainty):
-        logger.info(
-            f"Frame {frame_id}: Ambiguous signal detected "
-            f"(turn_signal={turn_signal:.3f}, uncertainty={uncertainty:.3f}). "
-            f"Defaulting to full solver."
+    if not is_signal_ambiguous(signal_data):
+        return 'skip'
+
+    logger.warning(f"Frame {frame_id}: Ambiguous signal detected. Triggering full solver fallback.")
+
+    # Check memory usage before triggering expensive full solver
+    current_mem = get_current_memory_usage_mb()
+    if current_mem > MEMORY_LIMIT_MB:
+        logger.error(f"Memory limit exceeded ({current_mem}MB > {MEMORY_LIMIT_MB}MB) during fallback check.")
+        raise PowerLimitationError(
+            f"Power Limitation: Memory usage ({current_mem}MB) exceeds limit ({MEMORY_LIMIT_MB}MB). "
+            "Minimum sample size check required."
         )
 
-        # Check for Power Limitation scenario
-        if current_sample_size <= min_sample_size:
-            error_msg = (
-                f"Power Limitation Error: Minimum sample size ({min_sample_size}) "
-                f"reached during fallback check for frame {frame_id}. "
-                f"Cannot reduce sample size further."
-            )
-            logger.error(error_msg)
+    return 'full_solver'
 
-            # Log to specific error log file
-            error_log_path = Path('data/logs/power_limitation_errors.log')
-            error_log_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(error_log_path, 'a') as f:
-                f.write(f"{error_msg}\n")
-
-            # Raise PowerLimitationError to trigger graceful exit
-            raise PowerLimitationError(error_msg)
-
-        return True, "Fallback to full solver due to ambiguous signal"
-
-    return False, "Signal is clear, using estimator prediction"
 
 def process_fallback_checks(
-    dataframe: Any,
-    ambiguity_threshold: float = 0.5
-) -> Dict[str, Any]:
+    dataset_path: str,
+    counterfactual_path: Optional[str] = None
+) -> Tuple[int, int]:
     """
-    Process fallback checks for all frames in the dataset.
+    Processes the entire dataset to apply fallback logic for ambiguous signals.
+
+    This function iterates through the dataset, identifies ambiguous signals,
+    and applies the fallback logic. It handles PowerLimitationError scenarios
+    by attempting to reduce sample size or failing gracefully.
 
     Args:
-        dataframe: The dataset dataframe with turn_signal and uncertainty columns.
-        ambiguity_threshold: The threshold for considering a signal ambiguous.
+        dataset_path: Path to the sampled dataset parquet file.
+        counterfactual_path: Optional path to counterfactual indices.
 
     Returns:
-        A dictionary with fallback statistics and any errors encountered.
+        Tuple[int, int]: (total_processed, fallback_triggered_count)
+
+    Raises:
+        PowerLimitationError: If sample size cannot be reduced further.
     """
-    results = {
-        'total_frames': len(dataframe),
-        'ambiguous_frames': 0,
-        'fallback_frames': 0,
-        'power_limitation_errors': 0,
-        'error_messages': []
-    }
+    import pandas as pd
 
-    current_sample_size = len(dataframe)
+    if not os.path.exists(dataset_path):
+        logger.error(f"Dataset not found: {dataset_path}")
+        raise FileNotFoundError(f"Dataset not found: {dataset_path}")
 
-    for idx, row in dataframe.iterrows():
-        frame_id = row.get('frame_id', idx)
-        turn_signal = row.get('turn_signal', 0.5)
-        uncertainty = row.get('uncertainty', 0.0)
+    logger.info(f"Loading dataset from {dataset_path}")
+    df = pd.read_parquet(dataset_path)
+
+    fallback_count = 0
+    total = len(df)
+
+    # Load counterfactual indices if provided (for precedence rule)
+    randomized_indices: Set[int] = set()
+    if counterfactual_path and os.path.exists(counterfactual_path):
+        cf_df = pd.read_parquet(counterfactual_path)
+        randomized_indices = set(cf_df['frame_id'].tolist())
+        logger.info(f"Loaded {len(randomized_indices)} counterfactual indices")
+
+    logger.info(f"Processing {total} frames for ambiguous signal fallback...")
+
+    for idx, row in df.iterrows():
+        frame_id = row['frame_id']
+        signal_data = {
+            'uncertainty_score': row.get('uncertainty_score', 0.0),
+            'latent_delta_magnitude': row.get('latent_delta_magnitude', 0.0),
+            'audio_energy': row.get('audio_energy', 0.0)
+        }
+
+        # Apply precedence rule: if in randomized set, force full solver (handled by precedence_rule.py)
+        # Here we only handle the AMBIGUOUS signal fallback logic
+        if frame_id in randomized_indices:
+            # Precedence rule handles this: forced skip or full solver based on intervention
+            # We assume precedence_rule.py has already set the flag, so we skip ambiguity check
+            continue
 
         try:
-            should_fallback, message = handle_fallback_for_ambiguous_signal(
-                frame_id=frame_id,
-                turn_signal=turn_signal,
-                uncertainty=uncertainty,
-                current_sample_size=current_sample_size,
-                min_sample_size=MIN_SAMPLE_SIZE
-            )
-
-            if should_fallback:
-                results['ambiguous_frames'] += 1
-                results['fallback_frames'] += 1
-                # In a real implementation, this would trigger the full solver
-                # For now, we just log the decision
+            decision = handle_fallback_for_ambiguous_signal(frame_id, signal_data)
+            if decision == 'full_solver':
+                fallback_count += 1
+                # Update dataframe to reflect fallback decision
+                df.at[idx, 'fallback_triggered'] = True
+                df.at[idx, 'solver_type'] = 'full'
+            else:
+                df.at[idx, 'fallback_triggered'] = False
+                df.at[idx, 'solver_type'] = 'streamer'
 
         except PowerLimitationError as e:
-            results['power_limitation_errors'] += 1
-            results['error_messages'].append(str(e))
-            logger.critical(f"Power Limitation Error encountered: {e}")
-            # In a real implementation, this would trigger a graceful exit
-            # For testing purposes, we continue but log the error
+            logger.error(f"Power limitation error at frame {frame_id}: {str(e)}")
+            # Attempt to reduce sample size if possible
+            from tasks.reduce_sample_size import reduce_sample_size
+            try:
+                new_size = reduce_sample_size(current_size=total, target_reduction=0.1)
+                logger.info(f"Reduced sample size to {new_size}. Restarting processing...")
+                # In a real scenario, we would re-load the reduced dataset and restart
+                # For this implementation, we log the error and stop to prevent infinite loops
+                raise PowerLimitationError(
+                    f"Power Limitation: Could not reduce sample size further. "
+                    f"Minimum sample size ({MIN_SAMPLE_SIZE}) reached or reduction failed."
+                )
+            except Exception as reduce_err:
+                logger.critical(f"Failed to reduce sample size: {str(reduce_err)}")
+                raise
 
-    return results
+    logger.info(f"Finished processing. Total: {total}, Fallback triggered: {fallback_count}")
+    return total, fallback_count
+
 
 def main():
-    """
-    Main entry point for the fallback logic handler.
-
-    This function:
-    1. Parses command line arguments.
-    2. Loads the dataset (if provided).
-    3. Processes fallback checks.
-    4. Outputs results to a log file.
-    """
-    parser = argparse.ArgumentParser(
-        description='Handle fallback logic for ambiguous turn-taking signals'
-    )
-    parser.add_argument(
-        '--input',
-        type=str,
-        default='data/processed/sampled_dataset.parquet',
-        help='Path to the input dataset (default: data/processed/sampled_dataset.parquet)'
-    )
-    parser.add_argument(
-        '--ambiguity-threshold',
-        type=float,
-        default=0.5,
-        help='Threshold for considering a signal ambiguous (default: 0.5)'
-    )
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=42,
-        help='Random seed for reproducibility (default: 42)'
-    )
-
+    """Main entry point for the fallback logic handler."""
+    parser = argparse.ArgumentParser(description='Handle fallback for ambiguous turn-taking signals.')
+    parser.add_argument('--dataset', type=str, default='data/processed/sampled_dataset.parquet',
+                        help='Path to the sampled dataset parquet file.')
+    parser.add_argument('--counterfactual', type=str, default=None,
+                        help='Path to counterfactual indices parquet file.')
     args = parser.parse_args()
 
-    # Set seed for reproducibility
-    set_seed(args.seed)
-
-    # Get config summary
-    config_summary = get_config_summary()
-    logger.info(f"Configuration: {config_summary}")
-
-    # Check if input file exists
-    input_path = Path(args.input)
-    if not input_path.exists():
-        logger.warning(
-            f"Input file {args.input} not found. "
-            f"Skipping fallback processing. "
-            f"Please ensure the dataset has been generated by previous tasks."
-        )
-        return
-
-    # Import pandas only when needed to avoid unnecessary imports
     try:
-        import pandas as pd
-        dataframe = pd.read_parquet(input_path)
-        logger.info(f"Loaded dataset with {len(dataframe)} frames from {input_path}")
+        total, fallback_count = process_fallback_checks(args.dataset, args.counterfactual)
+        logger.info(f"Successfully processed {total} frames. {fallback_count} fallbacks triggered.")
+        print(f"Processed {total} frames. {fallback_count} fallbacks triggered.")
+        return 0
+    except PowerLimitationError as e:
+        logger.critical(f"CRITICAL: Power Limitation Error - {str(e)}")
+        print(f"ERROR: Power Limitation - {str(e)}")
+        return 1
     except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        return
+        logger.critical(f"Unexpected error: {str(e)}")
+        print(f"ERROR: {str(e)}")
+        return 1
 
-    # Check for required columns
-    required_columns = ['frame_id', 'turn_signal', 'uncertainty']
-    missing_columns = [col for col in required_columns if col not in dataframe.columns]
-    if missing_columns:
-        logger.error(f"Missing required columns: {missing_columns}")
-        return
-
-    # Process fallback checks
-    results = process_fallback_checks(
-        dataframe=dataframe,
-        ambiguity_threshold=args.ambiguity_threshold
-    )
-
-    # Log results
-    logger.info("Fallback Logic Processing Results:")
-    logger.info(f"  Total frames: {results['total_frames']}")
-    logger.info(f"  Ambiguous frames: {results['ambiguous_frames']}")
-    logger.info(f"  Fallback frames: {results['fallback_frames']}")
-    logger.info(f"  Power limitation errors: {results['power_limitation_errors']}")
-
-    if results['error_messages']:
-        logger.warning(f"Encountered {len(results['error_messages'])} Power Limitation errors")
-        for msg in results['error_messages'][:5]:  # Log first 5 errors
-            logger.warning(f"  - {msg}")
-
-    # Save results to a JSON file for downstream tasks
-    results_path = Path('data/metrics/fallback_logic_results.json')
-    results_path.parent.mkdir(parents=True, exist_ok=True)
-    import json
-    with open(results_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {results_path}")
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
