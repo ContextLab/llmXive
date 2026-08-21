@@ -21,11 +21,16 @@ FIGURES_DIR = PROJECT_ROOT / "figures"
 
 # Define relative paths to scan for artifacts
 # These cover raw data, processed data, and generated reports
+# Note: We explicitly include the paths expected by the pipeline (T004b, T011, T013c, T020b)
 ARTIFACT_PATTERNS = [
     "data/raw/*.csv",
     "data/raw/*.tar.gz",
-    "data/processed/*.csv",
-    "data/processed/*.json",
+    "data/raw/*.txt",
+    "data/optimized_geometries/*.xyz",
+    "data/confounds.csv",
+    "data/descriptors_semi.csv",
+    "data/descriptors_dft.csv",
+    "data/checksums.txt", # Will be filtered out
     "reports/*.json",
     "reports/*.csv",
     "reports/*.md",
@@ -73,10 +78,14 @@ def find_artifacts(patterns: List[str], base_dir: Path) -> List[Path]:
     artifacts = []
     for pattern in patterns:
         full_pattern = base_dir / pattern
+        # Handle the case where the directory might not exist yet for a specific pattern
+        if not full_pattern.parent.exists():
+            continue
+        
         matches = list(full_pattern.parent.glob(full_pattern.name))
         artifacts.extend(matches)
     
-    # Filter out the checksums file itself if it exists
+    # Filter out the checksums file itself if it exists to avoid self-referencing
     checksums_path = base_dir / "checksums.txt"
     artifacts = [p for p in artifacts if p != checksums_path]
     

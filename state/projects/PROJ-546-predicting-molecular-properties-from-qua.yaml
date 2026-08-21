@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-546-predicting-molecular-properties-from-qua
-last_run_id: 8203d312-e04d-474c-b274-e357cfc959ea
+last_run_id: 51f59b69-10e0-4053-94fa-165afb5d4c33
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua
 title: Predicting Molecular Properties from Quantum Chemical Calculations with Limited
   Computational Resources
-updated_at: '2026-08-20T04:09:13.662655Z'
+updated_at: '2026-08-21T00:59:48.159748Z'

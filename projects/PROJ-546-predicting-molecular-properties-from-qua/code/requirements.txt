@@ -1,15 +1,13 @@
-# Code-specific dependencies for PROJ-546
-# Pinned versions for reproducibility (T002a)
+# Pinned versions for reproducibility in PROJ-546
+# All dependencies required to run the pipeline end-to-end
 scikit-learn==1.3.2
-pandas==2.1.4
-rdkit==2023.9.4
+pandas==2.1.1
+rdkit==2023.9.1
 requests==2.31.0
-datasets==2.14.6
+datasets==2.14.5
 pyyaml==6.0.1
 pytest==7.4.3
-black==23.11.0
+black==23.10.1
 ruff==0.1.6
-joblib  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-psutil  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
+psi4==1.8.1
+dftbplus==22.1.0

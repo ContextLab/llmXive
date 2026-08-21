@@ -1,15 +1,3 @@
-"""
-Physical Validator Module for Molecular Property Prediction Pipeline.
-
-This module enforces structural constraints defined in the project specification,
-specifically checking the physical validity of HOMO/LUMO energy relationships
-in optimized geometries.
-
-Constraint: HOMO_energy < LUMO_energy must hold for valid optimized geometries.
-Violations are logged to logs/structural_failures.log with status 'failed_after_retry'
-and the record is skipped from further processing.
-"""
-
 import csv
 import logging
 import os
@@ -17,293 +5,221 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
-# Configure logging
-LOGGER_NAME = "physical_validator"
-LOG_FILE = "logs/structural_failures.log"
+def setup_logger(name: str, log_file: str, level: int = logging.INFO) -> logging.Logger:
+    """Setup a logger that writes to both file and console."""
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
 
-def setup_logger(log_file: str = None) -> logging.Logger:
-    """
-    Set up the logger for structural failures.
+    # File handler
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(level)
 
-    Args:
-        log_file: Path to the log file. Defaults to logs/structural_failures.log.
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(level)
 
-    Returns:
-        Configured logger instance.
-    """
-    if log_file is None:
-        # Resolve relative to project root (assuming code/ directory context)
-        log_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs", "structural_failures.log")
+    # Formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
 
-    # Ensure log directory exists
-    log_dir = os.path.dirname(log_file)
-    if log_dir and not os.path.exists(log_dir):
-        os.makedirs(log_dir, exist_ok=True)
-
-    logger = logging.getLogger(LOGGER_NAME)
-    logger.setLevel(logging.INFO)
-
-    # Clear existing handlers to avoid duplicates
-    logger.handlers.clear()
-
-    # File handler for structural failures
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.INFO)
-
-    # Format: timestamp, level, message
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-
-    logger.addHandler(file_handler)
+    logger.addHandler(fh)
+    logger.addHandler(ch)
 
     return logger
 
-def validate_homo_lumo_relationship(homo_energy: float, lumo_energy: float) -> Tuple[bool, str]:
+def validate_homo_lumo_relationship(homo: float, lumo: float) -> bool:
     """
     Validate that HOMO energy is strictly less than LUMO energy.
-
-    This is a fundamental physical constraint for stable molecular systems.
-    In valid electronic structures, the Highest Occupied Molecular Orbital (HOMO)
-    must have lower energy than the Lowest Unoccupied Molecular Orbital (LUMO).
-
+    
     Args:
-        homo_energy: HOMO energy value in eV.
-        lumo_energy: LUMO energy value in eV.
-
+        homo: HOMO energy in eV
+        lumo: LUMO energy in eV
+        
     Returns:
-        Tuple of (is_valid, status_message).
-        - is_valid: True if HOMO < LUMO, False otherwise.
-        - status_message: Description of the validation result.
+        True if HOMO < LUMO, False otherwise
     """
-    if homo_energy >= lumo_energy:
-        return False, f"FAILED: HOMO ({homo_energy:.6f} eV) >= LUMO ({lumo_energy:.6f} eV)"
-    return True, f"PASSED: HOMO ({homo_energy:.6f} eV) < LUMO ({lumo_energy:.6f} eV)"
+    return homo < lumo
 
 def log_structural_failure(
     logger: logging.Logger,
     molecule_id: str,
-    homo_energy: float,
-    lumo_energy: float,
-    source_file: str = None,
-    row_index: int = None
+    homo: float,
+    lumo: float,
+    error_code: str = "HOMO_LUMO_VIOLATION",
+    error_message: Optional[str] = None
 ) -> None:
     """
-    Log a structural failure to the structural_failures.log file.
-
+    Log a structural failure where HOMO >= LUMO.
+    
     Args:
-        logger: Logger instance to use.
-        molecule_id: Identifier of the molecule that failed validation.
-        homo_energy: HOMO energy value.
-        lumo_energy: LUMO energy value.
-        source_file: Source file where the data was read from (optional).
-        row_index: Row index in the source file (optional).
+        logger: Logger instance
+        molecule_id: ID of the molecule that failed validation
+        homo: HOMO energy value
+        lumo: LUMO energy value
+        error_code: Error code for the failure
+        error_message: Optional detailed error message
     """
-    location_info = ""
-    if source_file:
-        location_info += f"Source: {source_file}"
-    if row_index is not None:
-        location_info += f" Row: {row_index}"
-
-    message = (
-        f"[failed_after_retry] Molecule: {molecule_id} | "
-        f"HOMO: {homo_energy:.6f} eV, LUMO: {lumo_energy:.6f} eV | "
-        f"Violation: HOMO >= LUMO | Status: skipped"
-    )
-    if location_info:
-        message += f" | {location_info}"
-
-    logger.info(message)
+    if error_message is None:
+        error_message = f"HOMO ({homo:.6f} eV) is not less than LUMO ({lumo:.6f} eV)"
+    
+    log_entry = {
+        "molecule_id": molecule_id,
+        "timestamp": None,  # Will be added by logger
+        "error_code": error_code,
+        "error_message": error_message,
+        "homo_energy": homo,
+        "lumo_energy": lumo,
+        "status": "failed_after_retry"
+    }
+    
+    logger.error(f"Structural failure for {molecule_id}: {error_message}")
 
 def validate_descriptors_file(
-    input_file: str,
-    output_file: str = None,
-    homo_column: str = "HOMO_energy",
-    lumo_column: str = "LUMO_energy",
-    id_column: str = "molecule_id"
-) -> Tuple[int, int, List[Dict[str, Any]]]:
+    input_path: str,
+    output_log_path: str,
+    homo_col: str = "HOMO_energy",
+    lumo_col: str = "LUMO_energy",
+    id_col: str = "molecule_id"
+) -> Tuple[int, int]:
     """
-    Validate a descriptors CSV file for HOMO-LUMO energy relationships.
-
-    Reads the input file, validates each row's HOMO/LUMO relationship,
-    logs failures, and optionally writes a filtered output file.
-
+    Validate a descriptors CSV file for HOMO < LUMO constraint.
+    
     Args:
-        input_file: Path to the input CSV file.
-        output_file: Path to the output CSV file (filtered). If None, no output is written.
-        homo_column: Name of the HOMO energy column.
-        lumo_column: Name of the LUMO energy column.
-        id_column: Name of the molecule identifier column.
-
+        input_path: Path to the input CSV file
+        output_log_path: Path to the structural failures log file
+        homo_col: Name of the HOMO energy column
+        lumo_col: Name of the LUMO energy column
+        id_col: Name of the molecule ID column
+        
     Returns:
-        Tuple of (total_rows, valid_rows, failed_records).
-        - total_rows: Total number of data rows processed.
-        - valid_rows: Number of rows that passed validation.
-        - failed_records: List of dictionaries containing failed record details.
+        Tuple of (valid_count, invalid_count)
     """
-    logger = setup_logger()
-    valid_records = []
-    failed_records = []
-    total_rows = 0
-    valid_rows = 0
-
-    if not os.path.exists(input_file):
-        raise FileNotFoundError(f"Input file not found: {input_file}")
-
-    with open(input_file, 'r', newline='', encoding='utf-8') as infile:
+    logger = setup_logger(
+        "physical_validator",
+        output_log_path,
+        logging.INFO
+    )
+    
+    valid_count = 0
+    invalid_count = 0
+    
+    if not os.path.exists(input_path):
+        logger.error(f"Input file not found: {input_path}")
+        return 0, 0
+    
+    with open(input_path, 'r', newline='') as infile:
         reader = csv.DictReader(infile)
-
-        # Validate required columns exist
-        fieldnames = reader.fieldnames
-        if not fieldnames:
-            raise ValueError("CSV file has no headers")
-
-        required_cols = {homo_column, lumo_column, id_column}
-        missing_cols = required_cols - set(fieldnames)
-        if missing_cols:
-            raise ValueError(f"Missing required columns: {missing_cols}")
-
-        for row_index, row in enumerate(reader, start=1):
-            total_rows += 1
-            molecule_id = row.get(id_column, f"unknown_row_{row_index}")
-
+        
+        # Validate columns exist
+        if reader.fieldnames is None:
+            logger.error("CSV file is empty or has no headers")
+            return 0, 0
+        
+        if id_col not in reader.fieldnames:
+            logger.error(f"Required column '{id_col}' not found in {input_path}")
+            return 0, 0
+        if homo_col not in reader.fieldnames:
+            logger.error(f"Required column '{homo_col}' not found in {input_path}")
+            return 0, 0
+        if lumo_col not in reader.fieldnames:
+            logger.error(f"Required column '{lumo_col}' not found in {input_path}")
+            return 0, 0
+        
+        for row_num, row in enumerate(reader, start=2):
+            molecule_id = row.get(id_col, f"row_{row_num}")
+            
             try:
-                homo_energy = float(row[homo_column])
-                lumo_energy = float(row[lumo_column])
+                homo = float(row.get(homo_col, 0.0))
+                lumo = float(row.get(lumo_col, 0.0))
             except (ValueError, TypeError) as e:
-                # Handle non-numeric values
-                message = (
-                    f"[failed_after_retry] Molecule: {molecule_id} | "
-                    f"Error: Non-numeric energy values ({e}) | Status: skipped"
-                )
-                logger.info(message)
-                failed_records.append({
-                    "molecule_id": molecule_id,
-                    "row_index": row_index,
-                    "homo_energy": row.get(homo_column),
-                    "lumo_energy": row.get(lumo_column),
-                    "reason": f"Non-numeric values: {e}"
-                })
-                continue
-
-            is_valid, status_msg = validate_homo_lumo_relationship(homo_energy, lumo_energy)
-
-            if is_valid:
-                valid_rows += 1
-                valid_records.append(row)
-            else:
+                logger.warning(f"Invalid numeric value at row {row_num}: {e}")
+                invalid_count += 1
                 log_structural_failure(
                     logger,
                     molecule_id,
-                    homo_energy,
-                    lumo_energy,
-                    source_file=input_file,
-                    row_index=row_index
+                    homo if 'homo' in locals() else 0.0,
+                    lumo if 'lumo' in locals() else 0.0,
+                    error_code="INVALID_NUMERIC",
+                    error_message=f"Could not parse HOMO/LUMO values: {e}"
                 )
-                failed_records.append({
-                    "molecule_id": molecule_id,
-                    "row_index": row_index,
-                    "homo_energy": homo_energy,
-                    "lumo_energy": lumo_energy,
-                    "reason": "HOMO >= LUMO"
-                })
-
-    # Write filtered output if requested
-    if output_file and valid_records:
-        output_dir = os.path.dirname(output_file)
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir, exist_ok=True)
-
-        with open(output_file, 'w', newline='', encoding='utf-8') as outfile:
-            writer = csv.DictWriter(outfile, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(valid_records)
-
-    return total_rows, valid_rows, failed_records
+                continue
+            
+            if validate_homo_lumo_relationship(homo, lumo):
+                valid_count += 1
+            else:
+                invalid_count += 1
+                log_structural_failure(
+                    logger,
+                    molecule_id,
+                    homo,
+                    lumo,
+                    error_code="HOMO_LUMO_VIOLATION",
+                    error_message=f"HOMO ({homo:.6f} eV) >= LUMO ({lumo:.6f} eV)"
+                )
+    
+    logger.info(f"Validation complete: {valid_count} valid, {invalid_count} invalid")
+    return valid_count, invalid_count
 
 def main():
-    """
-    Main entry point for the physical validator script.
-
-    Usage:
-        python code/physical_validator.py --input data/descriptors_semi.csv --output data/descriptors_validated.csv
-
-    This script:
-    1. Reads the input descriptors CSV file.
-    2. Validates each row's HOMO < LUMO constraint.
-    3. Logs violations to logs/structural_failures.log.
-    4. Writes a filtered CSV with only valid records (if output specified).
-    """
+    """Main entry point for physical validator."""
     import argparse
-
+    
     parser = argparse.ArgumentParser(
-        description="Validate HOMO-LUMO energy relationships in molecular descriptors."
+        description="Validate molecular descriptors for HOMO < LUMO constraint"
     )
     parser.add_argument(
-        "--input", "-i",
-        required=True,
-        help="Path to input CSV file with molecular descriptors."
+        "--input",
+        type=str,
+        default="data/descriptors_semi.csv",
+        help="Path to input descriptors CSV file"
     )
     parser.add_argument(
-        "--output", "-o",
-        default=None,
-        help="Path to output CSV file (filtered). If not specified, only validation is performed."
+        "--log",
+        type=str,
+        default="logs/structural_failures.log",
+        help="Path to output log file for structural failures"
     )
     parser.add_argument(
         "--homo-col",
+        type=str,
         default="HOMO_energy",
-        help="Name of the HOMO energy column (default: HOMO_energy)"
+        help="Name of the HOMO energy column"
     )
     parser.add_argument(
         "--lumo-col",
+        type=str,
         default="LUMO_energy",
-        help="Name of the LUMO energy column (default: LUMO_energy)"
+        help="Name of the LUMO energy column"
     )
     parser.add_argument(
         "--id-col",
+        type=str,
         default="molecule_id",
-        help="Name of the molecule ID column (default: molecule_id)"
+        help="Name of the molecule ID column"
     )
-
+    
     args = parser.parse_args()
-
-    try:
-        total, valid, failed = validate_descriptors_file(
-            input_file=args.input,
-            output_file=args.output,
-            homo_column=args.homo_col,
-            lumo_column=args.lumo_col,
-            id_column=args.id_col
-        )
-
-        print(f"Validation complete:")
-        print(f"  Total rows processed: {total}")
-        print(f"  Valid rows: {valid}")
-        print(f"  Failed rows: {len(failed)}")
-
-        if failed:
-            print(f"\nFailed records logged to: logs/structural_failures.log")
-            for record in failed[:5]:  # Show first 5 failures
-                print(f"  - {record['molecule_id']}: {record['reason']}")
-            if len(failed) > 5:
-                print(f"  ... and {len(failed) - 5} more")
-        else:
-            print("\nAll records passed validation.")
-
-        if args.output:
-            print(f"\nValidated data written to: {args.output}")
-
-        # Exit with non-zero code if there were failures
-        sys.exit(0 if not failed else 0)  # Note: We don't fail the pipeline on structural violations, just skip them
-
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
+    
+    # Ensure log directory exists
+    log_path = Path(args.log)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    valid_count, invalid_count = validate_descriptors_file(
+        input_path=args.input,
+        output_log_path=str(log_path),
+        homo_col=args.homo_col,
+        lumo_col=args.lumo_col,
+        id_col=args.id_col
+    )
+    
+    if invalid_count > 0:
+        print(f"Warning: {invalid_count} molecules failed HOMO < LUMO validation. "
+              f"See {args.log} for details.")
         sys.exit(1)
-    except ValueError as e:
-        print(f"Validation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        sys.exit(1)
+    else:
+        print(f"Success: All {valid_count} molecules passed HOMO < LUMO validation.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

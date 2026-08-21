@@ -1,26 +1,23 @@
-# Standalone Ruff configuration file (alternative to [tool.ruff] in pyproject.toml)
-# This file is created to satisfy the explicit requirement for a .ruff.toml file.
+# Ruff configuration file
+# This file extends or overrides settings from pyproject.toml if needed.
+# Currently, all settings are in pyproject.toml for simplicity,
+# but this file exists to satisfy the task requirement for explicit .ruff.toml.
+# If specific overrides are needed for the runner environment, they can be added here.
 
-line-length = 88
-target-version = "py311"
+[lint]
+# Ensure we use the same rules as pyproject.toml
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501", "B008", "C901"]
 
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501",  # line too long, handled by black
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
-]
-
-[isort]
+[lint.isort]
 known-first-party = ["code", "tests"]
-force-sort-within-sections = true
 
-[per-file-ignores]
-"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+[lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[format]
+# Use black-compatible formatting
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

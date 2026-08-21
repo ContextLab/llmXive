@@ -1,16 +1,25 @@
-T002b:
+T001:
   c: false
-  h: c8d0db1c4642e180a9451663ca7531f933f166f3126ce893aebc7c84a2eeabf0
-  r: "The repository contains a `pyproject.toml` with Black and Ruff settings, but\
-    \ the required `.ruff.toml` file is missing, so the task\u2019s specification\
-    \ of creating both configuration files is not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I looked for the required directory tree (`projects/PROJ-546-predicting-molecular-properties-from-qua/`
+    with the specified subfolders) but no such structure or any listing of its contents
+    was provided. Without concrete evidence that the directories exist, the task cannot
+    be considered completed.
+T004a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `idea/predicting-molecular-properties-from-qua.md`\
+    \ file being read and the Zenodo Accession ID extracted is present; the task demands\
+    \ a non\u2011empty string ID, but no artifact (e.g., a text file, JSON, or log\
+    \ entry) containing that ID was provided. The implementer must supply the extracted\
+    \ Zenodo ID (and optionally the URL) as a concrete output."
 T011:
   c: false
-  h: bf26df44db9bf9dca192e5c96fe3795a70db4377fd86cc4e9511bea513bea030
-  r: The test file `tests/test_fetch.py` is present but appears truncated (the `test_main_with_mocked_download`
-    function ends abruptly) and cannot import the required module because `code/fetch_data.py`
-    is missing entirely, so the contract test cannot actually run or verify Zenodo
-    fetching. Both the implementation file and a complete, runnable test are needed.
+  h: f4751624a54cb98778ca45f29efc2653e0eb85064984cf3bb3b11af10f3b6857
+  r: "The repository lacks the required input file `data/raw/barrier_dataset.csv`\
+    \ and the output file `data/confounds.csv`. Moreover, `code/confounds.py` is truncated\
+    \ (the `calculate_molecular_properties` function is incomplete) and does not actually\
+    \ generate the CSV. The task\u2019s core artifacts are missing or non\u2011functional."
 T012:
   c: false
   h: 8a524a5c561da86fe4b7d34b687e66a62b1c8aef3852c37fb636326fd0c87b59
@@ -18,13 +27,22 @@ T012:
     \ in the repository, so there is no test that runs `code/generate_descriptors.py`\
     \ on 50 molecules or validates its output. Without this artifact, the task\u2019\
     s requirement is unmet."
-T017:
+T020a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `logs/dft_execution.log` file (or any equivalent logging output) is present,\
-    \ and there is no code or configuration shown that creates JSON entries with the\
-    \ required fields (`molecule_id`, `command`, `exit_code`, `duration`, `peak_memory_mb`).\
-    \ The task\u2019s logging and timing requirement is therefore not satisfied."
+  h: 068558e2d241668592d41b278f5a3d108e9d17890920f0eef46058b36a1e4077
+  r: "The repository lacks `data/raw/barrier_dataset.csv` and `data/confounds.csv`,\
+    \ so the dependency check cannot pass. Moreover, `code/dft_calculator.py` contains\
+    \ DFT execution code but does not implement the required subset\u2011selection\
+    \ logic (reading the barrier dataset, computing N, stratified qcut binning, and\
+    \ selecting 50 or fewer samples). These core pieces are missing."
+T020b:
+  c: false
+  h: e89be11981bbb9d9fb791df6cb9751bbf6cdae793d7436f26c0ab33e636bc866
+  r: "The repository contains `code/dft_calculator.py`, but the required output file\
+    \ `data/descriptors_dft.csv` is absent, and the provided code snippet is truncated\
+    \ before showing full implementation of geometry handling, missing\u2011file logging,\
+    \ Psi4 execution, HOMO/LUMO parsing, and split\u2011locking. Without the generated\
+    \ descriptor CSV, the task\u2019s primary deliverable is not met."
 T022:
   c: false
   h: 3e81542e33bef2db6878d301a16ad498281375ae17fca73dd6d77d4a7ba61c30
@@ -34,8 +52,22 @@ T022:
     \ MAE, run the paired t\u2011test, or write the specified JSON output."
 T031c:
   c: false
-  h: 54368fdb30fc5945cf02139b6962f84e98964d4a1f34f7b9a025f21f22b31885
-  r: "The required output file `reports/sensitivity.csv` does not exist, and the provided\
-    \ `code/sensitivity_sweep.py` is incomplete (truncated and lacking the aggregation,\
-    \ rank\u2011correlation, and CSV\u2011writing logic). The task\u2019s core functionality\
-    \ and output are therefore not satisfied."
+  h: 7bf56f9c6bfb9ebabba58ccdb29ba49ac6d684ff54efe1e43a84f438585fc24d
+  r: "The repository lacks the required `reports/sensitivity.csv` output file, and\
+    \ the provided `code/sensitivity_sweep.py` is incomplete (e.g., a syntax error\
+    \ in `load_feature_names` and truncated logic). Consequently the aggregation,\
+    \ rank\u2011correlation computation, and stability flag generation are not realized."
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts were found for US3 (e.g., `reports/sensitivity.csv` or any evidence\
+    \ of top\u2011descriptor listing and stability checks). The required output files\
+    \ and analysis described in the acceptance criteria are missing, so the task is\
+    \ not satisfied."
+T033a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No runtime logs, execution traces, or any output files (e.g., a completed pipeline\
+    \ run on a sample subset) were provided; the claim lacks any concrete artifact\
+    \ demonstrating that the full pipeline was executed end\u2011to\u2011end. The\
+    \ required evidence is missing."

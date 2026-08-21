@@ -1674,3 +1674,38 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-20T03:48:55Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/quickstart.md
+  attempts: 1
+  canonical: Dataset contains experimentally measured barrier heights for organic
+    reactions
+  claim_id: c_1ee3ebcb
+  context: 'Experimental Dataset Details: The dataset consists of experimentally measured
+    barrier heights for a set of organic reactions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_experimentally_measured_barrier_heights_for
+  kind: entity_fact
+  raw_text: The dataset consists of experimentally measured barrier heights for a
+    set of organic reactions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:34:06Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/quickstart.md
+  attempts: 1
+  canonical: Dataset size is 150
+  claim_id: c_96165348
+  context: 'Experimental Dataset Details: {"dataset_size": 150}'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'dataset_size: 150'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:34:28Z'

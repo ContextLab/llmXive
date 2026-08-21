@@ -1,300 +1,224 @@
+"""
+Noise Injection Module for Sensitivity Analysis (T030b)
+
+Injects Gaussian noise into descriptor features to evaluate model robustness
+as per User Story 3, FR-007.
+
+Dependencies:
+    - T029: Sensitivity analysis (feature importance extraction)
+    - T030: Top descriptor identification
+"""
+
 import argparse
 import csv
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
-# Attempt to import numpy; if missing, the script will fail loudly as per constraints
+import numpy as np
+
+# Project-relative imports
+# Note: We assume this script is run from the project root or code/ directory
+# and that the project structure is as defined in T001.
 try:
-    import numpy as np
+    from utils.logging_utils import setup_logger
 except ImportError:
-    print("Error: numpy is required but not installed. Please install it via requirements.txt.", file=sys.stderr)
-    sys.exit(1)
+    # Fallback if running directly without proper path setup
+    def setup_logger(name: str, log_file: Optional[str] = None, level=logging.INFO):
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
+        if not logger.handlers:
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            if log_file:
+                fh = logging.FileHandler(log_file)
+                fh.setFormatter(formatter)
+                logger.addHandler(fh)
+            ch = logging.StreamHandler()
+            ch.setFormatter(formatter)
+            logger.addHandler(ch)
+        return logger
 
-def setup_logger(name: str, log_file: str) -> logging.Logger:
-    """Configure a logger that writes to both console and file."""
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
 
-    if not logger.handlers:
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-        fh = logging.FileHandler(log_file)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-
-        ch = logging.StreamHandler()
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-
-    return logger
-
-def load_descriptors(input_path: str, logger: logging.Logger) -> tuple:
+def load_descriptors(input_path: str) -> Tuple[Dict[str, List[str]], np.ndarray, List[str]]:
     """
-    Load descriptors from a CSV file.
-    Returns (header, data_rows, feature_columns, target_column).
-    Assumes the last column is the target 'experimental_barrier'.
+    Loads descriptors from a CSV file.
+
+    Args:
+        input_path: Path to the input CSV file (e.g., data/descriptors_semi.csv).
+
+    Returns:
+        A tuple containing:
+            - molecule_ids: Dict mapping row index to molecule_id
+            - X: Numpy array of descriptor features
+            - feature_names: List of feature column names
     """
-    logger.info(f"Loading descriptors from {input_path}")
-    
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
-    data = []
-    header = None
+    molecule_ids = {}
+    data_rows = []
+    feature_names = []
+    first_row = True
 
     with open(input_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.reader(f)
-        header = next(reader)
         for row in reader:
-            data.append(row)
+            if first_row:
+                feature_names = row
+                first_row = False
+                continue
 
-    if not header:
-        raise ValueError("CSV file is empty or has no header.")
+            # Assuming first column is molecule_id
+            mol_id = row[0]
+            molecule_ids[len(data_rows)] = mol_id
 
-    # Assume the last column is the target based on spec.md Data Model context
-    target_column = header[-1]
-    feature_columns = header[:-1]
+            # Convert remaining columns to float
+            try:
+                features = [float(val) for val in row[1:]]
+                data_rows.append(features)
+            except ValueError as e:
+                logging.warning(f"Skipping row {len(data_rows)} due to non-numeric value: {e}")
+                continue
 
-    # Convert to numpy array for efficient noise injection
-    # We only convert feature columns to float
-    feature_data = []
-    for row in data:
-        try:
-            features = [float(row[i]) for i in range(len(feature_columns))]
-            feature_data.append(features)
-        except ValueError as e:
-            logger.error(f"Non-numeric value found in row: {row}. Error: {e}")
-            raise
+    if not data_rows:
+        raise ValueError("No valid data rows found in input file.")
 
-    feature_matrix = np.array(feature_data, dtype=np.float64)
-    target_values = [float(row[-1]) for row in data]
-    molecule_ids = [row[0] for row in data] # Assuming first column is ID
+    return molecule_ids, np.array(data_rows), feature_names
 
-    logger.info(f"Loaded {len(data)} molecules. Features: {len(feature_columns)}, Target: {target_column}")
-    return header, feature_matrix, target_values, molecule_ids, feature_columns, target_column
 
-def inject_noise(feature_matrix: np.ndarray, sigma: float, seed: Optional[int] = None) -> np.ndarray:
+def inject_noise(X: np.ndarray, sigma: float, seed: int = 42) -> np.ndarray:
     """
-    Inject Gaussian noise into the feature matrix.
-    
+    Injects Gaussian noise into the feature matrix.
+
     Args:
-        feature_matrix: numpy array of shape (n_samples, n_features)
-        sigma: Standard deviation of the Gaussian noise
-        seed: Random seed for reproducibility
-    
+        X: Input feature matrix (N_samples, N_features).
+        sigma: Standard deviation of the Gaussian noise.
+        seed: Random seed for reproducibility.
+
     Returns:
-        Perturbed feature matrix
+        Perturbed feature matrix with injected noise.
     """
-    if seed is not None:
-        np.random.seed(seed)
-    
-    noise = np.random.normal(loc=0.0, scale=sigma, size=feature_matrix.shape)
-    perturbed_matrix = feature_matrix + noise
-    
-    return perturbed_matrix
+    rng = np.random.default_rng(seed)
+    noise = rng.normal(loc=0.0, scale=sigma, size=X.shape)
+    return X + noise
+
 
 def write_perturbed_dataset(
-    output_path: str, 
-    molecule_ids: List[str], 
-    feature_matrix: np.ndarray, 
-    target_values: List[float], 
-    feature_columns: List[str], 
-    target_column: str,
-    sigma: float,
-    logger: logging.Logger
+    molecule_ids: Dict[int, str],
+    X_perturbed: np.ndarray,
+    feature_names: List[str],
+    output_path: str,
+    sigma: float
 ) -> None:
     """
-    Write the perturbed dataset to a CSV file.
+    Writes the perturbed dataset to a CSV file.
+
+    Args:
+        molecule_ids: Mapping of row index to molecule_id.
+        X_perturbed: Perturbed feature matrix.
+        feature_names: List of feature column names.
+        output_path: Path to the output CSV file.
+        sigma: The sigma value used for noise injection (for logging/metadata).
     """
-    logger.info(f"Writing perturbed dataset (sigma={sigma}) to {output_path}")
-    
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        
-        # Write header: molecule_id, feature_1, ..., feature_n, target
-        # Note: The original header was [id, f1, ..., fn, target]
-        # We reconstruct it to match the expected format
-        new_header = [feature_columns[0]] # First feature is usually ID or we use the ID column
-        # Actually, looking at load_descriptors, feature_columns excludes the ID and Target.
-        # So we need to construct the header: [ID, f1, ..., fn, target]
-        # The original header passed in was [ID, f1, ..., fn, target]
-        # But we split it. Let's assume the first column in the original file was ID.
-        
-        # Reconstructing header based on split logic in load_descriptors:
-        # header[0] is ID (implied by molecule_ids extraction), header[1:-1] are features, header[-1] is target.
-        # However, load_descriptors returns feature_columns as header[:-1] which includes ID if it was numeric?
-        # Let's rely on the fact that we have feature_columns and target_column.
-        # We need to know the ID column name.
-        
-        # Correction: In load_descriptors, we did:
-        # feature_columns = header[:-1] -> This includes ID if ID is a float convertible column? 
-        # No, we did `features = [float(row[i]) for i in range(len(feature_columns))]`
-        # If ID is string, this would fail. 
-        # Assumption: The input CSV has a non-numeric ID in the first column? 
-        # If so, load_descriptors would crash. 
-        # Therefore, the input CSV MUST have numeric IDs or the ID is not in the feature list.
-        
-        # Let's assume the standard format: molecule_id (str), f1 (float), ..., target (float).
-        # My load_descriptors implementation above assumes ALL columns except last are floats.
-        # If molecule_id is string, this crashes.
-        # Fix: We must handle the ID column separately or assume it's numeric.
-        # Given the task is about noise injection on DESCRIPTORS, the ID is metadata.
-        # Let's assume the first column is ID (string) and we skip it for noise injection.
-        
-        # Revised Load Logic for robustness:
-        # We will assume the first column is ID (string) and the rest (except last) are features.
-        # But the provided code in load_descriptors above is rigid.
-        # Since I am rewriting the file, I will fix the logic to be robust.
-        
-        pass 
+        # Write header
+        writer.writerow(['molecule_id'] + feature_names)
 
-    # Re-writing the write logic to be safe and consistent with a corrected load logic
-    # We will assume the output format matches the input: ID, F1...Fn, Target
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        # Header: molecule_id, f1, f2, ..., target
-        # We need to reconstruct the header names. 
-        # If feature_columns includes the ID name, we use it. 
-        # If not, we assume "molecule_id".
-        
-        # Let's assume the input header was: ['molecule_id', 'f1', 'f2', ..., 'target']
-        # feature_columns = ['molecule_id', 'f1', 'f2', ...]
-        # target_column = 'target'
-        
-        # If 'molecule_id' is in feature_columns, we keep it.
-        # But we only injected noise into the float-convertible columns.
-        # If the first column is string, it won't be in the float matrix.
-        
-        # Let's assume the matrix corresponds to feature_columns.
-        # If the first element of feature_columns is 'molecule_id' and it's not float, 
-        # then my load logic failed.
-        
-        # Safe assumption: The input CSV has numeric features only in the columns we are perturbing.
-        # The ID is preserved from the list `molecule_ids`.
-        
-        # Construct header: [feature_columns[0] if it's ID? No, let's just use the provided feature_columns]
-        # If the first column is ID, it should be in feature_columns.
-        # If it is, and it's string, we didn't load it as float.
-        
-        # Let's assume the input file has: molecule_id (str), f1 (float), ..., target (float).
-        # We will output: molecule_id (str), f1_perturbed, ..., target (float).
-        
-        # To do this correctly, we need to know which column is the ID.
-        # Let's assume the first column of the CSV is the ID.
-        # We will not perturb the first column if it's the ID.
-        
-        # Actually, the simplest approach for this specific task:
-        # We assume the input CSV has numeric descriptors.
-        # We inject noise into ALL numeric columns except the last (target).
-        # We preserve the first column (ID) as is.
-        
-        # Re-constructing header from the original input to ensure column names match
-        # We need to pass the original header to this function or reconstruct it.
-        # I will modify the function signature to accept original_header.
-        
-        pass
+        # Write data rows
+        for i, features in enumerate(X_perturbed):
+            mol_id = molecule_ids.get(i, f"unknown_{i}")
+            writer.writerow([mol_id] + [f"{val:.6f}" for val in features])
+
+    logging.info(f"Wrote perturbed dataset (sigma={sigma}) to {output_path}")
+
 
 def main():
+    """
+    Main entry point for noise injection.
+
+    Usage:
+        python code/noise_injection.py --input data/descriptors_semi.csv --output-dir data/perturbed --sigmas 0.01 0.05
+    """
     parser = argparse.ArgumentParser(description="Inject Gaussian noise into descriptor datasets.")
-    parser.add_argument("--input", type=str, required=True, help="Path to input descriptors CSV (e.g., data/descriptors_semi.csv)")
-    parser.add_argument("--output-dir", type=str, default="data", help="Directory to write perturbed datasets")
-    parser.add_argument("--sigmas", type=float, nargs="+", default=[0.01, 0.05], help="Standard deviations for noise injection")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
-    parser.add_argument("--log", type=str, default="logs/noise_injection.log", help="Path to log file")
-    
+    parser.add_argument(
+        "--input",
+        type=str,
+        default="data/descriptors_semi.csv",
+        help="Path to the input descriptor CSV file."
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data/perturbed",
+        help="Directory to write perturbed datasets."
+    )
+    parser.add_argument(
+        "--sigmas",
+        type=float,
+        nargs="+",
+        default=[0.01, 0.05],
+        help="List of sigma values for noise injection."
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for noise generation."
+    )
+    parser.add_argument(
+        "--log-file",
+        type=str,
+        default="logs/noise_injection.log",
+        help="Path to the log file."
+    )
+
     args = parser.parse_args()
-    
-    Path(args.log).parent.mkdir(parents=True, exist_ok=True)
-    logger = setup_logger("noise_injection", args.log)
-    
-    logger.info(f"Starting noise injection for {args.input} with sigmas: {args.sigmas}")
-    
+
+    # Setup logging
+    logger = setup_logger("noise_injection", args.log_file)
+    logger.info(f"Starting noise injection for {args.input}")
+    logger.info(f"Target output directory: {args.output_dir}")
+    logger.info(f"Sigma values: {args.sigmas}")
+
+    # Ensure output directory exists
+    os.makedirs(args.output_dir, exist_ok=True)
+
     try:
-        # Load data
-        # We need to handle the ID column carefully.
-        # Assumption: Input CSV format: molecule_id (str), f1 (float), ..., fN (float), target (float)
-        # We will load the whole CSV, separate ID, features, and target.
-        
-        with open(args.input, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            header = next(reader)
-            rows = list(reader)
-        
-        if not header:
-            raise ValueError("Input CSV is empty.")
-        
-        # Identify columns
-        # Last column is target
-        target_col_name = header[-1]
-        # First column is ID (assumed)
-        id_col_name = header[0]
-        # Middle columns are features
-        feature_col_names = header[1:-1]
-        
-        if len(feature_col_names) == 0:
-            raise ValueError("No feature columns found in input CSV.")
-        
-        logger.info(f"ID: {id_col_name}, Features: {len(feature_col_names)}, Target: {target_col_name}")
-        
-        # Parse data
-        molecule_ids = []
-        features = []
-        targets = []
-        
-        for row in rows:
-            molecule_ids.append(row[0])
-            try:
-                feat_vals = [float(x) for x in row[1:-1]]
-                target_val = float(row[-1])
-                features.append(feat_vals)
-                targets.append(target_val)
-            except ValueError as e:
-                logger.error(f"Error parsing row: {row}. {e}")
-                raise
-        
-        feature_matrix = np.array(features, dtype=np.float64)
-        target_array = np.array(targets, dtype=np.float64)
-        
-        logger.info(f"Loaded {len(molecule_ids)} samples. Feature shape: {feature_matrix.shape}")
-        
-        # Process each sigma
+        # Load original data
+        logger.info(f"Loading descriptors from {args.input}")
+        molecule_ids, X, feature_names = load_descriptors(args.input)
+        logger.info(f"Loaded {len(X)} molecules with {len(feature_names)} features.")
+
+        # Process each sigma level
         for sigma in args.sigmas:
-            output_filename = f"descriptors_semi_sigma_{sigma:.2f}.csv"
+            logger.info(f"Injecting noise with sigma={sigma}")
+            X_perturbed = inject_noise(X, sigma, seed=args.seed)
+
+            output_filename = f"descriptors_semi_sigma_{sigma:.4f}.csv"
             output_path = os.path.join(args.output_dir, output_filename)
-            Path(args.output_dir).mkdir(parents=True, exist_ok=True)
-            
-            logger.info(f"Processing sigma={sigma} -> {output_path}")
-            
-            # Inject noise
-            np.random.seed(args.seed)
-            noise = np.random.normal(0.0, sigma, feature_matrix.shape)
-            perturbed_features = feature_matrix + noise
-            
-            # Write output
-            with open(output_path, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                # Reconstruct header
-                new_header = [id_col_name] + feature_col_names + [target_col_name]
-                writer.writerow(new_header)
-                
-                for i in range(len(molecule_ids)):
-                    row = [molecule_ids[i]]
-                    row.extend([f"{v:.6f}" for v in perturbed_features[i]])
-                    row.append(f"{target_array[i]:.6f}")
-                    writer.writerow(row)
-            
-            logger.info(f"Successfully wrote perturbed dataset with sigma={sigma}")
-            
+
+            write_perturbed_dataset(molecule_ids, X_perturbed, feature_names, output_path, sigma)
+            logger.info(f"Completed noise injection for sigma={sigma}")
+
+        logger.info("Noise injection completed successfully.")
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Data processing error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Error during noise injection: {e}", exc_info=True)
-        raise
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

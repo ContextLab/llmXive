@@ -1,15 +1,3 @@
-# Root project dependencies
-# These are pinned for reproducibility as per T002a
-scikit-learn==1.3.2
-pandas==2.1.4
-rdkit==2023.9.4
-requests==2.31.0
-datasets==2.14.6
-pyyaml==6.0.1
-
-# Testing
-pytest==7.4.3
-
-# Development tools (Linting/Formatting)
-black==23.11.0
-ruff==0.1.6
+# Root project dependencies for PROJ-546
+# These are high-level dependencies often needed for environment setup or top-level scripts
+# Specific pinned versions for reproducibility are in code/requirements.txt
