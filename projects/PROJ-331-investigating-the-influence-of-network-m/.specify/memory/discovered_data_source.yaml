@@ -1,0 +1,14 @@
+status: none
+intent: download Human Connectome Project S1200 diffusion and rs-fMRI with Schaefer
+  2018 100 atlas python package dataset
+required_fields:
+- subject_id
+- weighted_structural_connectome_matrix
+- binary_structural_connectome_matrix_10pct
+- binary_structural_connectome_matrix_20pct
+- binary_structural_connectome_matrix_30pct
+- resting_state_functional_connectivity_matrix
+- schaefer_2018_100_node_atlas_labels
+cache_key: 6d0ffd00cfe8888b0ab44535f78ef01002aa0f905902eb57ae79546aba2f951b
+searched_at: '2026-08-21T20:53:43.202766+00:00'
+retry_count: 1

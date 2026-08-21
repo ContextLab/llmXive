@@ -24,7 +24,7 @@ properties:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "FDR-corrected p-value."
+    description: "Bonferroni-corrected p-value."
   significant:
     type: "boolean"
     description: "True if p_value_corrected < 0.05."
@@ -39,11 +39,17 @@ properties:
     description: "Number of permutations performed."
   control_variable:
     type: "string"
-    const: "network_density"
+    const: "global_degree"
     description: "Variable controlled for in partial correlation."
   vif:
     type: "number"
     description: "Variance Inflation Factor for the control variable."
+  method_used:
+    type: "string"
+    enum:
+      - "partial_correlation"
+      - "permutation_only"
+    description: "Method used based on VIF check."
 required:
   - "motif_id"
   - "correlation_type"
@@ -54,4 +60,5 @@ required:
   - "empirical_p"
   - "n_permutations"
   - "control_variable"
+  - "method_used"
 additionalProperties: false

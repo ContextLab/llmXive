@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for raw and derived dataset artifacts"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "HCP subject ID (e.g., '100106')"
+  structural_connectome:
+    type: "object"
+    properties:
+      shape:
+        type: "array"
+        items:
+          type: "integer"
+        description: "Shape of the adjacency matrix (e.g., [100, 100])"
+      dtype:
+        type: "string"
+        description: "Data type (e.g., 'uint8' for binary)"
+      source_file:
+        type: "string"
+        description: "Path to the raw source file"
+      checksum:
+        type: "string"
+        description: "SHA256 checksum of the source file"
+  rsfc_connectome:
+    type: "object"
+    properties:
+      shape:
+        type: "array"
+        items:
+          type: "integer"
+      dtype:
+        type: "string"
+        description: "Data type (e.g., 'float32')"
+required:
+  - subject_id
+  - structural_connectome
+  - rsfc_connectome
+additionalProperties: false

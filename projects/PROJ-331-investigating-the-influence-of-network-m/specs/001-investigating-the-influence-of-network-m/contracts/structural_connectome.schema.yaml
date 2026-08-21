@@ -28,18 +28,17 @@ properties:
     properties:
       structural:
         type: "string"
-        description: "Relative path to the structural.npy (binary) file."
+        description: "Relative path to the canonical_binary_adj.npy file."
       structural_weighted:
         type: "string"
-        description: "Relative path to the structural_weighted.npy (weighted) file."
+        description: "Relative path to the weighted adjacency file (if generated)."
       rsfc:
         type: "string"
         description: "Relative path to the rsfc.npy file."
     required:
       - "structural"
-      - "structural_weighted"
       - "rsfc"
-    description: "Paths to generated binary and weighted matrices."
+    description: "Paths to generated binary and functional matrices."
 required:
   - "subject_id"
   - "status"

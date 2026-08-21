@@ -13,7 +13,7 @@
 
 **Why this priority**: The entire investigation depends on a reliable, reproducible dataset. Without a stable pipeline, subsequent steps cannot be validated.
 
-**Independent Test**: Execute the pipeline on a fresh CI runner; verify that for each of the selected subjects a binary structural connectome (Schaefer‑100) and an rsFC matrix are saved to the designated output folder.
+**Independent Test**: Execute the pipeline on a fresh CI runner; verify that for each of the selected subjects a binary structural connectome (Schaefer parcellation) and an rsFC matrix are saved to the designated output folder.
 
 **Acceptance Scenarios**:
 
@@ -56,7 +56,7 @@
 
 - **Missing Modality**: If a subject lacks either diffusion or rs‑fMRI data, the pipeline must log the omission and exclude the subject from all downstream calculations.
 - **Zero‑Variance Metric**: If a motif’s z‑score vector is constant across subjects, the correlation routine must detect the situation, skip the test, and record “insufficient variance” in the report.
-- **Resource Exhaustion**: If motif enumeration exceeds 300 seconds on a 2‑core CPU, the script must abort gracefully, log a timeout warning, and suggest reducing the motif size (e.g., limit to 3‑node motifs).
+- **Resource Exhaustion**: If motif enumeration exceeds a reasonable time threshold on a 2‑core CPU, the script must abort gracefully, log a timeout warning, and suggest reducing the motif size (e.g., limit to 3‑node motifs).
 
 ## Requirements *(mandatory)*
 
@@ -91,4 +91,4 @@
 - Random seeds are fixed (seed = 42) for reproducibility of null‑network generation and permutation tests.  
 - The Bonferroni correction is the chosen family‑wise error control method because the number of tested motifs is modest and the correction is computationally trivial on the CPU.  
 - Motif‑z‑score significance threshold is set to |z| ≥ 2.0, a standard cutoff in network‑motif literature; a sensitivity analysis will sweep |z| ∈ {1.5, 2.0, 2.5} and report how the number of significant motifs varies.  
-- Exact enumeration of small-node motifs in a medium-sized graph is computationally intractable within the 300‑second time budget; therefore, the investigation is scoped to 3‑node motifs only for this iteration.
+- Exact enumeration of small-node motifs in a medium-sized graph is computationally intractable within the available time budget; therefore, the investigation is scoped to 3‑node motifs only for this iteration.

@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Results Schema"
+description: "Schema for statistical results and subject metrics"
+type: "object"
+properties:
+  subject_metrics:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        subject_id:
+          type: "string"
+        rsfc_strength:
+          type: "number"
+        global_efficiency:
+          type: "number"
+        global_degree:
+          type: "number"
+        network_density:
+          type: "number"
+        motif_triangle_z:
+          type: "number"
+        motif_path_z:
+          type: "number"
+        # Add other motifs as needed
+      required:
+        - subject_id
+        - rsfc_strength
+        - global_efficiency
+        - global_degree
+        - network_density
+  permutation_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        motif_type:
+          type: "string"
+        metric_type:
+          type: "string"
+          enum: ["rsfc_strength", "global_efficiency"]
+        partial_r:
+          type: "number"
+        p_value_bonferroni:
+          type: "number"
+        p_value_permutation:
+          type: "number"
+        significant:
+          type: "boolean"
+      required:
+        - motif_type
+        - metric_type
+        - partial_r
+        - p_value_bonferroni
+        - p_value_permutation
+        - significant
+required:
+  - subject_metrics
+  - permutation_results
+additionalProperties: false

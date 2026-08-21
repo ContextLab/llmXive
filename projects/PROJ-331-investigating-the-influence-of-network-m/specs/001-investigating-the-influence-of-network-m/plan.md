@@ -1,147 +1,166 @@
 # Implementation Plan: Investigating the Influence of Network Motifs on Resting‑State Functional Connectivity
 
-**Branch**: `feature/motif-rsfc` | **Date**: 2026-06-27 | **Spec**: `spec.md`
+**Branch**: `feature/motif-rsfc` | **Date**: 2026-06-27 | **Spec**: `specs/feature/motif-rsfc/spec.md`
+**Input**: Feature specification from `/specs/feature/motif-rsfc/spec.md`
 
 ## Summary
 
-This project implements a reproducible, CPU-constrained pipeline to investigate whether specific Network motif configurations
-
-The research question investigates how network motif structures influence system dynamics. The method involves analyzing the frequency and functional roles of recurring subgraph patterns within complex networks, following the framework established by Milo et al. and Kashtan et al. in structural brain connectomes constrain individual variation in resting-state functional connectivity (rsFC). The system downloads HCP diffusion and rs-fMRI data (or uses pre-seeded data), constructs Schaefer parcellated connectomes (preserving both binary and weighted forms), enumerates small-node motifs against degree-preserving null models (A fixed number of iterations), and computes partial correlations controlling for network density. Statistical rigor is enforced via FDR (Benjamini-Hochberg) correction, permutation testing, and power analysis, with all results rendered in a single PDF report.
+This project investigates whether specific 3-node network motif configurations in structural brain connectomes constrain individual variation in resting-state functional connectivity (rsFC). The technical approach involves: () downloading HCP diffusion and rs-fMRI data for a representative subset of subjects; (2) constructing binary structural connectomes using the Schaefer parcellation with density-based thresholding; (3) enumerating k-node motifs (undirected) and computing z-scores against degree-preserving null models; (4) calculating rsFC strength (mean absolute correlation) and global efficiency; (5) performing partial correlations (controlling for global degree via residualization) with Bonferroni correction and a secondary FDR check; (6) running permutation tests for significant motifs; and (7) generating a comprehensive PDF report including a mandatory disclaimer and power analysis section. All analysis is CPU-first, designed to run within GitHub Actions free-tier constraints (limited CPU, constrained RAM, 6h limit).
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `scipy`, `pandas`, `networkx`, `matplotlib`, `seaborn`, `nibabel`, `requests`, `reportlab`, `tqdm`, `joblib`, `dipy` (for streamline counting)  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `results/`)  
-**Testing**: `pytest` (unit tests for motif counting, integration tests for pipeline steps)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM, no GPU)  
-**Project Type**: Scientific data pipeline / CLI  
-**Performance Goals**: Motif enumeration ≤ 300s/subject; Full pipeline ≤ 6h; PDF generation ≤ 2m  
-**Constraints**: No GPU; Memory ≤ 7GB; Disk ≤ 14GB; Must handle missing subjects gracefully; Must include mandatory associational disclaimer.  
-**Scale/Scope**: N=50 subjects; -node motifs only; Schaefer parcellation
-
-The research question concerns the optimal granularity of cortical parcellation for network analysis. The method involves applying the Schaefer atlas to functional MRI data to evaluate network stability across varying levels of resolution. References: Schaefer et al. (2018). (100x100 matrices).
-
-> **Dataset Fit Note**: The plan relies on the HCP S Release which provides raw diffusion tractography (streamlines/NIFTI) and resting-state fMRI for the same subjects. The pipeline performs local tractography-to-matrix conversion (streamline counting) and applies a Schaefer parcellation scheme to ensure node correspondence.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `numpy`, `scipy`, `pandas`, `networkx`, `matplotlib`, `seaborn`, `nibabel`, `h5py`, `requests`, `jinja2`, `weasyprint` (or `matplotlib` PDF backend), `awscli` (for HCP S3), `statsmodels`
+**Storage**: Local file system (GitHub Actions runner ephemeral storage: limited disk space)
+**Testing**: `pytest` (contract tests against YAML schemas, unit tests for motif counting logic, integration tests for pipeline phases)
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner)
+**Project Type**: scientific-research-pipeline
+**Performance Goals**: Motif enumeration ≤300s/subject (3-node only); full pipeline ≤6h; PDF generation ≤2min.
+**Constraints**: No GPU required (CPU-only); no external API keys beyond HCP public access; memory <7GB (streaming/lazy loading where possible); strict reproducibility (seed=42).
+**Scale/Scope**: 50 subjects, 100-node graphs, 13 possible 3-node motifs (undirected: several types), A sufficient number of permutation iterations.
 
 ## Constitution Check
 
-*Gates determined based on `constitution.md`*
+*Gates determined based on constitution file*
 
-| Principle | Compliance Check | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `random.seed()` pinned in all stochastic steps (null model generation, permutation). `requirements.txt` pins all versions. Pipeline runs end-to-end on fresh CI. |
-| **II. Verified Accuracy** | **PASS** | Citations (Schaefer et al.; HCP) will be validated against primary sources before final report generation. |
-| **III. Data Hygiene** | **PASS** | Raw HCP data stored in `data/raw/` with checksums (SHA256) recorded in `data/raw/.checksums.json`. Derived matrices stored in `data/processed/` with provenance metadata. No in-place modification. |
-| **IV. Single Source of Truth** | **PASS** | All statistics in the PDF are generated directly from `results/` CSVs/JSONs produced by the code. No manual typing. Power analysis results written to `results/power_analysis.json`. |
-| **V. Versioning Discipline** | **PASS** | Phase 0 includes execution of `scripts/hash_artifacts.sh` to generate content hashes for all data/code artifacts and update `state/...yaml` with `updated_at` timestamp. |
-| **VI. Structural Data Integrity** | **PASS** | Raw diffusion matrices preserved. Binary and weighted connectomes derived via Schaefer parcellation saved as new files with source reference. |
-| **VII. Statistical Transparency** | **PASS** | Scripts record exact seeds, library versions, and parameters (N_perm, alpha, correction method) in `pipeline.log` and report metadata. |
+1.  **Reproducibility (NON-NEGOTIABLE)**:
+    *   **Plan Compliance**: The plan mandates fixed random seeds (`seed=42`) for null model generation and permutation tests. All external data is fetched from the canonical HCP S3 source via programmatic download (`awscli` anonymous). The `requirements.txt` will pin exact versions.
+    *   **Verification**: The `quickstart.md` includes a command to re-run the full pipeline on a fresh environment to verify output hashes.
+
+2.  **Verified Accuracy**:
+    *   **Plan Compliance**: Citations in `research.md` (e.g., Schaefer atlas, HCP data release) will be cross-referenced with the "Verified datasets" block in the input context. The plan explicitly avoids inventing dataset URLs.
+    *   **Verification**: The `Reference-Validator` agent will be invoked during the task execution phase to validate all citations before the `research_review` stage.
+
+3.  **Data Hygiene**:
+    *   **Plan Compliance**: Raw HCP data is processed in a temporary directory. Derived binary connectomes (`data/processed/canonical_binary_adj.npy`) are saved with provenance metadata (checksum of source file). No in-place modifications.
+    *   **Verification**: The `setup-plan.sh` script will generate a `checksums.json` manifest for all *derived* data artifacts. (Note: Raw data cannot be retained in CI due to size constraints, but derived data is checksummed).
+
+4.  **Single Source of Truth**:
+    *   **Plan Compliance**: All statistical outputs (correlation coefficients, p-values) are written to `data/processed/` JSON/CSV files. The PDF report is generated *programmatically* from these files, ensuring no manual transcription.
+    *   **Verification**: The `report.py` script will include a footer with the hash of the input `subject_metrics.csv` to prove traceability.
+
+5.  **Versioning Discipline**:
+    *   **Plan Compliance**: Every artifact (scripts, data files) will be associated with a content hash in the project state file.
+    *   **Verification**: The `Advancement-Evaluator` will check artifact hashes before stage transitions.
+
+6.  **Structural Data Integrity**:
+    *   **Plan Compliance**: The pipeline downloads unaltered HCP diffusion data to a temporary location. Parcellation to Schaefer-100 is performed as a distinct step, saving the result as a new file (`canonical_binary_adj.npy`) with a reference to the raw source ID. Raw data is deleted after processing to fit CI limits, but the *derived* structural matrix (the basis of analysis) is stored and checksummed, satisfying the integrity requirement for the analyzed data.
+    *   **Verification**: The `data-model.md` defines the schema for the derived connectome, linking it to the raw source ID.
+
+7.  **Statistical Transparency**:
+    *   **Plan Compliance**: The `stats.py` module will log exact parameters (Bonferroni alpha, permutation count, seed, VIF threshold) to `pipeline.log`. The PDF report includes a "Methods" section with these exact values.
+    *   **Verification**: The `results.pdf` will contain a machine-readable metadata block with the statistical parameters used.
 
 ## Project Structure
 
-### Source Code
+### Documentation (this feature)
+
+```text
+specs/feature/motif-rsfc/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   ├── motif_profile.schema.yaml
+│   ├── results.schema.yaml
+│   ├── analysis_results.schema.yaml
+│   └── structural_connectome.schema.yaml
+└── tasks.md             # Phase 2 output
+```
+
+### Source Code (repository root)
 
 ```text
 code/
 ├── __init__.py
-├── config.py              # Paths, seeds, constants
-├── pipeline.py            # Orchestration: download, preprocess, analyze
-├── download.py            # HCP data fetching logic (CI-safe)
-├── preprocess.py          # Tractography-to-matrix, parcellation, rsFC calc
-├── motifs.py              # 3-node motif enumeration, null model generation
-├── stats.py               # Correlation, FDR, Permutation, Power Analysis
-├── report.py              # PDF generation (matplotlib + reportlab)
-├── utils.py               # Logging, error handling, file I/O, checksum generation
-└── scripts/
-    └── hash_artifacts.sh  # Versioning script
-
-tests/
-├── unit/
-│   ├── test_motifs.py     # Motif counting correctness, edge cases
-│   ├── test_stats.py      # Correlation, p-value calculation
-│   └── test_preprocess.py # Parcellation logic
-├── integration/
-│   └── test_pipeline.py   # End-to-end run on small subset
-└── conftest.py
+├── config.py            # Paths, seeds, constants
+├── pipeline.py          # Main orchestration script
+├── preprocess.py        # Data download, parcellation, rsFC calculation
+├── motifs.py            # Motif enumeration, null model generation, z-score calc
+├── stats.py             # Correlations, VIF check, Bonferroni, Permutation tests
+├── report.py            # PDF generation (matplotlib + text)
+└── utils.py             # Logging, I/O helpers
 
 data/
-├── raw/                   # HCP downloads (symlinked or direct)
-│   └── .checksums.json    # SHA256 manifest
-├── processed/             # .npy matrices, motif profiles
-└── logs/                  # pipeline.log
+├── raw/                 # HCP downloaded files (nifti/h5) - TEMPORARY
+├── processed/           # Derived .npy, .json, .csv artifacts
+└── logs/                # pipeline.log
 
-results/
-└── report.pdf
+tests/
+├── contract/            # YAML schema validation tests
+├── integration/         # End-to-end pipeline tests (small subset)
+└── unit/                # Motif counting, correlation logic tests
 ```
 
-**Structure Decision**: Single `code/` directory with modular scripts. This minimizes overhead and fits the CLI nature of the scientific pipeline. No separate backend/frontend required.
+**Structure Decision**: A single `code/` directory with modular scripts is chosen over a web-service or mobile structure because this is a batch-processing scientific pipeline. This minimizes overhead and aligns with the CPU-first, script-based execution model of GitHub Actions. The separation of `preprocess`, `motifs`, and `stats` ensures clear data flow and easier unit testing for specific mathematical components.
 
-## Phase Plan & FR/SC Mapping
+## Compute Feasibility & Data Strategy
 
-### Phase 0: Research & Data Verification (Pre-Implementation)
-*   **Goal**: Verify dataset availability, variable fit, and versioning setup.
-*   **FR/SC Mapping**:
-    *   **FR-001 / SC-001**: Verify HCP S1200 Release contains both DWI and rs-fMRI for A substantial number of subjects.
-    *   **FR-010 / SC-005**: Verify power analysis parameters (N=50, alpha=0.05) are feasible.
-    *   **Constitution V**: Execute `scripts/hash_artifacts.sh` to generate SHA256 hashes for all data/code artifacts and update `state/...yaml` `updated_at` timestamp.
-*   **Action**: Query verified dataset sources (see `research.md`). Confirm Schaefer-100 atlas compatibility. Generate initial checksums for any pre-seeded data.
+### Compute Strategy
+*   **CPU-First**: All operations (motif counting on 100-node graphs, correlation, permutation) are computationally feasible on CPU cores.
+    *   *Motif Counting*: 3-node motifs on a 100-node graph (max a large number of triplets) are trivial for `networkx` or custom C-optimized Python loops. The 300s timeout is a safe upper bound; expected time is <10s/subject.
+    *   *Permutation*: A sufficient number of permutations of 50 data points is negligible (<1s).
+*   **Memory**: Adequate RAM capacity is sufficient.. We process subjects sequentially (or in small batches of varying sizes) to keep memory footprint low. We do not load all raw NIfTI files simultaneously.
+*   **Disk**: GB is sufficient. **Critical Adjustment**: HCP raw data is large (multi-GB per subject). We cannot store 50 full HCP raw datasets.
+    *   *Solution*: The pipeline will **stream** raw data: download a subject's files, process them immediately to extract the -node matrix, save the derived `.npy` matrix to `data/processed/`, and **delete the raw files** for that subject before moving to the next. Only the derived `.npy` matrices (100x100 floats = 80KB each) and metadata will be retained in `data/processed/`. This keeps disk usage well within acceptable limits.
+    *   *Constitution Alignment*: While raw data cannot be retained in CI due to size, the *derived* structural matrices (the actual data used for analysis) are stored unchanged in `data/processed/` and checksummed, satisfying Structural Data Integrity for the analyzed data.
 
-### Phase 1: Data Pipeline (Download & Preprocess)
-*   **Goal**: Download and transform raw data into binary and weighted connectomes, and rsFC matrices.
-*   **FR/SC Mapping**:
-    *   **FR-001**: Download DWI and rs-fMRI (or verify pre-seeded data in `data/raw/`).
-    *   **FR-002**: Apply Schaefer-100 parcellation to DWI -> Binary Adjacency (density thresholded at incremental levels) AND Weighted Adjacency (streamline count).
-    *   **FR-003**: Compute rsFC (Pearson) and Global Efficiency (on **weighted**, unthresholded graph).
-    *   **FR-008**: Log steps to `pipeline.log`.
-    *   **SC-001**: ≥95% success rate (skip missing, log warning).
-    *   **Data Hygiene**: Run `sha256sum` on all raw files and record manifest in `data/raw/.checksums.json`.
-*   **Edge Case Handling**: If subject missing, log warning and skip (US-1, Edge Case).
-*   **Data Conversion**: Use `dipy` to count streamlines between Schaefer-100 nodes. Save weighted matrix (floating-point) and binary matrices (integer) at three density thresholds.
+### Data Availability
+*   **Source**: Human Connectome Project (HCP) Large-Sample Release.
+*   **Access Method**: **HCP S1200 via AWS S3 public bucket (us-east-1) using `awscli` with anonymous public read access**.
+    *   *Fallback*: If the specific HCP S3 bucket is inaccessible or the download fails for a subject, the pipeline will skip the subject, log the error, and continue. If >5% of subjects fail, the pipeline will abort and suggest using the verified OpenNeuro dataset `ds000222` (HCP minimal processing pipeline data) as a smaller, verified alternative.
+    *   *Constraint Check*: The spec assumes a cohort of subjects. If the CI cannot hold 50 raw datasets, we will process them one-by-one (download -> process -> delete raw) to stay within disk limits.
 
-### Phase 2: Motif Quantification
-*   **Goal**: Enumerate Motifs
+## Phase Breakdown
 
-The research question focuses on identifying recurring subgraph patterns within complex networks. The method involves enumerating and statistically evaluating subgraph frequencies against randomized null models. References: Milo et al. (2002); DOI:10.1126/science.1073289. and compute z-scores.
-*   **FR/SC Mapping**:
-    *   **FR-004**: Enumerate -node subgraphs; generate degree-preserving nulls (Maslov-Sneppen); compute z-scores.
-    *   **SC-002**: Ensure execution ≤ 300s/subject on 2-core CPU (achieved by limiting to a fixed number of iterations and using `networkx`).
-    *   **Edge Case**: If null model fails to converge after a predetermined number of retries, exclude subject from that specific motif's analysis (set z-score to `null` in JSON, do not assign 0).
-*   **Method**: `networkx` for subgraph isomorphism counting. Output normalized to `motif_profile.schema.yaml`.
-*   **Thresholding Strategy**: Compute z-scores at three density thresholds. Aggregate final `motif_z_scores` using the **median** value across thresholds to mitigate thresholding bias. Raw per-threshold scores stored in `motif_z_scores_raw`.
+### Phase 0: Research & Data Verification
+*   **Goal**: Confirm dataset variables and access method.
+*   **Tasks**:
+    *   Verify HCP S1200 diffusion and rsfMRI availability for 50 subjects.
+    *   Verify Schaefer-100 parcellation compatibility.
+    *   Finalize `research.md` with dataset URLs and access strategy.
 
-### Phase 3: Statistical Analysis
-*   **Goal**: Correlate motifs with rsFC metrics, apply corrections.
-*   **FR/SC Mapping**:
-    *   **FR-005**: Partial Pearson/Spearman (controlling for **network density**); FDR (Benjamini-Hochberg) correction for multiple testing.
-    *   **FR-006**: Permutation test (≥1000) for significant motifs.
-    *   **FR-010**: Power analysis module; results written to `results/power_analysis.json` (Single Source of Truth).
-    *   **SC-003**: Report corrected p-values for all motifs.
-    *   **Edge Case**: Zero-variance detection (skip test, flag in report). VIF check for collinearity.
-*   **Statistical Rigor**:
-    *   **Multiple Comparisons**: FDR (Benjamini-Hochberg) applied across all directed -node motifs. Bonferroni is avoided as it is overly conservative for correlated tests.
-    *   **Power**: With N=50 and FDR-adjusted alpha, detectable r is likely moderate (two-tailed test assumed for conservatism). This is explicitly reported.
-    *   **Causal Claims**: None. The plan explicitly frames results as associational (FR-009, Constitution Principle VII).
-    *   **Collinearity**: VIF check performed. If VIF > 5 for the control variable, report collinearity and switch to Spearman or uncorrected correlations with caveats.
-    *   **Circularity Avoidance**: Global Efficiency calculated on *weighted* (unthresholded) graph; Motifs on *binary* (thresholded) graph. Control variable is *network density* (not global degree) to avoid redundancy with the null model which preserves degree.
-    *   **Control Variable Justification**: Z-scores are defined as deviations from a degree-preserving null. Controlling for global degree would be statistically redundant. Controlling for network density (which varies with thresholding) accounts for the thresholding confound.
+### Phase 1: Data Model & Contracts
+*   **Goal**: Define schemas for all I/O.
+*   **Tasks**:
+    *   Define `dataset.schema.yaml` (raw input metadata).
+    *   Define `motif_profile.schema.yaml` (z-scores).
+    *   Define `results.schema.yaml` (correlations, p-values).
+    *   Define `analysis_results.schema.yaml` (statistical outputs).
+    *   Define `structural_connectome.schema.yaml` (subject processing status).
+    *   Generate `data-model.md`.
 
-### Phase 4: Reporting
-*   **Goal**: Generate PDF report with plots and disclaimers.
-*   **FR/SC Mapping**:
-    *   **FR-007**: Scatter plots, CIs, p-values, permutation results per motif.
-    *   **FR-009**: Mandatory disclaimer: "These findings are associational only..."
-    *   **SC-004**: PDF ≤ 5MB, generation ≤ 2m.
+### Phase 2: Implementation (Code Generation)
+*   **Goal**: Generate `code/` scripts.
+*   **Tasks**:
+    *   **T014c (Data Download & Parcellation)**: Download diffusion data, apply Schaefer-100, binarize using **median graph density threshold**, and save `data/processed/canonical_binary_adj.npy`. Log status to `data/processed/structural_connectome_metadata.json` (schema: `structural_connectome.schema.yaml`). **Logic for SC-001**: Parse this JSON, count 'complete' vs 'skipped' statuses, calculate success rate, and write to `results.json` and `pipeline.log`.
+    *   **T015 (Functional Processing)**: Compute Pearson correlation of rs-fMRI time-series for 100 nodes, calculate global efficiency, and write `data/processed/rsfc.npy` and `data/processed/global_efficiency.json`.
+    *   **T017 (Logging)**: Ensure `data/logs/pipeline.log` is created and updated with all processing steps, warnings, and errors.
+    *   **T025c_loop (Threshold Sensitivity)**: Iterate over `z` thresholds {1.5, 2.0, 2.5}. For each, save output to `data/processed/sensitivity_z<value>.json`.
+    *   **T026 (Motif Aggregation)**: Enumerate 3-node motifs, generate null models, compute z-scores, aggregate median z-scores, and write `data/processed/motif_profiles.json`.
+    *   **T030a (VIF Check & Selection)**: Compute VIF for degree control. If VIF > 5, switch to permutation-only analysis. Write `data/processed/quality_flags.json` with the method selected and VIF values.
+    *   **T032a (Correlation)**: Compute partial correlations (residualization method) between motif z-scores and rsFC metrics, applying Bonferroni and FDR corrections.
+    *   **T032c (Permutation)**: Iterate over significant motifs, run a sufficient number of permutations, and write `results/permutation_results.json`.
+    *   **T035a (Power Analysis)**: Compute min detectable r (N=50, alpha adjusted, power=0.80). **Output**: Write a JSON object with `min_detectable_r`, `power`, and `adjusted_alpha` to `data/processed/power_analysis.json`, which will be embedded in the PDF.
+    *   **T035b (Report Generation)**: Generate `results.pdf`. **Mandatory**: Include the exact string "These findings are associational only and do not imply causation." in the report. Include the power analysis section with the specific values from T035a.
+    *   **T039 (Metrics Aggregation)**: Read inputs, compute `network_density`, join data, and write `data/processed/subject_metrics.csv`.
 
-## Statistical Rigor & Feasibility Notes
+### Phase 3: Execution & Validation
+*   **Goal**: Run pipeline, validate outputs.
+*   **Tasks**:
+    *   Run on GitHub Actions.
+    *   Validate `results.pdf` against `results.schema.yaml`.
+    *   Verify `pipeline.log` and `checksums.json`.
 
-*   **Multiple Comparisons**: Benjamini-Hochberg (FDR) correction applied across all directed 3-node motifs to account for correlation structure. Bonferroni is avoided as it is overly conservative for correlated tests.
-*   **Power**: With N=50 and FDR-adjusted alpha, detectable r is likely moderate in magnitude (two-tailed test assumed for conservatism). This is explicitly reported in the power analysis section (FR-010). The report will acknowledge the risk of Type II errors for moderate effect sizes.
-*   **Causal Claims**: None. The plan explicitly frames results as associational (FR-009, Constitution Principle VII).
-*   **Collinearity**: VIF check performed before partial correlation. If VIF > 5 for the control variable, the plan reports collinearity and adjusts the statistical approach.
-*   **Circularity**: Global Efficiency is calculated on the *weighted* structural graph (unthresholded), while motifs are calculated on the *binary* graph (thresholded). The control variable is *network density* (not global degree) to avoid statistical redundancy with the null model which preserves degree.
-*   **Compute Feasibility**:
-    *   **Motif Counting**: Motifs on Large-scale graphs are computationally feasible.
-    *   **Null Models**: A fixed number of iterations per subject (reduced from 1000 to ensure SC-002 compliance). Edge-switching algorithms (Maslov-Sneppen) are used.
-    *   **Memory**: 50 subjects * 100x100 matrices is negligible. Processing is sequential to stay under a constrained RAM budget.
-    *   **Timeout**: A timeout wrapper (s) is implemented for motif counting. If exceeded, the subject is skipped for that motif and logged.
+## Risk Mitigation
+
+*   **Risk**: HCP data download fails or is too large for CI.
+    *   *Mitigation*: Process subjects sequentially; delete raw files immediately after parcellation. If download fails, log error and skip subject (US-1). **Success Rate Logic**: Skipped subjects are counted in the denominator for SC-001 (e.g., 45 complete / 50 total = 90%).
+*   **Risk**: Motif counting is too slow.
+    *   *Mitigation*: Limit to 3-node motifs (as per spec). Use optimized `networkx` or `igraph` (if available) or a custom C-extension if necessary (unlikely needed for N=100).
+*   **Risk**: Zero variance in motif scores.
+    *   *Mitigation*: `stats.py` includes a check for zero variance (std dev < 1e-6); skips correlation and logs "insufficient variance" (Edge Case).
+*   **Risk**: Bonferroni correction is too strict (no significant results).
+    *   *Mitigation*: The plan includes the power analysis (FR-010) to report the detectable effect size, ensuring the report is scientifically valid even if no motifs are significant. Secondary FDR calculation provided for context.
