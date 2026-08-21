@@ -5,6 +5,30 @@ T017:
     or exclusion logic can be verified. Without the manifest file, the task of removing
     invalid traces and preventing their inclusion downstream is not demonstrated.
     The implementer must create the manifest file with the appropriate filtered content.
+T024a:
+  c: false
+  h: 369c4c466c97ea72ebf42bd8bffcfa3b00f484a1a7d9584782cdf08a9a40a1c2
+  r: "The repository lacks the required `data/processed/embeddings.json` output file,\
+    \ and `prompt_gen.py` does not write any embeddings to that location. Moreover,\
+    \ the code defaults to the model `\"all-MiniLM-L6-v2\"` instead of the specified\
+    \ `\"sentence-transformers/all-MiniLM-L-v\"`, and the curvature\u2011calculation\
+    \ function is truncated, indicating an unfinished implementation."
+T024b:
+  c: false
+  h: 91d23f32f1c7ba4e470e80beab520e6142ef2a258413276bc97d1a9d9367e876
+  r: "The `prompt_gen.py` file contains a partially\u2011implemented `calculate_curvature`\
+    \ function, but the `calculate_all_curvature_scores` method is truncated and never\
+    \ writes the results to `data/processed/curvature_scores.json`. Moreover, the\
+    \ required `curvature_scores.json` file does not exist. The task\u2019s core output\
+    \ is therefore missing."
+T024c:
+  c: false
+  h: e4b1cf7af9710f6f4741b9c89bafbffb6b575f5fabf2fa042d74ec7a1d2a7d01
+  r: "The repository lacks the required `data/processed/curvature_scores.json` file,\
+    \ so the sorting logic cannot read the Curvature Scores. Moreover, the `sort_original_cds`\
+    \ function in `code/src/prompt_gen.py` is truncated and does not show a concrete\
+    \ implementation that uses those scores. Both the data file and a complete, score\u2011\
+    based sorting implementation are missing."
 T035b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

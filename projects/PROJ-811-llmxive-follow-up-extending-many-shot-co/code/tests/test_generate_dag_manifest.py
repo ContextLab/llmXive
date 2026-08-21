@@ -9,150 +9,116 @@ from unittest.mock import patch, MagicMock
 import pytest
 import sys
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add the project root to the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code.scripts.generate_dag_manifest import load_raw_traces, generate_dag_manifest
-
-@pytest.fixture
-def sample_valid_trace():
-    return {
-        "example_id": "ex_001",
-        "trace": "Step 1: Read problem.\nStep 2: Identify variables.\nStep 3: Solve equation.",
-        "question": "What is 2+2?"
-    }
-
-@pytest.fixture
-def sample_cyclic_trace():
-    return {
-        "example_id": "ex_002",
-        "trace": "Step 1: Read problem.\nStep 2: Depends on Step 3.\nStep 3: Depends on Step 2.",
-        "question": "What is 2+2?"
-    }
-
-@pytest.fixture
-def sample_manifest_data(sample_valid_trace, sample_cyclic_trace):
-    return [sample_valid_trace, sample_cyclic_trace]
+from code.scripts.generate_dag_manifest import load_raw_traces, generate_dag_manifest, main
 
 @pytest.fixture
 def temp_manifest_file():
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-        yield Path(f.name)
-    os.unlink(f.name)
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        f.write(json.dumps({"entries": []}))
+        path = f.name
+    yield path
+    os.unlink(path)
 
-def test_parse_simple_trace(sample_valid_trace):
-    """Test that a simple valid trace is parsed correctly."""
-    from code.src.parser import parse_trace_to_dag, is_trace_valid, get_logical_difficulty
-    
-    dag = parse_trace_to_dag(sample_valid_trace['trace'])
-    assert dag is not None
-    assert is_trace_valid(dag)
-    assert get_logical_difficulty(dag) >= 1
-
-def test_cycle_detection(sample_cyclic_trace):
-    """Test that cyclic traces are detected and marked invalid."""
-    from code.src.parser import parse_trace_to_dag, is_trace_valid
-    
-    dag = parse_trace_to_dag(sample_cyclic_trace['trace'])
-    assert dag is not None
-    # Note: The parser might not detect this specific cycle without explicit dependency parsing,
-    # but the test ensures the logic path is tested.
-    # For this test, we assume the parser handles it or we mock the result.
-    # In a real scenario, the parser should detect cycles.
-
-def test_logical_difficulty_score(sample_valid_trace):
-    """Test that logical difficulty score is calculated."""
-    from code.src.parser import parse_trace_to_dag, get_logical_difficulty
-    
-    dag = parse_trace_to_dag(sample_valid_trace['trace'])
-    score = get_logical_difficulty(dag)
-    assert isinstance(score, float)
-    assert score >= 0
-
-def test_logical_difficulty_empty_graph():
-    """Test that empty graph returns 0 difficulty."""
-    import networkx as nx
-    from code.src.parser import get_logical_difficulty
-    
-    empty_dag = nx.DiGraph()
-    score = get_logical_difficulty(empty_dag)
-    assert score == 0
-
-def test_manifest_entry_structure(sample_manifest_data, temp_manifest_file):
-    """Test that manifest entries have the correct structure."""
-    manifest = generate_dag_manifest(sample_manifest_data, temp_manifest_file)
-    
-    assert "metadata" in manifest
-    assert "entries" in manifest
-    assert manifest["metadata"]["total_entries"] == len(sample_manifest_data)
-    
-    for entry in manifest["entries"]:
-        assert "example_id" in entry
-        assert "logical_difficulty_score" in entry
-        assert "is_valid" in entry
-        assert "max_path_depth" in entry
-        assert entry["is_valid"] is True  # Assuming valid traces only in this test
-
-def test_save_manifest_format(temp_manifest_file):
-    """Test that the manifest is saved as valid JSON."""
-    sample_data = [
-        {"example_id": "ex_001", "trace": "Step 1.", "question": "Q1"}
+@pytest.fixture
+def sample_traces():
+    return [
+        {
+            "id": "trace_1",
+            "trace": "Step 1: Calculate 2+2.\nStep 2: Result is 4.",
+            "metadata": {}
+        },
+        {
+            "id": "trace_2",
+            "trace": "Step 1: Identify the problem.\nStep 2: Solve it.",
+            "metadata": {}
+        },
+        {
+            "id": "trace_3",
+            "trace": "Step 1: A.\nStep 2: B.\nStep 3: A depends on C.", # Invalid: cycle if C refers to A or B
+            "metadata": {}
+        }
     ]
-    generate_dag_manifest(sample_data, temp_manifest_file)
-    
-    assert temp_manifest_file.exists()
-    with open(temp_manifest_file, 'r') as f:
-        data = json.load(f)
-    assert "entries" in data
 
-@patch('code.scripts.generate_dag_manifest.load_dag_sft_dataset')
-@patch('code.scripts.generate_dag_manifest.iterate_dataset_examples')
-def test_generate_dag_manifest_logic(mock_iterate, mock_load, sample_valid_trace, temp_manifest_file):
-    """Test the full logic of generating a DAG manifest."""
-    mock_load.return_value = MagicMock()
-    mock_iterate.return_value = [sample_valid_trace]
-    
-    manifest = generate_dag_manifest([sample_valid_trace], temp_manifest_file)
-    
-    assert manifest["metadata"]["valid_entries"] == 1
-    assert len(manifest["entries"]) == 1
-    assert manifest["entries"][0]["example_id"] == "ex_001"
+def test_load_raw_traces_success(sample_traces):
+    # Mock the dataset loading
+    with patch('code.scripts.generate_dag_manifest.iterate_dataset_examples') as mock_iter:
+        mock_iter.return_value = iter(sample_traces)
+        traces = load_raw_traces(max_examples=10)
+        assert len(traces) == 3
+        assert traces[0]['id'] == 'trace_1'
+
+def test_generate_dag_manifest_valid_trace(sample_traces, temp_manifest_file):
+    # Mock the dataset loading
+    with patch('code.scripts.generate_dag_manifest.iterate_dataset_examples') as mock_iter:
+        mock_iter.return_value = iter(sample_traces[:2]) # Only valid traces
+        
+        output_path = Path(temp_manifest_file)
+        manifest = generate_dag_manifest(sample_traces[:2], output_path)
+        
+        assert manifest['metadata']['valid_traces_count'] == 2
+        assert manifest['metadata']['invalid_traces_count'] == 0
+        assert len(manifest['entries']) == 2
+        
+        # Verify file was written
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            saved_data = json.load(f)
+        assert saved_data['metadata']['valid_traces_count'] == 2
+
+def test_generate_dag_manifest_invalid_trace_excluded(sample_traces, temp_manifest_file):
+    # Mock the dataset loading
+    with patch('code.scripts.generate_dag_manifest.iterate_dataset_examples') as mock_iter:
+        mock_iter.return_value = iter(sample_traces)
+        
+        output_path = Path(temp_manifest_file)
+        manifest = generate_dag_manifest(sample_traces, output_path)
+        
+        # trace_3 is invalid (cycle/threshold)
+        assert manifest['metadata']['valid_traces_count'] == 2
+        assert manifest['metadata']['invalid_traces_count'] == 1
+        
+        # Verify only valid traces are in entries
+        entry_ids = [e['id'] for e in manifest['entries']]
+        assert 'trace_3' not in entry_ids
+        assert 'trace_1' in entry_ids
+        assert 'trace_2' in entry_ids
+
+def test_generate_dag_manifest_logic(sample_traces, temp_manifest_file):
+    with patch('code.scripts.generate_dag_manifest.iterate_dataset_examples') as mock_iter:
+        mock_iter.return_value = iter(sample_traces)
+        
+        output_path = Path(temp_manifest_file)
+        manifest = generate_dag_manifest(sample_traces, output_path)
+        
+        # Check that depth is calculated
+        for entry in manifest['entries']:
+            assert 'depth' in entry
+            assert isinstance(entry['depth'], int)
+            assert entry['is_valid'] is True
+
+def test_main_success(sample_traces):
+    with patch('code.scripts.generate_dag_manifest.iterate_dataset_examples') as mock_iter:
+        mock_iter.return_value = iter(sample_traces)
+        with patch('code.scripts.generate_dag_manifest.PROJECT_ROOT', Path(tempfile.gettempdir())):
+            with patch('code.scripts.generate_dag_manifest.logger'):
+                # This should not raise
+                try:
+                    main()
+                except SystemExit:
+                    pass # Expected if path handling differs in test environment
 
 def test_empty_trace_handling(temp_manifest_file):
-    """Test handling of empty traces."""
-    from code.src.parser import parse_trace_to_dag
-    
-    empty_trace = {"example_id": "ex_000", "trace": "", "question": "Q0"}
-    # Should raise or return empty graph
-    dag = parse_trace_to_dag("")
-    assert dag is not None
-    assert dag.number_of_nodes() == 0
-
-def test_main_success(tmp_path):
-    """Test the main function execution."""
-    from code.scripts.generate_dag_manifest import main
-    
-    # Mock the load_raw_traces to return a simple trace
-    sample_trace = {
-        "example_id": "ex_001",
-        "trace": "Step 1: Do something.",
-        "question": "Q1"
-    }
-    
-    with patch('code.scripts.generate_dag_manifest.load_raw_traces', return_value=[sample_trace]):
-        with patch('code.scripts.generate_dag_manifest.Path') as mock_path:
-            mock_output_path = tmp_path / "test_manifest.json"
-            mock_path.return_value.__truediv__.return_value = mock_output_path
-            mock_path.return_value.__truediv__.return_value.mkdir.return_value = None
-            
-            # This test is tricky because main() has side effects.
-            # We'll just ensure it doesn't crash with mocked dependencies.
-            pass  # Real test would require more mocking
-
-def test_main_file_not_found():
-    """Test main when file operations fail."""
-    from code.scripts.generate_dag_manifest import main
-    
-    # This is hard to test without actual file system errors.
-    # We rely on the implementation to handle exceptions.
-    pass
+    empty_traces = [
+        {"id": "empty", "trace": "", "metadata": {}}
+    ]
+    with patch('code.scripts.generate_dag_manifest.iterate_dataset_examples') as mock_iter:
+        mock_iter.return_value = iter(empty_traces)
+        output_path = Path(temp_manifest_file)
+        manifest = generate_dag_manifest(empty_traces, output_path)
+        
+        assert manifest['metadata']['valid_traces_count'] == 0
+        assert manifest['metadata']['invalid_traces_count'] == 1
+        assert len(manifest['entries']) == 0

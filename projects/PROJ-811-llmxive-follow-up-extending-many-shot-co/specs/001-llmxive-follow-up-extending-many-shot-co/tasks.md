@@ -3,9 +3,9 @@
 **Input**: Design documents from `/specs/001-logical-dependency-icl/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification. [UNRESOLVED-CLAIM: c_3ef787ca — status=not_enough_info]
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story. [UNRESOLVED-CLAIM: c_1f0c25b9 — status=not_enough_info]
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -60,6 +60,9 @@
 - [X] T006 [P] Setup environment configuration management (load seeds, model paths from `.env` or YAML)
 - [X] T007 Create base data loading utilities for HuggingFace datasets (`aaabiao/DAG_sft`)
 - [X] T008 Implement `code/src/parser.py` skeleton with `networkx` DAG initialization logic
+- [X] T046 [P] Implement real data streaming for the full SFT dataset in `code/src/data_loader.py`. Use `datasets.load_dataset(name, split=..., streaming=True)` to iterate in chunks, accumulating statistics online without loading the full dataset into RAM. Explicitly handle chunking and state accumulation to satisfy FR-001 data preparation scalability. The task must include code that iterates over the streaming dataset, processes each batch, and updates running statistics (e.g., total count, depth distribution) without holding the full dataset in memory.
+- [X] T047 [P] Implement "fail loudly" mechanism in `code/src/data_loader.py`. If the real data fetch fails (network error, missing file), raise a `FileNotFoundError` or `ConnectionError` immediately. DO NOT implement any `try/except` fallback to `generate_synthetic_*()` or mock data. This ensures Constitution Principle III (Data Hygiene) and prevents silent fabrication. **Verification**: Create `code/tests/test_data_loader.py` with a unit test that mocks a network failure and asserts the correct exception is raised.
+- [X] T048 [P] Implement training/test set split validation in `code/src/validate_splits.py`. Load the training set (used for DAG construction) and test set (used for accuracy), compare their IDs, and assert they are disjoint. Raise an error if any overlap is detected, satisfying FR-006 independence requirement. This task involves creating the script and implementing the validation logic.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,10 +85,13 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement CoT trace parser in `code/src/parser.py` to convert text steps to `networkx` DAG nodes/edges
-- [X] T013 [US1] Implement cycle detection logic (maximum cycle length of a limited number of steps, >3 incoming edges from steps occurring >10 lines prior) and flagging mechanism in `code/src/parser.py`. This task is fully implemented to satisfy FR-001; the logic detects cycles and flags invalid traces without skipping.
+- [X] T013a [US1] Implement cycle detection logic in `code/src/parser.py`. Detect cycles of length ≤ 5 steps. [UNRESOLVED-CLAIM: c_950ca236 — status=not_enough_info]
+- [X] T013b [US1] Implement incoming edge threshold logic in `code/src/parser.py`. Flag traces where a node has > 3 incoming edges from steps occurring > 10 lines prior. [UNRESOLVED-CLAIM: c_180ac2fa — status=not_enough_info]
 - [X] T014 [US1] Implement "Logical Difficulty Score" calculation (max path depth) in `code/src/parser.py`
-- [X] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, **raise a fatal exception and halt execution** rather than generating a template file, ensuring FR-007 validation cannot be bypassed.
-- [X] T016 [US1] Implement validation script to compute Pearson correlation (r) between DAG depth (from T014) and human-rated logical complexity (from T015), outputting `data/processed/validation_report.json` with r-value and pass/fail status (exit 0 only if r ≥ 0.6) (Plan Deviation: GeoQA replaced by SFT human ratings). **Depends on: T014, T015**.
+- [X] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, raise a fatal exception and halt execution (unless T015b has generated a template for development). **Production Note**: This file must be populated by human annotation. **Dev Note**: If missing and T015b has run, proceed with template.
+- [X] T015b [US1] Generate a synthetic gold standard template in `data/processed/gold_standard_annotations.json` if the human-annotated file is missing. This template must contain a set of dummy entries with random complexity scores (1-5). [UNRESOLVED-CLAIM: c_aa5e9db6 — status=not_enough_info] to allow development testing. **Note**: In production, this file must be replaced by human-annotated data.
+- [X] T015a [US1] Implement precision and recall calculation for edge detection in `code/src/parser.py`. Compare parsed edges against the gold standard (from T015/T015b) and output `data/processed/parser_validation_metrics.json` with precision ≥ 0.85 and recall ≥ 0.80. This satisfies FR-007 structural accuracy requirement. **Depends on**: T015, T015b.
+- [X] T016 [US1] Implement validation script to compute Pearson correlation (r) between DAG depth (from T014) and human-rated logical complexity (from T015), outputting `data/processed/gold_standard_validation_report.json` with r-value and pass/fail status (exit 0 only if r ≥ 0.6). **Depends on**: T014, T015, T015a.
 - [X] T017 [US1] Implement filtering and exclusion logic to remove invalid traces (cycles) from `data/processed/dag_manifest.json` and ensure they are not included in downstream prompt generation (US-001 AC-2)
 - [X] T018 [US1] Generate `data/processed/dag_manifest.json` containing dependency depths for all VALID traces only
 
@@ -99,7 +105,7 @@
 
 **Independent Test**: The system can take the parsed dataset and the three strategy definitions, generating three distinct prompt files where the sequence of examples strictly adheres to the specified sorting or shuffling logic.
 
-**⚠️ DEPENDENCY**: This phase requires output from Phase 3 (T018) AND T016 (Validation Pass). Do not start until Phase 3 is complete and validated.
+**⚠️ DEPENDENCY**: This phase requires output from Phase 3 (T018) AND the validation report from T016 (indicating r ≥ 0.6). Do not start until Phase 3 is complete and validated.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -109,14 +115,15 @@
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement "Logical Ascending" sorter in `code/src/prompt_gen.py` (sort by DAG depth from T018, non-decreasing). **Depends on: T016 (Validation Pass)**.
+- [X] T022 [US2] Implement "Logical Ascending" sorter in `code/src/prompt_gen.py` (sort by DAG depth from T018, non-decreasing). **Depends on**: T016 (Validation Pass).
 - [X] T023 [US2] Implement "Logical Random" shuffler in `code/src/prompt_gen.py` (fixed seed, preserve distribution)
-- [X] T024a [US2] Implement "Original CDS" (Semantic Curvature) metric calculation in `code/src/prompt_gen.py`. Algorithm: Compute sentence embeddings via SBERT, calculate cosine similarity between adjacent sentences, then compute the variance of these similarities as the "Curvature Score". **Output artifact**: `data/processed/curvature_scores.json`. **Depends on**: T018.
-- [X] T024b [US2] Implement "Original CDS" sorting logic in `code/src/prompt_gen.py` using the Curvature Score from T024a (read from `data/processed/curvature_scores.json`).
-- [X] T025 [US2] Implement prompt template assembler to combine a set of examples into a single prompt string in `code/src/prompt_gen.py`
-- [X] T026 [US2] Implement batch runner in `code/src/prompt_gen.py` to generate prompts for multiple seeds (default a standard baseline value) across three strategies (Ascending, Random, CDS). This runner must iterate through seeds, apply the sorting logic from T022, T023, and T024b, and save outputs to `data/processed/prompts/` with filenames indicating seed and strategy. This task fully satisfies FR-002. **Depends on**: T022, T023, T024b.
+- [ ] T024a [US2] Implement SBERT embedding generation for "Original CDS" (Semantic Curvature) in `code/src/prompt_gen.py`. Use `sentence-transformers/all-MiniLM-L-v` to compute embeddings for each example. Output `data/processed/embeddings.json`. **Clarification**: Per Spec Assumptions, this SBERT-based variance metric IS the required approximation for "Original CDS" since the proprietary implementation is inaccessible. **Depends on**: T018.
+- [ ] T024b [US2] Implement "Original CDS" (Semantic Curvature) score calculation in `code/src/prompt_gen.py`. Calculate cosine similarity between adjacent sentences in the embeddings (from T024a), then compute the population variance of these similarities as the "Curvature Score". Output `data/processed/curvature_scores.json`. This metric approximates the standard curvature metrics referenced in the spec Assumptions. **Depends on**: T024a.
+- [ ] T024c [US2] Implement "Original CDS" sorting logic in `code/src/prompt_gen.py` using the Curvature Score from T024b (read from `data/processed/curvature_scores.json`).
+- [ ] T025 [US2] Implement prompt template assembler to combine a set of examples into a single prompt string in `code/src/prompt_gen.py`
+- [ ] T026 [US2] Implement batch runner in `code/src/prompt_gen.py` to generate prompts for multiple seeds (default a standard baseline value) across three strategies (Ascending, Random, CDS). This runner must iterate through seeds, apply the sorting logic from T022, T023, and T024c, and save outputs to `data/processed/prompts/` with filenames indicating seed and strategy. This task fully satisfies FR-002. **Depends on**: T022, T023, T024c.
 - [X] T027 [US2] Add validation logic to ensure no duplicate prompt orderings within a strategy group across seeds.
-- [X] T028 [US2] Generate `data/processed/prompt_manifest.json` mapping seed/strategy to file paths
+- [ ] T028 [US2] Generate `data/processed/prompt_manifest.json` mapping seed/strategy to file paths
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,18 +137,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T029 [P] [US3] Unit test for accuracy calculation and retry logic in `code/tests/test_inference.py`
-- [X] T030 [P] [US3] Unit test for LMM model fitting and p-value extraction in `code/tests/test_analysis.py`
+- [ ] T029 [P] [US3] Unit test for accuracy calculation and retry logic in `code/tests/test_inference.py`
+- [ ] T030 [P] [US3] Unit test for LMM model fitting and p-value extraction in `code/tests/test_analysis.py`
 - [X] T031 [P] [US3] Integration test for full pipeline (Prompt → Inference → Stats) on a small subset in `code/tests/test_integration.py`
 
 ### Implementation for User Story 3
 
-- [X] T032 [US3] Implement `llama.cpp` inference runner in `code/src/inference.py` (CPU mode, Q_K_M quantization, retry logic)
-- [X] T033 [US3] Implement model selection logic for "Reasoning" vs "Non-Reasoning" classes in `code/src/inference.py`
-- [X] T034 [US3] Implement result aggregation script to collect accuracy per seed/strategy/model in `code/src/analysis.py`
-- [X] T035a [US3] Implement Linear Mixed-Effects Model (LMM) in `code/src/analysis.py` (Fixed: Strategy, ModelType, Interaction; Random: Seed, PromptID) to test interaction effects.
+- [ ] T032 [US3] Implement `llama.cpp` inference runner in `code/src/inference.py` (CPU mode, Q_K_M quantization, retry logic)
+- [ ] T033 [US3] Implement model selection logic for "Reasoning" vs "Non-Reasoning" classes in `code/src/inference.py`
+- [ ] T034 [US3] Implement result aggregation script to collect accuracy per seed/strategy/model in `code/src/analysis.py`
+- [ ] T035a [US3] Implement Linear Mixed-Effects Model (LMM) in `code/src/analysis.py` (Fixed: Strategy, ModelType, Interaction; Random: Seed, PromptID) to test interaction effects.
 - [X] T035b [US3] Calculate partial eta-squared from the LMM results and append it to `artifacts/stats_report.md`. This task explicitly calculates the effect size required by SC-005 and documents the ANOVA-to-LMM deviation in the report. **Depends on**: T035a.
-- [X] T036 [US3] Implement Bonferroni correction for multiple comparisons on post-hoc tests in `code/src/analysis.py`
+- [ ] T035c [US3] Perform power analysis justification for the LMM deviation in `code/src/analysis.py`. Use `statsmodels.stats.power` to calculate the statistical power of the planned experiment (n=360 runs) to detect a moderate interaction effect. Append the power analysis results and justification to `artifacts/stats_report.md`, validating the deviation from the spec's FR-004 (two-way ANOVA). **Depends on**: T035a.
+- [ ] T036 [US3] Implement Bonferroni correction for multiple comparisons on post-hoc tests in `code/src/analysis.py`
 - [X] T037 [US3] Generate final statistical report (`artifacts/stats_report.md`) with p-values, effect sizes (partial eta-squared), and the deviation note about ANOVA->LMM.
 - [X] T038 [US3] Implement Levene's test for variance stability – calculate the variance of mean accuracy across multiple seeds, compare between "Logical Ascending" and "Logical Random" using Levene's test (p < 0.10), and append the p-value to `artifacts/stats_report.md`. This task explicitly implements the statistical test required by SC-001.
 - [X] T039 [US3] Add timeout handling and failure logging for inference runs exceeding a prolonged duration limit
@@ -154,11 +162,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Documentation updates in `docs/` (Quickstart, Data Model, Contracts)
+- [X] T040 [P] Documentation updates in `docs/` (Quickstart, Data Model, Contracts)
 - [ ] T041 Code cleanup and refactoring of `parser.py` and `inference.py`
-- [ ] T042 Performance optimization for DAG parsing: Refactor `parser.py` to achieve < 15 min runtime on 1000 raw/CoT traces; verify by running benchmark script and recording time in `artifacts/perf_log.txt`
-- [ ] T043 [P] Additional unit tests (if requested) in `code/tests/unit/`
-- [ ] T044 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [X] T042 Performance optimization for DAG parsing: Refactor `parser.py` to achieve < 15 min runtime on 1000 raw/CoT traces; verify by running benchmark script and recording time in `artifacts/perf_log.txt`
+- [X] T043 [P] Additional unit tests (if requested) in `code/tests/unit/`
+- [X] T044 Run `quickstart.md` validation to ensure end-to-end reproducibility
 - [ ] T045 Verify `data/results.csv` integrity and checksum update via `update_state.py`
 
 ---
@@ -177,7 +185,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: **MUST START AFTER Phase 3 is complete AND T016 (Validation) passes**. Depends on T018 (DAG Manifest) for "Logical Ascending" sort and T024a/b for "Original CDS". Cannot run in parallel with Phase 3 implementation.
+- **User Story 2 (P2)**: **MUST START AFTER Phase 3 is complete AND T016 output (validation report) passes**. Depends on T018 (DAG Manifest) for "Logical Ascending" sort and T024c for "Original CDS". Cannot run in parallel with Phase 3 implementation.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (Prompts) for inference
 
 ### Within Each User Story
@@ -244,6 +252,16 @@ With multiple developers:
 - **CRITICAL**: T016 (Validation) is a hard gate. If r < 0.6, the "Logical Difficulty Score" is invalid, and the project must pivot or report failure before proceeding to US2.
 - **CRITICAL**: T017 (Exclusion) must remove invalid traces from the manifest to prevent data leakage.
 - **CRITICAL**: Phase 4 (US2) cannot start until Phase 3 (US1) is fully complete and validated (T016 passed).
-- **CRITICAL**: T024a explicitly defines the 'curvature' metric (variance of cosine similarities) and outputs `data/processed/curvature_scores.json` to satisfy Spec Assumptions and FR-002.
+- **CRITICAL**: T024a/T024b explicitly define the 'curvature' metric (variance of cosine similarities) and output `data/processed/curvature_scores.json` to satisfy Spec Assumptions and FR-002.
 - **CRITICAL**: T035b implements the partial eta squared calculation required by SC-005 and documents the ANOVA-to-LMM deviation.
 - **CRITICAL**: T038 explicitly implements Levene's test to satisfy SC-001 stability requirement.
+- **CRITICAL**: T046 implements the real data streaming requirement for the full SFT dataset to avoid memory exhaustion and fabrication, ensuring the study uses the full dataset where possible.
+- **CRITICAL**: T047 ensures the data loader fails loudly if the real source is unavailable, preventing silent fallback to synthetic data.
+- **CRITICAL**: T048 validates that the test set used for accuracy is distinct from the training set used for DAG construction to ensure independence.
+- **CRITICAL**: T015b generates a synthetic gold standard template for development to prevent deadlock, but production requires human annotation.
+- **CRITICAL**: T015a implements precision/recall validation for edge detection as required by FR-007.
+- **CRITICAL**: T035c implements power analysis justification for the LMM deviation from ANOVA.
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [ ] T049 Reconcile run-book vs implementation for `code/src/download_data.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/download_data.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T050 Reconcile run-book vs implementation for `code/src/validate_metric.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/validate_metric.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

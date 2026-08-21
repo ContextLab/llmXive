@@ -8,4 +8,4 @@ huggingface_hub
 python-dotenv
 pytest
 numpy
-scikit-learn
+scipy
