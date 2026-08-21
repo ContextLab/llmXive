@@ -1,151 +1,95 @@
 """
-Unit tests for the top-k swapping function used in power analysis.
-
-This module tests the logic for simulating the alternative hypothesis
-by swapping top-k positions in relevance labels, as described in T022.1.
+Unit tests for power_analysis.py
 """
-import sys
+import pytest
+import numpy as np
 import os
-import math
+import sys
+from pathlib import Path
 
-# Ensure code directory is in path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-import random
-from typing import List, Tuple
+from power_analysis import (
+    bootstrap_resample_indices,
+    swap_top_k_relevance,
+    estimate_power,
+    calculate_mdes_power
+)
 
-# We implement the swap logic locally here to test it in isolation,
-# as the main power_analysis.py only exposes run_power_analysis currently.
-# This matches the requirement to test the "top-k swapping function".
+@pytest.fixture
+def sample_qrels():
+    """Generate a small sample of qrels for testing."""
+    return [
+        {'query_id': 1, 'doc_id': 100, 'relevance': 3},
+        {'query_id': 1, 'doc_id': 101, 'relevance': 3},
+        {'query_id': 1, 'doc_id': 102, 'relevance': 2},
+        {'query_id': 1, 'doc_id': 103, 'relevance': 2},
+        {'query_id': 1, 'doc_id': 104, 'relevance': 1},
+        {'query_id': 1, 'doc_id': 105, 'relevance': 1},
+        {'query_id': 1, 'doc_id': 106, 'relevance': 0},
+        {'query_id': 1, 'doc_id': 107, 'relevance': 0},
+        {'query_id': 1, 'doc_id': 108, 'relevance': 0},
+        {'query_id': 1, 'doc_id': 109, 'relevance': 0},
+    ]
 
-def swap_top_k_positions(relevance_labels: List[int], k: int, rng: random.Random) -> List[int]:
-    """
-    Simulate alternative hypothesis by swapping top-k positions in relevance labels.
+def test_bootstrap_resample_indices():
+    """Test that bootstrap resampling returns correct length and values."""
+    n = 100
+    indices = bootstrap_resample_indices(n, seed=42)
+    assert len(indices) == n
+    assert np.all((indices >= 0) & (indices < n))
     
-    This function takes a list of relevance scores (sorted by rank 0 being top)
-    and swaps the relevance values of the top-k items with items from lower ranks
-    to simulate a degradation or shift in ranking quality.
+    # Check reproducibility
+    indices_2 = bootstrap_resample_indices(n, seed=42)
+    np.testing.assert_array_equal(indices, indices_2)
+
+def test_swap_top_k_relevance(sample_qrels):
+    """Test that swap_top_k_relevance actually changes values."""
+    original_rels = [q['relevance'] for q in sample_qrels]
+    swapped_qrels = swap_top_k_relevance(sample_qrels, k_swap=2, seed=123)
+    swapped_rels = [q['relevance'] for q in swapped_qrels]
     
-    Args:
-        relevance_labels: List of integer relevance scores (sorted by rank).
-        k: Number of top positions to swap.
-        rng: Random number generator instance for reproducibility.
-        
-    Returns:
-        A new list of relevance labels with top-k positions swapped.
-    """
-    if not relevance_labels:
-        return []
+    assert len(original_rels) == len(swapped_rels)
+    # Check that at least some values changed
+    assert original_rels != swapped_rels
     
-    n = len(relevance_labels)
-    if k >= n:
-        # If k is larger than list size, swap everything (effectively shuffle)
-        result = relevance_labels[:]
-        rng.shuffle(result)
-        return result
+    # Check that high relevance docs got lower values
+    # Original top 2 are 3, 3. Bottom 2 are 0, 0.
+    # After swap, top 2 should be 0, 0 (or similar low values)
+    # Note: The implementation swaps top-k with bottom-k values.
+    # We verify that the sum changed or specific indices changed.
+    assert sum(swapped_rels) != sum(original_rels) or (sum(swapped_rels) == sum(original_rels) and swapped_rels != original_rels)
+
+def test_estimate_power():
+    """Test power estimation logic."""
+    observed = 0.8
+    null_scores = [0.4, 0.5, 0.6, 0.5, 0.65] # Low scores
+    swapped_scores = [0.9, 0.95, 0.85, 0.92, 0.88] # High scores (H1)
     
-    result = relevance_labels[:]
+    power = estimate_power(observed, null_scores, swapped_scores, alpha=0.05)
     
-    # Select k indices from the top k positions
-    top_indices = list(range(k))
+    # Critical value should be high (e.g., 95th percentile of null ~ 0.65)
+    # All swapped scores are > 0.65, so power should be 1.0
+    assert power == 1.0
     
-    # Select k indices from the remaining positions (k to n-1)
-    if n - k < k:
-        # Not enough lower positions, take all remaining
-        lower_indices = list(range(k, n))
-    else:
-        lower_indices = rng.sample(range(k, n), k)
+    # Test with low power scenario
+    swapped_scores_low = [0.5, 0.55, 0.6, 0.52, 0.58]
+    power_low = estimate_power(observed, null_scores, swapped_scores_low, alpha=0.05)
+    assert power_low < 0.5 # Most should be below critical value
+
+def test_calculate_mdes_power(sample_qrels):
+    """Test MDES calculation with a mock scenario."""
+    observed_score = 0.5
+    null_scores = [0.4, 0.45, 0.5, 0.48, 0.42] * 20 # Simulated null
     
-    # Perform the swap
-    for i, j in zip(top_indices, lower_indices):
-        result[i], result[j] = result[j], result[i]
-        
-    return result
-
-class TestTopKSwapping:
-    """Tests for the top-k swapping function."""
-
-    def test_empty_list(self):
-        """Test swapping on an empty list returns empty list."""
-        rng = random.Random(42)
-        result = swap_top_k_positions([], 5, rng)
-        assert result == []
-
-    def test_k_zero(self):
-        """Test swapping with k=0 returns original list."""
-        rng = random.Random(42)
-        labels = [3, 2, 2, 1, 0]
-        result = swap_top_k_positions(labels, 0, rng)
-        assert result == labels
-
-    def test_k_larger_than_list(self):
-        """Test swapping when k >= len(list) shuffles the list."""
-        rng = random.Random(42)
-        labels = [3, 2, 1]
-        # k=5 > len=3, should shuffle
-        result = swap_top_k_positions(labels, 5, rng)
-        assert len(result) == 3
-        assert sorted(result) == sorted(labels)
-        # Check it's actually different (with high probability for random seed)
-        # Note: With a fixed seed, we just verify the logic path works.
-        
-    def test_swap_preserves_values(self):
-        """Test that swapping preserves the multiset of values."""
-        rng = random.Random(123)
-        labels = [3, 3, 2, 2, 1, 0, 0]
-        k = 2
-        result = swap_top_k_positions(labels, k, rng)
-        assert sorted(result) == sorted(labels)
-
-    def test_swap_affects_top_k(self):
-        """Test that top-k positions actually change values."""
-        rng = random.Random(999)
-        # Create a list where top k are distinct from lower
-        labels = [5, 5, 5, 0, 0, 0, 0]
-        k = 2
-        # Run multiple times to ensure we hit a swap that changes things
-        # (with this seed and data, it should change)
-        result = swap_top_k_positions(labels, k, rng)
-        # The top 2 should not necessarily be 5, 5 anymore
-        # We just verify the logic ran without error and values are preserved.
-        assert len(result) == len(labels)
-        assert sorted(result) == sorted(labels)
-
-    def test_deterministic_with_seed(self):
-        """Test that same seed produces same result."""
-        labels = [4, 3, 2, 1, 0]
-        k = 2
-        
-        rng1 = random.Random(42)
-        result1 = swap_top_k_positions(labels, k, rng1)
-        
-        rng2 = random.Random(42)
-        result2 = swap_top_k_positions(labels, k, rng2)
-        
-        assert result1 == result2
-
-    def test_swap_logic_specific_case(self):
-        """Test a specific manual case to verify swap logic."""
-        # Labels: [3, 2, 1, 0, 0] (rank 0 has 3, rank 1 has 2, etc)
-        # k=2. Top indices: 0, 1. Lower indices: sample from [2, 3, 4].
-        # Let's force a specific random state to check logic.
-        rng = random.Random(0)
-        labels = [3, 2, 1, 0, 0]
-        k = 2
-        
-        # With seed 0, sample(range(2, 5), 2) -> let's see what it does
-        # We rely on the function to do the swap correctly.
-        result = swap_top_k_positions(labels, k, rng)
-        
-        # Verify length and content
-        assert len(result) == 5
-        assert sorted(result) == [0, 0, 1, 2, 3]
-        
-        # Verify that at least one of the top 2 changed (unless random luck picks same values)
-        # In this specific data, top are 3,2. Lower are 1,0,0.
-        # Swapping will definitely change the top 2 values because 1,0,0 != 3,2.
-        assert result[0] != 3 or result[1] != 2, "Top k values should have changed"
-
-if __name__ == "__main__":
-    import unittest
-    unittest.main()
+    # This is a heavy test, so we limit bootstrap samples
+    mdes, power = calculate_mdes_power(
+        sample_qrels, 
+        observed_score, 
+        null_scores, 
+        n_bootstrap=5 # Very small for unit test speed
+    )
+    
+    assert 0.001 <= mdes <= 0.500
+    assert 0.0 <= power <= 1.0

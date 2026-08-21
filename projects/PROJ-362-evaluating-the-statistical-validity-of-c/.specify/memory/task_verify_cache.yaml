@@ -1,3 +1,32 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that the directory `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/`
+    actually exists or contains any files; the claim is unsubstantiated. The required
+    project root folder is missing from the provided artifacts.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or `ruff.toml`, pre\u2011commit hooks, or related scripts)\
+    \ are present in the provided evidence. The artifacts shown pertain only to the\
+    \ statistical validity feature and do not demonstrate that Ruff and Black have\
+    \ been set up for the project. The required linting/formatting setup is therefore\
+    \ missing."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data_loader.py` file or its contents were presented, so we cannot confirm\
+    \ that it fetches TREC Robust and Web data with retry logic, includes NIST archive\
+    \ fallbacks, or enforces CPU\u2011only execution as required. The necessary artifact\
+    \ is missing."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `metrics.py` file or its contents were provided; therefore there is no evidence\
+    \ of CPU\u2011only NDCG@10 or MAP functions with IDCG normalization and explicit\
+    \ relevance\u2011label mapping. The required artifact is missing, so the task\
+    \ is not satisfied."
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,47 +43,13 @@ T011:
     \ repository, so no unit test for permutation logic is present. The task cannot\
     \ be considered completed until a non\u2011empty test file is added at the specified\
     \ location."
-T013:
+T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `permutation.py` file or any code implementing the shuffling of relevance
-    labels 1000 times per query is provided, nor is there any evidence of logging
-    the actual number of permutations (`N_actual`). Without these artifacts, the task
-    requirement is not satisfied.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `permutation.py` file or any code changes implementing a batch\u2011processing\
-    \ loop were presented. The claim lacks any artifact (e.g., updated script, logs,\
-    \ or tests) demonstrating that queries are processed in batches with progress\
-    \ logging, so the requirement is not satisfied."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `main.py` file or code changes were provided showing a runtime monitor that\
-    \ checks for execution time >\u202F3.5\u202Fhours and triggers random subsampling\
-    \ of 100 queries. The required implementation is therefore missing."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation implementing the p\u2011value calculation\
-    \ (ranking the observed metric score within the null distribution) was provided.\
-    \ Without an artifact showing the logic (e.g., a function, module, or test output),\
-    \ we cannot confirm the requirement is met. The implementer must add the actual\
-    \ implementation and evidence of its execution."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CSV files were presented in the evidence; there is no `results/null_distributions/`\
-    \ directory containing non\u2011empty files with the required headers `query_id,\
-    \ metric, score`. The implementer must provide the actual null\u2011distribution\
-    \ CSV artifacts to satisfy the task."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `power_analysis.py` file or any code implementing a bootstrap resampling\
-    \ utility for power estimation is present. The required artifact is missing, so\
-    \ the task\u2019s core requirement is not satisfied."
+  r: No `power_analysis.py` (or any related code, data, or output files) was provided
+    for inspection, so we cannot confirm that MDES logic was implemented or that the
+    required permutation, power analysis, and reporting functionality exists. The
+    necessary artifact is missing.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -43,11 +43,13 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create root project structure including `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/` directory and `__init__.py`
-- [ ] T001.1 [P] Create `code/__init__.py` (empty file)
-- [ ] T001.2 [P] Create `code/main.py` (stub with argparse entry point)
-- [ ] T001.3 [P] Create `code/config.py` (stub with placeholder constants)
-- [X] T002 Initialize Python 3.10 project with pinned dependencies (`requirements.txt`)
+- [ ] T001 Create root project directory `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/` relative to repo root
+- [ ] T001.1 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/__init__.py` (empty file)
+- [ ] T001.2 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/main.py` (stub with argparse entry point)
+- [ ] T001.3 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/config.py` (stub with placeholder constants)
+- [ ] T002.1 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/requirements.txt` with pinned dependencies: `pandas`, `numpy`, `scipy`, `scikit-learn`, `tqdm`, `datasets`, `psutil`, `pytest`, `ruff`, `black`
+- [ ] T002.2 [P] Create virtual environment (venv) in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/venv/`
+- [ ] T002.3 [P] Install dependencies from `requirements.txt` into the virtual environment
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -58,20 +60,27 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `data_loader.py` to fetch TREC Robust and Web data via `datasets.load_dataset` with retry logic (multiple attempts)
-- [ ] T005 [P] Create `contracts/dataset.schema.yaml` defining qrels structure: `type: object, properties: {query_id: {type: integer}, doc_id: {type: integer}, relevance: {type: integer}}`
-- [ ] T006 [P] Implement validation logic in `data_loader.py` to enforce schema compliance and log warnings for zero-relevance queries <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
- in "<unicode string>", line 4, column 1:
- **Input**: Design documents from...
- ^
-expected alphabetic or numeric character, but found '*'
- in "<unicode string>", line 4, column 2:
- **Input**: Design documents from...
- ^) -->
-- [ ] T007 [P] Create `config.py` with constants for seeds, permutation counts (N=1000), batch sizes, and memory thresholds
-- [ ] T008 [P] Implement `metrics.py` with a CPU-only NDCG@k calculation function using IDCG normalization and explicit relevance label mapping
-- [ ] T008.1 [P] Implement `metrics.py` with CPU-only MAP calculation function using IDCG normalization and explicit relevance label mapping
-- [ ] T009 Setup environment configuration management (paths for `data/raw/`, `results/`)
+- [ ] T004 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to fetch TREC Robust and Web data via `datasets.load_dataset` with retry logic (3 attempts, exponential backoff: 1s, 2s, 4s). MUST include fallback to specific NIST archive paths: ` and ` (verified accessible via static archive). Enforce CPU-only execution (per spec FR-001, FR-012). Raise error if real fetch fails (no synthetic fallback).
+- [ ] T005 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/contracts/dataset.schema.yaml` defining qrels structure. Path: `projects/PROJ-362-evaluating-the-statistical-validity-of-c/contracts/dataset.schema.yaml`. Content:
+```yaml
+type: object
+properties:
+ query_id:
+ type: integer
+ doc_id:
+ type: integer
+ relevance:
+ type: integer
+required:
+ - query_id
+ - doc_id
+ - relevance
+```
+- [ ] T006 [P] Implement validation logic in `projects/PROJ-evaluating-the-statistical-validity-of-c/code/data_loader.py` to enforce schema compliance (referencing `contracts/dataset.schema.yaml`) and log warnings for zero-relevance queries. Depends on: T005
+- [ ] T007 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/config.py` with constants for seeds, permutation counts (N=1000), batch sizes, and memory thresholds. Include: `PERMUTATION_N`, `SEED`, `BATCH_SIZE`, `MEMORY_THRESHOLD_GB` (a configurable memory limit), `RUNTIME_THRESHOLD_HOURS` (5.0), `DATA_RAW_PATH`, `RESULTS_PATH`.
+- [ ] T008.1 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/metrics.py` function `ndcg_at_k` for NDCG@10 calculation using IDCG normalization.
+- [ ] T008.2 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/metrics.py` function `map_at_k` for MAP calculation.
+- [ ] T008.3 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/metrics.py` function `idcg_at_k` for normalization.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,49 +92,58 @@ expected alphabetic or numeric character, but found '*'
 
 **Independent Test**: Run `main.py` with `--mode permutation` on a single query; verify `results/null_distributions/` contains CSVs and `results/p_values/` contains raw p-values.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Test Definition for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+*Note: Tests are written first but require the presence of stubs from T013-T018 to execute.*
 
-- [X] T010 [P] [US1] Unit test for `metrics.py` NDCG@10 calculation with known ground truth in `tests/unit/test_metrics.py`
-- [X] T011 [P] [US1] Unit test for permutation logic (shuffle correctness) in `tests/unit/test_permutation.py`
-- [X] T012 [US1] Integration test: Verify p-value calculation `(r+1)/(N+1)` against a manual calculation in `tests/integration/test_permutation_flow.py`
+- [ ] T010 [P] [US1] Unit test for `metrics.py` NDCG@10 calculation with known ground truth in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/unit/test_metrics.py`; Requires presence of stub in T008.1
+- [ ] T011 [P] [US1] Unit test for permutation logic (shuffle correctness) in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/unit/test_permutation.py`; Requires presence of stub in T013
+- [ ] T012 [US1] Integration test: Verify p-value calculation `(r+1)/(N+1)` against a manual calculation in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/integration/test_permutation_flow.py`; Requires presence of stubs in T013, T016
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `permutation.py` core engine: shuffle relevance labels N=1000 times per query and **log the ACTUAL count of permutations executed (N_actual) used in the p-value calculation, not just the target**
-- [ ] T014 [US1] Implement batch processing loop in `permutation.py` to handle memory limits (process queries in batches, log progress)
-- [ ] T015 [US1] Implement runtime monitor in `main.py`: if runtime > 3.5h, trigger subsampling (random selection of 100 queries) per FR-011; runs concurrently or depends on T013 completion
-- [ ] T016 [US1] Implement p-value calculation logic: rank observed score within null distribution (depends on T013 completion)
-- [ ] T017 [US1] Save null distribution CSVs to `results/null_distributions/` with headers `query_id, metric, score`
-- [ ] T018 [US1] Save raw p-values to `results/p_values/raw_p_values.csv`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T013 [US1] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/permutation.py` core engine:
+ 1. Shuffle relevance labels N=1000 times per query.
+ 2. **Log the ACTUAL count of permutations executed (N_actual) to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/logs/permutation.log` in JSON format: `{"event": "permutation_complete", "query_id": "...", "N_actual": <actual_count>}`. Use log level INFO.**
+ 3. **Sub-task (Runtime Monitor): Integrate runtime/memory monitoring into the execution loop. Use `psutil` (memory) and `time.time()` (duration) with periodic sampling at regular intervals. Monitor `psutil.Process(os.getpid()).memory_info().rss`. If runtime > 5.0 hours (per FR-011) OR memory > 6 GB, trigger subsampling (random selection of a subset of queries). **Note: While Plan allocates 4.0h, FR-011 mandates 5.0h as the hard limit for subsampling to ensure sufficient permutations.** **Depends on: T007 (config values)**.
+ 4. Compute NDCG@10 and MAP for all permutations.
+ 5. **Depends on: T008.1, T008.2, T008.3 (metrics implementation)**.
+- [ ] T014 [US1] Implement batch processing loop in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/permutation.py` to handle memory limits (process queries in batches, log progress). Depends on: T013
+- [ ] T016 [US1] Implement p-value calculation logic: rank observed score within null distribution (depends on T013 completion). Formula: `(r + 1) / (N_actual + 1)`.
+- [ ] T017 [US1] Save null distribution CSVs to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/null_distributions/` with headers `query_id, metric, score`.
+- [ ] T018 [US1] Save raw p-values to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/p_values/raw_p_values.csv` with headers `query_id, metric, raw_p`.
 
 ---
 
 ## Phase 4: User Story 2 - Power Analysis & Inference Framing (Priority: P2)
 
-**Goal**: Calculate MDES using swapping top-k positions, apply BH correction, and frame findings as associational.
+**Goal**: Calculate MDES using label swapping, apply BH correction, and frame findings as associational.
 
 **Independent Test**: Run `main.py` with `--mode power_analysis`; verify `results/mdes/` contains MDES estimates and `results/p_values/corrected_p_values.csv` exists.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+### Test Definition for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+*Note: Tests are written first but require the presence of stubs from T021 to execute.*
 
-- [X] T019 [P] [US2] Unit test for top-k swapping function (simulating alternative hypothesis) in `tests/unit/test_power_analysis.py`
-- [X] T020 [P] [US2] Unit test for Benjamini-Hochberg implementation against `statsmodels.stats.multitest` in `tests/unit/test_bh_correction.py`
+- [ ] T019 [P] [US2] Unit test for bootstrap resampling and label-swapping functions in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/unit/test_power_analysis.py`; Requires presence of stub in T021
+- [ ] T020 [P] [US2] Unit test for Benjamini-Hochberg implementation against `statsmodels.stats.multitest` in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/unit/test_bh_correction.py`
+- [ ] T025.1 [P] [US2] **Verification**: Run `tests/integration/test_mdes_stability.py` to read `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/mdes/mdes_summary.csv` and **assert ci_width < 0.02 for BOTH NDCG@10 and MAP metrics independently**; if threshold is exceeded, **report and flag instability** but do NOT fail the build (research outcome); **Depends on: T021** (completion of T021 output file)
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `power_analysis.py` bootstrap resampling utility function for power estimation; **prerequisite for T021**
-- [ ] T022.1 [US2] Implement `power_analysis.py` function to simulate alternative hypothesis by **swapping top-k positions** in relevance labels
-- [ ] T021 [US2] Implement `power_analysis.py` MDES logic: binary search over the magnitude of the **top-k swap** to find smallest shift detectable with Power ≥ 0.8; **calls the bootstrap function (T022) and swap function (T022.1) iteratively**; search range [0.001, 0.500], tolerance ≤ 0.001, Power = proportion of rejections; **Write MDES result to `results/mdes/mdes_summary.csv` with columns `metric, mdes, power, ci_width`** <!-- FAILED: unspecified -->
-- [ ] T023 [US2] Implement BH correction in `power_analysis.py`: apply separately to NDCG and MAP p-value families; **Depends on: T018**
-- [ ] T024 [US2] Implement sensitivity analysis: **iterate (sweep) alpha values across [0.01, 0.05, 0.10]**, report the count of queries where significance status changes between α values; **Generate `results/sensitivity/alpha_sweep.csv` with columns `alpha, significant_count`**; **Depends on: T023**
-- [ ] T025 [US2] Generate `results/mdes/mdes_summary.csv` with columns: `metric, mdes, power, ci_width`
-- [ ] T025.1 [US2] **Verification**: Read `results/mdes/mdes_summary.csv` and **assert ci_width < 0.02 for BOTH NDCG@10 and MAP metrics independently**; fail the build if either exceeds threshold (SC-003)
-- [ ] T026 [US2] Generate `results/p_values/corrected_p_values.csv` with columns: `query_id, metric, raw_p, corrected_p, is_significant`
+- [ ] T021 [US2] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/power_analysis.py` MDES logic:
+ 1. Implement bootstrap resampling utility for power estimation.
+ 2. **Implement alternative hypothesis simulation by 'swapping top-k positions' in relevance labels (per spec FR-006). Note: FR-006 mandates swapping; this overrides the plan's 'noise injection' description.**
+ 3. Perform binary search over effect sizes (initial range [0.001, 0.500], tolerance ≤ 0.001 on metric delta) to find smallest shift detectable with Power ≥ 0.8. **Effect size is defined as the delta in metric scores (NDCG@10 or MAP), not label deltas.**
+ 4. **Write MDES result to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/mdes/mdes_summary.csv` with columns `metric, mdes, power, ci_width`**.
+ **Depends on: None (Independent of T018, runs in parallel with T023)**.
+
+- [ ] T023 [US2] Implement BH correction in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/power_analysis.py`: apply separately to NDCG and MAP p-value families (two families). **Depends on: T018** (explicitly depends on completion of T018 raw p-values)
+- [ ] T026 [US2] Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/p_values/corrected_p_values.csv` with columns: `query_id, metric, raw_p, corrected_p, is_significant`
+- [ ] T024 [US2] Implement sensitivity analysis: **iterate (sweep) alpha values across a low-range interval inclusive with fine-grained resolution**. Report the count of queries where significance status changes between adjacent α values. **Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/sensitivity/alpha_sweep.csv` with columns `alpha, significant_count, status_change_count`**. **Depends on: T013, T016, T018, T023** (completion of T023 output and raw data from T013/T016)
 - [ ] T027 [US2] Add explicit text generation in `main.py` output: "Findings indicate statistical association, not causal algorithmic improvement" per FR-008
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+### Validation for User Story 2
+
+- [ ] T025.1 [US2] **Verification**: Run `tests/integration/test_mdes_stability.py` to read `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/mdes/mdes_summary.csv` and **assert ci_width < 0.02 for BOTH NDCG@10 and MAP metrics independently**; if threshold is exceeded, **report and flag instability** but do NOT fail the build (research outcome); **Depends on: T021** (completion of T021 output file)
 
 ---
 
@@ -135,19 +153,16 @@ expected alphabetic or numeric character, but found '*'
 
 **Independent Test**: Run `main.py` with `--mode report`; verify `results/plots/` contains PNGs and `results/summary.csv` exists.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+### Test Definition for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T028 [P] [US3] Integration test: Verify memory usage stays < 7GB during full run in `tests/integration/test_resource_limits.py`
+- [ ] T028 [P] [US3] Integration test: Verify memory usage stays < 7GB during full run in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/integration/test_resource_limits.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `visualization.py` to generate density plots comparing original vs. permuted scores
-- [ ] T030 [US3] Annotate plots with MDES and significance thresholds: **Modify `visualization.py` to add a vertical dashed line at `mdes` value and text label "MDES={val}" to all density plots in `results/plots/`**
-- [X] T031 [US3] Generate `results/summary.csv` aggregating all query-metric pairs, p-values, and MDES
-- [~] T032 [US3] Implement final runtime/memory guard in `main.py`: if > 5h or > 6GB RAM, force subsampling and log warning
-- [~] T033 [US3] Add error handling for network failures in `data_loader.py` (graceful exit with error code)
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T029 [P] [US3] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/visualization.py` to generate density plots comparing original vs. permuted scores
+- [ ] T030 [US3] Annotate plots with MDES and significance thresholds: **Modify `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/visualization.py` to add a vertical dashed line at `mdes` value (read from `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/mdes/mdes_summary.csv` column `mdes`) and text label "MDES={val}" to all density plots in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/plots/`; use font family 'DejaVu Sans'**; **Depends: T021** (reads MDES value from T021 output)
+- [ ] T031 [US3] Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/summary.csv` aggregating all query-metric pairs, p-values, and MDES; **Depends on: T018, T023, T021** (explicitly lists all producers)
+- [ ] T033 [US3] Add error handling for network failures in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` (graceful exit with error code)
 
 ---
 
@@ -155,11 +170,11 @@ expected alphabetic or numeric character, but found '*'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T034 [P] Documentation updates: Update `README.md` with sections: 'Installation', 'Usage', 'Output Artifacts'
-- [~] T035 Code cleanup: Remove debug prints and ensure logging levels are appropriate
-- [~] T036 Performance optimization: Verify batch processing logic is efficient; **Ensure memory < 6GB during batch of 50 queries**
-- [~] T037 [P] Run `quickstart.md` validation to ensure all artifacts are generated correctly
-- [~] T038 Add content checksums to `data/raw/` and `results/` artifacts for reproducibility (Constitution Principle V)
+- [ ] T034 [P] Documentation updates: Update `README.md` with sections: 'Installation', 'Usage', 'Output Artifacts'
+- [ ] T035 Code cleanup: Remove debug prints and ensure logging levels are appropriate
+- [ ] T036 Performance optimization: Verify batch processing logic is efficient; **Ensure memory < 6GB during batch of 50 queries**
+- [ ] T037 [P] Run `quickstart.md` validation to ensure all artifacts are generated correctly
+- [ ] T038 [P] Add content checksums to `data/raw/` and `results/` artifacts for reproducibility (Constitution Principle V); **Mechanism**: Implement a script to **read all files in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/data/raw/` and `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/`, sort the list of all discovered files by their full relative path string in ascending ASCII order, compute SHA-256 hash for each, and append the results to `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` in the `artifact_hashes` map (flat structure: `relative_path: sha256_hash`)**; **Depends on: T017, T018, T021, T023, T026, T029, T030, T031** (completion of all artifact generation tasks)
 
 ---
 
@@ -241,6 +256,16 @@ With multiple developers:
  - Developer B: User Story 2 (Power Analysis) - *Note: Must wait for US1 data for full integration, but can mock data for dev*
  - Developer C: User Story 3 (Reporting) - *Note: Can build visualization logic with mock data*
 3. Stories complete and integrate independently
+
+### Test Execution Note
+
+- Tests (T010-T012, T019-T020, T028) are defined first in the file.
+- **Execution Order**: Implementation tasks (T013-T018, T021, T023, T029-T031) must provide **stubs** before Tests can be executed.
+- The file order reflects "Definition First", but the **execution flow** requires:
+ 1. Write Stubs (T013-T018, T021, etc.)
+ 2. Run Tests (T010-T012, etc.)
+ 3. Complete Implementation (T013-T018, T021, etc.)
+ 4. Verify Tests Pass.
 
 ---
 

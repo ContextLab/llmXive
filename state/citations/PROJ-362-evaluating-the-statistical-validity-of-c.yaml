@@ -20,3 +20,25 @@
   verification_status: mismatch
   verified_against_url: https://trec.nist.gov/data/robust/04/
   verified_at: '2026-07-08T19:28:26.339871Z'
+- artifact_hash: e38b686e31005395ccf9dba21948e56145cd5ecb7c08ed413b423cf36c023507
+  artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://trec.nist.gov/data/robust/04/`
+  verification_status: mismatch
+  verified_against_url: https://trec.nist.gov/data/robust/04/
+  verified_at: '2026-08-21T07:14:23.834716Z'
+- artifact_hash: e38b686e31005395ccf9dba21948e56145cd5ecb7c08ed413b423cf36c023507
+  artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://trec.nist.gov/data/web/09/`
+  verification_status: pending
+  verified_against_url: https://trec.nist.gov/data/web/09/
+  verified_at: '2026-08-21T07:14:23.834716Z'

@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a statistical validation framework for ranking metrics (NDCG@10, MAP) using TREC benchmark data. The approach involves executing permutation tests to generate null distributions, calculating p-values, performing power analysis via bootstrapping to determine Minimum Detectable Effect Size (MDES) using a **noise injection** method (replacing the tautological label-swapping approach), and applying Benjamini-Hochberg corrections for multiple comparisons. The system is designed to run entirely on CPU within GitHub Actions free-tier constraints (limited CPU, constrained RAM, 6h runtime).
+This feature implements a statistical validation framework for ranking metrics (NDCG@10, MAP) using TREC benchmark data. The approach involves executing permutation tests to generate null distributions, calculating p-values, performing power analysis via bootstrapping to determine Minimum Detectable Effect Size (MDES) using a **noise injection** method (replacing the tautological label-swapping approach), and applying Benjamini-Hochberg corrections for multiple comparisons. The system is designed to run entirely on CPU within GitHub Actions free-tier constraints (limited CPU, constrained RAM, bounded runtime).
 
 ## Technical Context
 

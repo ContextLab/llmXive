@@ -1,118 +1,134 @@
-"""
-Unit tests for Benjamini-Hochberg correction implementation.
-"""
-
 import pytest
-import sys
-import os
-
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from code.power_analysis import apply_bh_correction, run_bh_correction
-
+import math
+from code.corrected_p_values_saver import (
+    load_bh_correction_factors,
+    apply_bh_correction_to_raw,
+    run_corrected_p_values_generation
+)
 
 class TestBHCorrection:
-    """Tests for Benjamini-Hochberg correction functions."""
-    
-    def test_apply_bh_correction_empty_list(self):
-        """Test that empty list returns empty list."""
-        result = apply_bh_correction([], 'ndcg')
-        assert result == []
+    """Unit tests for Benjamini-Hochberg correction logic."""
+
+    def test_bh_correction_monotonicity(self):
+        """Test that corrected p-values are monotonically non-decreasing when sorted by raw p."""
+        # Create a mock dataset with known p-values
+        # Sorted by raw_p: 0.01, 0.02, 0.03, 0.04
+        # m = 4
+        # Expected q values before monotonicity:
+        # 1: 0.01 * 4 / 1 = 0.04
+        # 2: 0.02 * 4 / 2 = 0.04
+        # 3: 0.03 * 4 / 3 = 0.04
+        # 4: 0.04 * 4 / 4 = 0.04
+        # Result should be all 0.04
         
-    def test_apply_bh_correction_single_value(self):
-        """Test BH correction with a single p-value."""
-        p_values = [('q1', 'ndcg@10', 0.03)]
-        result = apply_bh_correction(p_values, 'ndcg')
-        
-        assert len(result) == 1
-        q_id, metric, raw_p, corr_p, is_sig = result[0]
-        assert q_id == 'q1'
-        assert metric == 'ndcg@10'
-        assert raw_p == 0.03
-        # For m=1, corrected = raw * 1 / 1 = raw
-        assert corr_p == pytest.approx(0.03)
-        assert is_sig == True  # 0.03 < 0.05
-        
-    def test_apply_bh_correction_multiple_values(self):
-        """Test BH correction with multiple p-values."""
-        p_values = [
-            ('q1', 'ndcg@10', 0.01),
-            ('q2', 'ndcg@10', 0.04),
-            ('q3', 'ndcg@10', 0.06),
-            ('q4', 'ndcg@10', 0.10)
+        data = [
+            {'query_id': 1, 'metric': 'NDCG@10', 'raw_p': 0.01},
+            {'query_id': 2, 'metric': 'NDCG@10', 'raw_p': 0.02},
+            {'query_id': 3, 'metric': 'NDCG@10', 'raw_p': 0.03},
+            {'query_id': 4, 'metric': 'NDCG@10', 'raw_p': 0.04},
         ]
-        result = apply_bh_correction(p_values, 'ndcg')
         
-        assert len(result) == 4
+        result = apply_bh_correction_to_raw(data)
         
-        # Check that corrected p-values are >= raw p-values
-        for q_id, metric, raw_p, corr_p, is_sig in result:
-            assert corr_p >= raw_p
-            
-    def test_apply_bh_correction_monotonicity(self):
-        """Test that corrected p-values are monotonically non-decreasing with rank."""
-        p_values = [
-            ('q1', 'ndcg@10', 0.10),
-            ('q2', 'ndcg@10', 0.05),
-            ('q3', 'ndcg@10', 0.01)
-        ]
-        result = apply_bh_correction(p_values, 'ndcg')
+        # Check monotonicity: corrected_p[i] <= corrected_p[i+1]
+        # Since input is sorted by raw_p, and BH ensures monotonicity of corrected values
+        # when sorted by raw_p, the sequence of corrected_p should be non-decreasing.
+        corrected_p_values = [r['corrected_p'] for r in result]
         
-        # Sort by raw p-value to check monotonicity
-        sorted_result = sorted(result, key=lambda x: x[2])
-        
-        corr_p_values = [r[3] for r in sorted_result]
-        # Check monotonicity: each corrected p should be >= previous
-        for i in range(1, len(corr_p_values)):
-            assert corr_p_values[i] >= corr_p_values[i-1]
-            
-    def test_run_bh_correction_separate_families(self):
+        for i in range(len(corrected_p_values) - 1):
+            assert corrected_p_values[i] <= corrected_p_values[i+1], \
+                f"Monotonicity violation: {corrected_p_values[i]} > {corrected_p_values[i+1]}"
+
+    def test_bh_correction_separate_families(self):
         """Test that BH correction is applied separately to NDCG and MAP families."""
-        p_values = [
-            ('q1', 'ndcg@10', 0.01),
-            ('q2', 'ndcg@10', 0.04),
-            ('q3', 'map@10', 0.02),
-            ('q4', 'map@10', 0.08)
+        data = [
+            {'query_id': 1, 'metric': 'NDCG@10', 'raw_p': 0.01},
+            {'query_id': 2, 'metric': 'NDCG@10', 'raw_p': 0.02},
+            {'query_id': 3, 'metric': 'MAP', 'raw_p': 0.01},
+            {'query_id': 4, 'metric': 'MAP', 'raw_p': 0.02},
         ]
-        result = run_bh_correction(p_values)
         
-        # Should have 4 results (2 for each family)
-        assert len(result) == 4
+        result = apply_bh_correction_to_raw(data)
         
-        # Separate by family
-        ndcg_results = [r for r in result if 'ndcg' in r[1]]
-        map_results = [r for r in result if 'map' in r[1]]
+        # Extract NDCG and MAP results
+        ndcg_results = [r for r in result if r['metric'] == 'NDCG@10']
+        map_results = [r for r in result if r['metric'] == 'MAP']
         
-        assert len(ndcg_results) == 2
-        assert len(map_results) == 2
+        # Both families have m=2
+        # For NDCG:
+        # rank 1: 0.01 * 2 / 1 = 0.02
+        # rank 2: 0.02 * 2 / 2 = 0.02
+        # Monotonicity: min(0.02, 0.02) = 0.02
         
+        # For MAP: same logic
+        # Both should result in corrected_p = 0.02 for both queries in each family
+        
+        for r in ndcg_results:
+            assert math.isclose(r['corrected_p'], 0.02, abs_tol=1e-9), \
+                f"Expected 0.02 for NDCG, got {r['corrected_p']}"
+        
+        for r in map_results:
+            assert math.isclose(r['corrected_p'], 0.02, abs_tol=1e-9), \
+                f"Expected 0.02 for MAP, got {r['corrected_p']}"
+
+    def test_bh_correction_clipping(self):
+        """Test that corrected p-values are clipped to [0, 1]."""
+        # Create a case where uncorrected BH value > 1
+        # m=2, raw_p=0.6, rank=1 -> 0.6 * 2 / 1 = 1.2 -> should clip to 1.0
+        data = [
+            {'query_id': 1, 'metric': 'NDCG@10', 'raw_p': 0.6},
+            {'query_id': 2, 'metric': 'NDCG@10', 'raw_p': 0.8},
+        ]
+        
+        result = apply_bh_correction_to_raw(data)
+        
+        for r in result:
+            assert 0.0 <= r['corrected_p'] <= 1.0, \
+                f"Corrected p-value {r['corrected_p']} out of bounds [0, 1]"
+
+    def test_bh_correction_empty_family(self):
+        """Test handling of a metric family with no data."""
+        data = [
+            {'query_id': 1, 'metric': 'NDCG@10', 'raw_p': 0.05},
+            # No MAP data
+        ]
+        
+        result = apply_bh_correction_to_raw(data)
+        
+        # Should return the original data with corrected_p = raw_p for the existing metric
+        assert len(result) == 1
+        assert result[0]['corrected_p'] == 0.05  # m=1, rank=1 -> 0.05 * 1 / 1 = 0.05
+
     def test_bh_correction_vs_statsmodels(self):
         """
-        Compare BH correction against statsmodels implementation.
-        This is a sanity check - our implementation should match.
+        Compare our implementation against statsmodels.stats.multitest.multipletests
+        for a small known dataset.
         """
         try:
             from statsmodels.stats.multitest import multipletests
         except ImportError:
-            pytest.skip("statsmodels not installed")
-            
-        p_values = [
-            ('q1', 'ndcg@10', 0.01),
-            ('q2', 'ndcg@10', 0.04),
-            ('q3', 'ndcg@10', 0.06),
-            ('q4', 'ndcg@10', 0.10)
-        ]
+            pytest.skip("statsmodels not installed, skipping comparison test")
         
-        raw_p_list = [p[2] for p in p_values]
-        _, corrected_p, _, _ = multipletests(raw_p_list, alpha=0.05, method='fdr_bh')
+        # Create a simple dataset
+        p_values = [0.01, 0.04, 0.03, 0.001]
+        # Sort them
+        sorted_p = sorted(p_values)
         
-        our_result = apply_bh_correction(p_values, 'ndcg')
+        # Apply statsmodels
+        _, corrected_p, _, _ = multipletests(p_values, alpha=0.05, method='fdr_bh')
         
-        # Compare corrected p-values (sorted by raw p)
-        our_sorted = sorted(our_result, key=lambda x: x[2])
-        our_corr_p = [r[3] for r in our_sorted]
+        # Our implementation (need to wrap in the expected format)
+        data = [{'query_id': i, 'metric': 'NDCG@10', 'raw_p': p} for i, p in enumerate(p_values)]
+        result = apply_bh_correction_to_raw(data)
         
-        # Allow small floating point differences
-        for ours, stats in zip(our_corr_p, corrected_p):
-            assert abs(ours - stats) < 1e-10, f"Mismatch: ours={ours}, stats={stats}"
+        # Map back to original order
+        our_corrected = {r['query_id']: r['corrected_p'] for r in result}
+        
+        # Verify each value matches statsmodels (within tolerance)
+        for i, expected in enumerate(corrected_p):
+            actual = our_corrected[i]
+            assert math.isclose(actual, expected, abs_tol=1e-9), \
+                f"Mismatch at index {i}: expected {expected}, got {actual}"
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

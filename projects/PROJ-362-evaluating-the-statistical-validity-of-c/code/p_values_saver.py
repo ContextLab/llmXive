@@ -1,88 +1,73 @@
 """
-Module to save raw p-values to CSV.
-
-This module handles the persistence of raw p-values calculated from
-permutation tests to the results directory.
+Module to save raw p-values generated from permutation tests.
+Handles the final step of User Story 1: saving p-values to CSV.
 """
 import os
 import csv
 import logging
 from typing import List, Dict, Any, Optional
 from pathlib import Path
-from config import RESULTS_DIR, ensure_dirs
+
+# Import from project config
+try:
+    from config import RESULTS_DIR, ensure_dirs
+except ImportError:
+    # Fallback for standalone execution if config is not in path
+    from pathlib import Path
+    RESULTS_DIR = Path("results")
+    def ensure_dirs():
+        RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+        (RESULTS_DIR / "p_values").mkdir(parents=True, exist_ok=True)
 
 logger = logging.getLogger(__name__)
 
-def ensure_p_values_dir() -> Path:
-    """
-    Ensure the p_values directory exists within RESULTS_DIR.
-    
-    Returns:
-        Path: The path to the p_values directory.
-    """
-    p_values_dir = Path(RESULTS_DIR) / "p_values"
-    ensure_dirs(p_values_dir)
+def ensure_p_values_dir():
+    """Ensure the directory for raw p-values exists."""
+    p_values_dir = RESULTS_DIR / "p_values"
+    p_values_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured p-values directory exists: {p_values_dir}")
     return p_values_dir
 
-def save_raw_p_values(p_values: List[Dict[str, Any]], output_file: Optional[str] = None) -> Path:
+def save_raw_p_values(p_values: List[Dict[str, Any]], output_path: Optional[Path] = None):
     """
-    Save a list of raw p-value dictionaries to a CSV file.
-    
+    Save raw p-values to a CSV file.
+
     Args:
-        p_values: List of dictionaries containing 'query_id', 'metric', and 'p_value'.
-        output_file: Optional filename. Defaults to 'raw_p_values.csv'.
-        
-    Returns:
-        Path: The path to the saved file.
-        
-    Raises:
-        ValueError: If the p_values list is empty or contains invalid data.
+        p_values: List of dictionaries containing query_id, metric, and p_value.
+        output_path: Optional specific path to save to. Defaults to results/p_values/raw_p_values.csv.
     """
+    if output_path is None:
+        ensure_p_values_dir()
+        output_path = RESULTS_DIR / "p_values" / "raw_p_values.csv"
+
+    logger.info(f"Saving {len(p_values)} raw p-values to {output_path}")
+
     if not p_values:
-        logger.warning("No p-values provided to save. Creating empty file.")
-    
-    p_values_dir = ensure_p_values_dir()
-    if output_file is None:
-        output_file = "raw_p_values.csv"
-        
-    output_path = p_values_dir / output_file
-    
-    if not p_values:
-        # Create empty file with headers if no data
+        logger.warning("No p-values to save. Creating empty file with headers.")
         with open(output_path, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(['query_id', 'metric', 'p_value'])
-        logger.info(f"Created empty p-values file at {output_path}")
-        return output_path
+        return
 
-    # Validate and write data
-    required_keys = {'query_id', 'metric', 'p_value'}
-    for i, item in enumerate(p_values):
-        if not isinstance(item, dict):
-            raise ValueError(f"Item at index {i} is not a dictionary: {type(item)}")
-        missing = required_keys - set(item.keys())
-        if missing:
-            raise ValueError(f"Item at index {i} missing keys: {missing}")
-        if not isinstance(item['p_value'], (int, float)):
-            raise ValueError(f"Item at index {i} has invalid p_value type: {type(item['p_value'])}")
-
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['query_id', 'metric', 'p_value'])
-        writer.writeheader()
-        writer.writerows(p_values)
-        
-    logger.info(f"Saved {len(p_values)} raw p-values to {output_path}")
-    return output_path
-
-def run_p_values_saving(p_values: List[Dict[str, Any]], output_file: Optional[str] = None) -> Path:
-    """
-    Wrapper function to save raw p-values, suitable for integration with main.py.
+    # Determine headers based on keys in the first item, or standard set
+    headers = ['query_id', 'metric', 'p_value']
     
-    Args:
-        p_values: List of dictionaries with p-value data.
-        output_file: Optional filename.
+    try:
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=headers, extrasaction='ignore')
+            writer.writeheader()
+            writer.writerows(p_values)
         
-    Returns:
-        Path: Path to the saved file.
+        logger.info(f"Successfully saved raw p-values to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to save p-values to {output_path}: {e}")
+        raise
+
+def run_p_values_saving(p_values: List[Dict[str, Any]]):
     """
-    return save_raw_p_values(p_values, output_file)
+    Entry point for saving p-values, typically called by main.py.
+    """
+    ensure_p_values_dir()
+    output_path = RESULTS_DIR / "p_values" / "raw_p_values.csv"
+    save_raw_p_values(p_values, output_path)
+    return output_path
