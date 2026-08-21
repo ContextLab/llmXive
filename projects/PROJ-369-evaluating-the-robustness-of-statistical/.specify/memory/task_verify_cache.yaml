@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (e.g., `src/`, `tests/unit/`, `data/raw/`,\
-    \ etc.) or the `state/structure_manifest.json` file is provided. Without these\
-    \ artifacts, the claim that the project structure was created and documented cannot\
-    \ be verified. The implementer must supply the actual directory tree and a non\u2011\
-    empty JSON manifest listing all paths."
 T012:
   c: false
   h: a2dc078e9ea68a1ced5309d7a3c1b6df60c498c0a1165e3506521664a937f16a
@@ -38,10 +30,3 @@ T027:
     \ logic to generate synthetic time\u2011series of the specified lengths (100,\u202F\
     500,\u202F1\u202F000,\u202F5\u202F000,\u202F10\u202F000). Without an artifact\
     \ showing the generation routine and its output, the task requirement is not satisfied."
-T051:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `metrics_real.json` file containing a `variance_fallback` field is present,\
-    \ nor any code modifications to T022 that compute and store the residual variance\
-    \ when the peak\u2011ratio metric fails. Without these artifacts, the task\u2019\
-    s requirement is not satisfied."
