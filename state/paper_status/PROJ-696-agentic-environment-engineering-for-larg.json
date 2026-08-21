@@ -11,12 +11,12 @@
         "page": 133
       }
     ],
-    "audited_at": "2026-08-21T23:22:05.242380+00:00"
+    "audited_at": "2026-08-21T23:54:38.580224+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-696-agentic-environment-engineering-for-larg",
-  "updated_at": "2026-08-21T23:22:05.242398+00:00"
+  "updated_at": "2026-08-21T23:54:38.580240+00:00"
 }
