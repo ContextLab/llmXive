@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GateMem Episode Schema"
+description: "Schema for a single episode from the GateMem dataset. Includes derived 'intent' field for analysis."
+type: object
+required:
+  - episode_id
+  - domain
+  - user_role
+  - query
+  - memory_state
+  - leak_target
+  - ground_truth_success
+properties:
+  episode_id:
+    type: string
+    description: "Unique identifier for the episode."
+  domain:
+    type: string
+    enum:
+      - medical
+      - office
+      - education
+      - household
+    description: "Context domain of the episode."
+  user_role:
+    type: string
+    description: "Role of the user (e.g., doctor, patient, admin)."
+  intent:
+    type: string
+    description: "Classified intent of the user query (derived via Zero-Shot)."
+  query:
+    type: string
+    description: "The user's query text."
+  memory_state:
+    type: string
+    description: "Current state of the agent's memory."
+  leak_target:
+    type: boolean
+    description: "Ground truth label: True if the query should be allowed (not a leak), False if it should be blocked."
+  deletion_request:
+    type: boolean
+    description: "Indicates if the query contains a deletion request."
+  deletion_log:
+    type: array
+    items:
+      type: string
+    description: "History of deletion requests."
+  ground_truth_success:
+    type: boolean
+    description: "Human-annotated task success label."
+additionalProperties: false

@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-830-llmxive-follow-up-extending-gatemem-benc",
+  "tasks": [
+    {
+      "task_key": "T037a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: tests/unit/test_docs.py",
+      "first_seen": "2026-08-21T20:59:51.898400+00:00",
+      "last_seen": "2026-08-21T20:59:51.898400+00:00"
+    },
+    {
+      "task_key": "T007",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/utils/profiling.py",
+      "first_seen": "2026-08-21T20:59:51.943158+00:00",
+      "last_seen": "2026-08-21T20:59:51.943158+00:00"
+    },
+    {
+      "task_key": "T015a",
+      "reject_count": 1,
+      "last_reason": "The required file `src/gatekeeper/rules.py` does not exist in the repository, so the core artifact\u2014a regex\u2011based rule engine for role validation and deletion\u2011log checking\u2014is missing. Without this file, the task\u2019s specification is not satisfied.",
+      "first_seen": "2026-08-21T20:59:51.944457+00:00",
+      "last_seen": "2026-08-21T20:59:51.944457+00:00"
+    }
+  ],
+  "updated_at": "2026-08-21T20:59:51.944457+00:00"
+}

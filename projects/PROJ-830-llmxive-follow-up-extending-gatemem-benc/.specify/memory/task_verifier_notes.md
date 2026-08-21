@@ -4,5 +4,11 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T037a** — declared artifact(s) missing/empty/invalid: tests/unit/test_docs.py
 - **T007** — declared artifact(s) missing/empty/invalid: src/utils/profiling.py
+- **T008a** — declared artifact(s) missing/empty/invalid: src/utils/stats.py
+- **T008b** — declared artifact(s) missing/empty/invalid: src/utils/stats.py
+- **T008c** — declared artifact(s) missing/empty/invalid: src/utils/stats.py
 - **T008d** — declared artifact(s) missing/empty/invalid: src/utils/stats.py
+- **T008g** — declared artifact(s) missing/empty/invalid: src/utils/stats.py
 - **T008e** — declared artifact(s) missing/empty/invalid: src/utils/stats.py
+- **T008f** — declared artifact(s) missing/empty/invalid: src/utils/stats.py
+- **T015a** — The required file `src/gatekeeper/rules.py` does not exist in the repository, so the core artifact—a regex‑based rule engine for role validation and deletion‑log checking—is missing. Without this file, the task’s specification is not satisfied.

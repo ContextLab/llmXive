@@ -1,57 +1,54 @@
 # Implementation Plan: llmXive follow-up: extending "GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo"
 
 **Branch**: `001-gatekeeper-governance` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md`
-**Input**: Feature specification from `specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md`
 
 ## Summary
 
-This feature implements a modular governance layer ("Gatekeeper") to benchmark memory access control in LLM agents, addressing the tension between security (preventing unauthorized data leakage) and utility (maintaining task performance). The implementation executes a comparative study against "Retrieval-only" and "Long-Context" baselines using the GateMem dataset. The system will measure three core metrics: **Access Control** (leakage rate), **Conditional Utility** (task success among allowed queries), and **Overall Task Success Rate** (net success including False Positives), alongside **Forgetting** (deletion compliance). Computational costs (latency/RAM) will be profiled on a CPU-only environment. Statistical significance will be determined via Linear Mixed-Effects Models (LMM) with 'Episode ID' and 'Domain' as random intercepts, falling back to paired t-tests/Wilcoxon if multi-domain data is unavailable.
+This feature implements a modular governance layer ("Gatekeeper") for LLM agents, benchmarking it against standard retrieval and long-context baselines using the GateMem dataset. The primary technical approach involves a **Zero-Shot Intent Classifier** (using `facebook/bart-large-mnli`) and a **regex-based rule engine** to filter memory access before LLM generation. The implementation calculates three core metrics (Utility, Access Control, Forgetting) plus derived metrics, profiles computational costs (RAM/CPU time) for both Gatekeeper and Baselines, and performs statistical comparisons using **McNemar's Test** (primary) and **Fixed-Effects Logistic Regression** (secondary). All results are reproducible via pinned dependencies, fixed random seeds (`SEED = 42` in `src/utils/config.py`), and automated CI execution on CPU-only runners.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `datasets`, `transformers` (CPU-only), `scikit-learn`, `statsmodels`, `pandas`, `pyyaml`, `pytest`, `huggingface_hub`  
-**Storage**: Local filesystem (`data/` for raw/processed data, `data/processed/` for derived artifacts)  
-**Testing**: `pytest` (unit tests for pipeline logic, integration tests for full evaluation runs, **contract tests against `contracts/dataset.schema.yaml` and `contracts/results.schema.yaml`**)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: a limited CPU count, modest RAM, no GPU. The research question remains to evaluate the feasibility of lightweight CI/CD pipelines under constrained resources. The method involves benchmarking build times and resource utilization across standardized open-source projects (Smith et al.).)  
-**Project Type**: Research CLI / Benchmarking Suite  
-**Performance Goals**: Must complete full evaluation within 6 hours; peak RAM usage < 7 GB; no GPU acceleration.  
-**Constraints**:  
-- No CUDA/GPU usage; models must run in default precision on CPU.  
-- Dataset must be processed in batches or streamed to fit memory.  
-- Statistical analysis must handle potential non-normality via **Wilcoxon signed-rank** or **Kruskal-Wallis** tests if Shapiro-Wilk fails.  
-- All random seeds will be fixed to ensure reproducibility.  
-**Scale/Scope**: Evaluation of GateMem dataset (medical, office, education, household domains); generation of a representative set of failure case samples for manual review.
+**Primary Dependencies**: `transformers` (BART for Zero-Shot), `datasets` (Hugging Face), `pandas`, `statsmodels` (GLM), `scipy` (McNemar's), `pytest`, `pyyaml`  
+**Storage**: Local filesystem (`data/` for raw/processed data, `state/` for artifacts), JSONL/Parquet formats  
+**Testing**: `pytest` (unit, integration, contract tests)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM)  
+**Project Type**: Research benchmark / CLI tool  
+**Performance Goals**: CPU-tractable inference (<6h runtime), memory usage <7GB, latency profiling for cost reduction hypothesis  
+**Constraints**: NO GPU acceleration for primary runs; NO synthetic data; strict adherence to GateMem schema; fixed random seeds for reproducibility  
+**Scale/Scope**: Full GateMem test set (medical, office, education, household domains)
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Constitution Principle | Compliance Status | Implementation Strategy |
+| Principle | Status | Reference & Notes |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **COMPLIANT** | All random seeds pinned. `requirements.txt` will pin exact versions. Data fetched from canonical HuggingFace URLs. Scripts runnable end-to-end in isolated venv. |
-| **II. Verified Accuracy** | **COMPLIANT** | Citations in `research.md` will strictly use verified URLs from the input block. No invented URLs. |
-| **III. Data Hygiene** | **COMPLIANT** | Raw data downloaded to `data/raw/` with checksums recorded. Derivations saved to `data/processed/`. No in-place modification. PII scan enforced via CI. |
-| **IV. Single Source of Truth** | **COMPLIANT** | All metrics (Access Control, Conditional Utility, Overall Success, Forgetting) computed by `code/` scripts and traced to `data/processed/` JSON/CSV files. Paper figures generated directly from these files. |
-| **V. Versioning Discipline** | **COMPLIANT** | Artifacts (data, code, results) will carry content hashes in `state/` YAML. |
-| **VI. Governance-Utility Trade-off Validation** | **COMPLIANT** | Plan explicitly mandates calculation of **Conditional Utility** (success among allowed) and **Overall Success** (net) to decouple gating cost from LLM performance. **Paired statistical tests (LMM with Episode ID random effect, or fallback paired t-test/Wilcoxon)** will compare Gatekeeper vs. Baselines, satisfying the constitution's requirement for paired tests. |
-| **VII. Computational Efficiency and Resource Profiling** | **COMPLIANT** | Plan includes instrumentation for wall-clock time and peak RAM usage for both Gatekeeper and Baselines. |
+| **I. Reproducibility** | **PASS** | Random seeds pinned (`SEED = 42`) in `src/utils/config.py`; `requirements.txt` pins all deps; CI fetches data from canonical HF URL on every run. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs verified against `# Verified datasets` block; citations in `research.md` link only to provided sources. |
+| **III. Data Hygiene** | **PASS** | Raw data checksummed in `state/artifact_hashes.yaml`; transformations write to new files; PII scan on commit. |
+| **IV. Single Source of Truth** | **PASS** | All metrics derived from `data/processed/`; no hand-typed numbers in `paper/`. |
+| **V. Versioning Discipline** | **PASS** | Content hashes updated on artifact change; `state/...yaml` timestamp updated. |
+| **VI. Governance-Utility Trade-off** | **PASS** | Plan explicitly includes calculation of Utility, Access Control, Forgetting. Primary statistical test is **McNemar's Test** (paired binary) as per Constitution; Fixed-Effects GLM is secondary. |
+| **VII. Computational Efficiency** | **PASS** | Profiling tasks (T033a, T034 mapped to `src/utils/profiling.py`) explicitly measure wall-clock time and peak RAM for **both** Gatekeeper and Baseline pipelines. Power analysis added for cost detection. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-llmxive-follow-up-extending-gatemem-benc/
+specs/001-gatekeeper-governance/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    └── results.schema.yaml
+├── contracts/           # Phase 1 output (Canonical Source)
+│   ├── gatemem_episode.schema.yaml
+│   └── evaluation_result.schema.yaml
+└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
 ```
 
 ### Source Code (repository root)
@@ -60,36 +57,109 @@ specs/001-llmxive-follow-up-extending-gatemem-benc/
 src/
 ├── gatekeeper/
 │   ├── __init__.py
-│   ├── pipeline.py          # Main execution logic (Gatekeeper vs. Baselines)
-│   ├── classifiers.py       # DistilBERT intent classifier
-│   ├── rules.py             # Regex-based rule engine
-│   └── metrics.py           # Calculation of Utility, Access Control, Forgetting
+│   ├── classifier.py       # T014a: Zero-Shot Intent Classifier (BART)
+│   ├── rules.py            # T015a: Regex rule engine + keyword leak detector
+│   └── pipeline.py         # T016: Gatekeeper orchestration
+├── baselines/
+│   ├── __init__.py
+│   ├── retrieval.py        # T017a: Retrieval-only baseline
+│   └── long_context.py     # T017b: Long-context baseline
+├── metrics/
+│   ├── __init__.py
+│   ├── utility.py          # T023, T024c
+│   ├── access_control.py   # T018
+│   └── forgetting.py       # T024
+├── stats/
+│   ├── __init__.py
+│   ├── models.py           # T008a, T008b: Fixed-Effects GLM implementation
+│   └── comparison.py       # T026a: Statistical comparison pipeline (McNemar's)
 ├── utils/
-│   ├── data_loader.py       # Dataset fetching and parsing (with domain verification)
-│   ├── stats.py             # LMM and statistical tests (with fallback logic)
-│   └── profiling.py         # CPU/RAM and latency tracking
+│   ├── __init__.py
+│   ├── data_loader.py      # T006: Fetch, parse, validate GateMem (with variable check)
+│   ├── profiling.py        # T007, T033a, T034: CPU/RAM/Wall-clock profiling
+│   └── config.py           # Seeds (SEED=42), paths, constants
 ├── cli/
-│   └── run_evaluation.py    # Entry point for the benchmark
-└── main.py                  # Orchestrator
+│   └── run_evaluation.py   # T019, T036: Main entry point
+└── contracts/              # Generated artifact (Copied from specs/.../contracts/)
 
 tests/
-├── contract/
-│   ├── test_dataset_schema.py       # Validates against contracts/dataset.schema.yaml
-│   └── test_results_schema.py       # Validates against contracts/results.schema.yaml
+├── unit/
+│   ├── test_classifier.py
+│   ├── test_rules.py
+│   ├── test_metrics.py
+│   └── test_stats.py
 ├── integration/
-│   └── test_full_pipeline.py
-└── unit/
-    ├── test_rules.py
-    └── test_metrics.py
+│   ├── test_pipeline.py
+│   └── test_baseline_comparison.py
+└── contract/
+    └── test_schemas.py     # Validates data against YAML schemas
 
 data/
-├── raw/                     # Downloaded GateMem JSONL files
-├── processed/               # Parsed episodes, results
-└── samples/                 # failure cases for manual review
+├── raw/                    # Downloaded GateMem JSONL
+├── processed/              # Parsed episodes, paired results
+└── samples/                # failure_cases.json (Stratified by domain)
+
+state/
+└── artifact_hashes.yaml    # Checksums for reproducibility
+
+docs/
+└── paper/                  # Draft manuscript (post-implementation)
 ```
 
-**Structure Decision**: Single project structure (`src/`) chosen for simplicity and alignment with research CLI nature. Separation of `gatekeeper/`, `utils/`, and `cli/` ensures modularity while keeping the codebase manageable for a single developer/agent. Contracts are explicitly referenced in testing.
+**Structure Decision**: Single-project structure selected. The research nature of the project (benchmarking, statistical analysis) benefits from a unified codebase where data loading, model execution, and metric calculation are tightly coupled. Separating into `src/gatekeeper`, `src/baselines`, and `src/stats` ensures modularity for testing while maintaining a simple CLI entry point. **Canonical Source of Truth for Schemas**: `specs/.../contracts/`. `src/contracts/` is a generated artifact copied during build.
 
 ## Complexity Tracking
 
-*No violations detected in Constitution Check. Complexity is managed by strict adherence to CPU-only constraints and modular design.*
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **McNemar's vs. Wilcoxon** | FR-005 requires statistical comparison for binary outcomes. Wilcoxon is invalid for binary data. | Wilcoxon assumes continuous/ordinal ranks. McNemar's is the correct test for paired binary data (0/1). |
+| **Fixed-Effects GLM vs. LMM** | LMM is invalid with only 4 domains (N<5 for random effects). Fixed-Effects GLM with Domain as covariate is valid. | LMM requires multiple levels for stable variance estimation.. Fixed-Effects GLM handles small N correctly. |
+| **Zero-Shot vs. Fine-tuned** | No public intent classifier exists for this specific schema. | Fine-tuning on SST-2/AG News introduces construct validity failure. Zero-shot with custom labels is the only valid proxy. |
+| **Dual Profiling (Gatekeeper + Baseline)** | SC-003 requires direct comparison of computational cost. | Profiling only the Gatekeeper provides no baseline for "reduction" claims. |
+| **Strict Checksum Validation** | Constitution Principle III requires data hygiene. | Skipping checksums risks using corrupted or tampered data, violating reproducibility. |
+| **Failure Case Sampling (FR-007)** | Requires stratified output for manual analysis. | Simple random sampling ignores domain distribution; stratification is required. |
+| **Power Analysis for Cost** | High variance in LLM inference requires justification of detectable effect size. | Without power analysis, cost claims are anecdotal. Calculation shows [deferred] power for a short temporal difference
+
+References: None specified in source.
+Research Question: Not specified in source.
+Method: Not specified in source.. |
+
+## Phased Implementation
+
+### Phase 0: Research & Design (Current)
+- T001: Literature review on governance layers.
+- T002: Define metrics and statistical tests.
+- T003: Select datasets and models.
+
+### Phase 1: Data & Contracts
+- **T006a (Fetch & Validate)**: Fetch GateMem JSONL. **Mandatory**: Perform "Variable Presence Check" for outcome (`leak_target`), predictors (`role`, `domain`), and covariates (`deletion_log`). Exit code 1 if missing.
+- T006b: Checksum raw data.
+- T008a: Define `gatemem_episode.schema.yaml` (includes `intent` as derived field).
+- T008b: Define `evaluation_result.schema.yaml`.
+
+### Phase 2: Core Components
+- T014a: Implement Zero-Shot Intent Classifier (BART).
+- T015a: Implement Regex Rule Engine.
+- T017a: Implement Retrieval-only Baseline.
+- T017b: Implement Long-Context Baseline.
+
+### Phase 3: Integration & Analysis
+- **T016 (Gatekeeper Pipeline)**: Calls T014a and T015a. Depends on T006a (data).
+- **T017c (Baseline Pipeline)**: Calls baselines. Depends on T006a.
+- **T008f (Pair Episodes)**: **Moved to Phase 3**. Consumes results from T016 and T017c. Pairs by `episode_id`.
+- **T023, T024, T018 (Metrics)**: Calculate Utility, Access Control, Forgetting.
+- **T026a (Statistical Comparison)**: Runs McNemar's Test and Fixed-Effects GLM.
+- **T008e (Full Stats Pipeline)**: **Moved to Phase 3**. Orchestrates T008f, T026a, and reporting. Depends on Phase 3 results.
+- T033a, T034: Profiling (Gatekeeper vs Baseline).
+
+## Data Flow & Validation
+
+1.  **Ingestion**: `data_loader.py` fetches GateMem JSONL for all 4 domains.
+2.  **Validation**: **Variable Presence Check** ensures `leak_target`, `ground_truth_success`, `role`, etc., are present. If missing, exit code 1.
+3.  **Processing**: `pipeline.py` and `baselines/*.py` process episodes.
+4.  **Aggregation**: `metrics/*.py` calculate scores (including Conditional Utility).
+5.  **Analysis**: `stats/comparison.py` performs **McNemar's Test** (primary) and Fixed-Effects GLM (secondary).
+6.  **Sampling**: `cli/run_evaluation.py` generates `data/samples/failure_cases.json` (stratified by domain).
+7.  **Reporting**: `cli/generate_report.py` aggregates results.

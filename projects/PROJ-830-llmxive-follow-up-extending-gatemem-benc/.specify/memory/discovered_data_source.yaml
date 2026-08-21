@@ -1,0 +1,15 @@
+status: none
+intent: download GateMem multi-domain dataset from HuggingFace python package dataset
+required_fields:
+- episode_id
+- domain
+- annotations
+- role_definitions
+- deletion_request_log
+- leak_target
+- intent
+- role
+- ground_truth_answer
+cache_key: 8b9f27829ab8e282fd1235e8f67bfdbf8dd7262cf05cb28860aa5981ed12aceb
+searched_at: '2026-08-21T20:16:02.789149+00:00'
+retry_count: 1

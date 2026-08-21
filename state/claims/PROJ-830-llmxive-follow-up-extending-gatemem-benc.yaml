@@ -411,3 +411,44 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T19:47:18Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/quickstart.md
+  attempts: 1
+  canonical: GateMem dataset ID is gatekeeper/gatemem with default configuration and
+    test split
+  claim_id: c_634067af
+  context: This project uses the **GateMem** dataset from HuggingFace. The data loader
+    (`code/utils/data_loader.py`) is configured to stream the dataset to handle memory
+    constraints. The dataset ID is `gatekeeper/gatemem` with configuration `default`
+    and split `test`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GateMem_dataset_ID_is_gatekeeper/gatemem_with_default_config
+  kind: entity_fact
+  raw_text: The dataset ID is `gatekeeper/gatemem` with configuration `default` and
+    split `test`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T20:50:06Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/quickstart.md
+  attempts: 1
+  canonical: Classifier model is facebook/distilbert-base-uncased
+  claim_id: c_f754392b
+  context: '### Model Loading Errors The classifier uses `facebook/distilbert-base-uncased`
+    in CPU mode. If the model fails to load, check your cache directory or retry the
+    fetch.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Classifier_model_is_facebook/distilbert-base-uncased
+  kind: entity_fact
+  raw_text: The classifier uses `facebook/distilbert-base-uncased` in CPU mode.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T20:50:26Z'

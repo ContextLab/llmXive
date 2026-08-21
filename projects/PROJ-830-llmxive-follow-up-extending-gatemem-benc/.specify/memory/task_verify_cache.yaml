@@ -5,13 +5,6 @@ T012:
     and the schema file `results.schema.yaml` (or `schema.yaml`) is also missing,
     so there is no content to verify against the schema. Without these files, the
     contract test cannot be performed.
-T015a:
-  c: false
-  h: 66ec931846c0c159e5a95041f7cb8f22403fb9b7b88f49538d956b6454bdd150
-  r: "The required file `src/gatekeeper/rules.py` does not exist in the repository,\
-    \ so the core artifact\u2014a regex\u2011based rule engine for role validation\
-    \ and deletion\u2011log checking\u2014is missing. Without this file, the task\u2019\
-    s specification is not satisfied."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

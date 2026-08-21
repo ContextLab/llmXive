@@ -9,26 +9,47 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-12T02:59:40.576539Z'
-- artifact_hash: 465d17844cd954dc00ac50e76274e5f6ead978d4d89df53db8c0582b638e8010
+- artifact_hash: 9ced727d4e567b90df07e934109238386f1e798e51739deafc7fe4e61d40bb57
   artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: checkpoints.jsonl
   kind: url
-  value: https://huggingface.co/datasets/Ray368/GateMem/resolve/main/gatemem/data/education/checkpoints.jsonl`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Ray368/GateMem/b4304866ec8d9784fb77bebb1ce4660806abcded/gatemem%2Fdata%2Feducation%2Fcheckpoints.jsonl?%2Fdatasets%2FRay368%2FGateMem%2Fresolve%2Fmain%2Fgatemem%2Fdata%2Feducation%2Fcheckpoints.jsonl=&etag=%2273a3c67574766df6d6bf841d8a0795072b1bdce7%22
-  verified_at: '2026-07-12T03:09:32.781533Z'
-- artifact_hash: e0cfb177ea15557ab66a7e19e5ae75d2751954a1276867b660531ba27b0f5bee
-  artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
-  cite_id: c-001
+  value: https://huggingface.co/datasets/Ray368/GateMem/resolve/main/gatemem/data/medical/checkpoints.jsonl`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Ray368/GateMem/b4304866ec8d9784fb77bebb1ce4660806abcded/gatemem%2Fdata%2Fmedical%2Fcheckpoints.jsonl?%2Fdatasets%2FRay368%2FGateMem%2Fresolve%2Fmain%2Fgatemem%2Fdata%2Fmedical%2Fcheckpoints.jsonl=&etag=%22b8ae7e3040a01da13a64ff168fd343e744fbfb62%22
+  verified_at: '2026-08-21T20:28:17.913608Z'
+- artifact_hash: 9ced727d4e567b90df07e934109238386f1e798e51739deafc7fe4e61d40bb57
+  artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/research.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: '[2501.00241] Exploring Variability in Fine-Tuned Models for Text
-    Classification with DistilBERT'
+  fetched_title: checkpoints.jsonl
   kind: url
-  value: https://arxiv.org/abs/2501.00241
+  value: https://huggingface.co/datasets/Ray368/GateMem/resolve/main/gatemem/data/office/checkpoints.jsonl`
   verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2501.00241
-  verified_at: '2026-08-11T19:51:23.065590Z'
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Ray368/GateMem/b4304866ec8d9784fb77bebb1ce4660806abcded/gatemem%2Fdata%2Foffice%2Fcheckpoints.jsonl?%2Fdatasets%2FRay368%2FGateMem%2Fresolve%2Fmain%2Fgatemem%2Fdata%2Foffice%2Fcheckpoints.jsonl=&etag=%22cb7f173b65dc7da25c09af3eae00b54feabab064%22
+  verified_at: '2026-08-21T20:28:17.913608Z'
+- artifact_hash: 9ced727d4e567b90df07e934109238386f1e798e51739deafc7fe4e61d40bb57
+  artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: checkpoints.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/Ray368/GateMem/resolve/main/gatemem/data/education/checkpoints.jsonl`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Ray368/GateMem/b4304866ec8d9784fb77bebb1ce4660806abcded/gatemem%2Fdata%2Feducation%2Fcheckpoints.jsonl?%2Fdatasets%2FRay368%2FGateMem%2Fresolve%2Fmain%2Fgatemem%2Fdata%2Feducation%2Fcheckpoints.jsonl=&etag=%2273a3c67574766df6d6bf841d8a0795072b1bdce7%22
+  verified_at: '2026-08-21T20:28:17.913608Z'
+- artifact_hash: 9ced727d4e567b90df07e934109238386f1e798e51739deafc7fe4e61d40bb57
+  artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: checkpoints.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/Ray368/GateMem/resolve/main/gatemem/data/household/checkpoints.jsonl`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Ray368/GateMem/b4304866ec8d9784fb77bebb1ce4660806abcded/gatemem%2Fdata%2Fhousehold%2Fcheckpoints.jsonl?%2Fdatasets%2FRay368%2FGateMem%2Fresolve%2Fmain%2Fgatemem%2Fdata%2Fhousehold%2Fcheckpoints.jsonl=&etag=%22644b7406752db4b6c67c51a922702969dc8eb71b%22
+  verified_at: '2026-08-21T20:28:17.913608Z'
