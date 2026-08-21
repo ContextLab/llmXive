@@ -1,3 +1,26 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or command output was provided; there is no evidence that\
+    \ the required folders (`code/`, `tests/`, `data/`, `docs/`, `specs/`) actually\
+    \ exist or that `ls -d \u2026` succeeded with exit code\u202F0. The implementer\
+    \ must supply the filesystem snapshot or command result confirming the structure."
+T008:
+  c: false
+  h: 798ce8492da89ecffb1c5e126a80a66653ba0e3946101055a5af49cdf02fa357
+  r: "The repository contains `code/utils/checksums.py`, but the required output file\
+    \ `data/.checksums.json` is absent, and there is no evidence that the script actually\
+    \ writes the manifest or performs the verification step. Additionally, the `data/`\
+    \ sub\u2011directories (`raw/`, `processed/`, `validation/`) are not shown to\
+    \ exist. The task\u2019s core deliverables are therefore missing."
+T012b:
+  c: false
+  h: 08b798bedde0cd5b0e95ce8e82056c1e83474aac39b64789f945b2f540424706
+  r: "The repository contains `code/data/download_orca.py`, but the file is truncated\
+    \ and does not show any logic that selects a random subset of 50 clips or writes\
+    \ `data/raw/scenarios.csv`. Moreover, the required output file `data/raw/scenarios.csv`\
+    \ is absent from the disk. Consequently, the task\u2019s core deliverable (a CSV\
+    \ with exactly 50 rows) is missing."
 T020a:
   c: false
   h: 10dd843e50969ac80bce987613a81df221d143856d4c6c9e07e2f9316a209f27
