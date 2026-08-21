@@ -61,8 +61,8 @@
 - [ ] T006b [P] **SPEC AMENDMENT**: Update `spec.md` to replace FR-006 (BLEU/ROUGE) with FR-006-REV (Internal Coherence), update US-2 Acceptance Scenario 3 to output `coherence_score`, and update SC-007 to define expected range for cosine similarity (0-1). This task creates the formal requirement alignment needed for T029.
 - [X] T007 [P] Create `code/models/patch.py` defining Patch entity (id, bug_id, diff_content, rationale_text)
 - [X] T008 [P] Create `code/models/correctness.py` defining CorrectnessLabel entity (bug_id, pass_fail, unsafe_flag)
-- [ ] T009 [P] Create `code/models/explainability.py` defining ExplainabilityScore entity (bug_id, attention_score, saliency_score, coherence_score)
-- [ ] T010 [P] Create `code/models/statistical.py` defining StatisticalResult entity (correlation_coeff, auc_roc, p_value)
+- [X] T009 [P] Create `code/models/explainability.py` defining ExplainabilityScore entity (bug_id, attention_score, saliency_score, coherence_score)
+- [X] T010 [P] Create `code/models/statistical.py` defining StatisticalResult entity (correlation_coeff, auc_roc, p_value)
 - [ ] T011 [P] Create YAML schemas for validation in `specs/001-evaluating-the-explainability-of-llm-bas/contracts/` (dataset, patch, correctness, explainability, statistical)
 - [ ] T012 [P] Implement contract test framework in `tests/contract/` to validate against YAML schemas
 - [ ] T013 [P] Setup environment configuration management and random seed pinning utility in `code/utils/seeding.py` (FR-011)
@@ -87,9 +87,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Implement `code/01_download_data.py` to download Defects4J v2.0 from official GitHub repo (https://github.com/rjust/defects4j/archive/refs/tags/v2.0.0.zip), verify SHA256 checksum against release page, and extract to `data/defects4j/` (FR-001, FR-012)
-- [ ] T020 [US1] Implement `code/02_generate_patches.py` to prompt CodeLlama-7B-Instruct (16-bit CPU precision, temperature=0.7, max_tokens=512) using prompt template from `code/prompts/patch_gen.txt` and output diff format patches AND generate rationale text (FR-002, FR-011)
-- [ ] T021 [US1] Implement `code/03_execute_tests.py` to run Defects4J test suite with 60s timeout per bug and record pass/fail/unsafe status (FR-003, FR-010)
+- [ ] T019 [US1] Implement `code/01_download_data.py` to download Defects4J v2.0 from official GitHub repo (https://github.com/rjust/defects4j/archive/refs/tags/v2.0.0.zip) [UNRESOLVED-CLAIM: c_2c52a1a5 — status=not_enough_info], verify SHA256 checksum against release page, and extract to `data/defects4j/` (FR-001, FR-012)
+- [ ] T020 [US1] Implement `code/02_generate_patches.py` to prompt CodeLlama-7B-Instruct (16-bit CPU precision, temperature=0.7, max_tokens=512) [UNRESOLVED-CLAIM: c_590cf7f8 — status=not_enough_info] using prompt template from `code/prompts/patch_gen.txt` and output diff format patches AND generate rationale text (FR-002, FR-011)
+- [ ] T021 [US1] Implement `code/03_execute_tests.py` to run Defects4J test suite with 60s timeout per bug [UNRESOLVED-CLAIM: c_4766e5d9 — status=not_enough_info] and record pass/fail/unsafe status (FR-003, FR-010)
 - [ ] T022 [US1] Implement error handling for invalid patches, generation failures, and timeouts; log counts to `state/error_log.json`
 - [ ] T023 [US1] Create metadata recorder to save dataset checksums and model revision in `code/model_revision.txt` and `state/metadata.json`
 - [ ] T024 [US1] Implement `code/04_compute_complexity.py` to calculate bug complexity (LOC, cyclomatic) using `radon` library and store in `state/complexity_metrics.json` (Producer for T036, NOT T030)

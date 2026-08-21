@@ -1969,3 +1969,747 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-20T02:20:27Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Distinction between Data Insufficient N_valid=0 and Narrative Fallback
+    N_valid<10
+  claim_id: c_0beb60f6
+  context: 'T014b [S] [US1] Implement code/analysis/valid_pair_counter.py. Task: Read
+    data/processed/extracted_studies.csv and count studies with valid (r, n) pairs.
+    Constraint: This task distinguishes between ''Data Insufficient'' (N_valid = 0)
+    and ''Narrative Fallback'' (N_valid < 10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task T014b distinguishes between 'Data Insufficient' (N_valid = 0)
+    and 'Narrative Fallback' (N_valid < 10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:43:19Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Meta-analysis skip status for N<10
+  claim_id: c_00ece8f3
+  context: 'Gate Logic: MUST read N from data/processed/study_count.json (T014a) at
+    runtime. If N < 10: Set status: ''skipped'', reason: ''Insufficient studies'',
+    and include N in the output.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N < 10, the meta-analysis task must set status to 'skipped' and include
+    the exact reason 'Insufficient studies'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:43:20Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Exact Egger's skip reason string for N<10
+  claim_id: c_a44d150c
+  context: 'Exact Output: {''status'': ''skipped'', ''reason'': ''Insufficient studies'',
+    ''N'': <count>, ''egger_skipped_reason'': ''Skipped: Insufficient studies (N <
+    10) for Egger''s regression''}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The exact output for skipped meta-analysis includes the string ''Skipped:
+    Insufficient studies (N < 10) for Egger''s regression''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:43:20Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Egger's test skip condition N<10
+  claim_id: c_d523a0b0
+  context: 'T021 [S] [US2] Implement code/analysis/bias.py Egger''s linear regression
+    test. Skip Logic: Explicitly SKIP if N (from data/processed/study_count.json)
+    < 10.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Egger's_test_skip_condition_N%3C10
+  kind: magnitude
+  raw_text: Egger's linear regression test is explicitly skipped if the number of
+    studies N is less than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:44:14Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction execution condition N>=10 and k>=2
+  claim_id: c_3533aa2a
+  context: "Decision Logic: 1. Check N: Read N from data/processed/study_count.json\
+    \ (T014a). If N < 10, skip immediately... 2. Check k: If N >= 10, read k (distinct\
+    \ tract count)... 3. Execute ONLY if k \u2265 2 tracts AND N \u2265 10."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_execution_condition_N%3E=10_and_k%3E=2
+  kind: magnitude
+  raw_text: Bonferroni correction is executed only if the number of studies N is greater
+    than or equal to 10 and the number of distinct tracts k is greater than or equal
+    to 2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:45:01Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: "I\xB2 statistic precision two decimal places round half to even"
+  claim_id: c_fbed17bf
+  context: "T021b [S] [US2] Implement code/analysis/heterogeneity.py I\xB2 calculation.\
+    \ Precision Requirement: The output MUST report the I\xB2 statistic with exactly\
+    \ two decimal places (e.g., a precise numerical value) using round half to even\
+    \ rounding as mandated by SC-002 and FR-002."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/I%C2%B2_statistic_precision_two_decimal_places_round_half_to_even
+  kind: entity_fact
+  raw_text: "The I\xB2 statistic must be reported with exactly two decimal places\
+    \ using round half to even rounding."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:45:34Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Mock data T000c-gen 5 distinct tracts 15 studies
+  claim_id: c_02b80eb7
+  context: 'T000c-gen [S] [US1] Generate mock data for Bonferroni Verification (N=15,
+    k=5)... Constraint: Ensure exactly 5 distinct tract names are used across the
+    15 studies to satisfy SC-004.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock data generation task T000c-gen must generate exactly 5 distinct
+    tract names across 15 studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:46:04Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Mock data T000c-gen 15 studies
+  claim_id: c_51e644c9
+  context: 'T000c-gen [S] [US1] Generate mock data for Bonferroni Verification (N=15,
+    k=5): Create code/data/generate_mock_data.py to produce data/raw/mock_studies_bonferroni.csv...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock data generation task T000c-gen generates 15 studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:46:34Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Mock data T000b-gen 15 studies
+  claim_id: c_c7203523
+  context: 'T000b-gen [S] [US1] Generate mock data for Quantitative Testing (N=15):
+    Create code/data/generate_mock_data.py to produce data/raw/mock_studies_quant.csv...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock data generation task T000b-gen generates 15 studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:47:04Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Tract lexicon specific tract names list
+  claim_id: c_07dbaca0
+  context: 'T007c [S] Create tract lexicon... Content: Must include specific tract
+    names (''arcuate fasciculus'', ''cingulum bundle'', ''uncinate fasciculus'', ''inferior
+    longitudinal fasciculus'', ''auditory cortex'', ''ventral striatum'')...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tract_lexicon_specific_tract_names_list
+  kind: entity_fact
+  raw_text: The tract lexicon must include the specific tract names 'arcuate fasciculus',
+    'cingulum bundle', 'uncinate fasciculus', 'inferior longitudinal fasciculus',
+    'auditory cortex', and 'ventral striatum'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:47:41Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Plot regenerator T027d max 2 retries
+  claim_id: c_35209e3d
+  context: 'T027d [S] [US3] Implement code/visualization/regenerator.py... Constraint:
+    Max retries = 2. If validation still fails after 2 retries, raise an exception...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plot regenerator task T027d has a maximum of 2 retries before raising
+    an exception.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:48:01Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Plot regenerator T027d DPI 100 compression 6
+  claim_id: c_2cef3e1f
+  context: 'Task: Read data/derived/validation_report.json (from T031). If overall_status
+    is ''fail'', regenerate the specific failed plot(s) with DPI=100 and compression=6.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plot regenerator task T027d uses DPI=100 and compression=6 during
+    retry.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:48:31Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: "Unit test I\xB2 precision two decimal places"
+  claim_id: c_00886253
+  context: "T019 [P] [US2] Unit test for I\xB2 calculation in tests/unit/test_heterogeneity.py\
+    \ (verify precision to exactly two decimal places as required by SC-002, e.g.,\
+    \ 52.34)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_I%C2%B2_precision_two_decimal_places
+  kind: entity_fact
+  raw_text: "The unit test for I\xB2 calculation must verify precision to exactly\
+    \ two decimal places."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:49:34Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Unit test Egger's exact skip string
+  claim_id: c_cace6e0a
+  context: 'T020 [P] [US2] Unit test for Egger''s regression in tests/unit/test_bias.py
+    (verify p-value calculation and N < 10 skip logic; verify egger_skipped_reason
+    output matches exact string: ''Skipped: Insufficient studies (N < 10) for Egger''s
+    regression'')'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The unit test for Egger''s regression must verify the exact skip string
+    ''Skipped: Insufficient studies (N < 10) for Egger''s regression''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:49:34Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Integration test plot generation peak memory < 6GB
+  claim_id: c_da3c8b96
+  context: T025 [P] [US3] Integration test for plot generation in tests/integration/test_plots.py
+    (verify file existence, size < 5MB, peak memory < 6GB using tracemalloc, and correct
+    axis labels).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Integration_test_plot_generation_peak_memory_%3C_6GB
+  kind: magnitude
+  raw_text: The integration test for plot generation must verify peak memory is less
+    than 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:50:05Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Integration test plot generation file size < 5MB
+  claim_id: c_6cf0d7b2
+  context: T025 [P] [US3] Integration test for plot generation in tests/integration/test_plots.py
+    (verify file existence, size < 5MB, peak memory < 6GB using tracemalloc, and correct
+    axis labels).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Integration_test_plot_generation_file_size_%3C_5MB
+  kind: magnitude
+  raw_text: The integration test for plot generation must verify file size is less
+    than 5MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:50:29Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Profile report T034a runtime < 15 mins
+  claim_id: c_89afc46c
+  context: T034a [P] Profile total runtime and ensure <15 mins on CI; optimize bottlenecks
+    if exceeded; save report to data/logs/profile_report.md.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Profile_report_T034a_runtime_%3C_15_mins
+  kind: magnitude
+  raw_text: The profile report task T034a must ensure total runtime is less than 15
+    minutes on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:50:42Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Narrative summary T015c N=0 Data Insufficient disclaimer
+  claim_id: c_b930dbcb
+  context: 'CRITICAL: For N=0, the system must NOT attempt a ''narrative synthesis''
+    (which implies content aggregation). Instead, it must output a ''Data Insufficient''
+    report stating ''No studies found to perform analysis''. Constraint: Must explicitly
+    include a ''Data Insufficient'' disclaimer and the ''Systematic Review Fallback''
+    structure as mandated by Constitution Principle VII.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The narrative summary task T015c must include a 'Data Insufficient' disclaimer
+    and the 'Systematic Review Fallback' structure for N=0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:51:11Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: I-squared statistic reported with exactly two decimal places using round
+    half to even
+  claim_id: c_da4c8645
+  context: "T021b [S] [US2] Implement code/analysis/heterogeneity.py I\xB2 calculation.\
+    \ Precision Requirement: The output MUST report the I\xB2 statistic with exactly\
+    \ two decimal places (e.g., a precise numerical value) using round half to even\
+    \ rounding as mandated by SC-002 and FR-002."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/I-squared_statistic_reported_with_exactly_two_decimal_places
+  kind: entity_fact
+  raw_text: "The output MUST report the I\xB2 statistic with exactly two decimal places\
+    \ using round half to even rounding."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:53:15Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Meta-analysis status skipped if N less than 10
+  claim_id: c_7d02735b
+  context: 'T014 [S] [US1] ... If N < 10: Set status: skipped, reason: Insufficient
+    studies, and include N in the output. CRITICAL: If N < 10, this task MUST explicitly
+    set status: skipped to signal the orchestrator (T016) to invoke T015b immediately.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Meta-analysis_status_skipped_if_N_less_than_10
+  kind: magnitude
+  raw_text: 'If N < 10, the system must explicitly set status: skipped to signal the
+    orchestrator to invoke narrative synthesis.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:54:05Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Egger's regression skip reason string for N less than 10
+  claim_id: c_98fe644c
+  context: 'T021 [S] [US2] ... If N < 10 or meta_status.status is skipped, output
+    the exact string egger_skipped_reason: Skipped: Insufficient studies (N < 10)
+    for Egger''s regression as a runtime value in the result JSON.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Egger's_regression_skip_reason_string_for_N_less_than_10
+  kind: magnitude
+  raw_text: 'If N < 10, the exact output string for the skipped reason is Skipped:
+    Insufficient studies (N < 10) for Egger''s regression.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:55:12Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Bonferroni mock data contains 5 distinct tracts across 15 studies
+  claim_id: c_6168a31f
+  context: 'T000c-gen [S] [US1] Generate mock data for Bonferroni Verification (N=15,
+    k=5): ... Constraint: Ensure exactly 5 distinct tract names are used across the
+    15 studies to satisfy SC-004.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock data for Bonferroni verification must contain exactly 5 distinct
+    tract names across 15 studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:55:38Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Fallback mock data contains 5 studies
+  claim_id: c_d974d105
+  context: 'T000-gen [S] [US1] Generate mock data for Fallback Testing (N=5): Create
+    code/data/generate_mock_data.py to produce data/raw/mock_studies_fallback.csv
+    with synthetic studies...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock data for fallback testing must contain 5 synthetic studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:56:03Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Quantitative mock data contains 15 studies
+  claim_id: c_5f049668
+  context: 'T000b-gen [S] [US1] Generate mock data for Quantitative Testing (N=15):
+    Create code/data/generate_mock_data.py to produce data/raw/mock_studies_quant.csv
+    with a set of synthetic studies...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock data for quantitative testing must contain 15 synthetic studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:56:43Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Fallback mock data generation uses random seed 42
+  claim_id: c_2e198e30
+  context: 'T000-gen [S] [US1] ... Logic: Read the random seed from code/config/config.yaml
+    (default value 42). Constraint: If code/config/config.yaml is missing, use default
+    seed 42...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for fallback testing mock data generation is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:57:14Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Quantitative mock data generation uses random seed 43
+  claim_id: c_e3546d20
+  context: 'T000b-gen [S] [US1] ... Logic: Read the random seed from code/config/config.yaml
+    (default value 43). Constraint: If code/config/config.yaml is missing, use default
+    seed 43...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for quantitative testing mock data generation is 43.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:57:52Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Bonferroni mock data generation uses random seed 44
+  claim_id: c_7a46361a
+  context: 'T000c-gen [S] [US1] ... Logic: Use seed 44. Constraint: If code/config/config.yaml
+    is missing, use default seed 44...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for Bonferroni verification mock data generation is 44.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:58:22Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Tract lexicon includes specific set of 6 tract names
+  claim_id: c_59757316
+  context: 'T007c [S] Create tract lexicon: ... Content: Must include specific tract
+    names (arcuate fasciculus, cingulum bundle, uncinate fasciculus, inferior longitudinal
+    fasciculus, auditory cortex, ventral striatum)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The tract lexicon must include the tract names arcuate fasciculus, cingulum
+    bundle, uncinate fasciculus, inferior longitudinal fasciculus, auditory cortex,
+    and ventral striatum.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:58:22Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Tract lexicon includes specific set of 4 directional verbs
+  claim_id: c_92f42a33
+  context: 'T007c [S] Create tract lexicon: ... Content: Must include specific tract
+    names ... and directional verbs (increased, decreased, correlated, associated
+    with).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The tract lexicon must include the directional verbs increased, decreased,
+    correlated, and associated with.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:58:23Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Meta-analysis output includes i-squared and egger-p if N greater than
+    or equal to 10
+  claim_id: c_42f08a42
+  context: 'T014 [S] [US1] ... If N >= 10: Set status: completed, run model, and output
+    data/derived/results.json (which MUST include i_squared and egger_p if N>=10).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Meta-analysis_output_includes_i-squared_and_egger-p_if_N_gre
+  kind: magnitude
+  raw_text: The meta-analysis task must include i_squared and egger_p fields in the
+    output if N is greater than or equal to 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:59:26Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Maximum plot regeneration retries is 2
+  claim_id: c_4b5e5069
+  context: 'T027d [S] [US3] ... Constraint: Max retries = 2. If validation still fails
+    after 2 retries, raise an exception...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of retries for plot regeneration is 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T06:59:58Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Plot regeneration uses DPI 100 and compression 6
+  claim_id: c_1406f4e3
+  context: T027d [S] [US3] ... regenerate the specific failed plot(s) with DPI=100
+    and compression=6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Plot regeneration must use DPI=100 and compression=6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:00:28Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Plot validation fails if file size exceeds 5MB
+  claim_id: c_b6aa8441
+  context: T031 [P] [US3] Implement file size validation logic ... Add a function
+    to verify generated PNGs are < 5MB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_validation_fails_if_file_size_exceeds_5MB
+  kind: entity_fact
+  raw_text: Plot validation must fail if the file size exceeds 5MB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:01:11Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Plot regeneration retry triggered if memory exceeds 6GB or file size
+    exceeds 5MB
+  claim_id: c_70bfb3d9
+  context: 'T027d [S] [US3] ... Trigger Condition: Retry only if memory > 6GB or file
+    size > 5MB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_regeneration_retry_triggered_if_memory_exceeds_6GB_or_f
+  kind: entity_fact
+  raw_text: Plot regeneration retry is triggered only if memory exceeds 6GB or file
+    size exceeds 5MB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:01:53Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Total runtime less than 15 minutes on CI
+  claim_id: c_3848db8a
+  context: T034a [P] Profile total runtime and ensure <15 mins on CI; optimize bottlenecks
+    if exceeded...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_less_than_15_minutes_on_CI
+  kind: magnitude
+  raw_text: The total runtime must be less than 15 minutes on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:02:14Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Meta-analysis weighted mean verified within 0.001 tolerance
+  claim_id: c_e7d01711
+  context: T011 [P] [US1] Unit test for meta-analysis calculation ... (verify weighted
+    mean within 0.001 tolerance).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unit test for meta-analysis calculation must verify the weighted mean
+    within 0.001 tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:02:44Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: I-squared calculation verified to exactly two decimal places
+  claim_id: c_f5c4e4ef
+  context: "T019 [P] [US2] Unit test for I\xB2 calculation ... (verify precision to\
+    \ exactly two decimal places as required by SC-002, e.g., 52.34)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/I-squared_calculation_verified_to_exactly_two_decimal_places
+  kind: entity_fact
+  raw_text: "The unit test for I\xB2 calculation must verify precision to exactly\
+    \ two decimal places."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:02:48Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Plot generation peak memory usage less than 6GB
+  claim_id: c_bf5484b8
+  context: T025 [P] [US3] Integration test for plot generation ... (verify file existence,
+    size < 5MB, peak memory < 6GB using tracemalloc, and correct axis labels).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Plot_generation_peak_memory_usage_less_than_6GB
+  kind: magnitude
+  raw_text: The integration test for plot generation must verify peak memory usage
+    is less than 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:03:18Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction skipped if N less than 10
+  claim_id: c_da4e06b1
+  context: 'T022 [S] [US2] ... 1. Check N: Read N from data/processed/study_count.json
+    (T014a). If N < 10, skip immediately, log Bonferroni skipped: N < 10, and set
+    bonferroni_applied: false...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_skipped_if_N_less_than_10
+  kind: magnitude
+  raw_text: If N is less than 10, the Bonferroni correction task must skip immediately
+    and set bonferroni_applied to false.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:04:23Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction executed if k greater than or equal to 2 and N
+    greater than or equal to 10
+  claim_id: c_353ab8aa
+  context: "T022 [S] [US2] ... 3. Execute ONLY if k \u2265 2 tracts AND N \u2265 10."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_executed_if_k_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: Bonferroni correction is executed only if the number of distinct tracts
+    (k) is greater than or equal to 2 and N is greater than or equal to 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:04:43Z'

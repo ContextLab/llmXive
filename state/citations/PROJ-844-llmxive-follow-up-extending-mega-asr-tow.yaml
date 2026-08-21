@@ -1,4 +1,4 @@
-- artifact_hash: 4643baec9e66548ca5c00d70fd1b34999e23d24ff1e012f4b73649a516a2570c
+- artifact_hash: aee9c166d8cc58280fda872c9c557ddc5bb6291c720f2cc51f05415b3720ed46
   artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q801455
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q801455
-  verified_at: '2026-08-13T23:57:16.805539Z'
+  verified_at: '2026-08-21T07:11:20.842884Z'

@@ -30,13 +30,14 @@ T009:
     \ handling the mock\u2011data fallback path. Moreover, the required `data/raw/studies.csv`\
     \ does not exist, so there is no evidence that the adapter actually creates it.\
     \ The implementation therefore does not satisfy the task\u2019s requirements."
-T009b:
+T014:
   c: false
-  h: 196b05077c5e3e081d41e1ecab5e54d3836e471ecc30e10e482fdb9a469ea5a4
-  r: 'The validator script exists, but it writes a JSON with extra fields (`threshold_met`,
-    `error`) and the required `data/processed/real_data_status.json` file is not present.
-    The output does not match the exact spec of `{"valid": true/false, "n": <count>}`
-    and the status file is missing, so the task is not fully satisfied.'
+  h: 10e53249fdba4fcd788feb873398447bff21129c0569de6402fe56501360c92d
+  r: "The `meta_analysis.py` file is truncated (e.g., incomplete `run_random_effects_model`\
+    \ definition, missing `import csv`, and no visible logic that actually reads the\
+    \ study count at runtime). Moreover, the required `data/processed/study_count.json`\
+    \ file does not exist, so the gate\u2011logic cannot be satisfied. The implementation\
+    \ therefore does not meet the task\u2019s specifications."
 T014a:
   c: false
   h: 0ac75a41101dd63ec690247cf463efc42e2871caaf53b0a98463cb91e76a2a6b

@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Defects4J Dataset Schema
+description: Schema for the raw Defects4J dataset entries loaded into the pipeline.
+type: object
+required:
+  - bug_id
+  - project_name
+  - version
+  - file_path
+  - test_suite
+  - reference_text
+properties:
+  bug_id:
+    type: string
+    description: Unique identifier for the bug (e.g., "Lang-1").
+  project_name:
+    type: string
+    description: Name of the Defects4J project (e.g., "Lang").
+  version:
+    type: string
+    description: Version of the project (e.g., "1.0").
+  file_path:
+    type: string
+    description: Path to the buggy file within the project repository.
+  test_suite:
+    type: array
+    items:
+      type: string
+    description: List of test class/method names associated with this bug.
+  reference_text:
+    type: string
+    description: The original source code of the buggy file (or a relevant snippet).
+additionalProperties: false

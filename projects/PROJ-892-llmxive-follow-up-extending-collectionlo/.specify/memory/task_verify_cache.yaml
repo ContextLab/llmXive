@@ -24,12 +24,12 @@ T011:
     \ requirement is not satisfied."
 T014:
   c: false
-  h: ef8950f247f2a372d7ff1af6c8d86d1362788c17fb778697763372b1d8757158
-  r: "The repository contains a `code/main.py` file, but it does not include any code\
-    \ that writes the `results.csv` file (the snippet ends before any CSV\u2011writing\
-    \ logic) and the required `data/results.csv` file is absent from the project.\
-    \ Consequently the task\u2019s core requirement\u2014producing a CSV with the\
-    \ specified schema and saving the generated images\u2014is not satisfied."
+  h: 0c11daf40c76363cf478b4bc2f403478844261c7b7ef7057d7d9917a5e592b28
+  r: "The repository contains a `code/main.py` file, but it is truncated and never\
+    \ reaches the part where results are written to `data/results.csv` or images are\
+    \ saved to `data/generated/`. Moreover, the required `data/results.csv` file is\
+    \ absent. Consequently, the task\u2019s core deliverables\u2014producing the CSV\
+    \ with the specified schema and persisting generated images\u2014are not satisfied."
 T016:
   c: false
   h: e9b395355f3cff5201fa622080558e7e25ed2f9a949b8b4daea0c7db370f6dc4
@@ -39,15 +39,14 @@ T016:
     \ quantized adapter files `data/quantized/adapter_int8.safetensors` and `data/quantized/adapter_int4.safetensors`\
     \ are absent. The task\u2019s core functionality and output artifacts are therefore\
     \ missing."
-T020:
+T023:
   c: false
-  h: ef8950f247f2a372d7ff1af6c8d86d1362788c17fb778697763372b1d8757158
-  r: The repository lacks the required `data/results.csv` file, so the script cannot
-    append results as specified. Moreover, the provided `code/main.py` excerpt is
-    truncated and does not show the implementation of quantized generation, delta
-    computation, or the full MemoryError handling loop required by the task. Both
-    the missing output file and the incomplete script mean the task requirements are
-    not met.
+  h: d9465f644409560bf42e064caf576b3bb5ec20104361c1ac5b60d75a3cd5ae08
+  r: "The repository lacks the required `data/results.csv` file, so the script cannot\
+    \ load the data, and the provided `statistical_analysis.py` does not contain any\
+    \ function that creates the specified DataFrame with columns `effect_id`, `similarity_score`,\
+    \ `quantization_level`, `seed` nor extracts an explicit \u2018Effect\u2019 grouping\
+    \ variable. Both the input data and the required output structure are missing."
 T034a:
   c: true
   h: c3be1272d452d3996291a631b353d7ef1fb1d8c07f640ae0acbb55490c1bbe60

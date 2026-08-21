@@ -2,53 +2,36 @@ import os
 import sys
 from pathlib import Path
 
-# Define the project root relative to this file's location or current working directory
-# Assuming this script runs from the project root or we calculate root from script location
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
-
-# Directories to create
-DIRECTORIES_TO_CREATE = [
-    "explanations",
-    "state",
-    "tests",
-]
-
-def ensure_directory(dir_path: Path) -> bool:
+def ensure_directory(path_str: str) -> None:
     """
-    Creates a directory if it does not exist.
-    Returns True if successful, False otherwise.
+    Create a directory and its parents if they do not exist.
+    Prints a confirmation message if the directory was created.
     """
-    try:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        return True
-    except OSError as e:
-        print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
-        return False
+    path = Path(path_str)
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {path}")
+    else:
+        print(f"Directory already exists: {path}")
 
-def main():
+def main() -> None:
     """
     Main entry point to create required project directories.
+    Specifically targets the directories required for T003:
+    explanations/, state/, and tests/.
     """
-    print(f"Project root identified at: {PROJECT_ROOT}")
-    created_count = 0
-    failed_count = 0
+    # Define the directories to create based on T003 requirements
+    directories = [
+        "explanations",
+        "state",
+        "tests"
+    ]
 
-    for dir_name in DIRECTORIES_TO_CREATE:
-        target_path = PROJECT_ROOT / dir_name
-        if ensure_directory(target_path):
-            print(f"Created directory: {target_path}")
-            created_count += 1
-        else:
-            failed_count += 1
+    # Ensure they are created relative to the project root
+    for dir_path in directories:
+        ensure_directory(dir_path)
 
-    print(f"Directory creation summary: {created_count} created, {failed_count} failed.")
-
-    if failed_count > 0:
-        sys.exit(1)
-    else:
-        print("All required directories successfully created.")
-        sys.exit(0)
+    print("Directory setup complete.")
 
 if __name__ == "__main__":
     main()

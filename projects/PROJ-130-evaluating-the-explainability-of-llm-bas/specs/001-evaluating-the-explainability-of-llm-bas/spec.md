@@ -1,160 +1,152 @@
 # Specification: Evaluating the Explainability of LLM-Based Bug Fixes
 
-## 1. Introduction
+## Overview
+This project evaluates the correlation between the explainability of LLM-generated bug fixes and their correctness. We use the Defects4J dataset to generate patches, assess correctness, and compute explainability metrics (attention, saliency, and internal coherence).
 
-This project evaluates the explainability of Large Language Model (LLM) generated bug fixes using the Defects4J dataset. We analyze three dimensions: Attention-based heatmaps, Integrated Gradients saliency, and internal coherence of generated rationales.
-
-## 2. User Stories
+## User Stories
 
 ### US-1: Generate Patches and Assess Correctness
-**As a** researcher,
-**I want** to generate bug fixes using CodeLlama-7B-Instruct and validate them against the Defects4J test suites,
-**So that** I have a ground-truth labeled dataset of correct vs. incorrect LLM patches.
+**Goal**: Download Defects4J, generate patches using CodeLlama-7B-Instruct, and determine correctness via test suite execution.
 
-**Acceptance Criteria:**
-1. System downloads Defects4J v2.0 and extracts to `data/defects4j/`.
-2. System generates patches and rationale text for each bug.
-3. System executes test suites and records pass/fail/unsafe status.
-4. Output includes `state/correctness_labels.json`.
+**Acceptance Criteria**:
+1. Defects4J v2.0 is downloaded and extracted to `data/defects4j/`.
+2. Patches are generated for each bug using the specified prompt template.
+3. Correctness labels (pass/fail/unsafe) are recorded for each patch.
+4. Complexity metrics (LOC, cyclomatic) are computed and stored.
 
 ### US-2: Extract Explainability Scores
-**As a** researcher,
-**I want** to compute attention weights, saliency maps, and coherence scores for generated patches,
-**So that** I can quantify how well the model's internal mechanisms align with the code changes and its own explanations.
+**Goal**: Compute attention weights, Integrated Gradients saliency, and rationale coherence scores.
 
-**Acceptance Criteria:**
-1. System extracts attention weights from the last decoder layer.
-2. System computes Integrated Gradients saliency for tokenized diffs.
-3. System computes the internal coherence of generated rationales against the code change semantics using cosine similarity.
-4. Output includes `explanations/<bug-id>_metadata.json` containing `attention_score`, `saliency_score`, and `coherence_score`.
+**Acceptance Criteria**:
+1. Attention heatmaps are extracted and saved as images.
+2. Saliency magnitudes are computed and saved as numpy arrays.
+3. Rationale coherence scores are computed using semantic similarity.
+4. All explainability artifacts are saved in the `explanations/` directory.
 
-**Acceptance Scenario 3 (Coherence):**
-Given a generated patch and its rationale text:
-1. The system encodes the rationale and the diff content using `sentence-transformers/all-MiniLM-L6-v2`.
-2. The system calculates the cosine similarity between the two vectors.
-3. The system records `coherence_score` (a float between 0 and 1) in the metadata file.
-4. If the rationale is missing, the system records `coherence_score` as `null` and logs the event.
+**Acceptance Scenario 3**:
+Given a generated patch with rationale text:
+1. The system computes the cosine similarity between the rationale embedding and the code change embedding.
+2. The system outputs a `coherence_score` (float) in the range [0, 1].
+3. If the rationale is missing, the score is recorded as `null`.
 
 ### US-3: Statistical Analysis and Correlation Testing
-**As a** researcher,
-**I want** to correlate explainability scores with patch correctness,
-**So that** I can determine if higher explainability metrics predict correct bug fixes.
+**Goal**: Compute correlations, fit logistic regression models, and perform paired t-tests.
 
-**Acceptance Criteria:**
-1. System computes point-biserial correlations.
-2. System fits logistic regression models and computes AUC-ROC.
-3. System performs paired t-tests with Bonferroni correction.
-4. Output includes `state/statistical_results.json`.
+**Acceptance Criteria**:
+1. Point-biserial correlations between scores and correctness are computed.
+2. Logistic regression models predict correctness from scores.
+3. Paired t-tests with Bonferroni correction are performed.
+4. Results are saved to `state/statistical_results.json`.
 
-## 3. Functional Requirements
+## Functional Requirements
 
-### FR-001: Data Ingestion
-The system must download Defects4J v2.0 from the official GitHub repository, verify the SHA256 checksum, and extract it to `data/defects4j/`.
+### FR-001: Data Download
+The system shall download Defects4J v2.0 from the official GitHub repository and verify the SHA256 checksum.
 
 ### FR-002: Patch Generation
-The system must use CodeLlama-7B-Instruct (16-bit precision, temperature=0.7) to generate patches and rationale text.
+The system shall generate patches using CodeLlama-7B-Instruct with temperature=0.7 and max_tokens=512.
 
 ### FR-003: Test Execution
-The system must execute the Defects4J test suite with a 60s timeout per bug to determine correctness.
+The system shall run the Defects4J test suite with a 60s timeout per bug.
 
 ### FR-004: Attention Extraction
-The system must extract per-token attention weights from the last decoder layer.
+The system shall extract per-token attention weights from the last decoder layer.
 
 ### FR-005: Saliency Computation
-The system must apply Captum's Integrated Gradients to compute saliency magnitude.
+The system shall apply Integrated Gradients to compute saliency magnitudes.
 
-### FR-006-REV: Internal Coherence (Replaces FR-006)
-The system must compute the internal coherence of generated rationales against code change semantics using semantic similarity (cosine similarity).
-- **Metric**: Cosine Similarity between the embedding of the rationale text and the embedding of the diff content.
-- **Model**: `sentence-transformers/all-MiniLM-L6-v2`.
-- **Threshold**: A `coherence_score` >= 0.6 indicates valid coherence.
-- **Handling**: Missing rationales result in a `null` score and a log entry.
-- **Note**: This requirement overrides the previous FR-006 which specified BLEU/ROUGE metrics, as BLEU/ROUGE are unsuitable for evaluating semantic coherence of free-text rationales.
+### FR-006-REV: Internal Coherence
+The system shall compute the internal coherence of generated rationales using cosine similarity with `sentence-transformers/all-MiniLM-L6-v2`.
+- **Metric**: Cosine similarity between rationale embedding and code change embedding.
+- **Threshold**: A coherence score >= 0.6 is considered valid.
+- **Range**: Expected range is [0, 1].
+- **Handling Missing Data**: If rationale text is missing, `coherence_score` is recorded as `null`.
 
 ### FR-007: Correlation Analysis
-The system must compute point-biserial correlations between explainability scores and correctness labels.
+The system shall compute point-biserial correlations between explainability scores and correctness.
 
-### FR-008: Predictive Modeling
-The system must fit logistic regression models to predict correctness from explainability scores.
+### FR-008: Logistic Regression
+The system shall fit logistic regression models to predict correctness from scores.
 
-### FR-009: Statistical Significance
-The system must perform paired t-tests with Bonferroni correction.
+### FR-009: Statistical Testing
+The system shall perform paired t-tests with Bonferroni correction (α_corrected = 0.0083).
 
 ### FR-010: Timeout Handling
-The system must handle test execution timeouts as "unsafe" or "inconclusive" states.
+The system shall handle test execution timeouts gracefully.
 
-### FR-011: Reproducibility
-The system must pin random seeds and record model revisions.
+### FR-011: Random Seed Pinning
+The system shall pin random seeds for reproducibility.
 
-### FR-012: Integrity Verification
-The system must verify dataset integrity via checksums.
+### FR-012: Checksum Verification
+The system shall verify SHA256 checksums for downloaded data.
 
-## 4. Scenarios
+## Scenarios
 
-### SC-001: Dataset Download
-Given a clean environment, when the download script runs, then `data/defects4j/` contains the extracted dataset and the checksum matches the release page.
+### SC-001: Data Download
+Given a network connection, the system downloads Defects4J v2.0 and verifies the checksum.
 
 ### SC-002: Patch Generation
-Given a bug from Defects4J, when the generation script runs, then a patch file and rationale text are saved.
+Given a bug from Defects4J, the system generates a patch and rationale.
 
-### SC-003: Correctness Labeling
-Given a patch, when the test execution script runs, then the output contains `pass`, `fail`, or `unsafe`.
+### SC-003: Correctness Assessment
+Given a patch, the system runs the test suite and records the result.
 
-### SC-004: Attention Heatmap
-Given a generated patch, when the attention extraction script runs, then a heatmap image is saved.
+### SC-004: Attention Extraction
+Given a generated patch, the system extracts attention weights.
 
-### SC-005: Saliency Map
-Given a generated patch, when the saliency script runs, then a saliency magnitude value is recorded.
+### SC-005: Saliency Computation
+Given a generated patch, the system computes saliency magnitudes.
 
-### SC-006: Coherence Calculation
-Given a rationale and a diff, when the coherence script runs, then a `coherence_score` between 0 and 1 is recorded.
+### SC-006: Coherence Scoring
+Given a rationale and code change, the system computes the cosine similarity score.
 
-### SC-007: Coherence Score Range Definition
-The `coherence_score` is defined as the cosine similarity between two vectors.
-- **Expected Range**: [0, 1] (after normalization, though raw cosine similarity is [-1, 1], the context of semantic similarity for this task implies positive alignment is expected; however, the raw metric is cosine similarity).
-- **Clarification**: The raw output of `cosine_similarity` from `scikit-learn` or `sentence-transformers` is in the range [-1, 1]. For the purpose of this study, scores in the range [0, 1] indicate positive semantic alignment, while negative scores indicate dissimilarity. The acceptance threshold of 0.6 specifically targets strong positive alignment.
-- **Output Format**: The `coherence_score` in `metadata.json` will be a float representing the raw cosine similarity value.
+### SC-007: Coherence Score Range
+Given a computed coherence score, the value must be in the range [0, 1].
+- **Definition**: Cosine similarity between two normalized vectors is always in [-1, 1], but for semantic similarity of text embeddings, values are typically in [0, 1] after ReLU or similar processing. The system expects values in [0, 1].
 
-## 5. Data Model
+## Data Model
 
 ### Bug
-- `id`: string (Defects4J bug ID, e.g., "Lang-1")
-- `file_path`: string
-- `test_suite`: list of strings
-- `reference_text`: string (optional, ground truth)
+- id: str
+- file_path: str
+- test_suite: str
+- reference_text: str
 
 ### Patch
-- `id`: string
-- `bug_id`: string
-- `diff_content`: string
-- `rationale_text`: string
+- id: str
+- bug_id: str
+- diff_content: str
+- rationale_text: str
 
 ### CorrectnessLabel
-- `bug_id`: string
-- `pass_fail`: boolean (or "pass"/"fail"/"unsafe")
-- `unsafe_flag`: boolean
+- bug_id: str
+- pass_fail: bool
+- unsafe_flag: bool
 
 ### ExplainabilityScore
-- `bug_id`: string
-- `attention_score`: float (aggregated)
-- `saliency_score`: float
-- `coherence_score`: float | null
+- bug_id: str
+- attention_score: float
+- saliency_score: float
+- coherence_score: float | null
 
 ### StatisticalResult
-- `correlation_coeff`: float
-- `auc_roc`: float
-- `p_value`: float
+- correlation_coeff: float
+- auc_roc: float
+- p_value: float
 
-## 6. Non-Functional Requirements
+## Non-Functional Requirements
 
-### NFR-001: Performance
-Test execution must complete within 60 seconds per bug.
+### NFR-001: Reproducibility
+The system must be reproducible with pinned random seeds.
 
-### NFR-002: Reliability
-The system must handle missing rationales gracefully (log and continue).
+### NFR-002: Performance
+The system must handle test execution within 60s per bug.
 
-### NFR-003: Reproducibility
-All random seeds must be pinned; model revisions must be recorded.
+### NFR-003: Accuracy
+The system must use verified real data sources (Defects4J).
 
-### NFR-004: Resource Constraints
-CodeLlama-7B-Instruct must run in 16-bit precision on CPU.
+## Limitations
+
+- CodeLlama-7B-Instruct runs in 16-bit precision on CPU.
+- Sample size may be limited by computational resources.
+- Coherence scores are based on semantic similarity, which may not perfectly capture human judgment.
