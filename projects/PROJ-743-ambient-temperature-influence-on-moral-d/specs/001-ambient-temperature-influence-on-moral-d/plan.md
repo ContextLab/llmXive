@@ -14,7 +14,7 @@ This feature implements a statistical analysis pipeline to investigate the corre
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels` (for mixed-effects), `cdsapi` (for ERA5), `geopy`, `pyarrow` (for parquet), `matplotlib`, `seaborn`, `requests`.  
 **Storage**: Local file system (`data/raw/`, `data/processed/`, `results/`). Parquet for intermediate merged data.  
 **Testing**: `pytest` with `pytest-cov` for code coverage; unit tests for data matching logic.  
@@ -33,7 +33,7 @@ This feature implements a statistical analysis pipeline to investigate the corre
 | Principle | Status | Evidence/Action |
 | :--- | :--- | :--- |
 | **I. Reproducibility** | ✅ Pass | `requirements.txt` pins all versions; random seeds set in `code/`; data fetched from canonical CDS API (ERA5) and Moral Machine. |
-| **II. Verified Accuracy** | ✅ Pass | Dataset URLs and API endpoints verified; ERA5 source covers the 2014-2018 Moral Machine period, resolving temporal mismatch. |
+| **II. Verified Accuracy** | ✅ Pass | Dataset URLs and API endpoints verified; ERA source covers the 2014-2018 Moral Machine period, resolving temporal mismatch. |
 | **III. Data Hygiene** | ✅ Pass | Checksums recorded in `state/`; raw data immutable; derived files in `data/processed/`; PII scan in CI. |
 | **IV. Single Source of Truth** | ✅ Pass | All stats trace to `results/stats/` JSON/CSV; figures trace to `results/figures/`. |
 | **V. Versioning** | ✅ Pass | Artifacts hashed; `state` updated on change. |
@@ -102,6 +102,6 @@ tests/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
 | **Mixed-Effects Model** | Participant ID is a random effect to account for repeated measures. | Simple OLS would ignore clustering, inflating Type I error. |
-| **Streaming ERA5** | Full ERA dataset exceeds RAM (7GB). | Downloading full dataset to disk would fail on CI runner; streaming is required. |
+| **Streaming ERA5** | Full ERA dataset exceeds RAM (GB). | Downloading full dataset to disk would fail on CI runner; streaming is required. |
 | **Log-transformation** | Response times are highly skewed. | Raw response times violate normality assumptions of LMM. |
 | **CDS API Fetch** | Requires specific 2014-2018 data. | Static datasets (e.g., WorldClim) lack temporal validity for instantaneous arousal. |

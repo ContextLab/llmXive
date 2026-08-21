@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-743-ambient-temperature-influence-on-moral-d
-last_run_id: 45ae00c0-9ca2-4026-8b2c-f548040611a8
+last_run_id: 97df1c68-2aa3-4eda-94b9-76cf4d162c01
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d
 title: Ambient Temperature Influence on Moral Decision Speed
-updated_at: '2026-08-19T22:19:34.904907Z'
+updated_at: '2026-08-21T23:01:25.453825Z'

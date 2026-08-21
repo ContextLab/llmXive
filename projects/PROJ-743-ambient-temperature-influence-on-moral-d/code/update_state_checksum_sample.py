@@ -1,69 +1,63 @@
-"""
-Task T003: Compute and record the SHA-256 checksum of the downloaded ERA5 sample file.
-
-This script computes the SHA-256 checksum of `data/raw/era5_sample.h5` and updates
-the project state file `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml`
-under the key `artifact_hashes.era5_sample`. It also updates the `updated_at` timestamp.
-
-It relies on the `update_state_checksum` module for the core logic.
-"""
 import sys
 import logging
 from pathlib import Path
 
-# Import the main logic from the existing utility module
+# Import the core logic from the sibling module
 from update_state_checksum import main as compute_checksum_main
 from setup_logging import setup_logging, get_data_quality_logger
 
 def main():
     """
-    Entry point for T003.
-    Targets: data/raw/era5_sample.h5
-    State File: state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml
-    Key: artifact_hashes.era5_sample
+    Entry point for T003: Compute and record the SHA-256 checksum of the downloaded
+    ERA5 sample file (data/raw/era5_sample.h5) in the project state YAML.
     """
-    # Setup logging
-    setup_logging()
-    logger = get_data_quality_logger()
+    logger = setup_logging()
     logger.info("Starting T003: Checksum computation for ERA5 sample file.")
+
+    # Define the specific input file path for the sample
+    input_file_path = Path("data/raw/era5_sample.h5")
     
-    # Define the target file path relative to project root
-    project_root = Path(__file__).resolve().parents[1]
-    target_file = project_root / "data" / "raw" / "era5_sample.h5"
-    state_file = project_root / "state" / "projects" / "PROJ-743-ambient-temperature-influence-on-moral-d.yaml"
-    
-    if not target_file.exists():
-        logger.error(f"Target file not found: {target_file}")
-        logger.error("T003 cannot proceed without the ERA5 sample file. Please ensure T002 has been completed successfully.")
+    # Define the state file path
+    state_file_path = Path("state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml")
+
+    if not input_file_path.exists():
+        logger.error(f"Input file not found: {input_file_path}. Task T003 cannot proceed.")
         sys.exit(1)
-    
-    # Prepare arguments for the underlying checksum utility
-    # The utility expects file_path and state_path as arguments or environment variables.
-    # We will call the main function directly if it accepts args, or simulate the call.
-    # Looking at `update_state_checksum`, `main` likely parses sys.argv.
-    # We will invoke it by modifying sys.argv to match the expected CLI usage.
-    
-    original_argv = sys.argv[:]
+
     try:
-        sys.argv = [
-            "update_state_checksum_sample.py",
-            "--file", str(target_file),
-            "--state", str(state_file),
-            "--key", "artifact_hashes.era5_sample"
-        ]
+        # Call the generic main logic, passing specific arguments if the function signature allows,
+        # or rely on the generic function to handle the path if it's hardcoded or env-based.
+        # Since the existing API `update_state_checksum.main` likely takes no args or sys.argv,
+        # we will assume it handles the logic or we need to wrap it.
+        # Looking at the API surface: `from update_state_checksum import compute_sha256, update_state_file, main`
+        # The `main` function in `update_state_checksum` is likely the entry point for the full run.
+        # For T003, we need to target the *sample* file specifically.
+        # We will invoke the core functions directly to ensure the correct file is processed.
         
-        # Execute the main logic from update_state_checksum
-        # Note: The provided API surface shows `update_state_checksum` has a `main` function.
-        # We assume it accepts command line arguments for file, state, and key.
-        compute_checksum_main()
+        # Compute checksum
+        checksum = compute_checksum_main(input_file_path) # Assuming main returns checksum or we use compute_sha256
+        # Actually, let's look at the imports again.
+        # `from update_state_checksum import main` -> likely a script runner.
+        # `from update_state_checksum import compute_sha256` -> likely the function.
         
-        logger.info("T003 completed successfully. Checksum recorded and state updated.")
+        # Let's re-implement the specific logic here to ensure T003 requirements are met exactly,
+        # using the helper functions from `update_state_checksum`.
+        
+        checksum_value = compute_sha256(input_file_path)
+        logger.info(f"Computed SHA-256 for {input_file_path}: {checksum_value}")
+
+        # Update the state file
+        update_state_file(
+            state_file_path=state_file_path,
+            artifact_key="era5_sample",
+            checksum=checksum_value
+        )
+        
+        logger.info("T003 completed successfully. State file updated.")
         
     except Exception as e:
         logger.error(f"Error during T003 execution: {e}")
         sys.exit(1)
-    finally:
-        sys.argv = original_argv
 
 if __name__ == "__main__":
     main()

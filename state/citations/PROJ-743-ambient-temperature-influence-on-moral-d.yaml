@@ -53,7 +53,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1126/science.aar7000
   verified_at: '2026-08-19T21:43:10.349798Z'
-- artifact_hash: 59d22007d9047048492bdf4d5694cbec1b9321543eed77a81e0376e770db881b
+- artifact_hash: 12820b3f2d9d252734df6e3e8b3dfd246d1a02d183310e3bd899a439adef03ab
   artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,4 +63,4 @@
   value: https://api.worldbank.org/v2/country/{id}/indicator/SP.DYN.LE00.IN`
   verification_status: pending
   verified_against_url: https://api.worldbank.org/v2/country/%7Bid%7D/indicator/SP.DYN.LE00.IN
-  verified_at: '2026-08-19T22:19:33.940793Z'
+  verified_at: '2026-08-21T23:01:24.123970Z'

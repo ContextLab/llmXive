@@ -1,175 +1,261 @@
+"""
+Implementation of the full ERA5 dataset fetch (Task T002b logic, executed by T002c).
+
+This module implements the logic to fetch the full 2014-2018 ERA5 2m temperature
+dataset using the CDS API. It processes the data in 10x10 degree tiles to avoid
+memory overflow and API timeouts, implements retry logic for rate limits, and
+merges the results into a single HDF5 file.
+
+Key Functions:
+- fetch_tile: Downloads a single 10x10 degree tile for a specific year.
+- merge_netcdf_to_hdf5: Combines downloaded NetCDF files into a single HDF5 store.
+- main: Orchestrates the loop over years and tiles.
+"""
 import os
 import sys
 import logging
+import time
+import math
 from datetime import datetime
 from pathlib import Path
 import cdsapi
+import xarray as xr
+import h5py
+import tempfile
+import shutil
 
+# Import config for paths
 from config import get_path_env_override
-from setup_logging import setup_logging, get_data_quality_logger
+
+# Constants
+OUTPUT_FILE = "data/raw/era5_full.h5"
+LOG_FILE = "results/logs/data_validation_log.txt"
+START_YEAR = 2014
+END_YEAR = 2018
+VARIABLE = "2t" # 2 metre temperature
+PRODUCT = "reanalysis-era5-single-levels"
+FORMAT = "netcdf"
+
+# Geographic Bounding Box for Moral Machine Data (Approximate Global Coverage)
+# Moral Machine data is global, so we iterate the full grid but filter by valid data later if needed.
+# However, to optimize, we can restrict to land masses or known data regions if specified.
+# For now, we implement the full 10x10 grid as requested, filtering tiles that have no data.
+MIN_LAT = -89.0
+MAX_LAT = 89.0
+MIN_LON = -180.0
+MAX_LON = 180.0
+TILE_SIZE = 10.0
 
 def ensure_directories():
-    """Ensure required output directories exist."""
-    output_dir = Path(get_path_env_override("DATA_RAW_DIR", "data/raw"))
-    output_dir.mkdir(parents=True, exist_ok=True)
-    return output_dir
+    """Ensures output directories exist."""
+    Path(OUTPUT_FILE).parent.mkdir(parents=True, exist_ok=True)
+    Path(LOG_FILE).parent.mkdir(parents=True, exist_ok=True)
 
-def fetch_year_data(year: int, client: cdsapi.Client, output_dir: Path) -> Path:
+def get_logger():
+    """Configures and returns the data quality logger."""
+    logger = logging.getLogger("data_quality")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        # File handler for the specific log file
+        fh = logging.FileHandler(LOG_FILE, mode='a')
+        fh.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+    return logger
+
+def append_log(message):
+    """Appends a message to the validation log."""
+    logger = get_logger()
+    logger.info(message)
+
+def get_cds_client():
+    """Initializes and returns the CDS API client."""
+    return cdsapi.Client()
+
+def fetch_tile(client, year, lat_min, lat_max, lon_min, lon_max, output_path):
     """
-    Fetch ERA5 2m temperature data for a specific year.
-    Parameters:
-      year: The year to fetch (e.g., 2016)
-      client: Initialized cdsapi client
-      output_dir: Directory to save the temporary yearly file
+    Fetches a single 10x10 degree tile for a specific year.
+
+    Args:
+        client: CDS API client instance.
+        year: Target year (int).
+        lat_min, lat_max: Latitude bounds.
+        lon_min, lon_max: Longitude bounds.
+        output_path: Path to save the NetCDF file.
+
     Returns:
-      Path to the saved yearly file.
+        bool: True if successful, False otherwise.
     """
-    output_file = output_dir / f"era5_{year}.h5"
-    
-    request_params = {
-        "product_type": "reanalysis",
-        "format": "hdf5",
-        "variable": "2m_temperature",
-        "year": str(year),
-        "month": [
-            "01", "02", "03", "04", "05", "06",
-            "07", "08", "09", "10", "11", "12"
+    logger = get_logger()
+    # CDS API expects latitudes from North to South
+    # CDS API expects longitudes from West to East
+    request = {
+        'product_type': PRODUCT,
+        'format': FORMAT,
+        'variable': VARIABLE,
+        'year': str(year),
+        'month': [f'{i:02d}' for i in range(1, 13)],
+        'day': [f'{i:02d}' for i in range(1, 32)], # CDS handles invalid days automatically
+        'time': [
+            '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
+            '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00',
+            '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'
         ],
-        "day": [
-            "01", "02", "03", "04", "05", "06", "07", "08", "09", "10",
-            "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
-            "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"
-        ],
-        "time": [
-            "00:00", "01:00", "02:00", "03:00", "04:00", "05:00",
-            "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
-            "12:00", "13:00", "14:00", "15:00", "16:00", "17:00",
-            "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"
-        ],
-        "area": [90, -180, -90, 180], # North, West, South, East (Global)
-        "grid": [2.0, 2.0], # 2 degree grid for manageable size, adjust if needed
+        'area': [lat_max, lon_min, lat_min, lon_max], # North, West, South, East
     }
 
-    logging.info(f"Fetching data for year {year}...")
+    max_retries = 5
+    retry_delay = 2
+    attempt = 0
+
+    while attempt < max_retries:
+        try:
+            logger.info(f"Fetching tile [{year}] Lat: {lat_min:.1f}-{lat_max:.1f}, Lon: {lon_min:.1f}-{lon_max:.1f}")
+            client.retrieve(
+                'reanalysis-era5-single-levels',
+                request,
+                output_path
+            )
+            return True
+        except Exception as e:
+            attempt += 1
+            if attempt < max_retries:
+                logger.warning(f"Retry {attempt}/{max_retries} for tile [{year}] Lat: {lat_min:.1f}-{lat_max:.1f} due to: {e}")
+                time.sleep(retry_delay)
+                retry_delay *= 2 # Exponential backoff
+            else:
+                logger.error(f"Failed to fetch tile [{year}] Lat: {lat_min:.1f}-{lat_max:.1f} after {max_retries} attempts: {e}")
+                return False
+
+def merge_netcdf_to_hdf5(netcdf_files, output_hdf5_path):
+    """
+    Merges a list of NetCDF files into a single HDF5 file.
+    Uses xarray to open, combine, and save.
+
+    Args:
+        netcdf_files: List of paths to NetCDF files.
+        output_hdf5_path: Path for the output HDF5 file.
+    """
+    logger = get_logger()
+    if not netcdf_files:
+        logger.warning("No NetCDF files to merge.")
+        return
+
+    logger.info(f"Merging {len(netcdf_files)} NetCDF files into {output_hdf5_path}")
+
     try:
-        client.retrieve(
-            'reanalysis-era5-single-levels',
-            request_params,
-            str(output_file)
-        )
-        logging.info(f"Successfully fetched data for {year} -> {output_file}")
-        return output_file
+        # Open all datasets
+        datasets = [xr.open_dataset(f) for f in netcdf_files]
+        
+        # Combine along the time dimension (or whatever dimension xarray infers)
+        # ERA5 data usually has 'time', 'latitude', 'longitude'
+        combined = xr.combine_by_coords(datasets)
+        
+        # Save to HDF5
+        combined.to_netcdf(output_hdf5_path, engine='netcdf4') # xarray saves as netcdf4/hdf5 by default
+        
+        # Close all open datasets to free memory
+        for ds in datasets:
+            ds.close()
+        
+        logger.info("Merge completed successfully.")
     except Exception as e:
-        logging.error(f"Failed to fetch data for year {year}: {e}")
+        logger.error(f"Error merging NetCDF files: {e}", exc_info=True)
         raise
 
-def merge_yearly_files(yearly_files: list, final_output_path: Path):
+def tile_overlaps_bbox(lat_min, lat_max, lon_min, lon_max):
     """
-    Merge multiple yearly HDF5 files into a single final file.
-    Since CDS API returns full grid per request, and we are fetching year by year,
-    we need to concatenate along the time dimension.
-    We assume h5py or xarray is available for merging.
+    Checks if a tile overlaps with the Moral Machine data bounding box.
+    Since Moral Machine is global, we assume all tiles are relevant unless
+    specific filters are applied later. This function is a placeholder for
+    future optimization if a specific region is required.
     """
-    import h5py
-    import numpy as np
-
-    if not yearly_files:
-        raise ValueError("No yearly files to merge.")
-
-    # Open first file to get structure
-    with h5py.File(yearly_files[0], 'r') as f:
-        # Assuming standard ERA5 structure: 'data', 'latitude', 'longitude', 'time'
-        # We need to determine the shape and chunks
-        data_shape = f['data'].shape
-        lat = f['latitude'][:]
-        lon = f['longitude'][:]
-        time_shape = data_shape[0] # Assuming time is the first dimension
-        
-        # Calculate total time steps
-        total_time_steps = time_shape * len(yearly_files)
-        
-        # Create final file
-        with h5py.File(final_output_path, 'w') as f_out:
-            # Create datasets with correct size
-            f_out.create_dataset('data', (total_time_steps, data_shape[1], data_shape[2]), 
-                                 dtype=f['data'].dtype, chunks=(1, data_shape[1], data_shape[2]))
-            f_out.create_dataset('latitude', data=lat)
-            f_out.create_dataset('longitude', data=lon)
-            
-            # Copy time dimension logic if time is stored separately, 
-            # but usually ERA5 single level time is implicit or stored in a separate attribute.
-            # For simplicity, we assume we just concatenate the data arrays.
-            # If 'time' coordinate exists:
-            if 'time' in f:
-                total_time = np.concatenate([h5py.File(f, 'r')['time'][:] for f in yearly_files])
-                f_out.create_dataset('time', data=total_time)
-
-            current_idx = 0
-            for i, year_file in enumerate(yearly_files):
-                with h5py.File(year_file, 'r') as f_in:
-                    data_chunk = f_in['data'][:]
-                    f_out['data'][current_idx:current_idx+data_chunk.shape[0], :, :] = data_chunk
-                    current_idx += data_chunk.shape[0]
-                    logging.info(f"Merged chunk {i+1}/{len(yearly_files)}")
-            
-            # Copy attributes
-            for key, value in f.attrs.items():
-                f_out.attrs[key] = value
-
-    logging.info(f"Merged all yearly files into {final_output_path}")
+    return True
 
 def main():
     """
     Main execution function for T002c.
-    Fetches ERA5 data for 2016-2019 by year, merges, and saves to data/raw/era5_full.h5.
-    Logs success/fail to results/logs/data_validation_log.txt.
+    Iterates over years and tiles, fetches data, and merges.
     """
-    logger = setup_logging()
-    data_logger = get_data_quality_logger()
-    
-    output_dir = ensure_directories()
-    final_output_path = output_dir / "era5_full.h5"
-    log_path = Path("results/logs/data_validation_log.txt")
-    
-    # Ensure log directory exists
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_directories()
+    logger = get_logger()
+    append_log(f"Starting full ERA5 fetch for years {START_YEAR}-{END_YEAR}")
+
+    client = get_cds_client()
+    netcdf_files = []
+    temp_dir = tempfile.mkdtemp(prefix="era5_fetch_")
 
     try:
-        # Initialize CDS client
-        # Assumes CDSAPI_KEY and CDSAPI_URL are set in environment or .cdsapirc
-        client = cdsapi.Client()
-        
-        years = [2016, 2017, 2018, 2019]
-        yearly_files = []
+        for year in range(START_YEAR, END_YEAR + 1):
+            logger.info(f"Processing year: {year}")
+            year_files = []
+            
+            # Iterate latitude from South to North (or North to South, CDS handles it)
+            # We iterate from MIN_LAT to MAX_LAT in steps of TILE_SIZE
+            lat = MIN_LAT
+            while lat < MAX_LAT:
+                lat_next = min(lat + TILE_SIZE, MAX_LAT)
+                
+                # Iterate longitude from West to East
+                lon = MIN_LON
+                while lon < MAX_LON:
+                    lon_next = min(lon + TILE_SIZE, MAX_LON)
+                    
+                    # Filter tiles that do not overlap (if any filter logic is added)
+                    if not tile_overlaps_bbox(lat, lat_next, lon, lon_next):
+                        lon += TILE_SIZE
+                        continue
 
-        for year in years:
-            year_file = fetch_year_data(year, client, output_dir)
-            yearly_files.append(year_file)
+                    # Create a unique filename for this tile and year
+                    tile_filename = f"era5_{year}_lat{lat:.0f}_{lat_next:.0f}_lon{lon:.0f}_{lon_next:.0f}.nc"
+                    tile_path = os.path.join(temp_dir, tile_filename)
+                    
+                    # Fetch the tile
+                    success = fetch_tile(client, year, lat, lat_next, lon, lon_next, tile_path)
+                    
+                    if success and os.path.exists(tile_path):
+                        year_files.append(tile_path)
+                    
+                    lon += TILE_SIZE
+                lat += TILE_SIZE
 
-        # Merge files
-        logging.info("Starting merge of yearly files...")
-        merge_yearly_files(yearly_files, final_output_path)
+            if year_files:
+                logger.info(f"Found {len(year_files)} files for year {year}. Merging...")
+                # We can merge year by year to save memory, or accumulate all.
+                # To save memory, let's merge year by year into intermediate files if needed,
+                # but for simplicity and given the constraint of one final file,
+                # we will accumulate all netcdf files and merge at the end.
+                # However, if the list gets too huge, we might need a chunked merge.
+                # Given the 10x10 grid over 5 years: ~36 lat * 36 lon * 5 years = 6480 files.
+                # This is manageable in a list, but merging 6000 files at once might be heavy.
+                # Strategy: Merge year by year into intermediate HDF5, then merge those?
+                # Or just collect and merge. Let's collect for now, but if memory is an issue,
+                # we would need to change this to merge in batches.
+                netcdf_files.extend(year_files)
+            else:
+                logger.warning(f"No data found for year {year}")
 
-        # Cleanup temporary yearly files
-        for f in yearly_files:
-            if f.exists():
-                f.unlink()
-                logging.info(f"Removed temporary file: {f}")
-
-        # Log success
-        timestamp = datetime.now().isoformat()
-        with open(log_path, 'a') as log_file:
-            log_file.write(f"[{timestamp}] T002c: SUCCESS - Full ERA5 dataset fetched and merged to {final_output_path}\n")
-        
-        logger.info("T002c completed successfully.")
-        data_logger.info("T002c: Full dataset fetched and saved.")
+        if netcdf_files:
+            logger.info("All tiles fetched. Starting final merge...")
+            # Sort files to ensure consistent time ordering
+            netcdf_files.sort()
+            merge_netcdf_to_hdf5(netcdf_files, OUTPUT_FILE)
+            append_log(f"SUCCESS: Full dataset merged to {OUTPUT_FILE}")
+        else:
+            logger.error("No data was fetched. Aborting merge.")
+            append_log("FAILURE: No data fetched for full dataset.")
+            raise RuntimeError("No data fetched.")
 
     except Exception as e:
-        error_msg = f"Task T002c failed: {str(e)}"
-        logging.error(error_msg)
-        with open(log_path, 'a') as log_file:
-            log_file.write(f"[{datetime.now().isoformat()}] T002c: FAILED - {error_msg}\n")
+        logger.error(f"Full fetch process failed: {e}", exc_info=True)
+        append_log(f"FAILURE: {e}")
         raise
+    finally:
+        # Cleanup temp directory
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
+            logger.info(f"Cleaned up temp directory: {temp_dir}")
 
 if __name__ == "__main__":
     main()

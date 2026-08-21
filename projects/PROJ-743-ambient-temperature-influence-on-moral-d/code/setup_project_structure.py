@@ -1,58 +1,51 @@
-"""
-Script to initialize the project directory structure for PROJ-743.
-Creates the required directories as per the implementation plan.
-"""
 import os
 import sys
 from pathlib import Path
 
-def ensure_directories():
+def ensure_directories(base_path: Path) -> None:
     """
-    Creates the necessary project directories.
-    Returns a list of created paths.
+    Create the standard project directory structure.
+    
+    Directories created:
+    - code/
+    - data/raw/
+    - data/processed/
+    - results/figures/
+    - results/logs/
+    - results/stats/
+    - tests/
     """
-    # Base directory is the project root (where this script is run from)
-    # We assume the script is run from the project root.
-    # If not, we can derive it from __file__ if needed, but typically
-    # these scripts are executed from the root.
-    
-    # Define relative paths based on the task description
-    # The task specifies: code/, data/raw/, data/processed/, results/figures/, 
-    # results/logs/, results/stats/, tests/
-    
-    # Note: 'code/' and 'tests/' are typically created alongside this script,
-    # but we ensure them explicitly to be safe.
-    # 'results/' is a parent for figures, logs, stats.
-    
-    relative_paths = [
+    directories = [
         "code",
         "data/raw",
         "data/processed",
         "results/figures",
         "results/logs",
         "results/stats",
-        "tests"
+        "tests",
     ]
     
-    created_dirs = []
-    for rel_path in relative_paths:
-        target = Path(rel_path)
-        if not target.exists():
-            target.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(target))
-            print(f"Created directory: {target}")
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
         else:
-            # Even if it exists, we consider it 'ensured'
-            created_dirs.append(str(target))
-            
-    return created_dirs
+            print(f"Directory already exists: {dir_path}")
 
-def main():
-    """Entry point for the script."""
-    print("Initializing project structure for PROJ-743...")
-    dirs = ensure_directories()
-    print(f"Project structure initialized. Ensured {len(dirs)} directories.")
-    return 0
+def main() -> None:
+    """Main entry point for project structure setup."""
+    # Determine project root (assume script is in code/ or code/scripts/)
+    script_path = Path(__file__).resolve()
+    # If script is in code/, go up one level
+    if script_path.parent.name == "code":
+        project_root = script_path.parent.parent
+    else:
+        project_root = script_path.parent
+    
+    print(f"Setting up project structure at: {project_root}")
+    ensure_directories(project_root)
+    print("Project structure setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

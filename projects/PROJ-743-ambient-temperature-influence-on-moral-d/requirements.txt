@@ -9,5 +9,4 @@ matplotlib
 geopandas
 cdsapi
 huggingface_hub
-pyarrow
-openpyxl
+netCDF4
