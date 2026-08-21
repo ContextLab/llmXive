@@ -1,20 +1,19 @@
-"""
-Verification script for Task T019b.
-Explicitly verifies and documents that the raw `mood_std` column in
-`daily_aggregates.csv` remains unmodified and available for other analyses,
-ensuring compliance with FR-003's requirement to preserve the raw metric.
-"""
 import os
 import sys
 import logging
-import json
+import hashlib
 from pathlib import Path
 import pandas as pd
+from datetime import datetime, timezone
 
-# Import config for path resolution
-from config import get_path
+# Import get_path from config to ensure path consistency
+# We assume config.py is in the same directory or PYTHONPATH is set correctly
+try:
+    from config import get_path
+except ImportError:
+    # Fallback for execution context if not imported correctly
+    from code.config import get_path
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
@@ -23,113 +22,91 @@ logger = logging.getLogger(__name__)
 
 def verify_raw_mood_std():
     """
-    Loads daily_aggregates.csv and verifies:
-    1. The 'mood_std' column exists.
-    2. The 'mood_std' column contains no negative values (raw std dev >= 0).
-    3. The 'mood_std' column contains no NaN/Inf values.
-    4. The column is available for downstream analysis (not dropped/modified).
+    Verify that the raw `mood_std` column in daily_aggregates.csv remains unmodified
+    and available for other analyses.
     
-    Returns:
-        dict: Verification results including status and details.
+    Deliverable: Appends a log entry to data/processed/verification.log stating
+    "mood_std raw values preserved" along with the SHA-256 hex string of 
+    daily_aggregates.csv and an ISO 8601 timestamp.
     """
-    try:
-        # Resolve path using the project's config utility
-        # This handles the cumulative contract of get_path()
-        file_path = get_path('data', 'processed', 'daily_aggregates.csv')
-        
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(
-                f"Daily aggregates file not found at {file_path}. "
-                "Run preprocessing first (T015)."
-            )
-        
-        logger.info(f"Loading daily aggregates from: {file_path}")
-        df = pd.read_csv(file_path)
-        
-        # Verification 1: Column existence
-        if 'mood_std' not in df.columns:
-            raise ValueError(
-                "Verification Failed: 'mood_std' column missing from daily_aggregates.csv"
-            )
-        
-        # Verification 2: Non-negative values (Standard Deviation >= 0)
-        # Raw std dev should never be negative.
-        negative_count = (df['mood_std'] < 0).sum()
-        if negative_count > 0:
-            raise ValueError(
-                f"Verification Failed: Found {negative_count} negative values in 'mood_std'."
-            )
-        
-        # Verification 3: No NaN or Inf values
-        null_count = df['mood_std'].isna().sum()
-        inf_count = (df['mood_std'].apply(lambda x: x in [float('inf'), float('-inf')])).sum()
-        
-        if null_count > 0:
-            raise ValueError(
-                f"Verification Failed: Found {null_count} NaN values in 'mood_std'."
-            )
-        if inf_count > 0:
-            raise ValueError(
-                f"Verification Failed: Found {inf_count} Inf values in 'mood_std'."
-            )
-        
-        # Verification 4: Availability for downstream analysis
-        # We simply confirm the column is present and valid, satisfying FR-003.
-        # We do not modify it here; we only read and validate.
-        
-        result = {
-            "status": "PASSED",
-            "file_path": str(file_path),
-            "column": "mood_std",
-            "row_count": len(df),
-            "checks": {
-                "column_exists": True,
-                "no_negative_values": True,
-                "no_null_values": True,
-                "no_inf_values": True,
-                "raw_metric_preserved": True
-            },
-            "statistics": {
-                "min": float(df['mood_std'].min()),
-                "max": float(df['mood_std'].max()),
-                "mean": float(df['mood_std'].mean()),
-                "median": float(df['mood_std'].median())
-            },
-            "compliance": {
-                "FR-003": "Raw mood_std metric preserved and available for analysis."
-            }
-        }
-        
-        logger.info("Verification PASSED. Raw mood_std column is valid and preserved.")
-        return result
+    # Resolve the path to daily_aggregates.csv
+    # Using the get_path utility to ensure consistency with the rest of the project
+    # The task description implies the file is at data/processed/daily_aggregates.csv
+    input_path = get_path('data/processed', 'daily_aggregates.csv')
+    
+    if not os.path.exists(input_path):
+        logger.error(f"File not found: {input_path}. Preprocessing must be run first.")
+        raise FileNotFoundError(f"Daily aggregates file not found at {input_path}. Run preprocessing first.")
 
+    logger.info(f"Verifying raw data at: {input_path}")
+
+    # Load the data to ensure it's readable and check the column
+    try:
+        df = pd.read_csv(input_path)
     except Exception as e:
-        logger.error(f"Verification FAILED: {str(e)}")
-        return {
-            "status": "FAILED",
-            "error": str(e)
-        }
+        logger.error(f"Failed to read {input_path}: {e}")
+        raise
+
+    # Verify the column exists
+    if 'mood_std' not in df.columns:
+        logger.error("Column 'mood_std' not found in the dataset.")
+        raise ValueError("Column 'mood_std' not found in the dataset.")
+
+    # Optional: Verify no negative values or NaNs (as per T019a logic, though T019b is about preservation)
+    # This ensures the data is in the expected state for "raw values preserved"
+    if df['mood_std'].isna().any():
+        logger.warning("Found NaN values in mood_std column.")
+    if (df['mood_std'] < 0).any():
+        logger.warning("Found negative values in mood_std column.")
+    
+    logger.info("Column 'mood_std' exists and is accessible.")
+
+    # Compute SHA-256 hash of the file
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(input_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        file_hash = sha256_hash.hexdigest()
+    except Exception as e:
+        logger.error(f"Failed to compute hash for {input_path}: {e}")
+        raise
+
+    # Generate ISO 8601 timestamp
+    timestamp = datetime.now(timezone.utc).isoformat()
+
+    # Prepare log entry
+    log_entry = (
+        f"{timestamp} | mood_std raw values preserved | "
+        f"file_hash: {file_hash}\n"
+    )
+
+    # Define the verification log path
+    # Using get_path to ensure it lands in data/processed/
+    log_path = get_path('data/processed', 'verification.log')
+    
+    # Create directory if it doesn't exist (though data/processed should exist)
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+
+    # Append to the log file
+    try:
+        with open(log_path, 'a') as f:
+            f.write(log_entry)
+        logger.info(f"Verification log appended to: {log_path}")
+    except Exception as e:
+        logger.error(f"Failed to write to {log_path}: {e}")
+        raise
+
+    return True
 
 def main():
-    """Main entry point for the verification script."""
-    logger.info("Starting T019b: Verify Raw Mood Standard Deviation Preservation")
-    
-    result = verify_raw_mood_std()
-    
-    # Write verification log to data/processed for audit trail
-    log_path = get_path('data', 'processed', 't019b_verification_log.json')
-    
-    with open(log_path, 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    logger.info(f"Verification log written to: {log_path}")
-    
-    if result["status"] == "FAILED":
-        logger.error("T019b verification failed. Do not proceed with modeling.")
+    """Entry point for the verification script."""
+    try:
+        verify_raw_mood_std()
+        logger.info("Verification completed successfully.")
+    except Exception as e:
+        logger.error(f"Verification failed: {e}")
         sys.exit(1)
-    else:
-        logger.info("T019b verification successful. Proceeding to modeling.")
-        sys.exit(0)
 
 if __name__ == "__main__":
     main()

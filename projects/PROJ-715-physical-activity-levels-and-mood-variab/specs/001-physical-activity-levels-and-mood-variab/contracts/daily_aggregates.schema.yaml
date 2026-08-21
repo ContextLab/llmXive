@@ -1,66 +1,36 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Daily Aggregates Schema
-description: >
-  Schema for the daily aggregates dataset derived from the StudentLife
-  study. Contains one row per participant per day with aggregated
-  physical activity and mood metrics.
 type: object
-properties:
-  participant_id:
-    type: string
-    description: Unique identifier for the participant.
-  date:
-    type: string
-    format: date
-    description: The date of the aggregate record (YYYY-MM-DD).
-  total_steps:
-    type: integer
-    minimum: 0
-    description: Total number of steps recorded for the day.
-  mean_mood:
-    type: number
-    description: Mean of valid mood ratings for the day.
-  mood_std:
-    type: number
-    description: Standard deviation of valid mood ratings for the day.
-  log_mood_variability:
-    type: number
-    description: >
-      Log-transformed mood variability calculated as np.log(mood_std + 0.01).
-      This transformation prevents undefined log(0) errors when mood_std is 0.
-  sleep_duration:
-    type: ["number", "null"]
-    description: Derived sleep duration in hours, or null if not derivable.
-  baseline_affect:
-    type: ["number", "null"]
-    description: Derived baseline affect score, or null if not derivable.
-  day_of_week:
-    type: integer
-    minimum: 0
-    maximum: 6
-    description: Day of week (0=Monday, 6=Sunday).
-  rating_count:
-    type: integer
-    minimum: 0
-    description: Number of valid mood ratings included in the daily aggregate.
 required:
   - participant_id
   - date
   - total_steps
   - mean_mood
   - mood_std
-  - log_mood_variability
+  - n_mood_ratings
   - day_of_week
-  - rating_count
-additionalProperties: false
-examples:
-  - participant_id: "P001"
-    date: "2013-09-01"
-    total_steps: 8542
-    mean_mood: 3.5
-    mood_std: 1.2
-    log_mood_variability: 0.8109302162163288
-    sleep_duration: 7.2
-    baseline_affect: 2.8
-    day_of_week: 6
-    rating_count: 5
+properties:
+  participant_id:
+    type: string
+  date:
+    type: string
+    format: date
+  total_steps:
+    type: integer
+    minimum: 0
+  mean_mood:
+    type: number
+  mood_std:
+    type: number
+    minimum: 0
+  n_mood_ratings:
+    type: integer
+    minimum: 2
+  sleep_duration:
+    type: number
+    nullable: true
+  baseline_affect:
+    type: number
+    nullable: true
+  day_of_week:
+    type: integer
+    minimum: 0
+    maximum: 6

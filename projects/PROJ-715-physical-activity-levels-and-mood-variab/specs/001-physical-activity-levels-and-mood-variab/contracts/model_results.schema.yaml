@@ -1,122 +1,161 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Results Schema
-description: Schema for the output of the statistical modeling pipeline (T025).
 type: object
 required:
-  - metadata
-  - models
+  - model_type
+  - fixed_effects
+  - random_effects
+  - model_fit
   - validation
   - sensitivity
+  - diagnostics
+  - associational
 properties:
-  metadata:
+  model_type:
+    type: string
+    description: Name of the primary model, e.g., "LMM_mood_variability"
+  fixed_effects:
     type: object
-    properties:
-      version:
-        type: string
-      generated_at:
-        type: string
-        format: date-time
-      pipeline_task:
-        type: string
-    required:
-      - version
-      - pipeline_task
-  models:
+    description: Fixed effect coefficients for the primary model
+    additionalProperties:
+      type: object
+      required:
+        - estimate
+        - std_err
+        - p_value
+        - ci_lower
+        - ci_upper
+      properties:
+        estimate:
+          type: number
+        std_err:
+          type: number
+        p_value:
+          type: number
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
+  random_effects:
+    type: object
+    description: Variance components for random effects
+    additionalProperties:
+      type: number
+  model_fit:
     type: object
     required:
-      - mood_std
-      - mean_mood
+      - aic
+      - bic
+      - log_likelihood
     properties:
-      mood_std:
+      aic:
+        type: number
+      bic:
+        type: number
+      log_likelihood:
+        type: number
+  secondary_model:
+    type: object
+    description: Results for the secondary model (mean_mood)
+    required:
+      - model_type
+      - fixed_effects
+      - random_effects
+      - model_fit
+    properties:
+      model_type:
+        type: string
+      fixed_effects:
         type: object
-        description: Results for the model with log-transformed mood_std as outcome.
-        properties:
-          fixed_effects:
-            type: object
-            additionalProperties:
-              type: object
-              properties:
-                estimate:
-                  type: number
-                std_error:
-                  type: number
-                p_value:
-                  type: number
-                ci_lower:
-                  type: number
-                ci_upper:
-                  type: number
-              required:
-                - estimate
-                - p_value
-          convergence_status:
-            type: boolean
-          associational_label:
-            type: string
-            const: "associational"
-      mean_mood:
+        additionalProperties:
+          type: object
+          required:
+            - estimate
+            - std_err
+            - p_value
+            - ci_lower
+            - ci_upper
+          properties:
+            estimate:
+              type: number
+            std_err:
+              type: number
+            p_value:
+              type: number
+            ci_lower:
+              type: number
+            ci_upper:
+              type: number
+      random_effects:
         type: object
-        description: Results for the model with mean_mood as outcome.
+        additionalProperties:
+          type: number
+      model_fit:
+        type: object
+        required:
+          - aic
+          - bic
+          - log_likelihood
         properties:
-          fixed_effects:
-            type: object
-            additionalProperties:
-              type: object
-              properties:
-                estimate:
-                  type: number
-                std_error:
-                  type: number
-                p_value:
-                  type: number
-                ci_lower:
-                  type: number
-                ci_upper:
-                  type: number
-              required:
-                - estimate
-                - p_value
-          convergence_status:
-            type: boolean
-          associational_label:
-            type: string
-            const: "associational"
+          aic:
+            type: number
+          bic:
+            type: number
+          log_likelihood:
+            type: number
   validation:
     type: object
-    description: Leave-One-Participant-Out (LOPO) cross-validation results.
     required:
-      - lopo_sign_consistency
       - lopo_average_rmse
+      - lopo_sign_consistency_pct
     properties:
-      lopo_sign_consistency:
-        type: number
-        description: Percentage of folds where the total_steps coefficient sign matches the full model.
-        minimum: 0
-        maximum: 100
       lopo_average_rmse:
         type: number
-        description: Average RMSE across all LOPO folds.
-      threshold_met:
-        type: boolean
-        description: Whether sign consistency >= 90%.
+      lopo_sign_consistency_pct:
+        type: number
   sensitivity:
     type: object
-    description: Sensitivity analysis results.
     required:
+      - weekdays_only_sign_consistent
+      - active_minutes_sign_consistent
       - single_rating_bootstrap_consistency
+      - single_rating_bootstrap_pass
     properties:
-      weekdays_only:
-        type: object
-        description: Results of re-running model on weekdays only.
-      active_minutes:
-        type: object
-        description: Results of re-running model with active minutes metric.
+      weekdays_only_sign_consistent:
+        type: boolean
+      active_minutes_sign_consistent:
+        type: boolean
       single_rating_bootstrap_consistency:
         type: number
-        description: Percentage of bootstrap samples where direction is consistent between exclusion and imputation models.
-        minimum: 0
-        maximum: 100
-      threshold_met:
+      single_rating_bootstrap_pass:
         type: boolean
-        description: Whether consistency >= 80%.
-additionalProperties: false
+  diagnostics:
+    type: object
+    required:
+      - shapiro_wilk
+      - breusch_pagan
+      - residuals_plot
+    properties:
+      shapiro_wilk:
+        type: object
+        required:
+          - statistic
+          - p_value
+        properties:
+          statistic:
+            type: number
+          p_value:
+            type: number
+      breusch_pagan:
+        type: object
+        required:
+          - lm_statistic
+          - p_value
+        properties:
+          lm_statistic:
+            type: number
+          p_value:
+            type: number
+      residuals_plot:
+        type: string
+  associational:
+    type: boolean
+    description: Flag indicating results are associational, not causal

@@ -1,6 +1,12 @@
 import pytest
 import pandas as pd
 import numpy as np
+import sys
+import os
+
+# Ensure code directory is in path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+
 from preprocess import compute_daily_aggregates
 
 def test_aggregation_logic():
@@ -51,8 +57,8 @@ def test_insufficient_ratings_excluded():
     result = compute_daily_aggregates(steps_df, mood_df)
     assert len(result) == 0
 
-def test_zero_steps_handling():
-    """Test that zero steps are recorded as 0."""
+def test_aggregate_handles_zero_steps():
+    """Test that days with zero steps are recorded as 0 and not dropped."""
     steps_df = pd.DataFrame({
         'participant_id': ['P1'],
         'date': pd.to_datetime(['2023-01-01']),
@@ -64,4 +70,28 @@ def test_zero_steps_handling():
         'mood': [5.0, 6.0]
     })
     result = compute_daily_aggregates(steps_df, mood_df)
+    
+    # Ensure the row exists
+    assert len(result) == 1
+    # Ensure total_steps is explicitly 0, not NaN or dropped
+    assert result['total_steps'].iloc[0] == 0
+    assert result['n_mood_ratings'].iloc[0] == 2
+    assert result['mean_mood'].iloc[0] == 5.5
+
+def test_missing_steps_treated_as_zero():
+    """Test that missing step counts (NaN in input) are treated as 0."""
+    steps_df = pd.DataFrame({
+        'participant_id': ['P1'],
+        'date': pd.to_datetime(['2023-01-01']),
+        'total_steps': [np.nan]
+    })
+    mood_df = pd.DataFrame({
+        'participant_id': ['P1'],
+        'date': pd.to_datetime(['2023-01-01']),
+        'mood': [5.0, 6.0]
+    })
+    result = compute_daily_aggregates(steps_df, mood_df)
+    
+    # Ensure the row exists and steps are 0
+    assert len(result) == 1
     assert result['total_steps'].iloc[0] == 0

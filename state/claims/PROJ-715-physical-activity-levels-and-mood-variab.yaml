@@ -193,3 +193,110 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T08:19:02Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Bootstrap sampling loop with 1000 iterations and seed 42
+  claim_id: c_41b8af47
+  context: Task T031c describes implementing a bootstrap sampling loop with config.BOOTSTRAP_ITERATIONS
+    iterations (default 1000, seed 42) to compare coefficient signs between exclusion
+    and imputation models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline includes a bootstrap sampling loop with config.BOOTSTRAP_ITERATIONS
+    iterations (default 1000, seed 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:50:55Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Coefficient direction consistency threshold of 80% in bootstrap samples
+  claim_id: c_34689648
+  context: "Task T031c states a report requirement to explicitly report the calculated\
+    \ percentage and a summary log to satisfy FR-008's requirement to 'report whether\
+    \ the coefficient direction remains consistent in \u2265 80% of bootstrap samples'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The requirement is to report whether the coefficient direction remains\
+    \ consistent in \u2265 80% of bootstrap samples."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:50:55Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: LOPO cross-validation sign stability threshold of 90%
+  claim_id: c_7e584a34
+  context: "The Independent Test section for User Story 3 states: 'Verify final report\
+    \ contains LOPO coefficient consistency (\u226590% sign stability)...'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The leave-one-participant-out (LOPO) cross-validation requires a sign\
+    \ stability of \u226590%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:50:55Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Full pipeline integration test execution time limit of 6 hours
+  claim_id: c_adb684bd
+  context: 'Task T036 states: ''Run full pipeline integration test in tests/integration/test_full_pipeline.py
+    to verify end-to-end execution within 6 hours''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline integration test must verify end-to-end execution within
+    6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:51:35Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Filter days with fewer than 2 valid mood ratings
+  claim_id: c_2ba9eecf
+  context: 'Task T014 states: ''Filter out days with fewer than 2 valid mood ratings
+    FIRST (before any variance calculation) to satisfy FR-002 and Constitution Principle
+    VI.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_days_with_fewer_than_2_valid_mood_ratings
+  kind: magnitude
+  raw_text: Days with fewer than 2 valid mood ratings are filtered out before variance
+    calculation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:52:05Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Log transform formula np.log(mood_std + 0.01)
+  claim_id: c_0051f744
+  context: Task T019c defines the utility function apply_log_transform() which 'returns
+    np.log(mood_std + 0.01)' and is the single authorized mechanism for this transformation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The log transformation of mood_std uses the formula np.log(mood_std +
+    0.01).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:52:42Z'
