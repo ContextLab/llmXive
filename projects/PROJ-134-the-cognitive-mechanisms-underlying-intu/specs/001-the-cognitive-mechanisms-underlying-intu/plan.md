@@ -114,7 +114,7 @@ The system MUST be capable of ingesting **Real** VR interaction logs and a verif
 
 ### User Story 5 - Artifact Hashing & State Update (Priority: P1)
 **Status**: Implemented
-The system MUST calculate SHA-256 checksums for all derived data and update the `state/...yaml` file's `artifact_hashes` map to satisfy Constitution Principle V.
+The system MUST calculate cryptographic checksums for all derived data and update the `state/...yaml` file's `artifact_hashes` map to satisfy Constitution Principle V.
 
 ### User Story 6 - Psychometric Instrument Integrity Validation (Priority: P1)
 **Status**: Implemented
