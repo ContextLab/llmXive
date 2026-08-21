@@ -1,88 +1,128 @@
 import pytest
 import time
-from code.utils.network import exponential_backoff_request, MaxRetriesError
+from unittest.mock import patch, MagicMock, Mock
+from code.utils.network import exponential_backoff_request, MaxRetriesError, fetch_file_with_retry
+from urllib.error import URLError, HTTPError
 
-def test_retry_exponential_backoff():
-    """
-    Test that the network utility retries exactly 3 times with exponential delays 
-    before raising MaxRetriesError.
-    Covers: US1-FR-006 (Exponential backoff retry logic)
-    
-    This test verifies the retry mechanism by simulating a failing request.
-    """
-    call_count = 0
-    max_calls = 3
-    
-    def failing_request():
-        nonlocal call_count
-        call_count += 1
-        raise ConnectionError("Simulated network failure")
-    
-    # Test with max_retries=3 (should attempt 4 times total: 1 initial + 3 retries)
-    with pytest.raises(MaxRetriesError) as exc_info:
-        exponential_backoff_request(
-            failing_request,
-            max_retries=max_calls,
-            base_delay=0.1,  # Small delay for testing
-            max_delay=1.0
-        )
-    
-    # Verify that the function was called exactly max_calls + 1 times
-    assert call_count == max_calls + 1, \
-        f"Expected {max_calls + 1} calls, got {call_count}"
-    
-    # Verify that MaxRetriesError was raised
-    assert isinstance(exc_info.value, MaxRetriesError), \
-        f"Expected MaxRetriesError, got {type(exc_info.value)}"
+class TestRetryExponentialBackoff:
+    def test_success_on_first_attempt(self):
+        """Test that a successful request returns immediately."""
+        mock_response = MagicMock()
+        mock_response.read.return_value = b"test data"
 
-def test_retry_success_after_failure():
-    """
-    Test that the function succeeds after a few failures.
-    """
-    call_count = 0
-    
-    def eventually_successful_request():
-        nonlocal call_count
-        call_count += 1
-        if call_count < 3:
-            raise ConnectionError("Simulated network failure")
-        return "success"
-    
-    result = exponential_backoff_request(
-        eventually_successful_request,
-        max_retries=5,
-        base_delay=0.01,
-        max_delay=0.1
-    )
-    
-    assert result == "success", f"Expected 'success', got {result}"
-    assert call_count == 3, f"Expected 3 calls, got {call_count}"
+        with patch('code.utils.network.urlopen', return_value=mock_response) as mock_urlopen:
+            result = exponential_backoff_request("http://example.com/file.txt")
+            assert result is mock_response
+            mock_urlopen.assert_called_once()
 
-def test_retry_delay_exponential():
-    """
-    Test that delays between retries are exponential.
-    """
-    call_times = []
-    
-    def failing_with_timing():
-        call_times.append(time.time())
-        raise ConnectionError("Simulated failure")
-    
-    with pytest.raises(MaxRetriesError):
-        exponential_backoff_request(
-            failing_with_timing,
-            max_retries=3,
-            base_delay=0.1,
-            max_delay=1.0
-        )
-    
-    # Verify that at least 3 calls were made
-    assert len(call_times) >= 4, f"Expected at least 4 calls, got {len(call_times)}"
-    
-    # Verify exponential delay pattern (delays should increase)
-    if len(call_times) >= 3:
-        delay1 = call_times[1] - call_times[0]
-        delay2 = call_times[2] - call_times[1]
-        # Delay should roughly double (within tolerance for timing noise)
-        assert delay2 >= delay1 * 0.8, \
-            f"Delay should be exponential: {delay1} -> {delay2}"
+    def test_retry_on_transient_error(self):
+        """Test that the function retries on URLError before succeeding."""
+        mock_response = MagicMock()
+        
+        # First two calls fail, third succeeds
+        mock_urlopen = MagicMock()
+        mock_urlopen.side_effect = [
+            URLError("Network error"),
+            URLError("Network error"),
+            mock_response
+        ]
+
+        with patch('code.utils.network.urlopen', mock_urlopen):
+            # We patch time.sleep to avoid actual waiting in tests
+            with patch('code.utils.network.time.sleep'):
+                result = exponential_backoff_request("http://example.com/file.txt")
+                assert result is mock_response
+                assert mock_urlopen.call_count == 3
+
+    def test_max_retries_exceeded_raises_error(self):
+        """Test that MaxRetriesError is raised after max_retries attempts."""
+        max_retries = 3
+        
+        mock_urlopen = MagicMock()
+        mock_urlopen.side_effect = URLError("Persistent network error")
+
+        with patch('code.utils.network.urlopen', mock_urlopen):
+            with patch('code.utils.network.time.sleep'):
+                with pytest.raises(MaxRetriesError) as exc_info:
+                    exponential_backoff_request(
+                        "http://example.com/file.txt",
+                        max_retries=max_retries
+                    )
+                
+                assert f"Failed to fetch http://example.com/file.txt after {max_retries} retries" in str(exc_info.value)
+                # Should attempt initial + retries
+                assert mock_urlopen.call_count == max_retries + 1
+
+    def test_exponential_backoff_delays(self):
+        """Test that delays increase exponentially between retries."""
+        mock_urlopen = MagicMock()
+        mock_urlopen.side_effect = URLError("Network error")
+        
+        delays = []
+        original_sleep = time.sleep
+        
+        def capture_sleep(delay):
+            delays.append(delay)
+            # Don't actually sleep, just record the delay
+
+        with patch('code.utils.network.urlopen', mock_urlopen):
+            with patch('code.utils.network.time.sleep', side_effect=capture_sleep):
+                with pytest.raises(MaxRetriesError):
+                    exponential_backoff_request(
+                        "http://example.com/file.txt",
+                        max_retries=3,
+                        initial_delay=1.0,
+                        max_delay=10.0
+                    )
+
+        # Verify exponential growth (with jitter, exact values vary, but trend should be increasing)
+        assert len(delays) == 3  # 3 retries
+        # Check that delays are generally increasing (allowing for small jitter)
+        for i in range(1, len(delays)):
+            # Delay should be roughly double the previous, minus small jitter
+            assert delays[i] >= delays[i-1] * 0.9  # Allow for jitter
+
+    def test_fetch_file_with_retry_writes_to_disk(self, tmp_path):
+        """Test that fetch_file_with_retry actually writes the file to disk."""
+        mock_response = MagicMock()
+        mock_response.read.return_value = b"binary file content"
+        
+        dest_file = tmp_path / "test_file.txt"
+
+        with patch('code.utils.network.urlopen', return_value=mock_response):
+            result_path = fetch_file_with_retry("http://example.com/file.txt", str(dest_file))
+
+        assert result_path == dest_file
+        assert dest_file.exists()
+        assert dest_file.read_bytes() == b"binary file content"
+
+    def test_fetch_file_creates_parent_directories(self, tmp_path):
+        """Test that fetch_file_with_retry creates parent directories if they don't exist."""
+        mock_response = MagicMock()
+        mock_response.read.return_value = b"data"
+        
+        nested_path = tmp_path / "subdir" / "nested" / "file.txt"
+
+        with patch('code.utils.network.urlopen', return_value=mock_response):
+            fetch_file_with_retry("http://example.com/file.txt", str(nested_path))
+
+        assert nested_path.exists()
+        assert nested_path.parent.exists()
+
+    def test_http_5xx_error_triggers_retry(self):
+        """Test that HTTP 5xx errors trigger retry logic."""
+        mock_response = MagicMock()
+        
+        # First two calls return 503, third succeeds
+        mock_urlopen = MagicMock()
+        mock_urlopen.side_effect = [
+            HTTPError("http://example.com", 503, "Service Unavailable", {}, None),
+            HTTPError("http://example.com", 503, "Service Unavailable", {}, None),
+            mock_response
+        ]
+
+        with patch('code.utils.network.urlopen', mock_urlopen):
+            with patch('code.utils.network.time.sleep'):
+                result = exponential_backoff_request("http://example.com/file.txt")
+                assert result is mock_response
+                assert mock_urlopen.call_count == 3

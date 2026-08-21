@@ -4,265 +4,321 @@ import logging
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
-from joblib import Parallel, delayed
+from typing import List, Dict, Optional, Any, Tuple
+import json
 
-from code.config import DATA_INTERIM_DIR, DATA_RAW_DIR
-from code.provenance import add_encode_accession, set_jaspar_version
+# Add project root to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Configure logging
+from code.config import DATA_RAW_DIR, DATA_INTERIM_DIR, TMP_DIR
+from code.provenance import load_provenance, set_jaspar_version
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-JASPAR_CORE_VERSION = "2024"
-FIMO_THRESHOLD = 1e-4
+class FimoExecutionError(Exception):
+    """Raised when FIMO execution fails."""
+    pass
+
+class FimoParseError(Exception):
+    """Raised when FIMO output parsing fails."""
+    pass
 
 def find_motif_database() -> Path:
     """
-    Locate the JASPAR CORE motif database.
-    Assumes the database is installed via the `jaspar2024` package or available in standard paths.
+    Locate the JASPAR CORE database file.
+    Tries common installation paths or environment variables.
     """
-    # Try to find the database via the jaspar2024 package if installed
-    try:
-        import jaspar2024
-        jaspar_path = Path(jaspar2024.__file__).parent / "motifs" / "JASPAR2024_CORE_non-redundant_pfms_meme.txt"
-        if jaspar_path.exists():
-            logger.info(f"Found JASPAR database at {jaspar_path}")
-            return jaspar_path
-    except ImportError:
-        logger.warning("jaspar2024 package not found, searching for MEME file manually...")
-    
-    # Fallback: look for standard locations
+    # Common locations for JASPAR database
     possible_paths = [
-        Path("/usr/share/jaspar/JASPAR2024_CORE_non-redundant_pfms_meme.txt"),
-        Path(os.path.expanduser("~/.jaspar/JASPAR2024_CORE_non-redundant_pfms_meme.txt")),
+        Path("/usr/share/jaspar/MATRIX/JASPAR2024_CORE_non-redundant_pfms_meme.txt"),
+        Path("/usr/local/share/jaspar/MATRIX/JASPAR2024_CORE_non-redundant_pfms_meme.txt"),
         Path("./data/motifs/JASPAR2024_CORE_non-redundant_pfms_meme.txt"),
+        Path("./data/raw/JASPAR2024_CORE_non-redundant_pfms_meme.txt"),
     ]
-    
+
+    # Check environment variable first
+    env_path = os.getenv("JASPAR_DB")
+    if env_path and Path(env_path).exists():
+        logger.info(f"Using JASPAR database from environment variable: {env_path}")
+        return Path(env_path)
+
     for p in possible_paths:
         if p.exists():
-            logger.info(f"Found JASPAR database at {p}")
+            logger.info(f"Found JASPAR database at: {p}")
             return p
-    
+
+    # If not found, try to download it if internet is available
+    # For now, we assume it should be pre-downloaded or installed
     raise FileNotFoundError(
-        "Could not find JASPAR CORE motif database. "
-        "Please install the 'jaspar2024' package or provide the MEME file path."
+        "JASPAR database not found. Please download JASPAR2024_CORE_non-redundant_pfms_meme.txt "
+        "and place it in data/raw/ or set JASPAR_DB environment variable."
     )
 
-def prepare_input_bed(peaks: List[Tuple[str, str, int, int, str, str]], output_path: Path) -> Path:
+def prepare_input_bed(peaks_path: Path, output_path: Path) -> Path:
     """
-    Convert a list of peak tuples to a BED file for FIMO input.
-    Format: chrom, start, end, name, score, strand
+    Prepare a BED file for FIMO input from standardized peak file.
+    FIMO requires MEME format or specific BED format.
+    We assume peaks are already in a standard BED-like format.
     """
-    with open(output_path, 'w') as f:
-        for i, (chrom, start, end, name, score, strand) in enumerate(peaks):
-            # FIMO expects 0-based start, 1-based end in some contexts, but standard BED is 0-based start, 0-based end (exclusive)
-            # We assume input is standard BED format (0-based start, 0-based end exclusive)
-            # FIMO accepts standard BED format
-            f.write(f"{chrom}\t{start}\t{end}\t{name}\t{score}\t{strand}\n")
+    if not peaks_path.exists():
+        raise FileNotFoundError(f"Input peaks file not found: {peaks_path}")
+
+    # FIMO can accept BED files directly in some versions, but we ensure format compatibility
+    # Read and write to ensure clean format
+    with open(peaks_path, 'r') as f_in, open(output_path, 'w') as f_out:
+        for line in f_in:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            parts = line.split()
+            if len(parts) < 3:
+                logger.warning(f"Skipping malformed BED line: {line}")
+                continue
+            # Ensure chromosome, start, end are present
+            chrom = parts[0]
+            start = parts[1]
+            end = parts[2]
+            # FIMO needs 0-based start, BED is already 0-based
+            # Write standard 3-column BED
+            f_out.write(f"{chrom}\t{start}\t{end}\n")
+
+    logger.info(f"Prepared FIMO input BED: {output_path}")
     return output_path
 
-def run_fimo(motif_db: Path, input_bed: Path, output_dir: Path, threshold: float = FIMO_THRESHOLD) -> Path:
+def run_fimo(motif_db: Path, input_bed: Path, output_dir: Path, pvalue_threshold: float = 0.0001) -> Path:
     """
-    Run FIMO to scan peaks for motifs.
-    Returns the path to the FIMO output directory.
+    Run FIMO to scan for motifs.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-    fimo_output_dir = output_dir / "fimo_output"
-    fimo_output_dir.mkdir(exist_ok=True)
-    
+    results_file = output_dir / "fimo.tsv"
+
+    # Check if FIMO is installed
+    try:
+        subprocess.run(["fimo", "--version"], capture_output=True, check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        raise FimoExecutionError(
+            "FIMO is not installed or not in PATH. Please install MEME suite."
+        )
+
     cmd = [
         "fimo",
-        "--thresh", str(threshold),
-        "--oc", str(fimo_output_dir),
+        "--thresh", str(pvalue_threshold),
+        "--text",  # Output text format (TSV)
+        "--bgfile", "/dev/null",  # Use uniform background if no specific file
         str(motif_db),
         str(input_bed)
     ]
-    
+
+    # FIMO outputs to stdout with --text, or to file with --output
+    # Let's use --output to get fimo.tsv directly
+    cmd = [
+        "fimo",
+        "--thresh", str(pvalue_threshold),
+        "--output", str(output_dir),
+        str(motif_db),
+        str(input_bed)
+    ]
+
     logger.info(f"Running FIMO: {' '.join(cmd)}")
     try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            text=True,
+            timeout=3600  # 1 hour timeout
+        )
         if result.stderr:
             logger.warning(f"FIMO stderr: {result.stderr}")
     except subprocess.CalledProcessError as e:
-        logger.error(f"FIMO failed with return code {e.returncode}")
-        if e.stderr:
-            logger.error(f"FIMO stderr: {e.stderr}")
-        raise
-    
-    # Return the path to the gapped output file (gapped is usually the main result)
-    # FIMO outputs 'fimo.tsv' or 'fimo.txt' depending on version, but 'gapped' is standard in newer versions
-    # We'll look for the main TSV file
-    tsv_files = list(fimo_output_dir.glob("fimo*.tsv"))
-    if tsv_files:
-        return tsv_files[0]
-    # Fallback to txt if tsv not found
-    txt_files = list(fimo_output_dir.glob("fimo*.txt"))
-    if txt_files:
-        return txt_files[0]
-    raise FileNotFoundError("FIMO did not produce expected output files.")
+        raise FimoExecutionError(f"FIMO execution failed: {e.stderr}")
+    except subprocess.TimeoutExpired:
+        raise FimoExecutionError("FIMO execution timed out")
 
-def parse_fimo_output(fimo_tsv: Path) -> List[Dict[str, Any]]:
+    # FIMO outputs fimo.tsv in the output directory
+    if not results_file.exists():
+        # Sometimes it's named differently or in a subdirectory
+        potential_files = list(output_dir.glob("fimo.*"))
+        if potential_files:
+            results_file = potential_files[0]
+        else:
+            raise FimoExecutionError(f"FIMO did not produce expected output in {output_dir}")
+
+    logger.info(f"FIMO completed. Results: {results_file}")
+    return results_file
+
+def parse_fimo_output(fimo_results_path: Path) -> List[Dict[str, Any]]:
     """
-    Parse FIMO TSV output into a list of motif matches.
-    Expected columns: motif_id, motif_alt_id, sequence_name, start, stop, strand, score, p-value, q-value, matched_sequence
+    Parse FIMO TSV output into a standardized list of motif matches.
+
+    FIMO output columns (from MEME suite):
+    motif_id, motif_alt_id, sequence_name, start, stop, strand, score, p-value, q-value, matched_sequence
+
+    Returns a list of dicts with keys:
+      - motif_id: str (JASPAR ID, e.g., 'MA0001.1')
+      - sequence_name: str (chromosome or peak ID)
+      - start: int (0-based start coordinate)
+      - stop: int (end coordinate)
+      - strand: str ('+' or '-')
+      - score: float
+      - p_value: float
+      - q_value: float
+      - matched_sequence: str
     """
+    if not fimo_results_path.exists():
+        raise FileNotFoundError(f"FIMO results file not found: {fimo_results_path}")
+
     matches = []
-    with open(fimo_tsv, 'r') as f:
-        header = f.readline().strip().split('\t')
-        # Find column indices
-        try:
-            motif_idx = header.index('motif_id')
-            seq_name_idx = header.index('sequence_name')
-            start_idx = header.index('start')
-            stop_idx = header.index('stop')
-            strand_idx = header.index('strand')
-            score_idx = header.index('score')
-            pval_idx = header.index('p-value')
-        except ValueError as e:
-            logger.error(f"Missing expected column in FIMO output: {e}")
-            raise
-        
+    with open(fimo_results_path, 'r') as f:
+        header = None
         for line in f:
-            parts = line.strip().split('\t')
-            if len(parts) < len(header):
+            line = line.strip()
+            if not line:
                 continue
+            if line.startswith('#'):
+                continue
+
+            parts = line.split('\t')
+
+            # Parse header to map indices
+            if header is None:
+                header = parts
+                # Validate expected columns
+                expected_cols = ['motif_id', 'motif_alt_id', 'sequence_name', 'start', 'stop',
+                                 'strand', 'score', 'p-value', 'q-value', 'matched_sequence']
+                if header != expected_cols:
+                    logger.warning(f"FIMO header mismatch. Expected: {expected_cols}, Got: {header}")
+                continue
+
+            # Parse data row
             try:
+                if len(parts) < 10:
+                    logger.warning(f"Skipping malformed FIMO line (too few columns): {line}")
+                    continue
+
                 match = {
-                    'motif_id': parts[motif_idx],
-                    'sequence_name': parts[seq_name_idx],
-                    'start': int(parts[start_idx]),
-                    'stop': int(parts[stop_idx]),
-                    'strand': parts[strand_idx],
-                    'score': float(parts[score_idx]),
-                    'p_value': float(parts[pval_idx]),
+                    'motif_id': parts[0],
+                    'motif_alt_id': parts[1],
+                    'sequence_name': parts[2],
+                    'start': int(parts[3]),
+                    'stop': int(parts[4]),
+                    'strand': parts[5],
+                    'score': float(parts[6]),
+                    'p_value': float(parts[7]),
+                    'q_value': float(parts[8]),
+                    'matched_sequence': parts[9]
                 }
                 matches.append(match)
+
             except (ValueError, IndexError) as e:
-                logger.warning(f"Skipping malformed FIMO line: {line} - {e}")
+                logger.warning(f"Skipping malformed FIMO line (parse error): {line} - {e}")
                 continue
+
+    logger.info(f"Parsed {len(matches)} motif matches from FIMO output.")
     return matches
 
-def scan_cell_type(cell_type: str, peaks: List[Tuple[str, str, int, int, str, str]], motif_db: Path) -> List[Dict[str, Any]]:
+def scan_cell_type(cell_type: str, peaks_path: Path, output_dir: Path,
+                   motif_db: Optional[Path] = None, pvalue_threshold: float = 0.0001) -> List[Dict[str, Any]]:
     """
-    Scan a single cell type's peaks for motifs.
-    Uses joblib.Parallel for parallel execution if the peak list is large.
-    However, FIMO itself is a single process per run. The optimization here
-    is to parallelize the scanning of *multiple* cell types if called in a batch,
-    or to split a very large BED file into chunks if FIMO supports it (it doesn't directly).
-    
-    Since FIMO runs as a single process per invocation, we cannot parallelize *within* a single FIMO run
-    easily without splitting the input BED file. The task asks to use joblib.Parallel in the FIMO loop.
-    The most logical interpretation is to parallelize the scanning of multiple cell types 
-    OR to parallelize the processing of chunks of peaks if we were running FIMO on chunks.
-    Given FIMO's nature, we will parallelize the scanning of multiple cell types if this function 
-    is part of a larger loop, but here it's for a single cell type.
-    
-    To satisfy the requirement "Modify FIMO loop in code/scan.py to use joblib.Parallel",
-    we will implement a strategy where we split the peaks into chunks, run FIMO on each chunk in parallel,
-    and then merge the results. This is safe if the chunks are independent (which they are).
-    Note: FIMO doesn't natively support parallel processing of a single input file, so we split the input.
-    
-    However, splitting BED for FIMO and merging results is complex because FIMO expects a single file.
-    A better approach for "parallelizing the loop" in the context of the whole pipeline is to parallelize
-    the `scan_all_cell_types` function. But the task specifically mentions `scan.py` and the FIMO loop.
-    
-    Let's interpret "FIMO loop" as the loop that processes chunks of data if we were to split the input.
-    Since FIMO doesn't support chunked input natively, we will create a wrapper that splits the BED,
-    runs FIMO on each chunk in parallel, and merges the TSV outputs.
-    
-    Wait, FIMO is slow. Splitting the input BED file into N chunks, running FIMO N times in parallel,
-    and merging the results is a valid strategy to speed up processing on multi-core machines.
-    We must ensure memory usage stays <7GB.
+    Run FIMO scan for a single cell type.
     """
-    
-    # Strategy: Split peaks into chunks, run FIMO on each chunk in parallel, merge results.
-    # Number of jobs: 2 as per task requirement.
-    # Max memory per job: 500MB (controlled by joblib's max_nbytes, though FIMO's memory usage is external).
-    # We rely on the fact that each FIMO process will use some memory, and 2 processes * ~500MB (est) = ~1GB, well under 7GB.
-    
-    num_jobs = 2
-    chunk_size = max(1000, len(peaks) // num_jobs)
-    chunks = [peaks[i:i + chunk_size] for i in range(0, len(peaks), chunk_size)]
-    
-    logger.info(f"Splitting {len(peaks)} peaks into {len(chunks)} chunks for parallel FIMO execution.")
-    
-    def run_fimo_on_chunk(chunk_peaks: List[Tuple[str, str, int, int, str, str]], chunk_id: int) -> List[Dict[str, Any]]:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmp_path = Path(tmpdir)
-            input_bed = tmp_path / f"chunk_{chunk_id}.bed"
-            prepare_input_bed(chunk_peaks, input_bed)
-            fimo_result = run_fimo(motif_db, input_bed, tmp_path)
-            return parse_fimo_output(fimo_result)
-    
-    # Run FIMO on chunks in parallel
-    # Note: We use max_nbytes to limit the memory footprint of joblib's serialization,
-    # but the actual FIMO process memory is controlled by the OS and FIMO itself.
-    # We assume FIMO's memory usage is manageable for 2 concurrent processes.
-    results = Parallel(n_jobs=num_jobs, max_nbytes=500*1024*1024)(
-        delayed(run_fimo_on_chunk)(chunk, idx) for idx, chunk in enumerate(chunks)
-    )
-    
-    # Flatten results
-    all_matches = [match for chunk_results in results for match in chunk_results]
-    logger.info(f"Scanned {cell_type}: found {len(all_matches)} motif matches.")
-    return all_matches
+    if motif_db is None:
+        motif_db = find_motif_database()
 
-def scan_all_cell_types(cell_type_peaks: Dict[str, List[Tuple[str, str, int, int, str, str]]]) -> Dict[str, List[Dict[str, Any]]]:
+    # Prepare input
+    input_bed = output_dir / f"{cell_type}_input.bed"
+    prepare_input_bed(peaks_path, input_bed)
+
+    # Run FIMO
+    fimo_output_dir = output_dir / fimo_output_dir
+    fimo_output_dir.mkdir(parents=True, exist_ok=True)
+    fimo_results = run_fimo(motif_db, input_bed, fimo_output_dir, pvalue_threshold)
+
+    # Parse results
+    matches = parse_fimo_output(fimo_results)
+
+    # Filter to only matches within the original peaks if needed
+    # (FIMO already operates on the input BED regions)
+
+    return matches
+
+def scan_all_cell_types(cell_types: List[str], peaks_dir: Path, output_dir: Path,
+                        motif_db: Optional[Path] = None, pvalue_threshold: float = 0.0001) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Scan all cell types for motifs.
+    Scan peaks for all cell types.
     """
-    motif_db = find_motif_database()
-    set_jaspar_version(JASPAR_CORE_VERSION)
-    
     all_results = {}
-    for cell_type, peaks in cell_type_peaks.items():
-        logger.info(f"Scanning cell type: {cell_type} ({len(peaks)} peaks)")
-        matches = scan_cell_type(cell_type, peaks, motif_db)
+    for cell_type in cell_types:
+        peaks_path = peaks_dir / f"{cell_type}_peaks.bed"
+        if not peaks_path.exists():
+            logger.warning(f"Peaks file not found for {cell_type}: {peaks_path}")
+            all_results[cell_type] = []
+            continue
+
+        cell_type_output_dir = output_dir / cell_type
+        cell_type_output_dir.mkdir(parents=True, exist_ok=True)
+
+        logger.info(f"Scanning {cell_type}...")
+        matches = scan_cell_type(cell_type, peaks_path, cell_type_output_dir, motif_db, pvalue_threshold)
         all_results[cell_type] = matches
+
+        # Save individual scan results for provenance/debugging
+        save_scan_results(matches, cell_type_output_dir / f"{cell_type}_scan_results.json")
+
     return all_results
 
-def save_scan_results(results: Dict[str, List[Dict[str, Any]]], output_dir: Path):
+def save_scan_results(matches: List[Dict[str, Any]], output_path: Path):
     """
-    Save scan results to JSON files.
+    Save scan results to JSON for later use.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    for cell_type, matches in results.items():
-        output_file = output_dir / f"{cell_type}_motif_matches.json"
-        with open(output_file, 'w') as f:
-            import json
-            json.dump(matches, f, indent=2)
-        logger.info(f"Saved {len(matches)} matches for {cell_type} to {output_file}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(matches, f, indent=2)
+    logger.info(f"Saved {len(matches)} matches to {output_path}")
 
 def main():
     """
-    Main entry point for motif scanning.
+    Main entry point for scanning motifs.
     """
-    # This would typically be called from main.py with preprocessed data
-    # For now, we assume data is in DATA_INTERIM_DIR
-    logger.info("Starting motif scanning pipeline...")
-    
-    # Example: Load peaks from interim directory (simplified)
-    # In reality, this would be passed from preprocess.py
-    cell_type_peaks = {}
-    # Placeholder for loading data
-    # for cell_type in ['GM12878', 'K562', 'HepG2', 'H1-hESC', 'IMR90']:
-    #     peaks_file = DATA_INTERIM_DIR / f"{cell_type}_peaks.bed"
-    #     if peaks_file.exists():
-    #         # Parse BED file
-    #         cell_type_peaks[cell_type] = [] # TODO: Implement parsing
-    
-    if not cell_type_peaks:
-        logger.warning("No peaks found. Skipping scan.")
-        return
-    
-    results = scan_all_cell_types(cell_type_peaks)
-    save_scan_results(results, DATA_INTERIM_DIR / "scan_results")
-    logger.info("Motif scanning completed.")
+    # Load configuration
+    provenance = load_provenance()
+    jaspar_version = provenance.get('jaspar_version', 'JASPAR2024')
+    set_jaspar_version(jaspar_version)
+
+    cell_types = ['GM12878', 'K562', 'HepG2', 'H1-hESC', 'IMR90']
+    peaks_dir = DATA_INTERIM_DIR  # Assuming peaks are preprocessed here
+    output_dir = DATA_INTERIM_DIR / "fimo_results"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Find motif database
+    try:
+        motif_db = find_motif_database()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
+    # Run scanning
+    results = scan_all_cell_types(cell_types, peaks_dir, output_dir, motif_db)
+
+    # Aggregate and save all results
+    all_matches = []
+    for cell_type, matches in results.items():
+        for match in matches:
+            match['cell_type'] = cell_type
+        all_matches.extend(matches)
+
+    # Save combined results
+    combined_output = output_dir / "all_matches.json"
+    save_scan_results(all_matches, combined_output)
+
+    logger.info(f"Total motif matches across all cell types: {len(all_matches)}")
+    return all_matches
 
 if __name__ == "__main__":
     main()

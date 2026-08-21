@@ -17,7 +17,7 @@ The researcher needs to download, parse, and normalize ATAC-seq and ChIP-seq pea
 
 **Acceptance Scenarios**:
 
-1. **Given** the ENCODE Peak Region URLs for the 5 cell types, **When** the ingestion script executes, **Then** it downloads all files to the configured `TMP_DIR` and parses them into a standardized in-memory or temporary file structure within 14GB disk limits.
+1. **Given** the ENCODE Peak Region URLs for the cell types, **When** the ingestion script executes, **Then** it downloads all files to the configured `TMP_DIR` and parses them into a standardized in-memory or temporary file structure within GB disk limits.
 2. **Given** malformed or partially corrupted Peak Region files, **When** the parser encounters them, **Then** the system logs a specific error for the file and continues processing remaining valid files rather than aborting the entire run.
 3. **Given** the parsed Peak Region data, **When** the annotation step runs, **Then** the system correctly maps Peak Region coordinates to nearby gene symbols using a standard reference genome (e.g., hg38) and outputs a count of Peak Regions per gene per cell type.
 
@@ -65,7 +65,7 @@ The researcher needs to generate visualizations (heatmaps, Manhattan plots) of t
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download ATAC-seq and ChIP-seq peak files for specific cell types (GM12878, K562, HepG2, H1-hESC, IMR90) from ENCODE using HTTP GET requests, ensuring total raw download size does not exceed a manageable storage threshold, while allowing up to 14GB of temporary disk space for unpacked and indexed files. (See US-1)
+- **FR-001**: System MUST download ATAC-seq and ChIP-seq peak files for specific cell types (GM12878, K562, HepG2, H1-hESC, IMR90) from ENCODE using HTTP GET requests, ensuring total raw download size does not exceed a manageable storage threshold, while allowing up to GB of temporary disk space for unpacked and indexed files. (See US-1)
 - **FR-002**: System MUST parse BED-formatted Peak Region files and annotate genomic regions with gene symbols using the hg38 reference genome, storing intermediate results in a configurable directory (`TMP_DIR`, default `/tmp`) with a pre-flight check ensuring ≥ 14GB available space. (See US-1)
 - **FR-003**: System MUST scan accessible regions for TF motif matches using a CPU-only tool (FIMO or HOMER) against the JASPAR database, identifying matches with a p-value ≤ 0.0001. (See US-2)
 - **FR-004**: System MUST compute motif enrichment scores using Fisher's exact test for each motif-cell type combination, using Peak Regions from other cell types as the background model, and apply Benjamini-Hochberg correction for multiple testing across all motifs. (See US-2)
@@ -89,7 +89,11 @@ The researcher needs to generate visualizations (heatmaps, Manhattan plots) of t
 - **SC-001**: The number of successfully downloaded and parsed Peak Region files is measured against the target of multiple cell types. ([deferred] of specified files must parse successfully). (See US-1)
 - **SC-002**: The statistical significance of motif enrichment is measured against the multiple-testing corrected threshold of q < 0.05 to identify cell-type-specific signatures. (See US-2)
 - **SC-003**: The biological relevance of findings is measured against the overlap percentage of predicted motifs with independent public ChIP-seq data for the same TF/cell type (must be ≥ 60% for top hits). (See US-3)
-- **SC-004**: The computational feasibility is measured against the constraint of completing the full analysis (download to visualization) within 6 hours on a 2-core, 16GB RAM CPU-only runner. (See US-2, US-3)
+- **SC-004**: The computational feasibility is measured against the constraint of completing the full analysis (download to visualization) within 6 hours on a Multi-core CPU-only runner
+
+The research question remains: [Insert Research Question Here]
+The method remains: [Insert Method Here]
+References: [Insert References Here]. (See US-2, US-3)
 
 ## Assumptions
 

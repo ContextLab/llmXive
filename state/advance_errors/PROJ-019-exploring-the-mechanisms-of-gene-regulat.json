@@ -3,12 +3,12 @@
   "stage": "tasked",
   "class": "transient",
   "fingerprint": "backend_chain_failed",
-  "consecutive_count": 6,
+  "consecutive_count": 0,
   "first_seen": "2026-08-20T12:12:44.187934+00:00",
-  "last_seen": "2026-08-20T22:11:51.265260+00:00",
-  "retry_after": "2026-08-21T03:31:51.265260+00:00",
+  "last_seen": "2026-08-21T04:48:05.341471+00:00",
+  "retry_after": null,
   "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: <html>\r\n<head><title>302 Found</title></head>\r\n<body>\r\n<center><h1>302 Found</h1></center>\r\n<hr><center>nginx/1.31.4</center>\r\n</body>\r\n</html> | local: transformers is not installed; required by local backend",
   "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: <html> <head><title>302 Found</title></head> <body> <center><h1>302 Found</h1></center> <hr><center>nginx/1.31.4</center> </body> </html> | local: transformers is not installed; required by local backend",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "retry_scheduled"
+  "status": "cleared"
 }

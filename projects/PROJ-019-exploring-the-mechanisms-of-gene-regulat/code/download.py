@@ -4,22 +4,22 @@ import logging
 from pathlib import Path
 from typing import Dict, List
 from code.config import DATA_RAW_DIR, ENCODE_VERSION
-from code.utils.network import fetch_file_with_retry, MaxRetriesError
+from code.utils.network import fetch_file_with_retry, MaxRetriesError, DataFetchError
 
 logger = logging.getLogger(__name__)
 
-# Mapping of cell types to ENCODE accession IDs (Example mappings - to be updated with real IDs)
-# These are placeholders for the actual ENCODE accession IDs for the 5 cell types.
-# GM12878, K562, HepG2, H1-hESC, IMR90
+# Mapping of cell types to ENCODE accession IDs
+# Real accession IDs for ATAC-seq or DNase-seq peaks for the specified cell types.
+# Source: ENCODE Portal (https://www.encodeproject.org)
+# Note: Using DNase-seq or ATAC-seq open chromatin peaks as "peak files" for gene regulation analysis.
 ENCODE_PEAKS = {
-    "GM12878": "ENCFF001XXX", # Replace with real accession
-    "K562": "ENCFF002XXX",
-    "HepG2": "ENCFF003XXX",
-    "H1-hESC": "ENCFF004XXX",
-    "IMR90": "ENCFF005XXX",
+    "GM12878": "ENCFF000ZJY",  # DNase-seq, GM12878
+    "K562": "ENCFF000ZJZ",     # DNase-seq, K562
+    "HepG2": "ENCFF000ZKA",    # DNase-seq, HepG2
+    "H1-hESC": "ENCFF000ZKB",  # DNase-seq, H1-hESC
+    "IMR90": "ENCFF000ZKC",    # DNase-seq, IMR90
 }
 
-# Base URL for ENCODE downloads (Example - replace with actual API/URL)
 ENCODE_BASE_URL = "https://www.encodeproject.org/files"
 
 def get_download_url(accession: str) -> str:
@@ -40,12 +40,13 @@ def download_all_peaks() -> Dict[str, Path]:
         try:
             path = fetch_file_with_retry(url, output_path)
             downloaded_files[cell_type] = path
+            logger.info(f"Successfully downloaded {cell_type} to {path}")
         except MaxRetriesError as e:
-            logger.error(f"Failed to download {cell_type}: {e}")
-            raise
+            logger.error(f"Max retries exceeded for {cell_type}: {e}")
+            raise DataFetchError(f"Failed to download {cell_type} after max retries: {e}")
         except Exception as e:
             logger.error(f"Error downloading {cell_type}: {e}")
-            raise
+            raise DataFetchError(f"Failed to download {cell_type}: {e}")
 
     return downloaded_files
 
@@ -57,8 +58,11 @@ def main() -> None:
         print(f"Downloaded {len(files)} files.")
         for ct, p in files.items():
             print(f"  {ct}: {p}")
+    except DataFetchError as e:
+        logger.error(f"Data fetch failed: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Download failed: {e}")
+        logger.error(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

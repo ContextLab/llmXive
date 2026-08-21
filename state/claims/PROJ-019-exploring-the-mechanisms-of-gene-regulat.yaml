@@ -199,3 +199,459 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T00:21:10Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 14 GB free disk space required
+  claim_id: c_c6862344
+  context: "Includes logic to validate that `TMP_DIR` exists and has \u226514GB free\
+    \ space before any processing begins (FR-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline requires \u226514GB free disk space before any processing\
+    \ begins."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T04:49:14Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 16 GB RAM verification with 7 GB failure threshold
+  claim_id: c_c4ffd61d
+  context: "Create `code/utils/memory_check.py` to verify \u226516GB RAM availability\
+    \ (SC-004) and log a CRITICAL warning if below 16GB but above 7GB (Plan target),\
+    \ exiting with error ONLY if < 7GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline verifies \u226516GB RAM availability, logging a CRITICAL\
+    \ warning if below 16GB but above 7GB, and exiting with error only if < 7GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T04:49:59Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 3 retries for HTTP requests
+  claim_id: c_5d8d6998
+  context: Create `code/utils/network.py` implementing exponential backoff with a
+    maximum of 3 retries for HTTP requests (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline implements exponential backoff with a maximum of 3 retries
+    for HTTP requests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T04:50:29Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 0.0001 p-value threshold for FIMO
+  claim_id: c_c79fa0d0
+  context: "Implement `code/scan.py` to invoke FIMO (subprocess) against JASPAR CORE\
+    \ database with p-value \u22640.0001 threshold (FR-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The enrichment analysis uses a p-value threshold of \u22640.0001 for\
+    \ FIMO motif scanning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T04:50:29Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: '5 cell types: GM12878, K562, HepG2, H1-hESC, IMR90'
+  claim_id: c_21227a44
+  context: 'cell_type` (**exact string match**: [''GM12878'', ''K562'', ''HepG2'',
+    ''H1-hESC'', ''IMR90''])'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The enrichment matrix output includes cell types: GM12878, K562, HepG2,
+    H1-hESC, and IMR90.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T04:50:58Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 7 GB memory usage limit
+  claim_id: c_e9c814d1
+  context: Add chunked processing logic in `code/enrichment.py` to ensure memory usage
+    stays <7GB if dataset size approaches RAM limits
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage is constrained to stay below 7GB via chunked processing logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T04:51:32Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 0.4 silhouette score threshold
+  claim_id: c_06327377
+  context: "verify heatmap clustering silhouette score \u22650.4 (as a verification\
+    \ metric)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Clustering silhouette score verification requires a score \u22650.4."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T04:51:32Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 60% overlap between predicted motifs and ChIP-seq peaks
+  claim_id: c_f3f7b9c2
+  context: "confirm \u226560% overlap between predicted motifs and independent ChIP-seq\
+    \ peaks."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The validation step confirms \u226560% overlap between predicted motifs\
+    \ and independent ChIP-seq peaks."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T04:51:32Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 0.05 q-value threshold for top motifs
+  claim_id: c_b2f3ede2
+  context: Implement `code/validate.py` to filter enrichment results to top enriched
+    motifs (q < 0.05)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Top enriched motifs are filtered using a q-value threshold of < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T04:51:32Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: p-values less than or equal to 0.0001 and enrichment profile correlation
+    less than 0.8 between cell types
+  claim_id: c_848ce407
+  context: "Independent Test: Run scanning on a small synthetic subset, verify output\
+    \ contains p-values \u22640.0001, and confirm distinct enrichment profiles (correlation\
+    \ <0.8) between cell types."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P-values_less_than_or_equal_to_0.0001_and_enrichment_profile
+  kind: magnitude
+  raw_text: "Verify output contains p-values \u22640.0001, and confirm distinct enrichment\
+    \ profiles (correlation <0.8) between cell types."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:04:06Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: heatmap clustering silhouette score greater than or equal to 0.4
+  claim_id: c_49ce5412
+  context: "Independent Test: Generate plots, verify heatmap clustering silhouette\
+    \ score \u22650.4 (as a verification metric), and confirm \u226560% overlap between\
+    \ predicted motifs and independent ChIP-seq peaks."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Heatmap_clustering_silhouette_score_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: "verify heatmap clustering silhouette score \u22650.4"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:04:40Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: 60 percent overlap between predicted motifs and independent ChIP-seq
+    peaks
+  claim_id: c_80a1739b
+  context: "Independent Test: Generate plots, verify heatmap clustering silhouette\
+    \ score \u22650.4 (as a verification metric), and confirm \u226560% overlap between\
+    \ predicted motifs and independent ChIP-seq peaks."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "confirm \u226560% overlap between predicted motifs and independent ChIP-seq\
+    \ peaks"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:04:40Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: exit with error only if RAM less than 7GB
+  claim_id: c_36cfb89b
+  context: "Create code/utils/memory_check.py to verify \u226516GB RAM availability\
+    \ (SC-004) and log a CRITICAL warning if below 16GB but above 7GB (Plan target),\
+    \ exiting with error ONLY if < 7GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exit_with_error_only_if_RAM_less_than_7GB
+  kind: magnitude
+  raw_text: exit with error ONLY if < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:05:52Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: maximum of 3 retries for HTTP requests
+  claim_id: c_42c5bac3
+  context: Create code/utils/network.py implementing exponential backoff with a maximum
+    of 3 retries for HTTP requests (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: maximum of 3 retries for HTTP requests
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:06:26Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: TMP_DIR exists and has 14GB free space
+  claim_id: c_0b904b21
+  context: "Includes logic to validate that TMP_DIR exists and has \u226514GB free\
+    \ space before any processing begins (FR-002)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TMP_DIR_exists_and_has_14GB_free_space
+  kind: entity_fact
+  raw_text: "validate that TMP_DIR exists and has \u226514GB free space"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:07:53Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: summary report of peak counts per cell type within 14GB disk limits
+  claim_id: c_0ee29125
+  context: 'Independent Test: Verify pipeline downloads files to TMP_DIR, parses them
+    without crashing, and outputs a summary report of peak counts per cell type within
+    14GB disk limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Summary_report_of_peak_counts_per_cell_type_within_14GB_disk
+  kind: entity_fact
+  raw_text: output a summary report of peak counts per cell type within 14GB disk
+    limits
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:08:51Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: cell types GM12878 K562 HepG2 H1-hESC IMR90
+  claim_id: c_f01420fd
+  context: 'function run_ingestion(peak_files) takes parsed peaks as input and generates
+    data/processed/ingestion_summary.json with keys: total_peaks (int, sum of all
+    parsed files), cell_types (list, exact values: [''GM12878'', ''K562'', ''HepG2'',
+    ''H1-hESC'', ''IMR90'']; raise error if input contains unexpected types), parsed_count
+    (int, count of successfully parsed files)'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: GM12878
+      source_id: Q54846175
+      url: https://www.wikidata.org/wiki/Q54846175
+      value: GM12878
+    filled: true
+  kind: entity_fact
+  raw_text: 'cell types: ''GM12878'', ''K562'', ''HepG2'', ''H1-hESC'', ''IMR90'''
+  resolved_value: GM12878
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T05:09:10Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: FIMO selected over HOMER per plan.md Technical Context
+  claim_id: c_f85c1c37
+  context: 'Note: FIMO is selected over HOMER per plan.md Technical Context. The spec
+    allows ''FIMO or HOMER'', but plan.md explicitly selects FIMO.'
+  evidence:
+    entailment_evidence: FIMO selected over HOMER per plan.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/FIMO_selected_over_HOMER_per_plan.md_Technical_Context
+  kind: entity_fact
+  raw_text: FIMO is selected over HOMER per plan.md Technical Context
+  resolved_value: FIMO selected over HOMER per plan.md Technical Context
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T05:09:13Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: memory usage stays less than 7GB if dataset size approaches RAM limits
+  claim_id: c_75780519
+  context: Add chunked processing logic in code/enrichment.py to ensure memory usage
+    stays <7GB if dataset size approaches RAM limits (GitHub Actions free-tier constraint).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_stays_less_than_7GB_if_dataset_size_approaches
+  kind: magnitude
+  raw_text: ensure memory usage stays <7GB if dataset size approaches RAM limits
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:09:55Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: total memory footprint remains less than 7GB
+  claim_id: c_f61c9eee
+  context: Modify FIMO loop in code/scan.py to use joblib.Parallel(n_jobs=2, max_nbytes=500MB)
+    where safe, ensuring total memory footprint remains <7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_memory_footprint_remains_less_than_7GB
+  kind: magnitude
+  raw_text: total memory footprint remains <7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:10:22Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: silhouette score less than 0.4 log warning and set validation_passed
+    False
+  claim_id: c_9ff18da2
+  context: If score < 0.4, log a warning and set validation_passed = False. If score
+    >= 0.4, log a success message and set validation_passed = True.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Silhouette_score_less_than_0.4_log_warning_and_set_validatio
+  kind: magnitude
+  raw_text: silhouette score < 0.4, log a warning and set validation_passed = False
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:11:29Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: precision reported to two decimal places
+  claim_id: c_0c44415f
+  context: overlap_pct (float, The precision of the measurement will be reported to
+    two decimal places., or null)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Precision_reported_to_two_decimal_places
+  kind: entity_fact
+  raw_text: precision of the measurement will be reported to two decimal places
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:12:56Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: q_value reported to four decimal places
+  claim_id: c_7dacf4a5
+  context: 'top_motifs (list of objects with keys: motif_id (string), q_value (float,
+    high precision (e.g., four decimal places)), overlap_pct (float, 2 decimal places,
+    or null))'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Q_value_reported_to_four_decimal_places
+  kind: entity_fact
+  raw_text: high precision (e.g., four decimal places)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:13:40Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: silhouette_score reported to two decimal places
+  claim_id: c_5251b87b
+  context: silhouette_score (float, 2 decimal places), validation_passed (bool), silhouette_test_passed
+    (bool, derived from score >= 0.4).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: silhouette_score (float, 2 decimal places)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:14:32Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: minimal computing environment small number of cores limited RAM limited
+    disk
+  claim_id: c_7984fdaf
+  context: 'Critical Constraint: All tasks must run on CPU-only free-tier CI (A minimal
+    computing environment with a small number of cores, limited RAM (~GB), and limited
+    disk.). No GPU, no 8-bit quantization, no large model training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimal_computing_environment_small_number_of_cores_limited
+  kind: entity_fact
+  raw_text: A minimal computing environment with a small number of cores, limited
+    RAM (~GB), and limited disk
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T05:15:07Z'

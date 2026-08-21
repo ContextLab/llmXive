@@ -1,11 +1,20 @@
-T015:
+T016:
   c: false
-  h: c9e0ca97a14edfac22990468529b59a033fcee67f4f44e44c08adca71ebb7d31
-  r: The `code/main.py` defines `run_ingestion` and writes a JSON file, but the required
-    output file `data/processed/ingestion_summary.json` is missing, and the `cell_types`
-    list is sorted rather than preserving the exact order `['GM12878', 'K562', 'HepG2',
-    'H1-hESC', 'IMR90']`. The implementation therefore does not fully meet the task
-    specifications.
+  h: 57872593667cab7fbc424a9f71f9676e2af0466b1ba2e3ff3416d31b6c052bd8
+  r: "`code/main.py` imports and calls `check_memory`, but the required file `code/utils/memory_check.py`\
+    \ does not exist, so the integration cannot work. Additionally, the truncated\
+    \ portion of `main.py` does not show that `run_preflight_checks` is invoked before\
+    \ the ingestion step, leaving the orchestration requirement unverified. The missing\
+    \ `memory_check.py` must be added (with a `check_memory` function) and the pre\u2011\
+    flight call wired into the ingestion flow."
+T024:
+  c: false
+  h: fdb5ab697c28d5c7d8152e0b10dffb494ed98df8468bbd4e0c1e085e583d26be
+  r: The provided `code/main.py` excerpt does not contain a `run_enrichment(matches,
+    background)` function, nor does it show any logic that writes `data/processed/enrichment_matrix.csv`.
+    Additionally, the required `enrichment_matrix.csv` file is absent from the repository.
+    Both the function implementation and the output artifact are missing, so the task
+    is not satisfied.
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -15,13 +24,6 @@ T036:
     or any concrete output, the claim cannot be verified. The next implementer must
     supply the modified code and evidence (e.g., timing comparisons) showing safe
     parallel execution of FIMO.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any files under `tests/unit/` was provided; without actual unit\
-    \ test files present, the requirement for \u201CAdditional unit tests in `tests/unit/`\u201D\
-    \ is not satisfied. The implementer must add non\u2011empty test modules in that\
-    \ directory."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,3 +1,8 @@
+"""
+Main orchestration module for the gene regulation analysis pipeline.
+Coordinates data ingestion, motif scanning, enrichment analysis, visualization, and validation.
+"""
+
 import sys
 import json
 import logging
@@ -5,213 +10,278 @@ from pathlib import Path
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
-from code.config import DATA_PROCESSED_DIR
-from code.provenance import load_provenance
-from code.ingest import parse_bed_file
-from code.preprocess import process_cell_type_peaks, aggregate_background_model
-from code.scan import scan_cell_type, parse_fimo_output
-from code.enrichment import calculate_enrichment, benjamini_hochberg_correction, process_cell_type_enrichment, aggregate_enrichment_results
-from code.visualize import load_enrichment_matrix, cluster_matrix, calculate_silhouette_score, generate_heatmap
-from code.validate import load_enrichment_results, get_top_motifs_per_cell_type, load_chip_overlap_stats, generate_top_motifs_summary
+# Import configuration
+from code.config import DATA_PROCESSED_DIR, DATA_INTERIM_DIR, TMP_DIR
 
-# Configure logging
+# Import utility modules
+from code.utils.disk_check import check_disk_space
+from code.utils.memory_check import check_memory
+
+# Import pipeline stage modules
+from code.download import download_all_peaks
+from code.preprocess import preprocess_all_cell_types
+from code.ingest import parse_bed_file
+from code.scan import scan_all_cell_types, save_scan_results
+from code.enrichment import (
+    load_motif_scan_results,
+    load_background_peaks,
+    calculate_enrichment,
+    benjamini_hochberg_correction,
+    process_cell_type_enrichment,
+    aggregate_enrichment_results,
+    main as enrichment_main
+)
+from code.visualize import (
+    load_enrichment_matrix,
+    calculate_euclidean_distance_matrix,
+    cluster_matrix,
+    calculate_silhouette_score,
+    generate_heatmap,
+    main as visualize_main
+)
+from code.validate import (
+    load_enrichment_results,
+    get_top_motifs_per_cell_type,
+    calculate_silhouette_score_from_heatmap_data,
+    validate_motifs,
+    generate_top_motifs_summary,
+    main as validate_main
+)
+from code.summary_table import generate_summary_table, main as summary_main
+from code.provenance import initialize_provenance, save_provenance, set_jaspar_version, add_encode_accession
+
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('pipeline.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def generate_ingestion_summary(peak_files: Dict[str, Path]) -> Dict[str, Any]:
-    """
-    Generates ingestion summary based on parsed peak files.
+def run_preflight_checks() -> bool:
+    """Run pre-flight checks for disk space and memory."""
+    logger.info("Running pre-flight checks...")
     
-    Args:
-        peak_files: Dictionary mapping cell type names to their peak file paths.
-        
-    Returns:
-        Dictionary with total_peaks, cell_types, and parsed_count.
-    """
-    total_peaks = 0
-    parsed_count = 0
-    cell_types = []
-    expected_types = ['GM12878', 'K562', 'HepG2', 'H1-hESC', 'IMR90']
+    # Check disk space
+    if not check_disk_space(TMP_DIR, min_space_bytes=14 * 1024**3):
+        logger.error("Insufficient disk space. Aborting.")
+        return False
     
-    for cell_type, file_path in peak_files.items():
-        if cell_type not in expected_types:
-            raise ValueError(f"Unexpected cell type '{cell_type}'. Expected one of: {expected_types}")
-        
-        cell_types.append(cell_type)
-        try:
-            peaks = parse_bed_file(file_path)
-            total_peaks += len(peaks)
-            parsed_count += 1
-            logger.info(f"Parsed {len(peaks)} peaks for {cell_type}")
-        except Exception as e:
-            logger.error(f"Failed to parse {file_path}: {e}")
-            raise
+    # Check memory
+    if not check_memory(min_ram_gb=7):
+        logger.warning("Memory below recommended 16GB but above 7GB minimum. Proceeding with caution.")
     
-    return {
-        'total_peaks': total_peaks,
-        'cell_types': sorted(cell_types),
-        'parsed_count': parsed_count
-    }
+    logger.info("Pre-flight checks passed.")
+    return True
 
-def run_ingestion(peak_files: Dict[str, Path]) -> Dict[str, Any]:
-    """
-    Orchestrates the ingestion pipeline: parsing, preprocessing, and summarizing.
+def run_ingestion_pipeline() -> Dict[str, Any]:
+    """Run the data ingestion pipeline: download, parse, and preprocess peaks."""
+    logger.info("Starting data ingestion pipeline...")
     
-    Args:
-        peak_files: Dictionary mapping cell type names to their peak file paths.
-        
-    Returns:
-        The ingestion summary dictionary.
-    """
-    logger.info("Starting ingestion pipeline...")
+    # Download peak files
+    logger.info("Downloading ENCODE peak files...")
+    downloaded_files = download_all_peaks()
     
-    # Generate summary
-    summary = generate_ingestion_summary(peak_files)
+    if not downloaded_files:
+        logger.error("Failed to download any peak files.")
+        return {}
     
-    # Write summary to file
-    output_path = DATA_PROCESSED_DIR / "ingestion_summary.json"
-    with open(output_path, 'w') as f:
+    # Preprocess and annotate peaks
+    logger.info("Preprocessing and annotating peaks...")
+    processed_peaks = preprocess_all_cell_types(downloaded_files)
+    
+    if not processed_peaks:
+        logger.error("Failed to preprocess peak files.")
+        return {}
+    
+    # Generate ingestion summary
+    summary = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "total_peaks": sum(len(peaks) for peaks in processed_peaks.values()),
+        "cell_types": list(processed_peaks.keys()),
+        "parsed_count": len(downloaded_files)
+    }
+    
+    summary_path = DATA_PROCESSED_DIR / "ingestion_summary.json"
+    with open(summary_path, 'w') as f:
         json.dump(summary, f, indent=2)
     
-    logger.info(f"Ingestion summary written to {output_path}")
+    logger.info(f"Ingestion summary written to {summary_path}")
     return summary
 
-def generate_enrichment_matrix(scan_results: Dict[str, List[Dict]], background_peaks: Dict[str, List[Dict]]) -> List[Dict]:
-    """
-    Generates the enrichment matrix from scan results and background peaks.
+def run_enrichment_pipeline() -> Dict[str, Any]:
+    """Run the enrichment analysis pipeline: scan motifs and calculate enrichment."""
+    logger.info("Starting enrichment analysis pipeline...")
     
-    Args:
-        scan_results: Dictionary mapping cell types to lists of motif matches.
-        background_peaks: Dictionary mapping cell types to background peak regions.
-        
-    Returns:
-        List of dictionaries representing the enrichment matrix.
-    """
-    all_results = []
+    # Scan for motifs in all cell types
+    logger.info("Scanning for TF motifs...")
+    scan_results = scan_all_cell_types()
     
+    if not scan_results:
+        logger.error("Failed to scan for motifs.")
+        return {}
+    
+    # Save scan results
+    save_scan_results(scan_results)
+    
+    # Calculate enrichment for each cell type
+    all_enrichments = {}
     for cell_type, matches in scan_results.items():
-        if cell_type not in background_peaks:
-            logger.warning(f"No background peaks found for {cell_type}, skipping enrichment calculation.")
-            continue
+        logger.info(f"Calculating enrichment for {cell_type}...")
         
-        background = background_peaks[cell_type]
-        enriched = process_cell_type_enrichment(matches, background)
-        all_results.extend(enriched)
-    
-    return all_results
-
-def run_enrichment(scan_results: Dict[str, List[Dict]], background_peaks: Dict[str, List[Dict]]) -> List[Dict]:
-    """
-    Orchestrates the enrichment pipeline: calculating enrichment and adjusting p-values.
-    
-    Args:
-        scan_results: Dictionary mapping cell types to lists of motif matches.
-        background_peaks: Dictionary mapping cell types to background peak regions.
+        # Load background model (union of other cell types)
+        background = load_background_peaks(cell_type)
         
-    Returns:
-        The enrichment matrix as a list of dictionaries.
-    """
-    logger.info("Starting enrichment pipeline...")
+        # Calculate enrichment
+        enrichment = calculate_enrichment(matches, background)
+        
+        # Apply Benjamini-Hochberg correction
+        corrected = benjamini_hochberg_correction(enrichment)
+        
+        all_enrichments[cell_type] = corrected
     
-    # Generate enrichment matrix
-    matrix = generate_enrichment_matrix(scan_results, background_peaks)
+    # Aggregate enrichment results
+    aggregated = aggregate_enrichment_results(all_enrichments)
     
-    # Apply Benjamini-Hochberg correction
-    corrected_matrix = benjamini_hochberg_correction(matrix)
-    
-    # Write output to CSV
+    # Write enrichment matrix to CSV
     output_path = DATA_PROCESSED_DIR / "enrichment_matrix.csv"
-    if corrected_matrix:
-        import csv
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['motif_id', 'cell_type', 'p_value', 'q_value'])
-            writer.writeheader()
-            writer.writerows(corrected_matrix)
-    else:
-        # Write empty file with headers if no data
-        with open(output_path, 'w') as f:
-            f.write("motif_id,cell_type,p_value,q_value\n")
+    with open(output_path, 'w') as f:
+        f.write("motif_id,cell_type,p_value,q_value\n")
+        for entry in aggregated:
+            f.write(f"{entry['motif_id']},{entry['cell_type']},{entry['p_value']},{entry['q_value']}\n")
     
     logger.info(f"Enrichment matrix written to {output_path}")
-    return corrected_matrix
+    return {"enrichment_matrix_path": str(output_path)}
 
-def generate_validation_report(heatmap_data: Dict, chip_data: Dict) -> Dict[str, Any]:
-    """
-    Generates the validation report based on heatmap data and ChIP-seq overlap stats.
+def run_visualization_and_validation_pipeline() -> Dict[str, Any]:
+    """Run the visualization and validation pipeline."""
+    logger.info("Starting visualization and validation pipeline...")
     
-    Args:
-        heatmap_data: Dictionary containing silhouette score and clustering info.
-        chip_data: Dictionary containing ChIP-seq overlap statistics.
-        
-    Returns:
-        Dictionary with overlap_pct, top_motifs, and silhouette_score.
-    """
+    # Load enrichment matrix
+    enrichment_path = DATA_PROCESSED_DIR / "enrichment_matrix.csv"
+    if not enrichment_path.exists():
+        logger.error(f"Enrichment matrix not found at {enrichment_path}")
+        return {}
+    
+    matrix = load_enrichment_matrix(str(enrichment_path))
+    
+    # Calculate distance matrix and cluster
+    distance_matrix = calculate_euclidean_distance_matrix(matrix)
+    clustered_matrix = cluster_matrix(matrix, distance_matrix)
+    
+    # Calculate silhouette score
+    silhouette_score = calculate_silhouette_score(clustered_matrix)
+    logger.info(f"Silhouette score: {silhouette_score}")
+    
+    # Save silhouette score
+    score_path = DATA_PROCESSED_DIR / "silhouette_score.json"
+    with open(score_path, 'w') as f:
+        json.dump({"silhouette_score": round(silhouette_score, 2)}, f, indent=2)
+    logger.info(f"Silhouette score written to {score_path}")
+    
+    # Generate heatmap
+    heatmap_path = DATA_PROCESSED_DIR / "heatmap.png"
+    generate_heatmap(clustered_matrix, heatmap_path)
+    logger.info(f"Heatmap written to {heatmap_path}")
+    
+    return {
+        "silhouette_score": silhouette_score,
+        "heatmap_path": str(heatmap_path),
+        "score_path": str(score_path)
+    }
+
+def run_validation_report() -> Dict[str, Any]:
+    """Generate the final validation report."""
     logger.info("Generating validation report...")
     
-    # Extract silhouette score
-    silhouette_score = heatmap_data.get('silhouette_score', 0.0)
+    # Load enrichment results
+    enrichment_path = DATA_PROCESSED_DIR / "enrichment_matrix.csv"
+    enrichment_results = load_enrichment_results(str(enrichment_path))
     
-    # Extract top motifs and their overlap stats
-    top_motifs_summary = chip_data.get('top_motifs', [])
-    overall_overlap = chip_data.get('overall_overlap_pct', 0.0)
+    # Get top motifs per cell type
+    top_motifs = get_top_motifs_per_cell_type(enrichment_results, q_threshold=0.05)
     
-    # Format top motifs with required precision
-    formatted_top_motifs = []
-    for motif in top_motifs_summary:
-        formatted_motif = {
-            'motif_id': motif['motif_id'],
-            'q_value': round(float(motif['q_value']), 4),
-            'overlap_pct': round(float(motif['overlap_pct']), 2)
-        }
-        formatted_top_motifs.append(formatted_motif)
+    # Validate motifs against ChIP-seq data
+    validation_results = validate_motifs(top_motifs)
     
+    # Calculate silhouette score (if not already done)
+    score_path = DATA_PROCESSED_DIR / "silhouette_score.json"
+    silhouette_score = None
+    validation_passed = False
+    
+    if score_path.exists():
+        with open(score_path, 'r') as f:
+            score_data = json.load(f)
+            silhouette_score = score_data.get("silhouette_score")
+            validation_passed = silhouette_score >= 0.4
+    
+    # Generate top motifs summary
+    summary = generate_top_motifs_summary(top_motifs, validation_results)
+    
+    # Create validation report
     report = {
-        'overlap_pct': round(float(overall_overlap), 2),
-        'top_motifs': formatted_top_motifs,
-        'silhouette_score': round(float(silhouette_score), 2)
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "silhouette_score": round(silhouette_score, 2) if silhouette_score else None,
+        "validation_passed": validation_passed,
+        "top_motifs": summary,
+        "overlap_pct": validation_results.get("average_overlap_pct")
     }
     
-    return report
-
-def run_validation_report(heatmap_data: Dict, chip_data: Dict) -> Dict[str, Any]:
-    """
-    Orchestrates the validation pipeline: generating the final report.
-    
-    Args:
-        heatmap_data: Dictionary containing silhouette score and clustering info.
-        chip_data: Dictionary containing ChIP-seq overlap statistics.
-        
-    Returns:
-        The validation report dictionary.
-    """
-    logger.info("Starting validation report generation...")
-    
-    # Generate report
-    report = generate_validation_report(heatmap_data, chip_data)
-    
-    # Write report to file
-    output_path = DATA_PROCESSED_DIR / "validation_report.json"
-    with open(output_path, 'w') as f:
+    # Write validation report
+    report_path = DATA_PROCESSED_DIR / "validation_report.json"
+    with open(report_path, 'w') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Validation report written to {output_path}")
+    logger.info(f"Validation report written to {report_path}")
+    
+    # Generate summary table
+    summary_table_path = DATA_PROCESSED_DIR / "summary_table.csv"
+    generate_summary_table(str(enrichment_path), str(report_path), str(summary_table_path))
+    logger.info(f"Summary table written to {summary_table_path}")
+    
     return report
 
 def main():
-    """
-    Main entry point for the pipeline.
-    This function demonstrates the orchestration of all stages.
-    """
-    # Note: In a real execution, this would load actual data from disk
-    # and call the run_* functions with real arguments.
-    # For now, we assume the pipeline has been executed step-by-step
-    # and we are just showing the orchestration logic.
+    """Main entry point for the pipeline."""
+    logger.info("Starting gene regulation analysis pipeline...")
     
-    logger.info("Pipeline orchestration complete.")
-    return 0
+    # Run pre-flight checks
+    if not run_preflight_checks():
+        logger.error("Pre-flight checks failed. Aborting.")
+        sys.exit(1)
+    
+    # Run ingestion pipeline
+    ingestion_summary = run_ingestion_pipeline()
+    if not ingestion_summary:
+        logger.error("Ingestion pipeline failed. Aborting.")
+        sys.exit(1)
+    
+    # Run enrichment pipeline
+    enrichment_results = run_enrichment_pipeline()
+    if not enrichment_results:
+        logger.error("Enrichment pipeline failed. Aborting.")
+        sys.exit(1)
+    
+    # Run visualization and validation pipeline
+    viz_results = run_visualization_and_validation_pipeline()
+    if not viz_results:
+        logger.error("Visualization and validation pipeline failed. Aborting.")
+        sys.exit(1)
+    
+    # Generate validation report
+    report = run_validation_report()
+    if not report:
+        logger.error("Failed to generate validation report.")
+        sys.exit(1)
+    
+    logger.info("Pipeline completed successfully!")
+    logger.info(f"Validation passed: {report.get('validation_passed', False)}")
+    logger.info(f"Silhouette score: {report.get('silhouette_score', 'N/A')}")
+    
+    return report
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
