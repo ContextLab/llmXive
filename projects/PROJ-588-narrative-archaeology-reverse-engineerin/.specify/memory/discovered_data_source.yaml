@@ -1,0 +1,16 @@
+status: none
+intent: download Natural Stories fMRI dataset ds000234 OpenNeuro python package dataset
+required_fields:
+- subject_id
+- session_id
+- run_id
+- preprocessed_nifti_path
+- event_timestamp
+- plot_point
+- character
+- theme
+- roi_mask_path
+- atlas_name
+cache_key: 92fb735dff26210a396d08d603ae6fcb51a83f81ded3035ccb137e6078f17a76
+searched_at: '2026-08-21T15:08:16.343958+00:00'
+retry_count: 1

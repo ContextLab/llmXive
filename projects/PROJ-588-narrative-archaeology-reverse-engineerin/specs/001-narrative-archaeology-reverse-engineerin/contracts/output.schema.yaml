@@ -1,39 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Output Schema"
-description: "Schema for RSA and decoding results."
-type: "object"
+title: "Analysis Output Schema"
+description: "Schema for RSA and Decoding results"
+type: object
 properties:
-  rsa_results:
-    type: "object"
-    properties:
-      dissimilarity_matrix:
-        type: "array"
-        items:
-          type: "array"
-          items:
-            type: "number"
-        description: "Dissimilarity matrix for early vs. late encoding."
-      p_value:
-        type: "number"
-        description: "P-value from permutation test."
-      fdr_corrected:
-        type: "boolean"
-        description: "Whether FDR correction was applied."
-  decoding_results:
-    type: "object"
-    properties:
-      accuracy:
-        type: "number"
-        description: "Decoding accuracy."
-      chance_level:
-        type: "number"
-        description: "Chance level (1/N)."
-      p_value:
-        type: "number"
-        description: "P-value from null model comparison."
-      category:
-        type: "string"
-        description: "Narrative category (plot, character, theme)."
+  analysis_type:
+    type: string
+    enum:
+      - "RSA"
+      - "Decoding"
+    description: "Type of analysis performed"
+  roi_name:
+    type: string
+    description: "Region of Interest analyzed"
+  metric:
+    type: string
+    description: "Metric name (e.g., dissimilarity, accuracy)"
+  value:
+    type: number
+    description: "Observed value"
+  p_value:
+    type: number
+    description: "Statistical significance (p < 0.05)"
+  corrected_p_value:
+    type: number
+    description: "FDR corrected p-value"
+  chance_level:
+    type: number
+    description: "Baseline chance level (1/N)"
+  n_permutations:
+    type: integer
+    description: "Number of permutations used"
+  subject_count:
+    type: integer
+    description: "Number of subjects included"
 required:
-  - "rsa_results"
-  - "decoding_results"
+  - analysis_type
+  - roi_name
+  - metric
+  - value
+  - p_value
+  - n_permutations
+additionalProperties: false

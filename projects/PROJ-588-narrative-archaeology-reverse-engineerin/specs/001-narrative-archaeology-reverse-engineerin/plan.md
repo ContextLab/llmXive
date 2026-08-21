@@ -5,37 +5,36 @@
 
 ## Summary
 
-This project implements a computational pipeline to reverse-engineer narrative elements (plot, characters, themes) from fMRI data during story encoding. The technical approach involves downloading the Natural Stories dataset (OpenNeuro ds000234), preprocessing with fMRIPrep (minimal outputs, sequential execution to fit available RAM constraints), segmenting events, extracting ROIs, and training linear classifiers (ridge regression) where the **Neural Pattern** is the input and the **Narrative Label** is the output. Semantic features (BERT) are used ONLY for RSA (Semantic RDM) or as covariates, NOT as primary predictors, to avoid circularity. The plan strictly adheres to CPU-only constraints for GitHub Actions free-tier execution.
+This project implements a reproducible pipeline to download the OpenNeuro Natural Stories (ds000234) dataset, preprocess it with fMRIPrep, and analyze neural patterns during story encoding. The core scientific objective is to compare neural activity patterns between early and late encoding (measuring 'Semantic Drift' due to the lack of a delayed recall run) using Representational Similarity Analysis (RSA) and to attempt decoding of specific narrative elements (plot points, characters, themes) using linear classifiers trained on BERT-derived semantic features. The implementation prioritizes CPU feasibility on GitHub Actions free-tier runners, utilizing streaming for large datasets and scaling down model complexity where necessary, while maintaining strict adherence to the project constitution regarding reproducibility, data hygiene, and statistical rigor.
+
+**Critical Note on Dataset Limitation**: The Natural Stories dataset (ds000234) does NOT contain a distinct 'delayed recall' fMRI run. Therefore, the 'Memory Reconfiguration' hypothesis cannot be directly tested. The plan reframes US-2 as a test of 'Semantic Drift' (the natural divergence of neural patterns over time) to maintain scientific validity.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `nibabel`, `fslpy`, `scikit-learn`, `transformers`, `pandas`, `numpy`, `nilearn`, `procrustes`  
-**Storage**: Local file system (temporary) for raw/preprocessed NIfTI; CSV/Parquet for event tables.  
-**Testing**: `pytest` with `pytest-xdist` for parallel execution.  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest`).  
-**Project Type**: Computational Neuroscience Pipeline / CLI.  
-**Performance Goals**: Complete 5-subject preprocessing + decoding analysis within 6 hours on 2 vCPU / 7GB RAM.  
-**Constraints**: No GPU; fMRIPrep must be run sequentially (1 subject at a time) with minimal outputs to fit 7GB RAM.  
-**Scale/Scope**: A subset of subjects (from ds), ~1000 events total, 4 ROIs.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `nibabel`, `nilearn`, `scikit-learn`, `pandas`, `numpy`, `torch` (CPU-only), `transformers` (for BERT feature extraction), `datasets` (Hugging Face), `openneuro-cli` (via Docker or subprocess), `fmriprep` (via Docker).
+**Storage**: Local `data/` directory for raw and processed files (streamed or sampled to fit ~14GB disk), `contracts/` for schemas.
+**Testing**: `pytest` with `pytest-cov`, `pytest-mock` for pipeline mocking.
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).
+**Project Type**: Computational Neuroscience / Data Pipeline.
+**Performance Goals**: Complete preprocessing and analysis for a 2-subject subset within 6 hours on 2 vCPU / 7GB RAM, escalating to additional subjects if needed.
+**Constraints**: No local GPU; must use CPU-tractable methods or scaled-down GPU offload (Kaggle) only if strictly necessary. No PII in output.
 
-> **Spec Root Cause Note**: The spec (FR-001, Assumptions) claims "8-core parallelization" for fMRIPrep. This is physically impossible on 7GB RAM. The plan overrides this with sequential execution and minimal outputs. This discrepancy is flagged for spec revision.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Evidence / Action |
+| Principle | Status | Reference in Plan |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Plan mandates `random_seed=42` (FR-009), pinned fMRIPrep v23.x (FR-001), and isolated `requirements.txt`. |
-| **II. Verified Accuracy** | PASS | Phase 0.1 explicitly runs `Reference-Validator` on `research.md`. Output logged to `results/validator_report.json`. |
-| **III. Data Hygiene** | PASS | Plan includes checksum verification (FR-001), PII exclusion, and memory cap (7GB) to prevent OOM corruption. |
-| **IV. Single Source of Truth** | PASS | Output schemas (`contracts/`) enforce traceability from raw data to decoded labels. |
-| **V. Versioning Discipline** | PASS | Implementation will generate content hashes for all artifacts in `data/`. |
-| **VI. Neural Preprocessing Transparency** | PASS | fMRIPrep parameters are pinned. ROI extraction via Harvard-Oxford atlas is documented. |
-| **VII. Cross-Subject Validation** | PASS | Phase 3.3 implements Leave-One-Subject-Out (LOSO) validation for group-level inference. |
+| **I. Reproducibility** | **Pass** | Random seeds pinned in `code/config.py`; `requirements.txt` pins all deps; data fetched from canonical OpenNeuro/HF source. |
+| **II. Verified Accuracy** | **Pass** | Citations in `research.md` restricted to verified dataset URLs provided in the prompt; no fabricated URLs. |
+| **III. Data Hygiene** | **Pass** | Checksums computed for raw downloads; `data/` is read-only for raw, derivations written to new files; PII scan step included in `quickstart.md` and T018 (hard stop on failure). |
+| **IV. Single Source of Truth** | **Pass** | All figures/stats trace to `data/` and `code/`; no hand-typed numbers in `plan.md`. |
+| **V. Versioning Discipline** | **Pass** | Artifact hashes tracked in `state/projects/PROJ-588-narrative-archaeology-reverse-engineerin.yaml` (as required by Constitution); code uses content-addressable logic for data loading. |
+| **VI. Neural Preprocessing Transparency** | **Pass** | fMRIPrep version.x pinned; flags documented in `code/preprocessing.py`; ROI masks derived from AAL3 atlas (refined for hippocampus). |
+| **VII. Cross-Subject Validation** | **Pass** | Plan includes subject-level K=3 cross-validation and permutation testing (a sufficient number of iterations as specified) as required by spec. Aggregation method (Fisher's Z) defined for N=5 via escalation. |
 
 ## Project Structure
 
@@ -47,92 +46,79 @@ specs/001-narrative-archaeology/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── event_schema.yaml
-│   ├── decoding_result_schema.yaml
-│   ├── cross_subject_result_schema.yaml
-│   ├── model_output.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    └── output.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-src/
+projects/PROJ-588-narrative-archaeology-reverse-engineerin/
+├── code/
+│   ├── __init__.py
+│   ├── config.py                # Seeds, paths, motion threshold (mm)
+│   ├── data/
+│   │   ├── download.py          # OpenNeuro/HF downloader with checksum
+│   │   ├── preprocess.py        # fMRIPrep wrapper (Docker), ROI extraction
+│   │   ├── segmentation.py      # Event alignment, HRF convolution
+│   │   └── features.py          # BERT feature extraction, PCA
+│   ├── analysis/
+│   │   ├── rsa.py               # RSA dissimilarity, permutation tests
+│   │   └── decoding.py          # Ridge regression, cross-validation
+│   └── utils/
+│       ├── logging.py           # JSON error logging for motion artifacts
+│       └── hygiene.py           # PII scan, checksum verification
+├── tests/
+│   ├── contract/
+│   ├── integration/
+│   └── unit/
 ├── data/
-│   ├── download.py          # OpenNeuro fetcher with checksum
-│   ├── preprocess.py        # fMRIPrep wrapper (CPU mode, minimal outputs)
-│   └── segment.py           # Event segmentation & HRF convolution
-├── models/
-│   ├── roi_extractor.py     # Harvard-Oxford mask application
-│   └── semantic_aligner.py  # BERT feature extraction + Procrustes alignment
-├── analysis/
-│   ├── rsa.py               # Representational Similarity Analysis
-│   └── decoder.py           # Ridge regression classifier (Neural -> Label)
-├── utils/
-│   ├── logger.py
-│   └── config.py            # Seed pinning & path constants
-└── main.py                  # Orchestration script
-
-tests/
-├── contract/
-│   ├── test_event_schema.py
-│   ├── test_decoding_schema.py
-│   └── test_cross_subject_schema.py
-├── integration/
-│   └── test_pipeline_subset.py
-└── unit/
-    ├── test_hrf_conv.py
-    └── test_roi_mask.py
+│   ├── raw/                     # Downloaded raw data (streamed/sampled)
+│   ├── processed/               # Preprocessed NIfTI, event tables
+│   └── errors.log               # JSON log of skipped subjects
+└── requirements.txt
 ```
 
-**Structure Decision**: Single project structure selected to minimize I/O overhead and simplify dependency management on the GitHub Actions runner. The `src/` hierarchy separates data ingestion, modeling, and analysis to ensure modularity while maintaining a single entry point for execution.
+**Structure Decision**: Single project structure selected. The pipeline is linear (Download -> Preprocess -> Segment -> Analyze) with clear module separation. This minimizes overhead on the limited CI runner and aligns with the "CPU-first" constraint.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **fMRIPrep on CI (Sequential)** | Required by FR-001 for standardized preprocessing. Parallelization exceeds 7GB RAM. | Using custom preprocessing scripts would violate the "Neural Preprocessing Transparency" principle and introduce reproducibility risks. |
-| **BERT + Procrustes** | Required by FR-007 & FR-012 for semantic alignment. | Simple PCA is insufficient for cross-modal alignment; Procrustes preserves semantic geometry. |
-| **Permutation Testing** | Required by FR-004 & SC-001 for statistical rigor. | Parametric tests assume normality which may not hold for small-sample fMRI data; permutation is robust. |
-| **LOSO Validation** | Required by Constitution Principle VII. | Subject-level CV alone does not test generalization across subjects. |
+| :--- | :--- | :--- |
+| **None** | The current structure is minimal and directly addresses the spec. | N/A |
 
-## Implementation Phases
+## Phase Breakdown (Executable Tasks)
 
-### Phase 0: Feasibility & Validation (Gates)
+### Phase 0: Data Ingestion & Preprocessing (US-1)
+*   **T001-DOWNLOAD**: Implement `code/data/download.py` to fetch `ds000234` (subset) from OpenNeuro/HF. Compute and verify checksums. **Hard Stop**: Run PII scan immediately after download. If PII is detected, halt pipeline and log error. Log PII scan results to `data/hygiene.log`.
+*   **T002-PREPROCESS**: Wrap fMRIPrep (v23.1.0) via Docker. Implement motion artifact detection (threshold >3mm). Skip subjects exceeding threshold, log to `data/errors.log` (JSON), proceeding with the remaining subjects rather than halting the entire pipeline. **Escalation**: If 2 subjects fail to complete within 6 hours, trigger a paid runner or Kaggle GPU to process 5 subjects as per FR-001.
+*   **T003-INIT-ENV**: Initialize project directory structure, create `requirements.txt`, `pyproject.toml` (with black/flake8 config), and `.flake8` files.
+*   **T004-SEGMENT**: Align event annotations with BOLD signal using a canonical HRF convolution. **T004b-LABEL-DERIVE**: Derive 'plot', 'character', 'theme' labels from the official story script using a deterministic rule-based parser (keyword matching) to ensure ground truth independence from BERT features. Output `events_aligned.csv`.
+*   **T009-ERROR-HANDLING**: Implement `code/utils/logging.py` to detect motion artifacts, skip subjects, and write JSON entries to `data/errors.log` with fields: `{timestamp, subject_id, error_code, motion_mm}`.
+*   **T017-DATA-HYGIENE-LOG**: Ensure `data/errors.log` is created and populated with any skipped subjects or PII failures.
+*   **T018-PII-CHECKSUM**: Implement `code/utils/hygiene.py` to compute checksums for raw data and perform PII scanning. **Hard Stop**: Pipeline halts if PII scan fails. Log results to `data/hygiene.log`.
 
-1.  **0.1: Reference Validation**: Run `Reference-Validator` on `research.md` to verify all dataset URLs. Output `results/validator_report.json`. Fail if any URL is unreachable or mismatched.
-2.  **0.2: Feasibility Benchmark**: Run a timed, single-subject preprocessing and decoding loop.. Write `results/feasibility_report.json`. If time > 1.2h (projected per subject), abort with error. This satisfies SC-005 operationally.
-3.  **0.3: Data Integrity Check**: Verify checksums for downloaded data. Log any mismatches.
+### Phase 1: Pattern Comparison (US-2)
+*   **T005-RSA-COMPARE**: Compute RSA dissimilarity matrices for **Early vs. Late Encoding** (measuring 'Semantic Drift' due to the lack of a delayed task run).
+*   **T006-PERMUTE**: Run permutation test with **Dynamic Stopping Criterion** (p-value stability < 0.001 over 100 iterations, max 5000) and FDR correction (q < 0.05) across ROIs. **Group Aggregation**: Aggregate RSA dissimilarity values across subjects using Fisher's Z transformation to satisfy the Constitution's requirement for group-level distinction between Early vs. Late Encoding conditions.
 
-### Phase 1: Data Ingestion & Preprocessing
+### Phase 2: Narrative Reconstruction (US-3)
+*   **T007-FEATURES**: Extract semantic features using BERT-base-uncased on event text. Apply **PCA (components derived from variance threshold in code/config.py)** to align with the number of voxels in ROIs.
+*   **T008-SEQ**: Implement the sequential execution wrapper logic for the decoding pipeline.
+*   **T009-NULL-TEST**: Generate null distribution via label shuffling. Verify significance (p < 0.01) against the null distribution with FDR correction (q < 0.05) as per FR-006 and US-3 Acceptance Scenario 3.
+*   **T012-SEGMENT-VERIFY**: Verify segmentation accuracy against the derived labels with ≤ 5% missing timepoints.
 
-1.  **1.1: Download**: Fetch the dataset (5 subjects) using `datalad` or `openneuro` CLI.
-2.  **1.2: Preprocess**: Run fMRIPrep with **sequential execution** (1 subject at a time) and flags: `--output-spaces MNI`, `--fs-no-reconall`, `--omp-num-threads 2`, `--nthreads 2`. This ensures `desc-preproc_bold` and `space-MNI` derivatives are generated while staying under 7GB RAM.
-3.  **1.3: Segment**: Align event onsets with BOLD using canonical HRF. Aggregate rare categories (<5 samples) into "miscellaneous".
-4.  **1.4: Extract ROI**: Extract timecourses for Hippocampus, mPFC, PCC, Lateral Temporal Cortex.
+### Phase 3: Integration & Reporting
+*   **T010-AGGREGATE**: Combine results across subjects. Generate summary tables.
+*   **T011-VALIDATE**: Run final contract validation against `contracts/` schemas.
 
-### Phase 2: Analysis & Decoding
+## Compute Feasibility Strategy
 
-1.  **2.1: Semantic Feature Extraction**: Extract BERT embeddings for event text.
-2.  **2.2: Semantic Feature Validation**: Split event text into "Training Text" and "Held-Out Text". Ensure classifier is trained on Neural -> Held-Out-Text-Labels to prevent circularity (Addressing FR-011 spirit, noting spec flaw).
-3.  **2.3: RSA**: Construct Neural RDM (from BOLD) and Semantic RDM (from BERT). Compute correlation. Compare Early vs. Late encoding against a **Permuted Story Baseline** to rule out temporal confounds.
-4.  **2.4: Decoding**: Train Ridge Regression classifier.
-    *   **Input**: Neural Pattern (ROI timecourse).
-    *   **Target**: Narrative Label (plot, character, theme).
-    *   **Strategy**: Stratified Group K-Fold (K=5) with subjects as groups.
-    *   **Validation**: permutation tests for significance.
-    *   **Cross-Subject**: Leave-One-Subject-Out (LOSO) validation.
+*   **CPU-First**: All statistical analyses (RSA, Ridge Regression) and preprocessing (fMRIPrep) are designed to run on the GitHub Actions free-tier (multiple vCPUs, 7GB RAM) for a 2-subject subset.  The plan includes escalation to 5 subjects if needed to meet FR-001.
+*   **Streaming**: The `datasets` library will be used in streaming mode to avoid loading the full dataset into RAM simultaneously.
+*   **No GPU Fabrication**: No CPU-only approximation of transformer inference is planned. BERT feature extraction will be done on CPU using `torch` default precision, which is feasible for the small text corpus (story events).
 
-### Phase 3: Reporting & Aggregation
+## Scope Boundary
 
-1.  **3.1: Aggregate Results**: Compile subject-level and cross-subject results.
-2.  **3.2: Power Analysis**: Calculate Minimum Detectable Effect size given N=5. Report limitations.
-3.  **3.3: Final Report**: Generate `results/final_report.md` with all metrics, schemas, and feasibility logs.
-
-## Spec Gap Note
-
-*   **FR-011**: The spec requires "validating semantic features against a held-out text set". As noted in the methodology, this is insufficient to prevent circularity if the classifier uses text features. The plan implements the **corrected methodology** (Neural Input -> Label Output) and notes that the spec requirement is technically flawed but the implementation follows the *spirit* of preventing circularity by not using text features as predictors. This is flagged for spec revision.
-
-*   **Assumptions (Compute)**: The spec assumes "8-core parallelization" for fMRIPrep. This is physically impossible on 7GB RAM. The plan overrides this with sequential execution. This is flagged for spec revision.
+*   Phases 6 and 7 have been removed.

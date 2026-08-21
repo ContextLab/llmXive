@@ -1,38 +1,46 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Dataset Schema"
-description: "Schema for the preprocessed fMRI dataset and event annotations."
-type: "object"
+description: "Schema for the aligned event and neural pattern data"
+type: object
 properties:
   subject_id:
-    type: "string"
-    description: "Unique identifier for the subject."
-  phase:
-    type: "string"
+    type: string
+    description: "Subject identifier (e.g., sub-01)"
+  roi_name:
+    type: string
+    description: "Region of Interest name (e.g., hippocampus)"
+  event_id:
+    type: string
+    description: "Unique event identifier"
+  event_type:
+    type: string
     enum:
-      - "early_encoding"
-      - "late_encoding"
-    description: "Phase of the experiment (proxy for encoding/recognition)."
-  roi:
-    type: "string"
-    enum:
-      - "hippocampus"
-      - "mPFC"
-      - "PCC"
-      - "lateral_temporal"
-    description: "Region of Interest."
-  timepoints:
-    type: "array"
+      - "plot"
+      - "character"
+      - "theme"
+    description: "Type of narrative event"
+  onset:
+    type: number
+    description: "Event onset in seconds"
+  duration:
+    type: number
+    description: "Event duration in seconds"
+  neural_pattern:
+    type: array
     items:
-      type: "number"
-    description: "BOLD signal values over time."
-  event_labels:
-    type: "array"
+      type: number
+    description: "BOLD signal vector (normalized)"
+  semantic_features:
+    type: array
     items:
-      type: "string"
-    description: "Event labels corresponding to timepoints."
+      type: number
+    description: "PCA-reduced BERT features"
 required:
-  - "subject_id"
-  - "phase"
-  - "roi"
-  - "timepoints"
-  - "event_labels"
+  - subject_id
+  - roi_name
+  - event_id
+  - event_type
+  - onset
+  - neural_pattern
+  - semantic_features
+additionalProperties: false
