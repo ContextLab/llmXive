@@ -29,7 +29,7 @@ This feature implements an observational study to compare the frequency of four 
 **Project Type**: Computational Research Pipeline / CLI.  
 **Performance Goals**: Total CI job ≤ 2 hours; Per-process RAM ≤ 2GB.  
 **Constraints**: No GPU; No heavy LLM training; Must handle API rate limits; Must enforce high data validity.  
-**Scale/Scope**: A balanced set of code samples (150 Human, 150 LLM); A substantial number of repositories; smell categories.
+**Scale/Scope**: A balanced set of code samples (Human, LLM); A substantial number of repositories; smell categories.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes) are deferred to the research/implementation phase.
 

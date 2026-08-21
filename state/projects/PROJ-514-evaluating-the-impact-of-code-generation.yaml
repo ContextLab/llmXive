@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-514-evaluating-the-impact-of-code-generation
-last_run_id: b9f57ba2-eb78-4d7b-a65a-b0af3be7f2c6
+last_run_id: 959b4a99-302e-47b5-9b82-02fe6b0fb30a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation on Code Smell Frequency
-updated_at: '2026-08-21T16:24:16.088413Z'
+updated_at: '2026-08-21T17:58:17.892577Z'

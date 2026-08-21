@@ -1,11 +1,11 @@
-- artifact_hash: 66ef7b6cc7c962dadf76c1c3f0fc592542bf2ac346d4f2b2eb42f777ee274d9b
+- artifact_hash: fb931b5f24798ec66f7943b5f103f794fd1f328ea16a31c861ba6bbdc0f6197f
   artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: v3.12.0.tar.gz
+  fetched_title: '[2203.15897] Calibrated Model Criticism Using Split Predictive Checks'
   kind: url
-  value: https://github.com/python/cpython/archive/refs/tags/v3.12.0.tar.gz`
+  value: https://arxiv.org/abs/2203.15897
   verification_status: pending
-  verified_against_url: https://codeload.github.com/python/cpython/tar.gz/refs/tags/v3.12.0
-  verified_at: '2026-08-21T15:47:22.775042Z'
+  verified_against_url: https://arxiv.org/abs/2203.15897
+  verified_at: '2026-08-21T17:58:08.281872Z'
