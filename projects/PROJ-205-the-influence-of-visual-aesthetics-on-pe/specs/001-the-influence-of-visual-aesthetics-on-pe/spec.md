@@ -16,7 +16,7 @@ This specification defines the requirements for a web-based study investigating 
 ### US1: Participant Survey Data Collection
 **As a** researcher, **I want to** present stimuli in a counterbalanced order and collect ratings, **so that** I can minimize order effects and gather valid data.
 - **Acceptance Criteria**:
- - 4 stimuli (Professional, Minimalist, Low-Quality, Neutral) are presented.
+ - Several stimuli (Professional, Minimalist, Low-Quality, Neutral) are presented.
  - Order follows a pre-defined Latin Square.
  - Participants rate Credibility and Professionalism (1-7 Likert) for each.
  - Demographic data (Age, Education) is collected.

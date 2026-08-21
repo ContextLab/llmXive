@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-205-the-influence-of-visual-aesthetics-on-pe",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python 03_mixed_effects.py --input ../../data/raw/participants.csv --output ../../data/processed/mixed_effects_results.json; 2 command(s) failed: python code/analysis/01_anova.py --input ../../data/raw/participants.csv --output ../../data/processed/anova_results.json (rc=1); python code/analysis/02_pairwise.py --input ../../data/raw/participants.csv --output ../../data/processed/pairwise_results.json (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/analysis/01_anova.py --input ../../data/raw/participants.csv --output ../../data/processed/anova_results.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/01_anova.py\", line 15, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/analysis/02_pairwise.py --input ../../data/raw/participants.csv --output ../../data/processed/pairwise_results.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/02_pairwise.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python 03_mixed_effects.py --input ../../data/raw/participants.csv --output ../../data/processed/mixed_effects_results.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/03_mixed_effects.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-21T11:57:10Z"
+}

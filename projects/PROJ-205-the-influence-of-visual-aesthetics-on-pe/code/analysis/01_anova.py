@@ -1,245 +1,155 @@
-"""
-Repeated-Measures ANOVA for Credibility Ratings.
-
-Implements a one-way repeated-measures ANOVA to test the effect of
-visual design condition on perceived credibility.
-
-Input: data/processed/analysis_data_wide.csv (produced by 01_preprocess.py)
-Output: data/processed/anova_results.json
-"""
 import os
 import sys
 import json
 import argparse
-from pathlib import Path
+import random
 import numpy as np
-import pandas as pd
-from statsmodels.stats.anova import AnovaRM
-from statsmodels.stats.multitest import multipletests
 
-# Ensure paths are resolvable from project root or script location
+# Seed pinning for reproducibility (Task T031)
+np.random.seed(42)
+random.seed(42)
+
+from pathlib import Path
+
 def get_project_root():
-    current = Path(__file__).resolve()
-    while not (current / "requirements.txt").exists():
-        current = current.parent
-        if current == current.parent:
-            raise FileNotFoundError("Project root not found")
-    return current
+    """Get the root directory of the project."""
+    return Path(__file__).resolve().parent.parent.parent
 
-PROJECT_ROOT = get_project_root()
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-INPUT_FILE = DATA_PROCESSED_DIR / "analysis_data_wide.csv"
-OUTPUT_FILE = DATA_PROCESSED_DIR / "anova_results.json"
-
-def load_wide_data(filepath: Path) -> pd.DataFrame:
-    """Load the wide-format dataframe prepared by 01_preprocess.py."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Input file not found: {filepath}. Run 01_preprocess.py first.")
-    df = pd.read_csv(filepath)
+def load_wide_data(input_path):
+    """Load and validate the wide-format data."""
+    import pandas as pd
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    # Validate expected columns exist
-    expected_cols = ['participant_id', 'Credibility_Professional', 'Credibility_Minimalist', 
-                     'Credibility_Low-Quality', 'Credibility_Neutral']
-    missing = set(expected_cols) - set(df.columns)
-    if missing:
-        raise ValueError(f"Missing required columns in wide data: {missing}")
+    df = pd.read_csv(input_path)
+    
+    # Validate required columns
+    required_cols = ['participant_id', 'condition_Professional', 'condition_Minimalist', 
+                    'condition_Low-Quality', 'condition_Neutral', 'credibility']
+    
+    # Check if we have the wide format credibility columns or need to pivot
+    # Assuming the data is already pivoted by preprocess task T024
+    if 'credibility_Professional' not in df.columns:
+        # If not in wide format, we need to pivot
+        if 'stimulus_id' in df.columns and 'credibility' in df.columns:
+            df = df.pivot(index='participant_id', columns='stimulus_id', values='credibility')
+            df.columns = [f'credibility_{col}' for col in df.columns]
+            df = df.reset_index()
     
     return df
 
-def run_repeated_measures_anova(df: pd.DataFrame, dv_prefix: str = "Credibility") -> dict:
-    """
-    Run one-way repeated-measures ANOVA.
+def calculate_partial_eta_squared(ss_effect, ss_error):
+    """Calculate partial eta-squared for effect size."""
+    return ss_effect / (ss_effect + ss_error)
+
+def run_repeated_measures_anova(df):
+    """Run repeated measures ANOVA on credibility scores."""
+    import pandas as pd
+    from statsmodels.stats.anova import AnovaRM
     
-    Args:
-        df: Wide-format dataframe with participant_id and condition columns.
-        dv_prefix: Prefix for the dependent variable columns (e.g., "Credibility").
-        
-    Returns:
-        Dictionary with F-statistic, degrees of freedom, p-value, and effect size.
-    """
-    # Reshape to long format for statsmodels AnovaRM
-    # Columns: participant_id, condition, value
-    long_df = pd.melt(
-        df,
+    # Reshape to long format for statsmodels
+    df_long = df.melt(
         id_vars=['participant_id'],
-        value_vars=[f"{dv_prefix}_Professional", f"{dv_prefix}_Minimalist", 
-                    f"{dv_prefix}_Low-Quality", f"{dv_prefix}_Neutral"],
+        value_vars=[col for col in df.columns if col.startswith('credibility_')],
         var_name='condition',
-        value_name='score'
+        value_name='credibility'
     )
     
-    # Extract condition name from column name (e.g., "Credibility_Professional" -> "Professional")
-    long_df['condition'] = long_df['condition'].str.replace(f"{dv_prefix}_", "", regex=False)
+    # Extract condition name (remove 'credibility_' prefix)
+    df_long['condition'] = df_long['condition'].str.replace('credibility_', '')
     
     # Run ANOVA
-    try:
-        aov_rm = AnovaRM(long_df, depvar='score', subject='participant_id', within=['condition'])
-        res = aov_rm.fit()
-    except Exception as e:
-        raise RuntimeError(f"ANOVA failed: {e}")
+    aov_rm = AnovaRM(df_long, 'credibility', 'participant_id', within=['condition'])
+    res = aov_rm.fit()
+    
+    return res
 
-    # Extract results
-    # statsmodels output is a DataFrame; we need to parse it
-    # The main row is usually labeled 'condition'
-    main_row = res.tables[0].loc['condition']
-    f_stat = main_row['F']
-    df_num = main_row['df_num']
-    df_den = main_row['df_den']
-    p_val = main_row['Pr > F']
+def run_conditional_pairwise_tests(df, alpha=0.05):
+    """Run pairwise t-tests with Bonferroni correction if ANOVA is significant."""
+    from scipy import stats
+    import pandas as pd
     
-    # Calculate partial eta-squared (η²)
-    # η² = SS_effect / (SS_effect + SS_error)
-    # We need to extract Sum of Squares from the ANOVA table
-    ss_effect = main_row['Sum Sq']
-    # Find the error row for the within-subjects effect
-    # In statsmodels, the error term is usually labeled 'condition:Error' or similar
-    error_row = None
-    for idx in res.tables[0].index:
-        if 'Error' in str(idx) and 'condition' in str(idx):
-            error_row = res.tables[0].loc[idx]
-            break
+    # Reshape to long format
+    df_long = df.melt(
+        id_vars=['participant_id'],
+        value_vars=[col for col in df.columns if col.startswith('credibility_')],
+        var_name='condition',
+        value_name='credibility'
+    )
+    df_long['condition'] = df_long['condition'].str.replace('credibility_', '')
     
-    if error_row is not None:
-        ss_error = error_row['Sum Sq']
-        eta_squared = ss_effect / (ss_effect + ss_error)
-    else:
-        # Fallback: estimate from F and df if error row not found
-        # F = MS_effect / MS_error = (SS_effect/df_num) / (SS_error/df_den)
-        # MS_error = MS_effect / F
-        # SS_error = MS_error * df_den
-        ms_effect = ss_effect / df_num
-        ms_error = ms_effect / f_stat
-        ss_error = ms_error * df_den
-        eta_squared = ss_effect / (ss_effect + ss_error)
-
-    return {
-        "f_statistic": float(f_stat),
-        "df_numerator": int(df_num),
-        "df_denominator": int(df_den),
-        "p_value": float(p_val),
-        "partial_eta_squared": float(eta_squared),
-        "significant": bool(p_val < 0.05)
-    }
-
-def run_conditional_pairwise_tests(df: pd.DataFrame, dv_prefix: str = "Credibility", 
-                                   alpha: float = 0.05) -> list:
-    """
-    Run pairwise t-tests if the ANOVA is significant.
+    # Get unique conditions
+    conditions = df_long['condition'].unique()
+    pairs = []
     
-    Args:
-        df: Wide-format dataframe.
-        dv_prefix: Prefix for the dependent variable columns.
-        alpha: Significance level for Bonferroni correction.
-        
-    Returns:
-        List of dictionaries containing pairwise test results, or empty list if not significant.
-    """
-    # Check if ANOVA was significant by re-running it (or we could pass the result in)
-    # Since this function is called from main after ANOVA, we assume we check the ANOVA result
-    # However, to keep this pure, we re-run the ANOVA check here or rely on the caller.
-    # The task requires conditional logic: "if p < 0.05, trigger pairwise t-tests".
-    # We will run the ANOVA here to determine significance.
-    
-    anova_results = run_repeated_measures_anova(df, dv_prefix)
-    
-    if not anova_results['significant']:
-        print("ANOVA not significant (p >= 0.05). Skipping pairwise t-tests.")
-        return []
-    
-    print("ANOVA significant (p < 0.05). Running Bonferroni-corrected pairwise t-tests.")
-    
-    conditions = ["Professional", "Minimalist", "Low-Quality", "Neutral"]
-    comparisons = []
-    
-    # Perform pairwise t-tests
     for i in range(len(conditions)):
         for j in range(i + 1, len(conditions)):
-            cond_a = conditions[i]
-            cond_b = conditions[j]
+            cond1 = conditions[i]
+            cond2 = conditions[j]
             
-            col_a = f"{dv_prefix}_{cond_a}"
-            col_b = f"{dv_prefix}_{cond_b}"
+            data1 = df_long[df_long['condition'] == cond1]['credibility']
+            data2 = df_long[df_long['condition'] == cond2]['credibility']
             
-            # Paired t-test
-            from scipy import stats
-            t_stat, p_val = stats.ttest_rel(df[col_a], df[col_b])
-            
-            comparisons.append({
-                "condition_a": cond_a,
-                "condition_b": cond_b,
-                "t_statistic": float(t_stat),
-                "p_value_raw": float(p_val),
-                "p_value_corrected": None, # To be filled by multipletests
-                "significant_raw": p_val < alpha
+            t_stat, p_val = stats.ttest_rel(data1, data2)
+            pairs.append({
+                'comparison': f'{cond1}_vs_{cond2}',
+                't_statistic': float(t_stat),
+                'p_value': float(p_val)
             })
     
-    # Apply Bonferroni correction
-    if comparisons:
-        raw_p_values = [c["p_value_raw"] for c in comparisons]
-        # Number of comparisons
-        n_comparisons = len(raw_p_values)
-        
-        # Use multipletests for Bonferroni correction
-        # method='bonferroni' multiplies p-values by n_comparisons
-        reject, pvals_corrected, _, _ = multipletests(raw_p_values, alpha=alpha, method='bonferroni')
-        
-        for i, corr_p in enumerate(pvals_corrected):
-            comparisons[i]["p_value_corrected"] = float(corr_p)
-            comparisons[i]["significant_corrected"] = bool(reject[i])
-    
-    return comparisons
+    return pairs
 
 def main():
-    """Main entry point for the ANOVA script."""
-    parser = argparse.ArgumentParser(description="Run Repeated-Measures ANOVA on credibility data.")
-    parser.add_argument("--input", type=str, default=str(INPUT_FILE), help="Path to wide-format input CSV")
-    parser.add_argument("--output", type=str, default=str(OUTPUT_FILE), help="Path to output JSON results")
+    """Main entry point for ANOVA analysis."""
+    parser = argparse.ArgumentParser(description='Run repeated measures ANOVA on survey data')
+    parser.add_argument('--input', type=str, required=True, help='Path to input CSV file')
+    parser.add_argument('--output', type=str, required=True, help='Path to output JSON file')
+    
     args = parser.parse_args()
-
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-
-    print(f"Loading data from {input_path}...")
-    df = load_wide_data(input_path)
-    print(f"Loaded {len(df)} participants.")
-
-    print("Running Repeated-Measures ANOVA...")
-    anova_results = run_repeated_measures_anova(df, dv_prefix="Credibility")
-
-    # Conditional logic: if p < 0.05, trigger pairwise t-tests
+    
+    # Load data
+    df = load_wide_data(args.input)
+    
+    # Run ANOVA
+    anova_result = run_repeated_measures_anova(df)
+    
+    # Calculate effect size
+    # Extract sums of squares from ANOVA result
+    ss_condition = anova_result.anova_table['Sum Sq']['condition']
+    ss_error = anova_result.anova_table['Sum Sq']['Error']
+    eta_sq = calculate_partial_eta_squared(ss_condition, ss_error)
+    
+    # Extract F-statistic and p-value
+    f_stat = float(anova_result.anova_table['F']['condition'])
+    p_val = float(anova_result.anova_table['Pr > F']['condition'])
+    df_num = int(anova_result.anova_table['DF']['condition'])
+    df_den = int(anova_result.anova_table['DF']['Error'])
+    
+    # Run pairwise tests if significant
     pairwise_results = []
-    if anova_results['significant']:
-        pairwise_results = run_conditional_pairwise_tests(df, dv_prefix="Credibility")
-    else:
-        print(f"ANOVA p-value ({anova_results['p_value']:.4f}) >= 0.05. Skipping pairwise tests.")
-
-    # Compile final results
-    final_results = {
-        "anova": anova_results,
-        "pairwise_comparisons": pairwise_results
+    if p_val < 0.05:
+        pairs = run_conditional_pairwise_tests(df)
+        # Bonferroni correction
+        n_comparisons = len(pairs)
+        for pair in pairs:
+            pair['p_value_bonferroni'] = min(pair['p_value'] * n_comparisons, 1.0)
+            pairwise_results.append(pair)
+    
+    # Prepare output
+    output = {
+        'f_stat': f_stat,
+        'df': [df_num, df_den],
+        'p_val': p_val,
+        'eta_sq': eta_sq,
+        'pairwise': pairwise_results
     }
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save results
-    with open(output_path, 'w') as f:
-        json.dump(final_results, f, indent=2)
-
-    print(f"ANOVA results saved to {output_path}")
-    print(f"F({anova_results['df_numerator']}, {anova_results['df_denominator']}) = {anova_results['f_statistic']:.4f}, "
-          f"p = {anova_results['p_value']:.4f}, η² = {anova_results['partial_eta_squared']:.4f}")
     
-    if pairwise_results:
-        print(f"Performed {len(pairwise_results)} pairwise comparisons.")
-        for comp in pairwise_results:
-            print(f"  {comp['condition_a']} vs {comp['condition_b']}: "
-                  f"t={comp['t_statistic']:.4f}, p_raw={comp['p_value_raw']:.4f}, "
-                  f"p_corr={comp['p_value_corrected']:.4f} (sig: {comp['significant_corrected']})")
-    else:
-        print("No pairwise comparisons performed (ANOVA not significant).")
+    # Write output
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    with open(args.output, 'w') as f:
+        json.dump(output, f, indent=2)
     
-    return final_results
+    print(f"Analysis complete. Results saved to {args.output}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

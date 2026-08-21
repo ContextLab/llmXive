@@ -1,86 +1,73 @@
 import os
 import sys
 import json
-from pathlib import Path
-from typing import Dict, Any, List, Optional
 import random
 import numpy as np
 
 # Seed pinning for reproducibility (Task T031)
-# Although report generation is deterministic, we pin seed for consistency 
-# if any random sampling were introduced in future versions.
-_SEED = 42
-random.seed(_SEED)
-np.random.seed(_SEED)
+np.random.seed(42)
+random.seed(42)
+
+from pathlib import Path
 
 def get_project_root():
-    """Returns the root path of the project."""
-    current_file = Path(__file__).resolve()
-    return current_file.parent.parent.parent
+    """Get the root directory of the project."""
+    return Path(__file__).resolve().parent.parent.parent
 
-def load_json_file(file_path: str) -> Dict[str, Any]:
-    """Loads a JSON file."""
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"JSON file not found: {file_path}")
+def load_json_file(file_path):
+    """Load a JSON file."""
     with open(file_path, 'r') as f:
         return json.load(f)
 
-def generate_summary_report(anova_results: Dict[str, Any], pairwise_results: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Generates a human-readable summary report combining ANOVA and pairwise results.
-    """
-    report = {
-        'anova_summary': {
-            'f_statistic': anova_results.get('f_statistic'),
-            'df': f"({anova_results.get('df_numerator')}, {anova_results.get('df_denominator')})",
-            'p_value': anova_results.get('p_value'),
-            'partial_eta_squared': anova_results.get('partial_eta_squared'),
-            'significant': anova_results.get('p_value', 1.0) < 0.05
-        },
-        'pairwise_comparisons': []
-    }
+def generate_summary_report(anova_path, pairwise_path):
+    """Generate a summary report from ANOVA and pairwise results."""
+    anova_results = load_json_file(anova_path)
+    pairwise_results = load_json_file(pairwise_path)
     
-    for comp in pairwise_results:
-        report['pairwise_comparisons'].append({
-            'comparison': f"{comp['condition_a']} vs {comp['condition_b']}",
-            't_statistic': comp['t_statistic'],
-            'corrected_p_value': comp['bonferroni_corrected_p'],
-            'cohens_d': comp['cohens_d'],
-            'significant': comp['significant']
+    # Extract key metrics
+    f_stat = anova_results.get('f_stat')
+    df = anova_results.get('df', [])
+    p_val = anova_results.get('p_val')
+    eta_sq = anova_results.get('eta_sq')
+    
+    # Format pairwise results
+    pairwise_summary = []
+    for pair in pairwise_results.get('pairwise', []):
+        pairwise_summary.append({
+            'comparison': pair['comparison'],
+            'p_val': pair['p_value_bonferroni'],
+            'cohens_d': pair['cohens_d']
         })
     
-    return report
+    # Create summary
+    summary = {
+        'f_stat': f_stat,
+        'df': df,
+        'p_val': p_val,
+        'eta_sq': eta_sq,
+        'pairwise': pairwise_summary
+    }
+    
+    return summary
 
 def main():
-    """
-    Main entry point for generating the analysis report.
-    """
-    project_root = get_project_root()
+    """Main entry point for report generation."""
+    parser = argparse.ArgumentParser(description='Generate summary report from analysis results')
+    parser.add_argument('--anova', type=str, required=True, help='Path to ANOVA results JSON')
+    parser.add_argument('--pairwise', type=str, required=True, help='Path to pairwise results JSON')
+    parser.add_argument('--output', type=str, required=True, help='Path to output report JSON')
     
-    # Paths
-    anova_json = project_root / 'data' / 'processed' / 'anova_results.json'
-    pairwise_json = project_root / 'data' / 'processed' / 'pairwise_results.json'
-    output_json = project_root / 'data' / 'processed' / 'analysis_results.json'
-    
-    # Load results
-    try:
-        anova_data = load_json_file(str(anova_json))
-        pairwise_data = load_json_file(str(pairwise_json))
-    except FileNotFoundError as e:
-        print(f"Error loading results: {e}", file=sys.stderr)
-        sys.exit(1)
+    args = parser.parse_args()
     
     # Generate report
-    summary = generate_summary_report(anova_data, pairwise_data)
+    report = generate_summary_report(args.anova, args.pairwise)
     
-    # Save
-    output_path = Path(output_json)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Write output
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    with open(args.output, 'w') as f:
+        json.dump(report, f, indent=2)
     
-    with open(output_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    
-    print(f"Report generated successfully: {output_json}")
+    print(f"Report generated. Saved to {args.output}")
 
 if __name__ == '__main__':
     main()
