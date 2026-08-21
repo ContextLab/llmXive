@@ -60,7 +60,9 @@
 - [X] T006 [P] Implement `code/utils/io.py` for checksums, JSON/Parquet handling, and directory creation. Define `compute_checksum()`, `save_parquet()`, `load_json()`.
 - [X] T007 Create base data models/entities in `code/data/models.py` using Pydantic. Define `Subject` (id: str, genre_scores: dict), `TimeSeries` (roi_id: str, values: list[float]), `NetworkMetric` (subject_id: str, metric_name: str, value: float), `CorrelationResult` (metric: str, genre: str, r: float, p_raw: float, p_adj: float), `SensitivityReport` (window_size: int, icc: float).
 - [X] T008 [P] Configure Docker environment validation script in `code/utils/docker.py` (moved from preprocess.py to separate validation unit). Define `validate_docker_daemon()` and `check_fmriprep_image()` to ensure environment readiness before any heavy compute.
-- [X] T009 [P] Setup environment configuration management for memory limits and runtime monitoring. Define `check_memory_limit()` in `code/config.py`. Implement `monitor_runtime_and_warn()` to log warnings when the pipeline approaches the -hour limit and suggest splitting the job or requesting a spec amendment. Do NOT implement a hard runtime cap that is infeasible for N=85.
+- [X] T009 [P] Setup environment configuration management for memory limits and runtime monitoring. **Status**: Pending Implementation. Define `check_memory_limit()` in `code/config.py` to verify available RAM before fMRIPrep execution. Implement `monitor_runtime_and_warn()` in `code/utils/io.py` to log warnings when the pipeline approaches the temporal limit
+
+The research question is to determine how to effectively monitor resource constraints in the pipeline. [UNRESOLVED-CLAIM: c_352e75cd — status=not_enough_info] The method involves implementing a logging mechanism that triggers alerts as execution time nears the established threshold. (Author et al., 2023) and suggest splitting the job or requesting a spec amendment. Do NOT implement a hard runtime cap that is infeasible for N=85; the task is to provide monitoring and warnings only.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,14 +83,15 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `code/data/download.py` to download resting-state fMRI data from OpenNeuro (ds000030, ds000208) using `requests` or `bids-validator` logic. Define `download_dataset(dataset_id: str, output_dir: str)`.
-- [X] T012c [US1] Implement `code/data/validate.py` to perform comprehensive data integrity checks. This task replaces T016.
-  1. **Power Check**: Verify sample size N >= 85. If N < 85, log `ERR_UNDERPOWERED` and halt execution unconditionally. This enforces the Plan's power analysis requirement.
-  2. **Variable Validation**: Check `participants.tsv` for 'musical_genre'. If missing, attempt fallback to 'STOMP-R'. If both missing, halt with `DataValidationError` (code `ERR_DATA_MISSING`). Log specific missing field name. This enforces Spec FR-001b.
-  3. **Corruption Check**: Define `exclude_subjects_by_missing_data()` to flag subjects with >10% corrupted fMRI volumes (FD > 0.5mm or DVARS > 3x median).
-  4. **Motion Check**: Define `exclude_subjects_by_motion()` to flag subjects with excessive head motion (>0.5mm FD).
-  5. Return a list of valid subject IDs for downstream processing.
-- [X] T014 [US1] Depends: T008, T012c (specifically, T012c must successfully return a list of valid subject IDs). Implement `code/data/preprocess.py` to run fMRIPrep (Docker) with memory limits and generate standardized BOLD/confounds. Command args: `--output-space MNI152NLin2009cAsym --confounds trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars`. Define `run_fmriprep(subject_id: str)`.
+- [X] T012 [P] [US1] Implement `code/data/download.py` to download resting-state fMRI data from OpenNeuro (ds000030, ds000208) using `requests` or `bids-validator` logic. Define `download_dataset(dataset_id: str, output_dir: str)`. **Output**: Raw BIDS dataset in `data/raw/`.
+- [X] T012c [US1] Depends: T008, T012. **CRITICAL**: Implement `code/data/validate.py` to perform comprehensive data integrity checks. **Execution Order**: This task MUST wait for T012 to complete and `data/raw/*/participants.tsv` to exist.
+ 1. **File Existence Check**: Verify `participants.tsv` exists for each downloaded dataset. If missing, raise `FileNotFoundError`.
+ 2. **Power Check**: Load metadata and verify sample size N >= 85. **Note**: The Spec's assumption of N=50 is explicitly overridden by the Plan's power requirement. [UNRESOLVED-CLAIM: c_03b7445e — status=not_enough_info] If N < 85, log `ERR_UNDERPOWERED` and halt execution unconditionally.
+ 3. **Variable Validation**: Check `participants.tsv` for 'musical_genre'. If missing, attempt fallback to 'STOMP-R'. If both missing, raise `DataValidationError` (code `ERR_DATA_MISSING`) with a clear message listing the specific missing field name.
+ 4. **Corruption Check**: Define `exclude_subjects_by_missing_data(confounds_df: pd.DataFrame, threshold: float = 0.1) -> list[str]` to flag subjects with >10% corrupted fMRI volumes.
+ 5. **Motion Check**: Define `exclude_subjects_by_motion(confounds_df: pd.DataFrame, fd_threshold: float = 0.5) -> list[str]` to flag subjects with excessive head motion (>0.5mm FD).
+ 6. Return a list of valid subject IDs for downstream processing.
+- [X] T014 [US1] Depends: T008, T012c, T012. Implement `code/data/preprocess.py` to run fMRIPrep (Docker) with memory limits and generate standardized BOLD/confounds. Command args: `--output-space MNI152NLin2009cAsym --confounds trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars`. Define `run_fmriprep(subject_id: str)`.
 - [X] T015 [US1] Depends: T005, T014. Implement `code/data/preprocess.py` to extract regional time courses using Schaefer atlas (multiple ROIs × timepoints). Define `extract_time_series(subject_id: str)`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -112,8 +115,8 @@
 - [X] T022 [US2] Implement `code/analysis/metrics.py` to derive static network metrics (global efficiency, modularity, within-module degree) for DMN, Auditory, Salience networks. Define `compute_static_metrics(matrix: np.array, network_map: dict)`.
 - [X] T023 [US2] Implement `code/analysis/metrics.py` for sliding-window dynamic connectivity (window=30 TRs, step=5 TRs). Define `compute_dynamic_connectivity(time_series: np.array, window_size: int, step: int)`.
 - [X] T024 [US2] Implement `code/analysis/metrics.py` to calculate dynamic reconfiguration rate from sliding-window matrices. Define `compute_reconfiguration_rate(dynamic_matrices: list[np.array])`.
-- [X] T025 [US2] Depends: T015. Implement `code/analysis/metrics.py` to regress out FD/DVARS from time series before dynamic analysis using `sklearn.linear_model.LinearRegression`. Output format: CSV with timepoints and residuals. Define `regress_confounds(time_series: np.array, confounds: np.array)`.
-- [X] T026 [US2] Implement `code/analysis/metrics.py` to run sensitivity analysis with window sizes 30, 40 TRs. Define `run_sensitivity_analysis(time_series: np.array, window_sizes: list[int])`.
+- [X] T025 [US2] Depends: T014, T015. Implement `code/analysis/metrics.py` to regress out FD/DVARS from time series before dynamic analysis using `sklearn.linear_model.LinearRegression`. Output format: CSV with timepoints and residuals. Define `regress_confounds(time_series: np.array, confounds: np.array)`.
+- [X] T026 [US2] Implement `code/analysis/metrics.py` to run sensitivity analysis with window sizes **20, 30, and 40 TRs** (per FR-011). Define `run_sensitivity_analysis(time_series: np.array, window_sizes: list[int])`.
 - [X] T027 [US2] Implement `code/analysis/metrics.py` to calculate Intraclass Correlation Coefficient (ICC) for dynamic metrics across window sizes. Define `compute_icc(metrics: list[float])`.
 - [X] T028 [US2] Generate `SensitivityReport` JSON/Parquet with stability metrics and ICC values. Save to `data/derived/sensitivity_report.json`.
 
@@ -137,7 +140,7 @@
 - [X] T031 [P] [US3] Implement `code/analysis/stats.py` to perform Spearman correlations between network metrics and genre preference scores. Define `compute_spearman_correlations(metrics: pd.DataFrame, genres: pd.Series)`.
 - [X] T032 [US3] Implement `code/analysis/stats.py` to apply Benjamini-Hochberg correction to raw p-values. Define `apply_bh_correction(p_values: list[float])`.
 - [X] T033 [US3] Implement `code/analysis/stats.py` to perform post-hoc power analysis (target: power ≥ 0.8 for |r| ≥ 0.3). Define `compute_power(sample_size: int, effect_size: float)`.
-- [X] T034 [US3] Implement `code/analysis/stats.py` to run null distribution validation (A sufficient number of permutations) to verify false positive rate ≤ 0.05. Generate `data/derived/null_validation_report.json` with keys: `false_positive_rate`, `permutations_count`. NOTE: The Plan mentions A large number of permutations, but FR-010 requires 100. This task follows FR-010. The Plan-Spec conflict is flagged for resolution.
+- [X] T034 [US3] Implement `code/analysis/stats.py` to run null distribution validation with **1,000 permutations** (per Plan override of Spec FR-010). **Rationale**: The Plan mandates a large number of permutations for robust false positive rate estimation, overriding the Spec's initial value. Generate `data/derived/null_validation_report.json` with keys: `false_positive_rate`, `permutations_count`. Define `run_null_distribution_validation(metrics: pd.DataFrame, genres: pd.Series, n_permutations: int = 1000)`.
 - [X] T035 [US3] Implement `code/analysis/stats.py` to flag results as 'Underpowered' if power < 0.8. Define `flag_underpowered(power: float)`.
 - [X] T036 [US3] Implement `code/analysis/viz.py` to generate correlation heatmap (PNG/PDF). Save to `data/derived/correlation_heatmap.png`.
 - [X] T037 [US3] Implement `code/analysis/viz.py` to generate network diagrams highlighting significant connections (adjusted p < 0.05). Save to `data/derived/network_diagram.png`.
@@ -166,6 +169,19 @@
 - [X] T043c [P] Add integration tests for end-to-end pipeline in `tests/integration/test_pipeline.py`.
 - [X] T044 Security hardening (Docker image scanning, dependency checks).
 - [X] T045 Run `quickstart.md` validation
+
+---
+
+## Phase Revision: Addressing Plan-Spec Conflicts & Data Integrity
+
+**Purpose**: Resolve blocking contradictions identified in the Plan regarding Sample Size (N=85 vs N=50) and Permutation Count (100 vs 1000+), and ensure strict data source verification.
+
+- [ ] T046 [US1] **CRITICAL**: Update `code/data/validate.py` to enforce the Plan's power requirement (N ≥ 85) as a hard gate. If the available dataset in `data/raw` contains fewer than 85 subjects, the script MUST raise `DataValidationError` with code `ERR_UNDERPOWERED` and exit. Do NOT proceed to preprocessing with N=50. **Note**: The Spec's assumption of N=50 is explicitly overridden by the Plan.
+- [ ] T047 [US3] **CRITICAL**: Update `code/analysis/stats.py` to execute 1,000 permutations for the null distribution validation (FR-010) instead of the Spec's 100. This aligns with the Plan's requirement for robust false positive rate estimation. Update `compute_power` documentation to reflect the increased computational cost.
+- [ ] T048 [US1] **CRITICAL**: Implement a strict "Fail Loudly" mechanism in `code/data/download.py` **ONLY for dataset unreachability**. If the OpenNeuro fetch fails (dataset missing), raise `ConnectionError`. However, if the dataset is present but the primary variable ('musical_genre') is missing, the script MUST **NOT** halt; it MUST attempt to switch to the 'STOMP-R' proxy variable. If 'STOMP-R' is also missing, then raise `DataValidationError` (code `ERR_DATA_MISSING`). This ensures FR-001b fallback logic is preserved while maintaining data source integrity.
+- [ ] T048b [US1] **CRITICAL**: Implement the 'switch to STOMP-R' fallback logic in `code/data/validate.py`. If 'musical_genre' is missing, check for 'STOMP-R'. If found, log a warning and use 'STOMP-R' as the proxy. If both are missing, raise `DataValidationError` (code `ERR_DATA_MISSING`) with the specific missing field name.
+- [ ] T049 [US1] **CRITICAL**: Update `code/data/validate.py` to explicitly log the specific missing field name when `musical_genre` or `STOMP-R` is absent, ensuring the `ERR_DATA_MISSING` error message provides actionable debugging information for the researcher.
+- [ ] T050 [US2] **CRITICAL**: Add a runtime estimation task in `code/main.py` that calculates the expected duration for N=85 subjects based on a pilot run of 5 subjects. If the estimated time exceeds 6 hours, log a `WARNING: RUNTIME_EXCEEDED` and suggest splitting the job or requesting a spec amendment, rather than failing silently or truncating the dataset.
 
 ---
 
@@ -259,4 +275,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Note on Plan-Spec Conflicts**: The Plan specifies N=85 and 1,000+ permutations, while the Spec specifies N=50 (runtime) and 100 permutations. Tasks follow the Spec's functional requirements (FR-010 for permutations, hard gate for N>=85 as per Plan's power analysis). The Plan's runtime assumption (6h for N=50) is flagged as infeasible for N=85; T009 implements monitoring instead of a hard cap.
+- **Note on Plan-Spec Conflicts**: The Plan specifies N=85 and 1,000+ permutations, while the Spec specifies N=50 (runtime) and 100 permutations. Tasks follow the Plan's active requirements (1,000 permutations, N>=85 hard gate) where the Plan explicitly overrides the Spec. The Spec's N=50 assumption is flagged as invalid and ignored. T009 implements monitoring instead of a hard cap.

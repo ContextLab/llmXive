@@ -1,13 +1,18 @@
 """
 I/O utilities for checksums, JSON/Parquet handling, and directory creation.
+Extended to include runtime monitoring.
 """
 import os
 import json
 import hashlib
+import time
+import logging
 from pathlib import Path
-from typing import Any, Dict, Union
-
+from typing import Any, Dict, Union, Callable
 import pandas as pd
+
+# Configure logger for this module
+logger = logging.getLogger(__name__)
 
 
 def ensure_dir(path: Union[str, Path]) -> Path:
@@ -130,3 +135,41 @@ def read_text(file_path: Union[str, Path], encoding: str = "utf-8") -> str:
     """
     with open(file_path, "r", encoding=encoding) as f:
         return f.read()
+
+
+def monitor_runtime_and_warn(
+    start_time: float,
+    limit_hours: float,
+    warning_threshold: float = 0.8,
+    log_level: int = logging.WARNING
+) -> bool:
+    """
+    Monitor elapsed runtime and log a warning if approaching the limit.
+
+    This function calculates the elapsed time since `start_time` and compares
+    it against `limit_hours * warning_threshold`. If the threshold is exceeded,
+    it logs a warning suggesting job splitting or spec amendment.
+
+    Args:
+        start_time: Unix timestamp (float) of the pipeline start.
+        limit_hours: Maximum allowed runtime in hours.
+        warning_threshold: Fraction of limit at which to warn (default 0.8).
+        log_level: Logging level to use for the warning.
+
+    Returns:
+        True if a warning was triggered, False otherwise.
+    """
+    elapsed_seconds = time.time() - start_time
+    elapsed_hours = elapsed_seconds / 3600.0
+    warning_limit = limit_hours * warning_threshold
+
+    if elapsed_hours >= warning_limit:
+        logger.log(
+            log_level,
+            f"RUNTIME WARNING: Pipeline has run for {elapsed_hours:.2f} hours. "
+            f"This approaches the configured limit of {limit_hours} hours "
+            f"(warning threshold: {warning_threshold*100}%). "
+            f"Consider splitting the job or requesting a spec amendment."
+        )
+        return True
+    return False
