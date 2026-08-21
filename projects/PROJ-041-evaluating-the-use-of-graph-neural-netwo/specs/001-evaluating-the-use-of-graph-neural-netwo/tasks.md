@@ -66,11 +66,11 @@
 - [X] T004 Implement `code/utils/seed.py` to manage deterministic random seeds
 - [X] T005 Implement `code/utils/memory_monitor.py` wrapper using `tracemalloc` to enforce a hard memory limit
 - [ ] T006 Create `contracts/dataset.schema.yaml` and `contracts/graph.schema.yaml` defining data structures
-- [ ] T007a [P] Download CTU dataset from canonical URL: and validate checksum [UNRESOLVED-CLAIM: c_259a9d97 — status=not_enough_info]
-- [ ] T007b [P] Download the NF-BoT-IoT dataset from its canonical URL () and validate the checksum (Fallback). [UNRESOLVED-CLAIM: c_a9672863 — status=not_enough_info]
+- [ ] T007a [P] Download CTU dataset from canonical URL: and validate checksum
+- [ ] T007b [P] Download the NF-BoT-IoT dataset from its canonical URL () and validate the checksum (Fallback).
 - [X] T007c [P] Implement fallback logic in `code/data/ingest_netflow.py`: Check CTU availability; if missing, switch to BoT-IoT and log source
-- [X] T007d [P] Define `Target AUC Threshold` in `code/config.yaml` (key: `target_auc`, default: 0.75 [UNRESOLVED-CLAIM: c_103a292e — status=not_enough_info]) per SC-005
-- [X] T008 Implement `code/data/preprocess.py` for strict subsampling: **Rule**: Extract ONLY the Largest Connected Component (LCC). If LCC < 5,000 nodes, retain LCC as-is. **Do NOT pad**.
+- [X] T007d [P] Define `Target AUC Threshold` in `code/config.yaml` (key: `target_auc`, default: 0.75) per SC-005
+- [X] T008 Implement `code/data/preprocess.py` for strict subsampling: **Rule**: {{claim:c_f73d8678}} (Wikidata Q621080, https://www.wikidata.org/wiki/Q621080). If LCC < 5,000 nodes, retain LCC as-is [UNRESOLVED-CLAIM: c_ec77a786 — status=not_enough_info]. **Do NOT pad**.
 - [X] T009 Implement `code/data/splits.py` for Temporal Holdout validation strategy (Train on the majority of time-windowed flows, test on the remaining minority., configurable via `config.temporal_split_ratio`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -88,7 +88,7 @@
 > **NOTE**: Write these test **skeletons** FIRST (T010-T012), then implement code (T013-T017), then run tests.
 
 - [X] T010 [P] [US1] Write test skeleton for graph construction memory limit in `tests/test_memory_limits.py` (asserts `tracemalloc` < 7GB) [Depends on T005, T013]
-- [ ] T011 [P] [US1] Write test skeleton for node count subsampling in `tests/test_graph_construction.py` (asserts nodes ≤ 5,000 [UNRESOLVED-CLAIM: c_f572d6d3 — status=not_enough_info], LCC rule) [Depends on T008, T013]
+- [ ] T011 [P] [US1] Write test skeleton for node count subsampling in `tests/test_graph_construction.py` (asserts nodes ≤ 5,000, LCC rule) [Depends on T008, T013]
 - [ ] T012 [P] [US1] Write test skeleton for data ingestion pipeline in `tests/integration/test_ingest.py` (verifies real data fetch and schema compliance)
 
 ### Implementation for User Story 1
@@ -105,13 +105,13 @@
 
 ## Phase 4: User Story 2 - Compare GNN Performance Against Feature-Engineered Baselines (Priority: P2)
 
-**Goal**: Train 2-layer GCN (CPU-only) and baselines (RF, XGBoost) to compare predictive value of graph structure.
+**Goal**: Train 2-layer GCN [UNRESOLVED-CLAIM: c_59c26e16 — status=not_enough_info] (CPU-only) and baselines (RF, XGBoost) to compare predictive value of graph structure.
 
 **Independent Test**: Train models on fixed split, evaluate on held-out test set, record metrics (Precision, Recall, F1, AUC-ROC).
 
 ### Tests for User Story 2 (Write Skeletons First)
 
-- [ ] T018 [P] [US2] Write test skeleton for GCN convergence on CPU in `tests/test_models.py` (asserts no CUDA errors, converges ≤30 epochs [UNRESOLVED-CLAIM: c_f8e6d347 — status=not_enough_info])
+- [ ] T018 [P] [US2] Write test skeleton for GCN convergence on CPU in `tests/test_models.py` (asserts no CUDA errors, converges ≤30 epochs)
 - [ ] T019 [P] [US2] Write test skeleton for baseline training in `tests/test_models.py` (asserts RF/XGBoost produce predictions)
 - [ ] T020 [P] [US2] Write test skeleton for Temporal Holdout split in `tests/integration/test_splits.py` (verifies no data leakage)
 
@@ -139,12 +139,12 @@
 ### Tests for User Story 3 (Write Skeletons First)
 
 - [ ] T027 [P] [US3] Write test skeleton for Permutation Test logic in `tests/test_significance_tests.py` (validates p-value calculation for small N)
-- [ ] T028 [P] [US3] Write test skeleton for Benjamini-Hochberg correction in `tests/test_significance_tests.py` (validates FDR < 0.05 threshold [UNRESOLVED-CLAIM: c_c8fcdc53 — status=not_enough_info])
+- [ ] T028 [P] [US3] Write test skeleton for Benjamini-Hochberg correction in `tests/test_significance_tests.py` (validates FDR < 0.05 threshold)
 - [ ] T029 [P] [US3] Write test skeleton for Integrated Gradients attribution in `tests/integration/test_attribution.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] [Depends on T025] Implement Permutation Tests in `code/analysis/significance_tests.py`: 10,000 permutations, alpha=0.05. Compare GCN vs RF, GCN vs XGB. [Trace: Plan.md Deviation 1]
+- [ ] T030 [P] [US3] [Depends on T025] Implement Permutation Tests in `code/analysis/significance_tests.py`: 10,000 permutations [UNRESOLVED-CLAIM: c_fbb2e211 — status=not_enough_info], alpha=0.05. Compare GCN vs RF, GCN vs XGB. [Trace: Plan.md Deviation 1]
 - [ ] T031b [P] [US3] Implement specific "Structural Features vs. Null Baseline" hypothesis tests in `code/analysis/significance_tests.py`: Read top features from `data/results/feature_importance_ranking.json` (generated by T032)
 - [ ] T031 [P] [US3] [Depends on T031b] Implement Benjamini-Hochberg correction in `code/analysis/significance_tests.py`: Aggregate multiple comparisons (model pairs + a set of feature tests)
 - [ ] T032 [P] [US3] Implement Random Forest feature importance ranking in `code/analysis/attribution.py`
@@ -267,6 +267,6 @@ With multiple developers:
 - **Hardware Constraints**: All model training (T021, T022) must run on CPU without CUDA/quantization.
 - **Statistical Deviation**: T030 implements Permutation Tests instead of Wilcoxon (Spec FR-006) as per Plan.md deviation for small sample sizes.
 - **Subsampling Rule**: T008 and T014 strictly enforce "Largest Connected Component only" (no padding, no anomaly-preservation heuristics) per FR-002 and Constitution Principle VI.
-- **Temporal Split Clarity**: T009 and T020 explicitly enforce the "Train on first [deferred] (config.temporal_split_ratio=0.8 [UNRESOLVED-CLAIM: c_a601dea8 — status=not_enough_info]), Test on remaining [deferred]" split to prevent leakage.
+- **Temporal Split Clarity**: T009 and T020 explicitly enforce the "Train on first [deferred] (config.temporal_split_ratio=0.8), Test on remaining [deferred]" split to prevent leakage.
 - **Small Sample Robustness**: T030 and T031 explicitly implement Permutation Tests and BH correction to ensure validity given N < 13 scenarios.
 - **Target AUC Threshold**: T035b enforces the threshold defined in `code/config.yaml` (default 0.75) as per SC-005.

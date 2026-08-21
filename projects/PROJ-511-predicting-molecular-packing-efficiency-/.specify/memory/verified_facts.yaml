@@ -1,5 +1,7 @@
-'|a051021 oei':
-  quote: 2 3
-  source_id: A051021
-  url: https://oeis.org/A051021
-  value: '2'
+'|bondi radii value':
+  quote: Arnold Bondi also conducted a study of this type, published in 1964, although
+    he also considered other methods of determining the van der Waals radius in coming
+    to his final estimates.
+  source_id: Van der Waals radius
+  url: https://en.wikipedia.org/wiki/Van_der_Waals_radius
+  value: '1964'

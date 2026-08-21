@@ -8,13 +8,12 @@ T015:
     \ implementation are missing."
 T016:
   c: false
-  h: cdb5f7f1f95e7d17e35901f6fbe160f259324858ef03358980811056a2dc2b64
-  r: The repository contains a partially shown `code/filter_dataset.py`, but the file
-    is truncated (e.g., the `keep_mask` logic is incomplete) and there is no `data/dataset_with_metrics.csv`
-    or the resulting `data/dataset_filtered.csv`. Without the input data and a complete,
-    runnable script, the required filtering cannot be verified. The implementer must
-    provide the full script and the necessary CSV files (or generate them) so the
-    filter can be executed and produce the filtered output.
+  h: 360421969f957b111cd5bcc6059075908daac305c6c7ba30b328ef9cf45ab979
+  r: The repository contains `code/filter_dataset.py`, but the file is truncated and
+    does not show the logic that writes `data/dataset_filtered.csv`. Moreover, the
+    required input `data/dataset_with_metrics.csv` and the expected output `data/dataset_filtered.csv`
+    are absent, so the script cannot be verified to perform the required filtering.
+    The task therefore remains unfinished.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -22,20 +21,22 @@ T017:
     \ of download statistics, parsing failures, or filtering counts. The required\
     \ artifact (e.g., updated script/module with logging statements and example log\
     \ output) is missing, so the task\u2019s requirement is not satisfied."
-T018:
-  c: false
-  h: e11a81d9a72c41681bb90e218f75cf564d84b0bfa4835be7fc056df91f4b14a9
-  r: The required input file `data/dataset_filtered.csv` and the output file `data/dataset.csv`
-    are absent, so the script cannot read COD IDs or produce the merged dataset with
-    the specified columns. Additionally, the provided `add_3d_descriptors.py` is truncated
-    and does not show the full logic for loading CIFs, handling missing files, or
-    writing the final CSV. These essential artifacts are missing, so the task is not
-    genuinely completed.
 T019:
   c: false
-  h: bc1729ab97825fb7c9d090cfb9f10b509836dd3fe900e90e7b42f6b7b284edce
-  r: "The repository contains a partially\u2011implemented `code/validate_dataset.py`,\
-    \ but the required input files `data/dataset.csv` and `contracts/dataset.schema.yaml`\
-    \ are absent, so the script cannot actually perform validation. Moreover, the\
-    \ provided code (truncated) shows no implementation of the COD\u2011ID cross\u2011\
-    reference check required by FR\u2011017. The task therefore remains unfinished."
+  h: acff4b751c620414e4476c8c4990e91c28caa6cfe1ec9781f92c6d15c897d6d2
+  r: "The repository lacks the required `data/dataset.csv` and `contracts/dataset.schema.yaml`\
+    \ files, so the validator cannot actually run against the dataset or schema. Moreover,\
+    \ the provided `code/validate_dataset.py` is truncated and shows no implementation\
+    \ of the COD\u2011ID cross\u2011reference or recording of the COD source URL/version,\
+    \ indicating the core requirements are unmet."
+T024:
+  c: false
+  h: eae81dfcad03132ae31c6356611f80d61495942346b633b3456f1c0154e33559
+  r: "The repository contains a partially\u2011implemented `code/feature_assembly.py`\
+    \ (the file is truncated and never reaches the part that writes `features_matrix.npy`\
+    \ or `targets.npy`). Moreover, the required input `data/dataset.csv` and the expected\
+    \ outputs `data/features_matrix.npy` and `data/targets.npy` are absent. Without\
+    \ the dataset and the generated feature/target files, the task\u2019s core requirement\u2014\
+    assembling the final feature matrix from SMILES and 3\u2011D descriptors\u2014\
+    is not satisfied. The next implementer must provide a complete, runnable script\
+    \ that reads `data/dataset.csv`, encodes SMILES with "

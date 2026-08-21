@@ -1,0 +1,24 @@
+'|alpha':
+  quote: In 1925, Ronald Fisher advanced the idea of statistical hypothesis testing,
+    which he called "tests of significance", in his publication Statistical Methods
+    for Research Workers. Fisher suggested a probability of one in twenty (0.05) as
+    a convenient cutoff level to reject the null hypothesis. In a 1933 paper, Jerzy
+    Neyman and Egon Pearson called this cutoff the significance level, which they
+    named
+  source_id: Statistical significance
+  url: https://en.wikipedia.org/wiki/Statistical_significance
+  value: '0.05'
+'|limit node verify':
+  quote: Computing cluster Fire-Flyer 2 began construction in 2021 with a budget of
+    1 billion yuan. It was reported that in 2022, Fire-Flyer 2's capacity had been
+    used at over 96%, totaling 56.74 million GPU hours. 27% of Fire-Flyer 2's capacity
+    was used to support scientific computing outside the company. Fire-Flyer 2 had
+    5,000 PCIe A100 GPUs in 625 nodes, each containing 8 GPUs. At the time, it exclusively
+    used PCIe instead of the DGX version of A100. This was because the models it trained
+    could fit within a single 40 GB GPU VRAM. Hence, there was no need for the higher
+    bandwidth of DGX at the time (it required only data parallelism but not model
+    parallelism). Later, it incorporated both NVLinks and Nvidia Collective Communications
+    Library (NCCL) to train larger models that required model parallelism.
+  source_id: DeepSeek
+  url: https://en.wikipedia.org/wiki/DeepSeek
+  value: '625'

@@ -4310,22 +4310,6 @@
   status: not_enough_info
   updated_at: '2026-08-20T10:56:45Z'
 - artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
-  attempts: 2
-  canonical: Permutation test uses 10000 shuffles
-  claim_id: c_bbbeaf8a
-  context: Implement code/evaluate.py to run a fixed two-sided permutation test with
-    10000 shuffles (FR-006, FR-016).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement a fixed two-sided permutation test with 10000 shuffles.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-20T11:27:08Z'
-- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
   attempts: 1
   canonical: Sensitivity analysis sweeps thresholds 0.5 0.6 0.7
   claim_id: c_42655dba
@@ -4584,3 +4568,143 @@
   source_type: external
   status: verified
   updated_at: '2026-08-20T11:31:49Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Dataset contains at least 500 organic crystal structures
+  claim_id: c_430e01fa
+  context: "Goal: Obtain a clean dataset of \u2265500 organic crystal structures with\
+    \ SMILES and packing coefficients."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_500_organic_crystal_structures
+  kind: magnitude
+  raw_text: "Obtain a clean dataset of \u2265500 organic crystal structures with SMILES\
+    \ and packing coefficients."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T09:37:59Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Model trainable parameters limit is 100000
+  claim_id: c_9c61e309
+  context: "Constraint: Total trainable parameters must be \u2264 100k as per FR-005."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The total trainable parameters must be \u2264 100k."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T09:37:59Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 3
+  canonical: Permutation test uses 10000 shuffles
+  claim_id: c_bbbeaf8a
+  context: Implement code/evaluate.py to run a fixed two-sided permutation test with
+    10000 shuffles (FR-006, FR-016).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a fixed two-sided permutation test with 10000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T09:38:40Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.5, 0.6, 0.7
+  claim_id: c_e9adc314
+  context: Sweep high-packing threshold over the specific set {0.5, 0.6, 0.7} (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps high-packing threshold over the set {0.5,
+    0.6, 0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T09:39:23Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Bondi radii values source is Bondi 1964
+  claim_id: c_72ae5bc5
+  context: Create code/bondi_constants.py containing the exact Bondi (1964) radii
+    values and utility functions for volume calculation.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Arnold Bondi also conducted a study of this type, published in 1964,
+        although he also considered other methods of determining the van der Waals
+        radius in coming to his final estimates.
+      source_id: Van der Waals radius
+      url: https://en.wikipedia.org/wiki/Van_der_Waals_radius
+      value: '1964'
+    filled: true
+  kind: numeric
+  raw_text: The Bondi radii values are from Bondi (1964).
+  resolved_value: '1964'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T09:39:41Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Model uses seyonec ChemBERTa-zinc-base-v1
+  claim_id: c_07af8dde
+  context: Implement code/feature_assembly.py to encode SMILES using frozen seyonec/ChemBERTa-zinc-base-v1
+    (CPU).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_uses_seyonec_ChemBERTa-zinc-base-v1
+  kind: entity_fact
+  raw_text: The model uses the seyonec/ChemBERTa-zinc-base-v1 frozen model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T09:40:03Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Fallback to 1000 permutation shuffles if runtime exceeds 6 hours
+  claim_id: c_4d4f4b27
+  context: If runtime exceeds 6 hours, the number of shuffles MUST be reduced to 1000
+    (logged as a deviation) to ensure the pipeline completes within the 6-hour limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 1000 shuffles if runtime exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T09:40:34Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Optimizer learning rate is 1e-3
+  claim_id: c_ee80794e
+  context: 'Optimizer: Adam (lr=1e-3), Batch Size 32.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimizer uses a learning rate of 1e-3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T09:41:21Z'

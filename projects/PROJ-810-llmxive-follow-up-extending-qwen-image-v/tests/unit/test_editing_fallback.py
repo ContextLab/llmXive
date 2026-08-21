@@ -1,159 +1,133 @@
 """
-Unit tests for T032: Manual Verification Fallback.
+Unit tests for the Manual Verification Fallback logic (T032).
 """
+
 import json
+import csv
 import os
 import tempfile
-import csv
 from pathlib import Path
 import pytest
-import sys
-
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from code.analysis.editing_fallback import (
+from analysis.editing_fallback import (
+    load_ocr_results,
     calculate_overall_accuracy,
     get_failed_samples,
     sample_failed_indices,
     write_verification_queue,
-    ACCURACY_THRESHOLD,
-    MIN_SAMPLE_SIZE,
-    MAX_SAMPLE_SIZE,
-    RANDOM_SEED
+    main
 )
 
 
-class TestCalculateOverallAccuracy:
-    def test_explicit_accuracy_field(self):
-        results = {"overall_accuracy": 0.92, "samples": []}
-        assert calculate_overall_accuracy(results) == 0.92
+class TestEditingFallback:
+    """Test suite for editing_fallback module functions."""
 
-    def test_calculation_from_samples(self):
-        # 4 correct, 1 wrong = 0.8
-        samples = [
-            {"is_correct": True},
-            {"is_correct": True},
-            {"is_correct": True},
-            {"is_correct": True},
-            {"is_correct": False}
-        ]
-        results = {"samples": samples}
-        assert calculate_overall_accuracy(results) == 0.8
+    @pytest.fixture
+    def temp_dir(self):
+        """Create a temporary directory for test artifacts."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
 
-    def test_empty_samples(self):
-        results = {"samples": []}
-        assert calculate_overall_accuracy(results) == 1.0
-
-
-class TestGetFailedSamples:
-    def test_filter_failures(self):
-        samples = [
-            {"sample_id": "1", "is_correct": True},
-            {"sample_id": "2", "is_correct": False},
-            {"sample_id": "3", "is_correct": False}
-        ]
-        failed = get_failed_samples({"samples": samples})
-        assert len(failed) == 2
-        assert all(not s["is_correct"] for s in failed)
-        assert {s["sample_id"] for s in failed} == {"2", "3"}
-
-    def test_no_failures(self):
-        samples = [{"sample_id": "1", "is_correct": True}]
-        failed = get_failed_samples({"samples": samples})
-        assert len(failed) == 0
-
-
-class TestSampleFailedIndices:
-    def test_less_than_min_all_sampled(self):
-        # 3 failures, min is 5 -> should return all 3
-        failures = [{"id": str(i)} for i in range(3)]
-        sampled = sample_failed_indices(failures)
-        assert len(sampled) == 3
-
-    def test_more_than_max_sampled(self):
-        # 100 failures, max is 50 -> should return 50
-        failures = [{"id": str(i)} for i in range(100)]
-        sampled = sample_failed_indices(failures)
-        assert len(sampled) == MAX_SAMPLE_SIZE
-        # Check randomness (should not be the first 50 in order if we didn't sort)
-        # But since we use random.sample, order is random.
-        # We just check count.
-
-    def test_exact_min(self):
-        # 5 failures -> should return 5
-        failures = [{"id": str(i)} for i in range(5)]
-        sampled = sample_failed_indices(failures)
-        assert len(sampled) == 5
-
-    def test_reproducibility(self):
-        failures = [{"id": str(i)} for i in range(20)]
-        s1 = sample_failed_indices(failures)
-        s2 = sample_failed_indices(failures)
-        # Since seed is set inside function, results should be identical
-        assert [s["id"] for s in s1] == [s["id"] for s in s2]
-
-    def test_empty_list(self):
-        sampled = sample_failed_indices([])
-        assert len(sampled) == 0
-
-
-class TestWriteVerificationQueue:
-    def test_write_empty_queue_high_accuracy(self, tmp_path):
-        # Mock the path writing
-        output_file = tmp_path / "queue.csv"
-        
-        # We need to patch the global path or pass it. 
-        # Since the function writes to a global constant, we will test the logic 
-        # by creating a mock scenario where we call the function logic directly 
-        # or by temporarily changing the global variable if possible.
-        # However, for simplicity in unit testing, let's just test the CSV writing logic
-        # by importing the internal logic or mocking.
-        
-        # Instead, let's just verify the file creation logic by calling the function
-        # and checking the file content.
-        # We can't easily change the global constant in the module without re-importing.
-        # So we will test the behavior by assuming the function works as written.
-        
-        # Let's test the logic of writing to a specific path provided by the test.
-        # We'll create a temporary file and verify the content.
-        
-        import code.analysis.editing_fallback as mod
-        original_path = mod.VERIFICATION_QUEUE_PATH
-        mod.VERIFICATION_QUEUE_PATH = output_file
-        
-        try:
-            write_verification_queue([], 0.99)
-            assert output_file.exists()
-            with open(output_file, 'r') as f:
-                reader = csv.reader(f)
-                rows = list(reader)
-                assert len(rows) == 2 # Header + 1 data row with reason
-                assert "No verification needed" in rows[1][5]
-        finally:
-            mod.VERIFICATION_QUEUE_PATH = original_path
-
-    def test_write_sampled_queue(self, tmp_path):
-        import code.analysis.editing_fallback as mod
-        output_file = tmp_path / "queue.csv"
-        original_path = mod.VERIFICATION_QUEUE_PATH
-        mod.VERIFICATION_QUEUE_PATH = output_file
-        
-        try:
-            failures = [
-                {"sample_id": "1", "image_path": "img1.png", "target_text": "A", "predicted_text": "B", "confidence": 0.5},
-                {"sample_id": "2", "image_path": "img2.png", "target_text": "C", "predicted_text": "D", "confidence": 0.6}
+    @pytest.fixture
+    def sample_ocr_results(self):
+        """Generate a mock OCR results dictionary."""
+        return {
+            "overall_accuracy": 0.92,
+            "total_samples": 100,
+            "failed_samples": [
+                {"sample_id": "1", "source_image": "img1.jpg", "expected_text": "Hello", "detected_text": "Helo", "confidence": 0.8, "reason": "low_confidence"},
+                {"sample_id": "2", "source_image": "img2.jpg", "expected_text": "World", "detected_text": "Worlld", "confidence": 0.7, "reason": "typo"},
+                {"sample_id": "3", "source_image": "img3.jpg", "expected_text": "Test", "detected_text": "Tset", "confidence": 0.6, "reason": "scramble"},
+                {"sample_id": "4", "source_image": "img4.jpg", "expected_text": "Data", "detected_text": "Dat", "confidence": 0.5, "reason": "missing_char"},
+                {"sample_id": "5", "source_image": "img5.jpg", "expected_text": "Code", "detected_text": "Cde", "confidence": 0.4, "reason": "missing_char"},
+                {"sample_id": "6", "source_image": "img6.jpg", "expected_text": "Run", "detected_text": "Rn", "confidence": 0.3, "reason": "missing_char"},
             ]
-            write_verification_queue(failures, 0.8)
-            
-            assert output_file.exists()
-            with open(output_file, 'r') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                assert len(rows) == 2
-                assert rows[0]["sample_id"] == "1"
-                assert rows[1]["sample_id"] == "2"
-                assert rows[0]["reason"] == "OCR Accuracy < 95% - Manual Review Required"
-        finally:
-            mod.VERIFICATION_QUEUE_PATH = original_path
+        }
+
+    @pytest.fixture
+    def sample_ocr_results_high_acc(self):
+        """Generate a mock OCR results dictionary with high accuracy."""
+        return {
+            "overall_accuracy": 0.98,
+            "total_samples": 100,
+            "failed_samples": []
+        }
+
+    def test_load_ocr_results(self, temp_dir, sample_ocr_results):
+        """Test loading OCR results from a JSON file."""
+        json_path = temp_dir / "test_ocr.json"
+        with open(json_path, 'w') as f:
+            json.dump(sample_ocr_results, f)
+
+        loaded = load_ocr_results(json_path)
+        assert loaded["overall_accuracy"] == 0.92
+        assert len(loaded["failed_samples"]) == 6
+
+    def test_load_ocr_results_file_not_found(self, temp_dir):
+        """Test error handling for missing OCR results file."""
+        with pytest.raises(FileNotFoundError):
+            load_ocr_results(temp_dir / "nonexistent.json")
+
+    def test_calculate_overall_accuracy(self, sample_ocr_results):
+        """Test accuracy extraction."""
+        acc = calculate_overall_accuracy(sample_ocr_results)
+        assert acc == 0.92
+
+    def test_get_failed_samples(self, sample_ocr_results):
+        """Test retrieval of failed samples."""
+        failed = get_failed_samples(sample_ocr_results)
+        assert len(failed) == 6
+        assert failed[0]["sample_id"] == "1"
+
+    def test_sample_failed_indices_all(self):
+        """Test sampling when count < 5 (should return all)."""
+        # Create a small list of 3 items
+        items = [{"id": str(i)} for i in range(3)]
+        sampled = sample_failed_indices(items, max_samples=50, seed=42)
+        assert len(sampled) == 3
+        assert all(item in sampled for item in items)
+
+    def test_sample_failed_indices_max(self):
+        """Test sampling when count >= 5 (should return up to max_samples)."""
+        # Create a list of 100 items
+        items = [{"id": str(i)} for i in range(100)]
+        sampled = sample_failed_indices(items, max_samples=10, seed=42)
+        assert len(sampled) == 10
+        # Verify all are from original list
+        assert all(item in items for item in sampled)
+        # Verify determinism with same seed
+        sampled2 = sample_failed_indices(items, max_samples=10, seed=42)
+        assert sampled == sampled2
+
+    def test_sample_failed_indices_empty(self):
+        """Test sampling on empty list."""
+        sampled = sample_failed_indices([], max_samples=50)
+        assert sampled == []
+
+    def test_write_verification_queue(self, temp_dir, sample_ocr_results):
+        """Test writing verification queue to CSV."""
+        output_path = temp_dir / "queue.csv"
+        failed = get_failed_samples(sample_ocr_results)
+        sampled = sample_failed_indices(failed, max_samples=5, seed=42)
+
+        write_verification_queue(sampled, output_path)
+
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            assert len(rows) == 5
+            assert "sample_id" in reader.fieldnames
+
+    def test_write_verification_queue_empty(self, temp_dir):
+        """Test writing empty verification queue."""
+        output_path = temp_dir / "empty_queue.csv"
+        write_verification_queue([], output_path)
+
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            reader = csv.reader(f)
+            headers = next(reader)
+            assert "sample_id" in headers
+            # Check no data rows
+            remaining = list(reader)
+            assert len(remaining) == 0

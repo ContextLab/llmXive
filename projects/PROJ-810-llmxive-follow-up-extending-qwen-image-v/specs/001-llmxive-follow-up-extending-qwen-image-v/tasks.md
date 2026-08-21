@@ -86,7 +86,7 @@ description: "Task list template for feature implementation"
 - [ ] T008-impl Implement `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/preprocess.py` -> **Ground-Truth Label Extraction** (Task 1.1). **Logic**: Extract "text"/"image" labels directly from OmniDoc-TokenBench ground-truth bounding box annotations using columns `bbox_x_min, bbox_y_min, bbox_width, bbox_height, modality_label`. **Deliverable**: `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/preprocess.py` (Ground-Truth extraction function). **CRITICAL**: This is the primary source for evaluation in FR-003.
 - [ ] T008b-impl Implement `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/preprocess.py` -> **Heuristic Label Derivation** (Task 1.2). **Logic**: Derive "text"/"image" labels using OCR density (`char_count / (bbox_width * bbox_height) > 0.05`) and aspect ratio (`width / height > 2.0`) from **ground-truth bounding box fields** (bbox_width, bbox_height). **Unit Definition**: `char_count` is the number of characters detected by OCR within the bounding box; the A threshold of a small magnitude is characters per pixel.. **Constraint**: **MUST rely on `paddleocr==2.7.3 `** as defined in `requirements.txt` (T004) for reproducibility. **Data Isolation**: This artifact (`heuristic_labels.csv`) is strictly for logging and sanity checks. It MUST NOT be read by T022-impl or T028-impl. **Deliverable**: `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/preprocess.py` (Heuristic derivation function).
 - [X] T015 [P] [US1] Unit test for `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/download.py` checksum validation in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/unit/test_download.py`
-- [ ] T016 [P] [US1] Unit test for `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/models/vae_loader.py` CPU fallback logic in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/unit/test_vae_loader.py`
+- [X] T016 [P] [US1] Unit test for `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/models/vae_loader.py` CPU fallback logic in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/unit/test_vae_loader.py`
 - [X] T017 [P] [US1] Unit test for `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/preprocess.py` region extraction in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/unit/test_preprocess.py`
 - [X] T018 [P] [US1] Integration test for end-to-end encoding pipeline on sample data in `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/tests/integration/test_encoding_pipeline.py`
 
@@ -158,7 +158,7 @@ description: "Task list template for feature implementation"
 
 - [ ] T040-impl [P] Implement `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/utils/versioning.py` -> Versioning Mechanism. **Logic**: Compute SHA-256 of artifacts, update state file. **Deliverable**: `code/utils/versioning.py`.
 - [ ] T041-impl [P] Implement `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/main.py` -> Orchestration. **Logic**: Chain all tasks in dependency order. **Deliverable**: `code/main.py`.
-- [ ] T044 [P] Final Integration Test. **Logic**: Run full pipeline on a small sample. Verify all outputs exist. **Deliverable**: `data/results/final_report.md`.
+- [X] T044 [P] Final Integration Test. **Logic**: Run full pipeline on a small sample. Verify all outputs exist. **Deliverable**: `data/results/final_report.md`.
 
 ---
 

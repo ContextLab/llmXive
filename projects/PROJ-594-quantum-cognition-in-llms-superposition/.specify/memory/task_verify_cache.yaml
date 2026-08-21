@@ -67,26 +67,6 @@ T039:
     \ showing the required explicit definitions of \u201Cmeasurement\u201D (token\
     \ selection) and \u201Cobservable\u201D (ambiguity resolution) that address Einstein/Von\u202F\
     Neumann concerns. The task is therefore not satisfied."
-T090:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `research.md` file (or excerpt of Section\u202F4.1) was supplied;\
-    \ thus we cannot confirm that the measurement apparatus definition (argmax over\
-    \ the Born\u2011rule distribution and observable as the binary ambiguity label)\
-    \ was actually added. The required documentation artifact is missing."
-T091:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file or its contents were provided, so we cannot verify that\
-    \ Section\u202F4.2 was updated with the required sentence about locality. The\
-    \ implementer must supply the updated `research.md` showing the new text."
-T092:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `research.md` file (or excerpt thereof) was provided, so we cannot\
-    \ verify that Section\u202F4.3 now distinguishes epistemic uncertainty from ontological\
-    \ superposition and frames the model\u2019s superposition as a computational representation\
-    \ of epistemic uncertainty. The required documentation artifact is missing."
 T093:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
