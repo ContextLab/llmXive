@@ -1,120 +1,83 @@
-key_entity: EstimationResult
-description: >-
-  Schema for the results of applying meta-analysis estimators (Fixed-Effects, 
-  DerSimonian-Laird, REML) to a single simulated replicate. Contains the 
-  pooled effect estimate, confidence intervals, heterogeneity statistics, 
-  and a reliability flag based on study count.
-version: "1.0"
-references:
-  - SC-002: "Estimation results must include I^2 and Q statistics."
-  - FR-001: "Schema must include reliability_flag (boolean)."
-
-fields:
-  - name: replicate_id
+$schema: "http://json-schema.org/draft-07/schema#"
+title: EstimationResult
+description: |
+  Schema for the estimation results produced by applying meta-analysis estimators
+  (Fixed-Effects, DerSimonian-Laird, REML) to simulated or real datasets.
+  This entity captures the pooled effect estimates, confidence intervals,
+  heterogeneity statistics, and reliability flags.
+type: object
+required:
+  - study_id
+  - estimator_type
+  - pooled_effect
+  - se_pooled
+  - ci_lower
+  - ci_upper
+  - I_squared
+  - Q_statistic
+  - N_studies
+  - reliability_flag
+  - tau2_estimated
+properties:
+  study_id:
     type: string
-    description: Unique identifier for the simulation replicate (e.g., "tau2_0.1_rep_001").
-    required: true
-    example: "tau2_0.1_rep_001"
-
-  - name: estimator_type
+    description: "Unique identifier for the study or replicate (e.g., 'rep_001_tau2_0.1')"
+  estimator_type:
     type: string
-    description: The estimator used for this result.
-    required: true
+    description: "The estimator used (e.g., 'FixedEffects', 'DerSimonianLaird', 'REML')"
     enum:
-      - "Fixed-Effects"
-      - "DerSimonian-Laird"
-      - "REML"
-    example: "DerSimonian-Laird"
-
-  - name: pooled_effect
-    type: float
-    description: The point estimate of the pooled effect size (theta_hat).
-    required: true
-    example: 0.482
-
-  - name: ci_lower
-    type: float
-    description: Lower bound of the confidence interval for the pooled effect.
-    required: true
-    example: 0.350
-
-  - name: ci_upper
-    type: float
-    description: Upper bound of the confidence interval for the pooled effect.
-    required: true
-    example: 0.614
-
-  - name: ci_width
-    type: float
-    description: Width of the confidence interval (ci_upper - ci_lower).
-    required: true
-    example: 0.264
-
-  - name: Q
-    type: float
-    description: Cochran's Q statistic measuring heterogeneity.
-    required: true
-    example: 12.45
-
-  - name: I_squared
-    type: float
-    description: I-squared statistic (percentage of total variation due to heterogeneity).
-    required: true
-    example: 75.9
-    note: "Mapped to I^2 in task description. Stored as I_squared for YAML compatibility."
-
-  - name: tau2_estimate
-    type: float
-    description: Estimated between-study variance (tau-squared).
-    required: true
-    example: 0.085
-
-  - name: N_studies
+      - FixedEffects
+      - DerSimonianLaird
+      - REML
+  pooled_effect:
+    type: number
+    description: "The pooled effect size estimate"
+  se_pooled:
+    type: number
+    description: "Standard error of the pooled effect"
+  ci_lower:
+    type: number
+    description: "Lower bound of the confidence interval"
+  ci_upper:
+    type: number
+    description: "Upper bound of the confidence interval"
+  I_squared:
+    type: number
+    description: "I^2 statistic representing the percentage of total variation across studies due to heterogeneity rather than chance"
+    minimum: 0
+    maximum: 100
+  Q_statistic:
+    type: number
+    description: "Cochran's Q statistic for testing heterogeneity"
+    minimum: 0
+  N_studies:
     type: integer
-    description: Number of studies included in this meta-analysis.
-    required: true
-    example: 20
-
-  - name: reliability_flag
+    description: "Number of studies included in this meta-analysis"
+    minimum: 1
+  reliability_flag:
     type: boolean
-    description: >-
-      Flag indicating if the result is considered reliable. 
-      Set to False if N_studies < 5 (per SC-002 / FR-001).
-    required: true
-    example: true
-
-  - name: injected_true_effect
-    type: float
-    description: The ground-truth effect size used in the simulation for this replicate.
-    required: true
-    example: 0.5
-
-  - name: injected_tau2
-    type: float
-    description: The ground-truth between-study variance used in the simulation.
-    required: true
-    example: 0.1
-
-  - name: convergence_status
+    description: |
+      Flag indicating the reliability of the result.
+      Set to False if N_studies < 5 (Small Study Effects risk).
+      Set to True otherwise.
+  tau2_estimated:
+    type: number
+    description: "Estimated between-study variance (tau-squared)"
+    minimum: 0
+  injected_true_effect:
+    type: number
+    description: "The ground truth effect size injected during simulation (if applicable)"
+    nullable: true
+  injected_tau2:
+    type: number
+    description: "The ground truth heterogeneity injected during simulation (if applicable)"
+    nullable: true
+  convergence_status:
     type: string
-    description: Status of the numerical optimization (if applicable).
-    required: true
+    description: "Status of the estimator convergence (e.g., 'success', 'failed', 'max_iter_reached')"
     enum:
-      - "success"
-      - "failed"
-      - "skipped"
-    example: "success"
-
-  - name: bias
-    type: float
-    description: Difference between pooled_effect and injected_true_effect.
-    required: false
-    note: "Calculated in metrics.py, included here if pre-calculated."
-    example: -0.018
-
-  - name: coverage_flag
-    type: boolean
-    description: True if the confidence interval contains the injected_true_effect.
-    required: false
-    note: "Calculated in metrics.py, included here if pre-calculated."
-    example: true
+      - success
+      - failed
+      - max_iter_reached
+    default: "success"
+additionalProperties: false
