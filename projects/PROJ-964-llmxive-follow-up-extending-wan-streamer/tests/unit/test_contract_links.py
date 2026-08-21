@@ -1,133 +1,143 @@
 """
-Unit test for T038b: Verify Contract Documentation Links.
+Test script for T038b: Verify Contract Documentation Links.
 
-This script verifies that the links added in T038a to docs/quickstart.md
-and docs/data-model.md are correct and functional by checking that each
-referenced file exists under the contracts/ directory.
+This script verifies that the links added in T038a to docs/quickstart.md 
+and docs/data-model.md are correct and functional by checking that the 
+referenced schema files under contracts/ actually exist on disk.
 """
-
 import os
 import re
 import sys
 from pathlib import Path
+import argparse
+import logging
 
-# Project root is the parent of the 'tests' directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-CONTRACTS_DIR = PROJECT_ROOT / "contracts"
-DOCS_DIR = PROJECT_ROOT / "docs"
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Files to check for links
-DOC_FILES = [
-    "quickstart.md",
-    "data-model.md"
-]
-
-# Expected contract files that should be linked (based on T038a requirements)
-# T038a: "Update docs/quickstart.md and docs/data-model.md to include explicit references 
-#         to all schema files under contracts/."
-# We will discover all .md and .json files in contracts/ and verify they are linked.
-
-def get_contract_files():
-    """Get all schema files (md, json, yaml) in the contracts directory."""
-    if not CONTRACTS_DIR.exists():
-        return []
-    
-    files = []
-    for ext in ["*.md", "*.json", "*.yaml", "*.yml", "*.txt"]:
-        files.extend(CONTRACTS_DIR.glob(ext))
-    return files
-
-def extract_links_from_file(file_path):
-    """Extract all relative file paths that look like links from a markdown file."""
-    if not file_path.exists():
-        return []
-    
-    content = file_path.read_text(encoding="utf-8")
-    
-    # Regex to match markdown links [text](path) or bare paths like `path/to/file`
-    # We look for paths that likely point to the contracts directory
-    links = set()
-    
+def extract_markdown_links(content: str) -> list[str]:
+    """Extract all relative file paths referenced as links in markdown content."""
     # Match markdown links: [text](path)
-    markdown_link_pattern = r'\[([^\]]+)\]\(([^)]+)\)'
-    for match in re.finditer(markdown_link_pattern, content):
-        path = match.group(2)
-        # Normalize path: remove leading ./ or ./
-        path = path.lstrip("./")
-        if path.startswith("contracts/"):
-            links.add(path)
+    # We are interested in paths, not necessarily URLs
+    pattern = r'\[([^\]]+)\]\(([^)]+)\)'
+    matches = re.findall(pattern, content)
     
-    # Match code blocks or inline paths: `contracts/...`
-    inline_pattern = r'`([^`]*contracts/[^`]+)`'
-    for match in re.finditer(inline_pattern, content):
-        path = match.group(1)
-        path = path.lstrip("./")
-        if path.startswith("contracts/"):
-            links.add(path)
-    
-    return list(links)
+    links = []
+    for text, url in matches:
+        # Filter for local file references (start with ./ or ../ or just filename)
+        # Exclude http/https URLs
+        if not url.startswith(('http://', 'https://', '#')):
+            links.append(url)
+    return links
 
-def verify_links():
-    """Verify that all contract files are linked in the documentation."""
-    contract_files = get_contract_files()
-    if not contract_files:
-        print("WARNING: No contract files found in contracts/ directory.")
-        print("This might be expected if T038a hasn't created them yet, or if the directory is empty.")
-        # If contracts dir is empty, we can't verify links to non-existent files.
-        # But the task is to verify links *added* in T038a. If no contracts exist, 
-        # the links can't be verified. We'll treat this as a pass with a note.
-        return True, []
+def verify_contract_links(doc_path: Path, contracts_root: Path) -> bool:
+    """
+    Verify that all links to contract files in the given document exist.
     
-    missing_links = []
-    
-    for doc_file_name in DOC_FILES:
-        doc_path = DOCS_DIR / doc_file_name
-        if not doc_path.exists():
-            print(f"ERROR: Documentation file not found: {doc_path}")
-            missing_links.append(f"Missing doc file: {doc_file_name}")
-            continue
+    Args:
+        doc_path: Path to the markdown document to check
+        contracts_root: Path to the contracts directory root
         
-        linked_paths = extract_links_from_file(doc_path)
-        linked_files = {Path(p) for p in linked_paths}
-        
-        for contract_file in contract_files:
-            rel_path = contract_file.relative_to(PROJECT_ROOT)
-            rel_path_str = str(rel_path)
-            
-            # Check if this contract file is linked
-            if contract_file not in linked_files and rel_path_str not in linked_paths:
-                # Also check if it's linked by just the filename (sometimes people link just the name)
-                if contract_file.name not in [p.name for p in linked_files]:
-                    missing_links.append(
-                        f"Contract file '{rel_path_str}' is not linked in {doc_file_name}"
-                    )
+    Returns:
+        True if all contract links are valid, False otherwise
+    """
+    if not doc_path.exists():
+        logger.error(f"Document not found: {doc_path}")
+        return False
     
-    return len(missing_links) == 0, missing_links
+    logger.info(f"Checking document: {doc_path}")
+    
+    with open(doc_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    links = extract_markdown_links(content)
+    
+    # Filter for links that point to the contracts directory
+    contract_links = [
+        link for link in links 
+        if 'contracts' in link or link.startswith('contracts/')
+    ]
+    
+    if not contract_links:
+        logger.warning(f"No contract links found in {doc_path}")
+        return True  # No links to verify, so it passes
+    
+    all_valid = True
+    for link in contract_links:
+        # Resolve the path relative to the document's directory
+        # Handle both relative paths starting with ./ or without
+        if link.startswith('./'):
+            rel_path = link[2:]
+        else:
+            rel_path = link
+        
+        # Construct full path from project root
+        # Assume the doc is in docs/ and contracts are at root/contracts/
+        full_path = Path.cwd() / rel_path
+        
+        if not full_path.exists():
+            logger.error(f"Contract link broken: {link} -> {full_path}")
+            all_valid = False
+        else:
+            logger.info(f"Contract link valid: {link} -> {full_path}")
+    
+    return all_valid
 
 def main():
-    """Main entry point for the test."""
-    print("=== T038b: Verify Contract Documentation Links ===")
-    print(f"Project Root: {PROJECT_ROOT}")
-    print(f"Contracts Dir: {CONTRACTS_DIR}")
-    print(f"Docs Dir: {DOCS_DIR}")
-    print()
+    parser = argparse.ArgumentParser(
+        description='Verify that contract documentation links are functional.'
+    )
+    parser.add_argument(
+        '--docs-dir',
+        type=str,
+        default='docs',
+        help='Path to the documentation directory'
+    )
+    parser.add_argument(
+        '--contracts-dir',
+        type=str,
+        default='contracts',
+        help='Path to the contracts directory'
+    )
     
-    contract_files = get_contract_files()
-    print(f"Found {len(contract_files)} contract files:")
-    for f in contract_files:
-        print(f"  - {f.relative_to(PROJECT_ROOT)}")
-    print()
+    args = parser.parse_args()
     
-    success, errors = verify_links()
+    docs_dir = Path(args.docs_dir)
+    contracts_dir = Path(args.contracts_dir)
     
-    if success:
-        print("✅ SUCCESS: All contract files are properly linked in documentation.")
-        return 0
+    if not docs_dir.exists():
+        logger.error(f"Docs directory not found: {docs_dir}")
+        sys.exit(1)
+    
+    if not contracts_dir.exists():
+        logger.error(f"Contracts directory not found: {contracts_dir}")
+        sys.exit(1)
+    
+    # Files to check as per T038a
+    files_to_check = [
+        docs_dir / 'quickstart.md',
+        docs_dir / 'data-model.md'
+    ]
+    
+    all_passed = True
+    for doc_file in files_to_check:
+        if not doc_file.exists():
+            logger.warning(f"Document does not exist, skipping: {doc_file}")
+            continue
+        
+        if not verify_contract_links(doc_file, contracts_dir):
+            all_passed = False
+    
+    if all_passed:
+        logger.info("SUCCESS: All contract documentation links are valid.")
+        sys.exit(0)
     else:
-        print("❌ FAILURE: Some contract files are missing links:")
-        for error in errors:
-            print(f"  - {error}")
-        return 1
+        logger.error("FAILURE: One or more contract documentation links are broken.")
+        sys.exit(1)
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

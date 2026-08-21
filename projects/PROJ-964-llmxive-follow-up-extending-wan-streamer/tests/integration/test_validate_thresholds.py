@@ -1,165 +1,235 @@
 """
-Integration test for T012b: Validate Thresholds & Event Count
+Integration test for T012b: Validate Thresholds & Event Count.
+
+Verifies that:
+1. The script runs successfully when event count >= 500.
+2. The script exits with code 1 when event count < 500.
+3. The log file is created with the correct format.
 """
 import os
 import sys
 import tempfile
-import shutil
-import pandas as pd
-import yaml
-from pathlib import Path
 import subprocess
+import shutil
+import yaml
+import pandas as pd
+import numpy as np
+from pathlib import Path
 
 # Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-def test_validate_thresholds_success():
-    """Test successful validation when event count >= 500."""
+from tasks.validate_thresholds import load_thresholds, load_extracted_data, count_events, write_log, main
+
+def test_count_events_interruptions():
+    """Test interruption counting logic."""
+    # Create a small dataframe with known interruptions
+    data = {
+        'audio_energy': [10.0, 20.0, 30.0, 5.0, 25.0], # 3 active speech frames
+        'latent_delta_magnitude': [0.1, 0.6, 0.7, 0.8, 0.2] # 2 exceed 0.5
+    }
+    df = pd.DataFrame(data)
+    
+    thresholds = {
+        'audio_energy_db': -30.0, # All are > -30, so all active
+        'latent_delta_magnitude': 0.5,
+        'pause_duration_frames': 10
+    }
+    
+    count = count_events(df, thresholds)
+    # Interruptions: rows 1, 2, 3 (indices) -> 3 interruptions? 
+    # Wait: row 3 (index 3) has energy 5.0 which is >= -30.0, and delta 0.8 > 0.5.
+    # So interruptions at indices 1, 2, 3. Total 3.
+    # Pauses: none (no run of 10).
+    assert count == 3, f"Expected 3 interruptions, got {count}"
+
+def test_count_events_pauses():
+    """Test pause counting logic."""
+    # Create data with a run of silence longer than threshold
+    # 15 frames of silence (< -30), 5 frames of speech
+    n_silence = 15
+    n_speech = 5
+    silence_energy = -40.0
+    speech_energy = 10.0
+    
+    energies = [silence_energy] * n_silence + [speech_energy] * n_speech
+    deltas = [0.1] * len(energies) # Low deltas, no interruptions
+    
+    df = pd.DataFrame({
+        'audio_energy': energies,
+        'latent_delta_magnitude': deltas
+    })
+    
+    thresholds = {
+        'audio_energy_db': -30.0,
+        'latent_delta_magnitude': 0.5,
+        'pause_duration_frames': 10
+    }
+    
+    count = count_events(df, thresholds)
+    # 1 pause detected (run of 15 >= 10)
+    assert count == 1, f"Expected 1 pause, got {count}"
+
+def test_count_events_combined():
+    """Test combined counting."""
+    # 2 interruptions, 1 pause
+    data = {
+        'audio_energy': [10.0, 10.0] + [-40.0] * 12 + [10.0],
+        'latent_delta_magnitude': [0.6, 0.6] + [0.1] * 12 + [0.1]
+    }
+    df = pd.DataFrame(data)
+    
+    thresholds = {
+        'audio_energy_db': -30.0,
+        'latent_delta_magnitude': 0.5,
+        'pause_duration_frames': 10
+    }
+    
+    count = count_events(df, thresholds)
+    assert count == 3, f"Expected 3 events (2 interruptions + 1 pause), got {count}"
+
+def test_script_success_path():
+    """Test the script exits 0 when count >= 500."""
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
         
-        # Create mock data with >= 500 events
-        data_dir = tmpdir / 'data' / 'processed'
-        data_dir.mkdir(parents=True)
-        
-        # Create a dataframe with 600 interruption events and 100 pause events
-        n_rows = 1000
-        df = pd.DataFrame({
-            'is_interruption': [True] * 600 + [False] * 400,
-            'is_pause': [True] * 100 + [False] * 900,
-            'timestamp': range(n_rows),
-            'latent_delta_magnitude': [0.6] * 600 + [0.1] * 400
-        })
-        
-        parquet_path = data_dir / 'raw_extract.parquet'
-        df.to_parquet(parquet_path)
-        
-        # Create thresholds config
-        config_dir = tmpdir / 'code' / 'config'
-        config_dir.mkdir(parents=True)
-        config_path = config_dir / 'detection_thresholds.yaml'
-        thresholds = {
-            'audio_energy_db': -30.0,
-            'latent_delta_magnitude': 0.5,
-            'pause_duration_frames': 10,
-            'calibration_status': 'pending'
-        }
-        with open(config_path, 'w') as f:
-            yaml.dump(thresholds, f)
-        
-        # Run validation
-        log_path = tmpdir / 'data' / 'logs' / 'threshold_validation.log'
-        log_path.parent.mkdir(parents=True)
-        
-        result = subprocess.run([
-            sys.executable,
-            str(Path(__file__).parent.parent.parent / 'code' / 'tasks' / 'validate_thresholds.py'),
-            '--data-path', str(parquet_path),
-            '--thresholds-path', str(config_path),
-            '--log-path', str(log_path)
-        ], capture_output=True, text=True)
-        
-        # Verify exit code is 0
-        assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}. Stderr: {result.stderr}"
-        
-        # Verify log file exists and contains correct count
-        assert log_path.exists(), "Log file not created"
-        log_content = log_path.read_text()
-        assert "Event count: 700" in log_content, f"Expected 'Event count: 700' in log, got: {log_content}"
-        assert "Validation PASSED" in log_content, f"Expected 'Validation PASSED' in log, got: {log_content}"
-
-def test_validate_thresholds_failure():
-    """Test validation fails when event count < 500."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
-        
-        # Create mock data with < 500 events
-        data_dir = tmpdir / 'data' / 'processed'
-        data_dir.mkdir(parents=True)
-        
-        # Create a dataframe with only 200 events total
-        n_rows = 1000
-        df = pd.DataFrame({
-            'is_interruption': [True] * 150 + [False] * 850,
-            'is_pause': [True] * 50 + [False] * 950,
-            'timestamp': range(n_rows),
-            'latent_delta_magnitude': [0.6] * 150 + [0.1] * 850
-        })
-        
-        parquet_path = data_dir / 'raw_extract.parquet'
-        df.to_parquet(parquet_path)
-        
-        # Create thresholds config
-        config_dir = tmpdir / 'code' / 'config'
-        config_dir.mkdir(parents=True)
-        config_path = config_dir / 'detection_thresholds.yaml'
-        thresholds = {
+        # Create config
+        config_path = tmpdir / "thresholds.yaml"
+        config = {
             'audio_energy_db': -30.0,
             'latent_delta_magnitude': 0.5,
             'pause_duration_frames': 10
         }
         with open(config_path, 'w') as f:
-            yaml.dump(thresholds, f)
+            yaml.dump(config, f)
         
-        # Run validation
-        log_path = tmpdir / 'data' / 'logs' / 'threshold_validation.log'
-        log_path.parent.mkdir(parents=True)
+        # Create data with >= 500 events
+        # We need 500 interruptions or pauses.
+        # Let's make 500 interruptions.
+        n_events = 500
+        energies = [10.0] * n_events
+        deltas = [0.6] * n_events
         
-        result = subprocess.run([
-            sys.executable,
-            str(Path(__file__).parent.parent.parent / 'code' / 'tasks' / 'validate_thresholds.py'),
-            '--data-path', str(parquet_path),
-            '--thresholds-path', str(config_path),
-            '--log-path', str(log_path)
-        ], capture_output=True, text=True)
+        data_path = tmpdir / "raw_extract.parquet"
+        df = pd.DataFrame({
+            'audio_energy': energies,
+            'latent_delta_magnitude': deltas
+        })
+        df.to_parquet(data_path)
         
-        # Verify exit code is non-zero
-        assert result.returncode != 0, f"Expected non-zero exit code, got {result.returncode}"
+        log_path = tmpdir / "threshold_validation.log"
         
-        # Verify log file contains error
+        # Run script
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "code" / "tasks" / "validate_thresholds.py"),
+                "--config", str(config_path),
+                "--input", str(data_path),
+                "--output", str(log_path),
+                "--min-events", "500"
+            ],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True
+        )
+        
+        assert result.returncode == 0, f"Script failed: {result.stderr}"
         assert log_path.exists(), "Log file not created"
-        log_content = log_path.read_text()
-        assert "Event count: 200" in log_content, f"Expected 'Event count: 200' in log, got: {log_content}"
-        assert "ERROR: insufficient events" in log_content, f"Expected error message in log, got: {log_content}"
-        assert "Validation FAILED" in log_content, f"Expected 'Validation FAILED' in log, got: {log_content}"
+        
+        with open(log_path, 'r') as f:
+            content = f.read()
+            assert "Event count: 500" in content
+            assert "Validation status: PASS" in content
 
-def test_validate_thresholds_missing_file():
-    """Test validation fails when input file is missing."""
+def test_script_failure_path():
+    """Test the script exits 1 when count < 500."""
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
         
-        # Create thresholds config
-        config_dir = tmpdir / 'code' / 'config'
-        config_dir.mkdir(parents=True)
-        config_path = config_dir / 'detection_thresholds.yaml'
-        thresholds = {'audio_energy_db': -30.0}
+        # Create config
+        config_path = tmpdir / "thresholds.yaml"
+        config = {
+            'audio_energy_db': -30.0,
+            'latent_delta_magnitude': 0.5,
+            'pause_duration_frames': 10
+        }
         with open(config_path, 'w') as f:
-            yaml.dump(thresholds, f)
+            yaml.dump(config, f)
         
-        # Run validation with non-existent data path
-        log_path = tmpdir / 'data' / 'logs' / 'threshold_validation.log'
-        log_path.parent.mkdir(parents=True)
+        # Create data with < 500 events (e.g., 499)
+        n_events = 499
+        energies = [10.0] * n_events
+        deltas = [0.6] * n_events
         
-        result = subprocess.run([
-            sys.executable,
-            str(Path(__file__).parent.parent.parent / 'code' / 'tasks' / 'validate_thresholds.py'),
-            '--data-path', str(tmpdir / 'nonexistent.parquet'),
-            '--thresholds-path', str(config_path),
-            '--log-path', str(log_path)
-        ], capture_output=True, text=True)
+        data_path = tmpdir / "raw_extract.parquet"
+        df = pd.DataFrame({
+            'audio_energy': energies,
+            'latent_delta_magnitude': deltas
+        })
+        df.to_parquet(data_path)
         
-        # Verify exit code is non-zero
-        assert result.returncode != 0, f"Expected non-zero exit code, got {result.returncode}"
-        assert "File not found" in result.stderr or "File not found" in result.stdout
+        log_path = tmpdir / "threshold_validation.log"
+        
+        # Run script
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "code" / "tasks" / "validate_thresholds.py"),
+                "--config", str(config_path),
+                "--input", str(data_path),
+                "--output", str(log_path),
+                "--min-events", "500"
+            ],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True
+        )
+        
+        assert result.returncode == 1, f"Script should have exited with 1: {result.stdout}"
+        assert log_path.exists(), "Log file not created"
+        
+        with open(log_path, 'r') as f:
+            content = f.read()
+            assert "Event count: 499" in content
+            assert "ERROR: insufficient events" in content
+            assert "Validation status: FAIL" in content
 
-if __name__ == '__main__':
-    test_validate_thresholds_success()
-    print("✓ test_validate_thresholds_success passed")
-    
-    test_validate_thresholds_failure()
-    print("✓ test_validate_thresholds_failure passed")
-    
-    test_validate_thresholds_missing_file()
-    print("✓ test_validate_thresholds_missing_file passed")
-    
-    print("\nAll integration tests passed!")
+def test_missing_input_file():
+    """Test handling of missing input file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        
+        config_path = tmpdir / "thresholds.yaml"
+        with open(config_path, 'w') as f:
+            yaml.dump({'audio_energy_db': -30.0}, f)
+        
+        log_path = tmpdir / "threshold_validation.log"
+        
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "code" / "tasks" / "validate_thresholds.py"),
+                "--config", str(config_path),
+                "--input", str(tmpdir / "nonexistent.parquet"),
+                "--output", str(log_path)
+            ],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True
+        )
+        
+        assert result.returncode == 1
+        assert log_path.exists()
+        with open(log_path, 'r') as f:
+            assert "File not found" in f.read()
+
+if __name__ == "__main__":
+    test_count_events_interruptions()
+    test_count_events_pauses()
+    test_count_events_combined()
+    test_script_success_path()
+    test_script_failure_path()
+    test_missing_input_file()
+    print("All tests passed.")

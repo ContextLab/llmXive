@@ -20,44 +20,21 @@ T012:
   r: "The required integration test file `tests/integration/test_data_extraction.py`\
     \ does not exist in the repository, so the artifact is missing and the task\u2019\
     s deliverable is not provided."
-T012b:
-  c: false
-  h: 915da0057913f0d34b26776b74fb2313bb67a7f2ea8fb6b5d96e53ae4ceaf56d
-  r: "The required `data/processed/raw_extract.parquet` file is missing, and the log\
-    \ shows an event count of\u202F0 (below the 500 threshold) with no evidence that\
-    \ T012c was invoked or that the task retried and eventually succeeded. Consequently\
-    \ the task\u2019s core requirements are not met."
 T013:
   c: false
-  h: a362de065261247c4d7621f30fd5849440bd47da42f83c3bc2e6bd6e86028fd5
-  r: "The `code/data/extract_latents.py` script is present but truncated (e.g., the\
-    \ `fetch_and_proces` function is cut off) and no `data/processed/raw_extract.parquet`\
-    \ file was generated. Since the required output file does not exist, the task\u2019\
-    s core requirement is unmet."
-T014g:
+  h: 6a6ba42b038ed4e726490e06977b8d014f4e0f7578206154307e1af6414fb55b
+  r: "The required output file `data/processed/raw_extract.parquet` does not exist,\
+    \ and the script\u2019s configured output path (`data/processed/latents_raw.parquet`)\
+    \ does not match the task\u2019s specified filename. Consequently the verification\
+    \ step cannot succeed and the task\u2019s core requirement is unmet."
+T014b:
   c: false
-  h: 24eb0490d109a9c5e71d329956763d801f06652c0a1a271f9e36de0a701681b4
-  r: "The `decide_sample_size.py` script is truncated (the `write_selected_sample_size`\
-    \ function is incomplete and never called) and the required output file `data/metrics/selected_sample_size.txt`\
-    \ does not exist, so the task\u2019s verification condition is not met. The implementation\
-    \ must be completed and the file created with an integer value."
-T014h:
-  c: false
-  h: fbad631b4ce2616b1e6ca21397a0947a72bf169d79b5281f2c11e7aca6b92402
-  r: "The `validation_report.txt` file is absent, so the required report does not\
-    \ exist (and thus cannot contain \u201CPASS\u201D). Additionally, the provided\
-    \ `validate_processed.py` script is incomplete/truncated and does not show any\
-    \ code that writes a validation report. The task\u2019s verification condition\
-    \ is therefore not satisfied."
-T016a:
-  c: false
-  h: ce4fec5250d8884762c3b4bd1f28a36432da2b03e3804645077d85cd156b2977
-  r: "The repository contains the required script, but the dependent files (`data/processed/filtered.parquet`\
-    \ and `data/metrics/theoretical_defaults.json`) are missing, and no `power_analysis_initial.json`\
-    \ output is present. Without the defaults JSON the script cannot fulfill the \u201C\
-    load defaults from \u2026\u201D clause, and the task\u2019s output artifact has\
-    \ not been generated. The next implementer must add the missing input files (or\
-    \ mock data) and run the script to produce the JSON with the specified fields."
+  h: cf5695c9f56272fbd1dedf1f0f49d60672ed0b659d44048cbcc3490ac5bdee38
+  r: "The required `data/metrics/power_analysis_initial.json` file is missing, and\
+    \ the expected output `data/processed/sampled_dataset.parquet` does not exist.\
+    \ Moreover, the provided `code/data/preprocess.py` is truncated and shows no implementation\
+    \ of the stratified sampling logic or fallback to `config.DEFAULT_SAMPLE_SIZE`.\
+    \ The task\u2019s core functionality and output are therefore not present."
 T019b:
   c: false
   h: 03afd4018e2c9081b5ddbdcbc5c2054ed63b2fb8ebe3357961556d17470f453c
@@ -102,10 +79,10 @@ T035:
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `quickstart.md` validation run is present\u2014no logs, screenshots,\
-    \ or generated output files demonstrating that the quickstart tutorial was executed\
-    \ and reproduced end\u2011to\u2011end results. Consequently the required artifact\
-    \ is missing, so the task is not satisfied."
+  r: "No artifact showing that `quickstart.md` was executed and validated is present\u2014\
+    there are no logs, output files, or reproducibility reports confirming the end\u2011\
+    to\u2011end run. The implementer provided only the feature specification, not\
+    \ the required validation evidence."
 T038b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
