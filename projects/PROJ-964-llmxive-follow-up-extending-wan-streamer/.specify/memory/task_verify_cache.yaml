@@ -22,52 +22,42 @@ T012:
     s deliverable is not provided."
 T012b:
   c: false
-  h: 7b8443bd380b4fe5235164c8552baee4a3018d9630bdcc272e415f887ec63390
-  r: The required input file `data/processed/raw_extract.parquet` does not exist,
-    and the expected log file `data/logs/threshold_validation.log` is also missing,
-    so the threshold validation step could not be performed nor verified.
+  h: 915da0057913f0d34b26776b74fb2313bb67a7f2ea8fb6b5d96e53ae4ceaf56d
+  r: "The required `data/processed/raw_extract.parquet` file is missing, and the log\
+    \ shows an event count of\u202F0 (below the 500 threshold) with no evidence that\
+    \ T012c was invoked or that the task retried and eventually succeeded. Consequently\
+    \ the task\u2019s core requirements are not met."
 T013:
   c: false
-  h: 6a6ba42b038ed4e726490e06977b8d014f4e0f7578206154307e1af6414fb55b
-  r: "The required output file `data/processed/raw_extract.parquet` does not exist,\
-    \ and the script\u2019s configured output path (`data/processed/latents_raw.parquet`)\
-    \ does not match the task\u2019s specified filename. Consequently the verification\
-    \ step cannot succeed and the task\u2019s core requirement is unmet."
-T014a:
+  h: a362de065261247c4d7621f30fd5849440bd47da42f83c3bc2e6bd6e86028fd5
+  r: "The `code/data/extract_latents.py` script is present but truncated (e.g., the\
+    \ `fetch_and_proces` function is cut off) and no `data/processed/raw_extract.parquet`\
+    \ file was generated. Since the required output file does not exist, the task\u2019\
+    s core requirement is unmet."
+T014g:
   c: false
-  h: 8c1f172fb16af2ba4ecdc9f284c540d64439586a1a2e55c1d93a7659a33fb7af
-  r: "The repository contains `code/data/preprocess.py`, but the script does not show\
-    \ any implemented filtering or labeling logic, and the required output file `data/processed/filtered_dataset.parquet`\
-    \ is absent. The task\u2019s core deliverable\u2014a filtered Parquet dataset\u2014\
-    has not been produced."
-T014b:
+  h: 24eb0490d109a9c5e71d329956763d801f06652c0a1a271f9e36de0a701681b4
+  r: "The `decide_sample_size.py` script is truncated (the `write_selected_sample_size`\
+    \ function is incomplete and never called) and the required output file `data/metrics/selected_sample_size.txt`\
+    \ does not exist, so the task\u2019s verification condition is not met. The implementation\
+    \ must be completed and the file created with an integer value."
+T014h:
   c: false
-  h: cf5695c9f56272fbd1dedf1f0f49d60672ed0b659d44048cbcc3490ac5bdee38
-  r: "The required `data/metrics/power_analysis_initial.json` file is missing, and\
-    \ the expected output `data/processed/sampled_dataset.parquet` does not exist.\
-    \ Moreover, the provided `code/data/preprocess.py` is truncated and shows no implementation\
-    \ of the stratified sampling logic or fallback to `config.DEFAULT_SAMPLE_SIZE`.\
-    \ The task\u2019s core functionality and output are therefore not present."
-T014c:
+  h: fbad631b4ce2616b1e6ca21397a0947a72bf169d79b5281f2c11e7aca6b92402
+  r: "The `validation_report.txt` file is absent, so the required report does not\
+    \ exist (and thus cannot contain \u201CPASS\u201D). Additionally, the provided\
+    \ `validate_processed.py` script is incomplete/truncated and does not show any\
+    \ code that writes a validation report. The task\u2019s verification condition\
+    \ is therefore not satisfied."
+T016a:
   c: false
-  h: 6610b74b327e33aafeacafcee933ed8406d654549345185393cc62aa2ad48a64
-  r: "The provided `preprocess.py` file is truncated and contains no implementation\
-    \ of column\u2011non\u2011null or type validation, nor does it write validation\
-    \ flags to `sampled_dataset.parquet`. Moreover, the required `data/processed/sampled_dataset.parquet`\
-    \ file is absent. Both the code changes and the output artifact are missing."
-T018b:
-  c: false
-  h: e8ffc781831987f5563dba29d5a95679187816c517b942e57c279bafaa8e46dd
-  r: "The required output file `data/metrics/literature_estimates.json` does not exist,\
-    \ so the parsing step has not produced the expected JSON artifact containing the\
-    \ extracted numeric estimates. The source text is present, but the task\u2019\
-    s output is missing."
-T018c:
-  c: false
-  h: 352aec0ef512adcaad2179cf1e35707b4c341a0a7f94a8673ad1c1bf46d07e36
-  r: "Both required files (`data/metrics/power_analysis_initial.json` and `data/metrics/literature_estimates.json`)\
-    \ are missing, so no update could have been performed. The task\u2019s core artifact\
-    \ is absent."
+  h: ce4fec5250d8884762c3b4bd1f28a36432da2b03e3804645077d85cd156b2977
+  r: "The repository contains the required script, but the dependent files (`data/processed/filtered.parquet`\
+    \ and `data/metrics/theoretical_defaults.json`) are missing, and no `power_analysis_initial.json`\
+    \ output is present. Without the defaults JSON the script cannot fulfill the \u201C\
+    load defaults from \u2026\u201D clause, and the task\u2019s output artifact has\
+    \ not been generated. The next implementer must add the missing input files (or\
+    \ mock data) and run the script to produce the JSON with the specified fields."
 T019b:
   c: false
   h: 03afd4018e2c9081b5ddbdcbc5c2054ed63b2fb8ebe3357961556d17470f453c
@@ -109,10 +99,17 @@ T035:
     \ supplied; the claim lacks any concrete artifacts to verify that the required\
     \ CSV/Parquet dataset and trained lightweight estimator were produced. Consequently\
     \ the task\u2019s mandatory deliverables are missing."
-T050:
+T037:
   c: false
-  h: 97176ba5258c14e10a0897793f88561ec0b65f89996c8c0c5e15c05f9af03a81
-  r: "The required output file `data/processed/hybrid_output.parquet` does not exist,\
-    \ so the pipeline\u2019s primary artifact is missing. Consequently the task\u2019\
-    s core requirement (producing the HybridOutput with the specified schema) is not\
-    \ satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run is present\u2014no logs, screenshots,\
+    \ or generated output files demonstrating that the quickstart tutorial was executed\
+    \ and reproduced end\u2011to\u2011end results. Consequently the required artifact\
+    \ is missing, so the task is not satisfied."
+T038b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script, log, or report was provided showing that the links added in T038a
+    were checked for existence; the required verification artifact is missing. The
+    implementer must supply the verification script (or its output) that confirms
+    each referenced file exists.

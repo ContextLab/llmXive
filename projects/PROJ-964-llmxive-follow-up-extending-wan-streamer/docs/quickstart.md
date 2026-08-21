@@ -1,99 +1,83 @@
-# Quickstart: llmXive Follow-up (Extending Wan-Streamer)
+# Quickstart Guide: llmXive Follow-up (Wan-Streamer v0.1)
 
-This guide provides the minimal steps to run the **llmXive** automated science pipeline for the "Extending Wan-Streamer" project (PROJ-964).
-It assumes you have Python 3.9+ and a CPU-only environment (no CUDA required).
+This guide validates the end-to-end reproducibility of the research pipeline.
 
-## 1. Environment Setup
+## Prerequisites
 
-Install the required dependencies:
+- Python 3.9+
+- `pip install -r code/requirements.txt`
 
-```bash
-cd PROJ-964-llmxive-follow-up-extending-wan-streamer
-pip install -r code/requirements.txt
-```
+## Step-by-Step Execution
 
-## 2. Project Initialization
+To reproduce the research results, run the following scripts in order:
 
-Ensure the directory structure and configuration are in place:
+1. **Data Source Check**
+ ```bash
+ python code/data/validate_logs.py
+ ```
 
-```bash
-python code/setup_project_structure.py
-python code/setup_state_docs.py
-```
+2. **Extract Latents**
+ ```bash
+ python code/data/extract_latents.py
+ ```
 
-## 3. Data Source Verification
+3. **Validate Thresholds**
+ ```bash
+ python code/tasks/validate_thresholds.py
+ ```
 
-The pipeline checks for existing Wan-Streamer logs or falls back to fetching the VoxCeleb2 dataset.
+4. **Preprocess Data**
+ ```bash
+ python code/data/preprocess.py
+ ```
 
-```bash
-python code/data/validate_logs.py
-```
+5. **Power Analysis & Sampling**
+ ```bash
+ python code/data/generate_power_analysis.py
+ ```
 
-* **Success**: Creates `data/raw/voxceleb2` (if fetched) or registers existing logs, updates `state.yaml` with checksums, and sets `data_source` in `code/config.py`.
-* **Failure**: If neither source is found and fetch fails, the script exits with a clear error.
+6. **Train Model**
+ ```bash
+ python code/models/trainer.py
+ ```
 
-## 4. End-to-End Execution
+7. **Generate Counterfactual Indices**
+ ```bash
+ python code/data/generate_counterfactual_indices.py
+ ```
 
-Run the core pipeline stages sequentially. These tasks generate the data artifacts, train the estimator, and run the hybrid simulation.
+8. **Hybrid Simulation**
+ ```bash
+ python code/inference/hybrid_sim.py
+ ```
 
-### Step 4.1: Data Extraction & Preprocessing (US1)
-```bash
-# Extract latents from the configured data source
-python code/data/extract_latents.py
+9. **Evaluate Metrics**
+ ```bash
+ python code/evaluation/metrics.py
+ ```
 
-# Calibrate thresholds for event detection
-python code/tasks/calibrate_thresholds.py
+## Automated Validation
 
-# Power Analysis (fails loudly if no data)
-python code/data/generate_power_analysis.py
-
-# Preprocess and sample the dataset
-python code/data/preprocess.py
-
-# Validate sampling distribution
-python code/data/validate_sampling.py
-```
-
-### Step 4.2: Estimator Training (US2)
-```bash
-# Train the GRU estimator (CPU-optimized)
-python code/models/trainer.py
-
-# Calibrate uncertainty scores
-python code/metrics/uncertainty_calibration.py
-```
-
-### Step 4.3: Hybrid Simulation & Evaluation (US3)
-```bash
-# Generate counterfactual indices
-python code/inference/generate_counterfactual_indices.py
-
-# Run hybrid inference simulation
-python code/inference/hybrid_sim.py
-
-# Compute metrics (FID, MOS, Latency Bias, TOST)
-python code/evaluation/metrics.py
-python code/inference/analyze_latency_bias.py
-python code/metrics/tost_equivalence.py
-```
-
-## 5. Verification
-
-Check the final state of the project:
+To verify the entire flow at once, run:
 
 ```bash
-# Verify all artifacts exist and state.yaml is updated
-python tests/unit/test_setup_verification.py
+python code/tasks/validate_quickstart.py
 ```
 
-## 6. Data Flow Summary
+This script will execute the steps above and generate a report at `data/logs/quickstart_validation_report.json`.
 
-1. **Raw Data**: `data/raw/` (Wan-Streamer logs or VoxCeleb2)
-2. **Extracted**: `data/processed/raw_extract.parquet`
-3. **Processed**: `data/processed/sampled_dataset.parquet`
-4. **Model**: `data/models/estimator_checkpoint_final.pt`
-5. **Simulation**: `data/processed/hybrid_output.parquet`
-6. **Metrics**: `data/metrics/` (Power analysis, TOST, FID, etc.)
-7. **State**: `state.yaml` tracks artifact hashes and pipeline status.
+## Expected Outputs
 
-For detailed research methodology and statistical assumptions, see `docs/research.md`.
+After successful execution, you should see:
+
+- `data/processed/raw_extract.parquet`
+- `data/processed/sampled_dataset.parquet`
+- `data/models/estimator_checkpoint_final.pt`
+- `data/processed/hybrid_output.parquet`
+- `data/metrics/tost_results.csv`
+- `data/logs/quickstart_validation_report.json`
+
+## Troubleshooting
+
+- If data source check fails, ensure `data/raw/wan-streamer-logs` exists or network access is available for VoxCeleb2.
+- If memory errors occur, the pipeline includes automatic sample size reduction (see `code/tasks/reduce_sample_size.py`).

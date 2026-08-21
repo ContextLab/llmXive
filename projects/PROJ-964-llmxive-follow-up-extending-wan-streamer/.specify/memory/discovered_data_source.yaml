@@ -1,0 +1,12 @@
+status: none
+intent: Wan-Streamer v0.1 logs latent turn-taking extraction VoxCeleb2 fallback python
+  package dataset
+required_fields:
+- timestamp
+- semantic_feature
+- prosodic_feature
+- latent_delta_magnitude
+- turn_label
+cache_key: bfad7553d84175418b60600ed28db1eb52b01d2eec317455ea002a42deea0531
+searched_at: '2026-08-21T18:45:09.437473+00:00'
+retry_count: 1
