@@ -1,26 +1,20 @@
-T013:
+T015:
   c: false
-  h: 83c79524a9c246de2f107d660d0b9d187776ffe2ba50e6e174a17e514b1993d0
-  r: "The `simulation_mfq.py` file is present but its implementation is truncated\
-    \ (e.g., an unfinished conditional `if target_effect < mdes_value: l`) and does\
-    \ not contain the full data\u2011generation logic. Moreover, the required `state/mdes_report.yaml`\
-    \ file is missing, so the script cannot perform the mandated validation of `ground_truth_effect`.\
-    \ Both the missing MDES report and the incomplete script prevent the task from\
-    \ being genuinely fulfilled."
-T015a:
+  h: 961e0f689872327f01a13473b7c8f9765aba0d95a8ee1e23fddab132bcd3224b
+  r: "The `code/data/ingest.py` file is present but does not contain the required\
+    \ merging, ID\u2011mismatch handling, exclusion\u2011logging logic, nor does it\
+    \ call the specified `fetch_real.py` and `parse_real_logs.py` (those files are\
+    \ missing). The exclusion log file `data/logs/exclusion.log` does not exist, and\
+    \ there is no hard assertion that `DATA_MODE` is defined. Consequently, the implementation\
+    \ does not meet the task\u2019s specifications."
+T018:
   c: false
-  h: 47e574001e2473699ae4445a375b5013d74f4c9d1df20171070db37ad516cb1b
-  r: The `code/data/ingest.py` file does not contain any implemented logic that logs
-    exclusion reasons for mismatched IDs, and the required `data/logs/exclusion.log`
-    file is absent. Both the logging behavior and the output file mandated by the
-    task are missing.
-T016:
-  c: false
-  h: d8cc00b57a357f7df08b2fddea0e3d00300543eee584bf4686dc8f3e0328f9f4
-  r: "The `code/data/preprocess.py` file is truncated and does not contain a complete\
-    \ implementation of the story\u2011to\u2011VR mapping or the logging logic, and\
-    \ the required `data/logs/vr_mapping.log` file is absent. Both the functional\
-    \ code and the log artifact needed by the task are missing."
+  h: 78bdb6ddcb7a4b9c530d036c2888dd71444f8ddfdecad0d8772467c273dd44ee
+  r: The repository contains a `code/utils/hashing.py` file, but it only defines helper
+    functions and never actually computes checksums for the listed simulation CSVs
+    nor writes them to `state/artifact_hashes.yaml`. Moreover, the state file is absent,
+    and the update routine writes JSON rather than a proper YAML document. Consequently
+    the required integration and artifact update are not present.
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

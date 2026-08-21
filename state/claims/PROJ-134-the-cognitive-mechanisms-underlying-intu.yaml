@@ -3566,28 +3566,6 @@
   updated_at: '2026-07-18T20:47:44Z'
 - artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
   attempts: 1
-  canonical: ModelResult schema includes participant_id, posterior_samples, r_hat,
-    is_inconclusive, mle_fallback
-  claim_id: c_8aeee7bb
-  context: 'T051 [P] [US2] Define ModelResult Artifact Schema in code/utils/schemas.py.
-    Deliverable: A JSON/Parquet schema definition file (or Pydantic model) explicitly
-    including fields: participant_id, posterior_samples, r_hat, is_inconclusive (boolean),
-    and mle_fallback (float).'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/ModelResult_schema_includes_participant_id,_posterior_sample
-  kind: entity_fact
-  raw_text: ModelResult artifact schema includes fields participant_id, posterior_samples,
-    r_hat, is_inconclusive, and mle_fallback.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T20:48:15Z'
-- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
-  attempts: 1
   canonical: MDES calculation for N=200 participants, 50 vignettes, SD=1.0, alpha=0.05
   claim_id: c_830d84ac
   context: Phase 2 Foundational tasks include T045 to implement power analysis for
@@ -4087,24 +4065,6 @@
   updated_at: '2026-07-18T20:58:58Z'
 - artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
   attempts: 1
-  canonical: MDES calculation for mixed-effects model with N=200, 50 vignettes, SD=1.0,
-    alpha=0.05
-  claim_id: c_f571c200
-  context: 'Phase 2: Foundational (Blocking Prerequisites) - T045 task description.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement code/analysis/power_analysis.py to calculate the minimum detectable
-    effect size (MDES) for a mixed-effects model with N=200 participants and 50 vignettes,
-    assuming a standard deviation of 1.0 and alpha=0.05.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T20:59:22Z'
-- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
-  attempts: 1
   canonical: Load and reference Gervais et al. psychometric norms
   claim_id: c_f25f86c1
   context: 'Phase 2: Foundational (Blocking Prerequisites) - T007 task description.'
@@ -4280,24 +4240,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T21:00:54Z'
-- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
-  attempts: 4
-  canonical: Model convergence check asserts r_hat < 1.05
-  claim_id: c_69ab213f
-  context: 'T020 [P] [US2] Unit test for model convergence check in code/tests/test_model_convergence.py.
-    Deliverable: Function test_convergence_check that asserts assert r_hat < 1.05
-    given mock posterior samples.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Unit test for model convergence check asserts r_hat < 1.05 given mock
-    posterior samples.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T21:01:33Z'
 - artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
   attempts: 2
   canonical: Parameter recovery validation injects ground_truth_effect=0.5 and asserts
@@ -4605,25 +4547,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T21:55:07Z'
-- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
-  attempts: 2
-  canonical: Parameter recovery test injects ground_truth_effect=0.5 and asserts recovery
-    within 95% CI
-  claim_id: c_2dda24ef
-  context: 'T021 [US2] Unit test for parameter recovery validation in code/tests/test_model_recovery.py.
-    Deliverable: Function test_parameter_recovery injecting ground_truth_effect=0.5
-    and asserting recovery within 95% CI.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Unit test for parameter recovery validation injects ground_truth_effect=0.5
-    and asserts recovery within 95% CI.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T21:55:08Z'
 - artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
   attempts: 1
   canonical: Sensitivity analysis sweeps decision thresholds over set {2, 10, 20}
@@ -7480,23 +7403,6 @@
   status: not_enough_info
   updated_at: '2026-07-21T03:51:21Z'
 - artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
-  attempts: 2
-  canonical: Pipeline runtime limit is 6 hours on free-tier CPU runner
-  claim_id: c_91e9301f
-  context: "Performance Constraint: T037 must ensure the full pipeline (ingestion\
-    \ \u2192 modeling \u2192 reporting) completes within 6 hours on the free-tier\
-    \ CPU runner."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The pipeline must complete within 6 hours on the free-tier CPU runner.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-21T03:52:01Z'
-- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
   attempts: 0
   canonical: OSF API URL is https://api.osf.io/v2/
   claim_id: c_a2431db8
@@ -8416,3 +8322,512 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T01:22:44Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 2
+  canonical: MDES calculation for mixed-effects model with N=200, 50 vignettes, SD=1.0,
+    alpha=0.05
+  claim_id: c_f571c200
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T045 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analysis/power_analysis.py to calculate the minimum detectable
+    effect size (MDES) for a mixed-effects model with N=200 participants and 50 vignettes,
+    assuming a standard deviation of 1.0 and alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:25:34Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: N=200 and SD=1.0 defined in plan.md Success Criteria
+  claim_id: c_9d4989a1
+  context: T045 task description regarding input parameters for MDES calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use N=200 and SD=1.0 as defined in plan.md Section 'Success Criteria'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:26:54Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Unit test asserts mean difference < 0.05 against gervais_norms.yaml
+  claim_id: c_19ae863d
+  context: T010 Unit test for synthetic MFQ generator description.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert abs(mean - expected_mean) < 0.05 using values explicitly loaded
+    from data/config/gervais_norms.yaml.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:26:55Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Model recovers ground_truth_effect within 95% CI and converges with R-hat
+    < 1.05
+  claim_id: c_c146b59a
+  context: 'Phase 4: User Story 2 Independent Test description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model recovers the ground_truth_effect within the 95% credible interval
+    and converges (R-hat < 1.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:26:57Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Unit test asserts R-hat < 1.05 for mock posterior samples
+  claim_id: c_99e80a1a
+  context: T020 Unit test for model convergence check description.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert r_hat < 1.05 given mock posterior samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:26:58Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Parameter recovery test injects ground_truth_effect=0.5 and asserts 95%
+    CI recovery
+  claim_id: c_f0b359de
+  context: T021 Unit test for parameter recovery validation description.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Injecting ground_truth_effect=0.5 and asserting recovery within 95% CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:27:32Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Flag strong evidence if Delta AIC > 10
+  claim_id: c_0650ca54
+  context: T027b logic to handle claim deferral in simulation mode and threshold checking
+    in real mode.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Flag 'strong evidence' if \u0394AIC > 10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:27:34Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: MDES calculation for mixed-effects model with N=200, 50 vignettes, SD=1.0,
+    alpha=0.05
+  claim_id: c_2c6f7b75
+  context: 'Phase 2: Foundational tasks include T045 to calculate MDES using specific
+    parameters defined in plan.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analysis/power_analysis.py to calculate the minimum detectable
+    effect size (MDES) for a mixed-effects model with N=200 participants and 50 vignettes,
+    assuming a standard deviation of 1.0 and alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:29:56Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Unit test assertion for MFQ distribution mean within 0.05 of expected
+    value
+  claim_id: c_1cddcabf
+  context: T010 unit test requirement for synthetic MFQ generator against Gervais
+    et al. norms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Function test_mfq_distribution_matches_norms that asserts assert abs(mean
+    - expected_mean) < 0.05 using values explicitly loaded from data/config/gervais_norms.yaml.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:29:58Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Validation logic asserting MDES < ground_truth_effect and N_simulated
+    = 200
+  claim_id: c_dd9e1a78
+  context: T013 implementation validation logic for synthetic MFQ data generation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert MDES < ground_truth_effect and N_simulated == 200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:30:49Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Model convergence R-hat threshold < 1.05 and 95% CI recovery
+  claim_id: c_6d4ae20c
+  context: Independent Test section for Phase 4 specifies convergence and recovery
+    criteria.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the model recovers the ground_truth_effect within the 95%
+    credible interval and converges (R-hat < 1.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:30:51Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Unit test assertion for R-hat < 1.05
+  claim_id: c_2bde9938
+  context: T020 unit test requirement for model convergence check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Function test_convergence_check that asserts assert r_hat < 1.05 given
+    mock posterior samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:30:52Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Parameter recovery test with ground_truth_effect=0.5 within 95% CI
+  claim_id: c_c2b2efff
+  context: T021 unit test requirement for parameter recovery validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Function test_parameter_recovery injecting ground_truth_effect=0.5 and
+    asserting recovery within 95% CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:31:52Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: "Strong evidence flag triggered when \u0394AIC > 10"
+  claim_id: c_5d7fc85d
+  context: T027b implementation logic for claim deferral and threshold checking in
+    real mode.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Flag 'strong evidence' if \u0394AIC > 10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:31:53Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime validation against time threshold
+  claim_id: c_95c6fcfc
+  context: T037 success criterion for CPU-only performance profiling.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_validation_against_time_threshold
+  kind: entity_fact
+  raw_text: Record pipeline runtime in state/perf_metrics.yaml and validate against
+    the established time threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:32:18Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Full pipeline completion time limit of 6 hours on free-tier CPU runner
+  claim_id: c_53866a75
+  context: Notes section specifies performance constraint for T037.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure full pipeline (ingestion \u2192 modeling \u2192 reporting) completes\
+    \ within 6 hours on the free-tier CPU runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:32:48Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 0
+  canonical: OSF API base URL is https://api.osf.io/v2/
+  claim_id: c_97829a58
+  context: 'T050 [P] [US4-Interface] Define Real Data Architecture Interfaces in code/data/ingest_real.py.
+    Deliverable: A module defining explicit constants and schemas: OSF_API_URL (base
+    URL: "https://api.osf.io/v2/").'
+  evidence:
+    entailment_evidence: OSF API base URL is https://api.osf.io/v2/
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OSF_API_base_URL_is_https://api.osf.io/v2/
+  kind: entity_fact
+  raw_text: The OSF API base URL is https://api.osf.io/v2/.
+  resolved_value: OSF API base URL is https://api.osf.io/v2/
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T13:40:19Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 0
+  canonical: HuggingFace dataset ID is moral-stories-v1
+  claim_id: c_a3138edf
+  context: 'T050 [P] [US4-Interface] Define Real Data Architecture Interfaces in code/data/ingest_real.py.
+    Deliverable: A module defining explicit constants and schemas: HF_DATASET_ID ("moral-stories-v1").'
+  evidence:
+    entailment_evidence: HuggingFace dataset ID is moral-stories-v1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_ID_is_moral-stories-v1
+  kind: entity_fact
+  raw_text: The HuggingFace dataset ID is moral-stories-v1.
+  resolved_value: HuggingFace dataset ID is moral-stories-v1
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-21T13:40:21Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: MDES calculated for mixed-effects model with N=200, 50 vignettes, SD=1.0,
+    alpha=0.05
+  claim_id: c_24c64cb6
+  context: T045 [US3] Implement code/analysis/power_analysis.py to calculate the minimum
+    detectable effect size (MDES) for a mixed-effects model with N=200 participants
+    and 50 vignettes, assuming a standard deviation of 1.0 and alpha=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analysis/power_analysis.py to calculate the minimum detectable
+    effect size (MDES) for a mixed-effects model with N=200 participants and 50 vignettes,
+    assuming a standard deviation of 1.0 and alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:40:33Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Simulated dataset size N equals 200
+  claim_id: c_e8433a5a
+  context: T046 [US3] Implement code/analysis/validation.py to validate that the simulated
+    dataset size (N) matches the MDES assumption (N=200) calculated in T045.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation script asserts N_simulated == 200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:41:40Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: VR log schema columns are response_time, gaze_metrics, judgment_rating
+  claim_id: c_32427e50
+  context: 'T050 [P] [US4-Interface] Define Real Data Architecture Interfaces in code/data/ingest_real.py.
+    Deliverable: A module defining explicit constants and schemas: VR_LOG_SCHEMA_COLUMNS
+    (list: ["response_time", "gaze_metrics", "judgment_rating"]).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VR_log_schema_columns_are_response_time,_gaze_metrics,_judgm
+  kind: entity_fact
+  raw_text: The VR_LOG_SCHEMA_COLUMNS list includes response_time, gaze_metrics, and
+    judgment_rating.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:41:52Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 2
+  canonical: ModelResult schema includes participant_id, posterior_samples, r_hat,
+    is_inconclusive, mle_fallback
+  claim_id: c_8aeee7bb
+  context: 'T051 [P] [US2] Define ModelResult Artifact Schema in code/utils/schemas.py.
+    Deliverable: A JSON/Parquet schema definition file (or Pydantic model) explicitly
+    including fields: participant_id, posterior_samples, r_hat, is_inconclusive (boolean),
+    and mle_fallback (float).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ModelResult_schema_includes_participant_id,_posterior_sample
+  kind: entity_fact
+  raw_text: ModelResult artifact schema includes fields participant_id, posterior_samples,
+    r_hat, is_inconclusive, and mle_fallback.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:42:35Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Synthetic MFQ mean within 0.05 of expected mean
+  claim_id: c_67b06d0c
+  context: 'T010 [P] [US1] Unit test for synthetic MFQ generator in code/tests/test_ingest_mfq.py.
+    Deliverable: Function test_mfq_distribution_matches_norms that asserts assert
+    abs(mean - expected_mean) < 0.05 using values explicitly loaded from data/config/gervais_norms.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test asserts the mean of the synthetic MFQ distribution is within
+    0.05 of the expected mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:42:57Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: MDES is less than ground_truth_effect
+  claim_id: c_c56faf06
+  context: 'T013 [US1] Implement code/data/simulation_mfq.py to generate synthetic
+    MFQ data based on Gervais et al. multivariate normal distributions. Validation
+    Logic: Assert MDES < ground_truth_effect.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MDES_is_less_than_ground_truth_effect
+  kind: magnitude
+  raw_text: The simulation validates that MDES is less than the ground_truth_effect.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:43:28Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 5
+  canonical: Model convergence check asserts r_hat < 1.05
+  claim_id: c_69ab213f
+  context: 'T020 [P] [US2] Unit test for model convergence check in code/tests/test_model_convergence.py.
+    Deliverable: Function test_convergence_check that asserts assert r_hat < 1.05
+    given mock posterior samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test for model convergence check asserts r_hat < 1.05 given mock
+    posterior samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:43:30Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 3
+  canonical: Parameter recovery test injects ground_truth_effect=0.5 and asserts recovery
+    within 95% CI
+  claim_id: c_2dda24ef
+  context: 'T021 [US2] Unit test for parameter recovery validation in code/tests/test_model_recovery.py.
+    Deliverable: Function test_parameter_recovery injecting ground_truth_effect=0.5
+    and asserting recovery within 95% CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test for parameter recovery validation injects ground_truth_effect=0.5
+    and asserts recovery within 95% CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:43:55Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds over {2, 10, 20}
+  claim_id: c_fc3e7fc6
+  context: 'T029 [P] [US3] Unit test for sensitivity analysis thresholds in code/tests/test_model.py.
+    Deliverable: Function test_sensitivity_thresholds using threshold set {2, 10,
+    20} and asserting expected output format (stability matrix).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps decision thresholds over the set {2, 10,
+    20}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:44:56Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 3
+  canonical: Pipeline runtime limit is 6 hours on free-tier CPU runner
+  claim_id: c_91e9301f
+  context: "Performance Constraint: T037 must ensure the full pipeline (ingestion\
+    \ \u2192 modeling \u2192 reporting) completes within 6 hours on the free-tier\
+    \ CPU runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours on the free-tier CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:45:30Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: OSF endpoint path is /v2/nodes/{node_id}/files/osfstorage
+  claim_id: c_d0ad505b
+  context: 'T054b [US1/US4] Implement code/data/fetch_real.py with strict "Fail Loudly"
+    logic. Implementation Detail: Use OSF_API_URL from T050 and explicitly implement
+    the OSF endpoint path (/v2/nodes/{node_id}/files/osfstorage) with required query
+    parameters and response schema validation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OSF_endpoint_path_is_/v2/nodes/%7Bnode_id%7D/files/osfstorage
+  kind: entity_fact
+  raw_text: The OSF endpoint path for file fetching is /v2/nodes/{node_id}/files/osfstorage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T13:45:56Z'

@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://osf.io/
   verified_at: '2026-07-05T20:07:50.132710Z'
-- artifact_hash: 952dcc904c07d7a8c2805fe5bc34ee21af1e33c7f82fa6abdc554cb81ef1b847
+- artifact_hash: be3bca9df556ee92e493f6a90e3d340ea49a1d8ef97dc1813cb011022f2784df
   artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://api.osf.io/v2/
   verification_status: pending
   verified_against_url: https://api.osf.io/v2/
-  verified_at: '2026-08-21T00:55:36.238341Z'
+  verified_at: '2026-08-21T13:56:33.383734Z'
