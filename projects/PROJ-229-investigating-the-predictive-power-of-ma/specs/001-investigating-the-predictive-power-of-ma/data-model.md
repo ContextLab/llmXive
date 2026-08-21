@@ -1,77 +1,66 @@
 # Data Model: Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials
 
+## Overview
+
+This document defines the data structures, schemas, and relationships used in the project. It ensures that all data artifacts are consistent, reproducible, and traceable.
+
 ## Entity Definitions
 
 ### MaterialCompound
-
-Represents a chemical compound with attributes for elemental composition, crystal structure, and thermodynamic properties.
-
-- **mp_id**: `string` - Unique identifier from Materials Project.
-- **formula**: `string` - Chemical formula (e.g., "H2O").
-- **melting_point**: `float` - Melting point in Kelvin.
-- **heat_capacity**: `float` - Heat capacity at constant pressure (J/mol·K).
-- **latent_heat**: `float` - Latent heat of fusion (J/mol). May be null if imputed or unavailable.
-- **structure**: `object` - Crystal structure data (e.g., lattice parameters, fractional coordinates).
-- **elemental_descriptors**: `object` - Dictionary of computed elemental properties (e.g., atomic_number, electronegativity, radius).
-- **structural_descriptors**: `object` - Dictionary of computed structural properties (e.g., bond_lengths, coordination_numbers, symmetry).
+- **Description**: Represents a chemical compound with attributes for elemental composition, crystal structure, melting point, and latent heat (if available).
+- **Attributes**:
+  - `material_id`: Unique identifier (string).
+  - `formula`: Chemical formula (string).
+  - `melting_point`: Melting point in Kelvin (float).
+  - `latent_heat`: Latent heat of fusion in J/g (float, may be null).
+  - `elements`: List of elemental symbols (list of strings).
+  - `crystal_structure`: Crystal system (string).
 
 ### DescriptorSet
-
-A collection of computed features for a set of compounds.
-
-- **compound_ids**: `list[string]` - List of MP IDs.
-- **features**: `list[list[float]]` - 2D array of feature values (rows = compounds, columns = features).
-- **feature_names**: `list[string]` - Names of the features.
-- **target**: `string` - Name of the target variable (e.g., "latent_heat", "melting_point").
+- **Description**: A collection of computed features including elemental properties and structural representations.
+- **Attributes**:
+  - `material_id`: Reference to MaterialCompound (string).
+  - `elemental_descriptors`: Dictionary of computed elemental features (dict).
+  - `graph_descriptors`: Dictionary of computed graph features (dict).
+  - `collinearity_flags`: List of flags for definitionally dependent features (list of strings).
 
 ### ModelResult
-
-Contains the trained model parameters, performance metrics, and derived rules.
-
-- **model_type**: `string` - Type of model (e.g., "RandomForest", "PySR", "Lasso").
-- **performance_metrics**: `object` - Dictionary of metrics (e.g., R², MSE, Spearman correlation).
-- **feature_importance**: `object` - Dictionary of feature importance scores (for tree-based models).
-- **symbolic_formula**: `string` - Explicit mathematical formula (for PySR or Lasso).
-- **shap_values**: `array` - SHAP values for feature attribution.
-
-### TargetDecision
-
-Contains the decision on the target variable based on the consistency check.
-
-- **selected_target**: `string` - The selected target variable ("latent_heat" or "melting_point").
-- **correlation_value**: `float` - The Pearson correlation between melting_point and latent_heat (if available).
-- **fallback_reason**: `string` - Reason for fallback (if applicable).
-
-### CollinearityReport
-
-Contains the results of the collinearity check.
-
-- **flagged_dependencies**: `list[string]` - List of flagged dependency pairs.
-- **adjusted_interpretation**: `string` - The adjusted interpretation text.
-
-### FeasibilityReport
-
-Contains the results of the feasibility check.
-
-- **total_time**: `float` - Total time taken in seconds.
-- **max_memory**: `float` - Maximum memory used in GB.
-- **within_constraints**: `boolean` - Whether the constraints were met.
+- **Description**: Contains the trained model parameters, performance metrics, and derived rules or feature rankings.
+- **Attributes**:
+  - `model_type`: Type of model (string).
+  - `metrics`: Dictionary of performance metrics (dict).
+  - `feature_importance`: Ranked list of feature importances (list of dicts).
+  - `symbolic_formula`: Explicit mathematical formula (string, if applicable).
+  - `validation_results`: Results from external validation (dict).
 
 ## Data Flow
 
-1.  **Raw Data**: `data/raw/mp_raw.csv` (from MP API), `data/raw/nist_latent_heat.csv` (if available), `data/raw/literature_pcms.csv` (if available).
-2.  **Processed Data**: `data/processed/features.csv` (elemental + structural descriptors), `data/processed/targets.csv` (melting point, latent heat).
-3.  **Results**: `data/results/model_metrics.json`, `data/results/symbolic_formula.json`, `data/results/validation_results.json`, `data/results/target_decision.json`, `data/results/collinearity_report.json`, `data/results/feasibility_report.json`.
+1. **Raw Data**: Downloaded from `matbench` (or MP via API) and stored in `data/raw`.
+2. **Processed Data**: Feature-engineered data stored in `data/processed`.
+3. **Results**: Model outputs and metrics stored in `data/results`.
+4. **External Validation**: Literature PCMs stored in `data/external`.
 
-## Data Constraints
+## Schema Contracts
 
-- **Memory**: Raw and processed data must fit within 7 GB RAM. Streaming or sampling will be used if necessary.
-- **Disk**: Total data size must not exceed 14 GB. Intermediate files will be cleaned up.
-- **Numerical Stability**: All computed features must be checked for `nan`/`inf`. Invalid values will be logged and handled.
+### Dataset Schema
+- **File**: `contracts/dataset.schema.yaml`
+- **Description**: Validates the structure of the processed dataset.
 
-## Schema Evolution
+### Model Output Schema
+- **File**: `contracts/model_output.schema.yaml`
+- **Description**: Validates the structure of model outputs and metrics.
 
-- **Version 1.0**: Initial schema for MP data retrieval and feature extraction.
-- **Version 1.1**: Added support for NIST latent heat data and literature PCM validation.
-- **Version 1.2**: Added collinearity checks, sensitivity analysis outputs, and feasibility reports.
-- **Version 1.3**: Added target decision and fallback logic.
+### Validation Result Schema
+- **File**: `contracts/validation_result.schema.yaml`
+- **Description**: Validates the structure of validation results.
+
+## Data Hygiene
+
+- **Checksums**: All raw data files are checksummed and recorded in `state/`.
+- **Immutability**: Raw data is never modified; derivations are written to new files.
+- **Traceability**: Every result traces back to a specific row in `data/` and a block in `code/`.
+
+## Versioning
+
+- **Dataset Version**: Content hash of the processed dataset.
+- **Model Version**: Content hash of the trained model and its parameters.

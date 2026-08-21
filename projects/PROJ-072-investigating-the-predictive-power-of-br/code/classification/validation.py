@@ -4,241 +4,207 @@ import logging
 import numpy as np
 import pandas as pd
 from scipy import stats
-from pathlib import Path
-from typing import Tuple, Optional, List
-import time
+from typing import Optional, Tuple, List
+from sklearn.model_selection import StratifiedKFold
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score
 import json
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from pathlib import Path
+
 logger = logging.getLogger(__name__)
 
-# Constants
-DEFAULT_N_PERMUTATIONS = 5000
-DEFAULT_SEED = 42
-ALPHA = 0.05
-
-def permuted_t_test(x: np.ndarray, y: np.ndarray, n_permutations: int = DEFAULT_N_PERMUTATIONS, seed: int = DEFAULT_SEED) -> float:
+def permuted_t_test(
+    group1_values: np.ndarray,
+    group2_values: np.ndarray,
+    n_permutations: int = 10000,
+    random_state: int = 42
+) -> float:
     """
-    Perform a non-parametric permutation t-test to assess if the means of two groups (x, y)
-    are significantly different.
-
+    Perform a non-parametric permutation t-test.
+    
     Args:
-        x: 1D array of values for group 1 (e.g., controls)
-        y: 1D array of values for group 2 (e.g., patients)
-        n_permutations: Number of permutations to perform
-        seed: Random seed for reproducibility
-
+        group1_values: Values for group 1
+        group2_values: Values for group 2
+        n_permutations: Number of permutations
+        random_state: Random seed
+        
     Returns:
-        p_value: The two-tailed p-value from the permutation test
+        float: Two-sided p-value
     """
-    rng = np.random.default_rng(seed)
-    n1, n2 = len(x), len(y)
-    n = n1 + n2
-    observed_diff = np.mean(x) - np.mean(y)
-    observed_abs_diff = abs(observed_diff)
-
-    # Combine data
-    combined = np.concatenate([x, y])
-    count_extreme = 0
-
-    logger.info(f"Running permutation t-test with {n_permutations} permutations...")
-    start_time = time.time()
-
-    for i in range(n_permutations):
-        # Shuffle labels implicitly by shuffling data
-        shuffled = rng.permutation(combined)
-        perm_x = shuffled[:n1]
-        perm_y = shuffled[n1:]
-        perm_diff = abs(np.mean(perm_x) - np.mean(perm_y))
-        if perm_diff >= observed_abs_diff:
-            count_extreme += 1
-
-        if (i + 1) % 1000 == 0:
-            elapsed = time.time() - start_time
-            logger.info(f"Progress: {i+1}/{n_permutations} ({(i+1)/n_permutations*100:.1f}%) - Time: {elapsed:.2f}s")
-
-    p_value = (count_extreme + 1) / (n_permutations + 1)
-    logger.info(f"Permutation t-test completed. P-value: {p_value:.4f}")
-    return p_value
+    np.random.seed(random_state)
+    
+    # Observed statistic
+    observed_diff = np.mean(group1_values) - np.mean(group2_values)
+    
+    # Combine groups
+    combined = np.concatenate([group1_values, group2_values])
+    n1 = len(group1_values)
+    n_total = len(combined)
+    
+    # Permutation distribution
+    permuted_diffs = []
+    for _ in range(n_permutations):
+        np.random.shuffle(combined)
+        perm_diff = np.mean(combined[:n1]) - np.mean(combined[n1:])
+        permuted_diffs.append(perm_diff)
+    
+    permuted_diffs = np.array(permuted_diffs)
+    
+    # Calculate p-value (two-sided)
+    p_value = np.mean(np.abs(permuted_diffs) >= np.abs(observed_diff))
+    
+    return float(p_value)
 
 def permutation_accuracy_test(
-    y_true: np.ndarray,
-    y_pred: np.ndarray,
-    model_class: type,
     X: np.ndarray,
-    n_permutations: int = DEFAULT_N_PERMUTATIONS,
-    seed: int = DEFAULT_SEED,
-    cv_splits: int = 5
-) -> Tuple[float, float, np.ndarray]:
+    y: np.ndarray,
+    n_permutations: int = 1000,
+    random_state: int = 42
+) -> float:
     """
-    Perform a permutation test to assess the significance of a classification accuracy.
-    This function shuffles the labels (y_true) and re-runs the classification pipeline
-    to build a null distribution of accuracies.
-
+    Perform permutation test for classification accuracy.
+    
     Args:
-        y_true: Original binary labels (0 or 1)
-        y_pred: Original predictions (used to calculate observed accuracy)
-        model_class: The sklearn model class to use (e.g., LogisticRegression)
-        X: Feature matrix (n_samples, n_features)
-        n_permutations: Number of permutations to perform
-        seed: Random seed
-        cv_splits: Number of CV folds for the inner loop (if needed)
-
+        X: Feature matrix
+        y: Labels
+        n_permutations: Number of permutations
+        random_state: Random seed
+        
     Returns:
-        observed_accuracy: The accuracy on the real labels
-        p_value: The proportion of permuted accuracies >= observed accuracy
-        null_distribution: Array of accuracies from permuted labels
+        float: p-value for accuracy significance
     """
-    rng = np.random.default_rng(seed)
-    n_samples = len(y_true)
-    observed_accuracy = np.mean(y_true == y_pred)
-
-    logger.info(f"Starting permutation accuracy test. Observed Accuracy: {observed_accuracy:.4f}")
-    logger.info(f"Running {n_permutations} permutations to build null distribution...")
-
-    null_distribution = np.zeros(n_permutations)
-    start_time = time.time()
-
+    np.random.seed(random_state)
+    
+    # Build a simple classifier pipeline
+    def train_and_score(X_train, y_train, X_test, y_test):
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('clf', LogisticRegression(max_iter=1000, random_state=42, solver='liblinear'))
+        ])
+        pipeline.fit(X_train, y_train)
+        return accuracy_score(y_test, pipeline.predict(X_test))
+    
+    # Cross-validation setup
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    
+    # Observed accuracy (using cross-validation)
+    observed_scores = []
+    for train_idx, test_idx in cv.split(X, y):
+        score = train_and_score(X[train_idx], y[train_idx], X[test_idx], y[test_idx])
+        observed_scores.append(score)
+    observed_accuracy = np.mean(observed_scores)
+    
+    logger.info(f"Observed cross-validation accuracy: {observed_accuracy:.4f}")
+    
+    # Permutation distribution
+    permuted_accuracies = []
+    n_samples = len(y)
+    
     for i in range(n_permutations):
         # Shuffle labels
-        y_shuffled = rng.permutation(y_true)
-
-        # Re-run classification with shuffled labels
-        # We use a simple train/test split here for speed, or CV if specified
-        # To ensure consistency with the main pipeline, we assume a standard split
-        # For this specific test, we'll do a quick 80/20 split to estimate accuracy
-        # In a full pipeline, this would call the nested CV function from models.py
+        y_shuffled = np.random.permutation(y)
         
-        # Simple split for permutation speed
-        split_idx = int(0.8 * n_samples)
-        indices = np.arange(n_samples)
-        
-        # Shuffle indices for split
-        perm_indices = rng.permutation(indices)
-        train_idx = perm_indices[:split_idx]
-        test_idx = perm_indices[split_idx:]
-        
-        X_train, X_test = X[train_idx], X[test_idx]
-        y_train, y_test = y_shuffled[train_idx], y_shuffled[test_idx]
-        
-        if len(np.unique(y_train)) < 2 or len(np.unique(y_test)) < 2:
-            # Skip if split is invalid (all one class)
-            null_distribution[i] = 0.5 # Chance level
-            continue
-
-        model = model_class()
-        try:
-            model.fit(X_train, y_train)
-            y_pred_shuffled = model.predict(X_test)
-            null_distribution[i] = np.mean(y_test == y_pred_shuffled)
-        except Exception as e:
-            logger.warning(f"Permutation {i} failed: {e}. Setting to chance.")
-            null_distribution[i] = 0.5
-
-        if (i + 1) % 1000 == 0:
-            elapsed = time.time() - start_time
-            logger.info(f"Progress: {i+1}/{n_permutations} ({(i+1)/n_permutations*100:.1f}%) - Time: {elapsed:.2f}s")
-
-    # Calculate p-value: proportion of null accuracies >= observed accuracy
-    p_value = np.sum(null_distribution >= observed_accuracy) / n_permutations
+        # Calculate accuracy with shuffled labels
+        shuffled_scores = []
+        for train_idx, test_idx in cv.split(X, y_shuffled):
+            score = train_and_score(X[train_idx], y_shuffled[train_idx], X[test_idx], y_shuffled[test_idx])
+            shuffled_scores.append(score)
+        permuted_accuracies.append(np.mean(shuffled_scores))
     
-    logger.info(f"Permutation accuracy test completed. P-value: {p_value:.4f}")
-    return observed_accuracy, p_value, null_distribution
+    permuted_accuracies = np.array(permuted_accuracies)
+    
+    # Calculate p-value (one-sided: is observed accuracy better than chance?)
+    p_value = np.mean(permuted_accuracies >= observed_accuracy)
+    
+    logger.info(f"Permutation test p-value: {p_value:.4f}")
+    
+    return float(p_value)
 
-def run_validation_pipeline(features_path: str, labels_path: str, output_path: str):
+def run_validation_pipeline(
+    features_path: str,
+    status_path: str,
+    label_column: str = 'label',
+    output_path: Optional[str] = None,
+    n_permutations: int = 1000,
+    random_state: int = 42
+) -> dict:
     """
-    Main entry point for running the validation pipeline.
-    Loads features and labels, runs permutation tests, and saves results.
-
+    Run the full validation pipeline including permutation tests.
+    
     Args:
-        features_path: Path to the features CSV file
-        labels_path: Path to the labels CSV file
-        output_path: Path to save the results JSON
+        features_path: Path to features CSV
+        status_path: Path to subject status CSV
+        label_column: Name of the label column
+        output_path: Path to save results
+        n_permutations: Number of permutations
+        random_state: Random seed
+        
+    Returns:
+        dict: Validation results
     """
-    logger.info(f"Loading features from {features_path}")
+    # Load data
     features_df = pd.read_csv(features_path)
-    X = features_df.values
-
-    logger.info(f"Loading labels from {labels_path}")
-    labels_df = pd.read_csv(labels_path)
-    # Assuming the label column is named 'label' or 'diagnosis'
-    label_col = 'label' if 'label' in labels_df.columns else 'diagnosis'
-    y_true = labels_df[label_col].values
-
-    if len(X) != len(y_true):
-        raise ValueError(f"Feature matrix shape {X.shape} does not match labels length {len(y_true)}")
-
-    # For this specific task, we need to generate predictions first.
-    # Since T026/T027/T028 are completed, we assume a model exists or we train one briefly.
-    # We will train a Logistic Regression on the full data to get predictions,
-    # then run the permutation test against chance.
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.model_selection import cross_val_predict
-
-    logger.info("Training model to generate baseline predictions for validation...")
-    model = LogisticRegression(max_iter=1000)
-    y_pred = cross_val_predict(model, X, y_true, cv=5)
-
-    observed_acc, p_val, null_dist = permutation_accuracy_test(
-        y_true=y_true,
-        y_pred=y_pred,
-        model_class=LogisticRegression,
-        X=X,
-        n_permutations=DEFAULT_N_PERMUTATIONS,
-        seed=DEFAULT_SEED
+    status_df = pd.read_csv(status_path)
+    
+    # Filter included subjects
+    included_subjects = status_df[status_df['status'] == 'included']['subject_id'].tolist()
+    
+    if 'subject_id' in features_df.columns:
+        features_df = features_df[features_df['subject_id'].isin(included_subjects)]
+    
+    # Extract features and labels
+    feature_columns = [col for col in features_df.columns if col != label_column and col != 'subject_id']
+    X = features_df[feature_columns].values
+    y = features_df[label_column].values
+    
+    # Run permutation test
+    p_value = permutation_accuracy_test(
+        X, y,
+        n_permutations=n_permutations,
+        random_state=random_state
     )
-
+    
     results = {
-        "observed_accuracy": float(observed_acc),
-        "permutation_p_value": float(p_val),
-        "n_permutations": DEFAULT_N_PERMUTATIONS,
-        "significance_flag": p_val < ALPHA,
-        "null_distribution_stats": {
-            "mean": float(np.mean(null_dist)),
-            "std": float(np.std(null_dist)),
-            "min": float(np.min(null_dist)),
-            "max": float(np.max(null_dist))
-        }
+        'p_value': p_value,
+        'n_permutations': n_permutations,
+        'n_samples': len(y),
+        'significant': p_value < 0.05
     }
-
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-
-    logger.info(f"Validation results saved to {output_path}")
+    
+    if output_path:
+        output_dir = Path(output_path).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        logger.info(f"Validation results saved to {output_path}")
+    
     return results
 
 def main():
-    """
-    Command line entry point for the validation pipeline.
-    """
-    # Default paths relative to project root
-    base_dir = Path(__file__).resolve().parent.parent.parent
-    features_path = base_dir / "data" / "processed" / "features.csv"
-    labels_path = base_dir / "data" / "metadata" / "subject_labels.csv"
-    output_path = base_dir / "data" / "processed" / "validation_results.json"
-
-    if not features_path.exists():
-        logger.error(f"Features file not found: {features_path}")
-        sys.exit(1)
+    """Main entry point for validation pipeline."""
+    import argparse
     
-    if not labels_path.exists():
-        logger.error(f"Labels file not found: {labels_path}")
-        sys.exit(1)
-
-    results = run_validation_pipeline(
-        features_path=str(features_path),
-        labels_path=str(labels_path),
-        output_path=str(output_path)
+    parser = argparse.ArgumentParser(description='Run validation pipeline')
+    parser.add_argument('--features', type=str, required=True, help='Path to features CSV')
+    parser.add_argument('--status', type=str, required=True, help='Path to subject status CSV')
+    parser.add_argument('--output', type=str, default='data/processed/validation_results.json', help='Output JSON path')
+    parser.add_argument('--permutations', type=int, default=1000, help='Number of permutations')
+    
+    args = parser.parse_args()
+    
+    logging.basicConfig(level=logging.INFO)
+    run_validation_pipeline(
+        features_path=args.features,
+        status_path=args.status,
+        output_path=args.output,
+        n_permutations=args.permutations
     )
-
-    print(json.dumps(results, indent=2))
 
 if __name__ == "__main__":
     main()

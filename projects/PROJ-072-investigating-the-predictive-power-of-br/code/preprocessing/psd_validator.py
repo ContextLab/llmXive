@@ -1,11 +1,3 @@
-"""
-Positive Semi-Definite (PSD) validation and regularization module.
-
-This module ensures that connectivity matrices generated during preprocessing
-are mathematically valid (symmetric and positive semi-definite).
-If a matrix fails the PSD check, a minimal regularization (adding a small
-value to the diagonal) is applied to make it PSD. All anomalies are logged.
-"""
 import os
 import json
 import logging
@@ -13,259 +5,205 @@ import numpy as np
 from pathlib import Path
 from typing import Tuple, Optional
 
-# Configure logging to be consistent with other modules
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+from preprocessing.metadata import load_subject_status
+
 logger = logging.getLogger(__name__)
 
-# Default regularization parameters
-DEFAULT_EPSILON = 1e-5
-DEFAULT_MAX_ITERATIONS = 10
-DEFAULT_INCREMENT_FACTOR = 10.0
+# Constants for regularization
+EPSILON = 1e-6
+REGULARIZATION_FACTOR = 1e-4
 
-def is_symmetric(matrix: np.ndarray, tol: float = 1e-8) -> bool:
-    """
-    Check if a matrix is symmetric within a given tolerance.
-
-    Args:
-        matrix: The matrix to check.
-        tol: Tolerance for floating point comparison.
-
-    Returns:
-        True if symmetric, False otherwise.
-    """
-    if matrix.shape[0] != matrix.shape[1]:
-        return False
-    return np.allclose(matrix, matrix.T, atol=tol)
+def is_symmetric(matrix: np.ndarray, rtol: float = 1e-05, atol: float = 1e-08) -> bool:
+    """Check if a matrix is symmetric within numerical tolerance."""
+    return np.allclose(matrix, matrix.T, rtol=rtol, atol=atol)
 
 def make_symmetric(matrix: np.ndarray) -> np.ndarray:
-    """
-    Enforce symmetry by averaging the matrix with its transpose.
+    """Force a matrix to be symmetric by averaging with its transpose."""
+    return (matrix + matrix.T) / 2.0
 
-    Args:
-        matrix: The input matrix.
-
-    Returns:
-        A symmetric version of the matrix.
-    """
-    if not is_symmetric(matrix):
-        logger.debug("Enforcing symmetry on matrix.")
-        return (matrix + matrix.T) / 2.0
-    return matrix
-
-def is_positive_semi_definite(matrix: np.ndarray) -> bool:
+def is_positive_semi_definite(matrix: np.ndarray) -> Tuple[bool, Optional[float]]:
     """
     Check if a matrix is positive semi-definite (PSD).
-
-    A matrix is PSD if all its eigenvalues are non-negative.
-    We use a small tolerance for numerical stability.
-
-    Args:
-        matrix: The matrix to check.
-
+    
     Returns:
-        True if PSD, False otherwise.
+        Tuple of (is_psd, min_eigenvalue)
     """
+    # Ensure symmetry first
+    if not is_symmetric(matrix):
+        logger.warning("Matrix is not symmetric. Cannot be PSD.")
+        return False, None
+    
     try:
-        # Ensure symmetry first for eigenvalue calculation
-        sym_matrix = make_symmetric(matrix)
-        eigenvalues = np.linalg.eigvalsh(sym_matrix)
-        return np.all(eigenvalues >= -1e-10)
-    except np.linalg.LinAlgError:
-        logger.warning("Eigenvalue decomposition failed. Matrix is likely not PSD.")
-        return False
+        eigenvalues = np.linalg.eigvalsh(matrix)
+        min_eig = np.min(eigenvalues)
+        is_psd = min_eig >= -EPSILON  # Allow small numerical negative values
+        return is_psd, min_eig
+    except np.linalg.LinAlgError as e:
+        logger.error(f"Eigenvalue decomposition failed: {e}")
+        return False, None
 
-def regularize_matrix(
-    matrix: np.ndarray,
-    epsilon: float = DEFAULT_EPSILON,
-    max_iterations: int = DEFAULT_MAX_ITERATIONS,
-    increment_factor: float = DEFAULT_INCREMENT_FACTOR
-) -> Tuple[np.ndarray, int]:
+def regularize_matrix(matrix: np.ndarray, factor: float = REGULARIZATION_FACTOR) -> np.ndarray:
     """
     Regularize a matrix to make it positive semi-definite.
-
-    This function adds a small value (epsilon) to the diagonal elements
-    iteratively until the matrix becomes PSD or max_iterations is reached.
-
-    Args:
-        matrix: The input matrix (assumed symmetric or made symmetric).
-        epsilon: Initial value to add to the diagonal.
-        max_iterations: Maximum number of regularization attempts.
-        increment_factor: Factor by which epsilon is increased per iteration.
-
-    Returns:
-        A tuple containing the regularized matrix and the number of iterations performed.
-        If the matrix was already PSD, iterations will be 0.
-    """
-    if is_positive_semi_definite(matrix):
-        return matrix, 0
-
-    logger.info(f"Matrix is not PSD. Starting regularization with epsilon={epsilon}.")
-    current_epsilon = epsilon
-    sym_matrix = make_symmetric(matrix.copy())
-    iterations = 0
-
-    for i in range(max_iterations):
-        iterations += 1
-        # Add epsilon to diagonal
-        diag_indices = np.diag_indices_from(sym_matrix)
-        sym_matrix[diag_indices] += current_epsilon
-
-        if is_positive_semi_definite(sym_matrix):
-            logger.info(f"Matrix became PSD after {iterations} iteration(s) with epsilon={current_epsilon}.")
-            return sym_matrix, iterations
-
-        current_epsilon *= increment_factor
-
-    logger.error(f"Failed to make matrix PSD after {max_iterations} iterations. Last epsilon: {current_epsilon}.")
-    # Return the best effort matrix even if not fully PSD, or raise an error depending on strictness.
-    # For robustness, we return the last attempt but log the failure.
-    return sym_matrix, iterations
-
-def validate_and_regularize_matrix(
-    matrix: np.ndarray,
-    subject_id: str,
-    output_dir: Optional[Path] = None,
-    anomaly_log_path: Optional[Path] = None
-) -> Tuple[np.ndarray, bool]:
-    """
-    Validate a connectivity matrix for PSD property and regularize if necessary.
-
-    Args:
-        matrix: The input connectivity matrix.
-        subject_id: Identifier for the subject (for logging).
-        output_dir: Directory to save the corrected matrix (optional).
-        anomaly_log_path: Path to the anomaly log file (optional).
-
-    Returns:
-        A tuple of (processed_matrix, was_regularized).
-    """
-    was_regularized = False
-    subject_prefix = f"[Subject: {subject_id}]"
-
-    # Step 1: Ensure symmetry
-    if not is_symmetric(matrix):
-        logger.warning(f"{subject_prefix} Matrix is not symmetric. Enforcing symmetry.")
-        matrix = make_symmetric(matrix)
-
-    # Step 2: Check PSD
-    if not is_positive_semi_definite(matrix):
-        logger.warning(f"{subject_prefix} Matrix is NOT positive semi-definite. Applying regularization.")
-        matrix, iterations = regularize_matrix(matrix)
-        was_regularized = True
-
-        # Log anomaly details
-        if anomaly_log_path:
-            log_entry = {
-                "subject_id": subject_id,
-                "issue": "non_psd",
-                "action": "regularization_applied",
-                "iterations": iterations
-            }
-            log_file_exists = anomaly_log_path.exists()
-            with open(anomaly_log_path, 'a') as f:
-                if not log_file_exists:
-                    f.write(json.dumps({"records": []}) + "\n")
-                
-                # Read existing, append, write back (simple approach for small logs)
-                try:
-                    with open(anomaly_log_path, 'r') as rf:
-                        content = rf.read().strip()
-                        if content:
-                            data = json.loads(content)
-                            if "records" not in data:
-                                data["records"] = []
-                            data["records"].append(log_entry)
-                        else:
-                            data = {"records": [log_entry]}
-                except (json.JSONDecodeError, FileNotFoundError):
-                    data = {"records": [log_entry]}
-
-                with open(anomaly_log_path, 'w') as wf:
-                    json.dump(data, wf, indent=2)
-
-    return matrix, was_regularized
-
-def run_psd_validation_pipeline(
-    input_dir: Path,
-    output_dir: Path,
-    anomaly_log_path: Optional[Path] = None
-) -> int:
-    """
-    Run PSD validation and regularization on all .npy matrices in a directory.
-
-    Args:
-        input_dir: Directory containing input matrices.
-        output_dir: Directory to save corrected matrices.
-        anomaly_log_path: Path to the anomaly log file.
-
-    Returns:
-        Number of matrices processed.
-    """
-    if anomaly_log_path is None:
-        anomaly_log_path = Path("data/metadata/psd_anomalies.json")
     
-    # Ensure output directory exists
+    Adds a small multiple of the identity matrix to the diagonal.
+    """
+    if not is_symmetric(matrix):
+        matrix = make_symmetric(matrix)
+    
+    eigenvalues, eigenvectors = np.linalg.eigh(matrix)
+    # Clip eigenvalues to be non-negative
+    eigenvalues = np.maximum(eigenvalues, 0)
+    # Reconstruct matrix
+    return eigenvectors @ np.diag(eigenvalues) @ eigenvectors.T
+
+def validate_and_regularize_matrix(matrix: np.ndarray, subject_id: str) -> Tuple[np.ndarray, bool, str]:
+    """
+    Validate a connectivity matrix and regularize if necessary.
+    
+    Args:
+        matrix: The connectivity matrix to validate
+        subject_id: ID of the subject for logging purposes
+        
+    Returns:
+        Tuple of (validated_matrix, was_regularized, status_message)
+    """
+    is_sym = is_symmetric(matrix)
+    if not is_sym:
+        matrix = make_symmetric(matrix)
+        logger.info(f"Subject {subject_id}: Made matrix symmetric.")
+    
+    is_psd, min_eig = is_positive_semi_definite(matrix)
+    
+    if is_psd:
+        return matrix, False, "valid"
+    else:
+        logger.warning(f"Subject {subject_id}: Matrix is not PSD (min eigenvalue: {min_eig}). Applying regularization.")
+        regularized = regularize_matrix(matrix)
+        # Verify regularization worked
+        is_psd_after, _ = is_positive_semi_definite(regularized)
+        if is_psd_after:
+            return regularized, True, "regularized"
+        else:
+            # If regularization fails, try a stronger one
+            logger.error(f"Subject {subject_id}: Initial regularization failed. Applying stronger regularization.")
+            strong_factor = REGULARIZATION_FACTOR * 10
+            strong_regularized = regularize_matrix(matrix, factor=strong_factor)
+            is_psd_strong, _ = is_positive_semi_definite(strong_regularized)
+            if is_psd_strong:
+                return strong_regularized, True, "regularized_strong"
+            else:
+                logger.error(f"Subject {subject_id}: Failed to make matrix PSD even with strong regularization.")
+                return matrix, False, "invalid"
+
+def run_psd_validation_pipeline(subject_ids: list, matrices_dir: Path, output_dir: Path) -> dict:
+    """
+    Run PSD validation on all subject connectivity matrices.
+    
+    Args:
+        subject_ids: List of subject IDs to process
+        matrices_dir: Directory containing .npy matrix files
+        output_dir: Directory to save validated matrices and logs
+        
+    Returns:
+        Dictionary with validation statistics
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Initialize or clear the anomaly log if it's the first run in this session
-    # Note: We append to the log to preserve history, but ensure valid JSON structure
-    if not anomaly_log_path.exists():
-        anomaly_log_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(anomaly_log_path, 'w') as f:
-            json.dump({"records": []}, f)
-
-    processed_count = 0
-    npy_files = list(input_dir.glob("*.npy"))
+    validation_log = []
+    stats = {
+        "total_subjects": len(subject_ids),
+        "valid": 0,
+        "regularized": 0,
+        "invalid": 0,
+        "details": []
+    }
     
-    if not npy_files:
-        logger.warning(f"No .npy files found in {input_dir}")
-        return 0
-
-    for file_path in npy_files:
-        subject_id = file_path.stem
-        try:
-            matrix = np.load(file_path)
-            logger.info(f"Processing {subject_id}...")
-            
-            processed_matrix, was_regularized = validate_and_regularize_matrix(
-                matrix, subject_id, output_dir, anomaly_log_path
-            )
-            
-            output_path = output_dir / f"{subject_id}_psd_corrected.npy"
-            np.save(output_path, processed_matrix)
-            
-            if was_regularized:
-                logger.info(f"Saved corrected matrix for {subject_id} to {output_path}")
-            else:
-                logger.debug(f"Matrix for {subject_id} was already valid.")
-            
-            processed_count += 1
-
-        except Exception as e:
-            logger.error(f"Error processing {file_path}: {e}")
+    for sub_id in subject_ids:
+        matrix_path = matrices_dir / f"{sub_id}_matrix.npy"
+        if not matrix_path.exists():
+            logger.warning(f"Matrix not found for {sub_id}. Skipping.")
             continue
-
-    return processed_count
+        
+        try:
+            matrix = np.load(matrix_path)
+            validated_matrix, was_regularized, status = validate_and_regularize_matrix(matrix, sub_id)
+            
+            # Save validated matrix
+            output_path = output_dir / f"{sub_id}_matrix_validated.npy"
+            np.save(output_path, validated_matrix)
+            
+            # Log result
+            log_entry = {
+                "subject_id": sub_id,
+                "status": status,
+                "regularized": was_regularized,
+                "input_path": str(matrix_path),
+                "output_path": str(output_path)
+            }
+            validation_log.append(log_entry)
+            stats["details"].append(log_entry)
+            
+            if status == "valid":
+                stats["valid"] += 1
+            elif status.startswith("regularized"):
+                stats["regularized"] += 1
+            else:
+                stats["invalid"] += 1
+                
+        except Exception as e:
+            logger.error(f"Error processing {sub_id}: {e}")
+            stats["invalid"] += 1
+            validation_log.append({
+                "subject_id": sub_id,
+                "status": "error",
+                "error": str(e)
+            })
+    
+    # Save validation log
+    log_path = output_dir / "psd_validation_log.json"
+    with open(log_path, 'w') as f:
+        json.dump(validation_log, f, indent=2)
+    
+    logger.info(f"PSD validation complete. Valid: {stats['valid']}, Regularized: {stats['regularized']}, Invalid: {stats['invalid']}")
+    
+    return stats
 
 def main():
-    """
-    Entry point for the PSD validation script.
-    Expects to be run from the project root.
-    """
-    input_dir = Path("data/processed")
-    output_dir = Path("data/processed/psd_validated")
-    anomaly_log_path = Path("data/metadata/psd_anomalies.json")
-
-    logger.info(f"Starting PSD validation pipeline.")
-    logger.info(f"Input directory: {input_dir}")
-    logger.info(f"Output directory: {output_dir}")
-    logger.info(f"Anomaly log: {anomaly_log_path}")
-
-    count = run_psd_validation_pipeline(input_dir, output_dir, anomaly_log_path)
-    logger.info(f"Pipeline completed. Processed {count} matrices.")
+    """Main entry point for PSD validation pipeline."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    # Load subject status to get valid subjects
+    subject_status_path = Path("data/metadata/subject_status.csv")
+    if not subject_status_path.exists():
+        logger.error(f"Subject status file not found: {subject_status_path}")
+        return
+    
+    subject_status = load_subject_status(subject_status_path)
+    # Get subjects that are not excluded
+    valid_subjects = [
+        row['subject_id'] for _, row in subject_status.iterrows()
+        if row['excluded'] == False
+    ]
+    
+    if not valid_subjects:
+        logger.warning("No valid subjects found for PSD validation.")
+        return
+    
+    matrices_dir = Path("data/processed")
+    output_dir = Path("data/processed/validated")
+    
+    stats = run_psd_validation_pipeline(valid_subjects, matrices_dir, output_dir)
+    
+    # Save summary stats
+    summary_path = Path("data/metadata/psd_validation_summary.json")
+    with open(summary_path, 'w') as f:
+        json.dump(stats, f, indent=2)
+    
+    logger.info(f"Validation summary saved to {summary_path}")
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
 # Tasks: Evaluating the Impact of LLM-Generated Code Documentation on Developer Onboarding
 
-**Input**: Design documents from `/specs/001-evaluating-llm-docs-impact/`
+**Input**: Design documents from `/specs/001-evaluating-llm-generated-c/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -39,6 +39,14 @@
   ============================================================================
 -->
 
+## Phase 0: Research & Data Strategy
+
+**Purpose**: Define statistical methods, data sources, and repository selection criteria. Pre-specify analysis approach to avoid bias.
+
+- [ ] T070 [P] [Phase 0] Generate Statistical Methodology Appendix in `specs/001-evaluating-llm-generated-c/research.md` documenting the pre-specified analysis approach (Levene's -> ANOVA/Welch's -> Games-Howell) and assumptions before any data collection. Verification: Ensure the document is signed off and included in the project's `data/` as a pre-registered protocol.
+
+---
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization, basic structure, and shared utilities.
@@ -50,19 +58,19 @@
 
 ---
 
-## Phase 2: Repository Selection & Rubric Validation (Blocking Prerequisite)
+## Phase 2: Repository Selection & Rubric Validation (Blocking Prerequisite for US2)
 
-**Purpose**: Select repositories and validate human documentation quality per FR-009. This phase MUST complete before US2.
+**Purpose**: Select repositories and validate human documentation quality per FR-009. This phase MUST complete before US2 (Doc Generation). **Note**: This phase blocks US2 but not US1 implementation.
 
 **⚠️ CRITICAL**: No User Story 2 work can begin until this phase is complete.
 
 - [X] T047 [P] Consolidate validation logic for repository selection and schema validation into `code/validation.py` to ensure a single source of truth for all validation tasks.
-- [ ] T021a [P] Implement repository metric collection in `code/validation.py`: Run `radon cc -a -s` for Cyclomatic Complexity and `cloc --json` for Lines of Code (LOC). **Output**: `data/raw/repo_metrics.json`. Verification: Assert `data/raw/repo_metrics.json` exists and contains numeric LOC/CC for each candidate repo.
-- [ ] T021ca [P] Parse raw output from radon/cloc into the required JSON schema in `code/validation.py`. **Output**: `data/raw/repo_metrics.json`. Verification: Assert file adheres to defined schema.
-- [ ] T021b [P] Implement documentation rubric scoring in `code/validation.py`: Calculate a quantitative "Human Doc Quality Score" based on the presence of Setup, API, and Architecture sections (binary indicator per section, summed). **Output**: `data/raw/doc_quality_scores.json`.
-- [ ] T021f [P] Filter repositories based on metric thresholds: Compare LOC/CC from `data/raw/repo_metrics.json` against baseline metrics and exclude repos failing the ±15% tolerance. **Output**: `data/raw/repo_selection_rubric.json` (accepted repos) AND `data/raw/repo_matching_report.json`.
-- [ ] T021d [P] Filter repositories based on documentation quality: Exclude repositories from `data/raw/doc_metrics.json` that do not meet the minimum rubric score criteria defined in FR-009.  **Output**: Updated list of accepted repos in `data/raw/repo_selection_rubric.json`.
-- [ ] T021g [P] Aggregate LOC, CC, and Doc Quality scores into a single covariate dataset for statistical adjustment (ANCOVA). **Input:** `data/raw/repo_metrics.json`, `data/raw/doc_quality_scores.json`, and `data/raw/repo_selection_rubric.json`.  **Output**: `data/raw/repo_covariates.json`. Verification: Assert file exists and contains normalized/centered covariates for accepted repos.
+- [ ] T021a [P] [US2] Implement Cyclomatic Complexity (CC) collection in `code/validation.py`: Run `radon cc -a -s` for a list of candidate repositories. **Output**: `data/raw/repo_cc_raw.json`. Verification: Assert file exists and contains numeric CC for each candidate repo.
+- [ ] T021b [P] [US2] Implement Lines of Code (LOC) collection in `code/validation.py`: Run `cloc --json` for a list of candidate repositories. **Output**: `data/raw/repo_loc_raw.json`. Verification: Assert file exists and contains numeric LOC for each candidate repo.
+- [ ] T021c [P] [US2] Implement Documentation Rubric Scoring in `code/validation.py`: Calculate a quantitative "Human Doc Quality Score" based on the presence of Setup, API, and Architecture sections (binary indicator per section, summed). **Input**: Candidate repo list. **Output**: `data/raw/doc_quality_scores.json`. Verification: Assert file contains scores for each repo.
+- [ ] T021d [P] [US2] Filter repositories based on documentation quality: Exclude repositories from `data/raw/doc_quality_scores.json` that do not meet the minimum rubric score criteria defined in FR-009. **Output**: `data/raw/repo_selection_rubric_intermediate.json`. Verification: Assert file exists and contains only repos meeting the rubric.
+- [ ] T021f [P] [US2] Filter repositories based on metric thresholds: Compare LOC/CC from `data/raw/repo_loc_raw.json` and `data/raw/repo_cc_raw.json` against the median metrics of the initial candidate pool (baseline) and exclude repos failing the ±15% tolerance. **Output**: `data/raw/repo_selection_rubric.json` (final accepted repos) AND `data/raw/repo_matching_report.json`. Verification: Assert file exists and contains accepted repos with matching metrics.
+- [ ] T021g [P] [US2] Aggregate LOC, CC, and Doc Quality scores into a single covariate dataset for statistical adjustment (ANCOVA). **Input:** `data/raw/repo_loc_raw.json`, `data/raw/repo_cc_raw.json`, and `data/raw/doc_quality_scores.json`. **Output**: `data/raw/repo_covariates.json`. Verification: Assert file exists and contains normalized/centered covariates for accepted repos.
 
 ---
 
@@ -79,11 +87,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Implement participant assignment logic (randomized to LLM/Human/None) in `code/data_collection.py`
-- [ ] T015 [US1] Calculate global mean and standard deviation for time and questions from mock study data executed in a prior phase of data collection (T075a).  **Output**: `data/raw/session_stats.json`.
-- [ ] T016 [US1] Implement real-time logging of clarification questions based on FR-004: filter for keywords or moderator tags. **Output**: `clarification_question_count`, list of question objects.
-- [ ] T017 [US1] Implement subjective helpfulness survey capture in `code/data_collection.py`
-- [ ] T018 [US1] Implement "Stop-Loss" intervention logic: flag incomplete tasks and record max time. 
+- [ ] T014 [P] [US1] Implement participant assignment logic (randomized to LLM/Human/None) in `code/experiment/experiment.py`
+- [ ] T016 [US1] Implement real-time logging of clarification questions based on FR-004: filter for keywords (e.g., 'how', 'why') OR moderator tags via the `experiment.py` chat interface. Log timestamp, content, and type (keyword/modeerator-tag). **Simultaneously calculate the count per session**. **Output**: `data/raw/participant_logs.json` with `clarification_questions` array and `clarification_question_count` field. Verification: Assert logs contain both keyword matches and moderator-tagged events, and the count field matches the array length.
+- [ ] T017 [US1] Implement subjective helpfulness survey capture in `code/experiment/experiment.py`
+- [ ] T018 [US1] Implement "Stop-Loss" intervention logic: If task time > 2700s (45 min), trigger moderator intervention, flag record as 'failed', set `intervention_status` = 'stop_loss', and record `max_time` = 2700. **Output**: `data/raw/participant_logs.json` with updated fields. Verification: Assert `intervention_status` field is set and `max_time` is 2700 for flagged records.
 - [ ] T019 [US1] Handle incomplete records (exclude from analysis, retain for reporting). Calculate dropout count. **Output**: `data/raw/participant_logs.json` with status flags.
 - [ ] T020 [US1] Create raw data export function to `data/raw/participant_logs.json`.
 
@@ -104,10 +111,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T027 [P] [US2] Implement primary LLM API integration for documentation generation in `code/doc_generation.py`.
+- [ ] T027 [P] [US2] Implement primary LLM API integration for documentation generation in `code/generation/doc_pipeline.py`.
 - [ ] T028 [US2] Implement fallback logic to local CPU-optimized model ('phi (quantized int4)') if the API fails, pinned to a specific HuggingFace commit hash. Log generation config and checksums.
-- [ ] T029 [US2] Implement prompt engineering to ensure coverage of architecture, API, and setup steps in `code/doc_generation.py`.
-- [ ] T031 [US2] Save generated Markdown docs to `data/raw/llm_docs/` with checksums in `code/doc_generation.py`.
+- [ ] T029 [US2] Implement prompt engineering to ensure coverage of architecture, API, and setup steps in `code/generation/doc_pipeline.py`.
+- [ ] T031 [US2] Save generated Markdown docs to `data/raw/llm_docs/` with checksums in `code/generation/doc_pipeline.py`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -117,12 +124,13 @@
 
 **Purpose**: Clean, anonymize, and validate data before analysis. Produces `cleaned_dataset.csv` for Phase 6.
 
-- [ ] T030a [P] Generate a JSON Schema based on the data model in `data-model.md`.
+- [ ] T030a [P] Generate a JSON Schema based on the data model in `data-model.md` and save it to `data/raw/schema_temp.json`. Verification: Assert file exists and is valid JSON.
+- [ ] T030b [P] Convert the generated JSON Schema from `data/raw/schema_temp.json` to YAML and save as `contracts/dataset.schema.yaml`. Verification: Assert file exists and is valid YAML.
 - [ ] T033 [P] Run schema validation against `contracts/dataset.schema.yaml`. Abort pipeline if validation fails.
 - [ ] T032a [US1/3] Implement PII removal using `presidio-analyzer`.
 - [ ] T032b [US1/3] Handle incomplete records during data cleaning.
 - [ ] T032 [US1/3] Aggregate cleaning steps to produce `data/processed/cleaned_dataset.csv`.
-- [ ] T016b [US1/3] Calculate the cognitive load proxy using global stats from T015 and clarification question counts. Update `data/processed/cleaned_dataset.csv`.
+- [ ] T016b [US1/3] [REMOVED] Task removed. Clarification question counts are now calculated in T016.
 
 **Checkpoint**: Cleaned dataset ready for analysis.
 
@@ -139,10 +147,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T036a [P] Load and center the covariates (LOC, CC, Doc Quality). **Output**: `data/processed/centered_covariates.json`, `data/processed/centered_dataset.csv`.
-- [ ] T036b [P] Implement the Spec FR-005 Dynamic Decision Tree: Levene's test -> ANOVA/Welch's/Welch-James with appropriate post-hoc tests. **Output**: `data/reports/primary_analysis_results.json`. Verify results are consistent
+- [ ] T036a [P] Load and center the covariates (LOC, CC, Doc Quality) from `data/raw/repo_covariates.json`. **Output**: `data/processed/centered_covariates.json`, `data/processed/centered_dataset.csv`.
+- [ ] T036b [P] Implement the Spec FR-005 Dynamic Decision Tree: Levene's test -> ANOVA/Welch's/Welch-James with appropriate post-hoc tests. **PRIMARY PATH**: Robust Tests (Welch's/Welch-James) are the default to avoid bias. **Output**: `data/reports/primary_analysis_results.json`. Verify results are consistent.
 - [ ] T037 [US3] Implement post-hoc tests (Games-Howell). **Output**: `data/reports/posthoc_results.json`.
-- [ ] T037d [US3] Perform statistical comparison for SC-002 (Help Requests) using ANCOVA and Games-Howell correction. **Output**: `data/reports/help_request_results.json`.
+- [ ] T037d [US3] Perform statistical comparison for SC-002 (Help Requests) using ANCOVA and Games-Howell correction. **Input**: Clarification question counts from `data/raw/participant_logs.json` (T016). **Output**: `data/reports/help_request_results.json`.
 - [ ] T037e [US3] Perform statistical comparison for SC-003 (Subjective Ratings) using ANCOVA and Games-Howell correction. **Output**: `data/reports/rating_results.json`.
 - [ ] T039 [US3] Generate `data/reports/analysis_results.json` with all metrics and traceability to raw data.
 - [ ] T041 [US3] Generate the final report (`data/reports/final_report.md`).
@@ -169,7 +177,7 @@
 
 - [ ] T046a [P] Update `README.md`.
 - [ ] T046b [P] Generate API documentation.
-- [ ] T046c [P] Update quickstart guide.
+- [ ] T046c [P] CREATE `quickstart.md` ensuring specific script paths match plan.md (e.g., `code/experiment/experiment.py`, `code/generation/doc_pipeline.py`, `code/analysis/stats_runner.py`). Verification: Assert `quickstart.md` exists and contains correct paths.
 - [ ] T048a [P] Remove unused imports with ruff.
 - [ ] T048b [P] Run linting with ruff.
 - [ ] T049a [P] Implement chunked data loading for memory optimization.
@@ -190,15 +198,18 @@
 - [ ] T058 [P] Add Data Integrity Checksums to participant log writes.
 - [ ] T060 [P] Implement Model Commit Hash Verification before loading local model.
 - [ ] T069 [P] Calculate and report Cohen's d effect sizes.
-- [ ] T070 [P] Generate a Statistical Methodology Appendix documenting the analysis approach and assumptions.
 
 ---
 
-## Phase 10: Execution Gate & Run-Book Reconciliation
+## Phase 10: Execution & Pilot Data Collection
 
-**Purpose**: Resolve execution feedback mismatches where `quickstart.md` references scripts that do not exist in the `code/` directory structure.
+**Purpose**: Execute the pilot study with real participants and real data to generate the dataset for analysis.
 
-- [ ] T061 [P] Reconcile quickstart.md references with code/ directory structure for experiment.py, doc_pipeline.py, stats_runner.py, and logging.py.
+- [ ] T073a [US1] Mock Recruitment: Generate `data/raw/mock_participants.csv` using Faker library with N=15-20 rows. Verification: Assert file exists and contains 15-20 rows with required demographic columns.
+- [ ] T074 [US1] Run a full dry-run with simulated participants.
+- [ ] T075a [US1] Execute mock onboarding experiment with simulated participants.
+- [ ] T076 [US2] Generate documentation for selected repositories.
+- [ ] T077 [US3] Run Final Analysis.
 
 ---
 
@@ -213,15 +224,14 @@
 
 ---
 
-## Phase 12: Execution & Pilot Data Collection
+## Phase 12: Execution Simulation & Resource Stress Testing (Revision Concern: FR-007 & FR-010)
 
-**Purpose**: Execute the pilot study with real participants and real data to generate the dataset for analysis.
+**Purpose**: Validate adherence to resource constraints and the "GPU escape hatch."
 
-- [ ] T073a [US1] Mock Recruitment: Recruit N=15-20 simulated volunteers.
-- [ ] T074 [US1] Run a full dry-run with simulated participants.
-- [ ] T075a [US1] Execute mock onboarding experiment with simulated participants.
-- [ ] T076 [US2] Generate documentation for selected repositories.
-- [ ] T077 [US3] Run Final Analysis.
+- [ ] T087 [P] Create a Resource Stress Test Script.
+- [ ] T088 [P] Implement GPU Offload Detection Logic.
+- [ ] T089 [P] Add Memory Profiling Hook.
+- [ ] T090 [P] Generate Resource Constraint Compliance Report.
 
 ---
 
@@ -232,15 +242,3 @@
 - [ ] T083 [P] Implement Permutation Test for robustness.
 - [ ] T084 [P] Generate Bootstrap Confidence Intervals.
 - [ ] T085 [P] Run sensitivity analysis with covariate inclusion/exclusion.
-- [ ] T086 [P] Implement Pre-specified Welch's ANOVA as a secondary check.
-
----
-
-## Phase 14: Execution Simulation & Resource Stress Testing (Revision Concern: FR-007 & FR-010)
-
-**Purpose**: Validate adherence to resource constraints and the "GPU escape hatch."
-
-- [ ] T087 [P] Create a Resource Stress Test Script.
-- [ ] T088 [P] Implement GPU Offload Detection Logic.
-- [ ] T089 [P] Add Memory Profiling Hook.
-- [ ] T090 [P] Generate Resource Constraint Compliance Report.

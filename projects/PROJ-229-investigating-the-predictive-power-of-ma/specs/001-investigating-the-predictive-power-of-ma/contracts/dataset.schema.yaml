@@ -1,50 +1,60 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Schema for Phase-Change Materials"
-type: "object"
+title: "Featurized Dataset Schema"
+description: "Schema for the processed dataset with elemental and graph-based descriptors."
+type: object
 properties:
-  mp_id:
-    type: "string"
-    description: "Unique identifier from Materials Project"
+  material_id:
+    type: string
+    description: "Unique identifier for the material."
   formula:
-    type: "string"
-    description: "Chemical formula"
+    type: string
+    description: "Chemical formula of the material."
   melting_point:
-    type: ["number", "null"]
-    description: "Melting point in Kelvin"
-  heat_capacity:
-    type: ["number", "null"]
-    description: "Heat capacity at constant pressure (J/mol·K)"
+    type: number
+    description: "Melting point in Kelvin."
   latent_heat:
     type: ["number", "null"]
-    description: "Latent heat of fusion (J/mol). May be null if imputed or unavailable."
-  structure:
-    type: "object"
-    description: "Crystal structure data"
-    properties:
-      lattice:
-        type: "array"
-        items:
-          type: "number"
-      fractional_coordinates:
-        type: "array"
-        items:
-          type: "array"
-          items:
-            type: "number"
+    description: "Latent heat of fusion in J/g (may be null)."
   elemental_descriptors:
-    type: "object"
-    description: "Dictionary of computed elemental properties"
-    additionalProperties:
-      type: "number"
-  structural_descriptors:
-    type: "object"
-    description: "Dictionary of computed structural properties"
-    additionalProperties:
-      type: "number"
+    type: object
+    description: "Computed elemental features."
+    properties:
+      atomic_mass_mean:
+        type: number
+      electronegativity_mean:
+        type: number
+      radius_mean:
+        type: number
+      periodic_group_mean:
+        type: number
+      periodic_period_mean:
+        type: number
+    required:
+      - atomic_mass_mean
+      - electronegativity_mean
+      - radius_mean
+      - periodic_group_mean
+      - periodic_period_mean
+  graph_descriptors:
+    type: object
+    description: "Computed graph-based features."
+    properties:
+      bond_density:
+        type: number
+      symmetry_operations:
+        type: integer
+    required:
+      - bond_density
+      - symmetry_operations
+  collinearity_flags:
+    type: array
+    description: "Flags for definitionally dependent features."
+    items:
+      type: string
 required:
-  - "mp_id"
-  - "formula"
-  - "elemental_descriptors"
-  - "structural_descriptors"
+  - material_id
+  - formula
+  - melting_point
+  - elemental_descriptors
+  - graph_descriptors
 additionalProperties: false
-description: "Schema for the processed dataset containing materials data and computed features. All numeric fields must be finite (no nan/inf). This schema includes both potential target columns (melting_point, latent_heat) to support dynamic target selection."

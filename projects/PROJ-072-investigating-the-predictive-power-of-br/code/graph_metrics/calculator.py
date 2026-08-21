@@ -5,258 +5,177 @@ import numpy as np
 import pandas as pd
 import networkx as nx
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
-import scipy.stats as stats
+from scipy import stats
 
-# Configure logging
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-CORRELATION_THRESHOLD = 0.8
-PCA_VARIANCE_THRESHOLD = 0.95
-DATA_PROCESSED_DIR = Path("data/processed")
-DATA_METADATA_DIR = Path("data/metadata")
+# AAL Atlas region indices for Prefrontal and Hippocampal (approximate)
+# AAL has 90 regions. Prefrontal: 1-32 (approx), Hippocampal: 65-72 (approx)
+# We will use specific indices based on standard AAL mapping if known, otherwise generic.
+# Standard AAL:
+# Prefrontal Cortex (PFC): often regions 1-32 (Frontal_Sup, Frontal_Mid, etc.)
+# Hippocampus: regions 65-68 (Hippocampus_L/R) and 69-72 (Parahippocampal)
+# Let's define a robust set.
+PFC_INDICES = list(range(0, 32)) # 0-indexed: 1-32
+HIPPO_INDICES = list(range(64, 72)) # 0-indexed: 65-72
 
-def load_connectivity_matrix(subject_id: str, data_dir: Path = DATA_PROCESSED_DIR) -> np.ndarray:
-    """Load a connectivity matrix for a given subject."""
-    matrix_path = data_dir / f"{subject_id}_matrix.npy"
-    if not matrix_path.exists():
-        raise FileNotFoundError(f"Matrix not found for subject {subject_id} at {matrix_path}")
-    return np.load(matrix_path)
+def load_connectivity_matrix(matrix_path):
+    """Load a connectivity matrix from .npy file."""
+    if not os.path.exists(matrix_path):
+        raise FileNotFoundError(f"Matrix file not found: {matrix_path}")
+    matrix = np.load(matrix_path)
+    if matrix.shape[0] != matrix.shape[1]:
+        raise ValueError(f"Matrix must be square. Got shape {matrix.shape}")
+    return matrix
 
-def compute_global_efficiency(matrix: np.ndarray) -> float:
-    """Compute global efficiency of a graph."""
-    # Ensure matrix is symmetric
-    matrix = (matrix + matrix.T) / 2
-    # Set diagonal to 0
-    np.fill_diagonal(matrix, 0)
-    
+def compute_global_efficiency(matrix):
+    """Compute Global Efficiency of the graph."""
+    # Create graph from matrix (undirected, weighted)
+    # Threshold small values to avoid noise? Usually keep all for correlation.
     G = nx.from_numpy_array(matrix)
     try:
         return nx.global_efficiency(G)
-    except Exception as e:
-        logger.warning(f"Could not compute global efficiency: {e}")
+    except nx.NetworkXError:
         return 0.0
 
-def compute_local_efficiency(matrix: np.ndarray) -> float:
-    """Compute local efficiency of a graph."""
-    matrix = (matrix + matrix.T) / 2
-    np.fill_diagonal(matrix, 0)
-    
+def compute_local_efficiency(matrix):
+    """Compute Local Efficiency of the graph."""
     G = nx.from_numpy_array(matrix)
     try:
         return nx.local_efficiency(G)
-    except Exception as e:
-        logger.warning(f"Could not compute local efficiency: {e}")
+    except nx.NetworkXError:
         return 0.0
 
-def compute_modularity(matrix: np.ndarray) -> float:
-    """Compute modularity using Louvain method."""
-    matrix = (matrix + matrix.T) / 2
-    np.fill_diagonal(matrix, 0)
-    
+def compute_modularity(matrix):
+    """Compute Modularity using Louvain method (via community detection)."""
     G = nx.from_numpy_array(matrix)
     try:
-        # Use louvain_communities from networkx (available in newer versions)
-        # or fallback to community detection if needed
-        if hasattr(nx, 'community'):
-            from networkx.algorithms import community
-            communities = community.louvain_communities(G, seed=42)
-            return community.modularity(G, communities)
-        else:
-            # Fallback: simple approximation or return 0
-            logger.warning("Louvain community detection not available, returning 0.0")
-            return 0.0
+        # Use python-louvain if available, otherwise fallback or error
+        try:
+            import community
+            partition = community.best_partition(G)
+            # Calculate modularity
+            mod = community.modularity(partition, G)
+            return mod
+        except ImportError:
+            # Fallback: simple approximation or 0 if not available
+            # But BCTPy or networkx community is preferred.
+            # Since BCTPy is in requirements, we assume it's available.
+            # If not, we try networkx algorithms.
+            from networkx.algorithms.community import modularity
+            from networkx.algorithms.community import greedy_modularity_communities
+            communities = greedy_modularity_communities(G)
+            return modularity(G, communities)
     except Exception as e:
-        logger.warning(f"Could not compute modularity: {e}")
+        logger.warning(f"Modularity calculation failed: {e}. Returning 0.0")
         return 0.0
 
-def compute_betweenness_centrality(matrix: np.ndarray) -> Dict[int, float]:
-    """Compute betweenness centrality for all nodes."""
-    matrix = (matrix + matrix.T) / 2
-    np.fill_diagonal(matrix, 0)
-    
+def compute_betweenness_centrality(matrix):
+    """Compute Betweenness Centrality for all nodes."""
     G = nx.from_numpy_array(matrix)
     try:
         return nx.betweenness_centrality(G)
-    except Exception as e:
-        logger.warning(f"Could not compute betweenness centrality: {e}")
+    except nx.NetworkXError:
         return {i: 0.0 for i in range(matrix.shape[0])}
 
-def extract_regional_centrality(matrix: np.ndarray, region_indices: List[int]) -> Dict[str, float]:
-    """Extract centrality for specific regions (e.g., prefrontal, hippocampal)."""
+def extract_regional_centrality(matrix, region_indices):
+    """Extract mean centrality for a specific set of region indices."""
     centrality = compute_betweenness_centrality(matrix)
-    result = {}
-    for idx in region_indices:
-        if idx in centrality:
-            result[f"node_{idx}"] = centrality[idx]
-    return result
+    if not centrality:
+        return 0.0
+    indices = [i for i in region_indices if i < len(centrality)]
+    if not indices:
+        return 0.0
+    values = [centrality[i] for i in indices]
+    return np.mean(values)
 
-def extract_features_for_subject(subject_id: str, data_dir: Path = DATA_PROCESSED_DIR) -> Dict[str, Any]:
-    """Extract all graph metrics for a single subject."""
-    matrix = load_connectivity_matrix(subject_id, data_dir)
-    
-    features = {
-        "subject_id": subject_id,
-        "global_efficiency": compute_global_efficiency(matrix),
-        "local_efficiency": compute_local_efficiency(matrix),
-        "modularity": compute_modularity(matrix),
-        "betweenness_centrality_mean": np.mean(list(compute_betweenness_centrality(matrix).values())),
-        "betweenness_centrality_std": np.std(list(compute_betweenness_centrality(matrix).values())),
-    }
-    
-    # Prefrontal and Hippocampal ROIs (example indices, adjust based on atlas)
-    # Assuming AAL atlas: Prefrontal ~ 1-10, Hippocampal ~ 25-30 (adjust as needed)
-    prefrontal_indices = list(range(0, 10))
-    hippocampal_indices = list(range(24, 30))
-    
-    prefrontal_cent = extract_regional_centrality(matrix, prefrontal_indices)
-    hippocampal_cent = extract_regional_centrality(matrix, hippocampal_indices)
-    
-    # Average centrality for these regions
-    features["prefrontal_centrality"] = np.mean(list(prefrontal_cent.values())) if prefrontal_cent else 0.0
-    features["hippocampal_centrality"] = np.mean(list(hippocampal_cent.values())) if hippocampal_cent else 0.0
-    
-    return features
+def extract_features_for_subject(matrix):
+    """
+    Extract all graph metrics for a single subject's matrix.
+    Returns a dict of features.
+    """
+    try:
+        global_eff = compute_global_efficiency(matrix)
+        local_eff = compute_local_efficiency(matrix)
+        mod = compute_modularity(matrix)
+        
+        pfc_cent = extract_regional_centrality(matrix, PFC_INDICES)
+        hippo_cent = extract_regional_centrality(matrix, HIPPO_INDICES)
+        
+        return {
+            'global_efficiency': global_eff,
+            'local_efficiency': local_eff,
+            'modularity': mod,
+            'prefrontal_centrality': pfc_cent,
+            'hippocampal_centrality': hippo_cent
+        }
+    except Exception as e:
+        logger.error(f"Error extracting features: {e}")
+        return None
 
-def check_collinearity(features_df: pd.DataFrame, threshold: float = CORRELATION_THRESHOLD) -> Tuple[List[str], pd.DataFrame]:
+def check_collinearity(X, threshold=0.8):
     """
-    Check for collinearity among features (Pearson r > threshold).
-    Returns a list of features to drop and the reduced DataFrame.
+    Check for collinearity (r > threshold).
+    If found, apply PCA and return reduced data.
+    Returns: (X_processed, used_columns, log_message)
     """
-    numeric_cols = features_df.select_dtypes(include=[np.number]).columns.tolist()
-    if len(numeric_cols) < 2:
-        return [], features_df
+    n_features = X.shape[1]
+    used_columns = [f'col_{i}' for i in range(n_features)] # Placeholder names
     
-    corr_matrix = features_df[numeric_cols].corr().abs()
+    # Compute correlation matrix
+    if n_features < 2:
+        return X, used_columns, "No collinearity check needed (< 2 features)."
     
-    # Select upper triangle of correlation matrix
-    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+    corr_matrix = np.corrcoef(X.T)
     
-    # Find features with correlation greater than threshold
-    to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
+    # Check for high correlation
+    high_corr_pairs = []
+    for i in range(n_features):
+        for j in range(i+1, n_features):
+            if abs(corr_matrix[i, j]) > threshold:
+                high_corr_pairs.append((i, j, corr_matrix[i, j]))
     
-    if to_drop:
-        logger.warning(f"Collinearity detected. Dropping features: {to_drop}")
-        # Drop the redundant features
-        reduced_df = features_df.drop(columns=to_drop)
-        return to_drop, reduced_df
+    if not high_corr_pairs:
+        return X, used_columns, "No collinearity detected."
     
-    return [], features_df
-
-def apply_pca(features_df: pd.DataFrame, variance_threshold: float = PCA_VARIANCE_THRESHOLD) -> Tuple[pd.DataFrame, Any]:
-    """
-    Apply PCA to reduce dimensionality if collinearity is found.
-    Returns the reduced DataFrame and the PCA object.
-    """
+    log_msg = f"Collinearity detected ({len(high_corr_pairs)} pairs > {threshold}). Applying PCA.\n"
+    for i, j, r in high_corr_pairs:
+        log_msg += f"  Features {i} and {j}: r={r:.4f}\n"
+    
+    # Apply PCA
     from sklearn.decomposition import PCA
+    # Keep enough components to explain 95% variance or all if n_features is small
+    pca = PCA()
+    X_reduced = pca.fit_transform(X)
     
-    numeric_cols = features_df.select_dtypes(include=[np.number]).columns.tolist()
-    if not numeric_cols:
-        return features_df, None
+    # Log variance explained
+    log_msg += f"PCA components kept: {pca.n_components_}\n"
+    log_msg += f"Variance explained: {np.sum(pca.explained_variance_ratio_):.4f}\n"
     
-    X = features_df[numeric_cols].values
-    
-    pca = PCA(variance_threshold, random_state=42)
-    X_pca = pca.fit_transform(X)
-    
-    # Create new DataFrame with PCA components
-    pca_columns = [f"pca_component_{i+1}" for i in range(X_pca.shape[1])]
-    pca_df = pd.DataFrame(X_pca, columns=pca_columns, index=features_df.index)
-    
-    # Keep non-numeric columns (like subject_id)
-    non_numeric_cols = features_df.select_dtypes(exclude=[np.number]).columns.tolist()
-    for col in non_numeric_cols:
-        pca_df[col] = features_df[col]
-    
-    logger.info(f"PCA applied. Explained variance ratio: {pca.explained_variance_ratio_}")
-    return pca_df, pca
+    # Return reduced X and new column names
+    new_cols = [f'PC{i+1}' for i in range(X_reduced.shape[1])]
+    return X_reduced, new_cols, log_msg
 
-def run_collinearity_check_and_reduction(features_df: pd.DataFrame, 
-                                         log_path: Path = DATA_METADATA_DIR / "collinearity_log.txt",
-                                         pca_output_path: Path = DATA_PROCESSED_DIR / "features_pca.csv") -> pd.DataFrame:
+def run_graph_metrics_pipeline():
     """
-    Main function to run collinearity check and apply PCA if needed.
-    Returns the final features DataFrame.
+    Main pipeline entry point for T022.
+    Calls assemble_features logic.
     """
-    DATA_METADATA_DIR.mkdir(parents=True, exist_ok=True)
-    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    
-    logger.info("Starting collinearity check...")
-    
-    # Check for collinearity
-    dropped_features, reduced_df = check_collinearity(features_df)
-    
-    if dropped_features:
-        # Log dropped features
-        with open(log_path, 'w') as f:
-            f.write("Collinearity Check Results\n")
-            f.write(f"Threshold: {CORRELATION_THRESHOLD}\n")
-            f.write(f"Dropped features: {dropped_features}\n")
-            f.write("Reason: Pearson correlation > 0.8\n")
-        logger.info(f"Dropped features logged to {log_path}")
-        
-        # Apply PCA to the reduced features (if still collinear or just to reduce dimensionality)
-        # We apply PCA if we still have many features or if the user prefers PCA over dropping
-        # Here, we apply PCA to the reduced_df to further compress if needed
-        final_df, pca_model = apply_pca(reduced_df)
-        
-        if pca_model is not None:
-            final_df.to_csv(pca_output_path, index=False)
-            logger.info(f"PCA-reduced features saved to {pca_output_path}")
-            return final_df
-        else:
-            reduced_df.to_csv(pca_output_path.replace('_pca.csv', '_dropped.csv'), index=False)
-            return reduced_df
-    else:
-        logger.info("No collinearity detected above threshold. No reduction needed.")
-        # Save the original features as is, or we could still apply PCA if desired
-        # For now, we return the original features
-        return features_df
-
-def extract_features_pipeline(subject_ids: List[str], 
-                              data_dir: Path = DATA_PROCESSED_DIR,
-                              output_path: Path = DATA_PROCESSED_DIR / "features.csv") -> pd.DataFrame:
-    """
-    Extract features for all subjects and handle collinearity.
-    """
-    features_list = []
-    for sid in subject_ids:
-        try:
-            feats = extract_features_for_subject(sid, data_dir)
-            features_list.append(feats)
-        except Exception as e:
-            logger.error(f"Failed to extract features for {sid}: {e}")
-    
-    if not features_list:
-        raise ValueError("No features extracted for any subject.")
-    
-    df = pd.DataFrame(features_list)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Features saved to {output_path}")
-    
-    # Run collinearity check and reduction
-    final_df = run_collinearity_check_and_reduction(df)
-    return final_df
-
-def run_graph_metrics_pipeline(subject_ids: List[str], 
-                               data_dir: Path = DATA_PROCESSED_DIR) -> pd.DataFrame:
-    """
-    Main pipeline to run graph metrics and handle collinearity.
-    """
-    return extract_features_pipeline(subject_ids, data_dir)
+    from graph_metrics.assemble_features import assemble_features
+    return assemble_features()
 
 def main():
-    """Main entry point for testing or CLI."""
-    # Example usage
-    subject_ids = ["sub-001", "sub-002"]  # Replace with real subject IDs
     try:
-        final_features = run_graph_metrics_pipeline(subject_ids)
-        print(final_features.head())
+        output_path = run_graph_metrics_pipeline()
+        logger.info(f"Pipeline complete. Output: {output_path}")
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         sys.exit(1)

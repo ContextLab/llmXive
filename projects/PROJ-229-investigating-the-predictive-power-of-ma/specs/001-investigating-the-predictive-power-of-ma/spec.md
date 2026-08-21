@@ -13,7 +13,7 @@ A researcher needs to download a curated subset of the Materials Project dataset
 
 **Why this priority**: Without a clean, feature-rich dataset, no modeling or analysis can occur. This is the foundational data engineering step required for all subsequent machine learning tasks.
 
-**Independent Test**: Can be fully tested by executing the data retrieval script and verifying that the output CSV contains at least 5,000 compounds with non-null values for melting point, latent heat (where available), and the computed feature columns, all fitting within the 7 GB RAM constraint.
+**Independent Test**: Can be fully tested by executing the data retrieval script and verifying that the output CSV contains at least 5,000 compounds with non-null values for melting point, latent heat (where available), and the computed feature columns, all fitting within the available RAM constraint.
 
 **Acceptance Scenarios**:
 

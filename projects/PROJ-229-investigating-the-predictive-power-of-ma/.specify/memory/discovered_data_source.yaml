@@ -1,17 +1,19 @@
 status: none
-intent: download Materials Project and NIST ThermoData melting point heat capacity
-  dataset python package
+intent: Materials Project melting point heat capacity dataset pip install python package
+  dataset
 required_fields:
+- mp_id
 - material_id
-- formula
+- chemical_formula
 - melting_point
 - heat_capacity
 - latent_heat
-- atomic_numbers
-- electronegativities
-- atomic_radii
-- crystal_graph
-- structure
-cache_key: 02074d379988a4559827e6156e3147d969c4b9403048c66e6c088a3c7e1e412e
-searched_at: '2026-08-11T23:38:40.660422+00:00'
+- atomic_number
+- electronegativity
+- atomic_radius
+- elemental_composition
+- spacegroup
+- crystal_structure_file
+cache_key: 890b21790d7e9866e2e8f6c1a1e2f373e3d2ca55ce82b1ae46ff54a797991edb
+searched_at: '2026-08-21T18:20:04.825931+00:00'
 retry_count: 1

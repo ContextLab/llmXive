@@ -30,11 +30,12 @@ T018:
     \ are therefore not met."
 T021:
   c: false
-  h: 8a914a67fca9e6dc0ab7002eea138f7eb2169cb882d60a182df5971ac831475f
-  r: "The provided `calculator.py` does not contain any implementation of a collinearity\
-    \ (r\u202F>\u202F0.8) check, PCA reduction, or logging of dropped features, and\
-    \ the required output files `data/processed/features_pca.csv` and `data/metadata/collinearity_log.txt`\
-    \ are absent. The task therefore remains unfinished."
+  h: ca0f8a151bcac12d64a311ba33068a05c721a2f5a9652af86d6e48dce0bc541b
+  r: The provided `calculator.py` does not contain any code that checks pairwise feature
+    correlations, applies PCA, or writes a reduced matrix to `data/processed/features_pca.csv`,
+    nor does it log dropped features to `data/metadata/collinearity_log.txt`. Both
+    required output files are absent from the repository. The task therefore remains
+    unfinished.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,3 +43,28 @@ T023:
     stratified by diagnostic group) was provided in the `docs/` directory, nor any
     file showing such output. The required artifact is missing, so the task is not
     satisfied.
+T025:
+  c: true
+  h: 41e2385b4b82aaa565fd05a06e9ae6fe8360c5f51614dee74a9dbff231b263b3
+  r: "The repository contains a non\u2011empty `tests/integration/test_classification.py`\
+    \ that defines `test_full_pipeline`, creates a synthetic dataset, runs the classification\
+    \ pipeline, checks that `data/processed/results.json` is created, loads it, verifies\
+    \ the presence of the required keys, and asserts that `significance_flag` is `False`\
+    \ for shuffled labels. No missing or placeholder code is evident."
+T027:
+  c: false
+  h: 0dfa60d5b54ae6001bf4f8e20bf63f653b4527092491d477abebf355b4139d92
+  r: "The provided `models.py` only defines logistic regression and SVM pipelines;\
+    \ there is no implementation of the Meinshausen & B\xFChlmann stability selection\
+    \ loop, L1\u2011penalized fitting, or frequency\u2011threshold logic. Additionally,\
+    \ the required output file `data/processed/stable_features.csv` does not exist.\
+    \ Both the core algorithm and its saved results are missing."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documented function implementing the calculation\
+    \ of Cohen's\u202Fd is present in the provided evidence. The task required a concrete\
+    \ implementation (e.g., a Python function that takes two groups of values and\
+    \ returns the Cohen's\u202Fd effect size), but the only material available is\
+    \ the high\u2011level project specification, with no artifact to verify. The required\
+    \ implementation is missing."

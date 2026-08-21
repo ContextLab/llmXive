@@ -3,124 +3,97 @@
 ## Prerequisites
 
 - Python 3.11+
-- Materials Project API key (set as `MP_API_KEY` environment variable)
-- Git
-- (Optional) Kaggle account for GPU offloading (not required for this plan)
+- `pip` or `conda`
+- Access to the `matbench` library (open source)
+- (Optional) Materials Project API credentials (not required for this plan)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repository-url>
-    cd projects/PROJ-229-investigating-the-predictive-power-of-ma
-    ```
+1. **Clone the Repository**:
+   ```bash
+   git clone <repo-url>
+   cd <repo-dir>
+   ```
 
-2.  **Set up the virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+3. **Verify Dependencies**:
+   ```bash
+   python -c "import pymatgen; import pysr; import matbench; print('All dependencies installed.')"
+   ```
 
-4.  **Set environment variables**:
-    ```bash
-    export MP_API_KEY="your-api-key"
-    ```
+## Data Retrieval
 
-## Running the Pipeline
+1. **Run Data Retrieval Script**:
+   ```bash
+   python code/data/fetch_matbench.py
+   ```
+   - This script will download the `matbench` dataset.
+   - It will also generate `data/external/literature_pcms_raw.csv` (with a fallback if external download fails).
 
-### Step 1: Setup and Target Consistency Check
+2. **Verify Data**:
+   - Check `data/raw/` for downloaded files.
+   - Verify checksums in `state/`.
 
-Run the setup script to create directories and fetch a sample for target consistency check:
+## Feature Engineering
 
-```bash
-python code/setup.py
-python code/data/target_consistency_check.py
-```
+1. **Run Feature Engineering Script**:
+   ```bash
+   python code/data/compute_features.py
+   ```
+   - This script computes elemental and graph-based descriptors.
+   - Output: `data/processed/featurized_data.csv`.
 
-This will generate:
-- `data/raw/mp_sample.csv`
-- `data/results/target_decision.json`
+## Model Training
 
-### Step 2: Literature Data Acquisition
+1. **Train Baseline Models**:
+   ```bash
+   python code/models/train_baseline.py
+   ```
+   - Output: `data/results/baseline_metrics.json`.
 
-Run the literature data fetch script:
+2. **Train Symbolic Regression Model**:
+   ```bash
+   python code/models/train_symbolic.py
+   ```
+   - Output: `data/results/symbolic_formulas.txt`.
 
-```bash
-python code/data/fetch_literature_data.py
-```
+3. **Run SHAP Analysis**:
+   ```bash
+   python code/models/evaluate.py
+   ```
+   - Output: `data/results/shap_analysis.json`.
 
-This will generate:
-- `data/external/literature_pcms.csv` (or fallback set)
-- `data/results/mapping_log.json`
+## Validation
 
-### Step 3: Data Retrieval and Preprocessing
+1. **Run External Validation**:
+   ```bash
+   python code/models/validate.py
+   ```
+   - Output: `data/results/validation_report.json`.
 
-Run the data retrieval script to fetch MP data and compute features:
+2. **Run Sensitivity Analysis**:
+   ```bash
+   python code/models/sensitivity.py
+   ```
+   - Output: `data/results/sensitivity_analysis.csv`.
 
-```bash
-python code/data/retrieve_mp_data.py
-python code/data/compute_features.py
-```
+## Results
 
-This will generate:
-- `data/raw/mp_raw.csv`
-- `data/processed/features.csv`
-- `data/processed/targets.csv`
-
-### Step 4: Model Training
-
-Run the model training script to train baseline and interpretable models:
-
-```bash
-python code/models/train_models.py
-```
-
-This will generate:
-- `data/results/model_metrics.json`
-- `data/results/symbolic_formula.json` (or `lasso_formula.json`)
-- `data/results/feature_importance.json`
-
-### Step 5: Validation and Sensitivity Analysis
-
-Run the validation script to test derived rules on literature PCMs and perform sensitivity analysis:
-
-```bash
-python code/utils/validate_and_sweep.py
-```
-
-This will generate:
-- `data/results/validation_results.json`
-- `data/results/sensitivity_analysis.json`
-- `data/results/collinearity_report.json`
-- `data/results/multicollinearity_test.json`
-
-### Step 6: Feasibility and Report Generation
-
-Run the feasibility check and report generation:
-
-```bash
-python code/utils/feasibility_check.py
-python code/main.py --generate-report
-```
-
-This will produce:
-- `data/results/feasibility_report.json`
-- A comprehensive report with all findings, including associational framing and methodological notes.
+- **Metrics**: Check `data/results/` for all model metrics and reports.
+- **Plots**: Generated plots are stored in `data/results/plots/`.
 
 ## Troubleshooting
 
-- **API Rate Limits**: If the MP API returns rate limit errors, the script will automatically pause and retry. If it fails after multiple retries, it will log the error and exit.
-- **Missing Data**: If latent heat data is missing for most compounds, the system will fall back to using melting point and heat capacity as predictors and flag the limitation.
-- **Symbolic Regression Failure**: If PySR fails to converge, the system will default to Lasso regression and flag the limitation.
-- **Literature Data Unavailable**: If the literature data source is inaccessible, the system will use a pre-defined fallback set and flag the limitation.
+- **Data Unavailable**: If `matbench` is unavailable, the script will log a fatal error. Check your internet connection and `matbench` installation.
+- **Memory Errors**: If memory errors occur, reduce the dataset size or enable streaming.
+- **Symbolic Regression Failure**: If PySR fails to converge, check the time budget and dataset size.
 
-## Notes
+## Next Steps
 
-- All random seeds are pinned in `config.yaml` for reproducibility.
-- The pipeline is designed to run on a CPU-only environment. If GPU acceleration is required for future extensions, the code can be offloaded to Kaggle.
-- Always check the `data/results/` directory for the latest outputs.
+- Review the `plan.md` for detailed implementation steps.
+- Check the `contracts/` directory for schema validation.
+- Run the test suite: `pytest tests/`.

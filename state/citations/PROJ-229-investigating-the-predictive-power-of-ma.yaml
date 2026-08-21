@@ -9,3 +9,51 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.matt.2024.01.001
   verified_at: '2026-08-10T09:18:13.277824Z'
+- artifact_hash: 4f0ccd7ac54b77c4f1c3667e411926ff7d88df43fa1a0b55e5363b4f6eb0fb08
+  artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - materialsproject/matbench: Matbench: Benchmarks for materials\
+    \ science property prediction \xB7 GitHub"
+  kind: url
+  value: https://github.com/hackingmaterials/matbench`
+  verification_status: pending
+  verified_against_url: https://github.com/materialsproject/matbench
+  verified_at: '2026-08-21T18:26:14.539992Z'
+- artifact_hash: 4f0ccd7ac54b77c4f1c3667e411926ff7d88df43fa1a0b55e5363b4f6eb0fb08
+  artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - astroautomata/PySR: High-Performance Symbolic Regression\
+    \ in Python and Julia \xB7 GitHub"
+  kind: url
+  value: https://github.com/MilesCranmer/PySR`
+  verification_status: pending
+  verified_against_url: https://github.com/astroautomata/PySR
+  verified_at: '2026-08-21T18:26:14.539992Z'
+- artifact_hash: c82b8aedfae703717ff5f07426c07fff4af3dd97b5915e9ae8339fbfc0b30e2b
+  artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - materialsproject/matbench: Matbench: Benchmarks for materials\
+    \ science property prediction \xB7 GitHub"
+  kind: url
+  value: https://github.com/hackingmaterials/matbench`
+  verification_status: pending
+  verified_against_url: https://github.com/materialsproject/matbench
+  verified_at: '2026-08-21T18:26:27.324649Z'
+- artifact_hash: c82b8aedfae703717ff5f07426c07fff4af3dd97b5915e9ae8339fbfc0b30e2b
+  artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - astroautomata/PySR: High-Performance Symbolic Regression\
+    \ in Python and Julia \xB7 GitHub"
+  kind: url
+  value: https://github.com/MilesCranmer/PySR`
+  verification_status: pending
+  verified_against_url: https://github.com/astroautomata/PySR
+  verified_at: '2026-08-21T18:26:27.324649Z'

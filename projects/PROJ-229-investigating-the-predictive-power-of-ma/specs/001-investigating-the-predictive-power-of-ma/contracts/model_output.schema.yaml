@@ -1,48 +1,51 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Output Schema"
-type: "object"
+description: "Schema for model outputs, including metrics and symbolic formulas."
+type: object
 properties:
   model_type:
-    type: "string"
-    enum:
-      - "RandomForest"
-      - "GradientBoosting"
-      - "PySR"
-      - "Lasso"
-      - "SHAP"
-    description: "Type of model"
-  performance_metrics:
-    type: "object"
-    description: "Dictionary of performance metrics"
+    type: string
+    description: "Type of model (e.g., 'RandomForest', 'PySR')."
+  metrics:
+    type: object
+    description: "Performance metrics."
     properties:
       r_squared:
-        type: "number"
-        description: "R² score"
-      mse:
-        type: "number"
-        description: "Mean Squared Error"
-      spearman_correlation:
-        type: "number"
-        description: "Spearman correlation for validation"
+        type: number
+      mean_absolute_error:
+        type: number
     required:
-      - "r_squared"
+      - r_squared
+      - mean_absolute_error
   feature_importance:
-    type: "object"
-    description: "Dictionary of feature importance scores (for tree-based models)"
-    additionalProperties:
-      type: "number"
+    type: array
+    description: "Ranked list of feature importances."
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+      required:
+        - feature
+        - importance
   symbolic_formula:
     type: ["string", "null"]
-    description: "Explicit mathematical formula (for PySR or Lasso). Null if not applicable."
-  shap_values:
-    type: ["array", "null"]
-    description: "SHAP values for feature attribution. Null if not applicable."
-    items:
-      type: "array"
-      items:
-        type: "number"
+    description: "Explicit mathematical formula (if applicable)."
+  validation_results:
+    type: object
+    description: "Results from external validation."
+    properties:
+      ranking_accuracy:
+        type: number
+      false_positive_rate:
+        type: number
+    required:
+      - ranking_accuracy
+      - false_positive_rate
 required:
-  - "model_type"
-  - "performance_metrics"
+  - model_type
+  - metrics
+  - feature_importance
 additionalProperties: false
-description: "Schema for model output artifacts, including metrics, feature importance, and symbolic formulas."

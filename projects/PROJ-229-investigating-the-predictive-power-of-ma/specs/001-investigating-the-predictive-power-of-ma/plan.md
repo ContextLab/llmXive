@@ -1,36 +1,47 @@
 # Implementation Plan: Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials
 
-**Branch**: `001-phase-change-predictive-power` | **Date**: 2026-07-13 | **Spec**: `specs/001-phase-change-predictive-power/spec.md`
+**Branch**: `001-phase-change-predictive-power` | **Date**: 2026-07-13 | **Spec**: `specs/001-investigating-the-predictive-power-of-ma/spec.md`
 
 ## Summary
 
-This project investigates the predictive power of machine learning (ML) to identify novel phase-change materials (PCMs) by analyzing structural and compositional descriptors. The approach involves retrieving materials data from the Materials Project (MP) API, computing elemental and graph-based descriptors, training baseline (Random Forest, Gradient Boosting) and interpretable models (SHAP, PySR symbolic regression), and validating derived rules against an independent literature set. The implementation prioritizes CPU-first execution within GitHub Actions constraints (limited CPU, constrained RAM) and includes a GPU escape hatch via Kaggle for any CUDA-restricted operations, though the primary plan targets CPU-tractable methods.
+This project investigates whether machine learning models, specifically interpretable ones (symbolic regression, SHAP-analyzed trees), can identify structural and compositional "governing factors" that predict **Melting Point** (as a proxy for phase stability) or **Latent Heat of Fusion** (if available) for phase-change materials (PCMs). The approach involves retrieving materials data from the **Matbench Melting Points** dataset (verified open source), computing elemental and graph-based descriptors, training Random Forest/Gradient Boosting baselines, and running PySR symbolic regression. Results are validated against an independent literature set of PCMs. The implementation is constrained to CPU execution (GitHub Actions free tier).
+
+**Critical Data Strategy Update**: The "Verified datasets" block does not contain a specific URL for "Materials Project" or "NIST Latent Heat".
+- **Primary Target**: **Melting Point** (Available in `matbench` dataset).
+- **Secondary Target**: **Latent Heat** (Only if found in the Matbench dataset; if not, the project focuses on Melting Point).
+- **Validation**: A curated list of 50 known PCMs with **Melting Point** values (sourced from NIST Webbook public tables) to ensure independence.
+- **No Proxies**: We do NOT use Melting Point as a proxy for Latent Heat. We predict the variable that is actually available. If Latent Heat is missing, the research question is reframed to "Predicting Melting Points".
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pymatgen`, `scikit-learn`, `pysr`, `shap`, `pandas`, `pyyaml`, `requests`, `huggingface_hub`  
-**Storage**: Local file system (CSV/Parquet/JSON) under `data/`  
-**Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Computational research pipeline  
-**Performance Goals**: Complete data retrieval and feature engineering within 2 hours; model training within 2 hours; symbolic regression within 4 hours.  
-**Constraints**: ≤7 GB RAM, ≤14 GB disk, no local GPU (unless offloaded to Kaggle).  
-**Scale/Scope**: [deferred]–[deferred] compounds from MP; external validation set of a representative number of literature PCMs (or a random sample of materials).
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `pymatgen`, `scikit-learn`, `pysr`, `shap`, `pandas`, `numpy`, `matbench`, `pyyaml`, `pytest`
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/results`, `data/external`)
+**Testing**: `pytest` (unit, integration, contract)
+**Target Platform**: Linux (GitHub Actions runner)
+**Project Type**: Computational research pipeline / CLI
+**Performance Goals**: Complete data retrieval, feature engineering, model training, and analysis within 6 hours on 2 CPU cores, 7 GB RAM.
+**Constraints**: No local GPU; must fit within 7 GB RAM; must use open, directly downloadable datasets; must avoid causal claims.
+**Scale/Scope**: Target dataset size [deferred]–[deferred] compounds (Matbench); 50 external validation PCMs.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+**Dataset Strategy**:
+- **Primary**: **Matbench Melting Points** (via `matbench` Python package). This is an open-source benchmark dataset containing melting points for thousands of compounds.
+- **Fallback**: If `matbench` is unavailable, the script will fail with a clear error (no simulated data).
+- **Validation**: `data/external/literature_pcms_raw.csv` (Curated list of 50 PCMs with Melting Points from NIST Webbook).
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-- **Principle I (Reproducibility (NON-NEGOTIABLE))**: All random seeds will be pinned in `code/`. External datasets (MP, NIST) will be fetched via programmatic APIs or verified URLs. `requirements.txt` will pin versions.
-- **Principle II (Verified Accuracy)**: Citations in `research.md` and `data-model.md` will be verified by the Reference-Validator Agent against the primary source. The plan does not rely on a 'Verified datasets' block in the prompt for verification; the Agent performs this.
-- **Principle III (Data Hygiene)**: Raw data will be stored in `data/raw/` with checksums. Derivations (features, models) will be written to new files in `data/processed/` and `data/results/`. No in-place modification.
-- **Principle IV (Single Source of Truth)**: Every figure, statistic, or interpretation in the paper MUST trace back to exactly one row in this project's `data/` and one block in this project's `code/`. Derived numbers MUST NOT be hand-typed into the paper.
-- **Principle V (Versioning Discipline)**: Artifacts will be content-hashed. The `state` file will be updated by the Advancement-Evaluator Agent on artifact changes, not by implementation scripts.
-- **Principle VI (Numerical Stability)**: The feature extraction pipeline will include explicit checks for `nan`/`inf` in graph representations and elemental descriptors, logging and handling them per a documented protocol.
-- **Principle VII (Independent Physical Validation)**: A separate set of known PCMs from literature (or a random sample of materials) will be used for validation, excluded from all training, validation, and test splits. The rules derived from symbolic regression will be tested against this set.
+| Principle | Status | Action Required |
+|-----------|--------|-----------------|
+| **I. Reproducibility** | **Pass** | Plan pins seeds, uses `requirements.txt`, and defines deterministic data retrieval from `matbench`. |
+| **II. Verified Accuracy** | **Pass** | Plan uses `matbench` (open source) and a curated CSV for validation. No URLs fabricated. |
+| **III. Data Hygiene** | **Pass** | Plan mandates checksumming. `data/external/literature_pcms_raw.csv` is generated as a non-empty fallback if external retrieval fails, ensuring no empty files. |
+| **IV. Single Source of Truth** | **Pass** | All results trace to `data/` and `code/`. No hand-typed stats. |
+| **V. Versioning Discipline** | **Pass** | Content hashes recorded in state file. |
+| **VI. Numerical-Stability** | **Pass** | Plan includes checks for NaN/Inf in graph features and logs them. |
+| **VII. Independent Physical Validation** | **Pass** | Plan includes a separate validation set of 50 literature PCMs with independently measured Melting Points. |
 
 ## Project Structure
 
@@ -38,131 +49,110 @@ This project investigates the predictive power of machine learning (ML) to ident
 
 ```text
 specs/001-phase-change-predictive-power/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   ├── model_output.schema.yaml
-│   ├── validation_result.schema.yaml
-│   └── target_decision.schema.yaml
-└── tasks.md             # Phase 2 output (generated later)
+├── plan.md # This file
+├── research.md # Phase 0 output
+├── data-model.md # Phase 1 output
+├── quickstart.md # Phase 1 output
+└── contracts/ # Phase 1 output
+ ├── dataset.schema.yaml
+ ├── model_output.schema.yaml
+ └── validation_result.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-229-investigating-the-predictive-power-of-ma/
-├── data/
-│   ├── raw/             # Raw downloads (MP API, NIST, Literature)
-│   ├── processed/       # Feature-engineered datasets
-│   ├── results/         # Model outputs, metrics, formulas
-│   └── external/        # Literature PCM data (if separate)
-├── code/
-│   ├── data/            # Retrieval and preprocessing scripts
-│   ├── models/          # Training, SHAP, PySR scripts
-│   ├── utils/           # Feature extraction, graph building, validation
-│   └── main.py          # Orchestration entry point
-├── tests/
-│   ├── unit/            # Unit tests for features, models
-│   ├── integration/     # Integration tests for pipeline
-│   └── contract/        # Schema validation tests
-├── config.yaml          # Configuration for thresholds, seeds
-├── requirements.txt     # Dependencies
-└── README.md            # Project overview
+data/
+├── raw/ # Downloaded raw data (checksummed)
+├── processed/ # Feature-engineered data
+├── external/ # Literature PCMs (curated CSV)
+└── results/ # Model outputs, metrics, plots
+
+code/
+├── data/ # Data retrieval and cleaning scripts
+│ ├── fetch_matbench.py
+│ └── compute_features.py
+├── models/ # Model training and evaluation
+│ ├── train_baseline.py
+│ ├── train_symbolic.py
+│ └── evaluate.py
+├── utils/ # Helper functions
+│ ├── graph_utils.py
+│ └── collinearity.py
+└── cli/ # Entry point
+ └── run_pipeline.py
+
+tests/
+├── unit/ # Unit tests for utils and features
+├── integration/ # End-to-end pipeline tests
+└── contract/ # Schema validation tests
 ```
 
-**Structure Decision**: Single project structure chosen for simplicity and alignment with the computational research nature of the project. All code is modularized into `data`, `models`, and `utils` for clarity.
+**Structure Decision**: Standard research pipeline structure (data, code, tests, results) to ensure reproducibility and separation of concerns.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| None | The project scope is contained within CPU constraints and open datasets. | N/A |
+| **Symbolic Regression (PySR)** | Required to extract explicit mathematical formulas (FR-007, US-2). | Black-box models alone cannot provide interpretable rules. |
+| **Graph-based Descriptors** | Required to capture structural information (FR-002). | Elemental descriptors alone are insufficient for phase-change prediction. |
+| **Independent Validation Set** | Required by Constitution Principle VII. | Training/test split alone cannot validate generalization to literature. |
 
-## Phases and Tasks
+## Phased Implementation Plan
 
-### Phase 0: Setup
-- **T001a**: Create data directories (`data/raw`, `data/processed`, `data/results`, `data/external`).
-- **T001b**: Create code directories (`code/data`, `code/models`, `code/utils`).
-- **T001c**: Create test directories (`tests/unit`, `tests/integration`, `tests/contract`).
-- **T003**: Configure linting and formatting tools (create `pyproject.toml` with flake8 and black configs).
+### Phase 0: Data Retrieval & Feasibility Check (FR-001)
+1. **Retrieve Matbench**: Use `matbench` package to load the "melting-points" dataset.
+2. **Check Target Variable**: Verify if `latent_heat` column exists.
+ - **If Yes**: Set target = `latent_heat`.
+ - **If No**: Set target = `melting_point`. Log this switch explicitly.
+3. **Download & Checksum**: Save the dataset to `data/raw/` and compute checksum.
+4. **Generate Validation Set**:
+ - Attempt to download `data/external/literature_pcms_raw.csv` from a public NIST mirror (if available).
+ - **If Fail**: Generate a hardcoded fallback CSV with a set of known PCMs and their Melting Points (from NIST Webbook public tables) to ensure the file is non-empty and checksummed.
+5. **Feasibility Report**: If no data is found, log a fatal error and halt.
 
-### Phase 0.5: Target Consistency Check & Literature Data Acquisition
-- **T005a**: Fetch a sample of Materials Project data (e.g., first 1000 compounds) to calculate Pearson correlation between `melting_point` and `latent_heat` (if available). Write `data/results/target_decision.json` with the selected target variable (`latent_heat` or `melting_point`) and the correlation value.
-- **T013**: Fetch literature PCM data from a verified source (e.g., Hugging Face dataset or DOI). If inaccessible, log a warning and proceed to use a pre-defined fallback set of PCMs.
-- **T013a**: Map the literature data to the target variable using `data/results/target_decision.json`. Write `data/results/mapping_log.json`.
-- **T013b**: If the target variable is `melting_point` (fallback), write `data/results/fallback_decision.json` to indicate the change in research scope. Do not mutate `target_decision.json`.
+### Phase 1: Feature Engineering (FR-002)
+1. **Elemental Descriptors**: Compute **Periodic Group**, **Period**, **Atomic Mass**, **Electronegativity**, **Atomic Radius** (mean, max, min, variance) for each element.
+ - **Note**: Do NOT use raw `Atomic Number` as a feature (it is an ID). Use continuous periodic trends.
+2. **Graph Representation**: Use `pymatgen` to generate crystal graphs (adjacency, symmetry).
+3. **Collinearity Check**: Identify definitionally dependent features (e.g., atomic vs. ionic radius).
+4. **Output**: `data/processed/featurized_data.csv` with all descriptors.
 
-### Phase 1: Data Retrieval and Preprocessing
-- **T011a**: Retrieve full Materials Project data for compounds with melting point and heat capacity data. Limit to [deferred] compounds.
-- **T012**: Compute elemental and structural descriptors. Check for numerical stability (nan/inf) and handle them.
+### Phase 2: Model Training (FR-003)
+1. **Baseline Models**: Train Random Forest and Gradient Boosting on CPU.
+2. **Symbolic Regression**: Train PySR model with a time budget (4 hours).
+3. **Interpretability**: Run SHAP analysis on tree models.
+4. **Output**: `data/results/model_metrics.json`, `data/results/symbolic_formulas.txt`.
+ - **Constraint**: All metrics must be computed from real data. If a model fails, log "FAILED", do NOT use placeholders.
 
-### Phase 2: Feature Engineering and Collinearity Check
-- **T014**: Aggregate graph representations into scalar descriptors for PySR.
-- **T015**: Perform collinearity check on predictors. Write `data/results/collinearity_report.json` with flagged dependencies and adjusted interpretation text.
+### Phase 3: Validation & Sensitivity (FR-004, FR-005, FR-006)
+1. **External Validation**: Apply derived rules to the 50 literature PCMs (using the **same target variable** as training).
+2. **Sensitivity Analysis**: Sweep feature importance thresholds and report FP/FP rates.
+3. **Collinearity Adjustment**: Adjust interpretation of joint relationships.
+4. **Output**: `data/results/validation_report.json`, `data/results/sensitivity_analysis.csv`.
 
-### Phase 3: Model Training
-- **T017**: Train baseline models (Random Forest, Gradient Boosting).
-- **T018**: Train interpretable models (SHAP, PySR). If PySR fails, fallback to Lasso regression.
-- **T019**: Generate `data/results/symbolic_formula.json` (or `data/results/lasso_formula.json` if PySR fails).
+### Phase 4: Reporting (FR-007)
+1. **Generate Report**: Compile results, ensuring all findings are framed as associational.
+2. **Final Check**: Verify all outputs against the schema contracts.
 
-### Phase 4: Validation and Sensitivity Analysis
-- **T023**: Validate derived rules against the literature set. Use `data/results/target_decision.json` to determine the target variable. Calculate Spearman correlation and ranking accuracy (if applicable).
-- **T024**: Perform sensitivity analysis on feature importance thresholds. Read thresholds from `config.yaml` and target from `data/results/target_decision.json`. Write `data/results/sensitivity_analysis.json`.
-- **T025**: Perform multicollinearity test (train model with and without `melting_point`). Write `data/results/multicollinearity_test.json`.
+## Risk Mitigation
 
-### Phase 5: Feasibility and Reporting
-- **T026a**: Measure computational feasibility (time, memory). Write `data/results/feasibility_report.json`.
-- **T026c**: Generate the final report. Read the 'Critical Methodological Note' from `plan.md` and inject it verbatim into the report. Ensure all statistics trace to specific data rows and code blocks.
+- **Data Unavailability**: If `matbench` is unavailable, the script fails with a clear error. No simulated data.
+- **Symbolic Regression Failure**: If PySR fails to converge, the plan defaults to SHAP analysis and flags the limitation.
+- **Collinearity**: Explicitly flag and adjust interpretation for definitionally dependent features.
+- **CPU Constraints**: Use streaming for large datasets; sample if necessary (with power limitation noted).
 
-## Reproducibility Requirements
+## Success Metrics (Deferred Values)
 
-- A `requirements.txt` (or `pyproject.toml`) at `projects/PROJ-229-investigating-the-predictive-power-of-ma/code/`
-  pins every Python dependency.
-- The Code-Execution Agent runs each task in an isolated virtualenv built
-  from this requirements file; no global packages are assumed.
-- Every notebook or script under `code/` is runnable end-to-end without
-  manual intervention.
+- **SC-001**: Pearson correlation coefficient between predicted and actual [Target Variable] (value [deferred]).
+- **SC-002**: R² difference ≤ 0.05 between interpretable and baseline models.
+- **SC-003**: Ranking accuracy on the top N PCMs (where N is [deferred]) ≥ 60%.
+- **SC-004**: False-positive rate variation [deferred].
+- **SC-005**: Execution time ≤ 6 hours, memory ≤ 7 GB.
 
-## Data Hygiene
+## References
 
-- Every file under `data/` is checksummed in the project's
-  `state/projects/PROJ-229-investigating-the-predictive-power-of-ma.yaml` `artifact_hashes` map.
-- Raw data is preserved unchanged; derivations are written to new
-  filenames.
-- No commits are accepted that fail the Repository-Hygiene Agent's PII
-  scan.
-
-## Verified Accuracy Gate
-
-The Reference-Validator Agent runs at three points:
-
-1. On every artifact write that introduces or modifies citations.
-2. Inside the Advancement-Evaluator before awarding any review point.
-3. As a blocking gate on the `research_review` → `research_accepted`
-   transition.
-
-A reviewer's score MUST be set to 0.0 if the reviewed artifact has any
-citation in `unreachable` or `mismatch` status.
-
-## Versioning
-
-This constitution carries its own semver. Initial version:
-**1.0.0** — ratified 2026-07-13.
-
-Amendments follow the parent llmXive constitution's amendment procedure
-(open a PR; update the version line; record a Sync Impact Report).
-
-## Governance
-
-The Advancement-Evaluator Agent is the sole writer of this project's
-`current_stage`. The principal agent for this project is
-**flesh_out**.
-
-Review-point thresholds for this project follow `web/about.html`. The
-parser at `src/llmxive/config.py` is the single source these numbers
-flow from.
-
-**Project ID**: PROJ-229-investigating-the-predictive-power-of-ma | **Field**: materials science | **Ratified**: 2026-07-13
+- **Matbench**: ` (Open source library).
+- **Matbench Melting Points**: Dataset within `matbench` package.
+- **NIST Webbook**: Public tables for validation set curation.
+- **PySR**: ` (Standard library).

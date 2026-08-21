@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T04:37:56.929099Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-846-llmxive-follow-up-extending-guava-an-eff
-last_run_id: 0e91972b-6efa-43de-9c41-cae68d0d6faa
+last_run_id: ff71fdbd-7368-493d-bf53-9205022c4456
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff
 title: 'llmXive follow-up: extending "Guava: An Effective and Universal Harness for
   Embodied Manipulation"'
-updated_at: '2026-08-18T21:44:55.802313Z'
+updated_at: '2026-08-21T18:38:44.723608Z'

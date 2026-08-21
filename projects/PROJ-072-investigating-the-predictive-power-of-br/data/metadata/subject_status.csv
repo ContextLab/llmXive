@@ -1,0 +1,16 @@
+subject_id,excluded,reason,max_displacement
+sub-001,False,,0.85
+sub-002,False,,1.12
+sub-003,True,excessive_motion (> 2.0mm, max=2.45mm),2.45
+sub-004,False,,0.95
+sub-005,False,,1.30
+sub-006,True,excessive_motion (> 2.0mm, max=3.10mm),3.10
+sub-007,False,,0.75
+sub-008,False,,1.05
+sub-009,False,,0.90
+sub-010,False,,1.20
+sub-011,True,excessive_motion (> 2.0mm, max=2.15mm),2.15
+sub-012,False,,0.88
+sub-013,False,,1.01
+sub-014,False,,0.92
+sub-015,False,,1.15

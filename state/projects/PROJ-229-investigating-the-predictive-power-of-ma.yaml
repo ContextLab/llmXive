@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T23:22:58.201893Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-229-investigating-the-predictive-power-of-ma
-last_run_id: 63192fa0-9be5-4638-935d-2708a1ee9404
+last_run_id: b7604bcc-e55b-40d9-b632-a28286159c03
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma
 title: Investigating the Predictive Power of Machine Learning for Identifying Novel
   Phase-Change Materials
-updated_at: '2026-08-12T00:07:12.414663Z'
+updated_at: '2026-08-21T18:26:42.444931Z'
