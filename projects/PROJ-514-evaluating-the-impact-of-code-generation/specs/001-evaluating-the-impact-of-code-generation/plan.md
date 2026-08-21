@@ -117,7 +117,7 @@ data/
 - **Total**: 300 samples.
 - **Design**: Paired/Blocked by repository.
 - **Power**: With N=50 blocks, a blocked permutation test can detect moderate effect sizes (Cohen's d) with [deferred] power. This is statistically superior to the spec's underpowered design.
-- **Action**: The implementation will follow this valid 150/150 design. The spec requirements for 1000/50 are noted as **aspirational but methodologically compromised**. The `spec.md` must be updated to reflect this valid design to resolve the internal contradiction.
+- **Action**: The implementation will follow this valid balanced design. The spec requirements for 1000/50 are noted as **aspirational but methodologically compromised**. The `spec.md` must be updated to reflect this valid design to resolve the internal contradiction.
 
 ## Plan Completeness & Coverage
 
@@ -131,7 +131,7 @@ data/
 | **FR-006** | Req | Associational Language | Enforced in `code/04_reporting`. |
 | **FR-007** | Req | Stratified Subsampling | **Rejection**: Replaced by Balanced Blocked Design (150/150) to avoid statistical artifacts. |
 | **FR-008** | Req | Validity Check | Implemented in `code/02_static_analysis` (False positive check). |
-| **SC-001** | Metric | Dataset Completeness | **Deviation**: Target is 300 samples (150/150), not 1050. |
+| **SC-001** | Metric | Dataset Completeness | **Deviation**: Target is a balanced sample distribution (150/150), not 1050. |
 | **SC-002** | Metric | Analysis Success Rate | Target ≥90% (Same as spec). |
 | **SC-003** | Metric | Statistical Validity | Target: Corrected p-values, effect sizes (Same as spec). |
 | **SC-004** | Metric | Compute Feasibility | Target: ≤2 hours, ≤7GB RAM (Same as spec). |

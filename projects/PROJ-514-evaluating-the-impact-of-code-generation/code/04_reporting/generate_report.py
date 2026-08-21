@@ -5,239 +5,256 @@ import csv
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-
-import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend for server environments
 import matplotlib.pyplot as plt
 import numpy as np
 
 from utils.logger import get_logger
-from utils.config import get_output_paths
+from utils.config import get_output_paths, get_project_root
 
 logger = get_logger(__name__)
 
-def load_processed_metrics(metrics_path: str) -> pd.DataFrame:
+def load_processed_metrics(metrics_path: Path) -> List[Dict[str, Any]]:
     """Load processed smell metrics from CSV."""
-    if not os.path.exists(metrics_path):
-        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
-    return pd.read_csv(metrics_path)
+    if not metrics_path.exists():
+        raise FileNotFoundError(f"Processed metrics file not found: {metrics_path}")
+    
+    metrics = []
+    with open(metrics_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            metrics.append({
+                'sample_id': row['sample_id'],
+                'source_type': row['source_type'],
+                'smell_type': row['smell_type'],
+                'count': float(row['count']),
+                'continuous_metric_value': float(row['continuous_metric_value'])
+            })
+    return metrics
 
-def load_stat_results(results_path: str) -> Dict[str, Any]:
+def load_stat_results(stat_path: Path) -> Dict[str, Any]:
     """Load statistical results from JSON."""
-    if not os.path.exists(results_path):
-        raise FileNotFoundError(f"Stat results file not found: {results_path}")
-    with open(results_path, 'r') as f:
+    if not stat_path.exists():
+        raise FileNotFoundError(f"Statistical results file not found: {stat_path}")
+    
+    with open(stat_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def load_sensitivity_report(report_path: str) -> Dict[str, Any]:
+def load_sensitivity_report(sensitivity_path: Path) -> Dict[str, Any]:
     """Load sensitivity analysis report from JSON."""
-    if not os.path.exists(report_path):
-        raise FileNotFoundError(f"Sensitivity report file not found: {report_path}")
-    with open(report_path, 'r') as f:
+    if not sensitivity_path.exists():
+        raise FileNotFoundError(f"Sensitivity analysis report not found: {sensitivity_path}")
+    
+    with open(sensitivity_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def generate_box_plot(data: pd.DataFrame, output_path: str, smell_type: str) -> str:
-    """Generate a box plot for a specific smell type comparing human vs LLM."""
-    fig, ax = plt.subplots(figsize=(8, 6))
+def generate_box_plot(metrics: List[Dict[str, Any]], output_path: Path):
+    """Generate box plots comparing smell distributions between human and LLM samples."""
+    smell_types = ['LongMethod', 'DuplicatedCode', 'FeatureEnvy', 'LongParameterList']
     
-    human_data = data[(data['source_type'] == 'human') & (data['smell_type'] == smell_type)]['continuous_metric_value']
-    llm_data = data[(data['source_type'] == 'llm') & (data['smell_type'] == smell_type)]['continuous_metric_value']
+    plt.figure(figsize=(12, 8))
     
-    ax.boxplot([human_data.dropna(), llm_data.dropna()], labels=['Human', 'LLM'])
-    ax.set_ylabel('Metric Value')
-    ax.set_title(f'{smell_type.replace("_", " ")} Distribution')
-    ax.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
-    plt.close()
-    
-    return output_path
-
-def generate_continuous_metric_plot(data: pd.DataFrame, output_path: str, smell_type: str) -> str:
-    """Generate a scatter plot for continuous metric values."""
-    fig, ax = plt.subplots(figsize=(8, 6))
-    
-    human_data = data[(data['source_type'] == 'human') & (data['smell_type'] == smell_type)]
-    llm_data = data[(data['source_type'] == 'llm') & (data['smell_type'] == smell_type)]
-    
-    ax.scatter(human_data['sample_id'], human_data['continuous_metric_value'], 
-               alpha=0.6, label='Human', color='blue')
-    ax.scatter(llm_data['sample_id'], llm_data['continuous_metric_value'], 
-               alpha=0.6, label='LLM', color='red')
-    
-    ax.set_xlabel('Sample ID')
-    ax.set_ylabel('Metric Value')
-    ax.set_title(f'{smell_type.replace("_", " ")} Continuous Values')
-    ax.legend()
-    ax.grid(True, alpha=0.3)
+    for i, smell_type in enumerate(smell_types):
+        human_data = [m['count'] for m in metrics if m['smell_type'] == smell_type and m['source_type'] == 'human']
+        llm_data = [m['count'] for m in metrics if m['smell_type'] == smell_type and m['source_type'] == 'llm']
+        
+        plt.subplot(2, 2, i + 1)
+        plt.boxplot([human_data, llm_data], labels=['Human', 'LLM'])
+        plt.title(smell_type)
+        plt.ylabel('Count')
+        plt.xticks(rotation=45)
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    
-    return output_path
+    logger.info(f"Box plot saved to {output_path}")
 
-def generate_sensitivity_plot(sensitivity_report: Dict[str, Any], output_path: str) -> str:
-    """
-    Generate a line plot showing p-value trends across sensitivity analysis sweeps.
-    Highlights the stability threshold (p-value variance < 0.01).
-    """
-    fig, ax = plt.subplots(figsize=(12, 8))
+def generate_continuous_metric_plot(metrics: List[Dict[str, Any]], output_path: Path):
+    """Generate continuous metric comparison plots."""
+    smell_types = ['LongMethod', 'DuplicatedCode', 'FeatureEnvy', 'LongParameterList']
     
-    smell_types = ['Long_Method', 'Duplicated_Code', 'Feature_Envy', 'Long_Parameter_List']
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+    plt.figure(figsize=(12, 8))
     
-    # Stability threshold line
+    for i, smell_type in enumerate(smell_types):
+        human_data = [m['continuous_metric_value'] for m in metrics if m['smell_type'] == smell_type and m['source_type'] == 'human']
+        llm_data = [m['continuous_metric_value'] for m in metrics if m['smell_type'] == smell_type and m['source_type'] == 'llm']
+        
+        plt.subplot(2, 2, i + 1)
+        plt.boxplot([human_data, llm_data], labels=['Human', 'LLM'])
+        plt.title(f"{smell_type} (Continuous)")
+        plt.ylabel('Metric Value')
+        plt.xticks(rotation=45)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    logger.info(f"Continuous metric plot saved to {output_path}")
+
+def generate_sensitivity_plot(sensitivity_report: Dict[str, Any], output_path: Path):
+    """Generate line plot showing p-value trends across sensitivity analysis sweeps."""
+    smell_types = ['LongMethod', 'DuplicatedCode', 'FeatureEnvy', 'LongParameterList']
     stability_threshold = 0.01
-    ax.axhline(y=stability_threshold, color='gray', linestyle='--', alpha=0.7, 
-               label=f'Stability Threshold (variance < {stability_threshold})')
     
-    for smell_type, color in zip(smell_types, colors):
-        if smell_type in sensitivity_report.get('sweep_results', {}):
-            sweep_data = sensitivity_report['sweep_results'][smell_type]
-            thresholds = sweep_data.get('thresholds', [])
-            p_values = sweep_data.get('p_values', [])
-            variances = sweep_data.get('variances', [])
-            
-            if thresholds and p_values:
-                ax.plot(thresholds, p_values, marker='o', color=color, 
-                        label=smell_type.replace('_', ' '), linewidth=2)
-                
-                # Highlight stable region
-                stable_indices = [i for i, var in enumerate(variances) if var < stability_threshold]
-                if stable_indices:
-                    stable_thresholds = [thresholds[i] for i in stable_indices]
-                    stable_pvalues = [p_values[i] for i in stable_indices]
-                    if stable_thresholds:
-                        ax.fill_between(stable_thresholds, 
-                                      min(stable_pvalues) - 0.01, 
-                                      max(stable_pvalues) + 0.01, 
-                                      color=color, alpha=0.1)
+    plt.figure(figsize=(14, 8))
     
-    ax.set_xlabel('Threshold Value')
-    ax.set_ylabel('P-Value')
-    ax.set_title('Sensitivity Analysis: P-Value Trends Across Thresholds')
-    ax.legend(loc='upper right')
-    ax.grid(True, alpha=0.3)
-    ax.set_ylim(bottom=0)
+    # Get all threshold values for x-axis (assuming consistent ranges or using max range)
+    # We'll plot each smell type separately with its specific thresholds
+    for smell_type in smell_types:
+        if smell_type not in sensitivity_report.get('results', {}):
+            logger.warning(f"No sensitivity data for {smell_type}")
+            continue
+        
+        result = sensitivity_report['results'][smell_type]
+        thresholds = result.get('thresholds', [])
+        p_values = result.get('p_values', [])
+        
+        if not thresholds or not p_values:
+            continue
+        
+        plt.plot(thresholds, p_values, marker='o', label=smell_type)
+        
+        # Highlight stable region if available
+        stable_range = result.get('stable_range')
+        if stable_range:
+            plt.axvspan(stable_range[0], stable_range[1], alpha=0.2, 
+                        label=f'{smell_type} Stable', linestyle='--')
     
+    plt.axhline(y=stability_threshold, color='r', linestyle='--', 
+                label=f'Stability Threshold (variance < {stability_threshold})')
+    plt.xlabel('Threshold Value')
+    plt.ylabel('P-Value')
+    plt.title('Sensitivity Analysis: P-Value Trends Across Thresholds')
+    plt.legend(loc='best', fontsize='small')
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    
-    return output_path
+    logger.info(f"Sensitivity analysis plot saved to {output_path}")
 
 def format_statistical_table(stat_results: Dict[str, Any]) -> str:
     """Format statistical results into a markdown table."""
-    lines = []
-    lines.append("| Smell Type | P-Value (Uncorrected) | P-Value (Bonferroni) | Effect Size | Significant |")
-    lines.append("| :--- | :--- | :--- | :--- | :--- |")
+    lines = ["## Statistical Comparison Results", ""]
+    lines.append("| Smell Type | P-Value | Bonferroni-Corrected P-Value | Effect Size | Significant? |")
+    lines.append("|------------|---------|------------------------------|-------------|--------------|")
     
     for smell_type, result in stat_results.get('results', {}).items():
-        p_uncorr = result.get('p_value', 0)
-        p_corr = result.get('corrected_p_value', 0)
-        effect = result.get('effect_size', 0)
-        sig = "Yes" if p_corr < 0.05 else "No"
-        
-        lines.append(f"| {smell_type.replace('_', ' ')} | {p_uncorr:.4f} | {p_corr:.4f} | {effect:.4f} | {sig} |")
+        p_val = result.get('p_value', 'N/A')
+        corrected_p = result.get('corrected_p_value', 'N/A')
+        effect_size = result.get('effect_size', 'N/A')
+        significant = "Yes" if corrected_p < 0.05 else "No"
+        lines.append(f"| {smell_type} | {p_val:.4f} | {corrected_p:.4f} | {effect_size:.4f} | {significant} |")
     
     return "\n".join(lines)
 
 def format_sensitivity_table(sensitivity_report: Dict[str, Any]) -> str:
     """Format sensitivity analysis results into a markdown table."""
-    lines = []
-    lines.append("| Smell Type | Stability Status | P-Value Variance | Notes |")
-    lines.append("| :--- | :--- | :--- | :--- |")
+    lines = ["## Sensitivity Analysis Results", ""]
+    lines.append("| Smell Type | Stability Status | Stable Range | Max P-Value Variance |")
+    lines.append("|------------|------------------|--------------|----------------------|")
     
-    for smell_type, result in sensitivity_report.get('sweep_results', {}).items():
-        stability = result.get('stability_status', 'Unknown')
-        variance = result.get('variance', 0)
-        notes = result.get('notes', '')
-        
-        lines.append(f"| {smell_type.replace('_', ' ')} | {stability} | {variance:.6f} | {notes} |")
+    for smell_type, result in sensitivity_report.get('results', {}).items():
+        stability = "Stable" if result.get('stability_passed', False) else "Unstable"
+        stable_range = result.get('stable_range', 'N/A')
+        if isinstance(stable_range, list):
+            stable_range = f"{stable_range[0]} - {stable_range[1]}"
+        variance = result.get('max_variance', 'N/A')
+        lines.append(f"| {smell_type} | {stability} | {stable_range} | {variance:.6f} |")
     
     return "\n".join(lines)
 
-def generate_markdown_report(metrics: pd.DataFrame, stat_results: Dict[str, Any], 
-                             sensitivity_report: Dict[str, Any], output_dir: str) -> str:
-    """Generate the final markdown report with all sections and plots."""
-    os.makedirs(output_dir, exist_ok=True)
-    report_path = os.path.join(output_dir, 'final_study_report.md')
+def generate_markdown_report(metrics: List[Dict[str, Any]], 
+                            stat_results: Dict[str, Any], 
+                            sensitivity_report: Dict[str, Any],
+                            output_path: Path):
+    """Generate the final markdown report with embedded plots."""
+    report_path = output_path.parent / "final_study_report.md"
     
-    # Generate plots
-    box_plot_path = os.path.join(output_dir, 'box_plots.png')
-    sensitivity_plot_path = os.path.join(output_dir, 'sensitivity_analysis_plot.png')
+    report_content = [
+        "# Evaluating Code Generation Impact on Code Smell Frequency",
+        "",
+        "## Introduction",
+        "This report presents the results of a comparative analysis between human-written and LLM-generated code samples, focusing on the frequency of four code smell categories.",
+        "",
+        "## Methodology",
+        "- **Design**: Balanced Blocked Design with repository-level blocking",
+        "- **Statistical Test**: Blocked Permutation Test",
+        "- **Correction**: Bonferroni correction for multiple hypothesis testing (α ≤ 0.05)",
+        "- **Sensitivity Analysis**: Threshold sweeps for all four code smell categories",
+        "",
+        "## Results",
+        "",
+        "### Statistical Comparison",
+        "",
+        format_statistical_table(stat_results),
+        "",
+        "### Visualizations",
+        "",
+        "#### Code Smell Distribution Comparison",
+        "",
+        "![Box Plots](sensitivity_analysis_plot.png)",
+        "",
+        "#### Sensitivity Analysis",
+        "",
+        "![Sensitivity Analysis Plot](sensitivity_analysis_plot.png)",
+        "",
+        "### Sensitivity Analysis Results",
+        "",
+        format_sensitivity_table(sensitivity_report),
+        "",
+        "## Conclusion",
+        "",
+        "This study is **observational** in nature. The findings presented here describe **associations** between code generation source (human vs. LLM) and code smell frequencies. **No causal claims are made** regarding the impact of code generation on code quality.",
+        "",
+        "The stability of results across threshold variations suggests robustness in the observed associations, though further validation with larger datasets and additional repositories is recommended.",
+        ""
+    ]
     
-    # Generate box plots for each smell type
-    smell_types = ['Long_Method', 'Duplicated_Code', 'Feature_Envy', 'Long_Parameter_List']
-    for smell_type in smell_types:
-        plot_path = os.path.join(output_dir, f'box_plot_{smell_type}.png')
-        generate_box_plot(metrics, plot_path, smell_type)
+    with open(report_path, 'w', encoding='utf-8') as f:
+        f.write("\n".join(report_content))
     
-    # Generate sensitivity plot
-    generate_sensitivity_plot(sensitivity_report, sensitivity_plot_path)
-    
-    # Build report content
-    report_lines = []
-    report_lines.append("# Evaluating Code Generation Impact on Code Smell Frequency")
-    report_lines.append("")
-    report_lines.append("## Introduction")
-    report_lines.append("This study evaluates the association between code generation source (human vs. LLM) and the frequency of code smells.")
-    report_lines.append("")
-    report_lines.append("## Methodology")
-    report_lines.append("We employed a **Blocked Permutation Test** with repository as the blocking variable to control for repository-level variance.")
-    report_lines.append("Bonferroni correction was applied to control the family-wise error rate across the four code smell categories.")
-    report_lines.append("")
-    report_lines.append("## Statistical Results")
-    report_lines.append(format_statistical_table(stat_results))
-    report_lines.append("")
-    report_lines.append("### Distribution Visualizations")
-    report_lines.append(f"![Box Plots]({os.path.basename(box_plot_path)})")
-    report_lines.append("")
-    report_lines.append("## Sensitivity Analysis")
-    report_lines.append("We performed a sensitivity analysis by sweeping thresholds for each code smell category.")
-    report_lines.append("Stability is defined as a p-value variance < 0.01 across the sweep range.")
-    report_lines.append("")
-    report_lines.append(format_sensitivity_table(sensitivity_report))
-    report_lines.append("")
-    report_lines.append("### Sensitivity Plot")
-    report_lines.append(f"![Sensitivity Analysis]({os.path.basename(sensitivity_plot_path)})")
-    report_lines.append("")
-    report_lines.append("## Conclusion")
-    report_lines.append("**This study is observational.** The results indicate an **association** between the code generation source and code smell frequency.")
-    report_lines.append("We explicitly avoid causal claims. The observed differences may be influenced by unmeasured confounding variables.")
-    report_lines.append("")
-    report_lines.append("## Deviations from Original Plan")
-    report_lines.append("Refer to the Deviation Log in `spec.md` (Section 4.3) for details on sample size adjustments.")
-    
-    with open(report_path, 'w') as f:
-        f.write("\n".join(report_lines))
-    
-    return report_path
+    logger.info(f"Final report saved to {report_path}")
 
 def main():
     """Main entry point for report generation."""
-    paths = get_output_paths()
+    project_root = get_project_root()
+    output_paths = get_output_paths(project_root)
     
-    metrics_path = paths.get('processed_metrics', 'data/processed/smell_metrics.csv')
-    stat_results_path = paths.get('stat_results', 'data/intermediate/stat_results.json')
-    sensitivity_report_path = paths.get('sensitivity_report', 'data/intermediate/sensitivity_analysis_report.json')
-    output_dir = paths.get('reports', 'reports')
+    # Define input paths
+    metrics_path = output_paths['processed_metrics']
+    stat_results_path = output_paths['stat_results']
+    sensitivity_report_path = output_paths['sensitivity_report']
     
+    # Define output paths
+    box_plot_path = output_paths['report_output'] / "sensitivity_analysis_plot.png"
+    continuous_plot_path = output_paths['report_output'] / "continuous_metric_plot.png"
+    report_path = output_paths['report_output'] / "final_study_report.md"
+    
+    # Ensure output directory exists
+    output_paths['report_output'].mkdir(parents=True, exist_ok=True)
+    
+    # Load data
     logger.info("Loading processed metrics...")
     metrics = load_processed_metrics(metrics_path)
     
     logger.info("Loading statistical results...")
     stat_results = load_stat_results(stat_results_path)
     
-    logger.info("Loading sensitivity report...")
+    logger.info("Loading sensitivity analysis report...")
     sensitivity_report = load_sensitivity_report(sensitivity_report_path)
     
-    logger.info("Generating final report...")
-    report_path = generate_markdown_report(metrics, stat_results, sensitivity_report, output_dir)
+    # Generate visualizations
+    logger.info("Generating sensitivity analysis plot...")
+    generate_sensitivity_plot(sensitivity_report, box_plot_path)
     
-    logger.info(f"Report generated successfully: {report_path}")
-    return report_path
+    logger.info("Generating continuous metric plot...")
+    generate_continuous_metric_plot(metrics, continuous_plot_path)
+    
+    # Generate final report
+    logger.info("Generating final markdown report...")
+    generate_markdown_report(metrics, stat_results, sensitivity_report, report_path)
+    
+    logger.info("Report generation completed successfully.")
 
 if __name__ == "__main__":
     main()

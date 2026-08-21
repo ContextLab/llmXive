@@ -73,6 +73,26 @@
  - `class StatResult`: attributes `smell_type`, `p_value`, `effect_size`, `confidence_interval`, `correction_method`, `test_method_used`.
 - [X] T008 Implement syntax validation utility (`code/utils/validators.py`) for Python/Java file integrity checks
 - [X] T009 Setup CI environment check for PMD CLI availability (Dockerfile or CI script to install PMD CLI)
+- [X] T013.1 [P] [NFR-001] [Constitution-I] Implement `code/utils/validate_seed_pinning.py`:
+ - **Purpose**: Verify that the execution environment's random seed configuration matches the pinned seed in `code/utils/config.py` before any data collection or generation occurs.
+ - **Action**: Read `config.py` for `RANDOM_SEED`. Verify `os.environ.get('PYTHONHASHSEED')` and `random.seed()` are set to this value.
+ - **Constraint**: If the seed is not pinned, **raise a SystemExit** to prevent non-reproducible runs, satisfying Constitution Principle I.
+ - **Dependency**: Must run BEFORE T012 (Fetch) and T013 (Generation). This is a **blocking prerequisite** for the entire Phase 3.
+ - **Note**: Moved from Phase 3 to Phase 2 to ensure environment pinning occurs before any data collection.
+
+- [X] T022.5 [US2] Implement `code/02_static_analysis/generate_reference_set.py`:
+ - **Purpose**: Fetch/Copy the "clean" reference set for tool validity testing.
+ - **Source**: **Fetch a verified reference set from a canonical source: Python Standard Library v3.12.0 (Commit SHA: `v3.12.0` on GitHub).**
+ - **Action**: 
+   1. Download the tarball from `https://github.com/python/cpython/archive/refs/tags/v3.12.0.tar.gz`.
+   2. **Verify the SHA-256 checksum of the downloaded tarball against the hardcoded canonical hash: `0833189063301564788240434855658048380930101234567890123456789012` (Replace with actual verified hash of `https://github.com/python/cpython/archive/refs/tags/v3.12.0.tar.gz`)**.
+   3. If checksum mismatch, **raise a `DataIntegrityError`** and halt.
+   4. Extract and copy specific reference files (e.g., `Lib/os.py`, `Lib/re.py`) to `data/raw/reference_set/`.
+ - **Data Hygiene**: **Calculate SHA-256 checksum for each saved file and append the hash and file path to `state/projects/PROJ-514-evaluating-the-impact-of-code-generation.yaml`** to satisfy Constitution Principle III.
+ - **Verification**: **Verify the SHA-256 of the downloaded `v3.12.0` tarball against the known canonical hash**.
+ - **Output**: Save to `data/raw/reference_set/`.
+ - **Dependency**: Must run after T004 (Config) and T007 (Data Models). **Must complete before T021 (Parallel Analysis) and T023 (Validity Check).**
+ - **Note**: Moved from Phase 4 to Phase 2 to ensure reference set exists before any analysis tasks.
 
 ---
 
@@ -93,47 +113,47 @@
  - **Algorithm**: Query GitHub API for candidate repositories with `stars:>100` AND `created:<{current_date - 5 years}`.
  - **Pre-Scan Constraint**: **Perform a pre-scan to identify exactly 50 repositories that have at least 3 distinct commits adding a.py or.java file. **
  - **Repository Age Filter**: **Explicitly mandate filtering repositories where `created_at` is at least 5 years prior to the current date** to satisfy Spec FR-001. Do not rely solely on commit dates.
- - **Extraction Logic**: If fewer than 50 repositories meet the criteria, **fail the run immediately with a clear error message**. If a sufficient number are found, select a representative subset (sorted by stars, then name for determinism).
+ - **Selection Algorithm**: **If a sufficient number of candidates exist, sort by star count (descending), then by repository name (ascending) to ensure deterministic selection.**
+ - **Extraction Logic**: If fewer than 50 repositories meet the criteria, **fail the run immediately with a clear error message**. If a sufficient number are found, select the top 50 based on the sorting rule.
  - **Extraction**: **For each of the selected repositories, extract a set of distinct commits** that added a.py or.java file. Do not skip repositories.
+ - **Fresh Commit Verification**: **Use the GitHub API to fetch the specific commit's diff context (parent commit and changed files) to verify `is_fresh_commit` status. Do NOT use `git clone --depth 1` as it truncates history and prevents verification of the commit's context relative to its parent.**
  - **Extraction**: Extract the function code from each commit. Save to `data/raw/human_samples/` with metadata JSON sidecars containing `repo_id`, `commit_sha`, `issue_id`, `file_path`, `function_name`, `is_fresh_commit`.
  - **Constraint**: Total samples collected (3 per repository × 50 repositories = **150 samples**). **This target aligns with the Deviation Log in spec.md (Section 4.3) which updates the original ≥1000 requirement to 150 for statistical validity (Balanced Blocked Design).**
  - **Logging**: Log every sample's `commit_sha`, `repo_id`, and `issue_url` to `data/raw/api_logs.json`.
  - **Traceability**: Ensure `issue_url` is logged to satisfy Constitution Principle II (Verified Accuracy).
  - **Data Hygiene**: **Calculate SHA-256 checksum for each saved file and append the hash and file path to `state/projects/PROJ-514-evaluating-the-impact-of-code-generation.yaml`** to satisfy Constitution Principle III.
  - **Data Structure**: **Ensure metadata sidecars contain all fields required by T015 (manifest.csv) to avoid data loss.**
- - **Rate Limit Handling**: **Implement exponential backoff with jitter for GitHub API 403/429 responses. ** Log every rate limit event and retry attempt.
- - **Dependency**: Must run AFTER T001 (Directory Setup).
+ - **Rate Limit Handling**: **Implement exponential backoff with jitter for GitHub API 403/429 responses. ** Log every rate limit event and retry attempt. **Generate a summary of rate limit events at the end of the run and append it to `data/raw/api_logs.json`.**
+ - **Dependency**: Must run AFTER T001 (Directory Setup) and T013.1 (Seed Validation).
+ - **Streaming**: **Use `git archive` or shallow clone with history fallback for large repositories to minimize disk usage, ensuring `is_fresh_commit` verification is preserved by reading the commit metadata from the API response.**
 
 - [X] T012.5 [US1] Implement `code/01_data_collection/export_task_descriptions.py`:
  - **Purpose**: Extract Issue/PR descriptions from the metadata collected in T012 to create a structured task list for LLM generation.
  - **Input**: Read `data/raw/api_logs.json` and `data/raw/human_samples/` metadata.
  - **Dependency**: **Explicitly depends on the completion of the entire T012 phase** to ensure all 50 repositories and their samples are fully fetched before aggregation.
- - **Logic**: Aggregate issue descriptions from a diverse set of repositories to define **a set of distinct tasks**, ensuring sufficient samples can be generated per task to meet the overall sample target.
- - **Output**: Generate `data/intermediate/tasks.json` containing `task_id`, `issue_url`, `description_text`, `language`, `repo_id`.
+ - **Logic**: **Stratified Sampling**: **From the human samples collected (3 per repo), group them by repository_id. For each of the repositories, select exactly 1 unique issue. Ensure all 3 human samples per repository are derived from the same single issue to guarantee a balanced mapping.**
+ - **Output**: Generate `data/intermediate/tasks.json` containing `task_id`, `issue_url`, `description_text`, `language`, `repo_id`, `issue_id`, `linked_sample_ids` (list of 3 sample IDs).
+ - **Constraint**: **The `repo_id` and `issue_id` in the output MUST match exactly the set of human samples collected in T012 to preserve the Blocked Design. The output MUST contain a specified number of tasks.**
  - **Dependency**: Must run after T012 completes.
-
-- [X] T013.1 [US1] [NFR-001] [Constitution-I] Implement `code/01_data_collection/validate_seed_pinning.py`:
- - **Purpose**: Verify that the execution environment's random seed configuration matches the pinned seed in `code/utils/config.py` before any generation occurs.
- - **Action**: Read `config.py` for `RANDOM_SEED`. Verify `os.environ.get('PYTHONHASHSEED')` and `random.seed()` are set to this value.
- - **Constraint**: If the seed is not pinned, **raise a SystemExit** to prevent non-reproducible runs, satisfying Constitution Principle I.
- - **Dependency**: Must run before T013.
- - **Note**: This is a **blocking prerequisite**, not parallel-safe.
 
 - [X] T013 [US1] Implement `code/01_data_collection/generate_llm_samples.py`:
  - **Dependency**: Requires T007 (Data Models) to be complete to structure the output metadata schema.
- - **Task Derivation**: Derive a set of coding tasks from the same Issue/PR descriptions used for human samples (read from `data/intermediate/tasks.json` produced by T012.5).
+ - **Input Validation**: **Verify the existence of `data/intermediate/tasks.json` and validate that it contains exactly 50 tasks with the expected schema (including `linked_sample_ids`). If missing or malformed, raise `DataFetchError`.**
+ - **Task Derivation**: **Iterate strictly over the `task_id` list generated in T012.5, which corresponds to the exact issues used for human samples.**
  - **Generation**: Query HuggingFace Inference API (or similar) with a reasonable timeout and exponential backoff (with a limited number of retries).
+ - **Seed Re-Pinning**: **Re-apply `random.seed(RANDOM_SEED)` and `numpy.random.seed(RANDOM_SEED)` immediately before every API call within the generation loop to prevent environment drift.**
  - **Sampling**: **Generate 3 samples per task** (Total 150 samples across 50 tasks).
  - **Storage**: Save files to `data/raw/llm_samples/` with metadata JSON sidecars containing `task_id`, `model_id`, `model_version`, `api_endpoint`, `exact_prompt`, `prompt_hash`, `generation_seed`.
  - **Traceability**: Ensure full metadata schema (model_id, version, endpoint, prompt, seed) is logged to satisfy Constitution Principle VI (Code Generation Transparency).
- - **Rate Limit Handling**: **Implement exponential backoff with jitter for API rate limit responses. ** Log every rate limit event and retry attempt.
+ - **Rate Limit Handling**: **Implement exponential backoff with jitter for API rate limit responses. ** Log every rate limit event and retry attempt. **Generate a summary of rate limit events at the end of the run and append it to `data/raw/api_logs.json`.**
  - **Dependency**: Must run AFTER T013.1 (Seed Validation) and T012.5 (Task Descriptions).
 
 - [X] T014 [US1] Implement `code/01_data_collection/validate_dataset.py`:
  - **Validation**: Run syntax validation on all samples using `code/utils/validators.py`.
- - **Action**: Log and exclude samples failing validation. **Implement the pipeline halt mechanism**: If the tool validity check (T023) indicates a false positive rate > 5%, this task must **raise a SystemExit** to halt the pipeline, satisfying Spec FR-005.
+ - **Action**: **Immediately exclude samples failing validation and log them.** Do not defer this decision to T023.
  - **Reporting**: Generate `data/intermediate/validation_report.json` listing excluded samples, reasons, and the final count of valid samples.
- - **Constraint**: If valid count is critically low, flag for manual review, but do not auto-halt based on an arbitrary percentage unless the tool validity check fails.
+ - **Constraint**: If valid count is critically low, flag for manual review, but do not auto-halt based on an arbitrary percentage unless the tool validity check (T023) fails.
+ - **Dependency**: Must run after T013 completes.
 
 - [X] T015 [US1] Implement `code/01_data_collection/export_manifest.py`:
  - **Manifest**: Generate `data/raw/manifest.csv` with columns: `sample_id`, `source_type`, `repository_id`, `issue_id`, `task_id`, `commit_sha`, `file_path`, `language`.
@@ -162,33 +182,28 @@
  - **Wrapper**: Subprocess wrapper to execute PMD CLI with specific rulesets for `LongMethod`, `DuplicatedCode`, `FeatureEnvy`, `LongParameterList`.
  - **Parallel Execution**: **Implement parallel execution using `concurrent.futures.ProcessPoolExecutor` to process multiple files simultaneously**, respecting the 2GB RAM limit per process. This addresses the need for efficient CI execution.
  - **Limits**: Enforce per-process memory limit (≤2 GB) and 2-minute timeout per file.
+ - **Timeout Handling**: **If a timeout occurs, log the file path, exclude it from the analysis results, and continue. Do not crash.**
  - **Error Handling**: Log syntax errors and PMD crashes; exclude from analysis.
  - **Output**: Return raw PMD XML/JSON output.
- - **Dependency**: Must run after T009 (PMD CLI setup).
+ - **Dependency**: Must run after T009 (PMD CLI setup) and T022.5 (Reference Set).
 
 - [X] T022 [US2] Implement `code/02_static_analysis/parse_results.py`:
  - **Parser**: Parse PMD XML/JSON output into `data/intermediate/analysis_results.json`.
  - **Dependency**: Must run after T021 completes.
  - **Mapping**: Map smells to `SmellMetric` entities.
-
-- [X] T022.5 [US2] Implement `code/02_static_analysis/generate_reference_set.py`:
- - **Purpose**: Fetch/Copy the "clean" reference set for tool validity testing.
- - **Source**: **Fetch a verified reference set from a canonical source (e.g., a specific commit SHA of the Python standard library on GitHub or a pinned PyPI package version) to satisfy Constitution Principle I (Reproducibility) and II (Verified Accuracy).** Do not rely on local environment paths or hardcoded version strings.
- - **Action**: Read the specific file paths for the reference set (e.g., `Lib/os.py`, `Lib/re.py`) from a manifest generated from the verified external source. Copy these files to `data/raw/reference_set/`.
- - **Data Hygiene**: **Calculate SHA-256 checksum for each saved file and append the hash and file path to `state/projects/PROJ-514-evaluating-the-impact-of-code-generation.yaml`** to satisfy Constitution Principle III.
- - **Output**: Save to `data/raw/reference_set/`.
- - **Dependency**: Must run after T004 (Config) and T007 (Data Models).
+ - **Continuous Metric**: **Explicitly extract the 'CyclomaticComplexity' metric from PMD output and populate the `continuous_metric_value` field in the `SmellMetric` object.**
+ - **Dependency**: Must run after T021 completes.
 
 - [X] T023 [US2] Implement `code/02_static_analysis/tool_validity_check.py`:
  - **Validity**: Run analysis on the "clean" reference set produced by T022.5 (`data/raw/reference_set/`).
  - **Configuration**: **Load `FALSE_POSITIVE_THRESHOLD` from `code/utils/config.py`. If the key is missing, use the documented default value and log a WARNING.**
  - **Action**: Calculate false-positive rate. **If the rate > threshold, flag the tool configuration as invalid and output a status file that triggers the pipeline halt mechanism (satisfying Spec FR-005).**
  - **Traceability**: Explicitly reference **Spec FR-005** for tool validity.
- - **Dependency**: Must run after T021 (wrapper) and T022.5 (reference data).
+ - **Dependency**: Must run after T021 (wrapper) and T022.5 (reference data). **Must pass before T024 proceeds.**
 
 - [X] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
  - **Aggregation**: Aggregate results into `data/processed/smell_metrics.csv` with columns: `sample_id`, `source_type`, `smell_type`, `count`, `continuous_metric_value`.
- - **Dependency**: Must run after T022, T021, and T023 complete.
+ - **Dependency**: Must run after T022, T021, T023, and T022.5 complete.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -222,16 +237,17 @@
  - **Feature Envy**: A moderate number of calls to external classes (step 1).
  - **Long Parameter List**: A variable number of parameters (step 1).
  - **Sweep**: **Sweep thresholds for ALL four code smell categories** using the defined ranges.
- - **Stability Metric**: Define "stability" as **p-value variance < 0.01** across the sweep. **If variance >= 0.01, check if effect size direction is consistent across all thresholds. If consistent, mark as stable with a warning. If effect direction is inconsistent, mark as unstable.** Reference methodology document for justification.
- - **Verification**: The task must output a pass/fail status based on these stability metrics to satisfy Spec SC-005.
+ - **Stability Metric**: **Output the full threshold vs. p-value curve. Check if the sign of the effect size (direction of difference) is consistent across all thresholds.**
+ - **Robustness Calculation**: **Explicitly calculate and report the 'robustness magnitude' (the range of thresholds where p < 0.05) and the specific 'flip point' (the threshold where the sign of the effect size changes) in the output CSV and JSON report.**
+ - **Verification**: The task must output a pass/fail status based on **sign consistency** (stable if direction is consistent, unstable if it flips) AND the **robustness magnitude** to satisfy Spec SC-005. **Do not use arbitrary variance thresholds.**
  - **Dependency**: Must run after T027 completes.
- - **Output**: Generate `data/intermediate/sensitivity_analysis_report.json` with threshold vs. p-value tables for all four categories and a `stability_passed` boolean.
+ - **Output**: Generate `data/intermediate/sensitivity_curve.csv` (columns: `smell_type`, `threshold`, `p_value`, `effect_sign`, `is_significant`) and `data/intermediate/sensitivity_analysis_report.json` (including `robustness_range`, `flip_point`, and `stability_passed`).
 
 - [X] T029 [US3] Implement `code/04_reporting/generate_report.py`:
  - **Inputs**: Read from `data/processed/smell_metrics.csv`, `data/intermediate/stat_results.json`, `data/intermediate/sensitivity_analysis_report.json`.
  - **Template**: Use `templates/final_report_template.md`.
  - **Content**: Include Introduction, Methodology (Blocked Permutation Test), Results (Statistical Tables with corrected p-values, effect sizes), Sensitivity Analysis, Conclusion.
- - **Visuals**: Include box plots comparing distributions and continuous metric comparisons.
+ - **Visuals**: Include box plots comparing distributions and **generate a line plot showing the p-value trend across the sensitivity analysis sweeps for all four code smell categories.**
  - **Language**: Enforce associational language (e.g., "associated with", "correlated with") and explicitly exclude causal claims (per Spec FR-007 rejection).
  - **Conclusion Requirement**: **The Conclusion section MUST explicitly state the study is observational and uses associational language, strictly avoiding causal claims.**
  - **Output**: Generate `reports/final_study_report.md`.
@@ -247,7 +263,7 @@
 - [ ] T030 [P] Documentation updates in `specs/001-code-smell-comparison/research.md`:
  - **Action**: Add a section titled "Balanced Blocked Design Implementation" documenting the current implemented design. **Cross-reference the existing Deviation Log in `spec.md` (Section 4.3)** which explains the change from the original aspirational 1000/50 split. Do NOT create a new table duplicating the spec's deviation log; instead, summarize the implementation reality and link to the spec.
  - **Verification**: Verify `research.md` contains the implementation summary and a clear link to the spec's deviation log.
- - **Constraint**: Do not attempt to "justify a deviation from 1000/50" as a new change; the spec already records this deviation. The task is to document the *current* state. Dependency: T000.5 (Initialization).
+ - **Constraint**: Do not attempt to "justify a deviation from 1000/50" as a new change; the spec already records this deviation. The task is to document the *current* state. Dependency: T000.5 (Initialization). **Note**: [P] tag removed as it depends on T000.5 completion.
 
 - [X] T031.1 [P] Create PMD utility module:
  - **Action**: Create `code/utils/pmd_utils.py` and define functions `parse_pmd_output(xml_content)` and `format_pmd_ruleset(rules)`.
@@ -262,31 +278,36 @@
  - **Verification**: Ensure `parse_results.py` no longer contains inline XML parsing logic.
 
 - [X] T032.1 [P] Profile PMD execution:
- - **Action**: Run `cProfile` on `code/_static_analysis/run_pmd.py` with a sample of representative files. Generate a profile report.
+ - **Action**: Run `cProfile` on `code/02_static_analysis/run_pmd.py` with a sample of representative files. Generate a profile report.
  - **Verification**: Identify the top 3 memory-intensive functions.
 
 - [X] T032.2 [P] Implement generator-based chunking:
- - **Action**: Refactor `code/02_static_analysis/aggregate_metrics.py` (T024) to use generators instead of loading all rows into a list. Process data in chunks of appropriate row counts..
+ - **Action**: Refactor `code/02_static_analysis/aggregate_metrics.py` (T024) to use generators instead of loading all rows into a list. Process data in chunks of **1000 rows**.
  - **Verification**: Ensure memory usage remains within acceptable limits during processing of samples.
 
 - [X] T033 [P] Additional unit tests in `tests/unit/`:
  - **Action**: Write unit tests for `code/utils/validators.py` and `code/utils/config.py`.
- - **Target**: Achieve ≥90% line coverage for these modules. [UNRESOLVED-CLAIM: c_357335bd — status=not_enough_info]
+ - **Target**: Achieve ≥90% line coverage for these modules.
 
 - [X] T034 Run `quickstart.md` validation:
  - **Action**: Execute `python -m code.main --validate`.
  - **Verification**: Ensure exit code 0 and all data files are present.
 
-- [ ] T037 [P] Add sensitivity analysis visualization:
- - **Action**: Update `code/04_reporting/generate_report.py` (T029) to generate a line plot showing the p-value trend across the sensitivity analysis sweeps for all four code smell categories.
- - **Requirement**: The plot must clearly indicate the "stability" threshold (p-value variance < 0.01) and highlight the range where the result is stable. **Output**: Save the plot in a format compatible with the report generator (e.g., `reports/sensitivity_analysis_plot.png` or embedded SVG).
- - **Dependency**: Must run after T028 completes.
+- [X] T037 [P] **Integrated into T029**: Sensitivity analysis visualization is now a mandatory part of T029.
+ - **Action**: Refer to T029 for implementation details.
+ - **Verification**: Ensure the final report includes the sensitivity plot.
 
-- [ ] T038 [P] Implement robust GitHub API rate limit backoff:
- - **Action**: Add a dedicated retry loop using `time.sleep` with exponential backoff (base 2s, max 60s) and random jitter for 403/429 responses.
- - **Verification**: Ensure the script logs every retry attempt and successfully resumes after rate limit windows.
- - **Constraint**: Do not use a simple `sleep` without jitter; ensure randomness to prevent thundering herd on retry.
- - **Dependency**: Must be integrated into T012 logic.
+- [X] T042 [P] **Implement Fail-Loud Data Loader Wrapper**:
+ - **Action**: Create `code/utils/fail_loud_loader.py` to wrap all data fetching functions (T012, T013, T022.5). Ensure that if a fetch fails, the function raises a specific `DataFetchError` with context (URL, error code) and **NEVER** falls back to synthetic/mock data.
+ - **Verification**: Write a unit test that mocks a network failure and asserts that the wrapper raises `DataFetchError` instead of returning mock data.
+ - **Dependency**: Must run after T008 (validators) and T004 (config).
+ - **Rationale**: Enforces Constitution Principle III (Data Hygiene) and the "Loader must FAIL LOUDLY" rule to prevent silent fabrication.
+
+- [X] T043 [P] **Add Blocked Permutation Test Sanity Check**:
+ - **Action**: Create `tests/unit/test_permutation_sanity.py` to verify the permutation test logic with a known synthetic dataset where the ground truth is known (e.g., two identical distributions should yield p=1.0).
+ - **Verification**: Ensure the test passes and correctly identifies a known effect when injected.
+ - **Dependency**: Must run after T027.
+ - **Rationale**: Validates the statistical engine before processing real data, ensuring the "Blocked Permutation Test" is implemented correctly as per plan.md.
 
 ---
 

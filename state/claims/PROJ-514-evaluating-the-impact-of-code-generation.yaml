@@ -4514,3 +4514,173 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T22:10:34Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 150 samples collected from 50 repositories with 3 samples each
+  claim_id: c_4e97ccbb
+  context: "Extraction: Total samples collected (3 per repository \xD7 50 repositories\
+    \ = 150 samples). This target aligns with the Deviation Log in spec.md (Section\
+    \ 4.3) which updates the original \u22651000 requirement to 150 for statistical\
+    \ validity (Balanced Blocked Design)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total samples collected (3 per repository \xD7 50 repositories = 150\
+    \ samples)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:17:48Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'GitHub API query criteria: stars > 100 and created less than 5 years
+    ago'
+  claim_id: c_e3b43e4d
+  context: 'Algorithm: Query GitHub API for candidate repositories with stars:>100
+    AND created:<{current_date - 5 years}. Pre-Scan Constraint: Perform a pre-scan
+    to identify exactly 50 repositories that have at least 3 distinct commits adding
+    a.py or.java file.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GitHub_API_query_criteria:_stars_%3E_100_and_created_less_than
+  kind: magnitude
+  raw_text: Query GitHub API for candidate repositories with stars:>100 AND created:<{current_date
+    - 5 years}.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:18:05Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Pre-scan identifies 50 repositories with at least 3 distinct commits
+    adding Python or Java files
+  claim_id: c_61211206
+  context: 'Pre-Scan Constraint: Perform a pre-scan to identify exactly 50 repositories
+    that have at least 3 distinct commits adding a.py or.java file. Repository Age
+    Filter: Explicitly mandate filtering repositories where created_at is at least
+    5 years prior to the current date to satisfy Spec FR-001.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pre-scan_identifies_50_repositories_with_at_least_3_distinct
+  kind: magnitude
+  raw_text: Perform a pre-scan to identify exactly 50 repositories that have at least
+    3 distinct commits adding a.py or.java file.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:18:56Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generate 150 LLM samples across 50 tasks with 3 samples per task
+  claim_id: c_d92a0723
+  context: 'Sampling: Generate 3 samples per task (Total 150 samples across 50 tasks).
+    Storage: Save files to data/raw/llm_samples/ with metadata JSON sidecars containing
+    task_id, model_id, model_version, api_endpoint, exact_prompt, prompt_hash, generation_seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (Total 150 samples across 50 tasks).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:19:19Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Static analysis per-process memory limit 2 GB and 2-minute timeout
+  claim_id: c_adb0f1bf
+  context: "Limits: Enforce per-process memory limit (\u22642 GB) and 2-minute timeout\
+    \ per file. Error Handling: Log syntax errors and PMD crashes; exclude from analysis."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce per-process memory limit (\u22642 GB) and 2-minute timeout per\
+    \ file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:19:40Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to 4 hypothesis tests with alpha <= 0.05
+  claim_id: c_1e72da17
+  context: "Correction: Apply Bonferroni correction for the multiple hypothesis tests\
+    \ (4 tests, \u03B1 \u2264 0.05) to control family-wise error rate. Metrics: Calculate\
+    \ effect sizes (Cohen's d or equivalent for permutation tests)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction for the multiple hypothesis tests (4 tests,\
+    \ \u03B1 \u2264 0.05) to control family-wise error rate."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:20:00Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Stability defined as p-value variance less than 0.01
+  claim_id: c_3f17be20
+  context: 'Stability Metric: Define stability as p-value variance < 0.01 across the
+    sweep. If variance >= 0.01, check if effect size direction is consistent across
+    all thresholds. If consistent, mark as stable with a warning.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_defined_as_p-value_variance_less_than_0.01
+  kind: magnitude
+  raw_text: Define stability as p-value variance < 0.01 across the sweep.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:20:35Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Exponential backoff retry loop with base 2s and max 60s for API rate
+    limits
+  claim_id: c_b0e9f9b2
+  context: 'Action: Add a dedicated retry loop using time.sleep with exponential backoff
+    (base 2s, max 60s) and random jitter for 403/429 responses. Verification: Ensure
+    the script logs every retry attempt and successfully resumes after rate limit
+    windows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add a dedicated retry loop using time.sleep with exponential backoff (base
+    2s, max 60s) and random jitter for 403/429 responses.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:20:52Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Unit tests target 90% line coverage
+  claim_id: c_a81eeb2e
+  context: "Action: Write unit tests for code/utils/validators.py and code/utils/config.py.\
+    \ Target: Achieve \u226590% line coverage for these modules."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Achieve \u226590% line coverage for these modules."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T00:20:52Z'
