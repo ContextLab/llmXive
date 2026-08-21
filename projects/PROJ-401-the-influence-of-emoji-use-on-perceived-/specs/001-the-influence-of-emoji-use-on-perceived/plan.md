@@ -130,7 +130,12 @@ projects/PROJ-401-the-influence-of-emoji-use-on-perceived-/code/
 
 1.  **Task 3.1**: Compute Pearson/Spearman correlation between `emoji_count` and `intensity_score`.
 2.  **Task 3.2**: **Feature Collapsing**: Collapse emoji types with frequency < 5 into a single "Rare" category to prevent high dimensionality.
-3.  **Task 3.3**: Perform Lasso Regression with `alpha` determined via **5-fold cross-validation** (not fixed at 0.1) to select optimal regularization strength.
+3.  **Task 3.3**: Perform Lasso Regression with `alpha` determined via **k-fold cross-validation
+
+The specific value to remove/generalize: 'k'
+
+Rewritten passage:
+k-fold cross-validation is employed to evaluate the model's generalization performance.** (not fixed at 0.1) to select optimal regularization strength.
 4.  **Task 3.4**: Apply Bonferroni correction to p-values for multiple hypothesis tests.
 5.  **Task 3.5**: Calculate Standardized Beta coefficients.
 6.  **Task 3.6**: Generate visualizations (correlation plot, coefficient plot).

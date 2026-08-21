@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-emoji-intensity"
+version = "0.1.0"
+description = "Automated science pipeline: Influence of emoji use on perceived emotional intensity"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "ml-datasets",
+    "pandas",
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "seaborn",
+    "emoji",
+    "tqdm",
+    "pytest",
+    "powerlaw",
+    "pydantic>=2.0",
+    "datasets",
+    "black",
+    "flake8",
+    "isort",
+    "pytest-cov",
+    "mypy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "isort",
+    "pytest",
+    "pytest-cov",
+    "mypy",
+    "pre-commit",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["src", "tests", "scripts"]
+skip = [".git", ".venv", "venv", "data", "build", "dist"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers --tb=short"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
