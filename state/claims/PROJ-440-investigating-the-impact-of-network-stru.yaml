@@ -1,0 +1,226 @@
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: 10 random graphs generated with N=100
+  claim_id: c_be624691
+  context: 'Unit test test_generate_random_graphs in tests/test_generation.py: assert
+    10 graphs generated, all labeled ''random'', N=100'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert 10 graphs generated, all labeled 'random', N=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:09:46Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: 10 scale-free graphs generated
+  claim_id: c_e9cda3f6
+  context: 'Unit test test_generate_scale_free_graphs in tests/test_generation.py:
+    assert 10 graphs generated, all labeled ''scale_free'', power-law fit p>0.05'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert 10 graphs generated, all labeled 'scale_free'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:10:09Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: clustering coefficient between 0 and 1 for generated graphs
+  claim_id: c_5d86f719
+  context: 'Unit test test_clustering_coefficient_bounds in tests/test_generation.py:
+    assert clustering coefficient is between 0 and 1 for all generated graphs'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert clustering coefficient is between 0 and 1 for all generated graphs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:11:28Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: average path length positive and finite for generated graphs
+  claim_id: c_47a813a7
+  context: 'Unit test test_path_length_bounds in tests/test_generation.py: assert
+    average path length is positive and finite for all generated graphs'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Average_path_length_positive_and_finite_for_generated_graphs
+  kind: entity_fact
+  raw_text: assert average path length is positive and finite for all generated graphs
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:12:06Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: 50+ networks generated across 5 classes with N=100-200
+  claim_id: c_c0d96ab9
+  context: Implement code/generate_networks.py to generate 50+ networks (N=100-200)
+    across 5 classes (Random, Scale-Free, Small-World, Lattice, Star) with pinned
+    random seeds
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate 50+ networks (N=100-200) across 5 classes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:12:49Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: decay rate matches damping/2 within 1% error
+  claim_id: c_2e77a4a1
+  context: "Independent Test: Verify decay rate matches analytical solution (\u03BB\
+    \ = damping/2) within 1% error on a known ring graph; verify R\xB2 \u2265 0.95\
+    \ for fits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify decay rate matches analytical solution (\u03BB = damping/2) within\
+    \ 1% error"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:13:22Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: energy variance less than 1e-6 for undamped system
+  claim_id: c_73791695
+  context: 'Unit test test_energy_conservation_no_damping in tests/test_simulation.py:
+    assert energy variance < 1e-6 for undamped system'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Energy_variance_less_than_1e-6_for_undamped_system
+  kind: magnitude
+  raw_text: assert energy variance < 1e-6 for undamped system
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:14:22Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: decay rate matches damping/2 within 1% for ring graph
+  claim_id: c_bfaac2a6
+  context: "Unit test test_analytical_decay_match in tests/test_simulation.py: assert\
+    \ decay rate matches \u03BB = damping/2 within 1% for ring graph"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "assert decay rate matches \u03BB = damping/2 within 1% for ring graph"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:14:56Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: permutation test with N=1000 returns null distribution mean near 0
+  claim_id: c_07231c20
+  context: 'Unit test test_null_model_permutation in tests/test_regression.py: assert
+    permutation test with N=1000 returns null distribution with mean ~0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert permutation test with N=1000 returns null distribution with mean
+    ~0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:15:26Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: dataset size greater than or equal to 10 times number of predictors
+  claim_id: c_623304a8
+  context: 'Implement power limitation check: Verify dataset size (samples) >= 10
+    * number of predictors. If insufficient, halt execution and generate data/analysis/power_warning.txt
+    with a specific warning message.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_greater_than_or_equal_to_10_times_number_of_pre
+  kind: magnitude
+  raw_text: Verify dataset size (samples) >= 10 * number of predictors
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:15:50Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: standard deviation to mean ratio less than 0.01
+  claim_id: c_e6d96a02
+  context: Run simulation on multiple random seeds for this topology. Calculate standard
+    deviation of decay rates. Assert std/mean < 0.01 (per SC-006).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Standard_deviation_to_mean_ratio_less_than_0.01
+  kind: magnitude
+  raw_text: Assert std/mean < 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:16:33Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: flag metrics with VIF greater than 5
+  claim_id: c_69a65518
+  context: 'Implement VIF check: flag metrics with VIF > 5 and frame results descriptively
+    (integrated into T033)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_metrics_with_VIF_greater_than_5
+  kind: magnitude
+  raw_text: flag metrics with VIF > 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:17:33Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: pipeline execution time less than or equal to 6 hours
+  claim_id: c_e6d819ce
+  context: "Execute code/benchmark_pipeline.py to run the full pipeline on the standard\
+    \ runner; record the total wall-clock time in state/projects/PROJ-440-investigating-the-impact-of-network-stru.yaml\
+    \ and verify it is \u2264 6 hours (validating Plan's < 2h estimate and Spec FR-007)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "verify it is \u2264 6 hours"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:18:16Z'

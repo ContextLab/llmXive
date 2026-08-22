@@ -59,10 +59,10 @@
 
 - [X] T004 [P] Implement `code/utils/metrics.py` with functions to compute clustering coefficient, average path length, and degree distribution statistics
 - [X] T005 [P] Implement `code/utils/diagnostics.py` with functions for VIF calculation, convergence plotting, and Laplacian eigenvalue validation
-- [ ] T006a Create `contracts/network_schema.schema.yaml` defining structure for `data/raw/networks.csv` (columns: id, class, N, metrics...)
-- [ ] T006b Create `contracts/energy_schema.schema.yaml` defining structure for `data/processed/energy_decay.csv` (columns: graph_id, decay_rate, r_squared, status...)
-- [ ] T006c Create `contracts/regression_schema.schema.yaml` defining structure for `data/analysis/regression_results.json`
-- [ ] T008 Setup `data/` directory structure (`raw/`, `processed/`, `analysis/`) with checksumming utilities
+- [ ] T006a Create `contracts/network_schema.schema.yaml` defining structure for `data/raw/networks.csv` (columns: id, class, N, metrics...) per Spec data structure requirements
+- [ ] T006b Create `contracts/energy_schema.schema.yaml` defining structure for `data/processed/energy_decay.csv` (columns: graph_id, decay_rate, r_squared, status...) per Spec data structure requirements
+- [ ] T006c Create `contracts/regression_schema.schema.yaml` defining structure for `data/analysis/regression_results.json` per Spec data structure requirements
+- [X] T008 Implement `code/utils/checksums.py` to generate and verify SHA256 checksums for all files in `data/`; run `python code/utils/checksums.py --update` to register artifacts in `state/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,15 +81,17 @@
 - [X] T009a [P] [US1] Unit test `test_generate_random_graphs` in `tests/test_generation.py`: assert 10 graphs generated, all labeled "random", N=100
 - [X] T009b [P] [US1] Unit test `test_generate_scale_free_graphs` in `tests/test_generation.py`: assert 10 graphs generated, all labeled "scale_free", power-law fit p>0.05
 - [X] T009c [P] [US1] Unit test `test_generate_all_classes` in `tests/test_generation.py`: assert a set of graphs distributed across multiple classes, with a balanced representation per class.
-- [X] T010a [P] [US1] Unit test `test_clustering_coefficient_bounds` in `tests/test_generation.py`: assert clustering coefficient is between 0 and 1 for all generated graphs
-- [X] T010b [P] [US1] Unit test `test_path_length_bounds` in `tests/test_generation.py`: assert average path length is positive and finite for all generated graphs
+- [X] T010a [P] [US1] Unit test `test_clustering_coefficient_bounds` in `tests/test_generation.py`: assert clustering coefficient is between 0 and 1 for all generated graphs [UNRESOLVED-CLAIM: c_5d86f719 — status=not_enough_info]
+- [X] T010b [P] [US1] Unit test `test_path_length_bounds` in `tests/test_generation.py`: assert average path length is positive and finite for all generated graphs [UNRESOLVED-CLAIM: c_47a813a7 — status=not_enough_info]
 - [X] T011a [P] [US1] Integration test `test_full_generation_pipeline` in `tests/test_generation.py`: assert `data/raw/networks.csv` exists and contains a representative set of network instances., columns match schema (id, class, clustering, path_length...)
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `code/generate_networks.py` to generate 50+ networks (N=100-200) across 5 classes (Random, Scale-Free, Small-World, Lattice, Star) with pinned random seeds
+- [X] T012 [P] [US1] Implement `code/generate_networks.py` to generate 50+ networks (N=100-200) across 5 classes [UNRESOLVED-CLAIM: c_c0d96ab9 — status=not_enough_info] (Random, Scale-Free, Small-World, Lattice, Star) with pinned random seeds
 - [X] T013 [US1] Implement metric calculation logic in `code/generate_networks.py` by CALLING functions from `code/utils/metrics.py` (T004) to compute average degree, clustering, path length, degree distribution
-- [X] T014 [US1] Implement theoretical validation in `code/generate_networks.py` (KS-test for Scale-Free power law, 5% tolerance check for Random)
+- [X] T014a [US1] Implement theoretical validation for Scale-Free graphs: Perform KS-test on degree distribution against power law (p > 0.05) in `code/generate_networks.py`
+- [X] T014b [US1] Implement theoretical validation for Random graphs: Verify average degree and clustering coefficient within 5% of theoretical expectations in `code/generate_networks.py`
+- [X] T014c [US1] Implement theoretical validation for Small-World and Lattice graphs: Verify **average path length** matches theoretical expectations (high clustering, low path length for Small-World; regular degree, high path length for Lattice) in `code/generate_networks.py`
 - [X] T015 [US1] Implement data export to `data/raw/networks.csv` with checksum generation
 - [ ] T016 [US1] Add error handling for generation failures (log specific graph ID, exclude from final set)
 
@@ -101,12 +103,12 @@
 
 **Goal**: Numerically integrate coupled harmonic oscillator equations on generated topologies to extract energy decay rates.
 
-**Independent Test**: Verify decay rate matches analytical solution (λ = damping/2) within 1% error on a known ring graph; verify R² ≥ 0.95 for fits.
+**Independent Test**: Verify decay rate matches analytical solution (λ = damping/2) within 1% error [UNRESOLVED-CLAIM: c_2e77a4a1 — status=not_enough_info] on a known ring graph; verify R² ≥ 0.95 for fits.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T017a [P] [US2] Unit test `test_energy_conservation_no_damping` in `tests/test_simulation.py`: assert energy variance < 1e-6 for undamped system
-- [X] T017b [P] [US2] Unit test `test_analytical_decay_match` in `tests/test_simulation.py`: assert decay rate matches λ = damping/2 within 1% for ring graph
+- [X] T017a [P] [US2] Unit test `test_energy_conservation_no_damping` in `tests/test_simulation.py`: assert energy variance < 1e-6 for undamped system [UNRESOLVED-CLAIM: c_73791695 — status=not_enough_info]
+- [X] T017b [P] [US2] Unit test `test_analytical_decay_match` in `tests/test_simulation.py`: assert decay rate matches λ = damping/2 within 1% for ring graph [UNRESOLVED-CLAIM: c_bfaac2a6 — status=not_enough_info]
 - [X] T018a [P] [US2] Unit test `test_decay_extraction_fit` in `tests/test_simulation.py`: assert damped sinusoid fit on synthetic data returns R² ≥ 0.95 and correct λ
 - [X] T019a [P] [US2] Unit test `test_resonance_detection` in `tests/test_simulation.py`: assert negative decay rate is flagged when driving frequency matches natural mode
 
@@ -114,13 +116,20 @@
 
 - [X] T020 [P] [US2] Implement `code/simulate_oscillators.py` to define coupled harmonic oscillator equations of motion using Laplacian matrix
 - [ ] T021 [US2] Implement `solve_ivp` integration (T=200, driving active T=0-100) using `RK45` or `DOP853` in `code/simulate_oscillators.py` (Depends on T015: requires `data/raw/networks.csv`)
-- [ ] T022 [US2] Implement energy decay extraction: fit damped sinusoid model `E(t) = A * exp(-λt) * cos(ωt + φ) + C` to post-transient phase (t > 100)
+- [ ] T022 [US2] Implement energy decay extraction: fit damped sinusoid model `E(t) = A * exp(-λt) * cos(ωt + φ) + C` to post-transient phase (t > 100) and enforce R² ≥ 0.95 as a hard pass/fail condition
 - [ ] T023 [US2] Implement fit validation (R² ≥ 0.95) and resonance detection (negative decay rate flagging)
-- [ ] T024 [US2] Implement convergence testing: run multiple seeds for a representative topology, calculate the standard deviation of decay rates, and assert the ratio of std/mean < 0.01 ([deferred] of the mean) per SC-006; output variance plot to `data/analysis/convergence_plot.png` and metrics to `data/analysis/convergence_metrics.json`
+- [ ] T024 [US2] Implement convergence testing:
+ 1. **Wait for T015 completion** to access `data/raw/networks.csv`.
+ 2. Select a **representative topology**: the graph with the **median average degree** from `data/raw/networks.csv`.
+ 3. Run simulation on multiple random seeds for this topology.
+ 4. Calculate standard deviation of decay rates.
+ 5. **Assert `std/mean < 0.01`** (per SC-006).
+ 6. Output a variance plot to `data/analysis/convergence_plot.png` and metrics to `data/analysis/convergence_metrics.json`.
+ (Depends on T015 completion to select topology)
 - [ ] T025 [US2] Implement Laplacian eigenvalue validation against analytical solution for a ring graph
-- [ ] T026 [US2] Export results to `data/processed/energy_decay.csv` with checksums
+- [ ] T026 [US2] Export results to `data/processed/energy_decay.csv` with checksums; include a 'status' column ('dissipative' or 'resonant') to flag resonant instances (per Edge Cases) and record exclusion counts in the final report
 - [ ] T027 [US2] Add robust error handling for non-convergence (log graph ID, exclude from analysis)
-- [ ] T027b [US2] Implement resonance handling: FLAG instances with negative decay rates as "resonant", EXCLUDE them from the regression dataset, and RECORD the exclusion criteria and count of excluded instances in `data/analysis/exclusion_log.json` per Edge Cases and Data Hygiene
+- [ ] T028 [US2] Implement power limitation check: Verify dataset size (samples) >= 10 * number of predictors [UNRESOLVED-CLAIM: c_623304a8 — status=not_enough_info]. If insufficient, **halt execution** and generate `data/analysis/power_warning.txt` with a specific warning message. (Depends on T015 completion)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,30 +137,26 @@
 
 ## Phase 5: User Story 3 - Perform Statistical Correlation Analysis (Priority: P3)
 
-**Goal**: Perform PLS Regression, sensitivity analysis, and null model validation to correlate topology with dissipation.
+**Goal**: Perform Partial Least Squares (PLS) Regression (per Plan's Statistical Rigor section) with multiple-comparison corrections, sensitivity analysis, and null model validation to correlate topology with dissipation.
 
-**Independent Test**: Verify PCR/PLS output includes coefficients, corrected p-values, VIP scores, and that sensitivity sweep reports stability.
+**Independent Test**: Verify PLS output includes coefficients, VIP scores, corrected p-values, and that sensitivity sweep reports stability.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028a [P] [US3] Unit test `test_vip_score_calculation` in `tests/test_regression.py`: assert VIP scores are calculated correctly for a known input matrix
+- [ ] T028a [P] [US3] Unit test `test_pcr_coefficient_calculation` in `tests/test_regression.py`: assert PCR coefficients are calculated correctly for a known input matrix
 - [ ] T029a [P] [US3] Unit test `test_bonferroni_correction` in `tests/test_regression.py`: assert corrected p-values match expected values for a known input list
-- [ ] T030a [P] [US3] Unit test `test_null_model_permutation` in `tests/test_regression.py`: assert permutation test with N=1000 returns null distribution with mean ~0
+- [ ] T030a [P] [US3] Unit test `test_null_model_permutation` in `tests/test_regression.py`: assert permutation test with N=1000 returns null distribution with mean ~0 [UNRESOLVED-CLAIM: c_07231c20 — status=not_enough_info]
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `code/analyze_regression.py` to load `data/raw/networks.csv` and `data/processed/energy_decay.csv` (Depends on T015, T026)
-- [ ] T032 [US3] Implement Principal Component Analysis (PCA) on topological metrics to handle collinearity
-- [ ] T033 [US3] Implement Partial Least Squares (PLS) Regression to correlate PCs with decay rates (per plan.md Statistical Rigor; explicitly replaces PCR per FR-004 as per plan override)
-- [ ] T033b [US3] Implement Principal Component Regression (PCR) as mandated by spec FR-004: perform standard linear regression on PCA components to correlate with decay rates (satisfies FR-004 requirement despite plan's PLS preference)
-- [ ] T033c [US3] Implement standalone PCA specifically to satisfy FR-009: compute and extract loadings of topological metrics on the first two principal components (distinct from PLS latent components)
-- [ ] T034 [US3] Implement Variable Importance in Projection (VIP) score calculation and interpretation
-- [ ] T035 [US3] Implement Bonferroni or Holm-Bonferroni correction for p-values
-- [ ] T036 [US3] Implement sensitivity analysis: sweep significance threshold across standard levels and report predictor stability
-- [ ] T037 [US3] Implement VIF check: flag metrics with VIF > 5 and frame results descriptively
-- [ ] T038 [US3] Implement permutation test (null model validation) to ensure observed correlation exceeds a high percentile of null distribution
-- [ ] T039 [US3] Generate regression results report and loadings table in `data/analysis/regression_results.json`; ENSURE output includes loadings of topological metrics on PC1 and PC2 (from the standalone PCA in T033c, distinct from PLS weights) to satisfy FR-009
-- [ ] T040 [US3] Generate final figures: sensitivity sweep plot, null distribution histogram, VIP score bar chart
+- [ ] T031 [US3] Implement `code/analyze_regression.py` to load `data/raw/networks.csv` and `data/processed/energy_decay.csv` (Depends on T015, T026); filter out rows where status='resonant' before analysis. **Ensure consumption of the validated output of T026.**
+- [ ] T032 [US3] Perform Principal Component Analysis (PCA) on topological metrics to handle collinearity. **Extract loadings of topological metrics on PC1 and PC2**. **Generate a markdown table of these loadings and append an "Interpretation of Physical Meaning" section to `data/analysis/regression_results.md`** that explicitly explains what physical network features (e.g., "local clustering" vs "global connectivity") the first two components represent, satisfying Spec FR-009.
+- [ ] T033 [US3] Implement **Partial Least Squares (PLS) Regression** (per Plan's Statistical Rigor section; supersedes Spec FR-004's generic PCR mention) to correlate PCA components with decay rates. **Calculate VIP (Variable Importance in Projection) scores**. Apply Bonferroni or Holm-Bonferroni correction to p-values. **Document the rationale for choosing PLS over PCR in the report** (referencing Plan's specific requirement for handling collinearity and maximizing covariance). **Explicitly flag the Spec (FR-004) for update to match the Plan's PLS mandate.** Perform sensitivity analysis on p-value thresholds and VIF checks (VIF > 5) within this single task to ensure a unified analysis pipeline.
+- [ ] T034 [US3] Implement sensitivity analysis: sweep significance threshold across standard levels and **report the variance in the number of significant predictors** across the sweep to satisfy SC-004.
+- [ ] T035 [US3] Implement VIF check: flag metrics with VIF > 5 [UNRESOLVED-CLAIM: c_69a65518 — status=not_enough_info] and frame results descriptively (integrated into T033)
+- [ ] T036a [US3] Implement permutation test (null model validation) logic to ensure observed correlation exceeds a high percentile of null distribution. **Explicitly link output to the Plan's 'null model validation' requirement for PLS.**
+- [ ] T036b [US3] Implement null model validation reporting: Generate a report section in `data/analysis/regression_results.md` explicitly stating the null model methodology and results, satisfying the Plan's specific requirement for null model validation.
+- [ ] T037 [US3] Generate final regression results report and loadings table in `data/analysis/regression_results.json` and `data/analysis/regression_results.md`; include PLS coefficients, VIP scores, corrected p-values, **loadings for PC1/PC2 with interpretation**, and the count of excluded resonant instances
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -165,10 +170,11 @@
 - [ ] T041b [P] Update `README.md` with project overview, installation instructions, and usage examples
 - [ ] T042a Code cleanup: run linter (ruff) and fix all errors/warnings
 - [ ] T042b Code cleanup: run formatter (black) and remove unused imports
-- [ ] T043 Performance optimization: ensure total pipeline runs ≤ 6 hours on GitHub Actions
+- [ ] T043 [US3] Execute `code/benchmark_pipeline.py` to run the full pipeline on the standard runner; record the total wall-clock time in `state/projects/PROJ-440-investigating-the-impact-of-network-stru.yaml` and verify it is ≤ 6 hours [UNRESOLVED-CLAIM: c_e6d819ce — status=not_enough_info] (validating Plan's < 2h estimate and Spec FR-007)
 - [ ] T044a [P] Additional unit test `test_stiff_network_convergence` in `tests/test_simulation.py` for scale-free networks with extreme degree disparity
 - [ ] T044b [P] Additional unit test `test_resonance_edge_case` in `tests/test_simulation.py` for driving frequency matching natural mode
 - [ ] T045 Run `quickstart.md` validation to ensure full pipeline reproducibility
+- [ ] T046 [P] Implement `code/benchmark_pipeline.py` script to automate the full pipeline execution and timing measurement for T043
 
 ---
 

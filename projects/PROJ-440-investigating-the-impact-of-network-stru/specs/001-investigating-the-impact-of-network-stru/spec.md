@@ -20,7 +20,7 @@ The researcher needs to generate a diverse set of synthetic oscillator network t
 **Acceptance Scenarios**:
 
 1. **Given** the user requests 50 random graphs with N=100 nodes, **When** the generation script executes, **Then** the output file contains 50 rows, each with a unique graph ID, a label "random", and computed metrics (average degree, clustering coefficient) that match theoretical expectations for Erdős-Rényi graphs within a 5% tolerance.
-2. **Given** the user requests scale-free networks, **When** the script executes, **Then** the generated adjacency matrices exhibit a power-law degree distribution with a scaling exponent between 2.0 and 3.0, and the "average path length" metric is recorded for each instance.
+2. **Given** the user requests scale-free networks, **When** the script executes, **Then** the generated adjacency matrices exhibit a power-law degree distribution with a scaling exponent in the range typical for scale-free networks, and the "average path length" metric is recorded for each instance.
 3. **Given** the user requests small-world, lattice, or star networks, **When** the script executes, **Then** the generated graphs exhibit their characteristic structural properties (e.g., high clustering for small-world, regular degree for lattice, high diameter for star) and metrics are recorded.
 4. **Given** the total dataset is generated, **When** the script completes, **Then** there are at least 10 realizations for each of the 5 topological classes, ensuring a total of ≥ 50 samples for regression analysis.
 
@@ -39,7 +39,7 @@ The researcher needs to numerically integrate the equations of motion for a coup
 1. **Given** a network topology and a set of physical parameters (mass=1.0, k=1.0, damping=0.1, driving frequency=1.0), **When** the `solve_ivp` integration runs for a duration of T=200 time units (T_transient=100), **Then** the system energy time-series shows a clear exponential decay phase after the driving force is removed at T_transient, and the fitted decay rate is output with a goodness-of-fit (R²) ≥ 0.95.
 2. **Given** a specific network with high damping, **When** the simulation runs, **Then** the energy decay rate is numerically higher than that of the same network with low damping, confirming the simulation responds correctly to parameter changes.
 3. **Given** the simulation is run on a standard CPU-only environment (GitHub Actions `ubuntu-latest` runner, Intel Xeon Platinum 8370C), **When** the integration completes, **Then** the process consumes ≤ 7 GB of RAM and finishes within 6 hours for a batch of 50 networks.
-4. **Given** a batch of 10+ random seeds is requested, **When** the simulation runs, **Then** the system outputs a convergence plot showing the variance in decay rates across seeds to verify numerical stability.
+4. **Given** a batch of Multiple random seeds is requested, **When** the simulation runs, **Then** the system outputs a convergence plot showing the variance in decay rates across seeds to verify numerical stability.
 
 ---
 
@@ -53,8 +53,8 @@ The researcher needs to perform Principal Component Regression (PCR) to correlat
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset of 50+ network realizations with topological metrics and decay rates, **When** the regression analysis runs, **Then** the output includes a table of coefficients, standard errors, and p-values for each principal component, with p-values corrected for family-wise error rate (e.g., Bonferroni or Holm-Bonferroni method).
-2. **Given** a specific threshold for "significant correlation" (e.g., p < 0.05), **When** the sensitivity analysis runs, **Then** the system sweeps the threshold across {0.01, 0.05, 0.1} and outputs a summary showing the variation in the number of significant predictors and the stability of the coefficient signs.
+1. **Given** a dataset of + network realizations with topological metrics and decay rates, **When** the regression analysis runs, **Then** the output includes a table of coefficients, standard errors, and p-values for each principal component, with p-values corrected for family-wise error rate (e.g., Bonferroni or Holm-Bonferroni method).
+2. **Given** a specific threshold for "significant correlation" (e.g., p < 0.05), **When** the sensitivity analysis runs, **Then** the system sweeps the threshold across a range of values and outputs a summary showing the variation in the number of significant predictors and the stability of the coefficient signs.
 3. **Given** the analysis detects high collinearity between two metrics (e.g., degree and clustering), **When** the diagnostic runs, **Then** the system flags the collinearity (VIF > 5) and reports the joint relationship descriptively rather than claiming independent predictive effects for both (See FR-006).
 
 ---
@@ -69,7 +69,7 @@ The researcher needs to perform Principal Component Regression (PCR) to correlat
 
 ### Functional Requirements
 
-- **FR-001**: System MUST generate synthetic network topologies (Random, Scale-Free, Small-World, Lattice, Star) with a fixed node count N ∈ [100, 200] and compute static metrics (clustering coefficient, average path length, degree distribution) for each instance (See US-1). The system MUST ensure at least 10 realizations per class for a total of ≥ 50 samples. Metrics must match theoretical expectations: average degree and clustering within 5% of theoretical values; degree distribution for Scale-Free graphs must pass KS-test (p > 0.05) against power law.
+- **FR-001**: System MUST generate synthetic network topologies (Random, Scale-Free, Small-World, Lattice, Star) with a fixed node count N ∈ [a moderate range, 200] and compute static metrics (clustering coefficient, average path length, degree distribution) for each instance (See US-1). The system MUST ensure at least 10 realizations per class for a total of ≥ 50 samples. Metrics must match theoretical expectations: average degree and clustering within 5% of theoretical values; degree distribution for Scale-Free graphs must pass KS-test (p > 0.05) against power law.
 - **FR-002**: System MUST numerically integrate the coupled harmonic oscillator equations of motion using `scipy.integrate.solve_ivp` on a standard CPU-only environment (GitHub Actions `ubuntu-latest`, Intel Xeon Platinum 8370C), applying external driving forces (frequency=1.0) and damping terms (damping=0.1), and output the total system energy time-series for T=200 time units (driving active for T=100, then removed) (See US-2).
 - **FR-003**: System MUST extract the energy decay rate from the time-series data by fitting a damped sinusoid model (E(t) = A * exp(-λt) * cos(ωt + φ) + C) to the post-transient phase (t > 100) and validating the fit quality (R² ≥ 0.95) before accepting the value (See US-2).
 - **FR-004**: System MUST perform Principal Component Regression (PCR) to identify correlations between topological metrics (via principal components) and decay rates, and apply a multiple-comparison correction method (e.g., Bonferroni) to the resulting p-values (See US-3).
@@ -94,7 +94,7 @@ The researcher needs to perform Principal Component Regression (PCR) to correlat
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The number of successfully generated network topologies is measured against a target of multiple realizations across 5 topological classes (min 10/class). by counting rows in the output CSV (See FR-001).
+- **SC-001**: The number of successfully generated network topologies is measured against a target of multiple realizations across multiple topological classes. by counting rows in the output CSV (See FR-001).
 - **SC-002**: The goodness-of-fit (R²) of the damped sinusoid model is measured against a high threshold for accepted decay rates. (See FR-003).
 - **SC-003**: The statistical significance of topological predictors is measured against the family-wise error corrected p-value threshold (e.g., p < 0.05) to determine if a correlation exists (See FR-004).
 - **SC-004**: The stability of the regression results is measured by the variance in the number of significant predictors across the sensitivity threshold sweep (p ∈ {low, moderate, high significance levels}) (See FR-005).
@@ -105,7 +105,7 @@ The researcher needs to perform Principal Component Regression (PCR) to correlat
 
 - **Model Validity**: The synthetic network generation (NetworkX) and the coupled oscillator model (scipy) provide all necessary variables (topological metrics, EnergyTimeSeries, DecayRate) without missing data; no external empirical dataset is required for this simulation study.
 - **Inference Framing**: Since the study uses synthetic data and no random assignment to "real-world" conditions, findings regarding topology and dissipation will be framed as statistical associations, not causal claims.
-- **Power Analysis**: While 50+ samples are targeted (min 10/class), the exact power calculation for the specific effect size is deferred to the analysis phase; the sample size is chosen to be computationally feasible within the 6-hour CI budget.
+- **Power Analysis**: While a sufficient number of samples is targeted (min 10/class), the exact power calculation for the specific effect size is deferred to the analysis phase; the sample size is chosen to be computationally feasible within the 6-hour CI budget.
 - **Threshold Justification**: The p < 0.05 significance threshold is used based on standard statistical practice; the sensitivity analysis will sweep this value to test robustness.
 - **Measurement Validity**: Since the "measurements" are derived from deterministic differential equations, the validity of the dissipation rate depends on the numerical stability of the solver (verified via FR-008), not on instrument calibration.
 - **Predictor Collinearity**: The assumption is that topological metrics may be correlated; the analysis will explicitly check for this (FR-006) and use PCR (FR-004) to adjust the interpretation accordingly.

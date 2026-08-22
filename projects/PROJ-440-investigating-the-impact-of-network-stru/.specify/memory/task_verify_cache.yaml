@@ -1,3 +1,42 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or any file system evidence was provided showing that the
+    required folders (`code/`, `data/`, `data/raw/`, `data/processed/`, `data/analysis/`,
+    `tests/`, `contracts/`, `state/`) actually exist; the claim is unsubstantiated.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` entries,
+    `.ruff.toml`, `.flake8`, or `black` settings) were provided, nor any documentation
+    showing that ruff/flake8 and black have been set up for the project. Consequently,
+    the required artifact to satisfy task T002 is missing.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pre\u2011commit configuration files (e.g.,\u202F`.pre-commit-config.yaml`),\
+    \ hook scripts, or documentation of linting/formatting tools are present. The\
+    \ required artifact to show that pre\u2011commit hooks have been set up and are\
+    \ functional is missing."
+T006a:
+  c: false
+  h: 2b94cd525ecf3e4128f9f29ba5855bfca02714f27b0c27b9ee7ff2ba9ec57216
+  r: The required file `contracts/network_schema.schema.yaml` does not exist, so the
+    schema defining the structure of `data/raw/networks.csv` was never created. The
+    CSV file is present, but the essential schema artifact is missing.
+T006b:
+  c: false
+  h: 81b7f149dd67f13a50fed2a74f3c6841ac21655fffe6f3ea75d7c16122bd35ef
+  r: The required schema file `contracts/energy_schema.schema.yaml` does not exist
+    in the repository, so the task of defining the data structure for `data/processed/energy_decay.csv`
+    is not fulfilled. The CSV file is present, but the mandatory schema artifact is
+    missing.
+T006c:
+  c: false
+  h: b430e025f006b8d3848115d6ef70a480bbcafa63bed1178ec7707d7177066a5f
+  r: The required file `contracts/regression_schema.schema.yaml` is missing from the
+    repository, so no schema defining the structure of `data/analysis/regression_results.json`
+    is present. Without this artifact, the task is not fulfilled.
 T011a:
   c: false
   h: 23bfe476c0120ac7cda67f7ff82ed34aa1fe7b9c5fb14045c399864d45b934cd

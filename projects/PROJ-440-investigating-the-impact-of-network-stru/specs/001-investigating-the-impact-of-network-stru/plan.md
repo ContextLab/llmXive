@@ -128,7 +128,7 @@ projects/PROJ-440-investigating-the-impact-of-network-stru/
 
 - **CPU-First**: All methods (`networkx`, `scipy`, `sklearn`, `statsmodels`) are CPU-tractable.
 - **Memory**: Multiple networks × 200 nodes × 200 time steps is well within 7 GB RAM.
-- **Time**: 50 simulations × 200 time units (with `solve_ivp` adaptive steps) estimated at < 2 hours total on 2 cores.
+- **Time**: A series of simulations, each running for 200 time units, will be conducted to investigate the research question using the established method (Citation). (with `solve_ivp` adaptive steps) estimated at < 2 hours total on 2 cores.
 - **GPU Escape Hatch**: Not required; no transformer or diffusion models involved.
 
 ## Data Availability

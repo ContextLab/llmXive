@@ -6,61 +6,96 @@ from scipy import stats
 from typing import Dict, List, Tuple, Optional, Union
 
 def calculate_vif(features: pd.DataFrame) -> pd.Series:
-    """Calculate Variance Inflation Factor for each feature."""
+    """
+    Calculate Variance Inflation Factor (VIF) for each feature.
+    
+    Args:
+        features: DataFrame containing features (predictors).
+        
+    Returns:
+        pd.Series: VIF values for each feature.
+    """
     vif_data = pd.Series()
-    for i, col in enumerate(features.columns):
-        X = features.drop(columns=[col])
-        y = features[col]
-        try:
-            model = pd.DataFrame(y).join(X)
-            # Simple linear regression to get R^2
-            # Note: In a real scenario, we might use sklearn or statsmodels
-            # Here we use a simplified approach for the demo
-            if X.shape[1] == 0:
-                vif_data[col] = 1.0
-                continue
-            # Use correlation matrix for VIF approximation if needed, 
-            # but standard VIF requires regression.
-            # Implementing full VIF calculation:
+    for col in features.columns:
+        other_cols = [c for c in features.columns if c != col]
+        if len(other_cols) == 0:
+            vif_data[col] = 1.0
+        else:
+            r2 = stats.linregress(features[col], features[other_cols].mean(axis=1)).rvalue ** 2
+            # Better approach: use linear regression model
             from sklearn.linear_model import LinearRegression
-            lr = LinearRegression()
-            lr.fit(X, y)
-            r_squared = lr.score(X, y)
-            vif = 1.0 / (1.0 - r_squared)
-            vif_data[col] = vif
-        except Exception:
-            vif_data[col] = np.inf
+            model = LinearRegression()
+            model.fit(features[other_cols], features[col])
+            r2 = model.score(features[other_cols], features[col])
+            vif_data[col] = 1.0 / (1.0 - r2) if r2 < 1.0 else float('inf')
     return vif_data
 
-def plot_convergence(decay_rates: List[float], output_path: str = "data/analysis/convergence_plot.png") -> None:
-    """Plot the convergence of decay rates."""
+def plot_convergence(seeds: List[int], decay_rates: List[float], output_path: str):
+    """
+    Plot the convergence of decay rates across different random seeds.
+    
+    Args:
+        seeds: List of random seeds used.
+        decay_rates: List of decay rates obtained.
+        output_path: Path to save the plot.
+    """
     plt.figure(figsize=(10, 6))
-    plt.plot(range(len(decay_rates)), decay_rates, marker='o')
-    plt.xlabel("Iteration")
-    plt.ylabel("Decay Rate")
-    plt.title("Convergence of Decay Rates")
-    plt.grid(True)
+    plt.errorbar(seeds, decay_rates, yerr=np.std(decay_rates), fmt='o', capsize=5)
+    plt.axhline(y=np.mean(decay_rates), color='r', linestyle='--', label='Mean')
+    plt.xlabel('Random Seed')
+    plt.ylabel('Decay Rate')
+    plt.title('Convergence of Decay Rates')
+    plt.legend()
     plt.savefig(output_path)
     plt.close()
 
-def generate_ring_analytical_eigenvalues(n: int) -> np.ndarray:
-    """Generate analytical eigenvalues for a ring graph Laplacian."""
-    k = np.arange(n)
-    return 2 - 2 * np.cos(2 * np.pi * k / n)
+def generate_ring_analytical_eigenvalues(N: int) -> np.ndarray:
+    """
+    Generate analytical eigenvalues for a ring graph Laplacian.
+    
+    Args:
+        N: Number of nodes in the ring.
+        
+    Returns:
+        np.ndarray: Array of eigenvalues.
+    """
+    k = np.arange(N)
+    eigenvalues = 2 - 2 * np.cos(2 * np.pi * k / N)
+    return eigenvalues
 
-def validate_laplacian_eigenvalues(graph: nx.Graph, tol: float = 1e-6) -> Tuple[bool, float]:
-    """Validate Laplacian eigenvalues against analytical solution for a ring graph."""
-    if not nx.is_cycle_graph(graph):
-        return False, 0.0
+def validate_laplacian_eigenvalues(graph: nx.Graph, tolerance: float = 1e-6) -> bool:
+    """
+    Validate the Laplacian eigenvalues of a graph against analytical solutions for specific topologies.
     
-    n = graph.number_of_nodes()
-    laplacian = nx.laplacian_matrix(graph).toarray()
-    eigenvalues = np.linalg.eigvalsh(laplacian)
-    analytical = generate_ring_analytical_eigenvalues(n)
+    Args:
+        graph: A NetworkX graph.
+        tolerance: Tolerance for comparison.
+        
+    Returns:
+        bool: True if validation passes, False otherwise.
+    """
+    L = nx.laplacian_matrix(graph).toarray()
+    eigenvalues = np.linalg.eigvalsh(L)
+    eigenvalues = np.sort(eigenvalues)
     
-    max_diff = np.max(np.abs(np.sort(eigenvalues) - np.sort(analytical)))
-    return max_diff < tol, max_diff
+    # For a ring graph
+    N = graph.number_of_nodes()
+    if N > 2 and all(graph.degree() == 2):  # Check if it's a ring
+        analytical = generate_ring_analytical_eigenvalues(N)
+        analytical = np.sort(analytical)
+        if not np.allclose(eigenvalues, analytical, atol=tolerance):
+            return False
+    return True
 
 def check_vif_threshold(vif_values: pd.Series, threshold: float = 5.0) -> List[str]:
-    """Check which features exceed the VIF threshold."""
+    """
+    Check which features exceed the VIF threshold.
+    
+    Args:
+        vif_values: Series of VIF values.
+        threshold: VIF threshold.
+        
+    Returns:
+        List[str]: List of feature names exceeding the threshold.
+    """
     return [col for col, vif in vif_values.items() if vif > threshold]

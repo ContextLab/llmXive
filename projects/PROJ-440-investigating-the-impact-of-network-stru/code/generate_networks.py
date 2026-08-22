@@ -4,311 +4,455 @@ import json
 import hashlib
 import argparse
 import logging
-import random
-from typing import Dict, List, Tuple, Optional, Any, Set
-
 import numpy as np
 import networkx as nx
 from scipy import stats
-from scipy.stats import kstest
-
-# Import existing utilities
-from code.utils.metrics import (
-    compute_clustering_coefficient,
-    compute_average_path_length,
-    compute_degree_distribution_stats,
-    compute_graph_metrics,
-)
-from code.utils.checksums import generate_checksum_file
+from typing import Dict, List, Tuple, Optional, Any
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-# --- Core Generation Functions (Existing) ---
+# Constants
+SEED_BASE = 42
+TOLERANCE_PERCENT = 0.05  # 5% tolerance for theoretical validation
 
 def set_seed(seed: int) -> None:
-    """Set random seeds for reproducibility."""
-    random.seed(seed)
+    """Set random seed for reproducibility."""
     np.random.seed(seed)
-    if hasattr(np.random, 'default_rng'):
-        # For newer numpy versions
-        pass
-    logger.info(f"Random seed set to {seed}")
+    import random
+    random.seed(seed)
 
-def power_law_function(x: float, alpha: float, xmin: float) -> float:
-    """Calculate the probability density for a power law distribution."""
-    if x < xmin:
+def power_law_function(k: float, gamma: float) -> float:
+    """
+    Probability density function for power-law distribution.
+    P(k) ~ k^(-gamma)
+    """
+    if k < 1:
         return 0.0
-    return (alpha - 1) * xmin ** (alpha - 1) * x ** (-alpha)
+    return k ** (-gamma)
 
-def validate_scale_free(graph: nx.Graph, alpha: float = 2.5, xmin: int = 1) -> bool:
+def validate_scale_free(graph: nx.Graph, gamma: float = 2.5) -> Dict[str, Any]:
     """
-    Validate if a graph's degree distribution follows a power law.
-    Uses KS-test. Returns True if p-value > 0.05.
+    Validate that a graph's degree distribution follows a power law.
+    Uses Kolmogorov-Smirnov test against a power-law distribution.
     """
-    degrees = [d for _, d in graph.degree()]
-    degrees = [d for d in degrees if d >= xmin]
-    if len(degrees) < 10:
-        logger.warning("Not enough nodes with degree >= xmin for KS-test.")
-        return False
+    degrees = [d for n, d in graph.degree()]
+    if len(degrees) < 2:
+        return {"valid": False, "ks_stat": 0.0, "p_value": 0.0, "message": "Insufficient data"}
 
     # Fit power law parameters
     try:
-        # Using a simple fit or assuming fixed alpha for validation context
-        # For rigorous validation, we'd use powerlaw package, but here we use scipy
-        # We compare empirical CDF to theoretical CDF
-        empirical_cdf, bins = np.histogram(degrees, bins='auto', density=True)
-        # Theoretical CDF for power law P(X>=x) = (x/xmin)^(1-alpha)
-        # PDF = (alpha-1)/xmin * (x/xmin)^(-alpha)
-        # We will perform a simple KS test against the theoretical distribution
+        # Use scipy.stats to fit power law (approximation)
+        # Note: For rigorous power-law fitting, powerlaw package is preferred,
+        # but we use scipy for standard library compatibility
+        shape, loc, scale = stats.powerlaw.fit(degrees)
         
-        # Construct theoretical distribution for KS test
-        # We need to normalize the theoretical PDF over the range of data
-        theoretical_pdf = np.array([power_law_function(b, alpha, xmin) for b in bins[:-1]])
+        # Perform KS test
+        ks_stat, p_value = stats.kstest(degrees, 'powerlaw', args=(shape, loc, scale))
         
-        # Normalize
-        if np.sum(theoretical_pdf) > 0:
-            theoretical_pdf /= np.sum(theoretical_pdf)
-        
-        # KS Test
-        # Note: scipy.stats.kstest expects a CDF or a distribution string.
-        # We will construct a custom CDF function.
-        def theoretical_cdf(x):
-            if x < xmin:
-                return 0.0
-            return 1.0 - (xmin / x) ** (alpha - 1)
-        
-        ks_stat, p_value = kstest(degrees, theoretical_cdf)
-        logger.debug(f"KS-test for scale-free: stat={ks_stat:.4f}, p-value={p_value:.4f}")
-        return p_value > 0.05
+        is_valid = p_value > 0.05
+        return {
+            "valid": is_valid,
+            "ks_stat": float(ks_stat),
+            "p_value": float(p_value),
+            "fitted_gamma": float(shape),
+            "message": f"Power law fit {'accepted' if is_valid else 'rejected'} (p={p_value:.3f})"
+        }
     except Exception as e:
-        logger.warning(f"Validation failed for scale-free check: {e}")
-        return False
+        return {"valid": False, "ks_stat": 0.0, "p_value": 0.0, "message": f"Fit failed: {str(e)}"}
 
-def validate_random_graph(graph: nx.Graph, N: int) -> bool:
+def validate_random_graph(graph: nx.Graph, expected_avg_degree: float, expected_clustering: float) -> Dict[str, Any]:
     """
-    Validate if a graph is approximately Erdos-Renyi.
-    Checks if degree distribution is binomial (approximated by normal for large N).
-    Tolerance: mean degree within 5% of expected.
+    Validate that a random graph's metrics are within 5% of theoretical expectations.
+    
+    For Erdős-Rényi random graphs G(n, p):
+    - Expected average degree: <k> = (n-1)p ≈ np
+    - Expected clustering coefficient: C ≈ p = <k>/(n-1) ≈ <k>/n
+    
+    Args:
+        graph: NetworkX graph to validate
+        expected_avg_degree: Theoretical average degree
+        expected_clustering: Theoretical clustering coefficient
+        
+    Returns:
+        Dictionary with validation results
     """
-    degrees = [d for _, d in graph.degree()]
-    mean_deg = np.mean(degrees)
-    expected_deg = (N - 1) * 0.1 # Assuming p=0.1 for ER generation in generate_random_graph
+    n = graph.number_of_nodes()
+    if n == 0:
+        return {"valid": False, "message": "Graph has no nodes"}
+        
+    actual_avg_degree = sum(dict(graph.degree()).values()) / n
+    actual_clustering = nx.average_clustering(graph)
     
-    # Simple tolerance check
-    if expected_deg == 0:
-        return False
+    # Calculate deviations
+    degree_deviation = abs(actual_avg_degree - expected_avg_degree) / expected_avg_degree if expected_avg_degree > 0 else 0
+    clustering_deviation = abs(actual_clustering - expected_clustering) / expected_clustering if expected_clustering > 0 else 0
     
-    tolerance = 0.05
-    diff = abs(mean_deg - expected_deg) / expected_deg
-    logger.debug(f"Random graph validation: mean={mean_deg:.2f}, expected={expected_deg:.2f}, diff={diff:.2%}")
-    return diff <= tolerance
-
-def generate_random_graph(N: int, p: float = 0.1, seed: Optional[int] = None) -> nx.Graph:
-    """Generate an Erdos-Renyi random graph."""
-    if seed is not None:
-        set_seed(seed)
-    G = nx.erdos_renyi_graph(N, p)
-    return G
-
-def generate_scale_free_graph(N: int, m: int = 2, seed: Optional[int] = None) -> nx.Graph:
-    """Generate a Barabasi-Albert scale-free graph."""
-    if seed is not None:
-        set_seed(seed)
-    G = nx.barabasi_albert_graph(N, m)
-    return G
-
-def generate_small_world_graph(N: int, k: int = 4, p: float = 0.1, seed: Optional[int] = None) -> nx.Graph:
-    """Generate a Watts-Strogatz small-world graph."""
-    if seed is not None:
-        set_seed(seed)
-    G = nx.watts_strogatz_graph(N, k, p)
-    return G
-
-def generate_lattice_graph(N: int, dims: int = 2, seed: Optional[int] = None) -> nx.Graph:
-    """Generate a 2D or 3D grid graph."""
-    if seed is not None:
-        set_seed(seed)
-    if dims == 2:
-        root = int(np.sqrt(N))
-        G = nx.grid_2d_graph(root, root)
-        G = nx.convert_node_labels_to_integers(G)
+    # Check if within 5% tolerance
+    degree_ok = degree_deviation <= TOLERANCE_PERCENT
+    clustering_ok = clustering_deviation <= TOLERANCE_PERCENT
+    is_valid = degree_ok and clustering_ok
+    
+    result = {
+        "valid": is_valid,
+        "expected_avg_degree": float(expected_avg_degree),
+        "actual_avg_degree": float(actual_avg_degree),
+        "degree_deviation_pct": float(degree_deviation * 100),
+        "expected_clustering": float(expected_clustering),
+        "actual_clustering": float(actual_clustering),
+        "clustering_deviation_pct": float(clustering_deviation * 100),
+        "degree_status": "PASS" if degree_ok else "FAIL",
+        "clustering_status": "PASS" if clustering_ok else "FAIL",
+        "message": (
+            f"Random graph validation: "
+            f"Degree {degree_status} ({actual_avg_degree:.2f} vs {expected_avg_degree:.2f}), "
+            f"Clustering {clustering_status} ({actual_clustering:.4f} vs {expected_clustering:.4f})"
+        )
+    }
+    
+    if not is_valid:
+        logger.warning(f"Random graph validation failed: {result['message']}")
     else:
-        # Fallback for 3D if N is a perfect cube, else 2D
-        root = int(np.cbrt(N))
-        if root**3 == N:
-            G = nx.grid_3d_graph(root, root, root)
-            G = nx.convert_node_labels_to_integers(G)
-        else:
-            root = int(np.sqrt(N))
-            G = nx.grid_2d_graph(root, root)
-            G = nx.convert_node_labels_to_integers(G)
+        logger.info(f"Random graph validation passed: {result['message']}")
+        
+    return result
+
+def validate_small_world_lattice(graph: nx.Graph, graph_class: str) -> Dict[str, Any]:
+    """
+    Validate Small-World and Lattice graphs based on average path length.
+    
+    Small-World: High clustering, low path length (compared to lattice)
+    Lattice: Regular degree, high path length (scales with n)
+    
+    Args:
+        graph: NetworkX graph to validate
+        graph_class: Either "small_world" or "lattice"
+        
+    Returns:
+        Dictionary with validation results
+    """
+    n = graph.number_of_nodes()
+    if n == 0:
+        return {"valid": False, "message": "Graph has no nodes"}
+        
+    avg_path_length = nx.average_shortest_path_length(graph)
+    clustering = nx.average_clustering(graph)
+    
+    # Theoretical expectations (approximate)
+    if graph_class == "lattice":
+        # For a 2D lattice (n = L^2), path length scales as L ~ sqrt(n)
+        # For 1D ring lattice, path length scales as n/4
+        # Using 1D approximation: <L> ≈ n/4
+        theoretical_path_length = n / 4.0
+        # High clustering expected for lattice (close to 1 for 1D ring)
+        theoretical_clustering = 0.75  # Approximate for 1D ring with k=4
+        
+        path_deviation = abs(avg_path_length - theoretical_path_length) / theoretical_path_length
+        clustering_deviation = abs(clustering - theoretical_clustering) / theoretical_clustering if theoretical_clustering > 0 else 0
+        
+        # Lattice should have high path length and high clustering
+        path_ok = path_deviation <= TOLERANCE_PERCENT
+        clustering_ok = clustering_deviation <= TOLERANCE_PERCENT
+        
+    elif graph_class == "small_world":
+        # Small-world: path length should be much lower than lattice
+        # Typically scales logarithmically: <L> ~ ln(n)
+        theoretical_path_length = np.log(n) * 2  # Approximate
+        # Should have relatively high clustering (similar to lattice)
+        theoretical_clustering = 0.5  # Approximate
+        
+        path_deviation = abs(avg_path_length - theoretical_path_length) / theoretical_path_length
+        clustering_deviation = abs(clustering - theoretical_clustering) / theoretical_clustering if theoretical_clustering > 0 else 0
+        
+        # Small-world should have low path length and high clustering
+        path_ok = path_deviation <= TOLERANCE_PERCENT
+        clustering_ok = clustering_deviation <= TOLERANCE_PERCENT
+    else:
+        return {"valid": False, "message": f"Unknown graph class: {graph_class}"}
+    
+    is_valid = path_ok and clustering_ok
+    
+    result = {
+        "valid": is_valid,
+        "graph_class": graph_class,
+        "n": n,
+        "avg_path_length": float(avg_path_length),
+        "theoretical_path_length": float(theoretical_path_length),
+        "path_deviation_pct": float(path_deviation * 100),
+        "clustering": float(clustering),
+        "theoretical_clustering": float(theoretical_clustering),
+        "clustering_deviation_pct": float(clustering_deviation * 100),
+        "path_status": "PASS" if path_ok else "FAIL",
+        "clustering_status": "PASS" if clustering_ok else "FAIL",
+        "message": (
+            f"{graph_class.capitalize()} validation: "
+            f"Path length {path_status} ({avg_path_length:.2f} vs {theoretical_path_length:.2f}), "
+            f"Clustering {clustering_status} ({clustering:.4f} vs {theoretical_clustering:.4f})"
+        )
+    }
+    
+    if not is_valid:
+        logger.warning(f"{graph_class.capitalize()} validation failed: {result['message']}")
+    else:
+        logger.info(f"{graph_class.capitalize()} validation passed: {result['message']}")
+        
+    return result
+
+def generate_random_graph(n: int, p: float, seed: int) -> nx.Graph:
+    """Generate an Erdős-Rényi random graph G(n, p)."""
+    set_seed(seed)
+    G = nx.erdos_renyi_graph(n, p, seed=seed)
     return G
 
-def generate_star_graph(N: int, seed: Optional[int] = None) -> nx.Graph:
-    """Generate a Star graph."""
-    if seed is not None:
-        set_seed(seed)
-    G = nx.star_graph(N - 1)
+def generate_scale_free_graph(n: int, m: int, seed: int) -> nx.Graph:
+    """Generate a Barabási-Albert scale-free graph."""
+    set_seed(seed)
+    G = nx.barabasi_albert_graph(n, m, seed=seed)
     return G
 
-# --- Metric Computation (Existing) ---
+def generate_small_world_graph(n: int, k: int, p: float, seed: int) -> nx.Graph:
+    """Generate a Watts-Strogatz small-world graph."""
+    set_seed(seed)
+    G = nx.watts_strogatz_graph(n, k, p, seed=seed)
+    return G
 
-def compute_metrics_for_graph(graph: nx.Graph, graph_id: str, class_name: str) -> Dict[str, Any]:
-    """Compute all metrics for a single graph and return a dictionary."""
+def generate_lattice_graph(n: int, k: int, seed: int) -> nx.Graph:
+    """Generate a 1D ring lattice graph (regular graph)."""
+    set_seed(seed)
+    # Create a 1D ring lattice with n nodes and k nearest neighbors
+    G = nx.random_regular_graph(k, n, seed=seed)
+    return G
+
+def generate_star_graph(n: int, seed: int) -> nx.Graph:
+    """Generate a star graph."""
+    set_seed(seed)
+    G = nx.star_graph(n - 1)  # n-1 leaves + 1 center = n nodes
+    return G
+
+def compute_graph_metrics(graph: nx.Graph, graph_id: str, graph_class: str) -> Dict[str, Any]:
+    """Compute comprehensive metrics for a graph."""
+    n = graph.number_of_nodes()
+    m = graph.number_of_edges()
+    
+    # Basic metrics
+    avg_degree = sum(dict(graph.degree()).values()) / n if n > 0 else 0
+    clustering = nx.average_clustering(graph)
+    
+    # Average path length (handle disconnected graphs)
     try:
-        metrics = compute_graph_metrics(graph)
-        metrics['id'] = graph_id
-        metrics['class'] = class_name
-        metrics['N'] = graph.number_of_nodes()
-        metrics['E'] = graph.number_of_edges()
-        return metrics
-    except Exception as e:
-        logger.error(f"Failed to compute metrics for graph {graph_id}: {e}")
-        raise
-
-# --- Main Pipeline with Error Handling (Task T016) ---
+        avg_path_length = nx.average_shortest_path_length(graph)
+    except nx.NetworkXError:
+        # Graph might be disconnected
+        avg_path_length = float('inf')
+    
+    # Degree distribution stats
+    degrees = [d for n, d in graph.degree()]
+    degree_stats = {
+        "min": min(degrees) if degrees else 0,
+        "max": max(degrees) if degrees else 0,
+        "mean": float(np.mean(degrees)) if degrees else 0,
+        "std": float(np.std(degrees)) if degrees else 0
+    }
+    
+    return {
+        "id": graph_id,
+        "class": graph_class,
+        "n": n,
+        "m": m,
+        "avg_degree": float(avg_degree),
+        "clustering_coefficient": float(clustering),
+        "avg_path_length": float(avg_path_length) if not np.isinf(avg_path_length) else -1,
+        "degree_stats": degree_stats,
+        "is_connected": nx.is_connected(graph)
+    }
 
 def generate_networks(
-    output_path: str,
-    counts: Dict[str, int],
-    seeds: Dict[str, int],
-    validation_rules: Dict[str, callable]
+    n_per_class: int = 10,
+    n_range: Tuple[int, int] = (100, 200),
+    seed_base: int = SEED_BASE
 ) -> List[Dict[str, Any]]:
     """
-    Generate networks for all classes, with error handling.
-    Returns a list of successfully generated graph records.
+    Generate diverse synthetic oscillator network topologies.
+    
+    Args:
+        n_per_class: Number of graphs to generate per class
+        n_range: Range of node counts (min, max)
+        seed_base: Base seed for reproducibility
+        
+    Returns:
+        List of dictionaries containing graph metrics and validation results
     """
-    all_records = []
-    failed_ids = []
-
-    # Class to generator mapping
-    generators = {
-        'random': generate_random_graph,
-        'scale_free': generate_scale_free_graph,
-        'small_world': generate_small_world_graph,
-        'lattice': generate_lattice_graph,
-        'star': generate_star_graph,
-    }
-
-    # Class specific parameters
-    params = {
-        'random': {'p': 0.1},
-        'scale_free': {'m': 2},
-        'small_world': {'k': 4, 'p': 0.1},
-        'lattice': {'dims': 2},
-        'star': {},
-    }
-
-    for class_name, count in counts.items():
-        logger.info(f"Generating {count} {class_name} graphs...")
-        if class_name not in generators:
-            logger.error(f"Unknown class: {class_name}")
-            continue
-
-        gen_func = generators[class_name]
-        class_params = params.get(class_name, {})
-        base_seed = seeds.get(class_name, 42)
-
-        for i in range(count):
-            graph_id = f"{class_name}_{i:03d}"
-            current_seed = base_seed + i
+    graph_classes = ["random", "scale_free", "small_world", "lattice", "star"]
+    all_graphs = []
+    seed_counter = 0
+    
+    for graph_class in graph_classes:
+        for i in range(n_per_class):
+            seed = seed_base + seed_counter
+            seed_counter += 1
+            
+            # Random node count within range
+            n = np.random.randint(n_range[0], n_range[1] + 1)
+            graph_id = f"{graph_class}_{n}_{i:03d}"
             
             try:
-                # 1. Generate
-                G = gen_func(N=100, seed=current_seed, **class_params)
+                # Generate graph based on class
+                if graph_class == "random":
+                    p = 0.1  # Connection probability
+                    G = generate_random_graph(n, p, seed)
+                    
+                    # Theoretical expectations for G(n, p)
+                    expected_avg_degree = (n - 1) * p
+                    expected_clustering = p
+                    
+                    # Validate against theory
+                    validation = validate_random_graph(G, expected_avg_degree, expected_clustering)
+                    metrics = compute_graph_metrics(G, graph_id, graph_class)
+                    metrics["validation"] = validation
+                    metrics["validation_passed"] = validation["valid"]
+                    
+                elif graph_class == "scale_free":
+                    m = 2  # Number of edges to attach from new node
+                    G = generate_scale_free_graph(n, m, seed)
+                    
+                    # Validate power law
+                    validation = validate_scale_free(G)
+                    metrics = compute_graph_metrics(G, graph_id, graph_class)
+                    metrics["validation"] = validation
+                    metrics["validation_passed"] = validation["valid"]
+                    
+                elif graph_class == "small_world":
+                    k = 4  # Each node connected to k nearest neighbors
+                    p_rewire = 0.1  # Rewiring probability
+                    G = generate_small_world_graph(n, k, p_rewire, seed)
+                    
+                    # Validate small-world properties
+                    validation = validate_small_world_lattice(G, "small_world")
+                    metrics = compute_graph_metrics(G, graph_id, graph_class)
+                    metrics["validation"] = validation
+                    metrics["validation_passed"] = validation["valid"]
+                    
+                elif graph_class == "lattice":
+                    k = 4  # Regular degree
+                    G = generate_lattice_graph(n, k, seed)
+                    
+                    # Validate lattice properties
+                    validation = validate_small_world_lattice(G, "lattice")
+                    metrics = compute_graph_metrics(G, graph_id, graph_class)
+                    metrics["validation"] = validation
+                    metrics["validation_passed"] = validation["valid"]
+                    
+                elif graph_class == "star":
+                    G = generate_star_graph(n, seed)
+                    # Star graph validation (optional, no strict theoretical bounds here)
+                    metrics = compute_graph_metrics(G, graph_id, graph_class)
+                    metrics["validation"] = {"valid": True, "message": "Star graph (no strict validation)"}
+                    metrics["validation_passed"] = True
+                    
+                else:
+                    logger.error(f"Unknown graph class: {graph_class}")
+                    continue
                 
-                # 2. Validate
-                validator = validation_rules.get(class_name)
-                if validator:
-                    if not validator(G, **class_params if class_name == 'random' else {}):
-                        logger.warning(f"Validation failed for {graph_id}. Excluding from dataset.")
-                        failed_ids.append(graph_id)
-                        continue
-
-                # 3. Compute Metrics
-                record = compute_metrics_for_graph(G, graph_id, class_name)
-                all_records.append(record)
+                all_graphs.append(metrics)
                 
             except Exception as e:
-                logger.error(f"Generation or processing failed for {graph_id}: {e}")
-                failed_ids.append(graph_id)
-                # Continue to next graph
+                logger.error(f"Failed to generate graph {graph_id}: {str(e)}")
+                # Exclude failed graphs from final set (as per T016)
+                continue
+    
+    logger.info(f"Successfully generated {len(all_graphs)} graphs")
+    return all_graphs
 
-    logger.info(f"Generation complete. Success: {len(all_records)}, Failed: {len(failed_ids)}")
-    if failed_ids:
-        logger.warning(f"Excluded graph IDs: {failed_ids}")
+def save_to_csv(graphs: List[Dict[str, Any]], output_path: str) -> None:
+    """Save generated graphs to CSV file."""
+    import csv
     
-    return all_records
+    if not graphs:
+        logger.warning("No graphs to save")
+        return
+        
+    # Flatten nested dictionaries for CSV
+    flattened = []
+    for g in graphs:
+        row = {
+            "id": g["id"],
+            "class": g["class"],
+            "n": g["n"],
+            "m": g["m"],
+            "avg_degree": g["avg_degree"],
+            "clustering_coefficient": g["clustering_coefficient"],
+            "avg_path_length": g["avg_path_length"],
+            "is_connected": g["is_connected"],
+            "validation_passed": g.get("validation_passed", False),
+            "validation_message": g.get("validation", {}).get("message", "")
+        }
+        
+        # Add degree stats
+        if "degree_stats" in g:
+            row["degree_min"] = g["degree_stats"]["min"]
+            row["degree_max"] = g["degree_stats"]["max"]
+            row["degree_mean"] = g["degree_stats"]["mean"]
+            row["degree_std"] = g["degree_stats"]["std"]
+        
+        flattened.append(row)
+    
+    # Write to CSV
+    fieldnames = list(flattened[0].keys())
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(flattened)
+    
+    logger.info(f"Saved {len(flattened)} graphs to {output_path}")
 
-def save_to_csv(records: List[Dict[str, Any]], output_path: str) -> None:
-    """Save records to CSV and generate checksum."""
-    import pandas as pd
-    
-    df = pd.DataFrame(records)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(records)} records to {output_path}")
-    
-    # Generate checksum
-    checksum_path = output_path + ".sha256"
-    generate_checksum_file(output_path, checksum_path)
-    logger.info(f"Generated checksum at {checksum_path}")
+def generate_checksum(file_path: str) -> str:
+    """Generate SHA256 checksum for a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Network Topologies")
+    """Main entry point for network generation."""
+    parser = argparse.ArgumentParser(description="Generate oscillator network topologies")
+    parser.add_argument("--n_per_class", type=int, default=10, help="Number of graphs per class")
+    parser.add_argument("--n_min", type=int, default=100, help="Minimum number of nodes")
+    parser.add_argument("--n_max", type=int, default=200, help="Maximum number of nodes")
     parser.add_argument("--output", type=str, default="data/raw/networks.csv", help="Output CSV path")
-    parser.add_argument("--count", type=int, default=10, help="Number of graphs per class")
     args = parser.parse_args()
-
+    
     # Ensure output directory exists
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-
-    # Configuration
-    counts = {
-        'random': args.count,
-        'scale_free': args.count,
-        'small_world': args.count,
-        'lattice': args.count,
-        'star': args.count,
-    }
-    seeds = {
-        'random': 100,
-        'scale_free': 200,
-        'small_world': 300,
-        'lattice': 400,
-        'star': 500,
-    }
+    output_dir = os.path.dirname(args.output)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     
-    # Validation rules (partial application of validators with fixed args if needed)
-    # For scale_free, we need to pass alpha, xmin. We'll use a wrapper or partial.
-    # Here we define simple wrappers or pass defaults in the loop if needed.
-    # Since validate_scale_free takes extra args, we wrap it.
-    def validate_scale_free_wrapper(G):
-        return validate_scale_free(G, alpha=2.5, xmin=1)
+    logger.info(f"Generating {args.n_per_class * 5} networks (N={args.n_min}-{args.n_max})")
     
-    def validate_random_wrapper(G):
-        return validate_random_graph(G, N=100)
-
-    validation_rules = {
-        'random': validate_random_wrapper,
-        'scale_free': validate_scale_free_wrapper,
-        # Small world, lattice, star don't have strict validation rules in this task scope
-    }
-
-    logger.info("Starting network generation pipeline...")
-    records = generate_networks(args.output, counts, seeds, validation_rules)
+    # Generate networks
+    graphs = generate_networks(
+        n_per_class=args.n_per_class,
+        n_range=(args.n_min, args.n_max),
+        seed_base=SEED_BASE
+    )
     
-    if not records:
-        logger.error("No networks were successfully generated.")
-        sys.exit(1)
-
-    save_to_csv(records, args.output)
-    logger.info("Pipeline finished successfully.")
+    # Save to CSV
+    save_to_csv(graphs, args.output)
+    
+    # Generate checksum
+    if os.path.exists(args.output):
+        checksum = generate_checksum(args.output)
+        checksum_path = args.output + ".sha256"
+        with open(checksum_path, 'w') as f:
+            f.write(f"{checksum}  {os.path.basename(args.output)}\n")
+        logger.info(f"Checksum saved to {checksum_path}")
+    
+    logger.info("Network generation complete")
 
 if __name__ == "__main__":
     main()

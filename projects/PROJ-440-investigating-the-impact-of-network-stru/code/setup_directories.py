@@ -3,11 +3,23 @@ from pathlib import Path
 
 def setup_directories():
     """
-    Creates the required directory structure for the project:
-    code/, data/, data/raw/, data/processed/, data/analysis/,
-    tests/, contracts/, state/
+    Create the required directory structure for the project.
+    
+    Creates the following directories relative to the project root:
+    - code/
+    - data/
+    - data/raw/
+    - data/processed/
+    - data/analysis/
+    - tests/
+    - contracts/
+    - state/
+    
+    Returns:
+        dict: A dictionary mapping directory names to their absolute paths.
     """
-    base_path = Path(".")
+    base_path = Path(__file__).resolve().parent.parent
+    
     directories = [
         "code",
         "data",
@@ -18,19 +30,20 @@ def setup_directories():
         "contracts",
         "state"
     ]
-
-    created_count = 0
+    
+    created_paths = {}
+    
     for dir_name in directories:
         full_path = base_path / dir_name
-        if not full_path.exists():
+        try:
             full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-        # Ensure existence even if it was already there
-        if full_path.exists():
-            pass # Already exists or just created
-
-    return created_count
+            created_paths[dir_name] = str(full_path)
+            print(f"Created directory: {full_path}")
+        except OSError as e:
+            print(f"Error creating directory {full_path}: {e}")
+            raise
+    
+    return created_paths
 
 if __name__ == "__main__":
-    count = setup_directories()
-    print(f"Directory setup complete. Created/verified {count} new directories.")
+    setup_directories()
