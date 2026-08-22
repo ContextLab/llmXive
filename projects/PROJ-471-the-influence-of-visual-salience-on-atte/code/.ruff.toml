@@ -1,0 +1,23 @@
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "N",  # pep8-naming
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "C901", # too complex (handled by separate check if needed)
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in init files for re-exports
+
+[format]
+# Match Black's default line length
+line-length = 88
+target-version = "py311"

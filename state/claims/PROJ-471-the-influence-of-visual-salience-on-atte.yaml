@@ -1,0 +1,67 @@
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/plan.md
+  attempts: 1
+  canonical: study uses OpenNeuro ds004380 dataset
+  claim_id: c_11d6df07
+  context: 'Functional Requirements (FR) list FR-001: Download and cache the OpenNeuro
+    dataset (ds004380).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_uses_OpenNeuro_ds004380_dataset
+  kind: entity_fact
+  raw_text: The study utilizes the OpenNeuro dataset (ds004380).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:55:44Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/plan.md
+  attempts: 1
+  canonical: COCO dataset used by YOLOv8 lacks distinct weapon class
+  claim_id: c_d20abe28
+  context: FR-008 was rejected because the COCO dataset (used by YOLOv8) does not
+    have a distinct 'weapon' class.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/COCO_dataset_used_by_YOLOv8_lacks_distinct_weapon_class
+  kind: entity_fact
+  raw_text: The COCO dataset (used by YOLOv8) does not have a distinct 'weapon' class.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:56:09Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/plan.md
+  attempts: 1
+  canonical: OpenNeuro ds004380 has ~1200 images
+  claim_id: c_1b6a0cb9
+  context: 'Data Volume section lists Source: OpenNeuro ds004380 and Estimated Images:
+    ~1,200.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The OpenNeuro ds004380 dataset contains an estimated ~1,200 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:56:29Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/plan.md
+  attempts: 1
+  canonical: OpenNeuro ds004380 has ~1200 trials
+  claim_id: c_141770e2
+  context: 'Data Volume section lists Estimated Trials: ~1,200.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The OpenNeuro ds004380 dataset contains an estimated ~1,200 trials.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:56:47Z'

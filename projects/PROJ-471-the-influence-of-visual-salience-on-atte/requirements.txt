@@ -1,0 +1,21 @@
+# Core dependencies
+torch
+ultralytics
+statsmodels
+pandas
+datasets
+numpy
+opencv-python
+pyyaml
+scipy
+simr
+scikit-learn
+matplotlib
+seaborn
+huggingface_hub
+tqdm
+python-dotenv
+ruff
+black
+pytest
+pytest-cov
