@@ -131,6 +131,9 @@ def main():
         # Clean data
         df_clean = clean_data(df)
         
+        if len(df_clean) == 0:
+            raise RuntimeError("Dataset empty after cleaning")
+
         # Verify no nulls in critical columns
         if df_clean[TARGET_COLUMN].isnull().any():
             raise ValueError(f"Target column '{TARGET_COLUMN}' still contains nulls after cleaning.")
@@ -149,6 +152,9 @@ def main():
         raise
     except ValueError as e:
         logger.error(f"Validation or cleaning error: {e}")
+        raise
+    except RuntimeError as e:
+        logger.error(f"Runtime error: {e}")
         raise
     except Exception as e:
         logger.error(f"Unexpected error during preprocessing: {e}")

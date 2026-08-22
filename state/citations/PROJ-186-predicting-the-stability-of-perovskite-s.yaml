@@ -31,3 +31,14 @@
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
   verified_at: '2026-07-05T08:04:43.487669Z'
+- artifact_hash: 9519dc269c05d0be1c627e919bcdbeeac31d8be1193e959b6d808c432d24f4b5
+  artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Polo SBN di Biblioteche Ecclesiastiche italiane - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q113230241
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q113230241
+  verified_at: '2026-08-22T08:04:53.911931Z'

@@ -12,6 +12,21 @@ T016:
   r: The repository contains a `code/data/preprocess.py` script, but the required
     output file `data/processed/features.csv` is absent, so the primary artifact the
     task demands does not exist. The task is therefore not fully satisfied.
+T017:
+  c: false
+  h: 2dd0a03643c8b7f7af80ee5112506d510b50601d10813727b07fab3e2bcb7a46
+  r: "The repository contains `code/data/preprocess.py`, but the required output file\
+    \ `data/processed/features.csv` is missing, so the task\u2019s primary artifact\
+    \ does not exist and cannot be verified. The next implementer must ensure the\
+    \ script is executed (or provide a pre\u2011generated CSV) so that `data/processed/features.csv`\
+    \ is present and contains the cleaned data."
+T018:
+  c: false
+  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
+  r: "The required artifact `data/processed/features.csv` is missing, so the assertion\
+    \ cannot be run and there is no evidence that the `decomposition_energy` column\
+    \ has zero nulls. The implementer must provide the CSV file (non\u2011empty) and\
+    \ demonstrate the assertion passes."
 T019:
   c: false
   h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
@@ -19,26 +34,15 @@ T019:
     \ is no way to check for nulls in the `decomposition_energy` column. The implementer\
     \ must provide the CSV file (non\u2011empty) and confirm that the specified column\
     \ contains zero null values."
-T020a:
-  c: false
-  h: 2a623eb86df46c1bb9f3489b96f2257d84942797490d8e2c682ea1fcc0ecaafb
-  r: "The provided test fixture creates a temporary `features.csv` inside a temporary\
-    \ `data/processed` directory, not the required `data/sample_features.csv`. Moreover,\
-    \ the file `data/sample_features.csv` is absent from the repository. The task\u2019\
-    s specification is not met."
-T020c:
-  c: false
-  h: 1e5913fa4a49c57f9625664dc530c0a33ec6466de912adc734dbb6045a40af9c
-  r: The required artifact `results/metrics.json` does not exist on disk, so the unit
-    test cannot verify the presence of the file nor the `test_rmse` numeric key. The
-    implementer must create the file with a valid JSON object containing a numeric
-    `test_rmse` entry.
 T021:
   c: false
-  h: a75d5600bbdb7c75f73907b24764be564f02a7b8cf81c8e920d979aba669b653
-  r: The required integration test file `tests/integration/test_pipeline.py` is missing,
-    so the specified test cannot be run or verified. No artifact exists to satisfy
-    the task.
+  h: 6abc08cf4c0e7828380b1a1da301fcd175d9cff0985393fcabce273eaeb53e1f
+  r: "The repository lacks the required `data/processed/features.csv` and the expected\
+    \ output files (`results/model.pkl`, `results/metrics.json`, `results/feature-importance.png`).\
+    \ Moreover, the provided `code/models/train.py` is truncated and does not show\
+    \ the full implementation of re\u2011training, evaluation, warning logging, permutation\
+    \ importance, and saving of results, so we cannot confirm those steps are present.\
+    \ The task is therefore not genuinely completed."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
