@@ -1,10 +1,11 @@
-T012:
+T012a:
   c: false
-  h: ce507bdaba1f291a9ccc5d2a0b17921f293b6b5b07661ae247f611499108fe01
-  r: "The required `data/raw/assistments.csv` file is missing, and the provided `fetch_assistments.py`\
-    \ does not clearly demonstrate the required timeout\u2011failure behavior (exiting\
-    \ with code\u202F1 and logging the exact error message). Both deliverables need\
-    \ to be present and the script must implement the specified error handling."
+  h: efdde7db1dba54dd058b20ead46177395916ac0af458855e405e3e1a895914ce
+  r: The script `code/download/validate_assistments_data.py` exists but is incomplete
+    (truncated) and relies on `contracts/problem.schema.yaml`, which is missing from
+    the repository, so it cannot actually validate the dataset or produce the required
+    error messages. The necessary schema file must be added and the script finished
+    for the task to be considered complete.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

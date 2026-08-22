@@ -24,7 +24,7 @@ This project implements a comparative study framework to evaluate three explanat
 - Strict timeout handling for dataset downloads (300s limit, see T012).
 - No external credentials for data access (open datasets only).
 **Scale/Scope**: 
-- ~6,000 simulated interactions (2,000 per condition, see T021).
+- ~ simulated interactions (a sufficient number of samples per condition, see T021).
 - Real student records (integrated in final analysis, see T034a).
 - A sufficient number of pilot records for BKT calibration will be used (see T030a).
 
@@ -101,7 +101,7 @@ requirements.txt
 - **T003**: Define Project Configuration (Create `config/project_config.yaml` with paths, seeds, and thresholds).
 
 ### Phase 1: Data Acquisition & Validation
-- **T012**: Fetch ASSISTments Dataset (Download from `assistments/2009` with 300s timeout, log exact error message on failure, produce `data/raw/assistments.csv`, verify `difficulty` and `skill` fields).
+- **T012**: Fetch ASSISTments Dataset (Download from `assistments/[year]` with 300s timeout, log exact error message on failure, produce `data/raw/assistments.csv`, verify `difficulty` and `skill` fields).
 - **T012b**: Implement Download Timeout (Implement the specific error message: "ERROR: Failed to download [dataset name] within 300 seconds – aborting pipeline.").
 - **T012-Test**: Test Timeout Handling (Verify T012 error message and exit code).
 - **T012-Check**: Validate Dataset Fields (Ensure `difficulty` and `skill` exist in downloaded data).
@@ -125,10 +125,10 @@ requirements.txt
 - **T017b**: Generate Neuro-Symbolic Explanations (Implement the hybrid explanation generation logic combining LLM and symbolic trace.).
 
 ### Phase 4: Simulation & Logging
-- **T021b**: Configure Simulation Sample Size (Set `config/simulation_config.yaml` to 2,000 students/condition).
+- **T021b**: Configure Simulation Sample Size (Set `config/simulation_config.yaml` to a sufficient number of students per condition to ensure statistical power and representativeness.).
 - **T021a**: Dry Run Simulation (Run on small subset, produce `data/derived/dryrun_logs.csv`).
 - **T023**: Validate RT Distribution (Check for >2 consecutive empty bins, produce `data/derived/rt_distribution_validation.json`, fail if invalid).
-- **T021**: Run Full Simulation (Generate 6,000 interactions using calibrated BKT).
+- **T021**: Run Full Simulation (Generate a large volume of interactions using calibrated BKT).
 - **T022**: Log Interaction (Record `correct`, `rt_seconds` (0.1s), `comprehension_rating` (1-5), write to CSV).
 - **T024**: Merge Simulation Logs (Aggregate all logs into `data/derived/simulated_logs.csv`).
 - **T024b**: Validate RT Distribution (Implement the binning logic and validation of response time distribution.)
