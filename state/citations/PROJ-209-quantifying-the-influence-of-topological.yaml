@@ -1,4 +1,4 @@
-- artifact_hash: fe3dfddb9778f3f14640fe1a5c332cc323abbc2dbaba7355184d1ab18f758eff
+- artifact_hash: 2b0aa3260025269c41d194f36898ef7ed50f1504e58eb8855d04cb80a8f225b2
   artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,9 +7,9 @@
   kind: url
   value: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet`
   verification_status: pending
-  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/645a3cb2d15cd5a70b3ef6e3/be26c6ee89419918dc5b24c30ce7b78efa95dd0b0c0c9c83d80c13e7c8563c24?Expires=1784233748&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0NWEzY2IyZDE1Y2Q1YTcwYjNlZjZlMy9iZTI2YzZlZTg5NDE5OTE4ZGM1YjI0YzMwY2U3Yjc4ZWZhOTVkZDBiMGMwYzljODNkODBjMTNlN2M4NTYzYzI0KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDIzMzc0OH19fV19&Signature=MEYCIQCglwIjoUN7tvtotEir3uO4udbIa72I9ZR0iKYyCr2r1wIhAMM4Shd7p6BVnBvl7j2BDO7BqkKstYNK0cOcN1UGSEbb&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-a791a8874f9adf69.parquet%3B+filename%3D%22test-00000-of-00001-a791a8874f9adf69.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T192908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c0d703d7f86c823548d543b3579607590dd5e073f4464eb0da5e39f557aec735
-  verified_at: '2026-07-16T19:29:08.531514Z'
-- artifact_hash: fe3dfddb9778f3f14640fe1a5c332cc323abbc2dbaba7355184d1ab18f758eff
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/645a3cb2d15cd5a70b3ef6e3/be26c6ee89419918dc5b24c30ce7b78efa95dd0b0c0c9c83d80c13e7c8563c24?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-a791a8874f9adf69.parquet%3B+filename%3D%22test-00000-of-00001-a791a8874f9adf69.parquet%22%3B&user_id=public&Expires=1787385345&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ1YTNjYjJkMTVjZDVhNzBiM2VmNmUzL2JlMjZjNmVlODk0MTk5MThkYzViMjRjMzBjZTdiNzhlZmE5NWRkMGIwYzBjOWM4M2Q4MGMxM2U3Yzg1NjNjMjRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS1hNzkxYTg4NzRmOWFkZjY5LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLWE3OTFhODg3NGY5YWRmNjkucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg3Mzg1MzQ1fX19XX0_&Signature=MEUCIQCTte9nkg259PQCwlZ2nQolsftockhfe0Wzig6JYfKuJwIgaBt2biDfqHVtaEYzaKfUyqB6YYmxBKv8Re2xAsEFzHs_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-22T06:55:45.852548Z'
+- artifact_hash: 2b0aa3260025269c41d194f36898ef7ed50f1504e58eb8855d04cb80a8f225b2
   artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/research.md
   cite_id: c-002
   cited_authors: []
@@ -18,20 +18,9 @@
   kind: url
   value: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet`
   verification_status: pending
-  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/648b4a5431c8c03f5c713881/0224bfc201687b9afcd941d93213d98af89e89aa0f88264fecb9dee4e162646e?Expires=1784233748&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0OGI0YTU0MzFjOGMwM2Y1YzcxMzg4MS8wMjI0YmZjMjAxNjg3YjlhZmNkOTQxZDkzMjEzZDk4YWY4OWU4OWFhMGY4ODI2NGZlY2I5ZGVlNGUxNjI2NDZlKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDIzMzc0OH19fV19&Signature=MEYCIQCKxWtAxApIZPXJmjsypZ4JQ2-4mdRGz0Qn936wG0M3DwIhAIBpqRrgnXZ9E%7E0Glv%7Ely0cKCyRsrsyWGVpopkU1iXX6&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-17dbf6e61ca73a23.parquet%3B+filename%3D%22train-00000-of-00001-17dbf6e61ca73a23.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T192908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=77acd20643636c7faac971a7d01203eb71e54298f0a10dde3d06d06cbe7edee0
-  verified_at: '2026-07-16T19:29:08.531514Z'
-- artifact_hash: fe3dfddb9778f3f14640fe1a5c332cc323abbc2dbaba7355184d1ab18f758eff
-  artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00001-17dbf6e61ca73a23.parquet
-  kind: url
-  value: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet`
-  verification_status: pending
-  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/648b796a56d5060fa0581fc8/0224bfc201687b9afcd941d93213d98af89e89aa0f88264fecb9dee4e162646e?Expires=1784233749&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0OGI3OTZhNTZkNTA2MGZhMDU4MWZjOC8wMjI0YmZjMjAxNjg3YjlhZmNkOTQxZDkzMjEzZDk4YWY4OWU4OWFhMGY4ODI2NGZlY2I5ZGVlNGUxNjI2NDZlKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDIzMzc0OX19fV19&Signature=MEUCIC176CYLws7o%7EeW3-DXS-Fkde7pnuYRntG3ahG6roQlXAiEA3d56DHaVsGHhvBx2Bk88hKVIhV24%7EQ4p0DChWbPrnZg_&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-17dbf6e61ca73a23.parquet%3B+filename%3D%22train-00000-of-00001-17dbf6e61ca73a23.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T192909Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5f0fb3f2133fddc84d7b944636d2e395e9557cae9d2352d3e252041d260c1c19
-  verified_at: '2026-07-16T19:29:08.531514Z'
-- artifact_hash: ff55fd722def1ad399fd56a95cfd0b2149194b7350bd65f8bdfbe5bc83527075
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/648b4a5431c8c03f5c713881/0224bfc201687b9afcd941d93213d98af89e89aa0f88264fecb9dee4e162646e?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-17dbf6e61ca73a23.parquet%3B+filename%3D%22train-00000-of-00001-17dbf6e61ca73a23.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1787385346&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ4YjRhNTQzMWM4YzAzZjVjNzEzODgxLzAyMjRiZmMyMDE2ODdiOWFmY2Q5NDFkOTMyMTNkOThhZjg5ZTg5YWEwZjg4MjY0ZmVjYjlkZWU0ZTE2MjY0NmVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtMTdkYmY2ZTYxY2E3M2EyMy5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtMTdkYmY2ZTYxY2E3M2EyMy5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODczODUzNDZ9fX1dfQ__&Signature=MEQCIFJKduzeZpxgCnddgvXSKCkyvRMeqnlRHIpzLqcpU8jKAiAHAaYRxg21cISosV5Jya5VPLFOtzi1ovwzt9rV17y0hw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-22T06:55:45.852548Z'
+- artifact_hash: 1a23443ec51fd2601a654db64f0719614235ca6c4c677cd4f63c20ab03a98ac5
   artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,27 +30,4 @@
   value: https://next-gen.materialsproject.org/api/v2/structures`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/api/v2/structures
-  verified_at: '2026-08-12T08:54:26.676658Z'
-- artifact_hash: ff55fd722def1ad399fd56a95cfd0b2149194b7350bd65f8bdfbe5bc83527075
-  artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://oeis.org/A046021
-  verification_status: pending
-  verified_against_url: https://oeis.org/A046021
-  verified_at: '2026-08-12T08:54:26.676658Z'
-- artifact_hash: ff55fd722def1ad399fd56a95cfd0b2149194b7350bd65f8bdfbe5bc83527075
-  artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2411.15484] Seed-Free Synthetic Data Generation Framework for Instruction-Tuning
-    LLMs: A Case Study in Thai'
-  kind: url
-  value: https://arxiv.org/abs/2411.15484
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2411.15484
-  verified_at: '2026-08-12T08:54:26.676658Z'
+  verified_at: '2026-08-22T07:09:54.142971Z'

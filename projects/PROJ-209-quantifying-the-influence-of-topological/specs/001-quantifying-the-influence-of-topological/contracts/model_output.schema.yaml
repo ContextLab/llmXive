@@ -1,76 +1,58 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Output Schema
-description: Schema for Random Forest model performance metrics
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput Schema"
+description: "Schema for the Random Forest model results and statistical tests."
+type: "object"
 properties:
   model_id:
-    type: string
-    description: "Unique identifier for the model (e.g., 'conductivity_rf')"
+    type: "string"
+    description: "Unique identifier for the model run."
   target_property:
-    type: string
-    enum: ["conductivity", "youngs_modulus", "fracture_energy"]
-    description: "The property being predicted"
-  performance:
-    type: object
-    properties:
-      r2_train:
-        type: number
-      r2_test:
-        type: number
-      mape_test:
-        type: number
-      cv_r2_std:
-        type: number
-        description: "Standard deviation of R^2 across 5 folds"
-    required:
-      - r2_train
-      - r2_test
-      - mape_test
-      - cv_r2_std
+    type: "string"
+    enum: ["delta_conductivity", "delta_youngs", "delta_fracture"]
+    description: "The normalized property being modeled."
+  r_squared:
+    type: "number"
+    description: "R² score on the test set."
+  mape:
+    type: "number"
+    minimum: 0
+    description: "Mean Absolute Percentage Error."
+  cv_std:
+    type: "number"
+    minimum: 0
+    description: "Standard deviation of R² across 5 CV folds."
   feature_importance:
-    type: array
-    items:
-      type: object
-      properties:
-        feature_name:
-          type: string
-        importance_score:
-          type: number
-        p_value:
-          type: number
-        fdr_adjusted_p:
-          type: number
-        is_significant:
-          type: boolean
-          description: "True if p-value < FDR threshold"
-      required:
-        - feature_name
-        - importance_score
-        - p_value
-        - fdr_adjusted_p
-        - is_significant
+    type: "object"
+    description: "Map of feature names to importance scores."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+  p_values:
+    type: "object"
+    description: "Map of feature names to raw p-values from permutation."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  fdr_adjusted:
+    type: "object"
+    description: "Map of feature names to Benjamini-Hochberg adjusted p-values."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
   collinearity_flags:
-    type: array
+    type: "array"
+    description: "List of features with VIF > 5."
     items:
-      type: object
-      properties:
-        feature_pair:
-          type: array
-          items:
-            type: string
-        vif:
-          type: number
-        action:
-          type: string
-          enum: ["excluded_lower_importance", "retained"]
-      required:
-        - feature_pair
-        - vif
-        - action
+      type: "string"
 required:
-  - model_id
-  - target_property
-  - performance
-  - feature_importance
-  - collinearity_flags
+  - "model_id"
+  - "target_property"
+  - "r_squared"
+  - "mape"
+  - "cv_std"
+  - "feature_importance"
+  - "p_values"
+  - "fdr_adjusted"
 additionalProperties: false

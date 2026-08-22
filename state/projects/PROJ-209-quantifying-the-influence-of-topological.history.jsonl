@@ -49,3 +49,7 @@
 {"at": "2026-08-12T08:44:08.000161+00:00", "from_stage": "analyzed", "last_run_id": "d534fee0-ec87-4d05-b003-b6bce3298532", "to_stage": "in_progress"}
 {"at": "2026-08-12T08:54:38.450337+00:00", "from_stage": "in_progress", "last_run_id": "fe04562f-ef79-4897-a3d4-2356d21cd66a", "to_stage": "planned"}
 {"at": "2026-08-12T09:26:06.003656+00:00", "from_stage": "planned", "last_run_id": "234ca824-4904-43ea-8c2c-1a11ad046da8", "to_stage": "clarified"}
+{"at": "2026-08-22T06:37:20.460719+00:00", "from_stage": "clarified", "last_run_id": "92cdae23-dd9d-4bfd-a328-49491c03159a", "to_stage": "specified"}
+{"at": "2026-08-22T06:41:07.712108+00:00", "from_stage": "specified", "last_run_id": "f903a3b9-6d9f-41c7-acdd-e659088ca43e", "to_stage": "clarified"}
+{"at": "2026-08-22T06:56:13.046486+00:00", "from_stage": "clarified", "last_run_id": "72febc62-a9f8-4a87-9ea9-798c9cdd49b2", "to_stage": "planned"}
+{"at": "2026-08-22T07:10:28.811752+00:00", "from_stage": "planned", "last_run_id": "8af7de53-85a7-4a75-9691-1d8cac2cebca", "to_stage": "tasked"}

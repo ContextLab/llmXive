@@ -1,17 +1,16 @@
 status: none
-intent: Materials Project graphene MoS2 DFT structures defect dataset download python
-  package dataset
+intent: Materials Project graphene MoS2 defect dataset Materials Project Defect Database
+  python package dataset
 required_fields:
-- entry_id
 - material_id
 - composition
+- atomic_coordinates
+- unit_cell_parameters
 - defect_type
 - defect_density
 - conductivity
 - elastic_tensor
 - fracture_energy
-- atomic_coordinates
-- unit_cell_parameters
-cache_key: 5a5d3a0c94ff754706fcca1f6450cbd28d09fb8ecebffb9ed72c3698f72b03af
-searched_at: '2026-08-10T08:10:06.593591+00:00'
+cache_key: 7d4f112d78b1db431942efd523b6f42bd6ecbe2e66d0d93205d3e7be7cb369dc
+searched_at: '2026-08-22T06:46:13.336101+00:00'
 retry_count: 1

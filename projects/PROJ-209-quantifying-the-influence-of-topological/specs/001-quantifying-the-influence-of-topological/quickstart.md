@@ -2,10 +2,10 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to the Materials Project API (optional; synthetic fallback is available).
-*   Internet access to download dependencies and datasets.
+-   Python 3.11+
+-   Git
+-   API Key for Materials Project (set as `MP_API_KEY` environment variable)
+-   (Optional) `data/raw/defect_dataset_2022.csv` if you have a local copy.
 
 ## Installation
 
@@ -23,49 +23,60 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
 
-## Running the Workflow
+## Running the Pipeline
 
-The entire pipeline is orchestrated via `code/run_workflow.sh` (or `python code/run_workflow.py`).
+The pipeline can be run end-to-end via the orchestration script.
 
+### 1. Data Acquisition
+This step downloads pristine structures and attempts to load/generate defect data.
 ```bash
-# Execute the full pipeline
-python code/run_workflow.py
+python code/01_data_acquisition.py
+```
+*   **Output**: `data/raw/pristine_structures.csv`, `data/raw/defect_dataset_2022.csv` (or `synthetic_train.csv` if real data missing), `data/state/cache_load_log.json`.
+
+### 2. Feature Engineering
+Normalizes data and encodes features.
+```bash
+python code/02_feature_engineering.py
+```
+*   **Output**: `data/processed/feature_matrix.csv`, `data/processed/target_matrix.csv`, `data/state/exclusion_log.json`.
+
+### 3. Modeling & Inference
+Trains models, performs CV, and runs permutation tests.
+```bash
+python code/03_modeling.py
+```
+*   **Output**: `data/state/model_results.json`, `data/state/permutation_pvalues.json`.
+
+### 4. Analysis & Reporting
+Generates sensitivity analysis and the final validation report.
+```bash
+python code/04_analysis.py
+```
+*   **Output**: `data/state/Validation_Report.json`, `data/state/sensitivity_analysis.csv`.
+
+### 5. Full Pipeline (One Command)
+```bash
+python code/run_pipeline.py
 ```
 
-### Steps Performed
-1.  **Data Acquisition**:
-    *   Attempts to download pristine structures from Materials Project API.
-    *   Attempts to download defect dataset.
-    *   If defect dataset is missing, generates synthetic data (`data/raw/synthetic_train.csv`, `data/raw/synthetic_holdout.csv`) with `data_source='synthetic'`.
-    *   Calibrates noise parameters from verified DFT data.
-2.  **Data Processing**:
-    *   Normalizes properties.
-    *   Handles missing values.
-    *   Encodes features.
-3.  **Modeling**:
-    *   Trains Random Forest models.
-    *   Performs 5-fold CV.
-    *   Runs permutation testing and FDR control.
-    *   Handles collinearity iteratively.
-    *   Performs stratification or covariate inclusion.
-4.  **Validation**:
-    *   Evaluates on hold-out set.
-    *   Generates `Validation_Report.json`.
-5.  **Sensitivity Analysis**:
-    *   Sweeps thresholds and reports FPR/FNR.
+## Testing
 
-## Outputs
+Run the unit tests to verify the pipeline logic:
+```bash
+pytest tests/unit/
+```
 
-*   `data/processed/features.csv`: Processed feature matrix.
-*   `data/processed/model_outputs.json`: Model performance metrics.
-*   `data/validation/Validation_Report.json`: Validation status.
-*   `code/04_sensitivity_analysis.py` output: Threshold sensitivity table.
+Run the contract tests to verify data schemas:
+```bash
+pytest tests/contract/
+```
 
 ## Troubleshooting
 
-*   **API Failure**: If the Materials Project API is unreachable, the workflow will use the local cache or synthetic data. Check logs for `[ERROR: API access unavailable and no cache present]`.
-*   **Missing Data**: If required variables are missing, entries are excluded. Check `data/processed/feature_selection_log.json` for details.
-*   **Runtime Error**: Ensure the dataset fits in memory. If not, the plan includes sampling logic.
+-   **API Failure**: If the Materials Project API fails, check `data/state/cache_load_log.json`. If no cache exists, the pipeline will halt with `[ERROR: API access unavailable and no cache present]`.
+-   **Missing Defect Data**: If `defect_dataset_2022.csv` is missing, the pipeline will generate `synthetic_train.csv` and flag it as `TESTING_ONLY`. **Scientific analysis will halt.**
+-   **Memory Error**: The pipeline is optimized for standard RAM configurations. If you encounter OOM, reduce the `N_PERMUTATIONS` in `code/03_modeling.py` (default a substantial number).

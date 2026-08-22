@@ -1,58 +1,69 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: DefectEntry Schema
-description: Schema for defect entry records (real or synthetic)
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DefectEntry"
+description: "Schema for a single record in the defect dataset (real or synthetic)."
+type: "object"
 properties:
-  defect_id:
-    type: string
-    description: "Unique identifier for the defect entry"
+  id:
+    type: "string"
+    description: "Unique identifier for the defect entry."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
   material:
-    type: string
-    enum: ["graphene", "MoS2"]
-    description: "The base material"
+    type: "string"
+    description: "Material type."
+    enum:
+      - "graphene"
+      - "MoS2"
   defect_type:
-    type: string
-    enum: ["dislocation", "grain_boundary", "vacancy", "substitution"]
-    description: "Type of topological defect"
+    type: "string"
+    description: "Type of topological defect."
+    enum:
+      - "dislocation"
+      - "grain_boundary"
+      - "vacancy"
+      - "substitution"
   defect_density:
-    type: number
-    minimum: 0.0
+    type: "number"
+    description: "Fraction of atoms affected by the defect."
+    minimum: 0
     maximum: 0.1
-    description: "Fraction of atoms affected by the defect"
-  geometric_descriptors:
-    type: object
-    properties:
-      tilt_angle:
-        type: number
-        description: "Grain boundary tilt angle in degrees"
-      width:
-        type: number
-        description: "Width of the defect region"
-    required:
-      - tilt_angle
+  tilt_angle:
+    type: "number"
+    description: "Grain boundary tilt angle in degrees."
+    minimum: 0
+    maximum: 180
   conductivity:
-    type: number
-    minimum: 0.0
-    description: "Electronic conductivity (S/m)"
+    type: "number"
+    description: "Electronic conductivity in S/m."
+    exclusiveMinimum: 0
   youngs_modulus:
-    type: number
-    minimum: 0.0
-    description: "Young's modulus (GPa)"
+    type: "number"
+    description: "Young's modulus in GPa."
+    exclusiveMinimum: 0
   fracture_energy:
-    type: number
-    minimum: 0.0
-    description: "Fracture energy (J/m^2)"
-  data_source:
-    type: string
-    enum: ["real", "synthetic"]
-    description: "Origin of the data. MUST be 'synthetic' for generated data."
+    type: "number"
+    description: "Fracture energy in J/m²."
+    exclusiveMinimum: 0
+  source:
+    type: "string"
+    description: "Origin of the data."
+    enum:
+      - "api"
+      - "synthetic"
+      - "cache"
+  is_valid:
+    type: "boolean"
+    description: "Flag indicating if the entry passed validation."
+  exclusion_flag:
+    type: ["string", "null"]
+    description: "Flag for missing data, e.g., '[MISSING: requires exclusion]'."
 required:
-  - defect_id
+  - id
   - material
   - defect_type
   - defect_density
   - conductivity
   - youngs_modulus
   - fracture_energy
-  - data_source
+  - source
+  - is_valid
 additionalProperties: false

@@ -5,11 +5,11 @@ type: object
 properties:
   status:
     type: string
-    enum: ["EXTERNAL_DATA_AVAILABLE", "NO_EXTERNAL_DATA"]
+    enum: ["EXTERNAL_DATA_AVAILABLE", "NO_EXTERNAL_DATA", "SYNTHETIC_ONLY"]
     description: "Status of external validation"
   method:
     type: string
-    enum: ["external_validation", "internal_only"]
+    enum: ["external_validation", "internal_only", "pipeline_validation"]
     description: "Method used for validation"
   external_dataset:
     type: string
@@ -21,9 +21,13 @@ properties:
         type: number
       holdout_mape:
         type: number
+      goodness_of_fit:
+        type: number
+        description: "R² against known analytical formula (for synthetic data)"
     required:
       - holdout_r2
       - holdout_mape
+      - goodness_of_fit
   timestamp:
     type: string
     format: date-time
@@ -31,10 +35,14 @@ properties:
     type: string
     enum: ["real", "synthetic"]
     description: "Source of the primary data used"
+  scope_limitation:
+    type: string
+    description: "Statement on the limitation of the study (e.g., 'valid only for surrogate model')."
 required:
   - status
   - method
   - internal_validation_metrics
   - timestamp
   - data_source
+  - scope_limitation
 additionalProperties: false

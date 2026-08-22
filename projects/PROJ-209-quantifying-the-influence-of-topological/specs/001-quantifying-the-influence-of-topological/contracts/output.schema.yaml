@@ -28,15 +28,13 @@ properties:
           type: "string"
         importance:
           type: "number"
-        p_value:
+        goodness_of_fit:
           type: "number"
-        fdr_adjusted_p:
-          type: "number"
+          description: "R² against known analytical formula"
       required:
         - feature
         - importance
-        - p_value
-        - fdr_adjusted_p
+        - goodness_of_fit
   sensitivity_analysis:
     type: "array"
     items:
