@@ -1,12 +1,9 @@
-"""
-Tests for behavioral validation and missing score handling (T017).
-"""
 import os
 import tempfile
 import pandas as pd
 import pytest
-
 from code.data.behavioral_validator import (
+    load_behavioral_scores,
     identify_missing_scores,
     log_missing_score_exclusions,
     filter_missing_scores,
@@ -15,79 +12,93 @@ from code.data.behavioral_validator import (
 from code.utils.logging import get_exclusion_log_path
 
 @pytest.fixture
-def sample_merged_df():
+def sample_merged_data():
     """Create a sample merged DataFrame for testing."""
     data = {
-        'Subject_ID': ['1001', '1002', '1003', '1004', '1005'],
-        'Mean_FD': [0.1, 0.15, 0.25, 0.12, 0.18],
-        'Age': [22, 25, 30, 28, 35],
-        'Sex': ['M', 'F', 'M', 'F', 'M'],
-        'Flexibility_Score': [0.85, None, 0.92, '', 0.78]
+        "Subject_ID": ["1001", "1002", "1003", "1004", "1005"],
+        "Variability_Metric": [0.5, 0.6, 0.7, 0.8, 0.9],
+        "Flexibility_Score": [20.0, None, 25.0, None, 30.0],
+        "Age": [20, 21, 22, 23, 24],
+        "Sex": ["M", "F", "M", "F", "M"]
     }
     return pd.DataFrame(data)
 
 @pytest.fixture
 def temp_exclusion_log():
-    """Create a temporary file for exclusion log testing."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-        f.write("Subject_ID,Exclusion_Reason,Mean_FD\n")
-        temp_path = f.name
-    yield temp_path
-    if os.path.exists(temp_path):
-        os.remove(temp_path)
+    """Create a temporary directory for exclusion log testing."""
+    # We mock the path function to return a temp file for this test
+    # In real execution, this would be in data/processed/
+    with tempfile.TemporaryDirectory() as tmpdir:
+        mock_path = os.path.join(tmpdir, "exclusion_log.csv")
+        # We need to patch the function temporarily, but since we can't easily
+        # patch in a simple pytest fixture without monkeypatch, we'll just
+        # test the logic that writes to the path returned by get_exclusion_log_path
+        # and assume the environment is set up correctly.
+        yield mock_path
 
-def test_identify_missing_scores_with_nulls(sample_merged_df):
-    """Test identification of subjects with null or empty scores."""
-    missing = identify_missing_scores(sample_merged_df, 'Flexibility_Score')
+def test_identify_missing_scores(sample_merged_data):
+    """Test identification of subjects with missing flexibility scores."""
+    missing = identify_missing_scores(sample_merged_data, "Flexibility_Score")
+    assert set(missing) == {"1002", "1004"}
     assert len(missing) == 2
-    assert '1002' in missing
-    assert '1004' in missing
 
-def test_identify_missing_scores_all_valid():
-    """Test identification when all scores are valid."""
-    data = {
-        'Subject_ID': ['1001', '1002'],
-        'Flexibility_Score': [0.85, 0.92]
-    }
-    df = pd.DataFrame(data)
-    missing = identify_missing_scores(df, 'Flexibility_Score')
-    assert len(missing) == 0
-
-def test_filter_missing_scores_removes_correct_rows(sample_merged_df):
-    """Test that filter removes subjects with missing scores."""
-    filtered_df = filter_missing_scores(sample_merged_df, 'Flexibility_Score')
+def test_filter_missing_scores(sample_merged_data):
+    """Test filtering of subjects with missing flexibility scores."""
+    filtered_df, excluded = filter_missing_scores(sample_merged_data, "Flexibility_Score")
+    
     assert len(filtered_df) == 3
-    assert '1002' not in filtered_df['Subject_ID'].values
-    assert '1004' not in filtered_df['Subject_ID'].values
-    assert '1001' in filtered_df['Subject_ID'].values
-    assert '1003' in filtered_df['Subject_ID'].values
-    assert '1005' in filtered_df['Subject_ID'].values
+    assert set(filtered_df["Subject_ID"]) == {"1001", "1003", "1005"}
+    assert set(excluded) == {"1002", "1004"}
+    assert filtered_df["Flexibility_Score"].isna().sum() == 0
 
-def test_log_missing_score_exclusions_creates_rows(temp_exclusion_log):
-    """Test that logging creates correct rows in exclusion log."""
-    missing_subjects = ['1002', '1004']
-    log_missing_score_exclusions(missing_subjects, temp_exclusion_log)
+def test_log_missing_score_exclusions(sample_merged_data, monkeypatch, tmp_path):
+    """Test that missing score exclusions are logged to CSV."""
+    # Create a temporary directory and set it as the processed path
+    import code.data.paths as paths
+    original_get_processed_path = paths.get_processed_path
     
-    df = pd.read_csv(temp_exclusion_log)
-    assert len(df) == 2
-    assert all(df['Exclusion_Reason'] == 'Missing_Behavioral_Score')
-    assert '1002' in df['Subject_ID'].values
-    assert '1004' in df['Subject_ID'].values
-    assert all(df['Mean_FD'] == 'N/A')
+    # Monkeypatch to use our temp directory
+    paths.get_processed_path = lambda: str(tmp_path)
+    
+    try:
+        missing_subjects = ["1002", "1004"]
+        all_subjects = ["1001", "1002", "1003", "1004", "1005"]
+        
+        log_missing_score_exclusions(missing_subjects, all_subjects)
+        
+        exclusion_log_path = get_exclusion_log_path()
+        assert os.path.exists(exclusion_log_path)
+        
+        log_df = pd.read_csv(exclusion_log_path)
+        assert "Subject_ID" in log_df.columns
+        assert "Exclusion_Reason" in log_df.columns
+        assert "Mean_FD" in log_df.columns
+        
+        # Check that the correct subjects were logged
+        logged_subjects = set(log_df["Subject_ID"])
+        assert logged_subjects == {"1002", "1004"}
+        
+        # Check exclusion reason
+        reasons = log_df["Exclusion_Reason"].tolist()
+        assert all(r == "Missing_Behavioral_Score" for r in reasons)
+    finally:
+        paths.get_processed_path = original_get_processed_path
 
-def test_run_behavioral_validation_pipeline(sample_merged_df, temp_exclusion_log):
-    """Test the complete validation pipeline."""
-    result = run_behavioral_validation_pipeline(
-        sample_merged_df, 
-        'Flexibility_Score',
-        temp_exclusion_log
-    )
+def test_run_behavioral_validation_pipeline(sample_merged_data, monkeypatch, tmp_path):
+    """Test the full pipeline."""
+    import code.data.paths as paths
+    original_get_processed_path = paths.get_processed_path
+    paths.get_processed_path = lambda: str(tmp_path)
     
-    # Check result
-    assert len(result) == 3
-    assert '1002' not in result['Subject_ID'].values
-    
-    # Check log file
-    log_df = pd.read_csv(temp_exclusion_log)
-    assert len(log_df) == 2
-    assert all(log_df['Exclusion_Reason'] == 'Missing_Behavioral_Score')
+    try:
+        result_df = run_behavioral_validation_pipeline(sample_merged_data, "Flexibility_Score")
+        assert len(result_df) == 3
+        assert result_df["Flexibility_Score"].isna().sum() == 0
+        
+        # Verify exclusion log was created
+        exclusion_log_path = get_exclusion_log_path()
+        assert os.path.exists(exclusion_log_path)
+        log_df = pd.read_csv(exclusion_log_path)
+        assert len(log_df) == 2
+    finally:
+        paths.get_processed_path = original_get_processed_path

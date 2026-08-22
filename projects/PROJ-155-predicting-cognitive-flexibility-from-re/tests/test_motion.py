@@ -1,81 +1,154 @@
-import pytest
 import os
 import csv
 import tempfile
+import shutil
 import numpy as np
-from code.utils.motion import calculate_mean_fd, check_motion_exclusion, generate_exclusion_log, run_motion_filtering_pipeline
-from code.config import get_config
+import pytest
+from unittest.mock import patch, MagicMock
 
-def test_calculate_mean_fd_valid_input():
-    """Test Mean FD calculation with known values."""
-    # Create dummy motion params: 10 timepoints, 6 params
-    # All zeros -> FD should be 0
-    params = np.zeros((10, 6))
-    assert calculate_mean_fd(params) == 0.0
+from code.utils.motion import (
+    calculate_mean_fd,
+    check_motion_exclusion,
+    generate_exclusion_log,
+    process_subject_motion,
+    run_motion_filtering_pipeline
+)
+from code.utils.logging import get_exclusion_log_path
 
-    # Create params with a known jump
-    # 1mm translation jump at index 1, rest 0
-    params = np.zeros((10, 6))
-    params[1, 0] = 1.0  # 1mm translation in x
-    
-    # Deltas will have one entry of 1.0 at index 0
-    # Mean FD = 1.0 / 9 (since diff reduces length by 1)
-    expected_fd = 1.0 / 9.0
-    assert abs(calculate_mean_fd(params) - expected_fd) < 1e-6
 
-def test_check_motion_exclusion_below_threshold():
-    """Test exclusion logic when FD is below threshold."""
-    config = get_config()
-    threshold = config.get("fd_threshold", 0.2)
-    should_exclude, reason = check_motion_exclusion(0.1, threshold)
-    assert should_exclude is False
-    assert reason == ""
+class TestCalculateMeanFd:
+    def test_mean_fd_calculation(self):
+        """Test that Mean FD is calculated correctly."""
+        # Create a simple motion parameter array (10 timepoints, 6 params)
+        motion_params = np.zeros((10, 6))
+        # Add some displacement in translation
+        motion_params[1:, 0] = 0.1  # 0.1mm in x direction for 9 frames
+        
+        mean_fd = calculate_mean_fd(motion_params)
+        
+        # Expected: 9 frames with 0.1mm displacement -> mean = 0.1
+        assert np.isclose(mean_fd, 0.1, atol=1e-6)
+    
+    def test_mean_fd_with_rotation(self):
+        """Test Mean FD calculation including rotation."""
+        motion_params = np.zeros((10, 6))
+        # Add rotation: 0.01 radians (~0.5 degrees)
+        # 50mm radius * 0.01 rad = 0.5mm displacement
+        motion_params[1:, 3] = 0.01
+        
+        mean_fd = calculate_mean_fd(motion_params)
+        
+        # Expected: 9 frames * (50 * 0.01) = 0.5mm per frame -> mean = 0.5
+        assert np.isclose(mean_fd, 0.5, atol=1e-6)
+    
+    def test_invalid_motion_params(self):
+        """Test that invalid motion params raise an error."""
+        motion_params = np.zeros((10, 4))  # Wrong number of columns
+        
+        with pytest.raises(ValueError):
+            calculate_mean_fd(motion_params)
 
-def test_check_motion_exclusion_above_threshold():
-    """Test exclusion logic when FD is above threshold."""
-    config = get_config()
-    threshold = config.get("fd_threshold", 0.2)
-    should_exclude, reason = check_motion_exclusion(0.5, threshold)
-    assert should_exclude is True
-    assert "Mean FD" in reason
-    assert "threshold" in reason
 
-def test_generate_exclusion_log(tmp_path):
-    """Test that exclusion log is generated with correct format."""
-    subjects = [
-        {'Subject_ID': '1001', 'Exclusion_Reason': 'Motion', 'Mean_FD': '0.5000'},
-        {'Subject_ID': '1002', 'Exclusion_Reason': 'Motion', 'Mean_FD': '0.3000'}
-    ]
-    log_path = os.path.join(tmp_path, "exclusion_log.csv")
-    generate_exclusion_log(subjects, log_path)
+class TestCheckMotionExclusion:
+    def test_below_threshold(self):
+        """Test subject below threshold is not excluded."""
+        should_exclude, reason = check_motion_exclusion(0.1, threshold=0.2)
+        
+        assert should_exclude is False
+        assert reason == ""
     
-    assert os.path.exists(log_path)
+    def test_above_threshold(self):
+        """Test subject above threshold is excluded."""
+        should_exclude, reason = check_motion_exclusion(0.3, threshold=0.2)
+        
+        assert should_exclude is True
+        assert "Motion" in reason
+        assert "0.3" in reason
     
-    with open(log_path, 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-    
-    assert len(rows) == 2
-    assert rows[0]['Subject_ID'] == '1001'
-    assert rows[0]['Exclusion_Reason'] == 'Motion'
-    assert rows[0]['Mean_FD'] == '0.5000'
+    def test_default_threshold(self):
+        """Test default threshold is 0.2."""
+        should_exclude, _ = check_motion_exclusion(0.25)
+        assert should_exclude is True
 
-def test_run_motion_filtering_pipeline():
-    """Test the full pipeline logic with mock data."""
-    # Mock subjects data
-    subjects = [
-        {'Subject_ID': 'S1', 'Mean_FD': 0.1},
-        {'Subject_ID': 'S2', 'Mean_FD': 0.5},
-        {'Subject_ID': 'S3', 'Mean_FD': 0.15},
-    ]
+
+class TestGenerateExclusionLog:
+    def test_write_exclusion_log(self):
+        """Test that exclusion log is written correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = os.path.join(tmpdir, "exclusion_log.csv")
+            
+            excluded_subjects = [
+                {'Subject_ID': '100101', 'Exclusion_Reason': 'Motion', 'Mean_FD': 0.25},
+                {'Subject_ID': '100202', 'Exclusion_Reason': 'Motion', 'Mean_FD': 0.35}
+            ]
+            
+            generate_exclusion_log(excluded_subjects, log_path)
+            
+            # Verify file exists
+            assert os.path.exists(log_path)
+            
+            # Verify contents
+            with open(log_path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+            
+            assert len(rows) == 2
+            assert rows[0]['Subject_ID'] == '100101'
+            assert rows[0]['Exclusion_Reason'] == 'Motion'
+            assert float(rows[0]['Mean_FD']) == 0.25
+            assert rows[1]['Subject_ID'] == '100202'
+            assert rows[1]['Exclusion_Reason'] == 'Motion'
+            assert float(rows[1]['Mean_FD']) == 0.35
     
-    valid = run_motion_filtering_pipeline(subjects)
-    
-    # S2 should be excluded
-    assert len(valid) == 2
-    assert valid[0]['Subject_ID'] == 'S1'
-    assert valid[1]['Subject_ID'] == 'S3'
-    
-    # Check exclusion log exists if any were excluded
-    # Note: This test might need to handle the file path carefully in CI
-    # but the logic is verified by the return value.
+    def test_append_to_existing_log(self):
+        """Test that new exclusions are appended to existing log."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = os.path.join(tmpdir, "exclusion_log.csv")
+            
+            # Write initial log
+            initial_subjects = [
+                {'Subject_ID': '100101', 'Exclusion_Reason': 'Motion', 'Mean_FD': 0.25}
+            ]
+            generate_exclusion_log(initial_subjects, log_path)
+            
+            # Append more exclusions
+            new_subjects = [
+                {'Subject_ID': '100202', 'Exclusion_Reason': 'Motion', 'Mean_FD': 0.35}
+            ]
+            generate_exclusion_log(new_subjects, log_path)
+            
+            # Verify both entries exist
+            with open(log_path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+            
+            assert len(rows) == 2
+
+
+class TestRunMotionFilteringPipeline:
+    @patch('code.utils.motion.load_motion_params_from_nifti')
+    @patch('code.utils.motion.calculate_mean_fd')
+    @patch('code.utils.motion.check_motion_exclusion')
+    def test_pipeline_includes_and_excludes(self, mock_check, mock_calc, mock_load):
+        """Test that pipeline correctly includes and excludes subjects."""
+        
+        # Mock data
+        mock_load.return_value = np.zeros((100, 6))
+        mock_calc.return_value = 0.15  # Below threshold
+        
+        subject_ids = ['100101', '100202', '100303']
+        nifti_paths = ['/fake/path1.nii', '/fake/path2.nii', '/fake/path3.nii']
+        
+        # First subject passes, second fails, third passes
+        mock_check.side_effect = [
+            (False, ""),  # 100101
+            (True, "Motion"),  # 100202
+            (False, "")  # 100303
+        ]
+        
+        included, excluded = run_motion_filtering_pipeline(subject_ids, nifti_paths)
+        
+        assert len(included) == 2
+        assert len(excluded) == 1
+        assert excluded[0]['Subject_ID'] == '100202'
+        assert excluded[0]['Exclusion_Reason'] == 'Motion'

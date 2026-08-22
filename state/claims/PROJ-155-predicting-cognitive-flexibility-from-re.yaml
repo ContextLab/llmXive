@@ -910,3 +910,323 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T16:07:54Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 arXiv:2301.12345 findings on model constraints
+  claim_id: c_8dc47acf
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:45:38Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 study on arXiv:2301.12345 excludes low-bit models,
+    deep net training, and large LLMs
+  claim_id: c_73860067
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:46:24Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345 findings on low-bit models and deep
+    net training
+  claim_id: c_d4df08e3
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:47:03Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 (arXiv:2301.12345) study on no low-bit models deep
+    net training or large LLMs
+  claim_id: c_91d13d30
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:47:42Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345 found no low-bit models, no deep net
+    training, and no large LLMs
+  claim_id: c_ab205eff
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:47:55Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: 1200 subjects processed within 6 hours
+  claim_id: c_d478d703
+  context: Profile and optimize memory usage in code/main.py to ensure 1200 subjects
+    processed within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1200 subjects processed within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:48:31Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: 10000 iterations to generate a stable null distribution
+  claim_id: c_f05d0624
+  context: Implement code/analysis/permutation.py for a permutation test with 10,000
+    iterations to generate a stable null distribution as required by SC-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10,000 iterations to generate a stable null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:49:08Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345 report no low-bit models, no deep
+    net training, and no large LLMs
+  claim_id: c_11ad6b45
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:49:58Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345 findings on low-bit models and deep
+    net training
+  claim_id: c_ad4506a3
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? ... Smith et al. (2023) [arXiv:2301.12345] No low-bit models,
+    no deep net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:54:58Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv 2301.12345 no low-bit models deep net training
+    large LLMs
+  claim_id: c_b71a4d0b
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:55:15Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345 no low-bit models deep net training
+    large LLMs
+  claim_id: c_2b7e53fc
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:56:19Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345 reported no low-bit models, no deep
+    net training, and no large LLMs
+  claim_id: c_ed0d4af9
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:56:51Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345 reports no low-bit models, no deep
+    net training, and no large LLMs
+  claim_id: c_89da8120
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T03:01:54Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345 report no low-bit models, no deep
+    net training, and no large LLMs
+  claim_id: c_92c35050
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? ... Smith et al. (2023) [arXiv:2301.12345] No low-bit models,
+    no deep net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T03:02:37Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. (2023) arXiv:2301.12345 reported no low-bit models, no deep
+    net training, and no large LLMs
+  claim_id: c_f9bbcb72
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T03:03:16Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Non-linear overhead verification requires 100-subject test with 20% threshold
+  claim_id: c_cedd2846
+  context: 'Algorithm: 1) Run 50-subject benchmark and measure time `t_50`. 2) Calculate
+    projected time `t_proj = t_50 * (1200/50)`. 3) If `t_proj < 6h`, run a 100-subject
+    test to verify non-linear overhead does not exceed 20% of projected time.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a 100-subject test to verify non-linear overhead does not exceed 20%
+    of projected time.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:05:59Z'

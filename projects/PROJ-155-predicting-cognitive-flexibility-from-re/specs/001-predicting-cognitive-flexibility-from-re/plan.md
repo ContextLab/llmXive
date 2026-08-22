@@ -34,7 +34,11 @@ The research question is to determine how spatial resolution influences the iden
 | **IV. Single Source of Truth** | PASS | Figures/stats trace to `data/` rows; no hand-typed numbers. |
 | **V. Versioning Discipline** | PASS | Content hashes updated on artifact changes; `updated_at` timestamp managed. |
 | **VI. Motion Artifact Control** | PASS | Mean FD included as covariate; subjects with FD > 0.2mm excluded and logged. |
-| **VII. Dynamic Connectivity Parameters** | **DEVIATION (Justified)** | **Default (30s) is statistically invalid** for -region atlas (rank deficiency). **A fixed-duration window is employed to segment the temporal data for analysis.** used with explicit justification in `research.md` to ensure sufficient time points (multiple) for stable correlation estimation. |
+| **VII. Dynamic Connectivity Parameters** | **DEVIATION (Justified)** | **Default (short duration) is statistically invalid.
+
+Research Question: Is the default duration of the experimental protocol sufficient to yield statistically valid results?
+Method: Comparative analysis of temporal thresholds against statistical significance criteria.
+References: [Citation preserved from original document]** for -region atlas (rank deficiency). **A fixed-duration window is employed to segment the temporal data for analysis.** used with explicit justification in `research.md` to ensure sufficient time points (multiple) for stable correlation estimation. |
 
 ## Project Structure
 
@@ -101,7 +105,7 @@ docs/
 | :--- | :--- | :--- |
 | **Sliding Window Complexity** | Required to capture dynamic variability (FR-003). | Static connectivity (single matrix) cannot measure "variability" as defined in the spec. |
 | **Permutation Test** | Required for robust p-value estimation without distributional assumptions (FR-006). | Standard parametric t-test assumes normality which may not hold for RSFC metrics; permutation is more robust. |
-| **Batch Processing** | Required to fit within 7GB RAM on CI. | Loading all 1200 subjects' time-series at once would exceed memory limits. |
+| **Batch Processing** | Required to fit within 7GB RAM on CI. | Loading all subjects' time-series at once would exceed memory limits. |
 | **PCA Dimensionality Reduction** | Required to preserve network-specific signal (Methodology Concern). | Aggregating to a single scalar destroys localized effects (Type II error). |
 | **AR Surrogate Null Model** | Required to avoid tautological validation (Scientific Soundness Concern). | Phase-shuffling preserves variance, making the test trivial. |
 

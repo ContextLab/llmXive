@@ -1,23 +1,47 @@
-T017:
-  c: false
-  h: 90a5015989878b93676b1c47be5856475f8098eb4c76f5651608f9f8157aaeae
-  r: "The required `data/processed/exclusion_log.csv` file does not exist, so no row\
-    \ logging the missing behavioral scores was created. The task\u2019s core output\
-    \ is missing, indicating the implementation is incomplete."
-T023:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or output file implementing the aggregation of edge\u2011wise\
-    \ standard deviations into a single `Variability_Metric` per subject was provided.\
-    \ The claim lacks any artifact (e.g., Python module, function, or CSV result)\
-    \ that could be inspected to verify the mean\u2011edge\u2011SD calculation, so\
-    \ the requirement is not satisfied. The next implementer must supply the actual\
-    \ implementation (source code) and a sample output demonstrating the computed\
-    \ metric for at least one subject."
-T025:
+  r: No evidence of the required directories (`code/`, `data/`, `docs/`, `tests/`)
+    is provided; the implementer did not supply any artifact showing that the project
+    structure was created.
+T015:
+  c: false
+  h: bd93c6f416dfc051d70e86f3aa7704ed19282ff6a1959bed02700285f60a9ab7
+  r: "The required `data/processed/exclusion_log.csv` file does not exist, and the\
+    \ provided `code/utils/motion.py` snippet shows only utility functions (e.g.,\
+    \ `calculate_mean_fd`) with no implementation of the motion\u2011filtering logic\
+    \ or logging of excluded subjects. Consequently, the task\u2019s deliverable and\
+    \ core functionality are missing."
+T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, or documentation implementing batch processing logic were\
-    \ provided, nor any evidence (e.g., logs, benchmarks, test results) showing that\
-    \ a cohort of subjects can be processed while keeping peak RAM below 7\u202FGB.\
-    \ The claim lacks the required artifact to verify the task\u2019s requirement."
+  r: "No code, test, or documentation was presented showing that the p\u2011value\u202F\
+    =\u202F0.0 case is now detected and reported as \u201C<\u202F0.0001\u201D. Without\
+    \ an artifact (e.g., updated function, unit test, or commit diff) the requirement\
+    \ cannot be verified. The implementer must provide the modified logic and evidence\
+    \ (e.g., a snippet, test output, or repository path) that demonstrates the new\
+    \ handling."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, module, or documentation implementing FDR correction logic\
+    \ was provided; the evidence section contains no artifacts to inspect, so the\
+    \ required functionality cannot be verified. The implementer must supply the actual\
+    \ implementation (e.g., a function applying Benjamini\u2011Hochberg or similar\
+    \ FDR procedure to post\u2011hoc network analysis results) and any associated\
+    \ tests or usage examples."
+T036:
+  c: false
+  h: 4874d48274eb49abc950eb0baa5a1d6dfc788d6be36226cb9f22f13d8985160a
+  r: The required `data/processed/final_results.csv` file does not exist, and the
+    needed `data/results/regression_summary.json` is also missing. Moreover, the existing
+    `metrics.csv` lacks most of the mandatory columns (e.g., `Flexibility_Score`,
+    `Age`, `Sex`, `Mean_FD`, etc.), so the merge and inclusion of regression coefficients
+    cannot have been performed. The task therefore remains unfinished.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `docs/` directory or the required `quickstart.md` and `research.md`
+    files was provided; without these artifacts we cannot verify that the documentation
+    updates were made. The implementer must add the two markdown files with appropriate
+    content in the `docs/` folder.

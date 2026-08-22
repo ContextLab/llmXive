@@ -1,5 +1,16 @@
-- artifact_hash: 89eadc545ea933d85e1472a3248bca978249d5c15a259d9ede462eadd7b64756
-  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+- artifact_hash: 00697f6fa7b8995e9b6cf28f60d3043f0b6be0cb3a326d9ada3b30d0df7834a5
+  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/docs/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Human Connectome Project
+  fetched_title: BALSA
+  kind: url
+  value: https://db.humanconnectome.org/
+  verification_status: pending
+  verified_against_url: https://balsa.wustl.edu
+  verified_at: '2026-08-22T03:04:17.636928Z'
+- artifact_hash: 72f327f15286dc80bc228d66071b2e628d57de418603e39aef3827da41f297bf
+  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/docs/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
@@ -8,4 +19,26 @@
   value: '2301.12345'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-08-19T16:07:54.405091Z'
+  verified_at: '2026-08-22T03:04:18.906882Z'
+- artifact_hash: 39cc20e5473bb92f31730628483359f93a7c97bb312aa5277d7b28fef2a36e37
+  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: BALSA
+  kind: url
+  value: https://db.humanconnectome.org/api/projects/HCP_1200_Subjects/subjects/{subject_id}/`
+  verification_status: pending
+  verified_against_url: https://balsa.wustl.edu
+  verified_at: '2026-08-22T03:22:17.418857Z'
+- artifact_hash: 39cc20e5473bb92f31730628483359f93a7c97bb312aa5277d7b28fef2a36e37
+  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2301.12345'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-08-22T03:22:17.418857Z'

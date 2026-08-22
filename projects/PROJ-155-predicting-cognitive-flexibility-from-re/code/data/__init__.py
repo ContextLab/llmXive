@@ -1,3 +1,3 @@
 """
-Data ingestion and preprocessing modules.
+Data ingestion, preprocessing, and merging utilities.
 """

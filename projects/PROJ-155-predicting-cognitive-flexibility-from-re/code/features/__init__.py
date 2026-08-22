@@ -1,3 +1,3 @@
 """
-Feature engineering modules for connectivity metrics.
+Feature extraction and connectivity analysis modules.
 """

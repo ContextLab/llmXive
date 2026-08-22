@@ -9,16 +9,16 @@
 
 ### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
-The system MUST successfully download the HCP 1200-subject release (resting-state fMRI and behavioral data), apply the HCP minimal preprocessing outputs, and parcellate the data using the Schaefer atlas with a high-resolution parcellation scheme (Schaefer et al., 2018) to generate a clean, analysis-ready dataset.
+The system MUST successfully download the HCP 1200-subject release (resting-state fMRI and behavioral data), apply the HCP minimal preprocessing outputs, and parcellate the data using the Schaefer atlas with a high-resolution parcellation scheme (Schaefer et al.,) to generate a clean, analysis-ready dataset.
 
 **Why this priority**: Without a valid, preprocessed dataset containing both the neural predictors (RSFC) and the behavioral outcome (NIH Toolbox scores), no analysis can occur. This is the foundational data layer for the entire research question.
 
-**Independent Test**: The pipeline can be tested by running the download and preprocessing scripts on a subset of 5 subjects and verifying that the output CSV contains exactly the following columns with the specified data types: `Subject_ID` (string), `Mean_FD` (float), `Age` (integer), `Sex` (string), and `Flexibility_Score` (float). The test MUST fail if any column is missing, contains null values, or has an incorrect type.
+**Independent Test**: The pipeline can be tested by running the download and preprocessing scripts on a subset of subjects and verifying that the output CSV contains exactly the following columns with the specified data types: `Subject_ID` (string), `Mean_FD` (float), `Age` (integer), `Sex` (string), and `Flexibility_Score` (float). The test MUST fail if any column is missing, contains null values, or has an incorrect type.
 
 **Acceptance Scenarios**:
 
 1. **Given** a valid HCP data download link and credentials, **When** the ingestion script runs, **Then** the script downloads the resting-state fMRI and behavioral files for the target subjects and places them in the designated working directory without data corruption.
-2. **Given** raw fMRI NIfTI files, **When** the parcellation step executes using the Schaefer 200 atlas, **Then** the output is a 4D NIfTI file or time-series matrix where each voxel is mapped to exactly one of the 200 regions, and no regions are missing.
+2. **Given** raw fMRI NIfTI files, **When** the parcellation step executes using the Schaefer atlas, **Then** the output is a 4D NIfTI file or time-series matrix where each voxel is mapped to exactly one of the regions, and no regions are missing.
 3. **Given** the behavioral data file, **When** it is merged with the neuroimaging data, **Then** the resulting dataset contains exactly one row per subject with matched IDs, and any subjects missing the NIH Toolbox Dimensional Change Card Sort score are excluded with a log entry.
 
 ---
@@ -33,9 +33,9 @@ The system MUST compute sliding-window Pearson correlation matrices for each sub
 
 **Acceptance Scenarios**:
 
-1. **Given** a subject's preprocessed 4D fMRI data, **When** the sliding-window analysis runs with a 60-second window and 1-second step, **Then** a sequence of correlation matrices is generated, and the standard deviation is calculated for every edge across this sequence.
+1. **Given** a subject's preprocessed 4D fMRI data, **When** the sliding-window analysis runs with a fixed-duration window and 1-second step, **Then** a sequence of correlation matrices is generated, and the standard deviation is calculated for every edge across this sequence.
 2. **Given** the edge-wise standard deviations, **When** the aggregation step executes, **Then** a single scalar value representing the mean variability across all edges (or a weighted subset) is produced for that subject.
-3. **Given** the correlation distribution for an edge, **When** the entropy calculation runs, **Then** the output is a non-negative float representing the Shannon entropy (base 2), which is included in the subject's feature vector.
+3. **Given** the correlation distribution for an edge, **When** the entropy calculation runs, **Then** the output is a non-negative float representing the Shannon entropy (base), which is included in the subject's feature vector.
 4. **Given** the preprocessed time-series, **When** a null-model validation runs (phase-shuffled time series), **Then** the system confirms that the variability metric derived from real data is statistically significantly higher (p < 0.05) than the metric derived from the null model, ensuring the metric captures neural dynamics and not just noise.
 
 ---
@@ -51,8 +51,8 @@ The system MUST perform a regression analysis of cognitive flexibility scores on
 **Acceptance Scenarios**:
 
 1. **Given** the subject-level dataset with variability metrics and flexibility scores, **When** the regression model runs, **Then** the output includes the regression coefficient (β), standard error, and the Pearson correlation coefficient (r) between variability and flexibility.
-2. **Given** the observed regression statistic, **When** the 10,000-permutation test executes, **Then** the system generates a null distribution by shuffling the behavioral scores and calculates the empirical p-value as the proportion of permuted statistics exceeding the observed statistic.
-3. **Given** the analysis results, **When** the report is generated, **Then** it includes a plot of variability vs. flexibility with a regression line and 95% confidence interval, and a text summary stating whether the association is significant (p < 0.05) or not.
+2. **Given** the observed regression statistic, **When** a permutation test executes, **Then** the system generates a null distribution by shuffling the behavioral scores and calculates the empirical p-value as the proportion of permuted statistics exceeding the observed statistic.
+3. **Given** the analysis results, **When** the report is generated, **Then** it includes a plot of variability vs. flexibility with a regression line and % confidence interval, and a text summary stating whether the association is significant (p < 0.05) or not.
 4. **Given** a scenario where post-hoc network-specific analyses are performed, **When** the results are reported, **Then** the p-values MUST be adjusted using False Discovery Rate (FDR) correction (q < 0.05) to control for multiple comparisons.
 
 ---
@@ -90,7 +90,7 @@ The system MUST perform a regression analysis of cognitive flexibility scores on
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation phase.
 
 - **SC-001**: The proportion of subjects successfully processed (passing motion and data quality checks) is measured against the total number of subjects in the HCP 1200 release subset used. (See US-1)
-- **SC-003**: The empirical p-value derived from the 10,000 permutations is measured against the significance threshold of 0.05 (or FDR-adjusted q ≤ 0.05 for post-hoc tests) to determine hypothesis support. (See US-3)
+- **SC-003**: The empirical p-value derived from the 10,000 permutations is measured against the significance threshold (or FDR-adjusted q ≤ 0.05 for post-hoc tests) to determine hypothesis support. (See US-3)
 - **SC-004**: The correlation coefficient (r) between RSFC variability and flexibility scores is measured against the null hypothesis of no association (r=0) to assess effect direction and magnitude. (See US-3)
 
 ## Assumptions
@@ -100,7 +100,7 @@ The system MUST perform a regression analysis of cognitive flexibility scores on
 - The sliding-window correlation approach with a sufficiently long window is sufficient to reliably estimate correlation matrices for a substantial number of regions., avoiding the "noise floor" artifact associated with shorter windows.
 - The Schaefer 200-region atlas is compatible with the HCP MNI space used in the preprocessed data.
 - The analysis will be observational; therefore, findings will be framed as associational rather than causal, consistent with the lack of random assignment in the HCP dataset.
-- The GitHub Actions free-tier runner (2 CPU, ~7 GB RAM) is sufficient to process the data and run the permutation test within 6 hours, provided the data is processed in batches or optimized for CPU usage.
+- The GitHub Actions free-tier runner (standard CPU allocation, ~7 GB RAM) is sufficient to process the data and run the permutation test within 6 hours, provided the data is processed in batches or optimized for CPU usage.
 - The memory usage of the pipeline will not exceed a predefined threshold (peak RSS of the Python process)..
 - The "variability" metric will be defined as the mean standard deviation of edge-wise correlations across all edges, as specified in the expected results.
 - The permutation test will use a sufficient number of iterations as the standard for robust p-value estimation., balancing accuracy with compute time.

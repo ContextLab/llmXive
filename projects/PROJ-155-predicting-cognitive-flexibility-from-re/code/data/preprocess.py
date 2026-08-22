@@ -1,377 +1,315 @@
-"""
-Preprocessing module for HCP resting-state fMRI data.
-
-This module handles loading preprocessed NIfTI files and applying
-Schaefer atlas parcellation to extract region-wise time series.
-
-Dependencies:
-    - nibabel: NIfTI file handling
-    - numpy: Numerical operations
-    - pandas: Data manipulation
-    - code.data.loader: NIfTI loading utilities
-    - code.data.paths: Path management
-    - code.config: Configuration parameters
-    - code.utils.logging: Structured logging
-"""
-
 import os
 import logging
 from typing import Dict, List, Optional, Tuple, Any, Union
-
 import numpy as np
 import nibabel as nib
 import pandas as pd
+from scipy import ndimage
 
-from code.data.loader import load_nifti
-from code.data.paths import get_project_root, get_raw_path, get_processed_path, ensure_dir
 from code.config import get_config
-from code.utils.logging import init_logging, log_error, log_warning, log_exclusion
+from code.data.paths import get_raw_path, get_processed_path, ensure_dir
+from code.utils.logging import log_error, log_warning, init_logging, log_info
 
-# Initialize logger for this module
+# Configure logger for this module
 logger = logging.getLogger(__name__)
 
-
-def load_schaefer_parcellation(atlas_name: str = "Schaefer2018_100Parcels_7Networks") -> Tuple[np.ndarray, List[str]]:
+def load_schaefer_parcellation(atlas_name: str = "Schaefer2018_200Parcels_7Networks") -> np.ndarray:
     """
-    Load Schaefer atlas parcellation labels and ROI mapping.
-
-    Args:
-        atlas_name: Name of the Schaefer atlas variant to use.
-                   Default: Schaefer2018_100Parcels_7Networks
-
-    Returns:
-        Tuple of (parcellation_array, roi_labels)
-        - parcellation_array: 1D array mapping each voxel to a parcel ID
-        - roi_labels: List of ROI labels corresponding to parcel IDs
-
-    Raises:
-        FileNotFoundError: If atlas file is not found
-        ValueError: If atlas name is not supported
-    """
-    project_root = get_project_root()
+    Load the Schaefer atlas parcellation mask.
     
-    # Define expected atlas file paths
-    # Note: In a real implementation, these would be downloaded or generated
-    # For now, we assume the atlas is available in the data directory
-    atlas_dir = os.path.join(get_raw_path(), "atlas")
+    In a real production environment, this would download the atlas from the 
+    Schaefer GitHub repository or a local cache. For this implementation, 
+    we assume the atlas file exists in the project's data/raw/atlas directory
+    or download it if missing.
+    
+    Args:
+        atlas_name: Name of the atlas to load.
+        
+    Returns:
+        3D numpy array representing the parcellation mask.
+        
+    Raises:
+        FileNotFoundError: If the atlas file is not found.
+    """
+    config = get_config()
+    project_root = get_raw_path()
+    
+    # Expected filename based on standard Schaefer release
+    # We assume the atlas is downloaded to data/raw/atlas/
+    atlas_dir = os.path.join(project_root, "atlas")
     ensure_dir(atlas_dir)
     
-    # Expected file patterns for Schaefer atlases
-    atlas_files = {
-        "Schaefer2018_100Parcels_7Networks": "Schaefer2018_100Parcels_7Networks_order.txt",
-        "Schaefer2018_200Parcels_7Networks": "Schaefer200Parcels_7Networks_order.txt",
-        "Schaefer2018_400Parcels_7Networks": "Schaefer400Parcels_7Networks_order.txt",
-    }
+    # Standard Schaefer 200 parcellation filename
+    atlas_file = os.path.join(atlas_dir, f"{atlas_name}.nii.gz")
     
-    if atlas_name not in atlas_files:
-        raise ValueError(f"Unsupported atlas: {atlas_name}. Supported: {list(atlas_files.keys())}")
-    
-    atlas_file = os.path.join(atlas_dir, atlas_files[atlas_name])
-    
+    # If not present, we must fail loudly rather than generate synthetic data
+    # as per project constraints.
     if not os.path.exists(atlas_file):
-        # Try to find the file in common locations
-        possible_paths = [
-            os.path.join(project_root, "data", "raw", "atlas", atlas_files[atlas_name]),
-            os.path.join(project_root, "data", "atlas", atlas_files[atlas_name]),
-        ]
-        
-        found = False
-        for path in possible_paths:
-            if os.path.exists(path):
-                atlas_file = path
-                found = True
-                break
-        
-        if not found:
-            raise FileNotFoundError(
-                f"Schaefer atlas file not found: {atlas_file}. "
-                f"Please download the Schaefer atlas and place it in {atlas_dir}"
-            )
+        raise FileNotFoundError(
+            f"Atlas file not found at {atlas_file}. "
+            "Please download the Schaefer atlas and place it in data/raw/atlas/."
+        )
     
-    # Read the parcellation file
-    with open(atlas_file, 'r') as f:
-        lines = f.readlines()
+    logger.info(f"Loading atlas from {atlas_file}")
+    atlas_img = nib.load(atlas_file)
+    atlas_data = atlas_img.get_fdata()
     
-    # Parse the file - typically contains ROI names and network assignments
-    roi_labels = []
-    for line in lines:
-        line = line.strip()
-        if line and not line.startswith('#'):
-            # Format: "ROI_name Network" or just "ROI_name"
-            parts = line.split()
-            if parts:
-                roi_labels.append(parts[0])
+    # Ensure we have integer labels
+    atlas_data = atlas_data.astype(np.int32)
     
-    # Create a mapping from parcel ID to ROI label
-    # Parcel IDs are typically 1-indexed in Schaefer atlases
-    parcel_to_roi = {i+1: roi for i, roi in enumerate(roi_labels)}
-    
-    return parcel_to_roi, roi_labels
+    return atlas_data
 
-
-def extract_roi_time_series(
-    nifti_path: str,
-    parcel_to_roi: Dict[int, str],
-    atlas_mask_path: Optional[str] = None
-) -> pd.DataFrame:
+def extract_roi_time_series(nifti_path: str, atlas_mask: np.ndarray) -> np.ndarray:
     """
-    Extract region-wise time series from a parcellated NIfTI file.
-
+    Extract mean time series for each ROI defined in the atlas mask.
+    
     Args:
-        nifti_path: Path to the preprocessed NIfTI file
-        parcel_to_roi: Dictionary mapping parcel IDs to ROI labels
-        atlas_mask_path: Optional path to the atlas mask file
-
+        nifti_path: Path to the preprocessed NIfTI file (4D: x, y, z, time).
+        atlas_mask: 3D numpy array of the parcellation mask.
+        
     Returns:
-        DataFrame with columns: ['Subject_ID', 'Time_Point', 'ROI_1', 'ROI_2', ...]
-        where ROI columns contain the mean time series for each region
-
+        2D numpy array of shape (n_timepoints, n_rois) containing the time series.
+        
     Raises:
-        FileNotFoundError: If NIfTI file not found
-        ValueError: If file format is invalid
+        FileNotFoundError: If the NIfTI file is not found.
+        ValueError: If dimensions do not match.
     """
     if not os.path.exists(nifti_path):
         raise FileNotFoundError(f"NIfTI file not found: {nifti_path}")
     
-    # Load the NIfTI file
-    try:
-        img = load_nifti(nifti_path)
-        data = img.get_fdata()
-        affine = img.affine
-    except Exception as e:
-        raise ValueError(f"Failed to load NIfTI file {nifti_path}: {str(e)}")
+    logger.info(f"Loading NIfTI from {nifti_path}")
+    img = nib.load(nifti_path)
+    data = img.get_fdata()
     
-    # Determine dimensions
-    if len(data.shape) != 4:
-        raise ValueError(f"Expected 4D NIfTI file, got {len(data.shape)}D")
+    # Ensure atlas mask matches spatial dimensions
+    if data.shape[:3] != atlas_mask.shape:
+        raise ValueError(
+            f"Dimension mismatch: NIfTI {data.shape[:3]} vs Atlas {atlas_mask.shape}"
+        )
     
-    x, y, z, t = data.shape
-    logger.info(f"Loaded NIfTI: {x}x{y}x{z}x{t} voxels/timepoints")
+    # Flatten spatial dimensions
+    n_voxels = data.shape[0] * data.shape[1] * data.shape[2]
+    n_timepoints = data.shape[3]
     
-    # If no atlas mask provided, we need to create one or use a default
-    # For now, assume the parcellation is embedded in the data or we use a standard mask
-    if atlas_mask_path is None:
-        # Use the parcel_to_roi mapping to extract time series
-        # We'll assume the data is already parcellated or we use a standard approach
-        logger.warning("No atlas mask provided, using standard extraction method")
-        
-        # Extract time series by averaging across voxels for each ROI
-        # This assumes the data is in a standard space where we can apply the atlas
-        roi_time_series = {}
-        
-        # For demonstration, we'll create a simple parcellation
-        # In a real implementation, this would use the actual atlas mask
-        num_voxels = x * y * z
-        num_timepoints = t
-        
-        # Create a simple grid-based parcellation for demonstration
-        # This should be replaced with actual atlas application
-        parcels_per_dim = int(np.round(np.cbrt(len(parcel_to_roi))))
-        voxel_size = x // parcels_per_dim
-        
-        for parcel_id, roi_label in parcel_to_roi.items():
-            # Calculate voxel indices for this parcel
-            start_x = ((parcel_id - 1) % parcels_per_dim) * voxel_size
-            end_x = start_x + voxel_size
-            start_y = ((parcel_id - 1) // parcels_per_dim) % parcels_per_dim * voxel_size
-            end_y = start_y + voxel_size
-            start_z = (parcel_id - 1) // (parcels_per_dim * parcels_per_dim) * voxel_size
-            end_z = start_z + voxel_size
-            
-            # Extract time series for this ROI
-            roi_data = data[start_x:end_x, start_y:end_y, start_z:end_z, :]
-            mean_time_series = np.mean(roi_data, axis=(0, 1, 2))
-            roi_time_series[roi_label] = mean_time_series
-    else:
-        # Load atlas mask and apply it
-        if not os.path.exists(atlas_mask_path):
-            raise FileNotFoundError(f"Atlas mask not found: {atlas_mask_path}")
-        
-        mask_img = load_nifti(atlas_mask_path)
-        mask_data = mask_img.get_fdata()
-        
-        # Extract time series for each ROI
-        roi_time_series = {}
-        for parcel_id, roi_label in parcel_to_roi.items():
-            # Get voxels belonging to this parcel
-            parcel_mask = mask_data == parcel_id
-            parcel_voxels = data[parcel_mask, :]
-            
-            if len(parcel_voxels) == 0:
-                logger.warning(f"No voxels found for ROI {roi_label} (parcel {parcel_id})")
-                mean_time_series = np.zeros(t)
-            else:
-                mean_time_series = np.mean(parcel_voxels, axis=0)
-            
-            roi_time_series[roi_label] = mean_time_series
+    data_flat = data.reshape(n_voxels, n_timepoints)
+    mask_flat = atlas_mask.flatten()
     
-    # Create DataFrame
-    df = pd.DataFrame(roi_time_series)
-    df.insert(0, 'Subject_ID', os.path.basename(nifti_path).replace('.nii.gz', '').replace('.nii', ''))
-    df.insert(1, 'Time_Point', range(t))
+    # Identify unique ROIs (excluding background 0)
+    unique_rois = np.unique(mask_flat)
+    unique_rois = unique_rois[unique_rois != 0]
     
-    # Reorder columns to put Subject_ID and Time_Point first
-    cols = ['Subject_ID', 'Time_Point'] + [col for col in df.columns if col not in ['Subject_ID', 'Time_Point']]
-    df = df[cols]
+    roi_time_series = []
     
-    logger.info(f"Extracted time series for {len(parcel_to_roi)} ROIs")
-    return df
+    for roi_id in unique_rois:
+        # Create a boolean mask for this ROI
+        roi_mask = mask_flat == roi_id
+        
+        # Extract time series for voxels in this ROI
+        roi_voxel_ts = data_flat[roi_mask, :]
+        
+        # Calculate mean time series across voxels in the ROI
+        mean_ts = np.mean(roi_voxel_ts, axis=0)
+        roi_time_series.append(mean_ts)
+    
+    # Stack into (n_timepoints, n_rois)
+    result = np.stack(roi_time_series, axis=1)
+    
+    logger.info(f"Extracted {result.shape[1]} ROIs with {result.shape[0]} timepoints")
+    
+    return result
 
-
-def preprocess_subject(
-    subject_id: str,
-    output_dir: Optional[str] = None,
-    atlas_name: str = "Schaefer2018_100Parcels_7Networks"
-) -> str:
+def preprocess_subject(subject_id: str) -> Dict[str, Any]:
     """
-    Preprocess a single subject's resting-state fMRI data.
-
+    Preprocess a single subject: load preprocessed NIfTI and apply Schaefer atlas parcellation.
+    
+    This function assumes the preprocessed NIfTI file has already been downloaded
+    and placed in data/raw/processed/{subject_id}/ by T012.
+    
     Args:
-        subject_id: HCP subject ID (e.g., "100307")
-        output_dir: Directory to save processed data. If None, uses default processed path.
-        atlas_name: Name of the Schaefer atlas to use
-
+        subject_id: The HCP subject ID (e.g., '100307').
+        
     Returns:
-        Path to the processed time series CSV file
-
+        Dictionary containing:
+            - 'subject_id': The subject ID
+            - 'roi_timeseries': 2D numpy array of shape (n_timepoints, n_rois)
+            - 'n_rois': Number of ROIs
+            - 'n_timepoints': Number of timepoints
+            - 'status': 'success' or 'error'
+            - 'error_message': Error details if failed
+            
     Raises:
-        FileNotFoundError: If subject data not found
-        ValueError: If preprocessing fails
+        FileNotFoundError: If input files are missing.
     """
-    # Get paths
-    if output_dir is None:
-        output_dir = get_processed_path()
-    ensure_dir(output_dir)
+    config = get_config()
     
-    # Load subject data
-    raw_data_dir = get_raw_path()
-    subject_dir = os.path.join(raw_data_dir, subject_id)
+    # Path to preprocessed NIfTI (assuming HCP minimal preprocessing outputs)
+    # HCP structure: data/raw/processed/{subject_id}/MNINonLinear/Results/rfMRI_REST1_LR/rfMRI_REST1_LR_hp2000_clean.nii.gz
+    raw_path = get_raw_path()
+    nifti_file = os.path.join(
+        raw_path, 
+        subject_id, 
+        "MNINonLinear", 
+        "Results", 
+        "rfMRI_REST1_LR", 
+        "rfMRI_REST1_LR_hp2000_clean.nii.gz"
+    )
     
-    # Look for preprocessed NIfTI file
-    possible_nifti_paths = [
-        os.path.join(subject_dir, "MNINonLinear", "rfMRI_REST1_LR", "rfMRI_REST1_LR_hp2000_clean.nii.gz"),
-        os.path.join(subject_dir, "MNINonLinear", "rfMRI_REST1_LR", "rfMRI_REST1_LR.nii.gz"),
-        os.path.join(subject_dir, "MNINonLinear", "rfMRI_REST1_LR_hp2000_clean.nii.gz"),
-        os.path.join(subject_dir, "rfMRI_REST1_LR_hp2000_clean.nii.gz"),
-    ]
+    if not os.path.exists(nifti_file):
+        raise FileNotFoundError(
+            f"Preprocessed NIfTI not found for subject {subject_id} at {nifti_file}"
+        )
     
-    nifti_path = None
-    for path in possible_nifti_paths:
-        if os.path.exists(path):
-            nifti_path = path
-            break
-    
-    if nifti_path is None:
-        # Try to find any NIfTI file in the subject directory
-        for root, dirs, files in os.walk(subject_dir):
-            for file in files:
-                if file.endswith('.nii') or file.endswith('.nii.gz'):
-                    nifti_path = os.path.join(root, file)
-                    break
-            if nifti_path:
-                break
-    
-    if nifti_path is None:
-        raise FileNotFoundError(f"No NIfTI file found for subject {subject_id}")
-    
-    logger.info(f"Processing subject {subject_id} from {nifti_path}")
-    
-    # Load parcellation
     try:
-        parcel_to_roi, roi_labels = load_schaefer_parcellation(atlas_name)
+        # Load the Schaefer atlas
+        atlas_mask = load_schaefer_parcellation("Schaefer2018_200Parcels_7Networks")
+        
+        # Extract ROI time series
+        roi_ts = extract_roi_time_series(nifti_file, atlas_mask)
+        
+        logger.info(f"Successfully processed subject {subject_id}: {roi_ts.shape}")
+        
+        return {
+            'subject_id': subject_id,
+            'roi_timeseries': roi_ts,
+            'n_rois': roi_ts.shape[1],
+            'n_timepoints': roi_ts.shape[0],
+            'status': 'success',
+            'error_message': None
+        }
+        
     except Exception as e:
-        log_error(f"Failed to load atlas for subject {subject_id}: {str(e)}")
-        raise
-    
-    # Extract time series
-    try:
-        time_series_df = extract_roi_time_series(nifti_path, parcel_to_roi)
-    except Exception as e:
-        log_error(f"Failed to extract time series for subject {subject_id}: {str(e)}")
-        raise
-    
-    # Save processed data
-    output_file = os.path.join(output_dir, f"{subject_id}_timeseries.csv")
-    time_series_df.to_csv(output_file, index=False)
-    
-    logger.info(f"Saved processed data for {subject_id} to {output_file}")
-    return output_file
+        error_msg = str(e)
+        logger.error(f"Failed to process subject {subject_id}: {error_msg}")
+        return {
+            'subject_id': subject_id,
+            'roi_timeseries': None,
+            'n_rois': 0,
+            'n_timepoints': 0,
+            'status': 'error',
+            'error_message': error_msg
+        }
 
-
-def run_preprocessing_pipeline(
-    subject_ids: Optional[List[str]] = None,
-    atlas_name: str = "Schaefer2018_100Parcels_7Networks",
-    output_dir: Optional[str] = None
-) -> Dict[str, str]:
+def run_preprocessing_pipeline(subject_ids: Optional[List[str]] = None) -> pd.DataFrame:
     """
-    Run preprocessing pipeline for multiple subjects.
-
+    Run the preprocessing pipeline for a list of subjects.
+    
     Args:
-        subject_ids: List of subject IDs to process. If None, processes all available subjects.
-        atlas_name: Name of the Schaefer atlas to use
-        output_dir: Directory to save processed data
-
+        subject_ids: List of subject IDs to process. If None, uses all subjects
+                     found in the raw data directory.
+                     
     Returns:
-        Dictionary mapping subject_id to output file path
-
-    Raises:
-        RuntimeError: If preprocessing fails for any subject
+        DataFrame with columns: Subject_ID, ROI_Timeseries_Path, Status, Error_Message
+        
+    Note:
+        The ROI timeseries are saved to data/processed/timeseries/{subject_id}.npy
+        to avoid memory issues with large datasets.
     """
-    # Initialize logging
-    init_logging()
+    config = get_config()
+    raw_path = get_raw_path()
+    processed_path = get_processed_path()
     
-    # Get subject list if not provided
+    # Ensure output directory exists
+    timeseries_dir = os.path.join(processed_path, "timeseries")
+    ensure_dir(timeseries_dir)
+    
+    # If subject_ids not provided, scan for available subjects
     if subject_ids is None:
-        raw_data_dir = get_raw_path()
-        subject_ids = []
-        if os.path.exists(raw_data_dir):
-            for item in os.listdir(raw_data_dir):
-                item_path = os.path.join(raw_data_dir, item)
-                if os.path.isdir(item_path) and item.isdigit():
-                    subject_ids.append(item)
+        # Look for subject directories in raw_path
+        subject_ids = [
+            d for d in os.listdir(raw_path) 
+            if os.path.isdir(os.path.join(raw_path, d)) and d.isdigit()
+        ]
+        logger.info(f"Discovered {len(subject_ids)} subjects in raw data")
     
-    if not subject_ids:
-        raise RuntimeError("No subjects found to process")
-    
-    logger.info(f"Starting preprocessing pipeline for {len(subject_ids)} subjects")
-    
-    results = {}
-    failed_subjects = []
+    results = []
+    successful_count = 0
+    failed_count = 0
     
     for subject_id in subject_ids:
+        logger.info(f"Processing subject {subject_id}...")
+        
         try:
-            output_file = preprocess_subject(subject_id, output_dir, atlas_name)
-            results[subject_id] = output_file
-            logger.info(f"Successfully processed {subject_id}")
+            result = preprocess_subject(subject_id)
+            
+            if result['status'] == 'success':
+                # Save the timeseries to disk
+                output_file = os.path.join(timeseries_dir, f"{subject_id}.npy")
+                np.save(output_file, result['roi_timeseries'])
+                
+                results.append({
+                    'Subject_ID': subject_id,
+                    'ROI_Timeseries_Path': output_file,
+                    'N_ROIs': result['n_rois'],
+                    'N_Timepoints': result['n_timepoints'],
+                    'Status': 'success',
+                    'Error_Message': ''
+                })
+                successful_count += 1
+            else:
+                results.append({
+                    'Subject_ID': subject_id,
+                    'ROI_Timeseries_Path': '',
+                    'N_ROIs': 0,
+                    'N_Timepoints': 0,
+                    'Status': 'error',
+                    'Error_Message': result['error_message']
+                })
+                failed_count += 1
+                
         except Exception as e:
-            log_error(f"Failed to process subject {subject_id}: {str(e)}")
-            failed_subjects.append((subject_id, str(e)))
+            logger.error(f"Unexpected error processing {subject_id}: {str(e)}")
+            results.append({
+                'Subject_ID': subject_id,
+                'ROI_Timeseries_Path': '',
+                'N_ROIs': 0,
+                'N_Timepoints': 0,
+                'Status': 'error',
+                'Error_Message': str(e)
+            })
+            failed_count += 1
     
-    # Log results
-    logger.info(f"Preprocessing complete: {len(results)} successful, {len(failed_subjects)} failed")
+    # Create DataFrame
+    df_results = pd.DataFrame(results)
     
-    if failed_subjects:
-        logger.warning(f"Failed subjects: {failed_subjects}")
+    # Save summary to CSV
+    summary_file = os.path.join(processed_path, "preprocessing_summary.csv")
+    df_results.to_csv(summary_file, index=False)
     
-    return results
+    logger.info(f"Preprocessing complete: {successful_count} success, {failed_count} failed")
+    logger.info(f"Summary saved to {summary_file}")
+    
+    return df_results
 
+def main():
+    """
+    Main entry point for running the preprocessing pipeline.
+    
+    Usage: python -m code.data.preprocess
+    """
+    init_logging()
+    logger.info("Starting preprocessing pipeline...")
+    
+    # Example: process a small subset for testing
+    # In production, this would read from a manifest or config
+    test_subjects = ['100307', '100903', '101006']  # Small subset for verification
+    
+    try:
+        df = run_preprocessing_pipeline(subject_ids=test_subjects)
+        print(df.head())
+        
+        # Verify outputs exist
+        processed_path = get_processed_path()
+        timeseries_dir = os.path.join(processed_path, "timeseries")
+        
+        for _, row in df.iterrows():
+            if row['Status'] == 'success':
+                assert os.path.exists(row['ROI_Timeseries_Path']), f"Missing file: {row['ROI_Timeseries_Path']}"
+        
+        logger.info("All output files verified successfully.")
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed: {str(e)}")
+        raise
 
 if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Preprocess HCP resting-state fMRI data")
-    parser.add_argument("--subjects", nargs="+", help="List of subject IDs to process")
-    parser.add_argument("--atlas", default="Schaefer2018_100Parcels_7Networks", help="Schaefer atlas name")
-    parser.add_argument("--output", help="Output directory for processed data")
-    
-    args = parser.parse_args()
-    
-    subject_ids = args.subjects
-    atlas_name = args.atlas
-    output_dir = args.output
-    
-    results = run_preprocessing_pipeline(subject_ids, atlas_name, output_dir)
-    
-    print(f"Processed {len(results)} subjects successfully")
-    for subject_id, output_file in results.items():
-        print(f"  {subject_id}: {output_file}")
+    main()

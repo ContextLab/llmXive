@@ -1,3 +1,3 @@
 """
-Documentation module for llmXive project.
+Documentation storage placeholder.
 """
