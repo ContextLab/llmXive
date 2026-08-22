@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T007** — The script `code/01_download_data.py` is present, but it does not raise a `RuntimeError` on download failure (it only logs the error) and there is no evidence that it verifies checksums or writes detected task names to `data/interim/detected_tasks.log` (the log file is missing). Consequently the required behavior is not fully implemented.
-- **T010c** — The repository lacks the required `data/interim/exclusion_log.csv` file, and the shown `code/02_preprocess_eeg.py` is truncated before any exclusion‑ratio check or logging logic is implemented, so the exclusion rule and output files are not demonstrably present.
-- **T012** — The required input file `data/interim/exclusion_log.csv` does not exist, so the script cannot run, and the expected output `data/processed/features_clr.csv` is also missing. Additionally, the verification schema `contracts/feature_schema.schema.yaml` (or `schema.yaml`) is absent, preventing any validation of the output format. These essential artifacts must be present and populated for the task to be considered complete.

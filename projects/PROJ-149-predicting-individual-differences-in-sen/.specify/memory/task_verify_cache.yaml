@@ -1,17 +1,11 @@
-T007:
+T010:
   c: false
-  h: 4b8a676863eb201ad7d5951ba55e417b61d2782d20b169f26618eace47c1c883
-  r: The script `code/01_download_data.py` is present, but it does not raise a `RuntimeError`
-    on download failure (it only logs the error) and there is no evidence that it
-    verifies checksums or writes detected task names to `data/interim/detected_tasks.log`
-    (the log file is missing). Consequently the required behavior is not fully implemented.
-T010c:
-  c: false
-  h: dca509c34f56db64243a0db415a6c9f811a53e7a0059b8e120a4a2efcb2aade2
-  r: "The repository lacks the required `data/interim/exclusion_log.csv` file, and\
-    \ the shown `code/02_preprocess_eeg.py` is truncated before any exclusion\u2011\
-    ratio check or logging logic is implemented, so the exclusion rule and output\
-    \ files are not demonstrably present."
+  h: dd3ef973364ee1e0970904278148c940d57399af69e374ffc8f2b7edf3aa301c
+  r: "The provided `code/02_preprocess_eeg.py` is truncated (ends mid\u2011line) and\
+    \ does not contain a complete implementation of the pipeline nor any code that\
+    \ writes the required `.fif` files. Moreover, the required `data/interim/exclusion_log.csv`\
+    \ (and the `.fif` output directories) are absent from the repository. The task\u2019\
+    s output artifacts are therefore missing or incomplete."
 T017:
   c: false
   h: 4475e12fa76d8364c7771d8d370a3012793881d3cd63dad04c954fe1a8eee9c1

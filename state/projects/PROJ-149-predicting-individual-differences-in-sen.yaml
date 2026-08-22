@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-149-predicting-individual-differences-in-sen
-last_run_id: 129e2e36-0a2a-4da7-b925-00d1b0e903f3
+last_run_id: abccc3d7-84de-42f2-99aa-0533edbb86cd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen
 title: Predicting Individual Differences in Sensory Processing Speed from Resting-State
   EEG Power Spectra
-updated_at: '2026-08-19T07:35:32.436017Z'
+updated_at: '2026-08-22T00:13:40.000023Z'

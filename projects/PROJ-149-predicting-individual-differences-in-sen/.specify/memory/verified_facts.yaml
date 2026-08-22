@@ -1,5 +1,5 @@
-'|cross fold modeling use validation':
-  quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+'|cross fold perform validation':
+  quote: the PI-CAI dataset (n= 1500) with cross-cohort validation on Prostate158
   source_id: '2604.10702'
   url: https://arxiv.org/abs/2604.10702
-  value: '5'
+  value: '1500'

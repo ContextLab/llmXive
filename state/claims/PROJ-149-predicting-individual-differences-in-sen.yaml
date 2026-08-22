@@ -1395,3 +1395,389 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T07:35:21Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: PhysioNet EEG Motor Movement/Imagery data fetch failure raises RuntimeError
+  claim_id: c_95f4ffaf
+  context: Task T007 describes creating code/01_download_data.py to fetch data and
+    verify checksums.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PhysioNet_EEG_Motor_Movement/Imagery_data_fetch_failure_rais
+  kind: entity_fact
+  raw_text: Download raw data; if fetch fails, raise RuntimeError immediately.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T23:56:27Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: EEG channel rejection threshold set to 3 standard deviations from mean
+    variance
+  claim_id: c_0130774a
+  context: Task T010 outlines the full preprocessing pipeline including variance rejection
+    utilities.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reject channels with variance > 3 SD from mean variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T23:56:27Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participant exclusion triggered if rejected channel ratio exceeds 0.30
+  claim_id: c_6057ed4d
+  context: Task T010 specifies exclusion criteria for the preprocessing pipeline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants if ratio of rejected channels > 0.30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T23:56:28Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Welch PSD computed on 5-minute epochs with 2-second windows and 0.5 overlap
+  claim_id: c_8edd4f7c
+  context: Task T012 details feature extraction parameters, noting an override of
+    Spec FR-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute Welch's PSD on continuous 5-minute epochs using 2-second windows
+    with overlap=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T23:56:53Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Reaction time outliers excluded below 100ms or above 2000ms; participants
+    excluded if less than 70% trials remain
+  claim_id: c_5a8c39eb
+  context: Task T013 describes behavioral parsing and outlier exclusion logic.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reaction_time_outliers_excluded_below_100ms_or_above_2000ms;
+  kind: magnitude
+  raw_text: Exclude outliers (<100ms, >2000ms) and exclude participants if <70% trials
+    remain.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T23:57:35Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: LASSO lambda tuned to minimize Root Mean Squared Error
+  claim_id: c_26b3ad06
+  context: Task T017 describes fitting Linear and LASSO models with hyperparameter
+    tuning.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LASSO_lambda_tuned_to_minimize_Root_Mean_Squared_Error
+  kind: entity_fact
+  raw_text: Tune lambda to minimize RMSE.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T23:57:55Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Permutation test default shuffle count set to 10000
+  claim_id: c_944a3b1c
+  context: Task T022a details the generation of the null distribution for permutation
+    testing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a sufficient number of shuffles (configurable in config.py, default
+    10000) of RT values across the entire training set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T23:58:13Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Permutation test fails or warns if test set size is less than 10 samples
+  claim_id: c_1ea92ad9
+  context: Task T022a includes a constraint for statistical validity regarding sample
+    size.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_fails_or_warns_if_test_set_size_is_less_tha
+  kind: magnitude
+  raw_text: If the test set size is < 10 samples, raise a clear error or reduce permutations
+    with a warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T23:58:40Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps p-value thresholds with fine step size
+  claim_id: c_45101d72
+  context: Task T028a outlines the implementation of the sensitivity sweep script.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_p-value_thresholds_with_fine_ste
+  kind: entity_fact
+  raw_text: Sweep p-value threshold across a range of values with a fine step size
+    and record count of significant correlations at each step.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T23:59:14Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if RAM exceeds 7 GB or duration exceeds 21600 seconds
+  claim_id: c_3d3b46d4
+  context: Task T032 defines the hard fail gate for compute feasibility verification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If max_ram_gb > 7 OR total_duration_sec > 21600 (6h), the task MUST exit
+    with code 1 (FAIL).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T23:59:14Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: PhysioNet EEG Motor Movement/Imagery data used as source
+  claim_id: c_d5f94b4b
+  context: Create code/01_download_data.py to fetch PhysioNet EEG Motor Movement/Imagery
+    data and verify checksums.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PhysioNet_EEG_Motor_Movement/Imagery_data_used_as_source
+  kind: entity_fact
+  raw_text: Download raw PhysioNet EEG Motor Movement/Imagery data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:03:17Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'Participant exclusion threshold: rejected channels ratio > 0.30'
+  claim_id: c_799943f4
+  context: 'Exclude participants if ratio of rejected channels > 0.30. Output: data/interim/exclusion_log.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants if ratio of rejected channels > 0.30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:03:17Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'Channel rejection threshold: variance > 3 SD from mean'
+  claim_id: c_00a430a1
+  context: Reject channels with variance > 3 SD from mean variance (per Spec FR-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reject channels with variance > 3 SD from mean variance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:03:17Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'EEG filtering: 1-40 Hz band-pass, 50/60 Hz notch'
+  claim_id: c_72bb96a8
+  context: "Apply 1\u201340 Hz band-pass filter, 50/60 Hz notch."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply 1\u201340 Hz band-pass filter and 50/60 Hz notch"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:04:02Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'ICA variance retention: 0.99'
+  claim_id: c_3bbdca7a
+  context: Apply ICA (0.99 variance retention) to remove ocular/muscle artifacts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply ICA with 0.99 variance retention
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:05:36Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'PSD computation: 5-minute epochs, 2-second windows, 0.5 overlap'
+  claim_id: c_032ece6c
+  context: Compute Welch's PSD on continuous 5-minute epochs using 2-second windows
+    with overlap=0.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute Welch's PSD on continuous 5-minute epochs using 2-second windows
+    with overlap=0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:05:36Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'RT outlier exclusion: < 100ms or > 2000ms'
+  claim_id: c_e7db6ad0
+  context: Extract median RT, exclude outliers (<100ms, >2000ms).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RT_outlier_exclusion:_%3C_100ms_or_%3E_2000ms
+  kind: entity_fact
+  raw_text: Exclude RT outliers < 100ms and > 2000ms
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:06:31Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'Participant exclusion: < 70% trials remaining'
+  claim_id: c_fcd1ab5f
+  context: Exclude participants if <70% trials remain (FR-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants if < 70% trials remain
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:06:31Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'Cross-validation: 5-fold'
+  claim_id: c_8fa6f287
+  context: Fit Multiple Linear Regression and LASSO models with k-fold cross-validation.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: the PI-CAI dataset (n= 1500) with cross-cohort validation on Prostate158
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '1500'
+    filled: true
+  kind: numeric
+  raw_text: Perform 5-fold cross-validation
+  resolved_value: '1500'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T00:08:16Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'Permutation test: 10000 shuffles'
+  claim_id: c_7947d6b4
+  context: Perform a sufficient number of shuffles (configurable in config.py, default
+    10000) of RT values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 10000 permutations for null distribution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:10:26Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'Bonferroni correction: 6 bands, alpha=0.0083'
+  claim_id: c_6990ea4f
+  context: Apply Bonferroni correction for 6 bands (0.05/6 = 0.0083) as per Spec FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction for 6 bands (0.05/6 = 0.0083)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:12:34Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity sweep: p-value 0.00 to 0.10, step 0.01'
+  claim_id: c_c0f1ba00
+  context: Sweep p-value threshold across a range of values with a fine step size
+    (to 0.10) and step size (0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep p-value threshold range to 0.10 with step size 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:13:39Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 'Resource limit: RAM > 7GB or time > 6h triggers failure'
+  claim_id: c_7e8ef60b
+  context: IF max_ram_gb > 7 OR total_duration_sec > 21600 (6h), the task MUST exit
+    with code 1 (FAIL).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail if max RAM > 7GB or duration > 21600 seconds (6h)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:13:39Z'

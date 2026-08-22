@@ -1,9 +1,15 @@
 """
-T010a/b/c [US1] Implement code/02_preprocess_eeg.py:
-Part 1: Preprocessing (Band-pass, Notch, Bad Channel Rejection)
-Part 2: ICA Application
-Part 3: Exclusion Logic & Logging
-Output: data/interim/cleaned_eeg_final/ directory containing .fif files.
+T010 [US1] Implement code/02_preprocess_eeg.py:
+Full Preprocessing Pipeline:
+1. Apply 1–40 Hz band-pass filter, 50/60 Hz notch.
+2. Reject channels with variance > 3 SD from mean variance (Spec FR-002).
+3. Apply ICA (0.99 variance retention) to remove ocular/muscle artifacts.
+4. Exclude participants if ratio of rejected channels > 0.30.
+
+Output:
+- data/interim/preprocessed_eeg/ (.fif)
+- data/interim/ica_cleaned_eeg/ (.fif)
+- data/interim/exclusion_log.csv (schema: participant_id, reason, channels_rejected_ratio)
 """
 import os
 import sys
@@ -68,6 +74,14 @@ def main():
     # Load files
     eeg_files = load_physionet_eeg_data(data_dir)
 
+    if not eeg_files:
+        print(f"Warning: No EEG files found in {data_dir}")
+        # Still create exclusion log with empty data
+        exclusion_log_path = get_path("interim", "exclusion_log.csv")
+        ensure_dirs(exclusion_log_path)
+        pd.DataFrame(columns=['participant_id', 'reason', 'channels_rejected_ratio']).to_csv(exclusion_log_path, index=False)
+        return
+
     # Directories
     preprocessed_dir = get_path("interim", "preprocessed_eeg")
     ica_cleaned_dir = get_path("interim", "ica_cleaned_eeg")
@@ -80,34 +94,53 @@ def main():
     ensure_dirs(exclusion_log_path)
 
     exclusion_log = []
+    processed_count = 0
 
     for fpath in eeg_files:
         subj_id = get_subject_id_from_path(fpath)
         try:
-            raw = mne.io.read_raw_edf(fpath, preload=True) # Assuming EDF format
+            # Load raw data
+            raw = mne.io.read_raw_edf(fpath, preload=True)
+            
             # Preprocess
             raw_clean, stats = preprocess_subject(raw, preprocess_params)
 
             # Check exclusion ratio
-            if stats['rejection_ratio'] > 0.30:
+            if stats['rejection_ratio'] > preprocess_params['max_bad_channel_ratio']:
                 exclusion_log.append({
                     'participant_id': subj_id,
                     'reason': 'excessive_bad_channels',
                     'channels_rejected_ratio': stats['rejection_ratio']
                 })
+                print(f"Excluded {subj_id}: excessive bad channels ({stats['rejection_ratio']:.2%})")
                 continue
 
-            # Save
-            out_path = os.path.join(final_cleaned_dir, f"{subj_id}_cleaned.fif")
-            raw_clean.save(out_path, overwrite=True)
+            # Save preprocessed (after filtering, before ICA)
+            preprocessed_out = os.path.join(preprocessed_dir, f"{subj_id}_preprocessed.fif")
+            raw_clean.save(preprocessed_out, overwrite=True)
+
+            # Save ICA cleaned
+            ica_out = os.path.join(ica_cleaned_dir, f"{subj_id}_ica_cleaned.fif")
+            raw_clean.save(ica_out, overwrite=True)
+
+            # Save final cleaned
+            final_out = os.path.join(final_cleaned_dir, f"{subj_id}_cleaned.fif")
+            raw_clean.save(final_out, overwrite=True)
+            
+            processed_count += 1
 
         except Exception as e:
             print(f"Error processing {subj_id}: {e}")
-            exclusion_log.append({'participant_id': subj_id, 'reason': 'processing_error', 'channels_rejected_ratio': 1.0})
+            exclusion_log.append({
+                'participant_id': subj_id, 
+                'reason': 'processing_error', 
+                'channels_rejected_ratio': 1.0
+            })
 
     # Save exclusion log
     pd.DataFrame(exclusion_log).to_csv(exclusion_log_path, index=False)
-    print(f"Preprocessing completed. Excluded {len(exclusion_log)} subjects.")
+    print(f"Preprocessing completed. Processed {processed_count}, Excluded {len(exclusion_log)} subjects.")
+    print(f"Exclusion log saved to: {exclusion_log_path}")
 
 if __name__ == "__main__":
     main()

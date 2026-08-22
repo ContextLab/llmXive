@@ -1,6 +1,6 @@
 """
-Configuration module for the EEG analysis pipeline.
-Defines paths, parameters, and utility functions.
+Configuration management for the EEG preprocessing pipeline.
+Defines paths, band definitions, ICA params, chunk sizes, and utility functions.
 """
 import os
 import random
@@ -9,210 +9,324 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional, Union, Callable
 
-# ---------------------------------------------------------------------------
-# Global Config State
-# ---------------------------------------------------------------------------
-_CONFIG = {}
-_SEED = 42
+# Constants
+EPSILON = 1e-9
+OVERLAP = 0.5
+WINDOW_SIZE = 2.0  # seconds
 
-def load_config(config_path: Optional[str] = None):
-    """Load configuration from YAML file."""
+# Global seed
+_GLOBAL_SEED = 42
+
+# Default configuration paths (relative to project root)
+DEFAULT_CONFIG = {
+    "paths": {
+        "data_raw": "data/raw",
+        "data_interim": "data/interim",
+        "data_processed": "data/processed",
+        "figures": "figures",
+        "raw_data": "data/raw",  # Alias for compatibility
+        "processed": "data/processed",  # Alias for compatibility
+        "interim": "data/interim"  # Alias for compatibility
+    },
+    "filter": {
+        "lowcut": 1.0,
+        "highcut": 40.0,
+        "notch": [50, 60]
+    },
+    "ica": {
+        "n_components": 0.99,
+        "method": "fastica"
+    },
+    "exclusion": {
+        "bad_channel_threshold_std": 3.0,
+        "max_bad_channel_ratio": 0.30
+    },
+    "bands": {
+        "delta": (1.0, 4.0),
+        "theta": (4.0, 8.0),
+        "alpha": (8.0, 13.0),
+        "low_beta": (13.0, 20.0),
+        "high_beta": (20.0, 30.0),
+        "gamma": (30.0, 40.0)
+    },
+    "window": {
+        "seconds": 2.0,
+        "overlap": 0.5
+    },
+    "cv": {
+        "folds": 5
+    }
+}
+
+_CONFIG = None
+
+def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """Load configuration from YAML file or use defaults."""
     global _CONFIG
-    if config_path is None:
-        # Default path relative to project root
-        config_path = os.path.join(os.path.dirname(__file__), "config.yaml")
-    if os.path.exists(config_path):
+    if _CONFIG is not None:
+        return _CONFIG
+
+    if config_path and os.path.exists(config_path):
         with open(config_path, 'r') as f:
             _CONFIG = yaml.safe_load(f)
+            # Merge with defaults
+            for key, value in DEFAULT_CONFIG.items():
+                if key not in _CONFIG:
+                    _CONFIG[key] = value
     else:
-        # Default configuration if file missing
-        _CONFIG = {
-            "paths": {
-                "data_raw": "data/raw",
-                "data_interim": "data/interim",
-                "data_processed": "data/processed",
-                "figures": "figures",
-                "cleaned_eeg_final": "data/interim/cleaned_eeg_final",
-                "exclusion_log": "data/interim/exclusion_log.csv",
-                "behavioral_metrics": "data/interim/behavioral_metrics.csv",
-                "features_clr": "data/processed/features_clr.csv",
-                "model_results": "data/processed/model_results.json",
-                "split_indices": "data/interim/split_indices.json",
-                "correlations": "data/processed/correlations.csv",
-                "robustness_report": "data/processed/robustness_report.csv",
-                "sensitivity_plot": "data/processed/sensitivity_plot.png",
-                "verification_log": "data/processed/verification_log.json",
-                "final_report": "data/processed/final_report.md",
-                "joined_metadata": "data/interim/joined_metadata.csv",
-                "feasibility_report": "data/processed/feasibility_report.md",
-                "feasibility_exclusion_log": "data/interim/feasibility_exclusion_log.csv",
-                "detected_tasks_log": "data/interim/detected_tasks.log",
-                "raw_data": "data/raw",
-                "processed_data": "data/interim",
-                "behavioral": "data/interim",
-                "model": "data/processed",
-                "interim": "data/interim",
-                "processed": "data/processed"
-            },
-            "filter": {
-                "lowcut": 1.0,
-                "highcut": 40.0,
-                "notch": [50, 60]
-            },
-            "ica": {
-                "method": "fastica",
-                "n_components": 0.99,
-                "random_state": 42
-            },
-            "exclusion": {
-                "max_bad_channel_ratio": 0.30,
-                "bad_channel_threshold_std": 3.0
-            },
-            "bands": {
-                "delta": [1, 4],
-                "theta": [4, 8],
-                "alpha": [8, 13],
-                "low_beta": [13, 20],
-                "high_beta": [20, 30],
-                "gamma": [30, 45]
-            },
-            "psd": {
-                "window_seconds": 4.0,
-                "overlap_seconds": 2.0,
-                "min_epoch_duration_minutes": 5.0
-            },
-            "modeling": {
-                "cv_folds": 5,
-                "test_size": 0.2
-            },
-            "epsilon": 1e-9,
-            "seed": 42
-        }
+        _CONFIG = DEFAULT_CONFIG
 
-def set_global_seed(seed: int):
-    """Set global random seed."""
-    global _SEED
-    _SEED = seed
-    random.seed(seed)
+    return _CONFIG
+
+def set_global_seed(seed: int = 42) -> None:
+    """Set global random seed for reproducibility."""
+    global _GLOBAL_SEED
+    _GLOBAL_SEED = seed
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    random.seed(seed)
 
 def get_seed() -> int:
-    return _SEED
+    """Get the current global seed."""
+    return _GLOBAL_SEED
 
 def get_epsilon() -> float:
-    return _CONFIG.get("epsilon", 1e-9)
+    """Get the epsilon value for numerical stability."""
+    return EPSILON
 
 def get_band_freqs() -> Dict[str, Tuple[float, float]]:
-    return _CONFIG.get("bands", {})
+    """Get frequency bands."""
+    config = load_config()
+    return config.get("bands", DEFAULT_CONFIG["bands"])
 
 def get_all_band_names() -> List[str]:
+    """Get list of all band names."""
     return list(get_band_freqs().keys())
 
 def get_window_seconds() -> float:
-    return _CONFIG.get("psd", {}).get("window_seconds", 4.0)
+    """Get window size in seconds."""
+    config = load_config()
+    return config.get("window", {}).get("seconds", WINDOW_SIZE)
 
 def get_overlap_seconds() -> float:
-    val = _CONFIG.get("psd", {}).get("overlap_seconds")
-    if val is None:
-        raise ValueError(
-            "OVERLAP not set in config.py. Spec is [deferred]. "
-            "Please set OVERLAP or amend spec."
-        )
-    return val
+    """Get overlap ratio."""
+    config = load_config()
+    return config.get("window", {}).get("overlap", OVERLAP)
 
-def get_min_epoch_duration_minutes() -> float:
-    return _CONFIG.get("psd", {}).get("min_epoch_duration_minutes", 5.0)
+def get_min_epoch_duration_minutes() -> int:
+    """Get minimum epoch duration in minutes."""
+    return 5
 
 def get_cv_folds() -> int:
-    return _CONFIG.get("modeling", {}).get("cv_folds", 5)
+    """Get number of CV folds."""
+    config = load_config()
+    return config.get("cv", {}).get("folds", 5)
 
 def get_filter_params() -> Dict[str, Any]:
-    return _CONFIG.get("filter", {})
+    """Get filter parameters."""
+    config = load_config()
+    return config.get("filter", DEFAULT_CONFIG["filter"])
 
 def get_ica_params() -> Dict[str, Any]:
-    return _CONFIG.get("ica", {})
+    """Get ICA parameters."""
+    config = load_config()
+    return config.get("ica", DEFAULT_CONFIG["ica"])
 
 def get_exclusion_params() -> Dict[str, Any]:
-    return _CONFIG.get("exclusion", {})
+    """Get exclusion parameters."""
+    config = load_config()
+    return config.get("exclusion", DEFAULT_CONFIG["exclusion"])
 
-def bonferroni_correct(p_values: List[float], n_tests: int) -> List[float]:
-    """Apply Bonferroni correction."""
+def bonferroni_correct(p_values: List[float], n_tests: Optional[int] = None) -> List[float]:
+    """Apply Bonferroni correction to a list of p-values."""
+    if n_tests is None:
+        n_tests = len(p_values)
     return [min(p * n_tests, 1.0) for p in p_values]
 
-# ---------------------------------------------------------------------------
-# Path Utilities (Flexible Contract)
-# ---------------------------------------------------------------------------
-
-def get_path(*args: Any) -> Path:
+def get_path(*args: Union[str, Path]) -> str:
     """
-    Flexible path resolver.
-    Supports:
-      1. get_path("key_name") -> looks up in paths dict
-      2. get_path("key_name", "subpath") -> looks up key, appends subpath
-      3. get_path("absolute/path") -> returns as Path
-      4. get_path(Path_obj) -> returns Path_obj
+    Get a path from the configuration.
+    Flexible signature support:
+      - get_path("raw_data") -> returns config path for "raw_data"
+      - get_path("data/processed") -> returns absolute path
+      - get_path("interim", "preprocessed_eeg") -> joins "data/interim/preprocessed_eeg"
+      - get_path(base_dir, "data/processed/file.json") -> joins base_dir + relative path
     """
-    if not args:
-        raise ValueError("get_path requires at least one argument")
+    config = load_config()
+    paths_config = config.get("paths", {})
 
-    # If the first arg is a Path object, return it directly
-    if isinstance(args[0], Path):
-        return args[0]
+    # Handle multiple arguments
+    if len(args) == 1:
+        arg = args[0]
+        # Check if it's a known config key
+        if isinstance(arg, str) and arg in paths_config:
+            base = paths_config[arg]
+            return str(Path(base))
+        # Otherwise treat as absolute or relative path
+        return str(Path(arg))
+    else:
+        # Multiple args: first is base, rest are subpaths
+        base = args[0]
+        # Check if base is a config key
+        if isinstance(base, str) and base in paths_config:
+            base = paths_config[base]
+        else:
+            base = str(base)
 
-    first_arg = str(args[0])
+        # Join remaining parts
+        subpath = Path(*args[1:])
+        return str(Path(base) / subpath)
 
-    # Check if it's a known key in the paths config
-    paths_config = _CONFIG.get("paths", {})
-
-    if first_arg in paths_config:
-        base = paths_config[first_arg]
-        if len(args) > 1:
-            # Append remaining args
-            return Path(base) / "/".join(str(a) for a in args[1:])
-        return Path(base)
-
-    # If it looks like an absolute or relative path string, treat as path
-    if os.path.isabs(first_arg) or first_arg.startswith("./") or first_arg.startswith("../"):
-        if len(args) > 1:
-            return Path(first_arg) / "/".join(str(a) for a in args[1:])
-        return Path(first_arg)
-
-    # Fallback: treat the whole thing as a relative path
-    return Path("/".join(str(a) for a in args))
-
-def ensure_dirs(*args: Any) -> Path:
+def ensure_dirs(*args: Union[str, Path, List[Union[str, Path]]]) -> None:
     """
-    Flexible directory creator.
-    Supports:
-      1. ensure_dirs() -> returns project root
-      2. ensure_dirs("path_string") -> ensures path_string exists
-      3. ensure_dirs(Path_obj) -> ensures Path_obj exists
-      4. ensure_dirs([list_of_paths]) -> ensures all exist
-      5. ensure_dirs("key", "subpath") -> resolves key, ensures path
+    Ensure directories exist.
+    Flexible signature support:
+      - ensure_dirs() -> does nothing
+      - ensure_dirs("path/to/dir") -> creates single dir
+      - ensure_dirs(["path1", "path2"]) -> creates list of dirs
+      - ensure_dirs(Path("path")) -> creates Path object
     """
     if not args:
-        # Default to project root
-        p = Path(__file__).parent.parent
-        p.mkdir(exist_ok=True)
-        return p
+        return
 
-    # Handle list input
-    if isinstance(args[0], (list, tuple)):
-        for item in args[0]:
-            ensure_dirs(item)
-        return Path(args[0][0]) if args[0] else Path(".")
+    paths_to_create = []
 
-    # Handle single Path object
-    if isinstance(args[0], Path):
-        args[0].mkdir(parents=True, exist_ok=True)
-        return args[0]
+    # Handle single list argument
+    if len(args) == 1 and isinstance(args[0], list):
+        paths_to_create = args[0]
+    else:
+        paths_to_create = list(args)
 
-    # Handle string key or path
-    first = str(args[0])
-    target_path = get_path(*args)
-    target_path.mkdir(parents=True, exist_ok=True)
-    return target_path
+    for path in paths_to_create:
+        if path is None:
+            continue
+        # Convert to Path object
+        path_obj = Path(path)
+        # Create directory if it doesn't exist
+        path_obj.mkdir(parents=True, exist_ok=True)
 
-# Initialize config on import
-load_config()
+
+def set_global_seed(seed: int = 42) -> None:
+    """Set global random seed for reproducibility."""
+    global _GLOBAL_SEED
+    _GLOBAL_SEED = seed
+    np.random.seed(seed)
+    random.seed(seed)
+
+def get_seed() -> int:
+    """Get the current global seed."""
+    return _GLOBAL_SEED
+
+def get_epsilon() -> float:
+    """Get the epsilon value for numerical stability."""
+    return EPSILON
+
+def get_band_freqs() -> Dict[str, Tuple[float, float]]:
+    """Get frequency bands."""
+    config = load_config()
+    return config.get("bands", DEFAULT_CONFIG["bands"])
+
+def get_all_band_names() -> List[str]:
+    """Get list of all band names."""
+    return list(get_band_freqs().keys())
+
+def get_window_seconds() -> float:
+    """Get window size in seconds."""
+    config = load_config()
+    return config.get("window", {}).get("seconds", WINDOW_SIZE)
+
+def get_overlap_seconds() -> float:
+    """Get overlap ratio."""
+    config = load_config()
+    return config.get("window", {}).get("overlap", OVERLAP)
+
+def get_min_epoch_duration_minutes() -> int:
+    """Get minimum epoch duration in minutes."""
+    return 5
+
+def get_cv_folds() -> int:
+    """Get number of CV folds."""
+    config = load_config()
+    return config.get("cv", {}).get("folds", 5)
+
+def get_filter_params() -> Dict[str, Any]:
+    """Get filter parameters."""
+    config = load_config()
+    return config.get("filter", DEFAULT_CONFIG["filter"])
+
+def get_ica_params() -> Dict[str, Any]:
+    """Get ICA parameters."""
+    config = load_config()
+    return config.get("ica", DEFAULT_CONFIG["ica"])
+
+def get_exclusion_params() -> Dict[str, Any]:
+    """Get exclusion parameters."""
+    config = load_config()
+    return config.get("exclusion", DEFAULT_CONFIG["exclusion"])
+
+def bonferroni_correct(p_values: List[float], n_tests: Optional[int] = None) -> List[float]:
+    """Apply Bonferroni correction to a list of p-values."""
+    if n_tests is None:
+        n_tests = len(p_values)
+    return [min(p * n_tests, 1.0) for p in p_values]
+
+def get_path(*args: Union[str, Path]) -> str:
+    """
+    Get a path from the configuration.
+    Flexible signature support:
+      - get_path("raw_data") -> returns config path for "raw_data"
+      - get_path("data/processed") -> returns absolute path
+      - get_path("interim", "preprocessed_eeg") -> joins "data/interim/preprocessed_eeg"
+      - get_path(base_dir, "data/processed/file.json") -> joins base_dir + relative path
+    """
+    config = load_config()
+    paths_config = config.get("paths", {})
+
+    # Handle multiple arguments
+    if len(args) == 1:
+        arg = args[0]
+        # Check if it's a known config key
+        if isinstance(arg, str) and arg in paths_config:
+            base = paths_config[arg]
+            return str(Path(base))
+        # Otherwise treat as absolute or relative path
+        return str(Path(arg))
+    else:
+        # Multiple args: first is base, rest are subpaths
+        base = args[0]
+        # Check if base is a config key
+        if isinstance(base, str) and base in paths_config:
+            base = paths_config[base]
+        else:
+            base = str(base)
+
+        # Join remaining parts
+        subpath = Path(*args[1:])
+        return str(Path(base) / subpath)
+
+def ensure_dirs(*args: Union[str, Path, List[Union[str, Path]]]) -> None:
+    """
+    Ensure directories exist.
+    Flexible signature support:
+      - ensure_dirs() -> does nothing
+      - ensure_dirs("path/to/dir") -> creates single dir
+      - ensure_dirs(["path1", "path2"]) -> creates list of dirs
+      - ensure_dirs(Path("path")) -> creates Path object
+    """
+    if not args:
+        return
+
+    paths_to_create = []
+
+    # Handle single list argument
+    if len(args) == 1 and isinstance(args[0], list):
+        paths_to_create = args[0]
+    else:
+        paths_to_create = list(args)
+
+    for path in paths_to_create:
+        if path is None:
+            continue
+        # Convert to Path object
+        path_obj = Path(path)
+        # Create directory if it doesn't exist
+        path_obj.mkdir(parents=True, exist_ok=True)
