@@ -1,64 +1,78 @@
 # Research: Improving Accessibility and Usability of Complex Computer Systems for People with Disabilities
 
-## 1. Research Question
-Does the integration of Explainable AI (XAI) overlays in gene regulation interfaces significantly improve usability (measured by SUS, completion time, and error rates) for users with disabilities compared to traditional interfaces, when controlling for order effects via Latin Square counterbalancing?
+## 1. Problem Statement
+Complex computer systems, particularly those involving gene regulation, present significant usability barriers for people with disabilities. While Explainable AI (XAI) overlays (heatmaps, feature importance) are hypothesized to improve understanding, their impact on usability metrics (time, errors, SUS, explanation engagement) for this specific demographic is not well-quantified. This study aims to provide empirical evidence on whether XAI interfaces significantly improve usability compared to traditional interfaces for users with disabilities.
 
-## 2. Background & Context
-Gene regulation interfaces are complex, requiring users to interpret multi-dimensional data. For users with disabilities (visual, cognitive, motor), the cognitive load of these interfaces can be prohibitive. XAI techniques (heatmaps, feature importance) aim to reduce this load. However, the effectiveness of XAI in accessibility contexts is under-researched, particularly with rigorous statistical validation (ANOVA) rather than anecdotal evidence.
+## 2. Methodology Overview
+This is a **within-subjects experimental design**.
+- **Participants**: N ≥ 30 individuals with disabilities, recruited via disability advocacy organizations (Constitution Principle VI).
+- **Pilot Study**: N=5 participants will be recruited first to validate task difficulty and timing mechanisms, mitigating ceiling/floor effects.
+- **Conditions**:
+  1.  **Traditional Interface**: Standard gene regulation UI without overlays.
+  2.  **Explainable Interface**: Same UI with XAI overlays (heatmaps, feature importance).
+- **Counterbalancing**: Latin Square design to mitigate order effects (FR-004).
+- **Metrics**:
+  - **Completion Time**: Time to complete a defined gene regulation task.
+  - **Error Count**: Number of incorrect actions or failed submissions.
+  - **SUS (System Usability Scale)**: Standardized questionnaire (10 items, 5-point Likert).
+  - **Explanation Engagement Time**: Time spent interacting with XAI overlays (FR-001).
 
-## 3. Dataset Strategy
+## 3. Statistical Analysis Strategy
+Per FR-002 and Constitution Principle VII, the analysis engine must:
+1.  **Data Cleaning**: Exclude sessions with `status='incomplete'`. **Crucially, sessions with ANY missing SUS items are excluded entirely (no mean imputation)** to preserve the integrity of the SUS scoring formula (Brooke, 1996).
+2.  **Normality Check**: Perform Shapiro-Wilk test on residuals.
+    - **If Normal**: Perform **Repeated Measures ANOVA** for each metric (Time, Errors, SUS, Engagement) to test the main effect of `Interface Type`.
+    - **If Non-Normal**: Perform **Friedman Test** (non-parametric alternative) for each metric.
+3.  **Effect Size**: Calculate **Cohen's d** (for T-Test equivalent) or **Kendall's W** (for Friedman) to quantify the magnitude of the effect.
+4.  **Correction**: Apply **Holm-Bonferroni** correction to the resulting p-values to control the family-wise error rate (FWER).
+5.  **Power Analysis**: Compute observed power for the effect sizes to verify if N=30 was sufficient (FR-006).
+6.  **Audit**: Log Shapiro-Wilk results and test choice rationale.
 
-### 3.1 Primary Data Source
-The primary data source is **Human Participant Data** generated via the project's own `streamlit` simulator (FR-007).
-- **Source Type**: Primary Data Collection (Simulator).
-- **Acquisition Method**: Participants recruited via disability advocacy organizations (Constitution Principle VI) will interact with the simulator.
-- **Format**: JSON logs per session, aggregated to CSV.
-- **Feasibility**: This approach is fully feasible on the GitHub Actions runner for analysis. The simulator runs on the user's local machine; the runner only processes the resulting data files.
-- **Constraint**: No synthetic data will be used for final claims (NFR-002).
+## 4. Dataset Strategy
 
-### 3.2 Secondary Data (Benchmarking)
-*Note: No external "verified" HCI benchmark datasets for "gene regulation accessibility" were found in the provided verified datasets block. Therefore, the study relies on primary data collection as per the spec's FR-007.*
+### 4.1. Data Generation (Simulator)
+Since this is a usability study requiring human interaction, no pre-existing public dataset exists that perfectly matches the "gene regulation + disability + XAI" scenario.
+- **Strategy**: A **Streamlit-based simulator** (`code/app.py`) will be deployed to recruit real human participants.
+- **Data Source**: Real-time interaction logs from human participants.
+- **Synthetic Data**: Strictly forbidden for final claims (NFR-002). Synthetic data may only be used for *unit testing* the pipeline logic (e.g., `tests/test_analysis.py`) to ensure the code runs, but these results must be clearly labeled as "Test Data" and excluded from the final `data/processed` and `paper.md`.
 
-### 3.3 Data Variables
-| Variable | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `session_id` | String | Unique identifier | Simulator |
-| `participant_id` | String | Anonymized ID | Simulator |
-| `interface_type` | Categorical | 'traditional' or 'explainable' | Simulator (Latin Square) |
-| `order` | Categorical | 'T->X' or 'X->T' | Simulator |
-| `completion_time` | Float | Seconds to complete task | Simulator |
-| `error_count` | Integer | Number of incorrect steps | Simulator |
-| `sus_score` | Float | System Usability Scale (0-100) | Simulator (Survey) |
-| `status` | Categorical | 'complete' or 'incomplete' | Simulator |
+### 4.2. Verified Datasets
+*Note: As this is a primary data collection study, no external "Verified datasets" from the user message block are applicable for the main analysis. The study generates its own dataset.*
 
-## 4. Statistical Methodology
+However, for the purpose of **unit testing** the statistical engine (ensuring the ANOVA, Friedman, and Holm-Bonferroni logic works correctly before real data arrives), we will use a small, deterministic synthetic dataset defined in `tests/fixtures/`. This is distinct from the "real data" required for claims.
 
-### 4.1 Primary Test: Repeated Measures ANOVA
-Per FR-002 and Constitution Principle VII, the primary analysis will use **Repeated Measures ANOVA**.
-- **Rationale**: Since each participant interacts with *both* interface types, the data is paired. A standard t-test ignores the within-subject correlation. Repeated Measures ANOVA accounts for individual variability, increasing statistical power.
-- **Implementation**: The RM-ANOVA will be implemented manually using `numpy` and `scipy.stats`, calculating sums of squares (SS) between subjects. This implementation will be validated against a known standard reference implementation in R using the `aov` function to ensure correctness of calculations. *Refinement*:  The spec mandates `scipy.stats`. We are implementing RM-ANOVA manually with numpy and scipy for F distribution p-value calculation.
-*Decision*: The statistical engine will calculate the RM-ANOVA through custom code based on standard texts (e.g., Keppel, 1985).
+**Dataset Verification Status**:
+- **Primary Data**: Generated via `code/app.py` (Streamlit) with real human participants.
+- **Test Data**: Synthetic, fixed-seed, used *only* for CI validation of the analysis pipeline.
 
-### 4.2 Multiple Comparison Correction
-- **Method**: Holm-Bonferroni correction.
-- **Rationale**: We are testing multiple metrics (Time, Errors, SUS). Without correction, the family-wise error rate (FWER) inflates. Holm-Bonferroni is more powerful than standard Bonferroni while controlling FWER.
-- **Implementation**: `statsmodels.stats.multitest.multipletests` (method='holm') or manual implementation if `statsmodels` is excluded. *Decision*: `statsmodels` is a standard scientific Python library and will be included in `requirements.txt`.
+## 5. Compute Feasibility
 
-### 4.3 Assumptions & Checks
-- **Normality**: Shapiro-Wilk test (`scipy.stats.shapiro`) on the difference scores. *Note*: Per spec, this is for audit only and does not change the test choice (ANOVA is mandated). However, if a severe violation of sphericity or normality is detected, we will consider a non-parametric alternative such as Friedman's test.
-- **Sphericity**: Mauchly's test (if applicable). If violated, Greenhouse-Geisser correction will be applied.
+### 5.1. CPU-First Approach
+The analysis pipeline (ANOVA/Friedman, Holm-Bonferroni, Power Analysis) is computationally lightweight.
+- **Method**: `scipy.stats.f_oneway` (ANOVA), `scipy.stats.friedmanchisquare` (Friedman), `statsmodels.stats.power` (Power).
+- **Resource Usage**: Negligible CPU/RAM for N=30.
+- **Execution**: Will run successfully on GitHub Actions free-tier (2 CPU, 7GB RAM) in < 1 minute.
+- **Decision**: **CPU-only**. No GPU escape hatch is required for statistical analysis or data processing.
 
-### 4.4 Power Analysis
-- **Method**: G*Power-style calculation using `statsmodels.stats.power` or manual calculation of effect size (Cohen's d or f) and power.
-- **Goal**: Verify if N=30 (Constitution Principle VI) provides sufficient power (typically >0.80) for the observed effect size.
-- **Output**: `data/processed/power_report.md`.
+### 5.2. Simulator Constraints
+The Streamlit simulator (`code/app.py`) is a web application.
+- **Hosting**: Deployed via Streamlit Cloud or GitHub Pages (static) + backend logic.
+- **CI Integration**: The "Simulator" is a tool for data collection, not a CI job. The CI job runs the *analysis* on the collected data.
 
-## 5. Ethical Considerations
-- **Recruitment**: Participants must be recruited through disability advocacy organizations (Constitution Principle VI).
-- **Informed Consent**: The simulator will include a consent form before data collection.
-- **Data Privacy**: No PII will be stored. Participant IDs will be anonymized.
+## 6. Risk Assessment
 
-## 6. Decision/Rationale
-- **CPU vs GPU**: The analysis is purely statistical (ANOVA, p-values) and operates on small tabular data (<1000 rows). This is **CPU-first**. No GPU is required.
-- **Dataset**: Primary data collection via simulator is the only viable path as no open "gene regulation accessibility" dataset exists. This aligns with FR-007.
-- **Statistical Method**: Repeated Measures ANOVA is chosen over t-tests because it accounts for the within-subjects design, increasing power. Holm-Bonferroni is chosen to control FWER across the three primary metrics.
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| **Insufficient Sample Size (N < 30)** | Low power to detect effects. | Power analysis (FR-006) will be run. If power < 0.8, the report will explicitly state the limitation and not claim significance. Recruitment via advocacy orgs (Constitution VI) prioritized. |
+| **Incomplete Sessions** | Data loss. | Strict validation (FR-005). Sessions with ANY missing SUS items are excluded. |
+| **Order Effects** | Bias in results. | Latin Square counterbalancing (FR-004) ensures [deferred] start with Traditional, [deferred] with Explainable. |
+| **Non-Normal Data** | ANOVA assumptions violated. | **Fallback to Friedman Test** if Shapiro-Wilk indicates severe non-normality. Normality checked (Shapiro-Wilk) for audit. |
+| **Task Difficulty (Ceiling/Floor)** | ANOVA unable to detect effects. | **Pilot Study (N=5)** conducted before full recruitment to validate task difficulty. |
+
+## 7. Decision Rationale
+
+- **Why Repeated Measures ANOVA / Paired T-Test?** The study design involves the same participants testing both interfaces. Repeated Measures ANOVA is the standard for within-subject designs. For exactly two conditions, it is mathematically equivalent to the Paired T-Test (F = t^2). We use ANOVA as the primary test (per mandate) but report T-statistics and Cohen's d (standard in HCI) for direct interpretation of effect size.
+- **Why Friedman Fallback?** If data is severely non-normal (common with small N and skewed time/error data), ANOVA Type I error rates become invalid. The Friedman test is the robust non-parametric alternative.
+- **Why Holm-Bonferroni?** With four primary metrics (Time, Errors, SUS, Engagement), performing four tests increases the risk of Type I error. Holm-Bonferroni is less conservative than standard Bonferroni while maintaining strict FWER control.
+- **Why No Mean Imputation for SUS?** SUS scoring relies on the specific pattern of responses (odd/even item weighting). Imputing a mean value distorts the variance and the specific item weighting required for the standard SUS formula, potentially biasing the final score. Exclusion is the statistically sound approach.
+- **Why No External Dataset?** The specific combination of "gene regulation interface," "XAI overlays," and "participants with disabilities" is a novel experimental condition. No public dataset exists. Therefore, the research pipeline must be built around *collecting* this data via a simulator, not analyzing existing data.

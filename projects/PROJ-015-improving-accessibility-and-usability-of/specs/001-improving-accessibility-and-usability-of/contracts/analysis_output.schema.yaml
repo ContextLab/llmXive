@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Output Schema"
-description: "Schema for the aggregated statistical metrics output (ANOVA results)."
+description: "Schema for the aggregated statistical metrics output (ANOVA/Friedman and T-Test results)."
 type: "object"
 required:
   - metric_name
@@ -14,15 +14,18 @@ properties:
       - "completion_time"
       - "error_count"
       - "sus_score"
-    description: "The specific metric being analyzed. (Excludes explanation_engagement)."
+      - "explanation_engagement_time"
+    description: "The specific metric being analyzed."
   test_method:
     type: "string"
     enum:
       - "Repeated Measures ANOVA"
-    description: "Statistical test used (Constitution Principle VII)."
+      - "Friedman Test"
+      - "Paired T-Test"
+    description: "Statistical test used (ANOVA mandated, Friedman fallback for non-normality, T-Test for effect size)."
   statistic:
     type: "number"
-    description: "The F-statistic value."
+    description: "The F-statistic (ANOVA/Friedman) or t-statistic (T-Test) value."
   p_value:
     type: "number"
     minimum: 0
@@ -48,5 +51,8 @@ properties:
     description: "Number of valid paired observations."
   effect_size:
     type: "number"
-    description: "Partial eta-squared or Cohen's d."
+    description: "Cohen's d (for T-Test) or Kendall's W (for Friedman)."
+  normality_test_result:
+    type: "string"
+    description: "Result of Shapiro-Wilk test (e.g., 'normal', 'non-normal')."
 additionalProperties: false

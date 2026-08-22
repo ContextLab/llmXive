@@ -1,5 +1,13 @@
 status: none
-reason: no data intent found in planning artifacts
-cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
-searched_at: '2026-08-01T16:57:30.095418+00:00'
-retry_count: 3
+intent: Human Interaction Sessions SUS validation dataset real user time errors engagement
+  downloadable python package dataset
+required_fields:
+- participant_id
+- session_id
+- session_time
+- error_count
+- sus_score
+- engagement_score
+cache_key: 51a17c2ed27666b7d3eb2c0c2b10aed834a44c9375fe21af250b853ef8ae721d
+searched_at: '2026-08-22T02:07:06.707226+00:00'
+retry_count: 1

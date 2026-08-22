@@ -1,64 +1,113 @@
 # Data Model: Improving Accessibility and Usability of Complex Computer Systems for People with Disabilities
 
 ## 1. Overview
-This document defines the data structures used in the research pipeline, from raw session logs to processed statistical summaries. The model enforces strict types and constraints to ensure data integrity (Constitution Principle III).
+This document defines the data structures used for collecting, validating, and analyzing interaction data in the accessibility study. The data flow is: `Raw Session Data` -> `Validation` -> `Processed Metrics` -> `Statistical Output`.
 
-## 2. Raw Data Structure (Session Log)
-Data is collected as JSON objects per session, then aggregated.
+## 2. Entity Relationship Diagram (Conceptual)
 
-**Fields**:
-- `session_id`: UUID string.
-- `participant_id`: Anonymized string (e.g., "P001").
-- `timestamp`: ISO 8601 string.
-- `interface_variant`: "traditional" | "explainable".
-- `order`: "T->X" | "X->T".
-- `task_results`: Object containing `completion_time` (float), `error_count` (int), `explanation_engagement_time` (float).
-- `sus_responses`: Array of 10 integers (1-5).
-- `status`: "complete" | "incomplete".
+```mermaid
+erDiagram
+    PARTICIPANT ||--o{ SESSION : "completes"
+    SESSION ||--|{ METRIC : "generates"
+    SESSION ||--|{ SUS_RESPONSE : "answers"
+    METRIC ||--o{ ANALYSIS_RESULT : "contributes to"
 
-## 3. Processed Data Structure (Cleaned Sessions)
-After validation and imputation (FR-005), data is stored in `data/processed/cleaned_sessions.csv`.
+    PARTICIPANT {
+        string id "Unique anonymized ID"
+        string disability_type "Categorized type"
+        string counterbalance_order "Trad->Exp or Exp->Trad"
+    }
+    SESSION {
+        string id "Session ID"
+        string participant_id "FK"
+        string interface_variant "Traditional or Explainable"
+        int completion_time_ms
+        int error_count
+        int explanation_engagement_time_ms
+        string status "complete or incomplete"
+        timestamp started_at
+        timestamp ended_at
+    }
+    SUS_RESPONSE {
+        string session_id "FK"
+        int item_number "1-10"
+        int score "1-5"
+    }
+    METRIC {
+        string session_id "FK"
+        float sus_score "Calculated (0-100)"
+        int completion_time_ms
+        int error_count
+        int explanation_engagement_time_ms
+    }
+```
 
-**Schema**:
-| Column | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `session_id` | string | Unique ID | Not Null, Unique |
-| `participant_id` | string | Anonymized ID | Not Null |
-| `interface_variant` | string | Condition | "traditional" or "explainable" |
-| `order` | string | Counterbalancing | "T->X" or "X->T" |
-| `completion_time` | float | Seconds | > 0 |
-| `error_count` | integer | Errors | >= 0 |
-| `sus_score` | float | 0-100 | Calculated from responses |
-| `status` | string | Session status | Only "complete" included |
+## 3. Data Specifications
 
-**Transformation Logic**:
-1. **Filter**: Exclude rows where `status` != 'complete'.
-2. **Impute SUS**: If `sus_responses` has exactly one missing value, replace with participant mean. If >1 missing, mark session as 'incomplete' (and thus excluded).
-3. **Calculate SUS**: Standard formula: $( \sum (odd\_items - 1) + \sum (5 - even\_items) ) \times 2.5$.
+### 3.1. Participant Data
+- **ID**: Anonymized UUID (e.g., `P-001`). No PII stored in `data/`.
+- **Disability Type**: Categorical (e.g., `Visual`, `Motor`, `Cognitive`, `Multiple`).
+- **Counterbalance Order**: Binary (`T-E` or `E-T`).
 
-## 4. Aggregated Data Structure (Metrics Summary)
-Stored in `data/processed/metrics_summary.csv`.
+### 3.2. Session Data (Raw)
+- **Source**: `code/app.py` (Streamlit).
+- **Format**: JSONL or CSV.
+- **Fields**:
+  - `session_id`: Unique string.
+  - `participant_id`: Reference to participant.
+  - `interface_variant`: Enum (`Traditional`, `Explainable`).
+  - `task_start`: ISO8601 timestamp.
+  - `task_end`: ISO8601 timestamp.
+  - `errors`: List of error objects (or count).
+  - `explanation_engagement_time_ms`: Integer (time spent on XAI overlays).
+  - `sus_responses`: List of 10 integers (1-5).
+  - `status`: `complete` or `incomplete`.
 
-**Schema**:
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `metric` | string | "completion_time", "error_count", "sus_score" |
-| `interface_variant` | string | "traditional" | "explainable" |
-| `mean` | float | Mean value |
-| `std` | float | Standard deviation |
-| `n` | integer | Sample size |
-| `median` | float | Median |
+### 3.3. Processed Metrics (Derived)
+- **Source**: `code/analysis.py`.
+- **Format**: CSV (`data/processed/metrics_summary.csv`).
+- **Fields**:
+  - `participant_id`: String.
+  - `interface_variant`: String.
+  - `completion_time_sec`: Float (derived from timestamps).
+  - `error_count`: Integer.
+  - `explanation_engagement_time_sec`: Float.
+  - `sus_score`: Float (0-100, calculated via standard SUS formula).
+  - `exclusion_reason`: String (e.g., "missing_sus_item", "incomplete_session").
 
-## 5. Statistical Output Structure
-Stored in `data/processed/analysis_results.json`.
+### 3.4. Statistical Output
+- **Source**: `code/analysis.py`.
+- **Format**: JSON/Markdown.
+- **Content**:
+  - ANOVA/Friedman F-statistic/Chi-sq, p-value, effect size.
+  - Holm-Bonferroni adjusted p-values.
+  - Power analysis results (Observed power, N=30 check).
 
-**Schema**:
-- `anova_results`: Object with `metric`, `F_statistic`, `p_value`, `df_num`, `df_denom`.
-- `corrected_p_values`: Object with `metric`, `raw_p`, `holm_corrected_p`, `significant` (bool).
-- `power_analysis`: Object with `metric`, `effect_size`, `power`, `n_observed`.
+## 4. Data Flow Logic
 
-## 6. Data Lineage
-1. `data/raw/sessions_*.json` -> (Validation/Imputation) -> `data/processed/cleaned_sessions.csv`
-2. `cleaned_sessions.csv` -> (Aggregation) -> `metrics_summary.csv`
-3. `cleaned_sessions.csv` -> (ANOVA) -> `analysis_results.json`
-4. `analysis_results.json` -> (Reporting) -> `data/processed/power_report.md`
+1.  **Collection**: User interacts with Streamlit app. Data is saved to `data/raw/session_<id>.json`.
+2.  **Validation**: `validator.py` loads raw JSON.
+    - Checks schema (missing fields, valid ranges).
+    - Checks SUS completeness: **If ANY SUS item is missing, mark session 'incomplete'**.
+    - If valid: `status='complete'`.
+    - If invalid: `status='incomplete'`, logged to `data/raw/invalid_sessions.json`.
+3.  **Processing**: `analysis.py` aggregates valid sessions.
+    - Calculates SUS score (standard formula: `(Q_odd - 1) * 4 + (5 - Q_even) * 4`).
+    - Converts timestamps to seconds.
+    - Writes `metrics_summary.csv`.
+4.  **Analysis**: `analysis.py` runs ANOVA (or Friedman) and Holm-Bonferroni on `metrics_summary.csv`.
+5.  **Visualization**: `visualizer.py` reads `metrics_summary.csv` and generates PNGs.
+
+## 5. Data Integrity & Hygiene (Constitution III)
+
+- **Immutability**: Files in `data/raw` are never overwritten. New sessions are appended or written as new files.
+- **Checksums**: Every file in `data/` is checksummed (SHA-256) and recorded in `state/...yaml`.
+- **PII**: No names, emails, or specific disability details (beyond broad categories) are stored.
+- **Derivation**: `metrics_summary.csv` is strictly derived from `data/raw`. No manual edits.
+
+## 6. Visualization Contract
+
+The `seaborn` library is explicitly used to generate the following figures, which must match the `figures/` directory structure:
+- **Boxplots**: `completion_time.png`, `error_count.png`, `sus_score.png`, `explanation_engagement.png`.
+- **Violin Plots**: Optional overlay for distribution density.
+- **Contract**: All figures must include error bars (confidence intervals) and be saved as PNG with 300 DPI resolution.

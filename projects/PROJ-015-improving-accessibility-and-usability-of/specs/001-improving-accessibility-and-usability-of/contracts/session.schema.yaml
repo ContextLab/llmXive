@@ -1,55 +1,52 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Session Schema"
-description: "Schema for a single interaction session in the accessibility study."
+title: "Session Data Schema"
+description: "Schema for validating raw interaction data collected from the Streamlit simulator."
 type: "object"
 required:
-  - session_id
-  - participant_id
-  - interface_variant
-  - order
-  - task_results
-  - sus_responses
-  - status
+  - "session_id"
+  - "participant_id"
+  - "interface_variant"
+  - "task_start"
+  - "task_end"
+  - "sus_responses"
+  - "explanation_engagement_time_ms"
+  - "status"
 properties:
   session_id:
     type: "string"
     description: "Unique identifier for the session (UUID)."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
   participant_id:
     type: "string"
-    description: "Anonymized participant identifier."
-    minLength: 3
+    description: "Anonymized participant ID."
   interface_variant:
     type: "string"
     enum:
-      - "traditional"
-      - "explainable"
-    description: "The interface variant presented."
-  order:
+      - "Traditional"
+      - "Explainable"
+    description: "The interface variant used in this session."
+  task_start:
     type: "string"
-    enum:
-      - "T->X"
-      - "X->T"
-    description: "Order of presentation (Latin Square)."
-  task_results:
-    type: "object"
-    required:
-      - completion_time
-      - error_count
-      - explanation_engagement_time
-    properties:
-      completion_time:
-        type: "number"
-        minimum: 0
-        description: "Time in seconds to complete the task."
-      error_count:
-        type: "integer"
-        minimum: 0
-        description: "Number of errors made."
-      explanation_engagement_time:
-        type: "number"
-        minimum: 0
-        description: "Time spent viewing XAI overlays."
+    format: "date-time"
+    description: "ISO8601 timestamp of task start."
+  task_end:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of task end."
+  errors:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        error_type:
+          type: "string"
+        timestamp:
+          type: "string"
+          format: "date-time"
+    description: "List of errors encountered during the task."
+  explanation_engagement_time_ms:
+    type: "integer"
+    minimum: 0
+    description: "Time spent interacting with XAI overlays in milliseconds."
   sus_responses:
     type: "array"
     minItems: 10
@@ -58,11 +55,11 @@ properties:
       type: "integer"
       minimum: 1
       maximum: 5
-    description: "Array of 10 SUS responses (1-5 scale)."
+    description: "10-item System Usability Scale responses (1-5). All 10 must be present."
   status:
     type: "string"
     enum:
       - "complete"
       - "incomplete"
-    description: "Status of the session."
+    description: "Status of the session. 'incomplete' sessions are excluded from analysis."
 additionalProperties: false
