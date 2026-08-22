@@ -1,6 +1,6 @@
 status: none
-intent: download Project Gutenberg short story corpus with reader response and moral
-  judgment datasets python package dataset
+intent: Project Gutenberg short story dataset python package download plus Moral Stories
+  judgment dataset
 required_fields:
 - story_id
 - title
@@ -8,6 +8,10 @@ required_fields:
 - year
 - genre
 - text
-cache_key: 9debb97b0d9563b18bc7fc8534a7e88a2695240557424bbc285c526d91103202
-searched_at: '2026-08-20T09:39:08.409455+00:00'
+- response_id
+- reader_id
+- response_text
+- response_score
+cache_key: f90caefa0fca12705b7b3899566bfe83bf68f5172500b26fe86da2087e8c6b5a
+searched_at: '2026-08-22T05:45:59.725314+00:00'
 retry_count: 1

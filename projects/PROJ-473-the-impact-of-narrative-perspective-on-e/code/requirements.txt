@@ -11,3 +11,5 @@ wordfreq==3.1.0
 pytest==7.4.3
 gutenberg==1.0.0
 datasets==2.14.0
+numpy  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv

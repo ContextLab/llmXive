@@ -5,6 +5,7 @@ import re
 import json
 import os
 import logging
+import hashlib
 
 # Load spaCy model
 try:
@@ -59,6 +60,11 @@ def extract_perspective_features(input_dir: str, output_path: str) -> List[Dict[
     """
     Extract perspective features from all stories in input_dir.
     Handles edge cases: <50 words, non-English text.
+    
+    If text length < 50 words, skip the record, log a "data_quality_insufficient" 
+    warning to data/logs/extraction.log, and continue processing.
+    If langdetect detects non-English, skip and log.
+    Otherwise, call calculate_pronoun_density and calculate_narrator_distance_score.
     """
     logger = logging.getLogger(__name__)
     logger.info(f"Extracting perspective features from {input_dir} to {output_path}")
@@ -82,13 +88,13 @@ def extract_perspective_features(input_dir: str, output_path: str) -> List[Dict[
             with open(file_path, 'r', encoding='utf-8') as f:
                 text = f.read()
         
-            # Check text length
+            # Check text length (edge case: <50 words)
             words = text.split()
             if len(words) < 50:
-                logger.warning(f"Skipping {filename}: insufficient length ({len(words)} words)")
+                logger.warning(f"data_quality_insufficient: Skipping {filename} ({len(words)} words)")
                 continue
             
-            # Check language
+            # Check language (edge case: non-English)
             try:
                 lang = detect(text[:200])  # Detect from first 200 chars
                 if lang != 'en':
@@ -135,5 +141,3 @@ def extract_perspective_features(input_dir: str, output_path: str) -> List[Dict[
     
     logger.info(f"Extracted {len(results)} stories to {output_path}")
     return results
-
-import hashlib  # Import at module level for use in extract_perspective_features

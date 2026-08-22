@@ -6,258 +6,281 @@ import logging
 import argparse
 from pathlib import Path
 
-# Import analysis functions
-from analysis import (
-    run_regression_analysis,
-    apply_bonferroni_correction,
-    calculate_vif,
-    generate_scatter_plot,
-    run_analysis_pipeline,
-    run_sensitivity_sweep
-)
-from data_loader import prepare_sensitivity_thresholds, save_thresholds_to_file
-from data_collection import run_aggregation_pipeline
-from extraction import extract_perspective_features
-from matching import run_matching_pipeline
-from config import get_config
+# Ensure the code directory is in the path for imports when running as script
+_code_root = Path(__file__).parent
+if str(_code_root) not in sys.path:
+    sys.path.insert(0, str(_code_root))
 
-# Setup logging
-def setup_logging(log_file: str = "data/logs/pipeline.log"):
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+from config import get_config, PRIMARY_MATCHING_THRESHOLD
+from extraction import extract_perspective_features
+from matching import build_tfidf_vectors, find_top_matches, run_matching_pipeline
+from data_loader import prepare_sensitivity_thresholds
+from data_collection import aggregate_reader_scores
+from analysis import run_regression_analysis, run_sensitivity_sweep, generate_scatter_plot
+from utils import compute_artifact_hash, scan_for_pii
+
+def setup_logging():
+    """Configure logging to file and console."""
+    os.makedirs("data/logs", exist_ok=True)
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler(sys.stdout)
+            logging.FileHandler("data/logs/pipeline.log"),
+            logging.StreamHandler()
         ]
     )
-    return logging.getLogger(__name__)
+    return logging.getLogger("pipeline")
 
-def run_extraction_step(args, logger):
-    """Run the perspective feature extraction pipeline."""
-    logger.info("Starting extraction step...")
-    input_dir = args.input_dir or "data/raw/gutenberg_stories"
-    output_path = args.output or "data/processed/perspective_features.json"
+def run_extraction_step(args):
+    """Run the perspective extraction pipeline."""
+    logger = setup_logging()
+    logger.info(f"Starting extraction from {args.input_dir}")
     
-    # Ensure input directory exists
-    if not os.path.exists(input_dir):
-        logger.error(f"Input directory {input_dir} does not exist.")
-        return False
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
     
-    # Process all .txt files in the directory
-    story_files = glob.glob(os.path.join(input_dir, "*.txt"))
-    if not story_files:
-        logger.warning(f"No .txt files found in {input_dir}. Skipping extraction.")
-        return True
+    # Run extraction
+    results = extract_perspective_features(args.input_dir)
     
-    results = []
-    for file_path in story_files:
-        try:
-            feature = extract_perspective_features(file_path)
-            if feature:
-                results.append(feature)
-        except Exception as e:
-            logger.error(f"Failed to process {file_path}: {e}")
-            continue
-    
-    # Write results
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(args.output, 'w') as f:
         json.dump(results, f, indent=2)
     
-    logger.info(f"Extraction complete. Wrote {len(results)} records to {output_path}")
-    return True
+    logger.info(f"Extraction complete. Results saved to {args.output}")
+    return results
 
-def run_matching_step(args, logger):
-    """Run the text similarity matching pipeline."""
-    logger.info("Starting matching step...")
-    input_path = args.input or "data/processed/perspective_features.json"
-    target_path = args.target or "data/raw/moral_judgement_external.csv"
-    output_path = args.output or "data/processed/matching_results.json"
-    thresholds_str = args.thresholds or "0.25,0.30,0.35,0.40"
+def run_matching_step(args):
+    """Run the matching validation step.
     
-    if not os.path.exists(input_path):
-        logger.error(f"Input file {input_path} does not exist.")
-        return False
-    if not os.path.exists(target_path):
-        logger.error(f"Target file {target_path} does not exist.")
-        return False
+    This implements T025: Match perspective features against a target moral judgement
+    dataset using a specific threshold (defaulting to PRIMARY_MATCHING_THRESHOLD).
+    """
+    logger = setup_logging()
+    logger.info(f"Starting matching: input={args.input}, target={args.target}")
     
-    thresholds = [float(t) for t in thresholds_str.split(",")]
+    # Load perspective features
+    with open(args.input, 'r') as f:
+        perspective_features = json.load(f)
+    
+    # Load target moral judgement dataset
+    import pandas as pd
+    target_df = pd.read_csv(args.target)
     
     # Run matching pipeline
-    results = run_matching_pipeline(input_path, target_path, thresholds)
+    # The matching logic expects texts from perspective_features and target texts from target_df
+    # We need to align them based on story_id or content similarity
     
-    # Write results
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
+    # Prepare data for matching
+    # perspective_features contains: story_id, raw_text, pronoun_density_1st, etc.
+    # target_df contains: story_id, text, moral_judgement_score
+    
+    # We will match perspective features to target stories based on text similarity
+    # using the TF-IDF approach defined in matching.py
+    
+    # Extract texts for vectorization
+    source_texts = [item['raw_text'] for item in perspective_features]
+    target_texts = target_df['text'].tolist()
+    
+    # Build TF-IDF vectors
+    source_vectors, target_vectors = build_tfidf_vectors(
+        source_texts, target_texts, exclude_pronouns=True
+    )
+    
+    # Find matches for each source story
+    threshold = args.threshold if args.threshold else PRIMARY_MATCHING_THRESHOLD
+    logger.info(f"Using matching threshold: {threshold}")
+    
+    results = []
+    for i, source_item in enumerate(perspective_features):
+        query_vector = source_vectors[i]
+        matches = find_top_matches(
+            query_vector, 
+            target_vectors, 
+            k=3, 
+            threshold=threshold
+        )
+        
+        for rank, match in enumerate(matches, 1):
+            results.append({
+                'story_id': source_item['story_id'],
+                'match_id': match['story_id'],
+                'similarity_score': float(match['similarity']),
+                'rank': rank,
+                'threshold_used': threshold
+            })
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    
+    # Save results
+    with open(args.output, 'w') as f:
         json.dump(results, f, indent=2)
     
-    logger.info(f"Matching complete. Wrote {len(results)} records to {output_path}")
-    return True
+    logger.info(f"Matching complete. {len(results)} matches saved to {args.output}")
+    return results
 
-def run_aggregation_step(args, logger):
-    """Run the data aggregation pipeline."""
-    logger.info("Starting aggregation step...")
-    features_path = args.features or "data/processed/perspective_features.json"
-    responses_path = args.responses or "data/processed/aligned_reader_response.csv"
-    output_path = args.output or "data/processed/aligned_dataset.csv"
+def run_thresholds_step(args):
+    """Prepare sensitivity thresholds."""
+    logger = setup_logging()
+    logger.info("Preparing sensitivity thresholds")
     
-    if not os.path.exists(features_path):
-        logger.error(f"Features file {features_path} does not exist.")
-        return False
-    if not os.path.exists(responses_path):
-        logger.error(f"Responses file {responses_path} does not exist.")
-        return False
+    thresholds_data = prepare_sensitivity_thresholds()
     
-    # Run aggregation
-    success = run_aggregation_pipeline(features_path, responses_path, output_path)
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    with open(args.output, 'w') as f:
+        json.dump(thresholds_data, f, indent=2)
     
-    if success:
-        logger.info(f"Aggregation complete. Wrote dataset to {output_path}")
-    else:
-        logger.error("Aggregation failed.")
-    
-    return success
+    logger.info(f"Thresholds saved to {args.output}")
+    return thresholds_data
 
-def run_analysis_step(args, logger):
-    """Run the full statistical analysis pipeline."""
-    logger.info("Starting analysis step...")
-    input_path = args.input or "data/processed/aligned_dataset.csv"
-    output_path = args.output or "data/processed/analysis_results.json"
+def run_aggregation_step(args):
+    """Aggregate perspective features with reader responses."""
+    logger = setup_logging()
+    logger.info("Starting aggregation step")
     
-    if not os.path.exists(input_path):
-        logger.error(f"Input file {input_path} does not exist.")
-        return False
+    # Load inputs
+    with open(args.features, 'r') as f:
+        perspective_features = json.load(f)
     
-    # Run full analysis pipeline
-    results = run_analysis_pipeline(input_path)
+    responses_df = pd.read_csv(args.responses)
     
-    if results is None:
-        logger.error("Analysis pipeline failed to produce results.")
-        return False
+    # Aggregate
+    aggregated = aggregate_reader_scores(perspective_features, responses_df)
     
-    # Write results
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
+    # Save
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    aggregated.to_csv(args.output, index=False)
+    
+    logger.info(f"Aggregation complete. Results saved to {args.output}")
+    return aggregated
+
+def run_analysis_step(args):
+    """Run full analysis pipeline."""
+    logger = setup_logging()
+    logger.info("Starting analysis step")
+    
+    # Load dataset
+    dataset = pd.read_csv(args.input)
+    
+    # Run regression
+    regression_results = run_regression_analysis(dataset)
+    
+    # Apply Bonferroni correction
+    bonf_p = apply_bonferroni_correction([regression_results['p_value']])
+    regression_results['bonferroni_adjusted_p'] = bonf_p[0]
+    
+    # Calculate VIF
+    vif_warning = calculate_vif(dataset)
+    regression_results['vif_warning'] = vif_warning
+    
+    # Generate plot
+    generate_scatter_plot(args.input, args.output.replace('.json', '.png'))
+    
+    # Add sample size
+    regression_results['sample_size'] = len(dataset)
+    
+    # Save results
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    with open(args.output, 'w') as f:
+        json.dump(regression_results, f, indent=2)
+    
+    logger.info(f"Analysis complete. Results saved to {args.output}")
+    return regression_results
+
+def run_sensitivity_step(args):
+    """Run sensitivity analysis sweep."""
+    logger = setup_logging()
+    logger.info("Starting sensitivity analysis")
+    
+    # Load inputs
+    thresholds_data = json.load(open(args.thresholds))
+    thresholds = thresholds_data['thresholds']
+    
+    dataset = pd.read_csv(args.dataset)
+    
+    # Run sweep
+    results = run_sensitivity_sweep(
+        matching_results_path=args.matching_results,
+        thresholds_path=args.thresholds,
+        dataset_path=args.dataset
+    )
+    
+    # Save
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    with open(args.output, 'w') as f:
         json.dump(results, f, indent=2)
     
-    logger.info(f"Analysis complete. Wrote results to {output_path}")
-    return True
-
-def run_sensitivity_step(args, logger):
-    """Run the sensitivity analysis pipeline."""
-    logger.info("Starting sensitivity analysis step...")
-    matching_path = args.matching or "data/processed/matching_results.json"
-    thresholds_path = args.thresholds or "data/processed/thresholds.json"
-    dataset_path = args.dataset or "data/processed/aligned_dataset.csv"
-    output_path = args.output or "data/processed/sensitivity_report.json"
-    
-    if not os.path.exists(matching_path):
-        logger.error(f"Matching results {matching_path} do not exist.")
-        return False
-    if not os.path.exists(thresholds_path):
-        logger.error(f"Thresholds file {thresholds_path} does not exist.")
-        return False
-    if not os.path.exists(dataset_path):
-        logger.error(f"Dataset file {dataset_path} does not exist.")
-        return False
-    
-    # Run sensitivity sweep
-    results = run_sensitivity_sweep(matching_path, thresholds_path, dataset_path)
-    
-    if results is None:
-        logger.error("Sensitivity sweep failed.")
-        return False
-    
-    # Write results
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Sensitivity analysis complete. Wrote report to {output_path}")
-    return True
+    logger.info(f"Sensitivity analysis complete. Results saved to {args.output}")
+    return results
 
 def main():
     parser = argparse.ArgumentParser(description="Narrative Perspective Analysis Pipeline")
-    subparsers = parser.add_subparsers(dest="command", help="Pipeline commands")
-
-    # Extraction command
-    extract_parser = subparsers.add_parser("extract", help="Run perspective extraction")
-    extract_parser.add_argument("--input-dir", type=str, default="data/raw/gutenberg_stories")
-    extract_parser.add_argument("--output", type=str, default="data/processed/perspective_features.json")
-
-    # Matching command
-    match_parser = subparsers.add_parser("match", help="Run text similarity matching")
-    match_parser.add_argument("--input", type=str, default="data/processed/perspective_features.json")
-    match_parser.add_argument("--target", type=str, default="data/raw/moral_judgement_external.csv")
-    match_parser.add_argument("--output", type=str, default="data/processed/matching_results.json")
-    match_parser.add_argument("--thresholds", type=str, default="0.25,0.30,0.35,0.40")
-
-    # Aggregation command
-    aggregate_parser = subparsers.add_parser("aggregate", help="Run data aggregation")
-    aggregate_parser.add_argument("--features", type=str, default="data/processed/perspective_features.json")
-    aggregate_parser.add_argument("--responses", type=str, default="data/processed/aligned_reader_response.csv")
-    aggregate_parser.add_argument("--output", type=str, default="data/processed/aligned_dataset.csv")
-
-    # Analysis command (T041)
-    analyze_parser = subparsers.add_parser("analyze", help="Run full statistical analysis")
-    analyze_parser.add_argument("--input", type=str, default="data/processed/aligned_dataset.csv")
-    analyze_parser.add_argument("--output", type=str, default="data/processed/analysis_results.json")
-
-    # Sensitivity command
-    sensitivity_parser = subparsers.add_parser("sensitivity", help="Run sensitivity analysis")
-    sensitivity_parser.add_argument("--matching", type=str, default="data/processed/matching_results.json")
-    sensitivity_parser.add_argument("--thresholds", type=str, default="data/processed/thresholds.json")
-    sensitivity_parser.add_argument("--dataset", type=str, default="data/processed/aligned_dataset.csv")
-    sensitivity_parser.add_argument("--output", type=str, default="data/processed/sensitivity_report.json")
-
-    # All command
-    all_parser = subparsers.add_parser("all", help="Run full pipeline")
-
-    args = parser.parse_args()
-
-    if not args.command:
-        parser.print_help()
-        sys.exit(1)
-
-    logger = setup_logging()
-
-    success = True
-    if args.command == "extract":
-        success = run_extraction_step(args, logger)
-    elif args.command == "match":
-        success = run_matching_step(args, logger)
-    elif args.command == "aggregate":
-        success = run_aggregation_step(args, logger)
-    elif args.command == "analyze":
-        success = run_analysis_step(args, logger)
-    elif args.command == "sensitivity":
-        success = run_sensitivity_step(args, logger)
-    elif args.command == "all":
-        # Run full pipeline in order
-        # 1. Prepare thresholds
-        prepare_sensitivity_thresholds()
-        save_thresholds_to_file("data/processed/thresholds.json")
-        
-        # 2. Extract
-        if not run_extraction_step(args, logger):
-            success = False
-        # 3. Match
-        elif not run_matching_step(args, logger):
-            success = False
-        # 4. Aggregate
-        elif not run_aggregation_step(args, logger):
-            success = False
-        # 5. Analyze
-        elif not run_analysis_step(args, logger):
-            success = False
-        # 6. Sensitivity
-        elif not run_sensitivity_step(args, logger):
-            success = False
+    subparsers = parser.add_subparsers(dest='command', help='Available commands')
     
-    sys.exit(0 if success else 1)
+    # Extraction command
+    extract_parser = subparsers.add_parser('extract', help='Extract perspective features')
+    extract_parser.add_argument('--input-dir', required=True, help='Input directory with story files')
+    extract_parser.add_argument('--output', required=True, help='Output JSON file path')
+    
+    # Matching command (T025)
+    match_parser = subparsers.add_parser('match', help='Run matching validation')
+    match_parser.add_argument('--input', required=True, help='Input perspective features JSON')
+    match_parser.add_argument('--target', required=True, help='Target moral judgement CSV')
+    match_parser.add_argument('--output', required=True, help='Output matching results JSON')
+    match_parser.add_argument('--threshold', type=float, default=None, help='Matching threshold (default: 0.30)')
+    
+    # Thresholds command
+    thresh_parser = subparsers.add_parser('prepare-thresholds', help='Prepare sensitivity thresholds')
+    thresh_parser.add_argument('--output', required=True, help='Output thresholds JSON file')
+    
+    # Aggregation command
+    agg_parser = subparsers.add_parser('aggregate', help='Aggregate data')
+    agg_parser.add_argument('--features', required=True, help='Perspective features JSON')
+    agg_parser.add_argument('--responses', required=True, help='Reader responses CSV')
+    agg_parser.add_argument('--output', required=True, help='Output aggregated CSV')
+    
+    # Analysis command
+    analysis_parser = subparsers.add_parser('analyze', help='Run analysis')
+    analysis_parser.add_argument('--input', required=True, help='Input dataset CSV')
+    analysis_parser.add_argument('--output', required=True, help='Output analysis results JSON')
+    
+    # Sensitivity command
+    sens_parser = subparsers.add_parser('sensitivity', help='Run sensitivity analysis')
+    sens_parser.add_argument('--matching-results', required=True, help='Matching results JSON')
+    sens_parser.add_argument('--thresholds', required=True, help='Thresholds JSON')
+    sens_parser.add_argument('--dataset', required=True, help='Aligned dataset CSV')
+    sens_parser.add_argument('--output', required=True, help='Output sensitivity report JSON')
+    
+    # All command
+    all_parser = subparsers.add_parser('all', help='Run full pipeline')
+    all_parser.add_argument('--config', default='code/config.py', help='Config file path')
+    
+    args = parser.parse_args()
+    
+    if args.command == 'extract':
+        run_extraction_step(args)
+    elif args.command == 'match':
+        run_matching_step(args)
+    elif args.command == 'prepare-thresholds':
+        run_thresholds_step(args)
+    elif args.command == 'aggregate':
+        run_aggregation_step(args)
+    elif args.command == 'analyze':
+        run_analysis_step(args)
+    elif args.command == 'sensitivity':
+        run_sensitivity_step(args)
+    elif args.command == 'all':
+        setup_logging()
+        # Run full pipeline
+        # Step 1: Extract (if needed)
+        # Step 2: Prepare thresholds
+        # Step 3: Match
+        # Step 4: Aggregate
+        # Step 5: Analyze
+        # Step 6: Sensitivity
+        logging.info("Full pipeline execution not fully implemented yet.")
+    else:
+        parser.print_help()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

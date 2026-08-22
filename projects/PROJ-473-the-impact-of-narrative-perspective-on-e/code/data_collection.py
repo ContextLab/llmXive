@@ -40,7 +40,7 @@ def aggregate_reader_scores(
     
     Input:
       stories_path: Path to perspective_features.json (from T016)
-      responses_path: Path to aligned_reader_response.csv (from T030.1)
+      responses_path: Path to aligned_reader_response.csv (from T009.6b)
       output_path: Path to save aligned_dataset.csv
     
     Output:

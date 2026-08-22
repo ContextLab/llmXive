@@ -5,6 +5,23 @@ T004:
     \ = 0.30` and `GOLD_STANDARD_ANNOTATIONS_PATH = \"data/raw/gold_standard_annotations.csv\"\
     `, sets a NumPy random seed, and provides path\u2011related configuration and\
     \ logging setup as required. The missing CSV file is not part of the task specification."
+T015:
+  c: false
+  h: d020ef62320c795317856ac2a79227aab091021ec857b534810e90424a60f9a1
+  r: "The repository contains `code/extraction.py`, but the function defined is `extract_perspective_features(input_dir,\
+    \ output_path)` (different signature) and its body is truncated, so edge\u2011\
+    case handling is not shown. Moreover, the required log file `data/logs/extraction.log`\
+    \ does not exist. The task\u2019s specific `extract_perspective_features(file_path)`\
+    \ implementation with the described logging and skipping logic is missing."
+T016:
+  c: false
+  h: fbb0846ebe5c4fca81e1f26690e15e0ea36b954b6ba8276dec637236be51efa3
+  r: "The required output file `data/processed/perspective_features.json` does not\
+    \ exist, so the pipeline\u2019s end\u2011to\u2011end result is missing. Additionally,\
+    \ the provided snippet of `code/main.py` does not show the CLI argument parsing\
+    \ for the `extract` subcommand, leaving it unclear whether the script can be invoked\
+    \ as specified. The implementer must ensure the script creates the JSON file with\
+    \ the correct schema and supports the documented CLI."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -16,11 +33,20 @@ T018:
     \ the corresponding artifact."
 T024:
   c: false
-  h: d6f31f8be59d391b400a8941c6f92e1133695e0f03e53b18fa5cc63d1c56fc78
-  r: The repository lacks the required `prepare_sensitivity_thresholds()` implementation
-    in `code/data_loader.py` (the file only shows a partial `fetch_gutenberg_stories`
-    function) and the expected output file `data/processed/thresholds.json` does not
-    exist. Both the function and its JSON output are missing, so the task is not satisfied.
+  h: 52f1e2bc122111d61bc6756a59414d9d5b7ccc7a927fbb800625d15a50628f66
+  r: "The `prepare_sensitivity_thresholds()` function returns the correct list, but\
+    \ it never writes the JSON file, and the required `data/processed/thresholds.json`\
+    \ does not exist. The CLI command `prepare-thresholds` is not shown to invoke\
+    \ saving, so the task\u2019s output requirement is unmet."
+T025#1:
+  c: false
+  h: 17b699e4569c0414ef51903bdf61cc296b0ff9d7a68c5ca33ff5d0f68924bbc5
+  r: "The repository contains a `code/main.py` file, but it is truncated and does\
+    \ not show a complete CLI with a `match` sub\u2011command nor the logic to write\
+    \ `data/processed/matching_results.json`. Moreover, the required input files (`data/processed/perspective_features.json`,\
+    \ `data/raw/moral_judgement_local.csv`) and the expected output file (`data/processed/matching_results.json`)\
+    \ are absent. The task\u2019s core deliverable \u2013 a runnable matching sub\u2011\
+    command that produces the specified JSON output \u2013 is therefore not present."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,22 +62,15 @@ T027:
     \ artifact (e.g., function, unit test, or example output) to demonstrate that\
     \ the rule has been added to the similarity matcher. The required implementation\
     \ is therefore missing."
-T030:
-  c: false
-  h: 7bdeb32292fa0254896a48869a338789071f3070ac298a044695d78c6cbd991e
-  r: "The repository lacks a concrete `fetch_external_reader_data` implementation\
-    \ \u2013 the file only contains placeholder functions (`fetch_external_moral_dataset`,\
-    \ etc.) with unfinished logic, no OSF download, no SHA\u2011256 hashing, no filtering,\
-    \ and no CSV generation. Moreover, the required `data/processed/reader_response.csv`\
-    \ does not exist. The task\u2019s core requirements are therefore unmet."
 T032:
   c: false
-  h: 02cfe23d91c35317657cca215316fcd793ebfe24a3a8481dd17960a109fc94bb
-  r: "The repository lacks the required input files (`data/processed/perspective_features.json`,\
-    \ `data/processed/aligned_reader_response.csv`) and the output CSV (`data/processed/aligned_dataset.csv`).\
-    \ Moreover, `code/data_collection.py` is truncated (the merge line is incomplete)\
-    \ and does not implement the required mean\u2011IRI aggregation logic. The task\
-    \ therefore is not fulfilled."
+  h: 98a89cc223e0e4754826a666352529883446cf4752b1ced5b1411cde0a7373d4
+  r: The repository lacks the required input files (`perspective_features.json`, `aligned_reader_response.csv`)
+    and the output CSV (`aligned_dataset.csv`). The `aggregate_reader_scores` implementation
+    is truncated, does not compute mean IRI scores per story, and its signature differs
+    from the task specification. The function also never writes the resulting DataFrame
+    to the specified output path. These missing/incorrect elements prevent the task
+    from being fulfilled.
 T041:
   c: false
   h: 75dbeb06682f92eb675e42747d87ca4be49af4541cedcf8c5425caf697a4e97c
