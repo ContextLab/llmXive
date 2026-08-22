@@ -1,26 +1,11 @@
-"""
-Module to save null distribution CSVs to disk.
-
-This module handles the serialization of permutation test results
-into CSV format as required by T017.
-"""
 import os
 import csv
 import logging
 from typing import List, Dict, Any, Optional
 from pathlib import Path
+from config import RESULTS_DIR, ensure_dirs
 
-# Import config to ensure directories exist
-# The API surface indicates 'ensure_dirs' is available in config
-try:
-    from config import RESULTS_DIR, ensure_dirs
-except ImportError:
-    # Fallback if config is not yet fully populated in the environment
-    # This should not happen in a correctly set up project
-    RESULTS_DIR = Path("results")
-    def ensure_dirs(path: Path):
-        path.mkdir(parents=True, exist_ok=True)
-
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def save_null_distribution_csv(
@@ -30,14 +15,14 @@ def save_null_distribution_csv(
     output_dir: Optional[Path] = None
 ) -> Path:
     """
-    Save the null distribution for a single query and metric to a CSV file.
+    Save a single query's null distribution to a CSV file.
     
     Args:
-        query_id: The unique identifier for the query.
-        metric: The name of the metric (e.g., 'NDCG@10', 'MAP').
-        scores: List of scores from the permuted distributions.
-        output_dir: Optional directory path. Defaults to RESULTS_DIR / 'null_distributions'.
-        
+        query_id: The query identifier.
+        metric: The metric name (e.g., 'NDCG@10', 'MAP').
+        scores: List of scores from the permutations.
+        output_dir: Directory to save the file. Defaults to RESULTS_DIR/null_distributions.
+    
     Returns:
         Path to the created CSV file.
     """
@@ -49,55 +34,55 @@ def save_null_distribution_csv(
     filename = f"q{query_id}_{metric}.csv"
     file_path = output_dir / filename
     
-    logger.info(f"Saving null distribution for Query {query_id}, Metric {metric} to {file_path}")
-    
-    with open(file_path, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        # Write header as required by T017: query_id, metric, score
+    with open(file_path, 'w', newline='') as f:
+        writer = csv.writer(f)
         writer.writerow(['query_id', 'metric', 'score'])
-        
-        # Write each score
         for score in scores:
-            writer.writerow([query_id, metric, f"{score:.6f}"])
+            writer.writerow([query_id, metric, score])
     
-    logger.info(f"Successfully saved {len(scores)} scores to {file_path}")
+    logger.info(f"Saved null distribution for query {query_id}, metric {metric} to {file_path}")
     return file_path
 
 def save_all_null_distributions(
-    distributions: Dict[str, List[float]],
-    query_id: int,
-    metrics: List[str],
+    distributions: Dict[int, Dict[str, List[float]]],
     output_dir: Optional[Path] = None
 ) -> List[Path]:
     """
-    Save null distributions for multiple metrics for a single query.
+    Save all null distributions to individual CSV files.
     
     Args:
-        distributions: Dictionary mapping metric names to lists of scores.
-                       e.g., {'NDCG@10': [0.1, 0.2, ...], 'MAP': [0.05, ...]}
-        query_id: The query identifier.
-        metrics: List of metric names to process.
-        output_dir: Optional output directory.
-        
+        distributions: Dict mapping query_id -> {metric -> List[scores]}.
+        output_dir: Directory to save files.
+    
     Returns:
-        List of paths to the created CSV files.
+        List of paths to created files.
     """
     if output_dir is None:
         output_dir = RESULTS_DIR / "null_distributions"
-        
-    ensure_dirs(output_dir)
-    saved_paths = []
     
-    for metric in metrics:
-        if metric in distributions:
-            scores = distributions[metric]
-            if not scores:
-                logger.warning(f"No scores generated for Query {query_id}, Metric {metric}. Skipping save.")
-                continue
-            
-            path = save_null_distribution_csv(query_id, metric, scores, output_dir)
-            saved_paths.append(path)
-        else:
-            logger.warning(f"Metric {metric} not found in distributions for Query {query_id}.")
-            
-    return saved_paths
+    ensure_dirs(output_dir)
+    created_files = []
+    
+    for query_id, metrics_data in distributions.items():
+        for metric, scores in metrics_data.items():
+            file_path = save_null_distribution_csv(query_id, metric, scores, output_dir)
+            created_files.append(file_path)
+    
+    logger.info(f"Saved {len(created_files)} null distribution files.")
+    return created_files
+
+def run_null_distribution_saving(
+    distributions: Dict[int, Dict[str, List[float]]],
+    output_dir: Optional[Path] = None
+) -> List[Path]:
+    """
+    Entry point for saving null distributions, typically called from main.py.
+    
+    Args:
+        distributions: Dict of query_id -> metric -> scores.
+        output_dir: Optional output directory override.
+    
+    Returns:
+        List of created file paths.
+    """
+    return save_all_null_distributions(distributions, output_dir)

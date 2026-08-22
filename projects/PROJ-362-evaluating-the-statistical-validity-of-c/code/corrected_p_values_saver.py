@@ -1,6 +1,8 @@
 """
-Module to generate corrected p-values using Benjamini-Hochberg correction.
-Reads raw p-values, applies BH correction per metric family, and saves results.
+Module for applying Benjamini-Hochberg correction to raw p-values.
+
+This module implements the BH correction procedure separately for NDCG and MAP
+p-value families as required by the project specification.
 """
 import os
 import csv
@@ -9,219 +11,202 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 from config import RESULTS_DIR
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_raw_p_values(raw_p_values_path: Optional[str] = None) -> List[Dict[str, Any]]:
+def load_raw_p_values() -> List[Dict[str, Any]]:
     """
-    Load raw p-values from the CSV file generated in T018.
+    Load raw p-values from the results/p_values/raw_p_values.csv file.
     
-    Args:
-        raw_p_values_path: Path to the raw p-values CSV. Defaults to RESULTS_DIR/p_values/raw_p_values.csv.
-        
     Returns:
         List of dictionaries containing query_id, metric, and raw_p.
     """
-    if raw_p_values_path is None:
-        raw_p_values_path = os.path.join(RESULTS_DIR, "p_values", "raw_p_values.csv")
+    raw_p_values_path = RESULTS_DIR / "p_values" / "raw_p_values.csv"
     
-    if not os.path.exists(raw_p_values_path):
-        raise FileNotFoundError(f"Raw p-values file not found at {raw_p_values_path}")
+    if not raw_p_values_path.exists():
+        raise FileNotFoundError(f"Raw p-values file not found: {raw_p_values_path}")
     
-    raw_p_values = []
-    with open(raw_p_values_path, 'r', newline='', encoding='utf-8') as f:
+    p_values = []
+    with open(raw_p_values_path, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            raw_p_values.append({
+            p_values.append({
                 'query_id': int(row['query_id']),
                 'metric': row['metric'],
                 'raw_p': float(row['raw_p'])
             })
     
-    logger.info(f"Loaded {len(raw_p_values)} raw p-values from {raw_p_values_path}")
-    return raw_p_values
+    logger.info(f"Loaded {len(p_values)} raw p-values from {raw_p_values_path}")
+    return p_values
 
-def load_bh_correction_factors(metrics: List[str] = ["NDCG@10", "MAP"]) -> Dict[str, int]:
+def load_bh_correction_factors() -> Dict[str, float]:
     """
-    Load or calculate Benjamini-Hochberg correction factors.
-    The factor is the number of tests in each metric family.
+    Load BH correction factors (m) for each metric family.
     
-    Args:
-        metrics: List of metric names to calculate factors for.
-        
+    The BH correction factor is the total number of hypotheses tested
+    within each family (metric).
+    
     Returns:
-        Dictionary mapping metric name to the number of tests (queries) for that metric.
+        Dictionary mapping metric name to correction factor (m).
     """
-    # We need to count how many queries exist for each metric.
-    # Since we don't have the raw data here, we assume the raw_p_values file has all queries.
-    # We'll load it temporarily to count.
     raw_p_values = load_raw_p_values()
     
-    factors = {}
-    for metric in metrics:
-        count = sum(1 for item in raw_p_values if item['metric'] == metric)
-        factors[metric] = count
-        logger.info(f"BH correction factor for {metric}: {count} tests")
+    # Count hypotheses per metric family
+    metric_counts = {}
+    for pv in raw_p_values:
+        metric = pv['metric']
+        metric_counts[metric] = metric_counts.get(metric, 0) + 1
     
-    return factors
+    logger.info(f"Found {len(metric_counts)} metric families with counts: {metric_counts}")
+    return metric_counts
 
 def apply_bh_correction_to_raw(
     raw_p_values: List[Dict[str, Any]],
-    metrics: List[str] = ["NDCG@10", "MAP"]
+    correction_factors: Dict[str, float]
 ) -> List[Dict[str, Any]]:
     """
     Apply Benjamini-Hochberg correction to raw p-values.
     
     The BH procedure:
-    1. Sort p-values for each metric family in ascending order.
-    2. For each p-value at rank i (1-indexed) out of m tests:
-       corrected_p = (m / i) * raw_p
-    3. Ensure corrected p-values are monotonically non-decreasing when sorted by rank.
-    4. Clamp corrected p-values to [0, 1].
+    1. Sort p-values in ascending order
+    2. For each p-value at rank i (1-indexed), calculate adjusted p-value:
+       p_adj = p * m / i
+    3. Ensure monotonicity by taking cumulative minimum from largest to smallest
+    4. Cap values at 1.0
+    
+    Applied separately for each metric family.
     
     Args:
         raw_p_values: List of dictionaries with query_id, metric, raw_p.
-        metrics: List of metric families to correct separately.
+        correction_factors: Dictionary mapping metric to m (number of hypotheses).
         
     Returns:
-        List of dictionaries with query_id, metric, raw_p, corrected_p.
+        List of dictionaries with query_id, metric, raw_p, corrected_p, is_significant.
     """
-    if not raw_p_values:
-        logger.warning("No raw p-values to correct.")
-        return []
-
-    # Group by metric
-    grouped_by_metric = {metric: [] for metric in metrics}
-    for item in raw_p_values:
-        metric = item['metric']
-        if metric in grouped_by_metric:
-            grouped_by_metric[metric].append(item)
-        else:
-            logger.warning(f"Unknown metric {metric} found, skipping BH correction for this entry.")
-
+    # Group by metric family
+    families = {}
+    for pv in raw_p_values:
+        metric = pv['metric']
+        if metric not in families:
+            families[metric] = []
+        families[metric].append(pv)
+    
     corrected_results = []
     
-    for metric in metrics:
-        items = grouped_by_metric[metric]
-        if not items:
-            continue
+    for metric, family_pvs in families.items():
+        m = correction_factors.get(metric, len(family_pvs))
         
-        m = len(items)  # Number of tests for this metric
-        logger.info(f"Applying BH correction to {m} tests for metric {metric}")
+        # Sort by p-value (ascending)
+        sorted_pvs = sorted(family_pvs, key=lambda x: x['raw_p'])
         
-        # Sort by raw p-value ascending
-        items_sorted = sorted(items, key=lambda x: x['raw_p'])
-        
-        # Calculate raw corrected p-values
-        for rank_idx, item in enumerate(items_sorted):
-            i = rank_idx + 1  # 1-based rank
-            corrected_p = (m / i) * item['raw_p']
-            item['corrected_p_raw'] = corrected_p
-        
-        # Enforce monotonicity: iterate backwards and ensure p[i] <= p[i+1]
-        # Since we sorted by raw p ascending, the corrected p should be non-decreasing by rank.
-        # We need to ensure that if corrected_p[i] > corrected_p[i+1], we set corrected_p[i] = corrected_p[i+1]
-        # Actually, the standard BH procedure ensures monotonicity by:
-        # p_corrected[i] = min(p_corrected[i], p_corrected[i+1], ..., p_corrected[m])
-        # We iterate from the largest rank down to 1.
-        
-        # First, clamp to 1.0
-        for item in items_sorted:
-            if item['corrected_p_raw'] > 1.0:
-                item['corrected_p_raw'] = 1.0
-            if item['corrected_p_raw'] < 0.0:
-                item['corrected_p_raw'] = 0.0
-        
-        # Enforce monotonicity
-        # We want corrected_p[rank] <= corrected_p[rank+1]
-        # Iterate from m-1 down to 0
-        for rank_idx in range(m - 2, -1, -1):
-            if items_sorted[rank_idx]['corrected_p_raw'] > items_sorted[rank_idx + 1]['corrected_p_raw']:
-                items_sorted[rank_idx]['corrected_p_raw'] = items_sorted[rank_idx + 1]['corrected_p_raw']
-        
-        # Store final corrected p
-        for item in items_sorted:
-            corrected_results.append({
-                'query_id': item['query_id'],
-                'metric': item['metric'],
-                'raw_p': item['raw_p'],
-                'corrected_p': item['corrected_p_raw']
+        # Calculate BH adjusted p-values
+        # p_adj[i] = p[i] * m / (i + 1)  (using 0-indexed i, so rank is i+1)
+        adjusted_pvs = []
+        for i, pv in enumerate(sorted_pvs):
+            rank = i + 1
+            adjusted_p = pv['raw_p'] * m / rank
+            adjusted_pvs.append({
+                'query_id': pv['query_id'],
+                'metric': pv['metric'],
+                'raw_p': pv['raw_p'],
+                'adjusted_p': adjusted_p,
+                'rank': rank
             })
+        
+        # Enforce monotonicity: work from largest rank to smallest
+        # p_adj[i] = min(p_adj[i], p_adj[i+1], ..., p_adj[m])
+        cumulative_min = 1.0
+        for i in range(len(adjusted_pvs) - 1, -1, -1):
+            if adjusted_pvs[i]['adjusted_p'] < cumulative_min:
+                cumulative_min = adjusted_pvs[i]['adjusted_p']
+            else:
+                adjusted_pvs[i]['adjusted_p'] = cumulative_min
+            
+            # Cap at 1.0
+            adjusted_pvs[i]['adjusted_p'] = min(adjusted_pvs[i]['adjusted_p'], 1.0)
+        
+        corrected_results.extend(adjusted_pvs)
     
-    logger.info(f"Applied BH correction to {len(corrected_results)} entries.")
+    # Sort back by query_id and metric for consistency
+    corrected_results.sort(key=lambda x: (x['query_id'], x['metric']))
+    
+    logger.info(f"Applied BH correction to {len(corrected_results)} p-values across {len(families)} metric families")
     return corrected_results
 
-def save_corrected_p_values(
-    corrected_data: List[Dict[str, Any]],
-    output_path: Optional[str] = None,
-    alpha: float = 0.05
-) -> str:
+def save_corrected_p_values(corrected_p_values: List[Dict[str, Any]]) -> None:
     """
-    Save corrected p-values to CSV with significance determination.
+    Save corrected p-values to results/p_values/corrected_p_values.csv.
     
     Args:
-        corrected_data: List of dictionaries with query_id, metric, raw_p, corrected_p.
-        output_path: Path to save the CSV. Defaults to RESULTS_DIR/p_values/corrected_p_values.csv.
-        alpha: Significance threshold (default 0.05).
-        
-    Returns:
-        Path to the saved file.
+        corrected_p_values: List of dictionaries with query_id, metric, 
+                           raw_p, corrected_p, is_significant.
     """
-    if output_path is None:
-        output_path = os.path.join(RESULTS_DIR, "p_values", "corrected_p_values.csv")
+    output_path = RESULTS_DIR / "p_values" / "corrected_p_values.csv"
     
     # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['query_id', 'metric', 'raw_p', 'corrected_p', 'is_significant'])
+    with open(output_path, 'w', newline='') as f:
+        fieldnames = ['query_id', 'metric', 'raw_p', 'corrected_p', 'is_significant']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         
-        for item in corrected_data:
-            is_significant = item['corrected_p'] <= alpha
+        for pv in corrected_p_values:
+            # Determine significance at alpha=0.05 (default)
+            is_significant = pv['corrected_p'] < 0.05
+            
             writer.writerow({
-                'query_id': item['query_id'],
-                'metric': item['metric'],
-                'raw_p': f"{item['raw_p']:.6f}",
-                'corrected_p': f"{item['corrected_p']:.6f}",
-                'is_significant': str(is_significant)
+                'query_id': pv['query_id'],
+                'metric': pv['metric'],
+                'raw_p': f"{pv['raw_p']:.6f}",
+                'corrected_p': f"{pv['corrected_p']:.6f}",
+                'is_significant': is_significant
             })
     
-    logger.info(f"Saved {len(corrected_data)} corrected p-values to {output_path}")
-    return output_path
+    logger.info(f"Saved {len(corrected_p_values)} corrected p-values to {output_path}")
 
-def run_corrected_p_values_generation(
-    raw_p_values_path: Optional[str] = None,
-    output_path: Optional[str] = None,
-    metrics: List[str] = ["NDCG@10", "MAP"],
-    alpha: float = 0.05
-) -> str:
+def run_corrected_p_values_generation() -> List[Dict[str, Any]]:
     """
-    Main entry point to generate corrected p-values.
+    Main entry point for generating corrected p-values.
     
-    Args:
-        raw_p_values_path: Path to raw p-values CSV.
-        output_path: Path to save corrected p-values CSV.
-        metrics: List of metrics to correct.
-        alpha: Significance threshold.
-        
+    This function orchestrates the full BH correction pipeline:
+    1. Load raw p-values
+    2. Calculate correction factors per metric family
+    3. Apply BH correction
+    4. Save results
+    
     Returns:
-        Path to the generated CSV file.
+        List of corrected p-value records.
     """
-    logger.info("Starting corrected p-values generation...")
+    logger.info("Starting BH correction pipeline")
     
     # Load raw p-values
-    raw_p_values = load_raw_p_values(raw_p_values_path)
+    raw_p_values = load_raw_p_values()
+    
+    # Get correction factors (m for each metric family)
+    correction_factors = load_bh_correction_factors()
     
     # Apply BH correction
-    corrected_data = apply_bh_correction_to_raw(raw_p_values, metrics)
+    corrected_p_values = apply_bh_correction_to_raw(raw_p_values, correction_factors)
     
     # Save results
-    output_file = save_corrected_p_values(corrected_data, output_path, alpha)
+    save_corrected_p_values(corrected_p_values)
     
-    logger.info("Corrected p-values generation completed successfully.")
-    return output_file
+    logger.info("BH correction pipeline completed successfully")
+    return corrected_p_values
+
+def main():
+    """Command-line entry point for BH correction."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    try:
+        results = run_corrected_p_values_generation()
+        logger.info(f"Generated {len(results)} corrected p-value records")
+    except Exception as e:
+        logger.error(f"Error in BH correction pipeline: {e}")
+        raise
 
 if __name__ == "__main__":
-    # Example execution
-    run_corrected_p_values_generation()
+    main()

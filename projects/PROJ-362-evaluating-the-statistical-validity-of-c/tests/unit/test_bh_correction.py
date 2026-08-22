@@ -130,5 +130,5 @@ class TestBHCorrection:
             assert math.isclose(actual, expected, abs_tol=1e-9), \
                 f"Mismatch at index {i}: expected {expected}, got {actual}"
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+    if __name__ == '__main__':
+        pytest.main([__file__, '-v'])

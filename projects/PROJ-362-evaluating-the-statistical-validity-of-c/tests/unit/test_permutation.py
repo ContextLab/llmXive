@@ -13,11 +13,11 @@ def test_shuffle_relevance_labels():
     
     assert len(shuffled) == len(original)
     assert set(shuffled) == set(original)
-    assert shuffled != original or random.Random(42).randint(0, 100) > 50 
-    # Note: It is possible for a shuffle to result in the same order, 
-    # but with a fixed seed we expect a specific permutation.
-    # The key is that it is a valid permutation.
-
+    # The shuffle must be a valid permutation. 
+    # While it is theoretically possible for a shuffle to result in the same order,
+    # with a fixed seed we expect a deterministic specific permutation.
+    # We verify the set equality and length to confirm permutation validity.
+    
 def test_shuffle_deterministic_with_seed():
     """Test that shuffling is deterministic with the same seed."""
     original = [0, 1, 2, 3, 4]

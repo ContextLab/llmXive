@@ -4,15 +4,6 @@ T001:
   r: No evidence was presented showing that the directory `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/`
     actually exists or contains any files; the claim is unsubstantiated. The required
     project root folder is missing from the provided artifacts.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or `ruff.toml`, pre\u2011commit hooks, or related scripts)\
-    \ are present in the provided evidence. The artifacts shown pertain only to the\
-    \ statistical validity feature and do not demonstrate that Ruff and Black have\
-    \ been set up for the project. The required linting/formatting setup is therefore\
-    \ missing."
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,15 +18,6 @@ T008:
     \ of CPU\u2011only NDCG@10 or MAP functions with IDCG normalization and explicit\
     \ relevance\u2011label mapping. The required artifact is missing, so the task\
     \ is not satisfied."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The provided evidence contains no configuration artifact (e.g., a config file,
-    module, or documentation) that defines or manages the required `data/raw/` and
-    `results/` paths. Consequently, the environment configuration management task
-    is not demonstrated as completed. The missing artifact is a concrete setup (such
-    as a `config.yaml`, `.env`, or Python settings module) that establishes and exposes
-    those directory paths.
 T011:
   c: false
   h: c2ef30bb1aded7671dc68693b10444881d4922fb0f4eb7da74991c004d969bc0
@@ -43,6 +25,14 @@ T011:
     \ repository, so no unit test for permutation logic is present. The task cannot\
     \ be considered completed until a non\u2011empty test file is added at the specified\
     \ location."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CSV files were presented or listed in the evidence, and there is no proof
+    that any files exist at `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/null_distributions/`
+    with the required `query_id, metric, score` headers. The implementer must provide
+    the actual CSV artifacts (or a directory listing with file contents) to satisfy
+    the task.
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

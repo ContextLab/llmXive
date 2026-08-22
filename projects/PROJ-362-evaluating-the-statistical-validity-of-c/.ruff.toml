@@ -1,28 +1,10 @@
-# Ruff configuration file (alternative location if pyproject.toml is not used)
-# This file is provided for environments that prefer a dedicated config file.
-# Primary configuration is in pyproject.toml under [tool.ruff].
+# Ruff configuration file
+# This file extends settings from pyproject.toml if needed, 
+# but pyproject.toml is the primary source of truth for this project.
 
-target-version = "py310"
-line-length = 88
+[lint]
+# Explicitly enable selected rules if not inherited
+select = ["E", "W", "F", "I", "C", "B"]
 
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
-]
-
-ignore = [
-    "E501",
-]
-
-exclude = [
-    ".git",
-    "__pycache__",
-    ".venv",
-    "build",
-    "dist",
-]
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assert in tests
