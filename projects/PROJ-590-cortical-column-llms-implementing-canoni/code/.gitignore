@@ -1,13 +1,38 @@
-# Ignore large data files, caches, and logs
+# Data directory exclusions (keep specific subdirs)
 data/
-__pycache__/
-*.pyc
-*.log
-
-# Explicitly track experiment metadata, results, logs, and versioning artifacts
-# Constitution Principle IV (Reproducibility) and V (Versioning Discipline)
 !data/configs/
 !data/results/
 !data/logs/
-!state/
-state/
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.eggs/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+.coverage
+htmlcov/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# State files are tracked (per Constitution Principle V)
+# state/*.yaml is explicitly tracked
+
+# OS specific
+.DS_Store
+Thumbs.db

@@ -1,3 +1,1 @@
-"""
-Data generation, loading, and benchmark utilities.
-"""
+# data package

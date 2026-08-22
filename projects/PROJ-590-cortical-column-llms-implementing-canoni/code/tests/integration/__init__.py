@@ -1,3 +1,1 @@
-"""
-Integration tests for system workflows.
-"""
+# integration tests package

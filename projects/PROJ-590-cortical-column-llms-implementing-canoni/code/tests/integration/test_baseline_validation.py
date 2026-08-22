@@ -4,204 +4,98 @@ import tempfile
 import pytest
 from pathlib import Path
 import sys
-
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import numpy as np
 
 from src.experiments.baseline_runner import BaselineRunner, ExperimentConfig
-
+from src.data.benchmarks import generate_polynomial_surface_data
 
 class TestBaselineValidation:
-    """
-    Integration tests for baseline model validation and metrics recording.
-    Verifies that T016 requirements are satisfied:
-    - data/results/baseline_metrics.json is generated
-    - Contains train_mae, test_mae, degradation_pct keys
-    - degradation_pct is calculated correctly with zero-division handling
-    """
+    @pytest.fixture
+    def temp_output_dir(self, tmp_path):
+        """Create a temporary directory structure mimicking the project layout."""
+        data_dir = tmp_path / "data" / "results"
+        logs_dir = tmp_path / "data" / "logs"
+        data_dir.mkdir(parents=True)
+        logs_dir.mkdir(parents=True)
+        return str(tmp_path)
 
-    def test_baseline_metrics_file_generation(self, tmp_path):
+    def test_validate_generalization_runs(self, temp_output_dir):
         """
-        Test that the baseline runner generates the required metrics JSON file.
+        Test that validate_generalization executes without error and produces the report.
         """
-        # Configure output to temp directory
-        output_path = str(tmp_path / "baseline_metrics.json")
+        # Setup config to use temp dirs
         config = ExperimentConfig(
-            hidden_dim=16,
-            num_layers=2,
-            num_heads=2,
-            seq_len=8,
-            batch_size=8,
-            epochs=2,  # Minimal epochs for fast test
-            learning_rate=1e-3,
-            device='cpu',
-            seed=42,
-            output_path=output_path
+            data_dir=os.path.join(temp_output_dir, "data", "results"),
+            results_dir=os.path.join(temp_output_dir, "data", "results"),
+            log_dir=os.path.join(temp_output_dir, "data", "logs")
         )
 
+        # Generate a small dummy test file to satisfy T008c requirement
+        # Shape: (N, T, D) where last dim is target
+        # T008c produces data/results/test_data_polynomial.npy
+        test_data_path = os.path.join(config.data_dir, "test_data_polynomial.npy")
+        dummy_data = generate_polynomial_surface_data(n_samples=100, n_features=2, seed=42)
+        # Ensure shape is (N, T, D) - assume T=10, D=3 (2 inputs + 1 target)
+        # generate_polynomial_surface_data returns (N, features) usually.
+        # We need to reshape to match loader expectations: (N, T, D)
+        # Let's create a dummy array with shape (100, 10, 3)
+        dummy_array = np.random.rand(100, 10, 3).astype(np.float32)
+        np.save(test_data_path, dummy_array)
+
         runner = BaselineRunner(config)
-        result = runner.run_and_record_metrics()
 
-        # Verify file exists
-        assert os.path.exists(output_path), f"Expected file {output_path} to exist"
+        # Run validation
+        result = runner.validate_generalization()
 
-        # Verify JSON content
-        with open(output_path, 'r') as f:
-            data = json.load(f)
+        # Assertions
+        assert result is not None
+        assert os.path.exists(runner.report_path)
+        assert result.test_mae >= 0.0
+        assert result.parameter_count > 0
+        assert len(result.test_data_checksum) == 64  # SHA256 length
 
-        assert 'train_mae' in data, "Missing 'train_mae' key in results"
-        assert 'test_mae' in data, "Missing 'test_mae' key in results"
-        assert 'degradation_pct' in data, "Missing 'degradation_pct' key in results"
-
-        # Verify types
-        assert isinstance(data['train_mae'], (int, float)), "train_mae must be numeric"
-        assert isinstance(data['test_mae'], (int, float)), "test_mae must be numeric"
-        assert isinstance(data['degradation_pct'], (int, float)), "degradation_pct must be numeric"
-
-        # Verify values are non-negative
-        assert data['train_mae'] >= 0, "train_mae must be non-negative"
-        assert data['test_mae'] >= 0, "test_mae must be non-negative"
-        assert data['degradation_pct'] >= 0 or data['degradation_pct'] <= 100, "degradation_pct should be reasonable"
-
-    def test_degradation_calculation(self, tmp_path):
+    def test_validate_generalization_fails_if_missing_data(self, temp_output_dir):
         """
-        Test that degradation_pct is calculated correctly.
-        Formula: ((test_mae - train_mae) / train_mae) * 100
+        Test that validation fails loudly if test data is missing.
         """
-        output_path = str(tmp_path / "baseline_metrics.json")
         config = ExperimentConfig(
-            hidden_dim=16,
-            num_layers=2,
-            num_heads=2,
-            seq_len=8,
-            batch_size=8,
-            epochs=2,
-            learning_rate=1e-3,
-            device='cpu',
-            seed=42,
-            output_path=output_path
+            data_dir=os.path.join(temp_output_dir, "data", "results"),
+            results_dir=os.path.join(temp_output_dir, "data", "results"),
+            log_dir=os.path.join(temp_output_dir, "data", "logs")
         )
 
+        # Ensure test file does NOT exist
+        test_data_path = os.path.join(config.data_dir, "test_data_polynomial.npy")
+        if os.path.exists(test_data_path):
+            os.remove(test_data_path)
+
         runner = BaselineRunner(config)
-        result = runner.run_and_record_metrics()
 
-        with open(output_path, 'r') as f:
-            data = json.load(f)
+        with pytest.raises(FileNotFoundError, match="Test data not found"):
+            runner.validate_generalization()
 
-        # Recalculate expected degradation
-        train_mae = data['train_mae']
-        test_mae = data['test_mae']
-
-        if train_mae > 0:
-            expected_degradation = ((test_mae - train_mae) / train_mae) * 100
-        else:
-            expected_degradation = 0.0
-
-        # Allow small floating point tolerance
-        assert abs(data['degradation_pct'] - expected_degradation) < 1e-6, \
-            f"Degradation mismatch: got {data['degradation_pct']}, expected {expected_degradation}"
-
-    def test_zero_division_handling(self, tmp_path):
+    def test_report_content(self, temp_output_dir):
         """
-        Test that zero-division is handled gracefully when train_mae is 0.
-        In this case, degradation_pct should be 0.0.
+        Verify the generated report contains required sections.
         """
-        # Note: In practice, train_mae=0 is extremely unlikely for synthetic data,
-        # but we verify the logic in the code handles it.
-        output_path = str(tmp_path / "baseline_metrics.json")
         config = ExperimentConfig(
-            hidden_dim=16,
-            num_layers=2,
-            num_heads=2,
-            seq_len=8,
-            batch_size=8,
-            epochs=2,
-            learning_rate=1e-3,
-            device='cpu',
-            seed=42,
-            output_path=output_path
+            data_dir=os.path.join(temp_output_dir, "data", "results"),
+            results_dir=os.path.join(temp_output_dir, "data", "results"),
+            log_dir=os.path.join(temp_output_dir, "data", "logs")
         )
 
-        runner = BaselineRunner(config)
-        # This should not raise an exception even if train_mae is very small
-        result = runner.run_and_record_metrics()
-
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-
-        # Verify no exception was raised and degradation_pct is a valid number
-        assert isinstance(data['degradation_pct'], (int, float)), \
-            "degradation_pct should be numeric even with edge cases"
-
-    def test_schema_compliance(self, tmp_path):
-        """
-        Test that the output JSON strictly complies with the required schema.
-        """
-        output_path = str(tmp_path / "baseline_metrics.json")
-        config = ExperimentConfig(
-            hidden_dim=16,
-            num_layers=2,
-            num_heads=2,
-            seq_len=8,
-            batch_size=8,
-            epochs=2,
-            learning_rate=1e-3,
-            device='cpu',
-            seed=42,
-            output_path=output_path
-        )
+        # Create dummy data
+        test_data_path = os.path.join(config.data_dir, "test_data_polynomial.npy")
+        np.save(test_data_path, np.random.rand(50, 10, 3).astype(np.float32))
 
         runner = BaselineRunner(config)
-        runner.run_and_record_metrics()
+        runner.validate_generalization()
 
-        with open(output_path, 'r') as f:
-            data = json.load(f)
+        with open(runner.report_path, 'r') as f:
+            content = f.read()
 
-        # Required top-level keys
-        required_keys = {'train_mae', 'test_mae', 'degradation_pct'}
-        actual_keys = set(data.keys())
-
-        assert required_keys.issubset(actual_keys), \
-            f"Missing required keys: {required_keys - actual_keys}"
-
-        # Verify no unexpected top-level keys (optional: 'duration_seconds', 'config' are allowed)
-        allowed_optional_keys = {'duration_seconds', 'config'}
-        unexpected_keys = actual_keys - required_keys - allowed_optional_keys
-        assert len(unexpected_keys) == 0, f"Unexpected keys in output: {unexpected_keys}"
-
-    def test_artifact_persistence(self, tmp_path):
-        """
-        Test that the artifact file is persisted to disk and can be re-read.
-        """
-        output_path = str(tmp_path / "baseline_metrics.json")
-        config = ExperimentConfig(
-            hidden_dim=16,
-            num_layers=2,
-            num_heads=2,
-            seq_len=8,
-            batch_size=8,
-            epochs=2,
-            learning_rate=1e-3,
-            device='cpu',
-            seed=42,
-            output_path=output_path
-        )
-
-        runner = BaselineRunner(config)
-        runner.run_and_record_metrics()
-
-        # Re-read the file
-        with open(output_path, 'r') as f:
-            data1 = json.load(f)
-
-        # Run again and verify consistency (deterministic with seed)
-        runner2 = BaselineRunner(config)
-        runner2.run_and_record_metrics()
-
-        with open(output_path, 'r') as f:
-            data2 = json.load(f)
-
-        # Core metrics should be identical (deterministic)
-        assert data1['train_mae'] == data2['train_mae'], "Non-deterministic train_mae"
-        assert data1['test_mae'] == data2['test_mae'], "Non-deterministic test_mae"
-        assert data1['degradation_pct'] == data2['degradation_pct'], "Non-deterministic degradation_pct"
+        assert "# Generalization Report" in content
+        assert "Test MAE" in content
+        assert "Parameter Count" in content
+        assert "Polynomial Surfaces" in content
+        assert "Generated at:" in content

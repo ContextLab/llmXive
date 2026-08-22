@@ -1,40 +1,11 @@
-T006b:
-  c: true
-  h: b655d812671d14781dc01bb9538bbbab1fa73277d3cf8d6387aae128b8f6d6ab
-  r: "The repository contains a non\u2011empty `pyproject.toml` (1,371\u202Fbytes)\
-    \ that includes a `[tool.black]` section with formatting settings, fulfilling\
-    \ the requirement to provide a Black configuration (the optional `black.toml`\
-    \ is not needed)."
-T008c:
+T014:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, dataset, or documentation for \u201Cindependent test data for ablation/generalization\
-    \ metrics\u201D is present in the provided artifacts; the implementer did not\
-    \ supply any files or concrete output that generate or describe such test data.\
-    \ Consequently the task requirement is unmet."
-T010b:
-  c: false
-  h: a3ddbc3549582cac226faa913d30d6a30e65087016be293b235cbb44904f4760
-  r: "The provided `src/training/homeostasis.py` does not contain a `log_gradient_norms`\
-    \ function (the file is truncated and ends mid\u2011implementation of `scale_weights`).\
-    \ Additionally, the required output file `data/logs/gradient_norms.json` is missing.\
-    \ Both the function definition and the log file are required to satisfy the task."
-T010c#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, model checkpoints, training logs, or evaluation results were provided\
-    \ for any of the three user stories. The required artifacts\u2014Transformer baseline\
-    \ implementation and its validation metrics, the PyTorch cortical\u2011column\
-    \ microcircuit module with connectivity checks, and the ablation\u2011study data/analysis\u2014\
-    are absent, so the task requirements are not satisfied."
-T011b:
-  c: false
-  h: c40f581784f0e9463d1def3f831ac154fa45311c3027bbb9cf1f7957d72f25ff
-  r: "The integration test file exists and is configured to enable gradient logging,\
-    \ but it writes the `gradient_norms.json` file to a temporary directory (`tmp_path/data/logs`)\
-    \ rather than the required `data/logs/gradient_norms.json` in the repository,\
-    \ and the expected JSON file is missing from the project. The task\u2019s requirement\
-    \ to populate `data/logs/gradient_norms.json` is therefore not satisfied."
+  h: 1dd0c3bfe48ebbaad664e63d9d5237ae080baa1c91c71323b57bac7d7ca72867
+  r: The repository lacks the required `data/results/generalization_report.md` file,
+    and the provided `src/experiments/baseline_runner.py` excerpt does not show a
+    `validate_generalization` implementation (the file is truncated before any such
+    function). Both the output artifact and the specific function implementation are
+    missing, so the task is not satisfied.
 T025a:
   c: false
   h: 11e24d9cd6b1a4d6655a6f92dc049f098a4797a79065a8ef80906cbf28af139d

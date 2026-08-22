@@ -1,3 +1,1 @@
-"""
-Test suite for Cortical Column LLMs project.
-"""
+# tests package

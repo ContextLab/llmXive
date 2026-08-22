@@ -1,3 +1,1 @@
-"""
-Cortical Column LLMs - Source Package
-"""
+# src package

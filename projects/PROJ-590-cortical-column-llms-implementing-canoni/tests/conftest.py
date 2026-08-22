@@ -134,15 +134,32 @@ def setup_test_environment() -> Generator[None, None, None]:
     for dir_path in [DATA_ROOT, DATA_ROOT / "logs", DATA_ROOT / "results"]:
         dir_path.mkdir(parents=True, exist_ok=True)
     
-    # Check CPU affinity
-    if hasattr(os, 'sched_getaffinity'):
-        cpu_set = os.sched_getaffinity(0)
-        if len(cpu_set) > ALLOWED_CPU_COUNT:
-            logger.warning(
-                f"Test runner has access to {len(cpu_set)} CPUs. "
-                f"Recommend restricting to {ALLOWED_CPU_COUNT} for reproducibility."
-            )
-        else:
-            logger.debug(f"Test runner restricted to {len(cpu_set)} CPUs.")
+    # Check CPU affinity using psutil for cross-platform compatibility
+    # and to assert core pinning constraints
+    try:
+        process = psutil.Process(os.getpid())
+        # Get CPU affinity (available on Unix-like systems, best-effort on Windows)
+        if hasattr(process, 'cpu_affinity'):
+            cpu_affinity = process.cpu_affinity()
+            cpu_count = len(cpu_affinity)
+            
+            if cpu_count > ALLOWED_CPU_COUNT:
+                logger.warning(
+                    f"Test runner has access to {cpu_count} CPUs via psutil.cpu_affinity(). "
+                    f"Recommend restricting to {ALLOWED_CPU_COUNT} for reproducibility (SC-005)."
+                )
+            else:
+                logger.debug(f"Test runner restricted to {cpu_count} CPUs via psutil.")
+        elif hasattr(os, 'sched_getaffinity'):
+            cpu_set = os.sched_getaffinity(0)
+            if len(cpu_set) > ALLOWED_CPU_COUNT:
+                logger.warning(
+                    f"Test runner has access to {len(cpu_set)} CPUs. "
+                    f"Recommend restricting to {ALLOWED_CPU_COUNT} for reproducibility."
+                )
+            else:
+                logger.debug(f"Test runner restricted to {len(cpu_set)} CPUs.")
+    except Exception as e:
+        logger.warning(f"Could not determine CPU affinity: {e}")
     
     yield

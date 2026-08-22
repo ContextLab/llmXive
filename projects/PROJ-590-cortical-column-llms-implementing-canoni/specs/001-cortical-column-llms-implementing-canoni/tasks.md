@@ -43,13 +43,7 @@
 
 **Purpose**: Project initialization and basic structure. Tasks are split into atomic steps for deterministic execution.
 
-- [ ] T001 [P] Initialize Project Structure: Create all required directories (`src/`, `src/models/`, `src/data/`, `src/training/`, `src/experiments/`, `src/utils/`, `tests/unit/`, `tests/integration/`, `scripts/`, `data/results/`, `data/logs/`, `data/configs/`, `state/`). Create `__init__.py` in every `src/` and `tests/` directory. Create `.gitignore` excluding `data/` (except `data/configs/`, `data/results/`, `data/logs/`) and `__pycache__`, `*.pyc`, `*.log`. **CRITICAL**: Ensure `state/*.yaml` is tracked and checksummed as required by Constitution Principle V.
-- [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt` (PyTorch CPU-only, numpy, scipy, pytest, psutil, scikit-learn). **CRITICAL**: `psutil` is a required dependency for resource monitoring in T007b.
-- [ ] T003 [P] Create `.gitignore` file excluding `data/`, `__pycache__`, `*.pyc`, `*.log`. **CRITICAL**: Explicitly include `!data/configs/`, `!data/results/`, `!data/logs/`, `!state/`, and `state/` to ensure experiment metadata, results, logs, and versioning artifacts are tracked for Constitution Principle IV and V.
-- [ ] T003b [P] Implement `scripts/hash_artifacts.sh` and `src/utils/checksum.py` to generate and record SHA256 checksums for all files in `data/configs/`, `data/results/`, `data/logs/`, and `state/`. **CRITICAL**: This task is a MANDATORY prerequisite for any data generation task to satisfy Constitution Principle III (Data Hygiene) and Principle V (Versioning Discipline).
-- [ ] T004 [P] Verify Setup: Run a script to confirm all directories from T001 exist and `state/template.yaml` is present. **Output**: Exit 0 if all present, exit 1 otherwise. **CRITICAL**: This task must pass before Phase 2 starts.
-- [ ] T005 [P] Configure `tests/conftest.py` with `pytest-timeout` settings for unit tests and resource monitoring hooks.
-- [ ] T007b [P] Implement `tests/conftest.py` hooks using `psutil.Process.cpu_affinity()` to assert RSS memory < 7GB and core pinning (via `psutil`) during test execution. **CRITICAL**: `psutil` must be installed (see T002). This satisfies FR-004 and SC-005 by enforcing resource constraints directly in the Python test harness.
+- [X] T001 [P] Initialize Project Structure: Create all required directories (`src/`, `src/models/`, `src/data/`, `src/training/`, `src/experiments/`, `src/utils/`, `tests/unit/`, `tests/integration/`, `scripts/`, `data/results/`, `data/logs/`, `data/configs/`, `state/`). Create `__init__.py` in every `src/` and `tests/` directory. Create `.gitignore` excluding `data/` (except `data/configs/`, `data/results/`, `data/logs/`) and `__pycache__`, `*.pyc`, `*.log`. **CRITICAL**: Ensure `state/*.yaml` is tracked and checksummed as required by Constitution Principle V. Create `requirements.txt` including `torch==2.3.0+cpu` (install via `--index-url https://download.pytorch.org/whl/cpu`), `numpy`, `scipy`, `pytest`, `pytest-timeout`, `psutil`, `scikit-learn`. **CRITICAL**: `pytest-timeout` and `psutil` are required for resource monitoring in T007b and T005.
 
 ---
 
@@ -60,12 +54,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T008a [P] Implement `src/data/benchmarks.py` for synthetic function generation (Lorenz attractor, Fourier series, polynomial surfaces) with deterministic seeding. **CRITICAL**: Implement distinct generator functions `generate_training_data()` (Lorenz) and `generate_test_data()` (Polynomials/Fourier) to ensure independent distributions for US1 and prevent data leakage.
-- [ ] T008c [P] Implement task to generate independent test data for ablation/generalization metrics. **Output**: `data/results/test_data_polynomial.npy`. **CRITICAL**: Use `polynomial surfaces` as the function family and `distinct seed (seed + 1000)` to ensure statistical independence from T008a's training data (Lorenz).
-- [ ] T008b [P] Implement `src/data/benchmarks.py::verify_independence` function. **Signature**: `def verify_independence(train_data: np.ndarray, test_data: np.ndarray) -> bool`. **Logic**: Verify that the *generators* are distinct by construction (Lorenz vs Polynomials). **Requirement**: If generators are not distinct by design, log an error and raise an exception. **CRITICAL**: This function satisfies Constitution Principle VII and FR-006 by ensuring the test set is from a different distribution by design, not just by statistical test.
-- [ ] T010a [P] Implement core homeostatic scaling logic in `src/training/homeostasis.py`: define `scale_weights(model, target_ratio, decay_rate)` function that applies synaptic scaling to maintain E/I ratio. Use formula: `scale_factor = target_activity / current_activity`. Returns a dict of applied scaling factors. Explicitly derive `target_activity` from the E/I ratio constraint.
-- [ ] T010b [P] Implement gradient norm logging in `src/training/homeostasis.py`: define `log_gradient_norms(model, step)` function that computes and appends gradient norms to `data/logs/gradient_norms.json` for SC-002 verification.
-- [ ] T010c [P] Implement dynamic E/I ratio enforcement mechanism in `src/training/homeostasis.py`: enforce the 4: ratio as a *structural constraint* (fixed connectivity) that is *preserved* by homeostasis during training, NOT a dynamic per-batch target adjustment. **CRITICAL**: This task clarifies the structural nature of the ratio constraint.
+- [ ] T003b [P] Implement `scripts/hash_artifacts.sh` and `src/utils/checksum.py` to generate and record SHA256 checksums for all files in `data/configs/`, `data/results/`, `data/logs/`, and `state/`. **CRITICAL**: This task is a MANDATORY prerequisite for any data generation task to satisfy Constitution Principle III (Data Hygiene) and Principle V (Versioning Discipline).
+- [X] T004 [P] Verify Setup: Run a script to confirm all directories from T001 exist and `state/template.yaml` is present. **Output**: Exit 0 if all present, exit 1 otherwise. **CRITICAL**: This task must pass before Phase 2 starts.
+- [X] T005 [P] Configure `tests/conftest.py` with `pytest-timeout` settings for unit tests and resource monitoring hooks. **CRITICAL**: Requires `pytest-timeout` installed in T001.
+- [X] T007b [P] Implement `tests/conftest.py` hooks using `psutil.Process.cpu_affinity()` to assert RSS memory < 7GB and core pinning (via `psutil`) during test execution. **CRITICAL**: `psutil` must be installed (see T001). This satisfies FR-004 and SC-005 by enforcing resource constraints directly in the Python test harness.
+- [X] T008a [P] Implement `src/data/benchmarks.py` for synthetic function generation (Lorenz attractor, Fourier series, polynomial surfaces) with deterministic seeding. **CRITICAL**: Implement distinct generator functions `generate_training_data()` (Lorenz) and `generate_test_data()` (Polynomials/Fourier) to ensure independent distributions for US1 and prevent data leakage.
+- [ ] T008c [P] Implement `src/data/benchmarks.py::generate_polynomial_test_data` to generate independent test data for ablation/generalization metrics. **Output**: `data/results/test_data_polynomial.npy`. **CRITICAL**: Use `polynomial surfaces` as the function family (distinct from Lorenz) to ensure statistical independence by design, not just by seed offset. The function must write a `.npy` file containing the generated data.
+- [X] T008b [P] Implement `src/data/benchmarks.py::verify_independence` function. **Signature**: `def verify_independence(train_data: np.ndarray, test_data: np.ndarray) -> bool`. **Logic**: Verify that the *generators* are distinct by construction (Lorenz vs Polynomials). **Requirement**: If generators are not distinct by design, log an error and raise an exception. **CRITICAL**: This function satisfies Constitution Principle VII and FR-006 by ensuring the test set is from a different distribution by design, not just by statistical test.
 
 ---
 
@@ -77,19 +72,19 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T011 [US1] Integration test for baseline training pipeline in `tests/integration/test_baseline_training.py`.
-- [ ] T011b [US1] Integration test in `tests/integration/test_baseline_training.py` that explicitly runs the baseline model with `log_gradient_norms` enabled to populate `data/logs/gradient_norms.json` for SC-002 verification.
-- [ ] T031 [US1] Statistical test for gradient stability in `tests/integration/test_gradient_stability.py`.
+- [X] T011 [US1] Integration test for baseline training pipeline in `tests/integration/test_baseline_training.py`.
+- [ ] T011b [US1] Integration test in `tests/integration/test_baseline_training.py` that explicitly runs the baseline model with `log_gradient_norms` enabled to populate `data/logs/gradient_norms.json` for SC-002 verification. **CRITICAL**: This task depends on T010b. It must assert that the file exists at the project root path (not tmp_path) and contains valid JSON.
+- [X] T031 [US1] Statistical test for gradient stability in `tests/integration/test_gradient_stability.py`.
 
 ### Implementation for User Story 1
 
-- [ ] T009a [US1] Implement `src/models/baseline_transformer.py` (standard Transformer MLP/Attention layers).
+- [X] T009a [US1] Implement `src/models/baseline_transformer.py` (standard Transformer MLP/Attention layers).
 - [ ] T012b_impl [US1] Implement CPU-optimized training loop in `src/training/trainer.py`, gradient clipping, resource monitoring and logging of MAE. **Output**: `data/logs/training_log.json`. **CRITICAL**: Explicitly log MAE and loss to `data/logs/training_log.json` and enforce resource constraints (limited RAM, limited cores) as per FR-004.
-- [ ] T013 [US1] Create `scripts/run_baseline.sh`.
-- [ ] T013b [US1] Update `scripts/run_baseline.sh` to explicitly call data generation functions for training and testing.
-- [ ] T013c [US1] Implement `src/experiments/baseline_runner.py` to manage experiment configuration and logging.
-- [ ] T015 [US1] Implement `src/experiments/baseline_runner.py::run_and_record_metrics`.
-- [ ] T014 [US1] Implement `src/experiments/baseline_runner.py::validate_generalization` to execute the validation on the independent test set (polynomial surfaces) as required by FR-006 and US-001 Acceptance Scenario 2. **Output**: `data/results/generalization_report.md`.
+- [X] T013 [US1] Create `scripts/run_baseline.sh`.
+- [X] T013b [US1] Update `scripts/run_baseline.sh` to explicitly call data generation functions for training and testing.
+- [X] T013c [US1] Implement `src/experiments/baseline_runner.py` to manage experiment configuration and logging.
+- [X] T015 [US1] Implement `src/experiments/baseline_runner.py::run_and_record_metrics`.
+- [ ] T014 [US1] Implement `src/experiments/baseline_runner.py::validate_generalization` to execute the validation on the independent test set (polynomial surfaces) as required by FR-006 and US-001 Acceptance Scenario 2. **Output**: `data/results/generalization_report.md`. **CRITICAL**: This function must load `data/results/test_data_polynomial.npy`, run the baseline model, compute MAE, and write a markdown report summarizing the generalization performance.
 
 ---
 
@@ -97,11 +92,13 @@
 
 **Goal**: Implement a parameterized "Cortical Column" module mimicking laminar structure with local E/I loops and homeostatic scaling.
 
-- [ ] T009d [US2] Implement `src/models/microcircuit.py` layer definitions by creating classes `L23Layer`, `L4Layer`, `L5Layer`, `L6Layer`.
-- [ ] T009f [US2] Implement `src/models/microcircuit.py` connectivity mask generation logic to enforce laminar topology.
-- [ ] T069 [US2] Implement `src/utils/structure_verifier.py::verify_canonical_topology` to assert that the instantiated `MicrocircuitModule` has the exact connectivity masks for L2/3, L4, L5, L6 as defined in the spec. **Test**: Fail if any unexpected connections exist or if the E/I ratio deviates from 4:1 by > 5%.
-- [ ] T069b [US2] Verify that homeostatic scaling is active and functioning as the default configuration by adding a unit test in `tests/unit/test_homeostasis.py` that asserts the `scale_weights` function modifies weights to restore target activity after a noise perturbation. **Parameters**: Target activity at a specified level, tolerance within an acceptable margin of error.
-- [ ] T070 [US2] Implement `src/training/homeostasis.py::verify_dynamic_ratio` to run *during* the training loop (Phase 3/4) to log and assert the E/I ratio is preserved dynamically (not just structurally) as required by FR-002. **Output**: `data/logs/dynamic_ratio_log.json`.
+- [X] T010a [P] Implement core homeostatic scaling logic in `src/training/homeostasis.py`: define `scale_weights(model, target_ratio, decay_rate)` function that applies synaptic scaling to maintain E/I ratio. Use formula: `scale_factor = target_activity / current_activity`. Returns a dict of applied scaling factors. Explicitly derive `target_activity` from the E/I ratio constraint.
+- [ ] T010b [P] Implement `src/training/homeostasis.py::log_gradient_norms` to compute and append gradient norms to `data/logs/gradient_norms.json` for SC-002 verification. **Signature**: `def log_gradient_norms(model, step) -> None`. **Output**: Append a JSON object `{step: int, norms: dict}` to `data/logs/gradient_norms.json`. **CRITICAL**: This task is a prerequisite for T011b and SC-002.
+- [X] T010c [P] Implement dynamic E/I ratio enforcement mechanism in `src/training/homeostasis.py`: enforce the 4: ratio as a *structural constraint* (fixed connectivity) that is *preserved* by homeostasis during training, NOT a dynamic per-batch target adjustment. **CRITICAL**: This task clarifies the structural nature of the ratio constraint as defined in the Plan.
+- [X] T009d [US2] Implement `src/models/microcircuit.py` layer definitions by creating classes `L23Layer`, `L4Layer`, `L5Layer`, `L6Layer`.
+- [X] T009f [US2] Implement `src/models/microcircuit.py` connectivity mask generation logic to enforce laminar topology.
+- [ ] T069 [US2] Implement `src/utils/structure_verifier.py::verify_canonical_topology` to assert that the instantiated `MicrocircuitModule` has the exact connectivity masks for L2/3, L4, L5, L6 as defined in the spec. **Test**: Fail if any unexpected connections exist or if the E/I ratio deviates from 4:1 by > 5%. **CRITICAL**: This task consolidates the verification logic previously split between Phase 4 and Phase 7.
+- [ ] T069b [US2] Implement `tests/unit/test_homeostasis.py` to assert the `scale_weights` function modifies weights to restore target activity after a noise perturbation. **Parameters**: Target activity at a specified level, tolerance within an acceptable margin of error. **CRITICAL**: This task consolidates the verification logic previously split between Phase 4 and Phase 7.
 - [ ] T071 [US2] Implement `src/utils/statistics.py::verify_gradient_distribution` to verify the *distribution* of gradient norms (SC-002) by comparing the variance and overlap against the baseline. **Output**: `data/logs/gradient_distribution_report.md`.
 - [ ] T048 [US2] Implement `src/models/hybrid_network.py` to instantiate the hybrid network by replacing standard Transformer MLP layers with `MicrocircuitModule`. **CRITICAL**: Verify parameter count is within ±1% of baseline and this verification is a BLOCKING prerequisite for T049 (Scaling).
 
@@ -113,7 +110,7 @@
 
 - [ ] T025a [US3] Implement `src/experiments/ablation.py::generate_ablation_configs`
 - [ ] T025b [US3] Implement `src/experiments/ablation.py::run_ablation_study`.
-- [ ] T049 [US3] Implement `src/experiments/scaling.py` to implement a loop that trains models with column counts `[1x, 2x, 4x]` and records `parameter_count` vs `validation_mae` and `training_time`. **Constraint**: Must output `data/results/scaling_law.csv` with columns `columns, params, mae, time_sec`. **CRITICAL**: This task depends on T048 (Hybrid Network Instantiation) being complete and verified.
+- [ ] T049 [US3] Implement `src/experiments/scaling.py` to implement a loop that trains models with column counts `[1x, 2x, 4x]` and records `parameter_count` vs `validation_mae` and `training_time`. **Constraint**: Must output `data/results/scaling_law.csv` with columns `columns, params, mae, time_sec`. **CRITICAL**: This task depends on T048 (Hybrid Network Instantiation) being complete and verified. **CRITICAL**: Must include a verification step to ensure `data/results/scaling_law.csv` exists and is valid before completing.
 - [ ] T050 [US3] Update `src/utils/scaling_analyzer.py` to perform a log-log linear regression on the scaling data. **Requirement**: Calculate and report the scaling exponent `beta` using the formula `log(MAE) ~ beta * log(Parameter Count)`. **Output**: Write a summary to `data/results/scaling_law_report.md` stating the metric used (MAE) and whether the exponent is linear, sublinear, or superlinear. **CRITICAL**: Explicitly state the metric used in the report to satisfy SC-004.
 
 ---
@@ -128,19 +125,19 @@
 
 ---
 
-## Phase 7: Reviewer Response - Structure Verification (Constitution Principle VI)
-
-**Goal**: Address Constitution Principle VI by verifying the implemented microcircuit strictly adheres to the fixed canonical topology.
-
-- [ ] T069 [US2] (Moved to Phase 4) - See Phase 4.
-- [ ] T069b [US2] (Moved to Phase 4) - See Phase 4.
-
----
-
-## Phase 8: Final Integration and Reporting (Priority: P3)
+## Phase 7: Final Integration and Reporting (Priority: P3)
 
 **Goal**: Consolidate all findings into a final report that explicitly addresses the "Cost of Biological Plausibility" and rejects any "Rule Space" narratives.
 
 - [ ] T080 [US3] Implement `src/experiments/final_verification.py::verify_universal_approximation` to verify the microcircuit models' universal approximation capability using the *same* test harness, dataset (polynomial surfaces), and seed configuration as T014 (Baseline). **Output**: `data/results/universal_approximation_report.md`. **CRITICAL**: Explicitly state that the same test harness is used for microcircuit models as for the baseline.
-- [ ] T081 [US3] Implement `src/utils/report_generator.py::generate_final_report` to consolidate all findings. **Requirement**: The report MUST explicitly state that the "Cost of Biological Plausibility" curve is the primary finding, *replacing any previous 'Rule Space' hypotheses*. **Output**: `data/results/final_report.md`. **CRITICAL**: Explicitly reject the 'Rule Space' narrative and mandate the 'Cost of Plausibility' narrative.
+- [ ] T081 [US3] Implement `src/utils/report_generator.py::generate_final_report` to consolidate all findings. **Requirement**: The report MUST explicitly state that the "Cost of Biological Plausibility" curve is the primary finding, *replacing any previous 'Rule Space' hypotheses*. **Output**: `data/results/final_report.md`. **CRITICAL**: Explicitly reject the 'Rule Space' narrative and mandate the 'Cost of Plausibility' narrative. **CRITICAL**: This task depends on T080 and T075.
 - [ ] T082 [US3] Implement `scripts/run_final_report.sh` to orchestrate the final verification and reporting pipeline, ensuring all dependencies (T080, T081) are met.
+
+---
+
+## Phase 8: Reviewer Response - Scaling Law Quantification (Geoffrey West)
+
+**Goal**: Address the specific reviewer concern regarding the "scaling exponent" and "metabolic cost" to ensure the scaling law is explicit, measurable, and interpretable.
+
+- [ ] T084 [US3] Update `src/utils/scaling_analyzer.py` to generate a "Bartender-Ready Summary" in `data/results/scaling_summary.txt`. **Requirement**: The summary must contain a single sentence explaining the scaling exponent `beta` and the trend in plain English (e.g., "Doubling columns reduces error by X% but increases time by Y%"). **CRITICAL**: This satisfies the reviewer's demand to "explain the scaling exponent to a bartender".
+- [ ] T085 [US3] Implement `tests/unit/test_scaling_law_interpretation.py` to assert that the calculated `beta` values are within physically plausible bounds (e.g., `beta` between -1 and 0 for error scaling). **CRITICAL**: This prevents the generation of nonsensical scaling laws that would fail the "bartender test".

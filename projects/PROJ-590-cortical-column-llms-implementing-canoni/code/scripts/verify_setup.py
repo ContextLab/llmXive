@@ -1,87 +1,90 @@
 """
-Verify Setup Script for llmXive Cortical Column Project.
+Verify Setup: Confirm all directories from T001 exist and state/template.yaml is present.
 
-This script validates that all directories created in T001a, T001b, T001c
-exist and that the state template file `state/template.yaml` is present.
+This script is a critical prerequisite for Phase 2. It exits 0 if all required
+artifacts are present, and exits 1 otherwise.
 
-Exit codes:
-  0: All checks passed.
-  1: One or more checks failed (missing directories or files).
+Required Directories (from T001):
+- src/, src/models/, src/data/, src/training/, src/experiments/, src/utils/
+- tests/unit/, tests/integration/
+- scripts/
+- data/results/, data/logs/, data/configs/
+- state/
+
+Required Files:
+- state/template.yaml
 """
 import os
 import sys
 from pathlib import Path
 
-# Project root is the parent of the 'code' directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Directories required by T001a, T001b, T001c
-REQUIRED_DIRS = [
-    # From T001a: src/
-    "src",
-    # From T001b: models, data, training, experiments, utils (inside src/)
-    "src/models",
-    "src/data",
-    "src/training",
-    "src/experiments",
-    "src/utils",
-    # From T001c: tests/unit, tests/integration, scripts, data/results, data/logs, data/configs, state/
-    "tests/unit",
-    "tests/integration",
-    "scripts",
-    "data/results",
-    "data/logs",
-    "data/configs",
-    "state",
-]
-
-# Required file: state/template.yaml
-REQUIRED_FILES = [
-    "state/template.yaml",
-]
-
 def verify_setup() -> bool:
     """
-    Verify all required directories and files exist.
+    Verify the existence of all required directories and files.
 
     Returns:
-        True if all checks pass, False otherwise.
+        bool: True if all checks pass, False otherwise.
     """
-    all_passed = True
+    project_root = Path(__file__).resolve().parent.parent
+    errors = []
 
-    print(f"Verifying setup for project at: {PROJECT_ROOT}")
-    print("-" * 60)
+    # Define required directories relative to project root
+    required_dirs = [
+        "src",
+        "src/models",
+        "src/data",
+        "src/training",
+        "src/experiments",
+        "src/utils",
+        "tests/unit",
+        "tests/integration",
+        "scripts",
+        "data/results",
+        "data/logs",
+        "data/configs",
+        "state",
+    ]
+
+    # Define required files relative to project root
+    required_files = [
+        "state/template.yaml",
+    ]
 
     # Check directories
-    print("Checking directories...")
-    for dir_path in REQUIRED_DIRS:
-        full_path = PROJECT_ROOT / dir_path
-        if full_path.exists() and full_path.is_dir():
-            print(f"  [OK] {dir_path}")
-        else:
-            print(f"  [FAIL] {dir_path} (Missing or not a directory)")
-            all_passed = False
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            errors.append(f"MISSING DIRECTORY: {full_path}")
+        elif not full_path.is_dir():
+            errors.append(f"NOT A DIRECTORY: {full_path} (is a file)")
 
     # Check files
-    print("\nChecking files...")
-    for file_path in REQUIRED_FILES:
-        full_path = PROJECT_ROOT / file_path
-        if full_path.exists() and full_path.is_file():
-            print(f"  [OK] {file_path}")
-        else:
-            print(f"  [FAIL] {file_path} (Missing or not a file)")
-            all_passed = False
+    for file_path in required_files:
+        full_path = project_root / file_path
+        if not full_path.exists():
+            errors.append(f"MISSING FILE: {full_path}")
+        elif not full_path.is_file():
+            errors.append(f"NOT A FILE: {full_path} (is a directory)")
 
-    print("-" * 60)
-    if all_passed:
-        print("Setup verification: PASSED")
+    # Report results
+    if errors:
+        print("SETUP VERIFICATION FAILED")
+        print("-" * 40)
+        for error in errors:
+            print(f"  [ERROR] {error}")
+        print("-" * 40)
+        print(f"Total errors: {len(errors)}")
+        return False
     else:
-        print("Setup verification: FAILED")
+        print("SETUP VERIFICATION PASSED")
+        print("-" * 40)
+        print(f"  Checked {len(required_dirs)} directories: OK")
+        print(f"  Checked {len(required_files)} files: OK")
+        print("-" * 40)
+        return True
 
-    return all_passed
-
-def main():
-    """Main entry point for the script."""
+def main() -> None:
+    """Entry point for the verification script."""
     success = verify_setup()
     sys.exit(0 if success else 1)
 
