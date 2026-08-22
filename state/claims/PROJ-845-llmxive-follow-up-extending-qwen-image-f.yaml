@@ -957,3 +957,290 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T15:47:09Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: High-Entropy subset targets exactly 1000 samples
+  claim_id: c_f376aae4
+  context: "Implement generation of High\u2011Entropy subset in code/generators/logic_generator.py\
+    \ with randomized premises/operators, targeting exactly 1000 samples, and metadata\
+    \ flags."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: targeting exactly 1000 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:33:50Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Low-Entropy subset targets exactly 1000 samples
+  claim_id: c_a1902a88
+  context: "Implement generation of Low\u2011Entropy subset in code/generators/logic_generator.py\
+    \ with structured/repetitive patterns, targeting exactly 1000 samples, and metadata\
+    \ flags."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: targeting exactly 1000 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:33:50Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Target-Specific subset targets exactly 1000 samples
+  claim_id: c_ea1c2468
+  context: "Implement generation of Target\u2011Specific subset in code/generators/logic_generator.py\
+    \ with narrow reasoning styles, targeting exactly 1000 samples, and metadata flags."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: targeting exactly 1000 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:33:50Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Generalization Set size N_test is at least 500
+  claim_id: c_16e325d2
+  context: "Implement generation of a distinct Generalization Set (data/raw/test_set.csv)\
+    \ with N_test \u2265 500, ensuring each sample's structure_hash (SHA256 of premises\
+    \ + operators) is not present in any training subset; also stratify by entropy\
+    \ level."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generalization_Set_size_N_test_is_at_least_500
+  kind: magnitude
+  raw_text: "N_test \u2265 500"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:35:04Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Student model has fewer than 100 million parameters
+  claim_id: c_296b5075
+  context: "Create code/models/student.py defining a DistilBERT\u2011base\u2011uncased\u2011\
+    like transformer (< 100 M parameters) suitable for CPU inference."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Student_model_has_fewer_than_100_million_parameters
+  kind: magnitude
+  raw_text: < 100 M parameters
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:37:16Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: System RAM usage is less than 7 GB
+  claim_id: c_0d636227
+  context: "Execute a CPU\u2011only distillation process where a <100 M\u2011parameter\
+    \ student model learns from teacher traces, strictly adhering to hardware constraints\
+    \ (RAM < 7 GB, < 6 h total runtime)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_RAM_usage_is_less_than_7_GB
+  kind: magnitude
+  raw_text: RAM < 7 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:38:23Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Total runtime is less than 6 hours
+  claim_id: c_8a5f5292
+  context: "Execute a CPU\u2011only distillation process where a <100 M\u2011parameter\
+    \ student model learns from teacher traces, strictly adhering to hardware constraints\
+    \ (RAM < 7 GB, < 6 h total runtime)."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The film's storyline draws loose inspiration from multiple real-life
+        geopolitical events and conflicts in South Asia, including the 1999 IC-814
+        hijacking, the 2001 Indian Parliament attack, the 2008 Mumbai attacks, and
+        developments linked to Pakistan's Operation Lyari. Principal photography for
+        Dhurandhar took place from July 2024 to October 2025 across multiple locations
+        in India and abroad, including the states and union territories of Punjab,
+        Maharashtra, Chandigarh, Ladakh and Himachal Pradesh, as well as Thailand.
+        The film features music composed by Shashwat Sachdev, cinematography by Vikash
+        Nowlakha, and editing by Shivkumar V. Panicker. With a runtime of 214 minutes,
+        Dhurandhar ranks as one of the longest Indian films ever produced.
+      source_id: Dhurandhar
+      url: https://en.wikipedia.org/wiki/Dhurandhar
+      value: 214 minutes
+    filled: true
+  kind: magnitude
+  raw_text: < 6 h total runtime
+  resolved_value: 214 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T06:38:42Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Configuration seed is set to 42
+  claim_id: c_8b3f3976
+  context: 'Create configuration management in code/config.py with a Config dataclass
+    containing seed: int = 42, max_ram_gb: float = 7.0, max_runtime_hours: float =
+    6.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'seed: int = 42'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:39:12Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Configuration max RAM is 7.0 GB
+  claim_id: c_c23acab5
+  context: 'Create configuration management in code/config.py with a Config dataclass
+    containing seed: int = 42, max_ram_gb: float = 7.0, max_runtime_hours: float =
+    6.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'max_ram_gb: float = 7.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:39:51Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Configuration max runtime is 6.0 hours
+  claim_id: c_ec5977f0
+  context: 'Create configuration management in code/config.py with a Config dataclass
+    containing seed: int = 42, max_ram_gb: float = 7.0, max_runtime_hours: float =
+    6.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'max_runtime_hours: float = 6.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:40:46Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: PyTorch version is 2.3.0+cpu
+  claim_id: c_4dab38ef
+  context: Create requirements.txt at projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/requirements.txt
+    containing pinned versions of torch==2.3.0+cpu, transformers==4.41.2, scikit-learn,
+    scipy, pandas, numpy, pyyaml.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.3.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:41:19Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Transformers version is 4.41.2
+  claim_id: c_3e832dbf
+  context: Create requirements.txt at projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/requirements.txt
+    containing pinned versions of torch==2.3.0+cpu, transformers==4.41.2, scikit-learn,
+    scipy, pandas, numpy, pyyaml.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.41.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:41:42Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Training stops when loss is less than or equal to 0.1
+  claim_id: c_93650501
+  context: "Implement the main distillation loop in code/training/distill_loop.py\
+    \ using KL\u2011divergence loss, no mixed\u2011precision, early stopping when\
+    \ loss \u2264 0.1, and logging of convergence_epoch."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_stops_when_loss_is_less_than_or_equal_to_0.1
+  kind: magnitude
+  raw_text: "loss \u2264 0.1"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:42:30Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Pilot run runtime is less than 0.5 hours
+  claim_id: c_2f9f5363
+  context: "Add a pilot run script code/training/pilot_resource_check.py that trains\
+    \ the student on a small subset, records peak RAM via ResourceMonitor, and asserts\
+    \ runtime < 0.5 h; fail fast if limits are exceeded, providing empirical CPU\u2011\
+    tractability verification."
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: magnitude
+  raw_text: runtime < 0.5 h
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T06:42:30Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Total pipeline wall-clock time is less than 6 hours
+  claim_id: c_e893a6c2
+  context: "Run quickstart.md validation and end\u2011to\u2011end pipeline test on\
+    \ GitHub Actions free\u2011tier runner; ensure total wall\u2011clock time < 6\
+    \ h and RAM < 7 GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_wall-clock_time_is_less_than_6_hours
+  kind: magnitude
+  raw_text: "total wall\u2011clock time < 6 h"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:44:47Z'
