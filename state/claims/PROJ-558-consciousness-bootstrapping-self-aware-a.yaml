@@ -3758,24 +3758,6 @@
   updated_at: '2026-08-17T04:57:18Z'
 - artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
   attempts: 1
-  canonical: peak RSS less than 7GB
-  claim_id: c_f53b1232
-  context: Run memory profiling on the training script (train.py) with max batch size;
-    verify peak RSS < 7GB and log result to artifacts/results/memory_profile.log.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Peak_RSS_less_than_7GB
-  kind: magnitude
-  raw_text: The memory profiling task verifies peak RSS is less than 7GB.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-17T04:58:08Z'
-- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
-  attempts: 1
   canonical: alpha threshold 0.05
   claim_id: c_dc8233f4
   context: Script must explicitly check alpha == 0.05 and fail if not.
@@ -4870,3 +4852,418 @@
   source_type: external
   status: verified
   updated_at: '2026-08-19T15:05:35Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 0
+  canonical: alpha threshold set to 0.05
+  claim_id: c_5de6e321
+  context: 'Script must explicitly check alpha == 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)
+    and fail if not.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The alpha threshold for significance tests is configured to 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T21:13:44Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: token limit set to 100000
+  claim_id: c_723a8816
+  context: Implement code/utils/config.py to initialize token_limit to the integer
+    100000. This value is derived from Constitution Principle VII (Resource-Constrained
+    Architectural Fidelity) and Spec Assumptions, which mandate a '100k-token subset
+    of the Pile' to fit within 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The token_limit is initialized to the integer 100000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:14:39Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: TinyLlama used as small transformer model
+  claim_id: c_e369c790
+  context: 'Implement base_llama.py wrapper for a small transformer (<300M params)
+    in code/models/base_llama.py. Note: Use TinyLlama as per Spec US-01.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'TinyLlama: An Open-Source Small Language Model'
+      source_id: '2401.02385'
+      url: https://arxiv.org/abs/2401.02385
+      value: TinyLlama
+    filled: true
+  kind: entity_fact
+  raw_text: The project uses TinyLlama as the small transformer model.
+  resolved_value: TinyLlama
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T21:15:06Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training pipeline expected to complete within 120 minutes
+  claim_id: c_05cd4ac8
+  context: The training pipeline is expected to execute on GitHub Actions CPU runner,
+    produce two checkpoints, and complete within 120 minutes without OOM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline is expected to complete within 120 minutes on a
+    GitHub Actions CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:15:24Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training proxy uses N=3 reasoning paths
+  claim_id: c_b2ea1f4a
+  context: Defines a function compute_confidence_loss... that uses generate_paths_callback
+    to generate N=3 reasoning paths per training item... N=3 is used for the training
+    proxy to meet the 120-minute budget (Constitution VII) while allowing a true majority
+    vote.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training proxy uses N=3 reasoning paths per training item.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:16:18Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: evaluation benchmark uses N=10 reasoning paths
+  claim_id: c_6e574a8f
+  context: Generate N=10 reasoning paths for each question in the GSM8K dataset (as
+    per FR-003)... FR-003 mandates N=10 for the evaluation benchmark.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The evaluation benchmark uses N=10 reasoning paths per question.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:16:40Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training proxy tie broken by setting signal to 0
+  claim_id: c_53691f15
+  context: If the three paths generate three distinct final answers (1-1-1 distribution),
+    treat as a tie and set the proxy signal to 0 (incorrect). This is a self-referential
+    training signal as per Spec Assumptions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For the training proxy, a tie (three distinct answers) is resolved by
+    setting the proxy signal to 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:17:28Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: evaluation benchmark tie broken by preferring first path
+  claim_id: c_dbbf960b
+  context: For the evaluation benchmark (N=10), a tie in final answer counts is resolved
+    by preferring the first generated path.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_benchmark_tie_broken_by_preferring_first_path
+  kind: entity_fact
+  raw_text: For the evaluation benchmark, a tie in final answer counts is resolved
+    by preferring the first generated path.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:17:56Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis uses thresholds 0.4 0.5 0.6
+  claim_id: c_f386bb5e
+  context: The set {0.4, 0.5, 0.6} satisfies FR-006's 'range of moderate thresholds'
+    requirement and SC-005's 'at least three distinct threshold values' requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps confidence thresholds over the set {0.4,
+    0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:18:21Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: peak RSS memory usage limit is 7GB
+  claim_id: c_4bc84f60
+  context: Run memory profiling on the training script (train.py) with max batch size;
+    verify peak RSS < 7GB and log result to artifacts/results/memory_profile.log.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_memory_usage_limit_is_7GB
+  kind: magnitude
+  raw_text: The peak RSS memory usage must be less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:18:42Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 2
+  canonical: token limit calculated based on resource constraints
+  claim_id: c_79774c4b
+  context: 'Spec Consistency: The plan.md artifact has been updated to align with
+    spec.md Assumptions regarding the ''internal self-consistency proxy''. The token
+    limit is now calculated based on resource constraints (Constitution Principle
+    VII).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Token_limit_calculated_based_on_resource_constraints
+  kind: entity_fact
+  raw_text: The token limit is now calculated based on resource constraints (Constitution
+    Principle VII).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:19:33Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: token_limit initialized to 100000
+  claim_id: c_0159c6bf
+  context: 'Hard-code Token Limit: Implement code/utils/config.py to initialize token_limit
+    to the integer 100000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The token_limit is initialized to the integer 100000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:19:34Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: 100k-token subset of Pile fits within 7GB RAM
+  claim_id: c_295284aa
+  context: 'Constraint: This value is derived from Constitution Principle VII (Resource-Constrained
+    Architectural Fidelity) and Spec Assumptions, which mandate a ''100k-token subset
+    of the Pile'' to fit within 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The value 100000 is derived from Constitution Principle VII and Spec Assumptions,
+    which mandate a '100k-token subset of the Pile' to fit within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:19:59Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: GSM8K used as Self-Consistency Benchmark with N=10 paths
+  claim_id: c_f1a3192a
+  context: 'Implementation: Define the ''Self-Consistency Benchmark'' configuration...
+    explicitly defines the ''Self-Consistency Benchmark'' as the evaluation protocol
+    using the GSM8K dataset with N=10 reasoning paths.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GSM8K dataset is used as the Self-Consistency Benchmark with N=10
+    reasoning paths.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:20:48Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training proxy uses N=3 reasoning paths
+  claim_id: c_3fb28109
+  context: 'Implementation Logic: Define a function... that: (1) Uses generate_paths_callback...
+    to generate N=3 reasoning paths per training item... Constraint Note: N=3 is used
+    for the training proxy to meet the 120-minute budget (Constitution VII: Resource-Constrained
+    Architectural Fidelity) while allowing a true majority vote, while FR-003 mandates
+    N=10 for the evaluation benchmark.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training proxy uses N=3 reasoning paths per training item to meet
+    the 120-minute budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:21:38Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training proxy tie resolved by setting signal to 0
+  claim_id: c_9b6c9c30
+  context: 'Documentation: Implement the documentation for the tie-breaking rule in
+    the final analysis report... explicitly states: ''For the training proxy (N=3),
+    a tie (three distinct answers) is resolved by setting the proxy signal to 0 (incorrect).'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For the training proxy (N=3), a tie (three distinct answers) is resolved
+    by setting the proxy signal to 0 (incorrect).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:22:08Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: evaluation benchmark tie resolved by preferring first path
+  claim_id: c_3ca5b6dc
+  context: 'Documentation: Implement the documentation for the tie-breaking rule in
+    the final analysis report... explicitly states: ''For the evaluation benchmark
+    (N=10), a tie in final answer counts is resolved by preferring the first generated
+    path.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For the evaluation benchmark (N=10), a tie in final answer counts is resolved
+    by preferring the first generated path.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:22:09Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training pipeline completes within 120 minutes on CPU
+  claim_id: c_4a83e919
+  context: 'Independent Test: The training pipeline is expected to execute on GitHub
+    Actions CPU runner, produce two checkpoints, and complete within 120 minutes without
+    OOM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline is expected to complete within 120 minutes without
+    OOM on a GitHub Actions CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:22:32Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: validation script checks alpha equals 0.05
+  claim_id: c_fbdc5af7
+  context: 'Constraint: Must configure and validate the alpha threshold for all significance
+    tests. Validation: Script must explicitly check alpha == 0.05 (Wikipedia: P-value,
+    https://en.wikipedia.org/wiki/P-value) and fail if not.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation script must explicitly check alpha == 0.05 and fail if
+    not.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:23:28Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis uses thresholds 0.4, 0.5, 0.6
+  claim_id: c_94776949
+  context: 'Justification: The set {0.4, 0.5, 0.6} satisfies FR-006''s ''range of
+    moderate thresholds'' requirement and SC-005''s ''at least three distinct threshold
+    values'' requirement.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis loop uses the set of values {0.4, 0.5, 0.6} for
+    confidence thresholds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:23:53Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 2
+  canonical: peak RSS less than 7GB
+  claim_id: c_f53b1232
+  context: Run memory profiling on the training script (train.py) with max batch size;
+    verify peak RSS < 7GB and log result to artifacts/results/memory_profile.log.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_less_than_7GB
+  kind: magnitude
+  raw_text: The memory profiling task verifies peak RSS is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:24:16Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: plan.md contradicts spec.md regarding teacher model labels
+  claim_id: c_46720c77
+  context: 'Plan Contradiction Note: The plan.md Summary still contains the text:
+    ''confidence signal is derived from pre-computed teacher model labels (external
+    truth)'', which contradicts spec.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan.md_contradicts_spec.md_regarding_teacher_model_labels
+  kind: entity_fact
+  raw_text: The plan.md Summary text 'confidence signal is derived from pre-computed
+    teacher model labels (external truth)' contradicts the spec.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T21:25:05Z'

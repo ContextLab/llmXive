@@ -1,19 +1,43 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Deviation Target Schema
-description: Schema for the calculated alignment deviation score.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Deviation Target Schema"
+description: "Schema for the calculated deviation score and joined features."
 type: object
 properties:
   caption_id:
     type: string
-    description: "Reference to the original caption ID."
+    description: "Unique identifier."
   deviation_score:
     type: number
-    description: "Absolute difference between Z-scored CLIP and Human Rating. May be discrete if human_rating is binary. Distribution is bounded and non-Gaussian."
-  is_learnable:
-    type: boolean
-    description: "Flag indicating if the target has non-zero variance."
+    description: "Absolute difference between Z-normalized CLIP score and Human rating."
+  linguistic_uncertainty_proxy:
+    type: number
+    description: "Feature from feature_vector."
+  syntactic_depth:
+    type: integer
+    description: "Feature from feature_vector."
+  noun_phrase_density:
+    type: number
+    description: "Feature from feature_vector."
+  caption_length_tokens:
+    type: integer
+    description: "Covariate."
+  textual_complexity:
+    type: integer
+    description: "Covariate."
+  lexical_diversity:
+    type: number
+    description: "Covariate: Type-Token Ratio."
+  syntactic_variety:
+    type: integer
+    description: "Covariate: Count of unique dependency relations."
 required:
   - caption_id
   - deviation_score
-  - is_learnable
+  - linguistic_uncertainty_proxy
+  - syntactic_depth
+  - noun_phrase_density
+  - caption_length_tokens
+  - textual_complexity
+  - lexical_diversity
+  - syntactic_variety
 additionalProperties: false

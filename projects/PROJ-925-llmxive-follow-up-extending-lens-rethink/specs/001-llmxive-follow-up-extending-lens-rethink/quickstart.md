@@ -3,68 +3,64 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
-- 7GB+ RAM (for local testing; CI will handle streaming).
+- Access to Hugging Face Hub (for `pick-a-pic` and `distilbert-base-uncased`).
+- GB RAM available.
 
 ## Installation
 
-1. **Clone and Setup**
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-925-llmxive-follow-up-extending-lens-rethink
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
+1.  **Clone and Setup**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-925-llmxive-follow-up-extending-lens-rethink
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    ```
 
-2. **Download Dependencies**
-   ```bash
-   # Download spaCy model
-   python -m spacy download en_core_web_sm
-   ```
+2.  **Download Models**:
+    ```bash
+    python -m spacy download en_core_web_sm
+    # The BERT model will be downloaded automatically on first run by the script
+    ```
 
 ## Running the Pipeline
 
-The pipeline is executed in four stages via the `code/main.py` entry point (or individual scripts).
+The pipeline is executed in three sequential stages.
 
-### Step 0: Data Preprocessing (Generate Scores)
-Generates `clip_score` and `human_rating` if missing.
+### Stage 1: Feature Extraction
+Computes linguistic features for all valid captions.
 ```bash
-python code/data/scores.py --input data/raw/pick-a-pic.jsonl --output data/processed/scores.jsonl
+python code/data/features.py
 ```
-- **Note**: If `pick-a-pic` is unavailable, this step will fail with `DataSchemaError`.
+- **Output**: `data/processed/features.csv`, `data/logs/exclusions.log`.
+- **Validation**: Checks for nulls in `linguistic_uncertainty_proxy`, `syntactic_depth`.
 
-### Step 1: Feature Extraction
-Extracts linguistic features from captions.
+### Stage 2: Target Calculation
+Calculates the deviation score and joins with features.
 ```bash
-python code/data/features.py --input data/processed/scores.jsonl --output data/processed/features.csv
+python code/data/preprocess.py
 ```
-- **Note**: If the uncertainty proxy fails validation (correlation < 0.3), this step will halt.
+- **Output**: `data/processed/deviation.csv`.
+- **Validation**: Checks for zero variance in target (halts if found).
 
-### Step 2: Target Calculation & Validation
-Calculates deviation scores and checks for zero variance.
+### Stage 3: Model Training & Analysis
+Trains XGBoost, performs permutation tests, and sensitivity sweeps.
 ```bash
-python code/data/preprocess.py --features data/processed/features.csv --output data/processed/deviation.csv
+python code/models/train.py
 ```
-- **Check**: Ensure `deviation.csv` is created and `is_learnable` is True.
-
-### Step 3: Training & Evaluation
-Trains the XGBoost model and runs statistical tests.
-```bash
-python code/data/train.py --features data/processed/features.csv --target data/processed/deviation.csv --output results/
-```
-- **Output**: `results/stability_metrics.json`, `results/model.json`, `results/logs.txt`.
+- **Output**: `results/model_metrics.json`, `results/significance_results.json`.
+- **Duration**: ~2-4 hours on CPU (depending on dataset size).
 
 ## Verification
 
-Run the test suite to verify constitution compliance and schema validity:
+Run the test suite to ensure constitution compliance and data integrity:
 ```bash
 pytest code/tests/
 ```
+- **Key Test**: `test_constitution.py` ensures no image imports in `features.py` and no GPU usage in `train.py`.
 
 ## Troubleshooting
 
-- **"Target not learnable"**: The dataset has zero variance in deviation scores. Check data integrity.
-- **"Missing required dataset"**: The `pick-a-pic` dataset is not accessible. Verify network or HF credentials.
-- **"Invalid Proxy"**: The uncertainty proxy failed validation (correlation < 0.3). The study cannot proceed.
-- **Memory Error**: Reduce batch size in `features.py` or use streaming mode.
+- **Error: "Missing required dataset or column: pick-a-pic/human_rating"**: The 'pick-a-pic' dataset is not available via the standard Hugging Face loader. Check your HF token or network. No synthetic data is generated.
+- **Error: "Target not learnable: zero variance detected"**: All deviation scores are identical. This implies the dataset has no variance in the gap, or normalization failed.
+- **Memory Error**: If OOM occurs, reduce the batch size in `code/utils/config.py` or stream the dataset more aggressively.

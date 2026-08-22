@@ -1,230 +1,183 @@
-"""
-T017: Generate data/processed/matched_pairs.csv containing MatchedPaperPair entities.
-
-This script consolidates the matched pairs from the fetch/match step and the
-extracted statistics from the extraction step into a single canonical dataset.
-It ensures 1:1 linkage, flags missing data, and applies the exclusion logic
-defined in T014 and T015a.
-"""
 import os
 import sys
 import csv
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
 
-# Ensure parent directory is in path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# Ensure code directory is in path for imports
+code_dir = Path(__file__).parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
 from utils.pdf_parser import is_valid_p_value_range
 
-# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(PROJECT_ROOT / "data" / "logs" / "generate_matched_pairs.log"),
-        logging.StreamHandler(sys.stdout)
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/raw/processing.log', mode='a')
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Paths
-RAW_DIR = PROJECT_ROOT / "data" / "raw"
-PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-RESULTS_DIR = PROJECT_ROOT / "data" / "results"
-
-# Ensure directories exist
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
-# Input files (produced by T013/T014 and T015/T015a/T016)
-MATCHED_PAIRS_RAW_PATH = RAW_DIR / "matched_pairs_raw.csv"
-EXCLUSION_LOG_PATH = RAW_DIR / "exclusion_log.csv"
-EXTRACTED_STATS_PATH = RAW_DIR / "extracted_stats_raw.csv"
-
-# Output file
-OUTPUT_PATH = PROCESSED_DIR / "matched_pairs.csv"
-
-def load_csv(path: Path) -> List[Dict[str, Any]]:
-    """Load a CSV file into a list of dictionaries."""
-    if not path.exists():
-        logger.warning(f"File not found: {path}")
-        return []
-    with open(path, "r", encoding="utf-8") as f:
+def load_csv(input_path: str) -> list[dict]:
+    """
+    Load the intermediate extracted stats CSV.
+    Expected columns: preprint_id, journal_id, preprint_p_values, preprint_effect_sizes, 
+                      journal_p_values, journal_effect_sizes, primary_method, exclusion_reason
+    """
+    data = []
+    if not os.path.exists(input_path):
+        logger.error(f"Input file not found: {input_path}")
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    with open(input_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        return list(reader)
+        for row in reader:
+            data.append(row)
+    logger.info(f"Loaded {len(data)} rows from {input_path}")
+    return data
 
-def load_exclusions(path: Path) -> set:
-    """Load excluded pairs from the exclusion log."""
-    excluded_ids = set()
-    if not path.exists():
-        return excluded_ids
-    rows = load_csv(path)
-    for row in rows:
-        # Assuming the exclusion log tracks the pair ID or the preprint_id
-        # We need to be careful about which ID represents the unique pair.
-        # Based on T014, we log preprint_id and journal_id.
-        # We will construct a key based on the pair if possible, or just track preprint_id
-        # if the pair is 1:1 per preprint.
-        if "preprint_id" in row:
-            excluded_ids.add(row["preprint_id"])
-    return excluded_ids
-
-def is_missing_data(value: Optional[str]) -> bool:
-    """Check if a value is missing (None, empty string, or 'NaN')."""
-    if value is None:
-        return True
-    if isinstance(value, str) and value.strip() == "":
-        return True
-    if isinstance(value, str) and value.lower() in ("nan", "none", "null"):
-        return True
-    return False
-
-def flag_missing_fields(row: Dict[str, Any]) -> str:
+def load_exclusions(exclusion_log_path: str) -> set[str]:
     """
-    Generate a flag string indicating which critical fields are missing.
-    Critical fields: preprint_p_value, journal_p_value, preprint_effect_size, journal_effect_size
+    Load exclusion log to identify pairs that were filtered out previously.
+    We return a set of 'preprint_id,journal_id' keys to cross-reference.
     """
-    missing = []
-    critical_fields = [
-        "preprint_p_value", "journal_p_value",
-        "preprint_effect_size", "journal_effect_size"
-    ]
-    for field in critical_fields:
-        if is_missing_data(row.get(field)):
-            missing.append(field)
-    return "; ".join(missing) if missing else "none"
+    exclusions = set()
+    if not os.path.exists(exclusion_log_path):
+        logger.warning(f"Exclusion log not found at {exclusion_log_path}. Proceeding without exclusions.")
+        return exclusions
+
+    with open(exclusion_log_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            # Create a unique key for the pair
+            key = f"{row['preprint_id']},{row['journal_id']}"
+            exclusions.add(key)
+    
+    logger.info(f"Loaded {len(exclusions)} excluded pairs from {exclusion_log_path}")
+    return exclusions
+
+def is_missing_data(p_values_str: str, effect_sizes_str: str) -> bool:
+    """
+    Check if a string representation of p-values or effect sizes is effectively empty or missing.
+    Returns True if missing, False if present.
+    """
+    if not p_values_str or p_values_str.strip() == '':
+        return True
+    if not effect_sizes_str or effect_sizes_str.strip() == '':
+        return True
+    
+    # Check if the string contains only delimiters or whitespace
+    parts_p = [x.strip() for x in p_values_str.split(';') if x.strip()]
+    parts_es = [x.strip() for x in effect_sizes_str.split(';') if x.strip()]
+    
+    return len(parts_p) == 0 or len(parts_es) == 0
+
+def flag_missing_fields(row: dict) -> dict:
+    """
+    Add flags to the row indicating which specific fields are missing or invalid.
+    Returns the modified row.
+    """
+    flags = []
+    
+    # Check Preprint Data
+    if is_missing_data(row.get('preprint_p_values', ''), row.get('preprint_effect_sizes', '')):
+        flags.append('missing_preprint_stats')
+    else:
+        # Validate p-values if present
+        p_vals = row.get('preprint_p_values', '').split(';')
+        for pv in p_vals:
+            pv = pv.strip()
+            if pv and not is_valid_p_value_range(pv):
+                flags.append('invalid_preprint_p_value')
+                break
+
+    # Check Journal Data
+    if is_missing_data(row.get('journal_p_values', ''), row.get('journal_effect_sizes', '')):
+        flags.append('missing_journal_stats')
+    else:
+        # Validate p-values if present
+        p_vals = row.get('journal_p_values', '').split(';')
+        for pv in p_vals:
+            pv = pv.strip()
+            if pv and not is_valid_p_value_range(pv):
+                flags.append('invalid_journal_p_value')
+                break
+
+    # Check Exclusion Status (from exclusion_reason column if it exists)
+    if row.get('exclusion_reason') and row['exclusion_reason'].strip() != '':
+        flags.append('excluded_by_filter')
+
+    row['data_quality_flags'] = ';'.join(flags) if flags else 'none'
+    return row
 
 def main():
-    logger.info("Starting T017: Generating matched_pairs.csv")
-
-    # 1. Load raw matched pairs (from T013/T014)
-    raw_pairs = load_csv(MATCHED_PAIRS_RAW_PATH)
-    if not raw_pairs:
-        logger.error(f"No data found in {MATCHED_PAIRS_RAW_PATH}. Cannot proceed.")
-        # If the file doesn't exist, we might be in a fresh run. 
-        # However, T013/T014 should have produced it. 
-        # We will create an empty file to satisfy the artifact requirement but log failure.
-        with open(OUTPUT_PATH, "w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                "preprint_id", "journal_id", "preprint_title", "journal_title",
-                "preprint_p_value", "journal_p_value", "preprint_effect_size", 
-                "journal_effect_size", "preprint_method", "journal_method",
-                "sample_size_preprint", "sample_size_journal", "n_change_pct",
-                "exclusion_reason", "missing_data_flags", "is_included"
-            ])
-        return
-
-    # 2. Load exclusion log (from T014)
-    excluded_ids = load_exclusions(EXCLUSION_LOG_PATH)
-    logger.info(f"Loaded {len(excluded_ids)} excluded pairs from exclusion log.")
-
-    # 3. Load extracted stats (from T015/T015a/T016)
-    # We assume the extraction step produced a CSV that can be joined on preprint_id
-    extracted_stats = load_csv(EXTRACTED_STATS_PATH)
-    stats_map = {}
-    for stat in extracted_stats:
-        pid = stat.get("preprint_id")
-        if pid:
-            stats_map[pid] = stat
+    """
+    Main entry point for generating the final matched_pairs.csv.
     
-    logger.info(f"Loaded stats for {len(stats_map)} pairs.")
-
-    # 4. Process and merge
+    1. Loads intermediate extraction results.
+    2. Loads exclusion logs to ensure consistency.
+    3. Flags rows with missing data.
+    4. Writes the final `data/processed/matched_pairs.csv`.
+    """
+    logger.info("Starting matched pairs generation (T017)...")
+    
+    # Define paths
+    base_dir = Path(__file__).parent.parent
+    input_path = base_dir / 'data' / 'raw' / 'extracted_stats.csv'
+    exclusion_path = base_dir / 'data' / 'raw' / 'exclusion_log.csv'
+    output_path = base_dir / 'data' / 'processed' / 'matched_pairs.csv'
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load data
+    try:
+        rows = load_csv(str(input_path))
+    except FileNotFoundError as e:
+        logger.critical(f"Cannot proceed: {e}")
+        sys.exit(1)
+    
+    exclusions = load_exclusions(str(exclusion_path))
+    
+    # Process rows
     processed_rows = []
-    included_count = 0
-    excluded_count = 0
-    missing_data_count = 0
+    stats = {'total': len(rows), 'flagged': 0, 'clean': 0}
+    
+    for row in rows:
+        # Re-verify exclusion status based on exclusion_reason column in the row itself
+        # The row might have been filtered in 01_fetch_and_match but still present if the pipeline is incremental
+        # We trust the `exclusion_reason` column in the input CSV as the source of truth for this step
+        if row.get('exclusion_reason') and row['exclusion_reason'].strip() != '':
+            # This row was filtered out in previous steps, mark it but keep for audit or skip?
+            # Task T017 says "Generate ... containing MatchedPaperPair entities ... flagging pairs with missing data"
+            # Usually, excluded pairs are not part of the final "matched" dataset for analysis, 
+            # but we keep them with a flag to show the pipeline history.
+            pass 
 
-    for pair in raw_pairs:
-        preprint_id = pair.get("preprint_id")
-        journal_id = pair.get("journal_id")
+        # Flag missing/invalid data
+        processed_row = flag_missing_fields(row)
+        processed_rows.append(processed_row)
         
-        # Check exclusion
-        if preprint_id in excluded_ids:
-            excluded_count += 1
-            continue
+        if processed_row['data_quality_flags'] != 'none':
+            stats['flagged'] += 1
+        else:
+            stats['clean'] += 1
 
-        # Get stats
-        stats = stats_map.get(preprint_id, {})
-        
-        # Merge data
-        row = {
-            "preprint_id": preprint_id,
-            "journal_id": journal_id,
-            "preprint_title": pair.get("preprint_title", ""),
-            "journal_title": pair.get("journal_title", ""),
-            "preprint_p_value": stats.get("preprint_p_value", ""),
-            "journal_p_value": stats.get("journal_p_value", ""),
-            "preprint_effect_size": stats.get("preprint_effect_size", ""),
-            "journal_effect_size": stats.get("journal_effect_size", ""),
-            "preprint_method": stats.get("preprint_method", ""),
-            "journal_method": stats.get("journal_method", ""),
-            "sample_size_preprint": pair.get("sample_size_preprint", ""),
-            "sample_size_journal": pair.get("sample_size_journal", ""),
-            "n_change_pct": pair.get("n_change_pct", ""),
-            "exclusion_reason": pair.get("exclusion_reason", ""), # From T014
-            "missing_data_flags": "", # To be filled
-            "is_included": "false"
-        }
-
-        # Flag missing data
-        missing_flags = flag_missing_fields(row)
-        row["missing_data_flags"] = missing_flags
-
-        if missing_flags != "none":
-            missing_data_count += 1
-            # We still include the row but flag it, as per "flagging pairs with missing data"
-            # However, for analysis, they might be filtered. 
-            # The task says "Generate ... ensuring 1:1 linkage and flagging pairs with missing data"
-            # It does not explicitly say to EXCLUDE them, just flag them.
-            # But T018 says "validation to ensure ... contains at least one p-value ... for included rows"
-            # So we include them but mark is_included based on data availability?
-            # Let's interpret "flagging" as marking them, but for the main analysis, 
-            # we usually need the data. Let's set is_included to 'true' only if critical data exists.
-            # Wait, T018 is a validation task. T017 is generation. 
-            # T017: "flagging pairs with missing data".
-            # Let's set is_included to 'true' if critical data exists, 'false' otherwise.
-            pass
-
-        # Determine if included for analysis (has critical data)
-        has_critical_data = (
-            not is_missing_data(row["preprint_p_value"]) and
-            not is_missing_data(row["journal_p_value"]) and
-            not is_missing_data(row["preprint_effect_size"]) and
-            not is_missing_data(row["journal_effect_size"])
-        )
-        
-        row["is_included"] = "true" if has_critical_data else "false"
-        if has_critical_data:
-            included_count += 1
-
-        processed_rows.append(row)
-
-    # 5. Write output
-    fieldnames = [
-        "preprint_id", "journal_id", "preprint_title", "journal_title",
-        "preprint_p_value", "journal_p_value", "preprint_effect_size", 
-        "journal_effect_size", "preprint_method", "journal_method",
-        "sample_size_preprint", "sample_size_journal", "n_change_pct",
-        "exclusion_reason", "missing_data_flags", "is_included"
-    ]
-
-    with open(OUTPUT_PATH, "w", newline="", encoding="utf-8") as f:
+    # Write output
+    fieldnames = list(processed_rows[0].keys()) if processed_rows else []
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(processed_rows)
+    
+    logger.info(f"Successfully wrote {len(processed_rows)} rows to {output_path}")
+    logger.info(f"Stats: {stats}")
+    
+    print(f"Generated {output_path}")
 
-    logger.info(f"Generated {OUTPUT_PATH} with {len(processed_rows)} rows.")
-    logger.info(f"  - Included (complete data): {included_count}")
-    logger.info(f"  - Excluded (exclusion log): {excluded_count}")
-    logger.info(f"  - Flagged (missing data): {missing_data_count}")
-
-    logger.info("T017 completed successfully.")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

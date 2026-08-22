@@ -1,12 +1,12 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Linguistic Feature Vector Schema
-description: Schema for the extracted linguistic features (text-only).
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Linguistic Feature Vector Schema"
+description: "Schema for the output of features.py. Contains only text-derived features."
 type: object
 properties:
   caption_id:
     type: string
-    description: "Reference to the original caption ID."
-  uncertainty_proxy:
+    description: "Reference to the original caption."
+  linguistic_uncertainty_proxy:
     type: number
     description: "Natural log of perplexity (ln(perplexity))."
   syntactic_depth:
@@ -14,22 +14,26 @@ properties:
     description: "Maximum depth of the dependency parse tree."
   noun_phrase_density:
     type: number
-    description: "Ratio of distinct noun phrases to total tokens."
-  token_count:
+    description: "Count of noun phrases divided by caption length."
+  caption_length_tokens:
     type: integer
-    description: "Total number of tokens in the caption."
-  distinct_np_count:
+    description: "Number of tokens in the caption."
+  textual_complexity:
     type: integer
     description: "Count of distinct noun phrases or named entities."
-  token_diversity:
+  lexical_diversity:
     type: number
-    description: "Type-token ratio (vocabulary diversity)."
+    description: "Type-Token Ratio (unique tokens / total tokens)."
+  syntactic_variety:
+    type: integer
+    description: "Count of unique dependency relations in the parse tree."
 required:
   - caption_id
-  - uncertainty_proxy
+  - linguistic_uncertainty_proxy
   - syntactic_depth
   - noun_phrase_density
-  - token_count
-  - distinct_np_count
-  - token_diversity
+  - caption_length_tokens
+  - textual_complexity
+  - lexical_diversity
+  - syntactic_variety
 additionalProperties: false

@@ -87,7 +87,7 @@
 
 - [X] T010 [P] [US1] Unit test for matching logic in `tests/unit/test_matching.py` (verify fuzzy match thresholds)
 - [ ] T011 [P] [US1] Unit test for PDF parser in `tests/unit/test_extraction.py` (verify parsing of inequalities and effect sizes)
-- [ ] T012 [P] [US1] Integration test for 10-pair subset in `tests/integration/test_pipeline_us1.py`
+- [ ] T012 [P] [US1] Integration test for 10-pair subset in `tests/integration/test_pipeline_us1.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -96,8 +96,8 @@
 - [X] T015 [US1] Implement `code/02_extract_stats.py` to parse full-text PDFs for matched pairs, extracting p-values (exact and inequalities) and effect sizes (Cohen's d, Hedges' g, etc.) using `code/utils/pdf_parser.py`
 - [X] T015a [US1] **New**: Implement statistical method extraction in `code/02_extract_stats.py` to identify the primary statistical method (e.g., t-test, ANOVA, regression) used in each paper from the text, storing this in `matched_pairs.csv` to enable FR-003 methodological shift detection.
 - [X] T016 [US1] Implement interval-censoring logic in `code/02_extract_stats.py` to record inequalities (e.g., `p < 0.05`) as ranges for general reporting but exclude them from p-curve analysis (FR-002)
-- [ ] T017 [US1] Generate `data/processed/matched_pairs.csv` containing `MatchedPaperPair` entities with extracted metrics, ensuring 1:1 linkage and flagging pairs with missing data
-- [~] T018 [US1] Implement validation to ensure `matched_pairs.csv` contains at least one p-value and one effect size for both pre-print and journal versions for included rows
+- [X] T017 [US1] Generate `data/processed/matched_pairs.csv` containing `MatchedPaperPair` entities with extracted metrics, ensuring 1:1 linkage and flagging pairs with missing data
+- [ ] T018 [US1] Implement validation to ensure `matched_pairs.csv` contains at least one p-value and one effect size for both pre-print and journal versions for included rows
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,18 +111,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Unit test for p-curve analysis in `tests/unit/test_analysis_pcurve.py`
+- [ ] T019 [P] [US2] Unit test for p-curve analysis in `tests/unit/test_analysis_pcurve.py`
 - [ ] T020 [P] [US2] Unit test for paired t-test/Wilcoxon logic in `tests/unit/test_analysis_magnitude.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021a [US2] **New**: Implement explicit exclusion filter in `code/03_analysis.py` to assert and remove all p-values flagged as inequalities before any p-curve analysis runs, ensuring FR-002 compliance.
-- [ ] T021 [US2] Implement `code/03_analysis.py` p-curve analysis module: Run p-curve analysis on the filtered pre-print p-value distribution and the filtered journal p-value distribution separately using `pypcurve`.
-- [ ] T021b [US2] **New**: Implement p-curve estimation logic in `code/03_analysis.py` to calculate **power** and **p-hacking prevalence** estimates for the pre-print subset and the journal subset independently using `pypcurve`.
-- [ ] T022 [US2] Implement density ratio estimation in `code/03_analysis.py` to compare p-value distributions and calculate the magnitude of the density ratio at p=0.05 (FR-004)
+- [X] T021a [US2] **New**: Implement explicit exclusion filter in `code/03_analysis.py` to assert and remove all p-values flagged as inequalities before any p-curve analysis runs, ensuring FR-002 compliance. <!-- FAILED: unspecified -->
+- [X] T021 [US2] Implement `code/03_analysis.py` p-curve analysis module: Run p-curve analysis on the filtered pre-print p-value distribution and the filtered journal p-value distribution separately using `pypcurve`.
+- [X] T021b [US2] **New**: Implement p-curve estimation logic in `code/03_analysis.py` to calculate **power** and **p-hacking prevalence** estimates for the pre-print subset and the journal subset independently using `pypcurve`.
+- [X] T022 [US2] Implement density ratio estimation in `code/03_analysis.py` to compare p-value distributions and calculate the magnitude of the density ratio at p=0.05 (FR-004) <!-- FAILED: unspecified -->
 - [ ] T022b [US2] **Compare p-curve derived metrics**: Use `pypcurve` to estimate power and p-hacking prevalence for both pre-print and journal versions. Calculate the difference between these estimates and record the result in `data/results/analysis_results.json`. **Method**: Use `pypcurve.estimate_power()` and `pypcurve.estimate_p_hacking()` with permutation testing if available.
 - [ ] T022c [US2] **Implement p-curve result comparison logic**: Explicitly calculate the difference in estimated power and p-hacking prevalence between pre-print and journal versions. Output these differences as the primary "p-curve result" metric in `data/results/analysis_results.json` to satisfy FR-004's requirement to compare *results* rather than raw ratios.
-- [ ] T023a [US2] **New**: Implement data classification logic in `code/03_analysis.py` to tag each row in `matched_pairs.csv` as 'censored' or 'non-censored' based on the presence of interval-censored effect size data, creating a unified routing step.
+- [X] T023a [US2] **New**: Implement data classification logic in `code/03_analysis.py` to tag each row in `matched_pairs.csv` as 'censored' or 'non-censored' based on the presence of interval-censored effect size data, creating a unified routing step.
 - [ ] T023 [US2] **Implement standard paired effect-size analysis (non-censored only)**: For pairs tagged as 'non-censored', perform a paired t-test (or Wilcoxon if normality fails) on the difference ($\Delta$ES). **MUST NOT** include pairs with interval-censored data. Exclude pairs where N changes >20% or p-values are identical (FR-004).
 - [ ] T023b [US2] **Implement censored effect-size analysis (Tobit)**: For pairs tagged as 'censored', implement a Tobit regression model (using `code/utils/stats_helpers.py`'s `fit_tobit_model`) to estimate the difference ($\Delta$ES) while accounting for interval censoring. Exclude pairs where N changes >20%.
 - [ ] T024 [US2] Implement stratification logic in `code/03_analysis.py` to output results by field (e.g., Quantitative Biology) for domain-specific bias detection

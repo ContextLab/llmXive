@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T04:33:47.852620Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-925-llmxive-follow-up-extending-lens-rethink
-last_run_id: cc410f4a-3e04-4b9b-ad57-1b614d43b4af
+last_run_id: 5f44cd06-89fe-4ca1-91b1-c1fc2804139a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink
 title: 'llmXive follow-up: extending "Lens: Rethinking Training Efficiency for Foundational
   Text-to-Image Mo"'
-updated_at: '2026-08-14T00:11:30.156308Z'
+updated_at: '2026-08-22T21:59:09.703302Z'

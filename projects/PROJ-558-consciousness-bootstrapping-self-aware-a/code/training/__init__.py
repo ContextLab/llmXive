@@ -1,4 +1,3 @@
 """
-Training scripts and utilities.
+Training package for model optimization and checkpointing.
 """
-from .train import TrainingState, PileDataset, validate_recursion_depth, check_memory_usage, train_epoch, save_checkpoint, run_training, main

@@ -1,31 +1,55 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Significance Results Schema
-description: Schema for permutation test results and stability metrics.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Significance Results Schema"
+description: "Schema for the sensitivity analysis and permutation test results."
 type: object
 properties:
-  feature_name:
-    type: string
-    description: "Name of the linguistic feature."
-  importance_score:
-    type: number
-    description: "Mean decrease in performance when feature is shuffled."
-  p_value:
-    type: number
-    description: "Adjusted p-value from Benjamini-Hochberg procedure."
-  is_significant:
-    type: boolean
-    description: "True if p_value <= 0.05."
-  mean_rank:
-    type: number
-    description: "Mean rank of the feature across sensitivity sweeps (thresholds 0.01, 0.05, 0.1)."
-  std_dev_rank:
-    type: number
-    description: "Standard deviation of rank across sensitivity sweeps."
+  features:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+          description: "Name of the linguistic feature."
+        importance_score:
+          type: number
+          description: "Mean permutation importance."
+        p_value:
+          type: number
+          description: "Adjusted p-value (Benjamini-Yekutieli)."
+        mean_rank:
+          type: number
+          description: "Mean rank across significance threshold sweeps."
+        std_dev_rank:
+          type: number
+          description: "Standard deviation of rank across sweeps."
+      required:
+        - feature_name
+        - importance_score
+        - p_value
+        - mean_rank
+        - std_dev_rank
+  metadata:
+    type: object
+    properties:
+      n_permutations:
+        type: integer
+        description: "Number of permutations used (default 1000)."
+      fdr_threshold:
+        type: number
+        description: "FDR threshold used (default 0.05)."
+      correction_method:
+        type: string
+        description: "Correction method used (e.g., 'benjamini-yekutieli')."
+      threshold_sweep:
+        type: array
+        items:
+          type: number
+        description: "List of thresholds swept (e.g., [0.01, 0.05, 0.1])."
+      noise_robustness:
+        type: object
+        description: "Results of noise injection robustness checks."
 required:
-  - feature_name
-  - importance_score
-  - p_value
-  - is_significant
-  - mean_rank
-  - std_dev_rank
+  - features
+  - metadata
 additionalProperties: false

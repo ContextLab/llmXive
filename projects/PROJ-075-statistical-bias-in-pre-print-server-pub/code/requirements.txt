@@ -9,4 +9,3 @@ rapidfuzz
 pytest
 statsmodels
 pypcurve
-arxiv

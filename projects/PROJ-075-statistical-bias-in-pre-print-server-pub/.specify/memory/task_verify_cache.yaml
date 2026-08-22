@@ -33,9 +33,46 @@ T012:
     \ the appropriate test logic."
 T014:
   c: false
-  h: 65b3d722a4ae3b4d44cf67de2c275c57a202086deb5a0895aeacfa0affceab90
-  r: "The provided `code/01_fetch_and_match.py` ends abruptly (truncated at `def is_theoretic`)\
-    \ and contains no implementation of the required filtering logic or CSV\u2011\
-    column `exclusion_reason` handling, nor does it write to `data/raw/exclusion_log.csv`\
-    \ (the file is absent). Consequently the task\u2019s filtering and logging requirements\
-    \ are not met."
+  h: d72f226f2918647de10ff227e4c7eed006c8a8004c7849f0bf187ce944c0119f
+  r: "The `exclusion_log.csv` file contains only the header and no logged rows, and\
+    \ the shown portion of `code/01_fetch_and_match.py` ends abruptly without any\
+    \ filtering implementation, exclusion\u2011reason column handling, or logging\
+    \ of reasons such as \u201Cmethodological shift\u201D, \u201Cunmatched\u201D,\
+    \ or \u201CN_change\u201D. The required logic to exclude case studies, theoretical\
+    \ papers, and >20\u202F% sample\u2011size changes is absent."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation was provided showing that a validation step\
+    \ was added to ensure `matched_pairs.csv` includes at least one p\u2011value and\
+    \ one effect size for both pre\u2011print and journal versions. The artifact (e.g.,\
+    \ a script, function, or unit test) that performs this check is missing, so the\
+    \ requirement is not satisfied."
+T019:
+  c: false
+  h: 83279a4270a582aa886ea1ad48bbf4f44309f0ec505b1c74609e6adecc7d8b9c
+  r: "The required file `tests/unit/test_analysis_pcurve.py` does not exist in the\
+    \ repository, so no unit test for p\u2011curve analysis is present. The task cannot\
+    \ be considered fulfilled until this test file is added with appropriate test\
+    \ cases."
+T020:
+  c: false
+  h: 8602b9b789ef7e58513569a0488a0f7d1c772ffa0f100d2216697060e0e7a5fa
+  r: "The required file `tests/unit/test_analysis_magnitude.py` does not exist, so\
+    \ no unit test for the paired t-test/Wilcoxon logic is present. The task\u2019\
+    s core artifact is missing, making the implementation incomplete."
+T022b:
+  c: false
+  h: 1eebd7536d4fb5e73d91d8726abce6a9fb6b83e740b976f3116720a6a23ddbd0
+  r: "The required output file `data/results/analysis_results.json` is missing, so\
+    \ no p\u2011curve metrics or differences have been recorded as the task demands.\
+    \ The implementer must generate the JSON file with the estimated power and p\u2011\
+    hacking prevalence for both versions and their differences."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and project specifications;\
+    \ there is no code, notebook, data file, or analysis output demonstrating that\
+    \ a paired t\u2011test/Wilcoxon analysis was performed on non\u2011censored pairs\
+    \ while excluding interval\u2011censored data, >20\u202F% N changes, or identical\
+    \ p\u2011values. The required artifact (e.g., a script or results table) is missing."

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T01:02:23.568477Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-233-predicting-the-diffusion-coefficient-of-
-last_run_id: 31ab2bde-482a-4577-9625-ba880a69ba5e
+last_run_id: 81ef25fc-916f-4d0c-a85d-9eb6e13ef7ae
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional
   and Microstructural Descriptors
-updated_at: '2026-07-20T10:15:29.313043Z'
+updated_at: '2026-08-22T21:41:45.369407Z'

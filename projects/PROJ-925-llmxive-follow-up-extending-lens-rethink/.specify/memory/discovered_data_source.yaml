@@ -1,13 +1,7 @@
 status: none
-intent: HuggingFace Transformers BERT perplexity model WikiText-103 validation dataset
-  python package dataset
+intent: pick-a-pic caption dataset download huggingface datasets python package dataset
 required_fields:
-- caption_id
-- caption_text
-- linguistic_uncertainty_proxy
-- syntactic_complexity
-- noun_phrase_density
-- token_diversity
-cache_key: ae26b0efb0776678e4ddb4e3f5ebbb536d68485a2b91355fd0860e71a23d3d48
-searched_at: '2026-08-13T23:26:34.529686+00:00'
+- caption
+cache_key: eb8c22af5e585655fa46720098163215b156fa16c9e58fe89034b66bee726e4b
+searched_at: '2026-08-22T21:45:21.024532+00:00'
 retry_count: 1
