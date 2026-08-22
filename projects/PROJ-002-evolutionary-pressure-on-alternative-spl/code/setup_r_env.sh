@@ -1,40 +1,42 @@
 #!/bin/bash
-# Setup script for R 4.3 dependencies
-# This script installs required R packages if R is available.
+# R Environment Setup Script for PROJ-002
+# Validates R version and installs required packages.
 
 set -e
 
+REQUIRED_R_VERSION="4.3"
+
 echo "=== PROJ-002 R Environment Setup ==="
 
-# Check if R is installed
+# Check R version
 if ! command -v R &> /dev/null; then
-    echo "WARNING: R is not installed. Skipping R dependency installation."
-    echo "Please install R 4.3+ and run this script manually or via the HPC environment."
-    exit 0
+    echo "Error: R is not installed. Please install R 4.3+."
+    exit 1
 fi
 
-R_VERSION=$(R --version | head -n 1 | awk '{print $3}')
-echo "Detected R version: $R_VERSION"
+R_VERSION=$(R --version | grep "R version" | awk '{print $3}' | cut -d'.' -f1,2)
+echo "Found R version: $R_VERSION"
 
-# Check major version
-if [[ ! "$R_VERSION" =~ ^4\. ]]; then
-    echo "WARNING: R 4.x is recommended. Current version: $R_VERSION"
+# Simple version check (assuming 4.3.x)
+if [[ ! "$R_VERSION" =~ ^4\.[0-9]+$ ]]; then
+    echo "Warning: R version $R_VERSION detected. Expected 4.3.x. Proceeding anyway."
 fi
 
-echo "Installing R dependencies..."
-
-Rscript -e '
+# Install R packages
+R_SCRIPT=$(mktemp)
+cat > "$R_SCRIPT" << 'EOF'
+# Install packages if not present
 packages <- c("phylolm", "ape", "data.table", "ggplot2")
-installed <- installed.packages()[, "Package"]
-to_install <- setdiff(packages, installed)
+install.packages(packages, repos = "https://cloud.r-project.org")
+library(phylolm)
+library(ape)
+library(data.table)
+library(ggplot2)
+cat("✓ All R packages installed and loaded successfully.\n")
+EOF
 
-if (length(to_install) > 0) {
-    message("Installing: ", paste(to_install, collapse = ", "))
-    install.packages(to_install, repos = "https://cloud.r-project.org")
-    message("Installation complete.")
-} else {
-    message("All R dependencies already installed.")
-}
-'
+echo "Installing R packages..."
+R --vanilla --slave < "$R_SCRIPT"
+rm "$R_SCRIPT"
 
 echo "=== R Setup Complete ==="

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.23989",
+  "judged_at": "2026-08-22T04:20:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"openthoughts-agent: data recipes for agentic models\" computer science",
+  "rationale": "This paper belongs in the literature review because it is a foundational survey (category d) that defines the core concepts, failure modes, and evaluation metrics for \"agentic AI\" (LLMs with planning, tool use, and memory), which is the specific domain of the user's question regarding \"Agentic Models.\" Additionally, it addresses the \"trustworthiness\" and \"safety\" aspects often implied in follow-up research on data recipes for such systems, satisfying the requirement for canonical references on t",
+  "relevant": true
+}

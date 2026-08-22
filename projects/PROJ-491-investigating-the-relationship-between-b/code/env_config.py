@@ -1,121 +1,95 @@
 """
 Environment configuration management for OpenNeuro credentials.
 
-This module handles the loading, validation, and retrieval of OpenNeuro
-API credentials from environment variables or a .env file.
+This module handles the secure loading and validation of OpenNeuro API
+credentials from environment variables or a .env file. It ensures that
+the pipeline can access the OpenNeuro dataset API without hardcoding secrets.
 """
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
+
 from dotenv import load_dotenv
 from config import ensure_directories
 
+# Constants for environment variable names
+OPENNEURO_API_KEY_ENV = "OPENNEURO_API_KEY"
+OPENNEURO_BASE_URL_ENV = "OPENNEURO_BASE_URL"
+DEFAULT_OPENNEURO_BASE_URL = "https://openneuro.org"
+DOTENV_FILE = ".env"
+
 
 class OpenNeuroConfig:
-    """Configuration holder for OpenNeuro access credentials."""
+    """
+    Configuration container for OpenNeuro access credentials.
 
-    def __init__(self, api_key: str, anonymous_access: bool = False):
-        """
-        Initialize the OpenNeuro configuration.
+    Attributes:
+        api_key (str): The API key for OpenNeuro access.
+        base_url (str): The base URL for the OpenNeuro API.
+    """
 
-        Args:
-            api_key: The OpenNeuro API key for authenticated access.
-            anonymous_access: If True, allow anonymous downloads (some datasets require auth).
-        """
+    def __init__(self, api_key: str, base_url: str = DEFAULT_OPENNEURO_BASE_URL):
         if not api_key:
             raise ValueError("OpenNeuro API key cannot be empty.")
-        
         self.api_key = api_key
-        self.anonymous_access = anonymous_access
-        self.base_url = "https://openneuro.org"
-        self.graphql_endpoint = f"{self.base_url}/crn/graphql"
+        self.base_url = base_url
 
-    def get_headers(self) -> Dict[str, str]:
-        """Return headers required for authenticated requests."""
-        headers = {
+    @property
+    def headers(self) -> Dict[str, str]:
+        """Returns the standard headers for authenticated requests."""
+        return {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
-        return headers
 
-    @classmethod
-    def from_env(cls, env_file: Optional[Path] = None) -> "OpenNeuroConfig":
-        """
-        Load configuration from environment variables.
-
-        Args:
-            env_file: Optional path to a .env file. If None, searches in current dir.
-
-        Returns:
-            OpenNeuroConfig instance.
-
-        Raises:
-            ValueError: If required environment variables are missing.
-        """
-        if env_file and env_file.exists():
-            load_dotenv(env_file)
-        else:
-            load_dotenv()
-
-        api_key = os.getenv("OPENNEURO_API_KEY")
-        
-        if not api_key:
-            raise ValueError(
-                "OPENNEURO_API_KEY environment variable is not set. "
-                "Please set it in your environment or create a .env file."
-            )
-
-        # Optional: Check for anonymous access flag if needed
-        anonymous_str = os.getenv("OPENNEURO_ANONYMOUS", "false").lower()
-        anonymous_access = anonymous_str == "true"
-
-        return cls(api_key=api_key, anonymous_access=anonymous_access)
+    def __repr__(self) -> str:
+        # Mask the API key for safe logging
+        masked_key = self.api_key[:4] + "..." + self.api_key[-4:] if len(self.api_key) > 8 else "***"
+        return f"OpenNeuroConfig(api_key={masked_key}, base_url={self.base_url})"
 
 
-def get_openneuro_config(env_file: Optional[Path] = None) -> OpenNeuroConfig:
+def get_openneuro_config() -> Optional[OpenNeuroConfig]:
     """
-    Factory function to retrieve the OpenNeuro configuration.
+    Loads and validates OpenNeuro configuration from environment variables.
 
-    This is the primary entry point for other modules to access credentials.
-    It ensures the .env file exists (if provided) and loads the config.
-
-    Args:
-        env_file: Path to the .env file. Defaults to looking in the project root.
+    Attempts to load variables from a .env file in the project root first,
+    then falls back to the system environment.
 
     Returns:
-        OpenNeuroConfig object.
+        OpenNeuroConfig: The validated configuration object.
 
     Raises:
-        ValueError: If credentials are missing or invalid.
+        ValueError: If the required API key is missing.
     """
-    if env_file is None:
-        env_file = Path.cwd() / ".env"
-    
-    # Ensure the .env file exists? No, we just try to load.
-    # If it doesn't exist, load_dotenv does nothing, and we rely on OS env vars.
-    
-    return OpenNeuroConfig.from_env(env_file=env_file)
+    # Ensure .env file is loaded if it exists
+    project_root = Path(__file__).parent.parent
+    env_path = project_root / DOTENV_FILE
+    if env_path.exists():
+        load_dotenv(env_path)
+
+    api_key = os.getenv(OPENNEURO_API_KEY_ENV)
+    base_url = os.getenv(OPENNEURO_BASE_URL_ENV, DEFAULT_OPENNEURO_BASE_URL)
+
+    if not api_key:
+        raise ValueError(
+            f"OpenNeuro API key not found. Please set the {OPENNEURO_API_KEY_ENV} "
+            f"environment variable or add it to a {DOTENV_FILE} file in the project root."
+        )
+
+    return OpenNeuroConfig(api_key=api_key, base_url=base_url)
 
 
 def main():
     """
-    CLI entry point to validate and print configuration status.
-    Used for manual verification of the setup.
+    CLI entry point to test the environment configuration loading.
     """
     ensure_directories()
-    
     try:
         config = get_openneuro_config()
-        print("OpenNeuro configuration loaded successfully.")
-        print(f"  Base URL: {config.base_url}")
-        print(f"  API Key: {config.api_key[:4]}...{config.api_key[-4:]}")
-        print(f"  Anonymous Access: {config.anonymous_access}")
+        print(f"Successfully loaded OpenNeuro configuration: {config}")
         return 0
     except ValueError as e:
         print(f"Configuration Error: {e}")
-        return 1
-    except Exception as e:
-        print(f"Unexpected error: {e}")
         return 1
 
 

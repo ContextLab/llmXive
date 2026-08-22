@@ -1871,6 +1871,10 @@
     "classified_at": "2026-07-30T18:39:23Z",
     "verdict": false
   },
+  "PROJ-987-llmxive-follow-up-extending-openthoughts::1.6.0": {
+    "classified_at": "2026-08-22T04:20:27Z",
+    "verdict": false
+  },
   "PROJ-988-llmxive-follow-up-extending-abot-earth-0::1.6.0": {
     "classified_at": "2026-07-06T21:57:04Z",
     "verdict": false

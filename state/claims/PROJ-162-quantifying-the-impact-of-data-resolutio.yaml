@@ -670,3 +670,192 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T02:28:15Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Resolution targets include 2048, 1024, 512, and 256 Hz
+  claim_id: c_c35d8529
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/config.py with global seeds, paths, and resolution targets
+    (high to low frequencies, including 2048, 1024, 512, 256 Hz)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:03:27Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Four down-sampled files generated at 2048, 1024, 512, and 256 Hz
+  claim_id: c_a38d83fb
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T014'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate 4 down-sampled files (2048, 1024, 512, 256 Hz) with metadata
+    tagging.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:03:57Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Minimum time-offset separation is 10 seconds or greater than 10 times
+    the longest waveform duration
+  claim_id: c_6f88e6cd
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T020a'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_time-offset_separation_is_10_seconds_or_greater_than
+  kind: magnitude
+  raw_text: Enforce a minimum time-offset separation of 10 seconds or >10x the longest
+    waveform duration between injections
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:05:16Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Pilot run sample size is 20 injections
+  claim_id: c_22a0556a
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T020a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a Pilot Run with N=20 injections.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:05:58Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: 'Statistical power analysis parameters: alpha 0.05, power 0.8, effect
+    size 0.05'
+  claim_id: c_cd598e78
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T021b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Parameters: alpha=0.05, power=0.8, effect_size=0.05'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:06:43Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Resolution-matched template banks generated for sampling rates 4096,
+    2048, 1024, 512, and 256 Hz
+  claim_id: c_37057145
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T022'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Must use resolution-matched template banks (generate/load banks specific
+    to each sampling rate: 4096, 2048, 1024, 512, 256 Hz)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:12:58Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Re-weighted SNR calculated using 16 frequency bins
+  claim_id: c_dbd2513f
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T023'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate re-weighted SNR rho_hat = rho / sqrt(1 + (chi^2/df)^2) with
+    16 frequency bins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:14:36Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Detection probability defined as fraction of re-weighted SNR greater
+    than 8
+  claim_id: c_ea9e700f
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T030'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Detection_probability_defined_as_fraction_of_re-weighted_SNR
+  kind: magnitude
+  raw_text: calculate detection probability (fraction of rho_hat > 8) per resolution
+    level
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:17:13Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Welch's t-tests with Bonferroni correction applied between resolution
+    levels 4096-2048, 2048-1024, 1024-512, and 512-256
+  claim_id: c_b60f6ba8
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T031a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform Welch's t-tests with Bonferroni correction as the primary verification
+    method for SNR degradation between adjacent resolution levels (4096-2048, 2048-1024,
+    1024-512, 512-256).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:18:00Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Fallback to linear interpolation between 10%, 50%, and 90% thresholds
+    if data points are less than 3
+  claim_id: c_e7c2416b
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T032'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_linear_interpolation_between_10%25,_50%25,_and_90%25_t
+  kind: magnitude
+  raw_text: Implement logistic regression for curve fitting; if data points < 3, fallback
+    to linear interpolation between 10%, 50%, 90% thresholds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:19:12Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Stratified analysis uses SNR bins 8-12, 12-20, and greater than 20
+  claim_id: c_89341539
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T034'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_analysis_uses_SNR_bins_8-12,_12-20,_and_greater_t
+  kind: magnitude
+  raw_text: 'Implement stratified analysis logic (SNR bins: 8-12, 12-20, >20) for
+    all statistical tests'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T04:19:51Z'

@@ -1,27 +1,12 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, W503
+extend-ignore = E203, E501
 exclude =
     .git,
     __pycache__,
     build,
     dist,
     .eggs,
-    *.egg-info,
-    venv,
-    .venv,
-    env,
-    .env,
-    data,
-    figures,
-    tests,
-    __init__.py
+    *.egg-info
 per-file-ignores =
-    # Allow unused imports in __init__.py for public API exposure
-    */__init__.py:F401
-    # Allow unused arguments in tests
-    tests/*:F841, N802
-    # Allow magic numbers in tests and config scripts
-    tests/*:S101, N999
-    code/setup_python_env.py: S101
-ignore = E121, E123, E126, E226, E24, E704, W503, W504
+    __init__.py: F401

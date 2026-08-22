@@ -11,3 +11,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T013b** — declared artifact(s) missing/empty/invalid: data/processed/session_validation_metrics.json
 - **T015** — declared artifact(s) missing/empty/invalid: data/processed/ingestion_errors.log
 - **T016b** — declared artifact(s) missing/empty/invalid: data/processed/ventral_striatum_activation.csv
+- **T017** — No script, function, or test output is present that checks the TR of the downloaded HCP data against expected values, nor any logic that exits with a non‑zero code and the message “Error: TR mismatch”. The required verification artifact is missing.
+- **T018** — No artifact (e.g., script, log, test report, or documentation) was provided that demonstrates the system monitors or limits its memory usage to ≤ 7 GB during data loading/processing. Consequently, there is no evidence that the requirement has been met. The implementer must supply concrete code or test output showing the memory footprint stays within the specified bound.

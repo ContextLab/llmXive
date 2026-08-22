@@ -1,10 +1,3 @@
-"""
-Error handling module for data ingestion failures.
-
-Implements FR-010: Fail fast with non-zero exit code and error message
-"Error: Insufficient valid subjects (<50)" if <50 valid subjects found.
-Logs errors to data/processed/ingestion_errors.log.
-"""
 import os
 import sys
 import logging
@@ -12,43 +5,34 @@ from pathlib import Path
 from typing import List, Optional
 
 from config import ensure_directories
-from data_ingestion import validate_session_distinctness, download_subject_data
-from ingestion_warnings import setup_warning_logger, get_warning_log_path
 
+ERROR_LOG_PATH = None
 
-# Minimum number of valid subjects required
-MIN_VALID_SUBJECTS = 50
-
-
-def setup_error_logger(log_dir: Optional[Path] = None) -> logging.Logger:
+def setup_error_logger() -> logging.Logger:
     """
-    Setup and return a logger for ingestion errors.
-    
-    Args:
-        log_dir: Directory for log files. Defaults to data/processed/.
-    
-    Returns:
-        Configured logger instance.
+    Sets up the error logger for data ingestion errors.
+    Creates the log file at data/processed/ingestion_errors.log.
     """
-    if log_dir is None:
-        log_dir = Path("data/processed")
+    global ERROR_LOG_PATH
+    ensure_directories()
     
-    ensure_directories(log_dir)
+    log_dir = Path("data/processed")
+    log_dir.mkdir(parents=True, exist_ok=True)
     
-    log_path = log_dir / "ingestion_errors.log"
+    ERROR_LOG_PATH = log_dir / "ingestion_errors.log"
     
     logger = logging.getLogger("ingestion_errors")
     logger.setLevel(logging.ERROR)
     
     # Remove existing handlers to avoid duplicates
-    if logger.handlers:
+    if logger.hasHandlers():
         logger.handlers.clear()
     
-    # File handler
-    file_handler = logging.FileHandler(log_path, mode='a')
+    # Create file handler
+    file_handler = logging.FileHandler(ERROR_LOG_PATH, mode='w')
     file_handler.setLevel(logging.ERROR)
     
-    # Format: timestamp - level - message
+    # Create formatter
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
     
@@ -56,83 +40,60 @@ def setup_error_logger(log_dir: Optional[Path] = None) -> logging.Logger:
     
     return logger
 
+def get_error_log_path() -> Path:
+    """Returns the path to the error log file."""
+    if ERROR_LOG_PATH is None:
+        setup_error_logger()
+    return ERROR_LOG_PATH
 
-def get_error_log_path(log_dir: Optional[Path] = None) -> Path:
+def log_insufficient_subjects(count: int, required: int = 50) -> None:
     """
-    Get the path to the error log file.
+    Logs an error message indicating insufficient valid subjects.
     
     Args:
-        log_dir: Directory for log files. Defaults to data/processed/.
+        count: The number of valid subjects found.
+        required: The minimum required number of subjects.
+    """
+    logger = logging.getLogger("ingestion_errors")
+    if not logger.handlers:
+        setup_error_logger()
     
-    Returns:
-        Path to the error log file.
-    """
-    if log_dir is None:
-        log_dir = Path("data/processed")
-    return log_dir / "ingestion_errors.log"
+    message = f"Error: Insufficient valid subjects ({count} found, {required} required)."
+    logger.error(message)
 
-
-def log_insufficient_subjects(
-    logger: logging.Logger,
-    valid_count: int,
-    required_count: int = MIN_VALID_SUBJECTS
-) -> None:
+def fail_fast_if_insufficient_subjects(count: int, required: int = 50) -> None:
     """
-    Log an error when insufficient valid subjects are found.
+    Checks if the number of valid subjects is below the threshold.
+    If so, logs the error and exits with a non-zero exit code.
     
     Args:
-        logger: Logger instance to write to.
-        valid_count: Number of valid subjects found.
-        required_count: Minimum required subjects (default: 50).
-    """
-    error_msg = f"Error: Insufficient valid subjects ({valid_count} < {required_count})"
-    logger.error(error_msg)
-
-
-def fail_fast_if_insufficient_subjects(
-    valid_subject_ids: List[str],
-    logger: Optional[logging.Logger] = None
-) -> None:
-    """
-    Check if we have enough valid subjects and fail fast if not.
-    
-    This implements FR-010: Fail fast with non-zero exit code and error message
-    "Error: Insufficient valid subjects (<50)" if <50 valid subjects found.
-    
-    Args:
-        valid_subject_ids: List of valid subject IDs.
-        logger: Logger instance. If None, creates a new one.
-    
+        count: The number of valid subjects found.
+        required: The minimum required number of subjects.
+        
     Raises:
-        SystemExit: With code 1 if insufficient subjects are found.
+        SystemExit: If count < required, exits with code 1.
     """
-    valid_count = len(valid_subject_ids)
-    
-    if logger is None:
-        logger = setup_error_logger()
-    
-    if valid_count < MIN_VALID_SUBJECTS:
-        log_insufficient_subjects(logger, valid_count, MIN_VALID_SUBJECTS)
-        error_msg = f"Error: Insufficient valid subjects ({valid_count} < {MIN_VALID_SUBJECTS})"
-        print(error_msg, file=sys.stderr)
+    if count < required:
+        log_insufficient_subjects(count, required)
         sys.exit(1)
-    
-    # Success - log the count
-    logger.info(f"Valid subject count ({valid_count}) meets minimum requirement ({MIN_VALID_SUBJECTS})")
-
 
 def main() -> None:
     """
-    Main entry point for error checking.
-    
-    This function is intended to be called after data ingestion and validation
-    to ensure we have enough valid subjects before proceeding.
+    Main entry point for testing the error handling logic.
+    This is primarily used for demonstration or unit testing purposes.
     """
-    # This is a utility module - actual checking happens in data_ingestion.py
-    # This main() is for standalone testing/debugging
-    print("ingestion_errors module loaded successfully")
-    print(f"Minimum valid subjects required: {MIN_VALID_SUBJECTS}")
-
+    setup_error_logger()
+    logger = logging.getLogger("ingestion_errors")
+    
+    # Example usage: Simulate a failure case
+    test_count = 10
+    test_required = 50
+    
+    try:
+        fail_fast_if_insufficient_subjects(test_count, test_required)
+    except SystemExit as e:
+        print(f"SystemExit raised with code: {e.code}")
+        print(f"Error log written to: {get_error_log_path()}")
 
 if __name__ == "__main__":
     main()

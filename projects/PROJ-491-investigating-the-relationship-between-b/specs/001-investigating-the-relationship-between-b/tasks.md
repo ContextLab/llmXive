@@ -74,7 +74,7 @@
 
 **Goal**: Download and prepare a subsample of 50 HCP subjects (resting-state and task-fMRI) ensuring memory constraints and data validity.
 
-**Independent Test**: The pipeline can be fully tested by executing the data ingestion script and verifying the output directory contains exactly 50 subject folders (or fewer if skipped), with both resting-state and task-fMRI NIfTI files, and that total disk usage is ≤ 14 GB. [UNRESOLVED-CLAIM: c_3c418ea9 — status=not_enough_info]
+**Independent Test**: The pipeline can be fully tested by executing the data ingestion script and verifying the output directory contains exactly 50 subject folders (or fewer if skipped), with both resting-state and task-fMRI NIfTI files, and that total disk usage is ≤ 14 GB.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -85,7 +85,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/data_ingestion.py` to download HCP data from OpenNeuro for 50 subjects [UNRESOLVED-CLAIM: c_4fecedbd — status=not_enough_info] (FR-001)
+- [X] T012 [US1] Implement `code/data_ingestion.py` to download HCP data from OpenNeuro for 50 subjects (FR-001)
 - [X] T013 [US1] Implement session ID distinctness validation logic in `code/data_ingestion.py` (FR-008), explicitly excluding subjects with matching session IDs from the downstream pipeline
 - [ ] T013b [US1] Implement logic to calculate the pass-rate percentage of subjects with distinct session IDs and write this metric to `data/processed/session_validation_metrics.json` (SC-005)
 - [X] T013c [US1] Implement logic to write the list of excluded subject IDs (due to session ID mismatch) to `data/processed/excluded_session_ids.csv`
@@ -95,7 +95,7 @@
 - [X] T016c [US1] Implement `code/preprocessing.py` to explicitly extract the Ventral Striatum (VS) ROI time series from task-fMRI NIfTI files for all valid subjects (FR-002)
 - [ ] T016b [US1] Implement aggregation of task-fMRI BOLD time series (from T016c) to calculate mean ventral striatum activation magnitude per subject, writing to `data/processed/ventral_striatum_activation.csv` (FR-002)
 - [ ] T017 [US1] Verify TR of downloaded data matches expected values for window calculations; fail with non-zero exit code and "Error: TR mismatch" if invalid (Assumption)
-- [ ] T018 [US1] Ensure memory footprint of loaded data never exceeds 7 GB during processing (SC-001)
+- [ ] T018 [US1] Ensure memory footprint of loaded data never exceeds 7 GB during processing (SC-001) <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (valid CSV time series generated for 50 subjects)
 
@@ -115,8 +115,8 @@
 ### Implementation for User Story 2
 
 - [ ] T020b [US2] Generate synthetic ground truth dataset with known switching patterns to validate the flexibility calculation logic (Independent Test requirement)
-- [ ] T021 [US2] Implement sliding window functional connectivity calculation (window=30 TR, step=1 TR) [UNRESOLVED-CLAIM: c_3566ef84 — status=not_enough_info] in `code/connectivity.py` (FR-003)
-- [ ] T022 [US2] Implement K-means clustering (K=4, K-means++, seed=42) to define state space [UNRESOLVED-CLAIM: c_82801d5c — status=not_enough_info] in `code/connectivity.py` (FR-003a)
+- [ ] T021 [US2] Implement sliding window functional connectivity calculation (window=30 TR, step=1 TR) in `code/connectivity.py` (FR-003)
+- [ ] T022 [US2] Implement K-means clustering (K=4, K-means++, seed=42) to define state space in `code/connectivity.py` (FR-003a)
 - [ ] T023 [US2] Implement flexibility score calculation (state switching frequency) normalized for scan length in `code/connectivity.py` (FR-004)
 - [ ] T025 [US2] Handle edge case: flag and exclude subjects with zero variance flexibility scores, writing excluded subject IDs to `data/processed/excluded_subjects_log.csv` (Edge Case)
 - [ ] T025b [US2] Filter the `data/processed/ventral_striatum_activation.csv` (from T016b) to match the remaining subject list after zero-variance exclusions, ensuring data alignment for correlation analysis
@@ -140,7 +140,7 @@
 ### Implementation for User Story 3
 
 - [ ] T029 [US3] Implement Pearson correlation analysis between flexibility scores and ventral striatum activation in `code/analysis.py` (FR-005)
-- [ ] T029b [US3] Implement sensitivity analysis loop for window sizes {20, 30, 40} TRs [UNRESOLVED-CLAIM: c_6ba9829f — status=not_enough_info]; calculate correlation and p-value for each; write results to `data/processed/sensitivity_analysis.csv` with columns: window_size, correlation_coefficient, p_value (FR-009)
+- [ ] T029b [US3] Implement sensitivity analysis loop for window sizes {20, 30, 40} TRs; calculate correlation and p-value for each; write results to `data/processed/sensitivity_analysis.csv` with columns: window_size, correlation_coefficient, p_value (FR-009)
 - [ ] T030 [US3] Implement permutation test (A sufficient number of iterations will be performed to ensure convergence.) to calculate empirical p-value in `code/analysis.py` (FR-006)
 - [ ] T031 [US3] Handle edge case: report p < 1/1001 if permutation p-value is exactly 0 (Edge Case)
 - [ ] T032 [US3] Generate scatter plot with regression line for the correlation result
@@ -159,7 +159,7 @@
 - [ ] T035b [P] Update `specs/001-gene-regulation/` documentation with final data flow diagrams
 - [ ] T036a Code cleanup: fix linting errors in `code/`
 - [ ] T036b Code cleanup: remove dead code and unused imports in `code/`
-- [ ] T037c [P] Benchmark pipeline runtime on a small subset (e.g., 5 subjects) to establish a baseline [UNRESOLVED-CLAIM: c_e44e1661 — status=not_enough_info] and verify the time constraint before full execution (FR-009/Assumptions)
+- [ ] T037c [P] Benchmark pipeline runtime on a small subset (e.g., 5 subjects) to establish a baseline and verify the time constraint before full execution (FR-009/Assumptions)
 - [ ] T037b [P] Performance optimization: ensure total runtime stays <6h for 50 subjects based on T037c results (FR-009/Assumptions)
 - [ ] T037a Performance optimization: ensure peak RAM usage stays <6GB during processing
 - [ ] T038 [P] Additional unit tests (if requested) in `tests/unit/`

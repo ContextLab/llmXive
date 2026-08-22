@@ -1,1 +1,3 @@
-# Code package initialization
+"""
+PROJ-002: Evolutionary Pressure on Alternative Splicing in Primates
+"""

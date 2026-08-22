@@ -41,7 +41,7 @@
 - [X] T005 [P] Implement `src/config.py` with global seeds, paths, and resolution targets (high to low frequencies, including 2048, 1024, 512, 256 Hz)
 - [ ] T006a [P] Implement `src/data_hygiene.py` to generate SHA256 checksums for all files in `data/` and write them to `state/checksums.json` in the format `{file_path: hash}`.
 - [ ] T006b [P] Implement `data-hygiene.sh` shell script that calls `src/data_hygiene.py` and writes the final checksum record to `state/checksums.json` (Constitution Principle III).
-- [ ] T007 [P] Create `src/schema_validator.py` with a function `validate_json(data, schema_path)` that raises `ValueError` on mismatch, and add a CLI entry point to validate a specific file against a schema.
+- [X] T007 [P] Create `src/schema_validator.py` with a function `validate_json(data, schema_path)` that raises `ValueError` on mismatch, and add a CLI entry point to validate a specific file against a schema.
 - [ ] T008 [P] Implement `src/profiler.py` (FR-006) with memory monitoring (hard limit of 6GB). **Critical**: If peak memory usage exceeds 6GB during any batch, abort the current batch, exit with code 1, and write a detailed log to `data/profiling/memory_error.log`.
 - [X] T009 Setup `pytest` configuration and `tests/contract/test_schemas.py` to verify schema enforcement
 
@@ -64,7 +64,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `src/waveform_gen.py` (FR-001) to generate non-spinning BBH waveforms (low to high mass, moderate to high distances) at 4096 Hz using `pycbc.waveform`
+- [X] T012 [P] [US1] Implement `src/waveform_gen.py` (FR-001) to generate non-spinning BBH waveforms (low to high mass, moderate to high distances) at 4096 Hz using `pycbc.waveform`
 - [ ] T013 [US1] [Depends: T012] Implement `src/downsample.py` (FR-002) to apply FIR low-pass filters (cutoff = fs/2). **Critical**: Calculate the theoretical frequency response H(f) of the filter. Identify `f_peak` as the frequency of the maximum spectral amplitude of the *entire* generated waveform. Pre-scale the waveform amplitude by $1/|H(f_{peak})|$ before decimation to isolate resolution loss from filter attenuation (Plan: Filter Confound Control).
 - [ ] T014 [US1] [Depends: T012, T013] Implement `src/downsample.py` pipeline logic to produce a small set of distinct files per waveform: **Process** the native output of T012 as the 4096 Hz file (applying metadata tagging and validation logic identical to down-sampled files) and **generate** 4 down-sampled files (2048, 1024, 512, 256 Hz) with metadata tagging. **Output**: Files must follow pattern `data/processed/waveforms/waveform_{id}_{rate}Hz.h5`. **Critical**: The 4096 Hz file must be processed (not just copied) to ensure it receives the same metadata tagging and validation as down-sampled files.
 - [ ] T015 [US1] Add validation in `src/downsample.py` to ensure no frequency components exceed the measured RMS noise floor of the specific *down-sampled* segment by more than 10 dB (SC-004). **Critical**: Calculate RMS noise floor of the *down-sampled* segment in the frequency band below the *target* Nyquist limit and assert that aliased components > Nyquist are < 10 dB above this floor, raising an error if violated.
@@ -119,9 +119,9 @@
 - [ ] T030 [P] [US3] Implement `src/analysis.py` (FR-005) to calculate detection probability (fraction of $\hat{\rho} > 8$) per resolution level
 - [ ] T031a [US3] [P] Implement `src/analysis.py` to perform **Welch's t-tests with Bonferroni correction** as the **primary verification method** for SNR degradation between adjacent resolution levels (4096-2048, 2048-1024, 1024-512, 512-256). **Input**: `injections.csv` columns `resolution` and `re_weighted_snr`. **Output**: P-values, statistics, and Bonferroni-corrected p-values. (FR-007, SC-001).
 - [ ] T031b [US3] [P] Implement `src/analysis.py` to perform **Jonckheere-Terpstra test** as a **secondary check** for monotonic trends across all resolution levels. Implement **Mann-Whitney U fallback** if normality assumptions (Shapiro-Wilk) fail for the t-tests. (FR-007, SC-001).
-- [ ] T032 [US3] Implement `src/analysis.py` to compute detection probability curves and identify "knee" points: **Implement logistic regression for curve fitting; if data points < 3, fallback to linear interpolation between 10%, 50%, 90% thresholds** as per SC-002.
+- [ ] T032 [US3] Implement `src/analysis.py` to compute detection probability curves and identify "knee" points: **Implement logistic regression for curve fitting; if data points < 3, fallback to linear interpolation between 10%, 50%, 90% thresholds [UNRESOLVED-CLAIM: c_e7c2416b — status=not_enough_info]** as per SC-002.
 - [ ] T033 [US3] Implement `src/analysis.py` to aggregate resource metrics (CPU time, memory) and compute efficiency trade-off guidelines (FR-006, SC-003)
-- [ ] T034 [US3] Implement stratified analysis logic (SNR bins: 8-12, 12-20, >20) for all statistical tests
+- [ ] T034 [US3] Implement stratified analysis logic (SNR bins: 8-12, 12-20, >20) for all statistical tests [UNRESOLVED-CLAIM: c_89341539 — status=not_enough_info]
 - [ ] T035 [US3] Validate final aggregated metrics against schema and write to `data/processed/analysis_results.json`
 
 **Checkpoint**: All user stories should now be independently functional

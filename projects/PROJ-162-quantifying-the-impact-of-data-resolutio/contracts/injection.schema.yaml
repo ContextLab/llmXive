@@ -1,6 +1,6 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Injection Result
-description: Schema for individual injection results containing SNR metrics and metadata.
+$schema: http://json-schema.org/draft-07/schema#
+title: Injection Result Schema
+description: Schema for validation of gravitational wave injection results containing SNR and re-weighted SNR metrics.
 type: object
 required:
   - resolution
@@ -11,33 +11,27 @@ required:
 properties:
   resolution:
     type: integer
-    description: Sampling frequency of the injection in Hz (e.g., 256, 512, 1024, 2048, 4096).
-    minimum: 1
+    description: Sampling frequency of the data in Hz (e.g., 4096, 2048, 1024, 512, 256).
+    minimum: 64
   snr:
     type: number
-    description: Matched-filter signal-to-noise ratio (rho).
+    description: Matched-filter Signal-to-Noise Ratio (rho).
     minimum: 0
   re_weighted_snr:
     type: number
-    description: Re-weighted SNR (rho_hat) accounting for chi-squared consistency.
+    description: Re-weighted SNR (rho_hat) accounting for chi-squared consistency tests.
     minimum: 0
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 formatted timestamp of the injection event.
+    description: ISO 8601 timestamp of the injection event.
   noise_segment_id:
     type: string
-    description: Unique identifier for the GWOSC noise segment used.
-  injection_id:
-    type: string
-    description: Unique identifier for this specific injection realization.
-    optional: true
+    description: Unique identifier for the noise segment used (e.g., GWOSC run ID and segment name).
   waveform_id:
     type: string
-    description: Identifier of the source waveform used.
-    optional: true
-  time_offset:
+    description: Optional identifier for the injected waveform.
+  injected_snr:
     type: number
-    description: Time offset in seconds where the signal was injected.
-    optional: true
+    description: Optional theoretical injected SNR for comparison.
 additionalProperties: false

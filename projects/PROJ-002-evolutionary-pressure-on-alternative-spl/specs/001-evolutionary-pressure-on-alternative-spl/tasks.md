@@ -58,8 +58,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data download and replicate validation in `tests/contract/test_download_replicates.py`: Verify pipeline aborts with error 101 if <3 replicates and error 102 if >5 replicates, including informative error messages as specified in US-1 acceptance scenarios.
-- [ ] T011 [P] [US1] Integration test for full alignment and PSI quantification flow in `tests/integration/test_psi_pipeline.py`: Verify PSI table is produced, `pipeline.log` contains timestamps, and at least one splice junction is reported.
+- [X] T010 [P] [US1] Contract test for data download and replicate validation in `tests/contract/test_download_replicates.py`: Verify pipeline aborts with error 101 if <3 replicates and error 102 if >5 replicates, including informative error messages as specified in US-1 acceptance scenarios.
+- [X] T011 [P] [US1] Integration test for full alignment and PSI quantification flow in `tests/integration/test_psi_pipeline.py`: Verify PSI table is produced, `pipeline.log` contains timestamps, and at least one splice junction is reported.
 - [ ] T012 [P] [US1] Unit test for alignment duration validation script (`validate_alignment_time.py`) in `tests/unit/test_align_time.py`: Verify script correctly parses duration from `pipeline.log` and asserts ≤2 hours.
 
 ### Implementation for User Story 1

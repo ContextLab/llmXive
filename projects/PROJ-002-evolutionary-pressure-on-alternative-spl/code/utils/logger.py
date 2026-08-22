@@ -1,230 +1,263 @@
 """
-Logging infrastructure for the llmXive automated science pipeline.
+Logging infrastructure for llmXive pipeline.
 
 Provides timestamped, multi-level logging with error code tracking.
-Integrates with loguru for structured output and file rotation.
+Uses loguru for structured logging and file rotation.
 """
+
 import os
 import sys
-import logging
 from pathlib import Path
 from datetime import datetime
-from loguru import logger
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any
 import json
-import traceback
 
-# Configuration constants
-LOG_DIR = Path("data/logs")
-LOG_FILE = "pipeline.log"
-ERROR_TRACKER_FILE = "data/logs/error_tracker.json"
-DEFAULT_LEVEL = "INFO"
-LOG_FORMAT = "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} | {message}"
+from loguru import logger
 
-# Error code registry
-ERROR_CODES: Dict[int, str] = {
-    101: "Insufficient replicates (<3)",
-    102: "Excessive replicates (>5)",
-    201: "Alignment failed",
-    202: "Quantification failed",
-    301: "Missing phyloP scores",
-    401: "Phylogenetic tree loading failed",
-    501: "Lifecycle retention check failed"
-}
+# Global state for error tracking
+_tracked_errors: List[Dict[str, Any]] = []
+_log_file_path: Optional[Path] = None
+_initialized: bool = False
 
-# Ensure log directory exists
-LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# Remove default loguru handler to avoid duplicates
-logger.remove()
-
-# Add console handler
-logger.add(
-    sys.stderr,
-    format=LOG_FORMAT,
-    level=DEFAULT_LEVEL,
-    colorize=True
-)
-
-# Add file handler with rotation
-logger.add(
-    LOG_DIR / LOG_FILE,
-    format=LOG_FORMAT,
-    level=DEFAULT_LEVEL,
-    rotation="10 MB",
-    retention="7 days",
-    compression="zip"
-)
-
-# Error tracking storage
-_error_tracker: List[Dict] = []
-
-def setup_logger(level: str = DEFAULT_LEVEL, log_file: Optional[str] = None) -> None:
+def setup_logger(
+    log_dir: str = "data/logs",
+    log_file: str = "pipeline.log",
+    level: str = "DEBUG",
+    rotation: str = "500 MB",
+    retention: str = "7 days",
+    compression: str = "gz"
+) -> Path:
     """
-    Configure the logger with a specific level and optional custom log file.
-    
+    Configure the logger instance with file and console handlers.
+
     Args:
+        log_dir: Directory to store log files
+        log_file: Name of the log file
         level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        log_file: Optional custom log file path
-    """
-    global LOG_FILE
-    if log_file:
-        LOG_FILE = log_file
-        # Re-add file handler with new file
-        logger.add(
-            LOG_DIR / LOG_FILE,
-            format=LOG_FORMAT,
-            level=level,
-            rotation="10 MB",
-            retention="7 days",
-            compression="zip"
-        )
-    
-    # Update global level
-    logger.remove()
-    logger.add(sys.stderr, format=LOG_FORMAT, level=level, colorize=True)
-    logger.add(LOG_DIR / LOG_FILE, format=LOG_FORMAT, level=level, rotation="10 MB", retention="7 days", compression="zip")
+        rotation: Max size before rotation
+        retention: How long to keep old logs
+        compression: Compression format for rotated logs
 
-def track_error(error_code: int, message: str, exception: Optional[Exception] = None) -> None:
+    Returns:
+        Path to the log file
+    """
+    global _initialized, _log_file_path
+
+    # Ensure log directory exists
+    log_path = Path(log_dir)
+    log_path.mkdir(parents=True, exist_ok=True)
+
+    full_log_path = log_path / log_file
+    _log_file_path = full_log_path
+
+    # Remove default handler if exists
+    logger.remove()
+
+    # Add console handler with color and format
+    logger.add(
+        sys.stdout,
+        level=level,
+        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+        colorize=True
+    )
+
+    # Add file handler with rotation and detailed format
+    logger.add(
+        str(full_log_path),
+        level=level,
+        format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} | {message}",
+        rotation=rotation,
+        retention=retention,
+        compression=compression,
+        enqueue=True  # Thread-safe
+    )
+
+    _initialized = True
+    logger.info(f"Logger initialized. Log file: {full_log_path}")
+
+    return full_log_path
+
+
+def track_error(
+    error_code: str,
+    error_message: str,
+    context: Optional[Dict[str, Any]] = None,
+    severity: str = "ERROR"
+) -> Dict[str, Any]:
     """
     Track an error with a specific error code for audit trails.
-    
+
     Args:
-        error_code: Numeric error code from ERROR_CODES registry
-        message: Human-readable error message
-        exception: Optional exception object for traceback
+        error_code: Unique identifier for this error type (e.g., "E101")
+        error_message: Human-readable error description
+        context: Additional context data (optional)
+        severity: Error severity level
+
+    Returns:
+        Dictionary containing the tracked error info
     """
-    if error_code not in ERROR_CODES:
-        logger.warning(f"Unknown error code {error_code} used")
-    
     error_entry = {
         "timestamp": datetime.now().isoformat(),
         "error_code": error_code,
-        "error_name": ERROR_CODES.get(error_code, "Unknown"),
-        "message": message,
-        "traceback": traceback.format_exc() if exception else None
+        "error_message": error_message,
+        "severity": severity,
+        "context": context or {}
     }
-    
-    _error_tracker.append(error_entry)
-    logger.error(f"[ERR-{error_code:03d}] {message}")
-    
-    # Persist error tracker immediately
-    _save_error_tracker()
 
-def get_tracked_errors() -> List[Dict]:
+    _tracked_errors.append(error_entry)
+
+    # Log to the main logger as well
+    log_level = getattr(logger, severity.lower(), logger.error)
+    log_level(f"[{error_code}] {error_message}")
+    if context:
+        log_level(f"Context: {context}")
+
+    return error_entry
+
+
+def get_tracked_errors() -> List[Dict[str, Any]]:
     """
     Retrieve all tracked errors.
-    
+
     Returns:
-        List of error dictionaries with timestamps and details
+        List of all tracked error dictionaries
     """
-    return _error_tracker.copy()
+    return _tracked_errors.copy()
 
-def _save_error_tracker() -> None:
-    """Persist error tracker to disk."""
-    ERROR_TRACKER_FILE_PATH = LOG_DIR / ERROR_TRACKER_FILE
-    try:
-        with open(ERROR_TRACKER_FILE_PATH, "w") as f:
-            json.dump(_error_tracker, f, indent=2)
-    except Exception as e:
-        logger.error(f"Failed to save error tracker: {e}")
 
-def log_error(error_code: int, message: str, *args, **kwargs) -> None:
+def log_error(error_code: str, message: str, exc_info: bool = False) -> None:
     """
-    Log an error message and track it with the specified error code.
-    
+    Log an error with a specific error code.
+
     Args:
-        error_code: Numeric error code
-        message: Log message (supports loguru formatting)
-        *args, **kwargs: Additional arguments for loguru
+        error_code: Unique error identifier
+        message: Error message
+        exc_info: Whether to include exception info
     """
-    track_error(error_code, message)
-    logger.error(message, *args, **kwargs)
+    logger.error(f"[{error_code}] {message}")
+    if exc_info:
+        logger.opt(exception=True).error("Exception details")
 
-def log_critical(message: str, *args, **kwargs) -> None:
+
+def log_critical(error_code: str, message: str) -> None:
     """
-    Log a critical message (system-level failure).
-    
+    Log a critical error that may halt execution.
+
     Args:
-        message: Log message
-        *args, **kwargs: Additional arguments for loguru
+        error_code: Unique error identifier
+        message: Critical error message
     """
-    logger.critical(message, *args, **kwargs)
-    # Also track as error code 999 (system critical)
-    track_error(999, message)
+    logger.critical(f"[{error_code}] {message}")
+    track_error(error_code, message, severity="CRITICAL")
 
-def log_exception(exception: Exception, message: str = "Unhandled exception", error_code: int = 999) -> None:
+
+def log_exception(error_code: str, message: str, exc: Exception) -> None:
     """
-    Log and track an exception with traceback.
-    
+    Log an exception with full traceback.
+
     Args:
-        exception: Exception object
-        message: Context message
-        error_code: Optional error code (default 999 for unhandled)
+        error_code: Unique error identifier
+        message: Error message
+        exc: The exception object
     """
-    track_error(error_code, message, exception)
-    logger.exception(f"[ERR-{error_code:03d}] {message}")
+    logger.opt(exception=True).error(f"[{error_code}] {message}")
+    track_error(error_code, str(exc), context={"exception_type": type(exc).__name__}, severity="ERROR")
 
-def log_pipeline_step(step_name: str, status: str, details: Optional[Dict] = None) -> None:
+
+def log_pipeline_step(step_name: str, message: str, duration: Optional[float] = None) -> None:
     """
-    Log a pipeline step with structured details.
-    
+    Log a pipeline step with optional duration.
+
     Args:
         step_name: Name of the pipeline step
-        status: Step status (STARTED, COMPLETED, FAILED)
-        details: Optional dictionary of step-specific details
+        message: Description of the step
+        duration: Optional execution duration in seconds
     """
-    log_entry = f"PIPELINE_STEP: {step_name} | {status}"
-    if details:
-        log_entry += f" | {details}"
-    
-    if status == "STARTED":
-        logger.info(log_entry)
-    elif status == "COMPLETED":
-        logger.success(log_entry)
-    elif status == "FAILED":
-        logger.error(log_entry)
-    else:
-        logger.warning(log_entry)
+    log_msg = f"STEP: {step_name} - {message}"
+    if duration is not None:
+        log_msg += f" (duration: {duration:.2f}s)"
+    logger.info(log_msg)
 
-def get_log_file_path() -> Path:
+
+def get_log_file_path() -> Optional[Path]:
     """
-    Get the full path to the current log file.
-    
+    Get the path to the current log file.
+
     Returns:
-        Path object pointing to the log file
+        Path to log file or None if not initialized
     """
-    return LOG_DIR / LOG_FILE
+    return _log_file_path
+
 
 def get_error_summary() -> str:
     """
     Generate a summary of all tracked errors.
-    
+
     Returns:
         Formatted string summary of errors
     """
-    if not _error_tracker:
+    if not _tracked_errors:
         return "No errors tracked."
-    
-    summary = f"Error Summary ({len(_error_tracker)} total):\n"
-    for entry in _error_tracker:
-        summary += f"  [{entry['error_code']:03d}] {entry['error_name']}: {entry['message']}\n"
-    return summary
 
-# Initialize error tracker on module load
-_save_error_tracker()
+    summary_lines = [
+        "=== ERROR SUMMARY ===",
+        f"Total errors: {len(_tracked_errors)}",
+        ""
+    ]
 
-# Export public API
-__all__ = [
-    "setup_logger",
-    "track_error",
-    "get_tracked_errors",
-    "log_error",
-    "log_critical",
-    "log_exception",
-    "log_pipeline_step",
-    "get_log_file_path",
-    "get_error_summary",
-    "ERROR_CODES",
-    "logger"
-]
+    # Group by error code
+    error_counts: Dict[str, int] = {}
+    for err in _tracked_errors:
+        code = err["error_code"]
+        error_counts[code] = error_counts.get(code, 0) + 1
+
+    summary_lines.append("Errors by code:")
+    for code, count in sorted(error_counts.items()):
+        summary_lines.append(f"  {code}: {count} occurrence(s)")
+
+    summary_lines.append("")
+    summary_lines.append("Detailed errors:")
+    for i, err in enumerate(_tracked_errors, 1):
+        summary_lines.append(f"{i}. [{err['error_code']}] {err['error_message']}")
+        if err.get('context'):
+            summary_lines.append(f"   Context: {err['context']}")
+
+    return "\n".join(summary_lines)
+
+
+def export_error_log(output_path: str) -> Path:
+    """
+    Export all tracked errors to a JSON file.
+
+    Args:
+        output_path: Path to write the error log
+
+    Returns:
+        Path to the written file
+    """
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(_tracked_errors, f, indent=2, default=str)
+
+    logger.info(f"Error log exported to: {output_file}")
+    return output_file
+
+
+# Convenience function for immediate logging without setup
+def quick_log(message: str, level: str = "INFO") -> None:
+    """
+    Quick logging without explicit setup.
+
+    Args:
+        message: Message to log
+        level: Log level
+    """
+    if not _initialized:
+        # Initialize with defaults if not already done
+        setup_logger()
+
+    log_method = getattr(logger, level.lower(), logger.info)
+    log_method(message)

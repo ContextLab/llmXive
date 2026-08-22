@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-brain-network-dynamics"
+name = "llmXive-brain-reward"
 version = "0.1.0"
-description = "Investigating the Relationship Between Brain Network Dynamics and Anticipatory Reward Processing"
-readme = "README.md"
+description = "Investigating the relationship between brain network dynamics and anticipatory reward processing"
 requires-python = ">=3.11"
 dependencies = [
     "numpy",
@@ -18,18 +17,9 @@ dependencies = [
     "requests",
     "tqdm",
     "bids",
+    "nilearn",
     "python-dotenv",
     "pyyaml",
-    "nilearn",
-]
-
-[project.optional-dependencies]
-dev = [
-    "flake8",
-    "black",
-    "isort",
-    "pytest",
-    "pytest-cov",
 ]
 
 [tool.black]
@@ -47,18 +37,35 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | data
+    | data/raw
+    | data/processed
+    | state
+    | env
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-skip = ["data", "env", ".venv", "__pycache__"]
+skip = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "data/raw",
+    "data/processed",
+    "state",
+    "env"
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = "-v --strict-markers"

@@ -4,11 +4,15 @@ extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
+    data/raw,
+    data/processed,
+    state,
     env,
     .venv,
-    data,
     build,
-    dist
+    dist,
+    *.egg-info
 per-file-ignores =
-    # Allow unused imports in __init__.py for API exposure
-    */__init__.py: F401
+    # Allow unused imports in __init__.py for public API exposure
+    code/__init__.py: F401
+    tests/__init__.py: F401

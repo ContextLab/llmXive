@@ -1,111 +1,67 @@
-# Environment configuration for PROJ-002
-# Defines runtime parameters for CI (Sampled) vs Full (HPC) execution modes.
-#
-# Usage:
-#   export PROJ_ENV=ci  # or 'full'
-#   python -m code.pipeline.main --config config/environments.yaml
-#
-# The pipeline reads this file to determine data volume, parallelism limits,
-# and retention policies.
+# Environment Configuration for PROJ-002
+# Defines parameters for CI (Sampled) vs Full (HPC) execution modes.
+# Used by pipeline scripts to adjust resource constraints, sample sizes, and tool parameters.
 
-ci:
-  mode: "sampled"
-  description: "CI/CD execution using minimal real data samples to verify logic."
-  constraints:
-    max_replicates: 1
-    min_replicates: 1
-    max_alignments: 2
-    max_psi_calculations: 2
-    max_events_detected: 100
-    max_phylop_queries: 50
-    max_permutations: 100
-    timeout_seconds: 600
-    memory_limit_gb: 4
-    disk_limit_gb: 10
-  data_sources:
-    human:
-      sra_accession: "SRP010775"
-      sample_subset: 1
-    chimp:
-      sra_accession: "SRP009050"
-      sample_subset: 1
-    macaque:
-      sra_accession: "SRP009051"
-      sample_subset: 1
-    marmoset:
-      sra_accession: "SRP009052"
-      sample_subset: 1
-  tools:
-    star:
-      threads: 2
-      limit: "low"
-    suppa:
-      threads: 2
-    r_stats:
-      threads: 1
-  retention:
-    fastq: true
-    bam: false
-    psi: true
-    log: true
-    manifest: true
-  logging:
-    level: "DEBUG"
-    file: "data/pipeline_ci.log"
+modes:
+  ci_sampled:
+    description: "CI/CD execution mode using sampled data for logic validation only."
+    target: "Free-tier CPU CI (limited cores, RAM, disk)"
+    constraints:
+      max_replicates_per_species: 1
+      min_replicates_per_species: 1
+      max_alignments: 4
+      max_psi_events: 100
+      max_memory_gb: 2
+      max_disk_gb: 5
+      max_wall_time_minutes: 60
+      use_synthetic_data: true
+      star_params:
+        runMode: "singleEnd"
+        outFilterMultimapNmax: 10
+        limitBAMsortRAM: 1000000000  # 1GB
+        alignSJoverhangMin: 8
+        alignSJDBoverhangMin: 1
+      suppa_params:
+        generateEvents: "--iobase"
+        psi: "--output"
+    data_sources:
+      human: "data/ci_sample/human_1.fastq.gz"
+      chimp: "data/ci_sample/chimp_1.fastq.gz"
+      macaque: "data/ci_sample/macaque_1.fastq.gz"
+      marmoset: "data/ci_sample/marmoset_1.fastq.gz"
+    validation:
+      strict_replicate_check: false
+      allow_placeholder_flags: true
 
-full:
-  mode: "full"
-  description: "HPC execution using complete datasets for production analysis."
-  constraints:
-    max_replicates: 10
-    min_replicates: 3
-    max_alignments: 0  # 0 means unlimited
-    max_psi_calculations: 0
-    max_events_detected: 0
-    max_phylop_queries: 0
-    max_permutations: 1000
-    timeout_seconds: 0
-    memory_limit_gb: 64
-    disk_limit_gb: 500
-  data_sources:
-    human:
-      sra_accession: "SRP010775"
-      sample_subset: 0
-    chimp:
-      sra_accession: "SRP009050"
-      sample_subset: 0
-    macaque:
-      sra_accession: "SRP009051"
-      sample_subset: 0
-    marmoset:
-      sra_accession: "SRP009052"
-      sample_subset: 0
-  tools:
-    star:
-      threads: 16
-      limit: "high"
-    suppa:
-      threads: 8
-    r_stats:
-      threads: 4
-  retention:
-    fastq: false
-    bam: true
-    psi: true
-    log: true
-    manifest: true
-  logging:
-    level: "INFO"
-    file: "data/pipeline_full.log"
+  hpc_full:
+    description: "Full production execution on HPC cluster with real data."
+    target: "HPC Cluster (many cores, high RAM, fast disk)"
+    constraints:
+      max_replicates_per_species: 10
+      min_replicates_per_species: 3
+      max_alignments: 1000
+      max_psi_events: 100000
+      max_memory_gb: 64
+      max_disk_gb: 500
+      max_wall_time_minutes: 1440
+      use_synthetic_data: false
+      star_params:
+        runMode: "singleEnd"
+        outFilterMultimapNmax: 20
+        limitBAMsortRAM: 50000000000  # 50GB
+        alignSJoverhangMin: 8
+        alignSJDBoverhangMin: 1
+        outSAMtype: "BAM SortedByCoordinate"
+      suppa_params:
+        generateEvents: "--iobase"
+        psi: "--output"
+    data_sources:
+      human: "sra:SRP010775"
+      chimp: "sra:SRP009050"
+      macaque: "sra:SRP009051"
+      marmoset: "sra:SRP009052"
+    validation:
+      strict_replicate_check: true
+      allow_placeholder_flags: false
 
-# Helper function to load config programmatically
-# This block is documentation; actual loading logic is in code/utils/config_loader.py
-#
-# Example Python usage:
-#   import yaml
-#   from pathlib import Path
-#   env = os.getenv('PROJ_ENV', 'ci')
-#   config_path = Path('config/environments.yaml')
-#   with open(config_path) as f:
-#       cfg = yaml.safe_load(f)
-#   current_mode = cfg[env]
+default_mode: ci_sampled

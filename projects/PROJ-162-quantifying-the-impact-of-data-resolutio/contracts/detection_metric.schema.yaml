@@ -1,6 +1,6 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Detection Metric Aggregation
-description: Schema for aggregated detection probability metrics per resolution level.
+$schema: http://json-schema.org/draft-07/schema#
+title: Detection Metric Schema
+description: Schema for validation of aggregated detection probability metrics per resolution.
 type: object
 required:
   - p_value
@@ -11,45 +11,33 @@ required:
 properties:
   p_value:
     type: number
-    description: Statistical p-value from the hypothesis test (e.g., Welch's t-test).
+    description: Statistical p-value from the significance test (e.g., Welch's t-test).
     minimum: 0
     maximum: 1
   method:
     type: string
-    description: Name of the statistical method used for the test (e.g., "Welch t-test", "Mann-Whitney U").
-    enum:
-      - "Welch t-test"
-      - "Mann-Whitney U"
-      - "Jonckheere-Terpstra"
-      - "Linear Regression"
+    description: Name of the statistical method used (e.g., "Welch's t-test", "Mann-Whitney U").
   detection_probability:
     type: number
-    description: Fraction of injections where re_weighted_snr > 8.
+    description: Fraction of injections with re-weighted SNR > 8.
     minimum: 0
     maximum: 1
   resolution:
     type: integer
-    description: Sampling frequency in Hz for this aggregated metric.
-    minimum: 1
+    description: Sampling frequency of the data in Hz.
+    minimum: 64
   n_injections:
     type: integer
-    description: Total number of injections included in this aggregation.
+    description: Number of injections performed for this resolution.
     minimum: 1
-  comparison_resolution:
-    type: integer
-    description: The resolution level this metric is being compared against (for pairwise tests).
-    optional: true
-  confidence_interval:
+  confidence_interval_95:
     type: array
+    description: Optional 95% confidence interval for the detection probability [lower, upper].
     items:
       type: number
     minItems: 2
     maxItems: 2
-    description: 95% confidence interval [lower, upper] for the detection probability.
-    optional: true
-  timestamp:
-    type: string
-    format: date-time
-    description: Timestamp of the analysis run.
-    optional: true
+  comparison_resolution:
+    type: integer
+    description: Optional resolution used as the baseline for comparison.
 additionalProperties: false

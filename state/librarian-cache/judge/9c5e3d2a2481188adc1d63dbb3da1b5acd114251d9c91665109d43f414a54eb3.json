@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.18914",
+  "judged_at": "2026-08-22T04:21:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"openthoughts-agent: data recipes for agentic models\" computer science",
+  "rationale": "The paper focuses on legal definitions, regulatory frameworks, and policy compliance for agentic AI, which is a distinct construct from the user's question regarding technical \"data recipes\" and model training methodologies. It fails the inclusion criteria because it addresses the governance domain rather than the empirical or algorithmic mechanisms of data preparation for agentic models, and it does not measure the same variables or establish a technical baseline for the user's specific researc",
+  "relevant": false
+}

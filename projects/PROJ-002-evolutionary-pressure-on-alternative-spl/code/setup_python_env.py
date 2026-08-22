@@ -1,6 +1,6 @@
 """
-Environment Setup Script for PROJ-002
-Verifies Python 3.11+ and installs required dependencies.
+Environment setup script for PROJ-002.
+Validates Python version and installs dependencies from requirements.txt.
 """
 import sys
 import subprocess
@@ -8,35 +8,39 @@ import os
 from pathlib import Path
 
 def check_python_version():
-    """Ensure Python version is 3.11 or higher."""
+    """Ensure Python 3.11+ is being used."""
     version = sys.version_info
     if version.major < 3 or (version.major == 3 and version.minor < 11):
-        print(f"ERROR: Python 3.11+ is required. Found {version.major}.{version.minor}")
+        print(f"Error: Python 3.11+ is required. Found {version.major}.{version.minor}.{version.micro}")
         sys.exit(1)
-    print(f"Python version check passed: {version.major}.{version.minor}.{version.micro}")
+    print(f"✓ Python version check passed: {version.major}.{version.minor}.{version.micro}")
+    return True
 
 def install_dependencies():
-    """Install dependencies from requirements.txt."""
-    requirements_path = Path(__file__).parent.parent / "requirements.txt"
-    if not requirements_path.exists():
-        print(f"ERROR: requirements.txt not found at {requirements_path}")
-        sys.exit(1)
+    """Install Python dependencies from requirements.txt."""
+    project_root = Path(__file__).parent
+    req_file = project_root / "requirements.txt"
     
+    if not req_file.exists():
+        print(f"Error: {req_file} not found.")
+        sys.exit(1)
+
     print("Installing Python dependencies...")
     try:
         subprocess.check_call([
-            sys.executable, "-m", "pip", "install", "-r", str(requirements_path), "--upgrade"
+            sys.executable, "-m", "pip", "install", "-r", str(req_file), "--upgrade"
         ])
-        print("Dependencies installed successfully.")
+        print("✓ Python dependencies installed successfully.")
     except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to install dependencies: {e}")
+        print(f"Error: Failed to install dependencies: {e}")
         sys.exit(1)
 
 def main():
     """Main entry point for environment setup."""
+    print("=== PROJ-002 Environment Setup ===")
     check_python_version()
     install_dependencies()
-    print("Environment setup complete.")
+    print("=== Setup Complete ===")
 
 if __name__ == "__main__":
     main()
