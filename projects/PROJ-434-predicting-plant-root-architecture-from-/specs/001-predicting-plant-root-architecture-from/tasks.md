@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure: `code/`, `data/`, `data/raw`, `data/processed`, `data/logs`, `tests/`, `artifacts/`, `figures/`
+- [ ] T001a [P] Create directory structure: `code/`, `data/`, `data/raw`, `data/processed`, `data/logs`, `tests/`, `artifacts/`, `figures/`. **Implementation**: Use a Python script `setup_dirs.py` that calls `os.makedirs(path, exist_ok=True)` for each directory to ensure deterministic creation.
 - [X] T001b [P] Create `code/requirements.txt` with pinned dependencies (scikit-learn, pandas, numpy, rasterio, geopandas, requests, pyyaml, pytest)
 - [ ] T001c [P] Create `.gitignore` for Python and data artifacts
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
@@ -58,30 +58,41 @@
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-> **Dependency**: Requires T007 (Schema Contracts) to be complete before execution.
-> **Note**: T010 and T011 are marked [P] only if T007 is guaranteed complete; otherwise, they must wait.
+> **Dependency**: Requires T007 (Schema Contracts) to be complete before execution. **T007 MUST be completed before T010/T011 start.**
+> **Note**: T010 and T011 are NOT parallel-safe relative to T007. They must wait for T007 completion. The [P] tag applies only to parallelism within Phase 3 *after* T007 is done.
 
-- [X] T010 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_dataset_schema.py` (Requires T007)
-- [X] T011 [P] [US1] Integration test for geocoding alignment in `tests/integration/test_geocoding.py` (Requires T007)
+- [X] T010 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_dataset_schema.py` (Requires T007 completion)
+- [X] T011 [P] [US1] Integration test for geocoding alignment in `tests/integration/test_geocoding.py` (Requires T007 completion)
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `code/ingestion/soil_data.py`: Stream/extract SoilGrids N, P, K, pH values at specific coordinates. **MUST** reproject/resample rasters to a common CRS (WGS84) before extraction to satisfy Constitution Principle VI. **MUST** handle "No Data" or negative values by excluding the specific row and logging it, not by imputation.
-- [X] T013 [P] [US1] Implement `code/ingestion/trait_data.py`: Load root trait tabular data (Zenodo/Dryad), validate units, and filter for physically plausible values (depth > 0, pH 3.0-9.0)
-- [X] T014 [US1] Implement `code/ingestion/merge.py`: Join soil and trait data, apply species filter (≥10 valid observations), and log excluded species per FR-007
+- [X] T016 [US1] Implement `code/ingestion/data_loader.py`: Create a robust data loader that attempts to fetch real root trait data from verified sources (Zenodo/Dryad/HuggingFace) using the exact IDs specified in `research.md`. **Constraint**:
+ 1. **Production Mode**: If `RUN_MODE=production` (default), **MUST NOT** implement a `try/except` fallback to synthetic/mock data. If the real fetch fails, the script **MUST** raise a `DataFetchError` and exit immediately.
+ 2. **Test Mode**: If `RUN_MODE=test` (set via environment variable), the script **MAY** fall back to a synthetic proxy dataset for pipeline structure testing only.
+ **Dependency**: Runs before T013.
+
+- [X] T013 [P] [US1] Implement `code/ingestion/trait_data.py`: Load root trait tabular data using `data_loader.py` (Requires T016 implementation), validate units, and filter for physically plausible values (depth > 0, pH range from acidic to alkaline conditions).
+
+- [X] T012 [P] [US1] Implement `code/ingestion/soil_data.py`: Stream/extract SoilGrids N, P, K, pH values at specific coordinates. **MUST** reproject/resample rasters to a common CRS (WGS84) before extraction to satisfy Constitution Principle VI. **MUST** handle "No Data" or negative values by excluding the specific row. **MUST produce a derived dataset file** `data/processed/soil_extracted.csv` with a checksum and a derivation log entry for every row exclusion to satisfy Constitution Principle III (Data Hygiene).
+
+- [X] T014 [US1] Implement `code/ingestion/merge.py`: Join soil and trait data, apply species filter (≥10 valid observations), and log excluded species per FR-007. **Dependency**: Runs after T012 and T013.
+
 - [X] T015 [US1] Implement `code/ingestion/validation.py`:
  1. Calculate match proportion = `count(valid_rows) / count(total_input_rows)` where valid rows are those with non-null soil data for all predictors.
  2. **Flag and exclude** individual rows with missing soil data (graceful degradation) as per Spec US-1 Acceptance Scenario 2.
  3. **Log excluded records** to `data/logs/record_exclusions.log` with columns `record_id`, `reason_code` (e.g., 'missing_soil_data', 'failed_geocoding', 'invalid_value').
- 4. If the aggregate match proportion < 0.90, raise `DataQualityError` (a subclass of `Exception` with signature `DataQualityError(message: str, match_proportion: float)`) and write the specific failure reason to `data/logs/validation_error.log` with format `ERROR: Match proportion {match_proportion} < 0.90. Pipeline halted.`. Otherwise, proceed with valid data.
- 5. **Rationale**: This 'hard fail' is the required operationalization of SC-001's 'pass criterion' in a CI/CD context to ensure data quality gates are enforced.
+ 4. **Log validation summary** to `data/logs/validation_summary.log` with columns `timestamp`, `match_proportion`, `total_rows`, `valid_rows`, `excluded_rows`, `error_message`.
+ 5. **Hard Stop Enforcement**: If match proportion < 0.90, **MUST** raise `DataQualityError` with the specific reason and halt execution. **Do NOT** log a warning and continue.
+ **Dependency**: Runs after T014.
+
 - [ ] T017 [US1] Generate `data/processed/merged_dataset.csv`, `data/processed/excluded_species_summary.csv`, and `data/logs/species_exclusions.log`.
  **Logic**:
- 1. Count valid observations per species (rows where all predictors and outcomes are non-null and physically plausible).
+ 1. Count valid observations per species (rows where all predictors and outcomes are non-null and physically plausible) from the **filtered dataset produced by T015**.
  2. Filter for species with count < 10.
  3. Generate `excluded_species_summary.csv` with columns `species_name`, `observation_count`, `reason`. The `reason` column MUST contain the specific reason for exclusion (e.g., 'observation_count < 10').
  4. Generate `species_exclusions.log` with columns `species_name`, `reason`, `observation_count`.
- **Dependency**: Runs after T015.
+ 5. **Output**: `data/processed/merged_dataset.csv` is the **species-filtered** version (post-T015 row filtering and post-species-count filtering).
+ **Dependency**: Runs after T015 and T016.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -89,7 +100,7 @@
 
 ## Phase 4: User Story 2 - Predictive Model Training and Validation (Priority: P2)
 
-**Goal**: Train RF models and evaluate via Stratified 5-Fold CV (Primary), LOSO (Secondary).
+**Goal**: Train RF models and evaluate via Leave-One-Species-Out (LOSO) (Primary), Stratified 5-Fold CV (Secondary).
 
 **Independent Test**: The training script executes on the merged dataset, outputs cross-validation metrics (mean R², mean RMSE) for both target variables, and generates a feature importance plot.
 
@@ -100,23 +111,30 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/modeling/train.py`:
+- [X] T020 [US2] **Implement** `code/modeling/train.py`:
  1. **Preprocessing**: Encode 'Species' as categorical.
  2. **Model Training**: Train Model B (Soil+Species) as the primary implementation of FR-003. Train Model A (Soil-Only) as a control experiment for ablation analysis.
- 3. **Validation**: Execute **Stratified k-Fold CV** (k=5, stratified by Species) and **Leave-One-Species-Out (LOSO)** CV to satisfy Constitution Principle VII.
+ 3. **Validation Strategy**: Execute **Leave-One-Species-Out (LOSO)** CV as the **PRIMARY** validation method to satisfy Spec US-2/FR-004. Execute **Stratified k-Fold CV** (k=5, stratified by Species) as **SECONDARY** validation.
  4. **Output**: Generate `observed_r2` and `observed_rmse` for both models and validation types.
- **Note**: This task consolidates preprocessing and training into a single sequential step.
+ **Note**: This task focuses on the *implementation* of the script structure.
  **Dependency**: None (after Foundation).
-- [X] T021 [US2] Implement `code/modeling/train.py`: Calculate baseline R² by applying a **mean-prediction model** (predicting the mean of the training fold) on each held-out test fold. Calculate `delta_r2 = observed_r2 - baseline_r2`. **Rationale**: The 'mean-prediction' model is the standard interpretation of the 'null model' required by SC-002 for calculating R² gain. **MUST** complete after T020.
-- [X] T022 [US2] Implement `code/modeling/train.py`: Perform nested permutation tests with a **configurable number of iterations (default 1000)**.
+
+- [X] T021 [US2] **Execute/Calculate** baseline R² using `code/modeling/train.py` (or a helper script). Apply a **mean-prediction model** on each held-out test fold. **Action**: For each fold, train a model that predicts the **mean of the training fold's target values** and evaluate on the **held-out test fold**. Calculate `delta_r2 = observed_r2 - baseline_r2`. **Output**: Write `artifacts/baseline_metrics.json` with schema `{"mean_baseline_r2": float, "per_fold_baseline_r2": [float]}`. **Rationale**: The 'mean-prediction' model is the standard interpretation of the 'null model' required by SC-002. **MUST** follow T020 execution.
+
+- [X] T022 [US2] **Execute/Validate** nested permutation tests with a **configurable number of iterations (default a substantial sample size)** using `code/modeling/train.py`.
  - For Model A: permute target variable within training folds.
  - For Model B: permute soil features (N, P, K, pH) **stratified by species** within training folds.
- - Use a **fixed RANDOM_SEED** for determinism.
+ - Use a **fixed RANDOM_SEED** for determinism (pinned in `code/` and `requirements.txt`).
  - **Write** the distribution of R² scores to `artifacts/permutation_distributions.json`.
  **MUST** follow T021.
-- [X] T023 [US2] Implement `code/modeling/train.py`: **Read and validate** `artifacts/permutation_distributions.json` (must contain 1000 iterations and non-empty data). Calculate p-values and enforce SC-002 (ΔR² ≥ 0.05 AND p < 0.05). **Write** pass/fail status to `artifacts/sc002_status.json` with schema `{\"pass\": bool, \"reason\": string}`. **MUST** follow T022.
-- [ ] T024 [US2] Write `artifacts/model_metrics.json` with explicit schema: `{"mean_r2": float, "mean_rmse": float, "loso_r2_sd": float, "per_target_metrics": {...}}`.
-- [ ] T025 [US2] Generate feature importance bar chart in `figures/feature_importance.png` and raw scores in `artifacts/feature_importance.csv` with columns `feature_name`, `importance_score`. **Note**: `p_value` column will be added by T027 in Phase 5.
+
+- [ ] T023 [US2] **Execute/Validate** SC-002 compliance. **Read and validate** `artifacts/permutation_distributions.json` (must contain A sufficient number of iterations will be performed to ensure convergence. and non-empty data). Calculate p-values and enforce SC-002 (ΔR² ≥ 0.05 AND p < 0.05). **Write** pass/fail status to `artifacts/sc002_status.json` with schema `{"pass": bool, "reason": string, "delta_r2": float, "p_value": float}`. **MUST** follow T022. <!-- ATOMIZE: requested -->
+
+- [ ] T024 [US2] Write `artifacts/model_metrics.json` with explicit schema: `{"mean_r2": float, "mean_rmse": float, "loso_r2_sd": float, "per_target_metrics": {...}}`. **Dependency**: Must run after T023.
+
+- [ ] T025a [US2] Generate raw feature importance scores in `artifacts/feature_importance.csv` with columns `feature_name`, `importance_score`. **Dependency**: Must run after T024.
+
+- [ ] T025b [US2] Generate feature importance bar chart in `figures/feature_importance.png`. **Note**: This artifact is authorized by the plan's Phase 2 output section. **Dependency**: Must run after T025a.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,15 +152,29 @@
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] Implement `code/modeling/sensitivity.py`: Calculate p-values for each feature importance score via permutation. **Input**: MUST consume `artifacts/feature_importance.csv` from T025. **Action**: Append `p_value` column to `artifacts/feature_importance.csv`. **Dependency**: Cannot run in parallel with US2 tasks.
+- [X] T027 [US3] Implement `code/modeling/sensitivity.py`: Calculate p-values for each feature importance score via permutation. **Input**: MUST consume `artifacts/feature_importance.csv` from T025a. **Action**: Append `p_value` column to `artifacts/feature_importance.csv`. **Dependency**: Cannot run in parallel with US2 tasks. **Must run after T025b**. <!-- ATOMIZE: requested -->
+
 - [X] T028 [US3] Implement `code/modeling/sensitivity.py`: Sweep p-value thresholds across a range of significance levels and track top-3 feature stability. **Dependency**: Must run after T027.
-- [X] T029 [US3] Implement `code/modeling/sensitivity.py`: Generate sensitivity analysis report (`artifacts/sensitivity_report.md`).
+
+- [X] T029 [US3] Implement `code/modeling/sensitivity.py`: Generate sensitivity analysis report (`artifacts/sensitivity_report.md`). <!-- FAILED: unspecified -->
  **Structure**: Must include sections: '## Threshold Stability' (containing the stability table) and '## Justification'.
  **Table Schema**: Columns `threshold`, `top_feature`, `rank_2`, `rank_3`, `stable`.
- **Content**: The '## Justification' section MUST cite a verified community standard from `research.md` or the literature review for the significance level. **Do NOT hard-code generic text**. Ensure all findings are framed as associational (FR-006) within this report.
+ **Content**: The '## Justification' section MUST cite a verified community standard.
+ **Citation Logic**:
+ 1. **Primary**: If `research.md` (T035) is available and complete, cite the verified standard from there using "[Author, Year]" and a footnote.
+ 2. **Fallback**: If `research.md` is not available, cite the standard "p=0.05" with the justification "typical significance levels in ecological regression".
  **Constraint**: Ensure all findings are framed as associational (FR-006) within this report.
+ **Dependency**: **Requires T035 completion** (or fallback logic). Must run after T028.
 
 **Checkpoint**: All user stories should now be independently functional
+
+---
+
+## Phase 0: Research & Documentation (Missing Artifact Resolution)
+
+**Purpose**: Generate missing artifacts required by downstream tasks
+
+- [ ] T035 [P] Generate `specs/001-predict-root-architecture/research.md`. **Content**: Must include verified community standards for significance levels (p=0.05) and citations for soil/root trait datasets. **Dependency**: None. **Required by**: T029.
 
 ---
 
@@ -152,7 +184,7 @@
 
 - [ ] T030 [P] Documentation updates: Generate `quickstart.md` and finalize `research.md`
 - [ ] T031 Code cleanup and refactoring in `code/`
-- [ ] T032 Performance optimization: Ensure pipeline completes within 6-hour CI limit (SC-005)
+- [ ] T032 Performance optimization: Ensure pipeline completes within -hour CI limit (SC-005)
 - [ ] T033 [P] Additional unit tests in `tests/unit/` for helper functions
 - [ ] T034 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
@@ -183,9 +215,14 @@
 - Core implementation before integration
 - Story complete before moving to next priority
 - **Sequential Dependencies**:
- - T015 -> T017 (Validation -> Summary & Log)
+ - T016 -> T013 (Data Loader -> Trait Data)
+ - T013 -> T012 (Trait Data -> Soil Data - parallelizable after T016)
+ - T012/T013 -> T014 (Merge)
+ - T014 -> T015 (Validation)
+ - T015 -> T017 (Summary & Log)
  - T020 -> T021 -> T022 -> T023 (Training -> Baseline -> Permutation -> SC-002)
- - T027 -> T028 -> T029 (p-values -> Sweep -> Report)
+ - T023 -> T024 -> T025a -> T025b -> T027 -> T028 -> T029 (Model Metrics -> CSV -> PNG -> Sensitivity -> Report)
+ - T035 -> T029 (Research -> Report)
 
 ### Parallel Opportunities
 
@@ -252,4 +289,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Ordering**: T015 must precede T017. T020 must precede T021. T021 must precede T022. T022 must precede T023. T027 must follow T025.
+- **Critical Ordering**: T016 must precede T013. T015 must precede T017. T020 must precede T021. T021 must precede T022. T022 must precede T023. T023 must precede T024. T024 must precede T025a. T025a must precede T025b. T025b must precede T027. T035 must precede T029 (or fallback logic used).

@@ -1,212 +1,195 @@
 """
-Environment configuration management for the plant root architecture pipeline.
+Configuration management utilities for the plant root architecture prediction pipeline.
 
-Handles loading of .env files, providing typed access to environment variables,
-and managing configuration for API keys and paths.
+This module provides functions to load, validate, and access environment variables
+and configuration settings.
 """
 import os
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import logging
-
-# Attempt to import dotenv, but make it optional for environments where it might not be installed
-try:
-    from dotenv import load_dotenv as _load_dotenv
-    HAS_DOTENV = True
-except ImportError:
-    HAS_DOTENV = False
-    _load_dotenv = None
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
 class Config:
-    """
-    Centralized configuration manager.
+    """Configuration container class for project settings."""
     
-    Loads environment variables from a .env file if present, and provides
-    a structured interface for accessing configuration values.
-    """
+    def __init__(self, **kwargs):
+        """Initialize configuration from keyword arguments."""
+        self._config = {}
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+            self._config[key] = value
     
-    _instance: Optional['Config'] = None
-    _initialized: bool = False
-
-    def __new__(cls) -> 'Config':
-        """Singleton pattern to ensure single configuration instance."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
-    def __init__(self):
-        if not self._initialized:
-            self._config: Dict[str, Any] = {}
-            self._load_config()
-            self._initialized = True
-
-    def _load_config(self) -> None:
-        """
-        Load configuration from .env file and environment variables.
-        
-        Priority:
-        1. .env file (if exists)
-        2. System environment variables
-        """
-        project_root = Path(__file__).resolve().parent.parent.parent
-        env_path = project_root / ".env"
-
-        if env_path.exists():
-            if HAS_DOTENV:
-                _load_dotenv(dotenv_path=env_path, override=True)
-                logger.info(f"Loaded environment variables from {env_path}")
-            else:
-                logger.warning(
-                    "python-dotenv not installed. .env file found but not loaded. "
-                    "Install with: pip install python-dotenv"
-                )
-        else:
-            logger.debug(f"No .env file found at {env_path}")
-
-        # Store relevant environment variables
-        self._config = {
-            "ROOT_DIR": os.getenv("ROOT_DIR", str(project_root)),
-            "DATA_DIR": os.getenv("DATA_DIR", str(project_root / "data")),
-            "CODE_DIR": os.getenv("CODE_DIR", str(project_root / "code")),
-            "FIGURES_DIR": os.getenv("FIGURES_DIR", str(project_root / "figures")),
-            "ARTIFACTS_DIR": os.getenv("ARTIFACTS_DIR", str(project_root / "artifacts")),
-            "LOGS_DIR": os.getenv("LOGS_DIR", str(project_root / "data" / "logs")),
-            "RANDOM_SEED": int(os.getenv("RANDOM_SEED", "42")),
-            "LOG_LEVEL": os.getenv("LOG_LEVEL", "INFO"),
-        }
-
-        # API Keys (optional, only set if present in env)
-        api_keys = ["API_KEY", "SOILGRID_API_KEY", "ZENODO_API_TOKEN"]
-        for key in api_keys:
-            value = os.getenv(key)
-            if value:
-                self._config[key] = value
-
     def get(self, key: str, default: Any = None) -> Any:
-        """
-        Get a configuration value.
-        
-        Args:
-            key: Configuration key
-            default: Default value if key not found
-        
-        Returns:
-            The configuration value or default
-        """
-        return self._config.get(key, default)
-
-    def get_env(self, key: str, default: Optional[str] = None) -> Optional[str]:
-        """
-        Get a raw environment variable.
-        
-        Args:
-            key: Environment variable name
-            default: Default value if not found
-        
-        Returns:
-            The environment variable value or default
-        """
-        return os.getenv(key, default)
-
-    def require(self, key: str) -> str:
-        """
-        Get a required configuration value, raising an error if missing.
-        
-        Args:
-            key: Configuration key
-        
-        Returns:
-            The configuration value
-        
-        Raises:
-            KeyError: If the key is not found
-        """
-        if key not in self._config:
-            raise KeyError(f"Required configuration key '{key}' not found. "
-                           f"Please set it in .env or environment variables.")
-        return self._config[key]
-
-    @property
-    def root_dir(self) -> Path:
-        return Path(self._config["ROOT_DIR"])
-
-    @property
-    def data_dir(self) -> Path:
-        return Path(self._config["DATA_DIR"])
-
-    @property
-    def code_dir(self) -> Path:
-        return Path(self._config["CODE_DIR"])
-
-    @property
-    def figures_dir(self) -> Path:
-        return Path(self._config["FIGURES_DIR"])
-
-    @property
-    def artifacts_dir(self) -> Path:
-        return Path(self._config["ARTIFACTS_DIR"])
-
-    @property
-    def logs_dir(self) -> Path:
-        return Path(self._config["LOGS_DIR"])
-
-    @property
-    def random_seed(self) -> int:
-        return self._config["RANDOM_SEED"]
-
-    @property
-    def log_level(self) -> str:
-        return self._config["LOG_LEVEL"]
-
-
-def load_environment(env_path: Optional[Path] = None) -> None:
-    """
-    Load environment variables from a .env file.
+        """Get a configuration value by key."""
+        return getattr(self, key, default)
     
-    This function is a convenience wrapper that can be called explicitly
-    to load a .env file before initializing the Config singleton.
+    def set(self, key: str, value: Any):
+        """Set a configuration value."""
+        setattr(self, key, value)
+        self._config[key] = value
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert configuration to dictionary."""
+        return self._config.copy()
+    
+    def __repr__(self):
+        return f"Config({self._config})"
+
+def load_environment(env_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Load environment variables from .env file and return as dictionary.
     
     Args:
-        env_path: Path to the .env file. If None, searches for .env 
-                 in the project root.
-    """
-    if not HAS_DOTENV:
-        logger.warning("python-dotenv not installed. Cannot load .env file.")
-        return
-
-    if env_path is None:
-        project_root = Path(__file__).resolve().parent.parent.parent
-        env_path = project_root / ".env"
-
-    if env_path.exists():
-        _load_dotenv(dotenv_path=env_path, override=True)
-        logger.info(f"Loaded environment variables from {env_path}")
-    else:
-        logger.debug(f"No .env file found at {env_path}")
-
-
-def get_env(key: str, default: Optional[str] = None) -> Optional[str]:
-    """
-    Get a raw environment variable value.
-    
-    Args:
-        key: Environment variable name
-        default: Default value if not found
-    
+        env_path: Optional path to .env file. If None, uses default location.
+        
     Returns:
-        The environment variable value or default
+        Dictionary of environment variables
     """
-    return os.getenv(key, default)
+    if env_path is None:
+        # Default to .env in project root
+        project_root = Path(__file__).resolve().parent.parent
+        env_path = project_root / '.env'
+    
+    if env_path.exists():
+        load_dotenv(env_path)
+        logger.debug(f"Loaded environment from {env_path}")
+    else:
+        logger.warning(f"No .env file found at {env_path}, using system environment variables only")
+    
+    # Return all environment variables as a dictionary
+    return dict(os.environ)
 
+def get_env(var_name: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
+    """
+    Get an environment variable with optional default and validation.
+    
+    Args:
+        var_name: Name of the environment variable
+        default: Default value if variable is not set
+        required: If True, raise error if variable is not set
+        
+    Returns:
+        Value of the environment variable or default
+        
+    Raises:
+        ValueError: If required=True and variable is not set
+    """
+    value = os.getenv(var_name, default)
+    
+    if required and value is None:
+        raise ValueError(f"Required environment variable '{var_name}' is not set")
+    
+    return value
 
-# Convenience function to get the singleton config instance
 def get_config() -> Config:
     """
-    Get the singleton Config instance.
+    Load configuration from environment variables and return as Config object.
     
     Returns:
-        The Config instance
+        Config object with all configuration values
     """
-    return Config()
+    # Load environment first
+    env_vars = load_environment()
+    
+    # Define type converters
+    type_converters = {
+        'RUN_MODE': str,
+        'RANDOM_SEED': int,
+        'LOG_LEVEL': str,
+        'DATA_RAW_DIR': str,
+        'DATA_PROCESSED_DIR': str,
+        'DATA_LOGS_DIR': str,
+        'FIGURES_DIR': str,
+        'ARTIFACTS_DIR': str,
+        'MODEL_TYPE': str,
+        'N_ESTIMATORS': int,
+        'MAX_DEPTH': lambda x: None if x.lower() == 'none' else int(x),
+        'LOSO_ENABLED': lambda x: x.lower() in ('true', '1', 'yes'),
+        'STRATIFIED_K_FOLD_ENABLED': lambda x: x.lower() in ('true', '1', 'yes'),
+        'K_FOLD_K': int,
+        'N_PERMUTATIONS': int,
+        'PERMUTATION_SEED': int,
+        'MIN_MATCH_PROPORTION': float,
+        'MIN_OBSERVATIONS_PER_SPECIES': int,
+        'SIGNIFICANCE_THRESHOLD': float,
+    }
+    
+    config_dict = {}
+    
+    # Convert and set each configuration value
+    for key, converter in type_converters.items():
+        value = env_vars.get(key)
+        if value is not None:
+            try:
+                config_dict[key] = converter(value)
+            except (ValueError, TypeError) as e:
+                logger.error(f"Failed to convert {key}='{value}': {e}")
+                # Use default or skip
+                continue
+        else:
+            # Try to set a reasonable default
+            if key == 'RUN_MODE':
+                config_dict[key] = 'production'
+            elif key == 'RANDOM_SEED':
+                config_dict[key] = 42
+            elif key == 'LOG_LEVEL':
+                config_dict[key] = 'INFO'
+            elif key.endswith('_DIR'):
+                config_dict[key] = key.lower().replace('_dir', '').replace('data_', 'data/')
+            elif key == 'N_ESTIMATORS':
+                config_dict[key] = 100
+            elif key == 'K_FOLD_K':
+                config_dict[key] = 5
+            elif key == 'N_PERMUTATIONS':
+                config_dict[key] = 100
+            elif key == 'MIN_MATCH_PROPORTION':
+                config_dict[key] = 0.90
+            elif key == 'MIN_OBSERVATIONS_PER_SPECIES':
+                config_dict[key] = 10
+            elif key == 'SIGNIFICANCE_THRESHOLD':
+                config_dict[key] = 0.05
+            elif key.endswith('_ENABLED'):
+                config_dict[key] = True
+    
+    return Config(**config_dict)
+
+def validate_config(config: Config) -> bool:
+    """
+    Validate that configuration values are within acceptable ranges.
+    
+    Args:
+        config: Config object to validate
+        
+    Returns:
+        True if configuration is valid
+        
+    Raises:
+        ValueError: If configuration is invalid
+    """
+    errors = []
+    
+    # Validate RUN_MODE
+    if config.get('RUN_MODE') not in ['production', 'test']:
+        errors.append(f"RUN_MODE must be 'production' or 'test', got '{config.get('RUN_MODE')}'")
+    
+    # Validate RANDOM_SEED
+    if not isinstance(config.get('RANDOM_SEED'), int) or config.get('RANDOM_SEED') < 0:
+        errors.append(f"RANDOM_SEED must be a non-negative integer")
+    
+    # Validate MIN_MATCH_PROPORTION
+    min_match = config.get('MIN_MATCH_PROPORTION')
+    if not isinstance(min_match, (int, float)) or not (0.0 <= min_match <= 1.0):
+        errors.append(f"MIN_MATCH_PROPORTION must be between 0.0 and 1.0")
+    
+    # Validate MIN_OBSERVATIONS_PER_SPECIES
+    min_obs = config.get('MIN_OBSERVATIONS_PER_SPECIES')
+    if not isinstance(min_obs, int) or min_obs < 1:
+        errors.append(f"MIN_OBSERVATIONS_PER_SPECIES must be a positive integer")
+    
+    if errors:
+        raise ValueError("Configuration validation failed:\n" + "\n".join(errors))
+    
+    return True

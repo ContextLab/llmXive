@@ -1,12 +1,13 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "predict-root-architecture"
 version = "0.1.0"
 description = "Predicting Plant Root Architecture from Soil Nutrient Profiles"
-requires-python = ">=3.11"
+readme = "README.md"
+requires-python = ">=3.8"
 dependencies = [
     "scikit-learn",
     "pandas",
@@ -16,55 +17,49 @@ dependencies = [
     "requests",
     "pyyaml",
     "pytest",
+    "ruff",
+    "black",
     "python-dotenv",
-    "xarray",
-    "netcdf4",
-    "dask[complete]",
 ]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pre-commit>=3.0.0",
-]
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
-
-[tool.ruff]
-# Same as Black
-line-length = 88
-target-version = "py311"
-
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["code"]
-known-third-party = ["pandas", "numpy", "sklearn", "geopandas", "rasterio", "requests", "yaml", "pytest", "dotenv"]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py38']
 include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"

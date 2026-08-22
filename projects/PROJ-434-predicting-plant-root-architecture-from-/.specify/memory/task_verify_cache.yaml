@@ -1,9 +1,50 @@
-T024:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `artifacts/model_metrics.json` file was presented; the response contains no
-    JSON content, schema, or metric values. Consequently the required artifact is
-    missing, so the task is not satisfied.
+  r: No `setup_dirs.py` script is present, and the required directories (`code/`,
+    `data/`, `data/raw`, `data/processed`, `data/logs`, `tests/`, `artifacts/`, `figures/`)
+    are not shown to exist. The claim lacks any tangible artifact to verify that the
+    directory structure was created.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gitignore` file was provided or referenced in the evidence; the implementer\
+    \ did not supply the required artifact containing Python and data\u2011artifact\
+    \ ignore patterns. The task remains undone."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings) or related setup scripts were provided.
+    Without these artifacts, the task of configuring ruff/flake8 and Black cannot
+    be confirmed as done.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/utils/` directory or an `__init__.py` file was provided;
+    without these artifacts the task requirement is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains only the feature specifications and user stories; there
+    is no `.env` file, configuration script, or documentation showing environment
+    variable handling for API keys. Consequently, the required artifact for task T009
+    (environment configuration management) is missing.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/permutation_distributions.json` file was presented for validation,\
+    \ and no `artifacts/sc002_status.json` output (with the required fields) was supplied.\
+    \ Consequently, the required reading, p\u2011value computation, SC\u2011002 enforcement,\
+    \ and status writing have not been demonstrated. The implementer must provide\
+    \ the actual JSON input, the computed results, and the correctly\u2011formatted\
+    \ status file."
+T025a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/feature_importance.csv` file was presented, and no evidence of\
+    \ its contents (required columns `feature_name` and `importance_score`) was provided.\
+    \ Consequently the task\u2019s deliverable is missing."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -17,3 +58,10 @@ T031:
     \ directory, nor any evidence (e.g., diff, commit log, before\u2011after comparison)\
     \ showing that cleanup or refactoring was performed. The claim lacks any tangible\
     \ artifact to verify the required work."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `specs/001-predict-root-architecture/research.md` file or its contents were
+    provided; thus the required document with community significance standards and
+    dataset citations is missing. The implementer must create and supply that markdown
+    file with the specified information.

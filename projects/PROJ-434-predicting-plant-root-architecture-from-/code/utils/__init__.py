@@ -1,15 +1,10 @@
 """
-Utilities package for the plant root architecture prediction pipeline.
+llmXive Utilities Package.
 
-This package contains shared utilities for:
-- Configuration management
-- Exception handling
-- Geocoding and coordinate transformations
-- Logging utilities
-- Statistical functions
+This package provides shared utilities for the plant root architecture prediction pipeline,
+including geocoding, statistics, exception handling, logging, and configuration management.
 """
 
-from .config import Config, load_environment, get_env, get_config
 from .exceptions import DataQualityError, GeocodingError, SpeciesFilterError
 from .geocoding import (
     validate_coordinates,
@@ -20,13 +15,6 @@ from .geocoding import (
     get_utm_zone,
     get_utm_crs,
 )
-from .logging_utils import (
-    setup_logging,
-    get_logger,
-    log_excluded_record,
-    log_species_exclusion_summary,
-    log_validation_failure,
-)
 from .stats import (
     calculate_metrics,
     calculate_baseline_r2,
@@ -34,13 +22,16 @@ from .stats import (
     permutation_test,
     stratified_permutation_test,
 )
+from .config import Config, load_environment, get_env, get_config
+from .logging_utils import (
+    setup_logging,
+    get_logger,
+    log_excluded_record,
+    log_species_exclusion_summary,
+    log_validation_failure,
+)
 
 __all__ = [
-    # Config
-    "Config",
-    "load_environment",
-    "get_env",
-    "get_config",
     # Exceptions
     "DataQualityError",
     "GeocodingError",
@@ -53,16 +44,21 @@ __all__ = [
     "is_valid_crs",
     "get_utm_zone",
     "get_utm_crs",
+    # Statistics
+    "calculate_metrics",
+    "calculate_baseline_r2",
+    "delta_r2",
+    "permutation_test",
+    "stratified_permutation_test",
+    # Configuration
+    "Config",
+    "load_environment",
+    "get_env",
+    "get_config",
     # Logging
     "setup_logging",
     "get_logger",
     "log_excluded_record",
     "log_species_exclusion_summary",
     "log_validation_failure",
-    # Stats
-    "calculate_metrics",
-    "calculate_baseline_r2",
-    "delta_r2",
-    "permutation_test",
-    "stratified_permutation_test",
 ]

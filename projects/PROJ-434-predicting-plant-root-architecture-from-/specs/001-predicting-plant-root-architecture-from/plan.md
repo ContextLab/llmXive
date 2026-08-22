@@ -101,7 +101,7 @@ projects/PROJ-434-predicting-plant-root-architecture-from-/
     *   **Model A (Soil-Only)**: Predictors = [N, P, K, pH]. Targets = [Depth, Branching]. **Primary test for generalization.**
     *   **Model B (Soil + Species)**: Predictors = [N, P, K, pH, Species]. Targets = [Depth, Branching]. Tests the added value of species identity.
 3.  **Validation Protocol**:
-    *   **Primary**: Stratified 5-Fold Cross-Validation (stratified by Species) to satisfy Constitution Principle VII.
+    *   **Primary**: Stratified -Fold Cross-Validation (stratified by Species) to satisfy Constitution Principle VII.
     *   **Secondary**: Leave-One-Species-Out (LOSO) CV to assess extreme generalization.
 4.  **Statistical Significance (SC-002)**:
     *   **Null Baseline**: Mean prediction (R² = 0).

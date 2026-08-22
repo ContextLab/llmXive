@@ -1,35 +1,20 @@
-# Ruff configuration file
-# This file configures the ruff linter for the project
-
-line-length = 88
+# Standalone ruff config for CLI usage if pyproject.toml is not picked up
 target-version = "py39"
-
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-    "N",  # pep8-naming
-    "SIM",# flake8-simplify
-]
-
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-    "N999", # invalid module name (we have specific naming conventions)
+line-length = 88
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501", "B008", "C901"]
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "data",
+    "figures",
+    "artifacts",
 ]
 
 [isort]
-known-first-party = ["ingestion", "modeling", "utils", "setup_directories"]
+known-first-party = ["ingestion", "modeling", "utils"]
 force-sort-within-sections = true
-
-[per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in __init__.py for exports
-"tests/*" = ["S101"] # Allow assert statements in tests
-
-[mccabe]
-max-complexity = 15
+lines-after-imports = 2

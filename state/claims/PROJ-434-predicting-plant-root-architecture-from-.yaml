@@ -1,0 +1,149 @@
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: minimum effect size threshold for practical significance in ecological
+    modeling is delta R-squared greater than or equal to 0.05
+  claim_id: c_f3dec23e
+  context: "Section 1.2 Effect Size Threshold (Delta R\xB2). To ensure practical significance\
+    \ beyond statistical significance, a minimum improvement in model performance\
+    \ is required. Standard: \u0394R\xB2 \u2265 0.05 (5% increase in explained variance)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_effect_size_threshold_for_practical_significance_in
+  kind: magnitude
+  raw_text: "A minimum improvement in model performance of \u0394R\xB2 \u2265 0.05\
+    \ (5% increase in explained variance) is required to ensure practical significance\
+    \ beyond statistical significance."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:10:47Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: TRY Plant Trait Database is a global database of plant functional traits
+    including root architecture metrics
+  claim_id: c_10572104
+  context: 'Section 2.1 Root Trait Data. Source: TRY Plant Trait Database. Description:
+    A global database of plant functional traits, including root architecture metrics
+    (specific root length, root depth, root diameter, etc.).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TRY_Plant_Trait_Database_is_a_global_database_of_plant_funct
+  kind: entity_fact
+  raw_text: The TRY Plant Trait Database is a global database of plant functional
+    traits, including root architecture metrics such as specific root length, root
+    depth, and root diameter.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:13:23Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: McCormack et al. 2015 published Redefining fine roots improves understanding
+    of below-ground contributions to terrestrial biosphere processes in New Phytologist
+  claim_id: c_3b08a9ea
+  context: "Section 2.1 Root Trait Data. Alternative Real Source: RootTrax or GRIN\
+    \ Global. Specific Reference: McCormack, M. L., et al. (2015). Redefining fine\
+    \ roots improves understanding of below-ground contributions to terrestrial biosphere\
+    \ processes. New Phytologist, 207(3), 505\u2013518."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McCormack, M. L., et al. (2015) published 'Redefining fine roots improves
+    understanding of below-ground contributions to terrestrial biosphere processes'
+    in New Phytologist.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:13:59Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: SoilGrids 250m provides predictions for soil properties including pH,
+    nitrogen, phosphorus, and potassium at 250m resolution
+  claim_id: c_99829521
+  context: 'Section 2.2 Soil Nutrient Data. Source: SoilGrids 250m (ISRIC). Description:
+    Global gridded soil information system providing predictions for soil properties
+    including pH, Nitrogen (N), Phosphorus (P), and Potassium (K) at 250m resolution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SoilGrids_250m_provides_predictions_for_soil_properties_incl
+  kind: entity_fact
+  raw_text: SoilGrids 250m (ISRIC) is a global gridded soil information system providing
+    predictions for soil properties including pH, Nitrogen (N), Phosphorus (P), and
+    Potassium (K) at 250m resolution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:14:56Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: GBIF provides occurrence records for plant species
+  claim_id: c_152f5d02
+  context: 'Section 2.3 Species Distribution Data. Source: GBIF (Global Biodiversity
+    Information Facility). Description: Occurrence records for plant species used
+    to validate sampling locations and filter for species with sufficient observation
+    counts.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GBIF_provides_occurrence_records_for_plant_species
+  kind: entity_fact
+  raw_text: GBIF (Global Biodiversity Information Facility) provides occurrence records
+    for plant species used to validate sampling locations and filter for species with
+    sufficient observation counts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:15:52Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Roberts et al. 2017 published Spatial cross-validation is not a reliable
+    approach to assessing model performance in species distribution modelling in Ecography
+  claim_id: c_285f716c
+  context: "Section 3. Methodological References. Leave-One-Species-Out (LOSO) CV.\
+    \ Reference: Roberts, D. W., et al. (2017). Spatial cross-validation is not a\
+    \ reliable approach to assessing model performance in species distribution modelling.\
+    \ Ecography, 40(9), 1059\u20131068."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Roberts, D. W., et al. (2017) published 'Spatial cross-validation is not
+    a reliable approach to assessing model performance in species distribution modelling'
+    in Ecography.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:16:44Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Breiman 2001 published Random Forests in Machine Learning volume 45 pages
+    5 to 32
+  claim_id: c_865c77bd
+  context: "Section 3. Methodological References. Permutation Testing for Feature\
+    \ Importance. Modern Application: Breiman, L. (2001). Random Forests. Machine\
+    \ Learning, 45, 5\u201332."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Breiman, L. (2001) published 'Random Forests' in Machine Learning, volume\
+    \ 45, pages 5\u201332."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:17:24Z'
