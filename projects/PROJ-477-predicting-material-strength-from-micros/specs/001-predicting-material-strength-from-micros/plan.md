@@ -9,7 +9,11 @@ This feature implements a reproducible pipeline to predict material yield streng
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python version
+
+The specific value to remove/generalize: 'version'
+
+Rewritten passage:  
 **Primary Dependencies**: PyTorch (CPU-only), `torchvision`, `scikit-learn`, `pandas`, `numpy`, `albumentations` (for augmentation), `pyyaml`, `matplotlib`  
 **Storage**: Local file system (`data/` for raw/processed, `models/` for checkpoints, `results/` for reports)  
 **Testing**: `pytest` (unit/integration), `ruff` (linting)  
