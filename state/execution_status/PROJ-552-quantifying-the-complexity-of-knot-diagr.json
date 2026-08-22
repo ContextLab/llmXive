@@ -1,22 +1,20 @@
 {
   "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/reproducibility/checksum_generator.py",
+  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python code/main.py; python code/download/knot_info_loader.py; 1 command(s) failed: python code/analysis/exploratory.py (rc=1); 3 declared deliverable(s) absent: data/checksums.csv; data/processed/knot_filtered.csv; data/raw/knot_atlas_raw.json",
   "artifacts": [
-    "data/plots/crossing_vs_braid.png",
-    "data/processed/knots_cleaned.csv",
-    "data/processed/knots_validated.csv",
-    "data/processed/outlier_knots.json",
-    "data/raw/knot_atlas_raw.json"
+    "data/checksums.json"
   ],
   "failures": [
-    "python code/reproducibility/checksum_generator.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/checksum_generator.py': [Errno 2] No such file or directory"
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/main.py': [Errno 2] No such file or directory",
+    "python code/download/knot_info_loader.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/download/knot_info_loader.py': [Errno 2] No such file or directory",
+    "python code/analysis/exploratory.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/exploratory.py\", line 115, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/exploratory.py\", line 110, in main\n    generate_exploratory_plots(plot_path)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/exploratory.py\", line 97, in generate_explora"
   ],
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "model_tier": 1,
-  "updated_at": "2026-07-26T07:53:07Z",
-  "total_attempts": 16,
+  "total_attempts": 17,
   "replan_rounds": 1,
   "failure_class": "execution_bug",
-  "evidence": []
+  "evidence": [],
+  "updated_at": "2026-08-22T05:49:17Z"
 }

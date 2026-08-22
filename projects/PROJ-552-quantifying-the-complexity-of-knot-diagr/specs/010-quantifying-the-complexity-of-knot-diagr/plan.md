@@ -98,7 +98,7 @@ docs/
 │   ├── plot_validation_report.md # Required by SC-016
 │   ├── residual_analysis.md
 │   └── multicollinearity_assessment.md
-└── plots/                        # Generated PNGs (x900px)
+└── plots/                        # Generated PNGs (variable resolution)
 ```
 
 **Schema SSoT Clarification**:
@@ -134,7 +134,7 @@ docs/
     *   **Step 2.1**: Generate scatter plots of **Crossing Number vs. Hyperbolic Volume** and **Braid Index vs. Hyperbolic Volume**, stratified by alternating/non-alternating (Primary focus per scientific soundness concern).
     *   **Step 2.2**: Compute descriptive statistics (mean diff, variance ratio, Cohen's d).
     *   **Step 2.4**: Run `code/reproducibility/tie_breaking_validator.py` to verify tie-breaking consistency; generate `docs/reproducibility/validation_status.md` (Required by SC-007).
-    *   **Step 2.5**: Run `code/reproducibility/plot_validator.py` to verify plot resolution (1200x900px) and metadata; generate `docs/reproducibility/plot_validation_report.md` (Required by SC-016).
+    *   **Step 2.5**: Run `code/reproducibility/plot_validator.py` to verify plot resolution (high definition) and metadata; generate `docs/reproducibility/plot_validation_report.md` (Required by SC-016).
     *   Generate `docs/reproducibility/data_quality_report.md`.
 
 4.  **Phase 2.5: Computed Invariant Verification** (NEW: Addresses Constitution Principle VI)

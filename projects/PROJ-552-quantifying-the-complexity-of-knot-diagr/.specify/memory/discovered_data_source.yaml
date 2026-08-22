@@ -1,9 +1,9 @@
 status: verified
 kind: pypi_package
 ref: database-knotinfo
-access_python: "from database_knotinfo import link_list\n\nrecords = list(link_list())\n\
-  print(f\"RECORDS={len(records)}\")\nif records:\n    first = records[0]\n    print(\"\
-  FIELDS=\" + \",\".join(first.keys()))"
+access_python: "import database_knotinfo as dk\n\ndata = dk.link_list()\nrecords =\
+  \ len(data)\nif records == 0:\n    raise ValueError(\"No records loaded\")\nprint(f\"\
+  RECORDS={records}\")\nprint(\"FIELDS=\" + \",\".join(data[0].keys()))"
 record_count: 12967
 sample_fields:
 - name
@@ -250,14 +250,14 @@ sample_fields:
 - cosmetic_crossing_anon
 - q_polynomial
 - q_polynomial_anon
-field_coverage: 0.714
+- minkowski_units
+- minkowski_units_anon
+field_coverage: 0.8
 required_fields:
 - knot_id
 - crossing_number
 - braid_index
 - hyperbolic_volume
-- is_alternating
-- dt_code
-- braid_word
-intent: download Knot Atlas dataset and KnotInfo validation data python package dataset
-cache_key: 457dfd41adbcf3779377c72247483a0c1ce950c5c460d0f8d748c71ca81ae44d
+- alternating
+intent: KnotInfo Python library knot invariants OEIS A002863 python package dataset
+cache_key: bae8243f4670d6b925516ddaa04b6196e6bd6cc003c3b3cfa3c132ae8c9451ea

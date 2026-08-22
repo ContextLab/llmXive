@@ -8,4 +8,9 @@ seaborn
 pytest
 scikit-learn
 database-knotinfo
-jsonschema
+oeis
+scipy
+gudhi  # auto-added: imported by run-book but missing from venv
+plotly  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
+torch_geometric  # auto-added: imported by run-book but missing from venv

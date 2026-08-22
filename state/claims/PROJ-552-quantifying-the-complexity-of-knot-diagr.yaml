@@ -26486,3 +26486,422 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T16:54:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Dataset cross-checks counts against OEIS A002863 for full census up to
+    13 crossings
+  claim_id: c_ebf4eb2e
+  context: "T200a Dataset Completeness Validation checks null % \u2264 5 %, ensures\
+    \ no duplicates, and cross-checks counts against the Hoste-Thistlethwaite-Weeks\
+    \ enumeration (OEIS A002863) for the full census (\u226413 crossings) using the\
+    \ oeis package or hardcoded lookup."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset cross-checks counts against the Hoste-Thistlethwaite-Weeks\
+    \ enumeration (OEIS A002863) for the full census (\u226413 crossings)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:40:26Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Knot Atlas URL used as source for direct knot data download
+  claim_id: c_3a87bc76
+  context: T184 Direct Knot Atlas Download fetches raw knot data directly from the
+    Knot Atlas URL using requests. Must handle specific API endpoint and JSON schema.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Knot_Atlas_URL_used_as_source_for_direct_knot_data_download
+  kind: entity_fact
+  raw_text: The Knot Atlas URL is used as the source for direct knot data download.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:41:58Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: database-knotinfo library internally queries Knot Atlas API
+  claim_id: c_d95dad14
+  context: T999 Source Justification Document explains that database-knotinfo internally
+    queries the Knot Atlas API, providing a citation to the Knot Atlas URL and confirming
+    parity with the direct download used in T184.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Database-knotinfo_library_internally_queries_Knot_Atlas_API
+  kind: entity_fact
+  raw_text: The database-knotinfo library internally queries the Knot Atlas API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:43:11Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/additional_invariant_completeness.md
+  attempts: 1
+  canonical: 476 total records analyzed
+  claim_id: c_7a4d1361
+  context: Summary section listing total records analyzed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Records Analyzed: 476'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:45:55Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/additional_invariant_completeness.md
+  attempts: 1
+  canonical: 98.67% overall completeness
+  claim_id: c_924f3ad4
+  context: Summary section stating the overall completeness percentage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Overall Completeness: 98.67%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:45:59Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/additional_invariant_completeness.md
+  attempts: 1
+  canonical: 100.00% completeness for arc_index
+  claim_id: c_f11a0606
+  context: Per-Invariant Statistics table showing arc_index totals and completeness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: arc_index 476 | 476 | 0 | 100.00%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:46:49Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/additional_invariant_completeness.md
+  attempts: 1
+  canonical: 99.58% completeness for seifert_circle_count with 2 missing
+  claim_id: c_41ec3fa3
+  context: Per-Invariant Statistics table showing seifert_circle_count totals and
+    completeness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seifert_circle_count 476 | 474 | 2 | 99.58%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:47:34Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/additional_invariant_completeness.md
+  attempts: 1
+  canonical: 98.95% completeness for bridge_number with 5 missing
+  claim_id: c_d305f73a
+  context: Per-Invariant Statistics table showing bridge_number totals and completeness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bridge_number 476 | 471 | 5 | 98.95%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:48:20Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: OEIS A002863 enumerates prime knots with <=13 crossings
+  claim_id: c_7a749beb
+  context: "T200a counts records per crossing number and cross-checks counts against\
+    \ the Hoste-Thistlethwaite-Weeks enumeration (OEIS A002863) for the full census\
+    \ (\u226413 crossings)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The full census of prime knots with \u226413 crossings is enumerated\
+    \ by the Hoste-Thistlethwaite-Weeks sequence (OEIS A002863)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:48:36Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_scope.md
+  attempts: 0
+  canonical: "165 prime knots \u226410 crossings"
+  claim_id: c_aaba0966
+  context: "Counts Table shows that for crossing\u2011number limit \u2264\u202F10\
+    \ the number of prime knots (total) is 165, sourced from Hoste\u2011Thistlethwaite\u2011\
+    Weeks enumeration (OEIS\u202FA002863)."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: There are 21 non-trivial slice prime knots with crossing number
+      source_id: Slice knot
+      url: https://en.wikipedia.org/wiki/Slice_knot
+      value: '21'
+    filled: true
+  kind: numeric
+  raw_text: "There are 165 prime knots with crossing number \u2264\u202F10, according\
+    \ to the Hoste\u2011Thistlethwaite\u2011Weeks enumeration (OEIS A002863)."
+  resolved_value: '21'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T05:51:00Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_scope.md
+  attempts: 1
+  canonical: enumeration of all prime knots up to a given crossing number compiled
+    by Hoste Thistlethwaite Weeks
+  claim_id: c_56404a20
+  context: This document defines the validation scope for the analysis of knot diagrams
+    in this project. The scope is based on the enumeration of all prime knots up to
+    a given crossing number, as compiled by Hoste, Thistlethwaite, and Weeks (see
+    OEIS A002863).
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: wikipedia
+        source_id: Knot tabulation
+        url: https://en.wikipedia.org/wiki/Knot_tabulation
+        value: '1701936'
+      - channel: wikipedia
+        source_id: Knot theory
+        url: https://en.wikipedia.org/wiki/Knot_theory
+        value: 0, 0, 1, 1, 2, 3, 7, 21, 49, 165, 552, 2176, 9988, 46972, 253293, 1388705
+      quote: 20 1847319428
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '1847319428'
+    filled: true
+  kind: entity_fact
+  raw_text: The scope is based on the enumeration of all prime knots up to a given
+    crossing number, as compiled by Hoste, Thistlethwaite, and Weeks (see OEIS A002863).
+  resolved_value: '1847319428'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T05:52:19Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_scope.md
+  attempts: 1
+  canonical: "12967 prime knots \u226413 crossings"
+  claim_id: c_e89ccdec
+  context: "Counts Table shows that for crossing\u2011number limit \u2264\u202F13\
+    \ the number of prime knots (total) is 12\u202F967, sourced from the database\u2011\
+    knotinfo library."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "There are 12\u202F967 prime knots with crossing number \u2264\u202F13,\
+    \ as retrieved from the database\u2011knotinfo library."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:53:48Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_scope.md
+  attempts: 1
+  canonical: "\u226413 crossing set is complete census of prime knots; no further\
+    \ knots exist within this bound"
+  claim_id: c_f86f78d5
+  context: "The \u2264\u202F13 crossing set corresponds to the complete census of\
+    \ prime knots that have been tabulated in the Knot Atlas and made available through\
+    \ the database\u2011knotinfo package. No further knots exist within this crossing\
+    \ bound, guaranteeing exhaustive analysis."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The \u2264\u202F13 crossing set corresponds to the complete census of\
+    \ prime knots that have been tabulated in the Knot Atlas and made available through\
+    \ the database\u2011knotinfo package; no further knots exist within this crossing\
+    \ bound."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:56:46Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: downloaded file size exceeds 128 kilobytes
+  claim_id: c_49eece66
+  context: "T184 verification checks that the Knot Atlas download succeeds, the file\
+    \ size > 128\u202FKB, the source URL is logged, and the data schema matches the\
+    \ expected format."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "file size > 128\u202FKB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:57:56Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: null percentage is at most 5 percent and there are zero duplicate records
+  claim_id: c_edbc91ef
+  context: "T012a verification of the Data Quality Report asserts that null\u202F\
+    % \u2264 5\u202F% and duplicate count = 0."
+  evidence:
+    entailment_evidence: Null percentage is at most 5 percent and there are zero dupl
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Null_percentage_is_at_most_5_percent_and_there_are_zero_dupl
+  kind: magnitude
+  raw_text: "null\u202F% \u2264 5\u202F% and duplicate count = 0"
+  resolved_value: null percentage is at most 5 percent and there are zero duplicate
+    records
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T05:58:04Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: duplicate record count equals zero
+  claim_id: c_d9192d31
+  context: The Data Quality Report generated in T012a confirms that there are no duplicate
+    rows in the processed dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: duplicate count = 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T05:59:11Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: core invariant match rate is at least 90 percent within the specified
+    tolerance
+  claim_id: c_33da0cf3
+  context: "T016 and T017 validation steps require that crossing number, braid index,\
+    \ and hyperbolic volume achieve a match rate \u2265\u202F90\u202F% against KnotInfo\
+    \ references within a 1\u202F\xD7\u202F10\u207B\u2076 tolerance."
+  evidence:
+    entailment_evidence: Core invariant match rate is at least 90 percent within the
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Core_invariant_match_rate_is_at_least_90_percent_within_the
+  kind: magnitude
+  raw_text: "match rate \u2265\u202F90\u202F% within tolerance"
+  resolved_value: core invariant match rate is at least 90 percent within the specified
+    tolerance
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T05:59:21Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: core invariant coverage is at least 95 percent
+  claim_id: c_12b9f229
+  context: "T200c documentation requires that the overall coverage of core invariants\
+    \ (crossing number, braid index) across records be \u2265\u202F95\u202F%."
+  evidence:
+    entailment_evidence: Core invariant coverage is at least 95 percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Core_invariant_coverage_is_at_least_95_percent
+  kind: magnitude
+  raw_text: "coverage \u2265\u202F95\u202F%"
+  resolved_value: core invariant coverage is at least 95 percent
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T05:59:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: at least 95 percent of data points are visible in each scatter plot
+  claim_id: c_e123c65c
+  context: "Plot validation (T200j/T200j2) requires \u2265\u202F95% point visibility,\
+    \ failing the build if the criterion is not met."
+  evidence:
+    entailment_evidence: At least 95 percent of data points are visible in each scatt
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/At_least_95_percent_of_data_points_are_visible_in_each_scatt
+  kind: magnitude
+  raw_text: "\u2265\u202F95% points visible in scatter plots"
+  resolved_value: at least 95 percent of data points are visible in each scatter plot
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T05:59:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: variance inflation factor for each predictor is greater than or equal
+    to 5
+  claim_id: c_c00a9587
+  context: "Unit test T135 asserts that each VIF value computed in the multicollinearity\
+    \ assessment is \u2265\u202F5."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: "VIF\u202F\u2265\u202F5 for each predictor"
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T06:00:25Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: synthetic dataset contains 1000 samples
+  claim_id: c_bd00ce54
+  context: "The residual analysis unit test (T041b) uses synthetic data with a normal\
+    \ distribution, size: 1000, and noise: 0.1 to confirm detection of families deviating\
+    \ \u2265\u202F2\u202FSD."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'synthetic data size: 1000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:01:25Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: families that deviate by at least two standard deviations are identified
+  claim_id: c_dfa227ef
+  context: "T041b residual analysis module unit test confirms detection of families\
+    \ deviating \u2265\u202F2\u202FSD on synthetic data."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Families_that_deviate_by_at_least_two_standard_deviations_ar
+  kind: magnitude
+  raw_text: "families deviating \u2265\u202F2\u202FSD are detected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T06:02:16Z'
