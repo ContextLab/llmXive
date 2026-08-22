@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aligned Trial Dataset Schema"
+type: object
+properties:
+  trial_id:
+    type: string
+    description: "Unique identifier for the trial"
+  participant_id:
+    type: string
+    description: "Anonymous participant identifier"
+  stimulus_id:
+    type: string
+    description: "Identifier for the stimulus image"
+  region_of_interest:
+    type: string
+    enum:
+      - "face"
+      - "control"
+      - "other"
+    description: "The semantic region being analyzed. 'weapon' is excluded."
+  dwell_time_ms:
+    type: number
+    description: "Total fixation time on the ROI in milliseconds"
+  first_fixation_prob:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Probability of first fixation landing on ROI"
+  fixation_latency_ms:
+    type: number
+    description: "Time to first fixation on ROI"
+  global_salience:
+    type: number
+    description: "Mean salience value of the entire image (Primary Predictor)"
+  salience_score_roi:
+    type: number
+    description: "Mean salience value within the ROI (Diagnostic Only, Excluded from Model)"
+  luminance:
+    type: number
+    description: "Mean pixel intensity of the stimulus (Archived Only, Excluded from Model)"
+  contrast:
+    type: number
+    description: "Standard deviation of pixel intensity (Archived Only, Excluded from Model)"
+  edge_density:
+    type: number
+    description: "Proportion of edge pixels (Archived Only, Excluded from Model)"
+required:
+  - trial_id
+  - participant_id
+  - stimulus_id
+  - region_of_interest
+  - dwell_time_ms
+  - global_salience
+additionalProperties: false

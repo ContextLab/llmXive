@@ -1,1 +1,35 @@
-[]
+- artifact_hash: 9a6587e19c5a438d389f67664d1125af4ebde3bced8055956711343ecea89c46
+  artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/openneuro/ds003123`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/openneuro/ds003123
+  verified_at: '2026-08-22T12:32:36.595452Z'
+- artifact_hash: 9a6587e19c5a438d389f67664d1125af4ebde3bced8055956711343ecea89c46
+  artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/Eye-Tracking-Lab/DeepGaze`
+  verification_status: mismatch
+  verified_against_url: https://github.com/Eye-Tracking-Lab/DeepGaze
+  verified_at: '2026-08-22T12:32:36.595452Z'
+- artifact_hash: 9a6587e19c5a438d389f67664d1125af4ebde3bced8055956711343ecea89c46
+  artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - ultralytics/ultralytics: Ultralytics YOLO26, YOLO11, YOLOv8\
+    \ \u2014 object detection, instance segmentation, semantic segmentation, image\
+    \ classification, pose estimation, object tracking \xB7 GitHub"
+  kind: url
+  value: https://github.com/ultralytics/ultralytics`
+  verification_status: pending
+  verified_against_url: https://github.com/ultralytics/ultralytics
+  verified_at: '2026-08-22T12:32:36.595452Z'
