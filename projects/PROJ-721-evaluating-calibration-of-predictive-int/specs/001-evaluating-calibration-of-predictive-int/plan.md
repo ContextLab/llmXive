@@ -4,7 +4,7 @@
 
 ## Summary
 
-This feature implements a rigorous evaluation pipeline to assess the calibration of predictive intervals for time series forecasting. The system ingests a subset of the M4 competition dataset, fits four distinct models (ARIMA, ETS, Prophet, LightGBM with quantile regression), and generates prediction intervals at nominal [deferred] and [deferred] levels. It calculates empirical coverage rates, performs stratified analysis by seasonality and trend strength, applies adaptive conformal prediction for recalibration, and reports results with Benjamini-Hochberg FDR correction. All findings are framed as associational comparisons. The pipeline is designed to run entirely on CPU within the GitHub Actions free-tier limits (limited CPU, constrained RAM, 6 hours).
+This feature implements a rigorous evaluation pipeline to assess the calibration of predictive intervals for time series forecasting. The system ingests a subset of the M4 competition dataset, fits four distinct models (ARIMA, ETS, Prophet, LightGBM with quantile regression), and generates prediction intervals at nominal [deferred] and [deferred] levels. It calculates empirical coverage rates, performs stratified analysis by seasonality and trend strength, applies adaptive conformal prediction for recalibration, and reports results with Benjamini-Hochberg FDR correction. All findings are framed as associational comparisons. The pipeline is designed to run entirely on CPU within the GitHub Actions free-tier limits (limited CPU, constrained RAM, a finite execution window).
 
 ## Technical Context
 
@@ -14,9 +14,9 @@ This feature implements a rigorous evaluation pipeline to assess the calibration
 **Testing**: `pytest` with contract validation against YAML schemas.  
 **Target Platform**: Linux (GitHub Actions Runner).  
 **Project Type**: Computational Research Pipeline / CLI.  
-**Performance Goals**: Complete analysis of [deferred] time series (subset) within 6 hours on 2 CPU cores.
+**Performance Goals**: Complete analysis of [deferred] time series (subset) within 6 hours on CPU cores.
 **Constraints**: No GPU; no heavy model training; memory usage < 7GB; deterministic results via pinned seeds.  
-**Scale/Scope**: Subset of M4 dataset (approx. [deferred] series); 4 models; 12 horizons; 2 nominal coverage levels.
+**Scale/Scope**: Subset of M4 dataset (approx. [deferred] series); 4 models; horizons; nominal coverage levels.
 
 ## Constitution Check
 
@@ -125,7 +125,7 @@ projects/PROJ-721-evaluating-calibration-of-predictive-int/
 ## Computational Feasibility & Methodological Rigor
 
 ### Compute Feasibility (GitHub Actions Free Tier)
-*   **Resource Limits**: 2 CPU cores, ~7 GB RAM, ~14 GB disk, ≤6 hours.
+*   **Resource Limits**: CPU cores, ~7 GB RAM, ~ GB disk, ≤6 hours.
 *   **Strategy**:
  * **Dataset Subset**: The pipeline processes a representative subset of **[deferred] time series** (FR-001), not the full M4 dataset ([deferred]+ series). This subset is selected to maintain the frequency distribution (SC-005).
     *   **Model Selection**:

@@ -1,0 +1,214 @@
+# Contract schema for pipeline output files
+# Validates results/coverage.csv, results/stratified_coverage.csv, etc.
+
+# Schema for results/coverage.csv (Task T019)
+coverage_csv:
+  type: object
+  required:
+    - columns
+    - rows
+  properties:
+    columns:
+      type: array
+      items:
+        type: string
+      enum:
+        - series_id
+        - model
+        - horizon
+        - nominal_coverage
+        - empirical_coverage
+        - deviation
+        - p_raw
+        - p_value
+    rows:
+      type: array
+      items:
+        type: object
+        required:
+          - series_id
+          - model
+          - horizon
+          - nominal_coverage
+          - empirical_coverage
+          - deviation
+          - p_raw
+          - p_value
+        properties:
+          series_id:
+            type: string
+          model:
+            type: string
+            enum: ["ARIMA", "ETS", "Prophet", "LightGBM"]
+          horizon:
+            type: integer
+            minimum: 1
+            maximum: 12
+          nominal_coverage:
+            type: number
+            minimum: 0
+            maximum: 1
+          empirical_coverage:
+            type: number
+            minimum: 0
+            maximum: 1
+          deviation:
+            type: number
+          p_raw:
+            type: number
+            minimum: 0
+            maximum: 1
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+        additionalProperties: false
+  additionalProperties: false
+
+# Schema for results/stratified_coverage.csv (Task T025)
+stratified_coverage_csv:
+  type: object
+  required:
+    - columns
+    - rows
+  properties:
+    columns:
+      type: array
+      items:
+        type: string
+      enum:
+        - subgroup_type
+        - subgroup_value
+        - model
+        - horizon
+        - avg_coverage_deviation
+    rows:
+      type: array
+      items:
+        type: object
+        required:
+          - subgroup_type
+          - subgroup_value
+          - model
+          - horizon
+          - avg_coverage_deviation
+        properties:
+          subgroup_type:
+            type: string
+            enum: ["seasonality", "trend_strength"]
+          subgroup_value:
+            type: string
+          model:
+            type: string
+            enum: ["ARIMA", "ETS", "Prophet", "LightGBM"]
+          horizon:
+            type: integer
+            minimum: 1
+            maximum: 12
+          avg_coverage_deviation:
+            type: number
+        additionalProperties: false
+  additionalProperties: false
+
+# Schema for results/recalibration.csv (Task T031)
+recalibration_csv:
+  type: object
+  required:
+    - columns
+    - rows
+  properties:
+    columns:
+      type: array
+      items:
+        type: string
+      enum:
+        - series_id
+        - model
+        - horizon
+        - baseline_coverage
+        - recalibrated_coverage
+        - improvement
+        - p_value_improvement
+    rows:
+      type: array
+      items:
+        type: object
+        required:
+          - series_id
+          - model
+          - horizon
+          - baseline_coverage
+          - recalibrated_coverage
+          - improvement
+          - p_value_improvement
+        properties:
+          series_id:
+            type: string
+          model:
+            type: string
+            enum: ["ARIMA", "ETS", "Prophet", "LightGBM"]
+          horizon:
+            type: integer
+            minimum: 1
+            maximum: 12
+          baseline_coverage:
+            type: number
+            minimum: 0
+            maximum: 1
+          recalibrated_coverage:
+            type: number
+            minimum: 0
+            maximum: 1
+          improvement:
+            type: number
+          p_value_improvement:
+            type: number
+            minimum: 0
+            maximum: 1
+        additionalProperties: false
+  additionalProperties: false
+
+# Schema for results/sensitivity_analysis.csv (Task T018)
+sensitivity_analysis_csv:
+  type: object
+  required:
+    - columns
+    - rows
+  properties:
+    columns:
+      type: array
+      items:
+        type: string
+      enum:
+        - threshold
+        - model
+        - horizon
+        - avg_deviation
+        - series_count
+    rows:
+      type: array
+      items:
+        type: object
+        required:
+          - threshold
+          - model
+          - horizon
+          - avg_deviation
+          - series_count
+        properties:
+          threshold:
+            type: number
+          model:
+            type: string
+            enum: ["ARIMA", "ETS", "Prophet", "LightGBM"]
+          horizon:
+            type: integer
+            minimum: 1
+            maximum: 12
+          avg_deviation:
+            type: number
+          series_count:
+            type: integer
+            minimum: 0
+        additionalProperties: false
+  additionalProperties: false

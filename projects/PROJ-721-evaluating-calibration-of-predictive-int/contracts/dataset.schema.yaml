@@ -1,0 +1,82 @@
+# Contract schema for M4 dataset structure after extraction
+# Used to validate data integrity before processing
+type: object
+required:
+  - metadata
+  - series
+  - train
+  - test
+properties:
+  metadata:
+    type: object
+    required:
+      - dataset_name
+      - version
+      - source_url
+      - checksum_verified
+    properties:
+      dataset_name:
+        type: string
+        const: "M4"
+      version:
+        type: string
+      source_url:
+        type: string
+      checksum_verified:
+        type: boolean
+        const: true
+  series:
+    type: array
+    description: "List of series metadata (id, frequency, seasonality)"
+    items:
+      type: object
+      required:
+        - series_id
+        - frequency
+        - seasonality
+      properties:
+        series_id:
+          type: string
+        frequency:
+          type: string
+          enum: ["Hourly", "Daily", "Weekly", "Monthly", "Quarterly", "Yearly"]
+        seasonality:
+          type: integer
+          description: "Seasonal period (e.g., 12 for monthly, 4 for quarterly)"
+        train_length:
+          type: integer
+          minimum: 1
+        test_length:
+          type: integer
+          minimum: 1
+  train:
+    type: array
+    description: "Training time series values (flattened or nested)"
+    items:
+      type: object
+      required:
+        - series_id
+        - values
+      properties:
+        series_id:
+          type: string
+        values:
+          type: array
+          items:
+            type: number
+  test:
+    type: array
+    description: "Test time series values (ground truth for evaluation)"
+    items:
+      type: object
+      required:
+        - series_id
+        - values
+      properties:
+        series_id:
+          type: string
+        values:
+          type: array
+          items:
+            type: number
+additionalProperties: false

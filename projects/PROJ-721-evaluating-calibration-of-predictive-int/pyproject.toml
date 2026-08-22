@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "evaluating-calibration-of-predictive-intervals"
+name = "proj-721-calibration-evaluation"
 version = "0.1.0"
 description = "Evaluating Calibration of Predictive Intervals in Time Series Forecasting"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "statsmodels",
     "prophet",
@@ -18,33 +18,28 @@ dependencies = [
     "matplotlib",
     "seaborn",
     "pyyaml",
+    "pytest",
     "pytest-json-report",
     "ruff",
-    "black"
+    "black",
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
 [tool.ruff]
+# Linter configuration
 line-length = 88
-target-version = "py311"
+target-version = "py39"
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "data",
+    "results",
+    "state",
+]
+
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -54,17 +49,31 @@ select = [
     "B",   # flake8-bugbear
 ]
 ignore = [
-    "E501", # line too long, handled by black
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data pipelines)
 ]
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assert in tests
 
-[tool.ruff.isort]
-known-first-party = ["models", "metrics", "stratify", "download", "setup_linting"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "--json-report --json-report-file=results/pytest_report.json"
+[tool.black]
+# Formatter configuration
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | results
+    | state
+)/
+'''
