@@ -28,13 +28,6 @@ T024a:
     \ or a summary markdown indicating whether the intersection was empty and the\
     \ union fallback was used\u2014is missing, so the task\u2019s requirement cannot\
     \ be verified as satisfied."
-T024b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or result files implementing Stouffer\u2019s meta\u2011analysis\
-    \ are present in the provided evidence; the required artifact (`results/meta_analysis/`\
-    \ output or the implementation script) is missing, so the task\u2019s requirement\
-    \ is not satisfied."
 T024c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

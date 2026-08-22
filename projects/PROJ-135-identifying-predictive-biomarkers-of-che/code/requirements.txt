@@ -29,3 +29,4 @@ pytest-cov>=4.1.0
 # Note: R packages must be installed separately via Rscript
 # Example installation command:
 # Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager"); BiocManager::install(c("DESeq2", "SummarizedExperiment", "Biobase", "pROC", "sva"))'
+statsmodels  # auto-added: imported by run-book but missing from venv

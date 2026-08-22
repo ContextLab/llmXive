@@ -1346,21 +1346,6 @@
   updated_at: '2026-08-22T13:26:58Z'
 - artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
   attempts: 1
-  canonical: Final gene panel limited to 50 genes
-  claim_id: c_cedaed99
-  context: "Limit final panel to \u226450 genes."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "The final gene panel is limited to \u226450 genes."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-22T13:26:58Z'
-- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
-  attempts: 1
   canonical: Fallback union of top ranked genes limited to 50
   claim_id: c_46ec6b94
   context: "If intersection empty, fallback to union of top\u2011ranked genes (\u2264\
@@ -1645,3 +1630,275 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T13:38:03Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Docker image biocontainers/deseq2:4.3.0 used for R-based steps
+  claim_id: c_fa6df254
+  context: Explicitly reference the Docker image biocontainers/deseq2:4.3.0 in the
+    src/Dockerfile and the Python orchestrator for all R-based steps to ensure reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Docker image biocontainers/deseq2:4.3.0 is used for all R-based steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:13:21Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Max CPU 6 hours and Max RAM 7 GB enforced
+  claim_id: c_db65d335
+  context: If usage exceeds MAX_CPU_HOURS (6) or MAX_RAM_GB (7), raise a ResourceLimitExceeded
+    exception.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline enforces a maximum CPU time of 6 hours and a maximum RAM
+    usage of 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:13:41Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Default GEO IDs GSE25055 and GSE42752
+  claim_id: c_f7500b4b
+  context: 'Define paths, random seeds, FDR thresholds, CPU/memory limits, MAX_VARIANCE_GENES,
+    and GEO_IDS (default: [''GSE25055'', ''GSE42752'']).'
+  evidence:
+    entailment_evidence: Default GEO IDs GSE25055 and GSE42752
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Default_GEO_IDs_GSE25055_and_GSE42752
+  kind: entity_fact
+  raw_text: The default GEO IDs configured for the project are GSE25055 and GSE42752.
+  resolved_value: Default GEO IDs GSE25055 and GSE42752
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T22:13:43Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Python 3.11 required
+  claim_id: c_765150c5
+  context: Initialize Python 3.11 project with requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:13:59Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: DESeq2 filter padj < 0.05
+  claim_id: c_6149c1dc
+  context: Filter for padj < 0.05.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DESeq2_filter_padj_%3C_0.05
+  kind: magnitude
+  raw_text: The DESeq2 differential expression analysis filters for adjusted p-values
+    less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:14:15Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: DESeq2 filter |log2FC| > 1.0
+  claim_id: c_d162c521
+  context: Extract results with lfcThreshold = 1.0 and altHypothesis = 'greaterAbs'
+    to enforce |log2FC| > 1.0.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '> 1.0'
+    relation: log2FC
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/DESeq2_filter_log2FC_%3E_1.0
+    source_value: https://en.wikipedia.org/wiki/DESeq2_filter_log2FC_>_1.0
+    subject: DESeq2 filter
+  kind: relational
+  raw_text: The DESeq2 differential expression analysis enforces an absolute log2
+    fold change threshold of 1.0.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:15:07Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 2
+  canonical: Final gene panel limited to 50 genes
+  claim_id: c_cedaed99
+  context: "Limit final panel to \u226450 genes."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The final gene panel is limited to \u226450 genes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:15:08Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Bootstrap 1000 iterations for LOO evaluation
+  claim_id: c_33e71c74
+  context: Calculate the 95% CI for the performance drop using paired t-test on AUCs
+    and non-parametric bootstrap (1000 iterations) on the paired AUC differences.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-parametric bootstrap for LOO evaluation uses 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:15:40Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Baseline model trained on clinical covariates only
+  claim_id: c_4e6221c7
+  context: Explicitly state that the baseline model must be trained using ONLY clinical
+    covariates (e.g., age, stage), excluding any gene expression data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_trained_on_clinical_covariates_only
+  kind: entity_fact
+  raw_text: The baseline model is trained exclusively on clinical covariates such
+    as age and stage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:15:47Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: LOO validation requires at least 2 tumor types
+  claim_id: c_b043df89
+  context: "Verify \u22652 tumor types remain if one is left out (FR-008)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LOO_validation_requires_at_least_2_tumor_types
+  kind: magnitude
+  raw_text: The pipeline requires at least 2 tumor types to remain if one is left
+    out for validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:15:54Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: External validation requires 2 additional GEO cohorts
+  claim_id: c_744780d9
+  context: "Explicitly require validation on \u22652 additional independent GEO cohorts\
+    \ (Constitution Principle VI)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/External_validation_requires_2_additional_GEO_cohorts
+  kind: magnitude
+  raw_text: External validation requires at least 2 additional independent GEO cohorts.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:16:02Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Deciles < 20 samples flagged as underpowered
+  claim_id: c_df33f310
+  context: Ensure deciles with <20 samples are flagged as 'underpowered' per spec.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Deciles_%3C_20_samples_flagged_as_underpowered
+  kind: magnitude
+  raw_text: Deciles with fewer than 20 samples are flagged as underpowered.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:16:06Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Adjusted p-values < 0.01 required
+  claim_id: c_de3ab8f1
+  context: "Apply Bonferroni correction to meta\u2011analysis p\u2011values (using\
+    \ m_meta) and to DeLong test p\u2011values (using m_delong). Adjusted p\u2011\
+    values must be < 0.01."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Adjusted_p-values_%3C_0.01_required
+  kind: magnitude
+  raw_text: Adjusted p-values for meta-analysis and DeLong test must be less than
+    0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:16:14Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Filter genes with CPM < 1 in > 80% samples
+  claim_id: c_351eb743
+  context: "Filter low\u2011expression genes (CPM < 1 in > 80% samples)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_genes_with_CPM_%3C_1_in_%3E_80%25_samples
+  kind: magnitude
+  raw_text: Low-expression genes are filtered if they have CPM < 1 in more than 80%
+    of samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:16:23Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Python 3.11 dependencies list
+  claim_id: c_7d813e95
+  context: Initialize Python 3.11 project with requirements.txt (pandas, numpy, scikit-learn,
+    rpy2, biopython, requests, scipy, psutil, sva).
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline uses Python 3.11 with dependencies including pandas, numpy,
+    scikit-learn, rpy2, biopython, requests, scipy, psutil, and sva.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T22:16:23Z'

@@ -2,8 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T023a** — No R script or any other artifact implementing per‑tumor‑type differential expression analysis was provided; the evidence contains only the task description and user stories, with no code, files, or output to verify that the required DE execution logic exists. The implementer must supply the actual R script (and optionally example output) that runs DE analysis for each tumor type.
-- **T023b** — No artifact (e.g., script, function, or documentation) was provided that shows an aggregation implementation or a concrete strategy for resolving gene‑naming conflicts using HGNC symbols. Without such code or description, we cannot confirm the task’s requirement has been met.
-- **T024b** — No code, script, or result files implementing Stouffer’s meta‑analysis are present in the provided evidence; the required artifact (`results/meta_analysis/` output or the implementation script) is missing, so the task’s requirement is not satisfied.
-- **T024a** — No code, data file, or documentation for the static gene panel (intersection/union logic) was provided. The required artifact—e.g., a gene list file in `results/meta_analysis/` or a summary markdown indicating whether the intersection was empty and the union fallback was used—is missing, so the task’s requirement cannot be verified as satisfied.
-- **T024c** — The implementer provided no concrete artifacts (e.g., a finalized gene panel file, meta‑analysis results, or summary documentation) to demonstrate that the gene panel has been generated, ranked, and documented as required. Consequently, the task’s deliverable is missing.
+- **T005** — declared artifact(s) missing/empty/invalid: src/utils.py
+- **T007** — declared artifact(s) missing/empty/invalid: src/__init__.py, src/main.py

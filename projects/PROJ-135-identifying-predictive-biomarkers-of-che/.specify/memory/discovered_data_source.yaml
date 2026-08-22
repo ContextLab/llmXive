@@ -1,14 +1,16 @@
 status: none
-intent: download TCGA RNA-seq HTSeq counts and GEO microarray datasets python package
-  dataset
+intent: TCGA RNA-seq HTSeq-Counts and GEO GSE25055 dataset python package dataset
 required_fields:
 - sample_id
+- tumor_type
+- gene_id
 - gene_symbol
 - raw_count
 - normalized_expression
-- tumor_type
-- response_label
-- clinical_metadata
-cache_key: 405ed237b2b80f433f5b5e55b7fd38d72c12c006e8e568211f74821eb1512c34
-searched_at: '2026-08-17T00:55:47.462353+00:00'
+- clinical_age
+- clinical_sex
+- clinical_stage
+- response_annotation
+cache_key: 2ccba4aacc55cbb25c68c643df5742f3e91762644223739fb7b69bbb800ce74b
+searched_at: '2026-08-22T22:10:26.821994+00:00'
 retry_count: 1
