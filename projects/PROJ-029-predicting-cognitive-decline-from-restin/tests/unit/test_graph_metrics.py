@@ -1,5 +1,7 @@
 """
 Unit tests for graph metric calculation (T019).
+This file implements T015: A test that FAILS before the implementation of T019
+(code/03_compute_graph_metrics.py) is complete.
 """
 import numpy as np
 import networkx as nx
@@ -17,7 +19,14 @@ from utils.graph import (
     calculate_clustering_coefficient,
     calculate_shortest_path_length
 )
-from code_03_compute_graph_metrics import compute_subject_metrics
+
+# Import the function under test. 
+# NOTE: This import will fail if code/03_compute_graph_metrics.py 
+# does not yet define 'compute_subject_metrics', satisfying the TDD rule.
+try:
+    from code_03_compute_graph_metrics import compute_subject_metrics
+except ImportError:
+    pytest.fail("compute_subject_metrics not yet implemented in code/03_compute_graph_metrics.py")
 
 def test_compute_subject_metrics_basic():
     """Test basic metric calculation on a simple graph."""

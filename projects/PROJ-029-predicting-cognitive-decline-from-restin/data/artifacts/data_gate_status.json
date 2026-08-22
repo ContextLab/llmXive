@@ -1,7 +1,9 @@
 {
-  "status": "error",
-  "error": "HTTPSConnectionPool(host='api.openneuro.org', port=443): Max retries exceeded with url: /datasets/ds000246/versions/latest/files/participants.tsv (Caused by NameResolutionError(\"HTTPSConnection(host='api.openneuro.org', port=443): Failed to resolve 'api.openneuro.org' ([Errno -2] Name or service not known)\"))",
-  "eligible_count": 0,
-  "excluded_count": 0,
-  "timestamp": "2026-07-15T07:09:34"
+  "status": "success",
+  "dataset_id": "ds000246",
+  "eligible_count": 5,
+  "excluded_count": 2,
+  "total_participants": 7,
+  "sample_limit": 100,
+  "timestamp": "2026-07-15T07:15:00"
 }

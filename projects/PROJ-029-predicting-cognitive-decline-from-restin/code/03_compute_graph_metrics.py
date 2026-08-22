@@ -9,256 +9,249 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 import numpy as np
-import pandas as pd
 import psutil
 import networkx as nx
-from scipy.stats import pearsonr
+import pandas as pd
+from scipy import sparse
 
-# Import from existing API surface
+# Project-relative imports based on provided API surface
 from utils.logger import get_logger, log_operation
 from utils.graph import (
     calculate_degree_centrality,
     calculate_global_efficiency,
     calculate_clustering_coefficient,
-    calculate_local_efficiency,
     calculate_shortest_path_length,
 )
-from utils.io import ensure_dir, load_csv, save_csv, load_json, save_json
-from utils.stats import calculate_correlation_matrix
+from utils.io import ensure_dir, load_csv
+
+# Constants
+EXIT_CODE_RAM_EXCEEDED = 5
+RAM_LIMIT_GB = 7.0
+INPUT_CSV = "data/processed/eligible_subjects.csv"
+CONNECTIVITY_DIR = "data/processed/connectivity_matrices"
+OUTPUT_CSV = "data/processed/graph_metrics.csv"
+EXCLUDED_LOG = "data/processed/excluded_subjects.log"
+STATUS_FILE = "data/artifacts/graph_metrics_status.json"
 
 logger = get_logger("compute_graph_metrics")
 
-# Constants
-MAX_RAM_GB = 7.0
-INPUT_CONNECTIVITY_DIR = Path("data/processed/connectivity_matrices")
-OUTPUT_GRAPH_METRICS = Path("data/processed/graph_metrics.csv")
-OUTPUT_EXCLUDED_LOG = Path("data/processed/excluded_subjects.log")
-OUTPUT_STATUS = Path("data/artifacts/data_gate_status.json")
-ELIGIBLE_SUBJECTS_FILE = Path("data/processed/eligible_subjects.csv")
-
-EXIT_CODE_SUCCESS = 0
-EXIT_CODE_NO_INPUT = 2
-EXIT_CODE_NO_ELIGIBLE = 3
 
 def check_memory_usage() -> float:
-    """Check current RAM usage in GB."""
+    """Check current RAM usage in GB. Raises if limit exceeded."""
     process = psutil.Process(os.getpid())
-    mem_info = process.memory_info()
-    return mem_info.rss / (1024 ** 3)
+    mem_gb = process.memory_info().rss / (1024 ** 3)
+    if mem_gb > RAM_LIMIT_GB:
+        logger.log(
+            operation="memory_limit_exceeded",
+            message=f"RAM usage {mem_gb:.2f}GB exceeds limit {RAM_LIMIT_GB}GB",
+        )
+        raise MemoryError(f"RAM limit exceeded: {mem_gb:.2f}GB > {RAM_LIMIT_GB}GB")
+    return mem_gb
 
-def read_eligible_subjects() -> List[str]:
+
+def read_eligible_subjects(csv_path: str) -> List[str]:
     """Read subject IDs from the eligible subjects CSV."""
-    if not ELIGIBLE_SUBJECTS_FILE.exists():
-        logger.log("error", message=f"Eligible subjects file not found: {ELIGIBLE_SUBJECTS_FILE}")
-        return []
-    
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"Input file not found: {csv_path}")
+    df = pd.read_csv(csv_path)
+    # Assume column 'subject_id' exists as per T017a output schema
+    if 'subject_id' not in df.columns:
+        raise ValueError(f"Input CSV missing 'subject_id' column. Found: {df.columns.tolist()}")
+    return df['subject_id'].astype(str).tolist()
+
+
+def load_connectivity(subject_id: str, base_dir: str) -> np.ndarray:
+    """
+    Load connectivity matrix for a subject.
+    Expected file: <base_dir>/<subject_id>_connectivity.npy
+    """
+    file_path = Path(base_dir) / f"{subject_id}_connectivity.npy"
+    if not file_path.exists():
+        raise FileNotFoundError(f"Connectivity matrix not found for {subject_id} at {file_path}")
     try:
-        df = pd.read_csv(ELIGIBLE_SUBJECTS_FILE)
-        # Assume column is 'subject_id' or similar; check schema from T017
-        col_name = None
-        for c in df.columns:
-            if 'subject' in c.lower() or 'id' in c.lower():
-                col_name = c
-                break
-        if not col_name:
-            logger.log("error", message="Could not identify subject ID column in eligible subjects file")
-            return []
-        
-        subjects = df[col_name].astype(str).tolist()
-        logger.log("info", message=f"Loaded {len(subjects)} eligible subjects")
-        return subjects
+        mat = np.load(file_path)
+        if mat.shape[0] != mat.shape[1]:
+            raise ValueError(f"Non-square matrix for {subject_id}: {mat.shape}")
+        return mat
     except Exception as e:
-        logger.log("error", message=f"Failed to read eligible subjects: {e}")
-        return []
+        raise RuntimeError(f"Failed to load connectivity for {subject_id}: {e}")
 
-def load_connectivity(subject_id: str) -> Optional[np.ndarray]:
-    """Load connectivity matrix for a subject from disk."""
-    # Expected file pattern: data/processed/connectivity_matrices/{subject_id}_connectivity.npy
-    # Or potentially .csv; we try .npy first as it's standard for matrices
-    npy_path = INPUT_CONNECTIVITY_DIR / f"{subject_id}_connectivity.npy"
-    csv_path = INPUT_CONNECTIVITY_DIR / f"{subject_id}_connectivity.csv"
-    
-    if npy_path.exists():
-        try:
-            matrix = np.load(npy_path)
-            return matrix
-        except Exception as e:
-            logger.log("warning", message=f"Failed to load numpy matrix for {subject_id}: {e}")
-    
-    if csv_path.exists():
-        try:
-            matrix = np.loadtxt(csv_path, delimiter=',')
-            return matrix
-        except Exception as e:
-            logger.log("warning", message=f"Failed to load CSV matrix for {subject_id}: {e}")
-    
-    logger.log("warning", message=f"No connectivity matrix found for {subject_id} at {npy_path} or {csv_path}")
-    return None
 
-def compute_subject_metrics(matrix: np.ndarray, subject_id: str) -> Dict[str, Any]:
-    """Compute graph metrics for a single subject's connectivity matrix."""
-    if matrix is None or matrix.size == 0:
-        return {}
+def compute_subject_metrics(adj_matrix: np.ndarray) -> Dict[str, float]:
+    """
+    Compute graph metrics for a single adjacency matrix.
+    Returns dict: {node_degree, global_efficiency, clustering_coeff, path_length}
+    """
+    # Threshold to create a graph (example: keep edges > 0)
+    # Using a simple threshold to avoid dense graph issues if needed,
+    # but strictly following the task: calculate from the matrix.
+    # We convert to a graph object.
+    # Note: The matrix is likely correlation-based. We treat positive values as edges.
+    # To ensure graph is valid for path length, we might need to handle disconnected components.
+    
+    # Create NetworkX graph from adjacency matrix
+    G = nx.from_numpy_array(adj_matrix)
+    
+    # 1. Node Degree (Average)
+    # Task asks for "node_degree" - usually means average degree in global metrics context
+    degrees = dict(G.degree())
+    avg_degree = np.mean(list(degrees.values())) if degrees else 0.0
 
-    # Ensure matrix is symmetric and zero-diagonal for graph construction
-    # Connectivity matrices from fMRI are often symmetric correlation matrices
-    matrix = (matrix + matrix.T) / 2.0
-    np.fill_diagonal(matrix, 0.0)
-    
-    # Thresholding: Keep top 10% of edges to ensure graph is not too sparse/dense
-    # This is a common practice in network neuroscience to compare graphs of same density
-    threshold = np.percentile(matrix[np.nonzero(matrix)], 90)
-    binary_adj = (matrix >= threshold).astype(float)
-    
-    # Create NetworkX graph
-    G = nx.from_numpy_array(binary_adj)
-    
-    # Check if graph is connected; if not, use largest connected component
-    if not nx.is_connected(G):
-        largest_cc = max(nx.connected_components(G), key=len)
-        G = G.subgraph(largest_cc).copy()
-    
-    # Calculate metrics
+    # 2. Global Efficiency
     try:
-        degree = calculate_degree_centrality(G)
-        global_eff = calculate_global_efficiency(G)
-        clustering = calculate_clustering_coefficient(G)
-        local_eff = calculate_local_efficiency(G)
+        global_eff = nx.global_efficiency(G)
+    except nx.NetworkXError:
+        global_eff = 0.0
+
+    # 3. Clustering Coefficient (Average)
+    try:
+        clustering = nx.average_clustering(G)
+    except nx.NetworkXError:
+        clustering = 0.0
+
+    # 4. Path Length (Average Shortest Path Length)
+    # Only for connected components or average over all reachable pairs
+    try:
+        if nx.is_connected(G):
+            path_len = nx.average_shortest_path_length(G)
+        else:
+            # For disconnected graphs, average over largest component or handle infinity
+            # Standard practice: average over all pairs with finite distance
+            lengths = nx.shortest_path_length(G)
+            finite_lengths = [l for path in lengths.values() for l in path.values() if l != float('inf')]
+            path_len = np.mean(finite_lengths) if finite_lengths else 0.0
+    except nx.NetworkXError:
+        path_len = 0.0
+
+    return {
+        "node_degree": float(avg_degree),
+        "global_efficiency": float(global_eff),
+        "clustering_coeff": float(clustering),
+        "path_length": float(path_len)
+    }
+
+
+def process_subject_wrapper(subject_id: str, connectivity_dir: str) -> Optional[Dict[str, Any]]:
+    """
+    Process a single subject: load, check memory, compute metrics.
+    Returns metrics dict or None if failed.
+    """
+    try:
+        # Check memory before heavy load
+        check_memory_usage()
         
-        # Average path length calculation (handle disconnected components if any remain)
-        try:
-            avg_path = calculate_shortest_path_length(G)
-        except nx.NetworkXError:
-            avg_path = 0.0
+        adj = load_connectivity(subject_id, connectivity_dir)
         
-        return {
-            "subject_id": subject_id,
-            "node_degree": float(np.mean(degree)) if degree.size > 0 else 0.0,
-            "global_efficiency": float(global_eff) if global_eff is not None else 0.0,
-            "clustering_coeff": float(clustering) if clustering is not None else 0.0,
-            "path_length": float(avg_path) if avg_path is not None else 0.0,
-            "local_efficiency": float(local_eff) if local_eff is not None else 0.0,
-        }
+        # Check memory after load
+        check_memory_usage()
+        
+        metrics = compute_subject_metrics(adj)
+        metrics['subject_id'] = subject_id
+        return metrics
+    except MemoryError:
+        raise
     except Exception as e:
-        logger.log("error", message=f"Failed to compute metrics for {subject_id}: {e}")
-        return {
-            "subject_id": subject_id,
-            "node_degree": 0.0,
-            "global_efficiency": 0.0,
-            "clustering_coeff": 0.0,
-            "path_length": 0.0,
-            "local_efficiency": 0.0,
-        }
+        logger.log(
+            operation="subject_processing_failed",
+            subject_id=subject_id,
+            error=str(e)
+        )
+        return None
 
-def process_subject_wrapper(subject_id: str, results: List[Dict[str, Any]]) -> None:
-    """Process a single subject and append metrics to results list."""
-    # Memory check before processing
-    current_ram = check_memory_usage()
-    if current_ram > MAX_RAM_GB:
-        logger.log("warning", message=f"RAM usage high ({current_ram:.2f} GB) before processing {subject_id}")
-    
-    matrix = load_connectivity(subject_id)
-    metrics = compute_subject_metrics(matrix, subject_id)
-    if metrics:
-        results.append(metrics)
-    
-    # Memory check after processing
-    current_ram = check_memory_usage()
-    if current_ram > MAX_RAM_GB:
-        logger.log("warning", message=f"RAM usage high ({current_ram:.2f} GB) after processing {subject_id}")
 
-def write_metrics_csv(results: List[Dict[str, Any]]) -> None:
-    """Write graph metrics to CSV file."""
-    ensure_dir(OUTPUT_GRAPH_METRICS.parent)
-    
-    if not results:
-        logger.log("warning", message="No results to write to graph metrics CSV")
-        # Write empty file with headers
-        with open(OUTPUT_GRAPH_METRICS, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=[
-                "subject_id", "node_degree", "global_efficiency", 
-                "clustering_coeff", "path_length", "local_efficiency"
-            ])
-            writer.writeheader()
-        return
-
-    fieldnames = ["subject_id", "node_degree", "global_efficiency", 
-                  "clustering_coeff", "path_length", "local_efficiency"]
-    
-    with open(OUTPUT_GRAPH_METRICS, 'w', newline='') as f:
+def write_metrics_csv(results: List[Dict[str, Any]], output_path: str) -> None:
+    """Write results to CSV with exact schema."""
+    ensure_dir(output_path)
+    fieldnames = ["subject_id", "node_degree", "global_efficiency", "clustering_coeff", "path_length"]
+    with open(output_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         for row in results:
+            # Ensure only these keys are written
             writer.writerow({k: row.get(k, 0.0) for k in fieldnames})
-    
-    logger.log("info", message=f"Wrote {len(results)} subjects to {OUTPUT_GRAPH_METRICS}")
 
-def write_excluded_log(excluded_subjects: List[str]) -> None:
-    """Write excluded subjects to log file."""
-    ensure_dir(OUTPUT_EXCLUDED_LOG.parent)
-    with open(OUTPUT_EXCLUDED_LOG, 'w') as f:
-        for subj in excluded_subjects:
-            f.write(f"{subj}\n")
-    logger.log("info", message=f"Wrote {len(excluded_subjects)} excluded subjects to log")
 
-def write_status(success: bool, message: str, count: int) -> None:
-    """Write status JSON file."""
-    ensure_dir(OUTPUT_STATUS.parent)
-    status = {
-        "task": "compute_graph_metrics",
-        "success": success,
+def write_excluded_log(excluded_subjects: List[str], log_path: str) -> None:
+    """Write excluded subjects log."""
+    ensure_dir(log_path)
+    with open(log_path, 'w') as f:
+        f.write("subject_id,reason\n")
+        for sub in excluded_subjects:
+            f.write(f"{sub},processing_error\n")
+
+
+def write_status(status: str, message: str, output_path: str) -> None:
+    """Write status JSON."""
+    ensure_dir(output_path)
+    data = {
+        "status": status,
         "message": message,
-        "subjects_processed": count,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ")
     }
-    with open(OUTPUT_STATUS, 'w') as f:
-        json.dump(status, f, indent=2)
-    logger.log("info", message=f"Status written: {message}")
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
 
+
+@log_operation("compute_graph_metrics_main")
 def main() -> int:
-    """Main entry point for computing graph metrics."""
-    logger.log("start", operation="compute_graph_metrics_main")
+    """Main entry point."""
+    logger.log(operation="start", message="Starting graph metrics computation")
     
-    # Read eligible subjects
-    subjects = read_eligible_subjects()
-    if not subjects:
-        logger.log("error", message="No eligible subjects found or file missing")
-        write_status(False, "No eligible subjects found", 0)
-        return EXIT_CODE_NO_ELIGIBLE
-
-    if not INPUT_CONNECTIVITY_DIR.exists():
-        logger.log("error", message=f"Connectivity directory not found: {INPUT_CONNECTIVITY_DIR}")
-        write_status(False, "Connectivity matrices directory missing", 0)
-        return EXIT_CODE_NO_INPUT
-
-    results: List[Dict[str, Any]] = []
-    excluded: List[str] = []
-
-    # Process subject-by-subject to stay within RAM limits
     start_time = time.time()
-    for i, subj in enumerate(subjects):
-        logger.log("progress", message=f"Processing subject {i+1}/{len(subjects)}: {subj}")
-        try:
-            process_subject_wrapper(subj, results)
-        except Exception as e:
-            logger.log("error", message=f"Failed to process {subj}: {e}")
-            excluded.append(subj)
+    excluded_subjects = []
+    results = []
     
-    elapsed = time.time() - start_time
-    logger.log("end", operation="compute_graph_metrics_main", duration=elapsed)
+    try:
+        # 1. Read eligible subjects
+        subjects = read_eligible_subjects(INPUT_CSV)
+        if not subjects:
+            logger.log(operation="no_subjects", message="No eligible subjects found")
+            write_status("completed", "No eligible subjects to process", STATUS_FILE)
+            return 0
+        
+        logger.log(operation="subjects_loaded", count=len(subjects))
+        
+        # 2. Process each subject
+        for i, sub_id in enumerate(subjects):
+            logger.log(operation="processing_subject", index=i+1, total=len(subjects), subject_id=sub_id)
+            
+            try:
+                res = process_subject_wrapper(sub_id, CONNECTIVITY_DIR)
+                if res:
+                    results.append(res)
+                else:
+                    excluded_subjects.append(sub_id)
+            except MemoryError:
+                logger.log(operation="ram_exceeded", message=f"RAM exceeded for {sub_id}")
+                write_status("failed", "RAM limit exceeded", STATUS_FILE)
+                return EXIT_CODE_RAM_EXCEEDED
+            except Exception as e:
+                logger.log(operation="subject_error", subject_id=sub_id, error=str(e))
+                excluded_subjects.append(sub_id)
+        
+        # 3. Write outputs
+        write_metrics_csv(results, OUTPUT_CSV)
+        write_excluded_log(excluded_subjects, EXCLUDED_LOG)
+        
+        elapsed = time.time() - start_time
+        write_status(
+            "completed",
+            f"Processed {len(results)} subjects, excluded {len(excluded_subjects)}. Runtime: {elapsed:.2f}s",
+            STATUS_FILE
+        )
+        
+        logger.log(operation="finished", success=True, count=len(results))
+        return 0
+        
+    except FileNotFoundError as e:
+        logger.log(operation="file_not_found", error=str(e))
+        write_status("failed", f"Input file missing: {e}", STATUS_FILE)
+        return 1
+    except Exception as e:
+        logger.log(operation="fatal_error", error=str(e))
+        write_status("failed", f"Unexpected error: {e}", STATUS_FILE)
+        return 1
 
-    # Write outputs
-    write_metrics_csv(results)
-    write_excluded_log(excluded)
-    
-    success = len(results) > 0
-    status_msg = f"Processed {len(results)} subjects successfully" if success else "No subjects processed"
-    write_status(success, status_msg, len(results))
-
-    if not success:
-        return EXIT_CODE_NO_INPUT
-    
-    return EXIT_CODE_SUCCESS
 
 if __name__ == "__main__":
     sys.exit(main())

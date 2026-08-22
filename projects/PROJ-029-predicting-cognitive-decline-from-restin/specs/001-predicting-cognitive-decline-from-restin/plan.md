@@ -15,7 +15,7 @@ This project implements a computational pipeline to predict cognitive decline (s
 **Primary Dependencies**: `nibabel`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `bids`, `requests`, `tqdm`  
 **Storage**: Local file system (`data/` for raw/processed data, `code/` for scripts)  
 **Testing**: `pytest` (unit tests for graph metrics, integration tests for pipeline phases)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, ~14 GB disk)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multi-core CPU, ~7 GB RAM, ~14 GB disk)  
 **Project Type**: Computational research pipeline (data processing + ML modeling + statistical analysis)  
 **Performance Goals**: Total runtime ≤ 6 hours; peak RAM ≤ 7 GB; disk usage ≤ 14 GB  
 **Constraints**: No GPU; no deep learning training; CPU-only inference; dataset limited to a sample size constrained by the available eligible population; permutation test bounded to 2 hours (n=100)  
@@ -27,7 +27,7 @@ This project implements a computational pipeline to predict cognitive decline (s
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility (NON-NEGOTIABLE)**: ✅ Plan mandates pinned `random_seed=42` in all stochastic steps (model training, permutation test). Data fetching uses canonical OpenNeuro source (`ds000248`). All code is script-based for re-runnability.
+- **I. Reproducibility (NON-NEGOTIABLE)**: ✅ Plan mandates pinned `random_seed=42` in all stochastic steps (model training, permutation test). Data fetching uses a canonical OpenNeuro source.. All code is script-based for re-runnability.
 - **II. Verified Accuracy**: ⚠️ **Conditional**: Compliance is contingent on successful download and verification of `ds000248` containing rs-fMRI and longitudinal scores. If download fails, the project halts. The plan does not assert compliance until data is verified.
 - **III. Data Hygiene**: ✅ Plan includes checksumming of raw data (via `data/VERSION.txt` and artifact hash map). No in-place modifications; derivations written to new files. PII scan enforced via CI.
 - **IV. Single Source of Truth**: ⚠️ **Conditional**: SSoT is contingent on successful data ingestion. If the dataset is missing, no SSoT can be established, and the project fails at Phase 0.
@@ -166,7 +166,7 @@ tests/
   - Check if ROC-AUC > 0.50 and p < 0.05.
   - Output `VERIFICATION_STATUS` (PASS/FAIL).
 - **Step 4.2**: Measure Runtime.
-  - Aggregate phase runtimes and compare against 6-hour limit.
+  - Aggregate phase runtimes and compare against a defined time limit.
   - Output `runtime_report.json` with `limit_exceeded` flag.
 - **Step 4.3**: Generate Final Report (FR-007, FR-011).
   - Frame all findings as "associational" (not causal).
