@@ -1,0 +1,53 @@
+1. **Given** a set of 10,000 synthetic null trials (H=0.5, mean=0), **When** a one-sample t-test is applied, **Then** the observed rejection rate is within the [deferred] Clopper-Pearson binomial confidence interval of the nominal 0.05 rate.
+2. **Given** a set of highly autocorrelated synthetic series (H > 0.8, mean=0), **When** standard t-tests are applied without adjustment, **Then** the regression of rejection rate vs. Hurst exponent is performed, and the system reports the slope, p-value, VIF, and N_eff. A valid result includes both positive and null correlations.
+3. **Given** the results of 8 datasets, **When** the regression analysis runs, **Then** a regression of rejection rate vs. estimated Hurst exponent is performed, and the system reports the slope, p-value, VIF, and N_eff. A valid result includes both positive and null correlations.
+4. **Given** the synthetic data, **When** the regression analysis runs, **Then** the system confirms that Max_ACF_Lag1 is NOT used as a predictor in the model.
+5. **Given** a real-world time series, **When** the analysis runs, **Then** the observed test statistic is compared against the null distribution generated from [deferred] shuffled versions of that series to isolate the inflation caused by non-independence.
+
+---
+
+### Edge Cases
+
+- What happens when a downloaded dataset is shorter than the required lag for ACF calculation (e.g., < 25 points)? The system must skip that dataset and log a warning.
+- How does the system handle a time series with a unit root (non-stationary) that cannot be detrended by simple linear regression? The system must detect the unit root (ADF test) and difference the data until stationarity is achieved, logging the action.
+- What happens if the spectral density estimation fails due to numerical instability? The system must fall back to a simpler variance-based metric and log the failure.
+- Why is the two-sample t-test excluded? The two-sample t-test is excluded from the analysis because applying it to detrended residuals with long-range dependence violates the independence assumption, leading to inflated Type I error that cannot be attributed solely to the intended long-range dependence metric.
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: System MUST download and cache at least 5 distinct public continuous time series datasets from NOAA, Yahoo Finance, and UK National Grid Load, ensuring the total dataset size fits within 7 GB RAM. (See US-1)
+- **FR-002**: System MUST perform an Augmented Dickey-Fuller (ADF) test on every loaded series. If the ADF test indicates a unit root (p < 0.05), the system MUST difference the data until stationarity is achieved. If the series is stationary (ADF p ≥ 0.05), the system MUST detrend the data using linear regression residuals. The system MUST also compute the Autocorrelation Function (ACF) up to a sufficient lag, the Hurst exponent, and the spectral density peak ratio for every loaded series. (See US-1)
+- **FR-003**: System MUST generate [deferred] shuffled (permuted) versions of each time series to create a specific null distribution for comparison against the observed test statistics on the original series. These versions are used to isolate the inflation caused by non-independence as required by Constitution Principle VII. (See US-2)
+- **FR-004**: System MUST apply standard one-sample t-tests and F-tests to the synthetic ground-truth series (mean=0) and calculate the observed rejection rate at α=0.05. The system MUST explicitly exclude the two-sample t-test from the analysis. (See US-3)
+- **FR-005**: System MUST perform a linear regression of the observed type I error rate against the true Hurst exponent (for synthetic data) or the estimated Hurst exponent (for real data). The regression model MUST calculate the Variance Inflation Factor (VIF) and Effective Sample Size (N_eff) to validate the mechanism of failure. The Max_ACF_Lag1 and spectral density metrics MUST NOT be used as predictors in this regression model. (See US-3)
+- **FR-006**: System MUST output visualizations including ACF plots, scatter plots of rejection rate vs. Hurst exponent, and QQ-plots of test statistics. (See US-3)
+- **FR-007**: System MUST generate synthetic time series using fractional Gaussian noise (fGn) or ARFIMA models with known mean=0 and Hurst exponents in the set {0.5, 0.7, 0.8, 0.9} to serve as the primary ground-truth validation target. The system MUST also calculate the theoretical Variance Inflation Factor (VIF) and Effective Sample Size (N_eff) for these synthetic series to serve as the ground-truth mechanism for the regression analysis. (See US-2)
+- **FR-008**: System MUST verify the baseline validity of the testing framework by confirming the observed rejection rate on H=0.5 synthetic data matches the nominal alpha (0.05) within the 95% Clopper-Pearson binomial confidence interval for 10,000 trials before proceeding to the Hurst analysis. (See US-2)
+
+### Key Entities
+
+- **TimeSeries**: Represents a single dataset with attributes: `source`, `length`, `autocorrelation_metrics` (Hurst, ACF_max), `raw_values`, `processed_values`, `stationarity_status` (ADF p-value, differencing count).
+- **SyntheticData**: Represents a generated series with attributes: `model_type` (fGn, ARFIMA), `Hurst`, `mean`, `length`, `values`, `theoretical_VIF`, `theoretical_N_eff`.
+- **TestResult**: Represents the outcome of a hypothesis test with attributes: `test_type` (t-test, F-test), `p_value`, `rejection` (boolean), `dataset_id`.
+- **ErrorRateSummary**: Aggregates results for a dataset with attributes: `dataset_id`, `nominal_alpha`, `observed_error_rate`, `shuffled_null_distribution`, `regression_slope`, `regression_p_value`, `VIF`, `N_eff`.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: The observed type I error rate for standard tests on synthetic data (H=0.5, mean=0) is measured against the nominal significance level (α=0.05) to verify the baseline validity of the testing framework. (See US-3)
+- **SC-002**: The relationship between the Hurst exponent and the observed type I error inflation is measured against the theoretical expectation that higher dependence leads to higher error rates. The slope of the regression line is measured, and its statistical significance (p < 0.05) is reported. The magnitude of the slope is reported as the change in error rate per 0.1 unit increase in Hurst exponent. (See US-3)
+- **SC-003**: The magnitude of error inflation (observed rate minus nominal rate) is measured across multiple datasets to quantify the practical impact of non-independence. (See US-3)
+- **SC-004**: The computational runtime of the full pipeline (ingestion, quantification, numerous tests, regression) is measured against the 6-hour limit for a single GitHub Actions free-tier job. The full pipeline must complete in ≤ 6 hours on a standard GitHub Actions runner. (See US-1, US-2, US-3)
+
+## Assumptions
+
+- The public datasets (NOAA, Yahoo Finance, UK National Grid Load) are accessible via standard HTTP requests without requiring authentication or API keys that might expire during the CI run.
+- The "long-range dependence" in the selected datasets is sufficient to cause measurable type I error inflation; if all datasets are effectively white noise, the study will yield a null result (which is still valid but limits the scope of the conclusion).
+- The `scipy`, `statsmodels`, and `numpy` libraries available in the default Python environment on GitHub Actions are sufficient for all statistical calculations (ACF, Hurst, fGn/ARFIMA generation, t-tests, F-tests, ADF, differencing) without requiring heavy external dependencies or GPU acceleration.

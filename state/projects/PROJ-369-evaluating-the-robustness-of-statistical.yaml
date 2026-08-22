@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-369-evaluating-the-robustness-of-statistical
-last_run_id: 70b58114-fb7f-4052-85d8-eb6d0b5d2023
+last_run_id: 4486cca5-4e4d-4557-8c58-e38738cff61c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical
 title: Evaluating the Robustness of Statistical Methods to Non-Independence in Publicly
   Available Time Series
-updated_at: '2026-08-21T06:16:44.842765Z'
+updated_at: '2026-08-22T17:25:29.748567Z'

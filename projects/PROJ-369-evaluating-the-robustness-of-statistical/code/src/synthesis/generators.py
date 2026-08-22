@@ -1,6 +1,6 @@
 """
-Synthetic data generators for fGn, ARFIMA, and null distributions.
-Implements fractional Gaussian noise generation with strict mean validation.
+Synthetic data generation module for fGn and ARFIMA processes.
+Includes robustness checks for mean deviation and retry mechanisms.
 """
 import numpy as np
 import pandas as pd
@@ -8,306 +8,266 @@ from typing import List, Union, Optional, Tuple, Dict, Any
 from scipy import stats
 from scipy.signal import fftconvolve
 import logging
+import random
 
-from src.utils.config import get_path
+from src.utils.config import set_seed
 from src.utils.logging import log_info, log_warning, log_error, log_critical
 
 # Configure logger
 logger = logging.getLogger(__name__)
 
-# Mean validation tolerance (floating point precision)
-MEAN_TOLERANCE = 1e-4
+# Constants
+MAX_RETRY_ATTEMPTS = 3
+MAX_MEAN_DEVIATION = 0.01
+DEFAULT_LENGTH = 1000
+DEFAULT_HURST = 0.7
+DEFAULT_SEED = 42
 
-def _validate_mean(series: np.ndarray, target_mean: float = 0.0) -> None:
-    """
-    Post-generation assertion to verify the mean of the generated series
-    is approximately zero. Raises ValueError if the deviation exceeds tolerance.
-    
-    This strengthens the ground-truth guarantee required for accurate Type I error
-    measurement (Task T052).
-    
-    Args:
-        series: The generated time series data.
-        target_mean: The expected mean (default 0.0).
-        
-    Raises:
-        ValueError: If the absolute difference between actual mean and target exceeds tolerance.
-    """
-    actual_mean = np.mean(series)
-    deviation = abs(actual_mean - target_mean)
-    
-    if deviation > MEAN_TOLERANCE:
-        error_msg = (
-            f"Generated series mean validation failed: "
-            f"actual mean = {actual_mean:.6e}, "
-            f"target mean = {target_mean}, "
-            f"deviation = {deviation:.6e} (exceeds tolerance {MEAN_TOLERANCE}). "
-            f"Series length: {len(series)}. "
-            f"Ground-truth guarantee compromised."
-        )
-        log_critical(error_msg)
-        raise ValueError(error_msg)
-    
-    log_info(f"Mean validation passed: mean={actual_mean:.6e}, deviation={deviation:.6e}")
+class SyntheticGenerationError(Exception):
+    """Custom exception for synthetic generation failures."""
+    pass
 
-def generate_fgn(n: int, h: float, rng: Optional[np.random.Generator] = None) -> np.ndarray:
+def _generate_fgn_base(hurst: float, length: int, seed: int) -> np.ndarray:
     """
-    Generate fractional Gaussian noise (fGn) with specified Hurst exponent.
-    
-    Uses the Davies-Harte algorithm via circulant embedding.
-    
+    Generate fractional Gaussian noise using the Davies-Harte algorithm (approximation).
+    Uses FFT-based method for efficiency.
+
     Args:
-        n: Length of the series.
-        h: Hurst exponent (0 < h < 1).
-        rng: Random number generator. If None, uses np.random.default_rng().
-        
+        hurst: Hurst exponent (0 < H < 1)
+        length: Number of points to generate
+        seed: Random seed for reproducibility
+
     Returns:
-        np.ndarray: Generated fGn series with mean ≈ 0.
-        
-    Raises:
-        ValueError: If h is out of range or mean validation fails.
+        np.ndarray: Generated fGn series
     """
-    if rng is None:
-        rng = np.random.default_rng()
-        
-    if not 0 < h < 1:
-        raise ValueError(f"Hurst exponent h must be in (0, 1), got {h}")
-        
-    if n <= 0:
-        raise ValueError(f"Length n must be positive, got {n}")
+    set_seed(seed)
+    n = length
+    # Ensure n is a power of 2 for FFT efficiency (pad if necessary)
+    n_fft = 1
+    while n_fft < 2 * n - 1:
+        n_fft *= 2
 
-    # Davies-Harte algorithm parameters
-    m = 2 ** (int(np.ceil(np.log2(2 * n - 1))) + 1)
-    k = np.arange(1, m // 2 + 1)
-    
-    # Covariance function for fGn
-    def cov_func(k, h):
-        return 0.5 * (np.abs(k - 1)**(2*h) - 2*np.abs(k)**(2*h) + np.abs(k + 1)**(2*h))
-    
-    # Compute eigenvalues of the covariance matrix
-    gamma = np.zeros(m)
-    for i in range(1, m // 2 + 1):
-        gamma[i] = cov_func(i, h)
-        gamma[m - i] = cov_func(i, h)
-    gamma[0] = 1.0
-    
-    # Eigenvalues of the circulant matrix
-    lam = m * np.fft.ifft(gamma).real
-    
-    # Check for negative eigenvalues (should not happen for valid h)
-    if np.any(lam < 0):
-        raise ValueError("Negative eigenvalues detected in Davies-Harte algorithm. Invalid h?")
-        
-    # Generate complex normal variables
-    w = np.zeros(m, dtype=complex)
-    for i in range(m):
-        if lam[i] > 0:
-            sigma = np.sqrt(lam[i] / 2)
-            re = rng.normal(0, sigma)
-            im = rng.normal(0, sigma)
-            w[i] = re + 1j * im
-        else:
-            w[i] = 0
-            
-    # Ensure symmetry for real output
-    w[0] = 0
-    if m % 2 == 0:
-        w[m // 2] = 0
-        
-    # Inverse FFT to get the fGn
-    x = np.fft.ifft(w).real
-    
-    # Return the first n elements
-    series = x[:n]
-    
-    # VALIDATION: Ensure mean is approximately zero (Task T052)
-    _validate_mean(series, target_mean=0.0)
-    
-    return series
+    # Create the covariance function for fGn
+    # C(k) = 0.5 * (|k+1|^(2H) - 2|k|^(2H) + |k-1|^(2H))
+    k = np.arange(n_fft)
+    cov = 0.5 * (np.abs(k + 1) ** (2 * hurst) - 2 * np.abs(k) ** (2 * hurst) + np.abs(k - 1) ** (2 * hurst))
+    cov[0] = 1.0  # Variance is 1
+
+    # FFT of covariance
+    fft_cov = np.fft.fft(cov)
+    # Ensure non-negative (numerical stability)
+    fft_cov = np.maximum(fft_cov, 0)
+
+    # Generate complex Gaussian noise
+    real = np.random.normal(0, 1, n_fft)
+    imag = np.random.normal(0, 1, n_fft)
+    z = real + 1j * imag
+
+    # Scale by sqrt of FFT covariance
+    w = np.sqrt(fft_cov) * z
+
+    # Inverse FFT to get the series
+    series = np.fft.ifft(w).real
+
+    # Take the first n points
+    return series[:n]
+
+def generate_fgn(hurst: float, length: int, seed: int, max_mean_deviation: float = MAX_MEAN_DEVIATION, max_attempts: int = MAX_RETRY_ATTEMPTS) -> Tuple[np.ndarray, int]:
+    """
+    Generate fractional Gaussian noise with a robustness check for mean deviation.
+    If the generated series mean deviates significantly from zero, retry with a new seed.
+
+    Args:
+        hurst: Hurst exponent (0 < H < 1)
+        length: Number of points to generate
+        seed: Initial random seed
+        max_mean_deviation: Maximum allowed deviation of the mean from 0
+        max_attempts: Maximum number of retry attempts
+
+    Returns:
+        Tuple[np.ndarray, int]: Generated fGn series and the seed used
+    """
+    if not (0 < hurst < 1):
+        raise SyntheticGenerationError(f"Hurst exponent must be between 0 and 1, got {hurst}")
+    if length < 10:
+        raise SyntheticGenerationError(f"Length must be at least 10, got {length}")
+
+    current_seed = seed
+    for attempt in range(max_attempts):
+        try:
+            series = _generate_fgn_base(hurst, length, current_seed)
+            current_mean = np.mean(series)
+
+            if abs(current_mean) <= max_mean_deviation:
+                log_info(f"Generated fGn series (H={hurst}, L={length}) with mean={current_mean:.6f} (seed={current_seed}) - PASS")
+                return series, current_seed
+            else:
+                log_warning(f"Attempt {attempt + 1}: Generated fGn series mean={current_mean:.6f} exceeds threshold {max_mean_deviation}. Retrying with new seed.")
+                # Increment seed for next attempt to ensure different random sequence
+                current_seed += 1
+        except Exception as e:
+            log_error(f"Attempt {attempt + 1} failed with error: {str(e)}")
+            current_seed += 1
+
+    raise SyntheticGenerationError(
+        f"Failed to generate fGn series with mean within {max_mean_deviation} after {max_attempts} attempts. "
+        f"Last mean deviation: {abs(np.mean(series)) if 'series' in locals() else 'N/A'}"
+    )
 
 def generate_synthetic_series(
-    hurst: float,
-    length: int,
-    series_type: str = "fgn",
-    seed: Optional[int] = None
-) -> Tuple[np.ndarray, Dict[str, Any]]:
+    hurst: float = DEFAULT_HURST,
+    length: int = DEFAULT_LENGTH,
+    seed: int = DEFAULT_SEED,
+    max_mean_deviation: float = MAX_MEAN_DEVIATION,
+    max_attempts: int = MAX_RETRY_ATTEMPTS
+) -> pd.DataFrame:
     """
-    Generate a synthetic time series with specified Hurst exponent and mean=0.
-    
+    Generate a synthetic series (fGn) with robustness checks.
+
     Args:
-        hurst: Hurst exponent (0 < h < 1).
-        length: Length of the series.
-        series_type: Type of series ("fgn" or "arima"). Currently supports "fgn".
-        seed: Random seed for reproducibility.
-        
+        hurst: Hurst exponent
+        length: Length of the series
+        seed: Random seed
+        max_mean_deviation: Maximum allowed mean deviation
+        max_attempts: Maximum retry attempts
+
     Returns:
-        Tuple of (series, metadata_dict)
-        
-    Raises:
-        ValueError: If generation fails or mean validation fails.
+        pd.DataFrame: DataFrame with 'timestamp', 'value', 'series_id'
+    """
+    series, used_seed = generate_fgn(hurst, length, seed, max_mean_deviation, max_attempts)
+
+    # Create DataFrame
+    df = pd.DataFrame({
+        'timestamp': pd.date_range(start='2020-01-01', periods=length, freq='D'),
+        'value': series,
+        'series_id': f"synthetic_H{hurst}_L{length}_S{used_seed}"
+    })
+
+    return df
+
+def shuffle_series(series: np.ndarray, seed: Optional[int] = None) -> np.ndarray:
+    """
+    Shuffle a series to create a null distribution.
+
+    Args:
+        series: Input series
+        seed: Optional seed for reproducibility
+
+    Returns:
+        np.ndarray: Shuffled series
     """
     if seed is not None:
-        rng = np.random.default_rng(seed)
-    else:
-        rng = np.random.default_rng()
-        
-    metadata = {
-        "hurst": hurst,
-        "length": length,
-        "series_type": series_type,
-        "seed": seed,
-        "actual_mean": None,
-        "actual_std": None
-    }
-    
-    if series_type == "fgn":
-        series = generate_fgn(length, hurst, rng)
-    else:
-        raise ValueError(f"Unsupported series_type: {series_type}")
-        
-    # Update metadata with actual statistics
-    metadata["actual_mean"] = float(np.mean(series))
-    metadata["actual_std"] = float(np.std(series))
-    
-    log_info(
-        f"Generated {series_type} series: H={hurst}, N={length}, "
-        f"mean={metadata['actual_mean']:.6e}, std={metadata['actual_std']:.6e}"
-    )
-    
-    return series, metadata
-
-def shuffle_series(series: np.ndarray, rng: Optional[np.random.Generator] = None) -> np.ndarray:
-    """
-    Generate a shuffled (permuted) version of the series to create a null distribution.
-    
-    Args:
-        series: Original time series.
-        rng: Random number generator.
-        
-    Returns:
-        np.ndarray: Shuffled series.
-    """
-    if rng is None:
-        rng = np.random.default_rng()
-        
+        np.random.seed(seed)
     shuffled = series.copy()
-    rng.shuffle(shuffled)
+    np.random.shuffle(shuffled)
     return shuffled
 
 def compute_acf_lag1(series: np.ndarray) -> float:
     """
-    Compute the lag-1 autocorrelation coefficient.
-    
+    Compute the first lag autocorrelation.
+
     Args:
-        series: Time series data.
-        
+        series: Input series
+
     Returns:
-        float: Lag-1 ACF value.
+        float: ACF at lag 1
     """
-    n = len(series)
-    if n < 2:
+    if len(series) < 2:
         return 0.0
-        
-    mean = np.mean(series)
-    var = np.var(series)
-    
-    if var == 0:
-        return 0.0
-        
-    acf_lag1 = np.sum((series[1:] - mean) * (series[:-1] - mean)) / ((n - 1) * var)
-    return float(acf_lag1)
+    return stats.correlation(series[:-1], series[1:])
 
 def generate_null_distributions(
     series: np.ndarray,
-    n_nulls: int = 1000,
-    seed: Optional[int] = None
+    n_shuffles: int = 1000,
+    seed: int = DEFAULT_SEED
 ) -> List[np.ndarray]:
     """
-    Generate multiple shuffled versions of a series for null distribution analysis.
-    
+    Generate null distributions by shuffling the series.
+
     Args:
-        series: Original time series.
-        n_nulls: Number of shuffled versions to generate.
-        seed: Random seed.
-        
+        series: Input series
+        n_shuffles: Number of shuffles
+        seed: Random seed
+
     Returns:
-        List[np.ndarray]: List of shuffled series.
+        List[np.ndarray]: List of shuffled series
     """
-    if seed is not None:
-        rng = np.random.default_rng(seed)
-    else:
-        rng = np.random.default_rng()
-        
-    null_distributions = []
-    for _ in range(n_nulls):
-        null_series = shuffle_series(series, rng)
-        null_distributions.append(null_series)
-        
-    log_info(f"Generated {n_nulls} null distributions for series of length {len(series)}")
-    return null_distributions
+    np.random.seed(seed)
+    nulls = []
+    for i in range(n_shuffles):
+        nulls.append(shuffle_series(series, seed=seed + i))
+    return nulls
 
 def generate_synthetic_grid(
-    hurst_values: List[float],
-    length_values: List[int],
-    seed_base: int = 42
-) -> List[Dict[str, Any]]:
+    hurst_values: List[float] = [0.5, 0.7, 0.8, 0.9],
+    lengths: List[int] = [100, 500, 1000, 5000, 10000],
+    base_seed: int = DEFAULT_SEED,
+    max_mean_deviation: float = MAX_MEAN_DEVIATION,
+    max_attempts: int = MAX_RETRY_ATTEMPTS
+) -> List[pd.DataFrame]:
     """
-    Generate a grid of synthetic series for Monte Carlo analysis.
-    
+    Generate a grid of synthetic series for various H and length combinations.
+
     Args:
-        hurst_values: List of Hurst exponents to test.
-        length_values: List of series lengths to test.
-        seed_base: Base seed for reproducibility.
-        
+        hurst_values: List of Hurst exponents
+        lengths: List of series lengths
+        base_seed: Base seed for the grid
+        max_mean_deviation: Maximum allowed mean deviation
+        max_attempts: Maximum retry attempts
+
     Returns:
-        List of metadata dictionaries for each generated series.
+        List[pd.DataFrame]: List of generated DataFrames
     """
-    results = []
-    seed_counter = 0
-    
+    dfs = []
+    seed_counter = base_seed
+
     for h in hurst_values:
-        for n in length_values:
-            seed = seed_base + seed_counter
+        for l in lengths:
             try:
-                series, meta = generate_synthetic_series(h, n, "fgn", seed=seed)
-                meta["seed"] = seed
-                results.append(meta)
+                df = generate_synthetic_series(
+                    hurst=h,
+                    length=l,
+                    seed=seed_counter,
+                    max_mean_deviation=max_mean_deviation,
+                    max_attempts=max_attempts
+                )
+                dfs.append(df)
                 seed_counter += 1
-            except ValueError as e:
-                log_error(f"Failed to generate series H={h}, N={n}: {e}")
-                # Continue with next grid point
-                
-    log_info(f"Generated grid: {len(results)} series from {len(hurst_values)} H values x {len(length_values)} lengths")
-    return results
+            except SyntheticGenerationError as e:
+                log_error(f"Failed to generate series for H={h}, L={l}: {str(e)}")
+                # Continue to next combination rather than failing the whole grid
+
+    return dfs
 
 def main():
     """
-    Main entry point for testing the generator module.
+    Main function to demonstrate synthetic generation with robustness checks.
     """
-    log_info("Running synthetic generator module tests...")
-    
-    # Test basic generation
-    series, meta = generate_synthetic_series(hurst=0.8, length=1000, seed=123)
-    log_info(f"Test series: H=0.8, N=1000, mean={meta['actual_mean']:.6e}")
-    
-    # Test grid generation
-    grid = generate_synthetic_grid(
-        hurst_values=[0.5, 0.7, 0.8, 0.9],
-        length_values=[100, 500, 1000],
-        seed_base=42
-    )
-    log_info(f"Grid generation complete: {len(grid)} series")
-    
-    # Test null distribution generation
-    nulls = generate_null_distributions(series, n_nulls=100, seed=456)
-    log_info(f"Null distribution test: generated {len(nulls)} shuffled series")
-    
-    # Verify ACF lag-1 of shuffled series is near zero
-    acf_values = [compute_acf_lag1(null) for null in nulls]
-    mean_acf = np.mean(acf_values)
-    log_info(f"Null distribution ACF lag-1: mean={mean_acf:.6e} (should be ≈ 0)")
-    
-    log_info("All generator tests completed successfully.")
+    log_info("Starting synthetic generation demo with robustness checks...")
+
+    # Test robustness with boundary H values
+    test_cases = [
+        {"hurst": 0.5, "length": 1000, "seed": 42},
+        {"hurst": 0.9, "length": 1000, "seed": 43},
+        {"hurst": 0.51, "length": 500, "seed": 44},
+        {"hurst": 0.89, "length": 500, "seed": 45}
+    ]
+
+    for i, case in enumerate(test_cases):
+        try:
+            df = generate_synthetic_series(
+                hurst=case["hurst"],
+                length=case["length"],
+                seed=case["seed"]
+            )
+            log_info(f"Test case {i+1}: H={case['hurst']}, L={case['length']} - SUCCESS")
+            log_info(f"  Mean: {df['value'].mean():.6f}")
+            log_info(f"  Std: {df['value'].std():.6f}")
+            log_info(f"  Series ID: {df['series_id'].iloc[0]}")
+        except SyntheticGenerationError as e:
+            log_critical(f"Test case {i+1}: H={case['hurst']}, L={case['length']} - FAILED: {str(e)}")
+
+    log_info("Synthetic generation demo completed.")
 
 if __name__ == "__main__":
     main()

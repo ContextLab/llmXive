@@ -1,286 +1,406 @@
 """
-Regression analysis module for evaluating robustness of statistical methods.
-
-Implements feature filtering, linear regression, VIF calculation, and N_eff estimation.
-Per Spec FR-005, uses Linear Regression (OLS) and explicitly excludes non-linear/GLM models.
+Regression analysis module for evaluating the robustness of statistical methods.
+Implements linear regression of error rate vs. Hurst exponent with stability checks.
 """
+
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from statsmodels.api import OLS
+import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 from src.utils.logging import log_info, log_warning, log_error, log_critical
+from src.utils.config import get_path
 
 class RegressionError(Exception):
     """Custom exception for regression-related errors."""
     pass
 
-def verify_regression_inputs(error_rates_path: str, filtered_features_path: str) -> Tuple[pd.DataFrame, List[str]]:
+def verify_regression_inputs(error_rates_path: Path, filtered_features_path: Path) -> bool:
     """
-    Verify that input files exist, match on dataset IDs, and contain no NaN/Inf values.
+    Verify that input files exist, are non-empty, and contain valid data.
     
     Args:
         error_rates_path: Path to error_rates.csv
         filtered_features_path: Path to filtered_features.json
         
     Returns:
-        Tuple of (error_rates_df, feature_names)
-        
-    Raises:
-        RegressionError: If verification fails
+        True if inputs are valid, False otherwise.
     """
     log_info("Verifying regression inputs...")
     
-    # Load error rates
-    if not Path(error_rates_path).exists():
+    # Check file existence
+    if not error_rates_path.exists():
         log_critical(f"Error rates file not found: {error_rates_path}")
-        raise RegressionError(f"Error rates file not found: {error_rates_path}")
-    
-    error_rates_df = pd.read_csv(error_rates_path)
-    
-    # Check for NaN/Inf in critical columns
-    if 'hurst' in error_rates_df.columns:
-        if error_rates_df['hurst'].isna().any() or np.isinf(error_rates_df['hurst']).any():
-            log_critical("NaN or Inf values found in hurst column of error_rates.csv")
-            raise RegressionError("NaN or Inf values found in hurst column")
-    
-    if 'error_rate' in error_rates_df.columns:
-        if error_rates_df['error_rate'].isna().any() or np.isinf(error_rates_df['error_rate']).any():
-            log_critical("NaN or Inf values found in error_rate column")
-            raise RegressionError("NaN or Inf values found in error_rate column")
-    
-    # Load filtered features
-    if not Path(filtered_features_path).exists():
+        return False
+        
+    if not filtered_features_path.exists():
         log_critical(f"Filtered features file not found: {filtered_features_path}")
-        raise RegressionError(f"Filtered features file not found: {filtered_features_path}")
-    
-    with open(filtered_features_path, 'r') as f:
-        filtered_data = json.load(f)
-    
-    feature_names = filtered_data.get('features', [])
-    allowed_ids = set(filtered_data.get('dataset_ids', []))
-    
-    if not feature_names:
-        log_critical("No features found in filtered_features.json")
-        raise RegressionError("No features found in filtered_features.json")
-    
-    # Verify dataset ID matching
-    error_rate_ids = set(error_rates_df.get('dataset_id', error_rates_df.index).tolist())
-    
-    if allowed_ids and error_rate_ids and not allowed_ids.intersection(error_rate_ids):
-        log_critical(f"Dataset ID mismatch. Filtered IDs: {allowed_ids}, Error rate IDs: {error_rate_ids}")
-        raise RegressionError("Dataset ID mismatch between inputs")
-    
-    log_info(f"Verification passed. Features: {feature_names}")
-    return error_rates_df, feature_names
+        return False
+        
+    # Load and validate error rates
+    try:
+        error_rates_df = pd.read_csv(error_rates_path)
+        if error_rates_df.empty:
+            log_critical("Error rates file is empty")
+            return False
+            
+        required_cols = ['hurst', 'error_rate']
+        if not all(col in error_rates_df.columns for col in required_cols):
+            log_critical(f"Error rates file missing required columns: {required_cols}")
+            return False
+            
+        # Check for NaN/Inf
+        if error_rates_df['hurst'].isna().any() or np.isinf(error_rates_df['hurst']).any():
+            log_critical("Error rates file contains NaN or Inf in hurst column")
+            return False
+            
+        if error_rates_df['error_rate'].isna().any() or np.isinf(error_rates_df['error_rate']).any():
+            log_critical("Error rates file contains NaN or Inf in error_rate column")
+            return False
+            
+        log_info(f"Error rates loaded: {len(error_rates_df)} records")
+        
+    except Exception as e:
+        log_critical(f"Failed to load error rates: {e}")
+        return False
+        
+    # Load and validate filtered features
+    try:
+        with open(filtered_features_path, 'r') as f:
+            filtered_features = json.load(f)
+            
+        if not filtered_features or 'features' not in filtered_features:
+            log_critical("Filtered features file invalid or missing 'features' key")
+            return False
+            
+        log_info(f"Filtered features loaded: {len(filtered_features['features'])} features")
+        
+    except Exception as e:
+        log_critical(f"Failed to load filtered features: {e}")
+        return False
+        
+    return True
 
-def filter_features(error_rates_df: pd.DataFrame, output_path: str) -> List[str]:
+def check_regression_stability(X: np.ndarray, y: np.ndarray) -> Tuple[bool, Dict[str, Any]]:
     """
-    Implement explicit feature filtering logic to exclude Max_ACF_Lag and spectral density metrics.
+    Check for multicollinearity and singular matrices before running OLS regression.
     
-    Per Spec FR-005 and T037b requirements:
-    - Exclude Max_ACF_Lag
-    - Exclude spectral_density_peak_ratio
-    - Exclude spectral_density_fallback (if present)
+    This implements the stability check required by T065.
     
     Args:
-        error_rates_df: DataFrame containing all potential features
-        output_path: Path to write filtered_features.json
+        X: Feature matrix (n_samples, n_features)
+        y: Target vector (n_samples,)
         
     Returns:
-        List of allowed feature names
+        Tuple of (is_stable, stability_info) where:
+        - is_stable: True if regression can proceed safely
+        - stability_info: Dictionary with VIF values, condition number, and recommendations
     """
-    log_info("Applying feature filtering logic...")
+    log_info("Checking regression stability...")
     
-    # Define forbidden features explicitly
-    forbidden_features = {
-        'max_acf_lag',
-        'Max_ACF_Lag',
-        'spectral_density_peak_ratio',
-        'spectral_density_fallback',
-        'spectral_peak_ratio'
+    stability_info = {
+        'is_singular': False,
+        'condition_number': None,
+        'vif_values': {},
+        'max_vif': None,
+        'recommendation': 'proceed',
+        'warnings': []
     }
     
-    # Get all available columns (excluding non-feature columns)
-    non_feature_cols = {'dataset_id', 'hurst', 'error_rate', 'length', 'source', 'is_synthetic'}
-    available_cols = set(col for col in error_rates_df.columns if col not in non_feature_cols)
+    n_samples, n_features = X.shape
     
-    # Filter out forbidden features
-    allowed_features = [col for col in available_cols if col.lower() not in {f.lower() for f in forbidden_features}]
+    # Check for singular matrix (rank deficiency)
+    try:
+        # Add constant for intercept
+        X_with_const = sm.add_constant(X)
+        XtX = X_with_const.T @ X_with_const
+        
+        # Calculate condition number
+        eigenvalues = np.linalg.eigvalsh(XtX)
+        if np.any(eigenvalues <= 0):
+            stability_info['is_singular'] = True
+            stability_info['warnings'].append("Matrix is singular or near-singular (non-positive eigenvalues)")
+        else:
+            stability_info['condition_number'] = np.sqrt(eigenvalues.max() / eigenvalues.min())
+            
+            # Flag if condition number is very high (> 30 is often problematic)
+            if stability_info['condition_number'] > 30:
+                stability_info['warnings'].append(f"High condition number detected: {stability_info['condition_number']:.2f}")
+                
+    except np.linalg.LinAlgError as e:
+        stability_info['is_singular'] = True
+        stability_info['warnings'].append(f"Matrix singularity detected: {e}")
+        
+    # Calculate VIF for each feature (excluding constant)
+    if n_features > 0 and not stability_info['is_singular']:
+        try:
+            vif_values = []
+            for i in range(n_features):
+                vif = variance_inflation_factor(X_with_const, i + 1)  # +1 to skip constant
+                feature_name = f"feature_{i}"
+                stability_info['vif_values'][feature_name] = vif
+                vif_values.append(vif)
+                
+            stability_info['max_vif'] = max(vif_values) if vif_values else None
+            
+            # Flag high VIF (> 10 is often considered problematic)
+            if stability_info['max_vif'] and stability_info['max_vif'] > 10:
+                stability_info['warnings'].append(f"High VIF detected: {stability_info['max_vif']:.2f}")
+                
+        except Exception as e:
+            log_warning(f"Could not calculate VIF: {e}")
+            stability_info['warnings'].append(f"VIF calculation failed: {e}")
     
-    # Ensure 'hurst' is included as it is the primary predictor
-    if 'hurst' not in allowed_features:
-        allowed_features.append('hurst')
-    
-    # Sort for consistency
-    allowed_features = sorted(allowed_features)
-    
-    log_info(f"Filtered features: {allowed_features}")
-    log_info(f"Excluded features: {available_cols - set(allowed_features)}")
-    
-    # Write output
-    output_data = {
-        'features': allowed_features,
-        'excluded_features': list(available_cols - set(allowed_features)),
-        'dataset_ids': error_rates_df.get('dataset_id', error_rates_df.index).tolist(),
-        'generated_at': pd.Timestamp.now().isoformat()
-    }
-    
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
-    
-    log_info(f"Written filtered features to {output_path}")
-    return allowed_features
+    # Determine stability and recommendation
+    is_stable = True
+    if stability_info['is_singular']:
+        is_stable = False
+        stability_info['recommendation'] = 'skip'
+        log_critical("Regression matrix is singular. Skipping regression for this configuration.")
+    elif stability_info['max_vif'] and stability_info['max_vif'] > 10:
+        is_stable = False
+        stability_info['recommendation'] = 'fallback'
+        log_warning(f"High multicollinearity detected (max VIF={stability_info['max_vif']:.2f}). "
+                   "Falling back to univariate regression.")
+    elif stability_info['condition_number'] and stability_info['condition_number'] > 100:
+        stability_info['recommendation'] = 'warn'
+        log_warning(f"Very high condition number ({stability_info['condition_number']:.2f}). "
+                   "Proceed with caution.")
+    else:
+        log_info("Regression stability check passed.")
+        
+    stability_info['is_stable'] = is_stable
+    return is_stable, stability_info
 
-def run_regression(error_rates_df: pd.DataFrame, feature_names: List[str]) -> Dict[str, Any]:
+def run_regression(X: np.ndarray, y: np.ndarray, config: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Run linear regression of error rate vs. Hurst exponent (and other features).
+    Run linear regression with stability checks.
     
-    Per Spec FR-005: Uses Linear Regression (OLS).
+    Implements the fallback logic for T065:
+    - If matrix is singular, skip regression
+    - If high multicollinearity, fall back to univariate regression
     
     Args:
-        error_rates_df: DataFrame with features and error_rate
-        feature_names: List of feature column names to use
+        X: Feature matrix (n_samples, n_features)
+        y: Target vector (n_samples,)
+        config: Configuration dictionary with regression parameters
         
     Returns:
         Dictionary with regression results
     """
-    log_info(f"Running regression with features: {feature_names}")
+    log_info(f"Running regression with {X.shape[0]} samples, {X.shape[1]} features")
     
-    # Prepare data
-    if 'error_rate' not in error_rates_df.columns:
-        raise RegressionError("error_rate column not found in input")
+    # Check stability first
+    is_stable, stability_info = check_regression_stability(X, y)
     
-    X = error_rates_df[feature_names].values
-    y = error_rates_df['error_rate'].values
-    
-    # Add constant for intercept
-    X_with_const = OLS.add_constant(X)
-    
-    # Fit model
-    model = OLS(y, X_with_const)
-    results = model.fit()
-    
-    # Calculate VIF for each feature (excluding constant)
-    vif_data = {}
-    for i, col in enumerate(feature_names):
-        if i < X.shape[1]:  # Ensure we don't go out of bounds
-            vif = variance_inflation_factor(X_with_const, i + 1)  # +1 for constant column
-            vif_data[col] = vif
-    
-    # Calculate N_eff (effective sample size)
-    # N_eff = N / (1 + 2 * sum(ACF))
-    # For simplicity, we use a basic approximation based on R-squared and sample size
-    n = len(y)
-    k = len(feature_names)
-    r_squared = results.rsquared
-    
-    # Simple N_eff approximation: N_eff = N * (1 - R^2) + 1
-    # This is a heuristic; more complex methods exist but require ACF calculation
-    n_eff = max(1, int(n * (1 - r_squared) + 1))
-    
-    # Extract slope for Hurst (or first feature if Hurst not present)
-    slope_hurst = None
-    if 'hurst' in feature_names:
-        idx = feature_names.index('hurst')
-        slope_hurst = results.params[idx + 1]  # +1 for constant
-    elif len(results.params) > 1:
-        slope_hurst = results.params[1]  # First feature after constant
-    
-    # Calculate slope per 0.1 unit increase in Hurst
-    slope_per_01_unit = slope_hurst * 0.1 if slope_hurst is not None else None
-    
-    # Extract p-value for Hurst
-    p_value_hurst = None
-    if 'hurst' in feature_names:
-        idx = feature_names.index('hurst')
-        p_value_hurst = results.pvalues[idx + 1]
-    
-    result_dict = {
-        'slope': float(results.params[1]) if len(results.params) > 1 else 0.0,
-        'intercept': float(results.params[0]),
-        'p_value': float(p_value_hurst) if p_value_hurst is not None else None,
-        'vif': vif_data,
-        'n_eff': n_eff,
-        'r_squared': float(r_squared),
-        'slope_per_01_unit': float(slope_per_01_unit) if slope_per_01_unit is not None else None,
-        'num_features': k,
-        'sample_size': n,
-        'feature_names': feature_names,
-        'model_summary': results.summary().as_text()
+    result = {
+        'config': config,
+        'stability_info': stability_info,
+        'success': False,
+        'model_type': None,
+        'coefficients': None,
+        'p_values': None,
+        'r_squared': None,
+        'slope': None,
+        'intercept': None,
+        'slope_per_01_unit': None,
+        'vif': None,
+        'n_eff': None,
+        'error_message': None
     }
     
-    log_info(f"Regression complete. R-squared: {r_squared:.4f}, N_eff: {n_eff}")
-    return result_dict
+    if not is_stable:
+        if stability_info['recommendation'] == 'skip':
+            result['error_message'] = "Regression skipped due to singular matrix"
+            log_critical(result['error_message'])
+            return result
+            
+        elif stability_info['recommendation'] == 'fallback':
+            log_info("Falling back to univariate regression due to multicollinearity")
+            # Use only the first feature (Hurst exponent) for univariate regression
+            X_uni = X[:, 0:1]
+            y_uni = y
+            return run_univariate_regression(X_uni, y_uni, config, stability_info)
+    
+    # Standard multivariate regression
+    try:
+        X_with_const = sm.add_constant(X)
+        model = sm.OLS(y, X_with_const).fit()
+        
+        result['model_type'] = 'multivariate_ols'
+        result['success'] = True
+        result['coefficients'] = model.params.tolist()
+        result['p_values'] = model.pvalues.tolist()
+        result['r_squared'] = float(model.rsquared)
+        result['intercept'] = float(model.params[0])
+        result['slope'] = float(model.params[1]) if len(model.params) > 1 else None
+        
+        # Calculate slope per 0.1 unit increase in Hurst
+        if result['slope'] is not None:
+            result['slope_per_01_unit'] = result['slope'] * 0.1
+            
+        # Calculate VIF for the model
+        if X.shape[1] > 0:
+            vif_values = []
+            for i in range(X.shape[1]):
+                vif = variance_inflation_factor(X_with_const, i + 1)
+                vif_values.append(vif)
+            result['vif'] = max(vif_values) if vif_values else None
+            
+        # Calculate effective sample size
+        n_eff = calculate_n_eff(len(y), result.get('r_squared', 0), X.shape[1])
+        result['n_eff'] = n_eff
+        
+        log_info(f"Regression completed: R²={result['r_squared']:.4f}, "
+                f"slope={result['slope']:.4f}, slope_per_0.1={result['slope_per_01_unit']:.4f}")
+                
+    except Exception as e:
+        result['error_message'] = str(e)
+        log_error(f"Regression failed: {e}")
+        
+    return result
+
+def run_univariate_regression(X: np.ndarray, y: np.ndarray, config: Dict[str, Any], 
+                             stability_info: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Run univariate regression as fallback for high multicollinearity.
+    
+    Args:
+        X: Feature matrix (n_samples, 1) - should contain only Hurst exponent
+        y: Target vector (n_samples,)
+        config: Configuration dictionary
+        stability_info: Stability information from check_regression_stability
+        
+    Returns:
+        Dictionary with univariate regression results
+    """
+    log_info("Running univariate regression fallback")
+    
+    result = {
+        'config': config,
+        'stability_info': stability_info,
+        'success': False,
+        'model_type': 'univariate_ols',
+        'coefficients': None,
+        'p_values': None,
+        'r_squared': None,
+        'slope': None,
+        'intercept': None,
+        'slope_per_01_unit': None,
+        'vif': None,
+        'n_eff': None,
+        'error_message': None,
+        'fallback_reason': 'high_multicollinearity'
+    }
+    
+    try:
+        X_with_const = sm.add_constant(X)
+        model = sm.OLS(y, X_with_const).fit()
+        
+        result['success'] = True
+        result['coefficients'] = model.params.tolist()
+        result['p_values'] = model.pvalues.tolist()
+        result['r_squared'] = float(model.rsquared)
+        result['intercept'] = float(model.params[0])
+        result['slope'] = float(model.params[1]) if len(model.params) > 1 else None
+        
+        if result['slope'] is not None:
+            result['slope_per_01_unit'] = result['slope'] * 0.1
+            
+        # VIF for univariate is typically 1.0 (no multicollinearity)
+        result['vif'] = 1.0
+        
+        n_eff = calculate_n_eff(len(y), result.get('r_squared', 0), 1)
+        result['n_eff'] = n_eff
+        
+        log_info(f"Univariate regression completed: R²={result['r_squared']:.4f}, "
+                f"slope={result['slope']:.4f}")
+                
+    except Exception as e:
+        result['error_message'] = str(e)
+        log_error(f"Univariate regression failed: {e}")
+        
+    return result
+
+def calculate_n_eff(n: int, r_squared: float, n_features: int) -> float:
+    """
+    Calculate effective sample size based on autocorrelation and model complexity.
+    
+    Args:
+        n: Original sample size
+        r_squared: R-squared value from regression
+        n_features: Number of features in the model
+        
+    Returns:
+        Effective sample size
+    """
+    # Simplified approximation: n_eff = n * (1 - r_squared) / (1 + r_squared)
+    # This accounts for the reduction in independent information due to dependence
+    if r_squared >= 1.0:
+        return n / (n_features + 1)
+        
+    n_eff = n * (1 - r_squared) / (1 + r_squared)
+    return max(n_eff, 1.0)  # Ensure at least 1
 
 def main():
-    """
-    Main entry point for regression analysis and feature filtering.
+    """Main entry point for regression analysis."""
+    log_info("Starting regression analysis...")
     
-    This function:
-    1. Filters features (T037b) -> writes data/results/filtered_features.json
-    2. Verifies inputs (T050)
-    3. Runs regression (T037a) -> writes data/results/regression_model.json
-    """
-    # Paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    error_rates_path = project_root / 'data' / 'results' / 'error_rates.csv'
-    filtered_features_path = project_root / 'data' / 'results' / 'filtered_features.json'
-    regression_output_path = project_root / 'data' / 'results' / 'regression_model.json'
-    
-    # Ensure output directory exists
-    regression_output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Step 1: Filter features (T037b)
-    if not error_rates_path.exists():
-        log_error(f"Error rates file not found: {error_rates_path}")
-        # Create empty filtered features to allow pipeline to continue with error state
-        empty_filter = {
-            'features': [],
-            'excluded_features': [],
-            'error': 'Input file not found',
-            'dataset_ids': []
-        }
-        with open(filtered_features_path, 'w') as f:
-            json.dump(empty_filter, f, indent=2)
-        raise RegressionError(f"Input file not found: {error_rates_path}")
-    
-    error_rates_df = pd.read_csv(error_rates_path)
-    allowed_features = filter_features(error_rates_df, str(filtered_features_path))
-    
-    # Step 2: Verify inputs (T050)
     try:
-        verified_df, verified_features = verify_regression_inputs(
-            str(error_rates_path), 
-            str(filtered_features_path)
-        )
-    except RegressionError as e:
-        log_critical(f"Input verification failed: {e}")
-        # Write error state to regression output
-        error_result = {
-            'error': str(e),
-            'status': 'failed'
+        # Get paths
+        project_root = get_path()
+        error_rates_path = project_root / "data" / "results" / "error_rates.csv"
+        filtered_features_path = project_root / "data" / "results" / "filtered_features.json"
+        output_path = project_root / "data" / "results" / "regression_model.json"
+        
+        # Verify inputs
+        if not verify_regression_inputs(error_rates_path, filtered_features_path):
+            log_critical("Input verification failed. Exiting.")
+            sys.exit(1)
+            
+        # Load data
+        error_rates_df = pd.read_csv(error_rates_path)
+        
+        with open(filtered_features_path, 'r') as f:
+            filtered_features = json.load(f)
+            
+        # Prepare features and target
+        X = error_rates_df['hurst'].values.reshape(-1, 1)
+        y = error_rates_df['error_rate'].values
+        
+        # Configuration
+        config = {
+            'model_type': 'linear_regression',
+            'features': filtered_features['features'],
+            'alpha': 0.05,
+            'seed': 42
         }
-        with open(regression_output_path, 'w') as f:
-            json.dump(error_result, f, indent=2)
+        
+        # Run regression
+        result = run_regression(X, y, config)
+        
+        # Save results
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2, default=str)
+            
+        log_info(f"Regression results saved to {output_path}")
+        
+        if result['success']:
+            log_info(f"Final slope: {result['slope']:.4f}")
+            log_info(f"Slope per 0.1 unit Hurst: {result['slope_per_01_unit']:.4f}")
+            log_info(f"R-squared: {result['r_squared']:.4f}")
+        else:
+            log_warning(f"Regression did not complete successfully: {result.get('error_message')}")
+            
+    except Exception as e:
+        log_critical(f"Regression analysis failed: {e}")
         raise
-    
-    # Step 3: Run regression
-    regression_results = run_regression(verified_df, verified_features)
-    regression_results['status'] = 'success'
-    
-    # Write output
-    with open(regression_output_path, 'w') as f:
-        json.dump(regression_results, f, indent=2)
-    
-    log_info(f"Regression results written to {regression_output_path}")
-    return regression_results
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

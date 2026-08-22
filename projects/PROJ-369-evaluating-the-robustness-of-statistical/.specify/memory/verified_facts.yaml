@@ -1,5 +1,9 @@
-'|greater point than verify':
-  quote: 'P1051: 12500'
-  source_id: Q47604
-  url: https://www.wikidata.org/wiki/Q47604
-  value: '12500'
+'|alpha':
+  quote: The 0.05 significance level is merely a convention. The 0.05 significance
+    level (alpha level) is often used as the boundary between a statistically significant
+    and a statistically non-significant p-value. However, this does not imply that
+    there is generally a scientific reason to consider results on opposite sides of
+    any threshold as qualitatively different.
+  source_id: Misuse of p-values
+  url: https://en.wikipedia.org/wiki/Misuse_of_p-values
+  value: '0.05'

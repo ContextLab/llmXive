@@ -1,105 +1,105 @@
+"""
+Integration tests for preprocessing edge cases (T063).
+
+Tests the full preprocessing pipeline with edge cases.
+"""
+
 import pytest
 import numpy as np
 import pandas as pd
 import logging
-from src.data.preprocessing import preprocess_dataset
-import json
-import tempfile
 from pathlib import Path
+import sys
+import os
+import json
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+
+from src.data.preprocessing import preprocess_dataset, PreprocessingError
+from src.utils.logging import setup_logger
+from src.utils.config import get_path
+
+# Setup logger
+setup_logger(level=logging.INFO)
 
 class TestEdgeCase2Integration:
-    """Integration tests for Edge Case 2 handling in full dataset preprocessing."""
-
-    def test_multiple_series_with_varying_stationarity(self, caplog):
-        """Test preprocessing multiple series with different stationarity properties."""
-        # Create a dataset with multiple series
-        n = 100
-        dates = pd.date_range('2020-01-01', periods=n, freq='D')
+    """Integration tests for T063: Unit root failure handling."""
+    
+    @pytest.fixture
+    def temp_data_dir(self, tmp_path):
+        """Create a temporary data directory."""
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        return data_dir
+    
+    def test_unit_root_failure_integration(self, temp_data_dir):
+        """Test unit root failure in full pipeline."""
+        # Create a random walk series (unit root)
+        np.random.seed(42)
+        n = 1000
+        errors = np.random.randn(n)
+        series = pd.Series(np.cumsum(errors), name="random_walk")
+        
+        # Save to CSV
+        csv_path = temp_data_dir / "unit_root_test.csv"
+        series.to_csv(csv_path, index=True)
+        
+        # Try to preprocess - should fail
+        with pytest.raises(PreprocessingError) as exc_info:
+            preprocess_dataset(csv_path, series_id="unit_root_integration")
+        
+        assert "Unit root failure" in str(exc_info.value)
+    
+    def test_trend_stationary_integration(self, temp_data_dir):
+        """Test trend-stationary series in full pipeline."""
+        # Create a trend-stationary series
+        np.random.seed(42)
+        n = 200
+        x = np.arange(n)
+        trend = 0.5 * x + 5
+        noise = np.random.randn(n) * 0.3
+        series = pd.Series(trend + noise, name="trend_stationary")
+        
+        # Save to CSV
+        csv_path = temp_data_dir / "trend_stationary_test.csv"
+        series.to_csv(csv_path, index=True)
+        
+        # Preprocess - should succeed
+        result = preprocess_dataset(csv_path, series_id="trend_stationary_integration")
+        
+        assert result['status'] == 'success'
+        assert result['detrending_status'] == 'success'
+    
+    def test_multiple_series_mixed_behavior(self, temp_data_dir):
+        """Test multiple series with different behaviors."""
+        results = {}
         
         # Series 1: Stationary (white noise)
-        series1 = pd.Series(np.random.randn(n), index=dates)
-        
-        # Series 2: Random walk (unit root)
-        series2 = pd.Series(np.cumsum(np.random.randn(n)), index=dates)
-        
-        # Series 3: Trending series
-        series3 = pd.Series(np.linspace(0, 10, n) + np.random.randn(n) * 0.5, index=dates)
-        
-        # Create DataFrame
-        df = pd.DataFrame({
-            'datetime': dates.tolist() * 3,
-            'value': pd.concat([series1, series2, series3]).values,
-            'series_id': ['stationary'] * n + ['unit_root'] * n + ['trending'] * n
-        })
-        
-        with caplog.at_level(logging.WARNING):
-            result = preprocess_dataset(df, max_differencing=2)
-        
-        # Verify result structure
-        assert result is not None
-        assert 'differencing_count' in result.columns
-        
-        # Check that differencing counts are recorded for each series
-        assert result['series_id'].nunique() <= 3  # Some might be skipped
-
-    def test_edge_case_logging_in_dataset(self, caplog):
-        """Test that edge cases are properly logged during dataset preprocessing."""
-        n = 50
-        dates = pd.date_range('2020-01-01', periods=n, freq='D')
-        
-        # Create a series that will likely hit max differencing
-        series_data = np.cumsum(np.random.randn(n))
-        df = pd.DataFrame({
-            'datetime': dates,
-            'value': series_data
-        })
-        
-        with caplog.at_level(logging.WARNING):
-            result = preprocess_dataset(df, max_differencing=1)
-        
-        # Verify the function completes without crashing
-        assert result is not None
-        
-        # Check for appropriate logging
-        log_messages = [record.message for record in caplog.records]
-        # There should be at least some logging activity
-        assert len(log_messages) >= 0  # Function should run without errors
-
-    def test_differencing_count_persists_across_transformations(self):
-        """Test that differencing count is accurate through multiple transformations."""
-        n = 150
-        dates = pd.date_range('2020-01-01', periods=n, freq='D')
-        
-        # Create a series with clear unit root
         np.random.seed(42)
-        series_data = np.cumsum(np.random.randn(n))
-        df = pd.DataFrame({
-            'datetime': dates,
-            'value': series_data
-        })
+        series1 = pd.Series(np.random.randn(100), name="stationary")
+        csv_path1 = temp_data_dir / "series1.csv"
+        series1.to_csv(csv_path1, index=True)
         
-        result = preprocess_dataset(df, max_differencing=3)
+        # Series 2: Trend-stationary
+        x = np.arange(100)
+        series2 = pd.Series(2 * x + np.random.randn(100) * 0.5, name="trend")
+        csv_path2 = temp_data_dir / "series2.csv"
+        series2.to_csv(csv_path2, index=True)
         
-        # Verify differencing count is recorded
-        if not result.empty:
-            assert 'differencing_count' in result.columns
-            assert result['differencing_count'].iloc[0] >= 0
-
-    def test_edge_case_documentation_in_result(self):
-        """Test that edge case information is preserved in preprocessing results."""
-        n = 100
-        dates = pd.date_range('2020-01-01', periods=n, freq='D')
+        # Series 3: Random walk (unit root)
+        series3 = pd.Series(np.cumsum(np.random.randn(100)), name="random_walk")
+        csv_path3 = temp_data_dir / "series3.csv"
+        series3.to_csv(csv_path3, index=True)
         
-        # Mix of stationary and non-stationary
-        df = pd.DataFrame({
-            'datetime': dates,
-            'value': np.random.randn(n),
-            'series_id': ['test_series'] * n
-        })
+        # Process all
+        result1 = preprocess_dataset(csv_path1, series_id="s1")
+        result2 = preprocess_dataset(csv_path2, series_id="s2")
         
-        result = preprocess_dataset(df, max_differencing=2)
+        with pytest.raises(PreprocessingError):
+            preprocess_dataset(csv_path3, series_id="s3")
         
-        # Verify result contains all expected columns
-        expected_columns = ['datetime', 'value', 'is_stationary', 'differencing_count', 'detrended']
-        for col in expected_columns:
-            assert col in result.columns, f"Missing column: {col}"
+        assert result1['status'] == 'success'
+        assert result2['status'] == 'success'
+        assert result1['differencing_count'] == 0
+        assert result2['detrending_status'] == 'success'

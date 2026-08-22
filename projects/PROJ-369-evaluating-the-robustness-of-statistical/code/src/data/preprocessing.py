@@ -4,43 +4,55 @@ import pandas as pd
 from scipy import stats
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.regression.linear_model import OLS
-from typing import Tuple, Optional, Dict, Any, Union
+from src.utils.logging import log_info, log_warning, log_error, log_critical
 
 class PreprocessingError(Exception):
     """Custom exception for preprocessing errors."""
     pass
 
-def interpolate_missing(series: pd.Series) -> pd.Series:
+def interpolate_missing(series: pd.Series, method: str = 'linear') -> pd.Series:
     """
-    Interpolate missing values using linear interpolation.
-    
-    Args:
-        series: Input time series with potential NaN values
-        
-    Returns:
-        Series with missing values interpolated
-    """
-    return series.interpolate(method='linear')
-
-def check_stationarity_adf(series: pd.Series, alpha: float = 0.05) -> Tuple[bool, float]:
-    """
-    Check stationarity using the Augmented Dickey-Fuller test.
+    Interpolate missing values in a time series.
     
     Args:
         series: Input time series
-        alpha: Significance level for the test
+        method: Interpolation method ('linear', 'time', 'index', etc.)
         
     Returns:
-        Tuple of (is_stationary, p_value)
+        Interpolated series
     """
+    if series.isna().all():
+        raise PreprocessingError("Series contains only NaN values")
+    
+    return series.interpolate(method=method).ffill().bfill()
+
+def check_stationarity_adf(series: pd.Series, alpha: float = 0.05) -> dict:
+    """
+    Check stationarity using Augmented Dickey-Fuller test.
+    
+    Args:
+        series: Input time series
+        alpha: Significance level
+        
+    Returns:
+        Dictionary with test results
+    """
+    if len(series) < 10:
+        raise PreprocessingError("Series too short for ADF test")
+    
     result = adfuller(series.dropna(), autolag='AIC')
-    p_value = result[1]
-    is_stationary = p_value < alpha
-    return is_stationary, p_value
+    
+    return {
+        'stationary': result[1] < alpha,
+        'p_value': result[1],
+        'adf_statistic': result[0],
+        'critical_values': result[4],
+        'lags_used': result[2]
+    }
 
 def detrend_linear(series: pd.Series) -> pd.Series:
     """
-    Detrend a series using linear regression residuals.
+    Detrend series using linear regression residuals.
     
     Args:
         series: Input time series
@@ -48,21 +60,21 @@ def detrend_linear(series: pd.Series) -> pd.Series:
     Returns:
         Residuals from linear regression (detrended series)
     """
-    n = len(series)
-    if n < 2:
-        raise PreprocessingError("Series too short for detrending")
-        
-    x = np.arange(n).reshape(-1, 1)
+    if len(series) < 2:
+        raise PreprocessingError("Series too short for linear detrending")
+    
+    x = np.arange(len(series))
     y = series.values
     
-    model = OLS(y, x).fit()
+    # Fit linear regression
+    model = OLS(y, np.column_stack([np.ones(len(x)), x])).fit()
     residuals = model.resid
     
     return pd.Series(residuals, index=series.index)
 
 def difference_series(series: pd.Series, order: int = 1) -> pd.Series:
     """
-    Apply differencing to a series.
+    Difference a time series to remove unit roots.
     
     Args:
         series: Input time series
@@ -73,207 +85,196 @@ def difference_series(series: pd.Series, order: int = 1) -> pd.Series:
     """
     return series.diff(order).dropna()
 
-def preprocess_series(
-    series: pd.Series,
-    max_differencing: int = 3,
-    log_counts: bool = True
-) -> Dict[str, Any]:
+# Maximum differencing limit to prevent infinite loops (T063 enhancement)
+MAX_DIFFERENCING_LIMIT = 10
+
+def preprocess_series(series: pd.Series, max_lag: int = 20) -> dict:
     """
-    Preprocess a single time series: handle missing values, check stationarity,
-    and apply differencing or detrending as needed.
+    Preprocess a single time series:
+    1. Interpolate missing values
+    2. Check stationarity (ADF)
+    3. If non-stationary: difference until stationary or max limit reached
+    4. If stationary: detrend using linear regression residuals
+    5. Calculate spectral density peak ratio
     
     Args:
         series: Input time series
-        max_differencing: Maximum number of differencing operations allowed
-        log_counts: Whether to log the number of differencing steps
+        max_lag: Maximum lag for ACF calculation
         
     Returns:
-        Dictionary containing:
-            - 'processed_series': The preprocessed series
-            - 'is_stationary': Whether the series is stationary
-            - 'differencing_count': Number of differencing steps applied
-            - 'detrended': Whether detrending was applied instead of differencing
-            - 'original_length': Length of the original series
-            - 'processed_length': Length of the processed series
-            - 'adf_p_value': Final ADF p-value
+        Dictionary with processed series and metadata
     """
-    logger = logging.getLogger(__name__)
-    
-    # Handle missing values
-    processed = interpolate_missing(series)
-    
-    # Check for minimum length
-    if len(processed) < 25:
-        logger.warning(f"Series has {len(processed)} points, skipping (Edge Case 1)")
-        return {
-            'processed_series': processed,
-            'is_stationary': False,
-            'differencing_count': 0,
-            'detrended': False,
-            'original_length': len(series),
-            'processed_length': len(processed),
-            'adf_p_value': None,
-            'skipped': True
-        }
+    original_series = series.copy()
+    series = interpolate_missing(series)
     
     differencing_count = 0
-    detrended = False
-    original_processed = processed.copy()
+    stationarity_status = "unknown"
+    detrending_status = "not_applicable"
     
-    # Check stationarity and apply transformations
-    while differencing_count < max_differencing:
-        is_stationary, p_value = check_stationarity_adf(processed)
+    # T063 Enhancement: Maximum differencing limit to prevent infinite loops
+    while differencing_count < MAX_DIFFERENCING_LIMIT:
+        adf_result = check_stationarity_adf(series)
         
-        if is_stationary:
-            # Series is stationary, try detrending
-            try:
-                detrended_series = detrend_linear(processed)
-                is_detrended_stationary, _ = check_stationarity_adf(detrended_series)
-                
-                if is_detrended_stationary:
-                    processed = detrended_series
-                    detrended = True
-                    logger.info(f"Series detrended successfully (Edge Case 2: detrending applied)")
-                    break
-                else:
-                    # Detrending didn't work, continue with differencing
-                    logger.info("Detrending did not achieve stationarity, continuing with differencing")
-            except Exception as e:
-                logger.warning(f"Detrending failed: {e}, continuing with differencing")
-        
-        # Apply differencing
-        processed = difference_series(processed)
-        differencing_count += 1
-        
-        if len(processed) < 25:
-            logger.warning(f"Series dropped below 25 points after differencing (Edge Case 1)")
+        if adf_result['stationary']:
+            stationarity_status = "stationary_after_differencing" if differencing_count > 0 else "already_stationary"
+            # Detrend using linear regression residuals
+            detrended = detrend_linear(series)
+            detrending_status = "detrended"
+            series = detrended
             break
-    
-    # Final stationarity check
-    if len(processed) >= 25:
-        final_stationary, final_p_value = check_stationarity_adf(processed)
+        else:
+            # Non-stationary, difference the series
+            series = difference_series(series, order=1)
+            differencing_count += 1
+            
+            if len(series) < 10:
+                log_critical(f"Series became too short after differencing (length={len(series)})")
+                stationarity_status = "failed_short_series"
+                break
     else:
-        final_stationary = False
-        final_p_value = None
-    
-    # Log edge case for unit roots that cannot be detrended (Edge Case 2)
-    if not final_stationary and differencing_count >= max_differencing:
-        logger.error(
-            f"Unit root detected that could not be resolved after {max_differencing} "
-            f"differencing steps. Series length: {len(processed)}. "
-            f"Final ADF p-value: {final_p_value}. (Edge Case 2)"
-        )
-    elif not detrended and not final_stationary and differencing_count > 0:
-        logger.info(
-            f"Series required {differencing_count} differencing steps to attempt stationarity. "
-            f"Final status: {'Stationary' if final_stationary else 'Non-stationary'}. "
-            f"Final ADF p-value: {final_p_value}. (Edge Case 2: logged differencing count)"
+        # T063 Enhancement: Exceeded maximum differencing limit
+        log_critical(f"Series exceeded maximum differencing limit ({MAX_DIFFERENCING_LIMIT}). Unit root cannot be resolved.")
+        stationarity_status = "unit_root_failure"
+        raise PreprocessingError(
+            f"Series failed to achieve stationarity after {MAX_DIFFERENCING_LIMIT} differences. "
+            f"Likely contains an unresolvable unit root. Dataset may be unsuitable for analysis."
         )
     
-    result = {
-        'processed_series': processed,
-        'is_stationary': final_stationary,
+    # Calculate spectral density peak ratio
+    try:
+        spectral_peak_ratio = compute_spectral_peak_ratio(series)
+    except Exception as e:
+        log_warning(f"Spectral density calculation failed: {e}. Using variance-based fallback.")
+        spectral_peak_ratio = float(np.var(series))
+    
+    return {
+        'processed_series': series,
+        'original_series': original_series,
+        'stationarity_status': stationarity_status,
         'differencing_count': differencing_count,
-        'detrended': detrended,
-        'original_length': len(series),
-        'processed_length': len(processed),
-        'adf_p_value': final_p_value,
-        'skipped': len(processed) < 25
+        'detrending_status': detrending_status,
+        'spectral_density_peak_ratio': spectral_peak_ratio
     }
-    
-    return result
 
-def preprocess_dataset(
-    dataset: pd.DataFrame,
-    time_column: str = 'datetime',
-    value_column: str = 'value',
-    max_differencing: int = 3
-) -> pd.DataFrame:
+def preprocess_dataset(dataset: dict, max_lag: int = 20) -> dict:
     """
-    Preprocess an entire dataset (multiple time series).
+    Preprocess an entire dataset (multiple series).
     
     Args:
-        dataset: DataFrame with time series data
-        time_column: Name of the time column
-        value_column: Name of the value column
-        max_differencing: Maximum differencing steps per series
+        dataset: Dictionary with 'series' key containing list of series
+        max_lag: Maximum lag for ACF calculation
         
     Returns:
-        Preprocessed DataFrame
+        Dictionary with processed datasets and metadata
     """
-    logger = logging.getLogger(__name__)
+    processed_datasets = []
+    skipped_datasets = []
     
-    # Group by series identifier if present, otherwise treat as single series
-    if 'series_id' in dataset.columns:
-        groups = dataset.groupby('series_id')
-    else:
-        groups = [(None, dataset)]
-    
-    processed_dfs = []
-    edge_case_logs = []
-    
-    for series_id, group in groups:
-        series = group.set_index(time_column)[value_column]
-        result = preprocess_series(series, max_differencing)
+    for series_data in dataset.get('series', []):
+        series_id = series_data.get('id', 'unknown')
+        series = series_data.get('data')
         
-        if result['skipped']:
-            logger.warning(f"Series {series_id} skipped due to insufficient length")
-            edge_case_logs.append({
-                'series_id': series_id,
-                'reason': 'insufficient_length',
-                'length': result['original_length']
+        if series is None or len(series) < 25:
+            log_warning(f"Skipping dataset {series_id}: length < 25")
+            skipped_datasets.append({
+                'id': series_id,
+                'reason': 'too_short',
+                'length': len(series) if series is not None else 0
             })
             continue
         
-        processed_df = pd.DataFrame({
-            time_column: result['processed_series'].index,
-            value_column: result['processed_series'].values,
-            'is_stationary': result['is_stationary'],
-            'differencing_count': result['differencing_count'],
-            'detrended': result['detrended']
-        })
-        
-        if series_id is not None:
-            processed_df['series_id'] = series_id
-        
-        processed_dfs.append(processed_df)
-        
-        # Log edge case details for unit roots
-        if not result['is_stationary'] and result['differencing_count'] >= max_differencing:
-            edge_case_logs.append({
-                'series_id': series_id,
-                'reason': 'unit_root_undetermined',
-                'differencing_count': result['differencing_count'],
-                'final_adf_p_value': result['adf_p_value'],
-                'processed_length': result['processed_length']
+        try:
+            result = preprocess_series(series, max_lag)
+            result['series_id'] = series_id
+            processed_datasets.append(result)
+        except PreprocessingError as e:
+            log_error(f"Preprocessing failed for {series_id}: {e}")
+            skipped_datasets.append({
+                'id': series_id,
+                'reason': 'preprocessing_error',
+                'error': str(e)
             })
-            logger.warning(
-                f"Edge Case 2: Series {series_id} has undetermined unit root. "
-                f"Differencing count: {result['differencing_count']}, "
-                f"Final ADF p-value: {result['adf_p_value']}"
-            )
+        except Exception as e:
+            log_critical(f"Unexpected error processing {series_id}: {e}")
+            skipped_datasets.append({
+                'id': series_id,
+                'reason': 'unexpected_error',
+                'error': str(e)
+            })
     
-    if not processed_dfs:
-        return pd.DataFrame()
-    
-    result_df = pd.concat(processed_dfs, ignore_index=True)
-    
-    # Log all edge cases encountered
-    if edge_case_logs:
-        logger.info(f"Encountered {len(edge_case_logs)} edge cases during preprocessing")
-        for log in edge_case_logs:
-            logger.debug(f"Edge case detail: {log}")
-    
-    return result_df
+    return {
+        'processed': processed_datasets,
+        'skipped': skipped_datasets,
+        'total': len(dataset.get('series', []))
+    }
 
-def interpolate_missing_values(series: pd.Series) -> pd.Series:
+def compute_spectral_peak_ratio(series: pd.Series) -> float:
     """
-    Alias for interpolate_missing for backward compatibility.
+    Calculate spectral density peak ratio.
+    Ratio of max peak in low-freq band to mean floor in high-freq band.
     
     Args:
         series: Input time series
         
     Returns:
-        Series with missing values interpolated
+        Spectral peak ratio
     """
+    from scipy import signal
+    
+    # Compute periodogram
+    freqs, psd = signal.welch(series, nperseg=min(len(series), 256))
+    
+    if len(freqs) < 10:
+        raise ValueError("Series too short for spectral analysis")
+    
+    # Low-frequency band (first 10% of frequencies)
+    low_freq_idx = int(len(freqs) * 0.1)
+    low_freq_psd = psd[:low_freq_idx]
+    
+    # High-frequency band (last 50% of frequencies)
+    high_freq_idx = int(len(freqs) * 0.5)
+    high_freq_psd = psd[high_freq_idx:]
+    
+    if len(high_freq_psd) == 0 or np.mean(high_freq_psd) == 0:
+        raise ValueError("High-frequency band empty or zero")
+    
+    max_low_peak = np.max(low_freq_psd)
+    mean_high_floor = np.mean(high_freq_psd)
+    
+    return max_low_peak / mean_high_floor
+
+def interpolate_missing_values(series: pd.Series) -> pd.Series:
+    """Alias for interpolate_missing for compatibility."""
     return interpolate_missing(series)
+
+def main():
+    """CLI entry point for preprocessing."""
+    import argparse
+    import json
+    from pathlib import Path
+    
+    parser = argparse.ArgumentParser(description='Preprocess time series datasets')
+    parser.add_argument('--input', type=str, required=True, help='Input dataset manifest')
+    parser.add_argument('--output', type=str, required=True, help='Output processed data')
+    parser.add_argument('--max-lag', type=int, default=20, help='Maximum lag for ACF')
+    
+    args = parser.parse_args()
+    
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    
+    # Load manifest
+    with open(input_path, 'r') as f:
+        manifest = json.load(f)
+    
+    # Process datasets
+    results = preprocess_dataset(manifest, max_lag=args.max_lag)
+    
+    # Save results
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+    
+    log_info(f"Preprocessing complete. Processed: {len(results['processed'])}, Skipped: {len(results['skipped'])}")
+    
+    return results

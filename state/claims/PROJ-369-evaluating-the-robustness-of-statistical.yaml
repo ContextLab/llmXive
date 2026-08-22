@@ -2405,3 +2405,768 @@
   source_type: external
   status: verified
   updated_at: '2026-08-21T05:55:15Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: synthetic sample sizes include exactly 100, 500, 1000, 5000, 10000
+  claim_id: c_a8721d67
+  context: 'Implement logic to generate synthetic series with varying lengths for
+    the N-variation grid spanning short to long time horizons. (Plan). Output Schema:
+    synthetic_grid.csv with columns: hurst, length, file_path, seed. Logic: Map (H,
+    length) pairs to unique file paths. Sample Sizes: Must include exactly: 100, 500,
+    1000, 5000, 10000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Sizes: Must include exactly: 100, 500, 1000, 5000, 10000.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:46:11Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: ACF, Hurst, and spectral density peak ratio are computed for synthetic
+    series
+  claim_id: c_e9aa7a4e
+  context: 'Implement logic to generate synthetic series with varying lengths for
+    the N-variation grid spanning short to long time horizons. (Plan). Output Schema:
+    synthetic_grid.csv with columns: hurst, length, file_path, seed. Logic: Map (H,
+    length) pairs to unique file paths. Sample Sizes: Must include exactly: 100, 500,
+    1000, 5000, 10000. Dependency: T026. T030 [US2] [P] Read metrics from T010_real
+    output (data/processed/metrics.json); verify ACF, Hurst, and spectral density
+    peak ratio are computed (FR-002).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ACF,_Hurst,_and_spectral_density_peak_ratio_are_computed_for
+  kind: entity_fact
+  raw_text: verify ACF, Hurst, and spectral density peak ratio are computed
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:46:32Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: synthetic fGn series with H=0.8 has H within 0.05 of target and mean
+    within 0.01 of 0
+  claim_id: c_d2eb4235
+  context: "Goal: Generate synthetic fGn/ARFIMA data with known H and mean=0, compute\
+    \ metrics, and create shuffled null distributions. Independent Test: Can be fully\
+    \ tested by generating a synthetic fGn series with H=0.8 and mean=0, verifying\
+    \ that the generated series has H \u2248 0.8 (within 0.05) and mean \u2248 0 (within\
+    \ 0.01), and confirming that the shuffled versions exhibit an average ACF lag\
+    \ statistically indistinguishable from zero."
+  evidence:
+    asserted: '0.8'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "verify that the generated series has H \u2248 0.8 (within 0.05) and mean\
+    \ \u2248 0 (within 0.01)"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T16:46:33Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: ACF computed up to lag 20
+  claim_id: c_a83a5700
+  context: 'Implement src/data/metrics.py utility functions to compute ACF (up to
+    lag 20), Hurst (via DFA), and Spectral Density peak ratio for real and synthetic
+    series ONLY (no shuffled data yet). Function Signatures: compute_acf(series: pd.Series,
+    max_lag: int=20) -> np.ndarray, compute_hurst(series: pd.Series) -> float, compute_spectral_peak_ratio(series:
+    pd.Series) -> float.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ACF (up to lag 20)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:46:47Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: number of null series per time series set to 1000
+  claim_id: c_2c5e8c8e
+  context: 'Implement src/utils/config.py with explicit global constants: SEED = 42
+    (int), ALPHA = 0.05 (float), NUM_NULL_PER_SERIES = 1000 (int), MAX_LAG = 20 (int).
+    Dependency: Required by T007 and T008.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NUM_NULL_PER_SERIES = 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:47:22Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: maximum lag set to 20
+  claim_id: c_5b104b81
+  context: 'Implement src/utils/config.py with explicit global constants: SEED = 42
+    (int), ALPHA = 0.05 (float), NUM_NULL_PER_SERIES = 1000 (int), MAX_LAG = 20 (int).
+    Dependency: Required by T007 and T008.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_LAG = 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:47:56Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: alpha significance level set to 0.05
+  claim_id: c_52cec23e
+  context: 'Implement src/utils/config.py with explicit global constants: SEED = 42
+    (int), ALPHA = 0.05 (float), NUM_NULL_PER_SERIES = 1000 (int), MAX_LAG = 20 (int).
+    Dependency: Required by T007 and T008.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The 0.05 significance level is merely a convention. The 0.05 significance
+        level (alpha level) is often used as the boundary between a statistically
+        significant and a statistically non-significant p-value. However, this does
+        not imply that there is generally a scientific reason to consider results
+        on opposite sides of any threshold as qualitatively different.
+      source_id: Misuse of p-values
+      url: https://en.wikipedia.org/wiki/Misuse_of_p-values
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: ALPHA = 0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T16:48:06Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: shuffled files named from series_id_shuffle_001.csv to series_id_shuffle_1000.csv
+  claim_id: c_0cbbccde
+  context: 'Implement shuffling (permutation) logic in src/data/preprocessing.py to
+    generate and store [deferred] shuffled versions for every real time series to
+    create a null distribution. (FR-003, Constitution Principle VII). Constraint:
+    Must run even if metric calculation (T010_real) fails; output to data/processed/null_distributions/real/.
+    File Naming: series_id_shuffle_001.csv to series_id_shuffle_1000.csv. Dependency:
+    T009 (Preprocessing).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shuffled_files_named_from_series_id_shuffle_001.csv_to_serie
+  kind: entity_fact
+  raw_text: 'File Naming: series_id_shuffle_001.csv to series_id_shuffle_1000.csv'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:48:22Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: datasets with fewer than 25 points are skipped
+  claim_id: c_9cedeb9d
+  context: 'Add edge case handling: skip datasets < 25 points with a warning log (Edge
+    Case 1). Log Format: WARNING: Skipping dataset {id}: length < 25.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_fewer_than_25_points_are_skipped
+  kind: magnitude
+  raw_text: datasets < 25 points
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:48:52Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: synthetic series generated with Hurst exponents 0.5, 0.7, 0.8, and 0.9
+  claim_id: c_2f88cbc3
+  context: "Implement src/synthesis/generators.py to generate fractional Gaussian\
+    \ noise (fGn) or ARFIMA processes with H \u2208 {0.5, 0.7, 0.8, 0.9} and mean=0\
+    \ (FR-007)."
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "H \u2208 {0.5, 0.7, 0.8, 0.9}"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T16:48:53Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: rejection rate within Clopper-Pearson confidence interval of nominal
+    significance level
+  claim_id: c_16368ac6
+  context: 'Baseline validity test: Run [deferred] trials on H=0.5 data and verify
+    rejection rate is within the Clopper-Pearson confidence interval of the nominal
+    significance level in tests/integration/test_baseline_validity.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Rejection_rate_within_Clopper-Pearson_confidence_interval_of
+  kind: entity_fact
+  raw_text: verify rejection rate is within the Clopper-Pearson confidence interval
+    of the nominal significance level
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:49:06Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: generated series H within 0.05 of 0.8
+  claim_id: c_f9dc336d
+  context: "Independent Test: Can be fully tested by generating a synthetic fGn series\
+    \ with H=0.8 and mean=0, verifying that the generated series has H \u2248 0.8\
+    \ (within 0.05) and mean \u2248 0 (within 0.01), and confirming that the shuffled\
+    \ versions exhibit an average ACF lag statistically indistinguishable from zero."
+  evidence:
+    asserted: '0.8'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "verify that the generated series has H \u2248 0.8 (within 0.05)"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T16:49:07Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: generated series mean within 0.01 of 0
+  claim_id: c_e009f24c
+  context: "Independent Test: Can be fully tested by generating a synthetic fGn series\
+    \ with H=0.8 and mean=0, verifying that the generated series has H \u2248 0.8\
+    \ (within 0.05) and mean \u2248 0 (within 0.01), and confirming that the shuffled\
+    \ versions exhibit an average ACF lag statistically indistinguishable from zero."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the generated series has mean \u2248 0 (within 0.01)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:49:30Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: H within 0.05 of target value
+  claim_id: c_5e8611af
+  context: Add logic to verify generated series mean is within 0.01 of 0 and H is
+    within 0.05 of target (US2-AC1..4).
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: H is within 0.05 of target
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T16:49:31Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: mean within 0.01 of 0
+  claim_id: c_d70060f2
+  context: Add logic to verify generated series mean is within 0.01 of 0 and H is
+    within 0.05 of target (US2-AC1..4).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mean is within 0.01 of 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:49:49Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: observed rejection rate calculated at alpha 0.05
+  claim_id: c_2644bd8e
+  context: "Implement Monte Carlo loop orchestration to run [deferred] trials (or\
+    \ until Clopper-Pearson CI width < 0.01) per configuration (distinct from T029's\
+    \ baseline) to ensure statistical robustness (H, N) and calculate observed rejection\
+    \ rate at \u03B1=0.05 (US3-AC1). Dependency: Requires T036. Dependency: Requires\
+    \ T029 (Baseline Gate) to pass. Note: A sufficient number of trials balances robustness\
+    \ with the runtime constraint."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "calculate observed rejection rate at \u03B1=0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:50:08Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: trials run until Clopper-Pearson CI width is less than 0.01
+  claim_id: c_cccf97b9
+  context: "Implement Monte Carlo loop orchestration to run [deferred] trials (or\
+    \ until Clopper-Pearson CI width < 0.01) per configuration (distinct from T029's\
+    \ baseline) to ensure statistical robustness (H, N) and calculate observed rejection\
+    \ rate at \u03B1=0.05 (US3-AC1). Dependency: Requires T036. Dependency: Requires\
+    \ T029 (Baseline Gate) to pass. Note: A sufficient number of trials balances robustness\
+    \ with the runtime constraint."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trials_run_until_Clopper-Pearson_CI_width_is_less_than_0.01
+  kind: magnitude
+  raw_text: until Clopper-Pearson CI width < 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:50:24Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: pipeline exits with code 1 if runtime exceeds 6 hours
+  claim_id: c_fa9ce10f
+  context: 'Implement performance validation and runtime enforcement: Measure and
+    log total pipeline runtime to ensure it fits within the GitHub Actions time limit
+    (SC-004). Logic: If runtime > 6h, exit with code 1. Output: Write results to data/results/performance_validation.json.
+    Output Schema: JSON with keys: total_runtime_seconds, peak_memory_mb, dataset_count,
+    status. Unit: Runtime measured in seconds. Implementation: Use psutil for memory
+    measurement.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If runtime > 6h, exit with code 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:50:25Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: RAM usage kept below 7 GB
+  claim_id: c_3cb48014
+  context: Code cleanup and refactoring for memory efficiency (ensure < 7 GB RAM usage)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure < 7 GB RAM usage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:50:25Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: datasets must fit within 7 GB RAM
+  claim_id: c_75370bb9
+  context: 'Verify Dataset Size: Implement a check in src/data/ingestion.py to verify
+    total dataset size does not exceed available RAM. Implementation: Check file sizes
+    before download; if any dataset exceeds the limit, log a critical error and halt.
+    Constraint: Do NOT implement streaming; if a dataset exceeds the limit, the task
+    MUST fail loudly. Output: A robust ingestion function that enforces the 7GB limit.
+    Rationale: Addresses the constraint that datasets must fit within 7GB RAM as per
+    Spec FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets must fit within 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:50:49Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: retry mechanism with different seed if mean deviates more than 0.01,
+    up to 3 attempts
+  claim_id: c_f68747d7
+  context: 'Verify that the synthetic generator in src/synthesis/generators.py (T026)
+    handles edge cases where the Hurst exponent is near the boundary (e.g., H=0.5
+    or H=0.9) and the generated series mean deviates significantly from zero. Implementation:
+    Add a retry mechanism with a different seed if the mean deviates > 0.01, up to
+    3 attempts. Rationale: Ensures the ground-truth data generation is robust and
+    meets the strict mean=0 requirement.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Retry_mechanism_with_different_seed_if_mean_deviates_more_th
+  kind: magnitude
+  raw_text: retry mechanism with a different seed if the mean deviates > 0.01, up
+    to 3 attempts
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:51:30Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: mean deviation threshold of 0.01
+  claim_id: c_14503d39
+  context: 'Verify that the synthetic generator in src/synthesis/generators.py (T026)
+    handles edge cases where the Hurst exponent is near the boundary (e.g., H=0.5
+    or H=0.9) and the generated series mean deviates significantly from zero. Implementation:
+    Add a retry mechanism with a different seed if the mean deviates > 0.01, up to
+    3 attempts. Rationale: Ensures the ground-truth data generation is robust and
+    meets the strict mean=0 requirement.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mean deviates > 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:51:31Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic series sample sizes must include 100, 500, 1000, 5000, and
+    10000
+  claim_id: c_a00e62f6
+  context: 'Implement logic to generate synthetic series with varying lengths for
+    the N-variation grid spanning short to long time horizons. (Plan). Output Schema:
+    synthetic_grid.csv with columns: hurst, length, file_path, seed. Logic: Map (H,
+    length) pairs to unique file paths. Sample Sizes: Must include exactly: 100, 500,
+    1000, 5000, 10000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Sizes: Must include exactly: 100, 500, 1000, 5000, 10000.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:59:09Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic fGn series with H=0.8 must have Hurst exponent within 0.05
+    of 0.8 and mean within 0.01 of 0
+  claim_id: c_2683251d
+  context: "Independent Test: Can be fully tested by generating a synthetic fGn series\
+    \ with H=0.8 and mean=0, verifying that the generated series has H \u2248 0.8\
+    \ (within 0.05) and mean \u2248 0 (within 0.01), and confirming that the shuffled\
+    \ versions exhibit an average ACF lag statistically indistinguishable from zero."
+  evidence:
+    asserted: '0.8'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "Verify that the generated series has H \u2248 0.8 (within 0.05) and mean\
+    \ \u2248 0 (within 0.01)"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T16:59:09Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Rejection rate for H=0.5 data must be within Clopper-Pearson confidence
+    interval of nominal significance level
+  claim_id: c_c836cde7
+  context: 'Unit test for shuffling logic ensuring ACF lag-1 is zero in tests/unit/test_synthesis.py.
+    Baseline validity test: Run [deferred] trials on H=0.5 data and verify rejection
+    rate is within the Clopper-Pearson confidence interval of the nominal significance
+    level in tests/integration/test_baseline_validity.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify rejection rate is within the Clopper-Pearson confidence interval
+    of the nominal significance level
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:59:10Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Error rate for H=0.5 synthetic data must be within Clopper-Pearson binomial
+    confidence interval of 0.05
+  claim_id: c_9c490890
+  context: 'Independent Test: Can be fully tested by running the analysis on synthetic
+    data with H=0.5 (independent-like) and verifying the error rate is within the
+    sufficiently large-trial Clopper-Pearson binomial confidence interval of 0.05.'
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: verify the error rate is within the sufficiently large-trial Clopper-Pearson
+    binomial confidence interval of 0.05
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T16:59:10Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Monte Carlo loop must complete within 6 hours
+  claim_id: c_e3162a00
+  context: 'Profile the Monte Carlo loop (T037) to ensure it can complete within the
+    6-hour limit. Implementation: Use cProfile to identify bottlenecks and optimize
+    vectorized operations in src/analysis/hypothesis_tests.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure it can complete within the 6-hour limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:59:25Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Total dataset size must not exceed available RAM
+  claim_id: c_04ba1dbe
+  context: 'Verify Dataset Size: Implement a check in src/data/ingestion.py to verify
+    total dataset size does not exceed available RAM. Implementation: Check file sizes
+    before download; if any dataset exceeds the limit, log a critical error and halt.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_dataset_size_must_not_exceed_available_RAM
+  kind: entity_fact
+  raw_text: verify total dataset size does not exceed available RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T16:59:51Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Pipeline must use less than 7 GB RAM
+  claim_id: c_6afb301e
+  context: Code cleanup and refactoring for memory efficiency (ensure < 7 GB RAM usage)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_must_use_less_than_7_GB_RAM
+  kind: magnitude
+  raw_text: ensure < 7 GB RAM usage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:00:15Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Monte Carlo loop runs until Clopper-Pearson CI width is less than 0.01
+  claim_id: c_2b9a2bdf
+  context: "Implement Monte Carlo loop orchestration to run [deferred] trials (or\
+    \ until Clopper-Pearson CI width < 0.01) per configuration (distinct from T029's\
+    \ baseline) to ensure statistical robustness (H, N) and calculate observed rejection\
+    \ rate at \u03B1=0.05 (US3-AC1)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Monte_Carlo_loop_runs_until_Clopper-Pearson_CI_width_is_less
+  kind: magnitude
+  raw_text: run [deferred] trials (or until Clopper-Pearson CI width < 0.01)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:00:32Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: ACF must be computed up to lag 20
+  claim_id: c_9bee6850
+  context: Implement src/data/metrics.py utility functions to compute ACF (up to lag
+    20), Hurst (via DFA), and Spectral Density peak ratio for real and synthetic series
+    ONLY (no shuffled data yet).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run ACF (up to lag 20)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:00:51Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Shuffled files must be named from series_id_shuffle_001.csv to series_id_shuffle_1000.csv
+  claim_id: c_b418110d
+  context: 'Implement shuffling (permutation) logic in src/data/preprocessing.py to
+    generate and store [deferred] shuffled versions for every real time series to
+    create a null distribution. Constraint: Must run even if metric calculation (T010_real)
+    fails; output to data/processed/null_distributions/real/. File Naming: series_id_shuffle_001.csv
+    to series_id_shuffle_1000.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shuffled_files_must_be_named_from_series_id_shuffle_001.csv
+  kind: entity_fact
+  raw_text: 'File Naming: series_id_shuffle_001.csv to series_id_shuffle_1000.csv'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:00:53Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Datasets with fewer than 25 points must be skipped with a warning
+  claim_id: c_8619ec25
+  context: 'Add edge case handling: skip datasets < 25 points with a warning log (Edge
+    Case 1). Log Format: WARNING: Skipping dataset {id}: length < 25.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_fewer_than_25_points_must_be_skipped_with_a_wa
+  kind: magnitude
+  raw_text: datasets < 25 points with a warning log
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:01:39Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Generated series mean must be within 0.01 of 0
+  claim_id: c_2999fdbc
+  context: Add logic to verify generated series mean is within 0.01 of 0 and [claim
+    placeholder] (US2-AC1..4).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mean is within 0.01 of 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:01:40Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Mean deviation must not exceed specified threshold
+  claim_id: c_67182a74
+  context: Add a post-generation assertion in src/synthesis/generators.py (T032) that
+    checks the mean of the generated series is approximately zero (within floating
+    point tolerance) and raises an error if the deviation exceeds a specified threshold.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mean_deviation_must_not_exceed_specified_threshold
+  kind: entity_fact
+  raw_text: deviation exceeds a specified threshold
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:02:07Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Retry mechanism must attempt up to 3 times
+  claim_id: c_056704d9
+  context: 'Implementation: Add a retry mechanism with a different seed if the mean
+    deviates > 0.01, up to 3 attempts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: up to 3 attempts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:02:33Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Pipeline must exit with code 1 if runtime exceeds 6 hours
+  claim_id: c_012dda1e
+  context: 'Implement performance validation and runtime enforcement: Measure and
+    log total pipeline runtime to ensure it fits within the GitHub Actions time limit
+    (SC-004). Logic: If runtime > 6h, exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: runtime > 6h, exit with code 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:02:33Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Wikipedia article on Misuse of p-values
+  claim_id: c_96219b69
+  context: 'Implement src/utils/config.py with explicit global constants: SEED = 42
+    (int), {{claim:c_52cec23e}} (Wikipedia: Misuse of p-values, https://en.wikipedia.org/wiki/Misuse_of_p-values)
+    (float)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikipedia_article_on_Misuse_of_p-values
+  kind: entity_fact
+  raw_text: 'Wikipedia: Misuse of p-values, https://en.wikipedia.org/wiki/Misuse_of_p-values'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T17:03:41Z'

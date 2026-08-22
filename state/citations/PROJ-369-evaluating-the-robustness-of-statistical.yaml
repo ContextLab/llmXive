@@ -42,18 +42,18 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/maurice/traffic/resolve/main/traffic.csv
   verified_at: '2026-08-04T17:06:00.756414Z'
-- artifact_hash: f9be86e887eb3adde0b237be0c877a37760a8df10854c7099b35e44e2806347f
+- artifact_hash: 608f01bdd90d2c8555bfbdee75b03e2eed001b840bc916529829888ce6c42aed
   artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: isd-inventory.csv
   kind: url
-  value: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/`
-  verification_status: mismatch
-  verified_against_url: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/
-  verified_at: '2026-08-21T06:16:24.525486Z'
-- artifact_hash: f9be86e887eb3adde0b237be0c877a37760a8df10854c7099b35e44e2806347f
+  value: https://www.ncei.noaa.gov/pub/data/noaa/isd-inventory.csv`
+  verification_status: pending
+  verified_against_url: https://www.ncei.noaa.gov/pub/data/noaa/isd-inventory.csv
+  verified_at: '2026-08-22T17:24:49.229915Z'
+- artifact_hash: 608f01bdd90d2c8555bfbdee75b03e2eed001b840bc916529829888ce6c42aed
   artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,26 +63,26 @@
   value: https://www.nationalgrideso.com/document/174276/download`
   verification_status: pending
   verified_against_url: https://www.nationalgrideso.com/document/174276/download
-  verified_at: '2026-08-21T06:16:24.525486Z'
-- artifact_hash: f9be86e887eb3adde0b237be0c877a37760a8df10854c7099b35e44e2806347f
+  verified_at: '2026-08-22T17:24:49.229915Z'
+- artifact_hash: 608f01bdd90d2c8555bfbdee75b03e2eed001b840bc916529829888ce6c42aed
   artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/USW00014833.csv`
+  value: https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014833.dly.gz`
   verification_status: mismatch
-  verified_against_url: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/USW00014833.csv
-  verified_at: '2026-08-21T06:16:24.525486Z'
-- artifact_hash: f9be86e887eb3adde0b237be0c877a37760a8df10854c7099b35e44e2806347f
+  verified_against_url: https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014833.dly.gz
+  verified_at: '2026-08-22T17:24:49.229915Z'
+- artifact_hash: 608f01bdd90d2c8555bfbdee75b03e2eed001b840bc916529829888ce6c42aed
   artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/USW00014895.csv`
+  value: https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014895.dly.gz`
   verification_status: mismatch
-  verified_against_url: https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/1.0/USW00014895.csv
-  verified_at: '2026-08-21T06:16:24.525486Z'
+  verified_against_url: https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014895.dly.gz
+  verified_at: '2026-08-22T17:24:49.229915Z'
