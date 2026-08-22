@@ -60,7 +60,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to fetch TREC Robust and Web data via `datasets.load_dataset` with retry logic (3 attempts, exponential backoff: 1s, 2s, 4s). MUST include fallback to specific NIST archive paths: ` and ` (verified accessible via static archive). Enforce CPU-only execution (per spec FR-001, FR-012). Raise error if real fetch fails (no synthetic fallback).
+- [ ] T004 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to fetch TREC Robust and Web data via `datasets.load_dataset` with retry logic (3 attempts, exponential backoff: 1s, 2s, 4s). MUST include fallback to specific NIST archive paths: `https://trec.nist.gov/data/` (verified accessible via static archive). Enforce CPU-only execution (per spec FR-001, FR-012). Raise error if real fetch fails (no synthetic fallback).
 - [ ] T005 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/contracts/dataset.schema.yaml` defining qrels structure. Path: `projects/PROJ-362-evaluating-the-statistical-validity-of-c/contracts/dataset.schema.yaml`. Content:
 ```yaml
 type: object
@@ -76,7 +76,7 @@ required:
  - doc_id
  - relevance
 ```
-- [ ] T006 [P] Implement validation logic in `projects/PROJ-evaluating-the-statistical-validity-of-c/code/data_loader.py` to enforce schema compliance (referencing `contracts/dataset.schema.yaml`) and log warnings for zero-relevance queries. Depends on: T005
+- [ ] T006 [P] Implement validation logic in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to enforce schema compliance (referencing `contracts/dataset.schema.yaml`) and log warnings for zero-relevance queries. Depends on: T005
 - [ ] T007 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/config.py` with constants for seeds, permutation counts (N=1000), batch sizes, and memory thresholds. Include: `PERMUTATION_N`, `SEED`, `BATCH_SIZE`, `MEMORY_THRESHOLD_GB` (a configurable memory limit), `RUNTIME_THRESHOLD_HOURS` (5.0), `DATA_RAW_PATH`, `RESULTS_PATH`.
 - [ ] T008.1 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/metrics.py` function `ndcg_at_k` for NDCG@10 calculation using IDCG normalization.
 - [ ] T008.2 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/metrics.py` function `map_at_k` for MAP calculation.
