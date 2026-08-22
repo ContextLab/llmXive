@@ -3,12 +3,12 @@
   "stage": "planned",
   "class": "transient",
   "fingerprint": "model_chain_failed",
-  "consecutive_count": 1,
+  "consecutive_count": 0,
   "first_seen": "2026-08-21T03:37:53.359144+00:00",
-  "last_seen": "2026-08-21T03:37:53.359144+00:00",
-  "retry_after": "2026-08-21T03:47:53.359144+00:00",
+  "last_seen": "2026-08-22T23:53:01.335215+00:00",
+  "retry_after": null,
   "last_error": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(model-down attempt 1): Dartmouth model 'qwen.qwen3.5-122b' hung past 360s deadline (no response received) | google.gemma-3-27b-it(permanent): no available server | openai.gpt-oss-120b(permanent): no available server | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (HTTPError: 503 Server Error: Service Unavailable for url: https://chat.dartmouth.edu/api/v1/credits/balance) \u2014 failing closed",
   "evidence": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(model-down attempt 1): Dartmouth model 'qwen.qwen3.5-122b' hung past 360s deadline (no response received) | google.gemma-3-27b-it(permanent): no available server | openai.gpt-oss-120b(permanent): no available serv",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "retry_scheduled"
+  "status": "cleared"
 }
