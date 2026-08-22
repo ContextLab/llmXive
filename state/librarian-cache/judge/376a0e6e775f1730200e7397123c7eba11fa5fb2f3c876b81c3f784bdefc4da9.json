@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2308.12898",
+  "judged_at": "2026-08-22T12:35:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"read it back: pretrained mllms are zero-shot reward models for text-to\" computer science",
+  "rationale": "The paper focuses on probing linguistic knowledge (syntax, semantics) within Vision-Language Pretraining (VLP) models to assess their alignment capabilities, which is a distinct research construct from the user's question regarding \"Read It Back\" and the use of pretrained MLLMs as zero-shot reward models. While both involve MLLMs, the candidate paper does not measure the reward modeling mechanism, the specific \"Read It Back\" protocol, or the zero-shot evaluation of text-to-image generation quali",
+  "relevant": false
+}

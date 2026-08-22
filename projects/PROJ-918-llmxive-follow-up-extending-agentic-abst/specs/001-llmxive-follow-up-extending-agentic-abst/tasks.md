@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` (`code/`, `data/`, `tests/`, `state/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (xgboost, sentence-transformers, pandas, scikit-learn, lifelines, pyyaml, numpy)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (xgboost, sentence-transformers, pandas, scikit-learn, lifelines, pyyaml, numpy)
 - [ ] T003 [P] Configure linting (flake8/ruff) and formatting (black) tools
 
 ---
@@ -84,7 +84,7 @@
 - [X] T013 [US1] Implement `code/data/extract_features.py` to parse interaction trajectories and compute: search count, error frequency, token usage, turn number
 - [X] T014 [US1] Implement `code/data/extract_features.py` logic to compute "query-context embedding distance" using `sentence-transformers` (all-MiniLM-L6-v2) as a scalar proxy
 - [X] T015 [US1] Implement `code/data/extract_features.py` logic to derive "Abstention Label" by joining with the output from T012.5 (FR-002)
-- [~] T016 [US1] Implement `code/data/preprocess.py` to apply mean imputation for missing numeric variables AND implement explicit "halt execution" logic that generates a `data/validation_report.json` flagging the dataset as invalid if >5% of records are missing a critical variable (FR-007)
+- [ ] T016 [US1] Implement `code/data/preprocess.py` to apply mean imputation for missing numeric variables AND implement explicit "halt execution" logic that generates a `data/validation_report.json` flagging the dataset as invalid if >5% of records are missing a critical variable (FR-007)
 - [ ] T017 [US1] Verify output file `data/processed/features.parquet` contains no full semantic context strings and matches `dataset.schema.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -99,17 +99,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for `code/models/train_meta_critic.py` output schema in `tests/contract/test_model_output.py`
-- [~] T019 [P] [US2] Integration test for simulation loop in `tests/integration/test_simulation_loop.py`
+- [X] T018 [P] [US2] Contract test for `code/models/train_meta_critic.py` output schema in `tests/contract/test_model_output.py`
+- [ ] T019 [P] [US2] Integration test for simulation loop in `tests/integration/test_simulation_loop.py`
 
 ### Implementation for User Story 2
 
 - [ ] T020.0 [US2] Acquire, integrate, and pin the reference CONVOLVE implementation (commit/tag) to `code/simulation/convolve_ref/` to ensure the baseline matches the spec (FR-003)
-- [ ] T020 [US2] Implement `code/models/train_meta_critic.py` using XGBoost/LightGBM on CPU to predict abstention labels from state features (FR-002)
+- [X] T020 [US2] Implement `code/models/train_meta_critic.py` using XGBoost/LightGBM on CPU to predict abstention labels from state features (FR-002) <!-- FAILED: unspecified -->
 - [ ] T020.5 [US2] Implement `code/simulation/simulation_framework.py` to build the agent interaction loop where the meta-critic evaluates state *before* LLM action, integrating the reference baseline from T020.0 (FR-003)
-- [ ] T021 [US2] Implement `code/simulation/run_baseline.py` to run the reference CONVOLVE implementation (seed=42, max 20 turns) via the simulation framework from T020.5 (FR-003)
-- [ ] T022 [US2] Implement `code/models/evaluate.py` to run the simulation loop (using T020.5) where the Meta-Critic evaluates state *before* LLM action, calculate Timely Abstention Recall, Average Token Consumption, Wall-clock Latency, explicitly calculate the token reduction percentage vs baseline, and verify if reduction >= 40% OR Cohen's d >= 0.5 (FR-004, SC-002)
-- [ ] T023 [US2] Add logging for the specific turn number and feature vector when Meta-Critic triggers abstention for auditability
+- [ ] T021 [US2] Implement `code/simulation/run_baseline.py` to run the reference CONVOLVE implementation (seed=42, max 20 turns) via the simulation framework from T020.5 (FR-003) <!-- FAILED: unspecified -->
+- [ ] T022 [US2] Implement `code/models/evaluate.py` to run the simulation loop (using T020.5) where the Meta-Critic evaluates state *before* LLM action, calculate Timely Abstention Recall, Average Token Consumption, Wall-clock Latency, explicitly calculate the token reduction percentage vs baseline, and verify if reduction >= 40% OR Cohen's d >= 0.5 (FR-004, SC-002) <!-- FAILED: unspecified -->
+- [~] T023 [US2] Add logging for the specific turn number and feature vector when Meta-Critic triggers abstention for auditability
 - [ ] T024 [US2] Generate `data/results/baseline_comparison.json` containing metrics for both Meta-Critic and Full-Context conditions
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,14 +124,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Contract test for `code/analysis/statistical_tests.py` output in `tests/contract/test_stats_output.py`
+- [X] T025 [P] [US3] Contract test for `code/analysis/statistical_tests.py` output in `tests/contract/test_stats_output.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/analysis/statistical_tests.py` to perform Two-sample Kolmogorov-Smirnov or Mann-Whitney U test on token consumption distributions (FR-005)
-- [ ] T027 [US3] Implement `code/analysis/survival_analysis.py` to perform Survival Analysis using the `lifelines` library to handle censored data, WHILE ALSO explicitly implementing the Two-sample Kolmogorov-Smirnov or Mann-Whitney U test required by FR-005 to validate the null hypothesis (FR-005)
-- [ ] T028 [US3] Implement `code/analysis/sensitivity_analysis.py` to sweep decision threshold over a range of values and calculate false-positive/negative rates (FR-006)
-- [ ] T029 [US3] Implement collinearity diagnostics (VIF) in `code/analysis/statistical_tests.py` to check predictors like turn number vs. token usage
+- [X] T026 [US3] Implement `code/analysis/statistical_tests.py` to perform Two-sample Kolmogorov-Smirnov or Mann-Whitney U test on token consumption distributions (FR-005)
+- [X] T027 [US3] Implement `code/analysis/survival_analysis.py` to perform Survival Analysis using the `lifelines` library to handle censored data, WHILE ALSO explicitly implementing the Two-sample Kolmogorov-Smirnov or Mann-Whitney U test required by FR-005 to validate the null hypothesis (FR-005)
+- [X] T028 [US3] Implement `code/analysis/sensitivity_analysis.py` to sweep decision threshold over a range of values and calculate false-positive/negative rates (FR-006)
+- [X] T029 [US3] Implement collinearity diagnostics (VIF) in `code/analysis/statistical_tests.py` to check predictors like turn number vs. token usage
 - [ ] T030 [US3] Generate `data/results/statistical_report.md` containing p-values, effect sizes (Cohen's d), survival analysis results, and threshold sensitivity plots
 - [ ] T031 [US3] Validate that the null hypothesis (median difference = 0) is rejected with p < 0.05 for token consumption reduction (SC-004)
 

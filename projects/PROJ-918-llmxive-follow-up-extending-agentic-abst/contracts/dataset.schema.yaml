@@ -1,77 +1,112 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Agentic Abstention Dataset Schema
+# Dataset Schema for Agentic Abstention Pipeline
+# This schema enforces the exclusion of full semantic context text columns
+# to prevent data leakage and ensure the model relies on state features only.
+#
+# Reference: FR-007, Constitution Principle II
+#
+# Allowed columns:
+#   - Numeric state features (int/float)
+#   - Categorical features (string, short length)
+#   - Labels (int/bool)
+#
+# Forbidden columns:
+#   - Full semantic context text (long strings, paragraphs, documents)
+#   - Raw interaction logs containing full prompt/response bodies
+#   - Any column with 'context', 'full_text', 'document', 'prompt', 'response'
+#     in the name that exceeds a character threshold.
+
+version: "1.0"
 description: >
-  Schema for the processed dataset used to train the Meta-Critic.
-  Enforces the exclusion of full semantic context text columns to prevent
-  data leakage and ensure the model relies only on state features.
-type: object
-properties:
-  search_count:
-    description: Number of search actions taken in the trajectory.
+  Schema for the processed dataset used to train the Meta-Critic model.
+  Explicitly forbids columns containing full semantic context to prevent
+  the model from cheating by reading the answer.
+
+columns:
+  # Core State Features (Derived from T013/T014)
+  - name: turn_number
     type: integer
-    minimum: 0
-  error_frequency:
-    description: Frequency of errors encountered per turn.
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-  token_usage:
-    description: Total tokens consumed in the interaction so far.
+    description: Current turn number in the interaction
+    min: 1
+    nullable: false
+
+  - name: search_count
     type: integer
-    minimum: 0
-  turn_number:
-    description: Current turn number in the interaction.
+    description: Number of search actions taken so far
+    min: 0
+    nullable: false
+
+  - name: error_frequency
+    type: float
+    description: Ratio of errors to total actions
+    min: 0.0
+    max: 1.0
+    nullable: false
+
+  - name: token_usage
     type: integer
-    minimum: 1
-  query_context_embedding_distance:
-    description: >
-      Scalar proxy for semantic distance between the current query
-      and the context embedding (e.g., cosine distance).
-    type: number
-    minimum: 0.0
-    maximum: 2.0
-  abstention_label:
-    description: >
-      Ground truth label indicating if the agent should have abstained.
-      1 = Abstain, 0 = Continue.
+    description: Cumulative token count used in the trajectory
+    min: 0
+    nullable: false
+
+  - name: query_context_distance
+    type: float
+    description: Cosine distance between query and context embedding
+    min: 0.0
+    max: 2.0
+    nullable: false
+
+  - name: abstention_label
     type: integer
+    description: Ground truth label (1 if agent should have abstained, 0 otherwise)
     enum: [0, 1]
-  trajectory_id:
-    description: Unique identifier for the interaction trajectory.
+    nullable: false
+
+  - name: task_id
     type: string
-  timestamp:
-    description: ISO 8601 timestamp of the data point.
+    description: Unique identifier for the task instance
+    max_length: 128
+    nullable: false
+
+  - name: agent_id
     type: string
-    format: date-time
+    description: Identifier for the agent instance
+    max_length: 64
+    nullable: false
 
-required:
-  - search_count
-  - error_frequency
-  - token_usage
-  - turn_number
-  - query_context_embedding_distance
-  - abstention_label
-  - trajectory_id
+# Explicit Exclusion Rules
+# Any column matching these patterns is FORBIDDEN and will cause validation failure
+forbidden_patterns:
+  - pattern: ".*context.*"
+    reason: "Full semantic context text columns are forbidden to prevent data leakage."
+  - pattern: ".*full_text.*"
+    reason: "Full text content is not allowed in the training dataset."
+  - pattern: ".*document.*"
+    reason: "Document bodies must not be included as features."
+  - pattern: ".*prompt.*"
+    reason: "Raw prompt text is forbidden."
+  - pattern: ".*response.*"
+    reason: "Raw response text is forbidden."
+  - pattern: ".*trajectory.*"
+    reason: "Full trajectory logs are too large and contain forbidden context."
 
-additionalProperties: false
+# Validation Constraints
+validation:
+  # Reject any string column longer than this threshold
+  max_string_length: 256
+  # Reject any column containing newlines (indicates multi-line text blocks)
+  reject_multiline_strings: true
+  # Required columns check
+  required_columns:
+    - turn_number
+    - search_count
+    - error_frequency
+    - token_usage
+    - query_context_distance
+    - abstention_label
+    - task_id
 
-# Explicitly forbid full text context columns to satisfy the constraint
-# that the model must not see the raw semantic content.
-not:
-  anyOf:
-    - required: ["full_context_text"]
-    - required: ["context"]
-    - required: ["prompt_text"]
-    - required: ["raw_interaction"]
-    - required: ["semantic_content"]
-
-patternProperties:
-  # Catch any column starting with 'text_', 'context_', 'prompt_', or 'raw_'
-  "^(text_|context_|prompt_|raw_|semantic_)":
-    type: "null" # Effectively disallowing these by forcing them to be null if present,
-                 # but combined with 'additionalProperties: false' and 'not', this schema
-                 # rejects any object containing these keys.
-description: >
-  NOTE: The 'not' clause combined with 'additionalProperties: false' ensures that
-  any column containing full semantic text (e.g., 'full_context_text', 'context')
-  will cause validation to fail. Only numeric state features and IDs are allowed.
+# Schema Enforcement Metadata
+enforcement:
+  tool: "code/data/verify_features.py"
+  action_on_violation: "raise"
+  error_message: "Dataset violates schema: Full semantic context detected."

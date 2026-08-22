@@ -498,27 +498,6 @@
   updated_at: '2026-07-28T19:19:03Z'
 - artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
   attempts: 1
-  canonical: Large language models can be prompted for few-shot learning with minimal
-    examples (Brown et al., 2020)
-  claim_id: c_09094695
-  context: 'The research question is: Can large language models be prompted to perform
-    few-shot learning on a novel task with minimal examples? The method will involve
-    prompting a large language model with varying numbers of examples and evaluating
-    its performance on a held-out test set. (Brown et al., 2020).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The method will involve prompting a large language model with varying
-    numbers of examples and evaluating its performance on a held-out test set. (Brown
-    et al., 2020).
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T19:22:09Z'
-- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
-  attempts: 1
   canonical: Large language models can be effectively fine-tuned for specialized tasks
     with limited computational resources (2501.19389)
   claim_id: c_d5825a47
@@ -554,3 +533,205 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T19:22:10Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Brown et al. 2020 large language models few-shot learning
+  claim_id: c_b5cc4f0a
+  context: The method will involve prompting a large language model with varying numbers
+    of examples and evaluating its performance on a held-out test set. (Brown et al.,
+    2020).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Brown et al., 2020
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T12:16:39Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Hu et al. 2021 LoRA Low-Rank Adaptation of Large Language Models
+  claim_id: c_9a19053b
+  context: 'The method is: {{claim:c_7c3825c9}} (2501.19389, https://arxiv.org/abs/2501.19389)
+    References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T12:17:21Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2501.19389
+  claim_id: c_ad1e2beb
+  context: 'The method is: {{claim:c_7c3825c9}} (2501.19389, https://arxiv.org/abs/2501.19389)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2501.19389'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T12:17:39Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Large language models can perform few-shot learning on novel tasks with
+    minimal examples (Brown et al., 2020)
+  claim_id: c_7f32c206
+  context: 'The research question is: Can large language models be prompted to perform
+    few-shot learning on a novel task with minimal examples? The method will involve
+    prompting a large language model with varying numbers of examples and evaluating
+    its performance on a held-out test set. (Brown et al., 2020).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The research question is: Can large language models be prompted to perform
+    few-shot learning on a novel task with minimal examples? (Brown et al., 2020).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T12:18:28Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 'Hu et al. (2021) published LoRA: Low-Rank Adaptation of Large Language
+    Models'
+  claim_id: c_bb6fb744
+  context: 'The method is: {{claim:c_7c3825c9}} (2501.19389, https://arxiv.org/abs/2501.19389)
+    References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T12:18:28Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Brown et al. 2020 method involves prompting LLM with varying examples
+    and evaluating on held-out test set
+  claim_id: c_ae8522b7
+  context: 'The research question is: Can large language models be prompted to perform
+    few-shot learning on a novel task with minimal examples? The method will involve
+    prompting a large language model with varying numbers of examples and evaluating
+    its performance on a held-out test set. (Brown et al., 2020).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The method will involve prompting a large language model with varying
+    numbers of examples and evaluating its performance on a held-out test set. (Brown
+    et al., 2020).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T12:19:21Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 'Hu et al. 2021 introduced LoRA: Low-Rank Adaptation of Large Language
+    Models'
+  claim_id: c_72a19b54
+  context: 'The method is: {{claim:c_7c3825c9}} (2501.19389, https://arxiv.org/abs/2501.19389)
+    References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T12:19:21Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Large language models can perform few-shot learning on novel tasks with
+    minimal examples (Brown et al., 2020)
+  claim_id: c_0c362837
+  context: The method will involve prompting a large language model with varying numbers
+    of examples and evaluating its performance on a held-out test set. (Brown et al.,
+    2020). and writes the seed in a header comment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The research question is: Can large language models be prompted to perform
+    few-shot learning on a novel task with minimal examples? The method will involve
+    prompting a large language model with varying numbers of examples and evaluating
+    its performance on a held-out test set. (Brown et al., 2020).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T12:20:43Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 'LoRA: Low-Rank Adaptation of Large Language Models (Hu et al., 2021)'
+  claim_id: c_7614e748
+  context: 'The research question is: Can large language models be effectively fine-tuned
+    for specialized tasks with limited computational resources? The method is: {{claim:c_7c3825c9}}
+    (2501.19389, https://arxiv.org/abs/2501.19389) References: Hu et al. (2021).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'The method is: {{claim:c_7c3825c9}} (2501.19389, https://arxiv.org/abs/2501.19389)
+    References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T12:21:57Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 2
+  canonical: Large language models can be prompted for few-shot learning with minimal
+    examples (Brown et al., 2020)
+  claim_id: c_09094695
+  context: 'The research question is: Can large language models be prompted to perform
+    few-shot learning on a novel task with minimal examples? The method will involve
+    prompting a large language model with varying numbers of examples and evaluating
+    its performance on a held-out test set. (Brown et al., 2020).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The method will involve prompting a large language model with varying
+    numbers of examples and evaluating its performance on a held-out test set. (Brown
+    et al., 2020).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T12:22:44Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 'LoRA: Low-Rank Adaptation of Large Language Models proposed by Hu et
+    al. (2021)'
+  claim_id: c_a082c984
+  context: 'The method is: {{claim:c_7c3825c9}} (2501.19389, https://arxiv.org/abs/2501.19389)
+    References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language
+    Models.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T12:22:55Z'

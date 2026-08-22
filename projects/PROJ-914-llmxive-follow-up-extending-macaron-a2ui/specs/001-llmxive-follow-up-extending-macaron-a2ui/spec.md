@@ -60,8 +60,8 @@ The research question, method, and references remain as stated in the original p
 
 - What happens if the B parameter model fails to load on the CPU-only environment? (System must fallback to a smaller distilled model or abort with a clear error).
 - How does the system handle queries that are borderline between "High-Confidence" and "Ambiguous" where the router's confidence score is near the decision boundary? (The system must log the confidence score and allow for a sensitivity analysis on the router threshold).
-- What if the deterministic rule-based generator cannot find a matching ontology entry for an "Ambiguous" query? (The system must return a safe, minimal fallback UI (1 element) and log the "no-match" event for safety analysis. This is treated as an "Ambiguous" case with a specific sub-flag).
-- What happens if the user cancels the request due to high latency? (The system must record an "abandonment" event and set the alignment score to 0 for that trial).
+- What if the deterministic rule-based generator cannot find a matching ontology entry for an "Ambiguous" query? (The system must return a safe, minimal fallback UI (a single element) and log the "no-match" event for safety analysis. This is treated as an "Ambiguous" case with a specific sub-flag).
+- What happens if the user cancels the request due to high latency? (The system must record an "abandonment" event and set the alignment score to a baseline value for that trial).
 
 ## Requirements *(mandatory)*
 
@@ -73,7 +73,7 @@ The research question, method, and references remain as stated in the original p
 - **FR-004**: The system MUST vary the information density of the deterministic fallback by rendering a small number of UI elements to determine the minimum viable density (See US-2).
 - **FR-005**: The system MUST calculate alignment scores using a rubric derived from the "Designing for Human-Agent Alignment" paper (Section 4.2) and generate a Pareto frontier plot of alignment vs. latency (See US-3).
 - **FR-006**: The system MUST perform multiple-comparison correction (e.g., Bonferroni or FDR) on the statistical analysis of alignment scores across the different latency and density configurations to control family-wise error (See US-3).
-- **FR-007**: The system MUST conduct a sensitivity analysis on the router's decision threshold, sweeping the confidence cutoff over a concrete set (e.g., {, 0.7, 0.8}) and reporting the variation in inconsistency rates (See US-2).
+- **FR-007**: The system MUST conduct a sensitivity analysis on the router's decision threshold, sweeping the confidence cutoff over a concrete set (e.g., {, 0.8}) and reporting the variation in inconsistency rates (See US-2).
 - **FR-008**: The system MUST validate the generative baseline's output quality against a human-annotated gold standard (N=50) at 0ms latency before the experiment begins, ensuring the "degradation" claim is empirically grounded (See US-2).
 
 ### Key Entities
@@ -94,7 +94,7 @@ The research question, method, and references remain as stated in the original p
 - **SC-002**: The minimum information density required for task completion is measured against the "Human-Agent Alignment" rubric criteria for user satisfaction, operationalized as a scoring function: `score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness` (See FR-004).
 - **SC-003**: The latency threshold for fidelity degradation is measured against the point where the generative baseline's alignment score drops below the hybrid model's performance with statistical significance (p < 0.05, non-overlapping 95% CIs) (See FR-005).
 - **SC-004**: The family-wise error rate is measured against the nominal alpha level (e.g., 0.05) after applying the multiple-comparison correction method (See FR-006).
-- **SC-005**: The router's robustness is measured by the variance in inconsistency rates across the swept confidence thresholds (0.6, 0.7, 0.8) (See FR-007).
+- **SC-005**: The router's robustness is measured by the variance in inconsistency rates across the swept confidence thresholds (See FR-007).
 
 ## Assumptions
 

@@ -121,7 +121,7 @@ References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models
  - Retains rows with `phase_label` from experimental sources.
  - Marks DFT‑derived rows with `confidence='low'` and logs a warning, fulfilling **FR‑009** (experimental priority, lower‑confidence DFT handling).
  - Outputs `data/derived/filtered_alloys.csv`.
-- [ ] T019 [US2] Implement `code/descriptors/check_imbalance.py`:
+- [X] T019 [US2] Implement `code/descriptors/check_imbalance.py`:
  - Calculates glass‑to‑crystalline ratio.
  - **If ratio > 3:1, writes `data/derived/imbalance_report.json` with `flag='UNSUITABLE_FOR_BINARY_CLASSIFICATION'` and **aborts** the pipeline (hard stop).** This enforces **FR‑006** as a non‑negotiable flag.
 - [X] T020 [US2] Implement `code/models/train.py`:
@@ -145,23 +145,23 @@ References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [US3] Contract test for SHAP output format in `tests/contract/test_shap_schema.py`.
+- [X] T023 [US3] Contract test for SHAP output format in `tests/contract/test_shap_schema.py`.
 - [ ] T024 [US3] Unit test for reproducibility check (3 runs, same seed) in `tests/unit/test_reproducibility.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/descriptors/vif_report.py`:
+- [X] T030 [US3] Implement `code/descriptors/vif_report.py`:
  - Computes VIF for each descriptor and writes `data/derived/vif_report.json`.
  - Must run **before** any VIF‑based filtering.
-- [ ] T025 [US3] Implement `code/descriptors/vif_filter.py`:
+- [X] T025 [US3] Implement `code/descriptors/vif_filter.py`:
  - Reads VIF scores from `data/derived/vif_report.json`.
  - Removes any descriptor with VIF > 33.
  - If **all** descriptors exceed 5.0, performs PCA on the three descriptors, retains the first two components (>90 % variance), and writes `data/derived/pca_components.csv`.
  - Outputs filtered feature file `data/derived/descriptor_vector_vif_filtered.csv`.
-- [ ] T026 [US3] Implement `code/models/importance.py`:
+- [X] T026 [US3] Implement `code/models/importance.py`:
  - Computes permutation importance, writes `results/permutation_importance.csv`.
  - Generates SHAP summary plots saved as PNG at high resolution. in `results/shap_plots/` with naming `shap_summary_<model>.png`.
-- [ ] T027 [US3] Implement `scripts/sensitivity_analysis.py`:
+- [X] T027 [US3] Implement `scripts/sensitivity_analysis.py`:
  - Evaluates model performance across **atomic size mismatch δ values {0.01, 0.05, 0.1}** as required by **FR‑005**.
  - Writes `results/sensitivity_report.json` containing ROC‑AUC, precision, recall for each δ and includes a comment linking the δ list to `DELTA_VALUES` for traceability.
 
@@ -173,12 +173,12 @@ References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models
 
 **Purpose**: Improvements that affect multiple user stories and address reviewer constraints
 
-- [ ] T031 [P] Implement `scripts/reproducibility_check.py`:
+- [X] T031 [P] Implement `scripts/reproducibility_check.py`:
  - Runs the full pipeline three times.
  - Computes SHA‑256 hashes for **all** generated artifacts and updates `state/projects/PROJ-544-predicting-the-glass-forming-region-of-m/artifact_hashes.yaml` with new `updated_at` timestamps, satisfying **Constitution V**.
  - Verifies that metric variance across runs is within acceptable bounds (e.g., ROC‑AUC std < 0.02).
-- [ ] T032a Create `docs/limitations.md` documenting missing cooling‑rate and XRD data, citing reviewer concerns.
-- [ ] T032b Create `docs/experimental_validation_requirements.md` with a checklist of required experimental confirmations.
+- [X] T032a Create `docs/limitations.md` documenting missing cooling‑rate and XRD data, citing reviewer concerns.
+- [X] T032b Create `docs/experimental_validation_requirements.md` with a checklist of required experimental confirmations.
 - [ ] T033 Refactor duplicate fallback logic:
  - Grep `utils.py` for duplicated code blocks, produce `logs/refactoring_report.json`.
  - Consolidate fallback into a single function `get_fallback_property()` within `code/descriptors/utils.py`.

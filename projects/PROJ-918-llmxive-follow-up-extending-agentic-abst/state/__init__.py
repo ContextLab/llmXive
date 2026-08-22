@@ -1,3 +1,3 @@
 """
-State management for long-running processes.
+State management for the llmXive pipeline.
 """

@@ -62,6 +62,7 @@
 - [X] T008 Create base data models/entities (`InteractionTurn`, `RoutingDecision`, `SimulationRun`) in `code/data/models.py`
 - [X] T009 [P] [US1] Generate contract schemas in `specs/001-llmxive-a2ui-latency-study/contracts/` (`simulation_input.schema.yaml`, `simulation_output.schema.yaml`) using a script or `jsonschema` library; verify with T010 (no manual setup)
 - [X] T023 [P] [US2] Implement `code/simulation/rubric.py` to derive and implement the "Human-Agent Alignment" scoring function: `score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness` (FR-005, SC-002); **must include latency_penalty**; **Moved to Phase 2 to ensure availability for T037 in Phase 5**
+- [X] T023b [P] [US2] Implement `code/simulation/rubric.py` to explicitly calculate `latency_penalty` as `1 - min(1, latency / 2.0)` (SC-002); **explicitly implement the latency term to align with SC-002**; **Depends on: T023**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,13 +77,15 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/data/ingest.py` with `load_dataset` (Hugging Face) to fetch raw A2UI-Bench data; **no training logic included**; outputs raw CSV
-- [X] T012b [US1] Implement `code/data/annotate.py` to provide the **manual annotation interface** for researchers to label N=500 turns (FR-001); outputs labeled CSV
+- [X] T012b-CLI [US1] Implement `code/data/annotate_cli.py` as a **CLI tool with --input and --output flags** to provide the manual annotation interface for researchers to label N=500 turns (FR-001); **uses a text-based interactive loop**; **outputs labeled CSV**
 - [X] T013 [US1] Implement validation script `code/data/validate_annotation.py` to check ≥95% coverage and no missing labels in the N=500 dataset (US-1 Independent Test)
 - [X] T014 [US1] Add error handling to `code/data/ingest.py` to ensure real data fetch fails loudly (no synthetic fallback) per Data Hygiene rules
 - [X] T015 [US1] Implement `code/data/annotate_holdout.py` to create the **N=50 human-annotated hold-out set** for rubric validation (FR-008); **script to format raw data for manual review**; **data creation only, no validation logic**
 - [X] T015b [US1] Verify N=50 hold-out set format and completeness (requires manual annotation step to be performed externally or simulated with placeholder data for testing; validates format of file assuming it exists)
-- [X] T015d [US1] **Human Annotation Step**: Execute manual annotation of N=50 hold-out set to produce `data/human_scores.json`; **Mandatory for FR-008 compliance**
-- [X] T015e [US1] **CI Placeholder Generation**: Implement `code/data/generate_placeholder_scores.py` to generate a dummy `data/human_scores.json` for CI testing only; **Explicitly marked as CI-only, not for FR-008 validation**
+- [X] T015d [US1] **Human Annotation Step**: Execute manual annotation of N=50 hold-out set using `code/data/annotate_cli.py` to produce `data/human_scores.json`; **MUST be performed by a human researcher**; **Output: `data/human_scores.json`**
+- [X] T015d-Gen [US1] **CI Placeholder Generation**: Implement `code/data/generate_placeholder_scores.py` to generate a deterministic `data/human_scores.json` for CI testing only; **Explicitly marked as CI-only, not for FR-008 validation**; **Output schema: list of objects with keys 'query', 'score', 'label'**
+- [X] T015d-Load [US1] **Load Committed Annotations**: Implement `code/data/load_human_scores.py` to load `data/human_scores.json` if committed; **fails loudly if file missing and CI placeholder not generated**; **Depends on: T015d (Human) OR T015d-Gen (CI Placeholder)**
+- [X] T015e [US1] **CI Placeholder Generation**: Implement `code/data/generate_placeholder_scores.py` to generate a dummy `data/human_scores.json` for CI testing only; **Explicitly marked as CI-only, not for FR-008 validation**; **Output schema: list of objects with keys 'query', 'score', 'label'**
 
 ### Tests for User Story 1
 
@@ -97,7 +100,7 @@
 
 **Purpose**: Tasks that require external human input or manual verification before Phase 4 can proceed.
 
-- [X] T015c [US1] Verify existence and validity of N=50 hold-out set before simulation (blocking prerequisite for US2). **MUST be completed by human or CI placeholder before Phase 4 starts.** **Depends on: T015d (Human) OR T015e (CI Placeholder)**; **Verification Script: `code/data/validate_holdout.py`**; **Target File: `data/human_scores.json`**
+- [X] T015c [US1] Verify existence and validity of N=50 hold-out set before simulation (blocking prerequisite for US2). **MUST be completed by human or CI placeholder before Phase 4 starts.** **Depends on: T015d (Human) OR T015d-Gen (CI Placeholder)**; **Verification Script: `code/data/validate_holdout.py`**; **Target File: `data/human_scores.json`**
 
 ---
 
@@ -109,22 +112,24 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [US2] Implement training script `code/models/train_router.py` to train DistilBERT on labeled CSV from T013; **Depends on: T013**; **Must save model to `code/models/router_model/`** (Removed "no model file generated yet")
-- [X] T019b [US2] Execute training script from T019 on labeled CSV; save model to `code/models/router_model/`; **verify model file exists with SHA-256 hash**; **Depends on: T015c**
 - [X] T020 [US2] Implement `code/models/router.py` with DistilBERT (quantized) for intent classification (High-Confidence vs. Ambiguous)
 - [X] T020b [US2] **Verify CPU-Optimization**: Implement and run a script to verify the router model is 8-bit quantized and CPU-optimized (FR-002); **Explicit verification of quantization state**
 - [X] T021 [US2] Implement `code/models/fallback.py` for the deterministic rule-based generator with ontology matching
 - [X] T021b [US2] **Implement Quantized Generative Model**: Implement loading and inference logic for quantized DistilGPT2 model for the generative path (Plan Constraint); **Explicit implementation step for quantized model**
 - [X] T022 [US2] Implement `code/simulation/patience.py` with `sample_patience()` function modeling exponential decay (mean=2s) for user abandonment (FR-003); **explicitly define rate parameter lambda = 1/mean and apply random seed**
 - [X] T024a [US2] Implement simulation runner `code/simulation/runner.py` with latency injection (sleep/delay) and dependency on **T022** for patience modeling
-- [X] T024b [US2] Implement density iteration logic in `code/simulation/runner.py` to iterate through explicit density levels {1, 5, 10} for deterministic fallback (FR-004, Constitution Principle VII); **Explicitly handle borderline confidence scores (== threshold) by routing to Ambiguous**
+- [X] T024b [US2] Implement density iteration logic in `code/simulation/runner.py` to iterate through explicit density levels **{1, 3, 5, 10}** for deterministic fallback (FR-004, Constitution Principle VII); **Explicitly handle borderline confidence scores (if score == threshold, route to Ambiguous)**
 - [X] T024c [US2] Implement logging of `ui_element_count` and validation/assertion for density levels in `code/simulation/runner.py`
 - [X] T026 [US2] Implement logic in `code/simulation/runner.py` to handle "Ambiguous" queries: invoke fallback, log "no-match" if no ontology entry, return minimal UI (element)
+- [X] T020 [US2] Implement `code/models/router.py` with DistilBERT (quantized) for intent classification (High-Confidence vs. Ambiguous)
+- [X] T019 [US2] Implement training script `code/models/train_router.py` to train DistilBERT on labeled CSV from T013; **Depends on: T013, T020**; **Must save model to `code/models/router_model/`** (Removed "no model file generated yet")
+- [X] T019b-Run [US2] Execute training script from T019 on labeled CSV; save model to `code/models/router_model/`; **Depends on: T015c**
+- [X] T019b-Verify [US2] Verify model file exists with SHA-256 hash; **Depends on: T019b-Run**
 - [X] T027 [US2] Implement `code/simulation/metrics.py` to calculate alignment scores using the rubric from **T023**; output must include `ui_element_count`; **includes validation to ensure ui_element_count is logged**
 - [X] T027b [US2] Implement validation in `code/simulation/metrics.py` to explicitly verify the calculation of `ui_completeness` derived from `ui_element_count` in the rubric scoring logic
 - [X] T033 [US2] Implement sensitivity analysis in `code/analysis/sensitivity.py` to sweep router confidence cutoffs across a **concrete set {0.6, 0.7, 0.8}** and report inconsistency rates. (FR-007, SC-005)
 - [X] T033b [US2] **Measure Robustness**: Implement logic to measure and report the variance in inconsistency rates across swept thresholds as the router robustness metric (SC-005)
-- [X] T033a [US2] Run sensitivity analysis from T033 on the trained model from T019b; generate inconsistency rate report
+- [X] T033a [US2] Run sensitivity analysis from T033 on the trained model from T019b-Verify; generate inconsistency rate report
 
 ### Tests for User Story 2
 
@@ -150,10 +155,10 @@
 - [X] T037a [US3] **Validate Baseline**: Validate generative baseline output quality against human-annotated gold standard (N=50) at **Negligible latency** (FR-008); **Explicit 0ms constraint**
 - [X] T034b [US3] **Implement Threshold Finder**: Implement `code/analysis/threshold_finder.py` that consumes T034a baseline data and T032/T032a FDR results to **output a JSON file containing the identified latency threshold and p-value**; **explicitly implement statistical test logic for non-overlapping confidence intervals**
 - [X] T034c [US3] **Verify Threshold Output**: Implement verification script for the JSON output of T034b; **Verify JSON file exists and contains expected keys**
-- [X] T034b [US3] Generate statistical report table showing p-values and confidence intervals for all configurations (US-3 Independent Test)
+- [X] T034d [US3] Generate statistical report table showing p-values and confidence intervals for all configurations (US-3 Independent Test)
 - [X] T035 [US3] Implement `code/analysis/viz.py` to generate the Pareto frontier plot (Alignment vs. Latency)
 - [X] T036 [US3] Implement `code/analysis/viz.py` to plot alignment scores across information density levels (low, medium, high)
-- [X] T037 [US3] Implement `code/analysis/rubric_validation.py` to validate the rubric correlation (r ≥ 0.7) against the N=50 hold-out set from **T015d** (human scores) and baseline validation results from **T037a**; **consumes rubric logic from T023 and metrics from T027; explicitly calculate correlation between rubric scores and human scores**
+- [X] T037 [US3] Implement `code/analysis/rubric_validation.py` to validate the rubric correlation (r ≥ 0.7) against the N=50 hold-out set from **T015d-Load** (human scores) and baseline validation results from **T037a**; **consumes rubric logic from T023 and metrics from T027; explicitly calculate correlation between rubric scores and human scores**; **Output: `data/rubric_validation_report.json`**
 - [X] T038 [US3] Implement `code/main.py` entry point to orchestrate the full pipeline: Ingest -> Route -> Simulate -> Analyze -> Report
 - [X] T039 [US3] Generate final report (output/report.md) containing:) Pareto frontier plot,) Table of alignment scores per density/latency, 3) Threshold identification table with 95% CIs (US-3 Independent Test)
 
@@ -201,7 +206,7 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **Pre-Phase 4 (Manual Gate)**: Depends on Phase 3 completion (specifically T015d/T015e) - BLOCKS Phase 4
+- **Pre-Phase 4 (Manual Gate)**: Depends on Phase 3 completion (specifically T015d-Load/T015d-Gen) - BLOCKS Phase 4
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -210,7 +215,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data (labeled CSV) for training the router (T019 -> T019b -> T020) and **Pre-Phase 4 (T015c)** for hold-out validation
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data (labeled CSV) for training the router (T019 -> T019b-Run -> T019b-Verify -> T020) and **Pre-Phase 4 (T015c)** for hold-out validation
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 simulation logs for analysis (T027 -> T032 -> T034)
 
 ### Within Each User Story
@@ -289,24 +294,24 @@ With multiple developers:
 - **CRITICAL**: Ensure the router is CPU-optimized (quantized DistilBERT) and the generative model is quantized (quantized DistilGPT) to fit within GitHub Actions constraints.
 - **CRITICAL**: Latency injection must be explicit and logged; user patience must be modeled as exponential decay.
 - **CRITICAL**: Implement density iteration for {1, 3, 5, 10} to support the minimum viable density study (integrated into T024a/b/c).
-- **CRITICAL**: Create N=50 human-annotated hold-out set for rubric validation (T015d); T015e is CI-only.
+- **CRITICAL**: Create N=50 human-annotated hold-out set for rubric validation (T015d-Load); T015d-Gen is CI-only.
 - **CRITICAL**: Ensure sensitivity analysis is performed in the Analysis phase (Phase 5), not the Simulation phase.
-- **CRITICAL**: Rubric validation (T037) must explicitly calculate the correlation coefficient (r) against the hold-out set (T015d).
+- **CRITICAL**: Rubric validation (T037) must explicitly calculate the correlation coefficient (r) against the hold-out set (T015d-Load).
 - **CRITICAL**: Statistical correction (T032) must use FDR (Benjamini-Hochberg) or Bonferroni (T032a).
 - **CRITICAL**: Alignment scoring (T023) must include `latency_penalty` component.
-- **CRITICAL**: T019 (Implement training script) and T019b (Execute training) are distinct tasks to ensure reproducibility; T019 now generates the model file.
+- **CRITICAL**: T019 (Implement training script) and T019b-Run/T019b-Verify (Execute/Verify training) are distinct tasks to ensure reproducibility; T019 now generates the model file.
 - **CRITICAL**: T024a/b/c logs `ui_element_count`; T027/T027b validates it.
 - **CRITICAL**: T034a generates baseline data; T034b consumes it and T032/T032a to identify the threshold.
 - **CRITICAL**: T039 generates the final report with specific deliverables (Pareto, table, threshold).
-- **CRITICAL**: T015 formats data for manual review; T015d performs human annotation; T015e generates placeholder for CI.
+- **CRITICAL**: T015 formats data for manual review; T015d-Gen generates placeholder for CI; T015d-Load loads committed data.
 - **CRITICAL**: T015c ensures the hold-out set is valid before simulation (Manual Gate).
 - **CRITICAL**: T033a runs the sensitivity analysis on the trained model.
 - **CRITICAL**: T003 and T004 have specific content rules and verification methods.
 - **CRITICAL**: T009 produces specific YAML schemas using jsonschema syntax (programmatic).
 - **CRITICAL**: T013 validates the N=500 dataset coverage.
-- **CRITICAL**: T019b verifies the model file exists with SHA-256 hash.
+- **CRITICAL**: T019b-Verify verifies the model file exists with SHA-256 hash.
 - **CRITICAL**: T015b verifies the N=50 hold-out set format and completeness.
-- **CRITICAL**: T037 consumes T015d, T023, and T037a.
+- **CRITICAL**: T037 consumes T015d-Load, T023, and T037a.
 - **CRITICAL**: T034a consumes T024; T034b consumes T034a and T032/T032a.
 - **CRITICAL**: T024a/b/c includes logging of `ui_element_count`.
 - **CRITICAL**: T027/T027b includes validation of `ui_element_count` and `ui_completeness`.
@@ -320,7 +325,22 @@ With multiple developers:
 - **CRITICAL**: T021b explicitly implements quantized DistilGPT2 loading.
 - **CRITICAL**: T033b explicitly measures robustness (variance in inconsistency rates).
 - **CRITICAL**: T037a explicitly validates baseline at 0ms latency.
-- **CRITICAL**: T015d is the mandatory human annotation step; T015e is the CI-only placeholder.
-- **CRITICAL**: T015c gates T015d (human) specifically.
+- **CRITICAL**: T015d-Gen is the mandatory CI placeholder generation; T015d-Load is the load step.
+- **CRITICAL**: T015c gates T015d-Load (human) specifically.
 - **CRITICAL**: T024b handles borderline confidence scores.
 - **CRITICAL**: T048 performs the power calculation to justify N=50.
+- **CRITICAL**: T020 (Router Implementation) MUST precede T019 (Training Script) because the training script needs the router class.
+- **CRITICAL**: T024b iterates over {1, 3, 5, 10}.
+- **CRITICAL**: T033 uses the corrected set {0.6, 0.7, 0.8}.
+- **CRITICAL**: T023b implements the `latency_penalty` component.
+- **CRITICAL**: T012b-CLI implements a concrete CLI annotation tool.
+- **CRITICAL**: T015d-Gen and T015d-Load replace the manual T015d task to ensure reproducibility.
+- **CRITICAL**: T019b is split into T019b-Run and T019b-Verify.
+- **CRITICAL**: T037 outputs `data/rubric_validation_report.json`.
+- **CRITICAL**: T034b is the Threshold Finder; T034c verifies it; T034d generates the table.
+- **CRITICAL**: T045a/T045b, T046, T047, T048, T049, T050 are in Phase N+1.
+- **CRITICAL**: Duplicate tasks T051, T052, T054, T055, T056, T057 have been removed.
+- **CRITICAL**: Plan Summary N=200 vs Spec N=500 is a plan-root cause issue; tasks enforce N=500.
+- **CRITICAL**: Plan Summary omits `latency_penalty`; tasks include it (T023b).
+- **CRITICAL**: Spec FR-007 typo '{, 0.7, 0.8}' is a spec-root cause issue; tasks use {0.6, 0.7, 0.8}.
+- **CRITICAL**: T034b ID collision resolved by renaming second T034b to T034c.

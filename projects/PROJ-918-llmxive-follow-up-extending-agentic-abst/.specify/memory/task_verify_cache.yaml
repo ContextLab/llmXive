@@ -1,0 +1,40 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directories (`code/`, `data/`, `tests/`,
+    `state/`) actually exist or contain any files; the only material shown is a feature
+    specification, not a project skeleton. The implementer must create and show the
+    specified folder structure.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration artifacts (e.g., .flake8, pyproject.toml,\
+    \ ruff.toml, black configuration, or pre\u2011commit setup) were supplied, so\
+    \ the claim that linting (flake8/ruff) and formatting (black) are configured is\
+    \ unsupported."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/` directory with the required `raw/` and `processed/`
+    subfolders, nor any checksum scripts, was provided. The implementer must add the
+    directory structure and the scripts that compute and verify file checksums.
+T016:
+  c: false
+  h: 843f0982655c25d35433d2d5a8943d2780b2dc64e4459d05e5cc279cfeb16e17
+  r: "The repository contains `code/data/preprocess.py` with mean\u2011imputation\
+    \ code, but the required `data/validation_report.json` file is absent, and the\
+    \ visible portion of the script does not show the \u201Chalt execution\u201D logic\
+    \ that writes this report when >5\u202F% of records miss a critical variable.\
+    \ The task\u2019s validation\u2011report generation requirement is therefore unmet."
+T019:
+  c: false
+  h: f567c3dbe9b3ed69a09c40afaa961b5e81cd8fab76fd287cbaebab7532a00216
+  r: "The required file `tests/integration/test_simulation_loop.py` is missing from\
+    \ the repository, so the integration test for the simulation loop does not exist.\
+    \ No artifact fulfills the task\u2019s requirement."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/simulation/convolve_ref/` directory containing a concrete
+    CONVOLVE implementation (with a specific commit/tag) was provided; the required
+    artifact is missing, so the task is not satisfied.

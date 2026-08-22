@@ -1,0 +1,35 @@
+{
+  "task_id": "T033",
+  "timestamp": "2026-05-14T16:00:00Z",
+  "action": "refactor_duplicate_fallback_logic",
+  "source_file": "code/descriptors/utils.py",
+  "changes": [
+    {
+      "type": "consolidation",
+      "description": "Merged duplicate fallback logic blocks into a single function: get_property_with_fallback",
+      "affected_functions": [
+        "safe_get_atomic_radius",
+        "safe_get_electronegativity",
+        "safe_get_oxidation_states",
+        "safe_get_binary_mixing_enthalpy"
+      ],
+      "details": "Previously, each safe_get_* function contained its own try/except block for handling missing properties. These have been refactored to call the unified get_property_with_fallback() function, which centralizes the logging and fallback strategy (nearest_neighbor) logic."
+    },
+    {
+      "type": "improvement",
+      "description": "Added get_periodic_table() singleton to optimize PeriodicTable instantiation",
+      "details": "Prevents redundant initialization of the PeriodicTable object across multiple function calls."
+    }
+  ],
+  "grep_findings": {
+    "pattern": "try:",
+    "matches_in_utils_old": 4,
+    "matches_in_utils_new": 1,
+    "reduction": "75% reduction in duplicate try/except blocks"
+  },
+  "verification": {
+    "imports_updated": true,
+    "public_api_compatible": true,
+    "existing_calls_still_valid": true
+  }
+}

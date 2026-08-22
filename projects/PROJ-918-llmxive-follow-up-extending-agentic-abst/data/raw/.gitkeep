@@ -1,2 +1,2 @@
-# This directory stores raw data files.
-# Do not commit large binary files.
+# This directory stores raw ingested data files (e.g., benchmark datasets).
+# Do not commit large binary files here; use .gitignore.
