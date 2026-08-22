@@ -1,6 +1,3 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Dataset Sample Schema
-description: Schema for individual sample entities in the cancer biomarker discovery dataset.
 type: object
 required:
   - sample_id
@@ -10,18 +7,16 @@ required:
 properties:
   sample_id:
     type: string
-    description: Unique identifier for the sample (e.g., TCGA barcode or GEO sample ID).
+    description: Unique identifier for the sample
   tumor_type:
     type: string
-    description: The cancer type or tissue of origin (e.g., BRCA, LUAD).
+    description: Cancer type classification (e.g., BRCA, LUAD)
   response_label:
     type: string
-    description: Chemotherapy response classification (e.g., 'Responder', 'NonResponder', 'CR', 'PR', 'SD', 'PD').
+    description: Clinical response outcome (e.g., 'Responder', 'NonResponder')
   expression_vector:
     type: array
-    description: Normalized gene expression values (e.g., VST transformed counts).
+    description: Normalized gene expression values (VST or similar)
     items:
       type: number
       format: float
-    minItems: 1
-    description: Array of floats representing expression levels for selected genes.

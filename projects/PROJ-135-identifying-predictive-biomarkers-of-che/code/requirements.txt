@@ -1,11 +1,31 @@
+# Core dependencies
 pandas>=2.0.0
 numpy>=1.24.0
 scikit-learn>=1.3.0
 scipy>=1.11.0
-rpy2>=3.5.0
-biopython>=1.81
 requests>=2.31.0
 psutil>=5.9.0
-sva
+biopython>=1.81
 pyyaml>=6.0
+
+# R integration
+rpy2>=3.5.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Testing
 pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Bioconductor packages (installed via R, listed for documentation)
+# DESeq2
+# SummarizedExperiment
+# Biobase
+# pROC (for DeLong's test)
+# sva (for batch correction)
+
+# Note: R packages must be installed separately via Rscript
+# Example installation command:
+# Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager"); BiocManager::install(c("DESeq2", "SummarizedExperiment", "Biobase", "pROC", "sva"))'

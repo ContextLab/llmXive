@@ -1,10 +1,3 @@
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No schema files, checksum definitions, or any related artifacts are present\
-    \ in the provided evidence; the only content shown is a feature specification\
-    \ and user stories, which do not fulfill the \u201Cimplement schema files and\
-    \ checksums\u201D requirement. The required files are missing."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,18 +5,43 @@ T008:
     and no contract test harness for validating a YAML schema are present in the provided
     evidence. The claim only contains a feature specification unrelated to setting
     up pytest or YAML schema tests, so the required artifacts are missing.
-T024:
+T023a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or generated gene panel were supplied; the implementer\
-    \ did not provide the static gene panel, scripts, or results required by the user\
-    \ stories. Consequently, the task\u2019s deliverables are missing."
-T027:
+  r: "No R script or any other artifact implementing per\u2011tumor\u2011type differential\
+    \ expression analysis was provided; the evidence contains only the task description\
+    \ and user stories, with no code, files, or output to verify that the required\
+    \ DE execution logic exists. The implementer must supply the actual R script (and\
+    \ optionally example output) that runs DE analysis for each tumor type."
+T023b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., commit diff, pull\u2011request, or file deletion) was provided\
-    \ to demonstrate that task\u202FT027 was actually removed/merged into T024. Without\
-    \ concrete evidence of the removal, the claim cannot be verified."
+  r: "No artifact (e.g., script, function, or documentation) was provided that shows\
+    \ an aggregation implementation or a concrete strategy for resolving gene\u2011\
+    naming conflicts using HGNC symbols. Without such code or description, we cannot\
+    \ confirm the task\u2019s requirement has been met."
+T024a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data file, or documentation for the static gene panel (intersection/union\
+    \ logic) was provided. The required artifact\u2014e.g., a gene list file in `results/meta_analysis/`\
+    \ or a summary markdown indicating whether the intersection was empty and the\
+    \ union fallback was used\u2014is missing, so the task\u2019s requirement cannot\
+    \ be verified as satisfied."
+T024b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or result files implementing Stouffer\u2019s meta\u2011analysis\
+    \ are present in the provided evidence; the required artifact (`results/meta_analysis/`\
+    \ output or the implementation script) is missing, so the task\u2019s requirement\
+    \ is not satisfied."
+T024c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no concrete artifacts (e.g., a finalized gene panel\
+    \ file, meta\u2011analysis results, or summary documentation) to demonstrate that\
+    \ the gene panel has been generated, ranked, and documented as required. Consequently,\
+    \ the task\u2019s deliverable is missing."
 T029:
   c: false
   h: 8c2472bd7f4de8cf2a5522c9079975e30f994f0220524f2ec19cae1efe1ff0cc

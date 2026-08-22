@@ -1,14 +1,24 @@
-sample_id:
-  type: string
-  description: Unique identifier for the biological sample
-tumor_type:
-  type: string
-  description: Type of tumor (e.g., BRCA, LUAD)
-response_label:
-  type: string
-  description: Chemotherapy response label (e.g., CR, PR, SD, PD)
-expression_vector:
-  type: array
-  description: Array of float values representing gene expression levels
-  items:
-    type: float
+# Schema for processed dataset samples
+# Defines the structure of individual sample records in the discovery/training sets
+fields:
+  - name: sample_id
+    type: string
+    description: Unique identifier for the sample (e.g., TCGA barcode or GEO sample ID)
+    required: true
+  - name: tumor_type
+    type: string
+    description: Cancer type classification (e.g., BRCA, LUAD)
+    required: true
+  - name: response_label
+    type: string
+    description: Chemotherapy response status (e.g., 'Responder', 'NonResponder')
+    required: true
+  - name: expression_vector
+    type: array
+    item_type: float
+    description: Normalized expression values for the gene panel, ordered by gene symbol
+    required: true
+metadata:
+  version: "1.0"
+  source: llmXive pipeline T006
+  format: YAML

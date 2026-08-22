@@ -1288,3 +1288,360 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T19:39:15Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Default GEO IDs are GSE25055 and GSE42752
+  claim_id: c_60da22fe
+  context: 'Define paths, random seeds, FDR thresholds, CPU/memory limits, MAX_VARIANCE_GENES,
+    and GEO_IDS (default: [''GSE25055'', ''GSE42752'']).'
+  evidence:
+    entailment_evidence: Default GEO IDs are GSE25055 and GSE42752
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Default_GEO_IDs_are_GSE25055_and_GSE42752
+  kind: entity_fact
+  raw_text: Default GEO IDs are ['GSE25055', 'GSE42752'].
+  resolved_value: Default GEO IDs are GSE25055 and GSE42752
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T13:25:58Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Filter low expression genes with CPM less than 1 in more than 80 percent
+    of samples
+  claim_id: c_5645a536
+  context: "Implement src/preprocessing.py: Filter low\u2011expression genes (CPM\
+    \ < 1 in > 80% samples)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_low_expression_genes_with_CPM_less_than_1_in_more_tha
+  kind: magnitude
+  raw_text: Low-expression genes are filtered if CPM < 1 in > 80% of samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:26:29Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Select significant genes with FDR less than 0.05 and absolute log2FC
+    greater than 1.0
+  claim_id: c_f92ae072
+  context: "Compute intersection of significant genes (FDR < 0.05, |log2FC| > 1.0)\
+    \ across \u22652 tumor types."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_significant_genes_with_FDR_less_than_0.05_and_absolut
+  kind: magnitude
+  raw_text: Significant genes are selected using FDR < 0.05 and |log2FC| > 1.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:26:58Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Final gene panel limited to 50 genes
+  claim_id: c_cedaed99
+  context: "Limit final panel to \u226450 genes."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The final gene panel is limited to \u226450 genes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:26:58Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Fallback union of top ranked genes limited to 50
+  claim_id: c_46ec6b94
+  context: "If intersection empty, fallback to union of top\u2011ranked genes (\u2264\
+    50) and set fallback_reason."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The fallback to union of top-ranked genes is limited to \u226450 genes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:26:58Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Poor generalizability defined as AUC drop greater than 0.10
+  claim_id: c_c850ab7c
+  context: Define the 'poor generalizability' threshold as a performance drop > 0.10
+    in AUC.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Poor_generalizability_defined_as_AUC_drop_greater_than_0.10
+  kind: magnitude
+  raw_text: Poor generalizability is defined as a performance drop > 0.10 in AUC.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:27:25Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Adjusted DeLong p-value must be less than 0.01
+  claim_id: c_d0b0dded
+  context: "Apply Bonferroni correction using m = m_delong; adjusted p\u2011value\
+    \ must be < 0.01 (FR\u2011010)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Adjusted_DeLong_p-value_must_be_less_than_0.01
+  kind: magnitude
+  raw_text: Adjusted p-value for DeLong's test must be < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:28:23Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Adjusted meta-analysis p-values must be less than 0.01
+  claim_id: c_6d319a6b
+  context: "Apply Bonferroni correction to meta\u2011analysis p\u2011values (using\
+    \ m_meta) and to DeLong test p\u2011values. Adjusted p\u2011values must be < 0.01."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Adjusted_meta-analysis_p-values_must_be_less_than_0.01
+  kind: magnitude
+  raw_text: Adjusted p-values for meta-analysis must be < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:28:50Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 0
+  canonical: Default GEO IDs are GSE25055 and GSE42752
+  claim_id: c_a2883c2e
+  context: 'T004 Implement src/config.py: Define paths, random seeds, FDR thresholds,
+    CPU/memory limits, MAX_VARIANCE_GENES, and GEO_IDS (default: [''GSE25055'', ''GSE42752'']).'
+  evidence:
+    entailment_evidence: Default GEO IDs are GSE25055 and GSE42752
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Default_GEO_IDs_are_GSE25055_and_GSE42752
+  kind: entity_fact
+  raw_text: Default GEO IDs are ['GSE25055', 'GSE42752']
+  resolved_value: Default GEO IDs are GSE25055 and GSE42752
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T13:35:11Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Maximum CPU hours limit is 6
+  claim_id: c_18a0bc1f
+  context: If usage exceeds MAX_CPU_HOURS (6) or MAX_RAM_GB (7), raise a ResourceLimitExceeded
+    exception.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_CPU_HOURS is 6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:35:31Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Maximum RAM limit is 7 GB
+  claim_id: c_c6dbfd94
+  context: If usage exceeds MAX_CPU_HOURS (6) or MAX_RAM_GB (7), raise a ResourceLimitExceeded
+    exception.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_RAM_GB is 7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:35:56Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Filter low expression genes if CPM less than 1 in more than 80 percent
+    of samples
+  claim_id: c_62d510fd
+  context: "T017a [US1] Implement src/preprocessing.py: Filter low\u2011expression\
+    \ genes (CPM < 1 in > 80% samples)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_low_expression_genes_if_CPM_less_than_1_in_more_than
+  kind: magnitude
+  raw_text: Filter low-expression genes with CPM < 1 in > 80% samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:36:22Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: ComBat-seq is the only primary batch correction method
+  claim_id: c_a2e59c58
+  context: 'T016 [US1] Update: ComBat-seq is the ONLY primary method; Quantile Matching
+    is ONLY a fallback if ComBat-seq fails on discrete data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ComBat-seq_is_the_only_primary_batch_correction_method
+  kind: entity_fact
+  raw_text: ComBat-seq is the ONLY primary method for batch correction
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:36:50Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: False discovery rate threshold is less than 0.05
+  claim_id: c_441e7ae4
+  context: "Compute intersection of significant genes (FDR < 0.05, |log2FC| > 1.0)\
+    \ across \u22652 tumor types."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_discovery_rate_threshold_is_less_than_0.05
+  kind: magnitude
+  raw_text: FDR threshold is < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:37:17Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Absolute log2 fold change threshold is greater than 1.0
+  claim_id: c_09034b15
+  context: "Compute intersection of significant genes (FDR < 0.05, |log2FC| > 1.0)\
+    \ across \u22652 tumor types."
+  evidence:
+    candidates:
+    - - ''
+      - 2.0
+    - - ''
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Absolute_log2_fold_change_threshold_is_greater_than_1.0
+  kind: magnitude
+  raw_text: Log2FC threshold is > 1.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-22T13:37:34Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Final gene panel is limited to 50 genes
+  claim_id: c_b51c1305
+  context: "Limit final panel to \u226450 genes."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Final gene panel is limited to \u226450 genes"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:37:34Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Poor generalizability is defined as AUC performance drop greater than
+    0.10
+  claim_id: c_a8a3a23a
+  context: 'Update: Define the ''poor generalizability'' threshold as a performance
+    drop > 0.10 in AUC.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Poor_generalizability_is_defined_as_AUC_performance_drop_gre
+  kind: magnitude
+  raw_text: Performance drop threshold for poor generalizability is > 0.10 in AUC
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:37:57Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 2
+  canonical: Validation requires at least 2 independent GEO cohorts
+  claim_id: c_c8271c0f
+  context: "Explicitly require validation on \u22652 independent GEO cohorts (Constitution\
+    \ Principle VI)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_requires_at_least_2_independent_GEO_cohorts
+  kind: magnitude
+  raw_text: "Validation requires \u22652 independent GEO cohorts."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:37:59Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: DeLong test adjusted p-value must be less than 0.01
+  claim_id: c_1684452e
+  context: "Apply Bonferroni correction using m = m_delong; adjusted p\u2011value\
+    \ must be < 0.01 (FR\u2011010)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DeLong_test_adjusted_p-value_must_be_less_than_0.01
+  kind: magnitude
+  raw_text: Adjusted p-value for DeLong test must be < 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:38:01Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Meta-analysis adjusted p-values must be less than 0.01
+  claim_id: c_0cce4573
+  context: "Apply Bonferroni correction to meta\u2011analysis p\u2011values (using\
+    \ m_meta) and to DeLong test p\u2011values (using m_delong). Adjusted p\u2011\
+    values must be < 0.01."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Meta-analysis_adjusted_p-values_must_be_less_than_0.01
+  kind: magnitude
+  raw_text: Adjusted meta-analysis p-values must be < 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T13:38:03Z'

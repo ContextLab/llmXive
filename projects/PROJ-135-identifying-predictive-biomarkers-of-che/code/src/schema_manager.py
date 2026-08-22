@@ -1,5 +1,6 @@
 """
-Schema Manager for T006: Define, write, and checksum schema files.
+Schema Manager: Defines, writes, and checksums schema files for the project.
+Implements T006: Schema files and checksums.
 """
 import os
 import yaml
@@ -8,75 +9,93 @@ import logging
 from pathlib import Path
 from typing import Dict, Any
 
-# Import existing utilities
-from src.config import get_project_root
-from src.utils import update_state_artifact_hashes
+from src.config import get_project_root, ensure_directories
 
 logger = logging.getLogger(__name__)
 
-SCHEMAS = {
-    "dataset.schema.yaml": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "Dataset Sample Schema",
-        "description": "Schema for individual sample entities in the cancer biomarker discovery dataset.",
-        "type": "object",
-        "required": ["sample_id", "tumor_type", "response_label", "expression_vector"],
-        "properties": {
-            "sample_id": {
-                "type": "string",
-                "description": "Unique identifier for the sample (e.g., TCGA barcode or GEO sample ID)."
-            },
-            "tumor_type": {
-                "type": "string",
-                "description": "The cancer type or tissue of origin (e.g., BRCA, LUAD)."
-            },
-            "response_label": {
-                "type": "string",
-                "description": "Chemotherapy response classification (e.g., 'Responder', 'NonResponder', 'CR', 'PR', 'SD', 'PD')."
-            },
-            "expression_vector": {
-                "type": "array",
-                "description": "Normalized gene expression values (e.g., VST transformed counts).",
-                "items": {"type": "number", "format": "float"},
-                "minItems": 1
-            }
-        }
-    },
-    "model_output.schema.yaml": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "Model Output Schema",
-        "description": "Schema for the output of the predictive model training process.",
-        "type": "object",
-        "required": ["cancer_type", "alpha", "lambda", "coefficients", "cross_val_auc"],
-        "properties": {
-            "cancer_type": {"type": "string", "description": "The specific tumor type this model was trained on."},
-            "alpha": {"type": "number", "format": "float", "description": "Elastic net mixing parameter (alpha)."},
-            "lambda": {"type": "number", "format": "float", "description": "Regularization strength (lambda)."},
-            "coefficients": {
-                "type": "object",
-                "description": "Mapping of gene symbols to their learned coefficients.",
-                "additionalProperties": {"type": "number", "format": "float"}
-            },
-            "cross_val_auc": {
-                "type": "number", "format": "float", "minimum": 0.0, "maximum": 1.0,
-                "description": "Area Under the Curve (AUC) from cross-validation."
-            }
-        }
-    },
-    "meta_analysis.schema.yaml": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "Meta Analysis Schema",
-        "description": "Schema for meta-analysis results aggregating differential expression across tumor types.",
-        "type": "object",
-        "required": ["gene_symbol", "meta_p_value", "log2FC_mean", "selected"],
-        "properties": {
-            "gene_symbol": {"type": "string", "description": "Standardized gene symbol (HGNC)."},
-            "meta_p_value": {"type": "number", "format": "float", "minimum": 0.0, "maximum": 1.0, "description": "Combined p-value from meta-analysis."},
-            "log2FC_mean": {"type": "number", "format": "float", "description": "Mean log2 fold change across tumor types."},
-            "selected": {"type": "boolean", "description": "Flag indicating if this gene was selected for the final predictive panel."}
-        }
-    }
-}
+# Schema definitions matching T006 requirements
+DATASET_SCHEMA = """
+# Schema for processed dataset samples
+# Defines the structure of individual sample records in the discovery/training sets
+fields:
+  - name: sample_id
+    type: string
+    description: Unique identifier for the sample (e.g., TCGA barcode or GEO sample ID)
+    required: true
+  - name: tumor_type
+    type: string
+    description: Cancer type classification (e.g., BRCA, LUAD)
+    required: true
+  - name: response_label
+    type: string
+    description: Chemotherapy response status (e.g., 'Responder', 'NonResponder')
+    required: true
+  - name: expression_vector
+    type: array
+    item_type: float
+    description: Normalized expression values for the gene panel, ordered by gene symbol
+    required: true
+metadata:
+  version: "1.0"
+  source: llmXive pipeline T006
+  format: YAML
+"""
+
+MODEL_OUTPUT_SCHEMA = """
+# Schema for predictive model outputs
+# Defines the structure of model artifacts saved after training and validation
+fields:
+  - name: cancer_type
+    type: string
+    description: The specific tumor type this model was trained on
+    required: true
+  - name: alpha
+    type: float
+    description: Elastic net mixing parameter (0=Lasso, 1=Ridge)
+    required: true
+  - name: lambda
+    type: float
+    description: Elastic net regularization strength (lambda.min or lambda.1se)
+    required: true
+  - name: coefficients
+    type: object
+    description: Map of gene_symbol -> coefficient value
+    required: true
+  - name: cross_val_auc
+    type: float
+    description: Mean AUC from nested cross-validation
+    required: true
+metadata:
+  version: "1.0"
+  source: llmXive pipeline T006
+  format: YAML
+"""
+
+GENE_PANEL_SCHEMA = """
+# Schema for the final selected gene panel
+# Defines the structure of biomarkers identified through meta-analysis
+fields:
+  - name: gene_symbol
+    type: string
+    description: HGNC approved gene symbol
+    required: true
+  - name: meta_p_value
+    type: float
+    description: Combined p-value from Stouffer's meta-analysis
+    required: true
+  - name: log2FC_mean
+    type: float
+    description: Mean log2 fold change across tumor types
+    required: true
+  - name: selected
+    type: boolean
+    description: Whether this gene was included in the final panel (True/False)
+    required: true
+metadata:
+  version: "1.0"
+  source: llmXive pipeline T006
+  format: YAML
+"""
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA256 checksum of a file."""
@@ -86,48 +105,63 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def write_schemas() -> Dict[str, str]:
-    """Write schema YAML files to the contracts directory and return checksums."""
+def write_schemas() -> Dict[str, Path]:
+    """
+    Write schema files to the contracts directory.
+    Returns a dict mapping schema name to file path.
+    """
     project_root = get_project_root()
     contracts_dir = project_root / "specs" / "001-chemo-biomarker-discovery" / "contracts"
-    contracts_dir.mkdir(parents=True, exist_ok=True)
+    ensure_directories([contracts_dir])
 
-    checksums = {}
+    schemas = {
+        "dataset": DATASET_SCHEMA,
+        "model_output": MODEL_OUTPUT_SCHEMA,
+        "gene_panel": GENE_PANEL_SCHEMA
+    }
 
-    for filename, content in SCHEMAS.items():
-        file_path = contracts_dir / filename
+    written_paths = {}
+    for name, content in schemas.items():
+        file_path = contracts_dir / f"{name}.schema.yaml"
         with open(file_path, "w", encoding="utf-8") as f:
-            yaml.dump(content, f, default_flow_style=False, sort_keys=False)
-        checksums[filename] = compute_sha256(file_path)
-        logger.info(f"Wrote schema: {file_path} (SHA256: {checksums[filename][:16]}...)")
+            f.write(content.strip() + "\n")
+        written_paths[name] = file_path
+        logger.info(f"Written schema: {file_path}")
 
-    return checksums
+    return written_paths
 
-def update_state_with_schema_checksums(checksums: Dict[str, str]) -> None:
-    """Update the project state file with schema checksums."""
+def update_state_with_schema_checksums(schema_paths: Dict[str, Path]) -> None:
+    """
+    Compute checksums for schema files and write them to the project state file.
+    Updates state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml
+    """
     project_root = get_project_root()
     state_dir = project_root / "state" / "projects"
-    state_dir.mkdir(parents=True, exist_ok=True)
-    
     state_file = state_dir / "PROJ-135-identifying-predictive-biomarkers-of-che.yaml"
     
-    # Load existing state if it exists
-    existing_hashes = {}
+    ensure_directories([state_dir])
+
+    artifact_hashes = {}
+    for name, path in schema_paths.items():
+        checksum = compute_sha256(path)
+        artifact_hashes[f"schema/{name}"] = checksum
+        logger.info(f"Computed checksum for {name}: {checksum}")
+
+    # Load existing state if present, or create new
+    state_data = {}
     if state_file.exists():
-        with open(state_file, "r", encoding="utf-8") as f:
-            existing_state = yaml.safe_load(f) or {}
-            existing_hashes = existing_state.get("artifact_hashes", {})
-    
-    # Update with new schema checksums
-    for filename, checksum in checksums.items():
-        existing_hashes[f"specs/001-chemo-biomarker-discovery/contracts/{filename}"] = checksum
-    
+        try:
+            with open(state_file, "r", encoding="utf-8") as f:
+                state_data = yaml.safe_load(f) or {}
+        except Exception as e:
+            logger.warning(f"Could not load existing state file: {e}")
+
+    # Update artifact_hashes
+    if "artifact_hashes" not in state_data:
+        state_data["artifact_hashes"] = {}
+    state_data["artifact_hashes"].update(artifact_hashes)
+
     # Write updated state
-    state_data = {
-        "project_id": "PROJ-135-identifying-predictive-biomarkers-of-che",
-        "artifact_hashes": existing_hashes
-    }
-    
     with open(state_file, "w", encoding="utf-8") as f:
         yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
     
@@ -135,16 +169,17 @@ def update_state_with_schema_checksums(checksums: Dict[str, str]) -> None:
 
 def main() -> None:
     """Main entry point for T006."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    logger.info("Starting T006: Schema generation and checksumming")
+    logging.basicConfig(level=logging.INFO)
     
-    # Step 1 & 2: Write schemas
-    checksums = write_schemas()
+    logger.info("Starting T006: Implement schema files and checksums")
     
-    # Step 3: Compute checksums and update state
-    update_state_with_schema_checksums(checksums)
+    # Step 1: Write schema files
+    schema_paths = write_schemas()
     
-    logger.info("T006 completed successfully.")
+    # Step 2: Compute checksums and update state
+    update_state_with_schema_checksums(schema_paths)
+    
+    logger.info("T006 completed successfully")
 
 if __name__ == "__main__":
     main()

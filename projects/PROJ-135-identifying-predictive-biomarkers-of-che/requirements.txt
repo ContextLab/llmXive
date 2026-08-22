@@ -6,10 +6,6 @@ biopython
 requests
 scipy
 psutil
-pyyaml
-TCGAbiolinks
-GEOparse
-mygene
+sva
+pyarrow
 pytest
-ruff
-black

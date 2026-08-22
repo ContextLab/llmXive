@@ -1,6 +1,3 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Output Schema
-description: Schema for the output of the predictive model training process.
 type: object
 required:
   - cancer_type
@@ -11,24 +8,22 @@ required:
 properties:
   cancer_type:
     type: string
-    description: The specific tumor type this model was trained on.
+    description: Tumor type the model was trained on
   alpha:
     type: number
     format: float
-    description: Elastic net mixing parameter (alpha).
+    description: Elastic net mixing parameter
   lambda:
     type: number
     format: float
-    description: Regularization strength (lambda).
+    description: Elastic net regularization parameter
   coefficients:
     type: object
-    description: Mapping of gene symbols to their learned coefficients.
+    description: Mapping of gene symbols to their model coefficients
     additionalProperties:
       type: number
       format: float
   cross_val_auc:
     type: number
     format: float
-    minimum: 0.0
-    maximum: 1.0
-    description: Area Under the Curve (AUC) from cross-validation.
+    description: Area Under Curve from cross-validation

@@ -1,15 +1,27 @@
-cancer_type:
-  type: string
-  description: The cancer type for which this model was trained
-alpha:
-  type: float
-  description: Elastic net mixing parameter
-lambda:
-  type: float
-  description: Regularization strength parameter
-coefficients:
-  type: object
-  description: Mapping of gene symbols to their model coefficients
-cross_val_auc:
-  type: float
-  description: Area Under the Curve from nested cross-validation
+# Schema for predictive model outputs
+# Defines the structure of model artifacts saved after training and validation
+fields:
+  - name: cancer_type
+    type: string
+    description: The specific tumor type this model was trained on
+    required: true
+  - name: alpha
+    type: float
+    description: Elastic net mixing parameter (0=Lasso, 1=Ridge)
+    required: true
+  - name: lambda
+    type: float
+    description: Elastic net regularization strength (lambda.min or lambda.1se)
+    required: true
+  - name: coefficients
+    type: object
+    description: Map of gene_symbol -> coefficient value
+    required: true
+  - name: cross_val_auc
+    type: float
+    description: Mean AUC from nested cross-validation
+    required: true
+metadata:
+  version: "1.0"
+  source: llmXive pipeline T006
+  format: YAML
