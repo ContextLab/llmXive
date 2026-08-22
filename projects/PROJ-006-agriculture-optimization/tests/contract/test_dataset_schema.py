@@ -1,6 +1,11 @@
 """
 Contract test for T007: Validate that contracts/dataset.schema.yaml
 is syntactically valid and can be loaded and validated against Pydantic models.
+This test skeleton implements TDD for User Story 1 (Ingest and Harmonize Multimodal Data).
+
+Note: These tests will fail until T015-T022 are implemented to populate real data,
+but the schema contract itself (T007) and the validation logic (T012) must be
+functional to verify data integrity once data is present.
 """
 import os
 import sys

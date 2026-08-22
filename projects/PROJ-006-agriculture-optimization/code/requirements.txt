@@ -2,7 +2,7 @@
 pandas>=2.0.0
 numpy>=1.24.0
 pydantic>=2.0.0
-pyyaml>=6.0
+pyyaml>=6.0.0
 requests>=2.31.0
 geopandas>=0.13.0
 rasterio>=1.3.0
@@ -16,3 +16,10 @@ pytest>=7.4.0
 black>=23.0.0
 flake8>=6.1.0
 isort>=5.12.0
+mypy>=1.5.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.0
+
+# Optional dependencies for specific features
+# worldbank-lsms>=1.0.0  # Uncomment if using official LSMS package
+# copernicus-api>=0.1.0  # Uncomment if using official Copernicus package

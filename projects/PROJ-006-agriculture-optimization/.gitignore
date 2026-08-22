@@ -2,6 +2,24 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+venv/
+ENV/
+env/
+.venv/
+.env/
 
 # C extensions
 *.so
@@ -18,15 +36,11 @@ lib/
 lib64/
 parts/
 sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-*.manifest
-*.spec
+venv/
+ENV/
+env/
+.env/
+.venv/
 
 # Installer logs
 pip-log.txt
@@ -36,10 +50,11 @@ pip-delete-this-directory.txt
 htmlcov/
 .coverage
 .coverage.*
-cache/
+.cache
 nosetests.xml
 coverage.xml
 *.cover
+*.py,cover
 .hypothesis/
 .pytest_cache/
 
@@ -53,8 +68,7 @@ coverage.xml
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
+.env.local
 
 # IDEs
 .idea/
@@ -63,28 +77,43 @@ venv.bak/
 *.swo
 *~
 
-# OS
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# OS generated files
 .DS_Store
+.DS_Store?
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
 # Project specific
-data/raw/*.csv
-data/raw/*.zip
-data/raw/*.parquet
-data/processed/*.csv
-data/processed/*.json
-data/processed/*.parquet
-data/logs/*.log
-reports/*.pdf
-reports/*.png
-state/
-*.yaml
-!.gitignore
-!requirements.txt
-!README.md
-!spec.md
-!plan.md
-!tasks.md
-!research.md
-!data-model.md
-!quickstart.md
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/logs/*
+!data/logs/.gitkeep
+reports/*
+!reports/.gitkeep
+state/projects/*
+!state/projects/.gitkeep
+contracts/*
+!contracts/.gitkeep
+docs/*
+!docs/.gitkeep
+tests/__pycache__/
+src/__pycache__/
+scripts/__pycache__/

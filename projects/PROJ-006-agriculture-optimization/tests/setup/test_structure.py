@@ -4,7 +4,8 @@ from pathlib import Path
 
 def get_project_root():
     """Return the project root directory."""
-    return Path(__file__).resolve().parent.parent
+    # Assume the test is run from the project root or a subdirectory
+    return Path(__file__).resolve().parent.parent.parent
 
 def test_required_directories_exist():
     """Assert that all required directories for the project structure exist."""
@@ -17,7 +18,9 @@ def test_required_directories_exist():
         'data/raw',
         'data/processed',
         'data/logs',
-        'reports'
+        'reports',
+        'state',
+        'state/projects'
     ]
     for dir_path in required_dirs:
         full_path = root / dir_path

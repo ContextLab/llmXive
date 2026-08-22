@@ -1811,3 +1811,785 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T02:19:58Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Trigger village-level aggregation if linkage is less than 95% or sample
+    size is less than 300
+  claim_id: c_fa1b3894
+  context: 'T017c [US1] [FR-002] Implement validation and aggregation trigger in `src/data/processing/spatial_join.py`.
+    Logic: Calculate linkage percentage...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_village-level_aggregation_if_linkage_is_less_than_95
+  kind: magnitude
+  raw_text: Linkage percentage = (matched households / total valid households). If
+    linkage < 95% OR N < 300, trigger the aggregation routine.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:41:10Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Raise fatal error if sample size remains less than 300 after village-level
+    aggregation
+  claim_id: c_bdecdd1a
+  context: 'T021 [US1] Implement village-level aggregation fallback... Verification:
+    Ensure the aggregated dataset retains the `village_id` column, has N >= 300...'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P12071: 11200'
+      source_id: Q136293754
+      url: https://www.wikidata.org/wiki/Q136293754
+      value: '11200'
+    filled: true
+  kind: magnitude
+  raw_text: If N < 300 after aggregation, raise a `FatalError` with code `INSUFFICIENT_SAMPLE_SIZE`.
+  resolved_value: '11200'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T22:41:18Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction with alpha of 0.0167
+  claim_id: c_cf652c2d
+  context: T025 [US2] [FR-004] Implement `src/analysis/run_regression.py`... Apply
+    Bonferroni correction (alpha=0.0167).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction (alpha=0.0167).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:41:35Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Flag potential collinearity if Variance Inflation Factor exceeds 5
+  claim_id: c_622335da
+  context: 'T025 [US2] [FR-004] Implement `src/analysis/run_regression.py`... Flagging:
+    If any VIF > 5, log a warning...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If any VIF > 5, log a warning and annotate the output JSON with 'Potential
+    Collinearity Detected'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:41:35Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sweep cloud cover thresholds across values 0.6, 0.7, and 0.8 for sensitivity
+    analysis
+  claim_id: c_f71accbe
+  context: 'T030 [US3] [FR-006] Implement `src/analysis/sensitivity_check.py` to sweep
+    cloud cover thresholds across a representative set of values. Logic: For each
+    threshold in {0.6, 0.7, 0.8}...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each threshold in {0.6, 0.7, 0.8}, filter the cached raw satellite
+    granules by cloud cover.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:42:23Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Report includes explicit injection of specific numerical threshold
+  claim_id: c_5eeb0b8e
+  context: T032 [US3] Implement `src/services/report_generator.py`... Programmatically
+    inject... the specific numerical threshold...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_includes_explicit_injection_of_specific_numerical_thr
+  kind: entity_fact
+  raw_text: The specific numerical threshold is explicitly injected into the report
+    header/footer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:42:48Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Verify citations against primary sources using DOI lookup
+  claim_id: c_766eb985
+  context: 'T050a [P] **Create and Validate Research Document**: Generate `research.md`...
+    Logic: Manually verify citations against primary sources using standard tools...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_citations_against_primary_sources_using_DOI_lookup
+  kind: entity_fact
+  raw_text: Manually verify citations against primary sources using standard tools
+    (e.g., DOI lookup) and update or remove invalid citations until verification passes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:43:14Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Document specific geospatial fuzzing radius of 1km
+  claim_id: c_8d243e13
+  context: 'T053b [Const-VII] **Spatial-Temporal Alignment Documentation**: Update
+    `data-model.md` to explicitly document the specific geospatial fuzzing radius
+    (e.g., 1km)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Document_specific_geospatial_fuzzing_radius_of_1km
+  kind: entity_fact
+  raw_text: Document the specific geospatial fuzzing radius (e.g., 1km) and temporal
+    window used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:43:36Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Justify sample size using rule-of-thumb N greater than 1000 for multivariate
+    regression
+  claim_id: c_b1533966
+  context: 'T053c [P] **Sample Size Justification**: Add power analysis or sample-size
+    justification in `data-model.md` for the target N > 1000...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Justify_sample_size_using_rule-of-thumb_N_greater_than_1000
+  kind: magnitude
+  raw_text: Use a standard power analysis approximation (e.g., G*Power or rule-of-thumb
+    N > 1000 for multivariate regression) to justify the sample size.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:44:24Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Apply 1km geodesic buffer for LSMS-ISA privacy fuzzing
+  claim_id: c_efbb2fbe
+  context: 'T017 [US1] [FR-002] Implement `src/data/processing/spatial_join.py`...
+    Specifics: Apply a **1km geodesic buffer** (configurable in `constants.py`) around
+    household coordinates...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_1km_geodesic_buffer_for_LSMS-ISA_privacy_fuzzing
+  kind: entity_fact
+  raw_text: Apply a 1km geodesic buffer around household coordinates to handle LSMS-ISA
+    privacy fuzzing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:44:43Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Filter Sentinel-2 granules by cloud cover less than 0.8
+  claim_id: c_f4dad775
+  context: 'T016 [US1] Implement `src/data/collectors/remote_sensing_collector.py`...
+    Specifics: Use `requests` with OAuth2, filter by `cloud_cover < 0.8` (default)...'
+  evidence:
+    candidates:
+    - - ''
+      - 0.8
+    - - ''
+      - -2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Filter_Sentinel-2_granules_by_cloud_cover_less_than_0.8
+  kind: magnitude
+  raw_text: Filter by cloud cover < 0.8 (default) when downloading Sentinel-2 granules.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-22T22:45:04Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Cloud cover thresholds configured as 0.6, 0.7, and 0.8
+  claim_id: c_1b166b46
+  context: T004 Create `src/config/constants.py` with random seeds, paths, and cloud
+    cover thresholds {0.6, 0.7, 0.8}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cloud cover thresholds are configured as {0.6, 0.7, 0.8} in constants.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:45:32Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Regression analysis execution completes within 60 minutes on CPU
+  claim_id: c_1c1381d0
+  context: 'Independent Test: Execution of `src/analysis/run_regression.py` produces
+    a summary file... completing within 60 minutes on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution of `src/analysis/run_regression.py` completes within 60 minutes
+    on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:45:45Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Log success and produce linkage validation JSON if linkage >= 95% and
+    N >= 300
+  claim_id: c_515457e1
+  context: If linkage < 95% OR N < 300, trigger the aggregation routine defined in
+    T021 immediately. If linkage >= 95% and N >= 300, log success and produce data/logs/linkage_validation.json
+    with the calculated percentage and total valid households.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If linkage >= 95% and N >= 300, log success and produce data/logs/linkage_validation.json
+    with the calculated percentage and total valid households.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:49:09Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: 'Execute village-level aggregation trigger condition: linkage < 95% or
+    N < 300'
+  claim_id: c_bfdf5bbb
+  context: 'Implement village-level aggregation fallback in src/data/processing/feature_engineering.py
+    with explicit conditional logic: Trigger: If data/logs/linkage_validation.json
+    indicates linkage < 95% OR N < 300, execute aggregation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute aggregation to village level if data/logs/linkage_validation.json
+    indicates linkage < 95% OR N < 300.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:49:10Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Verify aggregated dataset has N >= 300 and unique village_id per row
+  claim_id: c_43d185e2
+  context: 'Write the aggregated dataset to data/processed/analysis_dataset_village_aggregated.csv.
+    Verification: Ensure the aggregated dataset retains the village_id column, has
+    N >= 300, and that village_id is unique per row.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the aggregated dataset retains the village_id column, has N >=
+    300, and that village_id is unique per row.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:49:30Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction with alpha 0.0167
+  claim_id: c_9a1ff6c3
+  context: 'Flagging: If any VIF > 5, log a warning and annotate the output JSON with
+    ''Potential Collinearity Detected''. Apply Bonferroni correction (alpha=0.0167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction with alpha=0.0167.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:49:45Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Flag potential collinearity if VIF > 5
+  claim_id: c_dc9148eb
+  context: 'Calculate VIF scores for all predictors using statsmodels.stats.outliers_influence.variance_inflation_factor
+    on the design matrix. Flagging: If any VIF > 5, log a warning and annotate the
+    output JSON with ''Potential Collinearity Detected''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag potential collinearity if any VIF > 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:49:45Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sweep cloud cover thresholds at 0.6, 0.7, and 0.8
+  claim_id: c_e67f0d20
+  context: 'Logic: For each threshold in {0.6, 0.7, 0.8}, filter the cached raw satellite
+    granules (from T016) by cloud cover, re-compute the NDVI time-series and Stability_Score
+    from the filtered pixels (using T018 logic).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter the cached raw satellite granules by cloud cover for each threshold
+    in {0.6, 0.7, 0.8}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:49:45Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Default cloud cover threshold for Sentinel-2 granule download is 0.8
+  claim_id: c_d133c9d1
+  context: 'Specifics: Use requests with OAuth2, filter by cloud_cover < 0.8 (default),
+    download granules covering survey coordinates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter by cloud_cover < 0.8 (default) when downloading granules covering
+    survey coordinates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:49:45Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Apply 1km geodesic buffer for LSMS-ISA privacy fuzzing
+  claim_id: c_6dfb509d
+  context: 'Specifics: Apply a 1km geodesic buffer (configurable in constants.py)
+    around household coordinates to handle LSMS-ISA privacy fuzzing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_1km_geodesic_buffer_for_LSMS-ISA_privacy_fuzzing
+  kind: entity_fact
+  raw_text: Apply a 1km geodesic buffer around household coordinates to handle LSMS-ISA
+    privacy fuzzing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:49:47Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Justify sample size using rule-of-thumb N > 1000 for multivariate regression
+  claim_id: c_07362d04
+  context: 'Add power analysis or sample-size justification in data-model.md for the
+    target N > 1000 (or village aggregation logic). Logic: Use a standard power analysis
+    approximation (e.g., G*Power or rule-of-thumb N > 1000 for multivariate regression)
+    to justify the sample size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a standard power analysis approximation (e.g., G*Power or rule-of-thumb
+    N > 1000 for multivariate regression) to justify the sample size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:49:48Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Verify analysis dataset has > 300 records
+  claim_id: c_6a951e11
+  context: 'Verify Data Artifacts: Confirm data/processed/analysis_dataset.csv exists,
+    has >300 records, and passes contracts/dataset.schema.yaml validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confirm data/processed/analysis_dataset.csv exists, has >300 records,
+    and passes contracts/dataset.schema.yaml validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:49:48Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Map four specific practices to the CSA Index
+  claim_id: c_356cf234
+  context: 'Variable Mapping: Explicitly map practice_mixed_farming, practice_terracing,
+    practice_conservation_tillage, practice_agroforestry to the CSA Index.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Map_four_specific_practices_to_the_CSA_Index
+  kind: entity_fact
+  raw_text: Map practice_mixed_farming, practice_terracing, practice_conservation_tillage,
+    and practice_agroforestry to the CSA Index.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:50:17Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Calculate Stability Score as 1/CV and CSA Index as sum of binary practices
+  claim_id: c_eb8256b2
+  context: 'Logic: Compute NDVI time-series CV; compute Stability_Score (1/CV); sum
+    binary practice indicators for CSA Index.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute NDVI time-series CV; compute Stability_Score (1/CV); sum binary
+    practice indicators for CSA Index.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:50:36Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Map Malawi growing season to Oct-Mar and Tanzania to Mar-May
+  claim_id: c_ff0980f9
+  context: 'Logic: Map survey_year + country to growing season months (e.g., Malawi:
+    Oct-Mar, Tanzania: Mar-May); extract raw NDVI values from satellite granules.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Map_Malawi_growing_season_to_Oct-Mar_and_Tanzania_to_Mar-May
+  kind: entity_fact
+  raw_text: 'Map survey_year + country to growing season months (e.g., Malawi: Oct-Mar,
+    Tanzania: Mar-May).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:50:59Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Manually verify citations against primary sources using DOI lookup
+  claim_id: c_9202db3d
+  context: 'Logic: Manually verify citations against primary sources using standard
+    tools (e.g., DOI lookup) and update or remove invalid citations until verification
+    passes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Manually_verify_citations_against_primary_sources_using_DOI
+  kind: entity_fact
+  raw_text: Manually verify citations against primary sources using standard tools
+    (e.g., DOI lookup) and update or remove invalid citations until verification passes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:51:01Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Linkage threshold of 95% and sample size threshold of 300 logs success
+    with validation JSON
+  claim_id: c_3a714dd8
+  context: 'T017c [US1] [FR-002] Implement validation and aggregation trigger in src/data/processing/spatial_join.py.
+    Logic: Calculate linkage percentage = (matched households / total valid households).
+    Log the result in data/logs/ingestion_errors.log. If linkage < 95% OR N < 300,
+    trigger the aggregation routine defined in T021 immediately. If linkage >= 95%
+    and N >= 300, log success and produce data/logs/linkage_validation.json with the
+    calculated percentage and total valid households.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If linkage >= 95% and N >= 300, log success and produce data/logs/linkage_validation.json
+    with the calculated percentage and total valid households.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:55:41Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Village-level aggregation uses mean function for CSA_Index and Stability_Score
+  claim_id: c_ff027600
+  context: 'T021 [US1] Implement village-level aggregation fallback in src/data/processing/feature_engineering.py
+    with explicit conditional logic: Trigger: If data/logs/linkage_validation.json
+    indicates linkage < 95% OR N < 300, execute aggregation. Logic: Aggregate to village
+    level using ''village_id'' as key and ''mean'' as function for CSA_Index and Stability_Score.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Village-level_aggregation_uses_mean_function_for_CSA_Index_a
+  kind: entity_fact
+  raw_text: Aggregate to village level using 'village_id' as key and 'mean' as function
+    for CSA_Index and Stability_Score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:56:11Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Aggregated dataset verification requires N >= 300 and unique village_id
+  claim_id: c_ba33052d
+  context: 'T021 [US1] Implement village-level aggregation fallback in src/data/processing/feature_engineering.py
+    with explicit conditional logic: Trigger: If data/logs/linkage_validation.json
+    indicates linkage < 95% OR N < 300, execute aggregation. Logic: Aggregate to village
+    level using ''village_id'' as key and ''mean'' as function for CSA_Index and Stability_Score.
+    Output: Write the aggregated dataset to data/processed/analysis_dataset_village_aggregated.csv.
+    Verification: Ensure the aggregated dataset retains the village_id column, has
+    N >= 300, and that village_id is unique per row.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the aggregated dataset retains the village_id column, has N >=
+    300, and that village_id is unique per row.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:56:11Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Regression analysis completes within 60 minutes on CPU producing coefficients,
+    p-values, and VIF scores
+  claim_id: c_4274e803
+  context: 'Phase 4: User Story 2 - Execute Statistical Analysis and Diagnostics (Priority:
+    P2). Goal: Run multivariate regression models with robust standard errors and
+    perform collinearity diagnostics. Independent Test: Execution of src/analysis/run_regression.py
+    produces a summary file containing regression coefficients, p-values, and VIF
+    scores for both Yield Stability and Food Security models, completing within 60
+    minutes on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution of src/analysis/run_regression.py produces a summary file containing
+    regression coefficients, p-values, and VIF scores for both Yield Stability and
+    Food Security models, completing within 60 minutes on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:56:23Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied with alpha of 0.0167
+  claim_id: c_6d0a5b82
+  context: 'T025 [US2] [FR-004] Implement src/analysis/run_regression.py to fit Model
+    1 (Stability_Score) and Model 2 (HFIAS) using statsmodels. Requirements: Detect
+    if dataset is aggregated (N_clusters == N_rows). If aggregated, use Robust Standard
+    Errors (Huber-White). If not aggregated, use Cluster-Robust Standard Errors (clustered
+    by village_id). Calculate VIF scores for all predictors using statsmodels.stats.outliers_influence.variance_inflation_factor
+    on the design matrix. Flagging: If any VIF > 5, log a warning and annotate the
+    output JSON with ''Potential Collinearity Detected''. Apply Bonferroni correction
+    (alpha=0.0167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction (alpha=0.0167).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:56:23Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: VIF threshold of 5 triggers collinearity warning
+  claim_id: c_3ab93085
+  context: 'T025 [US2] [FR-004] Implement src/analysis/run_regression.py to fit Model
+    1 (Stability_Score) and Model 2 (HFIAS) using statsmodels. Requirements: Detect
+    if dataset is aggregated (N_clusters == N_rows). If aggregated, use Robust Standard
+    Errors (Huber-White). If not aggregated, use Cluster-Robust Standard Errors (clustered
+    by village_id). Calculate VIF scores for all predictors using statsmodels.stats.outliers_influence.variance_inflation_factor
+    on the design matrix. Flagging: If any VIF > 5, log a warning and annotate the
+    output JSON with ''Potential Collinearity Detected''. Apply Bonferroni correction
+    (alpha=0.0167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If any VIF > 5, log a warning and annotate the output JSON with 'Potential
+    Collinearity Detected'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:56:24Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps cloud cover thresholds of 0.6, 0.7, and 0.8
+  claim_id: c_a331eb76
+  context: 'T030 [US3] [FR-006] Implement src/analysis/sensitivity_check.py to sweep
+    cloud cover thresholds across a representative set of values. Logic: For each
+    threshold in {0.6, 0.7, 0.8}, filter the cached raw satellite granules (from T016)
+    by cloud cover, re-compute the NDVI time-series and Stability_Score from the filtered
+    pixels (using T018 logic).'
+  evidence:
+    asserted: '0.6'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: For each threshold in {0.6, 0.7, 0.8}, filter the cached raw satellite
+    granules by cloud cover, re-compute the NDVI time-series and Stability_Score from
+    the filtered pixels.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T22:56:24Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Verification of analysis dataset requires existence, >300 records, and
+    schema validation
+  claim_id: c_641e8a35
+  context: 'T041b [US1] Verify Data Artifacts: Confirm data/processed/analysis_dataset.csv
+    exists, has >300 records, and passes contracts/dataset.schema.yaml validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confirm data/processed/analysis_dataset.csv exists, has >300 records,
+    and passes contracts/dataset.schema.yaml validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:56:24Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sample size justification uses rule-of-thumb N > 1000 for multivariate
+    regression
+  claim_id: c_8606bb57
+  context: 'T053c [P] Sample Size Justification: Add power analysis or sample-size
+    justification in data-model.md for the target N > 1000 (or village aggregation
+    logic). Logic: Use a standard power analysis approximation (e.g., G*Power or rule-of-thumb
+    N > 1000 for multivariate regression) to justify the sample size. Document the
+    calculation and assumptions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a standard power analysis approximation (e.g., G*Power or rule-of-thumb
+    N > 1000 for multivariate regression) to justify the sample size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:56:25Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Data model documents geospatial fuzzing radius of 1km
+  claim_id: c_2367b805
+  context: 'T053b [Const-VII] Spatial-Temporal Alignment Documentation: Update data-model.md
+    to explicitly document the specific geospatial fuzzing radius (e.g., 1km) and
+    temporal window used. Logic: If the source metadata specifies the radius, use
+    that value. If not, explicitly state the assumed radius (1km) and the rationale
+    (e.g., ''Standard LSMS-ISA privacy fuzzing'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_model_documents_geospatial_fuzzing_radius_of_1km
+  kind: entity_fact
+  raw_text: Update data-model.md to explicitly document the specific geospatial fuzzing
+    radius (e.g., 1km) and temporal window used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:56:45Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: 1km geodesic buffer applied to handle LSMS-ISA privacy fuzzing
+  claim_id: c_632e47ad
+  context: 'T017 [US1] [FR-002] Implement src/data/processing/spatial_join.py to link
+    household coordinates to satellite pixels. Specifics: Apply a 1km geodesic buffer
+    (configurable in constants.py) around household coordinates to handle LSMS-ISA
+    privacy fuzzing. Use geopandas.sjoin or rasterio to extract mean NDVI for the
+    buffer area.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/1km_geodesic_buffer_applied_to_handle_LSMS-ISA_privacy_fuzzi
+  kind: entity_fact
+  raw_text: Apply a 1km geodesic buffer (configurable in constants.py) around household
+    coordinates to handle LSMS-ISA privacy fuzzing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:56:47Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sentinel-2 data filtered by cloud cover threshold of 0.8
+  claim_id: c_760bc0e8
+  context: 'T016 [US1] Implement src/data/collectors/remote_sensing_collector.py to
+    fetch Sentinel-2 L2A (S2MSI2A) imagery from the Copernicus Data Space Ecosystem
+    API. Specifics: Use requests with OAuth2, filter by cloud_cover < 0.8 (default),
+    download granules covering survey coordinates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter by cloud_cover < 0.8 (default), download granules covering survey
+    coordinates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:56:48Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Cloud cover thresholds configured as 0.6, 0.7, and 0.8
+  claim_id: c_113e9f51
+  context: T004 Create src/config/constants.py with random seeds, paths, and cloud
+    cover thresholds {0.6, 0.7, 0.8}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure src/config/constants.py with cloud cover thresholds {0.6, 0.7,
+    0.8}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T22:57:06Z'

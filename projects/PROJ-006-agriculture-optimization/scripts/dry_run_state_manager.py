@@ -1,121 +1,83 @@
 """
-Dry-run script to verify state manager functionality.
-
-This script creates a temporary dummy file, computes its hash,
-and verifies the update mechanism works correctly.
+Dry-run script to verify state_manager functionality.
+Creates a dummy file, computes its hash, and updates the state file.
 """
 import os
 import tempfile
 from pathlib import Path
 import sys
-from src.utils import state_manager
 import hashlib
 
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from src.utils import state_manager
+from src.utils.io_helpers import FatalError
+
+
 def main():
-    """Run a dry-run test of the state manager."""
-    print("=== State Manager Dry-Run Verification ===")
+    print("=== State Manager Dry Run ===")
+    print("Creating temporary data structure for testing...")
     
-    # Create a temporary directory for testing
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir)
-        dummy_file = temp_path / "dummy_test_file.txt"
+    # Create temporary directories
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
         
-        # Write a dummy file
-        dummy_content = "This is a test file for dry-run verification."
-        with open(dummy_file, "w") as f:
-            f.write(dummy_content)
+        # Setup mock data directories
+        raw_dir = tmp_path / "data" / "raw"
+        raw_dir.mkdir(parents=True)
+        processed_dir = tmp_path / "data" / "processed"
+        processed_dir.mkdir(parents=True)
+        state_dir = tmp_path / "state" / "projects"
+        state_dir.mkdir(parents=True)
         
+        # Create a dummy file in data/raw
+        dummy_file = raw_dir / "dummy_data.txt"
+        dummy_content = "This is a dummy file for dry-run testing.\nLine 2."
+        dummy_file.write_text(dummy_content)
         print(f"Created dummy file: {dummy_file}")
         
-        # Compute hash of the dummy file
-        file_hash = state_manager.compute_file_hash(dummy_file)
-        print(f"Computed hash: {file_hash}")
-        
-        # Verify hash computation is deterministic
-        file_hash_2 = state_manager.compute_file_hash(dummy_file)
-        if file_hash == file_hash_2:
-            print("✓ Hash computation is deterministic")
-        else:
-            print("✗ Hash computation is NOT deterministic")
-            return False
-        
-        # Verify hash matches expected value
+        # Compute expected hash
         expected_hash = hashlib.sha256(dummy_content.encode()).hexdigest()
-        if file_hash == expected_hash:
-            print("✓ Hash matches expected value")
-        else:
-            print(f"✗ Hash mismatch: expected {expected_hash}, got {file_hash}")
-            return False
+        print(f"Expected hash: {expected_hash}")
         
-        # Test scanning a directory with the dummy file
-        # We'll temporarily modify the data directory for this test
-        original_data_dirs = state_manager.DATA_DIRS
-        
-        # Create a fake data directory structure
-        fake_data_dir = temp_path / "fake_data"
-        fake_data_dir.mkdir()
-        (fake_data_dir / "raw").mkdir()
-        (fake_data_dir / "processed").mkdir()
-        
-        # Copy dummy file to fake data directory
-        (fake_data_dir / "raw" / "test_data.csv").write_text("col1,col2\n1,2\n")
-        (fake_data_dir / "processed" / "result.json").write_text('{"status": "ok"}')
-        
-        # Temporarily override DATA_DIRS
-        state_manager.DATA_DIRS = [fake_data_dir / "raw", fake_data_dir / "processed"]
-        
-        try:
-            print("\nScanning fake data directories...")
-            artifacts = state_manager.scan_directory_for_artifacts(fake_data_dir / "raw")
-            artifacts.update(state_manager.scan_directory_for_artifacts(fake_data_dir / "processed"))
-            
-            print(f"Found {len(artifacts)} artifacts:")
-            for path, hash_val in artifacts.items():
-                print(f"  {path}: {hash_val[:16]}...")
-            
-            if len(artifacts) == 2:
-                print("✓ Directory scan found expected number of files")
-            else:
-                print(f"✗ Expected 2 files, found {len(artifacts)}")
-                return False
-            
-            # Test state loading and saving
-            print("\nTesting state save/load...")
-            test_state = {
-                "project_id": "TEST-PROJECT",
-                "last_updated": "test_run",
-                "artifact_hashes": artifacts
-            }
-            
-            test_state_file = temp_path / "test_state.yaml"
-            # Temporarily override STATE_FILE for testing
-            original_state_file = state_manager.STATE_FILE
-            state_manager.STATE_FILE = test_state_file
-            
-            try:
-                success = state_manager.save_state(test_state)
-                if success:
-                    print("✓ State saved successfully")
-                else:
-                    print("✗ State save failed")
-                    return False
-                
-                loaded_state = state_manager.load_state()
-                if loaded_state.get("project_id") == "TEST-PROJECT":
-                    print("✓ State loaded successfully")
-                else:
-                    print("✗ State load failed or incorrect data")
-                    return False
-            finally:
-                state_manager.STATE_FILE = original_state_file
-            
-            print("\n=== Dry-Run Verification: SUCCESS ===")
-            return True
-            
-        finally:
-            # Restore original data directories
-            state_manager.DATA_DIRS = original_data_dirs
+        # Patch the state_manager module to use our temp directories
+        with state_manager.patch.object(state_manager, 'STATE_DIR', state_dir):
+            with state_manager.patch.object(state_manager, 'DATA_RAW_DIR', raw_dir):
+                with state_manager.patch.object(state_manager, 'DATA_PROCESSED_DIR', processed_dir):
+                    # Update state
+                    print("\nUpdating artifact hashes...")
+                    try:
+                        updated_state = state_manager.update_artifact_hashes()
+                        print("✓ State updated successfully")
+                        
+                        # Verify the hash was recorded correctly
+                        recorded_hash = updated_state['artifacts']['data/raw'].get('dummy_data.txt')
+                        if recorded_hash == expected_hash:
+                            print(f"✓ Hash verification passed: {recorded_hash}")
+                        else:
+                            print(f"✗ Hash mismatch! Expected: {expected_hash}, Got: {recorded_hash}")
+                            return 1
+                        
+                        # Verify artifacts
+                        print("\nVerifying artifacts...")
+                        if state_manager.verify_artifacts():
+                            print("✓ All artifacts verified successfully")
+                        else:
+                            print("✗ Artifact verification failed")
+                            return 1
+                            
+                    except FatalError as e:
+                        print(f"✗ Fatal error during update: {e}")
+                        return 1
+                    except Exception as e:
+                        print(f"✗ Unexpected error: {e}")
+                        return 1
+    
+    print("\n=== Dry Run Completed Successfully ===")
+    return 0
+
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    sys.exit(main())

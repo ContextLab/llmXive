@@ -4,8 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): The response provides no evidence that the required directories (`src/`, `tests/`, `contracts/`, `data/`) actually exist or contain any files; no directory listing or file contents were shown. Consequently, we cannot verify that the project structure was created as specified.
-- `T002` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/state_manager.py, state/projects/PROJ-006-agriculture-optimization.yaml
+- `T003` (rejected 1x): No linting/formatting configuration files (e.g., `pyproject.toml` or `setup.cfg` for Black, `.flake8` for Flake8, `.isort.cfg` or `pyproject.toml` section for isort) or a `.gitignore` file are present in the provided evidence. The implementer must add these concrete configuration files to the repository.
+- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T008` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
 
 ## Required change
 

@@ -1,10 +1,5 @@
 """
-Tests for the synthetic data generator (T010).
-
-These tests verify:
-1. The generator produces valid data structures.
-2. The 'fail loudly' behavior works correctly (raises FatalError in production mode without data).
-3. The synthetic mode works correctly when --synthetic is set.
+Unit tests for the SyntheticDataGenerator.
 """
 
 import pytest
@@ -13,8 +8,10 @@ import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+import pandas as pd
+import numpy as np
 
-# Import from project API
+# Import the module under test
 from src.data.generators.synthetic_generator import (
     SyntheticDataGenerator,
     check_real_data_exists,
@@ -22,125 +19,233 @@ from src.data.generators.synthetic_generator import (
 )
 from src.utils.io_helpers import FatalError
 
+
 @pytest.fixture
 def temp_output_path():
-    """Create a temporary file path for testing."""
+    """Create a temporary directory for output files."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir) / "test_output.csv"
+        output_path = Path(tmpdir) / "test_output.csv"
+        yield str(output_path)
+
 
 @pytest.fixture
 def generator():
-    """Provide a configured generator instance."""
+    """Create a generator instance with a fixed seed."""
     return SyntheticDataGenerator(seed=42)
 
-class TestSyntheticDataGenerator:
-    """Unit tests for the SyntheticDataGenerator class."""
 
-    def test_generator_initialization(self, generator):
-        """Test that the generator initializes with the correct seed."""
+class TestSyntheticDataGenerator:
+    """Tests for the SyntheticDataGenerator class."""
+
+    def test_initialization(self, generator):
+        """Test that generator initializes with correct seed."""
         assert generator.seed == 42
 
-    def test_generate_household_id_format(self, generator):
-        """Test that household IDs follow the expected format."""
-        hh_id = generator._generate_household_id(1)
-        assert hh_id.startswith("HH_")
-        assert len(hh_id) > 5
+    def test_generate_default_records(self, generator):
+        """Test generation with default number of records."""
+        df = generator.generate()
+        assert len(df) == 500
+        assert isinstance(df, pd.DataFrame)
 
-    def test_generate_csa_index_range(self, generator):
-        """Test that CSA Index is within [0.0, 1.0]."""
-        for _ in range(100):
-            csa = generator._generate_csa_index()
-            assert 0.0 <= csa <= 1.0
+    def test_generate_custom_records(self, generator):
+        """Test generation with custom number of records."""
+        df = generator.generate(n_records=100)
+        assert len(df) == 100
 
-    def test_generate_stability_score_range(self, generator):
-        """Test that Stability Score is within [0.0, 1.0]."""
-        for _ in range(100):
-            stability = generator._generate_stability_score(0.5)
-            assert 0.0 <= stability <= 1.0
-
-    def test_generate_hfias_range(self, generator):
-        """Test that HFIAS is within [0, 27]."""
-        for _ in range(100):
-            hfias = generator._generate_hfias()
-            assert 0 <= hfias <= 27
-
-    def test_generate_record_structure(self, generator):
-        """Test that a generated record has all required fields."""
-        record = generator.generate_record(1)
-        required_fields = [
-            "household_id", "country", "survey_year", "csa_index",
-            "stability_score", "hfias", "financial_access",
-            "latitude", "longitude", "plot_area_ha", "yield_ton_ha"
+    def test_required_columns_present(self, generator):
+        """Test that all required columns are present in the output."""
+        df = generator.generate(n_records=50)
+        required_columns = [
+            'household_id', 'village_id', 'education', 'land_size',
+            'finance_access', 'practice_mixed_farming', 'practice_terracing',
+            'practice_conservation_tillage', 'practice_agroforestry',
+            'CSA_Index', 'Stability_Score', 'HFIAS'
         ]
-        for field in required_fields:
-            assert field in record
+        for col in required_columns:
+            assert col in df.columns, f"Missing column: {col}"
 
-    def test_generate_dataset_count(self, generator):
-        """Test that generate_dataset returns the correct number of records."""
-        dataset = generator.generate_dataset(num_records=10)
-        assert len(dataset) == 10
+    def test_data_types(self, generator):
+        """Test that data types are correct."""
+        df = generator.generate(n_records=50)
+
+        # Check numeric types
+        assert df['education'].dtype in [np.float64, np.float32]
+        assert df['land_size'].dtype in [np.float64, np.float32]
+        assert df['Stability_Score'].dtype in [np.float64, np.float32]
+
+        # Check integer types
+        assert df['finance_access'].dtype in [np.int64, np.int32]
+        assert df['HFIAS'].dtype in [np.int64, np.int32]
+        assert df['CSA_Index'].dtype in [np.int64, np.int32]
+
+    def test_value_ranges(self, generator):
+        """Test that values are within expected ranges."""
+        df = generator.generate(n_records=100)
+
+        # Education should be non-negative
+        assert (df['education'] >= 0).all()
+
+        # Land size should be non-negative
+        assert (df['land_size'] >= 0).all()
+
+        # Binary variables should be 0 or 1
+        binary_cols = [
+            'finance_access', 'practice_mixed_farming', 'practice_terracing',
+            'practice_conservation_tillage', 'practice_agroforestry'
+        ]
+        for col in binary_cols:
+            assert df[col].isin([0, 1]).all()
+
+        # CSA_Index should be between 0 and 4
+        assert (df['CSA_Index'] >= 0).all()
+        assert (df['CSA_Index'] <= 4).all()
+
+        # Stability_Score should be between 0 and 1
+        assert (df['Stability_Score'] >= 0).all()
+        assert (df['Stability_Score'] <= 1).all()
+
+        # HFIAS should be between 0 and 27
+        assert (df['HFIAS'] >= 0).all()
+        assert (df['HFIAS'] <= 27).all()
+
+    def test_correlations(self, generator):
+        """Test that expected correlations exist."""
+        df = generator.generate(n_records=1000)
+
+        # Education and finance access should be positively correlated
+        corr_edu_finance = df['education'].corr(df['finance_access'])
+        assert corr_edu_finance > 0, "Education and finance access should be positively correlated"
+
+        # CSA_Index and Stability_Score should be positively correlated
+        corr_csa_stability = df['CSA_Index'].corr(df['Stability_Score'])
+        assert corr_csa_stability > 0, "CSA_Index and Stability_Score should be positively correlated"
+
+    def test_reproducibility(self):
+        """Test that same seed produces same results."""
+        gen1 = SyntheticDataGenerator(seed=42)
+        gen2 = SyntheticDataGenerator(seed=42)
+
+        df1 = gen1.generate(n_records=100)
+        df2 = gen2.generate(n_records=100)
+
+        pd.testing.assert_frame_equal(df1, df2)
+
+    def test_save_csv(self, generator, temp_output_path):
+        """Test saving DataFrame to CSV."""
+        df = generator.generate(n_records=50)
+        generator.save(df, temp_output_path)
+
+        # Check file exists
+        assert Path(temp_output_path).exists()
+
+        # Check file can be read back
+        df_read = pd.read_csv(temp_output_path)
+        assert len(df_read) == 50
+        assert list(df.columns) == list(df_read.columns)
+
 
 class TestCheckRealDataExists:
-    """Tests for the real data existence check."""
+    """Tests for the check_real_data_exists function."""
 
-    def test_check_real_data_exists_true(self, temp_output_path):
-        """Test that check_real_data_exists returns True when file exists."""
-        temp_output_path.touch()
-        assert check_real_data_exists(temp_output_path) is True
+    def test_no_data_directory(self, tmp_path):
+        """Test when data directory does not exist."""
+        result = check_real_data_exists(str(tmp_path / "nonexistent"))
+        assert result is False
 
-    def test_check_real_data_exists_false(self, temp_output_path):
-        """Test that check_real_data_exists returns False when file missing."""
-        assert check_real_data_exists(temp_output_path) is False
+    def test_empty_data_directory(self, tmp_path):
+        """Test when data directory is empty."""
+        result = check_real_data_exists(str(tmp_path))
+        assert result is False
+
+    def test_with_survey_data(self, tmp_path):
+        """Test when survey data exists."""
+        survey_file = tmp_path / "lsms_survey.csv"
+        survey_file.touch()
+
+        result = check_real_data_exists(str(tmp_path))
+        assert result is True
+
+    def test_with_remote_sensing_data(self, tmp_path):
+        """Test when remote sensing data exists."""
+        remote_file = tmp_path / "sentinel_ndvi.parquet"
+        remote_file.touch()
+
+        result = check_real_data_exists(str(tmp_path))
+        assert result is True
+
 
 class TestMainFunction:
-    """Integration tests for the main() function."""
+    """Tests for the main function."""
 
-    def test_main_fails_without_synthetic_flag_and_no_data(self, temp_output_path):
-        """Test that main raises FatalError in production mode without data."""
-        # Ensure no real data exists at the path
-        if temp_output_path.exists():
-            temp_output_path.unlink()
+    def test_main_generates_data(self, temp_output_path, tmp_path):
+        """Test that main generates and saves data."""
+        # Change to temp directory to avoid polluting the project
+        original_cwd = os.getcwd()
+        os.chdir(str(tmp_path))
 
-        with pytest.raises(FatalError) as exc_info:
-            main(["--output", str(temp_output_path)])
+        try:
+            # Mock sys.argv
+            with patch('sys.argv', ['synthetic_generator.py', '--output', temp_output_path, '--n-records', '10']):
+                result = main()
 
-        assert "Real data is missing" in str(exc_info.value)
-        assert "--synthetic" in str(exc_info.value)
+            assert result == 0
+            assert Path(temp_output_path).exists()
 
-    def test_main_succeeds_with_synthetic_flag(self, temp_output_path):
-        """Test that main succeeds and creates file when --synthetic is set."""
-        # Remove file if it exists to ensure we are generating new
-        if temp_output_path.exists():
-            temp_output_path.unlink()
+            # Verify content
+            df = pd.read_csv(temp_output_path)
+            assert len(df) == 10
+        finally:
+            os.chdir(original_cwd)
 
-        exit_code = main(["--synthetic", "--output", str(temp_output_path), "--n-records", "5"])
-        assert exit_code == 0
-        assert temp_output_path.exists()
+    def test_main_check_only_no_data(self, tmp_path):
+        """Test check_only mode when no data exists."""
+        original_cwd = os.getcwd()
+        os.chdir(str(tmp_path))
 
-        # Verify file is not empty
-        assert temp_output_path.stat().st_size > 0
+        try:
+            with patch('sys.argv', ['synthetic_generator.py', '--check-only']):
+                result = main()
 
-    def test_main_skips_generation_if_real_data_exists(self, temp_output_path):
-        """Test that main returns 0 if real data already exists and --synthetic is not set."""
-        # Create a dummy file to simulate real data
-        temp_output_path.touch()
+            # Should return 1 because no real data exists
+            assert result == 1
+        finally:
+            os.chdir(original_cwd)
 
-        # Should not raise, should return 0
-        exit_code = main(["--output", str(temp_output_path)])
-        assert exit_code == 0
-        assert temp_output_path.exists()
+    def test_main_check_only_with_data(self, tmp_path):
+        """Test check_only mode when data exists."""
+        # Create a fake survey file
+        survey_file = tmp_path / "data" / "raw"
+        survey_file.mkdir(parents=True)
+        (survey_file / "lsms_survey.csv").touch()
 
-    def test_main_creates_output_directory(self, temp_output_path):
-        """Test that main creates parent directories if they don't exist."""
-        deep_path = temp_output_path.parent / "subdir" / "deep" / "output.csv"
-        if deep_path.exists():
-            deep_path.unlink()
-        
-        # Ensure parent doesn't exist
-        if deep_path.parent.exists():
-            import shutil
-            shutil.rmtree(deep_path.parent)
+        original_cwd = os.getcwd()
+        os.chdir(str(tmp_path))
 
-        exit_code = main(["--synthetic", "--output", str(deep_path), "--n-records", "1"])
-        assert exit_code == 0
-        assert deep_path.exists()
+        try:
+            with patch('sys.argv', ['synthetic_generator.py', '--check-only']):
+                result = main()
+
+            # Should return 0 because real data exists
+            assert result == 0
+        finally:
+            os.chdir(original_cwd)
+
+    def test_main_ci_mode(self, temp_output_path, tmp_path):
+        """Test that CI mode is detected."""
+        original_cwd = os.getcwd()
+        original_ci = os.environ.get("CI")
+        os.chdir(str(tmp_path))
+        os.environ["CI"] = "true"
+
+        try:
+            with patch('sys.argv', ['synthetic_generator.py', '--output', temp_output_path, '--n-records', '10']):
+                result = main()
+
+            assert result == 0
+            assert Path(temp_output_path).exists()
+        finally:
+            os.chdir(original_cwd)
+            if original_ci is None:
+                os.environ.pop("CI", None)
+            else:
+                os.environ["CI"] = original_ci

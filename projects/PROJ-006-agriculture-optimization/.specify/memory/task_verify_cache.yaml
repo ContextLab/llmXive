@@ -1,7 +1,16 @@
-T003:
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting/formatting configuration files (e.g., `pyproject.toml` or `setup.cfg`
-    for Black, `.flake8` for Flake8, `.isort.cfg` or `pyproject.toml` section for
-    isort) or a `.gitignore` file are present in the provided evidence. The implementer
-    must add these concrete configuration files to the repository.
+  h: 90f3103d9604385b6db94bf7a370f2ea17c1b3f55e7d11c355bb47c71417177b
+  r: "The repository contains `src/utils/state_manager.py`, but the required state\
+    \ file `state/projects/PROJ-006-agriculture-optimization.yaml` is missing, and\
+    \ there is no evidence that the script updates this YAML with hashes or that a\
+    \ dry\u2011run hash calculation was performed. The task\u2019s core requirement\u2014\
+    producing and populating the state file\u2014is therefore unmet."
+T010a:
+  c: false
+  h: 8081d98c3a36cd9d6ac02bcdda4de0f3d4c8adb264aa2a949215dda67cfb6265
+  r: "The required file `src/cli/run_pipeline.py` is missing, so the integration wiring\
+    \ cannot exist. Moreover, the existing `synthetic_generator.py` does not implement\
+    \ the specified checks (it looks at `data/processed/`, does not consider `CI=true`\
+    \ or a `--no-synthetic` flag, and never raises a `FatalError`). The task\u2019\
+    s core functionality is therefore not present."

@@ -19,7 +19,7 @@ The research question and method remain unchanged as per the planning document r
 **Performance Goals**: Complete full pipeline (ingest -> model -> report) within 6 hours; regression models must run on CPU without GPU acceleration.
 **Constraints**: 
 - No GPU available on primary runner; no deep learning models.
-- Data must be streamed or sampled to fit ~7 GB RAM.
+- Data must be streamed or sampled to fit available RAM.
 - LSMS-ISA coordinates are fuzzed; spatial join must handle approximate matching (handled by `src/data/spatial_join.py`).
 - All results must be reproducible with pinned random seeds.
 - **Synthetic Fallback**: If real data is unavailable, a statistically realistic synthetic dataset is generated for CI validation.
@@ -102,7 +102,7 @@ contracts/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Sensitivity Analysis Sweep** | Spec FR-006 requires testing cloud cover thresholds {, 0.7, 0.8}. | A single threshold run would fail to meet the robustness requirement and the spec's acceptance criteria (SC-005). |
+| **Sensitivity Analysis Sweep** | Spec FR-006 requires testing cloud cover thresholds {, 0.8, and other representative values}. | A single threshold run would fail to meet the robustness requirement and the spec's acceptance criteria (SC-005). |
 | **Cluster-Robust SEs** | Spec FR-004 and FR-005 require handling spatial autocorrelation from fuzzing. | Standard OLS would violate the statistical rigor requirements for heteroskedasticity and spatial clustering. |
 | **Village-Level Aggregation** | Spec requires fallback if N < 300. | A hard failure would prevent the study from producing results in low-overlap scenarios, violating the "feasibility" constraint. |
 | **Synthetic Generator** | CI reproducibility requires data availability without manual intervention. | A "Fail Fast" strategy prevents automated validation of the statistical pipeline. |

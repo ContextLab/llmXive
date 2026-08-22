@@ -1,81 +1,68 @@
-"""
-Script to perform a dry-run hash calculation on a dummy file
-to confirm the update mechanism works (Verification for T002).
-"""
-
 import os
 import tempfile
 from pathlib import Path
 import sys
-
-# Add code directory to path
-code_root = Path(__file__).resolve().parent.parent
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
-
 from src.utils import state_manager
 import hashlib
 
 def main():
-    print("=== T002 Verification: Dry-Run Hash Calculation ===")
-
-    # Create a temporary directory to simulate project structure
+    """
+    Dry-run hash calculation on a dummy file to confirm the update mechanism works.
+    This script creates a temporary dummy file, computes its hash, updates the state,
+    and verifies the update.
+    """
+    print("Starting dry-run hash calculation for T002...")
+    
+    # Create a temporary directory and file
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
+        tmpdir_path = Path(tmpdir)
+        dummy_file = tmpdir_path / "dummy_data.csv"
         
-        # Simulate data directories
-        data_raw = tmp_path / "data" / "raw"
-        data_raw.mkdir(parents=True)
-        
-        # Create a dummy file
-        dummy_file = data_raw / "dummy_data.csv"
-        dummy_content = "id,value\n1,100\n2,200"
-        dummy_file.write_text(dummy_content)
-        
-        # Calculate expected hash manually
-        expected_hash = hashlib.sha256(dummy_content.encode()).hexdigest()
-        
-        # Mock the state_manager module paths to point to our temp directory
-        state_manager.PROJECT_ROOT = tmp_path
-        state_manager.STATE_DIR = tmp_path / "state" / "projects"
-        state_manager.STATE_FILE = state_manager.STATE_DIR / "PROJ-006-agriculture-optimization.yaml"
-        state_manager.DATA_RAW_DIR = data_raw
-        state_manager.DATA_PROCESSED_DIR = tmp_path / "data" / "processed"
+        # Write some dummy content
+        content = "household_id,CSA_Index,Stability_Score\n1,0.85,0.92\n2,0.78,0.88"
+        dummy_file.write_text(content)
         
         print(f"Created dummy file: {dummy_file}")
-        print(f"Expected Hash: {expected_hash}")
+        print(f"Content: {content}")
         
-        # Run the dry-run command logic (scanning only)
-        print("\nRunning dry-run scan...")
-        state_manager.main() # This will trigger the 'dry-run' command if passed, but we need to simulate it or call logic directly
+        # Compute hash manually to verify
+        expected_hash = hashlib.sha256(content.encode()).hexdigest()
+        computed_hash = state_manager.compute_file_hash(dummy_file)
         
-        # Since main() parses args, let's call the logic directly for the dry run
-        print("\nDirect logic execution for verification:")
-        artifacts = state_manager.scan_directory_for_artifacts(data_raw)
-        if artifacts:
-            for artifact in artifacts:
-                calculated_hash = state_manager.compute_file_hash(artifact)
-                print(f"  File: {artifact.name}")
-                print(f"  Calculated Hash: {calculated_hash}")
-                
-                if calculated_hash == expected_hash:
-                    print("  [PASS] Hash matches expected value.")
-                else:
-                    print("  [FAIL] Hash mismatch!")
-                    return 1
+        assert expected_hash == computed_hash, "Hash computation mismatch!"
+        print(f"✓ Hash computed correctly: {computed_hash}")
+        
+        # Simulate state update
+        state = {}
+        project_id = "PROJ-006-agriculture-optimization"
+        
+        # Create a mock state path in the temp directory
+        state_dir = tmpdir_path / "state" / "projects"
+        state_dir.mkdir(parents=True)
+        state_path = state_dir / f"{project_id}.yaml"
+        
+        # Update artifacts
+        updated_state = state_manager.update_artifact_hashes(state, project_id, [tmpdir_path])
+        
+        # Save state
+        state_manager.save_state(updated_state, state_path)
+        
+        print(f"✓ State saved to: {state_path}")
+        
+        # Load and verify
+        loaded_state = state_manager.load_state(state_path)
+        print(f"✓ State loaded: {loaded_state}")
+        
+        # Verify integrity
+        is_valid = state_manager.verify_artifacts(loaded_state, project_id)
+        if is_valid:
+            print("✓ Verification passed: Artifacts match.")
         else:
-            print("  [FAIL] No artifacts found.")
+            print("✗ Verification failed.")
             return 1
-
-        # Test the update mechanism
-        print("\nTesting update mechanism...")
-        hashes = state_manager.update_artifact_hashes()
-        if dummy_file.name in [Path(k).name for k in hashes.keys()]:
-            print("  [PASS] Update mechanism successfully recorded the dummy file.")
-            return 0
-        else:
-            print("  [FAIL] Update mechanism failed to record the dummy file.")
-            return 1
+        
+        print("Dry-run completed successfully. T002 implementation verified.")
+        return 0
 
 if __name__ == "__main__":
     sys.exit(main())
