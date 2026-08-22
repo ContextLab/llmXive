@@ -1,0 +1,8 @@
+status: none
+intent: GENEB benchmark raw DNA sequence dataset pip install python package dataset
+required_fields:
+- task_id
+- sequence
+cache_key: fdc6bf525047b63e4daf6f9e8a22329de47504f825f9788fb756f835497ab025
+searched_at: '2026-08-22T20:14:56.532470+00:00'
+retry_count: 1

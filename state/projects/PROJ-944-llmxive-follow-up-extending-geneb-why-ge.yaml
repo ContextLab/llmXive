@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T13:12:09.016334Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-944-llmxive-follow-up-extending-geneb-why-ge
-last_run_id: ec92c277-6b8f-43d9-8c16-e4a4d51c19fc
+last_run_id: 58c769e3-3a39-4bfd-8c98-f32dddc31fa6
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-944-llmxive-follow-up-extending-geneb-why-ge/specs/001-llmxive-follow-up-extending-geneb-why-ge
 title: 'llmXive follow-up: extending "GENEB: Why Genomic Models Are Hard to Compare"'
-updated_at: '2026-07-19T21:48:53.783015Z'
+updated_at: '2026-08-22T20:54:50.768288Z'
