@@ -89,7 +89,7 @@ with open('data/.verify_structure.log', 'r') as f:
  ## Overrides
  1. **FR-001 (Data Ingestion)**: The requirement to validate for "Musical Creativity (TTCT/AUT)" is AMENDED. The system MUST validate for "Fluid Intelligence" scores available in OpenNeuro datasets. If no Fluid Intelligence scores are found, the system MUST halt with the error: 'No valid Fluid Intelligence data found'.
  2. **FR-005 (Statistical Correction)**: The requirement for "False Discovery Rate (FDR)" is AMENDED. The system MUST use "Bonferroni" correction per Constitution Principle VII.
- 3. **SC-001 & SC-005 (Success Criteria)**: The target N=50 is AMENDED to N=10 for CI feasibility. Success criteria are measured against the N=10 run.
+ 3. **SC-001 & SC-005 (Success Criteria)**: The target N=50 is AMENDED to N=10 for CI feasibility. [UNRESOLVED-CLAIM: c_43e924fb — status=not_enough_info] Success criteria are measured against the N=10 run.
 
  ## Authority
  This artifact is the single source of truth for the pivot to Fluid Intelligence and the N=10 baseline.
@@ -137,7 +137,7 @@ with open('data/.verify_structure.log', 'r') as f:
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
 **Goal**: Download resting-state fMRI data from OpenNeuro ds000224 (primary for Fluid Intelligence), validate data, and preprocess to generate clean BOLD time series.
-**Amended Requirement (FR-001)**: System MUST attempt to download resting-state fMRI data from OpenNeuro datasets. It MUST validate the presence of at least one valid **Fluid Intelligence** score. If fewer than 10 subjects with valid data are found, the system MUST use all available subjects (N ≥ 1) for analysis. If NO subjects with valid data are found, the system MUST halt execution with a critical error stating 'No valid Fluid Intelligence data found in specified datasets'. (Note: Original FR-001 requirement for Musical Creativity is amended per Plan).
+**Amended Requirement (FR-001)**: System MUST attempt to download resting-state fMRI data from OpenNeuro datasets. It MUST validate the presence of at least one valid **Fluid Intelligence** score. If fewer than 10 subjects with valid data are found, the system MUST use all available subjects (N ≥ 1) for analysis. [UNRESOLVED-CLAIM: c_1e03544a — status=not_enough_info] If NO subjects with valid data are found, the system MUST halt execution with a critical error stating 'No valid Fluid Intelligence data found in specified datasets'. [UNRESOLVED-CLAIM: c_cf00f8c6 — status=not_enough_info] (Note: Original FR-001 requirement for Musical Creativity is amended per Plan).
 
 - [ ] T020 [P] [US2] Unit test for correlation matrix generation symmetry in `tests/unit/test_graph_metrics.py`
 - [ ] T021 [P] [US2] Unit test for Louvain algorithm fallback (resolution sweep) in `tests/unit/test_graph_metrics.py`

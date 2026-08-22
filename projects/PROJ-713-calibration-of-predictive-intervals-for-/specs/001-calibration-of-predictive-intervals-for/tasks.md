@@ -99,8 +99,8 @@
  - **Stability Check**: Detect NaN/Inf; retry with reduced learning rate (Initial: 0.01, Reduction: 0.1x, Max attempts: a limited number) as per Spec Edge Cases
 - [X] T016 [US1] Implement `code/metrics/coverage.py`: Compute empirical coverage rates for standard confidence levels against test set
 - [X] T017 [US1] Implement `code/evaluation/runner.py` (partial): Implement single series loop for data loading, model fitting, and coverage calculation
-- [~] T018 [US1] Implement `code/evaluation/runner.py` (complete): Extend loop to process all series in M4/UCI (streaming for UCI), aggregate results to `results/coverage.csv`
-- [~] T019 [US1] Add error handling in `runner.py` to catch and log specific series failures (e.g., constant variance) without crashing the pipeline
+- [ ] T018 [US1] Implement `code/evaluation/runner.py` (complete): Extend loop to process all series in M4/UCI (streaming for UCI), aggregate results to `results/coverage.csv`
+- [ ] T019 [US1] Add error handling in `runner.py` to catch and log specific series failures (e.g., constant variance) without crashing the pipeline
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -128,7 +128,7 @@
  - Calculate Continuous Ranked Probability Score using `properscoring.crps_ensemble`
  - Ensure compatibility with both Gaussian and Empirical CDF interval types
 - [X] T024 [US2] Update `code/evaluation/runner.py` to integrate PIT and CRPS calculations into the main loop (requires T018 and T022/T023 complete)
-- [~] T025 [US2] Aggregate PIT and CRPS results to `results/distributional_metrics.csv`
+- [ ] T025 [US2] Aggregate PIT and CRPS results to `results/distributional_metrics.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -155,7 +155,7 @@
  - Self-Calibrating Conformal Prediction wrapper
  - CPU-optimized implementation (fixed sample size, no nested CV)
  - Compare baseline vs. wrapped empirical coverage
-- [ ] T031 [US3] Update `code/evaluation/runner.py` to execute bootstrap tests and conformal wrapper on aggregated results (requires T024 and T029/T030 complete)
+- [X] T031 [US3] Update `code/evaluation/runner.py` to execute bootstrap tests and conformal wrapper on aggregated results (requires T024 and T029/T030 complete)
 - [ ] T032 [US3] Output significance results to `results/significance_test.csv` and conformal comparison to `results/conformal_results.csv`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -168,11 +168,11 @@
 
 - [ ] T033a [P] Generate API documentation for `code/models/` and `code/metrics/`
 - [ ] T033b [P] Update `README.md` with usage guide, installation steps, and data fetch instructions
-- [ ] T033c [P] Document data schemas in `docs/data_schema.md`
+- [X] T033c [P] Document data schemas in `docs/data_schema.md`
 - [ ] T034 Code cleanup and refactoring (remove hardcoded paths, ensure seed reproducibility)
-- [ ] T035a [P] Run full pipeline on M/UCI subset and record runtime in `results/benchmark_timing.csv` to verify a time limit constraint
-- [ ] T035b [P] Add unit test in `tests/unit/test_conformal_constraints.py` verifying fixed sample size and no nested CV parameters
-- [ ] T036 [P] Additional unit tests for edge cases (constant variance, NaN handling) in `tests/unit/`
+- [~] T035a [P] Run full pipeline on M/UCI subset and record runtime in `results/benchmark_timing.csv` to verify a time limit constraint
+- [X] T035b [P] Add unit test in `tests/unit/test_conformal_constraints.py` verifying fixed sample size and no nested CV parameters
+- [~] T036 [P] Additional unit tests for edge cases (constant variance, NaN handling) in `tests/unit/`
 - [ ] T037 Run `quickstart.md` validation to ensure end-to-end reproducibility
 - [ ] T038 Verify `state/` hashes and `updated_at` timestamps are correctly tracked
 

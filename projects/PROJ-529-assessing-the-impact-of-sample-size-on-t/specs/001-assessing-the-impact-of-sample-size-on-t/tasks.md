@@ -59,10 +59,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement data schema validation (Pydantic) for `MetaAnalysis`, `Subsample`, and `StabilityMetric` entities in `code/schemas.py`
-- [ ] T005 [P] Implement deterministic random seed management and logging utility in `code/utils/seeds.py` (logs `k`, `seed`, `estimator_type` per iteration)
-- [ ] T006 [P] Implement chunked data processing framework in `code/utils/io.py` to handle >7GB potential corpus, ensuring memory safety for real-world data acquisition (FR-001).
+- [X] T005 [P] Implement deterministic random seed management and logging utility in `code/utils/seeds.py` (logs `k`, `seed`, `estimator_type` per iteration)
+- [X] T006 [P] Implement chunked data processing framework in `code/utils/io.py` to handle >7GB potential corpus, ensuring memory safety for real-world data acquisition (FR-001).
 - [X] T007 Create base model classes for `MetaAnalysis` and `Subsample` in `code/models.py`
-- [ ] T008 Configure error handling for zero-variance studies (SE=0), negative variance estimates, and boundary clamping in `code/utils/exceptions.py`
+- [X] T008 Configure error handling for zero-variance studies (SE=0), negative variance estimates, and boundary clamping in `code/utils/exceptions.py`
 - [X] T009 [P] Setup environment configuration management for `DATA_SOURCE` (real vs simulation) in `code/config.py`
 - [X] T009a [P] Define `nominal_coverage_target` and `stability_threshold` constants. in `code/config.py` to satisfy FR-007, SC-003, and enable executable threshold detection (T033/T034).
 
@@ -89,9 +89,9 @@
 
 - [X] T012 [US1] Implement `code/download.py` to fetch a substantial corpus of meta-analyses from Cochrane/Campbell. **Mandatory**: Use specific search parameters: `searchString="meta-analysis effect size"` for Cochrane Library API and `query="meta-analysis"` for Campbell Collaboration RSS. **Output**: Raw data files in `data/raw/`. If fetch fails (e.g., 404, rate limit) or returns no data, raise `DataAcquisitionError` to trigger fallback. <!-- SKIPPED: non-mapping output -->
 - [ ] T012a [US1] Validate the downloaded corpus count against SC-001 (>=50 real-world meta-analyses). **Logic**: If count < 50, log a **CRITICAL** warning: "Primary data requirement (FR-001) not met. Switching to Simulation Mode." Trigger the simulation fallback path (T019). If count >= 50, log success and proceed to T016. **Output**: Update `data/output/success_rate_report.json` with `mode: "real"` or `mode: "simulation"` and `count`.
-- [~] T019 [US1] Implement parameter generation and synthetic data generation in `code/download.py` as a fallback triggered ONLY if T012/T012a confirm failure. **Parameters**: Use values from Ioannidis et al. (2008): `tau^2 = 0.04`, `mean_effect = 0.3`, `bias = 0.1`, `study_count_range = [3, 50]`. **Output**: Write parameters to `data/raw/simulation_params.json` and synthetic data files to `data/raw/`.
-- [~] T016 [US1] Implement `code/subsample.py` to generate up to 100 bootstrap subsamples for each `k` (3 to N), logging seeds and handling `k < 3` edge cases. **Must utilize** T006 (chunking) and T008 (zero-variance) logic. **Logging Requirement**: Log every subsample iteration (ID, k, seed, estimator type) to `data/processed/subsample_data.parquet` within this task.
-- [~] T017 [US1] Create validation script `code/validate_data.py` to verify downloaded/generated data integrity, checksums, and **aggregate the success rate** of meta-analyses processed against the ≥50 target (SC-001), writing a summary to `data/output/success_rate_report.json`. **Output**: JSON report containing `total_target`, `actual_processed`, `success_rate`, `mode`.
+- [ ] T019 [US1] Implement parameter generation and synthetic data generation in `code/download.py` as a fallback triggered ONLY if T012/T012a confirm failure. **Parameters**: Use values from Ioannidis et al. (2008): `tau^2 = 0.04`, `mean_effect = 0.3`, `bias = 0.1`, `study_count_range = [3, 50]`. **Output**: Write parameters to `data/raw/simulation_params.json` and synthetic data files to `data/raw/`.
+- [ ] T016 [US1] Implement `code/subsample.py` to generate up to 100 bootstrap subsamples for each `k` (3 to N), logging seeds and handling `k < 3` edge cases. **Must utilize** T006 (chunking) and T008 (zero-variance) logic. **Logging Requirement**: Log every subsample iteration (ID, k, seed, estimator type) to `data/processed/subsample_data.parquet` within this task.
+- [ ] T017 [US1] Create validation script `code/validate_data.py` to verify downloaded/generated data integrity, checksums, and **aggregate the success rate** of meta-analyses processed against the ≥50 target (SC-001), writing a summary to `data/output/success_rate_report.json`. **Output**: JSON report containing `total_target`, `actual_processed`, `success_rate`, `mode`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,9 +112,9 @@
 
 **Prerequisites**: Error handling for negative variance must be in place before model fitting (T008).
 
-- [~] T023 [US2] Implement `code/models.py` to fit Fixed Effects and Random Effects models. **Primary Output**: Use DL for k≥10, REML for k<10 per FR-003. Explicitly tag this output as the "primary" deliverable in `data/processed/stability_metrics.csv`.
+- [ ] T023 [US2] Implement `code/models.py` to fit Fixed Effects and Random Effects models. **Primary Output**: Use DL for k≥10, REML for k<10 per FR-003. Explicitly tag this output as the "primary" deliverable in `data/processed/stability_metrics.csv`.
 - [ ] T024 [US2] Implement parallel sensitivity run in `code/models.py` using REML for all `k` to check for boundary artifacts (Estimator Continuity Check). **Output**: Write results to `data/processed/sensitivity_check.csv` (distinct artifact).
-- [ ] T025 [P] [US2] Implement `code/metrics.py` to calculate standard deviation of pooled effects (stability) across subsamples for each `k`.
+- [X] T025 [P] [US2] Implement `code/metrics.py` to calculate standard deviation of pooled effects (stability) across subsamples for each `k`.
 - [ ] T026 [P] [US2] Implement `code/metrics.py` to calculate CI coverage rates (proportion of subsample CIs containing full-sample estimate) for each `k`.
 - [ ] T027 [US2] Implement sensitivity analysis in `code/metrics.py` by perturbing the reference value (full-sample estimate) by its SE (FR-009). **Requirement**: Write perturbation results to `data/processed/sensitivity_analysis_results.csv`, compute the variation against the primary coverage rate, and output the result to satisfy SC-006.
 - [ ] T028 [US2] Aggregate primary metrics into `data/processed/stability_metrics.csv` with columns: `meta_id`, `k`, `model_type`, `sd_effects`, `coverage_rate`.

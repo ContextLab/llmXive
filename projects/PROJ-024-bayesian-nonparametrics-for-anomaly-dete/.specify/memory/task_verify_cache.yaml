@@ -6,11 +6,10 @@ T104:
     \ -f` cleanup, satisfying the task\u2019s verification constraint. The required\
     \ raw files are absent, confirming they were removed."
 T110:
-  c: false
-  h: ea88908f121df740e30ee864ef88b89aa1099f2f6c35d657863cae3261623617
-  r: "The provided `config_compliance_report.md` contains placeholder text (\u201C\
-    example size, actual < 2048\u201D) rather than the real output of `stat -c%s code/config.yaml`,\
-    \ and the `code/config.yaml` shown does not contain any of the derived\u2011statistics\
-    \ keys that the task requires to be migrated, so the migration cannot be verified.\
-    \ Additionally, there is no evidence that the script was actually executed with\
-    \ the `--force` flag."
+  c: true
+  h: 7b54425f3b9ab0d62c90766f4ba5bb7504405b51cceb03d6083d6a9e2339055c
+  r: "The artifacts include a non\u2011empty `code/src/utils/migrate_config.py`, a\
+    \ `code/config.yaml` under 2\u202FKB, and a populated `code/tests/config_compliance_report.md`\
+    \ (1076\u202Fbytes) showing the script was run with `--force`, the size check\
+    \ passed, and all derived\u2011statistic keys were migrated. All task requirements\
+    \ are met."

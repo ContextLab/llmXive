@@ -1,0 +1,38 @@
+T016:
+  c: false
+  h: 2c8d02677a5617f8ccc06ca41010c61ca23a45cbbf50f0bca1251fa2db9fbbdc
+  r: "The required output file `data/processed/subsample_data.parquet` does not exist,\
+    \ so the logging requirement is not met. Consequently the task\u2019s deliverable\
+    \ is incomplete."
+T017:
+  c: false
+  h: d65bb3449017678dfc0092e0c6d72652fb08fa46405f1e1fbaef7882010127da
+  r: "The repository contains `code/validate_data.py`, but the shown code is truncated\
+    \ and does not demonstrate the aggregation of success rates or writing of `data/output/success_rate_report.json`.\
+    \ Moreover, the required JSON report file is absent from the `data/output` directory.\
+    \ The task\u2019s primary output (the JSON summary) is missing."
+T019:
+  c: false
+  h: b36e0b40f94a5bdf751830e68c6934a581dd6b3b6a3fc6e46c8861f9323a2c9a
+  r: "The repository lacks the required `data/raw/simulation_params.json` file, and\
+    \ the shown `code/download.py` is truncated (the `save_synthetic_data` implementation\
+    \ and any conditional fallback logic are missing), so the parameters are never\
+    \ written to disk nor are synthetic data files guaranteed to be created. The task\u2019\
+    s output requirements are therefore not satisfied."
+T023:
+  c: false
+  h: 47229fa18a6015901411899739d14e013e7f3837d5c1bee45a5aa12daec75786
+  r: "The provided `code/models.py` is truncated and does not contain a complete implementation\
+    \ of Fixed\u2011Effects and Random\u2011Effects fitting, nor does it show the\
+    \ required logic to select DerSimonian\u2011Laird (DL) for k\u202F\u2265\u202F\
+    10 and REML for k\u202F<\u202F10. Additionally, the required output file `data/processed/stability_metrics.csv`\
+    \ is missing entirely. Both the core functionality and the primary deliverable\
+    \ are absent."
+T024:
+  c: false
+  h: e8a2e0a085328cf39e421d0c107576a8d489ef95b42416f0aba16ee3a4256e16
+  r: "The repository lacks the required `data/processed/sensitivity_check.csv` file,\
+    \ and the shown portion of `code/models.py` does not contain any parallel sensitivity\u2011\
+    run logic, REML fitting across all\u202Fk, or code that writes results to the\
+    \ specified CSV. Consequently the task\u2019s core functionality and output artifact\
+    \ are missing."

@@ -1,14 +1,3 @@
-- artifact_hash: eb59e2dfde64ca91267bfae4173b5da8cc5ca3045b78099bb33c1e5bfb8e62f5
-  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/data-model.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: schema#
-  kind: url
-  value: http://json-schema.org/draft-07/schema#
-  verification_status: pending
-  verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-07-31T09:01:18.962858Z'
 - artifact_hash: 1545118a412f3ce64458908b0a67ee467cebbc37b7470b2974097db2092e3a2f
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
   cite_id: c-001
@@ -31,3 +20,27 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/llmXive/gam-baseline-stats/resolve/main/gam_reference_stats.json
   verified_at: '2026-08-04T00:43:50.787006Z'
+- artifact_hash: 42a0fe4f33ed023a80457b7213ecd2388f2aab7c7fb104111b6611ee2cd8fbbf
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - pre-commit/pre-commit-hooks: Some out-of-the-box hooks\
+    \ for pre-commit \xB7 GitHub"
+  kind: url
+  value: https://github.com/pre-commit/pre-commit-hooks
+  verification_status: pending
+  verified_against_url: https://github.com/pre-commit/pre-commit-hooks
+  verified_at: '2026-08-22T07:01:01.829149Z'
+- artifact_hash: 42a0fe4f33ed023a80457b7213ecd2388f2aab7c7fb104111b6611ee2cd8fbbf
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - astral-sh/ruff-pre-commit: A pre-commit hook for Ruff.\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/astral-sh/ruff-pre-commit
+  verification_status: pending
+  verified_against_url: https://github.com/astral-sh/ruff-pre-commit
+  verified_at: '2026-08-22T07:01:01.829149Z'

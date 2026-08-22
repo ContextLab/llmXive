@@ -1,40 +1,67 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Trial Log Schema"
-description: "Schema for validation of trial execution logs (success/latency). Single Source of Truth."
-type: "object"
+description: "Single Source of Truth schema for trial results. Distinguishes between solver feasibility and external task success. Consolidated from all other schema files."
+type: object
+required:
+  - trial_id
+  - method
+  - topology_config
+  - task_success
+  - solver_feasibility
+  - latency_ms
+  - decoder_reconstruction_error
+  - latent_drift
+  - ci_time_limit_exceeded
 properties:
   trial_id:
-    type: "string"
-    description: "Unique identifier for the trial."
-  topology_id:
-    type: "string"
-    description: "Identifier for the novel topology used in the trial."
-  approach:
-    type: "string"
+    type: string
+    description: "Unique identifier for the trial (e.g., 'trial_001')"
+  method:
+    type: string
     enum:
       - "symbolic"
       - "baseline"
-    description: "The method used for the trial."
-  success:
-    type: "boolean"
-    description: "Whether the manipulation task was completed successfully."
+    description: "The method used for the trial"
+  topology_config:
+    type: object
+    description: "JSON object describing the kinematic chain or deformable material"
+    additionalProperties: true
+  task_success:
+    type: boolean
+    description: "Whether the task was completed successfully (External PyBullet target check)"
+  solver_feasibility:
+    type: boolean
+    description: "Whether the solver's internal constraints were met (Internal check)"
   latency_ms:
-    type: "number"
-    description: "Inference latency in milliseconds per step."
+    type: number
+    minimum: 0
+    description: "Inference time in milliseconds"
+  decoder_reconstruction_error:
+    type: number
+    minimum: 0
+    description: "MSE of decoder output vs ground truth (for SC-003)"
+  baseline_decoder_error:
+    type: number
+    minimum: 0
+    description: "MSE of baseline decoder output vs ground truth (for SC-003 comparison)"
+  latent_drift:
+    type: number
+    description: "Mahalanobis distance of the latent vector from the training distribution"
+  ci_time_limit_exceeded:
+    type: boolean
+    description: "True if the cumulative execution time exceeded the 6-hour CI limit (SC-005)"
+  error:
+    type: ["string", "null"]
+    description: "Error message if the trial failed (e.g., 'timeout', 'infeasible')"
   timestamp:
-    type: "string"
-    format: "date-time"
-    description: "ISO 8601 timestamp of the trial execution."
-  error_type:
-    type:
-      - "string"
-      - "null"
-    description: "Type of error if the trial failed (e.g., 'infeasible', 'timeout', 'physics_crash')."
-required:
-  - trial_id
-  - topology_id
-  - approach
-  - success
-  - latency_ms
-  - timestamp
+    type: string
+    format: date-time
+    description: "Timestamp of the trial execution"
+  gradient_flow_verified:
+    type: boolean
+    description: "True if finite difference check passed for this trial (Phase 1.6)"
+  decoder_control_error:
+    type: number
+    minimum: 0
+    description: "Decoder reconstruction error for the control phase (Phase 1.3)"
 additionalProperties: false

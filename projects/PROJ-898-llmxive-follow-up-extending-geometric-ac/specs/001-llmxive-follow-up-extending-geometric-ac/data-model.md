@@ -2,53 +2,60 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and flow for the project. All data artifacts are stored in `data/` with checksums recorded in the project state.
+This document defines the data structures for the `llmXive` follow-up project. The primary data artifact is the `trial_log`, which records the outcome of each execution of the symbolic-latent planner and the baseline GAM. The data model is designed to be schema-validated via `contracts/trial_log.schema.yaml` to ensure consistency across runs and reproducibility.
 
-## Directory Structure
+## Entities
 
-```text
-data/
-├── raw/
-│   ├── gfm_weights.pt          # Downloaded GFM encoder/decoder weights
-│   ├── gam_reference_stats.json # Locally generated reference statistics (mean/cov)
-│   └── .gitkeep
-├── generated/
-│   ├── topology_shift_test_set/
-│   │   ├── config.json          # Topology definitions (hinge counts, material params)
-│   │   ├── states/              # Simulation states (latent inputs, ground truth actions)
-│   │   └── metadata.json        # Checksums, topology IDs, generation timestamp
-│   └── .gitkeep
-└── results/
-    ├── trial_logs.csv           # Per-trial success/failure, latency, topology ID
-    ├── statistical_analysis.json # P-values, confidence intervals, effect sizes
-    └── .gitkeep
-```
+### 1. Trial Log
+
+The `trial_log` is the central record for each experimental run. It captures the configuration, execution metrics, and outcome for a single trial.
+
+**Key Fields**:
+- `trial_id`: Unique identifier for the trial.
+- `topology_config`: JSON object describing the kinematic chain or deformable material used.
+- `method`: "symbolic" or "baseline".
+- `task_success`: Boolean indicating **external** task completion (PyBullet target check).
+- `solver_feasibility`: Boolean indicating if the solver's internal constraints were met (distinct from `task_success`).
+- `decoder_reconstruction_error`: MSE of the decoder output vs ground truth (for SC-003).
+- `baseline_decoder_error`: MSE of the baseline decoder output vs ground truth (for SC-003 comparison).
+- `latency_ms`: Inference time in milliseconds.
+- `latent_drift`: Mahalanobis distance of the latent vector from the training distribution.
+- `ci_time_limit_exceeded`: Boolean flag if the cumulative time exceeded 6 hours (SC-005).
+- `error`: Error message if the trial failed (e.g., "timeout", "infeasible").
+
+### 2. Topology Manifest
+
+A JSON file (`training-topology-manifest.json`) containing hashes of all topology parameters from the original GAM training distribution. Used to verify zero overlap with the generated test set.
+
+### 3. GFM Weights
+
+Pre-trained weights for the Geometric Foundation Model encoder and decoder. Stored in `data/raw/` and loaded as frozen parameters.
+
+## Schema Definition
+
+The `trial_log` schema is defined in `contracts/trial_log.schema.yaml`. This schema is the Single Source of Truth for data validation.
+
+### Validation Rules
+
+- **Data Types**: All numeric fields must be floats or integers. Boolean fields must be true/false.
+- **Constraints**: `latency_ms` must be ≥ 0. `task_success` must be a boolean.
+- **Required Fields**: `trial_id`, `method`, `task_success`, `solver_feasibility`, `latency_ms`, `topology_config`.
+- **Enum Values**: `method` must be one of ["symbolic", "baseline"].
 
 ## Data Flow
 
-1. **Ingestion**: GFM weights downloaded from verified Hugging Face URLs.
-2. **Generation**: `topology_generator.py` creates synthetic test sets; outputs saved to `data/generated/`.
-3. **Processing**: `symbolic_runner.py` and `baseline_runner.py` process test sets; outputs saved to `data/results/trial_logs.csv`.
-4. **Analysis**: `metrics.py` reads `trial_logs.csv` and outputs `statistical_analysis.json`.
+1. **Generation**: `data/generator.py` creates the synthetic test set and writes it to `data/generated/test_set.json`.
+2. **Execution**: `evaluation/runner.py` runs the symbolic and baseline methods, generating a `trial_log` entry for each trial.
+3. **Storage**: `trial_log` entries are appended to `data/results/trial_logs.jsonl`.
+4. **Analysis**: `evaluation/stats.py` reads `trial_logs.jsonl`, validates against the schema, and computes statistics.
 
-## Key Entities
+## Assumptions
 
-### Topology-Shift Test Set
-- **Definition**: Collection of simulation environments with novel kinematic chains and deformable materials.
-- **Format**: JSON configuration + binary simulation state files (`.bin` or `.parquet`).
-- **Constraint**: Must have zero overlap with original GAM training distribution.
+- The `topology_config` is a JSON-serializable object.
+- The `latent_drift` is calculated using the mean and covariance of the training distribution (stored in `data/raw/gfm_stats.json`).
+- All data files are stored in UTF-8 encoding.
+- **Format**: All logs are JSONL; all configs are JSON. No Parquet is used.
 
-### Latent Trajectory
-- **Definition**: Sequence of 3D latent vectors generated by the frozen GFM encoder.
-- **Format**: `numpy` array or `torch` tensor.
-- **Constraint**: Must be within expected dimensionality range.
+## SC-003 Metric Calculation
 
-### Trial Log
-- **Definition**: Record of a single execution trial.
-- **Fields**: `trial_id`, `topology_id`, `approach` (symbolic/baseline), `success` (bool), `latency_ms` (float), `timestamp`.
-
-## Data Hygiene
-
-- **Checksums**: Every file in `data/` is checksummed (SHA-256).
-- **Immutability**: Raw data is never modified. Derivations create new files.
-- **Versioning**: Artifacts versioned by content hash.
+To satisfy SC-003, the system must calculate the ratio of `decoder_reconstruction_error` (symbolic) to `baseline_decoder_error` (baseline). The success criterion is that this ratio is ≤ 1.5. This calculation will be performed in the analysis phase and recorded in the final report.

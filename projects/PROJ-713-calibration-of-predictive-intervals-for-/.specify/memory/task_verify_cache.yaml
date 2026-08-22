@@ -40,3 +40,43 @@ T009:
     checksum verification, are present in the provided artifacts. The claim lacks
     concrete evidence of the required directory structure and verification logic,
     so the task is not satisfied.
+T018:
+  c: false
+  h: 7169413c4e76322a837cad0c7134a2b776702005e0b4591369b5cffaa0c1a8c8
+  r: The required output file `results/coverage.csv` is absent, and the provided `code/evaluation/runner.py`
+    snippet does not demonstrate a loop that iterates over all M4/UCI series and writes
+    aggregated coverage results to that CSV. Without the CSV and clear evidence of
+    the full processing loop, the task is not fulfilled.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code changes, diff, or description of modifications to `runner.py` were provided,
+    so there is no evidence that error handling was added, logged, or that the pipeline
+    now avoids crashing on series failures. The required artifact (updated `runner.py`
+    with specific try/except and logging) is missing.
+T025:
+  c: false
+  h: 421c66b19f6c480c9336acc2ebb4b8c51414496daf017c6d80e18bdceac63b27
+  r: The required output file `results/distributional_metrics.csv` does not exist,
+    so the aggregation of PIT and CRPS results was not produced. The task therefore
+    lacks the essential artifact.
+T033a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No API documentation files for `code/models/` or `code/metrics/` were presented;
+    the response contains only the task description and specifications, with no generated
+    documentation artifacts. The required deliverables are missing.
+T033b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README.md content was provided; there is no evidence that a usage guide,\
+    \ installation steps, or data fetch instructions were added or that the file exists\
+    \ and is non\u2011empty. The required artifact is missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "There is no provided artifact showing any code changes, removal of hard\u2011\
+    coded file paths, or setting of random seeds for reproducibility. The only evidence\
+    \ present is a feature specification for predictive\u2011interval calibration,\
+    \ which does not address the requested cleanup and refactoring tasks. Consequently,\
+    \ the requirement for code cleanup and seed reproducibility is unmet."
