@@ -231,3 +231,421 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T22:06:02Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on multi-core CPU within 7GB RAM and processes 10000 clips
+    in under 6 hours
+  claim_id: c_3c55e5d0
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the pipeline runs on a multi-core CPU within 7GB RAM and processes
+    10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:49:28Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline processes 10000 clips in under 6 hours
+  claim_id: c_a24a454e
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the pipeline runs on a multi-core CPU within 7GB RAM and processes
+    10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:49:28Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline processes 10000 clips
+  claim_id: c_7af4b97d
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the pipeline runs on a multi-core CPU within 7GB RAM and processes
+    10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:49:28Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: 'Definition of error: missing columns, null scores, or schema mismatch'
+  claim_id: c_5f7cef6e
+  context: 'Definition of Error: A row is an error if it has missing required columns,
+    null scores, or schema mismatch.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Definition_of_error:_missing_columns,_null_scores,_or_schema
+  kind: entity_fact
+  raw_text: A row is an error if it has missing required columns, null scores, or
+    schema mismatch.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:50:26Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if error rate exceeds 0.05
+  claim_id: c_b38c0831
+  context: 'Constraint: If error_count/total_count > 0.05 on the sample, EXIT with
+    code 1 (HALT).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If error_count/total_count > 0.05 on the sample, EXIT with code 1 (HALT).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:50:26Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if VLM proxy correlation is less than 0.70
+  claim_id: c_acab8af7
+  context: 'Constraint: Exit with code 1 if VLM proxy correlation r < 0.70 (mandatory
+    halt).'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Exit with code 1 if VLM proxy correlation r < 0.70 (mandatory halt).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:50:26Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Preliminary validation correlates VLM proxy scores against human expert
+    scores on subset of at least 30
+  claim_id: c_73bc9076
+  context: "Implement preliminary validation (FR-009) in src/models/evaluate.py to\
+    \ correlate VLM proxy scores against human expert scores on n \u2265 30 subset."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Preliminary_validation_correlates_VLM_proxy_scores_against_h
+  kind: magnitude
+  raw_text: "Perform preliminary validation to correlate VLM proxy scores against\
+    \ human expert scores on n \u2265 30 subset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:52:08Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Scaling validation requires R-squared greater than 0.95
+  claim_id: c_80468f49
+  context: 'Constraint: Verify linearity (R^2 > 0.95). Exit with code 1 if linearity
+    assumption fails.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scaling_validation_requires_R-squared_greater_than_0.95
+  kind: magnitude
+  raw_text: Verify linearity (R^2 > 0.95). Exit with code 1 if linearity assumption
+    fails.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:53:37Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 0.80, 0.85, and 0.90
+  claim_id: c_58aa6bc1
+  context: 'Schema: [dimension, threshold, status]. Thresholds: {0.80, 0.85, 0.90}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thresholds: {0.80, 0.85, 0.90}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:54:10Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds include 0.85
+  claim_id: c_fbd30615
+  context: 'Schema: [dimension, threshold, status]. Thresholds: {0.80, 0.85, 0.90}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thresholds: {0.80, 0.85, 0.90}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:54:10Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds include 0.90
+  claim_id: c_024aec13
+  context: 'Schema: [dimension, threshold, status]. Thresholds: {0.80, 0.85, 0.90}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thresholds: {0.80, 0.85, 0.90}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:54:10Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Formula for projected total hours calculation
+  claim_id: c_7dcef7a0
+  context: 'Formula: projected_total_hours = (mean_time_per_clip_sec * 10000) / 3600,
+    rounded to 2 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: projected_total_hours = (mean_time_per_clip_sec * 10000) / 3600, rounded
+    to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:54:45Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: System outputs ranked list of dimensions with correlation coefficients
+    and confidence intervals
+  claim_id: c_8b46edef
+  context: 'Independent Test: The system extracts features, trains models, and outputs
+    a ranked list of dimensions with correlation coefficients and confidence intervals.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_outputs_ranked_list_of_dimensions_with_correlation_co
+  kind: entity_fact
+  raw_text: The system extracts features, trains models, and outputs a ranked list
+    of dimensions with correlation coefficients and confidence intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:57:40Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on multi-core CPU within 7GB RAM processing 10000 clips
+    in under 6 hours
+  claim_id: c_4ea5b791
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the pipeline runs on a multi-core CPU within 7GB RAM and processes
+    10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:57:40Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: System re-runs classification logic with varied thresholds and reports
+    stability/flip rates
+  claim_id: c_63792bbf
+  context: 'Independent Test: The system re-runs classification logic with varied
+    thresholds and reports stability/flip rates.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_re-runs_classification_logic_with_varied_thresholds_a
+  kind: entity_fact
+  raw_text: The system re-runs classification logic with varied thresholds and reports
+    stability/flip rates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:58:23Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: System outputs ranked dimensions with correlation coefficients and confidence
+    intervals
+  claim_id: c_837a7bb1
+  context: 'Independent Test: The system extracts features, trains models, and outputs
+    a ranked list of dimensions with correlation coefficients and confidence intervals.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_outputs_ranked_dimensions_with_correlation_coefficien
+  kind: entity_fact
+  raw_text: The system extracts features, trains models, and outputs a ranked list
+    of dimensions with correlation coefficients and confidence intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:00:16Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on multi-core CPU within 7GB RAM and processes 10k clips
+    in less than 6 hours
+  claim_id: c_8e34ec39
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_on_multi-core_CPU_within_7GB_RAM_and_processes
+  kind: magnitude
+  raw_text: Verify the pipeline runs on a multi-core CPU within 7GB RAM and processes
+    10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:00:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if error rate exceeds 0.05
+  claim_id: c_4ce5e776
+  context: 'Constraint: If error_count/total_count > 0.05 on the sample, EXIT with
+    code 1 (HALT). This task MUST complete before T012 and T013.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If error_count/total_count > 0.05 on the sample, EXIT with code 1 (HALT).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:00:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 2
+  canonical: Mean predictor error exceeds best model error for at least 80% of dimensions
+  claim_id: c_19408e13
+  context: 'Validation Logic: Identify the BEST performing model from T015 (lowest
+    RMSE on validation set). Assert that mean_predictor_error > best_model_error for
+    at least 80% of dimensions.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_predictor_error_exceeds_best_model_error_for_at_least_8
+  kind: magnitude
+  raw_text: Assert that mean_predictor_error > best_model_error for at least 80% of
+    dimensions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:00:24Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Linearity verified with R-squared greater than 0.95 via OLS regression
+  claim_id: c_4f6d75cd
+  context: 'Method: Perform Ordinary Least Squares (OLS) regression on clip_index
+    vs cpu_time_sec from T023b data. Output: state/scaling_validation.json. Constraint:
+    Verify linearity (R^2 > 0.95).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linearity_verified_with_R-squared_greater_than_0.95_via_OLS
+  kind: magnitude
+  raw_text: 'Perform Ordinary Least Squares (OLS) regression on clip_index vs cpu_time_sec
+    from T023b data. Constraint: Verify linearity (R^2 > 0.95).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:01:14Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Projected total hours calculated as (mean time per clip in seconds times
+    10000) divided by 3600
+  claim_id: c_267a7055
+  context: 'Output: data/timing_profile.csv. Schema: [mean_time_per_clip_sec, projected_total_hours].
+    Formula: projected_total_hours = (mean_time_per_clip_sec * 10000) / 3600, rounded
+    to 2 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Formula: projected_total_hours = (mean_time_per_clip_sec * 10000) / 3600,
+    rounded to 2 decimal places.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:01:41Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds set to 0.80, 0.85, and 0.90
+  claim_id: c_2f4eb3ee
+  context: 'Output: data/sensitivity_sweep_raw.csv. Schema: [dimension, threshold,
+    status]. Thresholds: {0.80, 0.85, 0.90}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thresholds: {0.80, 0.85, 0.90}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:01:41Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flip rate calculated as count of status changes across thresholds divided
+    by number of thresholds minus one
+  claim_id: c_b2d0b1db
+  context: 'Output 2: data/sensitivity_flip_rate.csv. Schema for Output 2: [dimension,
+    flip_rate]. Formula: flip_rate = count(status_changes_across_thresholds) / (N_thresholds
+    - 1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Formula: flip_rate = count(status_changes_across_thresholds) / (N_thresholds
+    - 1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:02:03Z'

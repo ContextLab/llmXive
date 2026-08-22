@@ -24,7 +24,7 @@ As a system administrator, I want to profile the memory and time usage of the pi
 - Gate fails if constraints are violated.
 
 ### US3: Sensitivity Analysis
-As a methodologist, I want to sweep classification thresholds (including 0.85 and 0.90) so that I can verify the robustness of the "feature-sufficient" decision boundary.
+As a methodologist, I want to sweep classification thresholds (including high-confidence values) so that I can verify the robustness of the "feature-sufficient" decision boundary.
 
 **Acceptance Criteria:**
 - Flip rate calculated for each dimension.

@@ -1,40 +1,25 @@
-T020:
+T004b:
   c: false
-  h: a5550a3fbd4880060afd997a3b675422f7dc4e09da8e3ab56dd1183bb55f90bd
-  r: "The provided `src/models/metrics.py` contains only correlation and bootstrap\
-    \ utilities; there is no implementation of permutation\u2011based multiple\u2011\
-    comparison correction or any code that writes `data/permutation_results.csv`.\
-    \ Moreover, the required CSV file is absent from the repository. The task\u2019\
-    s core requirement is therefore not satisfied."
+  h: 3810770e78bd30fea941ac6e4f9c0830c7f4d45c1a0ebe4b4ad0160d2b0a6cc5
+  r: "The required file `src/data/verify_provenance.py` does not exist, so no provenance\u2011\
+    checking logic, JSON output, or exit\u2011code behavior is present. The task cannot\
+    \ be considered fulfilled until this script is created and implements the specified\
+    \ checks."
+T019:
+  c: false
+  h: eabb17a767bc82e90eca3f28ed622c198762ebd8de51d3a87caae1f421bfd257
+  r: "The provided `src/models/evaluate.py` only defines generic MSE/RMSE helpers\
+    \ and a CSV writer, but it does not compute per\u2011dimension baseline results,\
+    \ does not calculate R\xB2, does not implement the validation against the best\
+    \ model from T015, nor does it exit with code\u202F1 on failure. Moreover, the\
+    \ required output file `data/baseline_results.csv` is missing. The task\u2019\
+    s core requirements are therefore unmet."
 T021:
   c: false
   h: e76cce29872375b6926a380b151300f1f027357e54838fc77c65c92c0b2987b4
   r: "The required artifact `tests/unit/test_profiles.py` does not exist in the repository,\
     \ so no unit test for the memory profiling logic is present. The task\u2019s core\
     \ deliverable is missing."
-T023b:
-  c: false
-  h: 19e43a8120058d3436554c67ee365c31b1c5aedf1221da4004809acaa4d98acc
-  r: The `src/data/profiles.py` file ends abruptly inside `save_profiling_results`
-    and never writes the profiling dicts to `data/profiling_logs.json` (the file is
-    missing). Consequently, the required structured JSON logging of exact CPU time
-    and memory peak per clip is not implemented. The next implementer must complete
-    the `save_profiling_results` function (and any calling code) to generate the `data/profiling_logs.json`
-    file with the exact metrics.
-T024:
-  c: false
-  h: 585d0ff5bb4fd36b32e33239096751cd53a350cec93b89ac15ea183d3b25437d
-  r: "The repository lacks the required `data/timing_profile.csv` file, and the shown\
-    \ portion of `src/models/evaluate.py` is truncated before any logic that writes\
-    \ the projected total hours to that CSV. Consequently, the task\u2019s output\
-    \ artifact is missing and the implementation is not verifiable as complete."
-T026#1:
-  c: false
-  h: 4ce23d78d43d0c45e5db7be7b16046ad185848a69c14def40b5ea1c145e231b1
-  r: "The repository contains a partially\u2011implemented `run_threshold_sweep` function,\
-    \ but the code is truncated and does not show logic that writes `data/sensitivity_sweep_raw.csv`.\
-    \ Moreover, the required CSV file is absent from the project. The task\u2019s\
-    \ output artifact is missing, so the requirement is not met."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
