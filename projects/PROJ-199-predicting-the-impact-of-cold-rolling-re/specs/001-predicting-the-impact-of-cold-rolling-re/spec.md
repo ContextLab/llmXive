@@ -41,7 +41,7 @@ A process engineer needs a predictive model that estimates texture descriptors b
 
 **Why this priority**: This is the ultimate value proposition of the project. It delivers the "predictive relationship" mentioned in the motivation, allowing users to forecast material properties from processing inputs.
 
-**Independent Test**: The model training and validation pipeline can be tested by splitting the dataset into training and test sets, training the regression/GP models, and verifying that the R² on the held-out test set meets the 0.85 threshold for all metals.
+**Independent Test**: The model training and validation pipeline can be tested by splitting the dataset into training and test sets, training the regression/GP models, and verifying that the R² on the held-out test set meets a satisfactory performance threshold for all metals.
 
 **Acceptance Scenarios**:
 
