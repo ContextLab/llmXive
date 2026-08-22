@@ -1,49 +1,99 @@
-# Data directories - exclude all raw, processed, and results data
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/results/*
-!data/results/.gitkeep
-data/metadata/*
-!data/metadata/.gitkeep
-data/config/*
-!data/config/.gitkeep
-data/citations/*
-!data/citations/.gitkeep
-
-# Python cache and compiled files
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Environment and secrets
-.env
-.env.local
-.env.*.local
+# C extensions
+*.so
 
-# Testing and IDE
-.pytest_cache/
-.coverage
-htmlcov/
-.mypy_cache/
-.ruff_cache/
-*.egg-info/
-dist/
+# Distribution / packaging
+.Python
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+*.egg
 
-# IDE and editor files
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+.project
+.settings/
 
-# OS generated files
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+
+# virtualenvs
+venv/
+.venv/
+
+# Data directories (generated)
+data/raw/
+data/processed/
+data/results/
+data/config/
+data/metadata/
+data/citations/
+
+# Logs
+*.log
+logs/
+
+# OS files
 .DS_Store
 Thumbs.db
 
-# Project specific logs and temporary files
-*.log
-*.tmp
-*.temp
+# Project specific
+state/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

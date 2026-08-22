@@ -1,2 +1,1 @@
-# This directory holds configuration files for the pipeline.
-# Files like required_variables.yaml and real_data_sources.yaml are stored here.
+# This file ensures the directory is tracked by git.

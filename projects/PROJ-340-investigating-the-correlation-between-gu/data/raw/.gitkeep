@@ -1,4 +1,1 @@
-# This directory is for raw data files.
-# Do not commit actual data files here.
-# Data files will be downloaded or generated during pipeline execution.
 # This file ensures the directory is tracked by git.

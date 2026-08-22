@@ -1,7 +1,1 @@
-# This directory stores verified citation metadata (DOIs, URLs) for real-data sources.
-# It is intentionally kept empty until the research phase identifies a verified real dataset.
-# Do not commit synthetic or placeholder data here.
-#
-# Expected file: verified_dois.yaml (created by T018_init)
-#
-# Constitution Principle II: No external citations = No real data = Pipeline fails.
+# This file ensures the directory is tracked by git.

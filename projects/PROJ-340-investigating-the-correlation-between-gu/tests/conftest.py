@@ -1,27 +1,21 @@
 """
-Pytest configuration and shared fixtures for the test suite.
+Pytest configuration and fixtures.
 """
 import os
 import sys
-import pytest
 from pathlib import Path
 
-# Ensure the project root is in the path for imports
-@pytest.fixture(autouse=True)
-def add_project_root_to_path():
-    """Add the project root to sys.path for imports."""
-    project_root = Path(__file__).parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+# Ensure the code directory is in the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+import pytest
+
+@pytest.fixture(scope="session", autouse=True)
+def ensure_data_structure():
+    """
+    Automatically setup the data directory structure before any tests run.
+    """
+    from code.setup_data_dirs import setup_data_directories
+    setup_data_directories()
     yield
-    # Cleanup if necessary (usually not needed for sys.path)
-
-@pytest.fixture
-def test_data_dir():
-    """Provide path to test data directory."""
-    return Path(__file__).parent / "data"
-
-@pytest.fixture
-def project_root():
-    """Provide path to project root."""
-    return Path(__file__).parent.parent
+    # Teardown if necessary (usually not for directory creation)

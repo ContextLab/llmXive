@@ -1,8 +1,1 @@
-# This directory stores pipeline metadata artifacts.
-# Files created here include:
-# - validation_mode_flag.json
-# - synthetic_metadata.json
-# - method_selection_log.json
-# - compositionality_flag.json
-# - static_collinearity_map.json
-# - collinearity_report.json
+# This file ensures the directory is tracked by git.

@@ -4,26 +4,6 @@ T001a:
   r: "No evidence of a `code/` directory or an `__init__.py` file is present in the\
     \ provided artifacts; the implementer\u2019s claim is not backed by any tangible\
     \ files. The required directory and initialization file must be created and shown."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `tests/` directory or its required sub\u2011directories (`contract/`,\
-    \ `unit/`, `integration/`) is provided; the artifact list is empty, so the task\u2019\
-    s core deliverable is missing."
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/` directory or its required subfolders (`raw/`, `processed/`,
-    `results/`, `config/`) was provided; without a directory listing or files, we
-    cannot confirm the structure exists. The implementer must create and show the
-    directory hierarchy.
-T002b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file or virtual environment configuration (e.g., `requirements.txt`,
-    `pyproject.toml`, or `venv/` setup script) was presented. Without these artifacts,
-    the task of creating a `.gitignore` and initializing a virtualenv cannot be confirmed
-    as completed.
 T004a:
   c: false
   h: 0ce1a30fb709057bb330bc4b5b914bd227efbb3d8828db88649c8c231ef6e304
@@ -46,10 +26,10 @@ T021:
     \ the mandatory compositionality flag file. Moreover, `data/metadata/compositionality_flag.json`\
     \ is missing, so the function cannot satisfy the requirement to read it and apply\
     \ the fallback logic when T022a fails. The task therefore remains unfinished."
-T048:
+T112:
   c: false
-  h: aac3e35d61b712e16b366f345ffece2689474b9b9692eb608869614041621631
-  r: "The repository lacks the required `data/results/outlier_report.json` file, and\
-    \ the provided `code/ingest.py` excerpt shows no implementation of outlier detection/exclusion\
-    \ (no IQR calculation, no exclusion count or index logging, and no warning for\
-    \ high outlier density). The task\u2019s core functionality is therefore not present."
+  h: 8bc048c007ef975a6ec13fc131327a50465708d6e8e9c517e0ff08c5b29894eb
+  r: "The required artifact `data/metadata/method_selection_log.json` is missing,\
+    \ so there is no evidence that the pipeline was run on the three datasets or that\
+    \ method selection was logged as specified. The task\u2019s core deliverable is\
+    \ absent."

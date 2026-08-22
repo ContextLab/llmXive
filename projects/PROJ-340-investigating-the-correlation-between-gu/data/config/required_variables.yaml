@@ -1,40 +1,16 @@
-# Required Predictor Variables (Gut Microbiome Taxa)
-predictors:
-  - Bacteroides
-  - Firmicutes
-  - Actinobacteria
-  - Proteobacteria
-  - Fusobacteria
-  - Verrucomicrobia
-  - Cyanobacteria
-  - Euryarchaeota
-  - Tenericutes
-  - Spirochaetes
-  - Bifidobacterium
-  - Lactobacillus
-  - Clostridium
-  - Escherichia
-  - Streptococcus
-  - Staphylococcus
-  - Enterococcus
-  - Salmonella
-  - Shigella
-  - Klebsiella
+# Required Variables Configuration
+# This file defines the schema of variables required for the analysis.
+# It is the Single Source of Truth for variable lists used in validation.
 
-# Required Outcome Variables (Sleep Architecture Metrics)
-outcomes:
-  - Total Sleep Time (TST)
-  - Sleep Onset Latency (SOL)
-  - Wake After Sleep Onset (WASO)
-  - Sleep Efficiency (SE)
-  - N1 Duration
-  - N2 Duration
-  - N3 Duration (SWS)
-  - REM Duration
-  - N1 %
-  - N2 %
-  - N3 % (SWS %)
-  - REM %
-  - Number of Wake Episodes
-  - Longest Wake Episode Duration
-  - Sleep Fragmentation Index
+required_predictors:
+  - Taxa_A
+  - Taxa_B
+  - Taxa_C
+  - Taxa_D
+  - Taxa_E
+
+required_outcomes:
+  - Sleep_Duration
+  - SWS duration
+  - REM_duration
+  - Wake_after_sleep_onset

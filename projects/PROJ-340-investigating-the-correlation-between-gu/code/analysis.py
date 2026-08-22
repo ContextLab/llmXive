@@ -6,233 +6,168 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from pathlib import Path
+from typing import Dict, List, Any, Optional
 
-# Seed management
-_SEED = 42
-
-def set_analysis_seed(seed=42):
-    """Set the random seed for reproducibility."""
-    global _SEED
-    _SEED = seed
+def set_analysis_seed(seed: int = 42):
+    """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
+    if 'pd' in globals():
+        pd.options.mode.chained_assignment = None
 
-def check_distribution(df, predictor_cols, outcome_cols):
+def check_distribution(data: pd.Series) -> Dict[str, Any]:
     """
-    Check data distribution for predictors and outcomes.
-    Returns dict with Shapiro-Wilk p-values and zero proportions.
+    Check the distribution of a single variable.
+    Returns a dictionary with distribution properties.
     """
-    results = {}
-    for col in predictor_cols + outcome_cols:
-        if col not in df.columns:
-            continue
-        data = df[col].dropna()
-        if len(data) < 3:
-            results[col] = {'shapiro_p': None, 'zero_prop': None, 'n': len(data)}
-            continue
-
-        # Shapiro-Wilk test
-        try:
-            stat, p_val = stats.shapiro(data)
-        except Exception:
-            # Fallback for large samples or other issues
-            p_val = None
-
-        # Zero proportion
-        zero_count = (data == 0).sum()
-        zero_prop = zero_count / len(data) if len(data) > 0 else 0.0
-
-        results[col] = {
-            'shapiro_p': p_val,
-            'zero_prop': float(zero_prop),
-            'n': len(data),
-            'is_zero_inflated': zero_prop > 0.30 or (p_val is not None and p_val < 0.05)
+    # Drop NaNs
+    clean_data = data.dropna()
+    if len(clean_data) < 3:
+        return {
+            "is_normal": False,
+            "zero_fraction": 1.0,
+            "skewness": 0.0,
+            "reason": "Insufficient data"
         }
-
-    return results
-
-def select_correlation_method(dist_results, compositionality_flag=False):
-    """
-    Select correlation method based on distribution checks and compositionality.
-    Returns method name and decision log.
-    """
-    decision_log = {
-        'checks_performed': [],
-        'decisions': [],
-        'final_method': None,
-        'compositionality_flag': compositionality_flag
+    
+    # Shapiro-Wilk test for normality
+    try:
+        stat, p_value = stats.shapiro(clean_data)
+        is_normal = p_value > 0.05
+    except Exception:
+        is_normal = False
+        p_value = 0.0
+    
+    # Zero inflation check
+    zero_fraction = (clean_data == 0).sum() / len(clean_data)
+    
+    # Skewness
+    try:
+        skewness = stats.skew(clean_data)
+    except Exception:
+        skewness = 0.0
+    
+    return {
+        "is_normal": is_normal,
+        "p_value": p_value,
+        "zero_fraction": zero_fraction,
+        "skewness": skewness,
+        "reason": "Normal" if is_normal else "Non-Normal"
     }
 
-    # Check for zero-inflation across predictors
-    zero_inflated_vars = []
-    normal_vars = []
+def select_correlation_method(x: pd.Series, y: pd.Series, dist_info: Optional[Dict] = None) -> str:
+    """
+    Select the appropriate correlation method based on data distribution.
+    
+    Logic:
+    1. If >30% zeros -> Spearman (or ZINB if implemented, defaulting to Spearman for robustness here)
+    2. If Non-Normal (Shapiro p < 0.05) -> Spearman
+    3. Otherwise -> Pearson
+    """
+    if dist_info is None:
+        dist_info = check_distribution(x)
+    
+    # Priority 1: Zero Inflation
+    if dist_info.get("zero_fraction", 0) > 0.30:
+        return "spearman" # Robust to zeros and non-normality
+    
+    # Priority 2: Normality
+    if not dist_info.get("is_normal", False):
+        return "spearman"
+    
+    return "pearson"
 
-    for col, res in dist_results.items():
-        if res.get('is_zero_inflated'):
-            zero_inflated_vars.append(col)
-        else:
-            normal_vars.append(col)
-
-    decision_log['checks_performed'].append({
-        'type': 'zero_inflation_check',
-        'threshold': 0.30,
-        'shapiro_threshold': 0.05,
-        'zero_inflated_count': len(zero_inflated_vars),
-        'normal_count': len(normal_vars)
-    })
-
-    # Decision logic
-    if len(zero_inflated_vars) > 0:
-        method = 'zinb'
-        reason = f"Zero-inflation detected in {len(zero_inflated_vars)} variables (zeros > 30% or Shapiro p < 0.05)"
-    else:
-        # Check normality for remaining
-        non_normal_vars = []
-        for col in normal_vars:
-            p_val = dist_results[col].get('shapiro_p')
-            if p_val is not None and p_val < 0.05:
-                non_normal_vars.append(col)
-
-        if len(non_normal_vars) > 0:
-            method = 'spearman'
-            reason = f"Non-normality detected in {len(non_normal_vars)} variables (Shapiro p < 0.05)"
-        else:
-            method = 'pearson'
-            reason = "All variables appear normally distributed"
-
-    decision_log['decisions'].append({
-        'method': method,
-        'reason': reason,
-        'zero_inflated_vars': zero_inflated_vars,
-        'non_normal_vars': non_normal_vars if method == 'spearman' else []
-    })
-
-    decision_log['final_method'] = method
-
-    return method, decision_log
-
-def run_correlation_analysis(df, predictor_cols, outcome_cols, method='pearson'):
+def run_correlation_analysis(df: pd.DataFrame, predictors: List[str], outcomes: List[str], method: str = "auto") -> pd.DataFrame:
     """
     Run correlation analysis between predictors and outcomes.
-    Returns correlation matrix and p-values.
     """
-    results = {
-        'correlations': [],
-        'p_values': [],
-        'method': method,
-        'n_samples': len(df)
-    }
-
-    for pred in predictor_cols:
-        if pred not in df.columns:
-            continue
-        for out in outcome_cols:
-            if out not in df.columns:
+    results = []
+    
+    for outcome in outcomes:
+        for predictor in predictors:
+            pair = df[[outcome, predictor]].dropna()
+            if len(pair) < 3:
                 continue
+            
+            x = pair[predictor]
+            y = pair[outcome]
+            
+            # Determine method
+            current_method = method
+            if method == "auto":
+                dist_info = check_distribution(x)
+                current_method = select_correlation_method(x, y, dist_info)
+            
+            if current_method == "pearson":
+                corr, p_val = stats.pearsonr(x, y)
+            else:
+                corr, p_val = stats.spearmanr(x, y)
+            
+            results.append({
+                "outcome": outcome,
+                "predictor": predictor,
+                "method": current_method,
+                "correlation": corr,
+                "p_value": p_val
+            })
+    
+    return pd.DataFrame(results)
 
-            x = df[pred].dropna()
-            y = df[out].dropna()
-
-            # Align indices
-            common_idx = x.index.intersection(y.index)
-            x = x.loc[common_idx]
-            y = y.loc[common_idx]
-
-            if len(x) < 3:
-                continue
-
-            try:
-                if method == 'pearson':
-                    corr, p_val = stats.pearsonr(x, y)
-                elif method == 'spearman':
-                    corr, p_val = stats.spearmanr(x, y)
-                elif method == 'zinb':
-                    # Placeholder for ZINB - would use statsmodels
-                    # For now, use spearman as fallback with warning
-                    corr, p_val = stats.spearmanr(x, y)
-                else:
-                    corr, p_val = stats.pearsonr(x, y)
-
-                results['correlations'].append({
-                    'predictor': pred,
-                    'outcome': out,
-                    'correlation': float(corr),
-                    'p_value': float(p_val)
-                })
-            except Exception as e:
-                # Log error but continue
-                continue
-
-    return results
-
-def benjamini_hochberg_fdr(p_values, alpha=0.05):
+def benjamini_hochberg_fdr(p_values: List[float], alpha: float = 0.05) -> List[bool]:
     """
     Apply Benjamini-Hochberg FDR correction.
-    Returns adjusted p-values and significant findings.
+    Returns a list of booleans indicating if the result is significant.
     """
-    if not p_values:
-        return [], []
-
+    n = len(p_values)
+    if n == 0:
+        return []
+    
     sorted_indices = np.argsort(p_values)
-    sorted_p = np.array(p_values)[sorted_indices]
-    n = len(sorted_p)
+    sorted_p_values = np.array(p_values)[sorted_indices]
+    
+    ranks = np.arange(1, n + 1)
+    threshold = (ranks / n) * alpha
+    
+    # Find the largest k where p_k <= threshold
+    significant = np.zeros(n, dtype=bool)
+    for i in range(n - 1, -1, -1):
+        if sorted_p_values[i] <= threshold[i]:
+            significant[i:] = True
+            break
+    
+    # Reorder to original indices
+    final_significance = np.zeros(n, dtype=bool)
+    final_significance[sorted_indices] = significant
+    
+    return final_significance.tolist()
 
-    # BH correction
-    adjusted = np.zeros(n)
-    for i in range(n):
-        adjusted[i] = sorted_p[i] * n / (i + 1)
-
-    # Ensure monotonicity
-    for i in range(n - 2, -1, -1):
-        adjusted[i] = min(adjusted[i], adjusted[i + 1])
-
-    # Restore original order
-    final_adjusted = np.zeros(n)
-    final_adjusted[sorted_indices] = adjusted
-
-    # Identify significant
-    significant = [i for i, p in enumerate(final_adjusted) if p <= alpha]
-
-    return final_adjusted.tolist(), significant
-
-def save_method_selection_log(log_data, output_path='data/metadata/method_selection_log.json'):
+def save_method_selection_log(log_data: List[Dict], output_path: str):
     """
-    Save method selection log to disk with full transparency.
-    Includes raw p-values, zero proportions, and decision path.
+    Save the method selection log to a JSON file.
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(log_data, f, indent=2)
 
 def main():
-    """Main entry point for analysis module."""
-    import argparse
-    parser = argparse.ArgumentParser(description='Run correlation analysis')
-    parser.add_argument('--input', type=str, required=True, help='Input CSV file')
-    parser.add_argument('--output', type=str, required=True, help='Output directory')
-    parser.add_argument('--method', type=str, default='auto', help='Correlation method')
+    """
+    CLI entry point for analysis module.
+    """
+    parser = argparse.ArgumentParser(description="Run correlation analysis")
+    parser.add_argument("--input", type=str, required=True, help="Input CSV path")
+    parser.add_argument("--output", type=str, required=True, help="Output JSON path")
+    parser.add_argument("--predictors", type=str, nargs="+", required=True, help="Predictor columns")
+    parser.add_argument("--outcomes", type=str, nargs="+", required=True, help="Outcome columns")
+    
     args = parser.parse_args()
-
-    # Load data
+    
     df = pd.read_csv(args.input)
+    results = run_correlation_analysis(df, args.predictors, args.outcomes)
+    
+    # Save results
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    results.to_json(args.output, orient="records", indent=2)
+    print(f"Analysis results saved to {args.output}")
 
-    # Example: run distribution check
-    predictor_cols = [c for c in df.columns if 'taxon' in c.lower()]
-    outcome_cols = [c for c in df.columns if 'duration' in c.lower() or 'sleep' in c.lower()]
-
-    if not predictor_cols or not outcome_cols:
-        print("No predictors or outcomes found in data")
-        return
-
-    dist_results = check_distribution(df, predictor_cols, outcome_cols)
-
-    # Save detailed distribution results
-    dist_output = os.path.join(args.output, 'distribution_check.json')
-    os.makedirs(os.path.dirname(dist_output), exist_ok=True)
-    with open(dist_output, 'w') as f:
-        json.dump(dist_results, f, indent=2)
-
-    print(f"Analysis complete. Results saved to {args.output}")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
