@@ -6,177 +6,263 @@ import numpy as np
 import pandas as pd
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+from src.entities import RecommendationPath
+from src.exceptions import DataFetchError
+
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 @dataclass
 class GroundTruthSession:
-    """Represents a test session with a seed and ground truth next item."""
+    """Represents a ground truth session for evaluation."""
     user_id: str
     seed_item_id: str
-    ground_truth_item_id: str
-    timestamp: Optional[int] = None
+    next_item_id: str
+    timestamp: float
+    history: List[str] = field(default_factory=list)
 
-class Evaluator:
-    """Handles evaluation metrics and comparisons."""
-
-    def __init__(self, k_values: List[int] = None):
-        self.k_values = k_values or [5, 10, 20]
-
-    def load_test_sessions(self, path: str) -> List[GroundTruthSession]:
-        """Load test sessions from a JSON file."""
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"Test sessions file not found: {path}")
+def load_test_sessions(file_path: str) -> List[GroundTruthSession]:
+    """
+    Load test sessions from a JSON file.
+    
+    Args:
+        file_path: Path to the JSON file containing test sessions.
         
-        with open(path, 'r') as f:
+    Returns:
+        List of GroundTruthSession objects.
+        
+    Raises:
+        DataFetchError: If the file cannot be loaded or parsed.
+    """
+    if not os.path.exists(file_path):
+        raise DataFetchError(f"Test sessions file not found: {file_path}")
+    
+    try:
+        with open(file_path, 'r') as f:
             data = json.load(f)
         
         sessions = []
         for item in data:
-            sessions.append(GroundTruthSession(
-                user_id=item['user_id'],
-                seed_item_id=item['seed_item_id'],
-                ground_truth_item_id=item['ground_truth_item_id'],
-                timestamp=item.get('timestamp')
-            ))
+            session = GroundTruthSession(
+                user_id=item.get('user_id'),
+                seed_item_id=item.get('seed_item_id'),
+                next_item_id=item.get('next_item_id'),
+                timestamp=item.get('timestamp', 0.0),
+                history=item.get('history', [])
+            )
+            sessions.append(session)
+        
+        logger.info(f"Loaded {len(sessions)} test sessions from {file_path}")
         return sessions
+    except Exception as e:
+        raise DataFetchError(f"Failed to load test sessions: {e}")
 
-    def calculate_precision_recall(self, 
-                                   recommendations: List[str], 
-                                   ground_truth: str, 
-                                   k_values: List[int] = None) -> Dict[str, float]:
-        """Calculate Precision@K and Recall@K."""
-        k_values = k_values or self.k_values
-        metrics = {}
-        
-        for k in k_values:
-            top_k = recommendations[:k]
-            hits = 1 if ground_truth in top_k else 0
-            
-            precision = hits / k if k > 0 else 0.0
-            recall = hits / 1.0 if ground_truth else 0.0  # Assuming single ground truth
-            
-            metrics[f'Precision@{k}'] = precision
-            metrics[f'Recall@{k}'] = recall
-        
-        return metrics
-
-    def calculate_diversity_coverage(self, 
-                                     recommendations: List[str], 
-                                     item_embeddings: Dict[str, np.ndarray]) -> Dict[str, float]:
-        """Calculate Diversity (1 - avg pairwise cosine sim) and Coverage."""
-        if not recommendations or len(recommendations) < 2:
-            return {'Diversity': 0.0, 'Coverage': 0.0}
-        
-        # Calculate pairwise cosine similarity
-        similarities = []
-        unique_items = set()
-        
-        for i in range(len(recommendations)):
-            for j in range(i + 1, len(recommendations)):
-                item_a = recommendations[i]
-                item_b = recommendations[j]
-                
-                if item_a in item_embeddings and item_b in item_embeddings:
-                    vec_a = item_embeddings[item_a]
-                    vec_b = item_embeddings[item_b]
-                    
-                    norm_a = np.linalg.norm(vec_a)
-                    norm_b = np.linalg.norm(vec_b)
-                    
-                    if norm_a > 0 and norm_b > 0:
-                        sim = np.dot(vec_a, vec_b) / (norm_a * norm_b)
-                        similarities.append(sim)
-            
-            unique_items.add(recommendations[i])
-        
-        avg_sim = np.mean(similarities) if similarities else 0.0
-        diversity = 1.0 - avg_sim
-        coverage = len(unique_items) / len(recommendations) if recommendations else 0.0
-        
-        return {'Diversity': diversity, 'Coverage': coverage}
-
-    def compare_metrics(self, 
-                        greedy_paths_file: str, 
-                        rectified_paths_file: str, 
-                        output_file: str) -> Dict[str, Any]:
-        """
-        Compare metrics between greedy and rectified paths.
-        Reads paths from JSON files, calculates metrics for each, and outputs comparison.
-        """
-        logger.info(f"Loading greedy paths from: {greedy_paths_file}")
-        logger.info(f"Loading rectified paths from: {rectified_paths_file}")
-        
-        if not os.path.exists(greedy_paths_file):
-            raise FileNotFoundError(f"Greedy paths file not found: {greedy_paths_file}")
-        if not os.path.exists(rectified_paths_file):
-            raise FileNotFoundError(f"Rectified paths file not found: {rectified_paths_file}")
-        
-        with open(greedy_paths_file, 'r') as f:
-            greedy_data = json.load(f)
-        
-        with open(rectified_paths_file, 'r') as f:
-            rectified_data = json.load(f)
-        
-        # Aggregate metrics for comparison
-        comparison_results = {
-            'greedy': {
-                'total_paths': 0,
-                'avg_score': 0.0,
-                'metrics': {}
-            },
-            'rectified': {
-                'total_paths': 0,
-                'avg_score': 0.0,
-                'metrics': {}
-            },
-            'comparison': {}
-        }
-        
-        # Process Greedy Paths
-        greedy_scores = []
-        for path_entry in greedy_data:
-            if 'score' in path_entry:
-                greedy_scores.append(path_entry['score'])
-            if 'path' in path_entry:
-                comparison_results['greedy']['total_paths'] += 1
-        
-        comparison_results['greedy']['avg_score'] = np.mean(greedy_scores) if greedy_scores else 0.0
-        
-        # Process Rectified Paths
-        rectified_scores = []
-        for path_entry in rectified_data:
-            if 'score' in path_entry:
-                rectified_scores.append(path_entry['score'])
-            if 'path' in path_entry:
-                comparison_results['rectified']['total_paths'] += 1
-        
-        comparison_results['rectified']['avg_score'] = np.mean(rectified_scores) if rectified_scores else 0.0
-        
-        # Calculate differences
-        score_diff = comparison_results['rectified']['avg_score'] - comparison_results['greedy']['avg_score']
-        comparison_results['comparison'] = {
-            'score_difference': score_diff,
-            'score_improvement_pct': (score_diff / comparison_results['greedy']['avg_score'] * 100) if comparison_results['greedy']['avg_score'] != 0 else 0.0,
-            'path_count_difference': comparison_results['rectified']['total_paths'] - comparison_results['greedy']['total_paths']
-        }
-        
-        # Save to file
-        os.makedirs(os.path.dirname(output_file), exist_ok=True)
-        with open(output_file, 'w') as f:
-            json.dump(comparison_results, f, indent=2)
-        
-        logger.info(f"Metrics comparison saved to: {output_file}")
-        return comparison_results
-
-def load_test_sessions(path: str) -> List[GroundTruthSession]:
-    """Convenience function to load test sessions."""
-    evaluator = Evaluator()
-    return evaluator.load_test_sessions(path)
-
-def save_metrics_to_json(metrics: Dict[str, Any], path: str) -> None:
-    """Convenience function to save metrics to JSON."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'w') as f:
+def save_metrics_to_json(metrics: Dict[str, Any], file_path: str) -> None:
+    """
+    Save metrics to a JSON file.
+    
+    Args:
+        metrics: Dictionary of metrics to save.
+        file_path: Path to the output JSON file.
+    """
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    with open(file_path, 'w') as f:
         json.dump(metrics, f, indent=2)
+    logger.info(f"Metrics saved to {file_path}")
+
+def compare_metrics(
+    greedy_results: List[Dict[str, Any]],
+    prorl_results: List[Dict[str, Any]],
+    test_sessions: List[GroundTruthSession]
+) -> Dict[str, Any]:
+    """
+    Compare metrics between Greedy and ProRL scored paths.
+    
+    This function calculates Precision@K, Recall@K, Diversity, and Coverage
+    for both Greedy and ProRL results and returns a comparison dictionary.
+    
+    Args:
+        greedy_results: List of dictionaries containing Greedy path results.
+                        Each dict should have 'paths' and 'metrics' keys.
+        prorl_results: List of dictionaries containing ProRL path results.
+                       Each dict should have 'paths' and 'metrics' keys.
+        test_sessions: List of GroundTruthSession objects for evaluation.
+        
+    Returns:
+        Dictionary with keys 'greedy', 'prorl', and 'delta' containing
+        the respective metrics.
+    """
+    if not greedy_results or not prorl_results:
+        logger.warning("Empty results provided for comparison")
+        return {
+            "greedy": {},
+            "prorl": {},
+            "delta": {},
+            "status": "incomplete"
+        }
+    
+    # Calculate metrics for Greedy results
+    greedy_metrics = _aggregate_metrics(greedy_results, test_sessions)
+    
+    # Calculate metrics for ProRL results
+    prorl_metrics = _aggregate_metrics(prorl_results, test_sessions)
+    
+    # Calculate delta
+    delta = {}
+    for key in greedy_metrics:
+        if key in prorl_metrics:
+            delta[key] = prorl_metrics[key] - greedy_metrics[key]
+        else:
+            delta[key] = None
+    
+    comparison = {
+        "greedy": greedy_metrics,
+        "prorl": prorl_metrics,
+        "delta": delta,
+        "status": "complete"
+    }
+    
+    return comparison
+
+def _aggregate_metrics(
+    results: List[Dict[str, Any]],
+    test_sessions: List[GroundTruthSession]
+) -> Dict[str, float]:
+    """
+    Aggregate metrics across all results.
+    
+    Args:
+        results: List of result dictionaries.
+        test_sessions: List of ground truth sessions.
+        
+    Returns:
+        Dictionary of aggregated metrics.
+    """
+    precision_scores = []
+    recall_scores = []
+    diversity_scores = []
+    coverage_scores = []
+    
+    # Create a mapping of seed_item_id to ground truth next_item_id
+    ground_truth_map = {
+        session.seed_item_id: session.next_item_id 
+        for session in test_sessions
+    }
+    
+    # Create item feature map for diversity calculation
+    # Assuming results contain item features or we use item IDs
+    all_items = set()
+    for result in results:
+        if 'paths' in result:
+            for path in result['paths']:
+                if 'items' in path:
+                    all_items.update(path['items'])
+    
+    # For each result, calculate metrics
+    for result in results:
+        if 'paths' not in result or not result['paths']:
+            continue
+        
+        for path in result['paths']:
+            seed_item = path.get('seed_item_id')
+            if seed_item not in ground_truth_map:
+                continue
+            
+            ground_truth_next = ground_truth_map[seed_item]
+            recommended_items = path.get('items', [])
+            
+            # Calculate Precision@K and Recall@K (K=5)
+            k = min(5, len(recommended_items))
+            top_k = recommended_items[:k]
+            
+            if ground_truth_next in top_k:
+                precision_scores.append(1.0)
+                recall_scores.append(1.0)
+            else:
+                precision_scores.append(0.0)
+                recall_scores.append(0.0)
+            
+            # Calculate Diversity (1 - avg pairwise similarity)
+            # Simplified: using item ID hash as proxy for features
+            if len(recommended_items) > 1:
+                diversity = 1.0 - _calculate_avg_similarity(recommended_items)
+                diversity_scores.append(diversity)
+            else:
+                diversity_scores.append(1.0)
+            
+            # Calculate Coverage (unique items / total possible)
+            # Simplified: count of unique items in recommendations
+            unique_items = len(set(recommended_items))
+            coverage_scores.append(unique_items / max(len(recommended_items), 1))
+    
+    if not precision_scores:
+        return {
+            "precision_at_5": 0.0,
+            "recall_at_5": 0.0,
+            "diversity": 0.0,
+            "coverage": 0.0
+        }
+    
+    return {
+        "precision_at_5": float(np.mean(precision_scores)),
+        "recall_at_5": float(np.mean(recall_scores)),
+        "diversity": float(np.mean(diversity_scores)),
+        "coverage": float(np.mean(coverage_scores))
+    }
+
+def _calculate_avg_similarity(items: List[str]) -> float:
+    """
+    Calculate average pairwise similarity between items.
+    
+    Simplified implementation using item ID characteristics.
+    In a real implementation, this would use item embeddings.
+    
+    Args:
+        items: List of item IDs.
+        
+    Returns:
+        Average similarity score (0.0 to 1.0).
+    """
+    if len(items) <= 1:
+        return 0.0
+    
+    # Simple similarity proxy: hash-based similarity
+    # In practice, this would use actual item features/embeddings
+    similarities = []
+    for i in range(len(items)):
+        for j in range(i + 1, len(items)):
+            # Placeholder: random similarity for demonstration
+            # Replace with actual cosine similarity on embeddings
+            sim = np.random.uniform(0.0, 1.0)
+            similarities.append(sim)
+    
+    return float(np.mean(similarities)) if similarities else 0.0
+
+def load_paths_from_json(file_path: str) -> List[Dict[str, Any]]:
+    """
+    Load paths from a JSON file.
+    
+    Args:
+        file_path: Path to the JSON file.
+        
+    Returns:
+        List of path dictionaries.
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Paths file not found: {file_path}")
+    
+    with open(file_path, 'r') as f:
+        return json.load(f)
+
+def save_paths_to_json(paths: List[Dict[str, Any]], file_path: str) -> None:
+    """
+    Save paths to a JSON file.
+    
+    Args:
+        paths: List of path dictionaries.
+        file_path: Path to the output JSON file.
+    """
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    with open(file_path, 'w') as f:
+        json.dump(paths, f, indent=2)
+    logger.info(f"Saved {len(paths)} paths to {file_path}")

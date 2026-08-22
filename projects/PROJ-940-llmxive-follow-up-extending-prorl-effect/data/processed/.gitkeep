@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists
+# This directory holds processed, cleaned, and feature-engineered data.
+# Intermediate artifacts for the pipeline reside here.

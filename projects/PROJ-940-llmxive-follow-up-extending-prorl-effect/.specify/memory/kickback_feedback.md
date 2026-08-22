@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory tree or `__init__.py` files were presented as evidence; without a visible listing of `src/`, `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `results/` and the required empty `__init__.py` files, we cannot confirm the project structure was actually created. The implementer must provide a file‑system snapshot or listing showing these directories and files.
-- `T005` (rejected 1x): No directory structure or `.gitkeep` files were presented; the response contains only the task description and no tangible artifacts confirming that `data/raw/`, `data/processed/`, and `results/` exist with placeholder files. The required files are missing.
+- `T025` (rejected 1x): The provided `src/main.py` does not contain any logic that computes the mean absolute difference between rectified and raw scores or writes a `results/sc005_status.json` file, and the required `results/sc005_status.json` file is absent from the repository. Both the validation implementation and the output artifact are missing.
+- `T028b` (rejected 1x): declared artifact(s) missing/empty/invalid: src/stats.py
 
 ## Required change
 

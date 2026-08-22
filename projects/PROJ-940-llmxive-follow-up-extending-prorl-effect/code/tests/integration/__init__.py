@@ -1,1 +1,1 @@
-"""Integration tests."""
+# Package initialization

@@ -5,11 +5,17 @@ import logging
 import sys
 from typing import List, Dict, Any, Optional
 
+# Import existing utilities and components
 from src.config import get_config
-from src.data_loader import load_dataset, split_test_sessions
-from src.graph_builder import build_graph, get_connected_component
-from src.path_generator import generate_greedy_paths, generate_beam_paths, apply_prorl_rectification
-from src.evaluator import load_test_sessions, save_metrics_to_json, Evaluator
+from src.data_loader import load_sessions
+from src.graph_builder import build_graph
+from src.path_generator import (
+    generate_greedy_paths,
+    apply_src,
+    apply_psa,
+    apply_prorl_rectification
+)
+from src.evaluator import Evaluator, load_test_sessions, save_metrics_to_json
 from src.exceptions import DataFetchError, GraphDisconnectionError
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -18,8 +24,7 @@ logger = logging.getLogger(__name__)
 def load_paths_from_json(filepath: str) -> List[Dict[str, Any]]:
     """Load paths from a JSON file."""
     if not os.path.exists(filepath):
-        logger.warning(f"File not found: {filepath}, returning empty list.")
-        return []
+        raise FileNotFoundError(f"Paths file not found: {filepath}")
     with open(filepath, 'r') as f:
         return json.load(f)
 
@@ -30,161 +35,148 @@ def save_paths_to_json(paths: List[Dict[str, Any]], filepath: str) -> None:
         json.dump(paths, f, indent=2)
     logger.info(f"Saved {len(paths)} paths to {filepath}")
 
-def run_evaluation_pipeline(
-    dataset_name: str,
-    seed_item_id: Optional[str] = None,
-    k: int = 10
-) -> None:
+def validate_schema(data: Dict[str, Any], expected_keys: List[str]) -> bool:
+    """Validate that data contains expected keys."""
+    missing = [k for k in expected_keys if k not in data]
+    if missing:
+        logger.error(f"Schema validation failed. Missing keys: {missing}")
+        return False
+    return True
+
+def validate_sc005(greedy_paths: List[Dict[str, Any]], rectified_paths: List[Dict[str, Any]], threshold: float = 0.01) -> Dict[str, Any]:
     """
-    Run the full evaluation pipeline:
-    1. Load data and build graph.
-    2. Generate Greedy and Beam paths.
-    3. Apply ProRL rectification.
-    4. Evaluate against test set.
-    5. Save results.
+    Implement SC-005: Verify mean absolute difference between rectified and raw scores >= 0.01 for Greedy paths only.
+    
+    Args:
+        greedy_paths: List of path dictionaries with 'score' key (raw greedy scores)
+        rectified_paths: List of path dictionaries with 'score' key (ProRL rectified scores)
+        threshold: Minimum required mean absolute difference (default 0.01)
+    
+    Returns:
+        Dict with status ('pass'/'fail'), calculated value, and threshold
     """
-    config = get_config()
+    if len(greedy_paths) != len(rectified_paths):
+        raise ValueError(f"Path count mismatch: {len(greedy_paths)} greedy vs {len(rectified_paths)} rectified")
     
-    # 1. Load Data
-    logger.info(f"Loading dataset: {dataset_name}")
-    try:
-        data = load_dataset(dataset_name, streaming=False) # Load full for graph building if feasible, or stream logic adapted
-        # Note: For large datasets, streaming logic in load_dataset should handle sampling as per T009a
-        if data is None:
-            raise DataFetchError(f"Failed to load dataset {dataset_name}")
-    except Exception as e:
-        logger.error(f"Data loading failed: {e}")
-        raise
-
-    # 2. Build Graph
-    logger.info("Building similarity graph...")
-    graph = build_graph(data, config)
-    
-    # 3. Generate Paths
-    # If seed_item_id is provided, run for specific seed; else run for all test seeds
-    seeds = [seed_item_id] if seed_item_id else [s['seed_id'] for s in load_test_sessions(dataset_name)]
-    
-    all_greedy_paths = []
-    all_greedy_rectified = []
-    all_beam_rectified = []
-
-    for seed in seeds:
-        if seed is None: continue
-        logger.info(f"Processing seed: {seed}")
-        
-        # Greedy
-        greedy_paths = generate_greedy_paths(seed, graph, config)
-        all_greedy_paths.extend(greedy_paths)
-        
-        # Rectify Greedy
-        rectified_greedy = apply_prorl_rectification(greedy_paths, config)
-        all_greedy_rectified.extend(rectified_greedy)
-        
-        # Beam
-        beam_paths = generate_beam_paths(seed, graph, config)
-        rectified_beam = apply_prorl_rectification(beam_paths, config)
-        all_beam_rectified.extend(rectified_beam)
-
-    # 4. Save Raw and Rectified Paths
-    base_results = "code/results"
-    save_paths_to_json(all_greedy_paths, f"{base_results}/greedy_paths.json")
-    save_paths_to_json(all_greedy_rectified, f"{base_results}/greedy_rectified_paths.json")
-    save_paths_to_json(all_beam_rectified, f"{base_results}/beam_rectified_paths.json")
-
-    # 5. Evaluate
-    logger.info("Running evaluation against test set...")
-    evaluator = Evaluator(dataset_name)
-    metrics = evaluator.evaluate(all_greedy_paths, all_greedy_rectified, all_beam_rectified, k)
-    save_metrics_to_json(metrics, f"{base_results}/evaluation_metrics.json")
-
-def validate_sc005(
-    raw_paths_file: str = "code/results/greedy_paths.json",
-    rectified_paths_file: str = "code/results/greedy_rectified_paths.json",
-    threshold: float = 0.01,
-    output_file: str = "code/results/sc005_status.json"
-) -> Dict[str, Any]:
-    """
-    Validates Specification SC-005:
-    Verify that the mean absolute difference between rectified and raw scores is >= threshold.
-    
-    Writes the result to output_file.
-    """
-    logger.info(f"Validating SC-005: Comparing {raw_paths_file} vs {rectified_paths_file}")
-    
-    raw_paths = load_paths_from_json(raw_paths_file)
-    rectified_paths = load_paths_from_json(rectified_paths_file)
-    
-    if not raw_paths or not rectified_paths:
-        logger.error("One or both path files are empty. Cannot validate SC-005.")
-        status = {
+    if len(greedy_paths) == 0:
+        logger.warning("No paths to evaluate for SC-005. Returning fail.")
+        return {
             "status": "fail",
-            "reason": "Missing path data",
-            "threshold": threshold,
-            "measured_diff": None
+            "value": 0.0,
+            "threshold": threshold
         }
-    else:
-        # Create a map for quick lookup if IDs match, or assume order matches if generated sequentially
-        # Ideally, we match by path_id or seed_id. Assuming the lists are aligned by generation order for this specific task scope.
-        # If IDs exist, use them.
-        diffs = []
-        for i, rect_path in enumerate(rectified_paths):
-            if i < len(raw_paths):
-                raw_score = raw_paths[i].get('score', 0.0)
-                rect_score = rect_path.get('score', 0.0)
-                diffs.append(abs(rect_score - raw_score))
-        
-        if not diffs:
-            logger.error("No overlapping paths found to compare scores.")
-            status = {
-                "status": "fail",
-                "reason": "No overlapping paths",
-                "threshold": threshold,
-                "measured_diff": None
-            }
-        else:
-            mean_diff = sum(diffs) / len(diffs)
-            passed = mean_diff >= threshold
-            
-            logger.info(f"Mean Absolute Difference: {mean_diff:.6f} (Threshold: {threshold})")
-            status = {
-                "status": "pass" if passed else "fail",
-                "threshold": threshold,
-                "measured_diff": mean_diff,
-                "num_paths_compared": len(diffs)
-            }
     
-    # Write output
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w') as f:
-        json.dump(status, f, indent=2)
+    raw_scores = [p.get('score', 0.0) for p in greedy_paths]
+    rectified_scores = [p.get('score', 0.0) for p in rectified_paths]
     
-    logger.info(f"SC-005 validation result written to {output_file}")
-    return status
+    abs_diffs = [abs(r - g) for r, g in zip(rectified_scores, raw_scores)]
+    mean_abs_diff = sum(abs_diffs) / len(abs_diffs)
+    
+    status = "pass" if mean_abs_diff >= threshold else "fail"
+    
+    result = {
+        "status": status,
+        "value": float(mean_abs_diff),
+        "threshold": float(threshold)
+    }
+    
+    logger.info(f"SC-005 Check: Mean Abs Diff = {mean_abs_diff:.6f} (Threshold: {threshold}) -> {status.upper()}")
+    return result
+
+def generate_greedy_only_baseline(seed_item: str, graph: Dict, config: Dict) -> List[Dict[str, Any]]:
+    """Generate greedy paths only (no beam search) for baseline comparison."""
+    logger.info(f"Generating greedy-only baseline for seed: {seed_item}")
+    paths = generate_greedy_paths(seed_item, graph, config)
+    return paths
+
+def run_evaluation_pipeline(seed_item: str, test_sessions: List[Dict], graph: Dict, config: Dict) -> Dict[str, Any]:
+    """
+    Run the full evaluation pipeline for a single seed item.
+    Returns metrics and path data for SC-005 validation.
+    """
+    # 1. Generate Greedy Paths (Raw)
+    greedy_paths = generate_greedy_only_baseline(seed_item, graph, config)
+    if not greedy_paths:
+        logger.warning(f"No greedy paths generated for seed {seed_item}")
+        return {"paths": [], "metrics": {}, "sc005_data": None}
+    
+    # 2. Apply ProRL Rectification (SRC + PSA)
+    # Apply SRC
+    rectified_paths = apply_src(greedy_paths, config)
+    # Apply PSA
+    rectified_paths = apply_psa(rectified_paths, config)
+    
+    # 3. Evaluate against ground truth
+    evaluator = Evaluator(test_sessions)
+    metrics = evaluator.evaluate_paths(rectified_paths, seed_item)
+    
+    return {
+        "paths": {
+            "greedy": greedy_paths,
+            "rectified": rectified_paths
+        },
+        "metrics": metrics,
+        "sc005_data": {
+            "greedy_scores": [p['score'] for p in greedy_paths],
+            "rectified_scores": [p['score'] for p in rectified_paths]
+        }
+    }
 
 def main():
-    parser = argparse.ArgumentParser(description="llmXive ProRL Evaluation Pipeline")
-    parser.add_argument('--dataset', type=str, default='ml-latest-small', help='Dataset to use')
-    parser.add_argument('--seed', type=str, default=None, help='Specific seed item ID (optional)')
-    parser.add_argument('--k', type=int, default=10, help='K for evaluation metrics')
-    parser.add_argument('--validate-sc005', action='store_true', help='Run SC-005 validation only')
-    parser.add_argument('--raw-paths', type=str, default='code/results/greedy_paths.json', help='Path to raw paths JSON')
-    parser.add_argument('--rectified-paths', type=str, default='code/results/greedy_rectified_paths.json', help='Path to rectified paths JSON')
-    
+    parser = argparse.ArgumentParser(description="llmXive ProRL Pipeline")
+    parser.add_argument("--dataset", type=str, default="ml-latest-small", help="Dataset to use")
+    parser.add_argument("--seed", type=str, default="123", help="Seed item ID")
+    parser.add_argument("--config", type=str, default="config.yaml", help="Config file path")
     args = parser.parse_args()
+
+    config = get_config(args.config)
     
-    if args.validate_sc005:
-        validate_sc005(
-            raw_paths_file=args.raw_paths,
-            rectified_paths_file=args.rectified_paths
+    # Load Data
+    try:
+        logger.info(f"Loading sessions from {args.dataset}...")
+        sessions = load_sessions(args.dataset, streaming=True)
+    except DataFetchError as e:
+        logger.error(f"Failed to load data: {e}")
+        sys.exit(1)
+
+    # Build Graph
+    logger.info("Building similarity graph...")
+    graph = build_graph(sessions, config)
+
+    # Load Test Sessions
+    test_sessions = load_test_sessions(sessions)
+
+    # Run Evaluation
+    results = run_evaluation_pipeline(args.seed, test_sessions, graph, config)
+
+    # Save Intermediate Results
+    os.makedirs("results", exist_ok=True)
+    
+    # Save Greedy Paths
+    greedy_paths = results["paths"]["greedy"]
+    save_paths_to_json(greedy_paths, "results/greedy_paths.json")
+
+    # Save Rectified Paths
+    rectified_paths = results["paths"]["rectified"]
+    save_paths_to_json(rectified_paths, "results/greedy_rectified_paths.json")
+
+    # SC-005 Validation
+    if results["sc005_data"]:
+        sc005_result = validate_sc005(
+            results["sc005_data"]["greedy_scores"],
+            results["sc005_data"]["rectified_scores"]
         )
+        with open("results/sc005_status.json", 'w') as f:
+            json.dump(sc005_result, f, indent=2)
+        logger.info(f"SC-005 Status written to results/sc005_status.json")
     else:
-        run_evaluation_pipeline(
-            dataset_name=args.dataset,
-            seed_item_id=args.seed,
-            k=args.k
-        )
-        # Automatically run validation after pipeline
-        validate_sc005()
+        logger.warning("SC-005 data not available. Skipping validation.")
+
+    # Save Metrics
+    if results["metrics"]:
+        save_metrics_to_json(results["metrics"], "results/metrics_comparison.json")
+
+    logger.info("Pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

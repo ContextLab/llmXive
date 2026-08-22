@@ -1,65 +1,58 @@
 import os
 import sys
 
-def create_structure():
+def create_structure(base_dir="."):
     """
-    Creates the standard project directory structure and initializes
-    necessary __init__.py and .gitkeep files.
+    Creates the project directory structure and initializes __init__.py files.
+    
+    Directories created:
+    - src/
+    - tests/unit/
+    - tests/integration/
+    - data/raw/
+    - data/processed/
+    - results/
+    
+    Files created:
+    - src/__init__.py
+    - tests/__init__.py
+    - tests/unit/__init__.py
+    - tests/integration/__init__.py
     """
-    # Define the base directories relative to the project root
-    base_dirs = [
-        "code/src",
-        "code/tests/unit",
-        "code/tests/integration",
-        "code/data/raw",
-        "code/data/processed",
-        "code/results"
+    directories = [
+        "src",
+        "tests/unit",
+        "tests/integration",
+        "data/raw",
+        "data/processed",
+        "results"
     ]
-
-    # Create directories
-    for dir_path in base_dirs:
-        os.makedirs(dir_path, exist_ok=True)
-        print(f"Created directory: {dir_path}")
-
-    # Create __init__.py files
+    
     init_files = [
-        "code/src/__init__.py",
-        "code/tests/__init__.py",
-        "code/tests/unit/__init__.py",
-        "code/tests/integration/__init__.py"
+        "src/__init__.py",
+        "tests/__init__.py",
+        "tests/unit/__init__.py",
+        "tests/integration/__init__.py"
     ]
-
+    
+    for dir_path in directories:
+        full_path = os.path.join(base_dir, dir_path)
+        os.makedirs(full_path, exist_ok=True)
+        print(f"Created directory: {full_path}")
+    
     for file_path in init_files:
+        full_path = os.path.join(base_dir, file_path)
         # Ensure parent directory exists before creating file
-        parent_dir = os.path.dirname(file_path)
-        os.makedirs(parent_dir, exist_ok=True)
+        parent_dir = os.path.dirname(full_path)
+        if parent_dir and not os.path.exists(parent_dir):
+            os.makedirs(parent_dir, exist_ok=True)
         
-        if not os.path.exists(file_path):
-            with open(file_path, 'w') as f:
-                f.write("")
-            print(f"Created empty file: {file_path}")
+        if not os.path.exists(full_path):
+            with open(full_path, 'w') as f:
+                f.write("# Package initialization\n")
+            print(f"Created file: {full_path}")
         else:
-            print(f"File already exists (skipped): {file_path}")
-
-    # Create .gitkeep files for data directories
-    gitkeep_files = [
-        "code/data/raw/.gitkeep",
-        "code/data/processed/.gitkeep",
-        "code/results/.gitkeep"
-    ]
-
-    for file_path in gitkeep_files:
-        parent_dir = os.path.dirname(file_path)
-        os.makedirs(parent_dir, exist_ok=True)
-        
-        if not os.path.exists(file_path):
-            with open(file_path, 'w') as f:
-                f.write("# Keep this directory in git")
-            print(f"Created .gitkeep file: {file_path}")
-        else:
-            print(f"File already exists (skipped): {file_path}")
-
-    print("Project structure creation complete.")
+            print(f"File already exists: {full_path}")
 
 if __name__ == "__main__":
     create_structure()

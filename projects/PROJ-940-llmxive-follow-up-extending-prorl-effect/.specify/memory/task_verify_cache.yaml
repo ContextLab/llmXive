@@ -1,3 +1,17 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree, files, or any listing of `src/`, `tests/unit/`, `tests/integration/`,
+    `data/raw/`, `data/processed/`, `results/`, or the required `__init__.py` files
+    were provided. The claim lacks concrete artifacts to verify that the project structure
+    was actually created.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw/`, `data/processed/`, and `results/` directories\
+    \ or accompanying `.gitkeep` files is present; the implementer\u2019s claim cannot\
+    \ be verified without those artifacts. The task remains undone until the directory\
+    \ structure and placeholder files are created."
 T009a:
   c: false
   h: b4535a967562fce222fc3f8d191f9fc8ba63f33696bba1013d77b6d9659d7c3d
@@ -13,20 +27,36 @@ T012:
     repository, so no integration test for disconnected graph handling is present.
     The task cannot be considered completed until this file is added with appropriate
     test code.
-T024:
+T018a:
   c: false
-  h: 8982599c1dace3fcbf9b9782c706f4937f43095324104215e2fcfa5a0a4ffab7
-  r: The provided `src/main.py` exists but does not produce the required output files;
-    `results/greedy_paths.json`, `results/greedy_rectified_paths.json`, and `results/beam_rectified_paths.json`
-    are missing. Consequently the evaluation pipeline on the full test set has not
-    been executed as specified.
-T025:
+  h: c4d70fc5f87e23a31c2dbd880e0852d490fffc0c3bace8f4be0bf77b46662e99
+  r: "The required output file `results/greedy_only_metrics.json` does not exist,\
+    \ and the provided `src/main.py` snippet shows only pipeline orchestration without\
+    \ any code that computes or writes Greedy\u2011only baseline metrics. Consequently\
+    \ the task\u2019s core requirement is unmet."
+T024a:
   c: false
-  h: ff32c323502362d085d8583d68c36149ae56a0baddb94ae04799308708f63dc9
-  r: The provided `src/main.py` does not contain any logic that computes the mean
-    absolute difference between rectified and raw scores or writes a `results/sc005_status.json`
-    file, and the required `results/sc005_status.json` file is absent from the repository.
-    Both the validation implementation and the output artifact are missing.
+  h: 64f5270bcc80cb3f82d3968f393ea9153f8cffb4be8e5c103b4838f9a671fc26
+  r: The provided `src/evaluator.py` does not contain a `compare_metrics` function
+    (the file is truncated and shows no such implementation), and the required output
+    file `results/metrics_comparison.json` is absent. Both the function implementation
+    and the JSON result are missing, so the task is not satisfied.
+T024b:
+  c: false
+  h: 417b016a381d5e7f0874054dc2623d78bc825dc8c475111346ee41e28dadd4a0
+  r: The `results/greedy_paths.json` and `results/greedy_rectified_paths.json` files
+    are absent, so the pipeline does not produce the required output files. Additionally,
+    the provided `src/main.py` snippet does not show any code that writes those specific
+    JSON files with the required `["paths", "metrics"]` structure. The implementer
+    must add logic to generate and save these files for the full test set.
+T024c:
+  c: false
+  h: 417b016a381d5e7f0874054dc2623d78bc825dc8c475111346ee41e28dadd4a0
+  r: "The provided `src/main.py` shows only pipeline orchestration and does not contain\
+    \ any code that validates the schema of `results/greedy_paths.json` or `results/greedy_rectified_paths.json`.\
+    \ Additionally, the required JSON files are missing from the repository, so the\
+    \ validation logic cannot even be exercised. The task\u2019s core requirement\u2014\
+    implementing schema\u2011validation logic\u2014is not satisfied."
 T025b:
   c: false
   h: e766a8a3f4de2640c08cc64c169ce859293f873efa96c4408641b3b4551239fc

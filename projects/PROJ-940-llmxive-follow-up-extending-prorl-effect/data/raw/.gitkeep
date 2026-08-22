@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists
+# This directory holds raw, unprocessed dataset files.
+# Do not commit large data files; use .gitignore for actual data.

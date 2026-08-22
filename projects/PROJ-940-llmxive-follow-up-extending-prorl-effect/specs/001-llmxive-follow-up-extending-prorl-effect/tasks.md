@@ -27,6 +27,7 @@
 - [ ] T001 Create project structure: Create directories `src/`, `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `results/`. Create empty `__init__.py` in `src/` and `tests/`.
 - [X] T002 Initialize Python 3.11 project with dependencies (`pandas`, `numpy`, `scikit-learn`, `networkx`, `scipy`, `datasets`, `pyyaml`, `pytest`) in `requirements.txt`. Content: `pandas`, `numpy`, `scikit-learn`, `networkx`, `scipy`, `datasets`, `pyyaml`, `pytest`.
 - [X] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools in `pyproject.toml`
+- [ ] T005 [P] Create data directory structure with.gitkeep files: Create directories `data/raw/`, `data/processed/`, `results/` and add `.gitkeep` files to each.
 
 ---
 
@@ -37,7 +38,6 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `src/config.py` to define hyperparameters (path length L=5, alpha=0.1, beam_width=50, random_seed=42) and load via `pyyaml`
-- [ ] T005 [P] Create data directory structure (`data/raw/`, `data/processed/`, `results/`) with `.gitkeep` files
 - [X] T006 Implement `src/utils/io.py` for deterministic file I/O (JSON/Parquet) and checksum verification
 - [X] T007 Create `src/entities.py` defining `ItemNode`, `SimilarityEdge`, `RecommendationPath`, and `EvaluationMetric` dataclasses
 - [X] T008 Setup error handling infrastructure in `src/exceptions.py` (e.g., `GraphDisconnectionError`, `DataFetchError`)
@@ -46,7 +46,12 @@
 - [X] T013a [P] [Foundational] Implement data loader in `src/data_loader.py` for **Amazon Books** dataset using `datasets.load_dataset('amazon_books', streaming=True)`; ensure it fails loudly on fetch errors without synthetic fallback (FR-001).
 - [X] T013b [P] [Foundational] Implement data loader in `src/data_loader.py` for **Last.fm** dataset using `datasets.load_dataset('lastfm', streaming=True)`; ensure it fails loudly on fetch errors without synthetic fallback (FR-001).
 - [X] T013c [P] [Foundational] Implement data loader in `src/data_loader.py` for **MovieLens** dataset using `datasets.load_dataset('ml-latest-small', streaming=True)`; ensure it fails loudly on fetch errors without synthetic fallback (FR-001).
-- [X] T013d [Foundational] Implement data splitting logic in `src/data_loader.py` to generate a held-out test set of user sessions (seed -> next item) for cold-start evaluation. **Must use a time-based split**: Sort sessions by timestamp per user (MovieLens: 'timestamp', Amazon Books: 'reviewTime', Last.fm: 'date'; raise error if no timestamp column exists), then take a portion of the most recent sessions as the test set. This ensures the split respects the 'next item' cold-start logic (FR-001, US2 dependency).
+- [ ] T013d-1 [Foundational] Implement data fetching in `src/data_loader.py` to retrieve sessions from the selected dataset (default MovieLens). **Note**: This task must complete before T013d-1a.
+- [ ] T013d-1a [Foundational] Implement timestamp extraction in `src/data_loader.py` to identify and extract the timestamp column (e.g., 'timestamp', 'reviewTime', 'date') from session data. Raise `DataFetchError` if no timestamp column exists. **Dependency**: T013d-1.
+- [ ] T013d-2 [Foundational] Implement session sorting in `src/data_loader.py` to sort sessions by timestamp per user. **Dependency**: T013d-1a.
+- [ ] T013d-2a [Foundational] Implement next-item extraction in `src/data_loader.py` to extract the **immediate next item** as the ground truth label for cold-start evaluation (US-2). **Dependency**: T013d-2.
+- [ ] T013d-2b [Foundational] Implement train/test split in `src/data_loader.py` to split sessions into train and test sets. **Dependency**: T013d-2a.
+- [ ] T013d-6 [Foundational] Implement graceful handling in `src/data_loader.py` for the scenario where the test set contains no sessions matching the cold-start seed items. **Action**: Return an empty/null result set and log a warning; DO NOT raise a hard error. **Dependency**: T013d-2b.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -70,10 +75,14 @@
 
 - [X] T014 [US1] Implement `src/graph_builder.py` to construct a static item-similarity graph using cosine similarity on genre/features; handle zero-overlap neighbors by assigning score 0.0 and skipping them (FR-009).
 - [X] T015 [US1] Implement `src/graph_builder.py` logic to handle disconnected components by truncating paths or returning null results without crashing (FR-007).
-- [X] T016a [US1] Implement `src/path_generator.py` function `generate_greedy_paths` to generate the **standard greedy heuristic** baseline paths of length L=5 based on immediate similarity to the seed (FR-003).
-- [X] T016b [US1] Implement `src/path_generator.py` function `generate_beam_paths` to generate a diverse candidate pool of paths using **Beam Search** (B=50) for extended analysis (secondary to Greedy baseline).
-- [X] T017 [US1] Implement `src/path_generator.py` function `apply_prorl_rectification` to calculate Stepwise Reward Centering ($S_{rect} = S_{raw} - \mu_{batch}$) and Position-Specific Advantage ($S_{final} = S_{rect} \times (1 + \alpha \times pos)$) on the output of T016a (Greedy paths - PRIMARY HYPOTHESIS TEST) and T016b (Beam pool - secondary).
-- [X] T018 [US1] Implement `src/main.py` orchestration logic to chain data loading, graph building, path generation (both Greedy and Beam), and rectification for a single cold-start seed item.
+- [X] T016a [US1] Implement `src/path_generator.py` function `generate_greedy_paths` to generate the **standard greedy heuristic** baseline paths of length L=5 based on immediate similarity to the seed. **This is the PRIMARY BASELINE for the hypothesis test (FR-003)**.
+- [X] T016b [US1] Implement `src/path_generator.py` function `generate_beam_paths` to generate a diverse candidate pool of paths using **Beam Search** (B=50) for **Secondary Analysis only**. **Note**: This is NOT the primary baseline for the hypothesis test. **Dependency**: T016a.
+- [X] T017a [US1] Implement `src/path_generator.py` function `apply_src` to calculate Stepwise Reward Centering ($S_{rect} = S_{raw} - \mu_{batch}$).
+- [X] T017b [US1] Implement `src/path_generator.py` function `apply_psa` to calculate Position-Specific Advantage ($S_{final} = S_{rect} \times (1 + \alpha \times pos)$).
+- [X] T017c [US1] Implement `src/path_generator.py` logic to apply SRC and PSA to the **Greedy paths** (from T016a) as the primary hypothesis test.
+- [X] T017d [US1] Implement `src/path_generator.py` logic to apply SRC and PSA to the **Beam paths** (from T016b) as secondary analysis.
+- [ ] T018a [US1] Implement `src/main.py` logic to generate **Greedy-only** baseline metrics for SC-005 comparison. **Output**: `results/greedy_only_metrics.json`. **Dependency**: T016a, T017c.
+- [X] T018b [US1] Implement `src/main.py` orchestration logic to chain data loading, graph building, path generation (Greedy primary, Beam secondary), and rectification for a single cold-start seed item.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -83,7 +92,7 @@
 
 **Goal**: Compare ProRL-scored paths against Greedy-scored paths, calculating Precision@K, Recall@K, Diversity, and Coverage against a held-out test set.
 
-**Independent Test**: Run the evaluation module on a fixed test set, comparing the metric values of the "ProRL-scored" list against the "Greedy" list, and verifying that the output includes the calculated metrics for both methods.
+**Independent Test**: Run the evaluation module on a fixed test set, comparing the metric values of the "ProRL-scored" list against the "Greedy" list, and verifying that the output includes the calculated metrics for both lists.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -95,9 +104,11 @@
 - [X] T021 [US2] Implement `src/evaluator.py` to load held-out test sessions (from T013d) and identify the "next item" ground truth for cold-start seeds.
 - [X] T022 [US2] Implement `src/evaluator.py` function `calculate_precision_recall` (FR-004) to compute Precision@K and Recall@K.
 - [X] T023 [US2] Implement `src/evaluator.py` function `calculate_diversity_coverage` (FR-004) to compute Diversity ($1 - \text{avg cosine sim}$) and Coverage.
-- [ ] T024 [US2] Implement `src/main.py` logic to run the evaluation pipeline on the full test set, generating `results/greedy_paths.json` (Greedy), `results/greedy_rectified_paths.json` (Greedy+ProRL), and `results/beam_rectified_paths.json` (Beam+ProRL). **This task depends on T021-T023 being defined.**
-- [ ] T025 [US2] Implement `src/main.py` validation logic to check SC-005: verify mean absolute difference between rectified and raw scores ≥ 0.01. **Must create or overwrite** `results/sc005_status.json` with the status (pass/fail) to ensure T032 can read it.
-- [ ] T025b [US2] Implement `src/evaluator.py` function `compare_metrics` to perform the side-by-side metric comparison (Precision@K, Diversity, etc.) between `results/greedy_paths.json` and `results/greedy_rectified_paths.json`, outputting the comparison results to `results/metrics_comparison.json` as required by US-2 and SC-001.
+- [ ] T024a [US2] Implement `src/evaluator.py` function `compare_metrics` to perform the side-by-side metric comparison (Precision@K, Diversity, etc.) between Greedy and ProRL results. **Output**: `results/metrics_comparison.json` with schema: `{"greedy": {...}, "prorl": {...}, "delta": {...}}`.
+- [ ] T024b [US2] Implement `src/main.py` logic to run the evaluation pipeline on the full test set, generating `results/greedy_paths.json` (Greedy) and `results/greedy_rectified_paths.json` (Greedy+ProRL). **Verification**: Ensure files exist and contain keys `["paths", "metrics"]` for each entry. **Dependency**: T024a.
+- [ ] T024c [US2] Implement `src/main.py` validation logic to verify schema of `results/greedy_paths.json` and `results/greedy_rectified_paths.json`. **Dependency**: T024b. <!-- FAILED: unspecified -->
+- [ ] T025 [US2] Implement `src/main.py` validation logic to check SC-005: verify mean absolute difference between rectified and raw scores ≥ 0.01 **for Greedy paths only**. **Output**: Create `results/sc005_status.json` with schema: `{"status": "pass" | "fail", "value": float, "threshold": 0.01}`. **Dependency**: T024b.
+- [X] T025b [US2] Implement `src/evaluator.py` function `compare_metrics` (if not done in T024a) or ensure T024a logic is correctly integrated. **Note**: This task is now merged into T024a. **Dependency**: T024b.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -105,7 +116,7 @@
 
 ## Phase 5: User Story 3 - Statistical Significance and Sensitivity Analysis (Priority: P3)
 
-**Goal**: Perform statistical significance testing (Shapiro-Wilk -> Wilcoxon/T-test) and sensitivity analysis on decision cutoffs.
+**Goal**: Perform statistical significance testing (Paired T-Test as primary, Wilcoxon as diagnostic) and sensitivity analysis on decision cutoffs.
 
 **Independent Test**: Modify the sensitivity analysis configuration to sweep a parameter and verify that the output includes a report of how metrics change across the sweep range.
 
@@ -116,11 +127,17 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `src/stats.py` function `perform_significance_test` (FR-005) to run Shapiro-Wilk, then conditionally run Paired T-test or Wilcoxon signed-rank test on metric differences per seed item.
-- [ ] T028b [US3] Implement `src/stats.py` function `execute_significance_test` to run the test from T028 on the metric differences from T025b, and explicitly record the p-values, confidence intervals, and conclusion (significant/not) to `results/statistical_significance.json` as required by SC-001.
-- [ ] T029 [US3] Implement `src/stats.py` function `run_sensitivity_analysis` (FR-006) to sweep **decision cutoffs**: **path length** (e.g., L=3,4,5) and **similarity threshold** (specifically {0.01, 0.05, 0.1}) and record headline rate variations.
-- [ ] T029b [US3] Implement `src/stats.py` function `aggregate_sensitivity_report` to aggregate the sweep results from T029 and generate a summary report showing how the false-positive/negative rates or inconsistency rates vary across these values, outputting to `results/sensitivity_report.json` as required by SC-002.
-- [ ] T030 [US3] Implement `src/main.py` logic to aggregate results and generate `results/statistical_report.json` including p-values, confidence intervals, and sweep summaries.
+- [ ] T028a [US3] Implement `src/stats.py` function `perform_shapiro_wilk` to check normality of metric differences.
+- [ ] T028b [US3] Implement `src/stats.py` function `perform_paired_ttest` to run the **required Paired T-Test** per Constitution Principle VII. **Note**: This is the primary test for SC-001. Wilcoxon is a diagnostic fallback only.
+- [ ] T028c [US3] Implement `src/stats.py` function `perform_wilcoxon` to run Wilcoxon signed-rank test as a diagnostic fallback if t-test assumptions are violated. **Note**: This is not the primary result.
+- [ ] T028 [US3] Implement `src/stats.py` function `perform_significance_test` (FR-005) to orchestrate T028a, T028b, and T028c. **Output**: `results/statistical_significance.json` with schema: `{"p_value": float, "confidence_interval": [float, float], "conclusion": "significant" | "not significant", "test_type": "t-test" | "wilcoxon"}`.
+- [ ] T028b-2 [US3] Implement `src/stats.py` function `execute_significance_test` to run the test from T028 on the metric differences from T025b. **Dependency**: T025b.
+- [ ] T029 [US3] Implement `src/stats.py` function `run_sensitivity_analysis` (FR-006) to sweep **similarity threshold** across a range of low to moderate values and record headline rate variations. **Note**: Path length L is FIXED at 5 per spec and is NOT being swept.
+- [ ] T029b [US3] Implement `src/stats.py` function `aggregate_sensitivity_report` to aggregate the sweep results from T029. **Output**: `results/sensitivity_report.json` with schema: `{"thresholds": [float], "metrics": {"precision": [...], "diversity": [...]}, "variations": {...}}`. **Dependency**: T029.
+- [ ] T030a [US3] Implement `src/stats.py` function `aggregate_significance_results` to aggregate significance test results.
+- [ ] T030b [US3] Implement `src/stats.py` function `aggregate_sensitivity_results` to aggregate sensitivity analysis results.
+- [ ] T030c [US3] Implement `src/stats.py` function `generate_statistical_report_json` to generate `results/statistical_report.json` including p-values, confidence intervals, and sweep summaries. **Dependencies**: T030a, T030b. **Output**: `results/statistical_report.json` with schema: `{"significance": {...}, "sensitivity": {...}}`.
+- [ ] T030 [US3] Implement `src/main.py` logic to aggregate results and generate `results/statistical_report.json`. **Dependencies**: T028b-2, T029b, T030c.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -131,7 +148,10 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T031 [P] Implement resource monitoring in `src/main.py` to log peak RAM usage, total runtime, and **resource enforcement actions taken** (SC-003, SC-004).
-- [ ] T032 [P] Write `results/final_report.md` generation logic summarizing all metrics, statistical findings, SC-005 pass/fail status (read from `results/sc005_status.json`), and sensitivity reports.
+- [ ] T032a [P] Implement report header/methodology generation for `results/final_report.md`.
+- [ ] T032b [P] Implement results table generation for `results/final_report.md`.
+- [ ] T032c [P] Implement statistical and sensitivity sections generation for `results/final_report.md`.
+- [ ] T032d [P] Assemble final report `results/final_report.md` summarizing all metrics, statistical findings, SC-005 pass/fail status (read from `results/sc005_status.json`), and sensitivity reports. **Required Sections**: Executive Summary, Methodology, Results Table, Statistical Significance, Sensitivity Analysis, Conclusion. **Dependencies**: T032a, T032b, T032c.
 - [ ] T033 [P] Add comprehensive docstrings to all public functions in `src/` modules
 - [ ] T034 Run `pytest` suite and ensure all tests pass (exit code 0).
 - [ ] T035 Validate `quickstart.md` instructions against the implemented pipeline
@@ -165,7 +185,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2), except T013d which depends on T013a-c
+- All Foundational tasks marked [P] (T013a-c) can run in parallel, but T013d tasks are **sequential** (T013d-1 -> T013d-1a -> T013d-2 -> T013d-2a -> T013d-2b -> T013d-6).
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -227,3 +247,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Sequential Tasks**: Tasks T013d-1 through T013d-6 are sequential and must be executed in order.
+- **Primary Baseline**: T016a (Greedy) is the primary baseline for the hypothesis test. T016b (Beam) is secondary.
+- **Statistical Test**: T028b (Paired T-Test) is the primary test per Constitution Principle VII. Wilcoxon is a diagnostic fallback only.

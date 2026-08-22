@@ -1,0 +1,252 @@
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: sample to 500k items if dataset size exceeds 7GB RAM
+  claim_id: c_06d2e533
+  context: Implement resource enforcement logic in src/utils/resource.py to detect
+    dataset size and apply sampling/capping if >7GB RAM. If size > 7GB, sample to
+    500k items.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If size > 7GB, sample to 500k items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:32:16Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Sample dataset to 500k items if size exceeds 7GB RAM
+  claim_id: c_d9ec8c51
+  context: Implement resource enforcement logic in src/utils/resource.py to detect
+    dataset size and apply sampling/capping if >7GB RAM. If size > 7GB, sample to
+    500k items.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_dataset_to_500k_items_if_size_exceeds_7GB_RAM
+  kind: magnitude
+  raw_text: If dataset size is greater than 7GB RAM, sample to 500k items.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:42:21Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Load Amazon Books dataset via datasets.load_dataset with streaming enabled
+  claim_id: c_e8f14e38
+  context: Implement data loader in src/data_loader.py for Amazon Books dataset using
+    datasets.load_dataset('amazon_books', streaming=True)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_Amazon_Books_dataset_via_datasets.load_dataset_with_str
+  kind: entity_fact
+  raw_text: The Amazon Books dataset is loaded using datasets.load_dataset('amazon_books',
+    streaming=True).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:42:39Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Load Last.fm dataset via datasets.load_dataset with streaming enabled
+  claim_id: c_03dc4417
+  context: Implement data loader in src/data_loader.py for Last.fm dataset using datasets.load_dataset('lastfm',
+    streaming=True)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_Last.fm_dataset_via_datasets.load_dataset_with_streamin
+  kind: entity_fact
+  raw_text: The Last.fm dataset is loaded using datasets.load_dataset('lastfm', streaming=True).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:42:56Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Load MovieLens dataset via datasets.load_dataset with streaming enabled
+  claim_id: c_f456bd0d
+  context: Implement data loader in src/data_loader.py for MovieLens dataset using
+    datasets.load_dataset('ml-latest-small', streaming=True)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Load_MovieLens_dataset_via_datasets.load_dataset_with_stream
+  kind: magnitude
+  raw_text: The MovieLens dataset is loaded using datasets.load_dataset('ml-latest-small',
+    streaming=True).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:43:10Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Standard greedy heuristic with path length 5 is the primary baseline
+  claim_id: c_5cb10d75
+  context: Implement src/path_generator.py function generate_greedy_paths to generate
+    the standard greedy heuristic baseline paths of length L=5 based on immediate
+    similarity to the seed. This is the PRIMARY BASELINE for the hypothesis test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary baseline for the hypothesis test is the standard greedy heuristic
+    with path length L=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:43:20Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Beam Search uses beam width 50 for secondary analysis
+  claim_id: c_045d85f2
+  context: Implement src/path_generator.py function generate_beam_paths to generate
+    a diverse candidate pool of paths using Beam Search (B=50) for Secondary Analysis
+    only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Beam Search uses a beam width of B=50 for secondary analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:43:41Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Stepwise Reward Centering formula S_rect equals S_raw minus mu_batch
+  claim_id: c_fced0720
+  context: Implement src/path_generator.py function apply_src to calculate Stepwise
+    Reward Centering (S_rect = S_raw - mu_batch).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stepwise_Reward_Centering_formula_S_rect_equals_S_raw_minus
+  kind: entity_fact
+  raw_text: The Stepwise Reward Centering formula is S_rect = S_raw - mu_batch.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:44:14Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Position-Specific Advantage formula S_final equals S_rect times (1 plus
+    alpha times pos)
+  claim_id: c_9713c138
+  context: Implement src/path_generator.py function apply_psa to calculate Position-Specific
+    Advantage (S_final = S_rect * (1 + alpha * pos)).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Position-Specific Advantage formula is S_final = S_rect * (1 + alpha
+    * pos).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:44:25Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Path length L is fixed at 5
+  claim_id: c_2d5d8aad
+  context: 'Note: Path length L is FIXED at 5 per spec and is NOT being swept.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The path length L is fixed at 5 for the sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:45:10Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Mean absolute difference between rectified and raw scores must be at
+    least 0.01
+  claim_id: c_b47c8305
+  context: "Implement src/main.py validation logic to check SC-005: verify mean absolute\
+    \ difference between rectified and raw scores \u2265 0.01 for Greedy paths only."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_absolute_difference_between_rectified_and_raw_scores_mu
+  kind: magnitude
+  raw_text: The mean absolute difference between rectified and raw scores must be
+    greater than or equal to 0.01 for Greedy paths only.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:45:27Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Paired T-Test is the primary statistical significance test
+  claim_id: c_00601f55
+  context: Implement src/stats.py function perform_paired_ttest to run the required
+    Paired T-Test per Constitution Principle VII. This is the primary test for SC-001.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_T-Test_is_the_primary_statistical_significance_test
+  kind: entity_fact
+  raw_text: The Paired T-Test is the primary test for statistical significance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:45:51Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test is a diagnostic fallback
+  claim_id: c_4ceb15b6
+  context: Implement src/stats.py function perform_wilcoxon to run Wilcoxon signed-rank
+    test as a diagnostic fallback if t-test assumptions are violated. This is not
+    the primary result.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_is_a_diagnostic_fallback
+  kind: entity_fact
+  raw_text: The Wilcoxon signed-rank test is used as a diagnostic fallback if t-test
+    assumptions are violated.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:46:10Z'
+- artifact_path: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_8e5826b3
+  context: Initialize Python 3.11 project with dependencies (pandas, numpy, scikit-learn,
+    networkx, scipy, datasets, pyyaml, pytest) in requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python version 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:46:25Z'
