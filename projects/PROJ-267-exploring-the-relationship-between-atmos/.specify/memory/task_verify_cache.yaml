@@ -1,22 +1,13 @@
-T006:
-  c: false
-  h: 8188ba4a498113a2e4acf0202931b2988444208ba8a89fe7dd106e9de2493541
-  r: "The required file `projects/PROJ-267-exploring-the-relationship-between-atmos/code/requirements.txt`\
-    \ does not exist, so the specified project initialization with dependencies is\
-    \ not present despite a similarly named `code/requirements.txt` elsewhere. The\
-    \ task\u2019s path requirement is unmet."
-T009:
+T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file was presented in the evidence, and thus there is no\
-    \ content covering installation, run commands, data sources, or expected outputs\
-    \ as required by FR\u2011007. The implementer must create the `projects/PROJ-267-exploring-the-relationship-between-atmos/quickstart.md`\
-    \ document with the specified sections."
-T017:
+  r: "No `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md`\
+    \ file is provided, and there is no content showing the required entity definitions\
+    \ (AR Event, Gravity Anomaly, Correlation Result). The task\u2019s core artifact\
+    \ is missing, so the requirement is not satisfied."
+T012:
   c: false
-  h: f59d0d72a56f0570e57b5cafb82004bbe89d7d8a1247904b2b037c8ea6b3cf9b
-  r: "The provided `03_merge_output.py` is truncated (e.g., undefined `total_months`\
-    \ and no NaN or schema validation logic) and the required output file `merged_monthly.csv`\
-    \ does not exist. Additionally, the referenced schema file `contracts/dataset.schema.yaml`\
-    \ is missing, so the script cannot perform the required schema validation. The\
-    \ task\u2019s deliverables are therefore not fully satisfied."
+  h: f6f93db0c424b69b2e0a6ba25c5114fc75330fee1a00a1d4fd0cbc933767ce80
+  r: The required YAML file `projects/PROJ-267-exploring-the-relationship-between-atmos/state/projects/PROJ-267-exploring-the-relationship-between-atmos.yaml`
+    does not exist, so the project metadata and `artifact_hashes` map have not been
+    created. The task therefore remains unfinished.

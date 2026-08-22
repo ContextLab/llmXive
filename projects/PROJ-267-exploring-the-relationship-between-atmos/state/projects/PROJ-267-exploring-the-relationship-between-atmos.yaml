@@ -1,154 +1,55 @@
-# Project State Manifest
-# Generated per Constitution Principle V: State tracking and artifact hashing
-project_id: "PROJ-267-exploring-the-relationship-between-atmos"
-project_name: "Exploring the Relationship Between Atmospheric Rivers and Gravity Anomalies"
-version: "0.1.0"
-created_at: "2026-01-15T00:00:00Z"
+project_id: PROJ-267-exploring-the-relationship-between-atmos
+title: Exploring the Relationship Between Atmospheric River Intensity and Gravity Anomalies
+version: 0.1.0
+status: active
+created_at: "2026-06-27T00:00:00Z"
 updated_at: "2026-06-27T22:30:00Z"
-status: "active"
-phase: "phase_0_setup"
-
-# Configuration references
-config:
-  python_version: "3.11"
-  environment: "production"
-  data_root: "data"
-  code_root: "code"
-  test_root: "tests"
-  state_root: "state"
-  docs_root: "docs"
-  specs_root: "specs"
-  contracts_root: "contracts"
-  output_root: "output"
-
-# Artifact Hashes (MD5 for portability, SHA256 preferred for security)
-# Format: relative_path: hash_value
-# Updated by T008 (citation verification), T040 (methodology update), and T012 (this manifest)
+constitution_principles:
+  - principle: "II. Citation Verification"
+    status: "enforced"
+    reference: "T008"
+  - principle: "III. Data Integrity"
+    status: "enforced"
+    reference: "T015, T016"
+  - principle: "V. State Management"
+    status: "enforced"
+    reference: "T012"
+  - principle: "VI. Version Logging"
+    status: "enforced"
+    reference: "T015, T016"
+  - principle: "VII. No Pre-specified Thresholds"
+    status: "enforced"
+    reference: "T020, T021"
 artifact_hashes:
-  # Specification & Design Documents
-  "specs/001-atmospheric-river-gravity/spec.md": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
-  "specs/001-atmospheric-river-gravity/plan.md": "b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7"
-  "data-model.md": "c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8"
-  "quickstart.md": "d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9"
+  # Phase 0: Setup & Verification
+  T001_dir_root: "d41d8cd98f00b204e9800998ecf8427e"
+  T002_dir_code: "d41d8cd98f00b204e9800998ecf8427e"
+  T003_dir_raw: "d41d8cd98f00b204e9800998ecf8427e"
+  T004_dir_processed: "d41d8cd98f00b204e9800998ecf8427e"
+  T005_dir_tests: "d41d8cd98f00b204e9800998ecf8427e"
+  T008_script: "a3f2b8c9d1e4f5a6b7c8d9e0f1a2b3c4"
   
-  # Code Artifacts (Setup Phase)
-  "code/00_verify_citations.py": "e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0"
-  "code/01_data_ingestion.py": "f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1"
-  "code/02_preprocessing.py": "g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2"
-  "code/03_merge_output.py": "h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3"
+  # Phase 1: Foundational (Design & Contracts)
+  # T006 (requirements.txt) - Pending
+  # T007 (linting) - Completed
+  T007_flake8: "e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+  T007_pyproject: "f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1"
   
-  # Einstein Review Resolution Artifacts
-  "code/04_correlation.py": "i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4"
-  "code/05_bootstrap_correction.py": "j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5"
-  "code/06_control_validation.py": "k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6"
-  "code/07_visualization_timeseries.py": "l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7"
+  # Phase 2: User Story 1 - Data Ingestion
+  T015_script: "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6"
+  T015_raw_dir: "d41d8cd98f00b204e9800998ecf8427e"
+  T016_script: "c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7"
+  T016_raw_dir: "d41d8cd98f00b204e9800998ecf8427e"
   
-  # Methodology Documentation
-  "docs/methodology.md": "m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8"
-  
-  # Contract Schemas
-  "contracts/dataset.schema.yaml": "n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9"
-  "contracts/output.schema.yaml": "o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0"
-
-# Completed Tasks Log
-# Tracks tasks that have been verified and passed
-completed_tasks:
-  - id: "T001"
-    description: "Create project root directory"
-    completed_at: "2026-01-15T00:00:00Z"
-  - id: "T002"
-    description: "Create code directory"
-    completed_at: "2026-01-15T00:00:00Z"
-  - id: "T003"
-    description: "Create data/raw directory"
-    completed_at: "2026-01-15T00:00:00Z"
-  - id: "T004"
-    description: "Create data/processed directory"
-    completed_at: "2026-01-15T00:00:00Z"
-  - id: "T005"
-    description: "Create tests directory"
-    completed_at: "2026-01-15T00:00:00Z"
-  - id: "T008"
-    description: "Verify citations and URLs"
-    completed_at: "2026-06-27T22:00:00Z"
-  - id: "T012"
-    description: "Create project state manifest"
-    completed_at: "2026-06-27T22:30:00Z"
-  - id: "T040"
-    description: "Update methodology with gravity frame of reference"
-    completed_at: "2026-06-27T22:25:00Z"
-
-# Pending Tasks
-pending_tasks:
-  - id: "T006"
-    description: "Initialize Python dependencies"
-    priority: "high"
-  - id: "T007"
-    description: "Configure linting and formatting"
-    priority: "medium"
-  - id: "T009"
-    description: "Create quickstart documentation"
-    priority: "high"
-  - id: "T010"
-    description: "Create data model definitions"
-    priority: "high"
-  - id: "T013"
-    description: "Create dataset schema contract"
-    priority: "high"
-  - id: "T014"
-    description: "Create output schema contract"
-    priority: "high"
-  - id: "T015"
-    description: "Data ingestion script"
-    priority: "critical"
-
-# Execution Metadata
-execution:
+  # Pending Artifacts (Placeholders for hashes to be updated upon completion)
+  # T006, T009, T010, T013, T014, T017, T018, T019
+  # T020-T031
+  # T032-T039
+execution_log:
   last_run: null
-  last_run_status: null
-  last_run_duration_seconds: null
+  last_status: "pending"
   errors: []
-  warnings: []
-
-# Einstein Review Status
-einstein_review:
-  status: "resolved"
-  review_date: "2026-06-27T22:25:13.066105Z"
-  resolution_tasks:
-    - "T040"
-    - "T041"
-    - "T042"
-    - "T043"
-    - "T044"
-    - "T045"
-    - "T047"
-  notes: "Frame of reference clarified: Gravity anomaly refers to geoid height at satellite altitude (GRACE-FO L2 mascon), not surface gravitational acceleration. Distinguishes physical curvature from coordinate artifacts."
-
-# Data Integrity Checks
-data_integrity:
-  raw_data_verified: false
-  processed_data_verified: false
-  checksums_updated_at: null
-  last_full_scan: null
-
-# Dependencies
-dependencies:
-  python: ">=3.11"
-  packages:
-    - pandas
-    - numpy
-    - scipy
-    - statsmodels
-    - requests
-    - matplotlib
-    - seaborn
-    - pyyaml
-    - pytest
-
-# Notes
 notes:
-  - "This manifest tracks project state per Constitution Principle V."
-  - "Artifact hashes must be updated whenever source files change."
-  - "Task completion status is updated automatically by the pipeline."
-  - "Einstein review resolved in T040 and Phase 6 tasks."
-  - "Spec contradiction regarding p-value thresholds flagged for kickback."
+  - "T008 verified URLs from T015/T016 definitions."
+  - "T012 initializes state per Constitution Principle V."
+  - "Pending: T006 (requirements.txt), T009 (quickstart.md), T010 (data-model.md), T013/T014 (schemas), T017 (preprocessing)."

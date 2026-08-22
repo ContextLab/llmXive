@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion & Preprocessing (Priority: P1)
 
-The system MUST retrieve GRACE-FO processed mascon data and NOAA CPC Atmospheric River Catalog data, then align them to a common monthly temporal resolution for the West Coast North America region (35°N-50°N, 120°W-125°W).
+The system MUST retrieve GRACE-FO processed mascon data and NOAA CPC Atmospheric River Catalog data, then align them to a common monthly temporal resolution for the West Coast North America region (a defined latitudinal and longitudinal extent).
 
 **Why this priority**: This is the foundational step; without clean, aligned datasets, no statistical analysis can occur.
 

@@ -1,102 +1,118 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: CorrelationResult
+title: Correlation Result Schema
 description: >
-  Schema for the correlation result entity produced by User Story 2 (Statistical Correlation Analysis).
-  Validates the output of the correlation pipeline including bootstrap confidence intervals,
-  FDR-corrected p-values, and frame-of-reference metadata.
-  Per Constitution Principle VII, no pre-specified effect size thresholds are enforced here;
-  p < 0.05 is recorded as an informational flag only.
+  Schema for validation of correlation analysis results between
+  Atmospheric River intensity and Gravity Anomalies. This schema
+  corresponds to the Correlation Result entity defined in data-model.md
+  and is used by T023 and T024 for contract testing.
 type: object
 required:
   - analysis_id
   - region_type
   - lag_months
   - correlation_coefficient
-  - p_value_raw
-  - p_value_fdr_corrected
+  - p_value
+  - p_value_corrected
+  - is_significant_fdr
   - bootstrap_ci_lower
   - bootstrap_ci_upper
-  - effective_sample_size
-  - frame_of_reference_note
-  - significance_flag_informational
+  - n_observations
+  - effective_n
+  - noise_floor_sigma
+  - signal_to_noise_ratio
+  - method_details
 properties:
   analysis_id:
     type: string
     description: Unique identifier for this specific correlation analysis run.
+    pattern: "^AR-GRACE-[0-9]{8}-[a-z0-9]{6}$"
+
   region_type:
     type: string
+    description: The type of region analyzed (target or control).
     enum:
       - target
       - control
-    description: >
-      Type of region analyzed. 'target' refers to the West Coast NA region (120°W-125°W)
-      with significant AR activity. 'control' refers to a region without significant AR activity
-      used for noise-floor validation.
+
   lag_months:
     type: integer
+    description: The time lag in months applied to the AR intensity series relative to the gravity anomaly.
     minimum: 0
     maximum: 3
-    description: >
-      The lag window in months applied to the AR intensity time series relative to the
-      gravity anomaly time series (0 = synchronous, 1 = AR leads by 1 month, etc.).
+
   correlation_coefficient:
     type: number
-    format: float
-    description: >
-      Pearson correlation coefficient (r) between the preprocessed AR intensity and
-      gravity anomaly time series after autocorrelation correction (AR(1) residuals).
-  p_value_raw:
+    description: Pearson correlation coefficient (r) between AR intensity and gravity anomaly.
+    minimum: -1.0
+    maximum: 1.0
+
+  p_value:
     type: number
-    format: float
+    description: Uncorrected p-value for the correlation coefficient.
     minimum: 0.0
     maximum: 1.0
-    description: Raw p-value from the Pearson correlation test before multiple-comparison correction.
-  p_value_fdr_corrected:
+
+  p_value_corrected:
     type: number
-    format: float
+    description: FDR-corrected p-value (Benjamini-Hochberg) for multiple comparisons.
     minimum: 0.0
     maximum: 1.0
-    description: >
-      P-value corrected for multiple comparisons using the Benjamini-Hochberg FDR method
-      across the lag windows (0-3 months).
+
+  is_significant_fdr:
+    type: boolean
+    description: Flag indicating if the result is significant after FDR correction (p < 0.05).
+    # Note: This is an informational flag per SC-002, not a pre-specified success criterion.
+
   bootstrap_ci_lower:
     type: number
-    format: float
     description: Lower bound of the 95% bootstrap confidence interval for the correlation coefficient.
+
   bootstrap_ci_upper:
     type: number
-    format: float
     description: Upper bound of the 95% bootstrap confidence interval for the correlation coefficient.
-  effective_sample_size:
+
+  n_observations:
     type: integer
+    description: Total number of monthly observations used in the correlation.
     minimum: 1
-    description: >
-      Effective sample size (n_eff) calculated as n × (-ρ)/(1+ρ) to account for
-      temporal autocorrelation in the time series, preventing Type I errors.
-  frame_of_reference_note:
-    type: string
-    const: "Note: Gravity anomaly refers to geoid height at satellite altitude (GRACE-FO L2 mascon), not surface gravitational acceleration."
-    description: >
-      Mandatory disclaimer per Einstein-simulated review and Constitution Principle II.
-      Explicitly distinguishes physical curvature from coordinate artifacts.
-  significance_flag_informational:
-    type: boolean
-    description: >
-      Informational flag indicating if p_value_fdr_corrected < 0.05.
-      Per Constitution Principle VII, this is NOT a pre-specified success criterion
-      or effect size threshold, but a reporting metric for transparency.
+
+  effective_n:
+    type: integer
+    description: Effective sample size after autocorrelation correction (AR(1) pre-whitening).
+    minimum: 1
+
   noise_floor_sigma:
     type: number
-    format: float
-    minimum: 0.0
-    description: >
-      Signal magnitude relative to the GRACE-FO measurement noise floor (in units of sigma).
-      Reported as a metric for validation, not a pass/fail constraint.
-  analysis_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the analysis was performed.
-  data_version:
-    type: string
-    description: Version identifier of the input merged dataset (e.g., 'merged_monthly_v1').
+    description: Estimated noise floor (standard deviation) of the GRACE-FO mascon data for this region.
+
+  signal_to_noise_ratio:
+    type: number
+    description: Ratio of the observed correlation magnitude to the noise floor.
+    # Used for FR-004 validation (signal >= 3σ threshold)
+
+  method_details:
+    type: object
+    description: Detailed metadata about the statistical methods applied.
+    required:
+      - pre_whitening_method
+      - bootstrap_iterations
+      - fdr_method
+    properties:
+      pre_whitening_method:
+        type: string
+        description: Method used for autocorrelation correction.
+        enum:
+          - AR1_NeweyWest
+          - AR1_OLS
+      bootstrap_iterations:
+        type: integer
+        description: Number of bootstrap resampling iterations.
+        minimum: 100
+      fdr_method:
+        type: string
+        description: Specific FDR correction method used.
+        enum:
+          - benjamini_hochberg
+          - benjamini_yekutieli
+
 additionalProperties: false

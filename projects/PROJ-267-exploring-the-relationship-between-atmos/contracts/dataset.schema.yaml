@@ -1,133 +1,41 @@
-%YAML 1.2
----
-# Dataset Schema for Merged Monthly Atmospheric River and Gravity Anomaly Data
-# Generated for User Story 1: Data Ingestion & Preprocessing
-# Validates the output of code/03_merge_output.py against data/processed/merged_monthly.csv
-
 $schema: http://json-schema.org/draft-07/schema#
-title: merged_monthly_dataset
-description: >
-  Schema for the merged monthly dataset containing GRACE-FO gravity anomalies
-  and NOAA AR catalog data for the West Coast NA region (120°W-125°W).
-  This schema is used by T017 (merge output script) and T018 (contract tests).
-
+title: Merged Monthly Dataset Schema
+description: |
+  Schema for the merged monthly dataset combining GRACE-FO gravity anomalies
+  and NOAA AR intensity data for the West Coast NA region (35°N-50°N, 120°W-125°W).
+  Generated per US-1 requirements.
 type: object
 properties:
-  columns:
-    type: array
-    description: List of expected column names in the CSV
-    items:
-      type: string
-    contains:
-      - "year_month"
-      - "grace_anomaly"
-      - "ar_intensity"
-      - "ar_event_count"
-      - "region_type"
-      - "data_quality_flag"
-    minContains: 6
-    maxContains: 6
-
-  rows:
+  month:
+    type: string
+    description: "ISO 8601 month string (YYYY-MM)"
+    pattern: "^\\d{4}-\\d{2}$"
+  grace_geoid_height_cm:
+    type: number
+    description: |
+      GRACE-FO mascon geoid height anomaly in centimeters at satellite altitude.
+      Processed with degree-1 correction, C20 replacement, and 300km Gaussian smoothing.
+      Note: Refers to geoid height, not surface gravitational acceleration.
+  ar_iwt_kg_m2:
+    type: number
+    description: |
+      NOAA AR Integrated Water Vapor Transport (IWVT) in kg/m².
+      Monthly mean for the target region.
+  ar_event_count:
     type: integer
-    description: Number of data rows (excluding header)
-    minimum: 12
-    # Expect at least 1 year of monthly data for valid correlation analysis
-
-  column_specifications:
-    type: object
-    properties:
-      year_month:
-        type: object
-        description: ISO 8601 year-month string (YYYY-MM)
-        format: string
-        pattern: "^[0-9]{4}-[0-9]{2}$"
-        nullable: false
-
-      grace_anomaly:
-        type: object
-        description: >
-          GRACE-FO mascon gravity anomaly in equivalent water height (mm).
-          Frame of reference: Geoid height variations at satellite altitude.
-        format: number
-        nullable: false
-        minimum: -1000
-        maximum: 1000
-
-      ar_intensity:
-        type: object
-        description: >
-          Integrated Water Vapor Transport (IVT) magnitude in kg/(m·s).
-          Aggregated monthly mean for the West Coast NA region.
-        format: number
-        nullable: false
-        minimum: 0
-
-      ar_event_count:
-        type: object
-        description: Count of atmospheric river events in the month
-        format: integer
-        nullable: false
-        minimum: 0
-
-      region_type:
-        type: object
-        description: Region classification (target or control)
-        format: string
-        enum:
-          - "target"
-          - "control"
-        nullable: false
-
-      data_quality_flag:
-        type: object
-        description: Quality flag for data completeness and validity
-        format: string
-        enum:
-          - "valid"
-          - "warning_missing_grace"
-          - "warning_missing_ar"
-          - "excluded_zero_ar"
-        nullable: false
-
+    description: "Number of distinct AR events recorded in the month"
+    minimum: 0
+  data_source_grace:
+    type: string
+    description: "Version/release identifier for the GRACE-FO dataset"
+  data_source_noaa:
+    type: string
+    description: "Version/release identifier for the NOAA AR catalog"
 required:
-  - columns
-  - rows
-  - column_specifications
-
+  - month
+  - grace_geoid_height_cm
+  - ar_iwt_kg_m2
+  - ar_event_count
+  - data_source_grace
+  - data_source_noaa
 additionalProperties: false
-
-validation_rules:
-  - name: no_nan_primary_columns
-    description: Primary analysis columns must not contain NaN values
-    columns:
-      - grace_anomaly
-      - ar_intensity
-      - ar_event_count
-    rule: "all values must be non-null"
-
-  - name: completeness_threshold
-    description: Dataset must contain at least 90% of expected monthly rows
-    expected_months: 48  # Example: 4 years of data
-    threshold: 0.90
-    rule: "actual_rows >= expected_months * threshold"
-
-  - name: region_consistency
-    description: All rows must have valid region_type classification
-    rule: "region_type in ['target', 'control']"
-
-  - name: temporal_order
-    description: Rows should be sorted chronologically by year_month
-    rule: "year_month values must be monotonically increasing"
-
-metadata:
-  source_grace: "PO.DAAC GRACE-FO L2 Mascon Solutions"
-  source_ar: "NOAA CPC Atmospheric River Catalog"
-  region_definition: "West Coast NA (120°W-125°W, mid-to-high latitude)"
-  temporal_resolution: "Monthly"
-  frame_of_reference: "Geoid height at satellite altitude (GRACE-FO L2 mascon)"
-  created_from_task: "T013"
-  depends_on_task: "T010"
-  used_by_tasks:
-    - "T017"
-    - "T018"

@@ -3,23 +3,20 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "atmospheric-river-gravity-correlation"
+name = "atmos-gravity-correlation"
 version = "0.1.0"
-description = "Investigating the relationship between Atmospheric Rivers and Gravity Anomalies using GRACE-FO data."
-readme = "README.md"
-requires-python = ">=3.11"
+description = "Investigating the relationship between Atmospheric Rivers and Gravity Anomalies"
+readme = "../README.md"
+requires-python = ">=3.9"
 dependencies = [
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "scipy>=1.10.0",
-    "statsmodels>=0.14.0",
-    "requests>=2.31.0",
-    "matplotlib>=3.7.0",
-    "seaborn>=0.12.0",
-    "pyyaml>=6.0",
-    "flake8>=6.0.0",
-    "black>=23.0.0",
-    "pytest>=7.0.0",
+    "pandas",
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "requests",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
 ]
 
 [project.optional-dependencies]
@@ -30,62 +27,29 @@ dev = [
     "pytest-cov",
 ]
 
-[tool.setuptools]
-packages = ["."]
-py-modules = [
-    "00_verify_citations",
-    "01_data_ingestion",
-    "02_preprocessing",
-    "03_merge_output",
-    "04_correlation",
-    "05_bootstrap_correction",
-    "06_control_validation",
-    "07_visualization_timeseries",
-    "08_visualization_scatter",
-    "09_visualization_spatial",
-    "10_sensitivity_report",
-    "11_temporal_bias_analysis",
-]
-
 [tool.black]
-line-length = 88
-target-version = ['py311']
+line-length = 100
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["../tests"]
 python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-addopts = "-v --strict-markers"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "contract: marks contract validation tests",
-    "integration: marks integration tests",
-]
+addopts = "-v --tb=short"
 
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = []
-skip_glob = [
-    ".git",
-    "__pycache__",
-    "*.egg-info",
-    "build",
-    "dist",
-    ".venv",
-    "venv"
-]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
