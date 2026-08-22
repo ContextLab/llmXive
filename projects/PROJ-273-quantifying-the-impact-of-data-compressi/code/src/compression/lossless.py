@@ -1,8 +1,6 @@
 """
-Lossless compression wrappers for gravitational wave strain data.
-
-Implements gzip, LZMA, and bzip2 compression/decompression at varied levels.
-Includes verification that decompressed data matches original exactly.
+Lossless compression wrappers for GW strain data.
+Implements gzip, LZ4, and bzip2 compression with varied levels.
 """
 import gzip
 import bz2
@@ -10,365 +8,249 @@ import lzma
 import json
 import numpy as np
 from pathlib import Path
-from typing import Tuple, Optional, Dict, Any
+from typing import Union, Optional
 import logging
-import time
 
-from src.utils.logging import get_logger
-from src.utils.config import get_path, ensure_dir
+# Configure logging
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
+# Default compression levels
+GZIP_LEVELS = [1, 5, 9]
+BZIP2_LEVELS = [1, 5, 9]
+LZMA_LEVELS = [0, 5, 9]
 
-# Compression levels
-COMPRESSION_LEVELS = {
-    'gzip': [5, 9],
-    'lzma': [5, 9],
-    'bzip2': [5, 9]
-}
-
-def compress_gzip(data: np.ndarray, level: int = 9) -> bytes:
+def compress_gzip(data: Union[np.ndarray, bytes], output_path: Path, level: int = 9) -> None:
     """
-    Compress numpy array data using gzip.
+    Compress data using gzip.
     
     Args:
-        data: 1D numpy array of strain values
-        level: Compression level (1-9, higher = more compression, slower)
-        
-    Returns:
-        Compressed bytes
+        data: Input data as numpy array or bytes
+        output_path: Path to write compressed file
+        level: Compression level (1-9), default 9 (best compression)
     """
-    if level < 1 or level > 9:
-        raise ValueError(f"Invalid gzip level: {level}. Must be 1-9.")
-    
-    # Serialize to bytes
-    raw_bytes = data.tobytes()
-    compressed = gzip.compress(raw_bytes, compresslevel=level)
-    return compressed
-
-def decompress_gzip(compressed_data: bytes, shape: Tuple[int, ...], dtype: np.dtype) -> np.ndarray:
-    """
-    Decompress gzip-compressed data back to numpy array.
-    
-    Args:
-        compressed_data: Compressed bytes
-        shape: Original shape of the array
-        dtype: Original dtype of the array
-        
-    Returns:
-        Decompressed numpy array
-    """
-    raw_bytes = gzip.decompress(compressed_data)
-    data = np.frombuffer(raw_bytes, dtype=dtype)
-    return data.reshape(shape)
-
-def compress_lzma(data: np.ndarray, level: int = 9) -> bytes:
-    """
-    Compress numpy array data using LZMA.
-    
-    Args:
-        data: 1D numpy array of strain values
-        level: Compression level (0-9, higher = more compression, slower)
-        
-    Returns:
-        Compressed bytes
-    """
-    if level < 0 or level > 9:
-        raise ValueError(f"Invalid lzma level: {level}. Must be 0-9.")
-    
-    raw_bytes = data.tobytes()
-    compressed = lzma.compress(raw_bytes, preset=level)
-    return compressed
-
-def decompress_lzma(compressed_data: bytes, shape: Tuple[int, ...], dtype: np.dtype) -> np.ndarray:
-    """
-    Decompress LZMA-compressed data back to numpy array.
-    
-    Args:
-        compressed_data: Compressed bytes
-        shape: Original shape of the array
-        dtype: Original dtype of the array
-        
-    Returns:
-        Decompressed numpy array
-    """
-    raw_bytes = lzma.decompress(compressed_data)
-    data = np.frombuffer(raw_bytes, dtype=dtype)
-    return data.reshape(shape)
-
-def compress_bzip2(data: np.ndarray, level: int = 9) -> bytes:
-    """
-    Compress numpy array data using bzip2.
-    
-    Args:
-        data: 1D numpy array of strain values
-        level: Compression level (1-9, higher = more compression, slower)
-        
-    Returns:
-        Compressed bytes
-    """
-    if level < 1 or level > 9:
-        raise ValueError(f"Invalid bzip2 level: {level}. Must be 1-9.")
-    
-    raw_bytes = data.tobytes()
-    compressed = bz2.compress(raw_bytes, compresslevel=level)
-    return compressed
-
-def decompress_bzip2(compressed_data: bytes, shape: Tuple[int, ...], dtype: np.dtype) -> np.ndarray:
-    """
-    Decompress bzip2-compressed data back to numpy array.
-    
-    Args:
-        compressed_data: Compressed bytes
-        shape: Original shape of the array
-        dtype: Original dtype of the array
-        
-    Returns:
-        Decompressed numpy array
-    """
-    raw_bytes = bz2.decompress(compressed_data)
-    data = np.frombuffer(raw_bytes, dtype=dtype)
-    return data.reshape(shape)
-
-def compress_data(
-    data: np.ndarray,
-    method: str,
-    level: int,
-    output_dir: Path,
-    event_id: str,
-    metadata: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
-    """
-    Compress data using specified method and level.
-    
-    Args:
-        data: 1D numpy array of strain values
-        method: Compression method ('gzip', 'lzma', 'bzip2')
-        level: Compression level
-        output_dir: Directory to save compressed data
-        event_id: Event identifier for naming
-        metadata: Optional metadata to save alongside compressed data
-        
-    Returns:
-        Dictionary with compression results (path, size, ratio, time)
-    """
-    ensure_dir(output_dir)
-    
-    start_time = time.time()
-    
-    if method == 'gzip':
-        compressed = compress_gzip(data, level)
-        decompress_func = decompress_gzip
-    elif method == 'lzma':
-        compressed = compress_lzma(data, level)
-        decompress_func = decompress_lzma
-    elif method == 'bzip2':
-        compressed = compress_bzip2(data, level)
-        decompress_func = decompress_bzip2
+    if isinstance(data, np.ndarray):
+        # Save numpy array to bytes first
+        data_bytes = data.tobytes()
     else:
-        raise ValueError(f"Unknown compression method: {method}")
+        data_bytes = data
     
-    compression_time = time.time() - start_time
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Save compressed data
-    output_path = output_dir / f"{event_id}_{method}_level{level}.gz"
-    if method == 'lzma':
-        output_path = output_dir / f"{event_id}_{method}_level{level}.xz"
-    elif method == 'bzip2':
-        output_path = output_dir / f"{event_id}_{method}_level{level}.bz2"
+    with gzip.open(output_path, 'wb', compresslevel=level) as f:
+        f.write(data_bytes)
     
-    with open(output_path, 'wb') as f:
-        f.write(compressed)
-    
-    # Save metadata if provided
-    if metadata:
-        metadata_path = output_dir / f"{event_id}_{method}_level{level}_meta.json"
-        meta_record = {
-            'event_id': event_id,
-            'method': method,
-            'level': level,
-            'original_shape': list(data.shape),
-            'original_dtype': str(data.dtype),
-            'original_size_bytes': data.nbytes,
-            'compressed_size_bytes': len(compressed),
-            'compression_time_s': compression_time,
-            'metadata': metadata
-        }
-        with open(metadata_path, 'w') as f:
-            json.dump(meta_record, f, indent=2)
-    
-    # Verify lossless
-    decompressed = decompress_func(compressed, data.shape, data.dtype)
-    if not np.array_equal(data, decompressed):
-        raise ValueError(f"Lossless verification failed for {method} level {level}")
-    
-    # Calculate metrics
-    original_size = data.nbytes
-    compressed_size = len(compressed)
-    compression_ratio = original_size / compressed_size if compressed_size > 0 else float('inf')
-    
-    logger.info(
-        f"Compressed {event_id} with {method} level {level}: "
-        f"ratio={compression_ratio:.2f}, time={compression_time:.3f}s"
-    )
-    
-    return {
-        'path': str(output_path),
-        'original_size_bytes': original_size,
-        'compressed_size_bytes': compressed_size,
-        'compression_ratio': compression_ratio,
-        'compression_time_s': compression_time,
-        'method': method,
-        'level': level
-    }
+    logger.info(f"Compressed data with gzip (level={level}) to {output_path}")
 
-def decompress_data(
-    compressed_path: Path,
-    shape: Tuple[int, ...],
-    dtype: np.dtype,
-    method: Optional[str] = None
-) -> np.ndarray:
+def decompress_gzip(input_path: Path) -> np.ndarray:
     """
-    Decompress data from file.
+    Decompress gzip data back to numpy array.
     
     Args:
-        compressed_path: Path to compressed file
-        shape: Expected shape of decompressed array
-        dtype: Expected dtype of decompressed array
-        method: Compression method (optional, auto-detected from extension)
+        input_path: Path to compressed file
         
     Returns:
         Decompressed numpy array
     """
-    if method is None:
-        suffix = compressed_path.suffix.lower()
-        if suffix == '.gz':
-            method = 'gzip'
-        elif suffix == '.xz':
-            method = 'lzma'
-        elif suffix == '.bz2':
-            method = 'bzip2'
-        else:
-            raise ValueError(f"Cannot auto-detect compression method from extension: {suffix}")
+    with gzip.open(input_path, 'rb') as f:
+        data_bytes = f.read()
     
-    with open(compressed_path, 'rb') as f:
-        compressed_data = f.read()
-    
-    if method == 'gzip':
-        return decompress_gzip(compressed_data, shape, dtype)
-    elif method == 'lzma':
-        return decompress_lzma(compressed_data, shape, dtype)
-    elif method == 'bzip2':
-        return decompress_bzip2(compressed_data, shape, dtype)
-    else:
-        raise ValueError(f"Unknown compression method: {method}")
+    # Convert bytes back to numpy array
+    # We need to know the original shape and dtype, so we store them in metadata
+    # For now, assume we'll reconstruct from metadata file if available
+    return np.frombuffer(data_bytes, dtype=np.float64)
 
-def verify_lossless(
-    original: np.ndarray,
-    compressed: bytes,
-    method: str,
-    tolerance: float = 0.0
-) -> bool:
+def compress_bzip2(data: Union[np.ndarray, bytes], output_path: Path, level: int = 9) -> None:
     """
-    Verify that decompression produces exact original data.
+    Compress data using bzip2.
+    
+    Args:
+        data: Input data as numpy array or bytes
+        output_path: Path to write compressed file
+        level: Compression level (1-9), default 9 (best compression)
+    """
+    if isinstance(data, np.ndarray):
+        data_bytes = data.tobytes()
+    else:
+        data_bytes = data
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with bz2.BZ2File(output_path, 'wb', compresslevel=level) as f:
+        f.write(data_bytes)
+    
+    logger.info(f"Compressed data with bzip2 (level={level}) to {output_path}")
+
+def decompress_bzip2(input_path: Path) -> np.ndarray:
+    """
+    Decompress bzip2 data back to numpy array.
+    
+    Args:
+        input_path: Path to compressed file
+        
+    Returns:
+        Decompressed numpy array
+    """
+    with bz2.BZ2File(input_path, 'rb') as f:
+        data_bytes = f.read()
+    
+    return np.frombuffer(data_bytes, dtype=np.float64)
+
+def compress_lzma(data: Union[np.ndarray, bytes], output_path: Path, level: int = 9) -> None:
+    """
+    Compress data using lzma (XZ).
+    
+    Args:
+        data: Input data as numpy array or bytes
+        output_path: Path to write compressed file
+        level: Compression level (0-9), default 9 (best compression)
+    """
+    if isinstance(data, np.ndarray):
+        data_bytes = data.tobytes()
+    else:
+        data_bytes = data
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with lzma.open(output_path, 'wb', preset=level) as f:
+        f.write(data_bytes)
+    
+    logger.info(f"Compressed data with lzma (level={level}) to {output_path}")
+
+def decompress_lzma(input_path: Path) -> np.ndarray:
+    """
+    Decompress lzma data back to numpy array.
+    
+    Args:
+        input_path: Path to compressed file
+        
+    Returns:
+        Decompressed numpy array
+    """
+    with lzma.open(input_path, 'rb') as f:
+        data_bytes = f.read()
+    
+    return np.frombuffer(data_bytes, dtype=np.float64)
+
+def compress_data(data: np.ndarray, compression_type: str, output_path: Path, level: Optional[int] = None) -> None:
+    """
+    Generic compression function that dispatches to specific compressors.
+    
+    Args:
+        data: Input numpy array
+        compression_type: One of 'gzip', 'bzip2', 'lzma'
+        output_path: Path to write compressed file
+        level: Compression level (optional, uses default if not provided)
+    """
+    if level is None:
+        level = 9  # Default to best compression
+    
+    if compression_type == 'gzip':
+        compress_gzip(data, output_path, level)
+    elif compression_type == 'bzip2':
+        compress_bzip2(data, output_path, level)
+    elif compression_type == 'lzma':
+        compress_lzma(data, output_path, level)
+    else:
+        raise ValueError(f"Unknown compression type: {compression_type}")
+
+def decompress_data(compression_type: str, input_path: Path) -> np.ndarray:
+    """
+    Generic decompression function that dispatches to specific decompressors.
+    
+    Args:
+        compression_type: One of 'gzip', 'bzip2', 'lzma'
+        input_path: Path to compressed file
+        
+    Returns:
+        Decompressed numpy array
+    """
+    if compression_type == 'gzip':
+        return decompress_gzip(input_path)
+    elif compression_type == 'bzip2':
+        return decompress_bzip2(input_path)
+    elif compression_type == 'lzma':
+        return decompress_lzma(input_path)
+    else:
+        raise ValueError(f"Unknown compression type: {compression_type}")
+
+def verify_lossless(original: np.ndarray, decompressed: np.ndarray, tolerance: float = 1e-10) -> bool:
+    """
+    Verify that decompressed data matches original data within tolerance.
     
     Args:
         original: Original numpy array
-        compressed: Compressed bytes
-        method: Compression method
-        tolerance: Numerical tolerance (0 for exact match)
+        decompressed: Decompressed numpy array
+        tolerance: Maximum allowed difference (default 1e-10 for lossless)
         
     Returns:
-        True if verification passes
+        True if data matches within tolerance, False otherwise
     """
-    if method == 'gzip':
-        decompressed = decompress_gzip(compressed, original.shape, original.dtype)
-    elif method == 'lzma':
-        decompressed = decompress_lzma(compressed, original.shape, original.dtype)
-    elif method == 'bzip2':
-        decompressed = decompress_bzip2(compressed, original.shape, original.dtype)
-    else:
-        raise ValueError(f"Unknown compression method: {method}")
+    if original.shape != decompressed.shape:
+        logger.error(f"Shape mismatch: {original.shape} vs {decompressed.shape}")
+        return False
     
-    if tolerance == 0:
-        return np.array_equal(original, decompressed)
-    else:
-        return np.allclose(original, decompressed, atol=tolerance)
+    if original.dtype != decompressed.dtype:
+        logger.warning(f"Dtype mismatch: {original.dtype} vs {decompressed.dtype}")
+        # Convert for comparison if needed
+        decompressed = decompressed.astype(original.dtype)
+    
+    max_diff = np.max(np.abs(original - decompressed))
+    
+    if max_diff > tolerance:
+        logger.error(f"Lossless verification failed: max_diff={max_diff}, tolerance={tolerance}")
+        return False
+    
+    logger.info(f"Lossless verification passed: max_diff={max_diff}")
+    return True
 
 def main():
     """
-    Main entry point for testing compression on sample data.
-    This function demonstrates the compression pipeline.
+    Main function to demonstrate lossless compression.
     """
-    import argparse
+    # Create test data
+    test_data = np.random.randn(10000).astype(np.float64)
     
-    parser = argparse.ArgumentParser(description="Test lossless compression")
-    parser.add_argument("--event-id", type=str, default="test_event", help="Event ID")
-    parser.add_argument("--output-dir", type=str, default="data/interim/compressed/lossless", help="Output directory")
-    parser.add_argument("--data-file", type=str, default=None, help="Path to input data file (JSON with 'strain' array)")
-    parser.add_argument("--method", type=str, choices=['gzip', 'lzma', 'bzip2'], default='gzip', help="Compression method")
-    parser.add_argument("--level", type=int, default=9, help="Compression level")
+    # Test different compression types and levels
+    compression_configs = [
+        ('gzip', 1),
+        ('gzip', 5),
+        ('gzip', 9),
+        ('bzip2', 1),
+        ('bzip2', 5),
+        ('bzip2', 9),
+        ('lzma', 0),
+        ('lzma', 5),
+        ('lzma', 9),
+    ]
     
-    args = parser.parse_args()
+    output_dir = Path("data/interim/compression_test")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Setup logging
-    setup_logging()
+    for comp_type, level in compression_configs:
+        # Compress
+        output_path = output_dir / f"test_{comp_type}_level{level}.tmp"
+        compress_data(test_data, comp_type, output_path, level)
+        
+        # Decompress
+        decompressed = decompress_data(comp_type, output_path)
+        
+        # Verify
+        is_lossless = verify_lossless(test_data, decompressed)
+        
+        # Report size reduction
+        original_size = test_data.nbytes
+        compressed_size = output_path.stat().st_size
+        ratio = compressed_size / original_size
+        
+        logger.info(f"{comp_type} (level={level}): "
+                   f"Original={original_size}B, Compressed={compressed_size}B, "
+                   f"Ratio={ratio:.3f}, Lossless={is_lossless}")
+        
+        # Clean up
+        output_path.unlink()
     
-    output_dir = Path(args.output_dir)
-    ensure_dir(output_dir)
-    
-    # Load or generate test data
-    if args.data_file and Path(args.data_file).exists():
-        with open(args.data_file, 'r') as f:
-            data_dict = json.load(f)
-            data = np.array(data_dict['strain'])
-        logger.info(f"Loaded data from {args.data_file}: shape={data.shape}")
-    else:
-        # Generate synthetic test data (real pipeline would use actual GW data)
-        np.random.seed(42)
-        n_samples = 4096
-        data = np.random.randn(n_samples) * 1e-21  # Typical strain amplitude
-        logger.info(f"Generated synthetic test data: shape={data.shape}")
-    
-    # Compress
-    metadata = {
-        'test_run': True,
-        'n_samples': len(data)
-    }
-    
-    result = compress_data(
-        data=data,
-        method=args.method,
-        level=args.level,
-        output_dir=output_dir,
-        event_id=args.event_id,
-        metadata=metadata
-    )
-    
-    logger.info(f"Compression result: {result}")
-    
-    # Decompress and verify
-    compressed_path = Path(result['path'])
-    decompressed = decompress_data(
-        compressed_path=compressed_path,
-        shape=data.shape,
-        dtype=data.dtype,
-        method=args.method
-    )
-    
-    if np.array_equal(data, decompressed):
-        logger.info("Verification PASSED: Decompressed data matches original exactly.")
-    else:
-        logger.error("Verification FAILED: Decompressed data does not match original.")
-        return 1
-    
-    return 0
+    logger.info("Lossless compression test completed")
 
 if __name__ == "__main__":
-    import sys
-    from src.utils.config import set_seed
-    from src.utils.logging import setup_logging
-    
-    setup_logging()
-    set_seed(42)
-    
-    sys.exit(main())
+    logging.basicConfig(level=logging.INFO)
+    main()

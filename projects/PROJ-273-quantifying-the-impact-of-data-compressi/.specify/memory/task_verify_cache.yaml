@@ -65,3 +65,10 @@ T017#2:
   r: No `data-model.md` file was presented in the `specs/001-compression-impact-gw-reconstruction/`
     directory, and no schema definitions for GWOSCEvent, CompressionArtifact, or ParameterPosterior
     were provided. The required documentation artifact is missing.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or documentation was presented that implements the logic to flag\
+    \ compression levels with SNR degradation\u202F>\u202F5\u202F% as \u201Cunacceptable.\u201D\
+    \ The required artifact (e.g., a function, script, or configuration change) is\
+    \ absent, so the task\u2019s requirement is not satisfied."
