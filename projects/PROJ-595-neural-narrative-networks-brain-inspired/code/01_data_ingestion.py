@@ -1,3 +1,7 @@
+"""
+Data Ingestion Module for Neural Narrative Networks.
+Handles downloading and preprocessing of text corpora (ROCStories).
+"""
 import os
 import sys
 import json
@@ -5,167 +9,193 @@ import random
 from pathlib import Path
 from typing import Optional
 
-# Import config and logging utilities from the project
+# Add project root to path if not already present to allow relative imports
+# Note: In the actual execution environment, this is handled by the runner.
+# We assume the script runs from the project root or code/ directory.
+try:
+    from datasets import load_dataset
+except ImportError:
+    print("ERROR: The 'datasets' package is required. Install it via: pip install datasets", file=sys.stderr)
+    sys.exit(1)
+
 from config import get_config
 from utils.logging_config import get_logger, info, error, warning, critical
 
+# Initialize logger
 logger = get_logger(__name__)
 
-def download_rocstories_corpus(output_dir: Optional[str] = None, sample_size: int = 1000, seed: int = 42) -> str:
+# Configuration
+CONFIG = get_config()
+RANDOM_SEED = CONFIG.get('random_seed', 42)
+MAX_RAM_GB = CONFIG.get('max_ram_gb', 7)
+
+# Paths
+DATA_TEXT_DIR = Path("data/text")
+ROCSTORIES_OUTPUT_FILE = DATA_TEXT_DIR / "rocstories_sample.jsonl"
+
+# ROCStories Dataset Identifier on HuggingFace
+# Using the official 'rocstories' dataset which contains 10k and 2k splits.
+DATASET_NAME = "rocstories"
+
+def download_rocstories_corpus(sample_size: int = 1000, seed: int = RANDOM_SEED) -> Path:
     """
-    Downloads the ROCStories corpus from HuggingFace datasets and saves a sampled subset.
+    Downloads the ROCStories corpus from HuggingFace Datasets and samples a subset.
+    
+    This function fetches the real dataset. If the download fails (network error,
+    missing dataset, etc.), it raises an exception immediately. It does NOT
+    fall back to synthetic data.
     
     Args:
-        output_dir: Directory to save the output file. Defaults to 'data/text/'.
-        sample_size: Number of stories to sample.
-        seed: Random seed for reproducibility.
+        sample_size (int): Number of stories to sample.
+        seed (int): Random seed for reproducibility.
         
     Returns:
-        Path to the saved JSONL file.
+        Path: Path to the saved JSONL file.
         
     Raises:
-        RuntimeError: If the download fails or the dataset is unavailable.
+        RuntimeError: If the dataset download fails or if the sample size exceeds available data.
     """
-    try:
-        from datasets import load_dataset
-    except ImportError:
-        raise RuntimeError("The 'datasets' package is required. Install it via 'pip install datasets'.")
-
-    if output_dir is None:
-        output_dir = "data/text"
+    random.seed(seed)
     
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Starting download of ROCStories corpus (dataset: {DATASET_NAME})")
+    logger.info(f"Target sample size: {sample_size} stories")
     
-    final_file = output_path / "rocstories_sample.jsonl"
-    
-    logger.info(f"Attempting to download ROCStories corpus from HuggingFace...")
-    
-    # The dataset identifier for ROCStories on HuggingFace
-    dataset_id = "rocstories"
+    # Ensure output directory exists
+    DATA_TEXT_DIR.mkdir(parents=True, exist_ok=True)
     
     try:
-        # Load the dataset with streaming to avoid downloading the full corpus if not needed
-        # We specifically request the 'train' split which usually contains the bulk of the data
-        ds = load_dataset(dataset_id, split="train", streaming=True)
+        # Load the dataset. 
+        # The 'rocstories' dataset on HF typically has 'train' and 'test' splits.
+        # We load the 'train' split which is the largest.
+        # streaming=True is used to avoid loading the entire dataset into memory if it's large,
+        # though for ROCStories (approx 10k stories) it fits in memory easily.
+        # We use streaming to be safe and efficient.
+        logger.info("Fetching dataset from HuggingFace...")
+        dataset = load_dataset(DATASET_NAME, split="train", streaming=True)
         
-        # Set random seed for sampling
-        random.seed(seed)
+        # Convert to a list to allow sampling if we need random access, 
+        # but for efficiency with streaming, we can just take the first N if order doesn't matter,
+        # or shuffle on the fly. 
+        # To ensure a representative random sample, we'll collect the data.
+        # ROCStories is small enough (~10k rows) to fit in RAM comfortably.
         
-        # Sample the dataset
-        # Since streaming doesn't support direct random sampling of the whole set without buffering,
-        # we will collect the first N items if the dataset is small enough, or sample on the fly.
-        # Given the constraint of ~7GB RAM, we'll stream and sample efficiently.
-        
-        sampled_stories = []
+        stories_list = []
         count = 0
+        logger.info("Iterating through dataset to collect stories...")
         
-        # We need a representative sample. For ROCStories, the dataset is manageable in memory
-        # but we'll use a reservoir sampling approach or simple limit if we just want N items.
-        # The task asks for a "representative subset". Taking the first N is a common strategy
-        # if the dataset is ordered, but random sampling is better.
-        # To be safe and robust, we will try to load the full list of IDs if possible or stream.
-        # However, standard practice for a "sample" in this context is often just the first N
-        # or a random N if we can index. Let's try to load the dataset normally first.
-        
-        # Fallback to non-streaming if we need to sample randomly from the whole set without
-        # knowing the total count, but for ROCStories, the total size is known (~98k stories).
-        # We will load the full dataset into memory as it fits in RAM (it's text).
-        ds_full = load_dataset(dataset_id, split="train")
-        
-        total_size = len(ds_full)
-        if sample_size > total_size:
-            logger.warning(f"Requested sample size {sample_size} exceeds dataset size {total_size}. Using full dataset.")
-            sample_size = total_size
-        
-        indices = random.sample(range(total_size), sample_size)
-        
-        for i in indices:
-            item = ds_full[i]
-            # ROCStories structure: usually has 'story' (list of sentences) or 'text'
-            # We need to normalize to a consistent JSON format.
-            # Standard ROCStories often has 'story' as a list of 5 sentences.
-            if 'story' in item:
-                story_text = " ".join(item['story'])
-            elif 'text' in item:
-                story_text = item['text']
-            else:
-                # Fallback for unexpected schema
-                story_text = str(item)
+        # We iterate through the streaming dataset
+        for item in dataset:
+            if count >= sample_size:
+                # If we just need the first N, we could break here. 
+                # But to get a random sample, we should ideally shuffle.
+                # Given the dataset is small, we'll load all or a sufficient chunk.
+                # However, to be strictly compliant with "sample a representative subset",
+                # we will load the whole train set if it fits, or a large chunk.
+                # Let's load all train stories first to ensure randomness.
+                pass 
+            stories_list.append(item)
+            count += 1
             
-            sampled_stories.append({"story": story_text, "source": "rocstories", "id": i})
+            # Safety break if we have way more than needed and don't want to load everything
+            # But for ROCStories, loading 10k is fine.
+            if count > 20000: 
+                break
+        
+        logger.info(f"Loaded {len(stories_list)} stories from dataset.")
+        
+        if len(stories_list) < sample_size:
+            logger.warning(f"Requested {sample_size} stories, but dataset only contains {len(stories_list)}. Using all available.")
+            sample_size = len(stories_list)
+        
+        # Shuffle and sample
+        random.shuffle(stories_list)
+        sampled_stories = stories_list[:sample_size]
+        
+        logger.info(f"Sampling complete. Writing {len(sampled_stories)} stories to {ROCSTORIES_OUTPUT_FILE}")
         
         # Write to JSONL
-        with open(final_file, 'w', encoding='utf-8') as f:
+        with open(ROCSTORIES_OUTPUT_FILE, 'w', encoding='utf-8') as f:
             for story in sampled_stories:
+                # The dataset usually has 'story' or 'events' or 'title' fields.
+                # rocstories format: 'story' (string), 'title' (string), 'id' (string)
+                # We write the whole dict to ensure all data is preserved.
                 f.write(json.dumps(story, ensure_ascii=False) + '\n')
-                
-        logger.info(f"Successfully downloaded and sampled {len(sampled_stories)} stories to {final_file}")
-        return str(final_file)
         
-    except Exception as e:
-        logger.error(f"Failed to download or process ROCStories dataset: {str(e)}")
-        raise RuntimeError(f"ROCStories download failed: {str(e)}")
+        logger.info(f"Successfully saved ROCStories sample to {ROCSTORIES_OUTPUT_FILE}")
+        return ROCSTORIES_OUTPUT_FILE
 
-def validate_ingested_data(file_path: str) -> bool:
+    except Exception as e:
+        # Fail loudly: do not fallback to synthetic
+        error_msg = f"CRITICAL: Failed to download ROCStories corpus from HuggingFace. Error: {str(e)}"
+        logger.critical(error_msg)
+        raise RuntimeError(error_msg) from e
+
+def validate_ingested_data(output_path: Optional[Path] = None) -> bool:
     """
-    Validates that the downloaded JSONL file exists and is not empty.
+    Validates that the ingested data file exists and is not empty.
     
     Args:
-        file_path: Path to the JSONL file.
+        output_path (Optional[Path]): Path to the JSONL file. Defaults to the standard output path.
         
     Returns:
-        True if valid, False otherwise.
+        bool: True if valid, False otherwise.
     """
-    path = Path(file_path)
-    if not path.exists():
-        logger.error(f"Validation failed: File {file_path} does not exist.")
+    if output_path is None:
+        output_path = ROCSTORIES_OUTPUT_FILE
+        
+    if not output_path.exists():
+        logger.error(f"Validation failed: File not found at {output_path}")
         return False
     
-    if path.stat().st_size == 0:
-        logger.error(f"Validation failed: File {file_path} is empty.")
+    if output_path.stat().st_size == 0:
+        logger.error(f"Validation failed: File is empty at {output_path}")
         return False
     
-    # Basic check: can we read one line?
+    # Basic JSONL validation: check if lines are valid JSON
+    valid_count = 0
     try:
-        with open(path, 'r', encoding='utf-8') as f:
-            line = f.readline()
-            if line:
-                json.loads(line)
-            else:
-                logger.error("Validation failed: File appears to be empty or malformed.")
-                return False
-    except json.JSONDecodeError as e:
-        logger.error(f"Validation failed: Invalid JSON in {file_path}: {e}")
+        with open(output_path, 'r', encoding='utf-8') as f:
+            for line_num, line in enumerate(f, 1):
+                if not line.strip():
+                    continue
+                try:
+                    json.loads(line)
+                    valid_count += 1
+                except json.JSONDecodeError:
+                    logger.error(f"Validation failed: Invalid JSON at line {line_num}")
+                    return False
+        
+        logger.info(f"Validation passed: {valid_count} valid stories found in {output_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Validation error: {str(e)}")
         return False
-    
-    logger.info(f"Validation passed for {file_path}")
-    return True
 
 def main():
     """
     Main entry point for the data ingestion script.
     """
-    config = get_config()
-    sample_size = 1000  # Default sample size as per task requirement for a "representative subset"
-    
-    logger.info("Starting ROCStories corpus ingestion (Task T019)...")
+    logger.info("=== Starting ROCStories Data Ingestion ===")
     
     try:
-        output_file = download_rocstories_corpus(sample_size=sample_size, seed=config.get('random_seed', 42))
+        # Determine sample size (can be made configurable via args if needed)
+        # Defaulting to 1000 as a representative subset
+        sample_size = 1000
+        
+        output_file = download_rocstories_corpus(sample_size=sample_size)
         
         if validate_ingested_data(output_file):
-            logger.info("Task T019 completed successfully.")
+            logger.info("=== Data Ingestion Completed Successfully ===")
             return 0
         else:
-            logger.error("Task T019 failed: Validation of ingested data failed.")
+            logger.error("=== Data Ingestion Failed Validation ===")
             return 1
             
     except RuntimeError as e:
-        logger.error(f"Task T019 failed with error: {e}")
+        logger.critical(f"=== Data Ingestion Failed: {e} ===")
         return 1
     except Exception as e:
-        logger.critical(f"Unexpected error during T019: {e}")
+        logger.critical(f"=== Unexpected Error: {e} ===")
         return 1
 
 if __name__ == "__main__":

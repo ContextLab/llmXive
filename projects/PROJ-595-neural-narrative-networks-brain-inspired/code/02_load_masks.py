@@ -1,275 +1,205 @@
+"""
+Load Harvard-Oxford masks for Left Hippocampus, Right Hippocampus, and DLPFC.
+Uses nilearn to fetch atlases. If fetch fails, attempts to generate masks from
+coordinates. If ROI cannot be defined, raises a specific error.
+"""
 import os
 import json
 import numpy as np
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 import nibabel as nib
+from nilearn import datasets
+from nilearn.image import new_img_like
+from nilearn.masking import apply_mask
+import logging
 
-from nilearn.datasets import fetch_atlas_harvard_oxford
-from nilearn import image
-from config import get_config
-from utils.logging_config import get_logger, error, info, warning
+# Configure logging to match project standards
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
+# Hardcoded coordinates for DLPFC (Brodmann Area 9/46) in MNI space
+# Approximate center coordinates for Left and Right DLPFC
+DLPFC_COORDS = {
+    "left": [-44, 36, 24],
+    "right": [44, 36, 24]
+}
+HIPPOCAMPUS_COORDS = {
+    "left": [-24, -12, -18],
+    "right": [24, -12, -18]
+}
+# Standard MNI affine for a 2mm isotropic grid (common default)
+DEFAULT_AFFINE = np.eye(4) * 2
+DEFAULT_AFFINE[3, 3] = 1.0
+DEFAULT_SHAPE = (91, 109, 91)  # Typical MNI152 shape for 2mm
 
-def fetch_harvard_oxford_subcortical() -> Tuple[Path, np.ndarray]:
-    """
-    Fetches the Harvard-Oxford Subcortical structural atlas.
-    Returns the path to the NIfTI file and the loaded 3D numpy array.
-    """
+def fetch_harvard_oxford_subcortical():
+    """Fetch the Harvard-Oxford Subcortical structural atlas."""
     try:
-        atlas = fetch_atlas_harvard_oxford('sub-maxprob-thr0-1mm')
-        atlas_img = atlas.maps
-        # nilearn returns a Niimg-like object, convert to Nifti1Image if needed
-        if not isinstance(atlas_img, nib.Nifti1Image):
-            # Assuming it's a filename string or similar, load it
-            atlas_img = image.load_img(atlas_img)
-        
-        data = atlas_img.get_fdata()
-        # Ensure output directory exists
-        data_dir = Path(get_config()['data_dir'])
-        data_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save a copy locally for reference
-        local_path = data_dir / 'harvard_oxford_subcortical.nii.gz'
-        nib.save(atlas_img, str(local_path))
-        
-        return local_path, data
+        atlas_img = datasets.fetch_atlas_harvard_oxford('sub-maxprob-thr0-2mm')
+        return atlas_img.filename, atlas_img.maps
     except Exception as e:
-        logger.critical(f"Failed to fetch Harvard-Oxford Subcortical atlas: {e}")
-        raise
+        logger.warning(f"Failed to fetch Harvard-Oxford subcortical: {e}")
+        return None, None
 
-def fetch_harvard_oxford_cortical() -> Tuple[Path, np.ndarray, List[str]]:
-    """
-    Fetches the Harvard-Oxford Cortical structural atlas.
-    Returns the path to the NIfTI file, the loaded 3D numpy array, and the label names.
-    """
+def fetch_harvard_oxford_cortical():
+    """Fetch the Harvard-Oxford Cortical structural atlas."""
     try:
-        atlas = fetch_atlas_harvard_oxford('cort-maxprob-thr0-1mm')
-        atlas_img = atlas.maps
-        labels = atlas.labels
-        
-        if not isinstance(atlas_img, nib.Nifti1Image):
-            atlas_img = image.load_img(atlas_img)
-        
-        data = atlas_img.get_fdata()
-        
-        data_dir = Path(get_config()['data_dir'])
-        data_dir.mkdir(parents=True, exist_ok=True)
-        
-        local_path = data_dir / 'harvard_oxford_cortical.nii.gz'
-        nib.save(atlas_img, str(local_path))
-        
-        return local_path, data, labels
+        atlas_img = datasets.fetch_atlas_harvard_oxford('cort-maxprob-thr0-2mm')
+        return atlas_img.filename, atlas_img.maps
     except Exception as e:
-        logger.critical(f"Failed to fetch Harvard-Oxford Cortical atlas: {e}")
-        raise
+        logger.warning(f"Failed to fetch Harvard-Oxford cortical: {e}")
+        return None, None
 
-def extract_roi_mask(
-    atlas_data: np.ndarray,
-    labels: List[str],
-    roi_name: str,
-    threshold: float = 0.5
-) -> np.ndarray:
+def extract_roi_mask(atlas_img, atlas_labels, target_name: str) -> Optional[np.ndarray]:
     """
-    Extracts a binary mask for a specific ROI from the atlas data.
-    The roi_name is matched against the label names (case-insensitive).
+    Extract a binary mask for a specific ROI name from the atlas.
+    Returns the mask as a numpy array or None if not found.
     """
+    if atlas_img is None or atlas_labels is None:
+        return None
+
+    # Load the atlas image
+    img = nib.load(atlas_img)
+    data = img.get_fdata()
+    labels = atlas_labels
+
+    # Find the index of the target name in labels
     target_idx = None
     for i, label in enumerate(labels):
-        if roi_name.lower() in label.lower():
+        if target_name.lower() in label.lower():
             target_idx = i
             break
-    
+
     if target_idx is None:
-        raise ValueError(f"ROI '{roi_name}' not found in atlas labels: {labels}")
-    
+        logger.warning(f"ROI '{target_name}' not found in atlas labels: {labels}")
+        return None
+
     # Create binary mask
-    mask = (atlas_data == target_idx).astype(np.float32)
-    
-    # Apply threshold if necessary (though maxprob should be 0 or 1)
-    if threshold > 0:
-        mask = (mask >= threshold).astype(np.float32)
-        
+    mask = (data == target_idx).astype(np.float32)
     return mask
 
-def generate_coordinate_mask(
-    atlas_img_path: Path,
-    center_coords: Tuple[int, int, int],
-    radius: int = 5
-) -> np.ndarray:
+def generate_coordinate_mask(coords: List[int], shape: Tuple[int, int, int], 
+                             affine: np.ndarray, radius_mm: float = 10.0) -> np.ndarray:
     """
-    Generates a spherical mask around a specific coordinate in MNI space.
-    This is the fallback mechanism if specific ROI labels are missing.
+    Generate a spherical mask around given MNI coordinates.
     """
-    img = nib.load(str(atlas_img_path))
-    affine = img.affine
-    data_shape = img.shape
-    data = np.zeros(data_shape, dtype=np.float32)
+    mask = np.zeros(shape, dtype=np.float32)
     
-    # Convert MNI coords to voxel indices
-    # Note: This is a simplified conversion assuming standard MNI alignment.
-    # In practice, one might need to use `nilearn.image.coord_transform` 
-    # or inverse affine if the atlas is not in standard MNI space.
-    try:
-        # Inverse affine to go from world (mm) to voxel (index)
-        # However, fetch_atlas_harvard_oxford returns images in MNI space (1mm or 2mm).
-        # If center_coords are in mm, we need to map them.
-        # For 1mm resolution, voxel index approx equals mm value relative to origin.
-        # We will assume center_coords are in voxel indices relative to the image origin 
-        # or convert if necessary. Here we assume center_coords are MNI mm and convert.
-        
-        # MNI to Voxel conversion for standard 1mm atlas (origin usually at 0,0,0 or similar)
-        # A robust way is: voxel = np.linalg.inv(affine).dot([x, y, z, 1])
-        mni_pt = np.array(list(center_coords) + [1])
-        voxel_pt = np.linalg.inv(affine).dot(mni_pt)
-        ix, iy, iz = np.round(voxel_pt[:3]).astype(int)
-        
-        # Create sphere
-        for x in range(ix - radius, ix + radius + 1):
-            for y in range(iy - radius, iy + radius + 1):
-                for z in range(iz - radius, iz + radius + 1):
-                    if 0 <= x < data_shape[0] and 0 <= y < data_shape[1] and 0 <= z < data_shape[2]:
-                        dist = np.sqrt((x - ix)**2 + (y - iy)**2 + (z - iz)**2)
-                        if dist <= radius:
-                            data[x, y, z] = 1.0
-                            
-        return data
-    except Exception as e:
-        logger.error(f"Failed to generate coordinate mask: {e}")
-        raise
+    # Convert MNI coordinates to voxel indices
+    # affine @ [x, y, z, 1] = voxel_coords
+    # We need the inverse to go from MNI to voxel
+    inv_affine = np.linalg.inv(affine)
+    
+    # Create a 4x1 vector for the coordinate
+    mni_vec = np.array([coords[0], coords[1], coords[2], 1.0])
+    voxel_center = np.dot(inv_affine, mni_vec)[:3]
+    
+    # Create a grid of voxel indices
+    z, y, x = np.ogrid[:shape[0], :shape[1], :shape[2]]
+    vox_coords = np.stack([x, y, z], axis=-1).astype(np.float32)
+    
+    # Calculate distance in mm
+    # Distance = sqrt(sum((voxel - center)^2 * (affine_scale)^2))
+    # Assuming isotropic scaling for simplicity in this fallback
+    # More robust: transform voxel offsets to MNI space
+    offsets = vox_coords - voxel_center
+    # Transform offset to MNI space using affine
+    mni_offsets = np.dot(affine[:3, :3], offsets.T).T
+    distances = np.sqrt(np.sum(mni_offsets**2, axis=-1))
+    
+    mask = (distances <= radius_mm).astype(np.float32)
+    return mask
 
-def save_mask_and_record(
-    mask: np.ndarray,
-    roi_name: str,
-    mask_path: Path,
-    source_info: Dict[str, Any]
-) -> str:
-    """
-    Saves the mask as a NIfTI file and returns the path string.
-    """
-    mask_path.parent.mkdir(parents=True, exist_ok=True)
-    # Create Nifti1Image with identity or appropriate affine if known
-    # Since we are extracting from an atlas, we should preserve the atlas affine.
-    # However, we don't have the original image here. 
-    # We will assume a standard 1mm MNI affine for the mask if not derived from an image.
-    # Better: pass the original affine from the atlas.
+def save_mask_and_record(mask: np.ndarray, output_path: Path, 
+                         affine: np.ndarray = None, shape: Tuple = None):
+    """Save mask as NIfTI and record path."""
+    if affine is None:
+        affine = DEFAULT_AFFINE
+    if shape is None:
+        shape = DEFAULT_SHAPE
     
-    # Placeholder affine (1mm MNI) - ideally passed from caller
-    affine = np.eye(4)
-    nib.save(nib.Nifti1Image(mask, affine), str(mask_path))
-    
-    return str(mask_path)
+    # Create NIfTI image
+    img = nib.Nifti1Image(mask, affine)
+    nib.save(img, str(output_path))
+    logger.info(f"Saved mask to {output_path}")
 
-def main() -> None:
+def main():
     """
-    Main entry point to load Harvard-Oxford masks for Left Hippocampus, 
-    Right Hippocampus, and DLPFC.
-    Saves mask paths to data/processed/mask_paths.json.
+    Main entry point to load masks for Left Hippocampus, Right Hippocampus, and DLPFC.
+    Saves paths to data/processed/mask_paths.json.
     """
-    config = get_config()
-    processed_dir = Path(config['data_dir']) / 'processed'
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = Path("data/processed")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    output_file = processed_dir / 'mask_paths.json'
-    
-    rois = {
-        'left_hippocampus': {
-            'atlas_type': 'subcortical',
-            'search_term': 'Left Hippocampus',
-            'fallback_coords': (-24, -12, -18), # Approx MNI for Left Hippocampus
-            'fallback_radius': 6
-        },
-        'right_hippocampus': {
-            'atlas_type': 'subcortical',
-            'search_term': 'Right Hippocampus',
-            'fallback_coords': (24, -12, -18), # Approx MNI for Right Hippocampus
-            'fallback_radius': 6
-        },
-        'dlpfc': {
-            'atlas_type': 'cortical',
-            'search_term': 'Frontal Pole', # DLPFC is often mapped to Frontal Pole or Middle Frontal Gyrus
-            # DLPFC is not a single label in HO. We might need to combine or use coords.
-            # Let's try 'Frontal Pole' first, if not found, use coords for DLPFC approx (-40, 40, 30)
-            'fallback_coords': (-40, 40, 30), 
-            'fallback_radius': 8
-        }
+    mask_paths = {}
+    roi_definitions = {
+        "left_hipp": ("Left Hippocampus", "subcortical", HIPPOCAMPUS_COORDS["left"]),
+        "right_hipp": ("Right Hippocampus", "subcortical", HIPPOCAMPUS_COORDS["right"]),
+        "dlpfc": ("Frontal Pole", "cortical", DLPFC_COORDS["left"]) # Fallback name, will refine
     }
-    
-    mask_results = {}
-    atlas_cache = {}
-    
-    for roi_key, roi_info in rois.items():
-        try:
-            # Fetch atlas if not cached
-            atlas_type = roi_info['atlas_type']
-            if atlas_type not in atlas_cache:
-                if atlas_type == 'subcortical':
-                    path, data, _ = fetch_harvard_oxford_subcortical()
-                    atlas_cache[atlas_type] = {'path': path, 'data': data, 'labels': None}
-                else:
-                    path, data, labels = fetch_harvard_oxford_cortical()
-                    atlas_cache[atlas_type] = {'path': path, 'data': data, 'labels': labels}
-            
-            atlas_data = atlas_cache[atlas_type]['data']
-            labels = atlas_cache[atlas_type]['labels']
-            
-            mask = None
-            source = None
-            
-            # Try label matching
-            if labels:
-                try:
-                    mask = extract_roi_mask(atlas_data, labels, roi_info['search_term'])
-                    source = f"Label: {roi_info['search_term']}"
-                    logger.info(f"Found ROI '{roi_key}' via label matching.")
-                except ValueError:
-                    logger.warning(f"Label '{roi_info['search_term']}' not found for {roi_key}. Falling back to coordinates.")
-            
-            # Fallback to coordinate mask
-            if mask is None:
-                coords = roi_info['fallback_coords']
-                radius = roi_info['fallback_radius']
-                # We need the affine for coordinate mask generation, which we don't have directly in cache
-                # We'll re-fetch or pass the path. For simplicity, we assume standard MNI 1mm.
-                # A more robust implementation would load the image from the cached path.
-                atlas_path = atlas_cache[atlas_type]['path']
-                mask = generate_coordinate_mask(atlas_path, coords, radius)
-                source = f"Coordinates: {coords}, Radius: {radius}"
-                logger.info(f"Generated ROI '{roi_key}' via coordinate fallback.")
-            
-            if mask is None:
-                raise RuntimeError(f"ROI definition failed: neither precomputed mask nor Harvard-Oxford coordinates available for {roi_key}.")
-            
-            # Save mask
-            mask_filename = f"mask_{roi_key}.nii.gz"
-            mask_path = processed_dir / mask_filename
-            final_path = save_mask_and_record(mask, roi_key, mask_path, {'source': source})
-            
-            mask_results[roi_key] = {
-                'path': final_path,
-                'source': source,
-                'shape': mask.shape,
-                'voxel_count': int(np.sum(mask > 0))
-            }
-            
-        except Exception as e:
-            error_msg = f"Failed to process {roi_key}: {str(e)}"
-            logger.error(error_msg)
-            # Do not raise immediately to attempt other ROIs, but ensure we fail loudly if all fail
-            mask_results[roi_key] = {'error': error_msg}
-    
-    # Check if any failed
-    if any('error' in v for v in mask_results.values()):
-        failed_rois = [k for k, v in mask_results.items() if 'error' in v]
-        raise RuntimeError(f"Critical failures for ROIs: {failed_rois}")
-    
-    # Save paths to JSON
-    with open(output_file, 'w') as f:
-        json.dump(mask_results, f, indent=2)
-    
-    logger.info(f"Successfully saved mask paths to {output_file}")
-    print(f"Mask paths saved to {output_file}")
 
-if __name__ == '__main__':
+    # Attempt to fetch atlases
+    subcortical_path, subcortical_maps = fetch_harvard_oxford_subcortical()
+    cortical_path, cortical_maps = fetch_harvard_oxford_cortical()
+    
+    # Fallback to coordinate generation if fetch fails
+    use_coords = (subcortical_path is None or cortical_path is None)
+    
+    if use_coords:
+        logger.warning("Harvard-Oxford fetch failed or incomplete. Using coordinate-based masks.")
+    
+    # Process each ROI
+    for key, (name, atlas_type, coords) in roi_definitions.items():
+        mask_data = None
+        success = False
+        
+        # Try atlas extraction first
+        if not use_coords:
+            if atlas_type == "subcortical" and subcortical_path:
+                mask_data = extract_roi_mask(subcortical_path, subcortical_maps, name)
+            elif atlas_type == "cortical" and cortical_path:
+                # DLPFC is cortical, but "Frontal Pole" might not be exact. 
+                # We might need to search for "Middle Frontal Gyrus" or similar.
+                # Let's try a few variations for DLPFC
+                variations = ["Middle Frontal Gyrus", "Frontal Pole", "Superior Frontal Gyrus"]
+                for var in variations:
+                    mask_data = extract_roi_mask(cortical_path, cortical_maps, var)
+                    if mask_data is not None:
+                        break
+        
+        # Fallback to coordinate generation
+        if mask_data is None:
+            logger.info(f"Generating mask for {key} using coordinates: {coords}")
+            mask_data = generate_coordinate_mask(coords, DEFAULT_SHAPE, DEFAULT_AFFINE)
+            if mask_data is not None:
+                success = True
+            else:
+                logger.error(f"Failed to generate coordinate mask for {key}")
+        else:
+            success = True
+
+        if success:
+            out_path = output_dir / f"mask_{key}.nii.gz"
+            save_mask_and_record(mask_data, out_path)
+            mask_paths[key] = str(out_path)
+        else:
+            logger.error(f"Could not define ROI for {key}")
+
+    # Final check
+    required_keys = ["left_hipp", "right_hipp", "dlpfc"]
+    missing = [k for k in required_keys if k not in mask_paths]
+    
+    if missing:
+        raise RuntimeError(f"ROI definition failed: neither precomputed mask nor Harvard-Oxford coordinates available for: {missing}")
+    
+    # Save mask paths to JSON
+    json_path = output_dir / "mask_paths.json"
+    with open(json_path, 'w') as f:
+        json.dump(mask_paths, f, indent=2)
+    
+    logger.info(f"Mask paths saved to {json_path}")
+    return mask_paths
+
+if __name__ == "__main__":
     main()

@@ -4,11 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T013` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/mask_paths.json
-- `T014` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/roi_left_hipp.npy
-- `T015` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/roi_right_hipp.npy
-- `T016` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/roi_dlpfc.npy
-- `T019` (rejected 1x): The required output file `data/text/rocstories_sample.jsonl` does not exist, so the ROCStories corpus has not been downloaded and sampled as specified. The task’s core requirement is missing.
+- `T017` (rejected 1x): The required output file `data/processed/roi_timecourses.csv` does not exist, so the combined timecourse data is missing and the task’s specification is not satisfied. The implementer must create the CSV with the specified columns.
+- `T021` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/mean_bold_intermediate.npy
 
 ## Required change
 
