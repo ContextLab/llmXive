@@ -7,7 +7,9 @@ import os
 import sys
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Callable
+from typing import Any, Callable, Optional
+
+from pathlib import Path
 
 
 @dataclass
@@ -15,6 +17,8 @@ class LogEntry:
     operation: str = ""
     parameters: dict = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    status: str = "success"
+    message: Optional[str] = None
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
@@ -23,122 +27,96 @@ class LogEntry:
 class ReproducibilityLogger:
     """Accepts ANY call shape and never raises.
 
-    This logger writes to:
-    1. `results/metrics.log` (text log of all operations)
-    2. `results/metrics.json` (JSON array of all LogEntry objects)
+    This logger is self-contained and writes to files if configured.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.name = "reproducibility"
-        self.log_file = None
-        self.json_file = None
+    def __init__(
+        self,
+        *args: Any,
+        name: str = "reproducibility",
+        log_file: Optional[str] = None,
+        json_file: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
+        self.name = args[0] if args else name
+        self.log_file = log_file
+        self.json_file = json_file
+        self.entries: list[LogEntry] = []
 
-        # Parse args/kwargs for name and optional log file
-        if args:
-            self.name = str(args[0])
-            if len(args) > 1:
-                self.log_file = str(args[1])
+        # Ensure directories exist if files are specified
+        if self.log_file:
+            Path(self.log_file).parent.mkdir(parents=True, exist_ok=True)
+        if self.json_file:
+            Path(self.json_file).parent.mkdir(parents=True, exist_ok=True)
 
-        if "name" in kwargs:
-            self.name = str(kwargs["name"])
-        if "log_file" in kwargs:
-            self.log_file = str(kwargs["log_file"])
-
-        self.entries: list = []
-        
-        # Ensure results directory exists
-        self.results_dir = os.path.join(os.getcwd(), "results")
-        os.makedirs(self.results_dir, exist_ok=True)
-
-        # Initialize default file paths if not specified
-        if not self.log_file:
-            self.log_file = "metrics.log"
-        self.json_file = "metrics.json"
-
-        self._text_log_path = os.path.join(self.results_dir, self.log_file)
-        self._json_log_path = os.path.join(self.results_dir, self.json_file)
-
-        # Initialize stdlib logging for text output
-        self._init_stdlib_logger()
-
-    def _init_stdlib_logger(self) -> None:
-        """Initialize standard logging to write to the specified file."""
-        import logging
-
-        # Create a custom logger
-        std_logger = logging.getLogger(f"stdlib_{self.name}")
-        std_logger.setLevel(logging.INFO)
-
-        # Avoid adding handlers multiple times
-        if not std_logger.handlers:
-            fh = logging.FileHandler(self._text_log_path, mode='a')
-            fh.setLevel(logging.INFO)
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            fh.setFormatter(formatter)
-            std_logger.addHandler(fh)
-
-        # Store reference for later use
-        self._stdlib_logger = std_logger
-
-    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+    def log(self, *args: Any, **kwargs: Any) -> LogEntry:
         op = args[0] if args else kwargs.get("operation", "")
-        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        status = kwargs.pop("status", "success")
+        message = kwargs.pop("message", None)
+
+        entry = LogEntry(
+            operation=str(op),
+            parameters=dict(kwargs),
+            status=status,
+            message=message,
+        )
         self.entries.append(entry)
 
-        # Write to stdlib logger if initialized
-        if hasattr(self, '_stdlib_logger'):
-            msg = f"{op} - {kwargs}"
-            self._stdlib_logger.info(msg)
+        # Write to log file if configured
+        if self.log_file:
+            with open(self.log_file, "a", encoding="utf-8") as f:
+                f.write(f"[{entry.timestamp}] {entry.operation}: {entry.parameters}\n")
 
-        # Write JSON entry to file immediately
-        self._write_json_entry(entry)
+        # Write to JSON file if configured
+        if self.json_file:
+            with open(self.json_file, "w", encoding="utf-8") as f:
+                json.dump([asdict(e) for e in self.entries], f, indent=2, default=str)
 
         return entry
 
-    def _write_json_entry(self, entry: LogEntry) -> None:
-        """Append a single log entry to the JSON file."""
-        try:
-            # Read existing entries if file exists
-            existing_entries = []
-            if os.path.exists(self._json_log_path):
-                try:
-                    with open(self._json_log_path, 'r', encoding='utf-8') as f:
-                        content = f.read().strip()
-                        if content:
-                            existing_entries = json.loads(content)
-                except (json.JSONDecodeError, ValueError):
-                    # If file is corrupted, start fresh
-                    existing_entries = []
-
-            # Append new entry
-            existing_entries.append(asdict(entry))
-
-            # Write back all entries
-            with open(self._json_log_path, 'w', encoding='utf-8') as f:
-                json.dump(existing_entries, f, indent=2, ensure_ascii=False, default=str)
-        except Exception:
-            # Fail silently to avoid breaking the main workflow
-            pass
-
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op or stdlib delegate
-    def __getattr__(self, name: str):
-        # If we have a stdlib logger and the method exists there, delegate
-        if hasattr(self, '_stdlib_logger') and hasattr(self._stdlib_logger, name):
-            return getattr(self._stdlib_logger, name)
-
-        # Otherwise, return a no-op
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str) -> Callable[..., None]:
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
         return _noop
 
 
-_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+_GLOBAL_LOGGER: Optional[ReproducibilityLogger] = None
 
 
-def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+def get_logger(
+    *args: Any,
+    name: str = "reproducibility",
+    log_file: Optional[str] = None,
+    json_file: Optional[str] = None,
+    **kwargs: Any,
+) -> ReproducibilityLogger:
     global _GLOBAL_LOGGER
+    # If specific files are requested, we might need a new logger instance
+    # or update the global one. For simplicity, if args differ significantly,
+    # we return a new instance or the global one.
+    # To satisfy the "cumulative" requirement, we ensure the global logger
+    # has the capabilities, but we allow specific calls to override file paths
+    # by creating a temporary logger or updating the global one.
+    # However, the safest cumulative approach is: if called with new file paths,
+    # update the global logger's paths or create a new one if names differ.
+    # Given the constraints, we'll just return the global one if it exists,
+    # or create it. If specific file paths are passed, we assume the caller
+    # wants those files written to, so we update the global logger's paths
+    # if they differ, or create a new one if the name differs.
+
     if _GLOBAL_LOGGER is None:
-        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, name=name, log_file=log_file, json_file=json_file, **kwargs)
+    else:
+        # Update paths if provided
+        if log_file:
+            _GLOBAL_LOGGER.log_file = log_file
+        if json_file:
+            _GLOBAL_LOGGER.json_file = json_file
+        # Update name if provided
+        if name and name != _GLOBAL_LOGGER.name:
+            _GLOBAL_LOGGER.name = name
+
     return _GLOBAL_LOGGER
 
 
@@ -162,32 +140,19 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-class JsonFormatter(logging.Formatter):
-    """Formatter that outputs JSON strings after parsing the LogRecord."""
-
-    def format(self, record):
-        log_data = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "name": record.name,
-            "level": record.levelname,
-            "message": record.getMessage(),
-        }
-        if hasattr(record, 'extra_data'):
-            log_data['extra'] = record.extra_data
-        return json.dumps(log_data)
-
-
-def log_metric(metric_name: str, value: float, **kwargs: Any) -> None:
-    """Log a metric to the global logger's entries and optionally to a file."""
-    entry = get_logger().log("metric_recorded", name=metric_name, value=value, **kwargs)
-    if hasattr(get_logger(), '_stdlib_logger'):
-        get_logger()._stdlib_logger.info(f"Metric: {metric_name} = {value}")
+def log_metric(metric_name: str, value: Any, **kwargs: Any) -> LogEntry:
+    """Log a metric value."""
+    return get_logger().log("metric_recorded", name=metric_name, value=value, **kwargs)
 
 
 def main() -> None:
-    """Entry point for testing the logging module."""
-    logger = get_logger("test")
+    """CLI entry point for logging config (for testing)."""
+    logger = get_logger("test", log_file="results/test.log", json_file="results/test.json")
     logger.log("test_operation", key="value")
-    print("Log entry created:", logger.entries[0].to_json())
-    print(f"Text log written to: {logger._text_log_path}")
-    print(f"JSON log written to: {logger._json_log_path}")
+    logger.info("This should not crash")
+    logger.warning("This should not crash")
+    print("Logging test completed.")
+
+
+if __name__ == "__main__":
+    main()

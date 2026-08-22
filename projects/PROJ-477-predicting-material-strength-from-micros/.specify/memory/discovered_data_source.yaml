@@ -1,13 +1,9 @@
 status: none
-intent: download EBSD microstructure tensile strength dataset Zenodo Open Materials
-  Database python package dataset
+intent: download microstructure strength EBSD dataset Zenodo HuggingFace python package
+  dataset
 required_fields:
 - image_filename
-- image_path_or_url
-- tensile_strength_or_yield_strength_value
-- sample_id
-- material_composition
-- acquisition_parameters
-cache_key: 1c0546b417133e0fd79be24ef5c1eecde6fbc3f0a3e3e9fcddb4c5e7bda774dd
-searched_at: '2026-08-03T18:56:32.044664+00:00'
+- yield_strength
+cache_key: c259a1e3fd12a0b204b8bd0cdffc4198c8daf2ce2002685063f9c2bb46496b25
+searched_at: '2026-08-22T15:27:31.236973+00:00'
 retry_count: 1

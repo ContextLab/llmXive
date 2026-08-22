@@ -1,11 +1,12 @@
 T007:
-  c: true
-  h: 04465b1119b8f478524542ceefae4a948e356546c980efbf7be5a64fec5ed43c
-  r: "The `code/utils/logging_config.py` file exists, is non\u2011empty, and defines\
-    \ a logger that targets `results/metrics.log` and `results/metrics.json` with\
-    \ a `LogEntry` JSON structure, satisfying the creation requirement. (The absence\
-    \ of populated log files is acceptable because the task only required the logger\
-    \ initialization code.)"
+  c: false
+  h: abe7e9933ab98e528339a40aad84478b26f140f8785732fe008995842b8898e7
+  r: "The `code/utils/logging_config.py` file is present but does not automatically\
+    \ initialize a logger that writes to `results/metrics.log` and `results/metrics.json`;\
+    \ the `get_logger` function is truncated and never creates a logger with those\
+    \ paths. Moreover, the expected output files are missing (log file absent, JSON\
+    \ file empty). The task\u2019s requirement of a ready\u2011to\u2011use logger\
+    \ with the specified JSON schema is therefore not fulfilled."
 T022a:
   c: false
   h: 28033eb9f04f70200a729d5ff773d07a4a54e29ffb5df4f5c050b9f4a872ef2a
@@ -59,14 +60,3 @@ T040:
     the required `code/config.yaml` file is missing, so the script cannot read the
     expected SHA256 hash and will raise a `FileNotFoundError`. Both the missing configuration
     file and the incomplete downloader prevent the task from being fulfilled.
-T042:
-  c: false
-  h: 3201d12b19bf56c3c65a9557d40373357a416c0028ba043d846280e4d4e970ad
-  r: "The provided `code/data/validate.py` is truncated (ends mid\u2011definition)\
-    \ and does not show the logic that writes `results/validation_report.json` or\
-    \ exits with the required status code. Moreover, the expected output file `results/validation_report.json`\
-    \ is missing, indicating the script either does not generate it or has not been\
-    \ run. The implementation must be completed so the script iterates over `data/raw/`,\
-    \ validates images and metadata, writes the JSON report with `invalid_count`,\
-    \ `total_count`, and `invalid_ratio`, and exits with code\u202F1 when the ratio\
-    \ exceeds\u202F1\u202F%."

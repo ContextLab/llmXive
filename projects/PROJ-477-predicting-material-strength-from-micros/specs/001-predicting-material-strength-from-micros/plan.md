@@ -17,7 +17,7 @@ Rewritten passage:
 **Primary Dependencies**: PyTorch (CPU-only), `torchvision`, `scikit-learn`, `pandas`, `numpy`, `albumentations` (for augmentation), `pyyaml`, `matplotlib`  
 **Storage**: Local file system (`data/` for raw/processed, `models/` for checkpoints, `results/` for reports)  
 **Testing**: `pytest` (unit/integration), `ruff` (linting)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, ~7GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: Limited vCPU, ~7GB RAM)  
 **Project Type**: Research Pipeline / CLI  
 **Performance Goals**: End-to-end training and evaluation within 6 hours; Peak RAM < 7GB  
 **Constraints**: No local GPU; Data must be open/directly downloadable; No synthetic data generation (must use verified source); Strict adherence to FR-001 through FR-009.  

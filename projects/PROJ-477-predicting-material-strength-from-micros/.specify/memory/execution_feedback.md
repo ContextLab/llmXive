@@ -8,66 +8,48 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/data/download.py: self-declared fabricated metric — “…h in config.yaml is still the placeholder value. Please update with the real…”
-- code/data/extract_features.py: synthetic/fake INPUT data not authorized by the spec — “…estimation based on the synthetic dataset properties.     In a rea…”
-- code/data/extract_features.py: synthetic/fake INPUT data not authorized by the spec — “…pixel = 0.1 um for this synthetic dataset         median_pixels =…”
-
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/eval/metrics.py`
-  - script usage: `metrics.py [-h] --predictions PREDICTIONS [--output OUTPUT]`
-  - argparse error: `metrics.py: error: the following arguments are required: --predictions`
-- run-book command: `python code/eval/sensitivity.py`
-  - script usage: `sensitivity.py [-h] --predictions PREDICTIONS [--output OUTPUT]`
-  - argparse error: `sensitivity.py: error: the following arguments are required: --predictions`
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…scription="Download EBSD Synthetic Dataset")     parser.add_argumen…”
+- code/data/extract_features.py: synthetic/fake INPUT data not authorized by the spec — “…um/pixel        for this synthetic dataset as per spec context).…”
+- code/data/extract_features.py: synthetic/fake INPUT data not authorized by the spec — “…# 0.1 um per pixel (from synthetic dataset properties)      for i i…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download.py: self-declared fabricated metric — “…h in config.yaml is still the placeholder value. Please update with the real…”; code/data/extract_features.py: synthetic/fake INPUT data not authorized by the spec — “…estimation based on the synthetic dataset properties.     In a rea…”; code/data/extract_features.py: synthetic/fake INPUT data not authorized by the spec — “…pixel = 0.1 um for this synthetic dataset         median_pixels =…”; 10 command(s) failed: python code/data/download.py (rc=1); python code/data/preprocess.py (rc=1); python code/data/validate.py (rc=1); 1 declared deliverable(s) absent: data/features/test_grain_features.csv
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…scription="Download EBSD Synthetic Dataset")     parser.add_argumen…”; code/data/extract_features.py: synthetic/fake INPUT data not authorized by the spec — “…um/pixel        for this synthetic dataset as per spec context).…”; code/data/extract_features.py: synthetic/fake INPUT data not authorized by the spec — “…# 0.1 um per pixel (from synthetic dataset properties)      for i i…”; 10 command(s) failed: python code/data/download.py (rc=1); python code/data/preprocess.py (rc=1); python code/data/validate.py (rc=1); 1 declared deliverable(s) absent: data/features/test_grain_features.csv
 
 ## Failing / missing run-book commands
 
 - python code/data/download.py -> rc=1
-    ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/data/download.py", line 53, in setup_download_logging
-    results_dir = get_results_dir()
-                  ^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/utils/config.py", line 97, in get_results_dir
-    root = get_project_root()
-           ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/utils/config.py", line 77, in get_project_root
-    return _find_project_root()
-           ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/utils/config.py", line 65, in _find_project_root
-    raise FileNotFoundError(
-FileNotFoundError: Could not determine project root. Expected 'code' and 'data' directories. Searched: /home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/utils/config.py, /home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros and their parents.
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/data/download.py", line 20, in <module>
+    from utils.logging_config import get_logger, log_operation
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/utils/logging_config.py", line 165, in <module>
+    class JsonFormatter(logging.Formatter):
+                        ^^^^^^^
+NameError: name 'logging' is not defined
 - python code/data/preprocess.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/data/preprocess.py", line 225, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/data/preprocess.py", line 211, in main
-    logger = setup_logging()
-             ^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/data/preprocess.py", line 32, in setup_logging
-    return get_logger("preprocess", log_file="results/preprocess.log")
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: get_logger() got an unexpected keyword argument 'log_file'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/data/preprocess.py", line 24, in <module>
+    from utils.logging_config import get_logger, log_operation
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/utils/logging_config.py", line 165, in <module>
+    class JsonFormatter(logging.Formatter):
+                        ^^^^^^^
+NameError: name 'logging' is not defined
 - python code/data/validate.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/data/validate.py", line 183, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/data/validate.py", line 133, in main
-    logger = setup_logging()
-             ^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/data/validate.py", line 25, in setup_logging
-    logger = get_logger('validate', log_file='results/validation.log')
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: get_logger() got an unexpected keyword argument 'log_file'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/data/validate.py", line 24, in <module>
+    from utils.logging_config import get_logger
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/utils/logging_config.py", line 165, in <module>
+    class JsonFormatter(logging.Formatter):
+                        ^^^^^^^
+NameError: name 'logging' is not defined
 - python code/data/extract_features.py -> rc=1
-    2026-08-03 18:56:01,323 - extract_features - INFO - Starting test set feature extraction (T022a)
-2026-08-03 18:56:01,323 - extract_features - ERROR - Feature extraction failed: Could not determine project root. Expected 'code' and 'data' directories. Searched: /home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/utils/config.py, /home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros and their parents.
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/data/extract_features.py", line 13, in <module>
+    from utils.logging_config import get_logger, log_operation
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/utils/logging_config.py", line 165, in <module>
+    class JsonFormatter(logging.Formatter):
+                        ^^^^^^^
+NameError: name 'logging' is not defined
 - python code/models/train.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/models/train.py", line 24, in <module>
@@ -77,13 +59,17 @@ TypeError: get_logger() got an unexpected keyword argument 'log_file'
 ModuleNotFoundError: No module named 'train.trainer'; 'train' is not a package
 - python code/models/train_ablation.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/models/train_ablation.py", line 18, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/models/train_ablation.py", line 20, in <module>
     import torch
 ModuleNotFoundError: No module named 'torch'
-- python code/eval/metrics.py -> rc=2
-    usage: metrics.py [-h] --predictions PREDICTIONS [--output OUTPUT]
-                  [--alpha ALPHA] [--seed SEED]
-metrics.py: error: the following arguments are required: --predictions
+- python code/eval/metrics.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/eval/metrics.py", line 21, in <module>
+    from utils.logging_config import get_logger, log_operation, ReproducibilityLogger, LogEntry
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/utils/logging_config.py", line 165, in <module>
+    class JsonFormatter(logging.Formatter):
+                        ^^^^^^^
+NameError: name 'logging' is not defined
 - python code/eval/interpret.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/eval/interpret.py", line 21, in <module>
@@ -94,10 +80,14 @@ ModuleNotFoundError: No module named 'torch'
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/eval/predictor.py", line 17, in <module>
     import torch
 ModuleNotFoundError: No module named 'torch'
-- python code/eval/sensitivity.py -> rc=2
-    usage: sensitivity.py [-h] --predictions PREDICTIONS [--output OUTPUT]
-                      [--seed SEED]
-sensitivity.py: error: the following arguments are required: --predictions
+- python code/eval/sensitivity.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/eval/sensitivity.py", line 21, in <module>
+    from utils.logging_config import get_logger, LogEntry
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-477-predicting-material-strength-from-micros/code/utils/logging_config.py", line 165, in <module>
+    class JsonFormatter(logging.Formatter):
+                        ^^^^^^^
+NameError: name 'logging' is not defined
 
 ## Declared deliverables still missing
 
@@ -111,15 +101,26 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_logger` — defined in `code/utils/logging_config.py`; called 7 way(s):
+### `get_logger` — defined in `code/utils/logging_config.py`; called 18 way(s):
 
-- code/utils/logging_config.py: logger = get_logger()
-- code/train/trainer.py: logger = get_logger("trainer")
-- code/eval/iou_calculator.py: logger = get_logger("iou_calculator")
-- code/data/split.py: return get_logger("splitter", "split")
-- code/data/process_all.py: logger = get_logger("process_all")
-- code/data/validate.py: logger = get_logger('validate', log_file='results/validation.log')
+- code/models/train_ablation.py: logger = get_logger("ablation", log_file="results/ablation.log")
 - code/data/preprocess.py: return get_logger("preprocess", log_file="results/preprocess.log")
+- code/data/extract_features.py: logger = get_logger("extract_features")
+- code/data/validate.py: logger = get_logger("validate")
+- code/data/validate.py: return get_logger("validate")
+- code/data/download.py: logger = get_logger("downloader", log_file="results/download.log")
+- code/data/process_all.py: logger = get_logger("process_all")
+- code/data/split.py: return get_logger("splitter", "split")
+- code/utils/logging_config.py: return get_logger().log(op, **kwargs)
+- code/utils/logging_config.py: entry = get_logger().log("metric_recorded", name=metric_name, value=value, **kwargs)
+- code/utils/logging_config.py: if hasattr(get_logger(), '_stdlib_logger'):
+- code/utils/logging_config.py: get_logger()._stdlib_logger.info(f"Metric: {metric_name} = {value}")
+- code/utils/logging_config.py: logger = get_logger("test")
+- code/eval/iou_calculator.py: logger = get_logger("iou_calculator")
+- code/eval/sensitivity.py: logger = get_logger("sensitivity")
+- code/eval/predictor.py: logger = get_logger("predictor")
+- code/eval/metrics.py: logger = get_logger("metrics_eval")
+- code/train/trainer.py: logger = get_logger("trainer")
 
 Make `get_logger` in `code/utils/logging_config.py` accept ALL of the above.
 
