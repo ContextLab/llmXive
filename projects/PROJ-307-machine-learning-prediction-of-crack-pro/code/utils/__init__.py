@@ -1,3 +1,3 @@
 """
-Utility functions for statistics and helpers.
+Utility functions and statistical tools.
 """

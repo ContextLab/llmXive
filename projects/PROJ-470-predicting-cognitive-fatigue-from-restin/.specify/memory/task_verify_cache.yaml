@@ -1,11 +1,12 @@
 T011:
   c: false
-  h: 0e4480e12ca3457e7c3ed8e3f6a2c312cbd732b361add669c968fdc4ceb269ba
-  r: "The repository contains a partially implemented `code/preprocess.py` (functions\
-    \ for loading config, band\u2011pass and notch filtering) but the script does\
-    \ not show code that reads the raw EEG, applies the filters, and writes the result\
-    \ to `data/processed/cleaned_eeg.fif`. Moreover, the expected output file `data/processed/cleaned_eeg.fif`\
-    \ is absent. The task therefore remains unfinished."
+  h: f1fc712b9d83c49a1ab86bb050465e06594c6b66a3c617eefac3fbd19304ac85
+  r: "The required output file `data/processed/cleaned_eeg.fif` does not exist, and\
+    \ the provided `code/preprocess.py` snippet contains only helper functions without\
+    \ any code that reads the notch frequency from `config.yaml`, generates a synthetic\
+    \ signal, applies the band\u2011pass and notch filters, and writes the processed\
+    \ data to the specified path. Consequently the task\u2019s core requirements are\
+    \ not fulfilled."
 T014:
   c: false
   h: be11b7ad5377b1c9da590f3188988417fa4b7a8ec03c905323ba424c6bcb58f1

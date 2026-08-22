@@ -1,17 +1,50 @@
-- artifact_hash: ab9be8bc4ec01e6ffe03331b61eeaed2b0c7d55c12a14b136f04f7b07a8f9c66
+- artifact_hash: ca9c308428403970e89472c58560c72f2df9a0389542abd620d350947eb89792
   artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://github.com/pycalphad/pycalphad-data/raw/main/tcf/tcf9.tdb`
+  value: https://github.com/pycalphad/pycalphad/raw/master/pycalphad/databases/TCFE9.tdb
   verification_status: mismatch
-  verified_against_url: https://github.com/pycalphad/pycalphad-data/raw/main/tcf/tcf9.tdb
-  verified_at: '2026-08-10T07:02:47.139904Z'
-- artifact_hash: ab9be8bc4ec01e6ffe03331b61eeaed2b0c7d55c12a14b136f04f7b07a8f9c66
+  verified_against_url: https://github.com/pycalphad/pycalphad/raw/master/pycalphad/databases/TCFE9.tdb
+  verified_at: '2026-08-22T16:12:23.616847Z'
+- artifact_hash: ca9c308428403970e89472c58560c72f2df9a0389542abd620d350947eb89792
   artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: CALPHAD - CALPHAD - Computer Coupling of Phase Diagrams and Thermochemistry
+  kind: url
+  value: https://calphad.org/
+  verification_status: pending
+  verified_against_url: https://calphad.org/
+  verified_at: '2026-08-22T16:12:23.616847Z'
+- artifact_hash: ca9c308428403970e89472c58560c72f2df9a0389542abd620d350947eb89792
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: pycalphad 0.11.3.dev11+g512114b2b documentation
+  kind: url
+  value: https://pycalphad.org/
+  verification_status: pending
+  verified_against_url: https://pycalphad.org/docs/latest/
+  verified_at: '2026-08-22T16:12:23.616847Z'
+- artifact_hash: ca9c308428403970e89472c58560c72f2df9a0389542abd620d350947eb89792
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: National Institute of Standards and Technology
+  kind: url
+  value: https://www.nist.gov/
+  verification_status: pending
+  verified_against_url: https://www.nist.gov/
+  verified_at: '2026-08-22T16:12:23.616847Z'
+- artifact_hash: ca9c308428403970e89472c58560c72f2df9a0389542abd620d350947eb89792
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -19,4 +52,4 @@
   value: 10.5281/zenodo.123456
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.123456
-  verified_at: '2026-08-10T07:02:47.139904Z'
+  verified_at: '2026-08-22T16:12:23.616847Z'

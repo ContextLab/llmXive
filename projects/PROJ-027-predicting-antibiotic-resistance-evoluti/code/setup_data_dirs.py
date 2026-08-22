@@ -3,83 +3,71 @@ import sys
 from pathlib import Path
 from utils.logging import get_logger
 
+# Define the directory structure relative to the project root
+# Based on T001b and T007 requirements
+DATA_DIRS = [
+    "data/raw",
+    "data/processed",
+    "data/models",
+]
+
 def create_data_directories():
     """
-    Create the required data directory structure:
-    data/raw/
-    data/processed/
-    data/models/
-    
-    Also creates .gitkeep files in each to ensure they are tracked by git.
+    Creates the required data directory structure.
+    Returns a list of created directory paths.
     """
-    logger = get_logger()
-    base_dir = Path("data")
-    
-    directories = [
-        base_dir / "raw",
-        base_dir / "processed",
-        base_dir / "models",
-    ]
-    
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {directory}")
-        
-        # Create .gitkeep file to ensure directory is tracked
-        gitkeep_path = directory / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.touch()
-            logger.info(f"Created .gitkeep in: {directory}")
+    logger = get_logger("setup_data_dirs")
+    created_dirs = []
+    project_root = Path(__file__).resolve().parent.parent
+
+    for dir_path in DATA_DIRS:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+            created_dirs.append(full_path)
         else:
-            logger.debug(f".gitkeep already exists in: {directory}")
-    
-    return True
+            logger.debug(f"Directory already exists: {full_path}")
+
+    return created_dirs
 
 def verify_data_directories():
     """
-    Verify that all required data directories exist.
-    Returns True if all directories exist, False otherwise.
+    Verifies that all required data directories exist.
+    Returns True if all exist, False otherwise.
     """
-    logger = get_logger()
-    base_dir = Path("data")
-    
-    required_dirs = [
-        base_dir / "raw",
-        base_dir / "processed",
-        base_dir / "models",
-    ]
-    
+    logger = get_logger("setup_data_dirs")
+    project_root = Path(__file__).resolve().parent.parent
     all_exist = True
-    for directory in required_dirs:
-        if directory.exists() and directory.is_dir():
-            logger.info(f"Verified directory exists: {directory}")
-        else:
-            logger.error(f"Directory missing: {directory}")
+
+    for dir_path in DATA_DIRS:
+        full_path = project_root / dir_path
+        if not full_path.is_dir():
+            logger.error(f"Missing directory: {full_path}")
             all_exist = False
-    
+        else:
+            logger.debug(f"Verified directory: {full_path}")
+
     return all_exist
 
 def main():
     """
-    Main entry point for data directory setup.
+    Main entry point for setting up data directories.
     """
-    logger = get_logger()
+    logger = get_logger("setup_data_dirs")
     logger.info("Starting data directory setup...")
-    
-    # Create directories
-    create_success = create_data_directories()
-    
-    if not create_success:
-        logger.error("Failed to create data directories")
-        return 1
-    
-    # Verify directories
+
+    created = create_data_directories()
+    if created:
+        logger.info(f"Successfully created {len(created)} directories.")
+    else:
+        logger.info("No new directories created (all already exist).")
+
     if verify_data_directories():
-        logger.info("Data directory setup completed successfully")
+        logger.info("Verification passed: All required directories exist.")
         return 0
     else:
-        logger.error("Data directory verification failed")
+        logger.error("Verification failed: Some directories are missing.")
         return 1
 
 if __name__ == "__main__":

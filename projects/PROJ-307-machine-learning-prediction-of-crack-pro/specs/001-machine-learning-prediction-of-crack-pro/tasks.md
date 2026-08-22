@@ -122,10 +122,10 @@
 
 - [X] T029 [US3] Implement `code/analysis/regimes.py` using **`ruptures` change-point detection** as the primary method to identify Low/Mid/High $\Delta K$ regions. **Fallback**: If `ruptures` fails, use `scikit-learn`'s `GaussianProcessRegressor` with RBF kernel (varying coefficient model) with bandwidth selected via cross-validation.
 - [X] T027 [US3] Unit test for `code/analysis/regimes.py` varying coefficient models in `tests/unit/test_regimes.py`
-- [ ] T030 [US3] Implement local $R^2$ and feature importance calculation within identified regimes in `code/analysis/regimes.py`
-- [ ] T031 [US3] Implement `code/analysis/sensitivity.py` to sweep model parameters and verify region stability (ranking unchanged)
-- [ ] T028 [US3] Unit test for `code/analysis/sensitivity.py` stability check in `tests/unit/test_sensitivity.py`
-- [ ] T032 [US3] Implement `code/analysis/viz.py` to generate regime maps and PDPs for top 3 non-$\Delta K$ features
+- [X] T030 [US3] Implement local $R^2$ and feature importance calculation within identified regimes in `code/analysis/regimes.py`
+- [X] T031 [US3] Implement `code/analysis/sensitivity.py` to sweep model parameters and verify region stability (ranking unchanged)
+- [X] T028 [US3] Unit test for `code/analysis/sensitivity.py` stability check in `tests/unit/test_sensitivity.py`
+- [X] T032 [US3] Implement `code/analysis/viz.py` to generate regime maps and PDPs for top 3 non-$\Delta K$ features
 - [ ] T033 [US3] Implement `code/main.py` step to orchestrate regime analysis and generate final sensitivity report
 - [ ] T034 [US3] Implement logic to evaluate model on held-out distinct alloy families. **If** the primary dataset lacks distinct families, **execute graceful degradation**: log a warning that generalizability test is limited to available data and proceed with evaluation on the existing subset. **DO NOT** fetch secondary external data.
 

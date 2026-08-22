@@ -1,84 +1,68 @@
-"""
-Setup script to create the core project directory structure.
-Creates utils, tests, and data directories as specified in T001b.
-"""
 import os
 import sys
 from pathlib import Path
 from utils.logging import get_logger
 
-# Define the directories to create relative to the project root
-DIRECTORIES_TO_CREATE = [
-    "code/utils",
-    "tests",
-    "data/raw",
-    "data/processed",
-    "data/models",
+# Define the directory structure to be created
+DIRECTORIES = [
+    "code/01_ingest",
+    "code/02_process",
+    "code/03_model",
+    "code/04_validate",
+    "code/05_viz",
 ]
 
-def create_directories(base_path: Path, dirs: list) -> None:
+def create_directories(logger):
     """
-    Create a list of directories under the base path.
-    Raises an error if creation fails.
-    """
-    logger = get_logger(__name__)
-    created_count = 0
-    for dir_name in dirs:
-        target_path = base_path / dir_name
-        if not target_path.exists():
-            try:
-                target_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {target_path}")
-                created_count += 1
-            except OSError as e:
-                logger.error(f"Failed to create directory {target_path}: {e}")
-                raise
-        else:
-            logger.debug(f"Directory already exists: {target_path}")
+    Creates the required directory structure for the project.
     
-    logger.info(f"Directory creation complete. Created {created_count} new directories.")
+    Args:
+        logger: Logger instance for logging operations.
+    """
+    for dir_path in DIRECTORIES:
+        path = Path(dir_path)
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Directory created or verified: {path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {path}: {e}")
+            raise
 
-def verify_directories(base_path: Path, dirs: list) -> bool:
+def verify_directories(logger):
     """
-    Verify that all required directories exist.
-    Returns True if all exist, False otherwise.
+    Verifies that all required directories exist.
+    
+    Args:
+        logger: Logger instance for logging operations.
+    
+    Returns:
+        bool: True if all directories exist, False otherwise.
     """
-    logger = get_logger(__name__)
     all_exist = True
-    for dir_name in dirs:
-        target_path = base_path / dir_name
-        if not target_path.is_dir():
-            logger.error(f"Verification failed: Directory missing - {target_path}")
-            all_exist = False
+    for dir_path in DIRECTORIES:
+        path = Path(dir_path)
+        if path.exists() and path.is_dir():
+            logger.info(f"Verified: {path} exists")
         else:
-            logger.debug(f"Verified: {target_path}")
-    
-    if all_exist:
-        logger.info("All required directories verified successfully.")
-    else:
-        logger.error("Directory verification failed. Some directories are missing.")
-    
+            logger.error(f"Verification failed: {path} does not exist")
+            all_exist = False
     return all_exist
 
 def main():
-    logger = get_logger(__name__)
-    logger.info("Starting directory setup (T001b)...")
+    """
+    Main entry point for the directory setup script.
+    """
+    logger = get_logger("setup_directories")
+    logger.info("Starting directory creation and verification...")
     
-    # Determine project root (assumed to be the parent of 'code')
-    # If running from code/setup_directories.py, project root is parent of this file
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
+    create_directories(logger)
     
-    logger.info(f"Project root detected at: {project_root}")
-    
-    create_directories(project_root, DIRECTORIES_TO_CREATE)
-    
-    if verify_directories(project_root, DIRECTORIES_TO_CREATE):
-        logger.info("Task T001b completed successfully.")
-        return 0
+    if verify_directories(logger):
+        logger.info("All required directories are present.")
+        sys.exit(0)
     else:
-        logger.error("Task T001b failed verification.")
-        return 1
+        logger.error("Some directories are missing.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

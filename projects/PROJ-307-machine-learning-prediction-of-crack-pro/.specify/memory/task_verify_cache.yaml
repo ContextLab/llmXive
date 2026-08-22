@@ -6,11 +6,12 @@ T001b:
     so the task is not satisfied.
 T009:
   c: false
-  h: dc6c546f108d77f5126afdd02c992074c4d1be2b09f725f3c797db77ddf427b4
-  r: The provided `code/data/loader.py` exists and contains a `validate_schema` function,
-    but the required schema file `contracts/dataset.schema.yaml` is missing, so the
-    loader cannot actually consume the intended schema. Add the missing schema file
-    (and optionally import any missing types) to satisfy the task.
+  h: 460968f8ba0304b4b7f76641f8a722ec68144051905b101e6b9f3b229444ef90
+  r: The `code/data/loader.py` file is present and contains a `validate_schema` function,
+    but it does not explicitly reference the required `contracts/dataset.schema.yaml`
+    and the referenced schema file is missing from the repository, so the loader cannot
+    actually consume the intended contract. The required schema artifact must be added
+    (or the loader must be wired to the correct path) for the task to be fulfilled.
 T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

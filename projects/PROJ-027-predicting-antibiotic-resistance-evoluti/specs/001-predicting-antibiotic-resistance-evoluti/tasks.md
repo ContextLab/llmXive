@@ -115,7 +115,7 @@ could not find expected ':'
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T021 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`
-- [ ] T022 [P] [US2] Integration test for mechanism-blind filtering in `tests/integration/test_mechanism_blind.py`
+- [X] T022 [P] [US2] Integration test for mechanism-blind filtering in `tests/integration/test_mechanism_blind.py`
 
 ### Implementation for User Story 2
 
@@ -124,8 +124,8 @@ could not find expected ':'
 - [X] T023c [US2] Implement `code/03_model/train_models.py` to train separate Logistic Regression (L1-regularized) and Random Forest models per antibiotic class (FR-009) using **Phylogenetically-Blocked CV** (split by clade ID from T019 tree) and consuming input from T023a (mechanism-blind filtered features)
 - [ ] T024 [US2] Implement stratified cross-validation within `train_models.py` ensuring no data leakage (Strictly use Phylogenetically-Blocked CV logic as per plan)
 - [X] T025 [US2] Implement `code/03_model/evaluate.py` to calculate AUC-ROC, precision-recall curves, and confusion matrices on the held-out test set
-- [~] T026 [US2] Implement logic in `evaluate.py` to rank and export top genomic features (excluding target gene) to a summary table
-- [~] T027 [US2] Save trained model weights and evaluation metrics to `data/models/` with version hashes
+- [ ] T026 [US2] Implement logic in `evaluate.py` to rank and export top genomic features (excluding target gene) to a summary table
+- [ ] T027 [US2] Save trained model weights and evaluation metrics to `data/models/` with version hashes
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -145,9 +145,9 @@ could not find expected ':'
 ### Implementation for User Story 3
 
 - [X] T030 [US3] Implement `code/validate/phylo_permutation.py` to perform phylogenetically-aware permutation testing. (PGLS residual permutation) respecting clonal lineages using the tree from T019
-- [ ] T031 [US3] Implement logic in `phylo_permutation.py` to calculate p-value, **write p-value and significance flag to `data/processed/permutation_results.json`**, and **flag result as 'not significant' if p >= 0.05 without crashing the pipeline**
+- [ ] T031 [US3] Implement logic in `phylo_permutation.py` to calculate p-value, **write p-value and significance flag to `data/processed/permutation_results.json`**, and **flag result as 'not significant' if p >= 0.05 without crashing the pipeline** <!-- FAILED: unspecified -->
 - [X] T032 [US3] Implement `code/04_validate/sensitivity_analysis.py` to sweep classification thresholds across a range of values
-- [~] T033 [US3] Report false-positive and false-negative rate variations across thresholds in `sensitivity_analysis.py`
+- [ ] T033 [US3] Report false-positive and false-negative rate variations across thresholds in `sensitivity_analysis.py`
 - [X] T034 [US3] Implement `code/05_viz/generate_plots.py` to generate ROC curves, precision-recall curves, and feature importance bar plots using matplotlib/seaborn (FR-007)
 - [ ] T035 [US3] Implement `code/main_reproducible.py` to re-execute the **full pipeline** (ingestion → processing → modeling → validation) from raw data to final figures, **verify W003 warning log and confirm feature set excludes plasmid features if data missing**, and verify checksums match, ensuring 'Single Source of Truth'
 
@@ -159,11 +159,11 @@ could not find expected ':'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T036 [P] Documentation updates in `docs/` (README, quickstart)
-- [~] T037 Code cleanup and refactoring for CPU efficiency (batch processing)
-- [~] T038 Performance optimization: Ensure N=1000 isolate limit is strictly enforced in CI to meet -hour constraint while supporting N=5000 spec target
-- [ ] T039 [P] Run `pytest` full suite and verify all contract tests pass
-- [ ] T040 Run `hash_artifacts.py` to finalize `state/` and mark research complete
+- [ ] T036 [P] Documentation updates in `docs/` (README, quickstart)
+- [ ] T037 Code cleanup and refactoring for CPU efficiency (batch processing)
+- [ ] T038 Performance optimization: Ensure N=1000 isolate limit is strictly enforced in CI to meet -hour constraint while supporting N=5000 spec target
+- [~] T039 [P] Run `pytest` full suite and verify all contract tests pass
+- [~] T040 Run `hash_artifacts.py` to finalize `state/` and mark research complete
 
 ---
 

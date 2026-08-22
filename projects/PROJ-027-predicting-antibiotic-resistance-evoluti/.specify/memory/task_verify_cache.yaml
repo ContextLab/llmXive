@@ -1,39 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings, creation scripts, or verification output were provided
-    to show that `code/01_ingest/`, `code/02_process/`, `code/03_model/`, `code/04_validate/`,
-    and `code/05_viz/` actually exist, so the required artifact is missing.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file system evidence were provided showing that `utils/`,
-    `tests/`, `data/raw/`, `data/processed/`, and `data/models/` actually exist and
-    contain any content. Without such artifacts, we cannot confirm the task was completed.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `tests/contract/` or `tests/unit/` directories or their `.gitkeep`
-    files is provided; without seeing those paths and files, we cannot confirm the
-    required artifacts exist.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml
-    with black settings) or setup scripts are present in the provided evidence. Consequently,
-    the requirement to configure ruff/flake8 and black is not satisfied.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the `data/raw/` and `data/processed/` directories or the required\
-    \ `.gitkeep` placeholder files is present; the artifact list is empty, so the\
-    \ task\u2019s requirement is not satisfied."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `tests/contract/` directory or any schema\u2011validation helper files are\
-    \ present in the repository; the claim lacks any concrete artifacts to verify\
-    \ that the required stubs were created. The task therefore remains unfinished."
 T010:
   c: false
   h: 2a525523383cc1bc2d5bfbd6e9d0d7e288e23ffaff2884f60867c65a8fcc431f
@@ -76,3 +40,47 @@ T024:
     \ the evidence consists only of the task description and specifications, without\
     \ any concrete implementation artifact. The implementer must add the updated `train_models.py`\
     \ (or equivalent) that demonstrates the CV logic and ensures no data leakage."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code file `evaluate.py` or any generated summary table was provided; the claim
+    contains only a description of the task and specifications, but no actual implementation
+    or output artifacts to verify that the ranking and export logic was added. The
+    required artifact (the updated `evaluate.py` and its resulting summary CSV) is
+    missing.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or directories under `data/models/` containing saved model weight files
+    or evaluation metric files with version hash identifiers were presented. Without
+    concrete artifacts showing the models and metrics persisted as required, the task
+    is not satisfied.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `sensitivity_analysis.py` script or accompanying report showing false\u2011\
+    positive and false\u2011negative rates across thresholds was provided; the evidence\
+    \ section contains no artifacts, so the required output is missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README or quickstart files (or any updated documentation) were presented in
+    the evidence; the implementer provided no artifacts in `docs/` to verify that
+    the required documentation updates were made. The task remains undone until the
+    updated files are supplied.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation showing any cleanup or refactoring for CPU\u2011\
+    efficient batch processing were provided; the evidence section contains no artifact\
+    \ paths or files, so the required deliverable is missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI configuration, test scripts, logs, or performance measurements were provided\
+    \ to demonstrate that an isolate limit of N=1000 is enforced and that the pipeline\
+    \ meets the time constraint while still supporting a target of N=5000 isolates.\
+    \ The implementer supplied only the original feature specification, which does\
+    \ not address the performance\u2011optimization requirement. The necessary artifacts\
+    \ (e.g., updated CI pipeline files, benchmark results, or validation tests) are\
+    \ missing."

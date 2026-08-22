@@ -1,89 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Crack Propagation Dataset Schema"
-description: |
-  Schema for the Fatigue Crack Growth (FCG) dataset used in the
-  Machine Learning Prediction of Crack Propagation Rates in Metals project.
-  Defines required columns for physics-based and data-driven modeling.
+description: "Schema for validating the Fatigue Crack Growth (FCG) dataset."
 type: object
 required:
-  - type: object
-    properties:
-      columns:
-        type: array
-        items:
-          type: string
-        contains:
-          const: "da_dN"
-        contains:
-          const: "delta_K"
-        contains:
-          const: "composition"
-        contains:
-          const: "heat_treatment"
-
-definitions:
-  column_requirements:
-    da_dN:
-      description: "Crack growth rate (da/dN) in meters/cycle"
-      type: number
-      minimum: 0
-      unit: "m/cycle"
-    
-    delta_K:
-      description: "Stress intensity factor range (ΔK) in MPa√m"
-      type: number
-      minimum: 0
-      unit: "MPa√m"
-    
-    composition:
-      description: "Chemical composition of the alloy (e.g., 'Al 2024-T3', 'Steel 4340')"
-      type: string
-      minLength: 1
-    
-    heat_treatment:
-      description: "Heat treatment condition (e.g., 'T6', 'Annealed', 'Unknown/Not Specified')"
-      type: string
-      minLength: 1
-
-required_columns:
-  - "da_dN"
-  - "delta_K"
-  - "composition"
-  - "heat_treatment"
-
-optional_columns:
-  - "temperature"
-  - "frequency"
-  - "R_ratio"
-  - "specimen_id"
-  - "source"
-
+  - properties
 properties:
   da_dN:
-    $ref: "#/definitions/column_requirements/da_dN"
+    type: number
+    description: "Crack growth rate (da/dN) in m/cycle."
+    minimum: 0
   delta_K:
-    $ref: "#/definitions/column_requirements/delta_K"
+    type: number
+    description: "Stress intensity factor range (ΔK) in MPa√m."
+    minimum: 0
   composition:
-    $ref: "#/definitions/column_requirements/composition"
+    type: string
+    description: "Chemical composition string (e.g., 'Al 2024-T3')."
   heat_treatment:
-    $ref: "#/definitions/column_requirements/heat_treatment"
-
+    type: string
+    description: "Heat treatment condition (e.g., 'T3', 'T6', 'Unknown')."
+  material_id:
+    type: string
+    description: "Unique identifier for the material sample."
+  source:
+    type: string
+    description: "Source of the data (e.g., 'NASA', 'NIST')."
 additionalProperties: true
-description: |
-  This schema defines the minimum required columns for the dataset.
-  The 'validate_schema' function in code/data/loader.py uses this schema
-  to ensure data integrity before processing.
-
-examples:
-  - da_dN: 1.2e-8
-    delta_K: 15.5
-    composition: "Al 7075-T6"
-    heat_treatment: "T6"
-  - da_dN: 3.5e-7
-    delta_K: 22.0
-    composition: "Steel 4340"
-    heat_treatment: "Tempered Martensite"
-  - da_dN: 5.0e-9
-    delta_K: 10.2
-    composition: "Ti-6Al-4V"
-    heat_treatment: "Unknown/Not Specified"
