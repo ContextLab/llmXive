@@ -1,0 +1,25 @@
+{
+  "project_id": "PROJ-958-llmxive-follow-up-extending-qwen-image-a",
+  "ok": false,
+  "reason": "10 run-book script(s) missing (plan/impl path mismatch): python 01_fetch_data.py; python 02_validate_data.py; python 03_compute_complexity.py",
+  "artifacts": [],
+  "failures": [
+    "python 01_fetch_data.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/01_fetch_data.py': [Errno 2] No such file or directory",
+    "python 02_validate_data.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/02_validate_data.py': [Errno 2] No such file or directory",
+    "python 03_compute_complexity.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/03_compute_complexity.py': [Errno 2] No such file or directory",
+    "python 04_route_prompts.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/04_route_prompts.py': [Errno 2] No such file or directory",
+    "python 05_generate_images.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/05_generate_images.py': [Errno 2] No such file or directory",
+    "python 06_compute_fidelity.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/06_compute_fidelity.py': [Errno 2] No such file or directory",
+    "python 07_classify_domains.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/07_classify_domains.py': [Errno 2] No such file or directory",
+    "python 08_regression_analysis.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/08_regression_analysis.py': [Errno 2] No such file or directory",
+    "python 08_regression_analysis.py --stratify -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/08_regression_analysis.py': [Errno 2] No such file or directory",
+    "python 11_efficiency_report.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/11_efficiency_report.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 7,
+  "model_tier": 0,
+  "total_attempts": 7,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-22T14:39:48Z"
+}

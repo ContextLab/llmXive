@@ -1,8 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T001** — No directory listings or file listings were provided showing that `src/`, `tests/`, and `data/` exist in the repository, nor any contents inside them. Without concrete evidence of these three required folders, the task requirement is not satisfied. The implementer must add the project structure and show its presence.
-- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or `ruff.toml`, or corresponding CI scripts) were provided, nor any evidence that ruff and black have been set up in the repository. The required artifacts are missing, so the task is not satisfied.
-- **T006g** — The provided `src/utils/data_loader.py` only contains code for fetching the WISE‑Verified dataset and does not implement any function that retrieves the IA‑Bench “human‑verified reference descriptions”, validates their schema, or writes them to `data/raw/ia-bench/references.jsonl`. Moreover, the required `data/raw/ia-bench/references.jsonl` file is absent. Both the implementation and the expected output are missing.
-- **T015** — The provided `src/scoring/run_scoring.py` is incomplete (truncated code, ends abruptly) and the required output file `data/derived/scoring_results.csv` does not exist. Both the script and the generated CSV are missing or non‑functional, so the task is not satisfied.

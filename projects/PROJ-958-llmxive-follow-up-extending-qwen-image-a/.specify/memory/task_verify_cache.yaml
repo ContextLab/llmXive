@@ -15,10 +15,3 @@ T009:
     \ is missing, causing the `test_file_exists` assertion to fail and rendering the\
     \ unit test unusable. The missing source file must be added for the test to be\
     \ meaningful."
-T015:
-  c: false
-  h: 0395437fde5fc29ef718c0975c7cd597518a6805e3909b66f9ed1e574645e1b3
-  r: "The provided `src/scoring/run_scoring.py` is incomplete (truncated code, ends\
-    \ abruptly) and the required output file `data/derived/scoring_results.csv` does\
-    \ not exist. Both the script and the generated CSV are missing or non\u2011functional,\
-    \ so the task is not satisfied."

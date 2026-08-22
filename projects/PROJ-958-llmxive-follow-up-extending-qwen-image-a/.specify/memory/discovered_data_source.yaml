@@ -1,9 +1,12 @@
 status: none
-intent: IA-Bench prompts LAION-CC filtered subset MTLD reference python package dataset
+intent: IA-Bench WISE-Verified prompts CLIP mFAQ dataset download python package dataset
 required_fields:
 - prompt_id
 - prompt_text
 - source_dataset
-cache_key: 39d90bc5936bd159c581acaf7e91dc8a80b42fed22102f9e29e293f487aef4c0
-searched_at: '2026-08-09T23:32:31.121582+00:00'
+- parse_tree_depth
+- clause_count
+- mtld_score
+cache_key: c429c34c40f2146ab63cccc3a37ca3642482a2be51ee25bd7049698f2d9e7661
+searched_at: '2026-08-22T14:42:07.910279+00:00'
 retry_count: 1
