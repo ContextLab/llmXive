@@ -33,7 +33,7 @@ This project implements a hybrid routing and latency simulation system to evalua
 | **IV. Single Source of Truth** | **PASS** | All figures and stats in the final report will trace to `data/simulation_results.csv` and `code/analysis.py`. |
 | **V. Versioning Discipline** | **PASS** | Artifacts carry content hashes. **Workflow**: `code/utils/versioning.py` computes SHA-256 hashes of `data/` and `code/` artifacts and updates `state/` YAML automatically on every run. |
 | **VI. Latency-Aware Hybrid Evaluation** | **PASS** | Simulation logs will explicitly record `simulated_latency`, `intent_category` (High-Confidence/Ambiguous), and `alignment_score`. Aggregation without intent granularity is blocked by validation logic. |
-| **VII. Deterministic Fallback Minimum Information Density** | **PASS** | Every simulation run will log the exact `ui_element_count` (1, 3, 5, 10). Data points lacking this count are excluded from Pareto analysis. |
+| **VII. Deterministic Fallback Minimum Information Density** | **PASS** | Every simulation run will log the `ui_element_count` across a range of discrete values.. Data points lacking this count are excluded from Pareto analysis. |
 
 ## Project Structure
 

@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-08-22T09:07:19.602518+00:00'
+issue_number: 1315
+project_id: PROJ-914-llmxive-follow-up-extending-macaron-a2ui

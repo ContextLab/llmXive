@@ -52,7 +52,9 @@ The system must calculate task success rates, latency metrics, and alignment sco
 
 1. **Given** the simulation logs from multiple runs with varying information densities, **When** the analysis script runs, **Then** it calculates the alignment score for each configuration using the predefined rubric.
 2. **Given** the calculated metrics, **When** the plot is generated, **Then** it clearly displays the Pareto frontier where the hybrid model outperforms both pure baselines in the high-latency regime.
-3. **Given** the threshold analysis, **When** the results are aggregated, **Then** the specific latency threshold is identified as the first step where the 95% confidence interval of the generative baseline's alignment score drops below the lower bound of the hybrid model's interval (p < 0.05).
+3. **Given** the threshold analysis, **When** the results are aggregated, **Then** the specific latency threshold is identified as the first step where the confidence interval
+
+The research question, method, and references remain as stated in the original planning document. of the generative baseline's alignment score drops below the lower bound of the hybrid model's interval (p < 0.05).
 
 ### Edge Cases
 
@@ -71,7 +73,7 @@ The system must calculate task success rates, latency metrics, and alignment sco
 - **FR-004**: The system MUST vary the information density of the deterministic fallback by rendering a small number of UI elements to determine the minimum viable density (See US-2).
 - **FR-005**: The system MUST calculate alignment scores using a rubric derived from the "Designing for Human-Agent Alignment" paper (Section 4.2) and generate a Pareto frontier plot of alignment vs. latency (See US-3).
 - **FR-006**: The system MUST perform multiple-comparison correction (e.g., Bonferroni or FDR) on the statistical analysis of alignment scores across the different latency and density configurations to control family-wise error (See US-3).
-- **FR-007**: The system MUST conduct a sensitivity analysis on the router's decision threshold, sweeping the confidence cutoff over a concrete set (e.g., {0.6, 0.7, 0.8}) and reporting the variation in inconsistency rates (See US-2).
+- **FR-007**: The system MUST conduct a sensitivity analysis on the router's decision threshold, sweeping the confidence cutoff over a concrete set (e.g., {, 0.7, 0.8}) and reporting the variation in inconsistency rates (See US-2).
 - **FR-008**: The system MUST validate the generative baseline's output quality against a human-annotated gold standard (N=50) at 0ms latency before the experiment begins, ensuring the "degradation" claim is empirically grounded (See US-2).
 
 ### Key Entities
