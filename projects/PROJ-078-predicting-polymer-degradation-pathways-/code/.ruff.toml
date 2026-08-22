@@ -1,16 +1,51 @@
 [lint]
-select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
-ignore = ["E501", "F401"]
+select = [
+  "E",      # pycodestyle errors
+  "F",      # Pyflakes
+  "W",      # pycodestyle warnings
+  "I",      # isort
+  "N",      # pep8-naming
+  "B",      # flake8-bugbear
+  "C4",     # flake8-comprehensions
+  "UP",     # pyupgrade
+  "RUF",    # Ruff-specific rules
+  "TCH",    # flake8-type-checking
+  "SIM",    # flake8-simplify
+  "RET",    # flake8-return
+  "ARG",    # flake8-unused-arguments
+  "PTH",    # flake8-use-pathlib
+]
+ignore = [
+  "E501",   # Line too long (handled by formatter/black)
+  "F401",   # Unused imports (handled by isort or intentional for API surface)
+]
+
+# Extend default per-file ignores for tests and init files
+[lint.per-file-ignores]
+"code/__init__.py" = ["F401", "I001"]
+"tests/**/*.py" = ["E501", "ARG", "RET"]
+"code/utils.py" = ["SIM105"] # Allow contextlib.suppress pattern
+
+[lint.flake8-unused-arguments]
+ignore-variadic-names = true
+
+[lint.flake8-type-checking]
+runtime-evaluated-base-classes = [
+  "pydantic.BaseModel",
+  "dataclasses.dataclass",
+]
 
 [format]
 quote-style = "double"
 indent-style = "space"
 line-ending = "lf"
+skip-magic-trailing-comma = false
 
-[lint.per-file-ignores]
-"code/__init__.py" = ["F401"]
-"tests/**/*.py" = ["E501"]
+[lint.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true
 
-# Black compatibility: ensure ruff format matches black defaults
-# Line length is handled by black, but ruff lint ignores E501 above
-# to avoid conflicts.
+# Strictness for reproducibility:
+# - Enforce explicit type checking imports (TCH)
+# - No unused arguments without reason (ARG)
+# - No bare excepts (E722) is already in 'B' or default

@@ -1,18 +1,16 @@
-T001a:
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or evidence of the required folders (`code/`, `data/raw/`,\
-    \ `data/processed/`, `data/reports/`, `tests/`, `state/`) was provided; without\
-    \ concrete artifacts the claim cannot be verified. The implementer must supply\
-    \ a view of the project tree (e.g., `tree .` output) showing those non\u2011empty\
-    \ directories."
+  r: No `state/setup_log.txt` file containing the recursive directory listing (`ls
+    -R`) with a timestamp was provided; the claim lacks any tangible artifact to verify
+    that the command was run and logged. The required log file is missing, so the
+    task is not satisfied.
 T003:
   c: true
-  h: 56622f8f9f3bdf7152fcf252035075b3ce09841be9b398d9fadfc5d8887fa275
-  r: "The `code/.ruff.toml` file exists, is non\u2011empty, and contains both ruff\
-    \ linting settings and a `[format]` section aligning with Black\u2019s defaults,\
-    \ fulfilling the requirement to configure linting/formatting in the specified\
-    \ location."
+  h: 0cf94fa14e82edc0a29c5cb1841b432aa26751a32c0a2ed04710eec3366825ca
+  r: "The `code/.ruff.toml` file exists, is non\u2011empty, and contains a comprehensive\
+    \ set of linting rules\u2014including type\u2011checking (`TCH`) and strict reproducibility\
+    \ settings\u2014fulfilling the task\u2019s requirement."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

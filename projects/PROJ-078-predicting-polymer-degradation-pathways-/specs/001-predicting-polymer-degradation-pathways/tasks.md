@@ -39,14 +39,19 @@
  ============================================================================
 -->
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 1: Setup & Amendments (Shared Infrastructure + Blocking Prerequisites)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, spec/constitution amendments, and basic structure.
+**Note**: ALL SPEC AND CONSTITUTION AMENDMENTS MUST BE COMPLETED HERE before any implementation tasks begin.
 
-- [X] T001a Create project directory structure: Execute `mkdir -p code/ data/raw/ data/processed/ data/reports/ tests/ state/ state/projects/` in repository root. **Verification**: Verify directories exist via `ls`. **Artifact**: Generate `state/setup_log.txt` containing the command output and timestamp. (Constitution I)
-- [X] T001b Verify and Log: Execute `ls -R` to verify directory structure and append to `state/setup_log.txt` with timestamp. (Constitution I)
-- [X] T002 (Depends on T001b) Initialize Python 3.11 project by generating `code/requirements.txt` with pinned versions: `rdkit==2023.9.5`, `torch==2.1.0+cpu`, `torch-geometric==2.4.0`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `numpy==1.26.2`, `pyyaml==6.0.1`, `requests==2.31.0`, `statsmodels==0.14.0`, `pytest==7.4.3`
+- [ ] T001a Create project directory structure: Execute `mkdir -p code/ data/raw/ data/processed/ data/reports/ tests/ state/ state/projects/` in repository root. **Verification**: Verify directories exist via `ls`. **Artifact**: Generate `state/setup_log.txt` containing the command output and timestamp. (Constitution I)
+- [ ] T001b Verify and Log: Execute `ls -R` to verify directory structure and append to `state/setup_log.txt` with timestamp. (Constitution I)
+- [X] T002 (Depends on T001b) Initialize Python 3.11 project by generating `code/requirements.txt` with pinned versions: `rdkit==2023.9.5 `, `torch==2.1.0+cpu `, `torch-geometric==2.4.0 `, `scikit-learn==1.3.2 `, `pandas==2.1.4 `, `numpy==1.26.2 `, `pyyaml==6.0.1 `, `requests==2.31.0 `, `statsmodels==0.14.0 `, `pytest==7.4.3 `
 - [X] T003 (Depends on T001b) Configure linting tool `ruff` in `code/.ruff.toml` with strict rules for reproducibility and type checking.
+- [ ] T015b [US1] (Depends on T001b) **SPEC AMENDMENT**: Update `spec.md` FR-002 to explicitly state that missing environmental values are handled by "flagging and exclusion" (imputation is forbidden). (FR-002, Plan Correction)
+- [ ] T025d [US1] (Depends on T001b) **SPEC AMENDMENT**: Update `spec.md` FR-004 to explicitly replace "bond rotation" with "functional-group-preserving edge dropout". (FR-004, Plan Correction)
+- [ ] T030a [US2] (Depends on T001b) **SPEC AMENDMENT**: Update `spec.md` SC-005 to explicitly resolve the '[deferred]' placeholder with the value "10" for the top attribution scores threshold. (SC-005)
+- [ ] T038b [US3] (Depends on T001b) **CONSTITUTION AMENDMENT**: Update `Constitution.md` Principle VI to designate the "Motif-Masking Permutation Test" as the primary validation method and the "χ² Discretization Protocol" as complementary, resolving the constitutional conflict. (Constitution VI)
 
 ---
 
@@ -56,14 +61,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 (Depends on T001b) Setup shared logging infrastructure with file handlers in `code/utils.py`
-- [X] T005 (Depends on T001b) Implement exponential backoff utility (max 3 retries) in `code/utils.py` for API rate limiting
-- [X] T006 (Depends on T001b) Create base configuration loader for environment variables and paths in `code/utils.py`
-- [X] T007a (Depends on T001b) Define `PolymerRecord` data class in `code/data_models.py`: Fields `smiles`, `temperature`, `ph`, `uv`, `degradation_pathway`, `source_id`. (FR-001, FR-008)
-- [X] T007b (Depends on T001b) Define `MolecularGraph` data class in `code/data_models.py`: Fields `atom_features`, `bond_features`, `edge_index`, `environment_vector`. (FR-002)
-- [X] T007c (Depends on T001b) Define `MotifImportance` data class in `code/data_models.py`: Fields `motif_pattern`, `pathway`, `importance_score`, `p_value`. (FR-007, SC-002)
-- [X] T008 (Depends on T001b) Setup pytest framework: Create `pytest.ini` with seed pinning and `conftest.py` for shared fixtures in `tests/`. (Constitution I)
-- [ ] T015b [US1] (Depends on T008) **SPEC AMENDMENT**: Update `spec.md` FR-002 to explicitly state that missing environmental values are handled by "flagging and exclusion" (imputation is forbidden). (FR-002, Plan Correction)
+- [ ] T004 (Depends on T001b) Setup shared logging infrastructure with file handlers in `code/utils.py`
+- [ ] T005 (Depends on T001b) Implement exponential backoff utility (max 3 retries) in `code/utils.py` for API rate limiting
+- [ ] T006 (Depends on T001b) Create base configuration loader for environment variables and paths in `code/utils.py`
+- [ ] T007a (Depends on T001b) Define `PolymerRecord` data class in `code/data_models.py`: Fields `smiles`, `temperature`, `ph`, `uv`, `degradation_pathway`, `source_id`. (FR-001, FR-008)
+- [ ] T007b (Depends on T001b) Define `MolecularGraph` data class in `code/data_models.py`: Fields `atom_features`, `bond_features`, `edge_index`, `environment_vector`. (FR-002)
+- [ ] T007c (Depends on T001b) Define `MotifImportance` data class in `code/data_models.py`: Fields `motif_pattern`, `pathway`, `importance_score`, `p_value`. (FR-007, SC-002)
+- [ ] T008 (Depends on T001b) Setup pytest framework: Create `pytest.ini` with seed pinning and `conftest.py` for shared fixtures in `tests/`. (Constitution I)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,51 +77,50 @@
 
 **Goal**: Automatically download, filter, and convert polymer degradation records from NIST Chemistry WebBook and Materials Project into a structured graph dataset.
 
-**Independent Test**: Can be fully tested by executing the ingestion script against a small subset of known NIST entries and verifying the output CSV contains valid SMILES strings, numeric environmental parameters, and categorical degradation labels.
+**Independent Test**: Can be fully tested by executing the ingestion script against a small subset of known NIST entries and verifying the output parquet contains valid SMILES strings, numeric environmental parameters, and categorical degradation labels.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [US1] Unit test for SMILES validation and RDKit graph conversion in `tests/unit/test_ingest.py::test_smiles_validation_rejects_invalid`
-- [X] T010 [US1] Unit test for missing data exclusion logic in `tests/unit/test_preprocess.py::test_missing_env_excludes_record`
-- [X] T012 [US1] Integration test for API rate-limit backoff in `tests/integration/test_api_ingestion.py::test_backoff_on_rate_limit`
+- [ ] T009 [US1] Unit test for SMILES validation and RDKit graph conversion in `tests/unit/test_ingest.py::test_smiles_validation_rejects_invalid`
+- [ ] T010 [US1] Unit test for missing data exclusion logic in `tests/unit/test_preprocess.py::test_missing_env_excludes_record`
+- [ ] T012 [US1] Integration test for API rate-limit backoff in `tests/integration/test_api_ingestion.py::test_backoff_on_rate_limit`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] (Depends on T007a) Implement `ingest.py`: Download records from NIST (URL: `https://webbook.nist.gov/cgi/cbook.cgi?ID=...`) and Materials Project (API Endpoint: `https://materialsproject.org/rest/v2/materials/...`) with rate-limit backoff.
+- [ ] T013 [US1] (Depends on T007a) Implement `ingest.py`: Download records from NIST (URL: `https://webbook.nist.gov/cgi/cbook.cgi?ID=...`) and Materials Project (API Endpoint: `https://materialsproject.org/rest/v/materials/...`) with rate-limit backoff.
  - **Fallback Mechanism**: ONLY if `CI_MODE=true` AND API returns 0 records after 3 retries, generate a deterministic `polymer_seed.json` file.
  - **Seed Schema**: `{"smiles": [string], "temperature": [float], "ph": [float], "uv": [float], "degradation_pathway": [string], "source_id": [string]}`.
- - **Output**: Save to `data/raw/raw_nist_mp_records.csv` with schema: `[smiles, temperature, ph, uv, degradation_pathway, source_id]`. If fallback is used, save `data/raw/polymer_seed.json` and log "SYNTHETIC_FALLBACK" event. (FR-001, FR-008, Constitution I)
+ - **Output**: Save to `data/raw/raw_nist_mp_records.csv` with schema: `[smiles, temperature, ph, uv, degradation_pathway, source_id]`. If fallback is used, save `data/raw/polymer_seed.json` and log "SYNTHETIC_FALLBACK" event. **CRITICAL**: This synthetic data is ONLY for CI validation and MUST be excluded from any final scientific report or 'real data' claims. In non-CI mode (`CI_MODE=false`), the task MUST fail with a clear error if real data is not found. (FR-001, FR-008, Constitution I)
 - [ ] T014 [US1] (Depends on T013) Implement `ingest.py`: Identify records missing 'degradation pathway' labels; FLAG them by saving to `data/raw/flagged_for_curation.csv` (schema: `[record_id, reason]`) and log the action. EXCLUDE these specific records from the immediate training set to prevent label leakage, preserving the 'flag' as a distinct artifact for potential manual curation (FR-008, US-1 Scenario 2)
 - [ ] T015 [US1] (Depends on T014, T015b) Implement `preprocess.py`: Convert SMILES to molecular graphs using RDKit (parameters: `sanitize=True`, `removeHs=False`); filter non-polyesters by detecting ester functional groups (pattern: `C(=O)O`) in SMILES.
- - **Exclusion Rule**: Records with missing environmental data (temp/pH/UV) MUST be EXCLUDED from the training set. This is a hard rule to prevent confounding.
+ - **Exclusion Rule**: Records with missing environmental data (temp/pH/UV) MUST be FLAGGED (saved to `data/raw/flagged_env_missing.csv`) and then EXCLUDED from the training set. This is a hard rule to prevent confounding.
  - **Output**: Save to `data/processed/graphs.parquet` (FR-002)
  - **Error Handling**: If RDKit conversion fails for a SMILES string, skip the record, log the SMILES, and continue.
  - **Output**: Generate `data/processed/exclusion_decision_log.json` with schema `{excluded_count: int, excluded_smiles: [string]}` confirming the exclusion path was taken and documenting the count of excluded records. (FR-002, Plan: Data Exclusion Assumption, Methodological Correction)
-- [X] T015b [US1] (Depends on T008) **SPEC AMENDMENT**: Update `spec.md` FR-002 to explicitly state that missing environmental values are handled by "flagging and exclusion" (imputation is forbidden). (FR-002, Plan Correction)
 - [ ] T016a [US1] (Depends on T014) Implement `ingest.py`: Save the raw ingested dataset (after label flagging) to `data/raw/raw_polymer_records.csv` with checksums. (FR-001)
-- [ ] T016b [US1] (Depends on T015) Implement `preprocess.py`: Save the processed graph dataset (after SMILES conversion, polyester filtering, and environmental filtering) to `data/processed/processed_graph_dataset.csv` with checksums. (FR-002)
-- [ ] T016c [US1] (Depends on T016b) **PRE-AUGMENTATION SAVE**: Save the pre-augmentation dataset (after environmental filtering but before augmentation) to `data/processed/pre_augmented_graph_dataset.csv` with checksums. This artifact is the input for the augmentation phase in Phase 4. (FR-002)
+- [ ] T016b [US1] (Depends on T015) Implement `preprocess.py`: Save the processed graph dataset (after SMILES conversion, polyester filtering, and environmental filtering) to `data/processed/processed_graph_dataset.parquet` with checksums. (FR-002)
+- [ ] T016c [US1] (Depends on T016b) **PRE-AUGMENTATION SAVE**: Save the pre-augmentation dataset (after environmental filtering but before augmentation) to `data/processed/pre_augmented_graph_dataset.parquet` with checksums. This artifact is the input for the augmentation phase in Phase 4. (FR-002)
 - [ ] T017 [US1] (Depends on T016c) **POWER ANALYSIS & DECISION**: Execute `python code/preprocess.py --mode power_analysis`.
- - **Logic**: Calculate sample size `n`. If `n > 150`, subsample to 150 using stratified sampling (seed 42) and save to `data/processed/final_dataset.csv`. If `n <= 150`, set action to "augment" (50<=n<150) or "augment_aggressive" (n<50) and write `state/augmentation_trigger.json`.
- - **Power Analysis Params**: Use `statsmodels.stats.power.tt_ind_solve_power` with `effect_size=0.5`, `alpha=0.05`, `power=0.8` to calculate minimum required sample size.
+ - **Logic**: Calculate sample size `n`. If `n > 150`, subsample to 150 using stratified sampling (seed 42) and save to `data/processed/final_dataset.parquet`. If `n <= 150`, set action to "augment" (50<=n<150) or "augment_aggressive" (n<50) and write `state/augmentation_trigger.json`.
+ - **Power Analysis Params**: Use `statsmodels.stats.power.tt_ind_solve_power` with `effect_size=0.5 `, `{{claim:c_9a086e40}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)`, `power=0.8` to calculate minimum required sample size.
  - **Output**: Write `state/augmentation_trigger.json` with `{"n": int, "action": "none" | "augment" | "augment_aggressive"}`. Generate `data/reports/power_analysis_report.json` with `{"n": int, "warning": "true" if n<150 else "false"}`. (SC-004, FR-004, Plan Correction)
-- [X] T025a [US1] (Depends on T017) **AUGMENTATION TRIGGER DECISION**: Read `state/augmentation_trigger.json`.
+- [ ] T025a [US1] (Depends on T017) **AUGMENTATION TRIGGER DECISION**: Read `state/augmentation_trigger.json`.
  - If `action` is "none" (from T017), log status="skipped" in `data/processed/augmentation_log.json` and skip to T028.
  - If `action` is "augment" or "augment_aggressive", proceed to T025b.
  - If trigger file is absent, log status="error" and halt. (FR-004, Plan Correction)
-- [ ] T025d [US1] (Depends on T025a) **SPEC AMENDMENT**: Update `spec.md` FR-004 to explicitly replace "bond rotation" with "functional-group-preserving edge dropout". (FR-004, Plan Correction)
 - [ ] T025b [US1] (Depends on T025a, T025d, T016c) **AUGMENTATION EXECUTION**: Apply data augmentation via **functional-group-preserving edge dropout** (non-ester bonds only) and SMILES canonicalization.
- - **Algorithm**: Use RDKit's `GetSubstructMatches` with SMARTS `[C;D1][C;D2]=[O;D1][O;D1]` to identify ester bonds. Create a bond mask where `mask[bond_idx] = False` if bond is ester, `True` otherwise. Apply dropout only to `True` bonds with a dropout rate of `0.2`.
+ - **Algorithm**: Use RDKit's `GetSubstructMatches` with SMARTS `[C;D1][C;D2]=[O;D1][O;D1]` to identify ester bonds. Create a bond mask where `mask[bond_idx] = False` if bond is ester, `True` otherwise. Apply dropout only to `True` bonds with a dropout rate of `0.2 (1711.00066, https://arxiv.org/abs/1711.00066)`.
  - **Seed**: Use `SEED=42` for reproducibility.
  - **Rationale**: Bond rotation is chemically invalid for degradation pathways as it alters the 3D conformation required for specific hydrolysis/oxidation events. Edge dropout preserves the functional group integrity while expanding the dataset.
- - **Output**: Save the augmented dataset to `data/processed/augmented_graph_dataset.csv`. (FR-004, Plan Correction)
+ - **Validation**: Verify that the augmented dataset size is at least 2x the pre-augmentation size (or log the actual factor) to satisfy FR-004's "significant factor" requirement.
+ - **Output**: Save the augmented dataset to `data/processed/augmented_graph_dataset.parquet`. (FR-004, Plan Correction)
 - [ ] T025c [US1] (Depends on T025b) **AUGMENTATION VALIDATION & SAVE**: Validate chemical integrity of the augmented dataset.
- - **Output**: Save the final dataset to `data/processed/final_dataset.csv` with checksums.
- - Measure runtime and log to `data/reports/augmentation_timing.json`. **Constraint**: If duration > 30 minutes, log a FAIL status; otherwise PASS.
+ - **Output**: Save the final dataset to `data/processed/final_dataset.parquet` with checksums.
+ - Measure runtime and log to `data/reports/augmentation_timing.json`. **Constraint**: If duration > minutes, log a FAIL status; otherwise PASS.
  - Log the action to `data/processed/augmentation_log.json`. (FR-004, US-2 Scenario 3)
-- [ ] T019 [US1] (Depends on T025c OR T017) **DATA INTEGRITY CHECK**: Verify the checksums of `data/processed/processed_graph_dataset.csv` and `data/processed/final_dataset.csv` (if created). Log any discrepancies. (Plan: Data Hygiene)
+- [ ] T019 [US1] (Depends on T025c OR T017) **DATA INTEGRITY CHECK**: Verify the checksums of `data/processed/processed_graph_dataset.parquet` and `data/processed/final_dataset.parquet` (if created). Log any discrepancies. (Plan: Data Hygiene)
 - [ ] T019b [US1] (Depends on T017) **METADATA GENERATION**: Generate `data/processed/dataset_metadata.json` containing the count of records, count of excluded records, and the action taken (none/augment/augment_aggressive). (Plan: Data Hygiene)
 - [ ] T020 [US1] (Depends on T007a) Add logging for data ingestion actions, exclusions, flags, and power analysis warnings in `code/ingest.py` and `code/preprocess.py`
 
@@ -141,17 +144,16 @@
 
 - [ ] T024 [US2] (Depends on T017) Implement `model.py`: Define lightweight GNN architecture (GCN variant, ≤3 layers, hidden dim ≤128, activation=ReLU, pooling=mean) CPU-only. **Input Shape**: `[num_nodes, num_features]`, **Output Shape**: `[num_nodes, num_classes]`. (FR-003)
 - [ ] T028 [US2] (Depends on T025c OR T017) **TRAINING**: Execute `python code/train.py --cv_strategy 5f` (or `--cv_strategy loo` if n < 50).
- - Check for existence of `data/processed/final_dataset.csv`.
+ - Check for existence of `data/processed/final_dataset.parquet`.
  - **Dependency Logic**: This task runs after T025c (if augmentation occurs) or T017 (if skipped).
  - Implement training loop with -fold cross-validation (or leave-one-out if n < 50) and random seed pinning.
  - Report mean macro-F1 and convergence check (loss delta < 5% over last 5 epochs).
  - **Checkpoint**: Save model to `data/reports/model_best.pth`. (FR-003, US-2 Scenario 1)
 - [ ] T029 [US2] (Depends on T028) Implement `model.py`: Compute feature importance scores using Integrated Gradients on the trained model. **Output**: Save to `data/reports/ig_attribution_maps.json` with schema: `[{"atom_index": int, "feature_importance": float, "normalized_score": float}]`. (FR-005)
-- [ ] T029b [US2] (Depends on T029) **NULL DISTRIBUTION GENERATION**: Implement `evaluate.py`: Generate the null distribution for motif significance testing by shuffling input motifs (specifically ester bonds) repeatedly (1000 permutations, SEED=42). **Algorithm**: Randomly permute the `edge_index` array of the input graph while preserving node features, then re-evaluate the model on the permuted graph to generate the null distribution. **Output**: Save to `data/reports/null_distribution.json` with schema: `{'bins': [float], 'counts': [int], 'observed_stat': float, 'p_value': float}`. (FR-006, SC-002, SC-005)
-- [ ] T030a [US2] (Depends on T029b) **SPEC AMENDMENT**: Update `spec.md` SC-005 to explicitly resolve the '[deferred]' placeholder with the value "10" for the top attribution scores threshold. (SC-005)
-- [ ] T030 [US2] (Depends on T030a) **ESTER ATTRIBUTION VALIDATION**: Implement `evaluate.py`: Calculate percentage of hydrolysis cases where ester bonds are in the highest-ranked attribution scores.
+- [ ] T029b [US2] (Depends on T029) **NULL DISTRIBUTION GENERATION (ESTER SPECIFIC)**: Implement `evaluate.py`: Generate the null distribution for motif significance testing specifically for **ester bonds** by shuffling input motifs (shuffling edge features of ester bonds) repeatedly (A large number of permutations, SEED=42). **Algorithm**: Randomly permute the `edge_index` array of the input graph while preserving node features for non-ester bonds, then re-evaluate the model on the permuted graph to generate the null distribution. **Output**: Save to `data/reports/null_distribution.json` with schema: `{'bins': [float], 'counts': [int], 'observed_stat': float, 'p_value': float}`. (FR-006, SC-002, SC-005)
+- [ ] T030 [US2] (Depends on T029b) **ESTER ATTRIBUTION VALIDATION**: Implement `evaluate.py`: Calculate percentage of hydrolysis cases where ester bonds are in the highest-ranked attribution scores.
  - **Traceability**: The value '10' is derived from the formally resolved SC-005 in T030a.
- - **Validation**: Compare this percentage against the null distribution generated by T029b. **Threshold**: `PERCENTAGE_THRESHOLD = 0.90`. Generate `data/reports/ester_attribution_check.json` with keys `{"percentage": float, "threshold": 0.90, "p_value_null_comparison": float, "status": "PASS|FAIL"}`. (SC-005, Plan Correction)
+ - **Validation**: Compare this percentage against the null distribution generated by T029b. **Threshold**: `PERCENTAGE_THRESHOLD = 0.90 `. Generate `data/reports/ester_attribution_check.json` with keys `{"percentage": float, "threshold": 0.90, "p_value_null_comparison": float, "status": "PASS|FAIL"}`. (SC-005, Plan Correction)
 - [ ] T031 [US2] (Depends on T030) Implement `evaluate.py`: Save model checkpoints, validation metrics (macro-F1), and IG attribution maps to `data/reports/`. (FR-003, FR-005)
 - [ ] T032 [US2] (Depends on T031) Implement `evaluate.py`: Generate test-set predictions using the trained model; save predictions to `data/reports/test_predictions.json` for downstream validation. (FR-007)
 - [ ] T033 [US2] (Depends on T017 OR T025c) Add logging for training progress, validation scores, augmentation stats, and runtime constraints in `code/train.py`
@@ -175,16 +177,15 @@
 ### Implementation for User Story 3
 
 - [ ] T037c [US3] (Depends on T032) **SPEC AMENDMENT**: Update `spec.md` FR-006 to explicitly restrict the permutation test scope to "ester bonds" as the primary motif of interest, validating the narrowed scope. (FR-006)
-- [ ] T037 [US3] (Depends on T037c, T031) **SCIENTIFIC VALIDATION (Permutation Test - Ester Shuffling)**: Execute `python code/evaluate.py --test permutation --target ester`.
- - **Motif Extraction**: Use RDKit to find subgraphs of small sizes, specifically targeting ester bonds using SMARTS `[C;D1][C;D2]=[O;D1][O;D1]`.
- - **Statistic Definition**: `observed_stat` = mean(macro-F1_original - macro-F1_shuffled). Shuffling method: Zero out the edge features of all ester bonds identified by the SMARTS pattern and re-evaluate.
+- [ ] T037 [US3] (Depends on T037c, T031, T029b) **SCIENTIFIC VALIDATION (Permutation Test - General Motif Masking)**: Execute `python code/evaluate.py --test permutation --target general`.
+ - **Motif Extraction**: Use RDKit to find subgraphs of small sizes, targeting general motifs (not just esters) using SMARTS patterns.
+ - **Statistic Definition**: `observed_stat` = mean(macro-F1_original - macro-F1_masked). Masking method: Zero out the edge features of identified motif edges and re-evaluate.
  - **Null Distribution**: Generate `1000` permutations (SEED=42) to ensure statistical robustness.
- - **Mapping**: Explicitly document that 'Motif-Shuffling' implements the 'shuffling input motifs' requirement from US-3 Scenario 1, specifically for ester bonds to satisfy SC-005.
+ - **Mapping**: Explicitly document that 'Motif-Masking' implements the 'shuffling input motifs' requirement from US-3 Scenario 1 for general motifs.
  - Generate `data/reports/permutation_test_results.json` with schema: `{'bins': [float], 'counts': [int], 'observed_stat': float, 'p_value': float}` (FR-006, SC-002, US-3 Scenario 1, SC-005)
 - [ ] T037b [US3] (Depends on T031) **LABEL-SHUFFLING VALIDATION**: Implement `evaluate.py`: Perform a label-shuffling permutation test to validate global model significance.
- - **Verification**: Verify that label-shuffling produces a p-value > 0.05 (indicating the model is not learning random noise).
+ - **Verification**: Verify that label-shuffling produces a p-value > 0.05 [UNRESOLVED-CLAIM: c_7b6775b9 — status=not_enough_info] (indicating the model is not learning random noise).
  - **Note**: This is a complementary test and does NOT satisfy FR-006's specific motif-shuffling requirement (handled by T037). (Complementary to T037)
-- [ ] T038b [US3] (Depends on T037) **CONSTITUTION AMENDMENT**: Update `Constitution.md` Principle VI to designate the "Motif-Masking Permutation Test" as the primary validation method and the "χ² Discretization Protocol" as complementary, resolving the constitutional conflict. (Constitution VI)
 - [ ] T038 [US3] (Depends on T038b, T031) **CONSTITUTIONAL VALIDATION (χ²)**: Implement `evaluate.py`: Implement χ² Discretization Protocol.
  - **Binning**: Apply 'quantile-based binning' (top quantile of absolute IG scores vs rest) on absolute Integrated Gradients scores.
  - **Tie-Breaking**: If a score is at a low percentile threshold, assign it to the 'Low' bin.
@@ -351,7 +352,7 @@ The following rules override any conflicting instructions in `spec.md` or previo
  - **Bond Rotation**: **FORBIDDEN**. The Plan explicitly forbids implementing 'bond rotation' as it is 'chemically invalid'. The only augmentation method is 'functional-group-preserving edge dropout' (T025b).
  - **T025b**: Use 'functional-group-preserving edge dropout' (non-ester bonds only) and SMILES canonicalization as the final augmentation method. Skip if n > 150.
 3. **Statistical Validation**:
- - **T037**: Implement 'shuffling input motifs' specifically for **ester bonds** to satisfy SC-005. This is the primary validation method for motif significance.
+ - **T037**: Implement 'shuffling input motifs' specifically for **general motifs** (with T029b handling **ester-specific** shuffling) to satisfy SC-005. This is the primary validation method for motif significance.
  - **T038**: Implement χ² Discretization Protocol to satisfy Constitution Principle VI. This is the complementary validation method.
 4. **Thresholds**: For SC-004, trigger a warning if n < 150. For SC-005, use `THRESHOLD_TOP_PERCENT` (default **10** per T030a) and `PERCENTAGE_THRESHOLD` (default 0.90) for verification. For US-3, use `CONFIDENCE_THRESHOLD` (default 0.6).
 
