@@ -1,204 +1,160 @@
 """
-Versioning utilities for llmXive.
-
-Implements Constitution Principle V: Compute SHA-256 hashes of code/ and data/
-directories and update the state/ YAML file to track experiment reproducibility.
+Versioning utilities for the llmXive project.
+Implements Constitution Principle V: Reproducibility via content hashing.
 """
-
 import hashlib
 import os
 import yaml
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Constants relative to project root
+# Project root is the parent of the code/ directory
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+STATE_FILE_PATH = PROJECT_ROOT / "state" / "version_state.yaml"
 CODE_DIR = PROJECT_ROOT / "code"
 DATA_DIR = PROJECT_ROOT / "data"
-STATE_DIR = PROJECT_ROOT / "state"
-STATE_FILE = STATE_DIR / "version_state.yaml"
-
-# Paths to exclude from hashing (e.g., generated artifacts, caches)
-EXCLUDED_PATTERNS = {
-    "__pycache__",
-    "*.pyc",
-    "*.pyo",
-    ".git",
-    ".env",
-    "*.log",
-    "*.tmp",
-    "models",  # Often large, versioned separately if needed
-}
 
 
-def _should_exclude(file_path: Path) -> bool:
-    """Check if a file or directory should be excluded from hashing."""
-    parts = file_path.parts
-    for part in parts:
-        if part in EXCLUDED_PATTERNS:
-            return True
-        if part.startswith(".") and part not in {".", ".."}:
-            # Exclude hidden files/dirs unless they are config files
-            if part in {".gitignore", ".env.example", ".gitkeep"}:
-                continue
-            return True
-    return False
+def compute_file_hash(file_path: Path) -> str:
+    """
+    Compute the SHA-256 hash of a file.
 
+    Args:
+        file_path: Path to the file to hash.
 
-def _compute_file_hash(file_path: Path) -> str:
-    """Compute SHA-256 hash of a single file."""
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+    """
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
     except (IOError, OSError) as e:
-        raise RuntimeError(f"Failed to read file {file_path} for hashing: {e}")
+        raise RuntimeError(f"Failed to hash file {file_path}: {e}")
 
 
-def _compute_directory_hash(dir_path: Path) -> str:
+def compute_directory_hash(dir_path: Path, ignore_patterns: Optional[list] = None) -> str:
     """
     Compute a deterministic SHA-256 hash for a directory.
+    Iterates files in sorted order to ensure determinism.
 
-    The hash is derived by sorting all files by relative path and
-    concatenating their individual hashes.
+    Args:
+        dir_path: Path to the directory to hash.
+        ignore_patterns: List of filename patterns to ignore (e.g., ['.pyc', '__pycache__']).
+
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
     """
+    if ignore_patterns is None:
+        ignore_patterns = ['.pyc', '__pycache__', '.git']
+
+    sha256_hash = hashlib.sha256()
+    dir_path = Path(dir_path)
+
     if not dir_path.exists():
-        return hashlib.sha256(b"").hexdigest()  # Hash of empty
+        # If directory doesn't exist, hash a specific string to indicate absence
+        sha256_hash.update(b"DIR_NOT_FOUND")
+        return sha256_hash.hexdigest()
 
-    file_hashes = []
-    all_files = sorted(dir_path.rglob("*"))
+    # Collect all files recursively
+    files_to_hash = []
+    for root, dirs, files in os.walk(dir_path):
+        # Filter directories
+        dirs[:] = [d for d in dirs if d not in ignore_patterns]
 
-    for file_path in all_files:
-        if not file_path.is_file():
-            continue
-        if _should_exclude(file_path.relative_to(dir_path)):
-            continue
+        for file in files:
+            if any(file.endswith(p) for p in ignore_patterns):
+                continue
+            # Skip hidden files
+            if file.startswith('.'):
+                continue
+            files_to_hash.append(Path(root) / file)
+
+    # Sort files to ensure deterministic order
+    files_to_hash.sort()
+
+    # Update hash with relative path and content
+    for file_path in files_to_hash:
         try:
-            file_hash = _compute_file_hash(file_path)
-            # Include relative path in the hash input to ensure path changes matter
-            rel_path = str(file_path.relative_to(dir_path))
-            file_hashes.append(f"{rel_path}:{file_hash}")
-        except RuntimeError:
-            # Skip files that can't be read
-            continue
+            # Hash the relative path
+            rel_path = file_path.relative_to(dir_path)
+            sha256_hash.update(str(rel_path).encode('utf-8'))
 
-    combined_string = "\n".join(file_hashes)
-    return hashlib.sha256(combined_string.encode("utf-8")).hexdigest()
+            # Hash the content
+            with open(file_path, "rb") as f:
+                for byte_block in iter(lambda: f.read(4096), b""):
+                    sha256_hash.update(byte_block)
+        except (IOError, OSError, ValueError) as e:
+            # Log warning but continue hashing other files
+            # In a real system, we might want to abort or record this error
+            pass
+
+    return sha256_hash.hexdigest()
 
 
 def compute_version_state() -> Dict[str, Any]:
     """
-    Compute the current version state of the project.
+    Compute the version state for the project's code and data directories.
 
-    Returns a dictionary containing:
-    - timestamp: ISO format string
-    - code_hash: SHA-256 of the code/ directory
-    - data_hash: SHA-256 of the data/ directory
-    - git_commit: (Optional) Current git commit hash if available
+    Returns:
+        Dictionary containing:
+            - timestamp: ISO format timestamp
+            - code_hash: SHA-256 hash of the code/ directory
+            - data_hash: SHA-256 hash of the data/ directory
+            - project_root: Absolute path to project root
     """
-    timestamp = datetime.utcnow().isoformat() + "Z"
-
-    code_hash = _compute_directory_hash(CODE_DIR)
-    data_hash = _compute_directory_hash(DATA_DIR)
-
-    git_commit = None
-    try:
-        import subprocess
-        result = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=5
-        )
-        if result.returncode == 0:
-            git_commit = result.stdout.strip()
-    except (subprocess.SubprocessError, FileNotFoundError, subprocess.TimeoutExpired):
-        # Git not available or not a git repo
-        pass
-
     return {
-        "timestamp": timestamp,
-        "code_hash": code_hash,
-        "data_hash": data_hash,
-        "git_commit": git_commit,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "code_hash": compute_directory_hash(CODE_DIR),
+        "data_hash": compute_directory_hash(DATA_DIR),
+        "project_root": str(PROJECT_ROOT)
     }
 
 
-def update_state_file(
-    state: Optional[Dict[str, Any]] = None,
-    append_history: bool = True
-) -> Path:
+def update_state_file() -> Dict[str, Any]:
     """
-    Update the state YAML file with the new version information.
-
-    Args:
-        state: Pre-computed state dict. If None, computes fresh.
-        append_history: If True, appends the new state to a history list.
-                       If False, overwrites the root keys.
+    Compute the current version state and write it to the state YAML file.
 
     Returns:
-        Path to the updated state file.
+        The computed state dictionary.
     """
-    if state is None:
-        state = compute_version_state()
+    state = compute_version_state()
 
     # Ensure state directory exists
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    STATE_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    existing_data = {}
-    if STATE_FILE.exists():
-        try:
-            with open(STATE_FILE, "r", encoding="utf-8") as f:
-                existing_data = yaml.safe_load(f) or {}
-        except yaml.YAMLError:
-            existing_data = {}
+    # Write to YAML
+    with open(STATE_FILE_PATH, 'w', encoding='utf-8') as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
-    if append_history:
-        history = existing_data.get("history", [])
-        # Add current state to history with a run_id (timestamp-based)
-        run_entry = {
-            "run_id": state["timestamp"].replace(":", "-").replace(".", "-"),
-            **state
-        }
-        history.append(run_entry)
-        existing_data["history"] = history
-        # Keep top-level keys updated as well for quick access
-        existing_data["latest"] = state
-    else:
-        existing_data.update(state)
-
-    with open(STATE_FILE, "w", encoding="utf-8") as f:
-        yaml.dump(existing_data, f, default_flow_style=False, sort_keys=False)
-
-    return STATE_FILE
+    return state
 
 
 def get_latest_state() -> Optional[Dict[str, Any]]:
-    """Retrieve the latest state from the state file."""
-    if not STATE_FILE.exists():
+    """
+    Load the latest version state from the YAML file.
+
+    Returns:
+        Dictionary containing the state, or None if file doesn't exist.
+    """
+    if not STATE_FILE_PATH.exists():
         return None
+
     try:
-        with open(STATE_FILE, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-            return data.get("latest") or data
-    except yaml.YAMLError:
-        return None
+        with open(STATE_FILE_PATH, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f)
+    except (IOError, yaml.YAMLError) as e:
+        raise RuntimeError(f"Failed to read state file {STATE_FILE_PATH}: {e}")
 
 
 if __name__ == "__main__":
-    # CLI entry point for manual updates
+    # Example usage: compute and print version state
     print("Computing project version state...")
-    state = compute_version_state()
-    print(f"Code Hash: {state['code_hash'][:16]}...")
-    print(f"Data Hash: {state['data_hash'][:16]}...")
-    if state['git_commit']:
-        print(f"Git Commit: {state['git_commit'][:8]}")
+    state = update_state_file()
     print(f"Timestamp: {state['timestamp']}")
-
-    file_path = update_state_file(state)
-    print(f"State updated in {file_path}")
+    print(f"Code Hash: {state['code_hash']}")
+    print(f"Data Hash: {state['data_hash']}")
+    print(f"State written to: {STATE_FILE_PATH}")

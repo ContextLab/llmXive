@@ -1,8 +1,0 @@
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided information contains only the high\u2011level feature specification\
-    \ and user stories; there is no code, test, or metrics file showing that a validation\
-    \ step was added to guarantee `ui_element_count` is logged for the runs 1,\u202F\
-    3,\u202F5,\u202F10. Consequently the required artifact (validation implementation\
-    \ and evidence of its execution) is missing."

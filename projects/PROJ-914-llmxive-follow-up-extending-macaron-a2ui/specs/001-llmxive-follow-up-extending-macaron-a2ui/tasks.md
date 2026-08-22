@@ -59,9 +59,9 @@
 - [X] T005 Implement `code/config.py` for seeds, paths, and constants (including `RANDOM_SEED=42`)
 - [X] T006 [P] Implement `code/utils/versioning.py` to compute SHA-256 hashes of `data/` and `code/` and update `state/` YAML (Constitution Principle V)
 - [X] T007 [P] Implement `code/utils/logging.py` for structured JSON logging of experiment runs
-- [X] T008 Create base data models/entities (`InteractionTurn`, `RoutingDecision`, `SimulationRun`) in `code/data/models.py`
+- [X] T008 Create base data models/entities (`InteractionTurn`, `RoutingDecision`, `SimulationRun`) in `code/data/models.py` <!-- FAILED: unspecified -->
 - [X] T009 [P] [US1] Generate contract schemas in `specs/001-llmxive-a2ui-latency-study/contracts/` (`simulation_input.schema.yaml`, `simulation_output.schema.yaml`) using a script or `jsonschema` library; verify with T010 (no manual setup)
-- [X] T023 [P] [US2] Implement `code/simulation/rubric.py` to derive and implement the "Human-Agent Alignment" scoring function: `score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness` (FR-005, SC-002); **must include latency_penalty**; **Moved to Phase 2 to ensure availability for T037 in Phase 5**
+- [X] T023 [P] [US2] Implement `code/simulation/rubric.py` to derive and implement the "Human-Agent Alignment" scoring function: `score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness [UNRESOLVED-CLAIM: c_18376dfb — status=not_enough_info] ` (FR-005, SC-002); **must include latency_penalty**; **Moved to Phase 2 to ensure availability for T037 in Phase 5**
 - [X] T023b [P] [US2] Implement `code/simulation/rubric.py` to explicitly calculate `latency_penalty` as `1 - min(1, latency / 2.0)` (SC-002); **explicitly implement the latency term to align with SC-002**; **Depends on: T023**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -70,15 +70,15 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Intent Annotation (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest the Macaron-A2UI dataset and provide an interface to label N=500 interaction turns as "High-Confidence" or "Ambiguous" to create ground truth. Additionally, create a separate N=50 human-annotated hold-out set for rubric validation.
+**Goal**: Ingest the Macaron-A2UI dataset and provide an interface to label N=500 interaction turns as "High-Confidence" or "Ambiguous" to create ground truth. Additionally, create a separate N=50 human-annotated hold-out set for rubric validation [UNRESOLVED-CLAIM: c_7476867e — status=not_enough_info].
 
-**Independent Test**: A CSV file exists containing N=500 rows with columns `query`, `ground_truth_intent`, `complexity_score`, validated by a script checking ≥95% coverage and no missing labels. A separate N=50 hold-out set exists for rubric validation.
+**Independent Test**: A CSV file exists containing N=500 rows with columns `query`, `ground_truth_intent`, `complexity_score`, validated by a script checking ≥95% coverage and no missing labels [UNRESOLVED-CLAIM: c_a29a7c89 — status=not_enough_info]. A separate N=50 hold-out set exists for rubric validation.
 
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/data/ingest.py` with `load_dataset` (Hugging Face) to fetch raw A2UI-Bench data; **no training logic included**; outputs raw CSV
 - [X] T012b-CLI [US1] Implement `code/data/annotate_cli.py` as a **CLI tool with --input and --output flags** to provide the manual annotation interface for researchers to label N=500 turns (FR-001); **uses a text-based interactive loop**; **outputs labeled CSV**
-- [X] T013 [US1] Implement validation script `code/data/validate_annotation.py` to check ≥95% coverage and no missing labels in the N=500 dataset (US-1 Independent Test)
+- [X] T013 [US1] Implement validation script `code/data/validate_annotation.py` to check ≥95% coverage and no missing labels [UNRESOLVED-CLAIM: c_a29a7c89 — status=not_enough_info] in the N=500 dataset (US-1 Independent Test)
 - [X] T014 [US1] Add error handling to `code/data/ingest.py` to ensure real data fetch fails loudly (no synthetic fallback) per Data Hygiene rules
 - [X] T015 [US1] Implement `code/data/annotate_holdout.py` to create the **N=50 human-annotated hold-out set** for rubric validation (FR-008); **script to format raw data for manual review**; **data creation only, no validation logic**
 - [X] T015b [US1] Verify N=50 hold-out set format and completeness (requires manual annotation step to be performed externally or simulated with placeholder data for testing; validates format of file assuming it exists)
@@ -119,8 +119,8 @@
 - [X] T022 [US2] Implement `code/simulation/patience.py` with `sample_patience()` function modeling exponential decay (mean=2s) for user abandonment (FR-003); **explicitly define rate parameter lambda = 1/mean and apply random seed**
 - [X] T024a [US2] Implement simulation runner `code/simulation/runner.py` with latency injection (sleep/delay) and dependency on **T022** for patience modeling
 - [X] T024b [US2] Implement density iteration logic in `code/simulation/runner.py` to iterate through explicit density levels **{1, 3, 5, 10}** for deterministic fallback (FR-004, Constitution Principle VII); **Explicitly handle borderline confidence scores (if score == threshold, route to Ambiguous)**
-- [X] T024c [US2] Implement logging of `ui_element_count` and validation/assertion for density levels in `code/simulation/runner.py`
-- [X] T026 [US2] Implement logic in `code/simulation/runner.py` to handle "Ambiguous" queries: invoke fallback, log "no-match" if no ontology entry, return minimal UI (element)
+- [ ] T024c [US2] Implement logging of `ui_element_count` and validation/assertion for density levels in `code/simulation/runner.py`
+- [ ] T026 [US2] Implement logic in `code/simulation/runner.py` to handle "Ambiguous" queries: invoke fallback, log "no-match" if no ontology entry, return minimal UI (element) <!-- FAILED: unspecified -->
 - [X] T020 [US2] Implement `code/models/router.py` with DistilBERT (quantized) for intent classification (High-Confidence vs. Ambiguous)
 - [X] T019 [US2] Implement training script `code/models/train_router.py` to train DistilBERT on labeled CSV from T013; **Depends on: T013, T020**; **Must save model to `code/models/router_model/`** (Removed "no model file generated yet")
 - [X] T019b-Run [US2] Execute training script from T019 on labeled CSV; save model to `code/models/router_model/`; **Depends on: T015c**
@@ -149,22 +149,22 @@
 
 ### Implementation for User Story 3
 
-- [X] T032 [US3] Implement `code/analysis/stats.py` for **Benjamini-Hochberg FDR** multiple-comparison correction on alignment scores (FR-006, SC-004)
-- [X] T032a [US3] Implement configurable correction method in `code/analysis/stats.py` to support both FDR and Bonferroni (satisfying spec flexibility)
+- [ ] T032 [US3] Implement `code/analysis/stats.py` for **Benjamini-Hochberg FDR [UNRESOLVED-CLAIM: c_24cd51e6 — status=not_enough_info]** multiple-comparison correction on alignment scores (FR-006, SC-004)
+- [ ] T032a [US3] Implement configurable correction method in `code/analysis/stats.py` to support both FDR and Bonferroni (satisfying spec flexibility)
 - [X] T034a [US3] Generate generative baseline data for latency steps including zero and non-zero intervals; **Depends on: T024**
 - [X] T037a [US3] **Validate Baseline**: Validate generative baseline output quality against human-annotated gold standard (N=50) at **Negligible latency** (FR-008); **Explicit 0ms constraint**
 - [X] T034b [US3] **Implement Threshold Finder**: Implement `code/analysis/threshold_finder.py` that consumes T034a baseline data and T032/T032a FDR results to **output a JSON file containing the identified latency threshold and p-value**; **explicitly implement statistical test logic for non-overlapping confidence intervals**
 - [X] T034c [US3] **Verify Threshold Output**: Implement verification script for the JSON output of T034b; **Verify JSON file exists and contains expected keys**
 - [X] T034d [US3] Generate statistical report table showing p-values and confidence intervals for all configurations (US-3 Independent Test)
-- [X] T035 [US3] Implement `code/analysis/viz.py` to generate the Pareto frontier plot (Alignment vs. Latency)
-- [X] T036 [US3] Implement `code/analysis/viz.py` to plot alignment scores across information density levels (low, medium, high)
+- [ ] T035 [US3] Implement `code/analysis/viz.py` to generate the Pareto frontier plot (Alignment vs. Latency)
+- [ ] T036 [US3] Implement `code/analysis/viz.py` to plot alignment scores across information density levels (low, medium, high) <!-- FAILED: unspecified -->
 - [X] T037 [US3] Implement `code/analysis/rubric_validation.py` to validate the rubric correlation (r ≥ 0.7) against the N=50 hold-out set from **T015d-Load** (human scores) and baseline validation results from **T037a**; **consumes rubric logic from T023 and metrics from T027; explicitly calculate correlation between rubric scores and human scores**; **Output: `data/rubric_validation_report.json`**
-- [X] T038 [US3] Implement `code/main.py` entry point to orchestrate the full pipeline: Ingest -> Route -> Simulate -> Analyze -> Report
+- [ ] T038 [US3] Implement `code/main.py` entry point to orchestrate the full pipeline: Ingest -> Route -> Simulate -> Analyze -> Report
 - [X] T039 [US3] Generate final report (output/report.md) containing:) Pareto frontier plot,) Table of alignment scores per density/latency, 3) Threshold identification table with 95% CIs (US-3 Independent Test)
 
 ### Tests for User Story 3
 
-- [X] T029 [P] [US3] Unit test for statistical correction (FDR/Bonferroni) in `tests/unit/test_stats.py`
+- [ ] T029 [P] [US3] Unit test for statistical correction (FDR/Bonferroni) in `tests/unit/test_stats.py`
 - [X] T030 [P] [US3] Unit test for Pareto frontier calculation in `tests/unit/test_metrics.py`
 - [X] T031 [P] [US3] Unit test for rubric validation against N=50 hold-out set in `tests/unit/test_rubric_validation.py`
 
@@ -178,7 +178,7 @@
 
 - [X] T040 [P] Documentation updates in `specs/001-llmxive-a2ui-latency-study/quickstart.md`
 - [X] T041 Code cleanup and refactoring in `code/`
-- [X] T042 Performance optimization: ensure CPU inference < 500ms per query (8-bit quantization check)
+- [X] T042 Performance optimization: ensure CPU inference < 500ms per query [UNRESOLVED-CLAIM: c_01f728a8 — status=not_enough_info] (8-bit quantization check)
 - [X] T043 [P] Additional unit tests for edge cases (e.g., router confidence near boundary) in `tests/unit/`
 - [X] T044 Run `quickstart.md` validation to ensure full reproducibility
 
@@ -192,11 +192,11 @@
 
 - [X] T045a [US2] Implement `code/models/router.py` load check: attempt to load the B parameter model; if it fails, **attempt to load a smaller distilled model** (Addressing Edge Case: Model Load Failure - Fallback Path).
 - [X] T045b [US2] Implement `code/models/router.py` abort logic: if both the B parameter model and the smaller distilled model fail to load, **abort with a clear `RuntimeError`** specifying the memory constraint (Addressing Edge Case: Model Load Failure - Abort Path).
-- [X] T046 [US2] Enhance `code/simulation/runner.py` to explicitly log `router_confidence_score` for every query, specifically for cases where the score is within ±0.05 of the decision boundary, to support post-hoc sensitivity analysis (Addressing Edge Case: Borderline Confidence).
+- [ ] T046 [US2] Enhance `code/simulation/runner.py` to explicitly log `router_confidence_score` for every query, specifically for cases where the score is within ±0.05 of the decision boundary, to support post-hoc sensitivity analysis (Addressing Edge Case: Borderline Confidence).
 - [X] T047 [US2] Update `code/models/fallback.py` to ensure that when no ontology match is found for an "Ambiguous" query, the system returns a specific "no-match" flag in the `RoutingDecision` object and logs the event with `event_type="no_match"` for safety analysis (Addressing Edge Case: Ontology Mismatch).
-- [X] T048 [US3] **Statistical Power & Control**: Implement `calculate_power(n, effect_size)` function in `code/analysis/stats.py` and integrate into `code/analysis/rubric_validation.py` to abort if sample size is insufficient (Addressing Assumption: Rubric Validation Power); **Merged T048a and T048b**
-- [X] T049 [US1] Update `code/data/ingest.py` to include a specific `streaming=True` check or chunked download strategy if the Macaron-AUI dataset exceeds the available RAM limit, ensuring the task fails loudly if the real source is unreachable rather than attempting a synthetic fallback (Addressing Data Hygiene: Large Dataset Streaming; authorized by Data Hygiene principle).
-- [X] T050 [US2] Implement a "dry-run" mode in `code/simulation/runner.py` that executes a single trial with all logging enabled but no actual model inference, to verify the latency injection and patience modeling logic before committing to full simulation runs (Addressing Execution: Latency Injection Verification).
+- [ ] T048 [US3] **Statistical Power & Control**: Implement `calculate_power(n, effect_size)` function in `code/analysis/stats.py` and integrate into `code/analysis/rubric_validation.py` to abort if sample size is insufficient (Addressing Assumption: Rubric Validation Power); **Merged T048a and T048b**
+- [ ] T049 [US1] Update `code/data/ingest.py` to include a specific `streaming=True` check or chunked download strategy if the Macaron-AUI dataset exceeds the available RAM limit, ensuring the task fails loudly if the real source is unreachable rather than attempting a synthetic fallback (Addressing Data Hygiene: Large Dataset Streaming; authorized by Data Hygiene principle).
+- [ ] T050 [US2] Implement a "dry-run" mode in `code/simulation/runner.py` that executes a single trial with all logging enabled but no actual model inference, to verify the latency injection and patience modeling logic before committing to full simulation runs (Addressing Execution: Latency Injection Verification).
 
 ---
 
@@ -294,7 +294,7 @@ With multiple developers:
 - **CRITICAL**: Ensure the router is CPU-optimized (quantized DistilBERT) and the generative model is quantized (quantized DistilGPT) to fit within GitHub Actions constraints.
 - **CRITICAL**: Latency injection must be explicit and logged; user patience must be modeled as exponential decay.
 - **CRITICAL**: Implement density iteration for {1, 3, 5, 10} to support the minimum viable density study (integrated into T024a/b/c).
-- **CRITICAL**: Create N=50 human-annotated hold-out set for rubric validation (T015d-Load); T015d-Gen is CI-only.
+- **CRITICAL**: Create N=50 human-annotated hold-out set for rubric validation [UNRESOLVED-CLAIM: c_7476867e — status=not_enough_info] (T015d-Load); T015d-Gen is CI-only.
 - **CRITICAL**: Ensure sensitivity analysis is performed in the Analysis phase (Phase 5), not the Simulation phase.
 - **CRITICAL**: Rubric validation (T037) must explicitly calculate the correlation coefficient (r) against the hold-out set (T015d-Load).
 - **CRITICAL**: Statistical correction (T032) must use FDR (Benjamini-Hochberg) or Bonferroni (T032a).

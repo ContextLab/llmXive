@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-914-llmxive-follow-up-extending-macaron-a2ui",
+  "ok": false,
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/simulation/runner.py: self-declared fabricated metric \u2014 \u201c\u2026tency_ms\": len(prompt) * 2  # Simulated latency         }  def load_annotated\u2026\u201d; code/simulation/runner.py: metric `score` assigned from an RNG draw (line 28); 4 command(s) failed: python code/data/ingest.py --annotate --sample-size 500 (rc=1); python code/main.py --config code/config.yaml (rc=1); python code/analysis/viz.py --input data/simulation/results.csv --output plots/pareto_frontier.png (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/data/ingest.py --annotate --sample-size 500 -> rc=1\n    Attempting to load dataset: macaron-data/a2ui-bench (streaming=True)...\n\n`trust_remote_code` is not supported anymore.\nPlease check that the Hugging Face dataset 'macaron-data/a2ui-bench' isn't based on a loading script and remove `trust_remote_code`.\nIf the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.\nFATAL ERROR: CRITICAL: Failed to load real dataset from macaron-data/a2ui-bench. Error: Dataset 'macaron-data/a2ui-bench' doesn't exist on the",
+    "python code/main.py --config code/config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/code/main.py\", line 31, in <module>\n    from models.router import load_router, run_inference\nModuleNotFoundError: No module named 'models.router'",
+    "python code/analysis/viz.py --input data/simulation/results.csv --output plots/pareto_frontier.png -> rc=1\n    2026-08-22 18:56:24,729 - ERROR - File not found: Input file not found: data/simulation/results.csv",
+    "python code/analysis/stats.py --input data/simulation/results.csv --output data/analysis/stats_report.json -> rc=1\n    ERROR:__main__:Analysis failed: Simulation results file not found: data/simulation/results.csv\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/code/analysis/stats.py\", line 463, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/code/analysis/stats.py\", line 425, in main\n    df = load_simulation_data(args.input)\n      "
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/data/ingest.py --annotate --sample-size 500"
+  ],
+  "updated_at": "2026-08-22T18:56:26Z"
+}

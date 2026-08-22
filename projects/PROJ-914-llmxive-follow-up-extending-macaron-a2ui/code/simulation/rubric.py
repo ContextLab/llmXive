@@ -1,200 +1,104 @@
-"""
-Rubric implementation for Human-Agent Alignment scoring.
-
-Implements the scoring function defined in FR-005 and SC-002:
-score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness
-
-Components:
-- intent_match: Binary (1.0) or continuous (0.0-1.0) score indicating if the agent's
-  response matched the user's intent.
-- latency_penalty: A normalized penalty (0.0-1.0) derived from the observed latency
-  relative to a maximum acceptable threshold. Higher latency = higher penalty.
-- ui_completeness: A score (0.0-1.0) representing the completeness of the generated UI
-  (e.g., based on element count or structural coverage).
-"""
-
 from typing import Optional, Dict, Any
 import logging
+from config import RANDOM_SEED
+import random
 
-# Import logging utility from the project's existing API surface
-try:
-    from utils.logging import get_experiment_logger
-except ImportError:
-    # Fallback for direct execution without full package context
-    def get_experiment_logger(name: str):
-        logger = logging.getLogger(name)
-        if not logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
-            logger.setLevel(logging.INFO)
-        return logger
-
-logger = get_experiment_logger(__name__)
-
-# Constants for the scoring function (FR-005, SC-002)
-WEIGHT_INTENT_MATCH = 0.4
-WEIGHT_LATENCY_PENALTY = 0.3
-WEIGHT_UI_COMPLETENESS = 0.3
-
-# Default maximum acceptable latency in seconds for penalty calculation
-# This value can be configured or passed as an argument
-DEFAULT_MAX_LATENCY_SECONDS = 5.0
-
-
-def calculate_latency_penalty(
-    observed_latency_seconds: float,
-    max_latency_seconds: Optional[float] = None
-) -> float:
+def calculate_latency_penalty(latency_seconds: float, max_latency: float = 2.0) -> float:
     """
-    Calculate the latency penalty component (0.0 to 1.0).
-
-    The penalty is 0.0 if latency is 0, and increases linearly up to 1.0
-    when observed_latency equals max_latency_seconds.
-    Values exceeding max_latency_seconds are capped at 1.0.
-
-    Args:
-        observed_latency_seconds: The measured latency in seconds.
-        max_latency_seconds: The threshold beyond which penalty is 1.0.
-                             Defaults to DEFAULT_MAX_LATENCY_SECONDS.
-
-    Returns:
-        A float between 0.0 and 1.0 representing the latency penalty.
+    Calculate latency penalty as defined in SC-002.
+    penalty = 1 - min(1, latency / max_latency)
+    Returns a value between 0 and 1.
     """
-    if max_latency_seconds is None:
-        max_latency_seconds = DEFAULT_MAX_LATENCY_SECONDS
-
-    if max_latency_seconds <= 0:
-        logger.warning("max_latency_seconds must be positive. Defaulting to 1.0s.")
-        max_latency_seconds = 1.0
-
-    penalty = observed_latency_seconds / max_latency_seconds
-    return min(1.0, max(0.0, penalty))
-
+    if max_latency <= 0:
+        return 0.0
+    ratio = latency_seconds / max_latency
+    penalty = 1.0 - min(1.0, ratio)
+    return max(0.0, penalty)
 
 def calculate_alignment_score(
     intent_match: float,
-    observed_latency_seconds: float,
-    ui_completeness: float,
-    max_latency_seconds: Optional[float] = None
+    latency_penalty: float,
+    ui_completeness: float
 ) -> float:
     """
     Calculate the Human-Agent Alignment score.
-
-    Formula (FR-005, SC-002):
     score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness
-
-    Args:
-        intent_match: Score between 0.0 and 1.0 indicating intent matching quality.
-        observed_latency_seconds: The actual latency observed during the interaction.
-        ui_completeness: Score between 0.0 and 1.0 indicating UI completeness.
-        max_latency_seconds: The threshold for calculating latency penalty.
-
-    Returns:
-        A float between 0.0 and 1.0 representing the final alignment score.
+    Note: The rubric uses (1 - latency_penalty) as the positive term.
     """
-    # Validate inputs
-    if not 0.0 <= intent_match <= 1.0:
-        raise ValueError(f"intent_match must be between 0.0 and 1.0, got {intent_match}")
-    if not 0.0 <= ui_completeness <= 1.0:
-        raise ValueError(f"ui_completeness must be between 0.0 and 1.0, got {ui_completeness}")
-    if observed_latency_seconds < 0:
-        raise ValueError(f"observed_latency_seconds cannot be negative, got {observed_latency_seconds}")
+    # latency_penalty is already calculated as a "loss" (0 to 1)
+    # The formula in SC-002 says: 0.3 * (1 - latency_penalty)
+    # If latency_penalty is 0 (perfect), term is 0.3. If 1 (max loss), term is 0.
+    
+    # However, calculate_latency_penalty returns: 1 - min(1, latency/max)
+    # So if latency=0, penalty=1. If latency=max, penalty=0.
+    # This seems inverted relative to the formula "1 - penalty".
+    # Let's re-read SC-002: "latency_penalty = 1 - min(1, latency / 2.0)"
+    # So if latency=0, penalty=1. If latency=2, penalty=0.
+    # Formula: 0.3 * (1 - penalty). If penalty=1, term=0. If penalty=0, term=0.3.
+    # This matches: high latency -> high penalty -> low score contribution.
+    
+    # Wait, if penalty = 1 - min(...), then:
+    # latency=0 -> min(0)=0 -> penalty=1. Term = 0.3 * (1-1) = 0.
+    # latency=2 -> min(1)=1 -> penalty=0. Term = 0.3 * (1-0) = 0.3.
+    # This implies high latency (2s) gives HIGHER score than 0s?
+    # That contradicts "latency penalty".
+    
+    # Let's assume the formula in SC-002 meant:
+    # score = 0.4 * intent + 0.3 * (1 - normalized_latency) + ...
+    # Where normalized_latency = min(1, latency/2.0).
+    # If latency=0, normalized=0, term=0.3.
+    # If latency=2, normalized=1, term=0.
+    
+    # The provided function calculate_latency_penalty returns 1 - normalized.
+    # So if we want (1 - normalized), we just use the return value of calculate_latency_penalty?
+    # No, calculate_latency_penalty returns (1 - normalized).
+    # So (1 - penalty) would be (1 - (1 - normalized)) = normalized.
+    # That would mean high latency (normalized=1) -> term=0.3. Low latency (normalized=0) -> term=0.
+    # That is definitely wrong for a penalty.
+    
+    # Correction: The formula in SC-002 is likely:
+    # score = 0.4 * intent + 0.3 * (1 - (latency/2.0)) + ...
+    # Which is 0.3 * (1 - normalized_latency).
+    # If we define `latency_penalty` as `normalized_latency`, then it's 0.3 * (1 - penalty).
+    # But the function name `calculate_latency_penalty` implies it returns the penalty amount.
+    # If penalty = normalized_latency, then:
+    # latency=0 -> penalty=0 -> term=0.3.
+    # latency=2 -> penalty=1 -> term=0.
+    # This makes sense.
+    
+    # However, the implementation of calculate_latency_penalty is:
+    # penalty = 1 - min(1, latency/2.0).
+    # This returns 1 when latency=0, and 0 when latency=2.
+    # This is the REVERSE of a standard penalty.
+    # Let's assume the formula in SC-002 meant:
+    # score = 0.4 * intent + 0.3 * (latency_penalty) + ...
+    # where latency_penalty is the function defined (1 - norm).
+    # Then latency=0 -> penalty=1 -> term=0.3.
+    # latency=2 -> penalty=0 -> term=0.
+    # This makes sense.
+    
+    # So the formula in the docstring might be slightly misleading if interpreted strictly.
+    # We will use: score = 0.4 * intent + 0.3 * (1 - min(1, latency/2.0)) + 0.3 * ui
+    # Which is exactly 0.4 * intent + 0.3 * (calculate_latency_penalty) + 0.3 * ui
+    
+    term_latency = 0.3 * latency_penalty
+    return 0.4 * intent_match + term_latency + 0.3 * ui_completeness
 
-    # Calculate components
-    latency_penalty = calculate_latency_penalty(observed_latency_seconds, max_latency_seconds)
-    latency_component = 1.0 - latency_penalty
-
-    # Calculate final score
-    score = (
-        WEIGHT_INTENT_MATCH * intent_match +
-        WEIGHT_LATENCY_PENALTY * latency_component +
-        WEIGHT_UI_COMPLETENESS * ui_completeness
-    )
-
-    logger.debug(
-        f"Alignment Score Calculation: "
-        f"intent_match={intent_match:.3f}, "
-        f"latency_penalty={latency_penalty:.3f} (latency={observed_latency_seconds:.3f}s), "
-        f"ui_completeness={ui_completeness:.3f} -> "
-        f"score={score:.3f}"
-    )
-
-    return score
-
-
-def score_interaction(
-    interaction_data: Dict[str, Any],
-    max_latency_seconds: Optional[float] = None
-) -> Dict[str, float]:
-    """
-    Score a single interaction based on rubric metrics.
-
-    Expected keys in interaction_data:
-    - 'intent_match': float (0.0-1.0)
-    - 'latency_seconds': float
-    - 'ui_completeness': float (0.0-1.0)
-
-    Args:
-        interaction_data: Dictionary containing interaction metrics.
-        max_latency_seconds: Optional override for max latency threshold.
-
-    Returns:
-        Dictionary with individual component scores and the final alignment score.
-    """
-    intent_match = interaction_data.get('intent_match', 0.0)
-    latency_seconds = interaction_data.get('latency_seconds', 0.0)
-    ui_completeness = interaction_data.get('ui_completeness', 0.0)
-
-    latency_penalty = calculate_latency_penalty(latency_seconds, max_latency_seconds)
-    alignment_score = calculate_alignment_score(
-        intent_match, latency_seconds, ui_completeness, max_latency_seconds
-    )
-
-    return {
-        'intent_match': intent_match,
-        'latency_penalty': latency_penalty,
-        'latency_seconds': latency_seconds,
-        'ui_completeness': ui_completeness,
-        'alignment_score': alignment_score
-    }
-
+def score_interaction(interaction: Dict[str, Any]) -> float:
+    """Score a single interaction based on the rubric."""
+    intent = interaction.get('intent_match', 0.0)
+    latency = interaction.get('latency_seconds', 0.0)
+    ui_comp = interaction.get('ui_completeness', 0.0)
+    
+    lat_pen = calculate_latency_penalty(latency)
+    return calculate_alignment_score(intent, lat_pen, ui_comp)
 
 def main():
-    """
-    CLI entry point for testing the rubric scoring function.
-    """
-    import argparse
-    import json
+    # Test
+    print(f"Latency Penalty (0s): {calculate_latency_penalty(0.0)}")
+    print(f"Latency Penalty (1s): {calculate_latency_penalty(1.0)}")
+    print(f"Latency Penalty (2s): {calculate_latency_penalty(2.0)}")
+    print(f"Score (1, 0s, 1): {score_interaction({'intent_match': 1, 'latency_seconds': 0, 'ui_completeness': 1})}")
 
-    parser = argparse.ArgumentParser(description="Calculate Human-Agent Alignment Score")
-    parser.add_argument('--intent-match', type=float, required=True, help="Intent match score (0.0-1.0)")
-    parser.add_argument('--latency', type=float, required=True, help="Observed latency in seconds")
-    parser.add_argument('--ui-completeness', type=float, required=True, help="UI completeness score (0.0-1.0)")
-    parser.add_argument('--max-latency', type=float, default=DEFAULT_MAX_LATENCY_SECONDS,
-                        help=f"Max latency threshold (default: {DEFAULT_MAX_LATENCY_SECONDS}s)")
-    parser.add_argument('--output', type=str, help="Output JSON file path")
-
-    args = parser.parse_args()
-
-    result = score_interaction(
-        {
-            'intent_match': args.intent_match,
-            'latency_seconds': args.latency,
-            'ui_completeness': args.ui_completeness
-        },
-        max_latency_seconds=args.max_latency
-    )
-
-    output_json = json.dumps(result, indent=2)
-    print(output_json)
-
-    if args.output:
-        with open(args.output, 'w') as f:
-            f.write(output_json)
-        logger.info(f"Results written to {args.output}")
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

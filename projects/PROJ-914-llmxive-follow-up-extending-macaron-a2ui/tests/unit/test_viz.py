@@ -1,147 +1,112 @@
 """
-Unit tests for code/analysis/viz.py
+Unit tests for visualization module.
 """
 import os
-import sys
-import json
 import tempfile
-import shutil
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-import numpy as np
 import pandas as pd
 import pytest
+import numpy as np
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Mock matplotlib backend before importing viz
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend
+import matplotlib.pyplot as plt
 
-from analysis.viz import calculate_pareto_frontier, plot_pareto_frontier, plot_alignment_by_density, load_metrics_data
+from code.analysis.viz import calculate_pareto_frontier, load_metrics_data, plot_pareto_frontier
 
 class TestParetoFrontier:
-    """Tests for Pareto frontier calculation logic."""
-
-    def test_pareto_frontier_simple(self):
-        """
-        Test basic Pareto frontier calculation.
-        Points: (1, 0.5), (2, 0.8), (3, 0.7)
-        Frontier should be: (1, 0.5) -> (2, 0.8)
-        (3, 0.7) is dominated by (2, 0.8) because 3 > 2 and 0.7 < 0.8.
-        """
+    def test_calculate_pareto_frontier_basic(self):
+        """Test basic Pareto calculation."""
         data = {
-            'density': [1, 2, 3],
-            'avg_latency': [1.0, 2.0, 3.0],
-            'avg_alignment_score': [0.5, 0.8, 0.7]
+            'latency_ms': [100, 200, 300, 400],
+            'alignment_score': [0.9, 0.8, 0.7, 0.6]
         }
         df = pd.DataFrame(data)
         frontier = calculate_pareto_frontier(df)
+        
+        # All points should be on frontier here (latency increases, score decreases)
+        # Point 1: (100, 0.9) -> Max align so far 0.9. Keep.
+        # Point 2: (200, 0.8) -> Max align so far 0.9. 0.8 < 0.9. Drop?
+        # Wait, logic check:
+        # Sorted: (100, 0.9), (200, 0.8), (300, 0.7), (400, 0.6)
+        # 1. (100, 0.9). Max=0.9. Keep.
+        # 2. (200, 0.8). 0.8 < 0.9. Drop (dominated by 100, 0.9).
+        # 3. (300, 0.7). 0.7 < 0.9. Drop.
+        # 4. (400, 0.6). 0.6 < 0.9. Drop.
+        # Result: Only (100, 0.9). Correct.
+        
+        assert len(frontier) == 1
+        assert frontier.iloc[0]['latency_ms'] == 100
+        assert frontier.iloc[0]['alignment_score'] == 0.9
+
+    def test_calculate_pareto_frontier_mixed(self):
+        """Test mixed scenario."""
+        # Point A: (100, 0.5)
+        # Point B: (200, 0.9) -> Better score, higher latency. Not dominated by A.
+        # Point C: (300, 0.4) -> Worse score, higher latency. Dominated by A? Yes (100 < 300, 0.5 > 0.4).
+        data = {
+            'latency_ms': [100, 200, 300],
+            'alignment_score': [0.5, 0.9, 0.4]
+        }
+        df = pd.DataFrame(data)
+        frontier = calculate_pareto_frontier(df)
+        
+        # Sorted: (100, 0.5), (200, 0.9), (300, 0.4)
+        # 1. (100, 0.5). Keep. Max=0.5.
+        # 2. (200, 0.9). 0.9 > 0.5. Keep. Max=0.9.
+        # 3. (300, 0.4). 0.4 < 0.9. Drop.
+        # Result: (100, 0.5) and (200, 0.9).
         
         assert len(frontier) == 2
-        # Should contain (1, 0.5) and (2, 0.8)
-        assert (frontier['avg_latency'] == 1.0).any()
-        assert (frontier['avg_alignment_score'] == 0.5).any()
-        assert (frontier['avg_latency'] == 2.0).any()
-        assert (frontier['avg_alignment_score'] == 0.8).any()
-        # (3, 0.7) should NOT be in frontier
-        assert not ((frontier['avg_latency'] == 3.0) & (frontier['avg_alignment_score'] == 0.7)).any()
+        assert frontier.iloc[0]['latency_ms'] == 100
+        assert frontier.iloc[1]['latency_ms'] == 200
 
-    def test_pareto_frontier_all_dominated(self):
-        """Test case where one point dominates all others."""
-        data = {
-            'density': [1, 2, 3],
-            'avg_latency': [1.0, 2.0, 3.0],
-            'avg_alignment_score': [0.9, 0.5, 0.4]
-        }
-        df = pd.DataFrame(data)
+    def test_empty_dataframe(self):
+        df = pd.DataFrame(columns=['latency_ms', 'alignment_score'])
         frontier = calculate_pareto_frontier(df)
-        
-        # Only (1, 0.9) should be in frontier
-        assert len(frontier) == 1
-        assert frontier.iloc[0]['avg_latency'] == 1.0
-        assert frontier.iloc[0]['avg_alignment_score'] == 0.9
-
-    def test_pareto_frontier_increasing(self):
-        """Test case where alignment increases with latency (no domination)."""
-        data = {
-            'density': [1, 2, 3],
-            'avg_latency': [1.0, 2.0, 3.0],
-            'avg_alignment_score': [0.3, 0.6, 0.9]
-        }
-        df = pd.DataFrame(data)
-        frontier = calculate_pareto_frontier(df)
-        
-        # All points should be on frontier
-        assert len(frontier) == 3
+        assert frontier.empty
 
 class TestLoadMetricsData:
-    """Tests for loading metrics data."""
-
-    def test_load_from_json(self, tmp_path):
-        """Test loading metrics from a JSON file."""
-        data = [
-            {'density': 1, 'avg_latency': 1.0, 'avg_alignment_score': 0.5},
-            {'density': 3, 'avg_latency': 2.0, 'avg_alignment_score': 0.8}
-        ]
-        json_file = tmp_path / "metrics.json"
-        with open(json_file, 'w') as f:
-            json.dump(data, f)
+    def test_load_valid_csv(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("latency_ms,alignment_score,density\n100,0.9,1\n200,0.8,2\n")
+            temp_path = f.name
         
-        df = load_metrics_data(str(json_file))
-        assert len(df) == 2
-        assert 'density' in df.columns
-        assert 'avg_latency' in df.columns
-        assert 'avg_alignment_score' in df.columns
+        try:
+            df = load_metrics_data(temp_path)
+            assert len(df) == 2
+            assert 'latency_ms' in df.columns
+            assert 'alignment_score' in df.columns
+        finally:
+            os.unlink(temp_path)
 
-    def test_load_missing_columns(self, tmp_path):
-        """Test that loading fails if required columns are missing."""
-        data = [
-            {'density': 1, 'latency': 1.0}  # Missing avg_alignment_score
-        ]
-        json_file = tmp_path / "metrics.json"
-        with open(json_file, 'w') as f:
-            json.dump(data, f)
+    def test_load_missing_file(self):
+        with pytest.raises(FileNotFoundError):
+            load_metrics_data("nonexistent_file.csv")
+
+    def test_load_missing_columns(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("latency_ms,some_other_col\n100,0.9\n")
+            temp_path = f.name
         
-        with pytest.raises(ValueError, match="missing required columns"):
-            load_metrics_data(str(json_file))
+        try:
+            with pytest.raises(ValueError):
+                load_metrics_data(temp_path)
+        finally:
+            os.unlink(temp_path)
 
-class TestPlotting:
-    """Tests for plotting functions (mocked to avoid actual file I/O issues in CI)."""
-
-    @patch('analysis.viz.plt.savefig')
-    @patch('analysis.viz.plt.close')
-    @patch('analysis.viz.ensure_dirs')
-    def test_plot_pareto_frontier(self, mock_ensure, mock_close, mock_save):
-        """Test that plot_pareto_frontier calls savefig correctly."""
+class TestPlotGeneration:
+    def test_plot_pareto_creates_file(self):
         data = {
-            'density': [1, 2],
-            'avg_latency': [1.0, 2.0],
-            'avg_alignment_score': [0.5, 0.8]
-        }
-        df = pd.DataFrame(data)
-        pareto_df = calculate_pareto_frontier(df)
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "test.png")
-            plot_pareto_frontier(df, pareto_df, output_path)
-            
-            mock_save.assert_called_once()
-            mock_ensure.assert_called_once()
-
-    @patch('analysis.viz.plt.savefig')
-    @patch('analysis.viz.plt.close')
-    @patch('analysis.viz.ensure_dirs')
-    def test_plot_alignment_by_density(self, mock_ensure, mock_close, mock_save):
-        """Test that plot_alignment_by_density calls savefig correctly."""
-        data = {
-            'density': [1, 3, 5, 10],
-            'avg_latency': [1.0, 2.0, 3.0, 4.0],
-            'avg_alignment_score': [0.5, 0.6, 0.7, 0.8]
+            'latency_ms': [100, 200, 300, 400],
+            'alignment_score': [0.9, 0.8, 0.7, 0.6]
         }
         df = pd.DataFrame(data)
         
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "test.png")
-            plot_alignment_by_density(df, output_path)
+            output_path = os.path.join(tmpdir, "test_pareto.png")
+            result_path = plot_pareto_frontier(df, output_path)
             
-            mock_save.assert_called_once()
-            mock_ensure.assert_called_once()
+            assert os.path.exists(result_path)
+            assert os.path.getsize(result_path) > 0
+            plt.close('all') # Clean up

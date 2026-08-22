@@ -242,3 +242,1127 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T18:53:30Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Generate contract schemas simulation_input.schema.yaml and simulation_output.schema.yaml
+  claim_id: c_31cf243d
+  context: T009 [P] [US1] Generate contract schemas in specs/001-llmxive-a2ui-latency-study/contracts/
+    (simulation_input.schema.yaml, simulation_output.schema.yaml) using a script or
+    jsonschema library
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate contract schemas in specs/001-llmxive-a2ui-latency-study/contracts/
+    (simulation_input.schema.yaml, simulation_output.schema.yaml)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:23:09Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'Human-Agent Alignment scoring function formula: score equals 0.4 times
+    intent match plus 0.3 times one minus latency penalty plus 0.3 times ui completeness'
+  claim_id: c_6209fb2d
+  context: 'T023 [P] [US2] Implement code/simulation/rubric.py to derive and implement
+    the Human-Agent Alignment scoring function: score = 0.4 * intent_match + 0.3 *
+    (1 - latency_penalty) + 0.3 * ui_completeness'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:23:27Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'Latency penalty calculation formula: one minus minimum of one and latency
+    divided by 2.0'
+  claim_id: c_d86e969e
+  context: T023b [P] [US2] Implement code/simulation/rubric.py to explicitly calculate
+    latency_penalty as 1 - min(1, latency / 2.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: latency_penalty is calculated as 1 - min(1, latency / 2.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:23:47Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Label 500 interaction turns from Macaron-A2UI dataset
+  claim_id: c_231ddd89
+  context: 'Goal: Ingest the Macaron-A2UI dataset and provide an interface to label
+    N=500 interaction turns as High-Confidence or Ambiguous to create ground truth.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ingest the Macaron-A2UI dataset and provide an interface to label N=500
+    interaction turns
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:24:04Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Create 50 human-annotated hold-out set for rubric validation
+  claim_id: c_9a62bb18
+  context: Additionally, create a separate N=50 human-annotated hold-out set for rubric
+    validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: create a separate N=50 human-annotated hold-out set for rubric validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:24:18Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Validate dataset with 95 percent coverage and no missing labels
+  claim_id: c_0d3a05e1
+  context: "Independent Test: A CSV file exists containing N=500 rows with columns\
+    \ query, ground_truth_intent, complexity_score, validated by a script checking\
+    \ \u226595% coverage and no missing labels."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validated by a script checking \u226595% coverage and no missing labels"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:24:18Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Implement router with quantized DistilBERT for intent classification
+  claim_id: c_f793a421
+  context: T020 [US2] Implement code/models/router.py with DistilBERT (quantized)
+    for intent classification (High-Confidence vs. Ambiguous)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: DistilBERT
+      source_id: Q107032059
+      url: https://www.wikidata.org/wiki/Q107032059
+      value: DistilBERT
+    filled: true
+  kind: entity_fact
+  raw_text: Implement code/models/router.py with DistilBERT (quantized) for intent
+    classification
+  resolved_value: DistilBERT
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T18:24:24Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Model user abandonment with exponential decay mean of 2 seconds
+  claim_id: c_25319b5b
+  context: T022 [US2] Implement code/simulation/patience.py with sample_patience()
+    function modeling exponential decay (mean=2s) for user abandonment
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: modeling exponential decay (mean=2s) for user abandonment
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:24:38Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Iterate through density levels 1, 3, 5, and 10 for deterministic fallback
+  claim_id: c_0a938455
+  context: T024b [US2] Implement density iteration logic in code/simulation/runner.py
+    to iterate through explicit density levels {1, 3, 5, 10} for deterministic fallback
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: iterate through explicit density levels {1, 3, 5, 10} for deterministic
+    fallback
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:25:12Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Sweep router confidence cutoffs across values 0.6, 0.7, and 0.8
+  claim_id: c_1644bcb5
+  context: T033 [US2] Implement sensitivity analysis in code/analysis/sensitivity.py
+    to sweep router confidence cutoffs across a concrete set {0.6, 0.7, 0.8} and report
+    inconsistency rates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep router confidence cutoffs across a concrete set {0.6, 0.7, 0.8}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:25:26Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Ensure CPU inference time is less than 500 milliseconds per query
+  claim_id: c_17463b1f
+  context: 'T042 Performance optimization: ensure CPU inference < 500ms per query
+    (8-bit quantization check)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_CPU_inference_time_is_less_than_500_milliseconds_per
+  kind: magnitude
+  raw_text: ensure CPU inference < 500ms per query
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:26:10Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'alignment score formula components: intent_match, latency_penalty, ui_completeness'
+  claim_id: c_2161a3a3
+  context: 'Goal: Calculate metrics, perform statistical tests (FDR/Bonferroni), and
+    generate Pareto frontier plots to identify the latency threshold for fidelity
+    degradation. The alignment score calculation includes intent_match, latency_penalty,
+    and ui_completeness.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Alignment_score_formula_components:_intent_match,_latency_pe
+  kind: entity_fact
+  raw_text: The alignment score calculation includes intent_match, latency_penalty,
+    and ui_completeness.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:27:11Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'rubric scoring formula: 0.4 intent_match + 0.3 (1 - latency_penalty)
+    + 0.3 ui_completeness'
+  claim_id: c_8c7b7de7
+  context: 'Implement code/simulation/rubric.py to derive and implement the Human-Agent
+    Alignment scoring function: score = 0.4 * intent_match + 0.3 * (1 - latency_penalty)
+    + 0.3 * ui_completeness'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:27:11Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'latency_penalty calculation: 1 - min(1, latency / 2.0)'
+  claim_id: c_f98fcdb9
+  context: Implement code/simulation/rubric.py to explicitly calculate latency_penalty
+    as 1 - min(1, latency / 2.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: latency_penalty is calculated as 1 - min(1, latency / 2.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:27:11Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'dataset size: 500 interaction turns'
+  claim_id: c_b77515e3
+  context: Ingest the Macaron-A2UI dataset and provide an interface to label N=500
+    interaction turns as High-Confidence or Ambiguous to create ground truth.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contains N=500 interaction turns labeled as High-Confidence
+    or Ambiguous.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:27:30Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'hold-out set size: 50 human-annotated samples'
+  claim_id: c_6401a6ed
+  context: Additionally, create a separate N=50 human-annotated hold-out set for rubric
+    validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A separate N=50 human-annotated hold-out set is created for rubric validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:27:42Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'validation coverage threshold: 95%'
+  claim_id: c_a0652e17
+  context: "Implement validation script code/data/validate_annotation.py to check\
+    \ \u226595% coverage and no missing labels in the N=500 dataset"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The validation script checks for \u226595% coverage in the N=500 dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:28:16Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'router model: DistilBERT 8-bit quantized'
+  claim_id: c_e264324e
+  context: Implement code/models/router.py with DistilBERT (quantized) for intent
+    classification
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The router model uses DistilBERT with 8-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:28:32Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'user patience model: exponential decay mean 2s'
+  claim_id: c_a20b8833
+  context: Implement code/simulation/patience.py with sample_patience() function modeling
+    exponential decay (mean=2s) for user abandonment
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: User patience is modeled as exponential decay with a mean of 2 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:28:51Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'density levels: 1, 3, 5, 10'
+  claim_id: c_c5274803
+  context: Implement density iteration logic in code/simulation/runner.py to iterate
+    through explicit density levels {1, 3, 5, 10} for deterministic fallback
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Density iteration logic iterates through explicit density levels {1, 3,
+    5, 10}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:29:14Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'router confidence cutoffs: 0.6, 0.7, 0.8'
+  claim_id: c_097828b1
+  context: Implement sensitivity analysis in code/analysis/sensitivity.py to sweep
+    router confidence cutoffs across a concrete set {0.6, 0.7, 0.8} and report inconsistency
+    rates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps router confidence cutoffs across a concrete
+    set {0.6, 0.7, 0.8}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:29:38Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'generative model: quantized DistilGPT2'
+  claim_id: c_49d0e59f
+  context: Implement loading and inference logic for quantized DistilGPT2 model for
+    the generative path
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generative_model:_quantized_DistilGPT2
+  kind: entity_fact
+  raw_text: The generative model uses quantized DistilGPT2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:30:00Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'statistical correction method: Benjamini-Hochberg FDR'
+  claim_id: c_c8cd4040
+  context: Implement code/analysis/stats.py for Benjamini-Hochberg FDR multiple-comparison
+    correction on alignment scores
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '2607.12208'
+        url: https://arxiv.org/abs/2607.12208
+        value: '0.01'
+      quote: to 10% for both stages of inference.
+      source_id: '1806.03143'
+      url: https://arxiv.org/abs/1806.03143
+      value: 10%
+    filled: true
+  kind: entity_fact
+  raw_text: Multiple-comparison correction uses Benjamini-Hochberg FDR.
+  resolved_value: 10%
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T18:30:34Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'CPU inference time limit: 500ms per query'
+  claim_id: c_9537f184
+  context: 'Performance optimization: ensure CPU inference < 500ms per query'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU_inference_time_limit:_500ms_per_query
+  kind: entity_fact
+  raw_text: CPU inference must be under 500ms per query.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:32:59Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'Python version: 3.11'
+  claim_id: c_c7e26c32
+  context: Initialize Python 3.11 project with requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project is initialized with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:33:20Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'dataset source: Hugging Face'
+  claim_id: c_85d90be5
+  context: Implement code/data/ingest.py with load_dataset (Hugging Face) to fetch
+    raw A2UI-Bench data
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_source:_Hugging_Face
+  kind: entity_fact
+  raw_text: The dataset is fetched from Hugging Face.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:33:46Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'Human-Agent Alignment scoring function formula: 0.4 * intent_match +
+    0.3 * (1 - latency_penalty) + 0.3 * ui_completeness'
+  claim_id: c_6745898e
+  context: Task T023 requires implementing the rubric scoring function with specific
+    weights for intent match, latency penalty, and UI completeness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/simulation/rubric.py` to derive and implement the ''Human-Agent
+    Alignment'' scoring function: `score = 0.4 * intent_match + 0.3 * (1 - latency_penalty)
+    + 0.3 * ui_completeness`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:35:55Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'Latency penalty calculation formula: 1 - min(1, latency / 2.0)'
+  claim_id: c_4b196913
+  context: Task T023b specifies the explicit formula for the latency penalty component
+    of the rubric.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/simulation/rubric.py` to explicitly calculate `latency_penalty`
+    as `1 - min(1, latency / 2.0)`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:36:17Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Macaron-A2UI dataset ingestion and labeling of 500 interaction turns
+  claim_id: c_2f8d862a
+  context: User Story 1 goal involves ingesting the dataset and labeling 500 turns
+    for ground truth.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ingest the Macaron-A2UI dataset and provide an interface to label N=500
+    interaction turns as 'High-Confidence' or 'Ambiguous' to create ground truth.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:36:32Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Creation of 50 human-annotated hold-out set for rubric validation
+  claim_id: c_ddeb7550
+  context: User Story 1 goal includes creating a specific hold-out set for validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a separate N=50 human-annotated hold-out set for rubric validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:36:33Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Validation of 500-row CSV with 95% coverage and no missing labels
+  claim_id: c_1a7111c4
+  context: Independent test criteria for User Story 1 specifies the dataset size and
+    coverage threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A CSV file exists containing N=500 rows with columns `query`, `ground_truth_intent`,\
+    \ `complexity_score`, validated by a script checking \u226595% coverage and no\
+    \ missing labels."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:36:50Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'User abandonment patience model: exponential decay with mean of 2 seconds'
+  claim_id: c_74f23632
+  context: Task T022 defines the statistical model for user patience in the simulation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/simulation/patience.py` with `sample_patience()` function
+    modeling exponential decay (mean=2s) for user abandonment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:37:05Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'Simulation density levels iteration: 1, 3, 5, 10'
+  claim_id: c_652b70cf
+  context: Task T024b specifies the exact density levels to be tested in the simulation
+    runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement density iteration logic in `code/simulation/runner.py` to iterate
+    through explicit density levels {1, 3, 5, 10} for deterministic fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:37:23Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'Router confidence cutoffs sensitivity analysis set: 0.6, 0.7, 0.8'
+  claim_id: c_025e9d22
+  context: Task T033 defines the specific threshold values for the sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sensitivity analysis in `code/analysis/sensitivity.py` to sweep
+    router confidence cutoffs across a concrete set {0.6, 0.7, 0.8} and report inconsistency
+    rates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:37:43Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'Final report deliverables: Pareto plot, alignment scores table, 95%
+    CI threshold table'
+  claim_id: c_96fda99b
+  context: Task T039 lists the specific components required in the final report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate final report containing Pareto frontier plot, table of alignment
+    scores per density/latency, and threshold identification table with 95% CIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:37:43Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'Statistical correction method: Benjamini-Hochberg FDR'
+  claim_id: c_2d1bd9ce
+  context: Task T032 specifies the statistical method for multiple-comparison correction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_correction_method:_Benjamini-Hochberg_FDR
+  kind: entity_fact
+  raw_text: Implement `code/analysis/stats.py` for Benjamini-Hochberg FDR multiple-comparison
+    correction on alignment scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:38:05Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'CPU inference performance target: less than 500ms per query'
+  claim_id: c_51b9946f
+  context: Task T042 sets the performance constraint for CPU inference.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CPU_inference_performance_target:_less_than_500ms_per_query
+  kind: magnitude
+  raw_text: Ensure CPU inference < 500ms per query (8-bit quantization check).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:38:07Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: 'Fallback behavior: return ''no-match'' flag and log ''event_type=no_match''
+    for ontology mismatches'
+  claim_id: c_6283c404
+  context: Task T047 defines the specific logging and return behavior for ontology
+    mismatches.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_behavior:_return_'no-match'_flag_and_log_'event_typ
+  kind: entity_fact
+  raw_text: Update `code/models/fallback.py` to ensure that when no ontology match
+    is found for an 'Ambiguous' query, the system returns a specific 'no-match' flag
+    and logs the event with `event_type='no_match'`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:38:41Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Logging of router confidence scores within 0.05 of decision boundary
+  claim_id: c_274911d8
+  context: Task T046 specifies the logging requirement for borderline confidence scores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enhance `code/simulation/runner.py` to explicitly log `router_confidence_score`\
+    \ for every query, specifically for cases where the score is within \xB10.05 of\
+    \ the decision boundary."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:39:06Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: alignment score formula includes intent_match latency_penalty and ui_completeness
+  claim_id: c_712dcfde
+  context: 'Goal: Calculate metrics, perform statistical tests (FDR/Bonferroni), and
+    generate Pareto frontier plots to identify the latency threshold for fidelity
+    degradation. The alignment score calculation includes intent_match, latency_penalty,
+    and ui_completeness.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Alignment_score_formula_includes_intent_match_latency_penalt
+  kind: entity_fact
+  raw_text: The alignment score calculation includes intent_match, latency_penalty,
+    and ui_completeness.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:59:32Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: rubric score formula 0.4 intent_match 0.3 latency_penalty 0.3 ui_completeness
+  claim_id: c_d2c1d73e
+  context: 'T023 [P] [US2] Implement code/simulation/rubric.py to derive and implement
+    the ''Human-Agent Alignment'' scoring function: score = 0.4 * intent_match + 0.3
+    * (1 - latency_penalty) + 0.3 * ui_completeness (FR-005, SC-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:59:32Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: latency_penalty formula 1 minus min 1 latency divided by 2.0
+  claim_id: c_f6656921
+  context: T023b [P] [US2] Implement code/simulation/rubric.py to explicitly calculate
+    latency_penalty as 1 - min(1, latency / 2.0) (SC-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: latency_penalty is calculated as 1 - min(1, latency / 2.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:59:32Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: router model 8-bit quantized CPU optimized
+  claim_id: c_45e744f5
+  context: 'T020b [US2] Verify CPU-Optimization: Implement and run a script to verify
+    the router model is 8-bit quantized and CPU-optimized (FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The router model is quantized to 8-bit and CPU-optimized.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T18:59:51Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: generative model quantized DistilGPT2
+  claim_id: c_72eb5fce
+  context: 'T021b [US2] Implement Quantized Generative Model: Implement loading and
+    inference logic for quantized DistilGPT2 model for the generative path'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generative_model_quantized_DistilGPT2
+  kind: entity_fact
+  raw_text: The generative model is a quantized DistilGPT2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:00:08Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: user patience exponential decay mean 2 seconds
+  claim_id: c_6afbca5f
+  context: T022 [US2] Implement code/simulation/patience.py with sample_patience()
+    function modeling exponential decay (mean=2s) for user abandonment
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: User patience is modeled as an exponential decay with a mean of 2 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:00:08Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: density levels 1 3 5 10
+  claim_id: c_4ede2c6f
+  context: T024b [US2] Implement density iteration logic in code/simulation/runner.py
+    to iterate through explicit density levels {1, 3, 5, 10} for deterministic fallback
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Density levels for the study are 1, 3, 5, and 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:00:33Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: router confidence cutoffs 0.6 0.7 0.8
+  claim_id: c_84f5fc7b
+  context: T033 [US2] Implement sensitivity analysis in code/analysis/sensitivity.py
+    to sweep router confidence cutoffs across a concrete set {0.6, 0.7, 0.8} and report
+    inconsistency rates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Router confidence cutoffs are swept across the set 0.6, 0.7, and 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:00:55Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: dataset size 500 interaction turns
+  claim_id: c_982d7912
+  context: 'Goal: Ingest the Macaron-A2UI dataset and provide an interface to label
+    N=500 interaction turns as ''High-Confidence'' or ''Ambiguous'' to create ground
+    truth.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset size for intent annotation is N=500 interaction turns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:01:14Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: hold-out set 50 human-annotated samples
+  claim_id: c_8d42b455
+  context: Additionally, create a separate N=50 human-annotated hold-out set for rubric
+    validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A separate hold-out set of N=50 human-annotated samples is created for
+    rubric validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:01:31Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: baseline validation 0ms latency
+  claim_id: c_83130298
+  context: 'T037a [US3] Validate Baseline: Validate generative baseline output quality
+    against human-annotated gold standard (N=50) at Negligible latency (FR-008); Explicit
+    0ms constraint'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_validation_0ms_latency
+  kind: entity_fact
+  raw_text: The baseline validation is performed at negligible (0ms) latency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:01:57Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: validation checks 95 percent coverage no missing labels
+  claim_id: c_63604b8f
+  context: "T013 [US1] Implement validation script code/data/validate_annotation.py\
+    \ to check \u226595% coverage and no missing labels in the N=500 dataset"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The validation script checks for \u226595% coverage and no missing labels\
+    \ in the N=500 dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:02:16Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: CPU inference time less than 500ms per query
+  claim_id: c_5e0776d2
+  context: 'T042 Performance optimization: ensure CPU inference < 500ms per query
+    (8-bit quantization check)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CPU_inference_time_less_than_500ms_per_query
+  kind: magnitude
+  raw_text: CPU inference time must be under 500ms per query.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:02:47Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: statistical correction Benjamini-Hochberg FDR or Bonferroni
+  claim_id: c_4411e766
+  context: T032 [US3] Implement code/analysis/stats.py for Benjamini-Hochberg FDR
+    multiple-comparison correction on alignment scores
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q858572
+        url: https://www.wikidata.org/wiki/Q858572
+        value: "Holm\u2013Bonferroni method"
+      - channel: wikidata
+        source_id: Q87892954
+        url: https://www.wikidata.org/wiki/Q87892954
+        value: Bonferroni
+      quote: Bonferroni correction
+      source_id: Q385989
+      url: https://www.wikidata.org/wiki/Q385989
+      value: Bonferroni correction
+    filled: true
+  kind: entity_fact
+  raw_text: The statistical correction uses Benjamini-Hochberg FDR or Bonferroni methods.
+  resolved_value: Bonferroni correction
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T19:02:59Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: router confidence decision boundary sensitivity 0.05
+  claim_id: c_0294dab6
+  context: "T046 [US2] Enhance code/simulation/runner.py to explicitly log router_confidence_score\
+    \ for every query, specifically for cases where the score is within \xB10.05 of\
+    \ the decision boundary"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The router confidence decision boundary sensitivity is within \xB10.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:03:26Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Human-Agent Alignment scoring function formula
+  claim_id: c_18376dfb
+  context: 'Task T023: Implement code/simulation/rubric.py to derive and implement
+    the Human-Agent Alignment scoring function'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:05:57Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Latency penalty calculation formula
+  claim_id: c_ab715635
+  context: 'Task T023b: Implement code/simulation/rubric.py to explicitly calculate
+    latency_penalty'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: latency_penalty = 1 - min(1, latency / 2.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:06:22Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: User patience model exponential decay mean 2 seconds
+  claim_id: c_14ef2c81
+  context: 'Task T022: Implement code/simulation/patience.py with sample_patience()
+    function'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sample_patience() function modeling exponential decay with mean=2s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:06:36Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Explicit density levels for deterministic fallback
+  claim_id: c_7373d118
+  context: 'Task T024b: Implement density iteration logic to iterate through explicit
+    density levels'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: density levels {1, 3, 5, 10}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:06:59Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Router confidence cutoffs set for sensitivity analysis
+  claim_id: c_683d7763
+  context: 'Task T033: Implement sensitivity analysis to sweep router confidence cutoffs
+    across a concrete set'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: router confidence cutoffs {0.6, 0.7, 0.8}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:07:16Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Number of interaction turns for ground truth annotation
+  claim_id: c_31667915
+  context: 'Goal for User Story 1: Ingest the Macaron-A2UI dataset and provide an
+    interface to label N=500 interaction turns'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=500 interaction turns labeled as High-Confidence or Ambiguous
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:07:32Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Size of human-annotated hold-out set
+  claim_id: c_7476867e
+  context: 'Goal for User Story 1: Create a separate N=50 human-annotated hold-out
+    set for rubric validation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=50 human-annotated hold-out set for rubric validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:07:47Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Validation criteria for annotation dataset coverage
+  claim_id: c_a29a7c89
+  context: "Independent Test for User Story 1: A CSV file exists... validated by a\
+    \ script checking \u226595% coverage"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u226595% coverage and no missing labels"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:07:47Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Performance optimization target for CPU inference
+  claim_id: c_01f728a8
+  context: 'Task T042: Performance optimization: ensure CPU inference < 500ms per
+    query'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_target_for_CPU_inference
+  kind: entity_fact
+  raw_text: CPU inference < 500ms per query
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:08:06Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: Multiple-comparison correction method used
+  claim_id: c_24cd51e6
+  context: 'Task T032: Implement code/analysis/stats.py for Benjamini-Hochberg FDR
+    multiple-comparison correction'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple-comparison_correction_method_used
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg FDR
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T19:08:31Z'
