@@ -1,18 +1,18 @@
 status: none
-intent: download PDBbind v2020 refined set with PDB structures python package dataset
+intent: download PDBbind 2020 refined set and BindingDB subset as python package dataset
 required_fields:
-- complex_id
-- protein_pdb_id
-- ligand_id
 - atom_index
-- atom_element
-- atom_type
-- x_coordinate
-- y_coordinate
-- z_coordinate
+- element
+- x
+- y
+- z
+- partial_charge
+- hydrophobicity
 - residue_name
 - chain_id
-- residue_number
-cache_key: 0109bbde3b83569e3c21ac5e495acddbbfcf054c2b9894dbf66da77c1a384b4b
-searched_at: '2026-08-14T19:32:51.492024+00:00'
+- binding_affinity
+- resolution
+- water_flag
+cache_key: d75f4d29c5997755c4d4627b6cce549666152c4c5416af4deb0eb7258a0ecf1a
+searched_at: '2026-08-22T09:16:40.961906+00:00'
 retry_count: 1

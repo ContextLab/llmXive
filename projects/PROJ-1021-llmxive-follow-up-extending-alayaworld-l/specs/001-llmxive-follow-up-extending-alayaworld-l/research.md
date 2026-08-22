@@ -1,93 +1,92 @@
-# Research: llmXive follow-up: extending "AlayaWorld" (Synthetic Validation)
+# Research: llmXive follow-up: extending "AlayaWorld: Long-Horizon and Playable Video World Generation"
 
-## Research Question
+## 1. Problem Statement
 
-**Reframed**: How does the integration of a lightweight, CPU-tractable symbolic logic layer influence the long-horizon semantic consistency of a *simulated* interactive video world model (mimicking AlayaWorld mechanics with injected generative errors) compared to autoregressive generation alone?
+The core research question is: *How does the integration of a lightweight, CPU-tractable symbolic logic layer influence the long-horizon semantic consistency of interactive video world models compared to autoregressive generation alone?*
 
-**Scope Clarification**: This study is a **synthetic validation** of the correction mechanism. The "Semantic Drift Score" measures the efficacy of the correction logic against *injected generative errors* in the mock environment. It **does not** claim to measure the drift of the real AlayaWorld model, as the real model is unavailable. The "Mock AlayaWorld" generator is the primary experimental substrate.
+Current autoregressive video models (like AlayaWorld) suffer from "semantic drift" over long horizons (e.g., 60 seconds), where object states (existence, health, inventory) diverge from the logical intent of user actions. This project proposes a **hybrid symbolic-visual architecture** to correct this drift in real-time.
 
-## Hypothesis
+**Scope Boundary & Proxy Limitation**:
+Since the AlayaWorld model weights and dataset are not publicly available for programmatic CI execution, this project validates the *correction mechanism* using a **Stochastic Generative Mock (SGM)**. The SGM is a CPU-tractable simulator that mimics the *behavioral failure modes* of a video model (hallucinations, drift, prompt sensitivity) rather than pixel-perfect generation. The results are **Proxy-Validated**: they demonstrate the efficacy of the symbolic logic in a stochastic environment that responds to correction tokens, but they do not measure the drift of the actual AlayaWorld model. This is a necessary constraint for CI feasibility.
 
-The hybrid approach (Naive Generator + Symbolic Engine) will significantly reduce the "Intrinsic Drift" component of the Semantic Drift Score by at least 30% compared to the baseline (Naive Generator alone), with a p-value < 0.05, while maintaining execution within a multi-core CPU / constrained RAM constraint.
+## 2. Dataset Strategy
 
-## Dataset Strategy
+### 2.1 Verified Datasets
+- **AlayaWorld**: **NO verified source found.**
+  - *Status*: The dataset is not available via a public, programmatic URL (HuggingFace, OpenML, etc.).
+  - *Implication*: The project cannot fetch raw AlayaWorld video data on a CI runner.
+  - *Mitigation Strategy*: The project utilizes a **Stochastic Generative Mock (SGM)** that generates:
+    1. **Action Sequences**: Discrete lists of game-like commands (e.g., "summon", "hit", "die").
+    2. **Ground Truth Symbolic Logs**: The deterministic output of the symbolic engine for these actions.
+    3. **Stochastic Visual Frames**: A probabilistic visual proxy that simulates the *structure* of AlayaWorld outputs (e.g., object bounding boxes with noise) and, crucially, **responds to correction tokens** by adjusting its hallucination probability.
 
-| Dataset | Source | Access Method | Notes |
-| :--- | :--- | :--- | :--- |
-| Mock AlayaWorld (Naive Generator) | Internal (Code) | Local Artifact | A deterministic mock video generator that simulates AlayaWorld behavior and *intentionally injects* generative errors (e.g., texture morphing, ghosting) to simulate real-world drift. This is the canonical source for this synthetic experiment. |
-| Ground Truth Annotations | Internal (Generated) | Local JSON | A set of frames manually annotated (or generated with known state in mock) to validate the CV pipeline's accuracy. The CV accuracy is expected to be lower than a high-performance threshold due to the injected errors, which is a feature of the experiment. |
+### 2.2 Data Acquisition Plan
+1. **Step 1**: Generate `data/raw/action_sequences.json` (multiple sequences, 10 seeds). Each sequence includes a deterministic `stochastic_seed` derived from `global_seed + sequence_index`.
+2. **Step 2**: Run `symbolic_engine.py` to produce `data/processed/symbolic_logs.json` (Ground Truth).
+3. **Step 3**: Run `cv_pipeline.py` in "SGM Mode" to generate `data/processed/visual_logs.json`. The SGM uses the `stochastic_seed` to ensure the *same* underlying noise is present in both Baseline and Hybrid runs, differing only by the prompt input.
+4. **Step 4**: Create `data/annotated/gt_subset_50.json` manually (or via script) containing ≥50 frames with known object states for FR-007 validation.
 
-**Rationale**: The absence of a verified URL for AlayaWorld precludes a standard download. To avoid the "fatal feasibility flaw" of planning for a gated dataset, the research design pivots to a **simulation-based validation** of the correction mechanism. The "Mock AlayaWorld" generator ensures the symbolic engine's inputs (actions) and the visual output's states are perfectly aligned by design, *except* for the *intentionally injected generative errors*. This isolates the variable of interest (the correction logic) while bypassing the data access barrier. The "Semantic Drift Score" is decomposed into "Intrinsic Drift" (caused by the injected errors) and "Observational Noise" (CV error), ensuring the metric measures the model's failure to render the logic, not just CV failure.
+## 3. Methodology
 
-## Methodology
+### 3.1 Baseline Semantic Drift Quantification (US-1)
+- **Input**: Action Sequence.
+- **Process**:
+  1. Run `symbolic_engine.py` to get logical state trajectory $S_{logic}$.
+  2. Run `sgm_generator.py` (Baseline Mode) to get visual state trajectory $S_{visual}$. The SGM samples visual states based on $S_{logic}$ plus stochastic noise, *without* correction tokens.
+  3. **Calibrated Drift Score Calculation**:
+     - The raw mismatch count $M_{raw}$ is calculated between $S_{logic}$ and $S_{visual}$.
+     - The CV pipeline's error rates (False Positive/Negative per object state) are estimated from `data/annotated/gt_subset_50.json`.
+     - The **Calibrated Drift Score** is computed as a weighted sum of mismatches: $D_{cal} = \sum_{i} w_i \cdot \mathbb{I}(mismatch_i)$, where $w_i$ is the inverse of the CV confidence for that specific state type. This avoids the invalid additive bias assumption.
+- **Output**: Scalar drift score per sequence.
 
-### 1. Symbolic Engine (Ground Truth)
-A pure Python state machine that tracks:
--   `HP` (Integer)
--   `Inventory` (List of strings)
--   `Position` (x, y coordinates)
--   `State` (Alive, Dead, Teleported)
+### 3.2 Hybrid Correction Mechanism (US-2)
+- **Mechanism**:
+  - A `HybridController` monitors $S_{logic}$ and $S_{visual}$ at each timestep.
+  - If $\text{StateMismatch}(S_{logic}, S_{visual}) > \text{threshold}$:
+    - Generate a "correction token" (textual prompt update, e.g., "Object X is dead").
+    - **Feedback Loop**: The SGM receives this token and updates its internal "intent" distribution. The visual state for the *next* frame is re-sampled based on this updated distribution.
+    - **Causal Link**: The SGM is designed such that a correction token significantly reduces the probability of maintaining the previous hallucination. This ensures the "Hybrid" run produces different results than the "Baseline" run.
+  - **Edge Cases**:
+    - *Teleportation*: Log `RENDER_FAILURE` if logical state implies discontinuous movement.
+    - *Occlusion*: If CV fails to detect object, assume state persists (low-confidence flag).
+    - *Phantom Objects*: If CV detects object not in $S_{logic}$, increment drift score.
+- **Limitation**: This validates the *logic's ability to correct a stochastic proxy*, not the real video model's behavior.
 
-**Rules**:
--   `Action: "hit"` -> `HP -= 10`. If `HP <= 0`, `State = "Dead"`.
--   `Action: "summon"` -> `Inventory.append("Item")`, `State = "Alive"`.
--   **Determinism**: No random seeds in the logic; output is identical for identical inputs.
+### 3.3 Resource Constraint Verification (US-3)
+- **Environment**: 2-core CPU, 7GB RAM.
+- **Metrics**: Log `peak_ram_gb` and `wall_clock_time_sec` for every sequence.
+- **Thresholds**: Time ≤ 1800s (30 min), RAM ≤ 7.0 GB.
 
-### 2. Mock AlayaWorld (Naive Generator with Drift Injection)
-A mock video generator that:
--   Renders frames based on the symbolic state.
--   **Intentionally injects generative errors** (e.g., texture morphing, ghosting, non-physical motion) with a known probability (e.g., [deferred]) per frame. These errors are designed to be challenging for the CV pipeline (template matching), ensuring the baseline drift is non-trivial.
--   The injected errors are *stochastic per sequence* within a seed, ensuring variance in the drift scores.
--   **Note**: This is the **primary experimental engine**, replacing the unavailable real AlayaWorld model.
+### 3.4 Statistical Validation (FR-006, FR-007)
+- **Ground Truth Validation (FR-007)**:
+  - Run CV pipeline on `data/annotated/gt_subset_50.json`.
+  - Calculate detection accuracy. If average accuracy < 85%, the *experiment* is flagged as "inconclusive" (`validation_status: low`), but individual sequence scores are retained with reduced weights.
+- **Hypothesis Test (FR-006)**:
+  - **RNG Strategy**: Both Baseline and Hybrid runs for a given sequence use the *same* `stochastic_seed` (derived from `global_seed + sequence_index`). This ensures the paired t-test compares the exact same underlying stochastic event under two conditions (with/without correction).
+  - Perform paired t-test on **Calibrated Drift Scores** (weighted by CV confidence).
+  - $H_0$: $\mu_{baseline} = \mu_{hybrid}$ vs $H_1$: $\mu_{hybrid} < \mu_{baseline}$.
+  - Significance level: $\alpha = 0.05$.
+  - Input files: `data/results/baseline_scores.json`, `data/results/hybrid_scores.json`.
+  - Output file: `data/results/stats_comparison.json`.
 
-### 3. Visual State Extraction (CV Pipeline)
--   **Static Objects**: Template matching (`cv2.matchTemplate`) against a reference frame.
--   **Motion**: Optical flow (`cv2.calcOpticalFlowPyrLK`) to detect movement.
--   **State Inference**: If template match score < 0.6, object is "Missing". If optical flow > threshold, object is "Moving".
--   **Validation**: Compare against the Ground Truth set.. The CV accuracy is expected to be lower than [deferred] due to the injected errors, which is a feature of the experiment, not a bug. The "Semantic Drift Score" is decomposed into "Intrinsic Drift" (caused by the injected errors) and "Observational Noise" (CV error).
+## 4. Compute Feasibility & GPU Strategy
 
-### 4. Semantic Drift Score Calculation
-$$ \text{Drift} = \text{Intrinsic Drift} + \text{Observational Noise} $$
-Where:
--   `Intrinsic Drift` = Mismatch between Symbolic State and the *intended* visual state (before error injection).
--   `Observational Noise` = Mismatch between the *actual* visual state (with injected errors) and the CV output.
--   The "Semantic Drift Score" reported is the **Intrinsic Drift** component, which the Hybrid mode aims to reduce.
+- **CPU-First**: The entire pipeline (Symbolic Engine, SGM, CV Primitives, Statistical Tests) is designed for CPU.
+  - **Symbolic Engine**: Pure Python, negligible CPU load.
+  - **SGM**: A lightweight stochastic process (no heavy neural nets).
+  - **CV Pipeline**: OpenCV (template matching/optical flow) is optimized for CPU.
+- **GPU Escape Hatch**: Not required. The SGM is a behavioral proxy, not a real video model.
+- **Decision**: All methods run on CPU. No GPU offload needed.
 
-### 5. Correction Mechanism (Hybrid)
--   **Loop**:
-    1.  Generate frame $t$ (with stochastic drift injection).
-    2.  Extract visual state.
-    3.  Compare with Symbolic State at $t$.
-    4.  **If Mismatch**:
-        -   Construct "Correction Token": e.g., `"Prompt: [Object] is dead and fading out."`
-        -   Inject into the generation prompt for frame $t+1$ with a *probabilistic* success rate (e.g., [deferred]) to avoid deterministic perfection.
-    5.  **Edge Case**: If state is "Teleported" (Visual != Logical position), log `RENDER_FAILURE` and inject "Reset" token.
+## 5. Risks & Mitigations
 
-### 6. Statistical Analysis
--   **Test**: Paired t-test on **Intrinsic Drift** scores (Baseline vs. Hybrid) across 10 seeds (100 pairs).
--   **Threshold**: $p < 0.05$.
--   **Effect Size**: Mean reduction ≥ 30% in **Intrinsic Drift**.
--   **Variance**: The stochastic drift injection and probabilistic correction ensure non-zero variance in the drift scores, satisfying the statistical requirements for a t-test.
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| **AlayaWorld Dataset Unavailable** | Cannot run real visual generation. | Use SGM as a behavioral proxy. Clearly label results as "Proxy-Validated". |
+| **CV Accuracy < 85%** | Invalidates drift scores. | Use confidence-weighted aggregation instead of binary discard. Flag experiment as "inconclusive" if average accuracy is low. |
+| **Memory Overflow (>7GB)** | CI failure. | Stream data; process one sequence at a time. |
+| **Non-Deterministic Symbolic Engine** | Invalidates ground truth. | Enforce pure Python, no random seeds in symbolic logic. |
 
-## Computational Constraints & Feasibility
+## 6. Conclusion
 
--   **Hardware**: 2 vCPU, 7GB RAM (GitHub Actions Free).
--   **Library Choices**:
-    -   `opencv-python-headless`: No GUI, optimized for CPU.
-    -   `torch` (CPU mode): No CUDA.
-    -   `numpy`: Efficient array operations.
--   **Memory Strategy**: Process video frames sequentially. Do not load the full video into RAM. Use streaming for video writing.
--   **Time Limit**: minutes per 60s sequence. This requires the mock generator to be extremely fast.
-
-## Limitations
-
-1.  **Data Source**: The study relies on a mock generator (Mock AlayaWorld) due to the lack of a public AlayaWorld dataset. Results reflect the *logic* of the correction mechanism against *injected generative errors*, not the specific visual fidelity of the real AlayaWorld model.
-2.  **CV Accuracy**: Classical CV (template matching) may fail on complex, deformed, or occluded objects. The mock generator intentionally degrades CV accuracy to test the robustness of the correction logic. The "Semantic Drift Score" is decomposed to isolate "Intrinsic Drift" from "Observational Noise".
-3.  **Generalizability**: The symbolic rules are specific to the "game mechanics" simulated. They may not generalize to all video generation tasks without rule re-engineering. The results are valid for validating the *mechanism* but cannot be extrapolated to claim real-world performance without further study on actual video generation models.
-4.  **Real Model Access**: This study **cannot** validate the performance of the actual AlayaWorld model due to lack of access.
-
-## References
-
--   **AlayaWorld**: No verified source found. (Spec: "NO verified source found").
--   **OpenCV**: https://opencv.org/ (Standard library for template matching and optical flow).
--   **PyTorch**: https://pytorch.org/ (Used for potential model loading, though CPU-only).
+The proposed methodology rigorously tests the hypothesis that symbolic grounding reduces semantic drift *in a stochastic environment that mimics video model failure modes*. By strictly adhering to CPU constraints, implementing a robust Ground Truth Validation step, and using a paired t-test with shared noise streams, the project ensures reproducibility and statistical validity for the proxy. The results are explicitly framed as "Proxy-Validated" to acknowledge the limitation of not testing the real AlayaWorld model.

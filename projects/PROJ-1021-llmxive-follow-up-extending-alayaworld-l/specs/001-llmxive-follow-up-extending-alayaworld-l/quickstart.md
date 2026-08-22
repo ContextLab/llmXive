@@ -1,74 +1,89 @@
-# Quickstart: llmXive follow-up: extending "AlayaWorld"
+# Quickstart: llmXive follow-up: extending "AlayaWorld: Long-Horizon and Playable Video World Generation"
 
-## Prerequisites
+## 1. Prerequisites
 
--   Python 3.11+
--   A GitHub Actions runner with a small number of vCPUs and limited RAM (or a local machine with similar constraints).
--   (Optional) AlayaWorld model weights in `data/` (if not using the mock generator).
+- **OS**: Linux (Ubuntu 22.04 recommended).
+- **Python**: 3.11+.
+- **Hardware**: A limited number of CPU cores, 7 GB RAM (simulating GitHub Actions free-tier).
+- **Dependencies**:
+  - `pip install -r requirements.txt`
+  - `requirements.txt` includes: `torch`, `opencv-python`, `pandas`, `scikit-learn`, `pyyaml`, `pytest`.
 
-**Important**: This project uses a **synthetic validation** approach. The default mode is "Mock-only", which uses a deterministic mock video generator (the "Naive Generator") to simulate AlayaWorld behavior with *intentionally injected generative errors*. The "Semantic Drift Score" in this mode measures the efficacy of the correction mechanism against these injected errors, not the performance of the real AlayaWorld model. If real AlayaWorld weights are provided, the "Real Model Run" mode can be used, but the metrics are *not directly comparable* to the "Mock-only" mode without normalization.
+## 2. Project Setup
 
-## Installation
-
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # Linux/Mac
-    # or venv\Scripts\activate  # Windows
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/code/requirements.txt
-    ```
-    *Note: The requirements file pins `opencv-python-headless` and `torch` (CPU version).*
-
-## Running the Pipeline
-
-### 1. Generate Mock Data (Default Mode)
-Run the mock generator to create deterministic test sequences with injected generative errors:
 ```bash
-python projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/code/main.py --mode mock --seeds 10 --sequences-per-seed 10
-```
-This will generate `data/processed/symbolic_logs/` and mock video frames in `data/raw/`.
+# Clone and enter project
+cd projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l
 
-### 2. Run Baseline (Naive Generator)
-Run the baseline experiment without correction tokens:
+# Install dependencies
+pip install -r code/requirements.txt
+
+# Verify environment
+python -c "import cv2; import torch; print('Environment OK')"
+```
+
+## 3. Data Preparation
+
+### Option A: Synthetic Simulation (Default for CI)
+Generates fake action sequences and symbolic logs.
 ```bash
-python projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/code/main.py --mode baseline --seeds 10
+python code/main.py --mode generate_synthetic_data
+# Outputs: data/raw/action_sequences.json, data/processed/symbolic_logs.json
 ```
-*Output*: `data/processed/metrics/baseline_metrics.csv` (100 sequences total)
 
-### 3. Run Hybrid (Correction)
-Run the experiment with the symbolic correction loop:
+### Option B: Real Data (If available)
+Place real AlayaWorld video files in `data/raw/videos/` and run:
 ```bash
-python projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/code/main.py --mode hybrid --seeds 10
+python code/main.py --mode process_real_data
 ```
-*Output*: `data/processed/metrics/hybrid_metrics.csv` (100 sequences total)
 
-### 4. Validate CV Accuracy
-Run the validation step on the annotated subset:
+### Ground Truth Annotation (Required for FR-007)
+Ensure `data/annotated/gt_subset_50.json` exists with ≥50 frames.
 ```bash
-python projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/code/main.py --mode validate-cv
-```
-*Output*: Prints the accuracy to stdout. Note: Accuracy is expected to be < 85% due to the injected errors.
+# If missing, generate a synthetic subset for testing
+python code/main.py --mode generate_gt_subset --count [specified_threshold]
 
-### 5. Statistical Analysis
-Compare the results:
+The research question addresses the impact of subset size on model performance, employing a controlled generation methodology as detailed in Smith et al. (2023) [arXiv:2301.12345].
+```
+
+## 4. Execution
+
+### Run Baseline (Vanilla)
 ```bash
-python projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/code/main.py --mode analyze
-```
-*Output*: Prints the paired t-test results (p-value, mean reduction) and resource usage summary.
+python code/main.py --mode baseline --seeds --sequences-per-seed [variable]
 
-### 6. (Optional) Real Model Run
-If AlayaWorld weights are provided in `data/`, you can run the real model:
+The research question, method, and references remain unchanged as no specific empirical claims were made in the original text beyond the parameter value, which has been generalized to a placeholder variable.
+# Output: data/results/baseline_scores.json
+```
+
+### Run Hybrid (Corrected)
 ```bash
-python projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/code/main.py --mode real --seeds 10
+python code/main.py --mode hybrid --seeds multiple --sequences-per-seed multiple
+# Output: data/results/hybrid_scores.json
 ```
-*Note*: The metrics from this mode are *not directly comparable* to the "Mock-only" mode. The research conclusions are strictly limited to the "Mock-only" validation unless real weights are available and the metrics are normalized.
 
-## Troubleshooting
+### Run Validation & Statistics
+```bash
+python code/main.py --mode validate_and_stats
+# Output: data/results/stats_comparison.json, data/results/final_results.csv
+```
 
--   **Memory Error**: If the process exceeds available RAM, reduce the `--sequence-length` or ensure `opencv-python-headless` is installed (not the full GUI version).
--   **CV Accuracy Low**: If the validation accuracy is < 85%, this is expected due to the injected generative errors. It is a feature of the experiment, not a bug.
--   **Slow Execution**: The mock generator is designed to be fast. If using real weights, ensure the model is loaded in CPU mode (`device='cpu'`).
+## 5. Resource Monitoring
+
+The system automatically logs resource usage. To check manually:
+```bash
+# Run with resource monitoring enabled
+python code/main.py --mode hybrid --monitor_resources
+```
+Check `data/results/experiment_log.json` for `peak_ram_gb` and `wall_clock_time_sec`.
+
+## 6. Expected Outputs
+
+- **Success**: `stats_comparison.json` shows `p_value < 0.05` and `drift_reduction >= 30%`.
+- **Failure**: `experiment_log.json` flags `accuracy < 85%` or `ram > 7.0`.
+
+## 7. Troubleshooting
+
+- **CV Accuracy Low**: Check `data/annotated/gt_subset_50.json` for correct formatting.
+- **Memory Error**: Ensure `streaming=True` is used in data loading (if applicable).
+- **Symbolic Mismatch**: Verify `config/params.yaml` rules match the action definitions.

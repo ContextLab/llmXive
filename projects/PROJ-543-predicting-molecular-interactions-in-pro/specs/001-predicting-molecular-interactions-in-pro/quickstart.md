@@ -4,80 +4,121 @@
 
 - Python 3.11+
 - Git
-- Access to PDBbind (official website) and BindingDB (for validation)
+- Access to a GitHub Actions runner or local machine with sufficient RAM for the proposed method.
 
 ## Installation
 
-1. **Clone the repository**:
+1. **Clone the Repository**:
    ```bash
-   git clone <repo-url>
-   cd projects/PROJ-543-predicting-molecular-interactions-in-pro
+   git clone https://github.com/your-org/your-repo.git
+   cd your-repo
    ```
 
-2. **Create a virtual environment**:
+2. **Initialize Git & Create .gitignore**:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   git init
+   echo "*.pyc" > .gitignore
+   echo "__pycache__/" >> .gitignore
+   echo "data/raw/*" >> .gitignore
+   echo "data/processed/*" >> .gitignore
+   echo "data/results/*" >> .gitignore
+   echo "*.pt" >> .gitignore
+   echo "*.pkl" >> .gitignore
+   echo ".venv/" >> .gitignore
    ```
 
-3. **Install dependencies**:
+3. **Set Up Virtual Environment**:
+   ```bash
+   python -m venv code/.venv
+   source code/.venv/bin/activate  # On Windows: code\.venv\Scripts\activate
+   ```
+
+4. **Install Dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
+   Dependencies include: `torch`, `torch_geometric`, `rdkit`, `datasets`, `scikit-learn`, `pandas`, `pyyaml`, `biopython`, `numpy`, `scipy`, `requests`, `flake8`, `black`.
 
-## Data Setup
+5. **Configure Linting**:
+   Create `pyproject.toml` with Black and Flake8 settings:
+   ```toml
+   [tool.black]
+   line-length = 88
+   target-version = ['py311']
 
-The pipeline automatically downloads the PDBbind v2020 refined set from the official source.
-To manually verify the download:
-```bash
-python code/utils/io.py --download
-```
-This will place the raw tarball in `data/raw/` and generate a checksum.
-
-## Running the Pipeline
-
-1. **Ingest and Construct Graphs**:
-   ```bash
-   python code/data/ingest.py
+   [tool.flake8]
+   max-line-length = 88
+   ignore = E203, W503
    ```
-   This step filters by resolution, adds hydrogens, detects water interactions (FR-009), and constructs graphs.
 
-2. **Train the Model**:
+6. **Verify Installation**:
    ```bash
-   python code/models/train.py
+   python -c "import torch; import rdkit; print('Dependencies OK')"
    ```
-   Training runs for up to 4 hours or until convergence. Logs are saved to `data/results/training.log`.
 
-3. **Baseline Comparison**:
-   ```bash
-   python code/models/baseline.py
-   ```
-   Implements the Random Forest QSAR baseline for SC-001.
+## Data Preparation
 
-4. **Analyze and Validate Motifs**:
+1. **Download Dataset**:
+   The script `code/data/ingest.py` will automatically download the PDBbind v2020 refined set from Hugging Face.
    ```bash
-   python code/analysis/attribution.py
-   python code/analysis/alignment.py
-   python code/analysis/clustering.py
-   python code/analysis/validation.py
+   python code/data/ingest.py --download
    ```
-   This generates the final motif report in `data/results/motifs.json`, including t-test and permutation results.
+
+2. **Construct Graphs**:
+   Run the ingestion script to build molecular graphs.
+   ```bash
+   python code/data/ingest.py --build-graphs
+   ```
+
+3. **Run Sensitivity Analysis** (Optional):
+   ```bash
+   python code/data/sensitivity.py
+   ```
+
+## Training
+
+1. **Train the GNN**:
+   ```bash
+   python code/train/trainer.py --epochs 50 --timeout 4h
+   ```
+   - The script will automatically stop after 4 hours or 50 epochs.
+   - If the run exceeds memory limits, it will attempt to offload to a Kaggle GPU (if configured).
+
+2. **Monitor Training**:
+   Check `data/results/training_log.json` for loss curves and convergence status.
+
+## Interpretation & Validation
+
+1. **Generate Feature Importance**:
+   ```bash
+   python code/interpret/attribution.py
+   ```
+
+2. **Cluster Motifs**:
+   ```bash
+   python code/interpret/clustering.py --min-cluster-size 5
+   ```
+
+3. **Validate Motifs**:
+   ```bash
+   python code/interpret/validation.py --permutations 1000
+   ```
+
+4. **View Results**:
+   - Motif clusters: `data/results/motifs.json`
+   - Statistical validation: `data/results/statistical_validation.json`
+   - Memory profile: `data/results/memory_profile.json`
+   - Inference benchmark: `data/results/inference_benchmark.json`
 
 ## Testing
 
 Run the full test suite:
 ```bash
-pytest tests/
-```
-
-Run specific contract tests:
-```bash
-pytest tests/contract/
+pytest tests/ -v --cov=code
 ```
 
 ## Troubleshooting
 
-- **Memory Error**: The pipeline is configured for N=1,000 samples. If memory issues persist, check `code/utils/config.py` for batch size settings.
-- **Convergence Failure**: Check `data/results/training.log` for early stopping reasons. The model may need more epochs or a learning rate adjustment.
-- **Missing Hydrogens**: The pipeline automatically infers missing hydrogens. If a complex is flagged for exclusion, check the `data/processed/excluded.txt` file.
-- **Water Flagging**: If `water_flag` is not set as expected, verify the 3.5 Å distance heuristic in `code/data/preprocessing.py`.
+- **Memory Error**: Ensure `streaming=True` is used in `ingest.py`. Reduce batch size if training fails.
+- **CUDA Error**: If the run requires a GPU, ensure the Kaggle GPU escape hatch is configured. The pipeline will automatically retry on Kaggle if the CPU run fails.
+- **Missing Data**: Verify the Hugging Face dataset is accessible. Check network connectivity.

@@ -1,11 +1,10 @@
 T008b:
   c: false
-  h: 63e6bb2bbdd6c1cb57ca6a63aa127f76b710744f52b131f62ac53b8a8b6c01f6
-  r: "The provided `memory_monitor.py` never writes the peak RSS value to `data/processed/memory_profile.json`\
-    \ (the file is missing and the code lacks any JSON\u2011logging logic). Consequently\
-    \ the hard 7\u202FGB limit is only checked when `check_memory_limit` is called\
-    \ manually, not automatically enforced for the whole process, and the required\
-    \ logging for every run is not implemented."
+  h: eecc6ca6da31f51f986dbdb9a52ce58cbf120801fe379d2e575840ade3b39396
+  r: "The provided `code/memory_monitor.py` is truncated and does not show any logic\
+    \ that writes the peak RSS value to `data/processed/memory_profile.json`. Moreover,\
+    \ the required JSON file is missing from the repository. Consequently, the task\u2019\
+    s core requirement of persisting the memory profile for every run is not satisfied."
 T013:
   c: false
   h: 3818f0240a09fa257560fc6720a94963d03f61a2b5bc09218490a0afec7d0a39

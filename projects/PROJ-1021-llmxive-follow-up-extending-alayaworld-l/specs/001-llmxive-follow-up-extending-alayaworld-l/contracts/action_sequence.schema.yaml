@@ -6,9 +6,15 @@ properties:
   id:
     type: "string"
     description: "Unique identifier for the sequence"
-  seed:
+  global_seed:
     type: "integer"
-    description: "Random seed used for generation"
+    description: "Global random seed for the experiment"
+  sequence_index:
+    type: "integer"
+    description: "Index of the sequence within the global seed (0-9)"
+  stochastic_seed:
+    type: "integer"
+    description: "Derived seed for visual noise generation (global_seed + sequence_index). Used to ensure Baseline and Hybrid runs share the same noise stream."
   actions:
     type: "array"
     description: "List of actions performed in the sequence"
@@ -25,4 +31,4 @@ properties:
           type: "string"
           description: "ID of the target object"
       required: ["timestamp", "action_type"]
-required: ["id", "seed", "actions"]
+required: ["id", "global_seed", "sequence_index", "stochastic_seed", "actions"]

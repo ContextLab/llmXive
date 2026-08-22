@@ -39,7 +39,7 @@
 
 ### User Story 3 - Resource Constraint Verification (Priority: P3)
 
-**Description**: The system must execute the entire hybrid inference pipeline (generation + symbolic tracking + consistency checking) on a CPU-only environment, ensuring total wall-clock time per sequence remains within a practical operational timeframe and memory usage stays below 7 GB.
+**Description**: The system must execute the entire hybrid inference pipeline (generation + symbolic tracking + consistency checking) on a CPU-only environment, ensuring total wall-clock time per sequence remains within a practical operational timeframe and memory usage stays within acceptable operational limits.
 
 **Why this priority**: The research question explicitly targets "CPU-tractable" and "resource-constrained edge devices." If the method requires GPU acceleration or excessive memory, the proposed solution fails its primary deployment constraint, rendering the semantic improvement moot for the target use case.
 

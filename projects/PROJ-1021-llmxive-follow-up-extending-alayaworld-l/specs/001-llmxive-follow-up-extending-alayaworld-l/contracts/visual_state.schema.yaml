@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Visual State Log"
+description: "Object states derived from computer vision analysis of generated video."
+type: object
+required:
+  - sequence_id
+  - timesteps
+properties:
+  sequence_id:
+    type: string
+    description: "Unique identifier for the action sequence."
+  timesteps:
+    type: array
+    description: "List of detected states at each timestep."
+    items:
+      type: object
+      required:
+        - timestep
+        - detected_objects
+        - confidence
+      properties:
+        timestep:
+          type: integer
+          description: "Frame index (0-indexed)."
+        detected_objects:
+          type: array
+          description: "List of detected object states."
+          items:
+            type: object
+            required:
+              - object_id
+              - type
+              - hp_estimate
+              - position
+              - is_alive_estimate
+            properties:
+              object_id:
+                type: string
+                description: "Detected object ID (may be null if unmatched)."
+              type:
+                type: string
+                description: "Detected object type."
+              hp_estimate:
+                type: integer
+                description: "Estimated health (may be inferred)."
+              position:
+                type: array
+                description: "[x, y] coordinates."
+                items:
+                  type: integer
+              is_alive_estimate:
+                type: boolean
+                description: "Estimated alive status."
+        confidence:
+          type: number
+          description: "Overall confidence score for this frame (0.0 to 1.0)."
+          minimum: 0.0
+          maximum: 1.0
+  cv_accuracy_validated:
+    type: boolean
+    description: "True if Ground Truth Validation (FR-007) passed for this sequence."

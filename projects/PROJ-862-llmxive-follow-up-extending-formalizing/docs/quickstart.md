@@ -3,49 +3,46 @@
 ## Prerequisites
 
 - Python 3.9+
-- pip
-- 7GB+ RAM (CPU-only execution)
+- 7GB+ RAM available
+- CPU-only execution (no GPU required)
 
 ## Installation
 
-1. Clone the repository.
+1. Create virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
 2. Install dependencies:
-
-```bash
-cd code
-pip install -r requirements.txt
-```
-
-## Configuration
-
-The pipeline uses `config.py` for defaults. You can override settings via a JSON config file or CLI arguments.
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
 ## Execution
 
 Run the full pipeline:
-
 ```bash
-python main.py
+python code/main.py --config config.json
 ```
 
-Run a dry-run to verify paths and logic without heavy computation:
-
+Run in pilot mode (feasibility check only):
 ```bash
-python main.py --dry-run
+python code/main.py --config config.json --pilot
 ```
 
-## Output Artifacts
+## Output Files
 
-After successful execution, the following files will be generated in `data/processed/`:
-
-- `baseline_vectors.csv`: Extracted latent vectors.
-- `validity_log.csv`: Pass-rates for each sigma level.
-- `statistical_results.json`: Final statistical analysis (if conclusive).
-- `inconclusive_report.md`: Generated if no valid sigma is found (T051).
-- `memory_profile.json`: Memory usage logs.
+The pipeline produces the following artifacts in `data/processed/`:
+- `pairing_config.json`: Question pairings by task type
+- `baseline_vectors.csv`: Baseline latent vectors
+- `validity_log.csv`: Validity checks per sigma level
+- `perturbed_vectors.csv`: Perturbed latent vectors
+- `statistical_results.json`: Final statistical analysis
+- `memory_profile.json`: Memory usage profile
 
 ## Troubleshooting
 
-- **Memory Limit**: If the process exceeds 7GB RAM, it will halt with `MemoryLimitExceeded`.
-- **Data Fetch**: Ensure internet connectivity for dataset download. The script will fail loudly if the dataset is missing or checksums mismatch.
-- **Inconclusive**: If `inconclusive_report.md` is generated, the experiment found no valid noise range. Check the report for recommendations.
+- If you encounter `ModuleNotFoundError`, ensure all dependencies are installed: `pip install -r code/requirements.txt`
+- If memory errors occur, reduce the dataset size or sigma step size in `config.json`
+- Check `logs/pipeline.log` for detailed error messages

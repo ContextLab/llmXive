@@ -1,42 +1,64 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Symbolic State Log"
-description: "Deterministic ground truth trajectory of object states (HP, inventory, position) derived from the rule-based symbolic engine."
-type: "object"
+description: "Deterministic ground truth state trajectory from the symbolic engine."
+type: object
+required:
+  - sequence_id
+  - seed
+  - timesteps
 properties:
   sequence_id:
-    type: "string"
-    description: "Unique identifier for the sequence"
-  states:
-    type: "array"
-    description: "Time-series of object states"
+    type: string
+    description: "Unique identifier for the action sequence."
+  seed:
+    type: integer
+    description: "Random seed used for action generation."
+  timesteps:
+    type: array
+    description: "List of state snapshots at each timestep."
     items:
-      type: "object"
+      type: object
+      required:
+        - timestep
+        - objects
       properties:
-        frame_index:
-          type: "integer"
-          description: "Frame index in the video sequence"
-        object_id:
-          type: "string"
-          description: "Unique ID of the tracked object"
-        hp:
-          type: "integer"
-          description: "Current health points (0 indicates dead)"
-        inventory:
-          type: "array"
-          description: "List of items currently held by the object"
+        timestep:
+          type: integer
+          description: "Frame index (0-indexed)."
+        objects:
+          type: array
+          description: "List of object states at this timestep."
           items:
-            type: "string"
-        state:
-          type: "string"
-          enum: ["Alive", "Dead", "Teleported", "Missing"]
-          description: "Current logical state of the object"
-        position:
-          type: "object"
-          properties:
-            x:
-              type: "number"
-            y:
-              type: "number"
-          required: ["x", "y"]
-      required: ["frame_index", "object_id", "hp", "state"]
-required: ["sequence_id", "states"]
+            type: object
+            required:
+              - object_id
+              - type
+              - hp
+              - position
+              - is_alive
+            properties:
+              object_id:
+                type: string
+                description: "Unique ID for the object."
+              type:
+                type: string
+                description: "Object type (e.g., 'player', 'enemy', 'item')."
+              hp:
+                type: integer
+                description: "Current health points."
+              position:
+                type: array
+                description: "[x, y] coordinates."
+                items:
+                  type: integer
+              is_alive:
+                type: boolean
+                description: "True if HP > 0."
+  global_state:
+    type: object
+    description: "Global simulation state (e.g., time, score)."
+    properties:
+      time_elapsed:
+        type: integer
+      score:
+        type: integer

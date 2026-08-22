@@ -1,17 +1,18 @@
 status: none
-intent: AlayaWorld interactive video symbolic state dataset python package dataset
+intent: CATER and CLEVRER synthetic video datasets with object state annotations python
+  package dataset
 required_fields:
-- video_path
-- action_sequence
-- action_timestamps
-- frame_index
+- video_id
+- frame_number
+- timestamp
 - object_id
-- object_class
-- position_xyz
-- orientation_quat
-- health_points
-- alive_flag
+- object_category
 - bounding_box
-cache_key: c32cb50cedc25cbea7aee572c29292219cf47d9fe12a312cf1b3c992e75b3c11
-searched_at: '2026-08-20T23:19:45.179024+00:00'
+- object_state
+- object_position
+- object_velocity
+- action_sequence_id
+- ground_truth_state
+cache_key: 2a177eaaaf4dc53a3f5536e227e04da6d6465ed15d716dffb1f1b5f367ca2c10
+searched_at: '2026-08-22T09:30:19.538559+00:00'
 retry_count: 1

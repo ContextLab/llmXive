@@ -1,4 +1,4 @@
-- artifact_hash: e3ad3af9e2dcdf1e5b372dd6938ae1246c3e92240c43d2a850529e24e285d128
+- artifact_hash: 723ad020afd79060640dc913d4cb79910d547e298f7fe2e063ca226d56ecfa3e
   artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://huggingface.co/datasets/google/bigbench_lite
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/google/bigbench_lite
-  verified_at: '2026-08-20T00:00:03.915371Z'
-- artifact_hash: e3ad3af9e2dcdf1e5b372dd6938ae1246c3e92240c43d2a850529e24e285d128
+  verified_at: '2026-08-22T09:50:19.325196Z'
+- artifact_hash: 723ad020afd79060640dc913d4cb79910d547e298f7fe2e063ca226d56ecfa3e
   artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://en.wikipedia.org/wiki/Misuse_of_p-values
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Misuse_of_p-values
-  verified_at: '2026-08-20T00:00:03.915371Z'
+  verified_at: '2026-08-22T09:50:19.325196Z'

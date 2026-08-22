@@ -1,48 +1,43 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: SubstructureClusterSchema
-description: Schema for the identified interaction motifs and their validation results.
+title: SubstructureCluster Schema
+description: Schema for clustered substructure motifs and their validation results.
 type: object
 properties:
   cluster_id:
     type: integer
-    description: Unique identifier for the cluster.
+    description: "Unique cluster identifier"
   centroid_coordinates:
     type: array
-    description: "Centroid coordinates [x, y, z] of the cluster."
     items:
       type: number
     minItems: 3
     maxItems: 3
+    description: "Centroid coordinates of the cluster"
   member_count:
     type: integer
-    description: Number of substructures in the cluster.
+    description: "Number of atoms in the cluster"
   pharmacophore_id:
-    type: ["string", "null"]
-    description: ID of the matched pharmacophore, or null if no match.
+    type: string
+    nullable: true
+    description: "Matched reference pharmacophore ID (or null)"
   rmsd:
     type: number
-    description: Root Mean Square Deviation to the matched pharmacophore.
-  p_value_ttest:
+    nullable: true
+    description: "RMSD overlap with pharmacophore (if matched)"
+  p_value:
     type: number
-    description: Raw p-value from the two-sample t-test (Constitution Principle VII).
-  p_value_perm:
+    description: "Statistical significance from permutation test"
+  fdr_corrected_p:
     type: number
-    description: Raw p-value from the permutation test.
+    description: "Benjamini-Hochberg adjusted p-value"
   is_significant:
     type: boolean
-    description: Whether the cluster is significant after FDR correction.
-  matched_pharmacophore_name:
-    type: ["string", "null"]
-    description: Human-readable name of the matched pharmacophore.
-  alignment_method:
-    type: string
-    description: Method used for alignment (e.g., "Procrustes").
+    description: "True if p < 0.05 after FDR correction"
 required:
   - cluster_id
   - centroid_coordinates
   - member_count
-  - rmsd
-  - p_value_ttest
-  - p_value_perm
+  - p_value
+  - fdr_corrected_p
   - is_significant
-  - alignment_method
+additionalProperties: false

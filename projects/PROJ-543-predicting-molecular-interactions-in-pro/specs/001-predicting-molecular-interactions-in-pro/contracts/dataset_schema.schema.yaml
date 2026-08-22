@@ -1,74 +1,81 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: MolecularGraphSchema
-description: Schema for the processed molecular graph data structure.
+title: MolecularGraph Schema
+description: Schema for serialized molecular graph data representing protein-ligand complexes.
 type: object
 properties:
-  complex_id:
+  id:
     type: string
-    description: Unique identifier for the protein-ligand complex.
-  resolution:
-    type: number
-    description: Resolution of the crystal structure in Angstroms.
-  pKd:
-    type: number
-    description: Experimental binding affinity (pKd).
-  water_flag:
-    type: boolean
-    description: True if water-mediated interaction detected (FR-009).
+    description: "Unique identifier (PDB ID + chain)"
   nodes:
     type: array
-    description: List of atoms in the complex.
     items:
       type: object
       properties:
         atom_type:
           type: string
-          description: Element symbol (e.g., C, N, O) or 'unknown'.
+          description: "Atom type (e.g., C, N, O, H)"
         charge:
           type: number
-          description: Partial charge of the atom.
+          description: "Formal charge"
+        hydrophobicity:
+          type: number
+          description: "Derived hydrophobicity score"
         coordinates:
           type: array
-          description: "3D coordinates [x, y, z] in Angstroms."
           items:
             type: number
           minItems: 3
           maxItems: 3
-        hydrophobicity:
-          type: number
-          description: Hydrophobicity score.
+          description: "3D coordinates [x, y, z]"
       required:
         - atom_type
         - charge
-        - coordinates
         - hydrophobicity
+        - coordinates
   edges:
     type: array
-    description: List of interactions between atoms.
     items:
       type: object
       properties:
         source:
           type: integer
-          description: Index of the source atom.
+          description: "Source node index"
         target:
           type: integer
-          description: Index of the target atom.
+          description: "Target node index"
         bond_type:
           type: string
-          description: Type of interaction (covalent or non-covalent).
+          enum:
+            - covalent
+            - non-covalent
+          description: "Type of bond"
         distance:
           type: number
-          description: Distance between atoms in Angstroms.
+          description: "Distance in Angstroms"
       required:
         - source
         - target
         - bond_type
         - distance
+  global_properties:
+    type: object
+    properties:
+      pKd:
+        type: number
+        description: "Binding affinity (pKd)"
+      resolution:
+        type: number
+        description: "Crystallographic resolution in Angstroms"
+      water_flagged:
+        type: boolean
+        description: "True if water-mediated interaction detected"
+    required:
+      - pKd
+      - resolution
+      - water_flagled
 required:
-  - complex_id
-  - resolution
-  - pKd
-  - water_flag
+  - id
   - nodes
   - edges
+  - global_properties
+additionalProperties: false
