@@ -2,12 +2,12 @@
 Task T022c: Write fitted parameters to data/processed/threshold_fit_params.json.
 
 This module loads the fitted critical threshold parameters derived from the
-sigmoid curve fitting (performed in T022a/T022b) and writes them to a persistent
-JSON artifact.
+logistic regression/sigmoid fitting (performed in T022a/T022b) and writes them
+to a JSON artifact for downstream analysis and reporting.
 
-It relies on the output of `fit_critical_threshold` from `fit_utils.py`.
+It relies on the `fit_critical_threshold` function in `fit_utils` which returns
+the fitted parameters (theta_c, slope, intercept) and the fit quality metrics.
 """
-
 import json
 import logging
 import os
@@ -15,134 +15,97 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 from utils.config import get_project_paths
+from analysis.fit_utils import fit_critical_threshold, load_mc_results, aggregate_by_theta
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
-
-def load_fitted_parameters(
-    input_path: Optional[str] = None
-) -> Dict[str, Any]:
+def load_fitted_parameters() -> Dict[str, Any]:
     """
-    Load the fitted parameters from the raw threshold identification analysis.
-
-    This function expects the output of T022b (analyze_threshold_identification),
-    which should contain the fitted curve parameters (theta_c, slope, etc.)
-    usually stored in a file like 'data/processed/threshold_identification_raw.json'.
-
-    Args:
-        input_path: Path to the raw identification JSON. Defaults to project config.
+    Loads Monte Carlo results, aggregates by theta, performs the fit,
+    and returns the fitted parameters and metadata.
 
     Returns:
-        Dictionary containing the fitted parameters and metadata.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If the file content is malformed or missing required keys.
+        Dict containing fitted parameters and metadata.
     """
     paths = get_project_paths()
-    if input_path is None:
-        input_path = str(paths.processed / "threshold_identification_raw.json")
+    mc_results_path = paths["data_processed"] / "mc_results.csv"
 
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Fitted parameters input file not found: {input_path}")
-
-    logger.info(f"Loading fitted parameters from {input_path}")
-
-    with open(input_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-
-    # Validate structure based on expected output from fit_utils.analyze_threshold_identification
-    if "fitted_params" not in data:
-        raise ValueError(
-            f"Input file {input_path} missing 'fitted_params' key. "
-            "Ensure T022b has run successfully."
+    if not mc_results_path.exists():
+        raise FileNotFoundError(
+            f"Monte Carlo results file not found at {mc_results_path}. "
+            "Ensure T021a has been executed successfully."
         )
 
-    return data
+    logger.info(f"Loading Monte Carlo results from {mc_results_path}")
+    mc_data = load_mc_results(mc_results_path)
 
+    if not mc_data:
+        raise ValueError("Monte Carlo results file is empty or invalid.")
 
-def write_fit_parameters(
-    data: Dict[str, Any],
-    output_path: Optional[str] = None
-) -> str:
+    logger.info("Aggregating results by theta")
+    aggregated = aggregate_by_theta(mc_data)
+
+    if not aggregated:
+        raise ValueError("No valid data aggregated for fitting.")
+
+    logger.info("Fitting critical threshold")
+    fit_result = fit_critical_threshold(aggregated)
+
+    if fit_result is None:
+        raise RuntimeError("Fitting critical threshold failed. Check fit_utils implementation.")
+
+    return fit_result
+
+def write_fit_parameters(output_path: Optional[Path] = None) -> Path:
     """
-    Write the fitted parameters to the final threshold_fit_params.json artifact.
-
-    This function ensures the output directory exists and writes the data
-    with proper formatting.
+    Writes the fitted parameters to a JSON file.
 
     Args:
-        data: The dictionary containing fitted parameters (usually from load_fitted_parameters).
-        output_path: Path for the output JSON file. Defaults to project config.
+        output_path: Optional path to write the JSON file. Defaults to
+                     data/processed/threshold_fit_params.json.
 
     Returns:
-        The absolute path to the written file.
-
-    Raises:
-        IOError: If writing to disk fails.
+        Path to the written file.
     """
-    paths = get_project_paths()
     if output_path is None:
-        output_path = str(paths.processed / "threshold_fit_params.json")
+        paths = get_project_paths()
+        output_path = paths["data_processed"] / "threshold_fit_params.json"
 
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Writing fitted parameters to {output_path}")
-
-    # We might want to add a timestamp or version to the output for provenance
-    output_data = {
-        "artifact_name": "threshold_fit_params",
-        "description": "Fitted critical threshold parameters (theta_c) and confidence intervals",
-        "source": "threshold_identification_raw.json (T022b)",
-        "fitted_params": data.get("fitted_params", {}),
-        "metadata": {
-            "fit_method": data.get("fit_method", "sigmoid_curve_fit"),
-            "r_squared": data.get("r_squared"),
-            "generated_at": data.get("timestamp")
-        }
-    }
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(output_data, f, indent=2)
-
-    logger.info(f"Successfully wrote parameters to {output_path}")
-    return output_path
-
-
-def main() -> None:
-    """
-    Main entry point for T022c.
-
-    Executes the load and write sequence to persist the fitted parameters.
-    """
     try:
-        logger.info("Starting T022c: Write fitted parameters")
-        
-        # Load the intermediate results from T022b
-        data = load_fitted_parameters()
-        
-        # Write the final artifact
-        output_file = write_fit_parameters(data)
-        
-        logger.info(f"T022c completed successfully. Output: {output_file}")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Input data missing: {e}")
-        logger.error("Ensure T022b (analyze_threshold_identification) has run and produced threshold_identification_raw.json")
-        raise
-    except ValueError as e:
-        logger.error(f"Invalid data format: {e}")
-        raise
+        params = load_fitted_parameters()
+
+        # Add timestamp and source info
+        from datetime import datetime, timezone
+        params["generated_at"] = datetime.now(timezone.utc).isoformat()
+        params["source_file"] = str(output_path.parent / "mc_results.csv")
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(params, f, indent=2)
+
+        logger.info(f"Fitted parameters written to {output_path}")
+        return output_path
+
     except Exception as e:
-        logger.error(f"Unexpected error during T022c: {e}")
+        logger.error(f"Failed to write fitted parameters: {e}", exc_info=True)
         raise
 
+def main():
+    """Entry point for running the parameter writing script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    logger.info("Starting T022c: Writing fitted parameters")
+
+    try:
+        output_path = write_fit_parameters()
+        logger.info(f"Success. Output file: {output_path}")
+    except Exception as e:
+        logger.critical(f"Task T022c failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

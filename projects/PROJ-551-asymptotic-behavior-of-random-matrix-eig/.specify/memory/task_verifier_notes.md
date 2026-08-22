@@ -7,7 +7,7 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T015** — declared artifact(s) missing/empty/invalid: data/processed/single_run_results.json
 - **T040a** — No files were found in the repository at the required path `data/raw/sweep/matrix_N{N}_theta{theta}_seed{seed}.npy`, and no code or logs were provided that generate such raw matrix instances. Consequently the task’s deliverable – the full set of raw matrix `.npy` files for the parameter sweep – is missing.
 - **T040b** — No `state/checksums_sweep.json` file or any other evidence of computed SHA‑256 checksums for the raw matrix instances from T040a is present. The required artifact is missing, so the task is not satisfied.
-- **T021a** — The repository contains a partially shown `code/analysis/monte_carlo_runner.py`, but the file is truncated and does not demonstrate writing results to `data/processed/mc_results.csv`. Moreover, the required CSV file is absent from the project. Without a complete runner that outputs the specified schema, the task is not fulfilled.
+- **T021a** — The repository contains `code/analysis/monte_carlo_runner.py`, but the provided snippet is truncated and does not show any code that writes results to `data/processed/mc_results.csv`. Moreover, the required CSV file is absent from the project. Without a concrete implementation that outputs the specified schema and the actual CSV file, the task is not fulfilled.
 - **T021b** — declared artifact(s) missing/empty/invalid: data/processed/mc_results.csv, data/processed/threshold_identification_raw.json
 - **T022c** — declared artifact(s) missing/empty/invalid: data/processed/threshold_fit_params.json
 - **T024** — declared artifact(s) missing/empty/invalid: data/processed/threshold_sweep_results.csv
@@ -15,6 +15,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T031** — declared artifact(s) missing/empty/invalid: data/logs/edge_case_rank0.log
 - **T028** — declared artifact(s) missing/empty/invalid: data/processed/sensitivity_density_sweep.csv
 - **T029a** — declared artifact(s) missing/empty/invalid: data/processed/sensitivity_variation.csv
-- **T030** — declared artifact(s) missing/empty/invalid: data/processed/sensitivity_report.md
-- **T032a** — No updated `quickstart.md` file was provided or referenced, and there is no evidence that the documentation now contains step‑by‑step instructions for reproducing the full parameter sweep and sensitivity analysis. The required artifact is missing.
-- **T033** — No updated `research.md` file or any textual evidence showing the required clarification about the "observer", the nature of the study, or the definition of "sparse noise" is provided. The implementer’s claim lacks the actual artifact needed to satisfy the task.

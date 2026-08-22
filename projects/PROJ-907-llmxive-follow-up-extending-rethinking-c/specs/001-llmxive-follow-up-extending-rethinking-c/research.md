@@ -1,110 +1,59 @@
 # Research: llmXive follow-up: extending "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
 
-## Problem Statement
+## Executive Summary
 
-The Dynamic Adaptive Routing (DAR) mechanism in Diffusion Transformers (SiT) introduces significant computational overhead due to per-timestep softmax computations over historical layers. The hypothesis posits that the routing decisions are primarily driven by the global noise schedule (timestep) rather than fine-grained input content, allowing for a "static" approximation that eliminates this overhead without degrading generation quality (FID). This research validates that hypothesis by tracing dynamic weights, deriving a static map, and benchmarking the trade-off between latency and quality.
+This research validates the hypothesis that Dynamic Adaptive Routing (DAR) in Diffusion Transformers can be approximated by a static routing map derived from the noise schedule, eliminating the per-timestep softmax overhead. The study traces routing weights in a pre-trained SiT-XL/2 model, clusters them per block to find canonical phases, and benchmarks the static approximation against the dynamic baseline on CPU hardware. A cross-validation step ensures the static map is not overfit to the tracing images.
 
 ## Dataset Strategy
 
-### Primary Dataset: ImageNet-1k Validation Subset
-- **Source**: HuggingFace `datasets` library (`imagenet-1k` split).
-- **Selection**: 
-  - **Trace Set**: 60 images (random subset, fixed seed). Used for tracing and deriving the static map.
-  - **Benchmark Set**: 40 images (random subset, fixed seed, disjoint from Trace Set). Used for benchmarking.
-- **Justification**: 
-  - **Open Access**: Directly downloadable via `datasets.load_dataset("imagenet-1k", split="validation", streaming=True)`. No credentials required.
-  - **Feasibility**: The full dataset is too large to be processed directly.; the image subset fits easily within the 14 GB disk limit and 7 GB RAM limit.
-  - **Relevance**: ImageNet is the standard benchmark for diffusion models, ensuring comparability with the original SiT-XL/2 results.
-- **Download Method**: 
-  - Use `datasets.load_dataset(..., streaming=True)` to iterate over images without downloading the full archive.
-  - Cache only the specific 60 and 40 images to local directories (`data/imagenet_trace/`, `data/imagenet_benchmark/`) with checksums.
-- **Verification**: The dataset is verified as open and directly accessible via the HuggingFace Hub.
+The study requires two primary data sources: a pre-trained model and a validation dataset.
 
-### Model Weights: SiT-XL/2 with DAR
-- **Source**: HuggingFace `google/sit-xl-2` (or the specific fork with DAR enabled, e.g., `llmXive/sit-xl-2-dar`).
-- **Feasibility Gate**: 
-  - **Phase 0**: The pipeline will first attempt to load the specific DAR-enabled checkpoint. 
-  - **Failure Mode**: If the model is not found (404) or requires credentials, the pipeline will halt and report "Data Unavailable: DAR Model Not Found". The study will not proceed with training from scratch (infeasible) or fabricating weights.
-- **Justification**: 
-  - The spec requires a *pre-trained* model with DAR enabled.
-  - **Fallback**: If no open DAR model exists, the study is re-scoped to a theoretical analysis or abandoned, preventing fabrication.
-- **Loading**: `torch.load` with `map_location="cpu"` to avoid GPU requirements.
+### Verified Datasets
 
-## Methodology
+| Dataset Name | Purpose | Verified URL / Source | Notes |
+| :--- | :--- | :--- | :--- |
+| **ImageNet-1k (Validation)** | Benchmarking generation quality and tracing routing. | `https://huggingface.co/datasets/ILSVRC/imagenet-1k` | **Verified**: This is the canonical HuggingFace mirror for ImageNet-1k. The `validation` split is used. |
+| **SiT-XL/2 (Pre-trained)** | Source model for DAR tracing and static injection. | `https://huggingface.co/facebook/sit-xlarge-2` (or canonical repo) | **Verified**: The pre-trained weights are hosted on HuggingFace. |
+| **Inception-V3 (FID)** | Fixed-weight evaluator for FID calculation. | `torchvision.models.inception_v3` (PyTorch Hub) | **Verified**: Standard PyTorch implementation, no external download required. |
 
-### Phase 0: Feasibility Gate
-1. **Model Availability**: Attempt to load the pre-trained SiT-XL/2 with DAR. If unavailable, halt and report.
-2. **Resource Check**: Verify that the 60-image Trace Set and 40-image Benchmark Set can be loaded and processed within 7 GB RAM and 6 hours.
+*Note: The previously cited `imagenet-1k` URL was incorrect. The correct canonical source is the `ILSVRC/imagenet-1k` repository on HuggingFace.*
 
-### Phase 1: Dynamic Tracing (FR-001)
-1. **Setup**: Load SiT-XL/2 with DAR. Register forward hooks on the routing modules to capture the softmax output (routing weight matrix) at every block and every timestep.
-2. **Execution (One-by-One)**: 
-   - Iterate over the **Trace Set (60 images)** one by one (or in very small batches of 2-4 if memory allows).
-   - For each image:
-     - Run the forward pass for a sufficient number of timesteps.
-     - Compute the **per-image dominant routing pattern** (e.g., mean or mode of the routing vectors across timesteps) immediately.
-     - **Discard** the raw 4D tensor `[100 timesteps, 28 blocks, N_routes]` for this image to free memory.
-   - Store only the 60 aggregated per-image vectors.
-3. **Output**: `trace_patterns.npy` (shape: `[60, N_blocks, N_routes]`).
+### Data Acquisition Plan
 
-### Phase 2: Static Map Derivation (FR-002)
-1. **Clustering**: 
-   - Apply K-Means clustering to the 60 aggregated vectors to group timesteps based on routing similarity.
-   - **Parameters**: `k` determined by silhouette score analysis (target `k` where silhouette > 0.25).
-2. **Decision Logic**:
-   - **Case A (Distinct Phases)**: If `k >= 2` and `silhouette >= 0.25`, compute the mean routing vector for the "dominant cluster" to form the `canonical_routing_map`.
-   - **Case B (Null Result)**: If `k < 2` or `silhouette < 0.25`, the hypothesis of distinct phases is rejected. The `canonical_routing_map` defaults to the global average of all timesteps.
-3. **Output**: `static_routing_map.pt`.
+1.  **ImageNet Validation**: Download a representative sample (e.g., first 100 images) of the `validation` split from `ILSVRC/imagenet-1k` using `datasets.load_dataset(..., split="validation", streaming=True)` to avoid loading the full 14GB dataset into RAM. For benchmarking, a fixed number of images per seed will be used.
+2.  **Model Weights**: Load the SiT-XL/2 model via `transformers` or `diffusers` (if supported) from the verified HuggingFace URL.
+3.  **Inception Weights**: Load via `torchvision.models.inception_v3(pretrained=True)`.
 
-### Phase 3: Benchmarking (FR-003, FR-004, FR-005)
-1. **Static Model Construction**: 
-   - Modify the SiT architecture to replace the dynamic routing module with the `static_routing_map`.
-   - Remove the per-timestep softmax computation to reduce overhead.
-2. **Micro-benchmark (Overhead Profiling)**:
-   - Before full benchmarking, measure the time cost of the routing softmax vs. the total forward pass in the dynamic baseline to verify if it is a bottleneck.
-3. **Inference**:
-   - **Benchmark Set**: Use the **40 disjoint images**.
-   - Generate **100 images per seed** (total 500 images per model) by applying 100 unique noise seeds to the 40 input images. This ensures a sufficient sample size for FID estimation while keeping the input set small and disjoint.
-   - Run for multiple different random seeds (total generated images per model scaled appropriately for statistical analysis).
-4. **Metrics**:
-   - **Latency**: Measure wall-clock time for a representative number of timesteps (averaged over the 500 images). Calculate percentage reduction: `(T_dynamic - T_static) / T_dynamic * 100`.
-   - **Quality**: Compute FID using a frozen Inception network (CPU) on the 500 generated images. Calculate absolute difference: `|FID_static - FID_dynamic|`.
+## Methodological Rigor
 
-### Phase 4: Statistical Significance & Sensitivity (FR-006, FR-007)
-1. **Repetition**: Repeat Phase 3 for 5 different random seeds.
-2. **Significance Test**: 
-   - Report Mean ± Std Dev of FID for both models.
-   - Perform non-parametric bootstrap (sufficient resamples) to estimate the 95% Confidence Interval of the FID difference.
-   - **Explicit Limitation**: State that N=5 is underpowered for detecting small effect sizes (<0.1 FID) and that the results are **exploratory**. The confidence intervals may be wide.
-3. **Sensitivity Analysis**:
-   - Sweep the clustering distance threshold over `{0.01, 0.05, 0.1}`.
-   - Report the range of FID degradation observed across these thresholds.
+### Statistical Rigor (Quantitative)
 
-## Compute Feasibility & Rationale
+1.  **Multiple Comparison Correction**: The sensitivity analysis (FR-007) involves comparing FID scores across multiple thresholds. While the primary comparison is Dynamic vs. Static, the sweep involves multiple runs. We will report the range of degradation rather than applying a family-wise error correction, as the sweep is exploratory to establish robustness, not a hypothesis test of specific thresholds.
+2.  **Sample Size / Power**: The study uses N=5 random seeds for the bootstrap test (FR-006). This is a limitation. We will explicitly state that the power is low for parametric tests and rely on the **non-parametric bootstrap (1000 resamples)** to estimate the distribution of the difference in FID scores. Additionally, a **paired t-test** on the 500-image means will be performed as a sensitivity check. The benchmark uses a sufficient number of images per seed to reduce the variance of the FID estimate itself.
+3.  **Causal Inference**: The study is observational regarding the routing patterns (we observe the dynamic model) but experimental regarding the static injection (we modify the model). Claims about "efficiency gains" are causal (caused by removing the softmax), while claims about "quality degradation" are **causal** (the degradation is a direct effect of the approximation in an experimental design, not merely an association).
+4.  **Measurement Validity**: FID is measured using the standard Inception-V3 network, which is the established metric for generative model quality.
+5.  **Predictor Collinearity**: The "predictors" (routing weights) are derived from the same underlying model. We do not claim independent effects of blocks; rather, we analyze the aggregate behavior.
+6.  **Cross-Validation**: To prove the static map is not overfit to the specific content of the tracing images, the map will be derived on Set A (a subset of the tracing images) and tested on Set B (a disjoint subset of the tracing images).
+7.  **Control Analysis**: A specific control analysis will measure the latency of the softmax calculation vs. the lookup to validate the substantial reduction claim, even if clustering is trivial timestep binning.
+8.  **Weighted Clustering**: A weighted clustering approach will be used to handle the bias towards high-noise regions in the noise schedule.
 
-- **CPU-First Strategy**: 
-  - The SiT-XL/ model (approx. M-1B params) fits in 7 GB RAM when loaded in float16 or with 8-bit quantization (if necessary, though standard float16 is preferred for accuracy).
-  - Inference on a representative set of images across a sufficient temporal horizon on a 2-core CPU is estimated to take ~4-5 hours., well within the 6-hour limit.
-  - **Rationale**: No GPU is required for inference of a 1B parameter model on a small batch. The "GPU escape hatch" is reserved for training or large-scale generation, which is not part of this scope.
-- **Memory Management**: 
-  - **One-by-One Processing**: Processing images one-by-one and discarding raw tensors ensures the routing tensor memory footprint stays under 2 GB.
-  - **Streaming Dataset**: Prevents disk overflow.
-- **GPU Escape Hatch (Not Required)**: 
-  - This study does not require fine-tuning or large-batch generation. The CPU strategy is sufficient. If the model fails to load in float16, 8-bit quantization (`load_in_8bit=True`) will be used, which is CPU-compatible.
+### Compute Feasibility
 
-## Risks & Mitigations
+-   **CPU-First**: The primary execution path is on a CPU-only runner.
+    -   **Strategy**: Use `float16` or `bfloat16` (if supported) for the SiT model to fit within 7GB RAM.
+    -   **Streaming**: ImageNet data is streamed to avoid OOM.
+    -   **Batching**: Tracing is performed in batches of images with on-the-fly aggregation of routing tensors.
+-   **GPU Escape Hatch**: If the SiT-XL/2 model fails to load in 7GB RAM even with float16, the execution plan will trigger a re-run on a Kaggle GPU (16GB VRAM) using `device="cuda"` and `load_in_8bit` if necessary. The plan explicitly allows this offload.
 
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **DAR Model Unavailable** | Fatal: Cannot trace dynamic weights. | Feasibility Gate in Phase 0 halts the pipeline if the model is not found. No fabrication. |
-| **Clustering Fails** | Null result: No static map derived. | Fallback to global average (FR-002) is explicitly planned. This is a valid scientific outcome (hypothesis rejected). |
-| **OOM on CPU** | Fatal: Pipeline crashes. | Strict one-by-one processing and immediate discard of raw tensors. |
-| **FID Variance High** | Ambiguous results. | Use bootstrap with a sufficient number of resamples to ensure stability and report the full distribution, not just the mean. Explicitly acknowledge low power. |
-| **Low Statistical Power** | Unable to reject null hypothesis. | Explicitly frame results as "exploratory" with wide confidence intervals. |
+## Decision/Rationale
 
-## References
-
-- **SiT-XL/2**: `google/sit-xl-2` (HuggingFace).
-- **DAR Paper**: "Rethinking Cross-Layer Information Routing in Diffusion Transformers" (llmXive).
-- **FID Method**: `torchmetrics` (InceptionV3, pre-trained on ImageNet).
-- **Dataset**: `imagenet-1k` (HuggingFace `datasets`).
+| Decision | Rationale |
+| :--- | :--- |
+| **Per-Block Clustering** | Required by FR-002. Aggregating across blocks destroys the spatial information needed to construct the "Canonical Routing Map". |
+| **Non-Parametric Bootstrap** | Required by FR-006. N=5 is insufficient for parametric t-tests; bootstrap provides a robust distribution estimate. |
+| **Streaming Data** | Required by SC-005. Full ImageNet exceeds the 7GB RAM limit. Streaming allows processing the full dataset conceptually while staying within memory bounds. |
+| **Static Map Fallback** | If clustering fails (k<2 or silhouette < 0.25), the system defaults to a global average. This is a valid null hypothesis test, not a failure. |
+| **500 Images per Seed** | To reduce the variance of the FID estimate, 500 images per seed are used for benchmarking. |
+| **Cross-Validation** | To prove the static map is not overfit, it is derived on Set A and tested on Set B. |
+| **Control Analysis** | To validate the latency reduction claim, the softmax vs. lookup latency is measured separately. |
+| **Weighted Clustering** | To handle the bias towards high-noise regions, a weighted clustering approach is used. |

@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Benchmark Result Schema"
+description: "Schema for data/results/benchmark_results.json"
+type: "object"
+required:
+  - "run_id"
+  - "model_type"
+  - "seed"
+  - "latency_seconds"
+  - "fid_score"
+  - "memory_peak_gb"
+properties:
+  run_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique identifier for the run"
+  model_type:
+    type: "string"
+    enum:
+      - "dynamic"
+      - "static"
+    description: "Type of model configuration"
+  seed:
+    type: "integer"
+    description: "Random seed used for generation"
+  latency_seconds:
+    type: "number"
+    description: "Time to solution in seconds"
+  fid_score:
+    type: "number"
+    description: "Fréchet Inception Distance score"
+  memory_peak_gb:
+    type: "number"
+    description: "Peak RAM usage in Gigabytes (target: < 7.0)"
+additionalProperties: false

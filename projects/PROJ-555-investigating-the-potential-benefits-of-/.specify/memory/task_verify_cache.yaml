@@ -46,3 +46,10 @@ T018:
     \ (`data/ecotourism/revenue_data.csv`, `data/processed/ecotourism_data.csv`, and\
     \ `data/ecotourism/metadata.json`) are missing from the repository. The task\u2019\
     s core requirements are therefore not met."
+T030:
+  c: false
+  h: 8f91842d3481f585c39c37f8f6778cdcec95f8d443a6d5945501c9f765ff44b6
+  r: "The required artifact `tests/unit/test_modeling.py` does not exist on disk,\
+    \ so no unit test for mixed\u2011effects model convergence is present. The task\
+    \ cannot be considered completed until this file is created with appropriate test\
+    \ code."

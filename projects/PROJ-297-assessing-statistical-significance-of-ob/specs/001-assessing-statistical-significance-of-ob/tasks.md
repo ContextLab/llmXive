@@ -173,27 +173,27 @@ description: "Task list template for feature implementation"
 - [X] T082 [P] [Data Integrity] **Dataset Variable Type Enforcement**: Add a check in `code/loaders.py`. **Depends on T015**.
 - [X] T075 [P] [Data Integrity] **Threshold Sweep Edge Case**: Add a check in `code/main.py`. **Depends on T015**.
 - [X] T073 [P] [Data Integrity] **Clustering Coefficient Robustness**: Add a check in `code/stats_engine.py`. **Depends on T015**.
-- [ ] T072 [P] [Data Integrity] **Variable Count Verification**: Add a check in `code/main.py`. **Depends on T015**.
-- [ ] T071 [P] [Data Integrity] **Concrete Compressive Strength Handling**: Update `code/loaders.py`. **Depends on T015**.
-- [ ] T070 [P] [Data Integrity] **Student Performance Data Cleaning**: Update `code/loaders.py`. **Depends on T015**.
-- [ ] T069b [P] [Data Integrity] **Explicit URL Verification for Air Quality**: Update `code/config.py`. **Depends on T015**.
-- [ ] T066 [P] [Data Integrity] **Sensitivity Analysis Granularity**: Refine `code/main.py`. **Depends on T015**.
-- [ ] T065 [P] [Data Integrity] **Missing Checksums Fallback**: Update `code/loaders.py`. **Depends on T015**.
-- [ ] T058 [P] [Data Integrity] **Data Integrity Check**: Implement a check in `code/main.py`. **Depends on T015**.
-- [ ] T055c [P] [Data Integrity] **End-to-End Seed Verification**: Implement a task in `code/main.py`. **Depends on T015**.
-- [ ] T055b [P] [Data Integrity] **Master Seed Verification**: Implement a verification in `code/main.py`. **Depends on T015**.
-- [ ] T055 [P] [Data Integrity] **Random Seed Reproducibility**: Verify `code/main.py`. **Depends on T015**.
-- [ ] T054 [P] [Data Integrity] **Threshold Baseline Verification**: Add a check in `code/main.py`. **Depends on T015**.
+- [X] T072 [P] [Data Integrity] **Variable Count Verification**: Add a check in `code/main.py`. **Depends on T015**.
+- [X] T071 [P] [Data Integrity] **Concrete Compressive Strength Handling**: Update `code/loaders.py`. **Depends on T015**.
+- [X] T070 [P] [Data Integrity] **Student Performance Data Cleaning**: Update `code/loaders.py`. **Depends on T015**.
+- [X] T069b [P] [Data Integrity] **Explicit URL Verification for Air Quality**: Update `code/config.py`. **Depends on T015**.
+- [X] T066 [P] [Data Integrity] **Sensitivity Analysis Granularity**: Refine `code/main.py`. **Depends on T015**.
+- [X] T065 [P] [Data Integrity] **Missing Checksums Fallback**: Update `code/loaders.py`. **Depends on T015**.
+- [X] T058 [P] [Data Integrity] **Data Integrity Check**: Implement a check in `code/main.py`. **Depends on T015**.
+- [X] T055c [P] [Data Integrity] **End-to-End Seed Verification**: Implement a task in `code/main.py`. **Depends on T015**.
+- [X] T055b [P] [Data Integrity] **Master Seed Verification**: Implement a verification in `code/main.py`. **Depends on T015**.
+- [X] T055 [P] [Data Integrity] **Random Seed Reproducibility**: Verify `code/main.py`. **Depends on T015**.
+- [X] T054 [P] [Data Integrity] **Threshold Baseline Verification**: Add a check in `code/main.py`. **Depends on T015**.
 - [X] T053 [P] [Data Integrity] **Edge Case Handling**: Implement error handling in `code/stats_engine.py`. **Depends on T015**.
 - [X] T051 [P] [Data Integrity] **Visualization Quality Check**: Ensure `code/viz.py` outputs are high quality. **Depends on T015**.
 - [X] T048 [P] [Data Integrity] **Memory Check Logic**: Merge into T063. **Depends on T063**.
 - [X] T047 [P] [Data Integrity] **Visualization Quality Check**: Covered by T051.
-- [ ] T046 [P] [Data Integrity] **Constant Variable Detection**: Enhance `code/loaders.py`. **Depends on T015**.
+- [X] T046 [P] [Data Integrity] **Constant Variable Detection**: Enhance `code/loaders.py`. **Depends on T015**.
 - [X] T045 [P] [Data Integrity] **Data Hygiene Logging**: Covered by T091.
 - [X] T044 [P] [Data Integrity] **Data Hygiene Logging**: Covered by T091.
 - [X] T042 [P] [Data Integrity] **Code Cleanup**: Clean `code/stats_engine.py`. **Depends on T015**.
 - [X] T036 [P] [Data Integrity] **Sensitivity Analysis Test**: Add a test in `code/test_sensitivity.py`. **Depends on T015**.
-- [ ] T035 [P] [Data Integrity] **Dataset Checksumming**: Implement checksumming in `code/loaders.py`. **Depends on T015**.
+- [X] T035 [P] [Data Integrity] **Dataset Checksumming**: Implement checksumming in `code/loaders.py`. **Depends on T015**.
 - [ ] T034 [P] [Data Integrity] **Error Handling**: Add error handling in `code/loaders.py`. **Depends on T015**.
 - [ ] T032 [P] [Data Integrity] **Quickstart Validation**: Run a test in `code/main.py`. **Depends on T015**.
 - [X] T029 [P] [Data Integrity] **Documentation**: Update docs. **Depends on T015**.

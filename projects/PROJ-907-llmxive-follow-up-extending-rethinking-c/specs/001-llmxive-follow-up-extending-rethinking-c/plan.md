@@ -1,54 +1,39 @@
 # Implementation Plan: llmXive follow-up: extending "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
 
 **Branch**: `001-llmxive-static-routing` | **Date**: 2026-07-14 | **Spec**: `specs/001-llmxive-static-routing/spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-static-routing/spec.md`
+**Input**: Feature specification from `specs/001-llmxive-static-routing/spec.md`
 
 ## Summary
 
-This feature implements a rigorous empirical validation of the "static routing" hypothesis for Diffusion Transformers (SiT). The core objective is to determine if the dynamic, content-dependent routing weights of the DAR module can be approximated by a static, timestep-dependent map without significant degradation in generation quality (FID). The implementation follows a three-phase workflow: (1) **Trace** the dynamic routing behavior of a pre-trained SiT-XL/2 model on a subset of ImageNet (Trace Set: images) to capture the evolution of routing weights; (2) **Derive** a canonical static routing map via per-image aggregation and clustering (with a fallback to global averaging if no distinct phases exist); and (3) **Benchmark** the static approximation against the dynamic baseline on a disjoint set (Benchmark Set: images), measuring inference latency reduction and FID difference under strict CPU constraints (limited RAM, few cores).
-
-*Note: The empirical values (A dataset comprising a representative set of images, A sufficient number of timesteps.) proposed in the spec are feasibility parameters subject to change if the feasibility gate (memory/time) fails. Final values will be determined in the research phase.*
+This feature implements a rigorous validation of the "Static Approximation" hypothesis for Diffusion Transformers. The primary requirement is to trace dynamic adaptive routing (DAR) weights in a pre-trained SiT-XL/2 model, derive a canonical static routing map via per-block clustering, and benchmark the static approximation against the dynamic baseline. The technical approach involves: (1) instrumenting the model to record routing tensors per block/timestep with on-the-fly aggregation to manage memory; (2) applying k-means clustering per block with null-hypothesis fallback; (3) injecting static weights; and (4) performing statistical significance testing (bootstrap with multiple resamples) and sensitivity analysis on FID scores. A cross-validation step ensures the static map is not overfit to the tracing images.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-only), `transformers`, `diffusers` (modified for DAR hooks), `scikit-learn` (k-means), `torchmetrics` (FID), `datasets` (streaming), `numpy`, `pandas`, `matplotlib`.  
-**Storage**: Local temporary storage for dataset shards and intermediate tensor dumps (cleared post-run); no persistent database.  
-**Testing**: `pytest` for unit tests of clustering logic and FID calculation; integration tests for end-to-end pipeline (tracing -> derivation -> benchmark).  
-**Target Platform**: GitHub Actions Free-tier Runner (Linux, multiple CPUs, several GB RAM, ~GB Disk, No GPU).  
-**Project Type**: Computational Research / Benchmarking Script.  
-**Performance Goals**: Complete full pipeline (trace a set of images, derive map, benchmark images × multiple seeds) within 6 hours; Memory peak < 7 GB via one-by-one processing.  
-**Constraints**: Must run on CPU; must not exceed a moderate disk footprint.; must handle OOM by streaming/batching; must not fabricate data if the dataset is gated (uses open ImageNet subset).  
-**Scale/Scope**: A Set of Trace Images
-
-The research question remains: How can trace images be effectively utilized to identify anomalies in system logs? The method involves collecting a representative set of trace images, applying preprocessing techniques to normalize the data, and then employing a convolutional neural network for feature extraction and anomaly detection. References include Smith et al. () [DOI:/placeholder] and Chen and Wang () [arXiv preprint]., A Set of Benchmark Images
-
-The research question investigates the performance of computer vision models on standardized datasets, employing a method of comparative analysis across diverse image categories as described in Smith et al. (n.d.) and Chen & Wang (n.d.)
-
-The specific value to remove/generalize: 'n.d.'
-
-Rewritten passage:
-Chen & Wang (n.d.). This study will utilize a curated collection of benchmark images to evaluate model robustness and generalization capabilities without asserting specific dataset magnitudes., A sufficient number of timesteps., A model (SiT-XL/2), 5 seeds.
+**Primary Dependencies**: `torch`, `transformers`, `datasets`, `scikit-learn`, `numpy`, `pandas`, `torchvision` (for Inception), `huggingface_hub`  
+**Storage**: Local filesystem (`data/`, `code/`) with checksums; no external DB.  
+**Testing**: `pytest` (contract tests against YAML schemas), `unittest` (statistical logic).  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, 14GB Disk). GPU offload via Kaggle for heavy model loading if CPU fails.  
+**Project Type**: Computational Research / Algorithmic Benchmarking  
+**Performance Goals**: Complete tracing and benchmarking of 100 images (with on-the-fly aggregation) in ≤ 6 hours on CPU; memory usage < 7GB via batching and streaming.  
+**Constraints**: No GPU available on primary runner; strict adherence to open datasets; FID calculation must use CPU-optimized Inception.  
+**Scale/Scope**: ImageNet validation images (sampled for tracing), 500 images per seed for benchmarking (N=5 seeds), A fixed number of timesteps, SiT-XL/ model (approx. large-scale params, float16 for memory fit).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*Gates determined based on `projects/PROJ-llmxive-follow-up-extending-rethinking-c/.specify/memory/constitution.md
+*GATES: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-The specific value to remove/generalize: a specific project identifier`*
-
-| Principle | Status | Action / Reference |
+| Principle | Status | Evidence/Action |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | Plan mandates pinned `requirements.txt`, fixed random seeds, and use of canonical HuggingFace dataset loader. Results will be reproducible by re-running `code/` against `data/`. |
-| **II. Verified Accuracy** | **Pass** | All citations (SiT model, DAR paper, FID method) will be validated against primary sources. No unverified URLs will be used. |
-| **III. Data Hygiene** | **Pass** | ImageNet subset will be checksummed. No in-place modification; derived tensors (routing weights) saved as new files. |
-| **IV. Single Source of Truth** | **Pass** | FID scores and latency metrics will be logged to a structured CSV/JSON in `data/`, which `paper/` will read exclusively. |
-| **V. Versioning Discipline** | **Pass** | Artifacts (routing maps, benchmark results) will carry content hashes recorded in `state/...yaml` as per Principle V. |
-| **VI. Inference Efficiency & Static Approximation** | **Pass** | The plan explicitly targets the [deferred] latency reduction and <0.1 FID degradation hypothesis. Statistical tests (bootstrap) are mandated for N=5 seeds, with an explicit amendment to accept bootstrap for low power. |
-| **VII. Evaluation Independence** | **Pass** | FID calculation uses a frozen Inception network independent of the SiT model weights. Baseline is the canonical pre-trained DAR model. |
-
-**Constitutional Amendment Note (Principle VI)**: The Constitution prefers a paired t-test or Wilcoxon signed-rank test. However, given the N=5 constraint (low power), the Spec mandates a non-parametric bootstrap (a sufficient number of resamples) or explicit limitation. This Plan adopts the Spec's Bootstrap requirement and explicitly documents the deviation from the Constitution's preference as a necessary adaptation for N=5.
+| **I. Reproducibility** | **PASS** | `requirements.txt` will pin all versions; random seeds pinned in `code/`; data fetched from canonical HF sources on every run. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs cited in `research.md` are verified against the "# Verified datasets" block (see `research.md`). No title-token-overlap assumptions. The Reference-Validator Agent runs this check before plan execution. |
+| **III. Data Hygiene** | **PASS** | `data/` files will be checksummed (SHA-256) upon download. No in-place modifications; derivations written to new files. |
+| **IV. Single Source of Truth** | **PASS** | All FID/latency stats in `paper/` will trace to `data/results/` CSV/JSON artifacts generated by `code/`. |
+| **V. Versioning Discipline** | **PASS** | Artifacts `canonical_map.json`, `benchmark_results.json`, and `statistical_analysis.json` will carry content hashes in `state/projects/PROJ-907-llmxive-follow-up-extending-rethinking-c.yaml`. |
+| **VI. Inference Efficiency** | **PASS** | Plan explicitly implements the % latency reduction hypothesis test and <0.1 FID degradation check via FR-004/FR-005, including a paired t-test or Wilcoxon signed-rank test as mandated by the Constitution. |
+| **VII. Evaluation Independence** | **PASS** | FID uses `torchvision.models.inception_v3` with fixed weights, independent of the DAR module. |
 
 ## Project Structure
 
@@ -61,41 +46,55 @@ specs/001-llmxive-static-routing/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+│   ├── routing_map.schema.yaml
+│   └── benchmark_result.schema.yaml
+└── tasks.md             # Phase 2 output (output of downstream task generation process, NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/
+code/
 ├── requirements.txt
 ├── src/
-│   ├── __init__.py
-│   ├── model_loader.py          # Loads SiT-XL/2 with DAR hooks
-│   ├── tracing.py               # Records routing weights per timestep (one-by-one)
-│   ├── clustering.py            # k-means logic + fallback to global avg
-│   ├── benchmark.py             # Static vs. Dynamic inference & latency
-│   └── metrics.py               # FID calculation (CPU)
+│   ├── tracing.py           # FR-001: Record routing weights (per-block, on-the-fly aggregation)
+│   ├── clustering.py        # FR-002: K-means per block, null check, per-block logic
+│   ├── canonical_map.py     # FR-002: Derive and save static map (per-block)
+│   ├── static_model.py      # FR-003: Inject static weights
+│   ├── benchmark.py         # FR-004, FR-005: Latency & FID (500 images per seed)
+│   ├── stats_analysis.py    # FR-006, FR-007: Bootstrap (n_resamples=1000) & Sensitivity
+│   └── utils/
+│       ├── memory_guard.py  # SC-005: RAM monitoring and explicit 7GB limit comparison
+│       └── fid_utils.py     # FID calculation
 ├── data/
-│   ├── imagenet_trace/ # Downloaded subset (images)
-│   ├── imagenet_benchmark/      # Downloaded subset (a small sample)
-│   └── routing_cache/           # Intermediate routing tensors
+│   ├── routing_cache/       # Intermediate tensors & maps (aggregated, not full 4D)
+│   └── results/             # Final metrics & logs
 └── tests/
-    ├── test_clustering.py
-    └── test_metrics.py
+    ├── contract/
+    └── unit/
 ```
 
-**Structure Decision**: Single project structure chosen to minimize overhead. All scripts reside in `code/src/` to ensure isolation. `data/` is strictly for inputs and outputs, not code.
+**Structure Decision**: Single `code/` directory with modular `src/` scripts. This minimizes overhead for CI runners and ensures all artifacts are co-located with their generation logic. `data/` is split into `routing_cache` (aggregated intermediate statistics) and `results` (small JSON/CSV metrics) to facilitate cleanup and checksumming.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **One-by-One Processing** | Memory constraint (7 GB) prevents loading A set of images' full routing tensors
+> **N/A**: No Constitution Check violations. The complexity is inherent to the research methodology (dynamic tracing + static injection) and is necessary to satisfy FR-001 through FR-007.
 
-Research Question: How does the routing mechanism distribute across the network layers?
-Method: We will analyze the full routing tensors generated during the forward pass of the model on a representative subset of the dataset.
-References: [Author et al.,] at once. | Processing all A dataset of images will be collected and utilized for analysis. in a single pass would trigger OOM on the GitHub Actions free tier. One-by-one processing is mandatory for feasibility. |
-| **Streaming Dataset** | Full ImageNetk exceeds substantial disk space requirements. | Downloading the full dataset is infeasible. Streaming or a verified -image subset is required to stay within disk limits. |
-| **Bootstrap Test** | N=5 seeds is too small for parametric assumptions. | A standard t-test would be statistically invalid. Non-parametric bootstrap (A substantial number of resamples) is mandated by the spec to ensure rigor. |
-| **Disjoint Sets** | To prevent data leakage between derivation and benchmark. | Using the same images for tracing and benchmarking would optimize the static map for the test set, invalidating the generalization claim. |
+## Unresolved panel concerns (Addressed)
+
+The following concerns from the previous iteration have been resolved in this plan:
+
+1.  **Per-Block Clustering (FR-002)**: The plan explicitly mandates clustering *per block* vectors, not aggregating across blocks. `clustering.py` will output `cluster_centers.json` with keys `{block_id: {cluster_id: vector}}`.
+2.  **Bootstrap Resamples (FR-006)**: `stats_analysis.py` will explicitly hardcode `n_resamples=1000`.
+3.  **Dependency Chain (T013/T018)**: The plan ensures `canonical_map.json` is a required artifact before `static_model.py` execution. The data model schema defines the exact structure. `canonical_map.json` must be validated against the schema before `static_model.py` runs.
+4.  **Memory Reporting (SC-005)**: A dedicated `memory_guard` utility will log peak RAM usage and compare it against the 7GB limit, writing results to `data/results/memory_report.json` with an explicit "PASS/FAIL" status.
+5.  **Sensitivity Sweep (FR-007)**: The sweep will specifically target the `distance_threshold` used for the dominant cluster decision, outputting `sensitivity_sweep.json` with a list of objects keyed by threshold.
+6.  **Dependency Consistency**: `torchmetrics` removed from primary dependencies; `torchvision` used for Inception as per implementation.
+7.  **Task Logic Fixes**: The plan describes the *logic* (not the tasks) to ensure per-block preservation, explicit threshold sweeping, and correct artifact generation order.
+8.  **Sample Size & Statistical Rigor**: Benchmarking uses a substantial number of images per seed to reduce FID variance. N=5 seeds is acknowledged as low for parametric tests, but a paired t-test on the 500-image means is included as a sensitivity check.
+9.  **Cross-Validation**: The static map is derived on Set A (a subset of images) and tested on Set B (a separate subset of images). to prove generalizability.
+10. **Control Analysis**: A specific control analysis measures the latency of the softmax vs. lookup to validate the claim of a substantial reduction in latency even if clustering is trivial timestep binning.
+11. **Weighted Clustering**: A weighted clustering approach handles the bias towards high-noise regions.
+12. **Reference-Validator**: The plan explicitly describes the mechanism for the Reference-Validator Agent to run the citation verification check before plan execution.
+13. **Versioning**: The specific artifacts and the exact file path `state/projects/PROJ-907-llmxive-follow-up-extending-rethinking-c.yaml` are defined for versioning.
+14. **tasks.md**: Clarified that `tasks.md` is the output of the downstream task generation process.

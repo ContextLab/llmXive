@@ -1,10 +1,3 @@
-"""
-Checksumming utility for raw Wigner matrix instances.
-
-This module implements Constitution Principle III (Data Hygiene) by computing
-SHA-256 checksums for all raw matrix instances generated in T019a and writing
-them to state/checksums_raw.json.
-"""
 import hashlib
 import json
 import logging
@@ -21,115 +14,145 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 def compute_file_sha256(file_path: Path) -> str:
     """
-    Compute SHA-256 checksum of a file.
+    Compute the SHA-256 checksum of a file.
 
     Args:
-        file_path: Path to the file to checksum
+        file_path: Path to the file to checksum.
 
     Returns:
-        Hexadecimal string of the SHA-256 hash
+        Hexadecimal string of the SHA-256 hash.
     """
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
-
+    try:
+        with open(file_path, "rb") as f:
+            # Read in chunks to handle large files
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        raise
+    except Exception as e:
+        logger.error(f"Error computing checksum for {file_path}: {e}")
+        raise
 
 def find_raw_matrices(raw_data_dir: Path) -> List[Path]:
     """
-    Find all raw matrix .npy files in the data/raw directory.
+    Find all raw matrix files in the specified directory.
 
     Args:
-        raw_data_dir: Path to the data/raw directory
+        raw_data_dir: Path to the raw data directory.
 
     Returns:
-        List of Path objects for all .npy files found
+        List of Path objects for all .npy files found.
     """
     if not raw_data_dir.exists():
         logger.warning(f"Raw data directory does not exist: {raw_data_dir}")
         return []
 
+    # Find all .npy files in the directory (non-recursive for raw matrices)
     matrix_files = list(raw_data_dir.glob("matrix_*.npy"))
+    
+    # Also check subdirectories if they exist (e.g., for sweep data)
+    for subdir in raw_data_dir.iterdir():
+        if subdir.is_dir():
+            matrix_files.extend(subdir.glob("matrix_*.npy"))
+    
     logger.info(f"Found {len(matrix_files)} raw matrix files in {raw_data_dir}")
     return matrix_files
 
-
-def checksum_raw_matrices(raw_data_dir: Path, state_dir: Path) -> Dict[str, Any]:
+def checksum_raw_matrices(matrix_files: List[Path], output_path: Path) -> Dict[str, Any]:
     """
-    Compute checksums for all raw matrix files and save to state/checksums_raw.json.
+    Compute checksums for a list of matrix files and save to a JSON manifest.
 
     Args:
-        raw_data_dir: Path to the data/raw directory
-        state_dir: Path to the state directory
+        matrix_files: List of paths to matrix files.
+        output_path: Path where the checksum manifest will be saved.
 
     Returns:
-        Dictionary containing checksums and metadata
+        Dictionary containing the checksum manifest.
     """
-    matrix_files = find_raw_matrices(raw_data_dir)
-
-    if not matrix_files:
-        logger.warning("No raw matrix files found to checksum")
-        return {"files": {}, "total_files": 0, "status": "no_files"}
-
     checksums = {}
+    failed_files = []
+
     for file_path in matrix_files:
         try:
             checksum = compute_file_sha256(file_path)
-            rel_path = str(file_path.relative_to(raw_data_dir))
-            checksums[rel_path] = {
+            checksums[str(file_path)] = {
                 "sha256": checksum,
                 "size_bytes": file_path.stat().st_size,
-                "checksummed_at": str(Path().resolve())  # Placeholder for timestamp
+                "status": "verified"
             }
-            logger.info(f"Checksummed: {rel_path} -> {checksum[:16]}...")
+            logger.info(f"Checksummed: {file_path.name} -> {checksum[:16]}...")
         except Exception as e:
             logger.error(f"Failed to checksum {file_path}: {e}")
+            failed_files.append(str(file_path))
+            checksums[str(file_path)] = {
+                "status": "failed",
+                "error": str(e)
+            }
 
-    # Create metadata
-    result = {
-        "files": checksums,
-        "total_files": len(checksums),
-        "status": "success",
-        "checksum_algorithm": "SHA-256",
-        "raw_data_directory": str(raw_data_dir),
-        "generated_at": "timestamp_placeholder"  # Will be updated in main
+    manifest = {
+        "generated_at": str(Path(output_path).parent),
+        "total_files": len(matrix_files),
+        "verified_count": len(checksums) - len(failed_files),
+        "failed_count": len(failed_files),
+        "checksums": checksums
     }
 
-    # Ensure state directory exists
-    state_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write checksums to file
-    output_path = state_dir / "checksums_raw.json"
-    with open(output_path, "w") as f:
-        json.dump(result, f, indent=2)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(manifest, f, indent=2)
 
-    logger.info(f"Checksums written to {output_path}")
-    return result
+    logger.info(f"Checksum manifest saved to {output_path}")
+    
+    if failed_files:
+        logger.warning(f"Failed to checksum {len(failed_files)} files: {failed_files}")
 
+    return manifest
 
 def main():
-    """Main entry point for checksumming raw matrices."""
-    logger.info("Starting raw matrix checksum process")
+    """
+    Main entry point for checksumming raw matrix instances.
+    """
+    paths = get_project_paths()
+    raw_data_dir = paths['data_raw']
+    state_dir = paths['state']
+    output_path = state_dir / "checksums_raw.json"
 
-    # Get project paths
-    project_paths = get_project_paths()
-    raw_data_dir = project_paths["data_raw"]
-    state_dir = project_paths["state"]
+    logger.info(f"Starting raw matrix checksum process...")
+    logger.info(f"Raw data directory: {raw_data_dir}")
+    logger.info(f"Output manifest: {output_path}")
 
-    # Perform checksumming
-    result = checksum_raw_matrices(raw_data_dir, state_dir)
+    # Find all raw matrix files
+    matrix_files = find_raw_matrices(raw_data_dir)
 
-    # Log summary
-    logger.info(f"Checksum process complete. Total files: {result['total_files']}")
-    logger.info(f"Status: {result['status']}")
+    if not matrix_files:
+        logger.warning("No raw matrix files found. Creating empty manifest.")
+        manifest = {
+            "generated_at": str(raw_data_dir),
+            "total_files": 0,
+            "verified_count": 0,
+            "failed_count": 0,
+            "checksums": {}
+        }
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(manifest, f, indent=2)
+        return
 
-    return result
+    # Compute checksums and save manifest
+    manifest = checksum_raw_matrices(matrix_files, output_path)
 
+    # Report results
+    logger.info(f"Completed. Verified: {manifest['verified_count']}, Failed: {manifest['failed_count']}")
+    
+    if manifest['failed_count'] > 0:
+        raise RuntimeError(f"Checksum failed for {manifest['failed_count']} files.")
 
 if __name__ == "__main__":
     main()

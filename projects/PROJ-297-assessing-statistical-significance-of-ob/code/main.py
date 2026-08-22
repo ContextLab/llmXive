@@ -1,22 +1,31 @@
+"""
+Main entry point for the Statistical Significance Analysis Pipeline.
+Orchestrates data loading, permutation testing, correction, and reporting.
+"""
 import os
 import sys
 import json
 import time
 import argparse
 import logging
+import hashlib
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Any, Optional
+import yaml
 
-# Local imports
-from config import get_config, ensure_dirs, save_config, load_config
+# Local imports matching the API surface
+from config import get_config, ensure_dirs
 from constitution import check_by_amendment_ratification, enforce_gate, ConstitutionalError
-from loaders import load_all_datasets, apply_hygiene_pipeline
+from loaders import load_all_datasets, apply_hygiene_pipeline, extract_metadata
 from stats_engine import (
-    compute_correlation, construct_graph, calculate_stats,
-    run_permutations_for_threshold, calculate_empirical_p_value,
-    estimate_runtime_pilot, adjust_permutation_count
+    run_permutations_for_threshold,
+    calculate_empirical_p_value,
+    compute_correlation,
+    construct_graph,
+    calculate_stats,
+    generate_synthetic_dataset
 )
 from correction import benjamini_yekutieli, apply_correction_to_results
 from viz import plot_heatmap, plot_histogram, plot_primary_threshold_visualizations
@@ -24,257 +33,341 @@ from viz import plot_heatmap, plot_histogram, plot_primary_threshold_visualizati
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('output/pipeline.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def analyze_pvalue_distribution(pvalues: List[float], threshold: float) -> Dict[str, Any]:
-    """Analyze the distribution of p-values for a given threshold."""
+def compute_file_hash(filepath: str) -> str:
+    """Compute SHA256 hash of a file for integrity checks."""
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(filepath, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.warning(f"File not found for hashing: {filepath}")
+        return ""
+
+def verify_data_integrity(config: Dict[str, Any]) -> bool:
+    """Verify that required data files exist and match expected checksums."""
+    processed_dir = config['paths']['data_processed']
+    checksum_file = os.path.join(processed_dir, 'checksums.json')
+    
+    if not os.path.exists(checksum_file):
+        logger.warning("Checksum file not found. Skipping integrity verification.")
+        return True
+    
+    with open(checksum_file, 'r') as f:
+        checksums = json.load(f)
+    
+    all_valid = True
+    for filename, expected_hash in checksums.items():
+        filepath = os.path.join(processed_dir, filename)
+        if os.path.exists(filepath):
+            actual_hash = compute_file_hash(filepath)
+            if actual_hash != expected_hash:
+                logger.error(f"Integrity check failed for {filename}")
+                all_valid = False
+        else:
+            logger.error(f"Missing file for integrity check: {filename}")
+            all_valid = False
+    
+    return all_valid
+
+def analyze_pvalue_distribution(pvalues: List[float]) -> Dict[str, float]:
+    """Analyze the distribution of calculated p-values."""
     if not pvalues:
-        return {"mean": 0.0, "median": 0.0, "count": 0}
+        return {"mean": 0.0, "median": 0.0, "std": 0.0}
     
     arr = np.array(pvalues)
     return {
         "mean": float(np.mean(arr)),
         "median": float(np.median(arr)),
         "std": float(np.std(arr)),
-        "count": len(arr),
-        "threshold": threshold
+        "min": float(np.min(arr)),
+        "max": float(np.max(arr))
     }
 
-def validate_threshold_range(thresholds: List[float]) -> bool:
-    """Validate that thresholds are within a reasonable range for correlation."""
+def validate_threshold_range(threshold: float) -> bool:
+    """Validate that the threshold is within a reasonable range."""
+    return 0.0 < threshold < 1.0
+
+def check_threshold_sweep_edge_cases(thresholds: List[float]) -> bool:
+    """Check for edge cases in threshold sweep (e.g., duplicates, out of bounds)."""
     if not thresholds:
         return False
-    # Correlation thresholds must be between 0 and 1
-    return all(0.0 <= t <= 1.0 for t in thresholds)
-
-def check_threshold_sweep_edge_cases(config: Dict[str, Any], results: Dict[str, Any]) -> bool:
-    """
-    T075: Threshold Sweep Edge Case Check.
-    Validates edge cases in threshold sweep results to ensure robustness.
-    
-    Checks:
-    1. No NaN or Inf values in statistical outputs.
-    2. P-values are strictly within (0, 1).
-    3. Graph statistics are non-negative where applicable.
-    4. If a threshold yields 0 edges, ensure the system handles it gracefully (no crash).
-    """
-    issues = []
-    
-    # 1. Check for NaN/Inf in numeric results
-    for dataset_name, data in results.items():
-        if 'stats' in data:
-            stats = data['stats']
-            for k, v in stats.items():
-                if isinstance(v, (float, int)):
-                    if np.isnan(v) or np.isinf(v):
-                        issues.append(f"Dataset {dataset_name}: Invalid numeric value for {k}: {v}")
-        
-        if 'p_values' in data:
-            for p in data['p_values']:
-                if isinstance(p, (float, int)):
-                    if np.isnan(p) or np.isinf(p):
-                        issues.append(f"Dataset {dataset_name}: Invalid p-value: {p}")
-    
-    # 2. Validate p-value range (should be (0, 1] empirically, often clamped to avoid 0)
-    # Note: Empirical p-values can technically be 0 if all permutations are more extreme,
-    # but we usually apply a floor (e.g., 1/(N+1)). We check for strict negativity or >1.
-    for dataset_name, data in results.items():
-        if 'p_values' in data:
-            for p in data['p_values']:
-                if p < 0 or p > 1:
-                    issues.append(f"Dataset {dataset_name}: P-value out of bounds: {p}")
-    
-    # 3. Validate graph statistics
-    for dataset_name, data in results.items():
-        if 'graph_stats' in data:
-            gs = data['graph_stats']
-            # Density, clustering, etc. should be non-negative
-            for k in ['density', 'clustering_coefficient', 'avg_degree']:
-                if k in gs:
-                    if gs[k] < 0:
-                        issues.append(f"Dataset {dataset_name}: Negative graph stat {k}: {gs[k]}")
-    
-    # 4. Check for empty graph handling (threshold too high)
-    # This is a "soft" check: if a threshold is high, 0 edges is expected.
-    # We just ensure the code didn't crash (which would be caught by exception handling).
-    # We log a warning if all thresholds for a dataset result in empty graphs.
-    for dataset_name, data in results.items():
-        if 'threshold_results' in data:
-            all_empty = True
-            for t_res in data['threshold_results']:
-                if t_res.get('num_edges', 0) > 0:
-                    all_empty = False
-                    break
-            if all_empty and len(data['threshold_results']) > 0:
-                logger.warning(f"Dataset {dataset_name}: All thresholds resulted in empty graphs.")
-    
-    if issues:
-        for issue in issues:
-            logger.error(issue)
+    if len(thresholds) != len(set(thresholds)):
+        logger.warning("Duplicate thresholds detected in sweep.")
         return False
-    
-    logger.info("Threshold sweep edge case check passed.")
+    for t in thresholds:
+        if not validate_threshold_range(t):
+            logger.error(f"Invalid threshold value: {t}")
+            return False
     return True
 
-def run_sensitivity_analysis(config: Dict[str, Any], datasets: List[pd.DataFrame], dataset_names: List[str]) -> Dict[str, Any]:
-    """Run the full sensitivity analysis across thresholds."""
-    thresholds = config.get('thresholds', [0.3, 0.4, 0.5])
-    permutations = config.get('permutations', 2000)
-    
-    if not validate_threshold_range(thresholds):
-        raise ValueError("Invalid threshold range provided.")
-    
+def run_sensitivity_analysis(
+    datasets: List[pd.DataFrame],
+    thresholds: List[float],
+    n_permutations: int,
+    config: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Run sensitivity analysis across different thresholds."""
     results = {}
     
-    logger.info(f"Starting sensitivity analysis with {len(datasets)} datasets and {len(thresholds)} thresholds.")
+    if not check_threshold_sweep_edge_cases(thresholds):
+        logger.error("Sensitivity analysis aborted due to invalid thresholds.")
+        return results
     
-    for idx, df in enumerate(datasets):
-        name = dataset_names[idx]
-        logger.info(f"Processing dataset: {name}")
+    for dataset in datasets:
+        dataset_name = dataset.attrs.get('name', 'unknown')
+        results[dataset_name] = {}
         
-        dataset_results = {
-            "threshold_results": [],
-            "p_values": [],
-            "stats": {},
-            "graph_stats": {}
-        }
-        
-        # Compute observed correlation once
-        try:
-            corr_matrix = compute_correlation(df, method='pearson')
-        except Exception as e:
-            logger.error(f"Failed to compute correlation for {name}: {e}")
-            continue
-        
-        for t in thresholds:
-            logger.info(f"  Threshold: {t}")
+        for threshold in thresholds:
+            logger.info(f"Running sensitivity check for {dataset_name} at threshold {threshold}")
+            
+            # Compute observed stats
+            corr_matrix = compute_correlation(dataset, method='pearson')
+            graph = construct_graph(corr_matrix, threshold)
+            obs_stats = calculate_stats(graph)
             
             # Run permutations
-            try:
-                perm_results = run_permutations_for_threshold(
-                    df, corr_matrix, t, permutations, config.get('seed', 42)
-                )
-            except Exception as e:
-                logger.error(f"Permutation failed for {name} at t={t}: {e}")
-                continue
+            null_dist = run_permutations_for_threshold(
+                dataset, threshold, n_permutations, config['random_seed']
+            )
             
-            # Calculate empirical p-value
-            obs_stat = perm_results['obs_stat']
-            null_dist = perm_results['null_dist']
+            # Calculate p-values for each stat
+            p_values = {}
+            for stat_name, obs_val in obs_stats.items():
+                p_val = calculate_empirical_p_value(obs_val, null_dist[stat_name])
+                p_values[stat_name] = p_val
             
-            p_val = calculate_empirical_p_value(obs_stat, null_dist)
-            
-            # Calculate graph stats for observed
-            g = construct_graph(corr_matrix, t)
-            g_stats = calculate_stats(g)
-            
-            dataset_results['threshold_results'].append({
-                "threshold": t,
-                "obs_stat": obs_stat,
-                "p_value": p_val,
-                "num_edges": g.number_of_edges(),
-                "num_nodes": g.number_of_nodes()
-            })
-            
-            dataset_results['p_values'].append(p_val)
-            dataset_results['graph_stats'] = g_stats
-            dataset_results['stats'] = {
-                "mean_corr": float(np.mean(np.abs(corr_matrix.values))),
-                "max_corr": float(np.max(np.abs(corr_matrix.values)))
+            results[dataset_name][threshold] = {
+                'observed': obs_stats,
+                'null_stats': null_dist,
+                'p_values': p_values
             }
-        
-        results[name] = dataset_results
     
     return results
 
-def generate_final_report(results: Dict[str, Any], config: Dict[str, Any], output_dir: Path):
-    """Generate the final summary report and visualizations."""
-    # 1. Threshold Sweep Edge Case Check (T075)
-    if not check_threshold_sweep_edge_cases(config, results):
-        logger.warning("Edge case check found issues. Proceeding with warnings.")
+def generate_final_report(
+    results: Dict[str, Any],
+    corrected_results: Dict[str, Any],
+    config: Dict[str, Any]
+) -> str:
+    """Generate the final summary report."""
+    report_lines = []
+    report_lines.append("# Statistical Significance Analysis Report")
+    report_lines.append(f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    report_lines.append(f"Threshold: {config.get('threshold', 'N/A')}")
+    report_lines.append(f"Permutations: {config.get('n_permutations', 'N/A')}")
+    report_lines.append("")
     
-    # 2. P-Value Distribution Analysis
-    all_pvals = []
-    for name, data in results.items():
-        all_pvals.extend(data.get('p_values', []))
+    report_lines.append("## Significant Findings (Associational)")
+    report_lines.append("| Dataset | Statistic | Observed | P-Value | Corrected Q-Value | Significant |")
+    report_lines.append("|---|---|---|---|---|---|")
     
-    if all_pvals:
-        pval_dist = analyze_pvalue_distribution(all_pvals, config.get('threshold', 0.3))
-        logger.info(f"P-value distribution: {pval_dist}")
+    for dataset_name, data in results.items():
+        # Assuming single threshold for final report or picking the primary one
+        threshold_key = list(data.keys())[0] if data else None
+        if threshold_key:
+            stats_data = data[threshold_key]
+            p_vals = stats_data.get('p_values', {})
+            corrected = corrected_results.get(dataset_name, {}).get(threshold_key, {})
+            q_vals = corrected.get('q_values', {})
+            
+            for stat_name, obs_val in stats_data.get('observed', {}).items():
+                p_val = p_vals.get(stat_name, 1.0)
+                q_val = q_vals.get(stat_name, 1.0)
+                sig = "Yes" if q_val < 0.05 else "No"
+                report_lines.append(
+                    f"| {dataset_name} | {stat_name} | {obs_val:.4f} | {p_val:.4f} | {q_val:.4f} | {sig} |"
+                )
     
-    # 3. Save JSON Report
-    report_path = output_dir / "sensitivity_analysis_report.json"
-    with open(report_path, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-    logger.info(f"Report saved to {report_path}")
+    report_lines.append("")
+    report_lines.append("## Methodology Note")
+    report_lines.append("All findings are reported as associational. Causal inference is not claimed.")
+    report_lines.append("Multiple testing correction applied using Benjamini-Yekutieli procedure.")
     
-    # 4. Visualizations
-    # We can aggregate results for plotting if needed, or plot per dataset
-    # For now, we ensure the pipeline doesn't crash on empty results if possible
-    if results:
-        # Example: Plot heatmap for the first dataset's correlation matrix
-        first_name = list(results.keys())[0]
-        # Note: We don't have the raw corr matrix stored in 'results' easily without re-computing or storing it.
-        # In a full implementation, we'd pass the matrices or store them.
-        # Here we just log that visualization logic would run.
-        logger.info("Visualization generation triggered (implementation depends on stored matrices).")
+    return "\n".join(report_lines)
+
+def verify_variable_counts(dataset: pd.DataFrame, min_vars: int = 20) -> bool:
+    """Verify that a dataset has the minimum required continuous variables."""
+    continuous_cols = [c for c in dataset.columns if pd.api.types.is_numeric_dtype(dataset[c])]
+    return len(continuous_cols) >= min_vars
+
+def verify_master_seed_reproducibility(config: Dict[str, Any]) -> bool:
+    """Verify that the master seed is set and consistent."""
+    seed = config.get('random_seed')
+    if seed is None:
+        logger.error("Master seed is not set in config.")
+        return False
+    logger.info(f"Master seed verified: {seed}")
+    return True
+
+def verify_threshold_baseline(threshold: float, config: Dict[str, Any]) -> bool:
+    """
+    T054: Threshold Baseline Verification.
+    Validates that the provided threshold is consistent with the configuration
+    and within the expected operational range for the analysis.
+    """
+    # 1. Check against config threshold if defined
+    config_threshold = config.get('threshold')
+    if config_threshold is not None:
+        if abs(threshold - config_threshold) > 1e-9:
+            logger.warning(
+                f"Threshold mismatch: CLI provided {threshold}, "
+                f"config has {config_threshold}. Using CLI value."
+            )
+    
+    # 2. Validate range (0, 1)
+    if not validate_threshold_range(threshold):
+        logger.error(f"Threshold {threshold} is out of valid range (0, 1).")
+        return False
+    
+    # 3. Verify against sensitivity sweep bounds if applicable
+    # (Implicitly handled if sweep is run, but good to check baseline here)
+    logger.info(f"Threshold baseline verified: {threshold}")
+    return True
 
 def main():
-    parser = argparse.ArgumentParser(description="Run statistical significance analysis")
+    parser = argparse.ArgumentParser(description="Run Statistical Significance Analysis")
     parser.add_argument('--permutations', type=int, default=2000, help='Number of permutations')
     parser.add_argument('--threshold', type=float, default=0.3, help='Correlation threshold')
-    parser.add_argument('--sweep', action='store_true', help='Run threshold sweep')
+    parser.add_argument('--sweep', action='store_true', help='Run sensitivity sweep')
+    parser.add_argument('--config', type=str, default='code/config.yaml', help='Path to config file')
+    
     args = parser.parse_args()
     
-    # 1. Constitutional Gate Check
-    try:
-        enforce_gate()
-    except ConstitutionalError as e:
-        logger.critical(f"Constitutional gate failed: {e}")
+    # Load Configuration
+    config = get_config(args.config)
+    ensure_dirs(config)
+    
+    # T054: Threshold Baseline Verification
+    if not verify_threshold_baseline(args.threshold, config):
+        logger.critical("Threshold baseline verification failed. Exiting.")
         sys.exit(1)
     
-    # 2. Load Config
-    config = get_config()
-    config['permutations'] = args.permutations
-    config['threshold'] = args.threshold
+    # Constitutional Gate Check
+    try:
+        enforce_gate(config)
+    except ConstitutionalError as e:
+        logger.critical(str(e))
+        sys.exit(1)
+    
+    # Verify Master Seed
+    if not verify_master_seed_reproducibility(config):
+        sys.exit(1)
+    
+    # Load Data
+    logger.info("Loading datasets...")
+    datasets = load_all_datasets(config)
+    
+    if not datasets:
+        logger.error("No valid datasets found. Exiting.")
+        sys.exit(1)
+    
+    # Apply Hygiene
+    logger.info("Applying data hygiene...")
+    clean_datasets = apply_hygiene_pipeline(datasets, config)
+    
+    # Verify Variable Counts
+    valid_datasets = [
+        ds for ds in clean_datasets 
+        if verify_variable_counts(ds, min_vars=20)
+    ]
+    
+    if len(valid_datasets) < 1:
+        logger.error("No datasets with >= 20 continuous variables found.")
+        sys.exit(1)
+    
+    # Data Integrity Check
+    if not verify_data_integrity(config):
+        logger.warning("Data integrity check failed. Proceeding with caution.")
+    
+    # Run Analysis
+    results = {}
+    corrected_results = {}
     
     if args.sweep:
-        config['thresholds'] = [0.2, 0.3, 0.4, 0.5, 0.6]
+        thresholds = [0.1, 0.2, 0.3, 0.4, 0.5]
+        logger.info(f"Running sensitivity sweep for thresholds: {thresholds}")
+        sweep_results = run_sensitivity_analysis(
+            valid_datasets, thresholds, args.permutations, config
+        )
+        # Flatten for reporting if needed, or keep nested
+        results = sweep_results
     else:
-        config['thresholds'] = [args.threshold]
+        threshold = args.threshold
+        for dataset in valid_datasets:
+            name = dataset.attrs.get('name', 'unknown')
+            logger.info(f"Processing dataset: {name}")
+            
+            corr_matrix = compute_correlation(dataset, method='pearson')
+            graph = construct_graph(corr_matrix, threshold)
+            obs_stats = calculate_stats(graph)
+            
+            null_dist = run_permutations_for_threshold(
+                dataset, threshold, args.permutations, config['random_seed']
+            )
+            
+            p_values = {}
+            for stat_name, obs_val in obs_stats.items():
+                p_val = calculate_empirical_p_value(obs_val, null_dist[stat_name])
+                p_values[stat_name] = p_val
+            
+            results[name] = {
+                threshold: {
+                    'observed': obs_stats,
+                    'null_stats': null_dist,
+                    'p_values': p_values
+                }
+            }
+            
+            # Apply Correction
+            p_list = list(p_values.values())
+            if p_list:
+                q_values = benjamini_yekutieli(p_list, alpha=0.05)
+                corrected_results[name] = {
+                    threshold: {
+                        'q_values': q_values,
+                        'significant': [q < 0.05 for q in q_values]
+                    }
+                }
     
-    # 3. Ensure Directories
-    ensure_dirs(config)
-    output_dir = Path(config['output_dir'])
+    # Generate Reports and Visualizations
+    report = generate_final_report(results, corrected_results, config)
+    report_path = os.path.join(config['paths']['output_reports'], 'final_report.md')
+    with open(report_path, 'w') as f:
+        f.write(report)
+    logger.info(f"Report saved to {report_path}")
     
-    # 4. Load Data
-    logger.info("Loading datasets...")
-    try:
-        datasets, names = load_all_datasets(config)
-        if not datasets:
-            logger.error("No valid datasets loaded. Exiting.")
-            sys.exit(1)
-    except Exception as e:
-        logger.error(f"Failed to load datasets: {e}")
-        sys.exit(1)
+    # Visualizations
+    if valid_datasets:
+        sample_ds = valid_datasets[0]
+        corr_matrix = compute_correlation(sample_ds, method='pearson')
+        plot_heatmap(corr_matrix, os.path.join(config['paths']['output_plots'], 'correlation_heatmap.png'))
+        logger.info("Correlation heatmap saved.")
+        
+        # Example histogram of null distribution for first stat
+        if results:
+            first_ds = list(results.keys())[0]
+            if results[first_ds]:
+                first_th = list(results[first_ds].keys())[0]
+                null_stats = results[first_ds][first_th].get('null_stats', {})
+                if null_stats:
+                    first_stat = list(null_stats.keys())[0]
+                    plot_histogram(
+                        null_stats[first_stat], 
+                        os.path.join(config['paths']['output_plots'], f'{first_stat}_null_dist.png')
+                    )
+                    logger.info(f"Null distribution histogram saved for {first_stat}.")
     
-    # 5. Run Analysis
-    start_time = time.time()
-    try:
-        results = run_sensitivity_analysis(config, datasets, names)
-    except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        raise
-    
-    elapsed = time.time() - start_time
-    logger.info(f"Analysis completed in {elapsed:.2f} seconds.")
-    
-    # 6. Generate Report
-    generate_final_report(results, config, output_dir)
-    
-    logger.info("Pipeline finished successfully.")
+    logger.info("Pipeline completed successfully.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

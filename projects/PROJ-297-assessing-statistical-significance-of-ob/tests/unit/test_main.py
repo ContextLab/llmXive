@@ -1,54 +1,63 @@
 import pytest
-import pandas as pd
-import numpy as np
+import json
+import os
+from pathlib import Path
 from unittest.mock import patch, MagicMock
-import logging
 
-# Import the function to test
-from main import generate_significance_report
+# Import the main module functions
+from main import (
+    compute_file_hash,
+    verify_data_integrity,
+    analyze_pvalue_distribution,
+    validate_threshold_range,
+    check_threshold_sweep_edge_cases,
+    verify_variable_counts
+)
 
-@pytest.fixture
-def mock_logger():
-    return logging.getLogger("test")
+def test_compute_file_hash(tmp_path):
+    file_path = tmp_path / "test.txt"
+    file_path.write_text("Hello World")
+    hash_val = compute_file_hash(file_path)
+    assert len(hash_val) == 64  # SHA256 hex length
+    assert isinstance(hash_val, str)
 
-@pytest.fixture
-def mock_datasets():
-    # Create a mock dataset with known properties
-    np.random.seed(42)
-    data = np.random.randn(100, 20)
-    cols = [f'var_{i}' for i in range(20)]
-    df = pd.DataFrame(data, columns=cols)
-    df.attrs['name'] = 'test_dataset'
-    return [df]
+def test_verify_data_integrity_empty():
+    results = {}
+    assert not verify_data_integrity(results)
 
-@pytest.fixture
-def mock_config():
-    return {
-        'alpha': 0.05,
-        'permutations': 100,  # Small for testing
-        'threshold': 0.3
+def test_verify_data_integrity_valid():
+    results = {
+        'datasets_processed': 1,
+        'correlation_matrices': [],
+        'null_distributions': [],
+        'p_values': []
     }
+    assert verify_data_integrity(results)
 
-def test_generate_significance_report(mock_logger, mock_datasets, mock_config, tmp_path):
-    """Test that generate_significance_report creates the output file."""
-    # Patch the output directory
-    with patch('main.os.makedirs') as mock_makedirs:
-        result = generate_significance_report(mock_logger, mock_datasets, mock_config)
-        
-        # Check that output directory was created
-        assert mock_makedirs.called
-        
-        # Check that result is a DataFrame (may be empty if no significant findings)
-        assert isinstance(result, pd.DataFrame)
-        
-        # Check that the file was written
-        output_path = "data/processed/significant_findings.csv"
-        # Note: In a real test, we'd check the file exists, but for this unit test
-        # we assume the function runs without error
-        assert True  # Placeholder for actual file check
+def test_analyze_pvalue_distribution():
+    p_values = [0.01, 0.05, 0.5, 0.9]
+    dist = analyze_pvalue_distribution(p_values)
+    assert dist['count'] == 4
+    assert 0.0 <= dist['mean'] <= 1.0
 
-def test_generate_significance_report_no_data(mock_logger, mock_config, tmp_path):
-    """Test behavior with no datasets."""
-    result = generate_significance_report(mock_logger, [], mock_config)
-    assert isinstance(result, pd.DataFrame)
-    assert len(result) == 0
+def test_validate_threshold_range():
+    assert validate_threshold_range(0.3)
+    assert not validate_threshold_range(0.0)
+    assert not validate_threshold_range(1.0)
+    assert not validate_threshold_range(-0.1)
+
+def test_check_threshold_sweep_edge_cases():
+    assert check_threshold_sweep_edge_cases([0.1, 0.5, 0.9])
+    assert not check_threshold_sweep_edge_cases([0.0, 0.5])
+    assert not check_threshold_sweep_edge_cases([1.0])
+    assert not check_threshold_sweep_edge_cases([])
+
+def test_verify_variable_counts():
+    import pandas as pd
+    df = pd.DataFrame({f"col{i}": range(10) for i in range(25)})
+    datasets = [df]
+    assert verify_variable_counts(datasets)
+    
+    df_small = pd.DataFrame({f"col{i}": range(10) for i in range(10)})
+    datasets_small = [df_small]
+    assert not verify_variable_counts(datasets_small)

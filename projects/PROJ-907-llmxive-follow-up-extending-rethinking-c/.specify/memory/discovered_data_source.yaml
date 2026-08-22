@@ -1,0 +1,12 @@
+status: none
+intent: download ImageNet 1k validation split via huggingface datasets python package
+  dataset
+required_fields:
+- image_id
+- image_path
+- label
+- label_name
+- synset
+cache_key: 98098490764ce31d4665d0953825d50a1f61629ec902244731a12db4466fe5ba
+searched_at: '2026-08-22T18:38:53.880566+00:00'
+retry_count: 1

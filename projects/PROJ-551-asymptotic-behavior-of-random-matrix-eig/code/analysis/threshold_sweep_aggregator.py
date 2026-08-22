@@ -1,10 +1,12 @@
 """
-Aggregator for threshold sweep results.
+Threshold Sweep Aggregator
 
-This module loads threshold identification raw data and Monte Carlo results,
-aggregates them into a single CSV file for downstream analysis and visualization.
+Aggregates results from the threshold identification raw analysis into a
+single CSV file for downstream visualization and reporting.
+
+Reads: data/processed/threshold_identification_raw.json
+Writes: data/processed/threshold_sweep_results.csv
 """
-
 import csv
 import json
 import logging
@@ -12,172 +14,123 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-import numpy as np
+# Ensure imports work relative to project root when run as module
+try:
+    from utils.config import get_project_paths
+except ImportError:
+    # Fallback for direct execution
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from utils.config import get_project_paths
 
-from utils.config import get_project_paths
-from analysis.threshold_identification_raw import load_mc_results, aggregate_by_theta
-from analysis.monte_carlo_runner import run_single_mc_iteration
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-def load_threshold_identification_raw(
-    input_path: Optional[Path] = None
-) -> Dict[str, Any]:
+def load_threshold_identification_raw(path: Optional[Path] = None) -> List[Dict[str, Any]]:
     """
-    Load the raw threshold identification data from the Monte Carlo results.
-    
-    Args:
-        input_path: Path to threshold_identification_raw.json. If None, uses default path.
-        
-    Returns:
-        Dictionary containing aggregated threshold identification data.
-    """
-    if input_path is None:
-        project_paths = get_project_paths()
-        input_path = project_paths['processed'] / 'threshold_identification_raw.json'
-    
-    if not input_path.exists():
-        raise FileNotFoundError(f"Threshold identification raw file not found: {input_path}")
-    
-    with open(input_path, 'r') as f:
-        data = json.load(f)
-    
-    logger.info(f"Loaded threshold identification raw data from {input_path}")
-    return data
+    Load the raw threshold identification JSON file.
 
+    Args:
+        path: Path to the JSON file. If None, uses project config.
+
+    Returns:
+        List of dictionaries containing threshold analysis results.
+    """
+    if path is None:
+        paths = get_project_paths()
+        path = paths["processed"] / "threshold_identification_raw.json"
+
+    if not path.exists():
+        raise FileNotFoundError(f"Raw threshold identification file not found: {path}")
+
+    with open(path, 'r') as f:
+        data = json.load(f)
+
+    # Handle both list format and dict with 'results' key
+    if isinstance(data, list):
+        return data
+    elif isinstance(data, dict) and 'results' in data:
+        return data['results']
+    else:
+        raise ValueError(f"Unexpected JSON structure in {path}")
 
 def aggregate_sweep_results_to_csv(
-    input_data: Optional[Dict[str, Any]] = None,
+    input_path: Optional[Path] = None,
     output_path: Optional[Path] = None
 ) -> Path:
     """
-    Aggregate sweep results into a CSV file.
-    
-    This function combines data from Monte Carlo runs and threshold identification
-    analysis into a single CSV file with the following columns:
-    - run_id: Unique identifier for the simulation run
-    - N: Matrix size
+    Aggregate threshold identification results into a CSV file.
+
+    The CSV contains columns for:
+    - N: Matrix dimension
     - theta: Perturbation strength
-    - seed: Random seed used
-    - outlier_count: Number of outliers detected
-    - max_eigenvalue: Maximum eigenvalue observed
-    - outlier_probability: Probability of outlier emergence (from aggregation)
-    - fitted_theta_c: Fitted critical threshold (if available)
-    
+    - outlier_probability: Fraction of runs with outliers
+    - mean_max_eigenvalue: Mean of max eigenvalues across runs
+    - std_max_eigenvalue: Standard deviation of max eigenvalues
+    - num_runs: Number of Monte Carlo iterations
+
     Args:
-        input_data: Pre-loaded threshold identification data. If None, loads from default path.
-        output_path: Path for output CSV. If None, uses default path.
-        
+        input_path: Path to threshold_identification_raw.json
+        output_path: Path for output CSV
+
     Returns:
-        Path to the generated CSV file.
+        Path to the created CSV file
     """
-    project_paths = get_project_paths()
-    
-    if input_data is None:
-        input_data = load_threshold_identification_raw()
-    
+    if input_path is None:
+        paths = get_project_paths()
+        input_path = paths["processed"] / "threshold_identification_raw.json"
+
     if output_path is None:
-        output_path = project_paths['processed'] / 'threshold_sweep_results.csv'
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load Monte Carlo results for additional details
-    mc_results_path = project_paths['processed'] / 'mc_results.csv'
-    mc_data = []
-    if mc_results_path.exists():
-        with open(mc_results_path, 'r') as f:
-            reader = csv.DictReader(f)
-            mc_data = list(reader)
-    
-    # Prepare aggregated data
-    aggregated_data = []
-    
-    # Process aggregated threshold data
-    if 'aggregated_by_theta' in input_data:
-        for theta_key, theta_data in input_data['aggregated_by_theta'].items():
-            theta_val = float(theta_key)
-            N_val = theta_data.get('N', 0)
-            total_runs = theta_data.get('total_runs', 0)
-            outlier_runs = theta_data.get('outlier_runs', 0)
-            prob_outlier = theta_data.get('probability_outlier', 0.0)
-            
-            # Find matching MC results for this theta and N
-            matching_mc = [
-                row for row in mc_data
-                if float(row['theta']) == theta_val and int(row['N']) == N_val
-            ]
-            
-            for mc_row in matching_mc:
-                aggregated_data.append({
-                    'run_id': mc_row.get('run_id', ''),
-                    'N': int(mc_row.get('N', N_val)),
-                    'theta': theta_val,
-                    'seed': int(mc_row.get('seed', 0)),
-                    'outlier_count': int(mc_row.get('outlier_count', 0)),
-                    'max_eigenvalue': float(mc_row.get('max_eigenvalue', 0.0)),
-                    'outlier_probability': prob_outlier,
-                    'total_runs_at_config': total_runs,
-                    'outlier_runs_at_config': outlier_runs
-                })
-    
-    # Write to CSV
-    fieldnames = [
-        'run_id', 'N', 'theta', 'seed', 'outlier_count', 'max_eigenvalue',
-        'outlier_probability', 'total_runs_at_config', 'outlier_runs_at_config'
-    ]
-    
+        paths = get_project_paths()
+        output_path = paths["processed"] / "threshold_sweep_results.csv"
+
+    # Load raw data
+    results = load_threshold_identification_raw(input_path)
+
+    if not results:
+        logger.warning("No results found in threshold identification raw file")
+        # Create empty CSV with headers
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['N', 'theta', 'outlier_probability', 'mean_max_eigenvalue', 'std_max_eigenvalue', 'num_runs'])
+        return output_path
+
+    # Write CSV
     with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(aggregated_data)
-    
-    logger.info(f"Aggregated {len(aggregated_data)} records to {output_path}")
+        writer = csv.writer(f)
+        writer.writerow(['N', 'theta', 'outlier_probability', 'mean_max_eigenvalue', 'std_max_eigenvalue', 'num_runs'])
+
+        for entry in results:
+            row = [
+                entry.get('N', 0),
+                entry.get('theta', 0.0),
+                entry.get('outlier_probability', 0.0),
+                entry.get('mean_max_eigenvalue', 0.0),
+                entry.get('std_max_eigenvalue', 0.0),
+                entry.get('num_runs', 0)
+            ]
+            writer.writerow(row)
+
+    logger.info(f"Aggregated {len(results)} results to {output_path}")
     return output_path
 
-
 def main():
-    """
-    Main entry point for the threshold sweep aggregation.
-    
-    This function orchestrates the loading of raw threshold identification data
-    and Monte Carlo results, then aggregates them into a single CSV file.
-    """
-    logger.info("Starting threshold sweep aggregation...")
-    
+    """Main entry point for the aggregator."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
     try:
-        # Load and aggregate results
         output_path = aggregate_sweep_results_to_csv()
-        
-        logger.info(f"Successfully aggregated results to {output_path}")
-        
-        # Verify output file exists and has content
-        if output_path.exists():
-            file_size = output_path.stat().st_size
-            logger.info(f"Output file size: {file_size} bytes")
-            
-            if file_size == 0:
-                logger.warning("Output file is empty - check input data sources")
-            else:
-                logger.info("Aggregation completed successfully")
-        else:
-            logger.error("Output file was not created")
-            return 1
-        
+        logger.info(f"Successfully created {output_path}")
         return 0
-        
     except FileNotFoundError as e:
         logger.error(f"Input file not found: {e}")
         return 1
     except Exception as e:
-        logger.error(f"Error during aggregation: {e}", exc_info=True)
+        logger.error(f"Error aggregating results: {e}")
         return 1
 
-
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())

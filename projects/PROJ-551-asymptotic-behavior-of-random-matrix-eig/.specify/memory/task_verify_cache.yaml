@@ -12,26 +12,6 @@ T018:
     repository, so the integration test for the full parameter sweep cannot be verified.
     The task remains unfinished until the file is added with the appropriate test
     implementation.
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The required output file `state/checksums_raw.json` does not appear in the provided\
-    \ evidence, and no SHA\u2011256 checksums of the raw matrix instances are present.\
-    \ Consequently the task\u2019s core requirement\u2014generating and recording\
-    \ those checksums\u2014is not satisfied."
-T019a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No NumPy code or saved `.npy` files were presented; the required `data/raw/matrix_N{N}_seed{seed}.npy`
-    files do not exist in the provided evidence, so the task of generating and persisting
-    raw Wigner matrices is not demonstrated.
-T021a:
-  c: false
-  h: 95f9504c0c75bfc9d7efa3353356a5699104ca5e7e935a834c96279d62cb1d96
-  r: The repository contains a partially shown `code/analysis/monte_carlo_runner.py`,
-    but the file is truncated and does not demonstrate writing results to `data/processed/mc_results.csv`.
-    Moreover, the required CSV file is absent from the project. Without a complete
-    runner that outputs the specified schema, the task is not fulfilled.
 T032a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,16 +26,3 @@ T033:
     \ about the \"observer\", the nature of the study, or the definition of \"sparse\
     \ noise\" is provided. The implementer\u2019s claim lacks the actual artifact\
     \ needed to satisfy the task."
-T040a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No files were found in the repository at the required path `data/raw/sweep/matrix_N{N}_theta{theta}_seed{seed}.npy`,\
-    \ and no code or logs were provided that generate such raw matrix instances. Consequently\
-    \ the task\u2019s deliverable \u2013 the full set of raw matrix `.npy` files for\
-    \ the parameter sweep \u2013 is missing."
-T040b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `state/checksums_sweep.json` file or any other evidence of computed SHA\u2011\
-    256 checksums for the raw matrix instances from T040a is present. The required\
-    \ artifact is missing, so the task is not satisfied."

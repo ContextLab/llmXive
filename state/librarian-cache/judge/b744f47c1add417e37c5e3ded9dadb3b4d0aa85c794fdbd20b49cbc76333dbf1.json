@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.17840",
+  "judged_at": "2026-08-22T18:20:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video-oasis: rethinking evaluation of video understanding\" computer science",
+  "rationale": "This paper qualifies under category (d) as a foundational survey and category (f) as a canonical reference for the \"video understanding\" domain, which is the specific technical field the user's question (\"Video-Oasis\") addresses. Even though it does not mention the specific \"Video-Oasis\" benchmark or the \"llmXive\" follow-up, it provides the essential literature map and design principles for the unified video models that the user's research is extending.",
+  "relevant": true
+}

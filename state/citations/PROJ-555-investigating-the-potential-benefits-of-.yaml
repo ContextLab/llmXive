@@ -1,1 +1,24 @@
-[]
+- artifact_hash: 91482ebf5f6a70b8aea2e0a1d6b07e0ce3f6131230677ef49d61dd905a1206dd
+  artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1912.06037] High resolution monthly precipitation and temperature
+    timeseries for the period 2006-2100'
+  kind: url
+  value: https://arxiv.org/abs/1912.06037
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1912.06037
+  verified_at: '2026-08-22T18:37:41.635426Z'
+- artifact_hash: 91482ebf5f6a70b8aea2e0a1d6b07e0ce3f6131230677ef49d61dd905a1206dd
+  artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2506.18321] Attention-Based Ensemble Learning for Crop Classification
+    Using Landsat 8-9 Fusion'
+  kind: url
+  value: https://arxiv.org/abs/2506.18321
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2506.18321
+  verified_at: '2026-08-22T18:37:41.635426Z'

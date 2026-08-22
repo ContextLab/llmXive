@@ -4,45 +4,60 @@ from pathlib import Path
 import logging
 import yaml
 
+logger = logging.getLogger("constitution")
+
 class ConstitutionalError(Exception):
-    """Exception raised when constitutional gate checks fail."""
+    """Exception raised for constitutional gate violations."""
     pass
 
-def check_by_amendment_ratification(state_path: str) -> bool:
+def check_by_amendment_ratification() -> str:
     """
-    Check the ratification status of the BY procedure amendment.
-    Returns True if ratified, False otherwise.
+    Check the status of the Benjamini-Yekutieli (BY) amendment.
+    Returns: 'ratified', 'pending', or 'missing'
     """
-    if not os.path.exists(state_path):
-        return False
+    state_dir = Path("state/projects")
+    state_file = state_dir / "PROJ-297-assessing-statistical-significance-of-ob.yaml"
+    
+    if not state_file.exists():
+        logger.warning("Constitutional state file missing.")
+        return "missing"
     
     try:
-        with open(state_path, 'r') as f:
+        with open(state_file, 'r') as f:
             state = yaml.safe_load(f)
-            status = state.get('amendment_status', 'pending')
-            return status == 'ratified'
-    except Exception:
-        return False
+        
+        if not state:
+            return "missing"
+        
+        status = state.get('amendment_status')
+        if status is None:
+            return "missing"
+        
+        return status
+    except Exception as e:
+        logger.error(f"Error reading constitutional state: {e}")
+        return "missing"
 
-def enforce_gate(logger: logging.Logger):
+def enforce_gate() -> None:
     """
     Enforce the constitutional gate.
-    Halts execution if the amendment is not ratified.
+    Raises ConstitutionalError if the amendment is not ratified.
     """
-    state_path = "state/projects/PROJ-297-assessing-statistical-significance-of-ob.yaml"
+    status = check_by_amendment_ratification()
     
-    # Ensure state directory exists
-    os.makedirs("state/projects", exist_ok=True)
+    if status == "ratified":
+        logger.info("Constitutional gate passed: BY amendment ratified.")
+        return
     
-    # If file doesn't exist, create it with pending status (bridge for local dev)
-    if not os.path.exists(state_path):
-        logger.warning(f"State file {state_path} not found. Creating with pending status.")
-        with open(state_path, 'w') as f:
-            yaml.dump({'amendment_status': 'pending', 'ratified_by': None, 'date': None}, f)
-    
-    if not check_by_amendment_ratification(state_path):
+    if status == "pending":
         msg = "Amendment for BY procedure is pending ratification. Execution blocked."
-        logger.error(msg)
+        logger.critical(msg)
         raise ConstitutionalError(msg)
     
-    logger.info("Constitutional gate passed: BY procedure amendment is ratified.")
+    if status == "missing":
+        msg = "Constitutional state file missing or malformed. Execution blocked."
+        logger.critical(msg)
+        raise ConstitutionalError(msg)
+    
+    logger.warning(f"Unknown amendment status: {status}. Blocking execution.")
+    raise ConstitutionalError(f"Unknown amendment status: {status}. Execution blocked.")

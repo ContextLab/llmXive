@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.29616",
+  "judged_at": "2026-08-22T18:20:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video-oasis: rethinking evaluation of video understanding\" computer science",
+  "rationale": "This paper is the foundational source for the \"Video-Oasis\" framework mentioned in the user's query, satisfying category (d) as the canonical reference for the specific evaluation methodology and diagnostic suite the user intends to extend. Additionally, it establishes the empirical baseline (category c) regarding the capability gap in current video understanding models, which is the necessary context for any follow-up research.",
+  "relevant": true
+}

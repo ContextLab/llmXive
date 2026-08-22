@@ -1,0 +1,739 @@
+{
+  "fetched_at": "2026-08-22T18:20:35Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Understanding\"",
+      "target_n": 5
+    },
+    "duration_seconds": 509.135,
+    "ended_at": "2026-08-22T18:20:35Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "video understanding evaluation benchmarks"
+        ],
+        [
+          2,
+          "video-language model assessment"
+        ],
+        [
+          3,
+          "multimodal video reasoning evaluation"
+        ],
+        [
+          4,
+          "video comprehension metrics"
+        ],
+        [
+          5,
+          "video question answering datasets"
+        ],
+        [
+          6,
+          "temporal reasoning in video models"
+        ],
+        [
+          7,
+          "video captioning evaluation methods"
+        ],
+        [
+          8,
+          "spatio-temporal video understanding"
+        ],
+        [
+          9,
+          "large language models for video analysis"
+        ],
+        [
+          10,
+          "video foundation model benchmarks"
+        ],
+        [
+          11,
+          "dynamic scene understanding evaluation"
+        ],
+        [
+          12,
+          "video event recognition metrics"
+        ],
+        [
+          13,
+          "video-grounded language model evaluation"
+        ],
+        [
+          14,
+          "long-form video understanding assessment"
+        ],
+        [
+          15,
+          "video retrieval evaluation protocols"
+        ],
+        [
+          16,
+          "zero-shot video understanding benchmarks"
+        ],
+        [
+          17,
+          "video reasoning challenges"
+        ],
+        [
+          18,
+          "multimodal video perception evaluation"
+        ],
+        [
+          19,
+          "video semantic understanding metrics"
+        ],
+        [
+          20,
+          "video generation and understanding evaluation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Understanding\" computer science": 0,
+        "video understanding evaluation benchmarks": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "video language model hallucination benchmark",
+      "Video-Oasis evaluation protocol synthetic dataset",
+      "temporal reasoning video QA benchmarks",
+      "frame-level retrieval video understanding metrics",
+      "synthetic video generation data contamination"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2403.15377"
+      ]
+    },
+    "per_query_hit_count": {
+      "Video-Oasis evaluation protocol synthetic dataset": 3,
+      "frame-level retrieval video understanding metrics": 3,
+      "llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Understanding\" computer science": 3,
+      "synthetic video generation data contamination": 3,
+      "temporal reasoning video QA benchmarks": 3,
+      "video language model hallucination benchmark": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-22T18:12:05Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"video-oasis: rethinking evaluation of video understanding\" computer science",
+      "raw": "llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Understanding\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-22T18:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-22T18:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-22T18:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces an open-source benchmark for evaluating Vision-Language Models (VLMs) on Optical Character Recognition (OCR) tasks in dynamic video environments. We present a curated dataset containing 1,477 manually annotated frames spanning diverse domains, including code editors, news broadcasts, YouTube videos, and advertisements. Three state of the art VLMs - Claude-3, Gemini-1.5, and GPT-4o are benchmarked against traditional OCR systems such as EasyOCR and RapidOCR. Evaluation metrics include Word Error Rate (WER), Character Error Rate (CER), and Accuracy. Our results highlight the strengths and limitations of VLMs in video-based OCR tasks, demonstrating their potential to outperform conventional OCR models in many scenarios. However, challenges such as hallucinations, content security policies, and sensitivity to occluded or stylized text remain. The dataset and benchmarking framework are publicly available to foster further research.",
+          "claimed_authors": [
+            "Sankalp Nagaonkar",
+            "Augustya Sharma",
+            "Ashish Choithani",
+            "Ashutosh Trivedi"
+          ],
+          "claimed_title": "Benchmarking Vision-Language Models on Optical Character Recognition in Dynamic Video Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.06445"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='Benchmarking Vision-Language Models on Optical Character Recognition in Dynamic Video Environments')",
+        "failed_at": "2026-08-22T18:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a new benchmark corpus to be used for measuring progress in statistical language modeling. With almost one billion words of training data, we hope this benchmark will be useful to quickly evaluate novel language modeling techniques, and to compare their contribution when combined with other advanced techniques. We show performance of several well-known types of language models, with the best results achieved with a recurrent neural network based language model. The baseline unpruned Kneser-Ney 5-gram model achieves perplexity 67.6; a combination of techniques leads to 35% reduction in perplexity, or 10% reduction in cross-entropy (bits), over that baseline.\n  The benchmark is available as a code.google.com project; besides the scripts needed to rebuild the training/held-out data, it also makes available log-probability values for each word in each of ten held-out data sets, for each of the baseline n-gram models.",
+          "claimed_authors": [
+            "Ciprian Chelba",
+            "Tomas Mikolov",
+            "Mike Schuster",
+            "Qi Ge",
+            "Thorsten Brants",
+            "Phillipp Koehn",
+            "Tony Robinson"
+          ],
+          "claimed_title": "One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.3005"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling')",
+        "failed_at": "2026-08-22T18:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+          "claimed_authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "claimed_title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.21676"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='How do language models learn facts? Dynamics, curricula and hallucinations')",
+        "failed_at": "2026-08-22T18:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-08-22T18:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-08-22T18:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human processes video reasoning in a sequential spatio-temporal reasoning logic, we first identify the relevant frames (\"when\") and then analyse the spatial relationships (\"where\") between key objects, and finally leverage these relationships to draw inferences (\"what\"). However, can Video Large Language Models (Video-LLMs) also \"reason through a sequential spatio-temporal logic\" in videos? Existing Video-LLM benchmarks primarily focus on assessing object presence, neglecting relational reasoning. Consequently, it is difficult to measure whether a model truly comprehends object interactions (actions/events) in videos or merely relies on pre-trained \"memory\" of co-occurrences as biases in generating answers. In this work, we introduce a Video Spatio-Temporal Reasoning (V-STaR) benchmark to address these shortcomings. The key idea is to decompose video understanding into a Reverse Spatio-Temporal Reasoning (RSTR) task that simultaneously evaluates what objects are present, when events occur, and where they are located while capturing the underlying Chain-of-thought (CoT) logic. To support this evaluation, we construct a dataset to elicit the spatial-temporal reasoning process of Video-LLMs. It contains coarse-to-fine CoT questions generated by a semi-automated GPT-4-powered pipeline, embedding explicit reasoning chains to mimic human cognition. Experiments from 14 Video-LLMs on our V-STaR reveal significant gaps between current Video-LLMs and the needs for robust and consistent spatio-temporal reasoning.",
+          "claimed_authors": [
+            "Zixu Cheng",
+            "Jian Hu",
+            "Ziquan Liu",
+            "Chenyang Si",
+            "Wei Li",
+            "Shaogang Gong"
+          ],
+          "claimed_title": "V-STaR: Benchmarking Video-LLMs on Video Spatio-Temporal Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.11495"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='V-STaR: Benchmarking Video-LLMs on Video Spatio-Temporal Reasoning')",
+        "failed_at": "2026-08-22T18:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-08-22T18:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Physical video understanding requires more than naming an event correctly. A model can answer a question about pouring, sliding, or collision from textual regularities while still failing to localize the event in time or space. We introduce a grounded benchmark for physical video understanding that extends the what--when--where evaluation structure of V-STaR to four video sources, six physics domains, three prompt families (physics, vstar_like, and neutral_rstr), and four input conditions (original, shuffled, ablated, and frame-masked). The benchmark contains 1,560 base video clips from SSV2, YouCook2, HoloAssist, and Roundabout-TAU. Each clip is first converted into a shared grounded event record, and the three query families are derived from that record. Temporal and spatial targets are shared across prompt families, while the non-physics families use deterministic family-appropriate semantic a_what targets derived from the same record. Across models and prompt families, physics remains the strongest regime overall, vstar_like is the clearest non-physics semantic comparison, and neutral_rstr behaves as a harder templated control. Prompt-family robustness is selective rather than universal, perturbation gains cluster in weak original cases, and spatial grounding is the weakest across settings. These results suggest that video Q&A reasoning benchmarks shall report physically grounded, prompt-aware, and perturbation-aware diagnostics alongside aggregate accuracy.",
+          "claimed_authors": [
+            "Alibay Osmanli",
+            "Zixu Cheng",
+            "Shaogang Gong"
+          ],
+          "claimed_title": "Grounding Video Reasoning in Physical Signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.21873"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='Grounding Video Reasoning in Physical Signals')",
+        "failed_at": "2026-08-22T18:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video Frame Interpolation (VFI) is a core low-level vision task that synthesizes intermediate frames between existing ones while ensuring spatial and temporal coherence. Over the past decades, VFI methodologies have evolved from classical motion compensation-based approach to a wide spectrum of deep learning-based approaches, including kernel-, flow-, hybrid-, phase-, GAN-, Transformer-, Mamba-, and most recently, diffusion-based models. We introduce AceVFI, a comprehensive and up-to-date review of the VFI field, covering over 250 representative papers. We systematically categorize VFI methods based on their core design principles and architectural characteristics. Further, we classify them into two major learning paradigms: Center-Time Frame Interpolation (CTFI) and Arbitrary-Time Frame Interpolation (ATFI). We analyze key challenges in VFI, including large motion, occlusion, lighting variation, and non-linear motion. In addition, we review standard datasets, loss functions, evaluation metrics. We also explore VFI applications in other domains and highlight future research directions. This survey aims to serve as a valuable reference for researchers and practitioners seeking a thorough understanding of the modern VFI landscape.",
+          "claimed_authors": [
+            "Dahyeon Kye",
+            "Changhyun Roh",
+            "Sukhun Ko",
+            "Chanho Eom",
+            "Jihyong Oh"
+          ],
+          "claimed_title": "AceVFI: A Comprehensive Survey of Advances in Video Frame Interpolation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.01061"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='AceVFI: A Comprehensive Survey of Advances in Video Frame Interpolation')",
+        "failed_at": "2026-08-22T18:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Finding the right sound effects (SFX) to match moments in a video is a difficult and time-consuming task, and relies heavily on the quality and completeness of text metadata. Retrieving high-quality (HQ) SFX using a video frame directly as the query is an attractive alternative, removing the reliance on text metadata and providing a low barrier to entry for non-experts. Due to the lack of HQ audio-visual training data, previous work on audio-visual retrieval relies on YouTube (in-the-wild) videos of varied quality for training, where the audio is often noisy and the video of amateur quality. As such it is unclear whether these systems would generalize to the task of matching HQ audio to production-quality video. To address this, we propose a multimodal framework for recommending HQ SFX given a video frame by (1) leveraging large language models and foundational vision-language models to bridge HQ audio and video to create audio-visual pairs, resulting in a highly scalable automatic audio-visual data curation pipeline; and (2) using pre-trained audio and visual encoders to train a contrastive learning-based retrieval system. We show that our system, trained using our automatic data curation pipeline, significantly outperforms baselines trained on in-the-wild data on the task of HQ SFX retrieval for video. Furthermore, while the baselines fail to generalize to this task, our system generalizes well from clean to in-the-wild data, outperforming the baselines on a dataset of YouTube videos despite only being trained on the HQ audio-visual pairs. A user study confirms that people prefer SFX retrieved by our system over the baseline 67% of the time both for HQ and in-the-wild data. Finally, we present ablations to determine the impact of model and data pipeline design choices on downstream retrieval performance. Please visit our project website to listen to and view our SFX retrieval results.",
+          "claimed_authors": [
+            "Julia Wilkins",
+            "Justin Salamon",
+            "Magdalena Fuentes",
+            "Juan Pablo Bello",
+            "Oriol Nieto"
+          ],
+          "claimed_title": "Bridging High-Quality Audio and Video via Language for Sound Effects Retrieval from Visual Queries",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.09089"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='Bridging High-Quality Audio and Video via Language for Sound Effects Retrieval from Visual Queries')",
+        "failed_at": "2026-08-22T18:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The increasing diversity and scale of video data demand retrieval systems capable of multimodal understanding, adaptive reasoning, and domain-specific knowledge integration. This paper presents LLandMark, a modular multi-agent framework for landmark-aware multimodal video retrieval to handle real-world complex queries. The framework features specialized agents that collaborate across four stages: query parsing and planning, landmark reasoning, multimodal retrieval, and reranked answer synthesis. A key component, the Landmark Knowledge Agent, detects cultural or spatial landmarks and reformulates them into descriptive visual prompts, enhancing CLIP-based semantic matching for Vietnamese scenes. To expand capabilities, we introduce an LLM-assisted image-to-image pipeline, where a large language model (Gemini 2.5 Flash) autonomously detects landmarks, generates image search queries, retrieves representative images, and performs CLIP-based visual similarity matching, removing the need for manual image input. In addition, an OCR refinement module leveraging Gemini and LlamaIndex improves Vietnamese text recognition. Experimental results show that LLandMark achieves adaptive, culturally grounded, and explainable retrieval performance.",
+          "claimed_authors": [
+            "Minh-Chi Phung",
+            "Thien-Bao Le",
+            "Cam-Tu Tran-Thi",
+            "Thu-Dieu Nguyen-Thi",
+            "Vu-Hung Dao"
+          ],
+          "claimed_title": "LLandMark: A Multi-Agent Framework for Landmark-Aware Multimodal Interactive Video Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.02888"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='LLandMark: A Multi-Agent Framework for Landmark-Aware Multimodal Interactive Video Retrieval')",
+        "failed_at": "2026-08-22T18:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative modeling has been used frequently in synthetic data generation. Fairness and privacy are two big concerns for synthetic data. Although Recent GAN [\\cite{goodfellow2014generative}] based methods show good results in preserving privacy, the generated data may be more biased. At the same time, these methods require high computation resources. In this work, we design a fast, fair, flexible and private data generation method. We show the effectiveness of our method theoretically and empirically. We show that models trained on data generated by the proposed method can perform well (in inference stage) on real application scenarios.",
+          "claimed_authors": [
+            "Weijie Xu",
+            "Jinjin Zhao",
+            "Francis Iannacci",
+            "Bo Wang"
+          ],
+          "claimed_title": "FFPDG: Fast, Fair and Private Data Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.00161"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='FFPDG: Fast, Fair and Private Data Generation')",
+        "failed_at": "2026-08-22T18:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic data (SD) have garnered attention as a privacy enhancing technology. Unfortunately, there is no standard for quantifying their degree of privacy protection. In this paper, we discuss proposed quantification approaches. This contributes to the development of SD privacy standards; stimulates multi-disciplinary discussion; and helps SD researchers make informed modeling and evaluation decisions.",
+          "claimed_authors": [
+            "Alexander Boudewijn",
+            "Andrea Filippo Ferraris",
+            "Daniele Panfilo",
+            "Vanessa Cocca",
+            "Sabrina Zinutti",
+            "Karel De Schepper",
+            "Carlo Rossi Chauvenet"
+          ],
+          "claimed_title": "Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17453"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
+        "failed_at": "2026-08-22T18:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recognizing pain in video is crucial for improving patient-computer interaction systems, yet traditional data collection in this domain raises significant ethical and logistical challenges. This study introduces a novel approach that leverages synthetic data to enhance video-based pain recognition models, providing an ethical and scalable alternative. We present a pipeline that synthesizes realistic 3D facial models by capturing nuanced facial movements from a small participant pool, and mapping these onto diverse synthetic avatars. This process generates 8,600 synthetic faces, accurately reflecting genuine pain expressions from varied angles and perspectives.\n  Utilizing advanced facial capture techniques, and leveraging public datasets like CelebV-HQ and FFHQ-UV for demographic diversity, our new synthetic dataset significantly enhances model training while ensuring privacy by anonymizing identities through facial replacements.\n  Experimental results demonstrate that models trained on combinations of synthetic data paired with a small amount of real participants achieve superior performance in pain recognition, effectively bridging the gap between synthetic simulations and real-world applications. Our approach addresses data scarcity and ethical concerns, offering a new solution for pain detection and opening new avenues for research in privacy-preserving dataset generation. All resources are publicly available to encourage further innovation in this field.",
+          "claimed_authors": [
+            "Jonas Nasimzada",
+            "Jens Kleesiek",
+            "Ken Herrmann",
+            "Alina Roitberg",
+            "Constantin Seibold"
+          ],
+          "claimed_title": "Towards Synthetic Data Generation for Improved Pain Recognition in Videos under Patient Constraints",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.16382"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Video-Oasis: Rethinking Evaluation of Video Unders', candidate_title='Towards Synthetic Data Generation for Improved Pain Recognition in Videos under Patient Constraints')",
+        "failed_at": "2026-08-22T18:20:20Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Geuntaek Lim",
+            "Sungjune Park",
+            "Jaeyun Lee",
+            "Inwoong Lee",
+            "Taeoh Kim",
+            "Dongyoon Wee",
+            "Minho Shim",
+            "Yukyung Choi"
+          ],
+          "title": "Video-Oasis: Rethinking Evaluation of Video Understanding",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.29616",
+        "summary": "The inherent complexity of video understanding makes it difficult to determine whether Video-LLM benchmark performance stems from visual perception, linguistic reasoning, or knowledge priors. While many benchmarks have emerged to assess high-level reasoning, shared criteria for evaluating video understanding remain largely overlooked. Instead of introducing yet another benchmark, we take a step back to re-examine the criteria for evaluating video understanding. In this work, we introduce Video-Oasis, a sustainable diagnostic suite for systematically auditing existing video understanding benchmarks. This audit reveals that 55\\% of existing benchmark samples are solvable without visual input or temporal context. After filtering these shortcuts, the remaining video-native challenges expose a substantial capability gap: state-of-the-art models perform only marginally above random guessing. Building on these findings, we use the distilled challenges as a testbed to investigate which algorithmic design choices contribute to robust video understanding. We hope our work provides a practical foundation for constructing rigorous video benchmarks and evaluating future Video-LLMs. Code is available at https://github.com/sejong-rcv/Video-Oasis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.29616",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-22T18:20:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yaning Pan",
+            "Qianqian Xie",
+            "Guohui Zhang",
+            "Zekun Wang",
+            "Yongqian Wen",
+            "Yuanxing Zhang",
+            "Haoxuan Hu",
+            "Zhiyu Pan",
+            "Yibing Huang",
+            "Zhidong Gan",
+            "Yonghong Lin",
+            "An Ping",
+            "Shihao Li",
+            "Yanghai Wang",
+            "Tianhao Peng",
+            "Jiaheng Liu"
+          ],
+          "title": "MT-Video-Bench: A Holistic Video Understanding Benchmark for Evaluating Multimodal LLMs in Multi-Turn Dialogues",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.17722",
+        "summary": "The recent development of Multimodal Large Language Models (MLLMs) has significantly advanced AI's ability to understand visual modalities. However, existing evaluation benchmarks remain limited to single-turn question answering, overlooking the complexity of multi-turn dialogues in real-world scenarios. To bridge this gap, we introduce MT-Video-Bench, a holistic video understanding benchmark for evaluating MLLMs in multi-turn dialogues. Specifically, our MT-Video-Bench mainly assesses 6 core competencies that focus on perceptivity and interactivity, encompassing 1,000 meticulously curated multi-turn dialogues from diverse domains. These capabilities are rigorously aligned with real-world applications, such as interactive sports analysis and multi-turn video-based intelligent tutoring. With MT-Video-Bench, we extensively evaluate various state-of-the-art open-source and closed-source MLLMs, revealing their significant performance discrepancies and limitations in handling multi-turn video dialogues. The benchmark will be publicly available to foster future research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.17722",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-22T18:20:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xinyu Fang",
+            "Kangrui Mao",
+            "Haodong Duan",
+            "Xiangyu Zhao",
+            "Yining Li",
+            "Dahua Lin",
+            "Kai Chen"
+          ],
+          "title": "MMBench-Video: A Long-Form Multi-Shot Benchmark for Holistic Video Understanding",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.14515",
+        "summary": "The advent of large vision-language models (LVLMs) has spurred research into their applications in multi-modal contexts, particularly in video understanding. Traditional VideoQA benchmarks, despite providing quantitative metrics, often fail to encompass the full spectrum of video content and inadequately assess models' temporal comprehension. To address these limitations, we introduce MMBench-Video, a quantitative benchmark designed to rigorously evaluate LVLMs' proficiency in video understanding. MMBench-Video incorporates lengthy videos from YouTube and employs free-form questions, mirroring practical use cases. The benchmark is meticulously crafted to probe the models' temporal reasoning skills, with all questions human-annotated according to a carefully constructed ability taxonomy. We employ GPT-4 for automated assessment, demonstrating superior accuracy and robustness over earlier LLM-based evaluations. Utilizing MMBench-Video, we have conducted comprehensive evaluations that include both proprietary and open-source LVLMs for images and videos. MMBench-Video stands as a valuable resource for the research community, facilitating improved evaluation of LVLMs and catalyzing progress in the field of video understanding. The evalutation code of MMBench-Video will be integrated into VLMEvalKit: https://github.com/open-compass/VLMEvalKit.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.14515",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-22T18:20:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yi Wang",
+            "Kunchang Li",
+            "Xinhao Li",
+            "Jiashuo Yu",
+            "Yinan He",
+            "Chenting Wang",
+            "Guo Chen",
+            "Baoqi Pei",
+            "Ziang Yan",
+            "Rongkun Zheng",
+            "Jilan Xu",
+            "Zun Wang",
+            "Yansong Shi",
+            "Tianxiang Jiang",
+            "Songze Li",
+            "Hongjie Zhang",
+            "Yifei Huang",
+            "Yu Qiao",
+            "Yali Wang",
+            "Limin Wang"
+          ],
+          "title": "InternVideo2: Scaling Foundation Models for Multimodal Video Understanding",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.15377",
+        "summary": "We introduce InternVideo2, a new family of video foundation models (ViFM) that achieve the state-of-the-art results in video recognition, video-text tasks, and video-centric dialogue. Our core design is a progressive training approach that unifies the masked video modeling, crossmodal contrastive learning, and next token prediction, scaling up the video encoder size to 6B parameters. At the data level, we prioritize spatiotemporal consistency by semantically segmenting videos and generating video-audio-speech captions. This improves the alignment between video and text. Through extensive experiments, we validate our designs and demonstrate superior performance on over 60 video and audio tasks. Notably, our model outperforms others on various video-related dialogue and long video understanding benchmarks, highlighting its ability to reason and comprehend longer contexts. Code and models are available at https://github.com/OpenGVLab/InternVideo/tree/main/InternVideo2/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.15377",
+          "http_status": 200,
+          "pdf_sample_score": 0.2162,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-22T18:20:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhaochong An",
+            "Zirui Li",
+            "Mingqiao Ye",
+            "Feng Qiao",
+            "Jiaang Li",
+            "Zongwei Wu",
+            "Vishal Thengane",
+            "Chengzu Li",
+            "Lei Li",
+            "Luc Van Gool",
+            "Guolei Sun",
+            "Serge Belongie"
+          ],
+          "title": "Video Understanding: From Geometry and Semantics to Unified Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.17840",
+        "summary": "Video understanding aims to enable models to perceive, reason about, and interact with the dynamic visual world. In contrast to image understanding, video understanding inherently requires modeling temporal dynamics and evolving visual context, placing stronger demands on spatiotemporal reasoning and making it a foundational problem in computer vision. In this survey, we present a structured overview of video understanding by organizing the literature into three complementary perspectives: low-level video geometry understanding, high-level semantic understanding, and unified video understanding models. We further highlight a broader shift from isolated, task-specific pipelines toward unified modeling paradigms that can be adapted to diverse downstream objectives, enabling a more systematic view of recent progress. By consolidating these perspectives, this survey provides a coherent map of the evolving video understanding landscape, summarizes key modeling trends and design principles, and outlines open challenges toward building robust, scalable, and unified video foundation models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.17840",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-22T18:20:24Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"video-oasis: rethinking evaluation of video understanding\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -2,71 +2,79 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and storage formats used in the `001-llmxive-static-routing` feature. All data is stored in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/data/`.
+This document defines the data structures for routing traces, canonical maps, and benchmark results. All artifacts are stored in `data/` and must conform to the schemas defined in `contracts/`. Intermediate routing tensors are aggregated on-the-fly to manage memory and disk usage.
 
-## Data Flow
+## Entity Definitions
 
-1. **Input**: ImageNet validation images (streamed, then cached into Trace Set and Benchmark Set).
-2. **Intermediate**: Aggregated per-image routing patterns (traced from dynamic model, one-by-one).
-3. **Derived**: Static routing map (clustered/averaged patterns).
-4. **Output**: Benchmark results (latency, FID, statistics).
+### 1. Routing Trace Aggregation (Intermediate)
+**Path**: `data/routing_cache/routing_stats_{block_id}.npy` (or similar binary format)
+**Description**: Aggregated routing weight statistics (mean/std) recorded during inference, per block.
+**Structure**:
+-   **Dimensions**: `[num_timesteps, num_targets]` (aggregated across images)
+-   **Data Type**: `float32`
+-   **Content**: Mean and standard deviation of softmax distributions over historical layers for each block at each timestep.
 
-## Schemas
+### 2. Cluster Centers (Intermediate)
+**Path**: `data/routing_cache/cluster_centers.json`
+**Description**: Results of k-means clustering applied to the routing vectors per block.
+**Structure**: A JSON object where keys are `block_id` and values are cluster data.
+-   `block_id`: Integer identifier for the transformer block.
+-   `clusters`: List of cluster objects.
+    -   `cluster_id`: Integer.
+    -   `center`: Array of floats (the static weight vector for this cluster).
+    -   `size`: Number of timesteps in this cluster.
+    -   `silhouette_score`: Float (0.0 to 1.0).
+-   `null_hypothesis`: Boolean flag (true if k<2 or silhouette < 0.25).
 
-### 1. Trace Patterns (`trace_patterns.npy`)
+### 3. Canonical Routing Map (Artifact)
+**Path**: `data/routing_cache/canonical_map.json`
+**Description**: The final static routing weights to be injected into the model, per block.
+**Structure**:
+-   `version`: String (schema version).
+-   `generated_at`: ISO8601 timestamp.
+-   `blocks`: List of objects.
+    -   `block_id`: Integer.
+    -   `static_weights`: Array of floats (the final static weight vector).
+    -   `source`: String ("dominant_cluster" or "global_average").
 
-- **Description**: The aggregated routing patterns for the 60 Trace Set images. Each entry is the mean/mode of the routing vectors across timesteps for a single image.
-- **Format**: NumPy Array (`.npy`).
-- **Shape**: `[60, N_blocks, N_routes]`
-  - `60`: Number of trace images.
-  - `N_blocks`: ~28 (SiT-XL/2).
-  - `N_routes`: Variable (depends on DAR config, e.g., 8-16).
-- **Data Type**: `float32`
-- **Storage**: `data/routing_cache/trace_patterns.npy`
+### 4. Benchmark Result (Artifact)
+**Path**: `data/results/benchmark_results.json`
+**Description**: Latency and FID scores for a single run.
+**Structure**:
+-   `run_id`: String (UUID).
+-   `model_type`: String ("dynamic" or "static").
+-   `seed`: Integer.
+-   `latency_seconds`: Float.
+-   `fid_score`: Float.
+-   `memory_peak_gb`: Float.
 
-### 2. Canonical Routing Map (`static_routing_map.pt`)
+### 5. Statistical Analysis (Artifact)
+**Path**: `data/results/statistical_analysis.json`
+**Description**: Aggregated results of the bootstrap test.
+**Structure**:
+-   `n_seeds`: Integer (5).
+-   `n_resamples`: Integer (1000).
+-   `dynamic_mean_fid`: Float.
+-   `dynamic_std_fid`: Float.
+-   `static_mean_fid`: Float.
+-   `static_std_fid`: Float.
+-   `p_value`: Float (from bootstrap).
+-   `significant`: Boolean.
+-   `t_test_p_value`: Float (from paired t-test on image-set means).
 
-- **Description**: The derived static weights. Either a per-block vector (if distinct phases found) or a global average.
-- **Format**: PyTorch Tensor (`.pt`).
-- **Shape**: `[N_blocks, N_routes]`
-- **Data Type**: `torch.float32`
-- **Storage**: `data/routing_cache/static_routing_map.pt`
+### 6. Sensitivity Sweep (Artifact)
+**Path**: `data/results/sensitivity_sweep.json`
+**Description**: FID scores across different clustering thresholds.
+**Structure**:
+-   `thresholds`: List of objects.
+    -   `threshold`: Float.
+    -   `mean_fid`: Float.
+    -   `std_fid`: Float.
+    -   `degradation`: Float.
 
-### 3. Benchmark Results (`benchmark_results.csv`)
+## Data Hygiene Rules
 
-- **Description**: Aggregated metrics from the comparison of dynamic vs. static models.
-- **Format**: CSV.
-- **Columns**:
-  - `run_id`: Integer (1-5 for the 5 seeds).
-  - `model_type`: String ("dynamic" or "static").
-  - `seed`: Integer (random seed used).
-  - `latency_seconds`: Float (time to generate a set of images).
-  - `fid_score`: Float (FID score).
-- **Storage**: `data/benchmarks/benchmark_results.csv`
-
-### 4. Sensitivity Analysis (`sensitivity_analysis.json`)
-
-- **Description**: Results of the threshold sweep.
-- **Format**: JSON.
-- **Structure**:
-  ```json
-  {
-    "thresholds": [0.01, 0.05, 0.1],
-    "results": [
-      {
-        "threshold": 0.01,
-        "fid_static": 12.34,
-        "fid_dynamic": 12.10,
-        "diff": 0.24
-      },
-      ...
-    ]
-  }
-  ```
-- **Storage**: `data/benchmarks/sensitivity_analysis.json`
-
-## Data Hygiene
-
-- **Checksums**: All files in `data/` are checksummed (SHA-256) and recorded in `state/...yaml`.
-- **Immutability**: Raw routing patterns are never modified. Derivations (static map) are written to new files.
-- **PII**: No PII is present (ImageNet validation set is public and anonymized).
+1.  **Checksums**: Every file in `data/` must have a corresponding `.sha256` file.
+2.  **Immutability**: Once written, `data/` files are never modified. Derivations create new files.
+3.  **Schema Validation**: All JSON artifacts must pass validation against the `contracts/` schemas before being used as inputs for subsequent steps.
+4.  **Versioning**: Artifacts `canonical_map.json`, `benchmark_results.json`, and `statistical_analysis.json` will carry content hashes in `state/projects/PROJ-907-llmxive-follow-up-extending-rethinking-c.yaml`.

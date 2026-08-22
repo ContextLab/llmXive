@@ -1,14 +1,12 @@
 """
-Visualization script for T025: Plot probability of outlier emergence vs. theta.
+Visualization script for User Story 2: Phase Transition Threshold Detection.
 
-This script aggregates Monte Carlo results to calculate the empirical probability
-of outlier emergence for each perturbation strength (theta) and sparsity pattern,
-then generates a visualization saving the plot to data/figures/outlier_probability_vs_theta.png.
+Plots the probability of outlier emergence vs. perturbation strength (theta)
+for different sparsity patterns, based on aggregated Monte Carlo results.
 
-It relies on the aggregated results from T024 (threshold_sweep_results.csv) or
-the Monte Carlo results from T021a (mc_results.csv) if the sweep aggregation is not present.
-Given T024 is a prerequisite, this script primarily reads from data/processed/threshold_sweep_results.csv.
+Output: data/figures/outlier_probability_vs_theta.png
 """
+
 import os
 import sys
 import logging
@@ -20,162 +18,180 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root / "code"))
+# Ensure code directory is in path for imports
+code_dir = Path(__file__).resolve().parent.parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
 from utils.config import get_project_paths, ensure_directories
-from utils.logging_config import setup_simulation_logger
 
 # Configure logging
-logger = setup_simulation_logger(__name__, "plot_outlier_probability")
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def sigmoid_function(x, a, b, c):
+def sigmoid_function(x: np.ndarray, theta_c: float, slope: float) -> np.ndarray:
     """
-    Sigmoid function for fitting the transition probability.
-    P(outlier) = 1 / (1 + exp(-a * (x - c)))
-    Where:
-      a: steepness
-      c: inflection point (theta_c)
-      b: not strictly needed if we normalize, but kept for flexibility
-    """
-    # Ensure numerical stability
-    return 1.0 / (1.0 + np.exp(-a * (x - c)))
+    Logistic sigmoid function for fitting the phase transition.
 
-def load_aggregated_results(input_path: Path) -> Dict[str, Any]:
+    Parameters
+    ----------
+    x : np.ndarray
+        Theta values.
+    theta_c : float
+        Critical threshold (inflection point).
+    slope : float
+        Steepness of the transition.
+
+    Returns
+    -------
+    np.ndarray
+        Probability values.
     """
-    Loads the aggregated results from the threshold sweep.
-    Expected CSV schema (from T024):
-    theta, N, sparsity_pattern, total_runs, outlier_count, outlier_probability
+    return 1.0 / (1.0 + np.exp(-slope * (x - theta_c)))
+
+def load_aggregated_results() -> Dict[str, Any]:
+    """
+    Load aggregated Monte Carlo results from data/processed/threshold_sweep_results.csv.
+    The file is expected to contain columns: N, theta, sparsity_pattern, outlier_count, total_runs, probability.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionary containing aggregated data grouped by sparsity pattern.
     """
     import csv
 
-    if not input_path.exists():
-        raise FileNotFoundError(f"Aggregated results file not found: {input_path}")
+    results_path = get_project_paths()['processed_data'] / 'threshold_sweep_results.csv'
 
-    data = {}
-    with open(input_path, "r", newline="", encoding="utf-8") as f:
+    if not results_path.exists():
+        raise FileNotFoundError(
+            f"Aggregated results file not found at {results_path}. "
+            "Ensure T024 has been executed successfully."
+        )
+
+    data_by_pattern: Dict[str, Dict[str, List[float]]] = {}
+
+    with open(results_path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            theta = float(row["theta"])
-            pattern = row["sparsity_pattern"]
-            N = int(row["N"]) # Assuming N is constant or we group by it if needed
+            pattern = row['sparsity_pattern']
+            theta = float(row['theta'])
+            prob = float(row['probability'])
 
-            # Group by (theta, pattern)
-            key = (theta, pattern)
-            if key not in data:
-                data[key] = {
-                    "theta": theta,
-                    "pattern": pattern,
-                    "total_runs": int(row["total_runs"]),
-                    "outlier_count": int(row["outlier_count"]),
-                    "probability": float(row["outlier_probability"])
+            if pattern not in data_by_pattern:
+                data_by_pattern[pattern] = {
+                    'theta': [],
+                    'probability': []
                 }
 
-    return data
+            data_by_pattern[pattern]['theta'].append(theta)
+            data_by_pattern[pattern]['probability'].append(prob)
+
+    # Convert lists to numpy arrays and sort by theta
+    for pattern in data_by_pattern:
+        theta_arr = np.array(data_by_pattern[pattern]['theta'])
+        prob_arr = np.array(data_by_pattern[pattern]['probability'])
+        sorted_indices = np.argsort(theta_arr)
+        data_by_pattern[pattern]['theta'] = theta_arr[sorted_indices]
+        data_by_pattern[pattern]['probability'] = prob_arr[sorted_indices]
+
+    return data_by_pattern
 
 def plot_probability_vs_theta(
-    data: Dict[Tuple[float, str], Dict[str, Any]],
+    data: Dict[str, Dict[str, np.ndarray]],
     output_path: Path,
-    figure_size: Tuple[int, int] = (10, 6)
+    fit_curve: bool = True
 ) -> None:
     """
-    Plots the probability of outlier emergence vs. theta for different sparsity patterns.
-    Fits a sigmoid curve to each pattern to highlight the critical threshold.
+    Plot probability of outlier emergence vs. theta for different sparsity patterns.
+
+    Parameters
+    ----------
+    data : Dict[str, Dict[str, np.ndarray]]
+        Aggregated data grouped by sparsity pattern.
+    output_path : Path
+        Path to save the output plot.
+    fit_curve : bool
+        Whether to fit a sigmoid curve to the data points.
     """
-    ensure_directories([output_path.parent])
+    plt.figure(figsize=(10, 7))
 
-    # Group data by pattern
-    patterns = {}
-    for (theta, pattern), stats in data.items():
-        if pattern not in patterns:
-            patterns[pattern] = {"thetas": [], "probs": [], "counts": []}
-        patterns[pattern]["thetas"].append(theta)
-        patterns[pattern]["probs"].append(stats["probability"])
-        patterns[pattern]["counts"].append(stats["outlier_count"])
+    colors = ['blue', 'red', 'green', 'purple', 'orange', 'brown', 'pink', 'gray']
+    markers = ['o', 's', '^', 'D', 'x', '+', '*', 'v']
 
-    # Sort by theta for plotting
-    for pattern in patterns:
-        sorted_items = sorted(zip(patterns[pattern]["thetas"], patterns[pattern]["probs"]), key=lambda x: x[0])
-        patterns[pattern]["thetas"] = [x[0] for x in sorted_items]
-        patterns[pattern]["probs"] = [x[1] for x in sorted_items]
+    for idx, (pattern, pattern_data) in enumerate(data.items()):
+        theta = pattern_data['theta']
+        prob = pattern_data['probability']
 
-    plt.figure(figsize=figure_size)
-    colors = plt.cm.tab10(np.linspace(0, 1, len(patterns)))
+        color = colors[idx % len(colors)]
+        marker = markers[idx % len(markers)]
 
-    for idx, (pattern, stats) in enumerate(patterns.items()):
-        thetas = np.array(stats["thetas"])
-        probs = np.array(stats["probs"])
+        plt.scatter(theta, prob, label=f'{pattern}', color=color, marker=marker, alpha=0.7, s=80)
 
-        # Plot empirical points
-        plt.scatter(thetas, probs, label=f"{pattern} (empirical)", alpha=0.7, s=50, color=colors[idx])
-
-        # Fit sigmoid if we have enough points
-        if len(thetas) >= 3:
+        if fit_curve and len(theta) >= 3:
             try:
-                # Initial guess: steepness=1, center=2.0 (BBP threshold)
-                popt, _ = curve_fit(
-                    sigmoid_function, thetas, probs,
-                    p0=[1.0, 2.0],
-                    maxfev=5000,
-                    bounds=([0, 1.0], [10, 4.0])
-                )
-                a_fit, c_fit = popt
-                theta_fit = np.linspace(thetas.min(), thetas.max(), 100)
-                prob_fit = sigmoid_function(theta_fit, a_fit, c_fit)
-                plt.plot(theta_fit, prob_fit, linestyle="--", color=colors[idx], alpha=0.8,
-                         label=f"{pattern} fit (θc≈{c_fit:.2f})")
+                # Initial guess for curve fitting: theta_c at median theta, slope = 5
+                p0 = [np.median(theta), 5.0]
+                popt, _ = curve_fit(sigmoid_function, theta, prob, p0=p0, maxfev=5000)
+                theta_c, slope = popt
+
+                theta_fit = np.linspace(min(theta), max(theta), 200)
+                prob_fit = sigmoid_function(theta_fit, theta_c, slope)
+
+                plt.plot(theta_fit, prob_fit, color=color, linestyle='--', alpha=0.5)
+
+                logger.info(f"Fitted theta_c for {pattern}: {theta_c:.4f} (slope: {slope:.4f})")
             except Exception as e:
-                logger.warning(f"Could not fit sigmoid for pattern {pattern}: {e}")
+                logger.warning(f"Could not fit curve for {pattern}: {e}")
 
-    plt.xlabel(r"Perturbation Strength $\theta$", fontsize=12)
-    plt.ylabel("Probability of Outlier Emergence", fontsize=12)
-    plt.title(r"Phase Transition: Outlier Probability vs. $\theta$ by Sparsity Pattern", fontsize=14)
-    plt.legend(loc="best", fontsize=10)
-    plt.grid(True, which="both", ls="-", alpha=0.3)
-    plt.xlim(left=0) # Theta is non-negative
+    plt.xlabel(r'Perturbation Strength $\theta$', fontsize=14)
+    plt.ylabel('Probability of Outlier Emergence', fontsize=14)
+    plt.title('Phase Transition: Outlier Probability vs. Perturbation Strength\nby Sparsity Pattern', fontsize=16)
+    plt.legend(fontsize=12, loc='lower right')
+    plt.grid(True, alpha=0.3)
+    plt.xlim(left=0)  # Theta is non-negative
+    plt.ylim(0, 1.05)
 
-    # Save figure
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches="tight")
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
 
-    logger.info(f"Visualization saved to {output_path}")
+    logger.info(f"Plot saved to {output_path}")
 
-def main():
-    """
-    Main entry point for the visualization script.
-    """
-    paths = get_project_paths()
-    input_file = paths["processed"] / "threshold_sweep_results.csv"
-    output_file = paths["figures"] / "outlier_probability_vs_theta.png"
-
-    logger.info(f"Starting outlier probability visualization task (T025)")
-    logger.info(f"Reading aggregated results from: {input_file}")
-    logger.info(f"Target output: {output_file}")
+def main() -> None:
+    """Main entry point for the visualization script."""
+    logger.info("Starting outlier probability visualization...")
 
     try:
-        # Load data
-        data = load_aggregated_results(input_file)
+        # Load aggregated results
+        data = load_aggregated_results()
 
         if not data:
-            raise ValueError("No data found in the aggregated results file.")
+            logger.error("No data found in aggregated results. Aborting.")
+            sys.exit(1)
 
-        logger.info(f"Loaded {len(data)} data points across {len(set(k[1] for k in data.keys()))} sparsity patterns.")
+        logger.info(f"Loaded data for {len(data)} sparsity patterns: {list(data.keys())}")
+
+        # Define output path
+        output_path = get_project_paths()['figures'] / 'outlier_probability_vs_theta.png'
 
         # Generate plot
-        plot_probability_vs_theta(data, output_file)
+        plot_probability_vs_theta(data, output_path, fit_curve=True)
 
-        logger.info("Task T025 completed successfully.")
-        return 0
+        logger.info("Visualization completed successfully.")
 
     except FileNotFoundError as e:
-        logger.error(f"Input file missing: {e}")
-        logger.error("Ensure T024 (threshold_sweep_results.csv) has been executed successfully before running this task.")
-        return 1
+        logger.error(f"Data file missing: {e}")
+        logger.error("Ensure T024 (threshold_sweep_results.csv generation) has been completed.")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Error during visualization generation: {e}", exc_info=True)
-        return 1
+        logger.error(f"Unexpected error during visualization: {e}")
+        raise
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

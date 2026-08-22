@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.15377",
+  "judged_at": "2026-08-22T18:20:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video-oasis: rethinking evaluation of video understanding\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the core dependent variable (video understanding performance) and the underlying mechanism (multimodal foundation model evaluation) central to the user's question about \"Video-Oasis\" and video understanding evaluation. It serves as a canonical empirical baseline and state-of-the-art reference for the specific domain of video foundation models that the user's follow-up research would necessarily cite.",
+  "relevant": true
+}

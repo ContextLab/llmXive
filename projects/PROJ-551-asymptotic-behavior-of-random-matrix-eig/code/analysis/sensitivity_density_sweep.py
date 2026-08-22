@@ -1,202 +1,234 @@
 """
-Task T028: Execute sweep over support density set {0.1, 0.2, 0.3} for each sparsity pattern type.
-Output: data/processed/sensitivity_density_sweep.csv
+Sensitivity Density Sweep Implementation (Task T028).
+
+Executes a sweep over support density values {0.1, 0.2, 0.3} for each sparsity pattern
+type defined in the project. Outputs results to data/processed/sensitivity_density_sweep.csv.
+
+This script generates raw Wigner matrices, applies sparse perturbations with varying
+densities, computes eigenvalues, and records the results. It relies on existing
+generators and analysis utilities.
 """
+
 import argparse
 import csv
 import json
 import logging
 import os
 import sys
-import time
-from datetime import datetime, timezone
 from pathlib import Path
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
-
 import numpy as np
+from scipy import sparse
 
-# Project imports based on API surface
-# Note: We import from the package root relative to code/
-# Assuming this file is run from code/ or python path includes code/
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from utils.config import get_project_paths, ensure_directories, get_seed
 from generators.wigner import generate_wigner_matrix
 from generators.perturbation import create_perturbation
-from analysis.eigen_solver import compute_top_eigenvalues, validate_eigenvalues
+from analysis.eigen_solver import compute_top_eigenvalues
 from analysis.outlier_detect import detect_outliers, calculate_bbp_threshold
-from utils.config import get_project_paths, ensure_directories
 from utils.logging_config import setup_simulation_logger, log_simulation_start, log_simulation_end
 
-# Configure logging for this module
+# Constants for the sweep
+SUPPORT_DENSITIES = [0.1, 0.2, 0.3]
+SPARSITY_PATTERNS = ["diagonal", "block-sparse", "random-sparse"]
+MATRIX_SIZE = 1000  # Default N for sensitivity analysis
+NUM_EIGENVALUES = 10
+PERTURBATION_NORM = 2.5  # Fixed theta for sensitivity to density
+NUM_ITERATIONS = 5  # Number of Monte Carlo iterations per configuration
+
 logger = logging.getLogger(__name__)
 
 def run_single_density_instance(
     N: int,
-    theta: float,
     density: float,
-    sparsity_type: str,
-    seed: int
+    pattern: str,
+    theta: float,
+    seed: int,
+    num_eigenvalues: int = 10
 ) -> Dict[str, Any]:
     """
-    Run a single sensitivity analysis instance for a specific density.
-    
-    Returns a dictionary with results.
+    Run a single instance of the sensitivity analysis.
+
+    Args:
+        N: Matrix dimension
+        density: Support density (sparsity level)
+        pattern: Sparsity pattern type
+        theta: Perturbation norm
+        seed: Random seed for reproducibility
+        num_eigenvalues: Number of top eigenvalues to compute
+
+    Returns:
+        Dictionary containing run parameters and results
     """
-    # 1. Generate Wigner Matrix
+    run_id = f"sens_N{N}_d{density:.1f}_p{pattern}_s{seed}"
+    log_path = get_project_paths()["logs"]
+    logger.info(f"Starting run: {run_id}, density={density}, pattern={pattern}, theta={theta}")
+
+    # Generate Wigner matrix
+    np.random.seed(seed)
     W = generate_wigner_matrix(N, seed=seed)
-    
-    # 2. Create Perturbation
-    # create_perturbation signature: (N, theta, sparsity_type, density, seed)
-    # Based on T013 implementation expectations
-    P = create_perturbation(N, theta, sparsity_type, density, seed)
-    
-    # 3. Construct Perturbed Matrix
+
+    # Create perturbation with specific density and pattern
+    P = create_perturbation(
+        N=N,
+        rank=1,  # Fixed rank for this sensitivity study
+        density=density,
+        pattern=pattern,
+        theta=theta,
+        seed=seed + 1000  # Offset seed for perturbation
+    )
+
+    # Construct perturbed matrix
     H = W + P
-    
-    # 4. Compute Top Eigenvalues
-    # We need enough eigenvalues to detect outliers near the edge (2.0)
-    k = min(10, N)
-    eigenvalues = compute_top_eigenvalues(H, k=k)
-    
-    # 5. Detect Outliers
+
+    # Compute top eigenvalues
+    try:
+        eigenvalues = compute_top_eigenvalues(H, k=num_eigenvalues, which='LM')
+    except Exception as e:
+        logger.error(f"Eigenvalue computation failed for {run_id}: {e}")
+        raise
+
+    # Detect outliers
     bbp_threshold = calculate_bbp_threshold(theta)
     outlier_result = detect_outliers(eigenvalues, bbp_threshold)
-    
-    return {
+
+    # Record results
+    result = {
+        "run_id": run_id,
         "N": N,
-        "theta": theta,
         "density": density,
-        "sparsity_type": sparsity_type,
+        "pattern": pattern,
+        "theta": theta,
         "seed": seed,
-        "max_eigenvalue": float(eigenvalues[0]) if len(eigenvalues) > 0 else 0.0,
-        "outlier_detected": outlier_result.has_outlier,
-        "outlier_value": float(outlier_result.outlier_value) if outlier_result.has_outlier else None,
+        "max_eigenvalue": float(eigenvalues[0]) if len(eigenvalues) > 0 else None,
+        "outlier_count": outlier_result.outlier_count,
+        "outlier_flag": outlier_result.has_outlier,
         "bbp_threshold": float(bbp_threshold),
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
+    logger.info(f"Completed run: {run_id}, max_eigenvalue={result['max_eigenvalue']:.4f}, outlier={result['outlier_flag']}")
+    return result
+
 def run_sensitivity_density_sweep(
-    densities: List[float],
-    sparsity_types: List[str],
-    N: int = 1000,
-    theta: float = 2.5,
-    iterations: int = 50,
-    output_path: Optional[str] = None
+    output_path: Optional[str] = None,
+    N: int = MATRIX_SIZE,
+    densities: Optional[List[float]] = None,
+    patterns: Optional[List[str]] = None,
+    theta: float = PERTURBATION_NORM,
+    num_iterations: int = NUM_ITERATIONS,
+    base_seed: int = None
 ) -> List[Dict[str, Any]]:
     """
-    Execute the full sweep over densities and sparsity types.
-    
+    Execute the full sensitivity density sweep.
+
     Args:
-        densities: List of support densities to test (e.g., [0.1, 0.2, 0.3])
-        sparsity_types: List of sparsity pattern types (e.g., ['diagonal', 'block', 'random'])
-        N: Matrix size
+        output_path: Path to output CSV file
+        N: Matrix dimension
+        densities: List of support densities to sweep
+        patterns: List of sparsity patterns to test
         theta: Perturbation norm
-        iterations: Number of Monte Carlo iterations per configuration
-        output_path: Path to write CSV results (optional)
-        
+        num_iterations: Number of iterations per configuration
+        base_seed: Base random seed for the sweep
+
     Returns:
         List of result dictionaries
     """
+    if densities is None:
+        densities = SUPPORT_DENSITIES
+    if patterns is None:
+        patterns = SPARSITY_PATTERNS
+    if base_seed is None:
+        base_seed = get_seed()
+
+    # Ensure output directory exists
+    paths = get_project_paths()
+    ensure_directories([paths["processed"]])
     if output_path is None:
-        paths = get_project_paths()
         output_path = str(paths["processed"] / "sensitivity_density_sweep.csv")
-        
-    ensure_directories([os.path.dirname(output_path)])
-    
-    results = []
-    start_time = time.time()
-    
-    logger.info(f"Starting sensitivity density sweep. Densities: {densities}, Types: {sparsity_types}")
-    logger.info(f"Configuration: N={N}, theta={theta}, iterations={iterations}")
-    
-    for sparsity_type in sparsity_types:
-        for density in densities:
-            logger.info(f"Running sweep for type={sparsity_type}, density={density}")
-            
-            for i in range(iterations):
-                seed = int(np.random.randint(0, 2**31))
+
+    logger.info(f"Starting sensitivity density sweep: N={N}, densities={densities}, patterns={patterns}, theta={theta}")
+    log_simulation_start("sensitivity_density_sweep", {
+        "N": N,
+        "densities": densities,
+        "patterns": patterns,
+        "theta": theta,
+        "num_iterations": num_iterations,
+        "base_seed": base_seed
+    })
+
+    all_results = []
+    current_seed = base_seed
+
+    for density in densities:
+        for pattern in patterns:
+            logger.info(f"Sweeping density={density}, pattern={pattern}")
+            for i in range(num_iterations):
                 try:
-                    res = run_single_density_instance(N, theta, density, sparsity_type, seed)
-                    results.append(res)
-                    logger.debug(f"  Iteration {i+1}/{iterations}: max_eig={res['max_eigenvalue']:.4f}, outlier={res['outlier_detected']}")
+                    result = run_single_density_instance(
+                        N=N,
+                        density=density,
+                        pattern=pattern,
+                        theta=theta,
+                        seed=current_seed,
+                        num_eigenvalues=NUM_EIGENVALUES
+                    )
+                    all_results.append(result)
+                    current_seed += 1
                 except Exception as e:
-                    logger.error(f"  Iteration {i+1}/{iterations} failed: {e}")
-                    # Log failure but continue
-                    results.append({
-                        "N": N,
-                        "theta": theta,
-                        "density": density,
-                        "sparsity_type": sparsity_type,
-                        "seed": seed,
-                        "max_eigenvalue": None,
-                        "outlier_detected": False,
-                        "outlier_value": None,
-                        "bbp_threshold": None,
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
-                        "error": str(e)
-                    })
-    
-    elapsed = time.time() - start_time
-    logger.info(f"Sweep completed in {elapsed:.2f} seconds. Total results: {len(results)}")
-    
+                    logger.error(f"Failed iteration {i+1}/{num_iterations} for density={density}, pattern={pattern}: {e}")
+                    # Continue with next iteration
+                    current_seed += 1
+                    continue
+
     # Write results to CSV
-    if results:
-        fieldnames = list(results[0].keys())
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
+    if all_results:
+        fieldnames = list(all_results[0].keys())
+        with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerows(results)
-        
-        logger.info(f"Results written to {output_path}")
-    
-    return results
+            writer.writerows(all_results)
+        logger.info(f"Wrote {len(all_results)} results to {output_path}")
+    else:
+        logger.warning("No results were generated for the sweep.")
+
+    log_simulation_end("sensitivity_density_sweep", len(all_results))
+    return all_results
 
 def main():
     """Main entry point for the sensitivity density sweep."""
-    parser = argparse.ArgumentParser(description="Execute sensitivity analysis density sweep (Task T028)")
-    parser.add_argument("--densities", type=float, nargs="+", default=[0.1, 0.2, 0.3],
-                        help="Support densities to sweep (default: 0.1 0.2 0.3)")
-    parser.add_argument("--types", type=str, nargs="+", default=["diagonal", "block", "random"],
-                        help="Sparsity pattern types (default: diagonal block random)")
-    parser.add_argument("--N", type=int, default=1000, help="Matrix size")
-    parser.add_argument("--theta", type=float, default=2.5, help="Perturbation norm")
-    parser.add_argument("--iterations", type=int, default=50, help="MC iterations per config")
+    parser = argparse.ArgumentParser(description="Sensitivity Density Sweep for Sparse Perturbations")
     parser.add_argument("--output", type=str, default=None, help="Output CSV path")
-    parser.add_argument("--log", type=str, default="data/logs/sensitivity_density_sweep.log",
-                        help="Log file path")
-    
+    parser.add_argument("--N", type=int, default=MATRIX_SIZE, help="Matrix dimension")
+    parser.add_argument("--theta", type=float, default=PERTURBATION_NORM, help="Perturbation norm")
+    parser.add_argument("--iterations", type=int, default=NUM_ITERATIONS, help="Iterations per config")
+    parser.add_argument("--seed", type=int, default=None, help="Base random seed")
+    parser.add_argument("--log-level", type=str, default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"])
+
     args = parser.parse_args()
-    
+
     # Setup logging
-    ensure_directories([os.path.dirname(args.log)])
-    log_file = Path(args.log)
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Configure logger
-    logger.setLevel(logging.INFO)
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.INFO)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    
-    log_simulation_start("Sensitivity Density Sweep", vars(args))
-    
+    log_path = get_project_paths()["logs"]
+    ensure_directories([log_path])
+    log_file = str(Path(log_path) / "sensitivity_density_sweep.log")
+    setup_simulation_logger("sensitivity_density_sweep", log_file, level=args.log_level)
+
     try:
         results = run_sensitivity_density_sweep(
-            densities=args.densities,
-            sparsity_types=args.types,
+            output_path=args.output,
             N=args.N,
             theta=args.theta,
-            iterations=args.iterations,
-            output_path=args.output
+            num_iterations=args.iterations,
+            base_seed=args.seed
         )
-        log_simulation_end("Sensitivity Density Sweep", success=True, count=len(results))
+        print(f"Sensitivity density sweep completed. Results written to: {args.output or get_project_paths()['processed'] / 'sensitivity_density_sweep.csv'}")
     except Exception as e:
-        logger.exception("Sensitivity density sweep failed")
-        log_simulation_end("Sensitivity Density Sweep", success=False, error=str(e))
+        logger.exception(f"Sensitivity density sweep failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

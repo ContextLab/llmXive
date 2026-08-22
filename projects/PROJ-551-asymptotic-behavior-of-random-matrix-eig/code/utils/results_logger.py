@@ -1,11 +1,7 @@
 """
-Results logging utilities for simulation outputs.
-
-This module provides functions to record simulation results to JSON files,
-satisfying Constitution Principle III (Data Hygiene) by ensuring all
-experimental outputs are persisted with full metadata.
+Utilities for recording simulation results to JSON files.
+Satisfies Constitution Principle III (Data Hygiene).
 """
-
 import json
 import os
 import hashlib
@@ -23,135 +19,91 @@ def record_simulation_result(
     seed: int,
     eigenvalues: List[float],
     outlier_flag: bool,
-    output_path: Optional[str] = None,
-) -> str:
+    output_path: Optional[Path] = None
+) -> Path:
     """
     Record a single simulation run result to a JSON file.
 
-    The output file satisfies Constitution Principle III (Data Hygiene) by
-    persisting all run parameters and results with metadata.
-
     Args:
-        run_id: Unique identifier for this simulation run.
+        run_id: Unique identifier for the run.
         N: Matrix dimension.
-        theta: Perturbation norm parameter.
-        seed: Random seed used for reproducibility.
-        eigenvalues: List of computed top eigenvalues.
+        theta: Perturbation norm.
+        seed: Random seed used.
+        eigenvalues: List of computed eigenvalues (top k).
         outlier_flag: Boolean indicating if an outlier was detected.
-        output_path: Optional custom output path. If None, uses default path.
+        output_path: Optional specific path to write results. If None, uses
+                     project paths from config.
 
     Returns:
-        Path to the written JSON file.
+        Path to the written results file.
 
-    Raises:
-        ValueError: If required fields are missing or invalid.
-        IOError: If file cannot be written.
+    Schema:
+        {
+            "run_id": str,
+            "N": int,
+            "theta": float,
+            "seed": int,
+            "eigenvalues": list,
+            "outlier_flag": bool,
+            "timestamp": str (ISO 8601)
+        }
     """
-    if not run_id or not isinstance(run_id, str):
-        raise ValueError("run_id must be a non-empty string")
-    if not isinstance(N, int) or N <= 0:
-        raise ValueError("N must be a positive integer")
-    if not isinstance(theta, (int, float)):
-        raise ValueError("theta must be a number")
-    if not isinstance(seed, int):
-        raise ValueError("seed must be an integer")
-    if not isinstance(eigenvalues, list):
-        raise ValueError("eigenvalues must be a list")
-    if not isinstance(outlier_flag, bool):
-        raise ValueError("outlier_flag must be a boolean")
-
-    project_paths = get_project_paths()
     if output_path is None:
-        output_path = str(project_paths["data_processed"] / "single_run_results.json")
+        paths = get_project_paths()
+        output_path = paths["processed"] / "single_run_results.json"
 
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    result_record = {
+    result_data = {
         "run_id": run_id,
         "N": N,
-        "theta": float(theta),
+        "theta": theta,
         "seed": seed,
-        "eigenvalues": [float(ev) for ev in eigenvalues],
+        "eigenvalues": eigenvalues,
         "outlier_flag": outlier_flag,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "metadata": {
-            "schema_version": "1.0",
-            "constitution_principle": "III",
-            "principle_name": "Data Hygiene",
-        },
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
-    # Check if file exists and load existing results
-    existing_results = []
-    if output_file.exists():
-        try:
-            with open(output_file, "r", encoding="utf-8") as f:
-                content = f.read().strip()
-                if content:
-                    existing_results = json.loads(content)
-                    if not isinstance(existing_results, list):
-                        existing_results = [existing_results]
-        except (json.JSONDecodeError, IOError) as e:
-            # If file is corrupted or unreadable, start fresh
-            existing_results = []
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(result_data, f, indent=2)
 
-    # Append new result
-    existing_results.append(result_record)
-
-    # Write back with proper formatting
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(existing_results, f, indent=2)
-
-    return str(output_file)
+    return output_path
 
 
 def append_to_aggregated_results(
     results: List[Dict[str, Any]],
-    output_path: Optional[str] = None,
-) -> str:
+    output_path: Optional[Path] = None
+) -> Path:
     """
-    Append multiple results to an aggregated JSON file.
+    Append a list of results to an aggregated JSON file.
 
     Args:
-        results: List of result dictionaries to append.
-        output_path: Optional custom output path. If None, uses default path.
+        results: List of result dictionaries.
+        output_path: Optional specific path. Defaults to aggregated results file.
 
     Returns:
-        Path to the written JSON file.
-
-    Raises:
-        ValueError: If results is not a list or contains invalid entries.
-        IOError: If file cannot be written.
+        Path to the aggregated file.
     """
-    if not isinstance(results, list):
-        raise ValueError("results must be a list of dictionaries")
-
-    project_paths = get_project_paths()
     if output_path is None:
-        output_path = str(project_paths["data_processed"] / "aggregated_results.json")
+        paths = get_project_paths()
+        output_path = paths["processed"] / "aggregated_results.json"
 
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Load existing results if file exists
-    existing_results = []
-    if output_file.exists():
+    # Load existing data if file exists
+    existing_data = []
+    if output_path.exists():
         try:
-            with open(output_file, "r", encoding="utf-8") as f:
-                content = f.read().strip()
-                if content:
-                    existing_results = json.loads(content)
-                    if not isinstance(existing_results, list):
-                        existing_results = [existing_results]
+            with open(output_path, 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
         except (json.JSONDecodeError, IOError):
-            existing_results = []
+            existing_data = []
 
     # Append new results
-    existing_results.extend(results)
+    existing_data.extend(results)
 
-    # Write back
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(existing_results, f, indent=2)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(existing_data, f, indent=2)
 
-    return str(output_file)
+    return output_path
