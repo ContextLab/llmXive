@@ -1,43 +1,52 @@
-# Pre-commit configuration for llmXive project
-# Enforces black formatting, ruff linting, and standard hooks
-# Run `pre-commit install` to set up git hooks
-# Run `pre-commit run --all-files` to check all files
+# Pre-commit configuration for PROJ-044
+# Hooks: black (formatting), ruff (linting), pre-commit-hooks (safety checks)
+#
+# Usage:
+#   1. Install pre-commit: pip install pre-commit
+#   2. Install hooks: pre-commit install
+#   3. Run manually: pre-commit run --all-files
 
 repos:
-  # Standard pre-commit hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v4.5.0
     hooks:
       - id: trailing-whitespace
-        description: Trims trailing whitespace.
+        name: Trim Trailing Whitespace
+        description: Trims trailing whitespace on all lines.
       - id: end-of-file-fixer
-        description: Ensures files end with a single newline.
+        name: Fix End of Files
+        description: Ensures files end with a newline.
       - id: check-yaml
-        description: Validates YAML syntax.
+        name: Check YAML
+        description: Validates YAML files.
       - id: check-json
-        description: Validates JSON syntax.
+        name: Check JSON
+        description: Validates JSON files.
       - id: check-added-large-files
+        name: Check for Large Files
+        description: Prevents committing large files.
         args: ['--maxkb=1024']
-        description: Prevents large files from being committed.
-      - id: check-case-conflict
-        description: Checks for files that would conflict on case-insensitive filesystems.
+      - id: check-merge-conflict
+        name: Check for Merge Conflicts
+        description: Detects merge conflict strings.
 
-  # Black: The uncompromising code formatter
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 24.2.0
     hooks:
       - id: black
+        name: Black Formatter
+        description: Enforces consistent code formatting.
         language_version: python3.10
-        description: Formats Python code to 88 characters per line.
 
-  # Ruff: An extremely fast Python linter
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.8
+    rev: v0.3.0
     hooks:
       - id: ruff
-        args: ['--fix']
-        description: Lints Python code and attempts to fix issues automatically.
+        name: Ruff Linter
+        description: Fast Python linter.
+        args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
-        description: Formats Python code (alternative to black, but we use black here for consistency).
-        # Note: We primarily use Black for formatting, but Ruff can catch import sorting issues
-        # If using ruff-format, ensure it aligns with black settings or disable black hook
+        name: Ruff Formatter
+        description: Fast Python formatter (alternative to black, optional).
+        # Uncomment if you prefer ruff-format over black, otherwise keep black only:
+        # args: [--diff]

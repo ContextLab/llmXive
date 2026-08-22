@@ -1,370 +1,371 @@
+"""
+Client data partitioning logic for Federated Learning experiments.
+
+Implements Dirichlet distribution-based partitioning to simulate
+varying levels of data heterogeneity across clients.
+
+IMPORTANT: Per T000 (Spec Alignment) and plan.md Gap Analysis,
+the Shakespeare dataset is explicitly excluded from this project.
+All partitioning logic is restricted to FEMNIST only.
+"""
+
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
-
+from typing import Dict, List, Tuple, Any, Optional, Set
 import numpy as np
 import pandas as pd
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Authority Reference: T000 (Spec Alignment) and plan.md Gap Analysis
+# Shakespeare dataset is excluded due to lack of verified sources.
+# Only FEMNIST is supported.
+SUPPORTED_DATASETS = {"femnist"}
 
-def load_femnist_data(data_path: Optional[Path] = None) -> pd.DataFrame:
+
+def load_femnist_data(data_path: Path) -> pd.DataFrame:
     """
-    Load FEMNIST data from the raw parquet file.
-    
+    Load FEMNIST data from parquet file.
+
     Args:
-        data_path: Path to the parquet file. Defaults to data/raw/femnist.parquet
-        
-    Returns:
-        DataFrame with columns: ['client_id', 'label', 'pixel_values']
-    """
-    if data_path is None:
-        data_path = Path("data/raw/femnist.parquet")
-        
-    if not data_path.exists():
-        raise FileNotFoundError(f"FEMNIST data not found at {data_path}. Run download task first.")
-        
-    df = pd.read_parquet(data_path)
-    logger.info(f"Loaded FEMNIST data: {len(df)} samples from {df['client_id'].nunique()} clients")
-    return df
+        data_path: Path to the FEMNIST parquet file
 
-
-def load_shakespeare_data(data_path: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Load Shakespeare data from the raw parquet file.
-    
-    Args:
-        data_path: Path to the parquet file. Defaults to data/raw/shakespeare.parquet
-        
     Returns:
-        DataFrame with columns: ['client_id', 'label', 'text']
+        DataFrame with columns: 'user_id', 'label', 'image' (or similar)
+
+    Raises:
+        FileNotFoundError: If the parquet file does not exist
+        ValueError: If the file is not valid parquet or missing expected columns
     """
-    if data_path is None:
-        data_path = Path("data/raw/shakespeare.parquet")
-        
     if not data_path.exists():
-        raise FileNotFoundError(f"Shakespeare data not found at {data_path}. Run download task first.")
-        
-    df = pd.read_parquet(data_path)
-    logger.info(f"Loaded Shakespeare data: {len(df)} samples from {df['client_id'].nunique()} clients")
+        raise FileNotFoundError(
+            f"FEMNIST data file not found: {data_path}. "
+            "Please run T011 (download.py) first to download the dataset."
+        )
+
+    try:
+        df = pd.read_parquet(data_path)
+    except Exception as e:
+        raise ValueError(f"Failed to load parquet file: {e}")
+
+    # Verify expected columns exist
+    expected_cols = ['user_id', 'label']
+    missing_cols = [col for col in expected_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(
+            f"FEMNIST data missing expected columns: {missing_cols}. "
+            f"Found columns: {list(df.columns)}"
+        )
+
+    logger.info(f"Loaded FEMNIST data: {len(df)} samples, {df['user_id'].nunique()} users")
     return df
 
 
 def apply_dirichlet_partition(
-    client_labels: Dict[str, List[int]], 
-    alpha: float, 
-    num_classes: int,
-    seed: Optional[int] = None
+    user_labels: Dict[str, List[int]],
+    alpha: float,
+    seed: int,
+    num_clients: Optional[int] = None
 ) -> Dict[str, Dict[int, int]]:
     """
-    Apply Dirichlet distribution to partition labels among clients.
-    
+    Apply Dirichlet distribution to partition labels across clients.
+
+    This implements the non-i.i.d. data distribution simulation where:
+    - Low alpha (e.g., 0.1) creates high heterogeneity (few classes per client)
+    - High alpha (e.g., 1.0) creates more balanced distribution
+
     Args:
-        client_labels: Dictionary mapping client_id to list of labels they have
-        alpha: Dirichlet concentration parameter. Low alpha (0.1) = high heterogeneity.
-        num_classes: Total number of classes in the dataset
+        user_labels: Dictionary mapping user_id to list of labels
+        alpha: Dirichlet concentration parameter (lower = more heterogeneous)
         seed: Random seed for reproducibility
-        
+        num_clients: Optional override for number of clients (None = use all users)
+
     Returns:
-        Dictionary mapping client_id to their label distribution {class_id: count}
+        Dictionary mapping client_id to label distribution {class_id: count}
     """
-    if seed is not None:
-        np.random.seed(seed)
-        
-    clients = list(client_labels.keys())
-    num_clients = len(clients)
-    
-    # Generate Dirichlet weights for each client
-    # Shape: (num_clients, num_classes)
-    dirichlet_weights = np.random.dirichlet([alpha] * num_classes, num_clients)
-    
-    partition = {}
-    for i, client_id in enumerate(clients):
-        client_sample_counts = client_labels[client_id]
-        total_samples = sum(client_sample_counts)
-        
+    np.random.seed(seed)
+
+    users = list(user_labels.keys())
+    if num_clients is not None:
+        users = users[:num_clients]
+
+    # Get all unique labels
+    all_labels = set()
+    for labels in user_labels.values():
+        all_labels.update(labels)
+    num_classes = len(all_labels)
+    label_list = sorted(list(all_labels))
+
+    # Create label counts per user
+    user_label_counts = {}
+    for user_id, labels in user_labels.items():
+        counts = np.bincount(labels, minlength=num_classes)
+        user_label_counts[user_id] = counts
+
+    # Generate Dirichlet weights for each user
+    # Each user gets a probability distribution over classes
+    dirichlet_weights = np.random.dirichlet([alpha] * num_classes, len(users))
+
+    # Assign each user's samples to clients based on Dirichlet weights
+    # In this simple model, each user becomes a client
+    # The Dirichlet distribution determines the label composition
+    client_partitions = {}
+
+    for i, user_id in enumerate(users):
+        client_id = str(user_id)
+        weights = dirichlet_weights[i]
+
+        # For each class, determine how many samples this client gets
+        # based on the Dirichlet weight for that class
+        label_counts = {}
+        total_samples = sum(user_label_counts[user_id])
+
         if total_samples == 0:
-            partition[client_id] = {}
+            client_partitions[client_id] = {label: 0 for label in label_list}
             continue
-            
-        # Calculate how many samples of each class this client gets
-        # based on the Dirichlet weights
-        label_distribution = {}
-        for class_id in range(num_classes):
-            count = int(dirichlet_weights[i, class_id] * total_samples)
-            # Ensure at least 1 sample for classes that exist in the client's data
-            # but might get 0 due to rounding
-            if count == 0 and class_id < len(client_sample_counts) and client_sample_counts[class_id] > 0:
-                count = 1
-            
+
+        # Distribute samples according to Dirichlet weights
+        # Each sample has a probability of being assigned to a class
+        # proportional to the Dirichlet weight
+        samples_per_class = np.random.multinomial(total_samples, weights)
+
+        for class_idx, count in enumerate(samples_per_class):
             if count > 0:
-                label_distribution[class_id] = min(count, client_sample_counts[class_id])
-        
-        # Distribute remaining samples
-        assigned = sum(label_distribution.values())
-        remaining = total_samples - assigned
-        
-        if remaining > 0:
-            # Add remaining samples to classes that have capacity
-            for class_id in range(num_classes):
-                if remaining <= 0:
-                    break
-                if class_id < len(client_sample_counts) and client_sample_counts[class_id] > label_distribution.get(class_id, 0):
-                    add_count = min(remaining, client_sample_counts[class_id] - label_distribution.get(class_id, 0))
-                    label_distribution[class_id] = label_distribution.get(class_id, 0) + add_count
-                    remaining -= add_count
-        
-        partition[client_id] = label_distribution
-        
-    return partition
+                label_counts[label_list[class_idx]] = int(count)
+
+        client_partitions[client_id] = label_counts
+
+    return client_partitions
 
 
 def validate_partition(
-    partition: Dict[str, Dict[int, int]], 
-    alpha: float, 
-    dataset: str,
-    min_samples_threshold: int = 0
+    partition: Dict[str, Dict[int, int]],
+    min_samples_per_client: int = 1,
+    alpha: float = 1.0
 ) -> Tuple[bool, List[str]]:
     """
-    Validate partition quality and detect issues.
-    
-    For critical heterogeneity scenarios (alpha=0.1), explicitly exclude clients
-    with zero samples for specific classes to prevent training failures.
-    
+    Validate partition quality and heterogeneity.
+
     Args:
-        partition: The partition dictionary to validate
-        alpha: The alpha value used for partitioning
-        dataset: Dataset name ('femnist' or 'shakespeare')
-        min_samples_threshold: Minimum samples required per client (default 0)
-        
+        partition: Client partition dictionary
+        min_samples_per_client: Minimum samples required per client
+        alpha: Expected heterogeneity level for validation checks
+
     Returns:
-        Tuple of (is_valid, list of validation messages)
+        Tuple of (is_valid, list of warnings)
     """
-    messages = []
+    warnings = []
     is_valid = True
-    
-    # Check for clients with zero total samples
-    zero_sample_clients = [
-        client_id for client_id, dist in partition.items() 
-        if sum(dist.values()) == 0
+
+    if not partition:
+        return False, ["Empty partition"]
+
+    # Check for empty clients
+    empty_clients = [cid for cid, dist in partition.items() if sum(dist.values()) == 0]
+    if empty_clients:
+        warnings.append(f"Found {len(empty_clients)} clients with zero samples")
+        # Remove empty clients
+        for cid in empty_clients:
+            del partition[cid]
+
+    # Check for clients with very few samples (potential issue for training)
+    low_sample_clients = [
+        cid for cid, dist in partition.items()
+        if sum(dist.values()) < min_samples_per_client
     ]
-    
-    if zero_sample_clients:
-        messages.append(f"WARNING: {len(zero_sample_clients)} clients have zero total samples: {zero_sample_clients[:5]}...")
-        is_valid = False
-    
-    # Critical check for alpha=0.1: detect clients missing entire classes
-    # This is a validation step to ensure the partition is usable for training
-    if alpha == 0.1:
-        logger.info("Performing critical heterogeneity validation (alpha=0.1)...")
-        
-        # Determine number of classes based on dataset
-        num_classes = 62 if dataset == 'femnist' else 80  # FEMNIST has 62 classes, Shakespeare has 80 characters
-        
-        clients_missing_classes = []
-        for client_id, dist in partition.items():
-            if sum(dist.values()) == 0:
-                continue
-                
-            present_classes = set(dist.keys())
-            missing_classes = set(range(num_classes)) - present_classes
-            
-            if missing_classes:
-                clients_missing_classes.append((client_id, len(missing_classes)))
-        
-        if clients_missing_classes:
-            # Log statistics about missing classes
-            avg_missing = sum(missing for _, missing in clients_missing_classes) / len(clients_missing_classes)
-            messages.append(
-                f"INFO: In alpha=0.1 scenario, {len(clients_missing_classes)} clients "
-                f"are missing an average of {avg_missing:.1f} classes. "
-                f"This is expected for high heterogeneity."
-            )
-            
-            # Validate that we don't have clients with ZERO samples for ALL classes
-            # (which would be caught above) or clients that would cause training crashes
-            clients_with_at_least_one_class = [
-                client_id for client_id, missing in clients_missing_classes 
-                if missing < num_classes
-            ]
-            
-            if len(clients_with_at_least_one_class) == 0:
-                messages.append("ERROR: No clients have any classes in their partition!")
-                is_valid = False
-    
-    # Check for extremely unbalanced distributions
-    total_samples_per_client = {
-        client_id: sum(dist.values()) for client_id, dist in partition.items()
-    }
-    
-    if total_samples_per_client:
-        avg_samples = np.mean(list(total_samples_per_client.values()))
-        min_samples = min(total_samples_per_client.values())
-        max_samples = max(total_samples_per_client.values())
-        
-        messages.append(
-            f"Partition stats: avg={avg_samples:.1f}, min={min_samples}, max={max_samples}, "
-            f"clients={len(partition)}"
-        )
-        
-        if min_samples == 0:
-            messages.append("WARNING: Some clients have zero samples")
-    
-    return is_valid, messages
+    if low_sample_clients:
+        warnings.append(f"Found {len(low_sample_clients)} clients with < {min_samples_per_client} samples")
+
+    # For critical heterogeneity (alpha <= 0.1), check for extreme imbalance
+    if alpha <= 0.1:
+        total_samples = sum(sum(dist.values()) for dist in partition.values())
+        if total_samples == 0:
+            return False, ["No samples in partition"]
+
+        # Check if any class is missing from all clients
+        all_class_counts = {}
+        for dist in partition.values():
+            for class_id, count in dist.items():
+                all_class_counts[class_id] = all_class_counts.get(class_id, 0) + count
+
+        missing_classes = [c for c in range(max(all_class_counts.keys()) + 1) if c not in all_class_counts]
+        if missing_classes:
+            warnings.append(f"Classes missing from partition: {missing_classes}")
+
+    return is_valid, warnings
 
 
 def partition_femnist(
-    data: pd.DataFrame, 
-    alpha: float, 
-    seed: Optional[int] = None
-) -> Dict[str, Dict[int, int]]:
+    data_path: Path,
+    output_dir: Path,
+    alpha: float,
+    seed: int,
+    num_clients: Optional[int] = None
+) -> Dict[str, Dict[str, Any]]:
     """
     Partition FEMNIST data using Dirichlet distribution.
-    
-    Args:
-        data: DataFrame with FEMNIST data
-        alpha: Dirichlet concentration parameter
-        seed: Random seed
-        
-    Returns:
-        Partition dictionary mapping client_id to label distribution
-    """
-    # Count samples per client and per class
-    client_label_counts = data.groupby(['client_id', 'label']).size().unstack(fill_value=0)
-    
-    client_labels = {}
-    for client_id in client_label_counts.index:
-        client_labels[client_id] = client_label_counts.loc[client_id].tolist()
-    
-    num_classes = data['label'].nunique()
-    
-    partition = apply_dirichlet_partition(client_labels, alpha, num_classes, seed)
-    
-    # Validate the partition
-    is_valid, messages = validate_partition(partition, alpha, 'femnist')
-    for msg in messages:
-        logger.info(msg)
-    
-    return partition
 
-
-def partition_shakespeare(
-    data: pd.DataFrame, 
-    alpha: float, 
-    seed: Optional[int] = None
-) -> Dict[str, Dict[int, int]]:
-    """
-    Partition Shakespeare data using Dirichlet distribution.
-    
     Args:
-        data: DataFrame with Shakespeare data
+        data_path: Path to FEMNIST parquet file
+        output_dir: Directory to save partition metadata
         alpha: Dirichlet concentration parameter
-        seed: Random seed
-        
+        seed: Random seed for reproducibility
+        num_clients: Optional limit on number of clients
+
     Returns:
-        Partition dictionary mapping client_id to label distribution
+        Dictionary of partition metadata
     """
-    # Count samples per client and per class
-    client_label_counts = data.groupby(['client_id', 'label']).size().unstack(fill_value=0)
-    
-    client_labels = {}
-    for client_id in client_label_counts.index:
-        client_labels[client_id] = client_label_counts.loc[client_id].tolist()
-    
-    num_classes = data['label'].nunique()
-    
-    partition = apply_dirichlet_partition(client_labels, alpha, num_classes, seed)
-    
-    # Validate the partition
-    is_valid, messages = validate_partition(partition, alpha, 'shakespeare')
-    for msg in messages:
-        logger.info(msg)
-    
-    return partition
+    # Load data
+    df = load_femnist_data(data_path)
+
+    # Convert to user -> labels format
+    user_labels = {}
+    for _, row in df.iterrows():
+        user_id = str(row['user_id'])
+        if user_id not in user_labels:
+            user_labels[user_id] = []
+        user_labels[user_id].append(int(row['label']))
+
+    # Apply Dirichlet partitioning
+    partition = apply_dirichlet_partition(user_labels, alpha, seed, num_clients)
+
+    # Validate
+    is_valid, warnings = validate_partition(partition, alpha=alpha)
+    if warnings:
+        for w in warnings:
+            logger.warning(w)
+
+    if not is_valid:
+        raise ValueError("Partition validation failed")
+
+    # Create output directory
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save partition metadata
+    metadata_file = output_dir / f"partition_femnist_{seed}_{alpha}.json"
+
+    # Convert partition to metadata format
+    metadata = []
+    for client_id, label_dist in partition.items():
+        total_samples = sum(label_dist.values())
+        entry = {
+            "client_id": client_id,
+            "label_distribution": {str(k): v for k, v in label_dist.items()},
+            "total_samples": total_samples
+        }
+        metadata.append(entry)
+
+    with open(metadata_file, 'w') as f:
+        json.dump(metadata, f, indent=2)
+
+    logger.info(f"Saved partition metadata to {metadata_file}")
+    logger.info(f"Total clients: {len(partition)}, Total samples: {sum(sum(d.values()) for d in partition.values())}")
+
+    return metadata
 
 
 def save_partition_metadata(
-    partition: Dict[str, Dict[int, int]], 
-    dataset: str, 
-    seed: int, 
-    alpha: float,
-    output_dir: Path
-) -> Path:
+    partition: Dict[str, Dict[int, int]],
+    output_path: Path
+) -> None:
     """
-    Save partition metadata to a JSON file.
-    
+    Save partition metadata to JSON file.
+
     Args:
-        partition: Partition dictionary
-        dataset: Dataset name
-        seed: Random seed used
-        alpha: Alpha value used
-        output_dir: Directory to save the file
-        
-    Returns:
-        Path to the saved file
+        partition: Client partition dictionary
+        output_path: Path to save JSON file
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    filename = f"partition_{dataset}_{seed}_{alpha}.json"
-    output_path = output_dir / filename
-    
-    # Convert to serializable format
-    serializable_partition = {
-        client_id: dict(dist) 
-        for client_id, dist in partition.items()
-    }
-    
-    metadata = {
-        "dataset": dataset,
-        "seed": seed,
-        "alpha": alpha,
-        "num_clients": len(partition),
-        "total_samples": sum(sum(dist.values()) for dist in partition.values()),
-        "partitions": serializable_partition
-    }
-    
+    metadata = []
+    for client_id, label_dist in partition.items():
+        entry = {
+            "client_id": client_id,
+            "label_distribution": {str(k): v for k, v in label_dist.items()},
+            "total_samples": sum(label_dist.values())
+        }
+        metadata.append(entry)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(metadata, f, indent=2)
-    
+
     logger.info(f"Saved partition metadata to {output_path}")
-    return output_path
 
 
 def generate_and_save_partitions(
-    dataset: str, 
-    alpha: float, 
-    seed: int,
-    data_path: Optional[Path] = None,
-    output_dir: Optional[Path] = None
-) -> Path:
+    data_path: Path,
+    output_dir: Path,
+    seeds: List[int],
+    alphas: List[float]
+) -> None:
     """
-    Main function to generate and save partitions for a dataset.
-    
+    Generate and save partitions for multiple seeds and alpha values.
+
+    This is the main entry point for generating all required partitions.
+
     Args:
-        dataset: Dataset name ('femnist' or 'shakespeare')
-        alpha: Dirichlet concentration parameter
-        seed: Random seed
-        data_path: Path to raw data file
+        data_path: Path to FEMNIST parquet file
         output_dir: Directory to save partition metadata
-        
-    Returns:
-        Path to the saved partition metadata file
+        seeds: List of random seeds to use
+        alphas: List of Dirichlet alpha values to use
     """
-    if output_dir is None:
-        output_dir = Path("data/partitions")
-    
-    # Load data
-    if dataset == 'femnist':
-        data = load_femnist_data(data_path)
-        partition = partition_femnist(data, alpha, seed)
-    elif dataset == 'shakespeare':
-        data = load_shakespeare_data(data_path)
-        partition = partition_shakespeare(data, alpha, seed)
-    else:
-        raise ValueError(f"Unknown dataset: {dataset}. Use 'femnist' or 'shakespeare'.")
-    
-    # Save metadata
-    output_path = save_partition_metadata(partition, dataset, seed, alpha, output_dir)
-    
-    return output_path
+    # Validate dataset
+    if not data_path.exists():
+        raise FileNotFoundError(
+            f"Data file not found: {data_path}. "
+            "Please run T011 (download.py) first."
+        )
+
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Generate partitions for each combination
+    for seed in seeds:
+        for alpha in alphas:
+            logger.info(f"Generating partition: seed={seed}, alpha={alpha}")
+            try:
+                partition_femnist(data_path, output_dir, alpha, seed)
+            except Exception as e:
+                logger.error(f"Failed to generate partition for seed={seed}, alpha={alpha}: {e}")
+                raise
+
+
+def main():
+    """
+    CLI entry point for partition generation.
+
+    Usage:
+        python code/data/partition.py --data data/raw/femnist.parquet --output data/partitions --seeds 42 123 456 789 101112 --alphas 0.1 0.5 1.0
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Partition FEMNIST data using Dirichlet distribution")
+    parser.add_argument("--data", type=str, required=True, help="Path to FEMNIST parquet file")
+    parser.add_argument("--output", type=str, required=True, help="Output directory for partition metadata")
+    parser.add_argument("--seeds", type=int, nargs="+", default=[42, 123, 456, 789, 101112],
+                      help="Random seeds to use")
+    parser.add_argument("--alphas", type=float, nargs="+", default=[0.1, 0.5, 1.0],
+                      help="Dirichlet alpha values to use")
+
+    args = parser.parse_args()
+
+    data_path = Path(args.data)
+    output_dir = Path(args.output)
+
+    # Validate dataset
+    if data_path.suffix != '.parquet':
+        logger.warning(f"Expected parquet file, got: {data_path.suffix}")
+
+    logger.info(f"Starting partition generation for {len(args.seeds)} seeds and {len(args.alphas)} alpha values")
+    logger.info(f"Data path: {data_path}")
+    logger.info(f"Output directory: {output_dir}")
+
+    generate_and_save_partitions(data_path, output_dir, args.seeds, args.alphas)
+
+    logger.info("Partition generation complete")
+
+
+if __name__ == "__main__":
+    main()

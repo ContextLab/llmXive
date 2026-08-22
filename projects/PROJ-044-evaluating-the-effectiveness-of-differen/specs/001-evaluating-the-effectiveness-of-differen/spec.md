@@ -1,102 +1,106 @@
-# Feature Specification: Evaluating the Effectiveness of Differential Privacy in Federated Learning
+# Specification: Evaluating the Effectiveness of Differential Privacy in Federated Learning
 
-**Feature Branch**: `001-evaluating-dp-federated-learning`  
-**Created**: 2026-06-24  
-**Status**: Draft  
-**Input**: User description: "Evaluating the Effectiveness of Differential Privacy in Federated Learning"
+## 1. Introduction
 
-## User Scenarios & Testing
+This project evaluates how Differential Privacy (DP) affects the utility and fairness of Federated Learning (FL) models under varying degrees of data heterogeneity. The study focuses on the **FEMNIST** dataset exclusively, as the Shakespeare dataset has been excluded due to lack of verified programmatic sources (see Plan.md Gap Analysis).
 
-### User Story 1 - Baseline Heterogeneity Simulation (Priority: P1)
+## 2. Goals and Non-Goals
 
-**As a** research engineer, **I want** to generate client data partitions from the FEMNIST and Shakespeare datasets using Dirichlet distributions with varying concentration parameters (α), **so that** I can establish a controlled baseline for client data heterogeneity before applying privacy mechanisms.
+### 2.1 Goals
+- Quantify the accuracy degradation introduced by DP mechanisms (DP-SGD) in FL.
+- Analyze the impact of data heterogeneity (Dirichlet α) on DP-FL convergence.
+- Evaluate fairness implications: does DP disproportionately harm minority clients?
+- Validate statistical significance of observed effects across multiple seeds.
 
-**Why this priority**: This is the foundational step. Without reproducible, quantifiable heterogeneity levels, no subsequent analysis of privacy-utility trade-offs is valid. It isolates the independent variable (heterogeneity) from the treatment (DP).
+### 2.2 Non-Goals
+- Evaluation on the Shakespeare dataset (Excluded per Plan.md).
+- Implementation of non-FL privacy mechanisms (e.g., centralized DP).
+- Optimization of communication efficiency (focus is on privacy-utility trade-off).
 
-**Independent Test**: Can be fully tested by running the data partitioning script and verifying that the resulting label distributions across clients match the theoretical Dirichlet parameters (e.g., low α yields high imbalance) without any model training or privacy noise applied.
+## 3. Functional Requirements
 
-**Acceptance Scenarios**:
+### FR-001: Dataset Support
+The system must support the **FEMNIST** dataset for all experiments.
+- **Data Source**: Hugging Face `leaf/femnist` (Verified Source).
+- **Exclusion**: The Shakespeare dataset is explicitly excluded from all requirements and implementations due to the absence of a verified, programmatic download source as identified in the Plan.md Gap Analysis.
+- **Constraint**: Any attempt to configure "shakespeare" must raise a `ValueError` with the message: "Shakespeare excluded per plan.md Gap Analysis (no verified source)."
 
-1. **Given** the FEMNIST dataset is downloaded, **When** the partitioning script is executed with α=0.1, **Then** the resulting client label distributions show high variance (e.g., some clients have <5% of certain classes) compared to α=1.0.
-2. **Given** the Shakespeare dataset is downloaded, **When** the partitioning script is executed with α=1.0, **Then** the resulting client label distributions are relatively balanced across the majority of clients.
-3. **Given** a specific seed value, **When** the partitioning script is run twice, **Then** the resulting client partitions are identical, ensuring reproducibility.
+### FR-002: Heterogeneity Simulation
+The system must generate client data partitions using Dirichlet distributions with configurable concentration parameters (α).
+- **Values**: α ∈ {0.1, 0.5, 1.0}.
+- **Reproducibility**: Partitions must be reproducible given a fixed seed.
 
----
+### FR-003: Differential Privacy Configuration
+The system must support DP-SGD with the following parameters:
+- **Privacy Budget (ε)**: Configurable range (e.g., 0.1 to 10.0).
+- **Delta (δ)**: Fixed at 1e-5.
+- **Noise Multiplier**: Calculated via the Moments Accountant.
 
-### User Story 2 - DP-FL Training and Convergence Measurement (Priority: P2)
+### FR-004: Experimental Orchestration
+The system must execute experiments across a grid of configurations:
+- **Seeds**: 5 independent random seeds.
+- **Alpha**: 0.1, 0.5, 1.0.
+- **Epsilon**: 0.5, 1.0, 5.0, ∞ (Non-DP baseline).
+- **Output**: Aggregated logs in `results/raw_logs.csv`.
 
-**As a** researcher, **I want** to train models using FedAvg with Opacus-enabled differential privacy across varying privacy budgets (ε) and heterogeneity levels, **so that** I can measure the impact of privacy noise on global accuracy and minority client convergence.
+### FR-005: Statistical Analysis
+The system must perform statistical testing to validate hypotheses:
+- **Paired T-Test**: Compare DP vs. Non-DP accuracy per seed.
+- **Unpaired T-Test / Mann-Whitney U**: Compare Majority vs. Minority client accuracy.
+- **Sensitivity Analysis**: Plot accuracy gap vs. α.
 
-**Why this priority**: This implements the core experimental intervention. It generates the primary data points (accuracy vs. ε) needed to answer the research question.
+## 4. User Stories
 
-**Independent Test**: Can be fully tested by running a single training job (e.g., FEMNIST, α=0.1, ε=0.5) and verifying that the training loop completes without GPU errors, the privacy budget is tracked correctly via the moments accountant, and accuracy metrics are logged per round.
+### US-1: Baseline Heterogeneity Simulation
+**As a** researcher, **I want** to generate reproducible FEMNIST partitions with varying heterogeneity levels, **so that** I can establish a controlled baseline for FL performance.
+- **Scenario 1**: Generate partitions for α=0.1 (High Heterogeneity).
+- **Scenario 2**: Generate partitions for α=1.0 (Balanced).
+- **Acceptance Criteria**: Partitions saved to `data/partitions/` with metadata JSON.
 
-**Acceptance Scenarios**:
+### US-2: DP-FL Training and Convergence
+**As a** researcher, **I want** to train models using FedAvg with Opacus-enabled DP, **so that** I can measure the impact of privacy budgets on model convergence and client fairness.
+- **Scenario 1**: Train with ε=0.5 and α=0.1.
+- **Scenario 2**: Train with ε=∞ (No DP) for baseline comparison.
+- **Acceptance Criteria**: Training completes, logs generated, privacy budget tracked.
 
-1. **Given** a homogeneous partition (α=1.0) and ε=10.0, **When** the DP-FedAvg training completes, **Then** the global test accuracy is within 5% of the non-DP baseline (defined as FedAvg with α=1.0, no privacy noise, using the same random seeds).
-2. **Given** a highly heterogeneous partition (α=0.1) and ε=0.1, **When** the DP-FedAvg training completes, **Then** the system logs the accuracy for both the global model and the specific "minority" clients (those with rare labels).
-3. **Given** a valid privacy budget ε, **When** the training step executes, **Then** the Gaussian noise multiplier (σ) is calculated and applied to the gradients as per the moments accountant algorithm.
+### US-3: Statistical Analysis and Reporting
+**As a** researcher, **I want** to analyze the training results using statistical tests, **so that** I can validate the "critical heterogeneity" hypothesis and report findings.
+- **Scenario 1**: Calculate p-values for DP vs. Non-DP.
+- **Scenario 2**: Generate accuracy gap plots.
+- **Acceptance Criteria**: `results/summary.csv` and `results/plots/` generated.
 
----
+## 5. Data Model
 
-### User Story 3 - Statistical Analysis and Threshold Sensitivity (Priority: P3)
+### 5.1 Partition Metadata
+```json
+{
+ "client_id": "client_0",
+ "label_distribution": {"0": 50, "1": 10,...},
+ "total_samples": 60
+}
+```
 
-**As a** data analyst, **I want** to run statistical tests (unpaired t-tests or Mann-Whitney U) comparing majority vs. minority performance and perform a sensitivity analysis on the heterogeneity threshold (α ≤ 0.1), **so that** I can determine if the observed degradation is statistically significant and robust to parameter choices.
+### 5.2 Training Metrics
+| Column | Type | Description |
+|:--- |:--- |:--- |
+| seed | int | Random seed used |
+| alpha | float | Dirichlet concentration parameter |
+| epsilon | float | Privacy budget |
+| global_accuracy | float | Global model accuracy |
+| minority_accuracy | float | Accuracy of minority clients |
+| majority_accuracy | float | Accuracy of majority clients |
+| rounds_to_target | int | Rounds to reach 90% accuracy |
+| is_time_limited | bool | Flag if timeout occurred |
+| is_utility_collapse | bool | Flag if accuracy < 5% |
 
-**Why this priority**: This transforms raw metrics into scientific conclusions. It addresses the "methodological soundness" requirement by ensuring findings are not artifacts of arbitrary thresholds or random chance.
+## 6. Constraints and Assumptions
 
-**Independent Test**: Can be fully tested by feeding a pre-generated CSV of accuracy results (from US-2) into the analysis script and verifying that p-values are calculated and the sensitivity sweep (varying α or ε) produces the expected trend lines.
+- **Hardware**: Experiments assumed to run on GPU-enabled environments (CUDA).
+- **Timeout**: Each training run has a maximum duration (e.g., 2 hours).
+- **Dataset**: Only FEMNIST is supported. Shakespeare is excluded.
+- **Privacy**: δ is fixed at 1e-5 for all experiments.
 
-**Acceptance Scenarios**:
+## 7. Appendix
 
-1. **Given** accuracy results from 5 independent seeds for ε=0.5, **When** the unpaired t-test is run, **Then** the system outputs a p-value indicating if the difference between majority and minority client accuracy is significant (p < 0.05).
-2. **Given** a set of results across α ∈ {0.05, 0.1, 0.5, 1.0}, **When** the sensitivity analysis script runs, **Then** it generates a plot showing how the "accuracy gap" between majority and minority clients changes as heterogeneity increases.
-3. **Given** the critical heterogeneity threshold hypothesis (α ≤ 0.1), **When** the analysis is performed, **Then** the system explicitly reports whether the degradation for ε < 0.5 exceeds a defined statistical significance level.
-
-### Edge Cases
-
-- What happens if the LEAF benchmark download fails or the data format changes? (System must retry 3 times with exponential backoff, then fail gracefully with a clear error message).
-- How does the system handle a scenario where a specific client has zero samples for a target class in a highly skewed partition (α=0.1)? (The training loop must skip gradient updates for that client for that round without crashing, logging a warning).
-- What if the privacy budget ε is set so low (e.g., ε=0.01) that the noise dominates the signal entirely? (The system must still run, but the analysis script must flag the result as "utility collapse" rather than a valid data point for the curve).
-
-## Requirements
-
-### Functional Requirements
-
-- **FR-001**: System MUST download and partition the FEMNIST and Shakespeare datasets from the LEAF benchmark using Dirichlet distributions with concentration parameters α ∈ {0.1, 0.5, 1.0} for the baseline experimental set (See US-1).
-- **FR-002**: System MUST implement FedAvg with Opacus to apply Gaussian noise to client gradients, supporting privacy budgets ε ∈ {0.1, 0.5, 1.0, 5.0, 10.0} (See US-2).
-- **FR-003**: System MUST track and log global test accuracy, as well as per-client test accuracy to distinguish between majority and minority client performance (See US-2).
-- **FR-004**: System MUST execute 5 independent training runs (seeds) for every configuration of (dataset, α, ε) to enable statistical power (See US-3).
-- **FR-005**: System MUST perform paired t-tests on the accuracy difference (DP accuracy minus Non-DP accuracy) per seed for DP vs. non-DP baselines, and unpaired t-tests (or Mann-Whitney U) comparing majority vs. minority client accuracies for each configuration (See US-3).
-- **FR-006**: System MUST perform a sensitivity analysis sweeping the heterogeneity parameter α over an extended set {0.05, 0.1, 0.5, 1.0} and report the variation in the accuracy gap (See US-3).
-- **FR-007**: System MUST compute privacy loss using the moments accountant mechanism to ensure accurate ε tracking (See US-2).
-
-### Key Entities
-
-- **Client Partition**: A subset of the dataset assigned to a specific client, characterized by its label distribution and size.
-- **Privacy Budget (ε)**: The numerical parameter defining the strength of the differential privacy guarantee.
-- **Heterogeneity Level (α)**: The concentration parameter of the Dirichlet distribution used to simulate data imbalance.
-- **Accuracy Metric**: The classification accuracy measured on a held-out test set, recorded globally and per-client.
-
-## Success Criteria
-
-### Measurable Outcomes
-
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: The difference in convergence speed (rounds to reach [deferred] of the non-DP baseline peak accuracy) between majority and minority clients is measured against the non-DP baseline to quantify heterogeneity impact (See FR-003, US-2).
-- **SC-002**: The statistical significance (p-value) of the accuracy gap between majority and minority clients is measured against the threshold p < 0.05 to validate the "critical heterogeneity" hypothesis (See FR-005, US-3).
-- **SC-003**: The variation in the "accuracy gap" metric across the sensitivity sweep of α (e.g., {0.05, 0.1, 0.5, 1.0}) is measured to ensure the observed effects are robust to parameter selection (See FR-006, US-3).
-- **SC-004**: The privacy-utility trade-off curve (Global Accuracy vs. ε) is measured against established literature benchmarks for DP-FL in homogeneous settings (α=1.0), and the slope of the accuracy vs. ε curve for α=0.1 must be ≥ 2x steeper (more negative) than the slope for α=1.0 to confirm heterogeneity impact (See FR-002, US-2).
-- **SC-005**: The reproducibility of results is measured by the variance of accuracy metrics across the 5 independent seeds for a fixed configuration (See FR-004, US-3).
-
-## Assumptions
-
-- The LEAF benchmark datasets (FEMNIST, Shakespeare) are accessible via the provided URLs and can be downloaded within the GitHub Actions free-tier time limit (≤6 hours) without GPU acceleration.
-- The FEMNIST and Shakespeare datasets contain sufficient label variety to define "minority" clients under low α (α=0.1) conditions; if a specific class is entirely absent in a partition, that client is excluded from the "minority" analysis for that specific class.
-- The Opacus library functions correctly in a CPU-only environment (using PyTorch's default CPU backend) for the specified model sizes (small CNN/MLP) and dataset subsets.
-- The "minority" client definition is strictly based on label distribution imbalance derived from the Dirichlet parameter α, not on client ID or arbitrary selection.
-- The privacy budget ε values (0.1 to 10.0) cover the relevant range where the privacy-utility trade-off is observable without rendering the model completely useless (accuracy ≈ random chance) for the chosen dataset.
-- The computational resources of a standard GitHub Actions runner (2 CPU, 7GB RAM) are sufficient to process the sampled datasets and train the small models for the specified number of rounds and seeds.
-- The analysis assumes that the noise added by Opacus is purely Gaussian and that the moments accountant provides an accurate estimate of the cumulative privacy loss.
-- **Critical Heterogeneity Threshold**: The hypothesis of "critical heterogeneity" is defined as any configuration where α ≤ 0.1, representing the regime where data imbalance is severe enough to significantly degrade minority client performance under DP.
+### 7.1 Exclusion of Shakespeare Dataset
+The Shakespeare dataset was initially considered but excluded in the Plan.md Gap Analysis due to the lack of a verified, programmatic download source (no stable URL or pip package). All references to Shakespeare in requirements, code, and tests have been removed. The system must strictly enforce this exclusion.

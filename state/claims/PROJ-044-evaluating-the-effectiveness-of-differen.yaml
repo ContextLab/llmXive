@@ -89,3 +89,559 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T03:48:03Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: FEMNIST download fails with exit code 1 after 3 retry attempts
+  claim_id: c_daeade20
+  context: 'T011 [P] [US1] Implement FEMNIST data downloader using Hugging Face datasets...
+    Failure Handling: If retries are exhausted, exit with code 1 and error message
+    ''Failed to download FEMNIST after 3 attempts''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If retries are exhausted, exit with code 1 and error message 'Failed to
+    download FEMNIST after 3 attempts'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:46:22Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: PNG validation checks header bytes 0x00-0x04 and DPI chunk
+  claim_id: c_0d397223
+  context: 'T026 [US3] Implement plotting module... Validation: Embed DPI metadata
+    in PNG header and verify via code/analysis/validate_plot_dpi.py script (must check
+    PNG header bytes 0x00-0x04 and DPI chunk).'
+  evidence:
+    entailment_evidence: PNG validation checks header bytes 0x00-0x04 and DPI chunk
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/PNG_validation_checks_header_bytes_0x00-0x04_and_DPI_chunk
+  kind: entity_fact
+  raw_text: The validation script must check PNG header bytes 0x00-0x04 and DPI chunk.
+  resolved_value: PNG validation checks header bytes 0x00-0x04 and DPI chunk
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T11:46:24Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Overlay plot resolution is 300 DPI
+  claim_id: c_4c1579ff
+  context: 'T026 [US3] Implement plotting module... Output: results/plots/minority_vs_global_overlay.png.
+    Format: PNG. Resolution: 300 DPI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The resolution of the overlay plot must be 300 DPI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:46:36Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Slope for alpha 0.1 is at least 2x steeper than slope for alpha 1.0
+  claim_id: c_ac33337d
+  context: 'T036 [US3] Implement slope ratio calculation for SC-004... Validation:
+    Verify that the slope for alpha=0.1 is >= 2x steeper (more negative) than the
+    slope for alpha=1.0.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Slope_for_alpha_0.1_is_at_least_2x_steeper_than_slope_for_al
+  kind: magnitude
+  raw_text: The slope for alpha=0.1 must be at least 2x steeper (more negative) than
+    the slope for alpha=1.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:47:06Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Utility collapse defined as accuracy less than 0.05 or epsilon less than
+    0.05
+  claim_id: c_d56eb6c9
+  context: 'T035 [US3] Filter utility collapse results from the dataset... Logic:
+    Exclude rows where is_utility_collapse is True (defined as accuracy < 0.05 OR
+    epsilon < 0.05).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Utility_collapse_defined_as_accuracy_less_than_0.05_or_epsil
+  kind: magnitude
+  raw_text: Utility collapse is defined as accuracy < 0.05 OR epsilon < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:47:25Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Switch to Mann-Whitney U if valid runs are fewer than 3
+  claim_id: c_d1f182c0
+  context: 'T024b [US3] Implement unpaired t-tests... Fallback: If valid runs < 3,
+    switch to Mann-Whitney U.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_Mann-Whitney_U_if_valid_runs_are_fewer_than_3
+  kind: magnitude
+  raw_text: If valid runs are fewer than 3, the system switches to Mann-Whitney U
+    test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:48:14Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: FEMNIST dataset configuration uses split train and trust_remote_code
+    true
+  claim_id: c_074fb29f
+  context: 'T011 [P] [US1] Implement FEMNIST data downloader... Configuration: Use
+    split=''train'', trust_remote_code=True.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FEMNIST_dataset_configuration_uses_split_train_and_trust_rem
+  kind: entity_fact
+  raw_text: The configuration uses split='train' and trust_remote_code=True for the
+    FEMNIST dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:48:29Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Project requires Python version 3.10 or higher
+  claim_id: c_998c2bfb
+  context: T002 [P] Initialize Python 3.10+ project with PyTorch, Opacus, Hugging
+    Face datasets, pandas, scipy, numpy, matplotlib, statsmodels in requirements.txt
+    containing pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.10 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:48:45Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Dirichlet partitioning uses alpha values 0.1, 0.5, and 1.0
+  claim_id: c_9be8efac
+  context: T012 [P] [US1] Implement Dirichlet partitioning logic (alpha in {, 0.5,
+    1.0}) for FEMNIST in code/data/partition.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Dirichlet partitioning logic uses alpha values of 0.1, 0.5, and 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:49:22Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Orchestration loop iterates through 5 seeds per configuration
+  claim_id: c_4c35ca35
+  context: 'T018c [US2] Implement the 5-seed orchestration loop mandated by FR-004...
+    Completion: Produces results/raw_logs.csv with 5 seeds per config.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The orchestration loop iterates through 5 seeds per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:49:52Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Summary CSV includes accuracy_variance across 5 seeds
+  claim_id: c_9db90367
+  context: 'T028b [US3] Implement statistical column calculation... Action: Calculate
+    p-values... and variance of accuracy metrics across 5 seeds (for SC-005) per configuration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The summary CSV includes a column for accuracy_variance calculated across
+    5 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:49:56Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: FEMNIST download fails after 3 attempts
+  claim_id: c_435052a1
+  context: 'Failure Handling: If retries are exhausted, exit with code 1 and error
+    message ''Failed to download FEMNIST after 3 attempts''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task fails with exit code 1 and error message 'Failed to download
+    FEMNIST after 3 attempts' if retries are exhausted.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:51:26Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Dynamic batch sizing minimum 16
+  claim_id: c_e1e9fe49
+  context: T031 [P] Implement dynamic batch sizing in code/training/fedavg.py that
+    reduces batch size by half (floor to next power of 2), with a hard minimum of
+    16, if OOM occurs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dynamic batch sizing reduces batch size by half (floor to next power of
+    2), with a hard minimum of 16, if OOM occurs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:51:28Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Utility collapse threshold accuracy 0.05 epsilon 0.05
+  claim_id: c_56d9318f
+  context: 'Logic: Exclude rows where is_utility_collapse is True (defined as accuracy
+    < 0.05 OR epsilon < 0.05).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Utility_collapse_threshold_accuracy_0.05_epsilon_0.05
+  kind: entity_fact
+  raw_text: Utility collapse is defined as accuracy < 0.05 OR epsilon < 0.05.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:51:29Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Mann-Whitney U fallback valid runs less than 3
+  claim_id: c_54cf3c01
+  context: 'Fallback: If valid runs < 3, switch to Mann-Whitney U.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mann-Whitney_U_fallback_valid_runs_less_than_3
+  kind: magnitude
+  raw_text: The Mann-Whitney U test is used as a fallback if valid runs are less than
+    3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:51:36Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Slope ratio alpha 0.1 is 2x steeper than alpha 1.0
+  claim_id: c_29553588
+  context: 'Validation: Verify that the slope for alpha=0.1 is >= 2x steeper (more
+    negative) than the slope for alpha=1.0.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Slope_ratio_alpha_0.1_is_2x_steeper_than_alpha_1.0
+  kind: magnitude
+  raw_text: The slope of the accuracy vs. epsilon curve for alpha=0.1 is verified
+    to be at least 2x steeper (more negative) than the slope for alpha=1.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:51:43Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Overlay plot resolution 300 DPI
+  claim_id: c_bbd36408
+  context: 'Output: results/plots/minority_vs_global_overlay.png. Format: PNG. Resolution:
+    300 DPI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The overlay plot of minority-client degradation curves against global
+    accuracy curves is generated at 300 DPI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:51:45Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Orchestration uses 5 seeds per configuration
+  claim_id: c_e82a9e5e
+  context: 'Completion: Produces results/raw_logs.csv with 5 seeds per config.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The orchestration loop iterates through 5 seeds per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:51:45Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Dirichlet partitioning alpha values 0.5 1.0
+  claim_id: c_e199fe12
+  context: Implement Dirichlet partitioning logic (alpha in {, 0.5, 1.0}) for FEMNIST
+    in code/data/partition.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dirichlet partitioning logic is implemented for alpha values of 0.5 and
+    1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:51:52Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Minority client definition less than 5% samples
+  claim_id: c_62b23b93
+  context: MUST explicitly identify 'minority' clients based on label frequency in
+    partition metadata (e.g., clients with <5% of total class samples) and log separate
+    metrics for majority vs. minority.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minority_client_definition_less_than_5%25_samples
+  kind: magnitude
+  raw_text: Minority clients are defined as clients with less than 5% of total class
+    samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:51:53Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: FEMNIST download completion requires existence of parquet and sha256
+    files
+  claim_id: c_631a6f61
+  context: 'T011 [P] [US1] Implement FEMNIST data downloader using Hugging Face datasets
+    (Verified Source: leaf/femnist per plan.md) in code/data/download.py.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FEMNIST_download_completion_requires_existence_of_parquet_an
+  kind: entity_fact
+  raw_text: The task is only complete when data/raw/femnist.parquet and data/raw/femnist.sha256
+    exist on disk.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:53:25Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: FEMNIST download fails with code 1 after 3 attempts
+  claim_id: c_e96ec1d5
+  context: 'T011 [P] [US1] Implement FEMNIST data downloader... Failure Handling:
+    If retries are exhausted, exit with code 1 and error message ''Failed to download
+    FEMNIST after 3 attempts''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If retries are exhausted, exit with code 1 and error message 'Failed to
+    download FEMNIST after 3 attempts'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:53:25Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Dirichlet partitioning alpha values are 0.1, 0.5, and 1.0
+  claim_id: c_bc7f5957
+  context: "T012 [P] [US1] Implement Dirichlet partitioning logic (\u03B1 \u2208 {0.1,\
+    \ 0.5, 1.0}) for FEMNIST in code/data/partition.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dirichlet partitioning logic uses alpha values of 0.1, 0.5, and 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:53:25Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Partition metadata naming pattern is partition_femnist_seed_alpha.json
+  claim_id: c_06d8947e
+  context: 'T013 [US1] Implement client partition metadata generation... Output Format:
+    File naming pattern partition_femnist_{seed}_{alpha}.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Partition_metadata_naming_pattern_is_partition_femnist_seed
+  kind: entity_fact
+  raw_text: Partition metadata files follow the naming pattern partition_femnist_{seed}_{alpha}.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:53:31Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Orchestration loop runs 5 seeds per configuration
+  claim_id: c_a9d0654b
+  context: T018c [US2] Implement the 5-seed orchestration loop mandated by FR-004...
+    Produces results/raw_logs.csv with 5 seeds per config.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The orchestration loop iterates through 5 seeds per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:53:31Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 2
+  canonical: Minority clients defined as having less than 5% of total class samples
+  claim_id: c_d2bad006
+  context: T019 [US2] Implement per-client accuracy logging... MUST explicitly identify
+    'minority' clients based on label frequency in partition metadata (e.g., clients
+    with <5% of total class samples)...
+  evidence:
+    entailment_evidence: Minority clients defined as having less than 5% of total
+      cla
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Minority_clients_defined_as_having_less_than_5%25_of_total_cla
+  kind: magnitude
+  raw_text: Minority clients are defined as clients with less than 5% of total class
+    samples.
+  resolved_value: Minority clients defined as having less than 5% of total class samples
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T11:53:33Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Utility collapse defined as accuracy < 0.05 or epsilon < 0.05
+  claim_id: c_75178191
+  context: 'T035 [US3] Filter utility collapse results... Logic: Exclude rows where
+    is_utility_collapse is True (defined as accuracy < 0.05 OR epsilon < 0.05).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Utility_collapse_defined_as_accuracy_%3C_0.05_or_epsilon_%3C_0.0
+  kind: magnitude
+  raw_text: Utility collapse is defined as accuracy less than 0.05 or epsilon less
+    than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:53:39Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Mann-Whitney U fallback triggered if valid runs < 3
+  claim_id: c_2cce3199
+  context: 'T024b [US3] Implement unpaired t-tests... Fallback: If valid runs < 3,
+    switch to Mann-Whitney U.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mann-Whitney_U_fallback_triggered_if_valid_runs_%3C_3
+  kind: magnitude
+  raw_text: The Mann-Whitney U test fallback is triggered if valid runs are less than
+    3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:53:41Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Overlay plot resolution is 300 DPI
+  claim_id: c_74fdde1a
+  context: 'T026 [US3] Implement plotting module... Resolution: 300 DPI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The overlay plot must be generated at 300 DPI resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:53:45Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Dynamic batch sizing minimum is 16
+  claim_id: c_5eb53c2c
+  context: T031 [P] Implement dynamic batch sizing... that reduces batch size by half
+    (floor to next power of 2), with a hard minimum of 16, if OOM occurs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dynamic batch sizing reduces batch size by half with a hard minimum of
+    16.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:53:49Z'
+- artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  attempts: 1
+  canonical: Slope for alpha 0.1 must be at least 2x steeper than alpha 1.0
+  claim_id: c_c8cc0e2f
+  context: "T036 [US3] Implement slope ratio calculation... Validation: Verify that\
+    \ the slope for \u03B1=0.1 is \u2265 2x steeper (more negative) than the slope\
+    \ for \u03B1=1.0."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Slope_for_alpha_0.1_must_be_at_least_2x_steeper_than_alpha_1
+  kind: magnitude
+  raw_text: The slope of the accuracy vs. epsilon curve for alpha=0.1 must be at least
+    2x steeper than for alpha=1.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T11:53:55Z'

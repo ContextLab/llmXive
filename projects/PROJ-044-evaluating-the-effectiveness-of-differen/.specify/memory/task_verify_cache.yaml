@@ -1,9 +1,25 @@
-T028:
+T000:
   c: false
-  h: e10705754bbf7e7fa31e20705c5ebca2046e84261380fbd1a08da78613b90922
-  r: The required `results/summary.csv` file does not exist, so the specified columns
-    and data are missing. While a `validation_report.md` is present, the overall task
-    is incomplete without the summary CSV.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No content of `specs/001-evaluating-dp-federated-learning/spec.md` is provided,\
+    \ nor any grep output showing that the word \u201CShakespeare\u201D is absent.\
+    \ Without the actual file or verification result, we cannot confirm that all Shakespeare\
+    \ references have been removed and that FR\u2011001 lists only \u201CFEMNIST\u201D\
+    . The required artifact is missing."
+T011:
+  c: false
+  h: d899a7a85911ee4b75c45482dd3bb383a5466d65a2688083398c81718a1bae7b
+  r: The `code/data/download.py` script is present, but the required output files
+    `data/raw/femnist.parquet` and `data/raw/femnist.sha256` are missing, which is
+    a mandatory completion criterion. Without these files the task is not considered
+    done.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No JSON partition files matching the pattern `partition_femnist_{seed}_{alpha}.json`
+    are present in `data/partitions/`, and the claim provides no evidence of such
+    files, their schema, or any explicit reference to T000 as required. Consequently
+    the required output artifact is missing.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
