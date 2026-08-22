@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-037-investigating-the-correlation-between-gu",
+  "ok": false,
+  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python code/main.py; python code/main.py; 4 declared deliverable(s) absent: data/outputs/correlation_results.csv; data/outputs/heatmap.png; data/outputs/pcoa_sleep_quality.png",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-22T19:32:55Z"
+}

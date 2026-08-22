@@ -52,7 +52,7 @@ The system must validate the stability of observed correlations via bootstrap re
 ### Edge Cases
 
 - What happens when the intersection of American Gut and Open Humans data yields fewer than 200 participants? The system must flag this as a power limitation in the report and proceed with the available sample size, explicitly noting the reduced statistical power.
-- How does the system handle participants with extreme outliers in sleep duration (e.g., < 2 hours or > 16 hours)? The system must cap these values at extreme percentiles of the distribution (1st/99th) or exclude them, documenting the exclusion criteria.
+- How does the system handle participants with extreme outliers in sleep duration (e.g., < 2 hours or > 16 hours)? The system must cap these values at extreme percentiles of the distribution (st/99th) or exclude them, documenting the exclusion criteria.
 - How does the system handle missing covariate data (e.g., BMI or antibiotic history)? The system must impute missing values using median/mode for continuous/categorical variables or exclude the participant if >20% of covariates are missing.
 
 ## Requirements

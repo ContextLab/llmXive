@@ -1,3 +1,19 @@
+T026:
+  c: false
+  h: fbc3b5e9c75906d45c1fa7ecaa73a976d916fa673ec99b47a23ea453f92d82b3
+  r: "The repository contains `code/viz.py`, but the provided excerpt does not show\
+    \ any function that creates a seaborn heatmap with the required title format,\
+    \ nor is there a generated `data/outputs/heatmap.png` file present. The missing\
+    \ output file (and likely missing implementation details) means the task\u2019\
+    s core requirement is not fulfilled."
+T027:
+  c: false
+  h: e397d45304bf3254f6c75f94559efd08927c20802b17ac379cf64f10b6a720f0
+  r: "The required output file `data/outputs/pcoa_sleep_quality.png` is missing, and\
+    \ the provided `code/viz.py` contains placeholder logic that raises a `FileNotFoundError`\
+    \ for the beta\u2011diversity matrix and does not contain a concrete implementation\
+    \ that creates and saves the PCoA plot with legend and axis labels. The task therefore\
+    \ is not fully satisfied."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
