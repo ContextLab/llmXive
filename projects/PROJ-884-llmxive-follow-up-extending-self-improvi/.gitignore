@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -16,17 +20,39 @@ parts/
 sdist/
 var/
 wheels/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# Virtual Environments
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
+env/
 venv/
 ENV/
-env/
-.venv/
+env.bak/
+venv.bak/
 
 # IDEs
 .idea/
@@ -35,7 +61,6 @@ env/
 *.swo
 *~
 .project
-.pydevproject
 .settings/
 
 # Jupyter Notebook
@@ -46,32 +71,24 @@ env/
 
 # mypy
 .mypy_cache/
-.dmypy.json
-dmypy.json
 
-# Pyre type checker
-.pyre/
-
-# OS
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
 # Project specific
-data/raw/*.tmp
-data/processed/*.tmp
+data/raw/*.jsonl
+data/processed/*.json
+data/processed/*.csv
 data/processed/*.log
-data/processed/experiment.log
+data/processed/*.yaml
+figures/
+logs/
 *.log
-.coverage
-htmlcov/
-.pytest_cache/
-.cache/
-.tox/
-nox/
-.hypothesis/
-
-# Secrets and configs (optional, uncomment if needed)
-# *.pem
-# *.key
-# .env
-# secrets.yaml

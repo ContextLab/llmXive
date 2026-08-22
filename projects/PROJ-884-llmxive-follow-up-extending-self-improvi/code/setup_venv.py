@@ -1,88 +1,99 @@
+"""
+Setup script for creating a Python virtual environment and installing dependencies.
+This script handles the initialization of the venv and dependency installation
+for the llmXive research pipeline.
+"""
 import os
 import subprocess
 import sys
 import shutil
 from pathlib import Path
 
-def find_python311() -> Path:
-    """
-    Locate a Python 3.11 executable on the system.
-    Checks common locations and the system PATH.
-    Raises FileNotFoundError if not found.
-    """
-    possible_names = ["python3.11", "python3", "python"]
-    python_path = None
+# Ensure we are in the project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+VENV_DIR = PROJECT_ROOT / "venv"
+REQUIREMENTS_FILE = PROJECT_ROOT / "requirements.txt"
 
-    # Try specific python3.11 first, then generic python3
-    for name in ["python3.11", "python3"]:
+def find_python311():
+    """
+    Find a Python 3.11 executable.
+    Tries common versioned names and the generic python3.
+    """
+    candidates = ["python3.11", "python3", "python"]
+    for candidate in candidates:
         try:
             result = subprocess.run(
-                [name, "--version"],
+                [candidate, "--version"],
                 capture_output=True,
                 text=True,
                 check=True
             )
-            if "3.11" in result.stdout or "3.11" in result.stderr:
-                # Found a 3.11 version
-                python_path = shutil.which(name)
-                break
+            if "3.11" in result.stdout:
+                return candidate
         except (subprocess.CalledProcessError, FileNotFoundError):
             continue
+    return None
 
-    if not python_path:
-        # Fallback to generic python if python3.11 not found explicitly
-        # (Assuming the environment running this script is 3.11)
-        python_path = sys.executable
-        version = f"{sys.version_info.major}.{sys.version_info.minor}"
-        if "3.11" not in version:
-            raise FileNotFoundError(
-                f"Could not find Python 3.11. "
-                f"Current interpreter is {version} at {python_path}. "
-                f"Please ensure python3.11 is installed and in PATH."
+def create_virtual_environment():
+    """
+    Create a virtual environment in the specified directory.
+    """
+    if not VENV_DIR.exists():
+        print(f"Creating virtual environment at {VENV_DIR}...")
+        python_exe = find_python311()
+        if not python_exe:
+            raise RuntimeError(
+                "Could not find Python 3.11. Please install Python 3.11 "
+                "or set the PYTHON environment variable."
             )
+        
+        subprocess.run(
+            [python_exe, "-m", "venv", str(VENV_DIR)],
+            check=True
+        )
+        print("Virtual environment created successfully.")
+    else:
+        print(f"Virtual environment already exists at {VENV_DIR}.")
 
-    return Path(python_path)
+def install_dependencies():
+    """
+    Install dependencies from requirements.txt into the virtual environment.
+    """
+    if not REQUIREMENTS_FILE.exists():
+        print(f"Warning: {REQUIREMENTS_FILE} not found. Skipping dependency installation.")
+        return
+
+    print("Installing dependencies...")
+    pip_executable = VENV_DIR / "bin" / "pip"
+    if sys.platform == "win32":
+        pip_executable = VENV_DIR / "Scripts" / "pip"
+
+    subprocess.run(
+        [str(pip_executable), "install", "--upgrade", "pip"],
+        check=True
+    )
+    
+    subprocess.run(
+        [str(pip_executable), "install", "-r", str(REQUIREMENTS_FILE)],
+        check=True
+    )
+    print("Dependencies installed successfully.")
 
 def main():
     """
-    Initialize a Python 3.11 virtual environment in the project root.
-    Project root is expected to be the directory containing this script's parent 'code' directory.
+    Main entry point for the setup script.
     """
-    # Determine project root: code/setup_venv.py -> parent is project root
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-    venv_path = project_root / "venv"
-
-    print(f"Project Root: {project_root}")
-    print(f"Target Venv: {venv_path}")
-
-    if venv_path.exists():
-        print("Virtual environment already exists at 'venv/'. Skipping creation.")
-        print("To recreate, manually remove the 'venv/' directory.")
-        return 0
-
     try:
-        python_exec = find_python311()
-        print(f"Using Python executable: {python_exec}")
-
-        # Create the virtual environment
-        subprocess.run(
-            [str(python_exec), "-m", "venv", str(venv_path)],
-            check=True
-        )
-        print(f"Successfully created virtual environment at '{venv_path}'.")
-        print(f"Activate with: source {venv_path}/bin/activate (Linux/Mac) or {venv_path}\\Scripts\\activate (Windows)")
-        return 0
-
+        create_virtual_environment()
+        install_dependencies()
+        print("Setup complete.")
+        print(f"Activate the environment with: source {VENV_DIR}/bin/activate")
     except subprocess.CalledProcessError as e:
-        print(f"Error creating virtual environment: {e}", file=sys.stderr)
-        return 1
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return 1
+        print(f"Error during setup: {e}")
+        sys.exit(1)
     except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        return 1
+        print(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

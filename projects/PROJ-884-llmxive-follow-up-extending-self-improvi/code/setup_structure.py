@@ -1,48 +1,42 @@
+"""
+Script to set up the required code directory structure.
+Creates code/{dataset,symbolic,bes,analysis,utils} directories.
+"""
 import os
 import sys
 from pathlib import Path
 from typing import List
 
-def setup_data_directories() -> List[str]:
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+
+SUBDIRS: List[str] = ["dataset", "symbolic", "bes", "analysis", "utils"]
+
+def setup_code_directories():
     """
-    Creates the project directory structure as specified in the implementation plan.
-    
-    Returns a list of created directory paths.
+    Create the required code directory structure.
     """
-    # Define the project root based on the task requirement
-    project_root = Path("projects/PROJ-884-llmxive-follow-up-extending-self-improvi")
+    directories: List[Path] = [CODE_DIR] + [CODE_DIR / subdir for subdir in SUBDIRS]
     
-    # Define the directory structure to create
-    directories = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "code" / "dataset",
-        project_root / "code" / "symbolic",
-        project_root / "code" / "bes",
-        project_root / "code" / "analysis",
-        project_root / "code" / "utils",
-        project_root / "tests" / "unit",
-        project_root / "tests" / "integration",
-    ]
-    
-    created_dirs = []
-    for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(dir_path))
+    for directory in directories:
+        if not directory.exists():
+            print(f"Creating directory: {directory}")
+            directory.mkdir(parents=True, exist_ok=True)
         else:
-            created_dirs.append(str(dir_path))
-    
-    return created_dirs
+            print(f"Directory already exists: {directory}")
+        
+        # Create __init__.py to make them packages
+        init_file = directory / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created __init__.py in {directory}")
 
 def main():
-    """Main entry point for the script."""
-    print("Creating project directory structure...")
-    created = setup_data_directories()
-    print(f"Successfully created {len(created)} directories:")
-    for d in created:
-        print(f"  - {d}")
-    print("Done.")
+    """
+    Main entry point.
+    """
+    setup_code_directories()
+    print("Code directory structure setup complete.")
 
 if __name__ == "__main__":
     main()

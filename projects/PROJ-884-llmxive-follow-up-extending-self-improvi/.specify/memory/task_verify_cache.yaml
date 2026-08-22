@@ -1,16 +1,22 @@
-T001a:
+T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory tree (`projects/PROJ-884-llmxive-follow-up-extending-self-improvi/...`)
-    is provided; without confirming that the folders exist, the task cannot be considered
-    fulfilled. The implementer must show that the specified directories have been
-    created (e.g., a directory listing or screenshot).
-T001b:
+  r: No evidence of a `tests/` directory or its `unit` and `integration` subdirectories
+    is provided, nor any proof they exist and are writable. The required hierarchy
+    is missing.
+T002a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a Git repository being initialized nor a `.gitignore` file with\
-    \ Python\u2011specific entries is provided; the claim lacks any tangible artifact\
-    \ to confirm the required setup."
+  r: "No evidence of an initialized Git repository or a `.gitignore` file is provided;\
+    \ the claim lacks any artifact showing the repository structure or the ignore\
+    \ rules for Python artifacts. The required files must be present and non\u2011\
+    empty to satisfy task T002a."
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a Python virtual environment (e.g., a `venv/` directory, activation
+    scripts, or installed packages) is present in the specified `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/`
+    path. The required artifact is missing, so the task is not satisfied.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,12 +25,16 @@ T003:
     so the requirement to configure flake8 and Black is not satisfied. The implementer
     must add the appropriate configuration files and ensure they are applied to the
     codebase.
-T004:
+T008c:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/raw/` and `data/processed/` directories being
-    created (or containing any files) is provided; the claim lacks concrete artifacts
-    confirming the directory structure exists.
+  h: 135a3c20f12e7b27cf224df4912f94636faf9770ec9c3b22f113eac41ada5098
+  r: "The `generate_tdp_constant.py` script is truncated (e.g., `calculate_error_margin_and_ci`\
+    \ ends with `return erro` and no `generate_calibrated_tdp` implementation or file\u2011\
+    writing logic is present). The required input file `data/processed/calibration_run.json`\
+    \ and the output `data/processed/calibrated_tdp.json` are absent. The unit test\
+    \ `test_tdp_constant_valid` does not verify that `data/processed/calibrated_tdp.json`\
+    \ exists; it only writes to a temporary file. The task\u2019s core requirements\
+    \ are therefore not satisfied."
 T021:
   c: false
   h: af277c612ca9ea50ea74f887ded1ca1ead78999a8dcd3d2db29315b7ceba36e6
@@ -47,11 +57,6 @@ T035:
   h: fdcc53ba40ea46075b92cd76c7258a11ec65634363275067fb48b5f847b92c66
   r: The required artifact `pre_registration.yaml` is missing from the provided evidence,
     so the set of required files is not complete, violating the verification constraint.
-T035#1:
-  c: false
-  h: fdcc53ba40ea46075b92cd76c7258a11ec65634363275067fb48b5f847b92c66
-  r: The required artifact `pre_registration.yaml` is missing from the repository,
-    so the set of required files is incomplete and the verification task is not satisfied.
 T040c:
   c: false
   h: 99dd1f7c7e8501eaa3ffbb6600cce90562467a5f430d00d5786aeafe49cc609b

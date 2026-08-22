@@ -1,1 +1,3 @@
-"""Analysis module initialization."""
+"""
+Analysis and statistics module.
+"""

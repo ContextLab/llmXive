@@ -9,6 +9,7 @@ Constraints:
 - device='cpu' is enforced.
 - bitsandbytes is explicitly forbidden (no 8-bit quantization on CPU).
 - This task is for configuration generation ONLY; no model download occurs here.
+- Explicitly mandates optimum.onnxruntime quantization flags for CPU execution.
 """
 import os
 from pathlib import Path
@@ -30,6 +31,12 @@ USE_BITSANDBYTES = False
 USE_IPEx = True
 IPEX_PRECISION = "bf16"  # Use bfloat16 for Intel AMX/AVX512 support if available, else fallback to fp32
 
+# Optimum ONNX Runtime configuration
+# Explicitly mandate optimum.onnxruntime quantization flags for CPU execution to prevent OOM
+USE_OPTIMUM_ONNXRUNTIME = True
+ONNX_QUANTIZATION = "8-bit"
+ONNX_DEVICE = "cpu"
+
 class BESConfig:
     """Configuration container for BES components."""
 
@@ -46,6 +53,9 @@ class BESConfig:
         use_ipex: bool = USE_IPEx,
         ipex_precision: str = IPEX_PRECISION,
         use_bitsandbytes: bool = USE_BITSANDBYTES,
+        use_optimum_onnxruntime: bool = USE_OPTIMUM_ONNXRUNTIME,
+        onnx_quantization: str = ONNX_QUANTIZATION,
+        onnx_device: str = ONNX_DEVICE,
     ):
         self.model_id = model_id
         self.device = device
@@ -58,6 +68,9 @@ class BESConfig:
         self.use_ipex = use_ipex
         self.ipex_precision = ipex_precision
         self.use_bitsandbytes = use_bitsandbytes
+        self.use_optimum_onnxruntime = use_optimum_onnxruntime
+        self.onnx_quantization = onnx_quantization
+        self.onnx_device = onnx_device
 
         # Validation
         if self.device != "cpu":
@@ -66,6 +79,8 @@ class BESConfig:
             raise ValueError("bitsandbytes is forbidden in this configuration (CPU-only constraint).")
         if self.use_ipex and self.ipex_precision not in ["bf16", "fp32"]:
             raise ValueError(f"Invalid IPEX precision: {self.ipex_precision}. Must be 'bf16' or 'fp32'.")
+        if self.use_optimum_onnxruntime and self.onnx_device != "cpu":
+            raise ValueError("Optimum ONNX Runtime configuration requires 'cpu' device in this context.")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert config to a dictionary for serialization."""
@@ -81,6 +96,9 @@ class BESConfig:
             "use_ipex": self.use_ipex,
             "ipex_precision": self.ipex_precision,
             "use_bitsandbytes": self.use_bitsandbytes,
+            "use_optimum_onnxruntime": self.use_optimum_onnxruntime,
+            "onnx_quantization": self.onnx_quantization,
+            "onnx_device": self.onnx_device,
         }
 
     @classmethod
@@ -98,6 +116,9 @@ class BESConfig:
             use_ipex=data.get("use_ipex", USE_IPEx),
             ipex_precision=data.get("ipex_precision", IPEX_PRECISION),
             use_bitsandbytes=data.get("use_bitsandbytes", USE_BITSANDBYTES),
+            use_optimum_onnxruntime=data.get("use_optimum_onnxruntime", USE_OPTIMUM_ONNXRUNTIME),
+            onnx_quantization=data.get("onnx_quantization", ONNX_QUANTIZATION),
+            onnx_device=data.get("onnx_device", ONNX_DEVICE),
         )
 
     def save(self, path: Path) -> None:

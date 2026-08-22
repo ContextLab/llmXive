@@ -1,39 +1,32 @@
 """
-Validation Gate for Dataset Distribution.
+Task T036: Validate dataset distribution and produce validation gate.
 
-This module validates the dataset distribution using the results from
-T014e (distribution_validation.json) and produces a final gate status
-in data/processed/validation_gate.json.
-
-It verifies:
+This script reads the distribution validation report (from T014e-exec) and verifies:
 1. The distribution of puzzle types matches the intended ratio.
-2. The complexity scaling is continuous.
-3. The validation status from T014e is PASS.
+2. The complexity scaling is continuous across the N range.
 
-If validation fails, the task MUST fail and halt the pipeline.
+It outputs `data/processed/validation_gate.json` with status PASS or FAIL.
 """
+
 import json
 import sys
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Constants for file paths relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DISTRIBUTION_VALIDATION_PATH = DATA_PROCESSED_DIR / "distribution_validation.json"
-VALIDATION_GATE_PATH = DATA_PROCESSED_DIR / "validation_gate.json"
+# Ensure we can import from the code package
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 def load_json(path: Path) -> Optional[Dict[str, Any]]:
-    """Load a JSON file safely."""
-    if not path.exists():
-        print(f"Error: Required file not found: {path}", file=sys.stderr)
-        return None
+    """Load a JSON file, returning None if it doesn't exist or is invalid."""
     try:
         with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
+    except FileNotFoundError:
+        print(f"ERROR: Required file not found: {path}")
+        return None
     except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON in {path}: {e}", file=sys.stderr)
+        print(f"ERROR: Invalid JSON in {path}: {e}")
         return None
 
 def save_json(path: Path, data: Dict[str, Any]) -> bool:
@@ -43,85 +36,94 @@ def save_json(path: Path, data: Dict[str, Any]) -> bool:
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2)
         return True
-    except IOError as e:
-        print(f"Error: Could not write to {path}: {e}", file=sys.stderr)
+    except Exception as e:
+        print(f"ERROR: Failed to write {path}: {e}")
         return False
 
-def validate_distribution(validation_data: Dict[str, Any]) -> tuple[bool, str]:
+def validate_distribution(validation_data: Dict[str, Any]) -> tuple[bool, str, Dict[str, Any]]:
     """
-    Validate the distribution based on T014e output.
-
-    Checks:
-    - 'is_valid' field must be True.
-    - 'power_estimate' should be reasonable (e.g., > 0.8 for robust results, though we accept > 0.5 for gate pass with warning).
-    - 'notes' are checked for critical failure indicators.
+    Validate the distribution report.
 
     Returns:
-        Tuple of (status_bool, message_string)
+        (is_valid, reason, stats)
     """
-    if not validation_data.get('is_valid', False):
-        return False, "Distribution validation failed: is_valid is False."
+    if not validation_data:
+        return False, "Validation data is missing or empty", {}
 
-    power = validation_data.get('power_estimate', 0.0)
-    notes = validation_data.get('notes', '')
+    is_valid = validation_data.get("is_valid", False)
+    notes = validation_data.get("notes", "")
+    power_estimate = validation_data.get("power_estimate", 0.0)
 
-    # Check for critical notes indicating failure
-    critical_keywords = ['fail', 'error', 'invalid', 'insufficient', 'rejected']
-    if any(kw in notes.lower() for kw in critical_keywords):
-        return False, f"Distribution validation failed due to notes: {notes}"
+    # Check if the validation passed
+    if not is_valid:
+        reason = f"Distribution validation failed: {notes}"
+        return False, reason, {"is_valid": is_valid, "notes": notes, "power_estimate": power_estimate}
 
-    # Check power estimate (optional warning if low, but not a hard gate failure unless < 0.1)
-    if power < 0.1:
-        return False, f"Distribution validation failed: Power estimate ({power:.2f}) is critically low."
-    
-    if power < 0.8:
-        return True, f"Warning: Power estimate ({power:.2f}) is below recommended 0.8, but validation passed."
+    # Check power estimate (statistical robustness)
+    if power_estimate < 0.8:
+        reason = f"Statistical power is too low: {power_estimate:.2f} < 0.8. The sample size may be insufficient."
+        return False, reason, {"is_valid": is_valid, "power_estimate": power_estimate}
 
-    return True, "Distribution validation passed successfully."
+    # Check that distribution stats exist
+    distribution_stats = validation_data.get("distribution_stats", {})
+    if not distribution_stats:
+        reason = "Distribution stats are missing from the validation report."
+        return False, reason, {"is_valid": is_valid, "notes": notes}
 
-def main():
-    """Main entry point for the validation gate."""
-    print("Starting Dataset Distribution Validation Gate...")
-    
-    # 1. Load distribution validation results from T014e
-    validation_data = load_json(DISTRIBUTION_VALIDATION_PATH)
-    if validation_data is None:
-        print("FATAL: Could not load distribution validation data. Halting pipeline.")
-        gate_result = {
-            "status": "FAIL",
-            "reason": "Missing or invalid distribution_validation.json from T014e",
-            "timestamp": "N/A"
-        }
-        save_json(VALIDATION_GATE_PATH, gate_result)
-        sys.exit(1)
+    # Check for continuous complexity scaling if available
+    complexity_scaling = distribution_stats.get("complexity_scaling", {})
+    if not complexity_scaling.get("is_continuous", False):
+        reason = "Complexity scaling is not continuous."
+        return False, reason, {"is_valid": is_valid, "distribution_stats": distribution_stats}
 
-    # 2. Perform validation logic
-    is_valid, message = validate_distribution(validation_data)
-    
-    # 3. Determine final gate status
-    gate_status = "PASS" if is_valid else "FAIL"
-    
-    gate_result = {
-        "status": gate_status,
-        "reason": message,
-        "source_file": str(DISTRIBUTION_VALIDATION_PATH),
-        "timestamp": "N/A" # In a real run, use datetime.now().isoformat()
+    # If we get here, validation passed
+    return True, "Distribution validation passed: type ratio matches and complexity scaling is continuous.", {
+        "is_valid": is_valid,
+        "power_estimate": power_estimate,
+        "distribution_stats": distribution_stats
     }
 
-    # 4. Save the gate result
-    if not save_json(VALIDATION_GATE_PATH, gate_result):
-        print("FATAL: Could not write validation_gate.json. Halting pipeline.")
+def main():
+    """Main entry point for T036."""
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent.parent
+    input_path = project_root / "data" / "processed" / "distribution_validation.json"
+    output_path = project_root / "data" / "processed" / "validation_gate.json"
+
+    print(f"Reading distribution validation from: {input_path}")
+    validation_data = load_json(input_path)
+
+    if validation_data is None:
+        # Fail loudly if input is missing
+        error_gate = {
+            "status": "FAIL",
+            "reason": "Input file distribution_validation.json not found or invalid. Cannot proceed.",
+            "distribution_stats": {}
+        }
+        save_json(output_path, error_gate)
+        print(f"Written failure gate to: {output_path}")
         sys.exit(1)
 
-    print(f"Validation Gate Result: {gate_status}")
-    print(f"Details: {message}")
+    is_valid, reason, stats = validate_distribution(validation_data)
 
-    if gate_status == "FAIL":
-        print("HALTING PIPELINE: Validation gate failed.")
+    gate_output = {
+        "status": "PASS" if is_valid else "FAIL",
+        "reason": reason,
+        "distribution_stats": stats
+    }
+
+    if not save_json(output_path, gate_output):
+        print("ERROR: Could not write validation gate output.")
         sys.exit(1)
-    else:
-        print("Pipeline proceeding: Validation gate passed.")
-        sys.exit(0)
+
+    print(f"Validation Gate Result: {gate_output['status']}")
+    print(f"Reason: {gate_output['reason']}")
+    print(f"Written to: {output_path}")
+
+    if not is_valid:
+        sys.exit(1)
+
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

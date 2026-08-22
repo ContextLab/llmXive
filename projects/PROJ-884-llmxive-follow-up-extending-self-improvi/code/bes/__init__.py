@@ -1,0 +1,3 @@
+"""
+Bidirectional Evolutionary Search module.
+"""
