@@ -509,3 +509,163 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T13:34:36Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Use random state 42 for synthetic genomic data generation
+  claim_id: c_90c09e25
+  context: 'Implement `code/data/generate.py` to generate **synthetic genomic features**
+    and **synthetic drought labels**. **Logic**: Use `random_state=42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `random_state=42`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:32:14Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic genomic data uses a list of 20 specific genes
+  claim_id: c_eaa9ee87
+  context: '**Gene List (20)**: `NCED3`, `ABF3`, `P5CS`, `DREB2A`, `ERF1`, `ABI5`,
+    `RD29A`, `COR15A`, `LEA3`, `HSP70`, `SOD`, `APX1`, `CAT1`, `GPX1`, `MDHAR`, `DHAR`,
+    `GSTU`, `ZAT12`, `WRKY33`, `MYB96`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Gene List (20): `NCED3`, `ABF3`, `P5CS`, `DREB2A`, `ERF1`, `ABI5`, `RD29A`,
+    `COR15A`, `LEA3`, `HSP70`, `SOD`, `APX1`, `CAT1`, `GPX1`, `MDHAR`, `DHAR`, `GSTU`,
+    `ZAT12`, `WRKY33`, `MYB96`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:32:34Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic drought label is 1 if sum of genomic markers is 12 or greater,
+    otherwise 0
+  claim_id: c_67bb471f
+  context: '**Label Logic**: `label = 1` if `sum(genomic_markers) >= 12`, else `0`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Label Logic: `label = 1` if `sum(genomic_markers) >= 12`, else `0`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:32:59Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Standard MICE imputation uses max_iter 10
+  claim_id: c_319f6536
+  context: Implement `code/data/ingest.py` to apply **standard MICE** imputation for
+    missing continuous traits using `sklearn.impute.IterativeImputer` (`max_iter=10`,
+    `random_state=42`).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `sklearn.impute.IterativeImputer` with `max_iter=10`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:33:18Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: KNN baseline model uses K equals 5
+  claim_id: c_c8504871
+  context: Implement `code/models/train.py` to train KNN Baseline (K=5) using the
+    **synthetic phylogenetic distance matrix**.
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Train KNN Baseline with K=5.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T00:33:18Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: N_estimators grid search values are 100, 200, and 500
+  claim_id: c_6212ffff
+  context: Implement `code/models/train.py` to perform `n_estimators` grid search
+    across values {100, 200, 500} for both models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform `n_estimators` grid search across values {100, 200, 500}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:33:37Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Validation gene list contains 15 specific genes
+  claim_id: c_7f44346f
+  context: '**Validation Logic**: Use **Validation Gene List (15)**: `DREB2A`, `ERF1`,
+    `ABI5`, `RD29A`, `COR15A`, `LEA3`, `HSP70`, `SOD`, `APX1`, `CAT1`, `GPX1`, `MDHAR`,
+    `DHAR`, `GSTU`, `ZAT12`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Validation Gene List (15): `DREB2A`, `ERF1`, `ABI5`, `RD29A`, `COR15A`,
+    `LEA3`, `HSP70`, `SOD`, `APX1`, `CAT1`, `GPX1`, `MDHAR`, `DHAR`, `GSTU`, `ZAT12`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:33:52Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Validation requires at least 3 genes from the validation list in the
+    top 10 features
+  claim_id: c_e7c1ace1
+  context: Check if count of these genes in Top 10 features >= 3. (SC-005)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_requires_at_least_3_genes_from_the_validation_lis
+  kind: magnitude
+  raw_text: Check if count of these genes in Top 10 features >= 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:34:27Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Quickstart validation runtime must be less than 30 minutes
+  claim_id: c_de277422
+  context: 'Run `quickstart.md` validation: Execute `pytest -q --timeout=1800` and
+    **verify runtime < 30 minutes** (FR-008, SC-002)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Quickstart_validation_runtime_must_be_less_than_30_minutes
+  kind: magnitude
+  raw_text: Verify runtime < 30 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T00:34:53Z'

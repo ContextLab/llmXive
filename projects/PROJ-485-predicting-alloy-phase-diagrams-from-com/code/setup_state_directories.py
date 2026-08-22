@@ -6,55 +6,53 @@ from utils.logging import get_logger, log_info, log_error
 
 logger = get_logger(__name__)
 
-def create_directories(project_id: str = "PROJ-485") -> List[str]:
+def create_directories() -> bool:
     """
-    Creates the project state directory structure.
+    Create the project state directory structure.
     
-    Args:
-        project_id: The specific project identifier (default: PROJ-485).
-        
+    Specifically creates 'state/' and 'state/PROJ-485/' to satisfy
+    Constitution Principle V (State Management) and Task T001c.
+    
     Returns:
-        List[str]: Absolute paths of created directories.
+        bool: True if successful, False otherwise.
     """
-    base_state_dir = "state"
-    project_state_dir = os.path.join(base_state_dir, project_id)
+    base_dir = "state"
+    project_dir = os.path.join(base_dir, "PROJ-485")
     
-    created_dirs = []
+    directories_to_create = [base_dir, project_dir]
     
-    try:
-        # Create the base state directory if it doesn't exist
-        if not os.path.exists(base_state_dir):
-            os.makedirs(base_state_dir)
-            log_info(logger, f"Created base state directory: {base_state_dir}")
-        else:
-            log_info(logger, f"Base state directory already exists: {base_state_dir}")
+    created_count = 0
+    failed_count = 0
+    
+    for dir_path in directories_to_create:
+        try:
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path, exist_ok=True)
+                log_info(logger, f"Created directory: {dir_path}")
+                created_count += 1
+            else:
+                log_info(logger, f"Directory already exists: {dir_path}")
+        except OSError as e:
+            log_error(logger, f"Failed to create directory {dir_path}: {e}")
+            failed_count += 1
+    
+    if failed_count > 0:
+        log_error(logger, f"Failed to create {failed_count} directory(ies)")
+        return False
         
-        # Create the project-specific state directory
-        if not os.path.exists(project_state_dir):
-            os.makedirs(project_state_dir)
-            log_info(logger, f"Created project state directory: {project_state_dir}")
-            created_dirs.append(project_state_dir)
-        else:
-            log_info(logger, f"Project state directory already exists: {project_state_dir}")
-            
-    except OSError as e:
-        log_error(logger, f"Failed to create state directories: {e}")
-        raise
-        
-    return created_dirs
+    log_info(logger, f"Successfully created {created_count} state directories")
+    return True
 
 def main():
-    """
-    Entry point for creating state directories.
-    """
-    logger.info("Starting state directory creation...")
-    try:
-        dirs = create_directories()
-        logger.info(f"Successfully created directories: {dirs}")
-        return 0
-    except Exception as e:
-        logger.error(f"Failed to create state directories: {e}")
-        return 1
+    """Entry point for script execution."""
+    logger.info("Starting state directory creation (Task T001c)")
+    success = create_directories()
+    if success:
+        logger.info("State directory creation completed successfully")
+        sys.exit(0)
+    else:
+        logger.error("State directory creation failed")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,4 +1,3 @@
 """
-Package: code.ingest
-Handles data ingestion, validation, and source verification.
+Ingest module for loading and validating raw alloy data.
 """

@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure with explicit directories: `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `docs/reports/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001 Create project directory structure with explicit directories: `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `docs/reports/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `scikit-learn>=1.3.0`, `xgboost>=2.0.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`, `requests>=2.31.0`, `imblearn>=0.11.0`, `pyyaml>=6.0.0`, `joblib>=1.3.0`, `pytest>=7.4.0`
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`
 
@@ -74,7 +74,7 @@
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/data/download.py` to fetch TRY database CSVs with exponential backoff and checksum verification. (FR-001)
-- [ ] T012 [US1] Implement `code/data/generate.py` to generate **synthetic genomic features** and **synthetic drought labels**. **Logic**: Use `random_state=42`. **Gene List (20)**: `NCED3`, `ABF3`, `P5CS`, `DREB2A`, `ERF1`, `ABI5`, `RD29A`, `COR15A`, `LEA3`, `HSP70`, `SOD`, `APX1`, `CAT1`, `GPX1`, `MDHAR`, `DHAR`, `GSTU`, `ZAT12`, `WRKY33`, `MYB96`. **Label Logic**: `label = 1` if `sum(genomic_markers) >= 12`, else `0`. Output to `data/processed/synthetic_genomics.csv`. (FR-001, Plan Validation Mode)
+- [ ] T012 [US1] Implement `code/data/generate.py` to generate **synthetic genomic features** and **synthetic drought labels**. **Logic**: Use `random_state=42`. [UNRESOLVED-CLAIM: c_90c09e25 — status=not_enough_info] **Gene List (20)**: `NCED3`, `ABF3`, `P5CS`, `DREB2A`, `ERF1`, `ABI5`, `RD29A`, `COR15A`, `LEA3`, `HSP70`, `SOD`, `APX1`, `CAT1`, `GPX1`, `MDHAR`, `DHAR`, `GSTU`, `ZAT12`, `WRKY33`, `MYB96`. **Label Logic**: `label = 1` if `sum(genomic_markers) >= 12`, else `0`. Output to `data/processed/synthetic_genomics.csv`. (FR-001, Plan Validation Mode)
 - [X] T013 [US1] Implement `code/data/ingest.py` to merge TRY traits (from T011) and synthetic genomic data (from T012) by species ID. **Explicitly detect species present in TRY but missing in genomic data, flag them with "no_genomic_data" or exclude them, and log the count.** (FR-002)
 - [X] T014a [US1] Implement `code/data/ingest.py` to apply **standard MICE** imputation for missing continuous traits using `sklearn.impute.IterativeImputer` (`max_iter=10`, `random_state=42`). (FR-002)
 - [X] T014b [US1] Implement logic in `code/data/ingest.py` to drop columns if imputation fails after max iterations. (FR-002)
@@ -100,7 +100,7 @@
 ### Tests for User Story 2
 
 - [X] T017 [P] [US2] Unit test for stratified split logic ensuring label balance in `tests/unit/test_split.py`
-- [ ] T018 [P] [US2] Integration test verifying RF and XGBoost train within 30 mins on 2-core CPU without GPU errors in `tests/integration/test_train.py`
+- [X] T018 [P] [US2] Integration test verifying RF and XGBoost train within 30 mins on 2-core CPU without GPU errors in `tests/integration/test_train.py`
 - [ ] T019 [P] [US2] Unit test for DeLong's test implementation against known synthetic AUC pairs in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 2
@@ -126,13 +126,13 @@
 ### Tests for User Story 3
 
 - [X] T025 [P] [US3] Unit test for paired t-test on synthetic CV score arrays in `tests/unit/test_compare.py`
-- [ ] T026 [P] [US3] Integration test verifying feature importance output matches top 10 expected synthetic features in `tests/integration/test_compare.py`
+- [X] T026 [P] [US3] Integration test verifying feature importance output matches top 10 expected synthetic features in `tests/integration/test_compare.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `code/models/compare.py` to perform paired t-test on k-fold CV AUC scores for RF vs. XGBoost (FR-005, SC-003)
-- [ ] T028 [P] [US3] Implement `code/models/compare.py` to calculate Permutation Feature Importance for the best model, distinguishing between genomic markers and physiological traits. (FR-006)
-- [ ] T029 [US3] Implement `code/models/compare.py` to generate a final report at `docs/reports/final_analysis.md`. **Validation Logic**: Use **Validation Gene List (15)**: `DREB2A`, `ERF1`, `ABI5`, `RD29A`, `COR15A`, `LEA3`, `HSP70`, `SOD`, `APX1`, `CAT1`, `GPX1`, `MDHAR`, `DHAR`, `GSTU`, `ZAT12`. Check if count of these genes in Top 10 features >= 3. (SC-005)
+- [X] T027 [P] [US3] Implement `code/models/compare.py` to perform paired t-test on k-fold CV AUC scores for RF vs. XGBoost (FR-005, SC-003)
+- [X] T028 [P] [US3] Implement `code/models/compare.py` to calculate Permutation Feature Importance for the best model, distinguishing between genomic markers and physiological traits. (FR-006)
+- [ ] T029 [US3] Implement `code/models/compare.py` to generate a final report at `docs/reports/final_analysis.md`. **Validation Logic**: Use **Validation Gene List (15)**: `DREB2A`, `ERF1`, `ABI5`, `RD29A`, `COR15A`, `LEA3`, `HSP70`, `SOD`, `APX1`, `CAT1`, `GPX1`, `MDHAR`, `DHAR`, `GSTU`, `ZAT12`. Check if count of these genes in Top 10 features >= 3. [UNRESOLVED-CLAIM: c_e7c1ace1 — status=not_enough_info] (SC-005)
 - [ ] T030 [US3] Ensure all metrics and logs are written to `data/logs/metrics.json` for reproducibility (Plan: Single Source of Truth)
 
 **Checkpoint**: All user stories should now be independently functional.

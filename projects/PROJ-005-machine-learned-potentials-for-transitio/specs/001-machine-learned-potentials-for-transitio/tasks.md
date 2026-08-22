@@ -84,9 +84,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `src/data/ingest.py` to fetch QM9-TS from verified HuggingFace URL and compute checksums
-- [ ] T015 [US1] Implement `src/data/ingest.py` to filter for Pd, Ni, Cu elementary steps. **Logic**: 1) Count valid reactions. 2) If count >= 120, proceed (FR-001). 3) If count < 120, log warning and proceed to T015b. **(Note: T015 handles the check; T015b handles the flag)**
-- [ ] T015b [US1] Implement scarcity flag logic in `src/data/ingest.py`. **Logic**: If count < 120, create `data/processed/data_scarcity_flag.json` with schema: `{ "count": <int>, "status": "scarcity" }` (FR-001b)
+- [X] T014 [US1] Implement `src/data/ingest.py` to fetch QM9-TS from verified HuggingFace URL and compute checksums
+- [X] T015 [US1] Implement `src/data/ingest.py` to filter for Pd, Ni, Cu elementary steps. **Logic**: 1) Count valid reactions. 2) If count >= 120, proceed (FR-001). 3) If count < 120, log warning and proceed to T015b. **(Note: T015 handles the check; T015b handles the flag)**
+- [ ] T015b [US1] Implement scarcity flag logic in `src/data/ingest.py`. **Logic**: If count < 120, create `data/processed/data_scarcity_flag.json` with schema: `{ "count": <int>, "status": "scarcity" }` (FR-001b) <!-- FAILED: unspecified -->
 - [ ] T016 [US1] Implement `src/data/graph_construction.py` to convert geometries to `TransitionStateGraph`. **Attributes**: nodes (atomic number, formal charge), edges (distance-based cutoff). **Coordination Number Logic**: Calculate coordination number using a distance-based cutoff of 3.5 Angstroms (FR-002)
 - [ ] T017 [US1] Implement sensitivity analysis for edge cutoffs: create `src/data/sweep_cutoff.py` to test cutoff values [2.5, 3.5, 4.0, 4.5] Angstroms and record graph density/feature stability in `data/results/cutoff_sensitivity.json` (Spec Assumption). **Depends on T016**
 - [ ] T018 [US1] Add outlier handling: flag samples with >6 coordination for exclusion from training but retention in test
@@ -153,7 +153,7 @@
 
 - [ ] T040 [P] Generate `data/results/final_metrics_table.csv` containing columns: [metric_name, value, unit, reference] comparing all SC metrics against community standards
 - [ ] T041 Run constitution check to verify citations, checksums, and reproducibility steps
-- [~] T042 Update `research.md` with final findings on ligand generalization and structural features
+- [ ] T042 Update `research.md` with final findings on ligand generalization and structural features
 - [ ] T043 Run `quickstart.md` validation to ensure full pipeline reproducibility
 
 ---

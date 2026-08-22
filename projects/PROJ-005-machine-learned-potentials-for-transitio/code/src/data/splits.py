@@ -1,89 +1,208 @@
 """
-src/data/splits.py
+Splitting logic for Leave-Ligand-Scaffold-Out (LLSO) cross-validation.
 
-Interface and skeleton for 5-Fold Leave-Ligand-Scaffold-Out (LLSO) logic.
-
-This module defines the function signatures and data structures required for
-generating cross-validation splits where entire ligand scaffolds are held out
-to test generalization. The full implementation logic is deferred to T028.
-
-Current state: Skeleton with function signatures only.
+This module implements the 5-Fold LLSO logic required for US2.
+It groups samples by ligand scaffold and ensures that all samples
+sharing a scaffold are kept together in either training or test sets.
 """
-
-from typing import List, Dict, Any, Tuple, Optional
+import json
+import hashlib
+import logging
 from pathlib import Path
+from typing import List, Dict, Any, Tuple, Optional, Set
+import numpy as np
+import pandas as pd
+
+# Import config utilities to find project root
+from src.utils.config import get_project_root
+
+logger = logging.getLogger(__name__)
 
 
-def compute_scaffold_clusters(
-    graphs: List[Dict[str, Any]],
-    ligand_column: str = "ligand_id"
-) -> Dict[str, List[int]]:
+def _hash_scaffold(scaffold_smiles: str) -> str:
     """
-    Groups graph indices by their ligand scaffold identity.
+    Create a deterministic hash for a scaffold SMILES string.
+    Used to group identical scaffolds.
+    """
+    if not scaffold_smiles:
+        return "unknown_scaffold"
+    # Normalize: strip whitespace, lowercase
+    normalized = scaffold_smiles.strip().lower()
+    return hashlib.md5(normalized.encode('utf-8')).hexdigest()[:8]
 
-    This is a skeleton function. In the full implementation (T028), this will:
-    1. Extract the scaffold fingerprint (e.g., Murcko scaffold) for each ligand.
-    2. Cluster ligands that share the same scaffold.
-    3. Return a mapping: { scaffold_id: [graph_indices] }.
+
+def compute_scaffold_clusters(graphs_df: pd.DataFrame) -> Dict[str, List[int]]:
+    """
+    Compute clusters of graph indices based on ligand scaffolds.
 
     Args:
-        graphs: List of graph dictionaries containing metadata.
-        ligand_column: The key in the graph dict identifying the ligand.
+        graphs_df: DataFrame containing graph data with 'scaffold_smiles' column.
 
     Returns:
-        A dictionary mapping scaffold identifiers to lists of graph indices.
-        Currently returns an empty dictionary as a placeholder.
+        Dictionary mapping scaffold_hash -> list of graph indices.
     """
-    # TODO: Implement real scaffold clustering logic in T028
-    # This will likely involve RDKit or similar chemistry toolkit to
-    # compute Murcko scaffolds and group indices.
-    return {}
+    if 'scaffold_smiles' not in graphs_df.columns:
+        raise ValueError("Input DataFrame must contain 'scaffold_smiles' column.")
+
+    clusters: Dict[str, List[int]] = {}
+
+    # Iterate and group by scaffold
+    for idx, row in graphs_df.iterrows():
+        scaffold_hash = _hash_scaffold(row['scaffold_smiles'])
+        if scaffold_hash not in clusters:
+            clusters[scaffold_hash] = []
+        clusters[scaffold_hash].append(idx)
+
+    logger.info(f"Computed {len(clusters)} unique scaffold clusters.")
+    return clusters
 
 
 def generate_llso_splits(
-    scaffold_clusters: Dict[str, List[int]],
+    clusters: Dict[str, List[int]],
     n_folds: int = 5,
-    seed: Optional[int] = None
-) -> List[Dict[str, List[int]]]:
+    seed: int = 42
+) -> List[Dict[str, Any]]:
     """
-    Generates 5-Fold Leave-Ligand-Scaffold-Out splits.
+    Generate 5-Fold Leave-Ligand-Scaffold-Out splits.
 
-    This is a skeleton function. In the full implementation (T028), this will:
-    1. Shuffle the unique scaffold clusters.
-    2. Iterate to assign one cluster (or set of clusters) as the test set per fold.
-    3. Ensure no scaffold appears in both train and test sets within the same fold.
-    4. Return a list of dicts: [{'train_indices': [...], 'test_indices': [...]}].
+    This function distributes scaffold clusters into folds such that:
+    1. All indices belonging to a single cluster are in the same fold.
+    2. Each fold serves as a test set exactly once.
 
     Args:
-        scaffold_clusters: Output from compute_scaffold_clusters.
+        clusters: Dictionary mapping scaffold_hash -> list of graph indices.
         n_folds: Number of folds (default 5).
-        seed: Random seed for reproducibility.
+        seed: Random seed for shuffling clusters.
 
     Returns:
-        List of split dictionaries. Currently returns a list of empty dicts.
+        List of dictionaries, each containing 'train_indices' and 'test_indices'.
     """
-    # TODO: Implement real split generation logic in T028
-    # Logic must ensure strict separation of scaffolds between train and test.
-    return [{"train_indices": [], "test_indices": []} for _ in range(n_folds)]
+    if len(clusters) < n_folds:
+        logger.warning(
+            f"Number of unique scaffolds ({len(clusters)}) is less than "
+            f"requested folds ({n_folds}). Some folds may be empty or "
+            f"contain very few samples."
+        )
+
+    # Extract cluster keys and shuffle them deterministically
+    cluster_keys = list(clusters.keys())
+    rng = np.random.default_rng(seed)
+    rng.shuffle(cluster_keys)
+
+    # Distribute clusters into folds
+    folds: List[List[str]] = [[] for _ in range(n_folds)]
+    for i, key in enumerate(cluster_keys):
+        fold_idx = i % n_folds
+        folds[fold_idx].append(key)
+
+    splits = []
+    total_samples = sum(len(v) for v in clusters.values())
+
+    for i in range(n_folds):
+        # Test set: all indices from clusters assigned to this fold
+        test_clusters = folds[i]
+        test_indices = []
+        for key in test_clusters:
+            test_indices.extend(clusters[key])
+
+        # Train set: all indices from all other clusters
+        train_indices = []
+        for j, key_list in enumerate(folds):
+            if j != i:
+                for key in key_list:
+                    train_indices.extend(clusters[key])
+
+        # Sort indices for determinism
+        test_indices.sort()
+        train_indices.sort()
+
+        split_info = {
+            "fold": i,
+            "train_indices": train_indices,
+            "test_indices": test_indices,
+            "train_count": len(train_indices),
+            "test_count": len(test_indices),
+            "test_scaffolds": test_clusters
+        }
+        splits.append(split_info)
+
+        logger.info(
+            f"Fold {i}: Train={len(train_indices)}, Test={len(test_indices)} "
+            f"(Scaffolds: {len(test_clusters)})"
+        )
+
+    return splits
 
 
-def save_splits_to_json(
-    splits: List[Dict[str, List[int]]],
-    output_path: str | Path
-) -> None:
+def save_splits_to_json(splits: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Saves the generated splits to a JSON file.
-
-    This function is fully implemented as it handles I/O and serialization,
-    which are stable regardless of the split logic.
+    Save the generated splits to a JSON file.
 
     Args:
         splits: List of split dictionaries.
         output_path: Path to the output JSON file.
     """
-    output_path = Path(output_path)
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    import json
     with open(output_path, 'w') as f:
         json.dump(splits, f, indent=2)
+
+    logger.info(f"Saved splits to {output_path}")
+
+
+def load_graphs_for_splitting(graphs_path: Optional[Path] = None) -> pd.DataFrame:
+    """
+    Helper to load processed graphs for splitting.
+    Expects a parquet file with 'scaffold_smiles' column.
+    """
+    if graphs_path is None:
+        project_root = get_project_root()
+        graphs_path = project_root / "data" / "processed" / "graphs.parquet"
+
+    if not graphs_path.exists():
+        raise FileNotFoundError(f"Graphs file not found at {graphs_path}")
+
+    df = pd.read_parquet(graphs_path)
+    if 'scaffold_smiles' not in df.columns:
+        raise ValueError(
+            f"Graphs file missing required column 'scaffold_smiles'. "
+            f"Available columns: {list(df.columns)}"
+        )
+    return df
+
+
+def main() -> None:
+    """
+    Main entry point to generate and save LLSO splits.
+    Reads from data/processed/graphs.parquet and writes to data/processed/splits.json.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+    try:
+        # 1. Load graphs
+        logger.info("Loading graphs for splitting...")
+        graphs_df = load_graphs_for_splitting()
+        logger.info(f"Loaded {len(graphs_df)} graphs.")
+
+        # 2. Compute clusters
+        logger.info("Computing scaffold clusters...")
+        clusters = compute_scaffold_clusters(graphs_df)
+
+        # 3. Generate splits
+        logger.info("Generating 5-Fold LLSO splits...")
+        splits = generate_llso_splits(clusters, n_folds=5, seed=42)
+
+        # 4. Save splits
+        project_root = get_project_root()
+        output_path = project_root / "data" / "processed" / "splits.json"
+        save_splits_to_json(splits, output_path)
+
+        logger.info("LLSO splits generation completed successfully.")
+
+    except Exception as e:
+        logger.error(f"Failed to generate splits: {e}", exc_info=True)
+        raise

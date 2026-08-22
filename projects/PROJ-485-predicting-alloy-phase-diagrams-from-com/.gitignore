@@ -1,48 +1,37 @@
 # Data directories - exclude all raw, processed, and artifact data
 data/raw/*
-!data/raw/.gitkeep
 data/processed/*
-!data/processed/.gitkeep
 data/artifacts/*
-!data/artifacts/.gitkeep
 
-# Python bytecode and cache
+# Python cache files
 *.pyc
 __pycache__
-*.pyo
-*.pyd
-.Python
-pip-log.txt
-pip-delete-this-directory.txt
 
 # State files - exclude all except project-specific state
 state/*.yaml
+
+# Allow project-specific state (Constitution Principle V)
 !state/PROJ-485/*.yaml
 
-# Environment and IDE files
-.env
-.env.local
-.env.*.local
-venv
-.venv
-env/
-.env/
+# Editor and IDE files
+.DS_Store
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# Testing and coverage
-.coverage
-htmlcov/
-.pytest_cache/
-.mypy_cache/
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
 
 # Logs
 *.log
 logs/
 
-# OS files
-.DS_Store
-Thumbs.db
+# Temporary files
+tmp/
+temp/
+*.tmp

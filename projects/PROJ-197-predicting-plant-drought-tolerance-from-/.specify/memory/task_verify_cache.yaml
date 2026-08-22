@@ -7,16 +7,25 @@ T001:
     \ exist and are non\u2011empty. The task therefore remains unverified."
 T012:
   c: false
-  h: 7f77a638ccbd50b2f36e7d32aba03a8ed9a9dac4fb218c3ff9bcd650f106c8fc
-  r: "The repository contains a `code/data/generate.py` file, but it is truncated\
-    \ and does not show the required logic for creating the 20\u2011gene synthetic\
-    \ features, applying the label rule (`sum >= 12`), or writing the result to `data/processed/synthetic_genomics.csv`.\
-    \ Moreover, the expected output CSV file is absent from the `data/processed` directory.\
-    \ The required artifact is missing, so the task is not fulfilled."
+  h: 56a250597654b0c86afde1088c3ed66d018b476ce6872870c25a15c240b5d9fc
+  r: "The repository contains a partially\u2011implemented `code/data/generate.py`\
+    \ (the shown portion stops after creating the DataFrame and does not show label\
+    \ computation or CSV writing). Moreover, the required output file `data/processed/synthetic_genomics.csv`\
+    \ is absent. The task\u2019s core deliverables\u2014generating labels per the\
+    \ specified rule and persisting them to the exact CSV path\u2014are therefore\
+    \ not fulfilled."
 T016:
   c: false
-  h: 421279beb5db58071b742bb9cbd504c50ed96ace3b5164a54420f9dc0b77b5e0
-  r: The repository contains a `generate.py` with a correct `generate_synthetic_phylogenetic_matrix`
-    function, but the script never writes the resulting matrix to `data/processed/synthetic_phylo_matrix.npy`,
-    and that file is absent from the project. The required output file is missing,
-    so the task is not fully satisfied.
+  h: 54ae9be44abe3092383c16fb5250c398668e5cf8c14550bd06f5354748986176
+  r: "The repository contains `code/data/generate.py` with a correct matrix\u2011\
+    generation function, but the script never writes the resulting array to `data/processed/synthetic_phylo_matrix.npy`,\
+    \ and that file is absent from the project. The required output file is missing,\
+    \ so the task is not fully satisfied."
+T029:
+  c: false
+  h: 89c19158fd25e6ce11c9acaf56dfc5d8eb49f9eeb5200c1ce099c0e59123ca4a
+  r: "The `code/models/compare.py` file does not implement the required validation\
+    \ logic (checking the count of the 15 validation genes among the top\u201110 features)\
+    \ nor does it create/write `docs/reports/final_analysis.md`. Moreover, the `final_analysis.md`\
+    \ file is absent from the repository. Both the script and the final report are\
+    \ missing, so the task is not satisfied."

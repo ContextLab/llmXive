@@ -1,4 +1,3 @@
 """
-Package: code.utils
-Shared utilities: logging, checksums, error codes, and configuration.
+Utils module for shared utilities (logging, checksum, config).
 """

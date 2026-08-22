@@ -37,3 +37,49 @@ T003:
     settings, `.ruff.toml` or `.flake8` config) or related setup scripts are present
     in the provided evidence. The only artifacts shown relate to alloy data processing,
     not to configuring ruff/flake8/black, so the task requirement is unmet.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration files, scripts, or documentation were presented that set up\
+    \ environment configuration management for the data source URLs, nor any evidence\
+    \ that a \u201CConstitution Principle II\u201D approach was implemented. The required\
+    \ artifact is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or test output was provided that shows a filtering step removing
+    rows with missing temperature values nor a log entry `MISSING_TEMP_COORDS`. The
+    required artifact (implementation of the filter and logging) is missing, so the
+    task is not satisfied.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output showing the calculation of a convex hull\
+    \ of elemental radius and electronegativity, nor any logic that skips LOSO folds\
+    \ when test\u2011set elements lie outside that hull, was provided. Without such\
+    \ artifacts the claimed \u201CProperty Range Extrapolation\u201D check cannot\
+    \ be verified."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no concrete artifact (e.g., a script, function, notebook,\
+    \ or results file) that implements a global\u2011mean null model or the performance\u2011\
+    comparison logic required by FR\u2011009. Without any code, output, or documentation\
+    \ on disk, the task\u2019s deliverable cannot be verified. The next implementer\
+    \ must add the actual implementation and evidence (e.g., source file and evaluation\
+    \ report)."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or result files implementing the permutation test\
+    \ on fold\u2011level MAE differences are present. The required artifact\u2014\
+    a reproducible implementation that runs a sufficient number of permutations, computes\
+    \ the null distribution, and reports a p\u2011value\u202F<\u202F0.05 for the reduction\
+    \ in MAE versus the null model\u2014is missing."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No training script, benchmark logs, or resource usage reports are present to\
+    \ demonstrate that model training finishes within 4\u202Fhours and uses less than\
+    \ 7\u202FGB RAM on a single CPU. The required artifact proving compliance with\
+    \ the performance constraint is missing."

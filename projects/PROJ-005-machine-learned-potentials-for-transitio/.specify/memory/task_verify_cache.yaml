@@ -4,6 +4,13 @@ T010:
   r: "No evidence of a `data/raw/` directory or any checksum\u2011verification code\
     \ (e.g., scripts, functions, or configuration files) is provided. The required\
     \ artifact is missing, so the task is not satisfied."
+T015b:
+  c: false
+  h: 38b2e10e1c507fcfdd8ad1485ef2da173a689519bf14d85bf3e41cee7c216df3
+  r: The provided `src/data/ingest.py` does not contain any logic that checks a count
+    and writes `data/processed/data_scarcity_flag.json`, and the expected JSON file
+    is absent from the repository. Both the required code change and the output artifact
+    are missing.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,3 +46,9 @@ T041:
     is present to demonstrate that a constitution check was actually performed; the
     claim lacks any concrete evidence of citations verified, checksums computed, or
     reproducibility steps documented. The required deliverable is missing.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research.md` file or its updated contents were provided; without the actual
+    document showing the final findings on ligand generalization and structural features,
+    the task requirement cannot be verified as satisfied.

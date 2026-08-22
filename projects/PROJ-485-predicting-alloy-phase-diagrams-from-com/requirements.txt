@@ -1,6 +1,20 @@
-pandas>=2.0.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
-scipy>=1.11.0
-statsmodels>=0.14.0
-pyyaml>=6.0
+# Project Dependencies for llmXive - Predicting Alloy Phase Diagrams
+# Generated/Updated for T025 (Permutation Test)
+
+# Core Data & ML
+numpy>=1.21.0
+pandas>=1.3.0
+scikit-learn>=1.0.0
+scipy>=1.7.0
+
+# Utilities
+pyyaml>=5.4.0
+requests>=2.26.0
+
+# Testing
+pytest>=6.2.0
+pytest-cov>=2.12.0
+
+# Note: statsmodels is not strictly required for the permutation test logic itself,
+# but was mentioned in T023. Keeping it if T023 depends on it.
+statsmodels>=0.12.0

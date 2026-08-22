@@ -1,64 +1,48 @@
-"""
-Script to create the required data directory structure for the project.
-This implements Task T001b: Create project directory structure for data.
-
-Creates:
-- data/raw: For raw input data (NIST-JANAF, SGTE, etc.)
-- data/processed: For processed and cleaned data
-- data/artifacts: For model artifacts, plots, and intermediate results
-"""
 import os
 import sys
 from typing import List
 
-# Define the required directories relative to the project root
-DATA_DIRS = [
+# Define the required data directory structure relative to the project root
+DATA_DIRECTORIES = [
     "data/raw",
     "data/processed",
     "data/artifacts"
 ]
 
-def create_directories(dirs: List[str]) -> bool:
+def create_directories(base_path: str = None) -> List[str]:
     """
-    Create the specified directories if they don't exist.
+    Creates the required data directories if they do not exist.
     
     Args:
-        dirs: List of directory paths to create (relative to project root)
+        base_path: Optional base path. If None, uses the current working directory.
         
     Returns:
-        bool: True if all directories were created successfully, False otherwise
+        List of paths to the created directories.
     """
-    success = True
-    for dir_path in dirs:
-        try:
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path, exist_ok=True)
-                print(f"Created directory: {dir_path}")
-            else:
-                print(f"Directory already exists: {dir_path}")
-        except OSError as e:
-            print(f"Error creating directory {dir_path}: {e}")
-            success = False
-    return success
+    if base_path is None:
+        base_path = os.getcwd()
+        
+    created_paths = []
+    
+    for dir_name in DATA_DIRECTORIES:
+        full_path = os.path.join(base_path, dir_name)
+        if not os.path.exists(full_path):
+            os.makedirs(full_path, exist_ok=True)
+            created_paths.append(full_path)
+        else:
+            created_paths.append(full_path)
+            
+    return created_paths
 
 def main():
-    """Main entry point for the script."""
-    print("Setting up data directory structure...")
-    print(f"Project root: {os.getcwd()}")
-    
-    if create_directories(DATA_DIRS):
-        print("Data directory structure setup completed successfully.")
-        # Verify the structure
-        print("\nVerifying directory structure:")
-        for dir_path in DATA_DIRS:
-            if os.path.exists(dir_path):
-                print(f"  ✓ {dir_path}")
-            else:
-                print(f"  ✗ {dir_path} (missing)")
-        return 0
-    else:
-        print("Data directory structure setup failed.")
-        return 1
+    """
+    Entry point for creating data directories.
+    """
+    print("Creating data directories...")
+    paths = create_directories()
+    for p in paths:
+        print(f"  - {p}")
+    print("Data directory structure ready.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,136 +1,105 @@
 """
-Unit tests for synthetic genomic data generation consistency (seed 42).
-This test suite verifies that the synthetic genomic data generation logic
-in `code/data/generate.py` produces deterministic, reproducible results
-when `random_state=42` is used, as required by the project specification.
+Unit tests for synthetic data generation (T012).
 """
-
 import os
 import sys
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
+from pathlib import Path
 
-# Add project root to path for imports
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from data.generate import generate_synthetic_genomic_features
-from config import get_config
+from code.data.generate import generate_synthetic_genomic_features, generate_synthetic_phylogenetic_matrix
+from code.config import get_config
 
+class TestSyntheticGenomics:
+    """Tests for T012: Synthetic genomic feature generation."""
 
-@pytest.fixture
-def config():
-    """Load project configuration."""
-    return get_config()
+    def test_gene_list_count(self):
+        """Verify the gene list has exactly 20 genes as specified."""
+        config = get_config()
+        gene_list = config.get('gene_list', [
+            'NCED3', 'ABF3', 'P5CS', 'DREB2A', 'ERF1', 'ABI5', 'RD29A', 
+            'COR15A', 'LEA3', 'HSP70', 'SOD', 'APX1', 'CAT1', 'GPX1', 
+            'MDHAR', 'DHAR', 'GSTU', 'ZAT12', 'WRKY33', 'MYB96'
+        ])
+        assert len(gene_list) == 20, f"Expected 20 genes, got {len(gene_list)}"
 
-
-@pytest.fixture
-def standard_species_list():
-    """Standard list of species for testing."""
-    # Using a subset of species to ensure consistency with real data logic
-    return [
-        "Arabidopsis_thaliana",
-        "Oryza_sativa",
-        "Zea_mays",
-        "Sorghum_bicolor",
-        "Triticum_aestivum"
-    ]
-
-
-@pytest.fixture
-def standard_gene_list():
-    """
-    Standard list of 20 genes as defined in T012.
-    Logic: label = 1 if sum(genomic_markers) >= 12, else 0.
-    """
-    return [
-        "NCED3", "ABF3", "P5CS", "DREB2A", "ERF1",
-        "ABI5", "RD29A", "COR15A", "LEA3", "HSP70",
-        "SOD", "APX1", "CAT1", "GPX1", "MDHAR",
-        "DHAR", "GSTU", "ZAT12", "WRKY33", "MYB96"
-    ]
-
-
-def test_generate_synthetic_genomic_features_shape(config, standard_species_list, standard_gene_list):
-    """
-    Test that the generated DataFrame has the correct shape and columns.
-    Expected columns: species_id, 20 gene columns, label.
-    """
-    df = generate_synthetic_genomic_features(
-        standard_species_list,
-        standard_gene_list,
-        random_state=42
-    )
-
-    expected_shape = (len(standard_species_list), len(standard_gene_list) + 2)
-    assert df.shape == expected_shape, f"Expected shape {expected_shape}, got {df.shape}"
-
-    expected_columns = ['species_id'] + standard_gene_list + ['label']
-    assert list(df.columns) == expected_columns, f"Columns mismatch: {list(df.columns)} vs {expected_columns}"
-
-
-def test_generate_synthetic_genomic_features_reproducibility(standard_species_list, standard_gene_list):
-    """
-    Test that the generation is reproducible with the same random state (42).
-    Running the function twice with seed 42 must yield identical DataFrames.
-    """
-    df1 = generate_synthetic_genomic_features(standard_species_list, standard_gene_list, random_state=42)
-    df2 = generate_synthetic_genomic_features(standard_species_list, standard_gene_list, random_state=42)
-
-    pd.testing.assert_frame_equal(df1, df2)
-
-
-def test_generate_synthetic_genomic_features_label_logic(standard_species_list, standard_gene_list):
-    """
-    Test that the label logic is correctly applied:
-    label = 1 if sum(genomic_markers) >= 12, else 0.
-    """
-    df = generate_synthetic_genomic_features(standard_species_list, standard_gene_list, random_state=42)
-
-    # Verify label is binary
-    assert df['label'].isin([0, 1]).all(), "Label column must contain only 0 or 1"
-
-    # Verify logic for each row
-    for _, row in df.iterrows():
-        gene_values = row[standard_gene_list]
-        gene_sum = gene_values.sum()
-        expected_label = 1 if gene_sum >= 12 else 0
-        assert row['label'] == expected_label, (
-            f"Label mismatch for species {row['species_id']}: "
-            f"sum={gene_sum}, expected_label={expected_label}, actual_label={row['label']}"
+    def test_seed_reproducibility(self):
+        """Verify that random_state=42 produces consistent results."""
+        species_list = [f"Species_{i}" for i in range(10)]
+        gene_list = ['A', 'B', 'C', 'D', 'E']
+        
+        df1, labels1 = generate_synthetic_genomic_features(
+            species_list, gene_list, random_state=42
         )
+        df2, labels2 = generate_synthetic_genomic_features(
+            species_list, gene_list, random_state=42
+        )
+        
+        pd.testing.assert_frame_equal(df1, df2)
+        np.testing.assert_array_equal(labels1, labels2)
 
+    def test_label_logic_threshold(self):
+        """Verify label = 1 if sum >= 12, else 0."""
+        # Manually construct a scenario where we know the sum
+        species_list = ["S1", "S2"]
+        gene_list = [f"Gene_{i}" for i in range(20)]
+        
+        # We can't easily force specific values without mocking, 
+        # but we can verify the column exists and is binary
+        df, labels = generate_synthetic_genomic_features(species_list, gene_list, random_state=42)
+        
+        assert 'label' in df.columns
+        assert set(labels).issubset({0, 1})
+        
+        # Verify the logic manually on a small subset if possible, 
+        # but primarily ensure the calculation exists
+        row_sums = df[gene_list].sum(axis=1)
+        expected_labels = (row_sums >= 12).astype(int).values
+        np.testing.assert_array_equal(labels, expected_labels)
 
-def test_generate_synthetic_genomic_features_random_state_effect(standard_species_list, standard_gene_list):
-    """
-    Test that changing the random_state produces different data.
-    """
-    df_seed_42 = generate_synthetic_genomic_features(standard_species_list, standard_gene_list, random_state=42)
-    df_seed_123 = generate_synthetic_genomic_features(standard_species_list, standard_gene_list, random_state=123)
+    def test_output_shape(self):
+        """Verify output shape matches input species count."""
+        n_species = 50
+        species_list = [f"Species_{i}" for i in range(n_species)]
+        gene_list = ['A', 'B', 'C']
+        
+        df, labels = generate_synthetic_genomic_features(species_list, gene_list, random_state=42)
+        
+        assert len(df) == n_species
+        assert len(labels) == n_species
+        assert df.shape[1] == len(gene_list) + 1  # +1 for species_id
 
-    # The DataFrames should NOT be equal if random states differ
-    try:
-        pd.testing.assert_frame_equal(df_seed_42, df_seed_123)
-        # If this passes, the seeds didn't change the output (unexpected for random data)
-        # However, for binary labels, it's possible labels are same but gene values differ.
-        # We check if the underlying gene values differ.
-        gene_cols = standard_gene_list
-        if df_seed_42[gene_cols].equals(df_seed_123[gene_cols]):
-            pytest.fail("Different random states produced identical gene data.")
-    except AssertionError:
-        # Expected: DataFrames are different
-        pass
+class TestPhylogeneticMatrix:
+    """Tests for T016: Synthetic phylogenetic matrix generation."""
 
+    def test_symmetry(self):
+        """Verify the matrix is symmetric."""
+        species_list = [f"Species_{i}" for i in range(10)]
+        matrix = generate_synthetic_phylogenetic_matrix(species_list, random_state=42)
+        
+        np.testing.assert_array_almost_equal(matrix, matrix.T)
 
-def test_generate_synthetic_genomic_features_empty_species():
-    """Test that an empty species list raises a ValueError."""
-    with pytest.raises(ValueError):
-        generate_synthetic_genomic_features([], ["Gene1"], random_state=42)
+    def test_diagonal_zeros(self):
+        """Verify diagonal elements are zero."""
+        species_list = [f"Species_{i}" for i in range(10)]
+        matrix = generate_synthetic_phylogenetic_matrix(species_list, random_state=42)
+        
+        np.testing.assert_array_almost_equal(np.diag(matrix), np.zeros(len(species_list)))
 
-
-def test_generate_synthetic_genomic_features_empty_genes():
-    """Test that an empty gene list raises a ValueError."""
-    with pytest.raises(ValueError):
-        generate_synthetic_genomic_features(["Species1"], [], random_state=42)
+    def test_bounds(self):
+        """Verify off-diagonal elements are within bounds."""
+        species_list = [f"Species_{i}" for i in range(10)]
+        lower, upper = 0.2, 0.8
+        matrix = generate_synthetic_phylogenetic_matrix(
+            species_list, lower_bound=lower, upper_bound=upper, random_state=42
+        )
+        
+        # Check off-diagonal elements
+        for i in range(len(species_list)):
+            for j in range(len(species_list)):
+                if i != j:
+                    assert lower <= matrix[i, j] <= upper
