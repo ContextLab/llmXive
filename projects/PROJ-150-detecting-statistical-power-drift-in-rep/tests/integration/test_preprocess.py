@@ -1,162 +1,183 @@
-import pytest
-import pandas as pd
-import numpy as np
+"""
+Integration tests for the preprocessing module (T011a).
+
+These tests verify:
+1. The script runs end-to-end without errors.
+2. The output file `data/derived/cleaned_data.csv` is created.
+3. The output file `data/derived/grouping_validation.json` is created.
+4. Rows with missing critical columns are filtered out.
+5. Power estimates are calculated correctly.
+"""
 import os
 import json
-from pathlib import Path
+import tempfile
 import shutil
+import pytest
+import pandas as pd
+from pathlib import Path
 
-# Add project root to path if necessary
-sys_path = Path(__file__).resolve().parent.parent.parent
-if str(sys_path) not in __import__('sys').path:
-    __import__('sys').path.insert(0, str(sys_path))
+# Import the module functions
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.preprocessing import (
-    load_raw_data,
-    validate_grouping_variables,
+    load_raw_data, 
+    filter_missing_rows, 
+    validate_grouping_variables, 
+    save_cleaned_data, 
     save_grouping_validation,
-    save_cleaned_data,
-    main
+    DataFetchError
 )
-from code.logging_config import setup_logging
-
-# Mock data setup
-@pytest.fixture
-def mock_raw_data_path(tmp_path):
-    """Creates a temporary raw data file with some missing values."""
-    data_dir = tmp_path / "data" / "raw"
-    data_dir.mkdir(parents=True)
-    file_path = data_dir / "data.csv"
-    
-    # Create a dataframe with missing values in critical columns
-    data = {
-        'year': [2000, 2005, None, 2010, 2015],
-        'effect_size': [0.5, None, 0.3, 0.8, 0.2],
-        'sample_size': [100, 200, 300, None, 400],
-        'field': ['Psychology', 'Biology', 'Physics', 'Psychology', 'Biology'],
-        'original_study_id': ['S1', 'S1', 'S2', 'S2', 'S3'],
-        'other_col': ['a', 'b', 'c', 'd', 'e']
-    }
-    df = pd.DataFrame(data)
-    df.to_csv(file_path, index=False)
-    return file_path
+from code.power_calc import calculate_power_cohen_d
 
 @pytest.fixture
-def setup_project_structure(tmp_path):
-    """Sets up the directory structure expected by the code."""
-    # Create necessary directories
-    (tmp_path / "data" / "raw").mkdir(parents=True)
-    (tmp_path / "data" / "derived").mkdir(parents=True)
-    (tmp_path / "results").mkdir(parents=True)
-    
-    # Create a mock raw data file
+def temp_data_dir():
+    """Create a temporary directory for test data."""
+    temp_dir = tempfile.mkdtemp()
+    yield temp_dir
+    shutil.rmtree(temp_dir)
+
+@pytest.fixture
+def sample_raw_data(temp_data_dir):
+    """Create a sample raw data CSV with some missing values."""
     data = {
-        'year': [2000, 2005, None, 2010, 2015],
+        'study_id': ['S1', 'S2', 'S3', 'S4', 'S5'],
+        'year': [2000, 2005, None, 2015, 2020],
+        'field': ['Psychology', 'Psychology', 'Biology', 'Physics', 'Biology'],
+        'original_study_id': ['O1', 'O1', 'O2', 'O3', 'O2'],
         'effect_size': [0.5, None, 0.3, 0.8, 0.2],
-        'sample_size': [100, 200, 300, None, 400],
-        'field': ['Psychology', 'Biology', 'Physics', 'Psychology', 'Biology'],
-        'original_study_id': ['S1', 'S1', 'S2', 'S2', 'S3'],
-        'other_col': ['a', 'b', 'c', 'd', 'e']
+        'sample_size': [50, 60, 40, None, 70]
     }
     df = pd.DataFrame(data)
-    df.to_csv(tmp_path / "data" / "raw" / "data.csv", index=False)
-    
-    # Temporarily change the working directory or patch the paths
-    # Since the code uses __file__ to find root, we can't easily patch it without refactoring.
-    # Instead, we will test the functions directly with dataframes.
-    return tmp_path
+    csv_path = Path(temp_data_dir) / "data.csv"
+    df.to_csv(csv_path, index=False)
+    return str(csv_path)
 
-def test_load_raw_data(mock_raw_data_path, setup_project_structure):
-    # We need to patch the path logic in the module or test the function directly
-    # For this integration test, we assume the file exists at the expected location relative to the test
-    # But since the code uses Path(__file__).resolve().parent.parent, we must run from the project root.
-    # To avoid complex path mocking, we test the logic by creating the file in the expected relative location
-    # of the test runner if possible, or just verify the function raises if file missing.
-    pass
+@pytest.fixture
+def setup_directories(temp_data_dir):
+    """Setup the directory structure expected by the script."""
+    raw_dir = Path(temp_data_dir) / "data" / "raw"
+    derived_dir = Path(temp_data_dir) / "data" / "derived"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    derived_dir.mkdir(parents=True, exist_ok=True)
+    return {
+        "temp_root": temp_data_dir,
+        "raw_path": str(raw_dir / "data.csv"),
+        "derived_path": str(derived_dir)
+    }
 
-def test_filtering_logic():
-    """Test the core filtering logic of T011a."""
-    # Create a test dataframe
-    df = pd.DataFrame({
-        'year': [2000, 2005, np.nan, 2010, 2015],
-        'effect_size': [0.5, np.nan, 0.3, 0.8, 0.2],
-        'sample_size': [100, 200, 300, np.nan, 400],
-        'field': ['A', 'B', 'C', 'D', 'E'],
-        'original_study_id': ['S1', 'S1', 'S2', 'S2', 'S3']
-    })
+def test_filter_missing_rows():
+    """Test that rows with missing critical values are filtered."""
+    data = {
+        'year': [2000, None, 2005, 2010],
+        'effect_size': [0.5, 0.3, None, 0.8],
+        'sample_size': [50, 60, 40, None],
+        'other': ['A', 'B', 'C', 'D']
+    }
+    df = pd.DataFrame(data)
     
-    critical_cols = ['year', 'effect_size', 'sample_size']
-    missing_mask = pd.Series([False] * len(df), index=df.index)
+    filtered = filter_missing_rows(df, ['year', 'effect_size', 'sample_size'])
     
-    for col in critical_cols:
-        nan_mask = df[col].isna()
-        missing_mask = missing_mask | nan_mask
-    
-    df_clean = df[~missing_mask].reset_index(drop=True)
-    
-    # Expected: Rows 0 and 4 should remain.
-    # Row 0: All present
-    # Row 1: effect_size missing
-    # Row 2: year missing
-    # Row 3: sample_size missing
-    # Row 4: All present
-    assert len(df_clean) == 2
-    assert df_clean.iloc[0]['year'] == 2000
-    assert df_clean.iloc[1]['year'] == 2015
+    # Only the first row should remain (all non-null)
+    assert len(filtered) == 1
+    assert filtered.iloc[0]['year'] == 2000
 
-def test_validate_grouping_variables():
-    """Test validation of grouping variables."""
-    df = pd.DataFrame({
-        'year': [2000, 2005, 2010, 2015],
-        'effect_size': [0.5, 0.3, 0.8, 0.2],
-        'sample_size': [100, 200, 300, 400],
-        'field': ['A', 'A', 'A', 'A'], # Only 1 unique level
-        'original_study_id': ['S1', 'S2', 'S3', 'S4']
-    })
+def test_validate_grouping_variables_single_level():
+    """Test validation detects single-level grouping factors."""
+    data = {
+        'field': ['Psychology', 'Psychology', 'Psychology'],
+        'original_study_id': ['O1', 'O2', 'O3'],
+        'power_estimate': [0.5, 0.6, 0.7]
+    }
+    df = pd.DataFrame(data)
     
     results = validate_grouping_variables(df)
     
-    assert 'field' in results
-    assert results['field']['valid'] == False
-    assert results['field']['reason'] == 'low_cardinality'
-    
-    assert 'original_study_id' in results
-    assert results['original_study_id']['valid'] == True
+    assert results['field']['status'] == 'single_level'
+    assert results['field']['count'] == 1
+    assert results['original_study_id']['status'] == 'valid'
 
-def test_save_grouping_validation(setup_project_structure):
-    """Test saving grouping validation JSON."""
-    results = {'field': {'valid': False}, 'original_study_id': {'valid': True}}
-    output_path = setup_project_structure / "data" / "derived" / "grouping_validation.json"
+def test_preprocess_end_to_end(setup_directories, sample_raw_data):
+    """Test the full preprocessing pipeline end-to-end."""
+    # Copy sample data to the expected raw location
+    import shutil
+    shutil.copy(sample_raw_data, setup_directories['raw_path'])
     
-    save_grouping_validation(results)
+    # Change to the temp directory to simulate script execution
+    original_cwd = os.getcwd()
+    os.chdir(setup_directories['temp_root'])
     
-    assert output_path.exists()
-    with open(output_path, 'r') as f:
-        loaded = json.load(f)
-    assert loaded == results
+    try:
+        # Import and run the main logic manually (simulating script run)
+        from code.preprocessing import load_raw_data, filter_missing_rows, validate_grouping_variables, save_cleaned_data, save_grouping_validation
+        from code.power_calc import calculate_power_cohen_d
+        
+        # 1. Load
+        df_raw = load_raw_data("data/raw/data.csv")
+        assert len(df_raw) == 5 # Original count
+        
+        # 2. Filter
+        df_clean = filter_missing_rows(df_raw)
+        # Rows 1 (year missing), 2 (effect_size missing), 3 (sample_size missing) should be removed
+        # Row 0 is valid. Row 4 is valid.
+        # Wait: Row 1: year=2005, effect_size=None -> filtered.
+        # Row 2: year=None -> filtered.
+        # Row 3: sample_size=None -> filtered.
+        # Row 4: year=2020, effect_size=0.2, sample_size=70 -> valid.
+        # So we expect 2 rows.
+        assert len(df_clean) == 2
+        
+        # 3. Power Calculation
+        df_clean['power_estimate'] = df_clean.apply(
+            lambda row: calculate_power_cohen_d(row['effect_size'], row['sample_size']),
+            axis=1
+        )
+        assert 'power_estimate' in df_clean.columns
+        assert not df_clean['power_estimate'].isna().any()
+        
+        # 4. Validate
+        validation = validate_grouping_variables(df_clean)
+        assert 'field' in validation
+        assert 'original_study_id' in validation
+        
+        # 5. Save
+        save_cleaned_data(df_clean, "data/derived/cleaned_data.csv")
+        save_grouping_validation(validation, "data/derived/grouping_validation.json")
+        
+        # Verify outputs exist
+        assert os.path.exists("data/derived/cleaned_data.csv")
+        assert os.path.exists("data/derived/grouping_validation.json")
+        
+        # Verify content
+        df_out = pd.read_csv("data/derived/cleaned_data.csv")
+        assert len(df_out) == 2
+        assert list(df_out.columns) == ['study_id', 'year', 'field', 'original_study_id', 'effect_size', 'sample_size', 'power_estimate']
+        
+        with open("data/derived/grouping_validation.json", 'r') as f:
+            val_json = json.load(f)
+            assert 'field' in val_json
+            assert 'original_study_id' in val_json
+            
+    finally:
+        os.chdir(original_cwd)
 
-def test_save_cleaned_data(setup_project_structure):
-    """Test saving cleaned CSV."""
-    df = pd.DataFrame({'col1': [1, 2], 'col2': [3, 4]})
-    output_path = setup_project_structure / "data" / "derived" / "cleaned_data.csv"
+def test_data_fetch_error_on_missing_file(setup_directories):
+    """Test that DataFetchError is raised if raw data is missing."""
+    original_cwd = os.getcwd()
+    os.chdir(setup_directories['temp_root'])
     
-    save_cleaned_data(df)
-    
-    assert output_path.exists()
-    loaded_df = pd.read_csv(output_path)
-    assert len(loaded_df) == 2
-    assert list(loaded_df.columns) == ['col1', 'col2']
+    try:
+        with pytest.raises(DataFetchError):
+            load_raw_data("data/raw/data.csv")
+    finally:
+        os.chdir(original_cwd)
 
-# Integration test for the full main flow (mocked)
-def test_preprocess_main_integration(setup_project_structure, caplog):
-    """
-    Test that the main function correctly filters data and saves outputs.
-    This requires the file structure to be in place.
-    """
-    # The main function uses Path(__file__) relative to the code directory.
-    # We cannot easily run main() in a test without complex path manipulation
-    # unless we refactor the code to accept paths as arguments.
-    # Instead, we verify the components individually as done above.
-    # However, we can verify the existence of the output files after running the logic
-    # if we patch the paths. For now, the component tests cover the logic.
-    pass
+def test_power_calculation_values():
+    """Test that power calculation produces reasonable values."""
+    # Cohen's d = 0.5, n = 100 -> Power should be high
+    p1 = calculate_power_cohen_d(0.5, 100)
+    assert 0.9 < p1 < 1.0
+    
+    # Cohen's d = 0.2, n = 20 -> Power should be low
+    p2 = calculate_power_cohen_d(0.2, 20)
+    assert 0.0 < p2 < 0.5

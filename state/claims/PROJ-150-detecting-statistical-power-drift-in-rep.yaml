@@ -700,32 +700,6 @@
   updated_at: '2026-08-21T17:28:14Z'
 - artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
   attempts: 1
-  canonical: LMM model power_residual ~ year + (1|field) + (1|original_study_id)
-  claim_id: c_499820b6
-  context: Compute post-hoc power estimates and test for temporal decline using a
-    Linear Mixed-Effects Model (LMM) with power_residual as the outcome, year as a
-    fixed effect, and random intercepts for field AND original_study_id.
-  evidence:
-    entailment_evidence: ''
-    entailment_status: not_found
-    object: original_study_id)
-    relation: field) + (1
-    source_kind: url
-    source_url: https://en.wikipedia.org/wiki/LMM_model_power_residual_~_year_+_(1_field)_+_(1_original_st
-    source_value: https://en.wikipedia.org/wiki/LMM_model_power_residual_~_year_+_(1_field)_+_(1_original_st
-    subject: LMM model power_residual ~ year + (1
-  kind: relational
-  raw_text: The primary statistical workflow uses a Linear Mixed-Effects Model with
-    power_residual as the outcome, year as a fixed effect, and random intercepts for
-    field and original_study_id.
-  resolved_value: null
-  resolver: resolve_relational
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-21T17:28:46Z'
-- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
-  attempts: 1
   canonical: pilot OLS model power_est ~ effect_size + sample_size
   claim_id: c_6cad0081
   context: Fit power_est ~ effect_size + sample_size to capture the deterministic
@@ -995,3 +969,1072 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T17:34:50Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Dataset source osf/reproducibility_project on Hugging Face
+  claim_id: c_4c405985
+  context: Implement code/download.py with real data fetch logic (no synthetic fallbacks)
+    using huggingface_hub to fetch the osf/reproducibility_project dataset, specifically
+    the data.csv file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_osf/reproducibility_project_on_Hugging_Face
+  kind: entity_fact
+  raw_text: The dataset is fetched from the 'osf/reproducibility_project' on Hugging
+    Face.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:11:22Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Dataset title-token-overlap threshold 0.7
+  claim_id: c_f96cfc94
+  context: "Verify dataset metadata by calculating title-token-overlap (cosine similarity\
+    \ of tokenized titles) between the fetched dataset title and 'OSF Reproducibility\
+    \ Project'; require overlap \u2265 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_title-token-overlap_threshold_0.7
+  kind: magnitude
+  raw_text: The dataset title-token-overlap with 'OSF Reproducibility Project' must
+    be at least 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:11:41Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 2
+  canonical: LMM model power_residual ~ year + (1|field) + (1|original_study_id)
+  claim_id: c_499820b6
+  context: Compute post-hoc power estimates and test for temporal decline using a
+    Linear Mixed-Effects Model (LMM) with power_residual as the outcome, year as a
+    fixed effect, and random intercepts for field AND original_study_id.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: linear mixed-effects model
+      source_id: Q120282163
+      url: https://www.wikidata.org/wiki/Q120282163
+      value: linear mixed-effects model
+    filled: true
+  kind: relational
+  raw_text: The primary statistical workflow uses a Linear Mixed-Effects Model with
+    power_residual as the outcome, year as a fixed effect, and random intercepts for
+    field and original_study_id.
+  resolved_value: linear mixed-effects model
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T10:11:54Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Power calculation parameters Cohen's d alpha 0.05
+  claim_id: c_e4da4df0
+  context: "Calculate power_estimate for remaining rows using Cohen's d, sample size,\
+    \ and \u03B1=0.05."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'The table shown on the right can be used in a two-sample t-test to estimate
+        the sample sizes of an experimental group and a control group that are of
+        equal size, that is, the total number of individuals in the trial is twice
+        that of the number given, and the desired significance level is 0.05. The
+        parameters used are:'
+      source_id: Sample size determination
+      url: https://en.wikipedia.org/wiki/Sample_size_determination
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Power calculation uses Cohen's d, sample size, and an alpha level of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T10:12:04Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Permutation test target 10000 iterations
+  claim_id: c_3010341f
+  context: 'Implement code/robustness.py function for non-parametric permutation test:
+    shuffle year labels (FR-004). Target: 10,000 permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test targets 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:12:26Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Permutation test fallback threshold 6 GB memory 2 hours
+  claim_id: c_e7924420
+  context: 'Fallback: If psutil.Process().memory_info().rss > 6 * 1024**3 bytes OR
+    if the estimated time to complete 10,000 permutations (calculated as time_per_perm
+    * 10000 based on the first 10 permutations) exceeds A duration of approximately
+    two hours. (2 hours), fallback to A large number of permutations and flag as ''approximate''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test falls back if memory usage exceeds 6 GB or the estimated
+    time to complete 10,000 permutations exceeds 2 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:12:40Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Input permutation test target 10000 iterations
+  claim_id: c_9dfbd704
+  context: 'Implement code/robustness.py function for input permutation framework:
+    shuffle effect_size and sample_size while holding year constant (FR-007). Target:
+    10,000 permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The input permutation framework targets 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:12:57Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Input permutation test fallback threshold 6 GB memory 2 hours
+  claim_id: c_99b21eef
+  context: 'Fallback: A sufficient number of permutations if psutil.Process().memory_info().rss
+    > 6 * 1024**3 bytes OR if the estimated time to complete 10,000 permutations (calculated
+    as time_per_perm * 10000 based on the first 10 permutations) exceeds A duration
+    of several hours. (2 hours).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The input permutation framework falls back if memory usage exceeds 6 GB
+    or the estimated time to complete 10,000 permutations exceeds 2 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:13:12Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 6 hours
+  claim_id: c_44e81e8f
+  context: Run full pipeline on a static subset (The initial rows of the dataset will
+    be examined to identify patterns in the early-stage data distribution. of data/raw/data.csv)
+    to verify end-to-end execution within 6-hour CPU limit (FR-010).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is designed to execute end-to-end within a 6-hour CPU limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:13:34Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis alpha threshold 0.1
+  claim_id: c_dd4d80a9
+  context: Ensure results/sensitivity_report.json contains entries for a range of
+    alpha values including and 0.1.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: discontinuously become unbounded as c crosses 0.1. We implement a simple
+        plug-in estimator and percentile
+      source_id: '2309.06305'
+      url: https://arxiv.org/abs/2309.06305
+      value: '0.1'
+    filled: true
+  kind: numeric
+  raw_text: The sensitivity analysis includes an alpha threshold of 0.1.
+  resolved_value: '0.1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T10:14:04Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Non-linearity check natural splines df 3
+  claim_id: c_6055f824
+  context: Fit a model with ns(year, df=3) (natural splines) and compare its AIC to
+    the linear model (power_residual ~ year).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-linearity check uses natural splines with 3 degrees of freedom.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:14:23Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: OSF Reproducibility Project dataset available on Hugging Face
+  claim_id: c_c69cb8ea
+  context: Implement code/download.py with real data fetch logic (no synthetic fallbacks)
+    using huggingface_hub to fetch the osf/reproducibility_project dataset, specifically
+    the data.csv file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OSF_Reproducibility_Project_dataset_available_on_Hugging_Fac
+  kind: entity_fact
+  raw_text: The OSF Reproducibility Project dataset is available on Hugging Face under
+    the identifier 'osf/reproducibility_project'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:20:37Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Title-token-overlap threshold of 0.7 for OSF dataset verification
+  claim_id: c_bfcff439
+  context: "Verify dataset metadata by calculating title-token-overlap (cosine similarity\
+    \ of tokenized titles) between the fetched dataset title and 'OSF Reproducibility\
+    \ Project'; require overlap \u2265 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Title-token-overlap_threshold_of_0.7_for_OSF_dataset_verific
+  kind: magnitude
+  raw_text: A title-token-overlap (cosine similarity of tokenized titles) of at least
+    0.7 is required to verify the dataset metadata against the title 'OSF Reproducibility
+    Project'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:21:23Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Power calculation using Cohen's d with alpha 0.05
+  claim_id: c_d5bca09e
+  context: "Calculate power_estimate for remaining rows using Cohen's d, sample size,\
+    \ and \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power estimates are calculated using Cohen's d, sample size, and an alpha
+    level of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:21:45Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: 'LMM model formula: power_residual ~ year + (1|field) + (1|original_study_id)'
+  claim_id: c_e65e5552
+  context: 'Fit the Full LMM: power_residual ~ year + (1|field) + (1|original_study_id).'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: original_study_id)
+    relation: field) + (1
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/LMM_model_formula:_power_residual_~_year_+_(1_field)_+_(1_or
+    source_value: https://en.wikipedia.org/wiki/LMM_model_formula:_power_residual_~_year_+_(1_field)_+_(1_or
+    subject: 'LMM model formula: power_residual ~ year + (1'
+  kind: relational
+  raw_text: The primary hypothesis test uses a Linear Mixed-Effects Model (LMM) with
+    power_residual as the outcome, year as a fixed effect, and random intercepts for
+    field and original_study_id.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:22:17Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Permutation test target of 10,000 iterations
+  claim_id: c_9ebb8edd
+  context: 'Implement code/robustness.py function for non-parametric permutation test:
+    shuffle year labels (FR-004). Target: 10,000 permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-parametric permutation test targets 10,000 permutations to validate
+    the power drift results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:22:38Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: 'Permutation fallback thresholds: 6 GB memory or 2 hours duration'
+  claim_id: c_ffdfdcf6
+  context: 'Fallback: If psutil.Process().memory_info().rss > 6 * 1024**3 bytes OR
+    if the estimated time to complete 10,000 permutations ... exceeds A duration of
+    approximately two hours. (2 hours), fallback to A large number of permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test falls back to an approximate number of iterations
+    if memory usage exceeds 6 GB or the estimated time exceeds 2 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:22:58Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Input permutation target of 10,000 iterations with year fixed
+  claim_id: c_678aa8c2
+  context: 'Target: 10,000 permutations. Fallback: A sufficient number of permutations
+    if psutil.Process().memory_info().rss > 6 * 1024**3 bytes OR if the estimated
+    time to complete 10,000 permutations ... exceeds A duration of several hours.
+    (2 hours).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The input permutation framework targets 10,000 permutations while holding
+    the year column constant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:23:23Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit of 6 hours
+  claim_id: c_fe989b89
+  context: Run full pipeline on a static subset ... to verify end-to-end execution
+    within 6-hour CPU limit (FR-010).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline is designed to execute within a 6-hour CPU time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:23:46Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: fetches osf/reproducibility_project data.csv via huggingface_hub
+  claim_id: c_c7d626b7
+  context: Implement `code/download.py` with real data fetch logic (no synthetic fallbacks)
+    using `huggingface_hub` to fetch the `osf/reproducibility_project` dataset, specifically
+    the `data.csv` file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetches_osf/reproducibility_project_data.csv_via_huggingface
+  kind: entity_fact
+  raw_text: The system uses `huggingface_hub` to fetch the `osf/reproducibility_project`
+    dataset, specifically the `data.csv` file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:25:24Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: requires title-token-overlap >= 0.7 for OSF Reproducibility Project
+  claim_id: c_c945d584
+  context: "Verify dataset metadata by calculating title-token-overlap (cosine similarity\
+    \ of tokenized titles) between the fetched dataset title and 'OSF Reproducibility\
+    \ Project'; require overlap \u2265 0.7."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/requires_title-token-overlap_%3E=_0.7_for_OSF_Reproducibility_
+  kind: magnitude
+  raw_text: The system requires a title-token-overlap (cosine similarity of tokenized
+    titles) of at least 0.7 between the fetched dataset title and 'OSF Reproducibility
+    Project'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:26:11Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: calculate power estimate using Cohen's d, sample size, and alpha=0.05
+  claim_id: c_61a21027
+  context: "Calculate `power_estimate` for remaining rows using Cohen's *d*, sample\
+    \ size, and \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power estimates are calculated using Cohen's d, sample size, and an alpha
+    level of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:26:11Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: fit LMM with power_residual ~ year + (1|field) + (1|original_study_id)
+  claim_id: c_121c93af
+  context: 'Fit the Full LMM: `power_residual ~ year + (1|field) + (1|original_study_id)`.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: original_study_id)
+    relation: field) + (1
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Fit_LMM_with_power_residual_~_year_%2B_(1_field)_%2B_(1_original
+    source_value: https://en.wikipedia.org/wiki/fit_LMM_with_power_residual_~_year_+_(1_field)_+_(1_original
+    subject: fit LMM with power_residual ~ year + (1
+  kind: relational
+  raw_text: The primary statistical workflow fits a Linear Mixed-Effects Model (LMM)
+    with `power_residual` as the outcome, `year` as a fixed effect, and random intercepts
+    for `field` and `original_study_id`.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:26:39Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: target 10,000 permutations for non-parametric test
+  claim_id: c_9ac4b2ca
+  context: 'Implement `code/robustness.py` function for non-parametric permutation
+    test: shuffle `year` labels (FR-004). Target: 10,000 permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-parametric permutation test targets 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:27:00Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: fallback permutation if memory > 6 GB or time > 2 hours
+  claim_id: c_8b798867
+  context: 'Fallback: If `psutil.Process().memory_info().rss > 6 * 1024**3` bytes
+    OR if the estimated time to complete 10,000 permutations exceeds A duration of
+    approximately two hours. (2 hours), fallback to A large number of permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test falls back to a large number of permutations if memory
+    usage exceeds 6 GB or if the estimated time to complete 10,000 permutations exceeds
+    2 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:27:17Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: target 10,000 permutations for input permutation framework
+  claim_id: c_0845b3f5
+  context: 'Implement `code/robustness.py` function for input permutation framework:
+    shuffle `effect_size` and `sample_size` while holding `year` constant (FR-007).
+    Target: 10,000 permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The input permutation framework targets 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:27:17Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: fallback input permutation if memory > 6 GB or time > 2 hours
+  claim_id: c_e0c195f5
+  context: 'Fallback: A sufficient number of permutations if `psutil.Process().memory_info().rss
+    > 6 * 1024**3` bytes OR if the estimated time to complete 10,000 permutations
+    exceeds A duration of several hours. (2 hours).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The input permutation framework falls back to a sufficient number of permutations
+    if memory usage exceeds 6 GB or if the estimated time to complete 10,000 permutations
+    exceeds 2 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:27:31Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: pipeline runs within 6-hour CPU limit
+  claim_id: c_7703100d
+  context: All tasks are designed to run on CPU-only runners (multiple cores, sufficient
+    RAM) within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline is designed to run on CPU-only runners within a 6-hour
+    CPU limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:27:46Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 0
+  canonical: 'LMM model specification: power_residual ~ year + (1|field) + (1|original_study_id)'
+  claim_id: c_b420fcab
+  context: 'Goal: Compute post-hoc power estimates and test for temporal decline using
+    a Linear Mixed-Effects Model (LMM) with power_residual as the outcome, year as
+    a fixed effect, and random intercepts for field AND original_study_id.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: linear mixed-effects model
+      source_id: Q120282163
+      url: https://www.wikidata.org/wiki/Q120282163
+      value: linear mixed-effects model
+    filled: true
+  kind: relational
+  raw_text: The primary statistical workflow uses a Linear Mixed-Effects Model (LMM)
+    with power_residual as the outcome, year as a fixed effect, and random intercepts
+    for field and original_study_id.
+  resolved_value: linear mixed-effects model
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T10:29:43Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Dataset fetched from osf/reproducibility_project
+  claim_id: c_55fbbf99
+  context: Implement code/download.py with real data fetch logic using huggingface_hub
+    to fetch the osf/reproducibility_project dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_fetched_from_osf/reproducibility_project
+  kind: entity_fact
+  raw_text: The dataset is fetched from 'osf/reproducibility_project' using 'datasets.load_dataset'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:30:19Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Title-token-overlap threshold is 0.7
+  claim_id: c_14f08ea6
+  context: "Verify dataset metadata by calculating title-token-overlap (cosine similarity\
+    \ of tokenized titles) between the fetched dataset title and 'OSF Reproducibility\
+    \ Project'; require overlap \u2265 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The title-token-overlap (cosine similarity) between the fetched dataset\
+    \ title and 'OSF Reproducibility Project' must be \u2265 0.7."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:30:20Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Power calculation uses Cohen's d, sample size, and alpha 0.05
+  claim_id: c_2a58ad0f
+  context: "Calculate power_estimate for remaining rows using Cohen's d, sample size,\
+    \ and \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power estimates are calculated using Cohen's d, sample size, and \u03B1\
+    =0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:32:32Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Permutation test targets 10000 iterations
+  claim_id: c_2d731fe2
+  context: 'Implement code/robustness.py function for non-parametric permutation test:
+    shuffle year labels (FR-004). Target: 10,000 permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-parametric permutation test targets 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:32:33Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Permutation memory threshold is 6 GB
+  claim_id: c_3a6d72b1
+  context: 'Fallback: If psutil.Process().memory_info().rss > 6 * 1024**3 bytes OR
+    if the estimated time to complete 10,000 permutations exceeds two hours, fallback
+    to a large number of permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test fallback threshold is 6 GB of memory (6 * 1024**3
+    bytes).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:32:46Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Pipeline execution limit is 6 hours
+  claim_id: c_435ed67c
+  context: Run full pipeline on a static subset of data/raw/data.csv to verify end-to-end
+    execution within 6-hour CPU limit (FR-010).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is designed to run within a 6-hour CPU limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:33:10Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis includes alpha 0.1
+  claim_id: c_9422352e
+  context: Implement code/robustness.py function for sensitivity analysis sweeping
+    alpha across a range of significance levels including conventional thresholds
+    and report the resulting drift significance rates. Ensure the report explicitly
+    contains entries for a range of alpha values including and 0.1.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: discontinuously become unbounded as c crosses 0.1. We implement a simple
+        plug-in estimator and percentile
+      source_id: '2309.06305'
+      url: https://arxiv.org/abs/2309.06305
+      value: '0.1'
+    filled: true
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps alpha across a range including 0.1.
+  resolved_value: '0.1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T10:33:39Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Input permutation test targets 10000 iterations
+  claim_id: c_acaec3d4
+  context: 'Implement code/robustness.py function for input permutation framework:
+    shuffle effect_size and sample_size while holding year constant (FR-007). Target:
+    10,000 permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The input permutation framework targets 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:33:39Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Non-linearity check uses natural splines with df=3
+  claim_id: c_1070b8e3
+  context: 'Implement code/robustness.py to perform the Non-Linearity Check. Logic:
+    Fit a model with ns(year, df=3) (natural splines) and compare its AIC to the linear
+    model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-linearity check compares a linear model to a natural spline model
+    with 3 degrees of freedom (ns(year, df=3)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:34:00Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: System testable on static OSF subset with slope coefficient and p-value
+    generation for year predictor
+  claim_id: c_f8cafeeb
+  context: 'Goal: Compute post-hoc power estimates and test for temporal decline using
+    a Linear Mixed-Effects Model (LMM)... Independent Test: The system can be fully
+    tested by running the power re-estimation and LMM scripts on a static subset of
+    the OSF data...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_testable_on_static_OSF_subset_with_slope_coefficient
+  kind: entity_fact
+  raw_text: The system can be fully tested by running the power re-estimation and
+    LMM scripts on a static subset of the OSF data, verifying that a slope coefficient
+    and p-value is generated for the year predictor in the full model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:38:39Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: System testable via permutation and sensitivity sweep on same dataset
+    verifying p-value distribution and trend stability
+  claim_id: c_899606bd
+  context: 'Goal: Validate the power drift results against non-parametric permutation
+    tests and alpha threshold sensitivity analysis. Independent Test: The system can
+    be tested by running the permutation test...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_testable_via_permutation_and_sensitivity_sweep_on_sam
+  kind: entity_fact
+  raw_text: The system can be tested by running the permutation test (sufficient iterations
+    to ensure convergence) and the sensitivity sweep on the the same dataset, verifying
+    that the p-value distribution and trend stability are reported.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:39:06Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: System testable via adaptive weighting and input permutation on full
+    dataset producing combined drift statistic
+  claim_id: c_351eb558
+  context: 'Goal: Combine evidence across heterogeneous fields using adaptive weighting
+    and validate drift via input permutation framework. Independent Test: The system
+    can be tested by executing the adaptively weighted statistic aggregation...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_testable_via_adaptive_weighting_and_input_permutation
+  kind: entity_fact
+  raw_text: The system can be tested by executing the adaptively weighted statistic
+    aggregation and the input permutation validation on the full dataset, verifying
+    that a combined drift statistic is produced.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:39:28Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on CPU-only runners within 6-hour limit
+  claim_id: c_d681009c
+  context: 'Compute Feasibility: All tasks are designed to run on CPU-only runners
+    (multiple cores, sufficient RAM) within 6 hours... Revision Concern: T033a, T033b,
+    T034, and T034a added to ensure documentation of the LMM methodology is complete
+    and the pipeline is verified end-to-end within the 6-hour CPU limit...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is designed to run on CPU-only runners within a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:39:41Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: title-token-overlap cosine similarity threshold of 0.7 for dataset verification
+  claim_id: c_c4e61605
+  context: "Verify dataset metadata by calculating title-token-overlap (cosine similarity\
+    \ of tokenized titles) between the fetched dataset title and 'OSF Reproducibility\
+    \ Project'; require overlap \u2265 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "require overlap \u2265 0.7"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:40:10Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: non-parametric permutation test target of 10000 iterations
+  claim_id: c_e651c4f9
+  context: 'Implement code/robustness.py function for non-parametric permutation test:
+    shuffle year labels (FR-004). Target: 10,000 permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target: 10,000 permutations'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:40:32Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: memory threshold of 6 GB for permutation test fallback
+  claim_id: c_c974becb
+  context: 'Fallback: If psutil.Process().memory_info().rss > 6 * 1024**3 bytes OR
+    if the estimated time to complete 10,000 permutations exceeds A duration of approximately
+    two hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: psutil.Process().memory_info().rss > 6 * 1024**3 bytes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:40:32Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: time threshold of 2 hours for permutation test fallback
+  claim_id: c_b597df69
+  context: if the estimated time to complete 10,000 permutations (calculated as time_per_perm
+    * 10000 based on the first 10 permutations) exceeds A duration of approximately
+    two hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exceeds A duration of approximately two hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:40:32Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: permutation iterations count of 10000 or 1000 for approximate status
+  claim_id: c_197bc95f
+  context: Ensure results/permutation_pvalue.json includes an iterations_run field
+    (set to 10000 or 1000) and a status field (e.g., 'exact' or 'approximate').
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10000 or 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:41:05Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: robustness statement threshold of 0.01 for p-value difference
+  claim_id: c_2e6f6598
+  context: Generate a robustness_statement (string) describing whether the results
+    are consistent (e.g., 'p-values are within 0.01' or 'p-values diverge').
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: p-values are within 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:41:31Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeping alpha including thresholds and 0.1
+  claim_id: c_877fa3e8
+  context: Implement code/robustness.py function for sensitivity analysis sweeping
+    alpha across a range of significance levels including conventional thresholds
+    and report the resulting drift significance rates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: alpha across a range of significance levels including conventional thresholds
+    and report the resulting drift significance rates
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:41:31Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: skip fields with 1 study in cross-field aggregation
+  claim_id: c_7396a55a
+  context: 'Constraint: Skip fields where n_studies == 1 (as flagged in T011b) to
+    avoid undefined random effects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_studies == 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:41:54Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: input permutation framework target of 10000 iterations
+  claim_id: c_6ee77113
+  context: 'Implement code/robustness.py function for input permutation framework:
+    shuffle effect_size and sample_size while holding year constant (FR-007). Target:
+    10,000 permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target: 10,000 permutations'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:41:55Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: memory threshold of 6 GB for input permutation fallback
+  claim_id: c_4eadcb00
+  context: 'Fallback: A sufficient number of permutations if psutil.Process().memory_info().rss
+    > 6 * 1024**3 bytes OR if the estimated time to complete 10,000 permutations exceeds
+    A duration of several hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: psutil.Process().memory_info().rss > 6 * 1024**3 bytes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:41:55Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: time threshold of 2 hours for input permutation fallback
+  claim_id: c_90836b3e
+  context: if the estimated time to complete 10,000 permutations (calculated as time_per_perm
+    * 10000 based on the first 10 permutations) exceeds A duration of several hours.
+    (2 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exceeds A duration of several hours. (2 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:42:19Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: pipeline execution time limit of 6 hours on CPU
+  claim_id: c_c81358fc
+  context: Run full pipeline on a static subset (The initial rows of the dataset will
+    be examined to identify patterns in the early-stage data distribution. of data/raw/data.csv)
+    to verify end-to-end execution within 6-hour CPU limit (FR-010).
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: verify end-to-end execution within 6-hour CPU limit
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T10:42:27Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: non-linearity check using natural splines with 3 degrees of freedom
+  claim_id: c_c651523f
+  context: Fit a model with ns(year, df=3) (natural splines) and compare its AIC to
+    the linear model (power_residual ~ year).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ns(year, df=3)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T10:43:46Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: linter success criterion of zero warnings
+  claim_id: c_efafcaed
+  context: 'Run linter (ruff/flake8) on code/ and fix all warnings (Success: zero
+    warnings)'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: All code must be compiled, from the first day of development, with all
+        compiler warnings enabled at the most pedantic setting available. All code
+        must compile without warnings. All code must also be checked daily with at
+        least one, but preferably more than one, strong static source code analyzer
+        and should pass all analyses with zero warnings.
+      source_id: 'The Power of 10: Rules for Developing Safety-Critical Code'
+      url: https://en.wikipedia.org/wiki/The_Power_of_10:_Rules_for_Developing_Safety-Critical_Code
+      value: zero
+    filled: true
+  kind: entity_fact
+  raw_text: zero warnings
+  resolved_value: zero
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T10:43:55Z'

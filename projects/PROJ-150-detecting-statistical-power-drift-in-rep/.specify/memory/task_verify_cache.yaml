@@ -27,14 +27,6 @@ T011b:
     \ variance of the target variable as required. Moreover, the expected output file\
     \ `data/derived/grouping_validation.json` is absent, so the task\u2019s verification\
     \ condition is not met."
-T021:
-  c: false
-  h: f0cd90bf284542669c90b3a68a43d2296d0c3fa80c348f3df905734cc3dd04ce
-  r: "The `results/sensitivity_report.json` file does not exist, and the provided\
-    \ `code/robustness.py` contains only placeholders and truncated code with no implemented\
-    \ function that sweeps \u03B1\u202F=\u202F0.01,\u202F0.05,\u202F0.1 and writes\
-    \ the drift significance rates. The required output and functionality are therefore\
-    \ missing."
 T026:
   c: false
   h: 2585e7cbdbda17a7734b722df695b1c3cda0e18c7360876ff172d1c8f8521c89

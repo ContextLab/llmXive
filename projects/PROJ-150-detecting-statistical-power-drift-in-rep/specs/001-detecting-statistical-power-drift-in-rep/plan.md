@@ -23,7 +23,7 @@ All data processing and modeling are designed to run on a CPU-only GitHub Action
 **Project Type**: Data Analysis Pipeline / CLI  
 **Performance Goals**: Complete full pipeline (including 1,000-10,000 permutations) within 6 hours on 2 cores; memory usage < 6 GB.  
 **Constraints**: No GPU; CPU-first algorithms; streaming data ingestion to avoid OOM; strict reproducibility via pinned seeds.  
-**Scale/Scope**: Process a substantial set of replication records (OSF data); generate multiple statistical outputs and 3 visualizations.
+**Scale/Scope**: Process a substantial set of replication records (OSF data); generate multiple statistical outputs and multiple visualizations.
 
 ## Constitution Check
 

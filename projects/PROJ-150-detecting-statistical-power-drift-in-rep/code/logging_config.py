@@ -4,115 +4,104 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
-def setup_logging():
+def setup_logging(log_file: str = "pipeline.log", level: int = logging.INFO) -> logging.Logger:
     """
-    Sets up the logging configuration for the project.
+    Configure logging for the project.
     
+    Args:
+        log_file: Name of the log file (relative to project root).
+        level: Logging level.
+        
     Returns:
-        Logger instance.
+        Root logger.
     """
+    project_root = Path(__file__).parent.parent
+    log_path = project_root / log_file
+    
+    # Ensure logs directory exists if needed
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create logger
     logger = logging.getLogger("llmXive")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(level)
     
     # Avoid adding handlers multiple times
-    if not logger.handlers:
-        # Console handler
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(logging.INFO)
-        
-        # Formatter
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        ch.setFormatter(formatter)
-        
-        logger.addHandler(ch)
+    if logger.handlers:
+        return logger
+    
+    # File handler
+    fh = logging.FileHandler(log_path)
+    fh.setLevel(level)
+    
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(level)
+    
+    # Formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    
+    logger.addHandler(fh)
+    logger.addHandler(ch)
     
     return logger
 
 def get_module_logger(name: str) -> logging.Logger:
-    """
-    Gets a logger for a specific module.
-    
-    Args:
-        name: Module name (usually __name__).
-        
-    Returns:
-        Logger instance.
-    """
-    logger = logging.getLogger(f"llmXive.{name}")
-    # Propagate to root handler
-    logger.propagate = True
-    return logger
+    """Get a logger for a specific module."""
+    return logging.getLogger(name)
 
-def log_operation_start(logger: logging.Logger, operation: str):
-    """
-    Logs the start of an operation.
-    
-    Args:
-        logger: Logger instance.
-        operation: Name of the operation.
-    """
-    logger.info(f"Starting operation: {operation}")
+def log_operation_start(logger: logging.Logger, operation: str, message: str = ""):
+    """Log the start of an operation."""
+    logger.info(f"[START] {operation}: {message}")
 
-def log_operation_complete(logger: logging.Logger, operation: str):
-    """
-    Logs the completion of an operation.
-    
-    Args:
-        logger: Logger instance.
-        operation: Name of the operation.
-    """
-    logger.info(f"Completed operation: {operation}")
+def log_operation_complete(logger: logging.Logger, operation: str, message: str = ""):
+    """Log the completion of an operation."""
+    logger.info(f"[COMPLETE] {operation}: {message}")
 
-def log_data_filter_step(
-    logger: logging.Logger, 
-    input_path: str, 
-    output_path: str, 
-    rows_before: int, 
-    rows_after: int, 
-    reason: str
-):
-    """
-    Logs the details of a data filtering step.
-    
-    Args:
-        logger: Logger instance.
-        input_path: Path to input data.
-        output_path: Path to output data.
-        rows_before: Number of rows before filtering.
-        rows_after: Number of rows after filtering.
-        reason: Reason for filtering.
-    """
-    removed_count = rows_before - rows_after
-    logger.info(
-        f"Data Filter: {input_path} -> {output_path} | "
-        f"Rows: {rows_before} -> {rows_after} (Removed {removed_count}) | "
-        f"Reason: {reason}"
-    )
+def log_data_filter_step(logger: logging.Logger, step_name: str, reason: str, rows_affected: int):
+    """Log a data filtering step."""
+    logger.warning(f"[FILTER] {step_name}: {reason}. Rows affected: {rows_affected}")
 
-def log_skipped_row(logger: logging.Logger, row_index: int, reason: str):
-    """
-    Logs a skipped row during data processing.
-    
-    Args:
-        logger: Logger instance.
-        row_index: Index of the skipped row.
-        reason: Reason for skipping.
-    """
-    logger.warning(f"WARNING: Skipping row {row_index} due to {reason}")
+def log_skipped_row(logger: logging.Logger, row_index: int, missing_cols: list):
+    """Log a skipped row due to missing data."""
+    cols_str = ", ".join(missing_cols)
+    logger.warning(f"[SKIP ROW] Index {row_index}: Missing {cols_str}")
 
-def log_zero_variance_field(logger: logging.Logger, field_name: str, count: int):
-    """
-    Logs a warning about a grouping field with zero variance or single level.
-    
-    Args:
-        logger: Logger instance.
-        field_name: Name of the field.
-        count: Number of unique levels found.
-    """
-    logger.warning(
-        f"Grouping field '{field_name}' has only {count} unique level(s). "
-        "This may cause convergence issues in mixed-effects models."
-    )
+def log_zero_variance_field(logger: logging.Logger, field_name: str):
+    """Log a field with zero variance."""
+    logger.warning(f"[ZERO VARIANCE] Field '{field_name}' has zero variance.")
+
+def log_model_convergence(logger: logging.Logger, converged: bool):
+    """Log model convergence status."""
+    if converged:
+        logger.info("[CONVERGENCE] Model converged successfully.")
+    else:
+        logger.warning("[CONVERGENCE] Model failed to converge.")
+
+def log_error_fallback(logger: logging.Logger, operation: str, error_msg: str):
+    """Log an error that triggered a fallback or failure."""
+    logger.error(f"[ERROR] {operation}: {error_msg}")
+
+def log_validation_result(logger: logging.Logger, result: str, details: str = ""):
+    """Log a validation result."""
+    logger.info(f"[VALIDATION] {result}: {details}")
+
+def log_metric_extraction(logger: logging.Logger, metric_name: str, value: float):
+    """Log an extracted metric."""
+    logger.info(f"[METRIC] {metric_name}: {value}")
+
+def log_file_write(logger: logging.Logger, file_path: str, rows: int = 0):
+    """Log a file write operation."""
+    logger.info(f"[WRITE] Saved to {file_path}. Rows: {rows}")
+
+def log_pipeline_phase(logger: logging.Logger, phase_name: str):
+    """Log the start of a pipeline phase."""
+    logger.info(f"[PHASE START] {phase_name}")
+
+def log_pipeline_phase_end(logger: logging.Logger, phase_name: str, duration: float):
+    """Log the end of a pipeline phase."""
+    logger.info(f"[PHASE END] {phase_name}. Duration: {duration:.2f}s")
