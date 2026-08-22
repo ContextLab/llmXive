@@ -22,34 +22,15 @@
 - **State**: `state/` directory is nested inside the project root (e.g., `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/state/`)
 - Paths shown below assume this nested project structure.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a Create project directory structure per `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/` plan: Execute `mkdir -p code tests data/raw data/generated data/results state/projects` to establish the physical repository layout.
-- [X] T001b Create empty skeleton files for project configuration: Create empty files `README.md`, `.gitignore`, and `code/requirements.txt` to establish file paths. **Do NOT populate content yet.** (Addresses constraint_preservation-7722b910, executability-e98c71e6)
+- [X] T001b Create empty skeleton files for project configuration: Create empty files `README.md`, `.gitignore`, and `code/requirements.txt` to establish file paths. **Do NOT populate content yet.**
 - [X] T002 Populate `code/requirements.txt` with specific dependencies: Add `pybullet`, `numpy`, `scipy`, `pandas`, `datasets`, `pytest`, `statsmodels` with pinned versions to satisfy Constitution Principle I (Reproducibility). (DEPENDS ON T001b)
 - [X] T003 Create `code/pytest.ini` with specific timeout configuration: Set `timeout=3600` for unit tests and `timeout=21600` for integration tests to enforce the 6h limit. (DEPENDS ON T001b)
-- [ ] T001c Generate checksums for code/config artifacts in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/checksum_config.py`: Compute SHA256 hashes for `README.md`, `.gitignore`, `requirements.txt` (from T002), and `pytest.ini` (from T003) and write them to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` under `artifact_hashes`. **Pre-check**: Verify all target files exist before checksumming. (DEPENDS ON T002, T003, T001a, T001b) (Addresses F001, coverage-efda7950, ordering-a4b58b79, executability-50fbbf9b, constraint_preservation-84fee2be)
+- [ ] T001c Generate checksums for code/config artifacts in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/checksum_config.py`: Compute SHA256 hashes for `README.md`, `.gitignore`, `requirements.txt` (from T002), and `pytest.ini` (from T003) and write them to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` under `artifact_hashes`. **Pre-check**: Verify all target files exist before checksumming. (DEPENDS ON T002, T003, T001a, T001b)
 
 ---
 
@@ -61,24 +42,24 @@
 
 - [X] T004 Setup CPU-only PyBullet physics environment in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/environment.py` (enforce `FR-004`, no CUDA)
  - **Requirement**: Insert a runtime check at the start of `environment.py` that explicitly verifies PyBullet is running in CPU mode by calling `pbd.useGPU(False)` and raising an error if GPU is detected. Do NOT use `torch.cuda.is_available()` as PyBullet does not rely on PyTorch.
-- [X] T005d [P] Download DragMesh-2 dataset from verified HuggingFace URL in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py`: Use `datasets.load_dataset` to fetch the DragMesh-2 manifest and data to `data/raw/`. **CI Setup Stage**: This task must be executed in a writable environment (local dev or CI setup stage) before the `data/raw` directory is mounted read-only in the production CI runner. **Error Handling**: MUST raise `ConnectionError` or `FileNotFoundError` if fetch fails; NO synthetic fallbacks. (Addresses executability-5ef47761, constraint_preservation-76b09a5d)
+- [ ] T005d [P] Download DragMesh-2 dataset from verified HuggingFace URL in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py`: Use `datasets.load_dataset` to fetch the DragMesh-2 manifest and data to `data/raw/`. **CI Setup Stage**: This task must be executed in a writable environment (local dev or CI setup stage) before the `data/raw` directory is mounted read-only in the production CI runner. **Error Handling**: MUST raise `ConnectionError` or `FileNotFoundError` if fetch fails; NO synthetic fallbacks.
+- [ ] T005c Verify manifest integrity and record local checksum in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/verify_manifest.py`: Compute SHA256 of the fetched DragMesh-2 manifest. **If the manifest is empty, raise FileNotFoundError immediately.** If the file exists and is non-empty, record the hash to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` under `artifact_hashes.data_raw` to satisfy **Constitution Principle III (Data Hygiene)** and ensure **FR-007** (clamping/stiction safety) by preventing downstream processing of invalid data. **Do NOT write to `data/raw/.checksums`** to respect read-only constraints. (DEPENDS ON T005d)
+- [ ] T005b [P] Implement strict real-data fetcher verification in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py`
+ - **Requirement**: Explicitly verify the DragMesh-2 manifest fetched by T005d exists and is non-empty.
+ - **Requirement**: This function MUST raise a `ConnectionError` or `FileNotFoundError` if the fetch fails; it MUST NOT include any `try/except` blocks that fall back to synthetic or placeholder data.
+ - **DEPENDS ON**: T005c (Data must be verified before fetcher verification completes).
 - [X] T005a [P] Implement `VirtualTactileEstimator` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py` (FR-001, FR-006, FR-007)
  - **Requirement**: Implement the core formula $k_{est} = \frac{|\Delta \tau_{hand}|}{|\Delta v_{object}|}$ using numpy.
  - **Requirement**: Implement a moving average filter (window size = 5) on the torque derivative signal before computing the ratio.
  - **Requirement**: Implement stiction handling: apply a small epsilon ($\epsilon = 10^{-4}$) to the denominator to prevent division by zero, ensuring $k_{est}$ remains finite but high.
  - **Requirement**: Implement clamping of $k_{est}$ to a physically meaningful positive range to prevent numerical instability.
-- [X] T005b [P] Implement strict real-data fetcher verification in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py`
- - **Requirement**: Explicitly verify the DragMesh-2 manifest fetched by T005d exists and is non-empty.
- - **Requirement**: This function MUST raise a `ConnectionError` or `FileNotFoundError` if the fetch fails; it MUST NOT include any `try/except` blocks that fall back to synthetic or placeholder data.
- - **DEPENDS ON**: T005d (Data must be present for verification). (Addresses coverage-fb781758, ordering-7d4f6a4f, executability-939102ab, constraint_preservation-fd87a4db)
-- [ ] T005c Verify manifest integrity and record local checksum in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/verify_manifest.py`: Compute SHA256 of the fetched DragMesh-2 manifest. If the manifest is empty, log a warning and record a 'MISSING_DATA' status; if the file exists and is non-empty, record the hash to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` under `artifact_hashes` for `data/raw`. **Do NOT write to `data/raw/.checksums`** to respect read-only constraints. (DEPENDS ON T005d, T005b).
 - [X] T006 [P] Implement `AdaptiveRewardScheduler` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py` mapping $k_{est}$ to reward weights with EXPLICIT logic: if $k_{est} > 1.0$, increase $r_{detach}$ by ≥20%; if $k_{est} < 0.2$, decrease $r_{contact}$ by ≤15% (FR-002)
  - **Verification**: Include a self-test block in the task execution that prints the calculated $k_{est}$ and the resulting reward multiplier, and ASSERTS that the magnitude of the adjustment matches the spec's specific thresholds (>=20% increase, <=15% decrease).
 - [X] T007 [P] Create `NovelObjectSet` generator class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/generator.py` to produce a set of randomized articulated geometries with friction coefficients uniformly distributed across a broad range (FR-003). The class MUST accept `count`, `seed`, `friction_min`, and `friction_max` arguments and output to `data/generated/`.
-- [X] T008a [P] Implement seed fixation enforcement logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/seed_config.py` that explicitly sets seeds for `numpy`, `random`, and `torch` (if used) to satisfy Constitution Principle I (Reproducibility). (Note: This sets global seeds before T012 and T013 run).
+- [X] T008a [P] Implement seed fixation enforcement logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/seed_config.py` that explicitly sets seeds for `numpy`, `random`, and `torch` (if used) to satisfy Constitution Principle I (Reproducibility). (Note: This sets global seeds before T012f and T013e run).
 - [X] T008b [P] Implement `validate_citations.py` script in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/validate_citations.py` (Constitution Principle II: Verified Accuracy)
-- [X] T009a [P] Implement checksum verification logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/checksum_verify.py`: Implement `sha256` hashing function for files in `data/raw` and `data/generated`. (DEPENDS ON T001a, T001b, T009)
-- [X] T009c Execute checksum verification and update state: Run `checksum_verify.py` to hash all files in `data/raw` and `data/generated` and write results to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml`. (DEPENDS ON T005c, T009a, T009) (Addresses ordering-5fa0bff2)
+- [ ] T009a [P] Implement checksum verification logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/checksum_verify.py`: Implement `sha256` hashing function for files in `data/raw` and `data/generated`. (DEPENDS ON T001a, T001b)
+- [ ] T009c Execute checksum verification and update state: Run `checksum_verify.py` to hash all files in `data/raw` and `data/generated` and write results to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml`. (DEPENDS ON T005c, T009a)
 - [X] T016a [P] Implement logging configuration in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/logging_config.py` with specific file paths and formats
 - [ ] T016b [P] Add specific log statements for reward weight adjustments and $k_{est}$ values in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py`
 
@@ -102,20 +83,23 @@
 ### Implementation for User Story 1
 
 - [ ] T012b Verify and fetch PICA baseline in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/baseline_fetcher.py`: Query the verified HuggingFace registry for the `dragmesh/pica-baseline-v` checkpoint, resolve the actual SHA256 hash, and write it to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` under `artifact_hashes` for `baseline`. (DEPENDS ON T008b)
-- [ ] T012d Download PICA baseline policy in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/baseline_fetcher.py`: Download the baseline artifact resolved in T012b to `data/raw/baseline/`. **Note**: Ensure this runs before the `data/raw` directory is mounted read-only in CI, or adapt the path to a writable state directory if CI constraints prevent writing to `data/raw`. (DEPENDS ON T012b)
-- [ ] T012c Load and execute static PICA baseline policy in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/baseline_runner.py`: Load the baseline from the hash resolved in T012b and file downloaded in T012d. (DEPENDS ON T012b, T012d) (Addresses ordering-4b3d2a36)
-- [ ] T012 [P] [US1] Implement `train.py` loop integrating `VirtualTactileEstimator` and `AdaptiveRewardScheduler` in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py`. (Note: Training uses the canonical DragMesh-2 dataset, not the novel objects from T013a).
-- [ ] T012e [P] [US1] Verify CPU-only execution in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/verify_cpu_only.py`: Scan compiled code and runtime logs for any CUDA operations or GPU-accelerated libraries during training and inference loops to satisfy FR-004. (Addresses coverage-cefb725c)
+- [ ] T012d Download PICA baseline policy in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/baseline_fetcher.py`: Download the baseline artifact resolved in T012b to `data/raw/baseline/`. **Strict Requirement**: This MUST write to `data/raw/baseline/`. Do NOT adapt paths to writable state directories. (DEPENDS ON T012b)
+- [ ] T012c Load and execute static PICA baseline policy in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/baseline_runner.py`: Load the baseline from the hash resolved in T012b and file downloaded in T012d. (DEPENDS ON T012b, T012d)
+- [ ] T012f [P] [US1] Implement `VirtualTactileEstimator` integration in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py`. (DEPENDS ON T005a)
+- [ ] T012g [US1] Implement `AdaptiveRewardScheduler` integration in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py`. (DEPENDS ON T006, T012f)
+- [ ] T012h [US1] Implement the training loop in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py` integrating T012f and T012g. **Requirement**: Assert CPU-only mode at runtime at the start of the loop to enforce **FR-004**. (DEPENDS ON T012f, T012g)
 - [ ] T013a Generate and link NovelObjectSet for zero-shot evaluation in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/generator.py`: Execute `python code/generator.py --count 30 --seed 42 --friction-min 0.1 --friction-max 1.2 --output data/generated/` to generate a dataset of sufficient size for the study. This task produces the 30 required artifacts for FR-003 with specific friction ranges covering low (0.1-0.3) and high (0.8-1.2) conditions. (DEPENDS ON T007)
 - [ ] T013b Verify generated artifacts exist and are valid in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/verify_generated.py`: Check that a sufficient number of files exist in `data/generated/`, are non-empty, and compute their SHA256 hashes to write to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml`. (DEPENDS ON T013a)
-- [ ] T013 [US1] [DEPENDS ON T012, T012c, T013b] Implement `evaluate.py` to run inference on novel objects using BOTH adaptive and static policies, logging success rates with EXPLICIT 'object_id' and 'policy_type' fields to preserve pairing structure for FR-005 in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/evaluate.py`.
- - **Requirement**: Explicitly check for the existence of `data/generated/` artifacts (produced by T013b) BEFORE attempting to load them. Add a pre-flight check that halts execution with a clear error message if the novel object set is missing.
- - **Requirement**: Stream large result logs: Write results to `data/results/eval_logs.csv` in append mode (streaming) rather than accumulating all objects * 50 trials in memory.
-- [ ] T014 [US1] [DEPENDS ON T013] Implement `aggregate.py` to collect and aggregate success rate data from evaluation logs into CSV format, ensuring 'object_id' is preserved for pairing in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/aggregate.py`.
-- [ ] T015a [US1] [DEPENDS ON T014] Implement `t_test.py` to execute the paired t-test on aggregated data (using 'object_id' for pairing) as a distinct step for FR-005, calculating the t-statistic and raw p-value in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/t_test.py`. (Addresses coverage-7c81db63)
+- [ ] T013c [US1] Validate diversity of generated object set in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/validate_diversity.py`: Verify that the generated friction coefficients cover the full range of expected values. with a uniform distribution (histogram check). Raise ValueError if the set is not diverse. (DEPENDS ON T013b)
+- [ ] T013d [US1] Implement pre-flight check for evaluation in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/evaluate.py`: Explicitly check for the existence of `data/generated/` artifacts (produced by T013b) and T013c validation success BEFORE attempting to load them. Add a pre-flight check that halts execution with a clear error message if the novel object set is missing or not diverse. (DEPENDS ON T013b, T013c)
+- [ ] T013e [US1] Implement inference runner in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/evaluate.py`: Run inference on novel objects using BOTH adaptive and static policies. **Requirement**: Assert CPU-only mode at runtime to enforce FR-004. (DEPENDS ON T013d, T012c, T012h)
+- [ ] T013f [US1] Implement streaming log handler in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/evaluate.py`: Stream large result logs to `data/results/eval_logs.csv` in append mode rather than accumulating all objects * 50 trials in memory. Ensure 'object_id' and 'policy_type' fields are preserved for pairing. (DEPENDS ON T013e)
+- [ ] T014 [US1] [DEPENDS ON T013f] Implement `aggregate.py` to collect and aggregate success rate data from evaluation logs into CSV format, ensuring 'object_id' is preserved for pairing in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/aggregate.py`.
+- [ ] T015a [US1] [DEPENDS ON T014] Implement `t_test.py` to execute the paired t-test on aggregated data (using 'object_id' for pairing) as a distinct step for **FR-005**, calculating the t-statistic and raw p-value in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/t_test.py`.
 - [ ] T015 [US1] [DEPENDS ON T015a] Implement `analysis.py` to collect t-test results, calculate statistical power (effect size) to validate sample size, and LOG the p-value and improvement percentage (DO NOT ASSERT) in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/analysis.py`. (Measurement only)
-- [ ] T015b [US1] Validate analysis results: Create a separate script or CI step that reads the logged metrics from T015 and writes a JSON report `data/results/analysis_validation.json` containing `p_value`, `improvement_pct`, `pass_sc001` (bool), and `pass_sc005` (bool). **DO NOT assert or fail the build**; the goal is to record the result (positive or negative) for scientific analysis. (Addresses executability-043f6d6e, constraint_preservation-30185cec)
-- [ ] T015c [US1] Validate statistical significance against SC-005: Read `data/results/analysis_validation.json` and verify `p_value < 0.05`. Log the specific outcome. (Addresses coverage-eed56ec1)
+- [ ] T015b [US1] Validate analysis results: Create a separate script or CI step that reads the logged metrics from T015 and writes a JSON report `data/results/analysis_validation.json` containing `p_value`, `improvement_pct`, `pass_sc001` (bool), and `pass_sc005` (bool). **DO NOT fail the script**; the goal is to record the result (positive or negative) for scientific analysis. The CI pipeline will fail at T015c.
+- [ ] T015c [US1] Validate statistical significance against **SC-005**: Read `data/results/analysis_validation.json` and verify `p_value < 0.05`. **Fail the CI pipeline if p-value >= 0.05**. Log the specific outcome.
+- [ ] T015d [US1] Validate varying friction improvement against SC-002: Read `data/results/analysis_validation.json` and verify that the success rate improvement for the 'varying friction' subset is at least 10%. Log the specific outcome. (Addresses SC-002)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -135,8 +119,8 @@
 ### Implementation for User Story 2
 
 - [ ] T020 [P] [US2] Implement stress test script for `VirtualTactileEstimator` with noise injection in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/stress_test.py`
-- [ ] T021 [US2] Implement validation script to correlate $k_{est}$ with ground-truth friction in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/validation.py`.
- - **Requirement**: Execute a sweep of **multiple randomized trials** with friction coefficients uniformly sampled from a **non-negative range** to verify linear correlation as per US2 Independent Test.
+- [ ] T021a [US2] Implement data generation/sweep execution script in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/stress_test.py`: Execute a sweep of **multiple randomized trials** with friction coefficients uniformly sampled from a **non-negative range** to generate data for correlation analysis.
+- [ ] T021b [US2] Implement correlation calculation logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/validation.py`: Calculate linear correlation between $k_{est}$ and ground-truth friction from the sweep data generated in T021a.
 - [ ] T022 [US2] Integrate estimator validation into the main training loop in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py`
 - [ ] T023 [US2] Verify `FR-007` clamping logic (bounded range) in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py`
 
@@ -159,9 +143,11 @@
 
 - [ ] T026 [P] [US3] Optimize `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/generator.py` for low memory usage during geometry generation
 - [ ] T027 [US3] Optimize `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py` batch sizes and simulation steps to fit 6h limit
-- [ ] T028a [US3] Create `code/run_benchmark.py` orchestration script: Implement a single executable script that orchestrates the full pipeline (generating data via T013a, training via T012, evaluating via T013, aggregating via T014) and outputs a summary JSON. (Addresses executability-74ded4dd)
+- [ ] T028b [US3] Create `code/run_benchmark.py` orchestration script: Implement a single executable script that orchestrates the full pipeline (generating data via T013a, training via T012h, evaluating via T013e, aggregating via T014) and outputs a summary JSON.
+- [ ] T028c [US3] Implement step wrappers in `code/run_benchmark.py`: Implement the individual step wrappers for generation, training, evaluation, and aggregation. (DEPENDS ON T028b)
+- [ ] T028d [US3] Implement summary JSON generation in `code/run_benchmark.py`: Generate the final summary JSON from the results of the step wrappers. (DEPENDS ON T028c)
 - [ ] T029 [US3] Run full end-to-end benchmark: Execute `python code/run_benchmark.py --output data/results/benchmark_metrics.json`. Log wall-clock time and peak memory. **Do NOT assert limits here; only record metrics.** (SC-003, SC-004 Measurement)
-- [ ] T029b [US3] Record benchmark results: Read `data/results/benchmark_metrics.json` and write a JSON report `data/results/benchmark_report.json` containing `wall_clock_time`, `peak_memory_gb`, `pass_sc003` (bool), and `pass_sc004` (bool). **Do NOT assert limits or exit non-zero.** If limits are exceeded, log a warning but continue to allow analysis of why the method failed tractability. (SC-003, SC-004 Recording only) (Addresses executability-e6f66a02, constraint_preservation-d02e4743)
+- [ ] T029b [US3] Record benchmark results: Read `data/results/benchmark_metrics.json` and write a JSON report `data/results/benchmark_report.json` containing `wall_clock_time`, `peak_memory_gb`, `pass_sc003` (bool), and `pass_sc004` (bool). **Do NOT assert limits or exit non-zero.** If limits are exceeded, log a warning but continue to allow analysis of why the method failed tractability. (SC-003, SC-004 Recording only)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -224,8 +210,8 @@ Task: "Unit test for AdaptiveRewardScheduler logic in projects/PROJ-860-llmxive-
 Task: "Integration test for full pipeline (30 objects) in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/integration/test_pipeline.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement train.py loop integrating VirtualTactileEstimator and AdaptiveRewardScheduler in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py"
-Task: "Implement evaluate.py to run inference on novel objects and log success rates in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/evaluate.py"
+Task: "Implement VirtualTactileEstimator integration in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py"
+Task: "Implement AdaptiveRewardScheduler integration in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py"
 ```
 
 ---
@@ -273,9 +259,9 @@ With multiple developers:
 - **CRITICAL**: All tasks must run on CPU-only free-tier CI (CPU, sufficient RAM, time limit). No GPU, no 8-bit/4-bit quantization.
 - **CRITICAL**: Data loading tasks MUST fail loudly if the real source is unavailable; no synthetic fallbacks are permitted.
 - **CRITICAL**: The estimator must strictly adhere to the sliding regime definition; stiction handling must be explicit via epsilon clamping, not by skipping the calculation entirely.
-- **CRITICAL**: Task T013a (generation) MUST complete before T013 (evaluation) begins. The evaluation script must check for the existence of generated artifacts before proceeding.
+- **CRITICAL**: Task T013a (generation) MUST complete before T013e (evaluation) begins. The evaluation script must check for the existence of generated artifacts before proceeding.
 - **CRITICAL**: T013a generates the specific diverse set for the t-test; T007 is the generic generator class, T013a is the execution.
-- **RESOLVED**: T037 (Reorder task execution flow) is no longer a separate task; its logic (pre-flight check for generated artifacts) has been integrated into T013 and T013b.
+- **RESOLVED**: T037 (Reorder task execution flow) is no longer a separate task; its logic (pre-flight check for generated artifacts) has been integrated into T013d.
 - **RESOLVED**: T015 (Analysis) now separates measurement (T015) from validation (T015b) to allow recording of negative results.
 - **RESOLVED**: T029b (Benchmark) now records metrics without blocking execution, allowing analysis of tractability failures.
 - **RESOLVED**: T004 now correctly checks PyBullet's CPU backend flag.
@@ -297,13 +283,20 @@ With multiple developers:
 - **FIXED**: T001c to depend on T002 and T003 to resolve ordering.
 - **FIXED**: T008a tag to Constitution Principle I.
 - **FIXED**: T015b to remove 'assert' instruction.
-- **FIXED**: T005b to depend on T005d.
+- **FIXED**: T005b to depend on T005c.
 - **FIXED**: T001b to create only skeletons, resolving semantic conflict.
 - **FIXED**: T001c [P] tag removed.
 - **FIXED**: T005b [P] tag removed.
 - **FIXED**: T009c [P] tag removed.
 - **FIXED**: T012c [P] tag removed.
-- **ADDED**: T012e to verify CPU-only execution.
-- **ADDED**: T015a to execute paired t-test.
-- **ADDED**: T015c to validate statistical significance.
-- **ADDED**: T015b and T029b to generate concrete JSON reports.
+- **ADDED**: T012f, T012g, T012h to atomize training loop.
+- **ADDED**: T013c to validate diversity.
+- **ADDED**: T013d, T013e, T013f to atomize evaluation.
+- **ADDED**: T015d to validate SC-002.
+- **ADDED**: T021a, T021b to atomize validation.
+- **ADDED**: T028b, T028c, T028d to atomize benchmark.
+- **FIXED**: Ordering of T005d -> T005c -> T005b.
+- **FIXED**: Removed self-reference in T009a.
+- **FIXED**: Removed stale IDs (coverage-*, constraint_preservation-*) from all tasks.
+- **FIXED**: Removed [P] tags from T012g, T012h, T013d, T028c, T028d where dependencies exist.
+- **FIXED**: T012d to strictly enforce `data/raw/baseline/` path.
