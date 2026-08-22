@@ -1,9 +1,8 @@
 status: none
-intent: downloadable onboarding experiment participant logs dataset python package
-  dataset
+intent: OpenML experiment interaction logs dataset python package dataset
 required_fields:
 - participant_id
-- condition
+- assigned_condition
 - task_id
 - task_start_timestamp
 - task_end_timestamp
@@ -12,7 +11,7 @@ required_fields:
 - moderator_action_timestamp
 - moderator_action_type
 - total_elapsed_time
-- helpfulness_survey_responses
-cache_key: b9099bb89401299b6ca8fc04858dfa01900c95a4ae2e6aa02f1bfba4cba4a1b0
-searched_at: '2026-08-18T13:24:26.662447+00:00'
+- helpfulness_survey_response
+cache_key: a629ae2a95c8e1d450eedf97113402a1766702c7096b2cb03ca55107db410047
+searched_at: '2026-08-22T11:56:08.841002+00:00'
 retry_count: 1

@@ -1,45 +1,41 @@
 # Implementation Plan: Evaluating the Impact of LLM-Generated Code Documentation on Developer Onboarding
 
-**Branch**: `001-evaluating-llm-docs-impact` | **Date**: 2026-06-28 | **Spec**: `spec.md`
-**Input**: Feature specification from `/specs/001-evaluating-llm-docs-impact/spec.md`
+**Branch**: `001-evaluating-llm-docs-impact` | **Date**: 2024-05-21 | **Spec**: `specs/001-evaluating-the-impact-of-llm-generated-c/spec.md`
+**Input**: Feature specification from `specs/001-evaluating-the-impact-of-llm-generated-c/spec.md`
 
 ## Summary
 
-This project implements a feasibility pilot study to evaluate whether LLM-generated documentation reduces developer onboarding time and effort compared to human-written or no documentation. The technical approach involves: (1) a controlled experiment framework managing randomized participant assignment and logging; (2) an automated documentation generation pipeline using LLMs with fallback logic; and (3) a robust statistical analysis pipeline running on CPU-only constraints (≤7GB RAM, ≤6h). The study is designed as a pilot to estimate variance for future power-adequate studies, acknowledging limited statistical power for medium effect sizes with N=15-20.
+This project implements a controlled feasibility pilot to evaluate the impact of LLM-generated documentation versus human-written and no documentation on developer onboarding time and effort. The technical approach involves three core pipelines: (1) a **Documentation Generation Pipeline** that ingests open-source repositories, pins them to specific commits, and generates Markdown documentation using a state-of-the-art LLM with a fallback to a quantized local `phi` model; (2) an **Experiment Execution System** that manages participant assignment, logs task start/end times, counts clarification questions, and enforces stop-loss mechanisms; and (3) a **Statistical Analysis Pipeline** that performs robust estimation (Welch's ANOVA with bootstrapped confidence intervals) and sensitivity analysis (permutation tests), strictly adhering to CPU-only constraints (≤7GB RAM, ≤6h runtime).
 
-**Key Methodological Updates**:
-- **Causal Claim Restriction**: Primary causal inference is restricted to "LLM vs. None". "LLM vs. Human" is treated as an associational comparison with human doc quality as a covariate.
-- **Robust Statistics**: Pre-specified Welch's ANOVA (Games-Howell post-hoc) to avoid "test-then-select" bias and handle small sample sizes.
-- **Covariate Adjustment**: Repository complexity (LOC, CC) and Human Doc Quality are included as covariates in ANCOVA, replacing the infeasible "perfect matching" strategy.
-- **Metric Validity**: "Clarification Questions" redefined as "Help Requests" (independent of struggle); "Cognitive Load Proxy" composite score added.
+**Critical Methodological Shift**: Given the feasibility pilot nature (N=15-20), the primary analysis goal is **variance estimation and effect size description**, not binary hypothesis testing. P-values are treated as exploratory only. The analysis pipeline pre-specifies robust methods (Welch's ANOVA) to avoid the statistical invalidity of assumption-based test selection in low-power settings.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `scikit-learn`, `scipy`, `pandas`, `numpy`, `requests`, `datasets`, `psutil`, `pyyaml`, `gitpython`  
-**Storage**: Local filesystem (JSON/CSV/Parquet) for data; no persistent database required for this pilot  
-**Testing**: `pytest` with contract tests against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier: vCPU, ~7GB RAM)  
-**Project Type**: Research pipeline / CLI tool  
-**Performance Goals**: Analysis pipeline ≤6h runtime, ≤7GB peak RAM; Documentation generation ≤15min per repo (API dependent)  
-**Constraints**: No GPU; no large-LLM training; CPU-only inference only; data subset to fit 7GB RAM  
-**Scale/Scope**: Multiple conditions (LLM, Human, None); N=15-20 participants; ≤500 files per repository  
+**Primary Dependencies**: `datasets` (HuggingFace), `scikit-learn`, `scipy`, `statsmodels`, `psutil`, `requests`, `pyyaml`, `rich` (for CLI), `transformers` (for local fallback), `torch` (CPU-only), `gitpython`, `ruff` (for linting).  
+**Storage**: Local file system (`data/raw/`, `data/processed/`), JSON for logs, YAML for schemas.  
+**Testing**: `pytest` (unit), `pytest-cov` (coverage), manual mock study for integration.  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, 7GB RAM).  
+**Project Type**: CLI / Research Pipeline.  
+**Performance Goals**: Analysis pipeline completes in ≤6 hours; peak memory ≤7GB. Documentation generation per repo ≤15 minutes (with retries).  
+**Constraints**: No local GPU; strict reproducibility via pinned seeds and commit hashes; IRB compliance for human data.  
+**Scale/Scope**: N=15-20 participants; ≤500 files per repository; 3 experimental conditions.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-| Principle | Status | Implementation Strategy |
-|-----------|--------|-------------------------|
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/analysis/` scripts; external datasets fetched from verified HuggingFace URL; repository commits pinned in `data/`; `requirements.txt` pins all dependencies. |
-| **II. Verified Accuracy** | **PASS** | All citations (datasets, methods) validated against the `# Verified datasets` block in the spec; Reference-Validator Agent will check URLs before analysis. |
-| **III. Data Hygiene** | **PASS** | Raw data (participant logs) preserved unchanged; derivations written to new files with checksums recorded in `state/`; PII scan enforced via `psutil`/custom script before analysis. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats in `paper/` generated directly from `data/` via `code/analysis/` scripts; no hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Content hashes for all `data/` and `code/` artifacts; `state/` updated on change; `experiment.py` logs LLM config with checksums. |
-| **VI. Human Subjects Compliance** | **PASS** | IRB protocol referenced in `data/irb_protocol.sha256` (hash stored in `participant` schema); PII (names, emails) anonymized before analysis; consent records archived with restricted access. |
-| **VII. Generation Traceability** | **PASS** | LLM config (model, version, temperature, prompt) logged in `data/llm_config.yaml` and checksummed alongside generated docs. |
+| Principle | Status | Evidence/Plan |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **Pass** | Plan includes `requirements.txt` pinning, random seed enforcement, and commit-hash pinning for repositories. |
+| **II. Verified Accuracy** | **Pass** | Plan includes a dedicated task T070b to implement and execute `Reference-Validator` logic as a blocking gate before analysis. |
+| **III. Data Hygiene** | **Pass** | Plan enforces checksumming of raw data (`data/raw/`), immutable transformations, and PII removal before analysis. |
+| **IV. Single Source of Truth** | **Pass** | All figures/statistics will be generated programmatically from `data/processed/` via scripts; no hand-typed numbers. |
+| **V. Versioning Discipline** | **Pass** | Artifacts will carry content hashes; state updates will trigger on artifact changes. |
+| **VI. Human Subjects Compliance** | **Pass** | Plan includes IRB protocol reference in `data/`, anonymization scripts, and consent record archiving. |
+| **VII. Generation Traceability** | **Pass** | LLM config (model, temp, prompt) will be logged and checksummed alongside generated docs. |
 
 ## Project Structure
 
@@ -51,98 +47,102 @@ specs/001-evaluating-llm-docs-impact/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+└── contracts/           # Phase 1 output
+    ├── participant.schema.yaml
+    ├── repository.schema.yaml
+    ├── task_log.schema.yaml
+    ├── statistical_results.schema.yaml
+    ├── analysis_output.schema.yaml
+    └── ...
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/
+code/
 ├── data/
-│   ├── raw/                  # Raw participant logs, unmodified
-│   ├── processed/            # Anonymized, derived datasets
-│   ├── repos/                # Pinned repository snapshots (commit hashes)
-│   └── llm_config.yaml       # LLM generation config + checksum
-├── code/
-│   ├── experiment/
-│   │   ├── experiment.py     # Main runner (US-1, FR-001, FR-003, FR-004)
-│   │   └── participant_interface.py
-│   ├── generation/
-│   │   ├── doc_pipeline.py   # LLM doc generation (US-2, FR-002, FR-008)
-│   │   └── repo_selector.py  # Repo selection & matching (FR-009)
-│   ├── analysis/
-│   │   ├── stats_runner.py   # Statistical tests (US-3, FR-005, FR-006)
-│   │   └── report_gen.py     # Final report generation
-│   └── utils/
-│       ├── logging.py        # Time/memory monitoring (FR-010)
-│       └── anonymize.py      # PII removal (Constitution VI)
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── contract/             # Schema validation tests
-├── requirements.txt
-└── README.md
+│   ├── raw/             # Raw logs, repo metrics, generated docs
+│   └── processed/       # Anonymized data, statistical inputs
+├── scripts/
+│   ├── generate_docs.py # LLM pipeline (API + fallback)
+│   ├── run_experiment.py# Participant flow, logging, monitoring
+│   ├── analyze.py       # Statistical tests (Welch, Permutation)
+│   ├── validate_refs.py # Reference validator for citations
+│   ├── repo_metrics.py  # LOC, CC calculation
+│   └── anonymize.py     # PII removal
+├── models/
+│   └── schemas.py       # Pydantic models for validation
+├── utils/
+│   ├── monitor.py       # psutil/time context manager (FR-010)
+│   └── repo_metrics.py  # LOC, Cyclomatic Complexity calculation
+└── main.py              # Entry point for CLI
+tests/
+├── unit/
+├── integration/
+└── contract/
+requirements.txt
 ```
 
-**Structure Decision**: Single-project structure with modular `code/` directories for experiment, generation, and analysis. This minimizes overhead for a pilot study while maintaining separation of concerns. No database; all data stored as files for simplicity and reproducibility.
+**Structure Decision**: Single-project structure selected to minimize overhead for a research pilot. All logic is encapsulated in `code/scripts/` with a clear separation between data generation, execution, and analysis.
 
 ## Complexity Tracking
 
-> **No violations found in Constitution Check. Complexity is justified by the need for: (1) randomization logic, (2) LLM fallback, (3) robust statistical tests, and (4) strict resource monitoring.**
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **N/A** | N/A | N/A |
+| **Robust Statistical Suite** | FR-005 requires handling non-normality AND unequal variance (Welch-James/Permutation). | Standard ANOVA alone would violate statistical rigor and produce invalid p-values if assumptions fail. |
+| **Dual-Mode LLM Pipeline** | FR-008 requires API fallback to local `phi` (int4) for reproducibility. | Relying solely on an API risks failure (rate limits) and breaks reproducibility if the API changes. |
+| **Real-time Monitoring** | FR-010 requires `psutil`/`time` monitoring during the *actual* analysis run. | A separate stress test (T087) does not guarantee constraints are met during the real data path. |
 
-## Phase Plan (Computational Task Ordering)
+## Unresolved Panel Concerns Resolution
 
-1. **Phase 0: Research & Data Strategy** (`research.md`)
-   - Verify dataset availability (none required for pilot; synthetic data for testing).
-   - Select candidate repositories (≤500 files) with existing human docs.
-   - Define LLM generation strategy (primary API + phi-2 fallback).
-   - Confirm statistical methods (Pre-specified Welch's ANOVA with ANCOVA adjustment).
+1.  **FR-007/SC-005 Constraint Verification**: The plan explicitly includes `utils/monitor.py` as a context manager wrapper around the `analyze.py` execution (Task T010b). This ensures that *during* the actual analysis run, wall-clock time and peak memory are logged and validated against the 6h/7GB thresholds, rather than relying on a separate stress test.
+2.  **Reference-Validator Implementation**: A new task T070b is added to implement `scripts/validate_refs.py` and execute it as a blocking gate before the analysis phase.
+3.  **Methodological Rigor**: The plan now explicitly states that the study is a **Feasibility Pilot** focused on variance estimation and effect sizes. The "decision tree" for test selection based on low-power assumption tests is removed; Welch's ANOVA is pre-specified as the primary robust method.
 
-2. **Phase 1: Data Model & Contracts** (`data-model.md`, `contracts/`)
-   - Define schemas for participant logs, repo metadata, and analysis outputs.
-   - Create YAML contracts for validation.
-   - Design data model for anonymization and IRB hash storage.
+## Phased Implementation Plan
 
-3. **Phase 2: Implementation** (Not covered here; handled by `/speckit-tasks`)
-   - Implement `experiment.py`, `doc_pipeline.py`, `stats_runner.py`.
-   - Implement resource monitoring (FR-010).
-   - Implement PII anonymization (Constitution VI).
+### Phase 0: Research & Data Strategy
+*   **Goal**: Define the statistical methodology, verify dataset availability, and establish the repository selection rubric.
+*   **Deliverables**: `research.md` (with Statistical Methodology Appendix), `data-model.md`.
+*   **Key Steps**:
+    *   Identify -5 open-source repositories with high-quality human docs (verified via rubric).
+    *   Confirm availability of `datasets` or `openml` sources for any synthetic/auxiliary data.
+    *   Draft the statistical protocol (Welch's ANOVA + Bootstrapped CIs) in `research.md`.
 
-4. **Phase 3: Execution & Analysis**
-   - Run mock study (N=3 simulated participants).
-   - Generate docs for selected repos.
-   - Execute statistical analysis on real/synthetic data.
-   - Generate final report.
+### Phase 1: Data Model & Contracts
+*   **Goal**: Define schemas for participants, repositories, and analysis outputs.
+*   **Deliverables**: `contracts/*.schema.yaml`, `quickstart.md`.
+*   **Key Steps**:
+    *   Define `Participant` schema (condition, timestamps, question counts).
+    *   Define `Repository` schema (URL, commit, LOC, CC, doc status).
+    *   Define `AnalysisOutput` schema (test statistics, p-values, CI).
+    *   **T030a**: Generate `data/raw/schema_temp.json` for validation.
 
-5. **Phase 4: Reporting**
-   - Output `paper/` with figures/stats derived from `data/`.
-   - Validate all citations.
+### Phase 2: Core Implementation (Documentation & Experiment)
+*   **Goal**: Build the generation pipeline and experiment runner.
+*   **Deliverables**: `scripts/generate_docs.py`, `scripts/run_experiment.py`.
+*   **Key Steps**:
+    *   **T021a**: Implement `calculate_cyclomatic_complexity` and write to `data/raw/repo_cc_raw.json`.
+    *   **T021b**: Implement `cloc` execution and write to `data/raw/repo_loc_raw.json`.
+    *   **T021c**: Implement doc quality rubric and write to `data/raw/doc_quality_scores.json`.
+    *   **T021d/T021e**: Generate `repo_selection_rubric.json` and `repo_matching_report.json`.
+    *   **T016/T018/T019/T020**: Implement participant logging, incomplete record handling, stop-loss, and anonymization to produce `data/raw/participant_logs.json` and `data/processed/anonymized_logs.json`.
+    *   **T028**: Implement LLM generation with API fallback to `phi` (int4), pinning to a specific commit, and logging config/checksum.
 
-## FR/SC Coverage Map
+### Phase 3: Analysis & Validation
+*   **Goal**: Implement statistical tests and verify constraints.
+*   **Deliverables**: `scripts/analyze.py`, `scripts/validate_refs.py`.
+*   **Key Steps**:
+    *   **T010b**: Integrate `monitor.py` as a context manager wrapper around `analyze.py` execution to enforce FR-007.
+    *   **T070b**: Execute `validate_refs.py` as a blocking gate before analysis begins.
+    *   Implement Welch's ANOVA, Games-Howell, and Permutation tests.
+    *   Generate final report with effect sizes and confidence intervals.
 
-| FR/SC ID | Plan Element | Description |
-|----------|--------------|-------------|
-| FR-001 | `experiment.py` (Phase 2) | Randomized assignment of N≥15 participants to 3 conditions. |
-| FR-002 | `doc_pipeline.py` (Phase 2) | LLM doc generation pinned to commit hash. |
-| FR-003 | `experiment.py` (Phase 2) | Precise timestamp logging with high temporal resolution.. |
-| FR-004 | `experiment.py` (Phase 2) | Clarification question logging (keyword + moderator tag). |
-| FR-005 | `stats_runner.py` (Phase 2) | Pre-specified Welch's ANOVA with ANCOVA adjustment. |
-| FR-006 | `stats_runner.py` (Phase 2) | Post-hoc corrections (Games-Howell). |
-| FR-007 | `stats_runner.py` (Phase 2) | CPU-only execution, ≤6h, ≤7GB RAM. |
-| FR-008 | `doc_pipeline.py` (Phase 2) | API fallback to phi-2 (int4) on failure. |
-| FR-009 | `repo_selector.py` (Phase 2) | Repo selection with rubric (Setup/API/Arch) and LOC/CC measurement for ANCOVA. |
-| FR-010 | `utils/logging.py` (Phase 2) | `time` + `psutil` monitoring. |
-| SC-001 | `stats_runner.py` (Phase 2) | Time savings vs. "No Docs" baseline (causal). |
-| SC-002 | `stats_runner.py` (Phase 2) | Question count reduction vs. "No Docs" (causal). |
-| SC-003 | `stats_runner.py` (Phase 2) | Subjective ratings vs. "Human Docs" (associational). |
-| SC-004 | `stats_runner.py` (Phase 2) | p-value < 0.05 threshold. |
-| SC-005 | `utils/logging.py` (Phase 2) | Runtime/memory thresholds. |
-| Edge Case (Abandon) | `experiment.py` (Phase 2) | Flag "incomplete", exclude from time analysis, retain for dropout reporting. |
-| Edge Case (Stop-Loss) | `experiment.py` (Phase 2) | 45m timeout → "failed" with max_time=45m. |
-| Edge Case (Repo Change) | `repo_selector.py` (Phase 2) | Pin commit hash for consistency. |
-| Edge Case (Human Doc Variance) | `stats_runner.py` (Phase 2) | Include Human Doc Quality Score as covariate. |
+### Phase 4: Reporting
+*   **Goal**: Generate the final report.
+*   **Deliverables**: `paper.md` (draft), final `analysis_report.json`.
+*   **Key Steps**:
+    *   Aggregate results.
+    *   Generate visualizations (via `matplotlib`/`seaborn`).
+    *   Write conclusion based on SC-001 to SC-005, emphasizing effect size estimation.
+

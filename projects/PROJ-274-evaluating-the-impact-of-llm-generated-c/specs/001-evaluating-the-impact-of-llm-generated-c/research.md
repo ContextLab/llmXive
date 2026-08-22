@@ -2,117 +2,101 @@
 
 ## 1. Research Question & Hypotheses
 
-**Primary Question**: Does LLM-generated documentation reduce developer onboarding time and effort compared to no documentation? (Causal Claim)
-**Secondary Question**: How does LLM-generated documentation compare to existing human-written documentation in a real-world setting? (Associational Claim)
+**Primary Question**: How does LLM-generated code documentation compare to human-written documentation (or no documentation) in reducing onboarding time and effort for new developers working on open-source codebases?
 
 **Hypotheses**:
-- **H1 (Causal)**: Participants using LLM docs will have significantly shorter task completion times than those using no docs.
-- **H2 (Causal)**: Participants using LLM docs will ask fewer "Help Requests" than those using no docs.
-- **H3 (Associational)**: Participants using LLM docs will rate documentation as equally helpful as those using human docs (non-inferiority), controlling for human doc quality.
-
-**Note**: This is a **feasibility pilot** (N=15-20). Power to detect medium effects is <20%. The primary goal is variance estimation for a future power-adequate study.
+*   **H1 (Causal)**: Participants in the "LLM Docs" condition will have significantly shorter task completion times than those in the "No Docs" condition (due to random assignment). *Note: With N=15, this is exploratory; primary focus is on effect size estimation.*
+*   **H2 (Associational)**: Participants in the "LLM Docs" condition will have comparable task completion times and subjective helpfulness ratings to those in the "Human Docs" condition. *Note: This comparison is treated as associational only due to non-randomized repository selection.*
+*   **H3 (Cognitive Load)**: Participants in the "LLM Docs" condition will ask fewer clarification questions than those in the "No Docs" condition.
 
 ## 2. Dataset Strategy
 
-**No external dataset required for the primary experiment.** The study uses:
-- **Synthetic participant data** for mock testing (Phase 2).
-- **Real participant data** collected during the pilot (Phase 3).
-- **Repository snapshots** (pinned commits) for documentation generation.
+The study relies on two distinct data sources: (1) **Open-Source Repositories** for the codebase and (2) **Human Participants** for the onboarding experiment.
 
-**Verified Datasets**:
-- **ANOVA Test Data**: `
- *Usage*: Synthetic data for testing the statistical analysis pipeline (US-3, FR-005). This dataset provides functional ANOVA results for validating test implementations.
+### 2.1 Repository Selection (Independent Variable Source)
 
-**Dataset Variable Fit**:
-- The ANOVA dataset contains synthetic test statistics (F-values, p-values) and is suitable for **validating the analysis pipeline** but **not** for the primary experiment.
-- The primary experiment uses **collected participant data** (time, questions, ratings) which will be stored in `data/raw/`.
+We will select a small set of open-source Python repositories that meet the following criteria:
+*   **Size**: ≤ 500 files (to fit within RAM constraints).
+*   **Documentation**: Must have existing, high-quality human documentation (Setup, API, Architecture sections).
+*   **Accessibility**: Must be publicly available on GitHub with a pinned commit hash.
+*   **Complexity Matching**: Repositories will be matched across conditions based on Lines of Code (LOC) and Cyclomatic Complexity (CC) with a tolerance of ±15%.
 
-| Variable | Source | Notes |
-|----------|--------|-------|
-| Task Completion Time | `experiment.py` (FR-003) | Logged per participant, per task. |
-| Help Requests | `experiment.py` (FR-004) | Logged per participant, per task (keyword + moderator tag). |
-| Cognitive Load Proxy | `experiment.py` (New) | Composite of time, help clicks, NASA-TLX subset. |
-| Subjective Ratings | `experiment.py` (FR-003) | Likert scale (1-5) post-task. |
-| Repository LOC/CC | `repo_selector.py` (FR-009) | Computed from pinned commit; used as covariate. |
-| Human Doc Quality | `repo_selector.py` (FR-009) | Rubric score (0-4); used as covariate. |
-| LLM Config | `data/llm_config.yaml` (FR-008) | Model, temperature, prompt. |
+**Confounding Acknowledgement**: The "Human Docs" condition is selected from existing repositories, meaning the "Human" variable is confounded with the specific codebase identity. Therefore, the "LLM vs. Human" comparison is treated as an **associational baseline** (real-world variation) rather than a causal claim. The only causal claim supported by random assignment is "LLM vs. No Docs".
+
+**Verified Datasets (Repositories)**:
+*   *Note: No specific external dataset URL is required as we will programmatically fetch from GitHub using `git` and `requests`.*
+*   We will use `gitpython` to clone specific commits.
+*   We will use `cloc` (via subprocess) and a custom AST parser for Cyclomatic Complexity.
+
+### 2.2 Participant Data (Dependent Variable Source)
+
+*   **Source**: Recruited volunteers (N ≥ 15).
+*   **Acquisition**: Manual recruitment via university mailing lists or developer communities.
+*   **Data Collection**:
+    *   **Objective**: Timestamps (start/end), clarification question logs (text + count).
+    *   **Subjective**: Likert-scale survey (1-5) on documentation helpfulness.
+*   **Privacy**: All PII (names, emails) will be stripped immediately upon collection. Only anonymized IDs will be used in analysis.
+
+### 2.3 Data Availability & Feasibility
+*   **Download**: Repositories are fetched via `git clone` (programmatic, no credentials).
+*   **Storage**: Raw logs stored in `data/raw/` (JSON). Processed data in `data/processed/`.
+*   **Feasibility**: The dataset size is minimal (text logs, small codebases). The primary constraint is the 6-hour runtime and 7GB RAM limit for the analysis, which is feasible for N=15 and small repositories.
 
 ## 3. Statistical Methodology
 
-**Primary Analysis**: Welch's ANOVA with ANCOVA adjustment, comparing 3 conditions (LLM, Human, None).
+### 3.1 Pre-Registered Analysis Strategy (Fixed, Not Data-Dependent)
 
-**Step-by-Step Procedure** (FR-005):
-1. **Descriptive Statistics**: Calculate means, SDs, and check for outliers.
-2. **Covariate Measurement**: Compute LOC, CC, and Human Doc Quality Score for each repository.
-3. **Primary Test**: Perform **Welch's ANOVA** (pre-specified, regardless of normality/homogeneity) with **ANCOVA** adjustment for LOC, CC, and Human Doc Quality.
- - *Rationale*: Pre-specification avoids "test-then-select" bias and Type I error inflation in small samples. ANCOVA controls for residual confounding where matching is imperfect.
-4. **Post-Hoc Corrections** (FR-006):
- - If primary test is significant (p < 0.05), perform **Games-Howell** pairwise comparisons.
- - *Rationale*: Games-Howell is robust to unequal variances and sample sizes.
-5. **Family-Wise Error Rate**: Controlled via Games-Howell correction.
+To avoid the "double-dipping" error and the low power of assumption tests (Shapiro-Wilk, Levene) at N=5-7 per group, we **pre-specify** the following robust analysis path regardless of assumption test results:
 
-**Power & Sample Size**:
-- **Current N**: 15-20 (pilot).
-- **Power Limitation**: <20% for medium effect (Cohen's f ≈ 0.25).
-- **Acknowledgement**: This study is **not powered** for definitive hypothesis testing; it is for variance estimation.
+1.  **Primary Test**: **Welch's ANOVA** (robust to unequal variances).
+2.  **Post-Hoc**: **Games-Howell** (controls Family-Wise Error Rate for unequal variances).
+3.  **Sensitivity Analysis**: **Permutation Test** (1000 iterations) to verify robustness.
+4.  **Effect Size**: Report **Cohen's f** (or partial eta-squared) with **95% Confidence Intervals** calculated via bootstrapping.
+5.  **Decision Rule**: The study is a **Feasibility Pilot**. The primary outcome is the **estimation of variance and effect size**. P-values are reported as exploratory indicators only. We do not claim "statistical significance" as a definitive proof of effect due to the low power (<20% for medium effects).
 
-**Causal Inference**:
-- **LLM vs. None**: Causal (random assignment).
-- **LLM vs. Human**: Associational (human docs vary in quality; treated as real-world baseline). The "Human" condition is not a single level of an independent variable but a distribution of quality. We control for this variance by including the Human Doc Quality Score as a covariate.
+### 3.2 Assumption Checking (Descriptive Only)
 
-**Measurement Validity**:
-- **Time**: High validity (precise timestamps).
-- **Help Requests**: Moderate validity (keyword-based + moderator tag; may miss nuanced queries). Retained as secondary metric.
-- **Cognitive Load Proxy**: High validity (composite of time, help clicks, NASA-TLX).
-- **Ratings**: Moderate validity (Likert scale; subjective).
+While we do not use assumption tests to select the method, we will report the following descriptively to characterize the data:
+*   **Normality**: Shapiro-Wilk test (H0: data is normal).
+*   **Homogeneity of Variance**: Levene's test (H0: variances are equal).
+*   *Note: These tests have low power at N=5-7 and will likely fail to reject the null even if violations exist. They are reported for transparency, not for decision making.*
 
-**Collinearity**:
-- Predictors (condition) are mutually exclusive (no collinearity).
-- Repository complexity (LOC, CC) and Human Doc Quality are included as covariates to control for confounding.
+### 3.3 Statistical Power & Limitations
 
-## 4. Compute Feasibility & Resource Constraints
+*   **Sample Size**: N=15-20 (5-7 per group).
+*   **Power**: This is a **Feasibility Pilot**. It is insufficient to detect medium effect sizes with high power (Power < 20% for Cohen's f ≈ 0.25).
+*   **Goal**: The study aims to **estimate variance** for a future, adequately powered study, and to provide **effect size estimates** with confidence intervals.
+*   **Interpretation**: Any "significant" p-value (p < 0.05) should be interpreted with caution as a potential false positive or "Winner's Curse" (overestimation of effect size). Any "non-significant" result is uninformative regarding the null hypothesis.
+*   **Confounding**: The "Human Docs" condition is treated as an associational baseline (real-world variation) rather than a causal control, as we cannot randomize "human quality" in the same way we randomize "LLM generation".
 
-**Environment**: GitHub Actions free-tier (2 vCPU, ~7GB RAM, ≤6h, no GPU).
+## 4. Compute Feasibility & Resource Strategy
 
-**Strategies**:
-- **No GPU**: All analysis uses CPU-optimized libraries (`scipy`, `scikit-learn`).
-- **Memory**: Data subset to fit 7GB; no large-LLM training.
-- **Runtime**: Analysis pipeline ≤6h; doc generation ≤15min/repo (API dependent).
-- **LLM Fallback**: Primary API → phi-2 (int4, CPU) on failure (FR-008).
+*   **Environment**: CPU-only (2 vCPU, 7GB RAM).
+*   **Analysis**: `scipy` and `statsmodels` are CPU-optimized and lightweight. Permutation tests (1000 iterations) on N=15 are computationally trivial (< 1 minute).
+*   **Documentation Generation**:
+    *   **Primary**: API call (external compute).
+    *   **Fallback**: `phi-2` (quantized int4) via `transformers` on CPU.
+    *   **Strategy**: The local model will be loaded in 4-bit precision to fit within 7GB RAM. Generation will be limited to small contexts (≤ 2000 tokens) to ensure speed.
+*   **No GPU Required**: The analysis and fallback generation are designed to run entirely on CPU.
 
-**Library Pins**:
-- `scipy>=1.10.0` (ANOVA, Levene's, Shapiro-Wilk).
-- `scikit-learn>=1.2.0` (robust stats, permutation tests).
-- `pandas>=2.0.0` (data manipulation).
-- `numpy>=1.24.0` (numerical ops).
-- `psutil>=5.9.0` (memory monitoring).
-- `requests>=2.28.0` (API calls).
-- `datasets>=2.14.0` (loading ANOVA test data).
-- `pyyaml>=6.0` (config files).
-- `gitpython>=3.1.0` (repo handling).
+## 5. Ethical Considerations
 
-## 5. Risk Mitigation
+*   **IRB Compliance**: The study protocol will be submitted for IRB approval.
+*   **Informed Consent**: Participants will sign a digital consent form detailing the risks and data usage.
+*   **Anonymization**: All logs will be stripped of PII before analysis.
+*   **Right to Withdraw**: Participants may withdraw at any time; their data will be excluded.
 
-| Risk | Mitigation |
-|------|------------|
-| **LLM API Failure** | Fallback to phi-2 (int4) local model (FR-008). |
-| **Participant Dropout** | Flag "incomplete"; retain for dropout reporting (Edge Case). |
-| **Poor LLM Docs** | Moderator stop-loss at 45m; record as "failed" (Edge Case). |
-| **Repo Changes** | Pin commit hash (FR-009, Edge Case). |
-| **Low Power** | Acknowledge limitation; focus on variance estimation (FR-001). |
-| **Memory Exceed** | Data subset; monitor with `psutil` (FR-010). |
-| **Human Doc Variance** | Include Human Doc Quality Score as covariate in ANCOVA. |
+## 6. Statistical Methodology Appendix
 
-## 6. Decision Rationale
+*This section satisfies T070 and the Constitutional requirement for pre-registered methodology.*
 
-**Why CPU-only?** The spec (FR-007) mandates CPU-only execution for reproducibility on free-tier CI. GPU methods are excluded.
-
-**Why phi-2 (int4)?** It is the smallest viable LLM for code documentation that can run on CPU without exceeding 7GB RAM. Quantization (int4) is required to fit.
-
-**Why Welch's ANOVA with ANCOVA?** Time data is often non-normal and heteroscedastic. Pre-specified Welch's ANOVA avoids test selection bias. ANCOVA controls for residual confounding (LOC, CC, Human Doc Quality) where matching is imperfect.
-
-**Why N=15-20?** This is a feasibility pilot (FR-001). Larger N would exceed resource constraints and is unnecessary for variance estimation.
-
-**Why pin commit hashes?** To ensure consistency between generated docs and code under test (Edge Case).
-
-**Why no external dataset for primary analysis?** The study generates its own data via participant onboarding tasks. The ANOVA dataset is only for pipeline validation.
+**Pre-Registration Protocol**:
+1.  **Alpha Level**: 0.05 (Exploratory).
+2.  **Primary Test**: Welch's ANOVA (pre-specified to avoid assumption-based selection).
+3.  **Post-Hoc**: Games-Howell (pre-specified).
+4.  **Sensitivity**: Permutation Test (1000 iterations).
+5.  **Effect Size**: Cohen's f with 95% Bootstrapped CIs.
+6.  **Sensitivity Analysis**: Thresholds will be swept (0.01, 0.05, 0.10) to report stability.
+7.  **Outlier Handling**: Values > 3 SD from the mean will be flagged but retained in the primary analysis (sensitivity analysis will exclude them).
+8.  **Stop-Loss**: If a task exceeds 45 minutes, it is recorded as "failed" with `max_time=45m`.
+9.  **Citation Verification**: All references to statistical methods (e.g., Welch-James) will be verified against the primary source by `validate_refs.py` before analysis.

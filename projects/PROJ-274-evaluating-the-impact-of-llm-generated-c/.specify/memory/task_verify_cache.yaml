@@ -1,3 +1,9 @@
+T019:
+  c: false
+  h: 3f5092e2e42d52ad18666c053a6320e64f18bcd75aa984ea91d3dbad74931c3f
+  r: "The required output file `data/raw/participant_logs.json` is missing, so no\
+    \ evidence exists that incomplete records were handled, dropout counts calculated,\
+    \ or status flags were added. The task\u2019s core artifact is absent."
 T020:
   c: true
   h: 46f56fe0588eed034caa90ec4bb352cefaaaddebb25e0a0857577a8b12b7e0cd
@@ -8,33 +14,27 @@ T020:
     \ the function is invoked.)"
 T021a:
   c: false
-  h: 5d1b67d54924d9ed49c9a9725151d6d75b4f075eeefc30e3ec50396bb6031cda
-  r: "The repository lacks the required output file \u2013 `data/raw/candidate_repos.json`\
-    \ does not exist \u2013 and the provided snippet of `code/validation.py` is truncated,\
-    \ giving no evidence that the rubric logic writes this file. Without the JSON\
-    \ artifact, the task\u2019s core deliverable is missing."
-T021b:
+  h: 28bf8e7a710195b91ef7951f15675c6f6c1750816e2d8f3d13f585f3ab48ced8
+  r: The repository contains a partially implemented `calculate_cyclomatic_complexity`
+    function, but there is no code that iterates over candidate repositories, writes
+    the results to `data/raw/repo_cc_raw.json`, nor does the file `data/raw/repo_cc_raw.json`
+    exist. Consequently the required output file is missing and the task is not fulfilled.
+T021c:
   c: false
-  h: 850b4feebab3fbe437a4a2a22053139836208c7e1961fbf96bdb74f97edd1a03
-  r: "The required file `data/raw/repo_selection_rubric.json` is missing, and the\
-    \ checksum entry in `data/checksums.txt` does not reference that JSON (it only\
-    \ contains a hash for `data/llm_config.yaml`). Consequently the task\u2019s core\
-    \ outputs and verification steps are not satisfied."
-T021d:
+  h: 2acd910a39480a513e4dc299329c3c4ac69b6023f7652bcbee5b5ce538c8bce0
+  r: "The repository lacks the required `data/raw/doc_quality_scores.json` file, and\
+    \ the shown `code/validation.py` does not contain any function that computes the\
+    \ binary presence of Setup, API, and Architecture sections or writes those scores\
+    \ to the specified JSON output. The task\u2019s core functionality and output\
+    \ are therefore missing."
+T028:
   c: false
-  h: f34be058816c2e38e5e46b0b4c38253719104a7bcf30d49711855b404b5e29b7
-  r: The required input file `data/raw/repo_metrics.json` is missing, and consequently
-    the expected output files `data/raw/repo_selection_rubric.json` and `data/raw/repo_matching_report.json`
-    do not exist. Without these artifacts the quantitative matching logic cannot be
-    executed or verified.
-T021f:
-  c: false
-  h: 564a0fea0adc022ad1e950ae450e5d2e1ed0dd3c44c98f176daaa4d071ce1918
-  r: "The repository contains a partially implemented `check_documentation_criteria`\
-    \ function, but there is no code that computes a summed \u201CHuman Doc Quality\
-    \ Score\u201D, iterates over the candidate repos, or writes the results to `data/raw/doc_quality_scores.json`.\
-    \ Moreover, the required `doc_quality_scores.json` file is missing entirely. The\
-    \ task\u2019s core output and integration steps are therefore not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or logs were provided that implement the required fallback\
+    \ to the local CPU\u2011optimized phi (int4) model, pin it to a specific HuggingFace\
+    \ commit, or record generation config and checksums. The evidence consists only\
+    \ of the task description and spec excerpt, which does not satisfy the implementation\
+    \ requirement."
 T033:
   c: false
   h: afbd3c7a3c82f0345097f313e4b17a97c8976f42c93c5c5f19098703a573f99f
@@ -42,3 +42,10 @@ T033:
     \ file `contracts/dataset.schema.yaml` is missing, so the validation could not\
     \ have actually been performed against the specified schema. The task\u2019s prerequisite\
     \ (ensuring the schema file exists) is not satisfied."
+T070:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `specs/001-evaluating-llm-generated-c/research.md` file containing the statistical\
+    \ methodology appendix is present, nor is there any signed\u2011off version placed\
+    \ in the `data/` directory as a pre\u2011registered protocol. The required documentation\
+    \ and its inclusion are missing."

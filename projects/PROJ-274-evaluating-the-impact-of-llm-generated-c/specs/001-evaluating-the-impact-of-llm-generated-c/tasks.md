@@ -20,30 +20,36 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 0: Research & Data Strategy
 
 **Purpose**: Define statistical methods, data sources, and repository selection criteria. Pre-specify analysis approach to avoid bias.
 
-- [ ] T070 [P] [Phase 0] Generate Statistical Methodology Appendix in `specs/001-evaluating-llm-generated-c/research.md` documenting the pre-specified analysis approach (Levene's -> ANOVA/Welch's -> Games-Howell) and assumptions before any data collection. Verification: Ensure the document is signed off and included in the project's `data/` as a pre-registered protocol.
+- [ ] T070 [GATE] [Phase 0] Generate Statistical Methodology Appendix in `specs/001-evaluating-llm-docs-impact/research.md` documenting the pre-specified analysis approach (Levene's -> ANOVA/Welch's -> Games-Howell) and assumptions before any data collection. Verification: Ensure the document is signed off by storing its SHA256 hash in `state/research_protocol.sha256`. This task blocks Phase 6.
+
+- [ ] T071a [P] [Phase 0] Implement Reference-Validator Agent logic in `code/utils/validator.py` to check citations against primary sources (URL reachability, title overlap ≥ 0.7) before analysis. Verification: Run against a sample citation and assert it returns 'valid' or 'invalid'. This task must run before Phase 1 implementation begins.
+
+- [ ] T071b [GATE] [Phase 0] Execute the Reference-Validator Agent against the generated `specs/001-evaluating-llm-docs-impact/research.md` file to verify all citations. Verification: Assert the validator returns 'all_valid' and a lock file `state/research_validated.lock` is created. This task MUST pass before Phase 1 implementation begins.
+
+- [ ] T071c [GATE] [Phase 0] Implement the 'Verified Accuracy Gate' logic in `code/utils/gate.py` to block analysis execution if `state/research_validated.lock` is missing or stale. Verification: Attempt to run `code/analysis/stats_runner.py` without the lock and assert it raises a `GateError`. This task ensures Constitution Principle II compliance.
 
 ---
 
@@ -64,13 +70,16 @@
 
 **⚠️ CRITICAL**: No User Story 2 work can begin until this phase is complete.
 
-- [X] T047 [P] Consolidate validation logic for repository selection and schema validation into `code/validation.py` to ensure a single source of truth for all validation tasks.
-- [ ] T021a [P] [US2] Implement Cyclomatic Complexity (CC) collection in `code/validation.py`: Run `radon cc -a -s` for a list of candidate repositories. **Output**: `data/raw/repo_cc_raw.json`. Verification: Assert file exists and contains numeric CC for each candidate repo.
-- [ ] T021b [P] [US2] Implement Lines of Code (LOC) collection in `code/validation.py`: Run `cloc --json` for a list of candidate repositories. **Output**: `data/raw/repo_loc_raw.json`. Verification: Assert file exists and contains numeric LOC for each candidate repo.
-- [ ] T021c [P] [US2] Implement Documentation Rubric Scoring in `code/validation.py`: Calculate a quantitative "Human Doc Quality Score" based on the presence of Setup, API, and Architecture sections (binary indicator per section, summed). **Input**: Candidate repo list. **Output**: `data/raw/doc_quality_scores.json`. Verification: Assert file contains scores for each repo.
-- [ ] T021d [P] [US2] Filter repositories based on documentation quality: Exclude repositories from `data/raw/doc_quality_scores.json` that do not meet the minimum rubric score criteria defined in FR-009. **Output**: `data/raw/repo_selection_rubric_intermediate.json`. Verification: Assert file exists and contains only repos meeting the rubric.
-- [ ] T021f [P] [US2] Filter repositories based on metric thresholds: Compare LOC/CC from `data/raw/repo_loc_raw.json` and `data/raw/repo_cc_raw.json` against the median metrics of the initial candidate pool (baseline) and exclude repos failing the ±15% tolerance. **Output**: `data/raw/repo_selection_rubric.json` (final accepted repos) AND `data/raw/repo_matching_report.json`. Verification: Assert file exists and contains accepted repos with matching metrics.
-- [ ] T021g [P] [US2] Aggregate LOC, CC, and Doc Quality scores into a single covariate dataset for statistical adjustment (ANCOVA). **Input:** `data/raw/repo_loc_raw.json`, `data/raw/repo_cc_raw.json`, and `data/raw/doc_quality_scores.json`. **Output**: `data/raw/repo_covariates.json`. Verification: Assert file exists and contains normalized/centered covariates for accepted repos.
+- [ ] T020a [P] [Phase 2] Generate `config/candidate_repos.yaml` containing a hardcoded initial list of 10-15 candidate repositories (URLs) for the pilot study. Verification: Assert file exists and is valid YAML.
+- [ ] T021 [Prerequisite] [Phase 2] Implement Repository Selection Pipeline in `code/validation.py`:
+    1. Read candidate repos from `config/candidate_repos.yaml`.
+    2. Run `radon cc -a -s` for each repo (output `data/raw/repo_cc_raw.json`).
+    3. Run `cloc --json` for each repo (output `data/raw/repo_loc_raw.json`).
+    4. Calculate "Human Doc Quality Score" based on Setup/API/Arch sections (output `data/raw/doc_quality_scores.json`).
+    5. Filter repos based on rubric (output `data/raw/repo_selection_rubric_intermediate.json`).
+    6. Filter repos based on LOC/CC metrics (±15% tolerance) (output `data/raw/repo_selection_rubric.json` and `data/raw/repo_matching_report.json`).
+    7. Aggregate LOC, CC, and Doc Quality scores into `data/raw/repo_covariates.json` for ANCOVA.
+    Verification: Assert all output files exist and contain correct data. This task blocks Phase 6.
 
 ---
 
@@ -87,11 +96,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Implement participant assignment logic (randomized to LLM/Human/None) in `code/experiment/experiment.py`
-- [ ] T016 [US1] Implement real-time logging of clarification questions based on FR-004: filter for keywords (e.g., 'how', 'why') OR moderator tags via the `experiment.py` chat interface. Log timestamp, content, and type (keyword/modeerator-tag). **Simultaneously calculate the count per session**. **Output**: `data/raw/participant_logs.json` with `clarification_questions` array and `clarification_question_count` field. Verification: Assert logs contain both keyword matches and moderator-tagged events, and the count field matches the array length.
-- [ ] T017 [US1] Implement subjective helpfulness survey capture in `code/experiment/experiment.py`
+- [X] T014 [P] [US1] Implement participant assignment logic (randomized to LLM/Human/None) in `code/experiment/experiment.py`
+- [ ] T016 [US1] Implement real-time logging of clarification questions based on FR-004: filter for keywords (e.g., 'how', 'why', 'what', 'explain') OR moderator tags (specific JSON event type `{'type': 'moderator_tag'}` injected via `experiment.py` chat interface). Log timestamp, content, and type (keyword/modeerator-tag) to `data/raw/participant_logs.json` in an array named `clarification_questions`. **Do NOT calculate the count here**; only log raw events. Verification: Assert logs contain both keyword matches and moderator-tagged events (identified by `type: moderator_tag`) and the array is populated.
+- [X] T017 [US1] Implement subjective helpfulness survey capture in `code/experiment/experiment.py`
 - [ ] T018 [US1] Implement "Stop-Loss" intervention logic: If task time > 2700s (45 min), trigger moderator intervention, flag record as 'failed', set `intervention_status` = 'stop_loss', and record `max_time` = 2700. **Output**: `data/raw/participant_logs.json` with updated fields. Verification: Assert `intervention_status` field is set and `max_time` is 2700 for flagged records.
-- [ ] T019 [US1] Handle incomplete records (exclude from analysis, retain for reporting). Calculate dropout count. **Output**: `data/raw/participant_logs.json` with status flags.
+- [ ] T019 [US1] Handle incomplete records (exclude from analysis, retain for reporting). **Aggregation**: Calculate `clarification_question_count` by counting items in the `clarification_questions` array from T016. Flag incomplete records. **Output**: `data/raw/participant_logs.json` with status flags and the calculated count field. Verification: Assert `clarification_question_count` matches the length of the `clarification_questions` array and incomplete records are flagged.
 - [ ] T020 [US1] Create raw data export function to `data/raw/participant_logs.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -111,10 +120,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T027 [P] [US2] Implement primary LLM API integration for documentation generation in `code/generation/doc_pipeline.py`.
-- [ ] T028 [US2] Implement fallback logic to local CPU-optimized model ('phi (quantized int4)') if the API fails, pinned to a specific HuggingFace commit hash. Log generation config and checksums.
-- [ ] T029 [US2] Implement prompt engineering to ensure coverage of architecture, API, and setup steps in `code/generation/doc_pipeline.py`.
-- [ ] T031 [US2] Save generated Markdown docs to `data/raw/llm_docs/` with checksums in `code/generation/doc_pipeline.py`.
+- [X] T027 [P] [US2] Implement primary LLM API integration for documentation generation in `code/generation/doc_pipeline.py`.
+- [ ] T028 [US2] Implement fallback logic to local CPU-optimized model ('microsoft/phi-2', quantized int4) if the API fails (HTTP 5xx or latency > 300s). Pin to HuggingFace commit hash `d5e5263`. Log generation config and checksums. Verification: Assert fallback triggers on simulated API failure and uses the specified commit hash.
+- [X] T029 [US2] Implement prompt engineering to ensure coverage of architecture, API, and setup steps in `code/generation/doc_pipeline.py`.
+- [X] T031 [US2] Save generated Markdown docs to `data/raw/llm_docs/` with checksums in `code/generation/doc_pipeline.py`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,13 +133,12 @@
 
 **Purpose**: Clean, anonymize, and validate data before analysis. Produces `cleaned_dataset.csv` for Phase 6.
 
-- [ ] T030a [P] Generate a JSON Schema based on the data model in `data-model.md` and save it to `data/raw/schema_temp.json`. Verification: Assert file exists and is valid JSON.
-- [ ] T030b [P] Convert the generated JSON Schema from `data/raw/schema_temp.json` to YAML and save as `contracts/dataset.schema.yaml`. Verification: Assert file exists and is valid YAML.
+- [ ] T030a [P] Generate a JSON Schema based on the data model in `specs/001-evaluating-llm-docs-impact/data-model.md` and save it to `data/raw/schema_temp.json`. Verification: Assert file exists and is valid JSON.
+- [ ] T030b Convert the generated JSON Schema from `data/raw/schema_temp.json` to YAML and save as `contracts/dataset.schema.yaml`. Verification: Assert file exists and is valid YAML.
 - [ ] T033 [P] Run schema validation against `contracts/dataset.schema.yaml`. Abort pipeline if validation fails.
 - [ ] T032a [US1/3] Implement PII removal using `presidio-analyzer`.
 - [ ] T032b [US1/3] Handle incomplete records during data cleaning.
 - [ ] T032 [US1/3] Aggregate cleaning steps to produce `data/processed/cleaned_dataset.csv`.
-- [ ] T016b [US1/3] [REMOVED] Task removed. Clarification question counts are now calculated in T016.
 
 **Checkpoint**: Cleaned dataset ready for analysis.
 
@@ -147,10 +155,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T036a [P] Load and center the covariates (LOC, CC, Doc Quality) from `data/raw/repo_covariates.json`. **Output**: `data/processed/centered_covariates.json`, `data/processed/centered_dataset.csv`.
-- [ ] T036b [P] Implement the Spec FR-005 Dynamic Decision Tree: Levene's test -> ANOVA/Welch's/Welch-James with appropriate post-hoc tests. **PRIMARY PATH**: Robust Tests (Welch's/Welch-James) are the default to avoid bias. **Output**: `data/reports/primary_analysis_results.json`. Verify results are consistent.
+- [ ] T036a Load and center the covariates (LOC, CC, Doc Quality) from `data/raw/repo_covariates.json`. **Output**: `data/processed/centered_covariates.json`, `data/processed/centered_dataset.csv`.
+- [ ] T036b [P] Implement the Spec FR-005 Dynamic Decision Tree: Levene's test -> ANOVA/Welch's/Welch-James with appropriate post-hoc tests. **PRIMARY PATH**: Robust Tests (Welch's/Welch-James) are the default to avoid bias. **CRITICAL**: This script MUST be wrapped in the `monitor.py` context manager (T010) during execution to log real-time resource usage. **Output**: `data/reports/primary_analysis_results.json`. Verify results are consistent.
+- [ ] T036b-exec [GATE] [Phase 6] Execute T036b using the `monitor.py` context manager to verify execution time < 6 hours and RAM < 7GB on the actual data path. **This is the primary gate for FR-007/SC-005**. Verification: Assert `data/reports/resource_log.json` exists and shows compliance. If it fails, abort the pipeline.
 - [ ] T037 [US3] Implement post-hoc tests (Games-Howell). **Output**: `data/reports/posthoc_results.json`.
-- [ ] T037d [US3] Perform statistical comparison for SC-002 (Help Requests) using ANCOVA and Games-Howell correction. **Input**: Clarification question counts from `data/raw/participant_logs.json` (T016). **Output**: `data/reports/help_request_results.json`.
+- [ ] T037d [US3] Perform statistical comparison for SC-002 (Help Requests) using ANCOVA and Games-Howell correction. **Input**: Clarification question counts from `data/raw/participant_logs.json` (aggregated in T019). **Output**: `data/reports/help_request_results.json`.
 - [ ] T037e [US3] Perform statistical comparison for SC-003 (Subjective Ratings) using ANCOVA and Games-Howell correction. **Output**: `data/reports/rating_results.json`.
 - [ ] T039 [US3] Generate `data/reports/analysis_results.json` with all metrics and traceability to raw data.
 - [ ] T041 [US3] Generate the final report (`data/reports/final_report.md`).
@@ -165,9 +174,8 @@
 
 **Purpose**: Verify constraints and perform final checks.
 
-- [ ] T044 [P] Verify Analysis Phase execution time < 6 hours and RAM < 7GB using active monitoring (T010).
 - [ ] T045a [P] Measure Generation Phase metrics (time per repo).
-- [ ] T045b [P] Create Resource Stress Test Script.
+- [ ] T045b [P] [REMOVED] Task merged into T087 (Stress Test).
 
 ---
 
@@ -193,7 +201,7 @@
 
 **Purpose**: Address specific issues raised by `/speckit.analyze` regarding data integrity, statistical validity, and execution constraints.
 
-- [ ] T055 [P] Implement hard fail on real data fetch AND preserve fallback to local model for FR-008 compliance.
+- [ ] T055 [P] Implement hard fail on real data fetch for non-recoverable errors (e.g., 4xx, local model load failure) AND preserve fallback to local model for FR-008 compliance (API 5xx/timeout). Verification: Assert hard fail occurs on 4xx and fallback occurs on 5xx.
 - [ ] T057 [P] Implement Streaming Data Loading for large repositories.
 - [ ] T058 [P] Add Data Integrity Checksums to participant log writes.
 - [ ] T060 [P] Implement Model Commit Hash Verification before loading local model.
@@ -205,7 +213,7 @@
 
 **Purpose**: Execute the pilot study with real participants and real data to generate the dataset for analysis.
 
-- [ ] T073a [US1] Mock Recruitment: Generate `data/raw/mock_participants.csv` using Faker library with N=15-20 rows. Verification: Assert file exists and contains 15-20 rows with required demographic columns.
+- [ ] T073a [US1] Mock Recruitment: Generate `data/raw/mock_participants.csv` using Faker library. Randomly sample N=18 rows using SEED=42. Verification: Assert file exists and contains exactly 18 rows with required demographic columns.
 - [ ] T074 [US1] Run a full dry-run with simulated participants.
 - [ ] T075a [US1] Execute mock onboarding experiment with simulated participants.
 - [ ] T076 [US2] Generate documentation for selected repositories.
@@ -217,7 +225,7 @@
 
 **Purpose**: Ensure all data artifacts, model weights, and configuration files meet the strict reproducibility and anti-fabrication standards required for publication.
 
-- [ ] T078 [P] Perform final audit of raw and processed data to verify no synthetic data is present.
+- [ ] T078 [P] Perform final audit of raw and processed data to verify no synthetic data is present. Verification: Check for specific 'synthetic' markers (e.g., `is_synthetic: true` column) and assert none exist in real data paths.
 - [ ] T079 [P] Verify LLM documentation checksums and config logging.
 - [ ] T080 [P] Ensure the final report includes limitations (N=15-20).
 - [ ] T082 [P] Validate repo matching report consistency with covariates data.
@@ -228,10 +236,7 @@
 
 **Purpose**: Validate adherence to resource constraints and the "GPU escape hatch."
 
-- [ ] T087 [P] Create a Resource Stress Test Script.
-- [ ] T088 [P] Implement GPU Offload Detection Logic.
-- [ ] T089 [P] Add Memory Profiling Hook.
-- [ ] T090 [P] Generate Resource Constraint Compliance Report.
+- [ ] T087 [P] Create a Resource Stress Test Script that simulates high-load data processing (synthetic data) to verify system stability under extreme conditions, distinct from the real-data constraint check in T036b-exec. Verification: Assert script runs and reports memory/CPU usage under synthetic load.
 
 ---
 
@@ -242,3 +247,11 @@
 - [ ] T083 [P] Implement Permutation Test for robustness.
 - [ ] T084 [P] Generate Bootstrap Confidence Intervals.
 - [ ] T085 [P] Run sensitivity analysis with covariate inclusion/exclusion.
+
+---
+
+## Phase 14: Final Review & Submission
+
+**Purpose**: Final checks before submission.
+
+- [ ] T099 [P] [REMOVED] Task moved to Phase 0 (T071b) to ensure pre-analysis validation.
