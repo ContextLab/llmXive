@@ -1,11 +1,22 @@
-- artifact_hash: 376d807a5476d8838f2a6e64ee481d350dcfa99780dfcff42af515e4b1531d84
+- artifact_hash: ba227e0ac732571740e9bc9d9e8ce3d53fefeffd0ac73ff98ff14e9eb6fe0f99
   artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Spear - Wikipedia
+  fetched_title: CMR Preview
   kind: url
-  value: https://en.wikipedia.org/wiki/Spearman
+  value: https://cmr.earthdata.nasa.gov/search/concepts/C1214836462-POCLOUD`
   verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Spearman
-  verified_at: '2026-08-19T18:49:03.213402Z'
+  verified_against_url: https://cmr.earthdata.nasa.gov/search/concepts/C1214836462-POCLOUD
+  verified_at: '2026-08-22T08:00:44.353845Z'
+- artifact_hash: ba227e0ac732571740e9bc9d9e8ce3d53fefeffd0ac73ff98ff14e9eb6fe0f99
+  artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://coastwatch.pfeg.noaa.gov/erddap/tabledap/AR_Catalog`
+  verification_status: mismatch
+  verified_against_url: https://coastwatch.pfeg.noaa.gov/erddap/tabledap/AR_Catalog.html
+  verified_at: '2026-08-22T08:00:44.353845Z'

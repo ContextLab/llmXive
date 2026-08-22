@@ -66,7 +66,7 @@ The system MUST generate time-series overlays, scatter plots with regression lin
 
 - **FR-001**: System MUST ingest GRACE-FO Level-2 mascon solutions covering the West Coast North America region (35°N-50°N, 120°W-125°W) with ≥ 90% data completeness (See US-1).
 - **FR-002**: System MUST ingest NOAA CPC Atmospheric River Catalog data and aggregate Integrated Water Vapor Transport to monthly resolution (See US-1).
-- **FR-003**: System MUST apply standard GRACE-FO preprocessing: low-degree coefficient correction, degree-2 C20 replacement, and appropriate spatial Gaussian smoothing (See US-1).
+- **FR-003**: System MUST apply standard GRACE-FO preprocessing: low-degree coefficient correction, degree C20 replacement, and appropriate spatial Gaussian smoothing (See US-1).
 - **FR-004**: System MUST compute Pearson correlation coefficients between AR intensity and gravity anomalies across multiple time lags, apply bootstrap resampling (1000 iterations, seed=42) to estimate 95% confidence intervals, and report signal magnitude relative to GRACE-FO measurement noise floor (≥ 3σ threshold) (See US-2).
 - **FR-005**: System MUST apply multiple-comparison correction (e.g., Bonferroni or FDR) to all lag-test p-values to control family-wise error rate (See US-2).
 - **FR-006**: System MUST perform sensitivity analysis sweeping correlation thresholds across a range of values and report correlation coefficient stability and confidence interval overlap variations (See US-3).
@@ -90,7 +90,7 @@ The system MUST generate time-series overlays, scatter plots with regression lin
 
 - **SC-001**: Data ingestion completeness is measured against the total available monthly mascons in the study period with ≥ 90% completeness threshold (See US-1).
 - **SC-002**: Correlation is deemed statistically significant when p < 0.05 after multiple-testing correction (See US-2).
-- **SC-003**: Sensitivity analysis coverage is measured against the defined threshold set {0.5, 0.6} (See US-3).
+- **SC-003**: Sensitivity analysis coverage is measured against the defined threshold set {, 0.6} (See US-3).
 - **SC-004**: Runtime is measured against GitHub Actions CI job limit of ≤ 6 hours on 2 CPU cores, 7 GB RAM (See US-1).
 
 ## Assumptions

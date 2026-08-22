@@ -132,7 +132,7 @@ All phases reference entity definitions from `data-model.md`:
 
 Per scientific soundness concern, Phase 2 implements autocorrelation correction:
 1. **Pre-whitening**: Fit AR(1) model to time series, use residuals for correlation
-2. **Effective sample size**: n_eff = n × (-ρ)/(+ρ) where ρ is lag-1 autocorrelation
+2. **Effective sample size**: n_eff = n × (-ρ)/(+ρ) where ρ is lag autocorrelation
 3. **Robust standard errors**: Newey-West adjustment for p-value computation
 
 This addresses temporal autocorrelation in monthly time series data that would otherwise inflate Type I error rates.
