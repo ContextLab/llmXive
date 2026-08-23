@@ -9,31 +9,35 @@ from pathlib import Path
 BLOCKED_LIBRARIES = {"trimesh", "pytorch3d", "open3d"}
 
 def find_log_files(logs_dir: str = "results/logs") -> List[Path]:
-    """Find all log files in the specified directory."""
+    """Find all log files in the specified directory, including subdirectories."""
     logs_path = Path(logs_dir)
     if not logs_path.exists():
         logging.warning(f"Logs directory {logs_dir} does not exist.")
         return []
     
     log_files = []
+    
+    # Check root of logs_dir
     for ext in ["*.log", "*.txt", "*.json", "*.jsonl"]:
         log_files.extend(logs_path.glob(ext))
     
-    # Also check subdirectories
-    for subdir in logs_path.iterdir():
+    # Check subdirectories recursively
+    for subdir in logs_path.rglob("*"):
         if subdir.is_dir():
             for ext in ["*.log", "*.txt", "*.json", "*.jsonl"]:
                 log_files.extend(subdir.glob(ext))
     
+    # Remove duplicates and return as list
     return list(set(log_files))
 
 def scan_file_for_blocked_ops(file_path: Path) -> List[str]:
-    """Scan a single file for blocked library imports."""
+    """Scan a single file for blocked library imports or instantiations."""
     found_ops = []
     try:
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read().lower()
             for lib in BLOCKED_LIBRARIES:
+                # Check for import statements or module usage
                 if lib in content:
                     found_ops.append(lib)
     except Exception as e:
@@ -46,6 +50,10 @@ def run_audit(logs_dir: str = "results/logs") -> Tuple[int, List[Tuple[Path, Lis
     log_files = find_log_files(logs_dir)
     total_blocked_count = 0
     findings = []
+    
+    if not log_files:
+        logging.warning(f"No log files found in {logs_dir}")
+        return 0, []
     
     for log_file in log_files:
         found = scan_file_for_blocked_ops(log_file)

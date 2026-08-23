@@ -57,12 +57,27 @@ T037e:
     \ is provided, and there is no evidence that power analysis, statistical tests,\
     \ or sensitivity analysis results were documented. The required artifact is missing,\
     \ so the task is not satisfied."
-T048:
+T046:
+  c: true
+  h: 94042995704098b1f64403ff47b4b4f6b356559bf01bdcd6de8a6967142fde88
+  r: The repository contains `code/utils/verify_run.py` (a full implementation) and
+    a generated `results/analysis/run_integrity_report.json` that follows the required
+    schema (total_tasks, tasks_with_full_coverage, missing_runs) and includes a status
+    field. The report indicates all 50 tasks have the expected 5 runs and baseline
+    entry, showing the verification logic was executed successfully.
+T064:
   c: false
-  h: cdf1e432064a7501d730a73a571175ba862665492073e0edd2baa2af4324a099
-  r: "The required `code/stats/tests.py` file is missing, and the expected output\
-    \ `results/analysis/final_statistical_report.md` does not exist. Moreover, the\
-    \ existing `code/stats/sensitivity.py` operates on different input paths and produces\
-    \ a CSV, not the mandated markdown report with McNemar/Wilcoxon tables, Bonferroni\u2011\
-    corrected p\u2011values, and a stated conclusion about the \u201Closs ceiling\u201D\
-    \ hypothesis. The task is therefore not fulfilled."
+  h: 132412c5c5972d6de8fdf45af969f9d0ca862620eb0a8bfc9436fc7621a38dab
+  r: "The provided `restricted_kernel.py` is truncated and contains a syntax error\
+    \ (`raise Restricte`) and does not raise the required `RestrictedActionError`.\
+    \ No `results/logs/blocked_operations.log` file exists, so the stack\u2011trace\
+    \ logging output is missing. The implementation therefore does not meet the task\u2019\
+    s specification."
+T065:
+  c: false
+  h: dc1e068ec9c64cace82fd4826fc977e01b168744a27cca9e9799e80da1c6912d
+  r: "The script `code/stats/analyze_projection_loss.py` is present but the provided\
+    \ excerpt ends before any logic that selects \u201Cprojection loss\u201D tasks\
+    \ and writes `results/analysis/projection_loss_case_studies.json`. Moreover, the\
+    \ required JSON output file does not exist on disk. The task\u2019s core deliverable\u2014\
+    concrete case\u2011study examples saved to the specified JSON file\u2014is missing."

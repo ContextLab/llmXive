@@ -1,309 +1,301 @@
 """
-Execution Integrity Check Module (T046).
+Execution Integrity Check for SpatialClaw Benchmark.
 
-Verifies that the full experiment run produced the expected number of
-results for every task instance.
+This module verifies that the full pipeline execution (T052_exec) produced
+the expected number of runs for every task instance.
 
 Requirements:
-- Every task_id in the dataset must have exactly n_runs (from config)
-  results in results/runs/run_*.json (2D agent).
-- Every task_id must have exactly 1 result in results/logs/baseline_run.json.
-- Output: results/analysis/run_integrity_report.json with status, counts,
-  and list of missing runs.
+- Every task_id in the dataset must have exactly `n_runs` (from config, default 5)
+  runs in the 2D agent results directory (results/runs/).
+- Every task_id must have exactly 1 run in the baseline results file
+  (results/logs/baseline_run.json).
+
+Output:
+- results/analysis/run_integrity_report.json
 """
 
 import json
 import os
-import glob
+import sys
 import logging
 import argparse
-from typing import Dict, List, Any, Set, Optional
+from typing import Dict, List, Any, Optional, Set
+from glob import glob
 
-# Configure logging for this module
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger("verify_run")
+# Add project root to path for imports if running as script
+if __name__ == "__main__" and __package__ is None:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
+from utils.logging import setup_logging
+from stats.power_analysis import load_power_config
 
-def load_yaml_config(config_path: str) -> Dict[str, Any]:
-    """
-    Load a simple YAML config file.
-    We use a minimal parser here to avoid adding pyyaml dependency if not needed,
-    or we can assume standard key: value format.
-    """
-    config = {}
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-    
-    with open(config_path, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith('#'):
-                continue
-            if ':' in line:
-                key, value = line.split(':', 1)
-                key = key.strip()
-                value = value.strip()
-                # Try to convert to int or float if possible
-                try:
-                    if '.' in value:
-                        config[key] = float(value)
-                    else:
-                        config[key] = int(value)
-                except ValueError:
-                    config[key] = value
-    return config
+# Constants
+CONFIG_PATH = "data/power_config.yaml"
+DATASET_PATH = "data/raw/synthetic_spatialclaw_v1.json"
+RUNS_DIR = "results/runs"
+BASELINE_LOG = "results/logs/baseline_run.json"
+OUTPUT_PATH = "results/analysis/run_integrity_report.json"
+DEFAULT_N_RUNS = 5
 
+logger = logging.getLogger(__name__)
 
-def load_json(file_path: str) -> Any:
-    """Load a JSON file."""
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"JSON file not found: {file_path}")
-    with open(file_path, 'r') as f:
+def load_json_file(path: str) -> Any:
+    """Load a JSON file safely."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Required file not found: {path}")
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-
 def get_task_ids_from_dataset(dataset_path: str) -> Set[str]:
-    """
-    Extract all unique task_ids from the generated dataset JSON.
-    The dataset is expected to be a list of task instances.
-    """
-    logger.info(f"Loading dataset from {dataset_path} to extract task IDs...")
+    """Extract unique task_ids from the generated dataset."""
+    logger.info(f"Loading dataset from {dataset_path} to identify task IDs...")
     try:
-        data = load_json(dataset_path)
-    except (FileNotFoundError, json.JSONDecodeError) as e:
+        data = load_json_file(dataset_path)
+        # Handle both list and dict with 'tasks' key
+        if isinstance(data, list):
+            tasks = data
+        elif isinstance(data, dict) and 'tasks' in data:
+            tasks = data['tasks']
+        else:
+            # Fallback: assume root is tasks
+            tasks = [data] if isinstance(data, dict) else []
+
+        task_ids = set()
+        for task in tasks:
+            if isinstance(task, dict) and 'task_id' in task:
+                task_ids.add(task['task_id'])
+            elif isinstance(task, str):
+                # If the file is just a list of IDs
+                task_ids.add(task)
+
+        if not task_ids:
+            raise ValueError("No task_ids found in the dataset file.")
+
+        logger.info(f"Found {len(task_ids)} unique task IDs in dataset.")
+        return task_ids
+    except Exception as e:
         logger.error(f"Failed to load dataset: {e}")
         raise
 
-    if not isinstance(data, list):
-        raise ValueError(f"Dataset at {dataset_path} must be a JSON list.")
-
-    task_ids = set()
-    for item in data:
-        if isinstance(item, dict) and 'task_id' in item:
-            task_ids.add(item['task_id'])
-        elif isinstance(item, dict) and 'id' in item:
-             # Fallback if schema uses 'id' instead of 'task_id'
-            task_ids.add(item['id'])
-    
-    logger.info(f"Found {len(task_ids)} unique task IDs in dataset.")
-    return task_ids
-
-
-def get_baseline_task_ids(baseline_results_path: str) -> Dict[str, Dict]:
+def get_2d_run_counts(runs_dir: str, task_ids: Set[str]) -> Dict[str, int]:
     """
-    Load baseline results and return a mapping of task_id -> result.
-    Expected format: A list of results or a dict keyed by task_id.
-    We assume the output of T023b is a list of dicts with 'task_id'.
+    Count the number of run files per task_id in results/runs/.
+    Expected files: run_{run_id}.json (where run_id is usually an index or UUID)
+    We assume the JSON content contains the 'task_id' it belongs to.
     """
-    logger.info(f"Loading baseline results from {baseline_results_path}...")
-    try:
-        data = load_json(baseline_results_path)
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        logger.error(f"Failed to load baseline results: {e}")
-        raise
+    counts = {tid: 0 for tid in task_ids}
+    run_files = glob(os.path.join(runs_dir, "run_*.json"))
 
-    baseline_map = {}
-    if isinstance(data, list):
-        for item in data:
-            if isinstance(item, dict) and 'task_id' in item:
-                baseline_map[item['task_id']] = item
-            elif isinstance(item, dict) and 'id' in item:
-                baseline_map[item['id']] = item
-    elif isinstance(data, dict):
-        # If it's already a dict keyed by task_id
-        baseline_map = data
-    else:
-        raise ValueError(f"Baseline results at {baseline_results_path} must be a list or dict.")
+    if not run_files:
+        logger.warning(f"No run files found in {runs_dir}")
+        return counts
 
-    logger.info(f"Found {len(baseline_map)} baseline results.")
-    return baseline_map
+    logger.info(f"Scanning {len(run_files)} run files in {runs_dir}...")
 
-
-def get_2d_run_task_ids(run_dir: str) -> Dict[str, List[str]]:
-    """
-    Scan results/runs/ for all run_*.json files.
-    Return a mapping of task_id -> list of run_ids (or file paths).
-    We assume each file contains a list of results or a single result dict.
-    Actually, T017b saves `results/runs/run_{run_id}.json`.
-    The structure of these files needs to be inferred.
-    Based on T017b description: "save results to results/runs/run_{run_id}.json".
-    Let's assume each file is a list of results for all tasks in that run.
-    """
-    logger.info(f"Scanning 2D run directory: {run_dir}...")
-    if not os.path.exists(run_dir):
-        logger.warning(f"Run directory {run_dir} does not exist.")
-        return {}
-
-    pattern = os.path.join(run_dir, "run_*.json")
-    files = glob.glob(pattern)
-    
-    task_runs_map: Dict[str, List[str]] = {}
-    
-    for file_path in files:
+    for file_path in run_files:
         try:
-            with open(file_path, 'r') as f:
-                data = json.load(f)
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = json.load(f)
             
-            # Data is expected to be a list of task results
-            if isinstance(data, list):
-                for item in data:
+            # Handle list of results or single result object
+            if isinstance(content, list):
+                for item in content:
                     if isinstance(item, dict) and 'task_id' in item:
                         tid = item['task_id']
-                        if tid not in task_runs_map:
-                            task_runs_map[tid] = []
-                        task_runs_map[tid].append(os.path.basename(file_path))
-                    elif isinstance(item, dict) and 'id' in item:
-                        tid = item['id']
-                        if tid not in task_runs_map:
-                            task_runs_map[tid] = []
-                        task_runs_map[tid].append(os.path.basename(file_path))
-            elif isinstance(data, dict):
-                # If the file contains a single result keyed by task_id
-                for tid, _ in data.items():
-                    if tid not in task_runs_map:
-                        task_runs_map[tid] = []
-                    task_runs_map[tid].append(os.path.basename(file_path))
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse {file_path}: {e}")
-            continue
+                        if tid in counts:
+                            counts[tid] += 1
+            elif isinstance(content, dict) and 'task_id' in content:
+                tid = content['task_id']
+                if tid in counts:
+                    counts[tid] += 1
+        except json.JSONDecodeError:
+            logger.warning(f"Skipping invalid JSON file: {file_path}")
+        except Exception as e:
+            logger.warning(f"Error processing {file_path}: {e}")
 
-    logger.info(f"Aggregated 2D runs for {len(task_runs_map)} task IDs.")
-    return task_runs_map
+    return counts
 
+def get_baseline_task_ids(baseline_path: str) -> Set[str]:
+    """
+    Extract task_ids covered by the baseline run.
+    Expected format: List of task results or a dict with 'tasks' key.
+    """
+    if not os.path.exists(baseline_path):
+        raise FileNotFoundError(f"Baseline file not found: {baseline_path}")
+
+    logger.info(f"Loading baseline results from {baseline_path}...")
+    try:
+        data = load_json_file(baseline_path)
+        
+        if isinstance(data, list):
+            tasks = data
+        elif isinstance(data, dict) and 'tasks' in data:
+            tasks = data['tasks']
+        elif isinstance(data, dict) and 'results' in data:
+            tasks = data['results']
+        else:
+            tasks = [data] if isinstance(data, dict) else []
+
+        baseline_ids = set()
+        for task in tasks:
+            if isinstance(task, dict) and 'task_id' in task:
+                baseline_ids.add(task['task_id'])
+            elif isinstance(task, str):
+                baseline_ids.add(task)
+
+        logger.info(f"Baseline covers {len(baseline_ids)} tasks.")
+        return baseline_ids
+    except Exception as e:
+        logger.error(f"Failed to load baseline: {e}")
+        raise
 
 def verify_integrity(
     dataset_path: str,
-    baseline_path: str,
     runs_dir: str,
-    config_path: str,
-    output_path: str
-) -> bool:
+    baseline_path: str,
+    n_runs_expected: int
+) -> Dict[str, Any]:
     """
-    Main verification logic.
-    Returns True if integrity check passes, False otherwise.
+    Perform the integrity check.
+    
+    Returns a report dict:
+    {
+        "total_tasks": int,
+        "tasks_with_full_coverage": int,
+        "missing_runs": [{"task_id": str, "expected": int, "actual": int}],
+        "status": "COMPLETE" | "INCOMPLETE"
+    }
     """
-    logger.info("Starting execution integrity check...")
-    
-    # 1. Load config to get n_runs
+    # 1. Get all expected task IDs
     try:
-        config = load_yaml_config(config_path)
-        n_runs = config.get('n_runs', 5)
-        logger.info(f"Expected n_runs from config: {n_runs}")
-    except Exception as e:
-        logger.error(f"Failed to load config: {e}")
-        # Fallback to default if config is missing/unreadable but we proceed with caution
-        n_runs = 5
-        logger.warning(f"Using default n_runs={n_runs}")
-
-    # 2. Get task IDs from dataset
-    try:
-        expected_task_ids = get_task_ids_from_dataset(dataset_path)
-    except Exception as e:
-        logger.error(f"Cannot proceed: {e}")
-        return False
-
-    # 3. Check baseline results
-    try:
-        baseline_map = get_baseline_task_ids(baseline_path)
-    except Exception as e:
-        logger.error(f"Cannot proceed: {e}")
-        return False
-
-    missing_baseline = expected_task_ids - set(baseline_map.keys())
-    if missing_baseline:
-        logger.warning(f"Missing baseline results for {len(missing_baseline)} tasks.")
-    else:
-        logger.info("Baseline results cover all tasks.")
-
-    # 4. Check 2D run results
-    task_runs_map = get_2d_run_task_ids(runs_dir)
-    missing_2d = expected_task_ids - set(task_runs_map.keys())
-    if missing_2d:
-        logger.warning(f"Missing 2D run files for {len(missing_2d)} tasks.")
-    else:
-        logger.info("2D run files exist for all tasks.")
-
-    # 5. Verify run counts
-    incomplete_tasks = []
-    for tid in expected_task_ids:
-        baseline_ok = tid in baseline_map
-        runs_ok = tid in task_runs_map and len(task_runs_map[tid]) == n_runs
-        
-        if not (baseline_ok and runs_ok):
-            incomplete_tasks.append({
-                "task_id": tid,
-                "baseline_present": baseline_ok,
-                "runs_found": len(task_runs_map.get(tid, [])),
-                "runs_expected": n_runs,
-                "status": "INCOMPLETE"
-            })
-    
-    total_tasks = len(expected_task_ids)
-    tasks_with_full_coverage = total_tasks - len(incomplete_tasks)
-    status = "COMPLETE" if len(incomplete_tasks) == 0 else "INCOMPLETE"
-
-    # 6. Prepare report
-    report = {
-        "status": status,
-        "total_tasks": total_tasks,
-        "tasks_with_full_coverage": tasks_with_full_coverage,
-        "missing_runs": incomplete_tasks,
-        "config": {
-            "n_runs_expected": n_runs
-        },
-        "paths": {
-            "dataset": dataset_path,
-            "baseline": baseline_path,
-            "runs_dir": runs_dir,
-            "config": config_path,
-            "output": output_path
+        all_task_ids = get_task_ids_from_dataset(dataset_path)
+    except FileNotFoundError as e:
+        logger.critical(str(e))
+        return {
+            "total_tasks": 0,
+            "tasks_with_full_coverage": 0,
+            "missing_runs": [],
+            "status": "INCOMPLETE",
+            "error": str(e)
         }
+
+    # 2. Check 2D runs
+    try:
+        run_counts = get_2d_run_counts(runs_dir, all_task_ids)
+    except Exception as e:
+        logger.critical(f"Failed to scan 2D runs: {e}")
+        return {
+            "total_tasks": len(all_task_ids),
+            "tasks_with_full_coverage": 0,
+            "missing_runs": [],
+            "status": "INCOMPLETE",
+            "error": f"Failed to scan 2D runs: {e}"
+        }
+
+    # 3. Check Baseline runs
+    try:
+        baseline_ids = get_baseline_task_ids(baseline_path)
+    except FileNotFoundError as e:
+        logger.critical(str(e))
+        return {
+            "total_tasks": len(all_task_ids),
+            "tasks_with_full_coverage": 0,
+            "missing_runs": [],
+            "status": "INCOMPLETE",
+            "error": str(e)
+        }
+
+    # 4. Aggregate findings
+    missing_runs = []
+    full_coverage_count = 0
+
+    for tid in all_task_ids:
+        actual_2d = run_counts.get(tid, 0)
+        has_baseline = tid in baseline_ids
+
+        if actual_2d == n_runs_expected and has_baseline:
+            full_coverage_count += 1
+        else:
+            reasons = []
+            if actual_2d != n_runs_expected:
+                reasons.append(f"2D runs: {actual_2d}/{n_runs_expected}")
+            if not has_baseline:
+                reasons.append("Baseline: 0/1")
+            
+            missing_runs.append({
+                "task_id": tid,
+                "expected": n_runs_expected,
+                "actual_2d": actual_2d,
+                "baseline_present": has_baseline,
+                "reasons": reasons
+            })
+
+    status = "COMPLETE" if len(missing_runs) == 0 else "INCOMPLETE"
+
+    logger.info(f"Integrity Check: {full_coverage_count}/{len(all_task_ids)} tasks complete.")
+    if missing_runs:
+        logger.warning(f"Found {len(missing_runs)} tasks with missing runs.")
+
+    return {
+        "total_tasks": len(all_task_ids),
+        "tasks_with_full_coverage": full_coverage_count,
+        "missing_runs": missing_runs,
+        "status": status
     }
 
-    # 7. Write report
+def write_report(report: Dict[str, Any], output_path: str) -> None:
+    """Write the integrity report to disk."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
-    
     logger.info(f"Integrity report written to {output_path}")
-    logger.info(f"Status: {status}, Coverage: {tasks_with_full_coverage}/{total_tasks}")
 
-    return status == "COMPLETE"
+def main(args: Optional[argparse.Namespace] = None) -> int:
+    """Main entry point."""
+    if args is None:
+        parser = argparse.ArgumentParser(description="Verify execution integrity.")
+        parser.add_argument("--config", default=CONFIG_PATH, help="Path to power config")
+        parser.add_argument("--dataset", default=DATASET_PATH, help="Path to dataset")
+        parser.add_argument("--runs-dir", default=RUNS_DIR, help="Directory containing run_*.json")
+        parser.add_argument("--baseline", default=BASELINE_LOG, help="Path to baseline log")
+        parser.add_argument("--output", default=OUTPUT_PATH, help="Output report path")
+        parser.add_argument("--log-file", default="results/logs/verify_run.log", help="Log file path")
+        args = parser.parse_args()
 
+    setup_logging(log_file=args.log_file)
 
-def main():
-    parser = argparse.ArgumentParser(description="Verify execution integrity of the SpatialClaw experiment.")
-    parser.add_argument("--dataset", type=str, default="data/raw/synthetic_spatialclaw_v1.json",
-                      help="Path to the generated dataset JSON.")
-    parser.add_argument("--baseline", type=str, default="results/logs/baseline_run.json",
-                      help="Path to the baseline results JSON.")
-    parser.add_argument("--runs-dir", type=str, default="results/runs",
-                      help="Directory containing 2D agent run JSON files.")
-    parser.add_argument("--config", type=str, default="data/power_config.yaml",
-                      help="Path to power config YAML.")
-    parser.add_argument("--output", type=str, default="results/analysis/run_integrity_report.json",
-                      help="Path to write the integrity report.")
-    
-    args = parser.parse_args()
-    
-    success = verify_integrity(
-        dataset_path=args.dataset,
-        baseline_path=args.baseline,
-        runs_dir=args.runs_dir,
-        config_path=args.config,
-        output_path=args.output
-    )
-    
-    if not success:
-        logger.error("Integrity check FAILED. Further analysis tasks should be aborted.")
-        return 1
-    else:
-        logger.info("Integrity check PASSED.")
+    try:
+        # Load expected n_runs from config
+        try:
+            config = load_power_config(args.config)
+            n_runs = config.get("n_runs", DEFAULT_N_RUNS)
+            logger.info(f"Using n_runs={n_runs} from config.")
+        except Exception as e:
+            logger.warning(f"Could not load config {args.config}: {e}. Using default {DEFAULT_N_RUNS}.")
+            n_runs = DEFAULT_N_RUNS
+
+        # Run verification
+        report = verify_integrity(
+            dataset_path=args.dataset,
+            runs_dir=args.runs_dir,
+            baseline_path=args.baseline,
+            n_runs_expected=n_runs
+        )
+
+        # Write report
+        write_report(report, args.output)
+
+        # If incomplete, log a clear error message for the pipeline to catch
+        if report["status"] == "INCOMPLETE":
+            logger.error("INTEGRITY CHECK FAILED: Missing runs detected. Aborting further analysis.")
+            return 1
+        
+        logger.info("INTEGRITY CHECK PASSED: All tasks have full coverage.")
         return 0
 
+    except Exception as e:
+        logger.exception(f"Unexpected error during integrity check: {e}")
+        return 2
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

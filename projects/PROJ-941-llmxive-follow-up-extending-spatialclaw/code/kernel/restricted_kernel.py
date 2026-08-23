@@ -9,6 +9,7 @@ import sys
 import builtins
 import logging
 import traceback
+import os
 from types import ModuleType
 from typing import Callable, Optional, Set, List
 from contextlib import contextmanager
@@ -20,6 +21,42 @@ logger = logging.getLogger(__name__)
 # Global state for the kernel
 _kernel_instance: Optional['RestrictedKernel'] = None
 _policy_active: bool = False
+
+# Path for the blocked operations log
+BLOCKED_LOG_PATH = "results/logs/blocked_operations.log"
+
+
+def _ensure_log_directory():
+    """Ensure the results/logs directory exists."""
+    log_dir = os.path.dirname(BLOCKED_LOG_PATH)
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+
+
+def _log_blocked_operation(name: str, stack_trace: str):
+    """
+    Logs the blocked import attempt and its full stack trace to the dedicated log file.
+    """
+    _ensure_log_directory()
+    timestamp = logging.Formatter('%(asctime)s').format(logging.LogRecord(
+        name='root', level=logging.INFO, pathname='', lineno=0,
+        msg='', args=(), exc_info=None
+    ))
+    
+    log_entry = (
+        f"--- BLOCKED IMPORT ATTEMPT ---\n"
+        f"Timestamp: {timestamp}\n"
+        f"Blocked Module: {name}\n"
+        f"Call Stack:\n{stack_trace}\n"
+        f"-----------------------------\n"
+    )
+    
+    try:
+        with open(BLOCKED_LOG_PATH, 'a', encoding='utf-8') as f:
+            f.write(log_entry)
+        logger.warning(f"Blocked import '{name}' logged to {BLOCKED_LOG_PATH}")
+    except IOError as e:
+        logger.error(f"Failed to write blocked operation log: {e}")
 
 
 class RestrictedImportHook:
@@ -36,12 +73,20 @@ class RestrictedImportHook:
         top_level = name.split('.')[0]
         
         if top_level in self.blocked_libraries:
-            # Log the blocked operation with full context
+            # Capture the full call stack
+            stack_trace = ''.join(traceback.format_stack())
+            
+            # Log the blocked operation with full context to the dedicated file
+            _log_blocked_operation(name, stack_trace)
+            
+            # Log to standard logger as well for immediate visibility
             logger.warning(f"BLOCKED IMPORT attempt: {name}")
-            logger.warning(f"Traceback at block: {''.join(traceback.format_stack())}")
+            logger.warning(f"Traceback at block:\n{stack_trace}")
+            
             raise RestrictedActionError(
                 f"Import of '{name}' is blocked by the 2D spatial restriction policy. "
-                f"Use only 2D-safe libraries (e.g., shapely, numpy)."
+                f"Use only 2D-safe libraries (e.g., shapely, numpy). "
+                f"Full stack trace logged to {BLOCKED_LOG_PATH}."
             )
         
         # If not blocked, proceed with normal import

@@ -1,102 +1,156 @@
+"""
+Unit tests for T056: Budget Compliance Report.
+"""
 import json
 import os
 import tempfile
 import time
+from unittest.mock import patch, MagicMock
 import pytest
-from unittest.mock import patch, mock_open
 
-# We need to import the module under test. 
-# Since the module uses relative imports for utils, we need to ensure the path is correct.
-# Assuming tests are run from the project root or code is in the path.
-# We will mock the file system interactions.
+# Import the module to test
+# We assume the module is code/utils/budget_report.py
+# For testing, we might need to adjust sys.path or import relative to the project root.
+# Here we assume the test is run from the project root.
+import sys
+sys.path.insert(0, 'code')
 
-# Import the functions we want to test
-# We need to handle the import path. The artifact is in code/utils/budget_report.py
-# In the test environment, we assume 'code' is in sys.path or we import relative to root.
-# Let's assume the test is run with PYTHONPATH set to include the project root.
-try:
-    from utils.budget_report import (
-        load_start_time_marker,
-        measure_total_runtime,
-        load_budget_limit,
-        write_report,
-        run_budget_report
-    )
-except ImportError:
-    # Fallback for direct execution context if needed, though standard is project root
-    import sys
-    sys.path.insert(0, 'code')
-    from utils.budget_report import (
-        load_start_time_marker,
-        measure_total_runtime,
-        load_budget_limit,
-        write_report,
-        run_budget_report
-    )
+from utils.budget_report import (
+    load_start_time_marker,
+    measure_total_runtime,
+    load_budget_limit,
+    write_report,
+    run_budget_report
+)
+from utils.logging import setup_logging
 
-class TestBudgetReport:
-    def test_load_start_time_marker_found(self, tmp_path):
-        marker_file = tmp_path / "pipeline_start_time.json"
-        marker_file.write_text(json.dumps({"start_timestamp": 1000.0}))
+
+class TestLoadStartTimeMarker:
+    def test_marker_exists_and_valid(self, tmp_path):
+        marker_path = tmp_path / "pipeline_start_time.json"
+        start_time = time.time()
+        with open(marker_path, 'w') as f:
+            json.dump({"start_time": start_time}, f)
         
-        with patch('utils.budget_report.START_TIME_MARKER_FILE', str(marker_file)):
-            result = load_start_time_marker()
-            assert result == 1000.0
+        result = load_start_time_marker(str(marker_path))
+        assert result == start_time
 
-    def test_load_start_time_marker_not_found(self, tmp_path):
-        non_existent = tmp_path / "non_existent.json"
-        
-        with patch('utils.budget_report.START_TIME_MARKER_FILE', str(non_existent)):
-            result = load_start_time_marker()
-            assert result is None
+    def test_marker_missing(self, tmp_path):
+        marker_path = tmp_path / "missing.json"
+        result = load_start_time_marker(str(marker_path))
+        assert result is None
 
-    def test_measure_total_runtime(self):
-        start = time.time() - 10
-        runtime = measure_total_runtime(start)
-        assert 9 <= runtime <= 11  # Allow small variance
+    def test_marker_invalid_json(self, tmp_path):
+        marker_path = tmp_path / "invalid.json"
+        with open(marker_path, 'w') as f:
+            f.write("not json")
+        result = load_start_time_marker(str(marker_path))
+        assert result is None
 
-    def test_load_budget_limit_found(self, tmp_path):
-        config_file = tmp_path / "power_config.yaml"
-        config_content = """
-        effect_size: 0.5
-        max_runtime_hours: 2.0
-        """
-        config_file.write_text(config_content)
-        
-        with patch('utils.budget_report.BUDGET_LIMIT_FILE', str(config_file)):
-            result = load_budget_limit()
-            assert result == 2.0 * 3600.0
+    def test_marker_missing_key(self, tmp_path):
+        marker_path = tmp_path / "missing_key.json"
+        with open(marker_path, 'w') as f:
+            json.dump({"other_key": 123}, f)
+        result = load_start_time_marker(str(marker_path))
+        assert result is None
 
-    def test_load_budget_limit_not_found(self, tmp_path):
-        non_existent = tmp_path / "non_existent.yaml"
-        
-        with patch('utils.budget_report.BUDGET_LIMIT_FILE', str(non_existent)):
-            result = load_budget_limit()
-            assert result is None
 
-    def test_write_report(self, tmp_path):
-        output_file = tmp_path / "report.json"
-        total_runtime = 100.0
-        budget_limit = 200.0
+class TestMeasureTotalRuntime:
+    def test_runtime_calculated(self):
+        start = time.time() - 10.0
+        duration = measure_total_runtime(start)
+        assert 9.0 < duration < 11.0  # Allow small variance
+
+    def test_runtime_none_start(self):
+        duration = measure_total_runtime(None)
+        assert duration == 0.0
+
+
+class TestLoadBudgetLimit:
+    def test_load_from_config(self, tmp_path):
+        config_path = tmp_path / "power_config.yaml"
+        with open(config_path, 'w') as f:
+            f.write("max_runtime_hours: 2.5\n")
         
-        write_report(total_runtime, budget_limit, str(output_file))
+        limit = load_budget_limit(str(config_path))
+        assert limit == 2.5 * 3600.0
+
+    def test_default_limit(self, tmp_path):
+        config_path = tmp_path / "power_config.yaml"
+        with open(config_path, 'w') as f:
+            f.write("other_key: 100\n")  # No max_runtime_hours
         
-        assert output_file.exists()
-        with open(output_file) as f:
+        limit = load_budget_limit(str(config_path))
+        assert limit == 6.0 * 3600.0  # Default 6 hours
+
+
+class TestWriteReport:
+    def test_write_json(self, tmp_path):
+        output_path = tmp_path / "report.json"
+        write_report(str(output_path), 100.0, 200.0, "PASS")
+        
+        assert os.path.exists(output_path)
+        with open(output_path, 'r') as f:
             data = json.load(f)
         
-        assert data["total_runtime_seconds"] == total_runtime
-        assert data["budget_limit_seconds"] == budget_limit
+        assert data["total_runtime_seconds"] == 100.0
+        assert data["budget_limit_seconds"] == 200.0
         assert data["status"] == "PASS"
+        assert "generated_at" in data
 
-    def test_write_report_fail_status(self, tmp_path):
-        output_file = tmp_path / "report_fail.json"
-        total_runtime = 300.0
-        budget_limit = 200.0
+
+class TestRunBudgetReport:
+    def test_full_flow_pass(self, tmp_path, monkeypatch):
+        # Setup temp paths
+        marker_path = tmp_path / "start.json"
+        config_path = tmp_path / "config.yaml"
+        output_path = tmp_path / "report.json"
         
-        write_report(total_runtime, budget_limit, str(output_file))
+        start_time = time.time() - 5.0
+        with open(marker_path, 'w') as f:
+            json.dump({"start_time": start_time}, f)
         
-        with open(output_file) as f:
-            data = json.load(f)
+        with open(config_path, 'w') as f:
+            f.write("max_runtime_hours: 1.0\n")  # 3600s limit
         
-        assert data["status"] == "FAIL"
+        # Mock load_start_time_marker to use our temp path
+        def mock_load_marker(path):
+            return load_start_time_marker(path)
+        
+        monkeypatch.setattr("utils.budget_report.load_start_time_marker", mock_load_marker)
+        
+        result = run_budget_report(
+            config_path=str(config_path),
+            output_path=str(output_path)
+        )
+        
+        assert result["status"] == "PASS"
+        assert result["total_runtime_seconds"] > 0
+        assert result["budget_limit_seconds"] == 3600.0
+        assert os.path.exists(output_path)
+
+    def test_full_flow_fail(self, tmp_path, monkeypatch):
+        # Setup temp paths
+        marker_path = tmp_path / "start.json"
+        config_path = tmp_path / "config.yaml"
+        output_path = tmp_path / "report.json"
+        
+        start_time = time.time() - 4000.0  # Exceeds 1 hour limit
+        with open(marker_path, 'w') as f:
+            json.dump({"start_time": start_time}, f)
+        
+        with open(config_path, 'w') as f:
+            f.write("max_runtime_hours: 1.0\n")  # 3600s limit
+        
+        def mock_load_marker(path):
+            return load_start_time_marker(path)
+        
+        monkeypatch.setattr("utils.budget_report.load_start_time_marker", mock_load_marker)
+        
+        result = run_budget_report(
+            config_path=str(config_path),
+            output_path=str(output_path)
+        )
+        
+        assert result["status"] == "FAIL"
+        assert os.path.exists(output_path)

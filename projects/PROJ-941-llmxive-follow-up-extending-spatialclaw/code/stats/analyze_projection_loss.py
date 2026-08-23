@@ -1,21 +1,20 @@
 """
-Analyze Projection Loss
-=======================
-Calculates the exact percentage of failures in the 2D agent that are directly
-attributable to "projection loss" (information lost in 2D) versus "action restriction"
-(logic error) by comparing against the `gt_3d_is_occluded` ground truth.
+Projection Loss Analysis Module for SpatialClaw Benchmark.
 
-This module addresses FR-006 and provides a quantitative answer to the "loss ceiling"
-hypothesis for occlusion tasks.
+This module extracts and saves specific geometric parameters for tasks where
+"projection loss" (information lost in 2D projection) is the primary cause of
+failure for the 2D agent, compared to the 3D baseline.
+
+It relies on the classification logic from T059 and the final paired dataset
+from T047.
 """
-
 import json
 import os
 import logging
 import argparse
 from typing import Dict, List, Any, Optional, Tuple
-
 from data.loader import load_dataset, DataLoadError
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -24,227 +23,272 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants for classification
-CLASS_PROJECTION_LOSS = "projection_loss"
-CLASS_ACTION_RESTRICTION = "action_restriction"
-CLASS_OTHER = "other"
+# Constants
+PAIRED_DATASET_PATH = "results/analysis/final_paired_dataset.csv"
+RAW_DATASET_PATH = "data/raw/synthetic_spatialclaw_v1.json"
+FAILURE_ANALYSIS_LOG_PATH = "results/logs/failure_analysis.log"
+CASE_STUDY_OUTPUT_PATH = "results/analysis/projection_loss_case_studies.json"
+FLAT_OBJECT_THRESHOLD = 0.01  # Epsilon for zero depth variance
 
-# Paths
-DATASET_PATH = "data/raw/synthetic_spatialclaw_v1.json"
-BASELINE_RESULTS_PATH = "results/logs/baseline_run.json"
-AGENT_2D_RESULTS_PATH = "results/logs/agent_2d_run.json"
-OUTPUT_PATH = "results/analysis/projection_loss_breakdown.json"
-
-
-def load_json_file(path: str) -> Any:
-    """Load a JSON file from disk."""
+def load_json_file(path: str) -> List[Dict[str, Any]]:
+    """Load a JSON file and return its contents."""
     if not os.path.exists(path):
-        raise FileNotFoundError(f"Required file not found: {path}")
+        raise FileNotFoundError(f"File not found: {path}")
     with open(path, 'r') as f:
         return json.load(f)
 
+def load_paired_dataset(path: str) -> List[Dict[str, Any]]:
+    """
+    Load the final paired dataset CSV.
+    Returns a list of dicts.
+    """
+    import csv
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Paired dataset not found: {path}")
+    
+    data = []
+    with open(path, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            # Convert numeric strings back to float/int
+            for key, value in row.items():
+                if key in ['2d_success_rate', '2d_mean_latency', '3d_latency', 'success_diff', 'latency_diff']:
+                    row[key] = float(value)
+                elif key in ['3d_success']:
+                    row[key] = int(value)
+            data.append(row)
+    return data
 
-def classify_failure_reason(
-    task_id: str,
-    result_2d: Dict[str, Any],
-    result_baseline: Dict[str, Any],
-    gt_params: Dict[str, Any]
-) -> str:
+def load_raw_dataset(path: str) -> Dict[str, Dict[str, Any]]:
+    """
+    Load the raw synthetic dataset and index by task_id.
+    """
+    try:
+        dataset = load_dataset(path)
+        # load_dataset returns a list, we need a dict for O(1) lookup
+        return {task['task_id']: task for task in dataset}
+    except DataLoadError as e:
+        logger.error(f"Failed to load raw dataset: {e}")
+        raise
+
+def load_failure_analysis_log(path: str) -> Dict[str, str]:
+    """
+    Load the failure analysis log (JSON lines) and return a dict mapping
+    task_id to failure reason.
+    """
+    failure_map = {}
+    if not os.path.exists(path):
+        logger.warning(f"Failure analysis log not found: {path}. Assuming no classified failures.")
+        return failure_map
+    
+    with open(path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+                task_id = entry.get('task_id')
+                reason = entry.get('reason')
+                if task_id and reason:
+                    failure_map[task_id] = reason
+            except json.JSONDecodeError:
+                logger.warning(f"Skipping invalid JSON line in failure log: {line}")
+    
+    return failure_map
+
+def classify_failure_reason(task_id: str, result_2d: Dict[str, Any], result_3d: Dict[str, Any], gt: Dict[str, Any]) -> str:
     """
     Classify the reason for a 2D agent failure.
-
-    Logic:
-    1. If 2D succeeded, no failure to classify.
-    2. If 2D failed:
-       a. If Baseline succeeded AND task is 'occlusion':
-          - Check if ground truth indicates occlusion.
-          - If GT says occluded, and 2D failed (likely due to projection loss of depth info),
-            classify as "projection_loss".
-          - Specifically, if the failure is related to the inability to see depth/occlusion
-            that the 3D baseline could resolve.
-       b. If Baseline failed:
-          - If both failed, the issue might be inherent to the task difficulty or "other".
-          - However, if the 2D agent failed in a way that the 3D baseline succeeded,
-            it's a projection issue.
-       c. If 2D failed but Baseline succeeded on a NON-occlusion task:
-          - Likely "action_restriction" (logic error in 2D constraint) or "other".
-
-    Refined Logic for "Projection Loss":
-    - Condition: 2D Failed AND Baseline Succeeded AND Task Type == 'occlusion'.
-      This implies the 3D agent could see the occlusion (success) but 2D could not (failure),
-      directly attributing the failure to the loss of 3D information in projection.
-
-    Refined Logic for "Action Restriction":
-    - Condition: 2D Failed AND Baseline Succeeded AND Task Type != 'occlusion'.
-      The 3D agent succeeded, but the 2D agent failed. Since it's not an occlusion task,
-      the failure is likely due to the restricted action space (e.g., inability to perform
-      a 3D maneuver required for depth/relative tasks that wasn't fully captured by 2D projection).
-
-    Refined Logic for "Other":
-    - Condition: 2D Failed AND Baseline Failed.
-      Both failed, so the failure is not uniquely attributable to the 2D restriction vs projection.
-      It could be a hard task or a bug in both.
-
+    
     Returns:
-        str: One of CLASS_PROJECTION_LOSS, CLASS_ACTION_RESTRICTION, CLASS_OTHER
+        str: One of "projection_loss", "action_restriction", or "other".
+    
+    Logic:
+        - If 3D baseline succeeded (3d_success == 1) and 2D agent failed (2d_success_rate == 0.0 or low),
+          and the task involves depth/occlusion, it's likely projection loss.
+        - If the task is a "flat object" (zero depth variance), and 3D succeeded but 2D failed,
+          it is explicitly "projection_loss" as per T045/T059 logic.
+        - If 3D also failed, it might be "other" or inherent task difficulty.
+        - If 2D failed but 3D succeeded on a non-flat task, check if it's an occlusion/depth task.
     """
-    success_2d = result_2d.get('success', False)
-    success_baseline = result_baseline.get('success', False)
-    task_type = result_2d.get('task_type', 'unknown')
+    # Determine if 2D failed and 3D succeeded
+    # 2d_success_rate is a float between 0 and 1 (averaged over runs)
+    # 3d_success is an integer (0 or 1)
+    d_failed = result_2d.get('2d_success_rate', 1.0) < 0.5 # Assuming < 50% success is a failure
+    d_succeeded = result_3d.get('3d_success', 0) == 1
 
-    if success_2d:
-        return CLASS_OTHER # No failure to classify
+    if not d_failed:
+        return "none" # Not a failure case
 
-    # 2D Failed
-    if success_baseline:
-        # Baseline succeeded, 2D failed -> Attributable to restriction/projection
-        if task_type == 'occlusion':
-            # Check ground truth to be sure
-            gt_params = result_2d.get('ground_truth_3d_params', {})
-            # If the ground truth says it IS occluded, and 2D failed to detect/solve,
-            # it's likely projection loss (2D can't see depth).
-            # If GT says NOT occluded, but 2D failed, it might be a false positive or logic error.
-            # However, the core hypothesis is about "loss ceiling" for occlusion.
-            # We assume if 3D succeeded and 2D failed on occlusion, it's projection loss.
-            return CLASS_PROJECTION_LOSS
-        else:
-            # Non-occlusion task (depth, relative)
-            # 3D succeeded, 2D failed. Likely due to action restriction (can't move in 3D).
-            return CLASS_ACTION_RESTRICTION
+    if not d_succeeded:
+        return "other" # Both failed, or 3D failed
+
+    # At this point: 2D failed, 3D succeeded.
+    task_type = result_2d.get('task_type', '').lower()
+    gt_params = gt.get('ground_truth_3d_params', {})
+    
+    # Check for flat object (zero depth variance)
+    # Variance is calculated in T006a/b logic, stored in gt_params if available,
+    # or we can infer from coordinates if variance isn't stored.
+    # Let's assume 'gt_3d_is_occluded' and task_type are primary indicators.
+    # For flat objects, we explicitly check depth variance if stored, or infer from Z coords.
+    
+    is_flat = False
+    if 'depth_variance' in gt_params:
+        if gt_params['depth_variance'] < FLAT_OBJECT_THRESHOLD:
+            is_flat = True
     else:
-        # Both failed
-        return CLASS_OTHER
+        # Fallback: check if all Z coords are effectively 0
+        # This is a heuristic if variance isn't stored
+        objects = gt_params.get('objects', [])
+        if objects:
+            z_coords = []
+            for obj in objects:
+                if 'vertices' in obj:
+                    for v in obj['vertices']:
+                        if 'z' in v:
+                            z_coords.append(v['z'])
+            if z_coords:
+                # Simple variance check
+                mean_z = sum(z_coords) / len(z_coords)
+                variance = sum((z - mean_z)**2 for z in z_coords) / len(z_coords)
+                if variance < FLAT_OBJECT_THRESHOLD:
+                    is_flat = True
 
+    if is_flat:
+        return "projection_loss"
+    
+    if task_type in ['occlusion', 'depth']:
+        return "projection_loss"
+    
+    return "action_restriction"
 
 def run_projection_loss_analysis(
-    dataset: List[Dict[str, Any]],
-    baseline_results: List[Dict[str, Any]],
-    agent_2d_results: List[Dict[str, Any]]
+    paired_path: str = PAIRED_DATASET_PATH,
+    raw_path: str = RAW_DATASET_PATH,
+    failure_log_path: str = FAILURE_ANALYSIS_LOG_PATH,
+    output_path: str = CASE_STUDY_OUTPUT_PATH
 ) -> Dict[str, Any]:
     """
-    Run the projection loss analysis over the dataset.
-
-    Args:
-        dataset: The generated task instances (Synthetic SpatialClaw Proxy).
-        baseline_results: Results from the 3D baseline agent.
-        agent_2d_results: Results from the 2D restricted agent.
-
-    Returns:
-        Dict containing the breakdown of failures.
+    Main analysis function.
+    
+    1. Load paired dataset.
+    2. Load raw dataset for geometric parameters.
+    3. Load existing failure log if present (from T045/T059).
+    4. Identify tasks where 2D failed and 3D succeeded.
+    5. Classify failure reason.
+    6. Filter for "projection_loss".
+    7. Extract geometric parameters for a representative subset.
+    8. Save to JSON.
     """
-    # Index results by task_id for O(1) lookup
-    baseline_map = {r['task_id']: r for r in baseline_results}
-    agent_2d_map = {r['task_id']: r for r in agent_2d_results}
+    logger.info(f"Starting projection loss case study extraction.")
+    logger.info(f"Loading paired dataset from {paired_path}")
+    paired_data = load_paired_dataset(paired_path)
+    
+    logger.info(f"Loading raw dataset from {raw_path}")
+    raw_data = load_raw_dataset(raw_path)
+    
+    logger.info(f"Loading failure analysis log from {failure_log_path}")
+    failure_map = load_failure_analysis_log(failure_log_path)
+    
+    projection_loss_cases = []
+    total_candidates = 0
+    total_classified = 0
 
-    stats = {
-        "total_tasks": len(dataset),
-        "total_2d_failures": 0,
-        "breakdown": {
-            CLASS_PROJECTION_LOSS: 0,
-            CLASS_ACTION_RESTRICTION: 0,
-            CLASS_OTHER: 0
-        },
-        "details": []
+    for row in paired_data:
+        task_id = row.get('task_id')
+        if not task_id or task_id not in raw_data:
+            logger.warning(f"Task {task_id} not found in raw dataset.")
+            continue
+        
+        total_candidates += 1
+        
+        # Check if 2D failed and 3D succeeded
+        d_success = float(row.get('2d_success_rate', 1.0))
+        d_baseline_success = int(row.get('3d_success', 0))
+        
+        if d_success >= 0.5: # 2D succeeded
+            continue
+        if d_baseline_success == 0: # 3D failed
+            continue
+        
+        # We have a candidate: 2D failed, 3D succeeded
+        gt = raw_data[task_id]
+        
+        # Determine reason
+        # Prefer existing log if available, otherwise classify
+        reason = failure_map.get(task_id)
+        if not reason:
+            reason = classify_failure_reason(task_id, row, row, gt)
+            total_classified += 1
+            # Log to failure analysis log if we classified it now
+            # (In a real pipeline, this would be done by T045, but we ensure it here)
+            log_entry = {
+                "task_id": task_id,
+                "reason": reason,
+                "2d_success": d_success,
+                "3d_success": d_baseline_success
+            }
+            # Append to log file (ensure directory exists)
+            os.makedirs(os.path.dirname(failure_log_path), exist_ok=True)
+            with open(failure_log_path, 'a') as f:
+                f.write(json.dumps(log_entry) + '\n')
+        
+        if reason == "projection_loss":
+            # Extract geometric parameters
+            # We need a representative subset. Let's take all for now, 
+            # or limit to first N if too many.
+            case_study = {
+                "task_id": task_id,
+                "task_type": row.get('task_type'),
+                "2d_success_rate": d_success,
+                "3d_success": d_baseline_success,
+                "failure_reason": reason,
+                "geometric_parameters": gt.get('ground_truth_3d_params', {}),
+                "seed": gt.get('seed')
+            }
+            projection_loss_cases.append(case_study)
+
+    logger.info(f"Total candidates (2D fail, 3D pass): {total_candidates}")
+    logger.info(f"Newly classified: {total_classified}")
+    logger.info(f"Projection loss cases identified: {len(projection_loss_cases)}")
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    output_data = {
+        "total_projection_loss_cases": len(projection_loss_cases),
+        "cases": projection_loss_cases,
+        "analysis_timestamp": str(os.path.getmtime(paired_path)) if os.path.exists(paired_path) else "unknown"
     }
 
-    for task in dataset:
-        task_id = task['task_id']
-        gt_params = task.get('ground_truth_3d_params', {})
-        task_type = task.get('task_type', 'unknown')
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
 
-        baseline_res = baseline_map.get(task_id)
-        agent_2d_res = agent_2d_map.get(task_id)
-
-        if not baseline_res or not agent_2d_res:
-            logger.warning(f"Missing results for task_id: {task_id}. Skipping.")
-            continue
-
-        # Only classify if 2D failed
-        if not agent_2d_res.get('success', False):
-            stats["total_2d_failures"] += 1
-            reason = classify_failure_reason(task_id, agent_2d_res, baseline_res, gt_params)
-            stats["breakdown"][reason] += 1
-
-            stats["details"].append({
-                "task_id": task_id,
-                "task_type": task_type,
-                "reason": reason,
-                "baseline_success": baseline_res.get('success', False),
-                "2d_success": agent_2d_res.get('success', False)
-            })
-
-    # Calculate percentages
-    if stats["total_2d_failures"] > 0:
-        stats["percentages"] = {
-            key: (count / stats["total_2d_failures"]) * 100
-            for key, count in stats["breakdown"].items()
-        }
-    else:
-        stats["percentages"] = {key: 0.0 for key in stats["breakdown"].keys()}
-
-    return stats
-
+    logger.info(f"Case studies saved to {output_path}")
+    return output_data
 
 def main():
-    """Main entry point for the analysis."""
-    parser = argparse.ArgumentParser(description="Analyze Projection Loss in 2D Agent Failures")
-    parser.add_argument('--dataset', type=str, default=DATASET_PATH, help="Path to dataset JSON")
-    parser.add_argument('--baseline', type=str, default=BASELINE_RESULTS_PATH, help="Path to baseline results JSON")
-    parser.add_argument('--agent-2d', type=str, default=AGENT_2D_RESULTS_PATH, help="Path to 2D agent results JSON")
-    parser.add_argument('--output', type=str, default=OUTPUT_PATH, help="Path to output JSON")
+    parser = argparse.ArgumentParser(description="Extract projection loss case studies.")
+    parser.add_argument('--paired-dataset', type=str, default=PAIRED_DATASET_PATH, help='Path to paired dataset CSV')
+    parser.add_argument('--raw-dataset', type=str, default=RAW_DATASET_PATH, help='Path to raw dataset JSON')
+    parser.add_argument('--failure-log', type=str, default=FAILURE_ANALYSIS_LOG_PATH, help='Path to failure analysis log')
+    parser.add_argument('--output', type=str, default=CASE_STUDY_OUTPUT_PATH, help='Path to output JSON')
+    
     args = parser.parse_args()
-
-    logger.info(f"Starting projection loss analysis.")
-    logger.info(f"Dataset: {args.dataset}")
-    logger.info(f"Baseline: {args.baseline}")
-    logger.info(f"Agent 2D: {args.agent_2d}")
-    logger.info(f"Output: {args.output}")
-
+    
     try:
-        # Load data
-        logger.info("Loading dataset...")
-        dataset = load_dataset(args.dataset)
-
-        logger.info("Loading baseline results...")
-        baseline_results = load_json_file(args.baseline)
-        if not isinstance(baseline_results, list):
-            baseline_results = [baseline_results]
-
-        logger.info("Loading 2D agent results...")
-        agent_2d_results = load_json_file(args.agent_2d)
-        if not isinstance(agent_2d_results, list):
-            agent_2d_results = [agent_2d_results]
-
-        # Run analysis
-        logger.info("Running analysis...")
-        results = run_projection_loss_analysis(dataset, baseline_results, agent_2d_results)
-
-        # Ensure output directory exists
-        output_dir = os.path.dirname(args.output)
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-        # Write output
-        logger.info(f"Writing results to {args.output}")
-        with open(args.output, 'w') as f:
-            json.dump(results, f, indent=2)
-
-        logger.info("Analysis complete.")
-        logger.info(f"Total 2D Failures: {results['total_2d_failures']}")
-        logger.info(f"Projection Loss: {results['percentages'][CLASS_PROJECTION_LOSS]:.2f}%")
-        logger.info(f"Action Restriction: {results['percentages'][CLASS_ACTION_RESTRICTION]:.2f}%")
-        logger.info(f"Other: {results['percentages'][CLASS_OTHER]:.2f}%")
-
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        raise
-    except DataLoadError as e:
-        logger.error(f"Data load error: {e}")
-        raise
+        run_projection_loss_analysis(
+            paired_path=args.paired_dataset,
+            raw_path=args.raw_dataset,
+            failure_log_path=args.failure_log,
+            output_path=args.output
+        )
+        logger.info("Analysis completed successfully.")
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Analysis failed: {e}", exc_info=True)
         raise
-
 
 if __name__ == "__main__":
     main()

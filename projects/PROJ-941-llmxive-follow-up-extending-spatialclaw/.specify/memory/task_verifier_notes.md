@@ -2,7 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T050** — The script `code/utils/kernel_audit.py` exists but lacks a runnable entry point that exits with a specific code based on the count, and the required output file `results/analysis/kernel_audit.txt` is missing. The audit report file must be generated with the exact required line for the task to be considered complete.
-- **T050c** — declared artifact(s) missing/empty/invalid: results/analysis/kernel_audit.txt
-- **T058b** — declared artifact(s) missing/empty/invalid: results/analysis/flat_object_sensitivity.csv
-- **T060b** — declared artifact(s) missing/empty/invalid: results/analysis/baseline_determinism_report.md
+- **T063** — declared artifact(s) missing/empty/invalid: results/analysis/baseline_variance_plot.png
+- **T064** — The provided `restricted_kernel.py` is truncated and contains a syntax error (`raise Restricte`) and does not raise the required `RestrictedActionError`. No `results/logs/blocked_operations.log` file exists, so the stack‑trace logging output is missing. The implementation therefore does not meet the task’s specification.
+- **T065** — The script `code/stats/analyze_projection_loss.py` is present but the provided excerpt ends before any logic that selects “projection loss” tasks and writes `results/analysis/projection_loss_case_studies.json`. Moreover, the required JSON output file does not exist on disk. The task’s core deliverable—concrete case‑study examples saved to the specified JSON file—is missing.
+- **T066** — declared artifact(s) missing/empty/invalid: results/analysis/sensitivity_analysis_plot.png
