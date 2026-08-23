@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CoupledLorenzTrajectory"
+description: "Schema for a single synthetic trajectory of coupled Lorenz oscillators with injected noise."
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique UUID for the trajectory."
+  n_oscillators:
+    type: integer
+    minimum: 1
+    description: "Number of coupled Lorenz oscillators (N)."
+  coupling_strength:
+    type: number
+    description: "Diffusive coupling parameter D."
+  noise_level:
+    type: number
+    minimum: 0
+    description: "Standard deviation of injected Gaussian noise (sigma_noise)."
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+  time_steps:
+    type: integer
+    minimum: 1
+    description: "Total number of time steps in the trajectory."
+  dt:
+    type: number
+    description: "Time step size for integration."
+  is_physical:
+    type: boolean
+    description: "True if trajectory remains bounded within the attractor."
+  escape_time:
+    type: ["integer", "null"]
+    description: "Time step at which the trajectory escaped the attractor, or null if bounded."
+  data_path:
+    type: string
+    description: "Relative path to the .npz file containing the data."
+    pattern: "^data/raw/.*\\.npz$"
+required:
+  - id
+  - n_oscillators
+  - coupling_strength
+  - noise_level
+  - seed
+  - time_steps
+  - dt
+  - is_physical
+  - data_path
+  - escape_time
+additionalProperties: false

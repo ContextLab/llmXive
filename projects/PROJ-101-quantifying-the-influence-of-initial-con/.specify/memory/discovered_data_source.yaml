@@ -1,0 +1,12 @@
+status: none
+intent: generate coupled Lorenz oscillator noisy trajectories python package dataset
+required_fields:
+- time
+- oscillator_id
+- x
+- y
+- z
+- noise_std
+cache_key: c9254e1fa0da1f3aeeae903acbcdd66cf773060a2ccd6820b012a854738981a8
+searched_at: '2026-08-23T18:20:54.984139+00:00'
+retry_count: 1

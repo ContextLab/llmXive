@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FTLEResult"
+description: "Schema for a single Finite-Time Lyapunov Exponent estimate."
+type: object
+properties:
+  trajectory_id:
+    type: string
+    description: "Reference to the parent trajectory UUID."
+  window_size:
+    type: integer
+    minimum: 1
+    description: "Time window T used for the FTLE calculation, or the actual time used if an escape occurred."
+  max_ftle:
+    type: ["number", "null"]
+    description: "The estimated maximum Lyapunov exponent. Null if the trajectory escaped before the window completed."
+  deviation:
+    type: ["number", "null"]
+    description: "Difference between max_ftle and the asymptotic baseline. Null if max_ftle is null."
+  is_converged:
+    type: ["boolean", "null"]
+    description: "True if the estimate is within 5% of the asymptotic baseline (for clean cases). Null if max_ftle is null."
+  escape_event:
+    type: boolean
+    description: "True if the trajectory escaped the attractor during the window."
+  full_spectrum:
+    type: ["array", "null"]
+    items:
+      type: number
+    description: "Optional: The full spectrum of 3N Lyapunov exponents."
+required:
+  - trajectory_id
+  - window_size
+  - escape_event
+additionalProperties: false
