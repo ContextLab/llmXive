@@ -2,59 +2,57 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- 7 GB + RAM (Free‑Tier GitHub Actions compatible)
-- Git
+- Python 3.10+
+- 16GB+ RAM (recommended for smooth CPU execution)
+- GitHub Actions Runner (or local machine with equivalent resources)
 
 ## Installation
 
-```bash
-git clone <repo-url>
-cd projects/PROJ-892-llmxive-follow-up-extending-collectionlo
-python -m venv venv
-source venv/bin/activate
-pip install -r code/requirements.txt
-```
+1. Clone the repository and navigate to the project directory.
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
 ## Configuration
 
-Edit `code/config.yaml` to adjust (if needed):
+1. Edit `code/config.yaml` to define your prompts, seeds, and model paths.
+2. Ensure the `adapter` path points to a valid multi-effect LoRA adapter (safetensors).
 
-```yaml
-seed: 12345
-prompts_file: data/prompts.txt            # 5 lines, each "effect_id<TAB>prompt"
-quantization_levels: ["FP16", "INT8", "INT4"]
-base_model_id: "stabilityai/stable-diffusion-1-5"
-adapter_model_id: "user/collectionlora-multi-teacher-onp"
-inference_steps: 50
-```
+## Running the Pipeline
 
-*The prompts file already contains a deterministic one‑to‑one mapping of effects to prompts (FR‑009).*
+1. **Baseline Generation (FP16)**:
+   ```bash
+   python code/main.py --phase baseline
+   ```
+   This generates a set of images and computes baseline metrics.
 
-## Running the Full Pipeline
+2. **Quantization and Generation (INT8, INT4)**:
+   ```bash
+   ./code/wrapper.sh python code/main.py --phase quantize
+   ```
+   **Note**: The `wrapper.sh` script handles OOM detection (Exit Code 137) and skips the affected level gracefully.
 
-```bash
-python code/main.py
-```
+3. **Analysis**:
+   ```bash
+   python code/main.py --phase analysis
+   ```
+   This runs the Bayesian hierarchical model and correlation analysis.
 
-The script executes the following ordered phases:
+## Output
 
-1. **Constitution amendment** (creates PR to replace ANOVA with BHM).  
-2. **Foundational** – load models, compute & persist LoRA subspace ranks.  
-3. **Baseline generation** – FP16 images *with* LoRA and LoRA‑free reference images.  
-4. **Quantization** – INT8 / INT4 adapters via `torch.ao.quantization`; skips level if backend unavailable.  
-5. **Metric extraction** – CLIP similarity, LPIPS, style‑classifier score, CESR.  
-6. **Statistical analysis** – Bayesian hierarchical model & correlation analysis.  
-7. **Reporting** – `data/report.md` summarises all results.
-
-## Validation
-
-- Run unit tests: `pytest tests/unit/`.  
-- Contract validation: `pytest tests/contract/`.  
-- Verify SHA‑256 hashes in `state/artifact_hashes.yaml`.  
+- **Results**: `data/results.csv` (aggregated metrics)
+- **Analysis**: `data/analysis_results.json` (statistical outputs)
+- **Subspace Ranks**: `data/subspace_ranks.json`
+- **State**: `state/project.yaml` (hashes and versioning)
 
 ## Troubleshooting
 
-- **OOM (Exit 137)**: The pipeline logs “Quantization Failure – level X skipped” and continues.  
-- **Quantization backend missing**: Logs “Quantization Backend Unavailable – skipping INT8/INT4”. No fallback is attempted, preserving noise‑isolation (Principle VI).  
-- **Slow runtime**: Reduce `inference_steps` (minimum 30 recommended) or decrease number of effects (minimum 5 required by the spec).  
+- **Memory Error**: If the runner runs out of RAM, the `wrapper.sh` script will detect the out-of-memory exit code and skip the current quantization level. If the entire job exceeds 7GB, the experiment is aborted with 'MemoryLimitExceeded'.
+- **Quantization Failure**: If `torch.ao.quantization.dynamic_quant` fails, check the logs for "Backend Unavailable" and ensure `backend='dynamic'` is supported.
+- **Model Loading**: Ensure the adapter file is a valid `safetensors` file and contains the expected keys.

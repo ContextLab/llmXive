@@ -1,0 +1,96 @@
+# Implementation Plan: Quantization Robustness of Multi-Effect LoRA Adapters
+
+**Branch**: `001-lora-quantization-robustness` | **Date**: 2026-07-13 | **Spec**: `specs/001-llmxive-follow-up-extending-collectionlo/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-collectionlo/spec.md`
+
+## Summary
+
+This project evaluates the robustness of "CollectionLoRA" (a multi-effect LoRA adapter) when subjected to zero-shot post-training quantization (INT8, INT4) on CPU-only infrastructure. The primary technical approach involves loading a Stable Diffusion base model with a CollectionLoRA adapter, generating images across 10 diverse effect prompts for FP16, INT8, and INT4 quantization levels, and measuring concept adherence via CLIP cosine similarity and pixel fidelity via LPIPS. A Bayesian Linear Model (with strong priors) will analyze the data to determine if low-rank subspaces are the primary failure point for INT4 quantization. The plan strictly adheres to CPU-first execution, using `torch` and `diffusers` with `device="cpu"`, and leverages a Kaggle GPU escape hatch only if the specific quantization backend fails on CPU.
+
+**Critical Methodological Adjustments**:
+1.  **Sample Size & Power**: N=10 prompts is insufficient for a full hierarchical model with random effects. We use a **Bayesian Linear Model** with strong informative priors and perform the correlation analysis at the **Effect Level** (aggregating prompts per effect) to ensure the covariate (rank) has variance. **Consequence**: If the posterior width for the correlation coefficient exceeds a meaningful threshold, the result is flagged 'Underpowered' and the hypothesis is declared 'Inconclusive' (not interpreted).
+2.  **Control Condition**: We explicitly compute **Normalized CESR** (Ratio: Quantized CESR / FP16 Baseline CESR) to isolate quantization noise from inherent style overlap. We also add a **Negative Control** (Distractor Reference) to validate that the metric isolates bleeding from general semantic distance.
+3.  **Ground Truth**: We generate a "Gold Standard" high-precision image for each prompt (Seed 0) to serve as the consistent reference for LPIPS. **Clarification**: LPIPS measures "consistency relative to the FP16 baseline," not fidelity to an absolute ideal, avoiding circularity.
+4.  **Adapter Source**: If no public "CollectionLoRA" exists, we construct a synthetic adapter by merging multiple verified single-effect LoRAs (specific HF IDs listed in Research.md).
+5.  **Quantization Method**: We use `torch.ao.quantization.dynamic_quant` (zero-shot, no calibration) on isolated LoRA weights to avoid `prepare/convert` graph errors on the partial graph.
+
+## Technical Context
+
+**Language/Version**: Python 3.10 (compatible with `torch` 2.x and `diffusers` 0.25+)  
+**Primary Dependencies**: `diffusers`, `transformers`, `torch`, `peft`, `scipy`, `pymc` (or `numpyro` for CPU Bayesian inference), `lpips`, `clip`, `safetensors`, `pandas`, `pyyaml`  
+**Storage**: Local file system (`data/`, `state/`, `code/`); no external database.  
+**Testing**: `pytest` (unit tests for data loading, schema validation, metric calculation).  
+**Target Platform**: GitHub Actions `ubuntu-latest` (CPU, ~7GB RAM, Substantial disk storage) with fallback to Kaggle Free GPU (if CUDA required by a specific quantization backend).  
+**Project Type**: Computational Research Pipeline (CLI-based).  
+**Performance Goals**: Complete full generation and analysis (10 prompts x 3 quantization levels) within 6 hours on CPU.  
+**Constraints**: No GPU available on default runner; RAM ≤ 7GB (requires careful model offloading); no re-distillation or fine-tuning allowed post-quantization.  
+**Scale/Scope**: 10 prompts, 3 quantization levels, 1 multi-effect adapter (must contain ≥5 distinct effects).
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+1.  **Reproducibility (I)**: Plan mandates pinned seeds (`config.yaml`), deterministic prompt lists, and content hashing (`state/`) for all artifacts.
+2.  **Verified Accuracy (II)**: All citations (e.g., CollectionLoRA paper, CLIP, LPIPS) will be verified against primary sources before code generation. This satisfies the inherited requirement of Principle II.
+3.  **Data Hygiene (III)**: Raw model weights and generated images will be checksummed; no in-place modifications.
+4.  **Single Source of Truth (IV)**: **`data/results.csv` is the sole source for reporting.** `data/analysis_results.json` is strictly an intermediate storage for posterior samples and is NOT used for final figures. The final report generation script is **hard-coded** to read ONLY from `data/results.csv` to enforce this programmatically.
+5.  **Versioning Discipline (V)**: state/ YAML will record cryptographic hashes for models, prompts, and results.
+6.  **Quantization Noise Isolation (VI)**: The plan explicitly isolates quantization noise by comparing FP16 vs. INT8/INT4 without re-distillation, using cosine similarity and LPIPS as defined in the spec.
+7.  **Low-Rank Subspace Fidelity Verification (VII)**: **Note:** Constitution Principle VII mandates 'repeated-measures ANOVA', but FR-006 and US-3 explicitly mandate Bayesian Hierarchical Modeling. As FR-006 is a specific Functional Requirement overriding the general principle, this plan follows FR-006. **The Constitution is temporarily overridden by this FR.** A Constitution Amendment (PR) is flagged to update Principle VII to allow Bayesian methods. The plan includes SVD computation for per-effect ranks and a Bayesian correlation analysis (FR-007) to validate the hypothesis about low-rank subspace vulnerability.
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-llmxive-follow-up-extending-collectionlo/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
+```
+
+### Source Code (repository root)
+
+```text
+code/
+├── __init__.py
+├── config.py            # Loads config.yaml, validates schema
+├── data_loader.py       # Model loading, quantization (torch.ao dynamic), SVD extraction
+├── generation.py        # Image generation loop (FP16, INT8, INT4)
+├── metrics.py           # CLIP similarity, LPIPS, CESR calculation
+├── analysis.py          # Bayesian Linear Model, correlation analysis
+├── main.py              # Orchestrator: runs phases, logs, saves artifacts
+├── wrapper.sh           # Orchestration wrapper for OOM handling (Exit Code indicating a memory-related termination
+
+The specific value to remove/generalize: 'memory-related termination'
+
+Rewritten passage:)
+└── utils.py             # Hashing, error handling, logging
+
+data/
+├── models/              # Downloaded FP16 adapter (safetensors)
+├── quantized/           # INT8/INT4 adapters (if saved as safetensors)
+├── generated/           # Generated images (PNG)
+├── results.csv          # Aggregated metrics (SSoT)
+├── subspace_ranks.json  # Per-effect rank data
+└── analysis_results.json# Bayesian outputs (intermediate only)
+
+state/
+└── project.yaml         # Hashes, timestamps, version info
+
+tests/
+├── test_data_loader.py
+├── test_metrics.py
+└── test_analysis.py
+```
+
+**Structure Decision**: Single project structure (Option 1) is selected as this is a research pipeline, not a multi-component application. The `code/` directory is modularized by function (loading, generation, metrics, analysis) to facilitate testing and reproducibility.
+
+**Traceability Matrix**:
+- `contracts/results.schema.yaml` -> `data/results.csv`
+- `contracts/subspace_ranks.schema.yaml` -> `data/subspace_ranks.json`

@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the Bayesian analysis outputs in data/analysis_results.json (Intermediate Storage Only)"
+type: "object"
+properties:
+  quantization_effect:
+    type: "object"
+    properties:
+      int8:
+        type: "object"
+        properties:
+          posterior_mean:
+            type: "number"
+          hdi_95:
+            type: "array"
+            items:
+              type: "number"
+            minItems: 2
+            maxItems: 2
+          width:
+            type: "number"
+      int4:
+        type: "object"
+        properties:
+          posterior_mean:
+            type: "number"
+          hdi_95:
+            type: "array"
+            items:
+              type: "number"
+            minItems: 2
+            maxItems: 2
+          width:
+            type: "number"
+    required:
+      - int8
+      - int4
+  rank_correlation:
+    type: "object"
+    properties:
+      posterior_mean:
+        type: "number"
+      hdi_95:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+      status:
+        type: "string"
+        enum: ["Valid", "Underpowered", "Not Testable", "Inconclusive"]
+        description: "Status of the correlation analysis"
+    required:
+      - posterior_mean
+      - hdi_95
+      - status
+  power_flag:
+    type: "string"
+    enum: ["Underpowered", "Sufficient", "Inconclusive", "Not Testable"]
+    description: "Flag indicating if the posterior width is within the threshold or if the test was aborted"
+required:
+  - quantization_effect
+  - rank_correlation
+  - power_flag
+additionalProperties: false

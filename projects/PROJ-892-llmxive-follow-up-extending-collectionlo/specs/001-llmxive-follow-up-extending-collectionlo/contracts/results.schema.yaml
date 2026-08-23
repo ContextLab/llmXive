@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Results CSV Schema"
+description: "Schema for the aggregated metrics in data/results.csv"
+type: "object"
+properties:
+  effect_id:
+    type: "string"
+    description: "Effect name (e.g., 'oil painting')"
+  quantization_level:
+    type: "string"
+    enum: ["fp16", "int8", "int4"]
+    description: "Quantization level used"
+  seed:
+    type: "integer"
+    description: "Random seed used"
+  similarity_score:
+    type: "number"
+    description: "Cosine similarity between prompt and image embeddings"
+  lpips_distance:
+    type: "number"
+    description: "LPIPS distance to FP16 baseline"
+  cesr_score:
+    type: "number"
+    description: "Cross-Effect Similarity Ratio"
+  subspace_rank:
+    type: "integer"
+    description: "Effective rank of the effect's LoRA matrix"
+required:
+  - effect_id
+  - quantization_level
+  - seed
+  - similarity_score
+  - lpips_distance
+  - cesr_score
+  - subspace_rank
+additionalProperties: false

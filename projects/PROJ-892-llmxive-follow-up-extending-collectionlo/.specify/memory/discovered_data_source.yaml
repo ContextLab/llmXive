@@ -1,19 +1,13 @@
 status: none
-intent: Stable Diffusion 1.5 model weights CLIP embeddings LPIPS perceptual loss python
-  package dataset
+intent: download MS COCO Captions dataset via huggingface datasets python package
+  dataset
 required_fields:
-- model_name
-- model_weights_path
-- model_architecture
-- precision_format
-- prompt_text
-- generated_image_tensor
-- clip_text_embedding
-- clip_image_embedding
-- cosine_similarity_score
-- lpips_distance_score
-- fidelity_metric
-- generation_timestamp
-cache_key: 2a66c7a0a218ca202ef66c59718312ad7d8532ac84421d041e6f49bdb6892b7a
-searched_at: '2026-08-18T00:09:27.162522+00:00'
+- image_id
+- file_path
+- image_url
+- caption_text
+- annotation_id
+- split
+cache_key: d2077ac84c0e8bf7c1d71d3bba7645b11c5022c29a71df470c042bd01c30e383
+searched_at: '2026-08-23T04:35:15.463972+00:00'
 retry_count: 1
