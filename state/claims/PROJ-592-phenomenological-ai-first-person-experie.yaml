@@ -4747,3 +4747,233 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T19:27:30Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 80 samples per prompt per strategy
+  claim_id: c_a3008f79
+  context: "T009 [US1] Implement `code/generation/runner.py`... Target volume: \u2265\
+    80 samples **per prompt** per strategy (prompts \xD7 80 = 1600 per strategy)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target volume: \u226580 samples per prompt per strategy (prompts \xD7\
+    \ 80 = 1600 per strategy)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:05:47Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 20 prompts defined in base_prompts.json
+  claim_id: c_63eeca62
+  context: T009a [US1] Extend `runner.py` to support the full set of 20 prompts defined
+    in `data/prompts/base_prompts.json` and iterate through all of them for each strategy.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extend `runner.py` to support the full set of 20 prompts defined in `data/prompts/base_prompts.json`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:05:52Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 80 samples per prompt per strategy for second checkpoint
+  claim_id: c_e890e4d7
+  context: "T009b [US1] **Implement GPU-Offload Generation**... **Target**: \u2265\
+    80 samples per prompt per strategy (1600 per strategy) for the second checkpoint."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target: \u226580 samples per prompt per strategy (1600 per strategy)\
+    \ for the second checkpoint."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:05:53Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 80 control samples generated
+  claim_id: c_49aa4000
+  context: "T011 [US1] Create `code/generation/control_corpus.py` to generate \u2265\
+    80 control samples using `datasets.load_dataset('tech_reports')`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create `code/generation/control_corpus.py` to generate \u226580 control\
+    \ samples"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:05:54Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: validity_scores.csv contains 5 rows
+  claim_id: c_b5aaa69a
+  context: T024 [US2] ... verify `data/processed/validity_scores.csv` contains 5 rows.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify `data/processed/validity_scores.csv` contains 5 rows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:05:56Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: power analysis sample size >= 10 per condition
+  claim_id: c_067e8d83
+  context: "T026 [US3] ... verify `data/qualitative/power_analysis_report.md` exists\
+    \ and contains a calculated sample size \u226510 per condition."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify `data/qualitative/power_analysis_report.md` exists and contains\
+    \ a calculated sample size \u226510 per condition"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:05:57Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 10 reports per condition enforced
+  claim_id: c_12a96158
+  context: 'T023 [US3] ... **Constraint**: Must enforce exactly **10 reports per condition**
+    (strategy).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Constraint: Must enforce exactly 10 reports per condition (strategy).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:06:03Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: generation limit 100
+  claim_id: c_fbd9564f
+  context: "T033 [P] Run `quickstart.md` validation to ensure full pipeline execution\
+    \ \u22646 hours on free-tier. ... Verification: Run `time python code/main.py\
+    \ --mode generation --limit 100 --config config.yaml`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `python code/main.py --mode generation --limit 100 --config config.yaml`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:06:07Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: pipeline execution time < 6 hours
+  claim_id: c_5dd9c4d9
+  context: 'T033 [P] ... **Verification**: Run `time python code/main.py --mode generation
+    --limit 100 --config config.yaml`; verify exit code 0 and total time < 6h (simulated
+    by limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify exit code 0 and total time < 6h (simulated by limit).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:06:13Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: turing test n=100
+  claim_id: c_400d1ada
+  context: 'T034 [D] [US2] ... **Verification**: Run `python code/analysis/turing_test.py
+    --n 100`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `python code/analysis/turing_test.py --n 100`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:06:19Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: experience trace n=100
+  claim_id: c_47818e5b
+  context: 'T035 [D] [US2] ... **Verification**: Run `python code/analysis/experience_trace.py
+    --input data/processed/merged_dataset.csv --n 100`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `python code/analysis/experience_trace.py --input data/processed/merged_dataset.csv
+    --n 100`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:06:26Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: debiasing test noise=0.5
+  claim_id: c_53d18c9e
+  context: 'T036 [D] [US2] ... **Verification**: Run `python code/analysis/debiasing_test.py
+    --noise 0.5`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `python code/analysis/debiasing_test.py --noise 0.5`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:06:28Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: embodiment score n=100
+  claim_id: c_87708e9e
+  context: 'T037 [D] [US2] ... **Verification**: Run `python code/analysis/embodiment_score.py
+    --n 100`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `python code/analysis/embodiment_score.py --n 100`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:06:32Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: incoherence metric n=100
+  claim_id: c_abc319bf
+  context: 'T038 [D] [US2] ... **Verification**: Run `python code/analysis/incoherence_metric.py
+    --n 100`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `python code/analysis/incoherence_metric.py --n 100`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T16:06:35Z'

@@ -1,35 +1,25 @@
 # Phenomenological AI Pipeline Dependencies
-# Core dependencies
 
-# LLM Inference (CPU-optimized)
+# Core Inference
 llama-cpp-python>=0.2.0
 
-# Data Processing
+# Data Handling
+datasets>=2.0.0
 pandas>=2.0.0
 numpy>=1.24.0
 
-# Machine Learning & Embeddings
-scikit-learn>=1.3.0
-transformers>=4.35.0
-sentence-transformers>=2.2.0
-datasets>=2.14.0
-
-# Statistical Analysis
-scipy>=1.11.0
+# Analysis & Statistics
+scipy>=1.10.0
+scikit-learn>=1.2.0
+transformers>=4.30.0
 
 # Utilities
 pyyaml>=6.0
-tqdm>=4.65.0
-jsonschema>=4.19.0
-
-# Testing
-pytest>=7.4.0
+ruff>=0.1.0
+black>=23.0.0
+pytest>=7.0.0
+jsonschema>=4.0.0
 
 # Logging & Monitoring
-python-json-logger>=2.0.0
-python-dateutil>=2.8.0
-typing-extensions>=4.8.0
-
-# Compression for archiving
-python-libarchive-c>=4.0
-zipfile2>=0.2.0
+tqdm>=4.65.0
+psutil>=5.9.0

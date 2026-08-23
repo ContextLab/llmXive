@@ -1,0 +1,14 @@
+T011:
+  c: false
+  h: 01b8c6611998f4a46b97843b59059b270e63064e265dd09d0a719d2cc64bd116
+  r: "The `control_corpus.py` script exists but is incomplete (truncated) and does\
+    \ not show logic for appending `type='control'` or writing a merged CSV. Moreover,\
+    \ the required `data/processed/merged_dataset.csv` file is missing, so the verification\
+    \ step cannot succeed. The task\u2019s core output is not present."
+T012:
+  c: false
+  h: e3a1e43300ac3176b5e540cc0a20824120d06e685e8c3247f53ab76a3549833c
+  r: The repository contains `code/generation/runner_local.py`, but the required output
+    file `data/raw/local_generation_test.json` is absent, meaning the verification
+    step (`python code/generation/runner_local.py --test`) does not produce the expected
+    artifact. The task is therefore not fully satisfied.

@@ -1,0 +1,36 @@
+# Phenomenological AI Pipeline Configuration
+# This file is required for running the main pipeline.
+
+# Model Configuration
+model_path: "models/phi-2.Q4_K_M.gguf"
+model_id: "microsoft/phi-2"
+context_window: 2048
+temperature: 0.7
+max_tokens: 256
+
+# Generation Parameters
+num_samples: 100
+strategies:
+  - Direct
+  - Hypothetical
+  - Comparative
+  - Role-play
+
+# Paths
+output_dir: "data/processed"
+raw_dir: "data/raw"
+qualitative_dir: "data/qualitative"
+prompts_file: "data/prompts/base_prompts.json"
+
+# Analysis Parameters
+nli_model: "cross-encoder/stsb-distilroberta-base"
+marker_threshold: 0.5
+statistical_significance: 0.05
+
+# Validation Parameters
+kappa_threshold: 0.6
+samples_per_strategy: 10
+
+# Logging
+log_level: "INFO"
+log_file: "data/raw/pipeline.log"

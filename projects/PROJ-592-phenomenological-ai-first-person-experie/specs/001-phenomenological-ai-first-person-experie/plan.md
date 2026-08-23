@@ -112,7 +112,7 @@ requirements.txt
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **CPU-only inference for TinyLlama (GGUF)** | Spec requires 7B models, but CI has 7GB RAM. 7B models are infeasible. | Using large language models in FP/FP is impossible (14-28GB RAM). `llama-cpp-python` with 4-bit GGUF for TinyLlama is the only CPU-safe method that fits the CI box. |
+| **CPU-only inference for TinyLlama (GGUF)** | Spec requires large-scale models, but CI has constrained RAM. 7B models are infeasible. | Using large language models in FP/FP is impossible (GB RAM). `llama-cpp-python` with 4-bit GGUF for TinyLlama is the only CPU-safe method that fits the CI box. |
 | **Four prompting strategies + 1 model** | Spec requires comparison of strategies. | Reducing strategies would invalidate the ANOVA design (independent variable manipulation). We compare strategies *within* the TinyLlama architecture to test the "Phenomenological Style" hypothesis. |
 | **Three distinct validity metrics** | Constitution Principle VI requires all three. | Using a single metric would fail the "Phenomenological Validity" non-negotiable. |
 | **Control Corpus Generation** | Required for discriminant validity (methodology-87fdb544). | Without a control, we cannot distinguish 'phenomenological style' from 'general text quality'. |
