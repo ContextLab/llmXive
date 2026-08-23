@@ -1,3 +1,40 @@
+T012b:
+  c: false
+  h: f9f8cb594f3459c277150b4daa5dd17eeeb245244bb790c1ba965c83fdf7ea24
+  r: The required output files `data/logs/refactor_exclusions.log` and `data/logs/refactor_validation_report.json`
+    are missing, and there is no evidence that the `GitMvDetector` implementation
+    and `run_refactor_verification` logic have been added or produce the specified
+    logs. Without these artifacts (and passing the unit tests), the task is not satisfied.
+T013:
+  c: false
+  h: 6db3581258a0966ee82f3094f43cb0b2f44227f2f22b5c2a78c128a548627b2c
+  r: "The provided `code/01_data_curation.py` shows imports and constants for the\
+    \ classifier and log file, but the visible portion does not contain any code that\
+    \ actually runs the CodeBERT classifier, tags blocks, checks the confidence threshold,\
+    \ or writes exclusions to `data/logs/classifier_exclusions.log`. Moreover, the\
+    \ required log file is missing from the repository. The task\u2019s core functionality\
+    \ and logging artifact are therefore not present."
+T015:
+  c: false
+  h: 48462cee272624ce3e36db07537a8d6db2a4b69d8d1ead9d223db06a6b7bc8c9
+  r: "The `matching.py` implementation uses a placeholder random\u2011number propensity\
+    \ score instead of fitting a logistic regression on `cyclomatic_complexity` and\
+    \ `LOC`, and the file is truncated before completing the match\u2011pair dataframe.\
+    \ Moreover, the required output `data/processed/matched_pairs.csv` does not exist.\
+    \ Both the algorithmic requirement and the expected output artifact are missing."
+T022:
+  c: false
+  h: 74a9148711a87e3ac4a67d0d9cad19bbe39be302a180b6c31ce3ebb2a6923839
+  r: "The required output file `data/processed/metrics_longitudinal.csv` is missing,\
+    \ so no code churn data has been produced or appended as specified. The task\u2019\
+    s core artifact does not exist."
+T023:
+  c: false
+  h: d4adaee0ca29c0df3503d834ee5bd4656e7c3f420edce6bd9d26905254136976
+  r: "The required log file `data/logs/latency_exclusions.log` does not exist, so\
+    \ the edge\u2011case handling and logging specified in the task have not been\
+    \ delivered. The implementer must create this file and populate it with entries\
+    \ of the form `pair_id, reason` for each excluded pair."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,15 +42,6 @@ T024:
     \ repository deletions or private\u2011status changes (i.e., catching 404 responses\
     \ and excluding those repos from the analysis count). Without an actual implementation\
     \ artifact, the requirement cannot be verified as met."
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or output showing the use of `scipy.stats.wilcoxon`\
-    \ on the matched maintainability metric pairs is present. The implementer provided\
-    \ only a textual description of the task and specifications, without any concrete\
-    \ artifact (e.g., a Python file, Jupyter notebook, or result file) that demonstrates\
-    \ the Wilcoxon Signed\u2011Rank test implementation or its results. The required\
-    \ implementation and evidence are missing."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

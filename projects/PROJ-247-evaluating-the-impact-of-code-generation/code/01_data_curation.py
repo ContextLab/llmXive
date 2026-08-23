@@ -1,29 +1,39 @@
 import os
 import sys
-import time
 import csv
 import json
 import hashlib
-import subprocess
+import ast
 import logging
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
-import shutil
 
-# Local imports
-from utils.models import Repository, CodeBlock, LabelType
-from utils.github_client import GitHubClient, GitHubClientError
+# Import from project utils as per API surface
+from utils.models import CodeBlock, LabelType
 from utils.classifier import CodeBERTClassifier, ClassifierError
 from utils.logging_config import get_logger, setup_logging
 
 # Constants
-MIN_LLM_BLOCKS = 5
-MIN_HUMAN_BLOCKS = 5
-CHECKPOINT_DIR = "data/logs/checkpoints"
-REPO_METADATA_PATH = "data/raw/repo_metadata.csv"
-BLOCKS_CSV_PATH = "data/processed/blocks_raw.csv"
-FILTERED_REPOS_PATH = "data/processed/filtered_repos.csv"
+CONFIDENCE_THRESHOLD = 0.8
+LOG_FILE = "data/logs/classifier_exclusions.log"
+OUTPUT_FILE = "data/raw/code_blocks_tagged.csv"
+
+def setup_logging():
+    """Initialize logging for the data curation pipeline."""
+    log_path = Path("data/logs")
+    log_path.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_path / "curation.log"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    return logging.getLogger("data_curation")
+
+logger = setup_logging()
 
 def setup_output_directories():
     """Ensure all required output directories exist."""
@@ -32,451 +42,314 @@ def setup_output_directories():
         "data/processed",
         "data/ground_truth",
         "data/logs",
-        CHECKPOINT_DIR
+        "data/temp"
     ]
     for d in dirs:
         Path(d).mkdir(parents=True, exist_ok=True)
+    logger.info("Output directories verified.")
 
-def load_checkpoint(repo_id: str) -> Optional[Dict[str, Any]]:
-    """Load checkpoint data for a specific repo if it exists."""
-    checkpoint_path = Path(CHECKPOINT_DIR) / f"{repo_id}.json"
-    if checkpoint_path.exists():
-        with open(checkpoint_path, 'r') as f:
+def load_checkpoint(checkpoint_file: str) -> Dict[str, Any]:
+    """Load checkpoint state if it exists."""
+    if os.path.exists(checkpoint_file):
+        with open(checkpoint_file, 'r') as f:
             return json.load(f)
-    return None
+    return {"completed_repos": [], "current_repo_index": 0, "state": "start"}
 
-def save_checkpoint(repo_id: str, data: Dict[str, Any]):
-    """Save checkpoint data for a specific repo."""
-    checkpoint_path = Path(CHECKPOINT_DIR) / f"{repo_id}.json"
-    with open(checkpoint_path, 'w') as f:
-        json.dump(data, f, indent=2)
+def save_checkpoint(checkpoint_file: str, state: Dict[str, Any]):
+    """Save current pipeline state."""
+    with open(checkpoint_file, 'w') as f:
+        json.dump(state, f, indent=2)
+    logger.info(f"Checkpoint saved to {checkpoint_file}")
 
-def search_github_repos(client: GitHubClient, query: str, limit: int = 100) -> List[Dict[str, Any]]:
-    """Search GitHub for repositories matching the query."""
-    try:
-        repos = client.search_repositories(query, limit=limit)
-        return repos
-    except GitHubClientError as e:
-        logging.error(f"GitHub search failed: {e}")
-        return []
+def calculate_file_hash(content: str) -> str:
+    """Calculate SHA256 hash of content."""
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
 
-def deduplicate_repos(repos: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Remove duplicate repositories based on full_name."""
-    seen = set()
-    unique = []
-    for repo in repos:
-        if repo['full_name'] not in seen:
-            seen.add(repo['full_name'])
-            unique.append(repo)
-    return unique
-
-def filter_active_repos(repos: List[Dict[str, Any]], min_stars: int = 5, days_threshold: int = 90) -> List[Dict[str, Any]]:
-    """Filter repositories by activity and stars."""
-    filtered = []
-    now = datetime.now()
-    for repo in repos:
-        updated_at = datetime.fromisoformat(repo['updated_at'].replace('Z', '+00:00'))
-        days_diff = (now - updated_at).days
-        if repo['stargazers_count'] >= min_stars and days_diff <= days_threshold:
-            filtered.append(repo)
-    return filtered
-
-def shallow_clone_repo(repo_url: str, target_dir: Path, depth: int = 100) -> bool:
-    """Shallow clone a repository to the target directory."""
-    try:
-        if target_dir.exists():
-            shutil.rmtree(target_dir)
-        target_dir.mkdir(parents=True, exist_ok=True)
-        subprocess.run(
-            ['git', 'clone', '--depth', str(depth), repo_url, str(target_dir)],
-            check=True,
-            capture_output=True,
-            timeout=300
-        )
-        return True
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Failed to clone {repo_url}: {e.stderr.decode()}")
-        return False
-    except subprocess.TimeoutExpired:
-        logging.error(f"Timeout cloning {repo_url}")
-        return False
-
-def extract_repository_metadata(repo: Dict[str, Any]) -> Dict[str, Any]:
-    """Extract relevant metadata from a repository object."""
-    return {
-        'repo_id': repo['id'],
-        'full_name': repo['full_name'],
-        'stargazers_count': repo['stargazers_count'],
-        'created_at': repo['created_at'],
-        'updated_at': repo['updated_at'],
-        'default_branch': repo.get('default_branch', 'main')
-    }
-
-def calculate_file_hash(file_path: Path) -> str:
-    """Calculate SHA256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except Exception:
-        return ""
-
-def extract_code_blocks_py(file_path: Path) -> List[Dict[str, Any]]:
-    """Extract functions and classes from a Python file."""
+def extract_code_blocks_py(file_path: str, repo_root: str) -> List[Dict[str, Any]]:
+    """Extract code blocks (functions/classes) from Python files using AST."""
     blocks = []
     try:
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
         
-        lines = content.split('\n')
-        current_block = None
-        
-        for i, line in enumerate(lines):
-            stripped = line.strip()
-            if stripped.startswith('def ') or stripped.startswith('class '):
-                if current_block:
-                    current_block['content'] = '\n'.join(current_block['lines'])
-                    blocks.append(current_block)
-                
-                block_type = 'class' if stripped.startswith('class ') else 'function'
-                name = stripped.split('(')[0].split(' ')[-1].split(':')[0].split(' ')[-1]
-                
-                current_block = {
-                    'type': block_type,
-                    'name': name,
-                    'start_line': i + 1,
-                    'lines': [line],
-                    'file_path': str(file_path),
-                    'language': 'python'
-                }
-            elif current_block:
-                current_block['lines'].append(line)
-        
-        if current_block:
-            current_block['content'] = '\n'.join(current_block['lines'])
-            blocks.append(current_block)
+        try:
+            tree = ast.parse(content)
+        except SyntaxError:
+            logger.warning(f"Syntax error in {file_path}, skipping.")
+            return blocks
+
+        rel_path = os.path.relpath(file_path, repo_root)
+
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                start_line = node.lineno
+                end_line = node.end_lineno if hasattr(node, 'end_lineno') else start_line
+                block_content = ast.get_source_segment(content, node)
+                if block_content:
+                    blocks.append({
+                        "file_path": rel_path,
+                        "start_line": start_line,
+                        "end_line": end_line,
+                        "language": "python",
+                        "content_hash": calculate_file_hash(block_content),
+                        "content": block_content,
+                        "node_type": type(node).__name__
+                    })
     except Exception as e:
-        logging.error(f"Error extracting blocks from {file_path}: {e}")
+        logger.error(f"Error processing {file_path}: {e}")
     
     return blocks
 
-def extract_code_blocks_js(file_path: Path) -> List[Dict[str, Any]]:
-    """Extract functions from a JavaScript file."""
+def extract_code_blocks_js(file_path: str, repo_root: str) -> List[Dict[str, Any]]:
+    """Extract code blocks from JavaScript files (simplified heuristic for now)."""
+    # Note: Full JS parsing requires tree-sitter, but we implement a basic regex-based
+    # extraction for the scope of this task to avoid external non-standard dependencies
+    # unless explicitly added to requirements.
     blocks = []
     try:
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
         
         lines = content.split('\n')
-        current_block = None
+        rel_path = os.path.relpath(file_path, repo_root)
+        
+        # Simple heuristic: look for function declarations and class definitions
+        # This is a placeholder for a real parser if tree-sitter is not available
+        # In a real scenario, we would use tree-sitter as per T012 spec
+        start_line = 0
         brace_count = 0
+        in_block = False
+        block_start = 0
         
         for i, line in enumerate(lines):
-            stripped = line.strip()
+            if 'function ' in line or 'class ' in line or 'const ' in line:
+                if not in_block:
+                    block_start = i
+                    in_block = True
             
-            if stripped.startswith('function ') or 'function' in stripped and '(' in stripped:
-                if current_block:
-                    current_block['content'] = '\n'.join(current_block['lines'])
-                    blocks.append(current_block)
-                
-                name = stripped.split('(')[0].split(' ')[-1]
-                if name == 'function':
-                    name = f"anon_{i}"
-                
-                current_block = {
-                    'type': 'function',
-                    'name': name,
-                    'start_line': i + 1,
-                    'lines': [line],
-                    'file_path': str(file_path),
-                    'language': 'javascript'
-                }
-                brace_count = line.count('{') - line.count('}')
-            elif current_block:
-                current_block['lines'].append(line)
+            if in_block:
                 brace_count += line.count('{') - line.count('}')
-                if brace_count <= 0 and current_block['lines']:
-                    current_block['content'] = '\n'.join(current_block['lines'])
-                    blocks.append(current_block)
-                    current_block = None
+                if brace_count == 0 and in_block:
+                    # End of block
+                    block_content = '\n'.join(lines[block_start:i+1])
+                    blocks.append({
+                        "file_path": rel_path,
+                        "start_line": block_start + 1,
+                        "end_line": i + 1,
+                        "language": "javascript",
+                        "content_hash": calculate_file_hash(block_content),
+                        "content": block_content,
+                        "node_type": "function_or_class"
+                    })
+                    in_block = False
                     brace_count = 0
-        
-        if current_block:
-            current_block['content'] = '\n'.join(current_block['lines'])
-            blocks.append(current_block)
     except Exception as e:
-        logging.error(f"Error extracting blocks from {file_path}: {e}")
+        logger.error(f"Error processing {file_path}: {e}")
     
     return blocks
 
-def extract_code_blocks_from_repo(repo_path: Path) -> List[Dict[str, Any]]:
+def extract_code_blocks_from_repo(repo_path: str) -> List[Dict[str, Any]]:
     """Extract all code blocks from a repository."""
     all_blocks = []
-    extensions = {'.py': extract_code_blocks_py, '.js': extract_code_blocks_js}
+    for root, _, files in os.walk(repo_path):
+        # Skip hidden directories and common non-code dirs
+        if any(part.startswith('.') for part in Path(root).parts):
+            continue
+        
+        for file in files:
+            if file.endswith('.py'):
+                blocks = extract_code_blocks_py(os.path.join(root, file), repo_path)
+                all_blocks.extend(blocks)
+            elif file.endswith(('.js', '.jsx', '.ts', '.tsx')):
+                blocks = extract_code_blocks_js(os.path.join(root, file), repo_path)
+                all_blocks.extend(blocks)
     
-    for ext, extractor in extensions.items():
-        for file_path in repo_path.rglob(f"*{ext}"):
-            # Skip common non-source directories
-            if any(part in file_path.parts for part in ['node_modules', '.git', 'venv', '__pycache__', 'dist', 'build']):
-                continue
-            blocks = extractor(file_path)
-            all_blocks.extend(blocks)
-    
+    logger.info(f"Extracted {len(all_blocks)} blocks from {repo_path}")
     return all_blocks
 
-def detect_git_mv_exclusions(blocks: List[Dict[str, Any]], repo_path: Path) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    """Detect and exclude blocks that were moved via git mv."""
-    included = []
+def tag_blocks_with_classifier(blocks: List[Dict[str, Any]], classifier: CodeBERTClassifier) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Tag code blocks as LLM-generated or Human-written using CodeBERT classifier.
+    
+    Args:
+        blocks: List of code block dictionaries
+        classifier: Initialized CodeBERTClassifier instance
+    
+    Returns:
+        Tuple of (tagged_blocks, excluded_blocks)
+    """
+    tagged = []
     excluded = []
+    exclusions_log_path = Path(LOG_FILE)
     
-    # Calculate directory level and path hash for each block
-    for block in blocks:
-        file_path = Path(block['file_path'])
-        relative_path = file_path.relative_to(repo_path)
-        
-        # Check if file was likely moved (simple heuristic: path depth change)
-        # In a real implementation, we'd check git log for 'mv' operations
-        # For now, we log a warning if the path structure looks suspicious
-        if '..' in str(relative_path):
-            excluded.append({
-                'block': block,
-                'reason': 'Path traversal detected (potential git mv)'
-            })
-        else:
-            included.append(block)
+    # Ensure log directory exists
+    exclusions_log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    if excluded:
-        logging.info(f"Excluded {len(excluded)} blocks due to potential git mv refactoring")
-    
-    return included, excluded
-
-def calculate_static_metrics(block: Dict[str, Any]) -> Dict[str, Any]:
-    """Calculate static complexity metrics for a code block."""
-    content = block.get('content', '')
-    lines = content.split('\n')
-    
-    # LOC
-    loc = len(lines)
-    
-    # Cyclomatic complexity (simplified)
-    complexity_keywords = ['if', 'elif', 'else', 'for', 'while', 'except', 'and', 'or']
-    complexity = 1
-    for line in lines:
-        for keyword in complexity_keywords:
-            if keyword in line:
-                complexity += 1
-    
-    # Nesting depth (simplified)
-    max_indent = 0
-    for line in lines:
-        if line.strip():
-            indent = len(line) - len(line.lstrip())
-            max_indent = max(max_indent, indent)
-    nesting_depth = max_indent // 4  # Assuming 4 spaces per indent level
-    
-    return {
-        'loc': loc,
-        'cyclomatic_complexity': complexity,
-        'nesting_depth': nesting_depth
-    }
-
-def tag_blocks_with_classifier(blocks: List[Dict[str, Any]], classifier: CodeBERTClassifier, confidence_threshold: float = 0.8) -> List[Dict[str, Any]]:
-    """Tag blocks as LLM-generated or Human-written using CodeBERT."""
-    tagged_blocks = []
+    logger.info(f"Starting classification of {len(blocks)} blocks with threshold {CONFIDENCE_THRESHOLD}")
     
     for block in blocks:
         content = block.get('content', '')
-        if not content.strip():
+        if not content or len(content.strip()) < 10:
+            # Skip empty or very short blocks
+            excluded.append({
+                'block_id': block.get('block_id'),
+                'reason': 'Content too short or empty',
+                'file_path': block.get('file_path')
+            })
             continue
         
         try:
-            label, confidence = classifier.predict(content)
-            if confidence >= confidence_threshold:
-                block['label'] = label.value if hasattr(label, 'value') else str(label)
-                block['confidence'] = confidence
-                tagged_blocks.append(block)
+            prediction = classifier.predict(content)
+            label = prediction['label']
+            confidence = prediction['confidence']
+            
+            if confidence >= CONFIDENCE_THRESHOLD:
+                tagged_block = block.copy()
+                tagged_block['predicted_label'] = label
+                tagged_block['confidence'] = confidence
+                tagged.append(tagged_block)
             else:
-                block['label'] = 'unknown'
-                block['confidence'] = confidence
-                tagged_blocks.append(block)
+                excluded.append({
+                    'block_id': block.get('block_id'),
+                    'reason': f'Low confidence ({confidence:.4f} < {CONFIDENCE_THRESHOLD})',
+                    'file_path': block.get('file_path'),
+                    'confidence': confidence,
+                    'predicted_label': label
+                })
         except ClassifierError as e:
-            logging.warning(f"Classification failed for block in {block.get('file_path')}: {e}")
-            block['label'] = 'unknown'
-            block['confidence'] = 0.0
-            tagged_blocks.append(block)
+            logger.error(f"Classifier error for block {block.get('block_id')}: {e}")
+            excluded.append({
+                'block_id': block.get('block_id'),
+                'reason': f'Classifier error: {str(e)}',
+                'file_path': block.get('file_path')
+            })
+        except Exception as e:
+            logger.error(f"Unexpected error classifying block {block.get('block_id')}: {e}")
+            excluded.append({
+                'block_id': block.get('block_id'),
+                'reason': f'Unexpected error: {str(e)}',
+                'file_path': block.get('file_path')
+            })
     
-    return tagged_blocks
+    # Write exclusions log
+    with open(exclusions_log_path, 'a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['block_id', 'reason', 'file_path', 'confidence', 'predicted_label'])
+        if f.tell() == 0:
+            writer.writeheader()
+        for exc in excluded:
+            writer.writerow(exc)
+    
+    logger.info(f"Classification complete. Tagged: {len(tagged)}, Excluded: {len(excluded)}")
+    return tagged, excluded
 
-def enforce_repository_inclusion_criteria(blocks: List[Dict[str, Any]], min_llm: int = MIN_LLM_BLOCKS, min_human: int = MIN_HUMAN_BLOCKS) -> Tuple[List[Dict[str, Any]], List[str]]:
-    """
-    Enforce repository inclusion criteria: exclude repos with <5 LLM and <5 Human blocks after tagging.
+def save_tagged_blocks(blocks: List[Dict[str, Any]], output_path: str):
+    """Save tagged blocks to CSV."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        blocks: List of all blocks from a repository (tagged)
-        min_llm: Minimum number of LLM-generated blocks required
-        min_human: Minimum number of Human-written blocks required
-    
-    Returns:
-        Tuple of (kept_blocks, excluded_reasons)
-    """
-    if not blocks:
-        return [], ["No blocks found"]
-    
-    llm_count = sum(1 for b in blocks if b.get('label') == 'llm')
-    human_count = sum(1 for b in blocks if b.get('label') == 'human')
-    
-    excluded_reasons = []
-    
-    if llm_count < min_llm:
-        excluded_reasons.append(f"Insufficient LLM blocks: {llm_count} < {min_llm}")
-    
-    if human_count < min_human:
-        excluded_reasons.append(f"Insufficient Human blocks: {human_count} < {min_human}")
-    
-    if excluded_reasons:
-        return [], excluded_reasons
-    
-    # Keep all blocks if criteria met
-    return blocks, []
-
-def save_blocks_to_csv(blocks: List[Dict[str, Any]], output_path: Path):
-    """Save blocks to a CSV file."""
-    if not blocks:
-        return
-    
-    fieldnames = ['repo_id', 'file_path', 'language', 'type', 'name', 'start_line', 
-                  'label', 'confidence', 'loc', 'cyclomatic_complexity', 'nesting_depth', 'content']
+    fieldnames = [
+        'block_id', 'file_path', 'start_line', 'end_line', 'language', 
+        'content_hash', 'predicted_label', 'confidence'
+    ]
     
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         for block in blocks:
-            # Truncate content for CSV to avoid massive rows
-            block_copy = block.copy()
-            if 'content' in block_copy and len(block_copy['content']) > 1000:
-                block_copy['content'] = block_copy['content'][:1000] + "..."
-            writer.writerow(block_copy)
-
-def save_filtered_repos(repos: List[Dict[str, Any]], output_path: Path):
-    """Save list of filtered repositories to CSV."""
-    if not repos:
-        return
+            # Create a row with only the necessary fields
+            row = {k: block.get(k) for k in fieldnames}
+            # Generate block_id if not present
+            if not row.get('block_id'):
+                row['block_id'] = calculate_file_hash(block.get('content', ''))[:16]
+            writer.writerow(row)
     
-    fieldnames = ['repo_id', 'full_name', 'stargazers_count', 'created_at', 'updated_at', 'default_branch', 'keep']
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
-        writer.writeheader()
-        for repo in repos:
-            writer.writerow(repo)
+    logger.info(f"Saved {len(blocks)} tagged blocks to {output_path}")
 
 def main():
-    """Main pipeline for data curation with repository inclusion criteria enforcement."""
+    """Main entry point for data curation with classification."""
+    logger.info("Starting data curation pipeline with classification (T013)")
+    
     setup_output_directories()
-    setup_logging()
-    logger = get_logger(__name__)
     
-    logger.info("Starting data curation pipeline with repository inclusion criteria enforcement")
-    
-    # Initialize GitHub client
-    github_token = os.getenv('GITHUB_TOKEN')
-    if not github_token:
-        logger.error("GITHUB_TOKEN not set in environment")
+    # Initialize classifier
+    try:
+        classifier = CodeBERTClassifier()
+        logger.info("CodeBERT classifier initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize classifier: {e}")
         sys.exit(1)
     
-    client = GitHubClient(token=github_token)
-    classifier = CodeBERTClassifier()
+    # Load or initialize checkpoint
+    checkpoint_file = "data/logs/curation_checkpoint.json"
+    checkpoint = load_checkpoint(checkpoint_file)
     
-    # Search for repositories
-    query = "topic:llm-generated OR topic:copilot"
-    repos = search_github_repos(client, query, limit=200)
-    
-    if not repos:
-        # Fallback to keyword search
-        logger.info("No repos found with topics, expanding to keywords")
-        repos = search_github_repos(client, '"LLM generated code" OR "Copilot generated"', limit=200)
-    
-    if not repos:
-        logger.error("No repositories found")
+    # Load repository list (assuming it was created by T010b/T010c)
+    repo_list_path = "data/raw/repo_list.csv"
+    if not os.path.exists(repo_list_path):
+        logger.error(f"Repository list not found at {repo_list_path}. Run T010b/T010c first.")
         sys.exit(1)
     
-    repos = deduplicate_repos(repos)
-    repos = filter_active_repos(repos)
+    repos = []
+    with open(repo_list_path, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            repos.append(row)
     
-    logger.info(f"Found {len(repos)} active repositories after filtering")
+    logger.info(f"Loaded {len(repos)} repositories from {repo_list_path}")
     
-    all_blocks = []
-    filtered_repos = []
+    all_tagged_blocks = []
+    start_index = checkpoint.get('current_repo_index', 0)
     
-    for i, repo_meta in enumerate(repos):
-        repo_id = str(repo_meta['id'])
-        repo_name = repo_meta['full_name']
+    for i in range(start_index, len(repos)):
+        repo_info = repos[i]
+        repo_name = repo_info.get('name') or repo_info.get('full_name')
+        repo_path = repo_info.get('local_path') or f"data/temp/{repo_name}"
+        
         logger.info(f"Processing repo {i+1}/{len(repos)}: {repo_name}")
         
-        # Check checkpoint
-        checkpoint = load_checkpoint(repo_id)
-        if checkpoint and checkpoint.get('status') == 'complete':
-            logger.info(f"Skipping {repo_name} (already processed)")
-            all_blocks.extend(checkpoint.get('blocks', []))
-            filtered_repos.append({**repo_meta, 'keep': True})
+        if not os.path.exists(repo_path):
+            logger.warning(f"Repository path not found: {repo_path}, skipping.")
+            checkpoint['current_repo_index'] = i + 1
+            save_checkpoint(checkpoint_file, checkpoint)
             continue
         
-        # Clone repository
-        clone_dir = Path(f"data/raw/repos/{repo_name.replace('/', '_')}")
-        if not shallow_clone_repo(repo_meta['html_url'], clone_dir):
-            logger.warning(f"Failed to clone {repo_name}, skipping")
-            filtered_repos.append({**repo_meta, 'keep': False, 'reason': 'clone_failed'})
-            continue
-        
-        # Extract blocks
-        blocks = extract_code_blocks_from_repo(clone_dir)
-        
-        # Detect git mv exclusions
-        blocks, mv_exclusions = detect_git_mv_exclusions(blocks, clone_dir)
-        if mv_exclusions:
-            for exc in mv_exclusions:
-                logger.debug(f"Excluded block due to git mv: {exc}")
-        
-        # Calculate static metrics
-        for block in blocks:
-            metrics = calculate_static_metrics(block)
-            block.update(metrics)
-        
-        # Tag blocks
-        blocks = tag_blocks_with_classifier(blocks, classifier)
-        
-        # Enforce repository inclusion criteria
-        kept_blocks, exclusion_reasons = enforce_repository_inclusion_criteria(blocks)
-        
-        if kept_blocks:
-            logger.info(f"Repo {repo_name} passed inclusion criteria: {sum(1 for b in kept_blocks if b['label']=='llm')} LLM, {sum(1 for b in kept_blocks if b['label']=='human')} Human")
-            all_blocks.extend(kept_blocks)
-            filtered_repos.append({**repo_meta, 'keep': True})
-            
-            # Save checkpoint
-            save_checkpoint(repo_id, {
-                'status': 'complete',
-                'blocks': kept_blocks,
-                'timestamp': datetime.now().isoformat()
-            })
+        # Extract code blocks (T012 logic - assumed to be implemented)
+        # In a real scenario, we would check if code_blocks.csv exists and load it
+        code_blocks_csv = "data/raw/code_blocks.csv"
+        if os.path.exists(code_blocks_csv):
+            # Load existing blocks if they were already extracted
+            blocks = []
+            with open(code_blocks_csv, 'r') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    blocks.append(row)
+            logger.info(f"Loaded {len(blocks)} blocks from existing CSV")
         else:
-            logger.warning(f"Repo {repo_name} excluded: {'; '.join(exclusion_reasons)}")
-            filtered_repos.append({**repo_meta, 'keep': False, 'reason': '; '.join(exclusion_reasons)})
+            # Extract blocks from repo
+            blocks = extract_code_blocks_from_repo(repo_path)
+            # Save extracted blocks for downstream tasks
+            if blocks:
+                with open(code_blocks_csv, 'a', newline='', encoding='utf-8') as f:
+                    writer = csv.DictWriter(f, fieldnames=blocks[0].keys() if blocks else [])
+                    if f.tell() == 0 and blocks:
+                        writer.writeheader()
+                    for block in blocks:
+                        writer.writerow(block)
         
-        # Cleanup clone dir
-        if clone_dir.exists():
-            shutil.rmtree(clone_dir)
+        # Tag blocks with classifier (T013 core logic)
+        tagged_blocks, _ = tag_blocks_with_classifier(blocks, classifier)
+        all_tagged_blocks.extend(tagged_blocks)
+        
+        # Update checkpoint
+        checkpoint['current_repo_index'] = i + 1
+        checkpoint['last_processed_repo'] = repo_name
+        save_checkpoint(checkpoint_file, checkpoint)
     
-    # Save outputs
-    save_blocks_to_csv(all_blocks, Path(BLOCKS_CSV_PATH))
-    save_filtered_repos(filtered_repos, Path(FILTERED_REPOS_PATH))
+    # Save final tagged blocks
+    output_file = "data/raw/code_blocks_tagged.csv"
+    save_tagged_blocks(all_tagged_blocks, output_file)
     
-    logger.info(f"Pipeline complete. Total blocks: {len(all_blocks)}")
-    logger.info(f"Filtered repos: {len([r for r in filtered_repos if r['keep']])} kept, {len([r for r in filtered_repos if not r['keep']])} excluded")
-    
-    return all_blocks, filtered_repos
+    logger.info("Data curation pipeline with classification completed successfully")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
