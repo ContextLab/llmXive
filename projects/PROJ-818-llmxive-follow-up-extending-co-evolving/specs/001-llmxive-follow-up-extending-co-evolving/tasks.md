@@ -148,8 +148,8 @@
 
 - [X] T034 [P] Implement full CLI logic in `src/cli.py` to orchestrate the complete pipeline: generation -> validation gate (T015b) -> training (T023) -> batch running (T029) -> analysis (T027-T033), integrating all previous components
 - [ ] T035 [P] Documentation updates in `docs/` and `quickstart.md` with examples of running the 3 conditions
-- [~] T036 Code cleanup and refactoring to ensure type hints and docstrings are complete <!-- ATOMIZE: requested -->
-- [~] T037 Performance optimization to ensure a sufficient number of runs complete within the CI time limit on a limited number of CPU cores
+- [ ] T036 Code cleanup and refactoring to ensure type hints and docstrings are complete <!-- ATOMIZE: requested -->
+- [ ] T037 Performance optimization to ensure a sufficient number of runs complete within the CI time limit on a limited number of CPU cores
 - [ ] T038 [P] Additional unit tests for edge cases (logical contradictions, floating-point drift) in `tests/unit/`
 - [ ] T039 Run `quickstart.md` validation to ensure end-to-end reproducibility
 

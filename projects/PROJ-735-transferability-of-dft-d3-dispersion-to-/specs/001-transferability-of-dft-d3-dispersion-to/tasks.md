@@ -65,13 +65,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T001a Create directory `data/raw/` and `data/derived/`
+- [ ] T001a Create directory `data/raw/` and `data/derived/`
 - [X] T005 [P] Implement checksum validation script for raw data in `code/load_data.py` (T001a creates dirs, this validates content)
-- [~] T004 [P] Implement `code/load_data.py` to load and validate local fallback dataset `data/IL-Benchmark-local.zip` and `data/experimental_bulk_properties.csv` (Primary Source due to CI constraints)
+- [X] T004 [P] Implement `code/load_data.py` to load and validate local fallback dataset `data/IL-Benchmark-local.zip` and `data/experimental_bulk_properties.csv` (Primary Source due to CI constraints)
 - [X] T006 [P] Implement `code/utils.py` for common statistical functions (bootstrap resampling, error metrics)
 - [X] T007 Create base `CalculationResult` and `IonPair` data classes in `code/models.py`
 - [X] T008 Configure error handling and logging infrastructure in `code/logger.py`
-- [~] T009 Setup environment configuration management for dataset paths and random seeds
+- [ ] T009 Setup environment configuration management for dataset paths and random seeds
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -121,7 +121,7 @@
 - [X] T022 [P] [US2] Implement `code/derive_scaling.py` to fit a scalar `s > 0` minimizing MAE of corrected energies (E_corrected = E_base + s * E_D3)
 - [X] T023 [US2] Implement bootstrap resampling (**1,000 replicates**) in `code/derive_scaling.py` to generate confidence intervals for scaling factor `s` and hypothesis test. **Note**: Dataset limited to 20 pairs by Plan/CI; Spec requires ≥100 for statistical power.
 - [X] T024 [US2] Implement hypothesis test in `code/derive_scaling.py` to check if the confidence interval for `s` excludes 1.0
-- [~] T025 [US2] Write `scaling_factor.txt` containing the optimal `s` and its CI
+- [ ] T025 [US2] Write `scaling_factor.txt` containing the optimal `s` and its CI
 - [X] T026 [US2] Update `code/analyze_energies.py` to recompute error metrics using the scaled D3 term <!-- FAILED: unspecified -->
 - [X] T027 [US2] Update `code/generate_reports.py` to include scaling factor, CI, and hypothesis test result in `benchmark_report.md`
 

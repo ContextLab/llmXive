@@ -1,31 +1,31 @@
 """
-Unit tests for code/data/generate_target_list.py
-Tests T006 implementation.
+Unit tests for generate_target_list.py
 """
 import os
 import sys
 import unittest
 from unittest.mock import patch, MagicMock
 import pandas as pd
-from datetime import datetime, timezone
+from pathlib import Path
 
-# Add parent to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# Add parent directory to path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from data.generate_target_list import build_query, fetch_repo_metadata, generate_target_list
+from data.generate_target_list import build_query, fetch_repo_metadata
 from config import TARGET_MIN_STARS
 
-class TestBuildQuery(unittest.TestCase):
-    def test_query_uses_target_min_stars(self):
-        query = build_query()
-        self.assertIn(f"stars:>={TARGET_MIN_STARS}", query)
-        self.assertIn("type:repo", query)
-        self.assertIn("sort:stars", query)
+class TestGenerateTargetList(unittest.TestCase):
 
-class TestFetchRepoMetadata(unittest.TestCase):
+    def test_build_query_uses_config(self):
+        """Test that build_query uses TARGET_MIN_STARS from config."""
+        query = build_query(TARGET_MIN_STARS)
+        self.assertIn(f"stars:>={TARGET_MIN_STARS}", query)
+        self.assertIn("is:public", query)
+
     @patch('data.generate_target_list.requests.get')
-    def test_fetch_success(self, mock_get):
-        # Mock successful response
+    def test_fetch_repo_metadata_success(self, mock_get):
+        """Test successful fetch and CSV creation."""
+        # Mock response for page 1
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
@@ -33,66 +33,65 @@ class TestFetchRepoMetadata(unittest.TestCase):
                 {
                     "html_url": "https://github.com/test/repo1",
                     "language": "Python",
-                    "stargazers_count": 1500,
+                    "stargazers_count": 2000,
                     "created_at": "2020-01-01T00:00:00Z"
                 }
-            ],
-            "total_count": 1
+            ]
         }
         mock_get.return_value = mock_response
-        
-        repos = fetch_repo_metadata("test_query", max_pages=1)
-        
-        self.assertEqual(len(repos), 1)
-        self.assertEqual(repos[0]["html_url"], "https://github.com/test/repo1")
-        
-    @patch('data.generate_target_list.requests.get')
-    def test_fetch_rate_limit_429(self, mock_get):
-        # Mock rate limit response followed by success
-        mock_response_429 = MagicMock()
-        mock_response_429.status_code = 429
-        
-        mock_response_200 = MagicMock()
-        mock_response_200.status_code = 200
-        mock_response_200.json.return_value = {
-            "items": [],
-            "total_count": 0
-        }
-        
-        mock_get.side_effect = [mock_response_429, mock_response_200]
-        
-        # Should retry and succeed (or at least attempt)
-        # We expect it to not crash on 429
-        try:
-            repos = fetch_repo_metadata("test_query", max_pages=1)
-        except SystemExit:
-            # If it exits, that's also a valid "fail loud" behavior if retries exhausted
-            pass
 
-class TestGenerateTargetListIntegration(unittest.TestCase):
-    @patch('data.generate_target_list.fetch_repo_metadata')
-    @patch('data.generate_target_list.ensure_directories')
-    @patch('data.generate_target_list.DATA_RAW_DIR')
-    def test_generate_creates_dataframe(self, mock_dir, mock_ensure, mock_fetch):
-        mock_dir.__truediv__ = lambda self, key: f"/fake/path/{key}"
-        mock_fetch.return_value = [
-            {
-                "html_url": "https://github.com/test/repo1",
-                "language": "Python",
-                "stargazers_count": 2000,
-                "created_at": "2019-01-01T00:00:00Z"
-            }
-        ]
-        
-        with patch.object(pd.DataFrame, 'to_csv') as mock_to_csv:
-            df = generate_target_list()
+        output_path = Path("data/raw/test_target_list.csv")
+        try:
+            fetch_repo_metadata("stars:>=1000 is:public", output_path)
             
-            self.assertIsInstance(df, pd.DataFrame)
-            self.assertIn("url", df.columns)
-            self.assertIn("primary_language", df.columns)
-            self.assertIn("stars", df.columns)
-            self.assertIn("age", df.columns)
+            # Check file exists
+            self.assertTrue(output_path.exists())
+            
+            # Check content
+            df = pd.read_csv(output_path)
             self.assertEqual(len(df), 1)
+            self.assertEqual(df.iloc[0]['url'], "https://github.com/test/repo1")
+            self.assertEqual(df.iloc[0]['primary_language'], "Python")
+            self.assertEqual(df.iloc[0]['stars'], 2000)
+            self.assertIn('age', df.columns)
+        finally:
+            if output_path.exists():
+                output_path.unlink()
+
+    @patch('data.generate_target_list.requests.get')
+    def test_fetch_repo_metadata_403_abort(self, mock_get):
+        """Test that 403 error causes abort."""
+        mock_response = MagicMock()
+        mock_response.status_code = 403
+        mock_response.text = "Forbidden"
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(RuntimeError) as context:
+            fetch_repo_metadata("stars:>=1000 is:public", Path("data/raw/test.csv"))
+        
+        self.assertIn("403 Forbidden", str(context.exception))
+
+    @patch('data.generate_target_list.requests.get')
+    def test_fetch_repo_metadata_429_backoff(self, mock_get):
+        """Test that 429 triggers retry logic."""
+        # First two calls return 429, third returns 200
+        mock_429 = MagicMock()
+        mock_429.status_code = 429
+        
+        mock_200 = MagicMock()
+        mock_200.status_code = 200
+        mock_200.json.return_value = {"items": []}
+        
+        mock_get.side_effect = [mock_429, mock_429, mock_200]
+
+        output_path = Path("data/raw/test.csv")
+        try:
+            fetch_repo_metadata("stars:>=1000 is:public", output_path)
+            # Should succeed after retries
+            self.assertTrue(output_path.exists())
+        finally:
+            if output_path.exists():
+                output_path.unlink()
 
 if __name__ == "__main__":
     unittest.main()

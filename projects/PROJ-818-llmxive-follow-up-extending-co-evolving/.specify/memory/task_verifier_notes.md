@@ -11,6 +11,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T017** — The required file `tests/unit/test_agent_conditions.py` does not exist, so no unit test for the bidirectional exchange logic is present. The task’s artifact is missing entirely.
 - **T018** — declared artifact(s) missing/empty/invalid: src/agents/sequential_agent.py
 - **T019** — declared artifact(s) missing/empty/invalid: src/agents/mixed_agent.py
-- **T026** — The required file `src/analysis/forgetting_metrics.py` does not exist, so no evaluation logic was provided to compute the accuracy drop. The task’s core artifact is missing.
-- **T030** — No code, script, or data file was presented that gathers the batch runner outputs from `data/results/` nor checks that at least 30 runs exist before analysis. The required aggregation logic and verification step are missing.
-- **T035** — No `docs/` directory or `quickstart.md` file containing the required examples of running the three conditions was provided. The claim cannot be verified because the necessary documentation artifacts are missing.
+- **T020** — declared artifact(s) missing/empty/invalid: src/agents/coevolving_agent.py
+- **T036** — No code files, refactored modules, or documentation were provided; consequently there is no evidence that type hints or docstrings have been added or completed. The required artifacts for the cleanup task are missing.
+- **T037** — The implementer provided no code, configuration changes, profiling data, or benchmark results demonstrating that runs now finish within the CI time limit on limited CPU cores. No performance‑optimization artifact (e.g., optimized training loop, parallelism settings, CI timeout adjustments, or timing reports) is present, so the requirement is unmet.

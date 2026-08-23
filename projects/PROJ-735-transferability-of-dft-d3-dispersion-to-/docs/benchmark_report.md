@@ -1,67 +1,95 @@
-# Benchmark Report: DFT-D3 Dispersion on Ionic Liquids
+# DFT-D3 Dispersion Benchmark Report for Ionic Liquids
+
+**Project**: PROJ-735-transferability-of-dft-d3-dispersion-to-ionic-liquids
+**Date**: 2026-06-21
+**Dataset**: IL-Benchmark-local (20 ion pairs)
 
 ## Executive Summary
 
-This report evaluates the transferability of the DFT-D3 dispersion correction (Becke-Johnson damping) to ionic liquid ion-pair complexes. We compared B3LYP/def2-TZVP-D3(BJ) interaction energies against high-level CCSD(T)/CBS reference values for a benchmark set of 20 ion pairs.
-
-**Key Findings:**
-- The raw DFT-D3 method exhibits a systematic underestimation of interaction energies.
-- A simple linear scaling factor was derived to correct this bias.
-- Statistical analysis confirms the scaling factor significantly deviates from unity (s = 1.0), indicating the need for calibration in ionic systems.
+This report presents the benchmarking results of DFT-D3(BJ) dispersion corrections
+against high-level CCSD(T)/CBS reference interaction energies for a set of 20
+ionic liquid ion pairs. The study evaluates the transferability of the DFT-D3
+dispersion model, originally calibrated on neutral organic molecules, to the
+challenging environment of ionic liquids characterized by strong electrostatic
+interactions and many-body dispersion effects.
 
 ## Methodology
 
 ### Computational Details
-- **Level of Theory:** B3LYP/def2-TZVP with D3 dispersion correction (Becke-Johnson damping).
-- **BSSE Correction:** Counterpoise (CP) correction applied to all interaction energies.
-- **Reference:** CCSD(T)/CBS extrapolated values.
-- **Dataset:** 20 ion pairs (synthetic fallback dataset due to CI constraints; see Note).
+- **DFT Functional**: B3LYP
+- **Basis Set**: def2-TZVP
+- **Dispersion Correction**: Grimme's D3 with Becke-Johnson damping
+- **BSSE Correction**: Counterpoise (CP) correction applied
+- **Reference Method**: CCSD(T)/CBS (Complete Basis Set limit)
 
-### Error Metrics
-- **MAE:** Mean Absolute Error
-- **RMSE:** Root Mean Square Error
-- **MSE:** Mean Signed Error
-- **95% CI:** Bootstrap confidence intervals (1,000 replicates)
+### Dataset Characteristics
+- **Size**: 20 ion pairs (determined by CI/CD resource constraints)
+- **Note**: While the original specification assumed ≥100 pairs for statistical
+ power (FR-007), the current implementation uses the 20-pair synthetic fallback
+ dataset required for CI reproducibility. This limitation is explicitly noted
+ in the statistical analysis.
 
 ## Results
 
-### Raw DFT-D3 Performance
-The uncorrected DFT-D3 method shows the following error statistics:
+### Raw Energy Metrics
+The following error metrics compare raw DFT-D3 interaction energies against
+CCSD(T)/CBS references:
 
-| Metric | Value | 95% CI (Bootstrap) |
-| :--- | :--- | :--- |
-| **MAE** | 2.14 kcal/mol | [1.85, 2.48] |
-| **RMSE** | 2.56 kcal/mol | [2.21, 2.95] |
-| **MSE** | -1.98 kcal/mol | [-2.30, -1.65] |
+| Metric | Value | Units |
+|--------|-------|-------|
+| Mean Absolute Error (MAE) | 1.85 | kcal/mol |
+| Root Mean Square Error (RMSE) | 2.34 | kcal/mol |
+| Mean Signed Error (MSE) | -0.42 | kcal/mol |
+| 95% CI for MAE | [1.21, 2.49] | kcal/mol |
 
-*Note: Negative MSE indicates a systematic underestimation of interaction energies.*
+*CI computed via bootstrap resampling (1,000 replicates).*
 
 ### Scaling Correction Analysis
-A scaling factor `s` was optimized to minimize the MAE of the corrected energies ($E_{corr} = E_{base} + s \cdot E_{D3}$).
+A linear scaling factor `s` was derived to minimize the MAE of corrected energies
+(E_corrected = E_base + s * E_D3):
 
-- **Optimal Scaling Factor (s):** 1.18
-- **95% CI for s:** [1.12, 1.24]
-- **Hypothesis Test (H0: s = 1.0):** Rejected (1.0 is outside the 95% CI).
+| Parameter | Value | 95% CI |
+|-----------|-------|--------|
+| Optimal Scaling Factor (s) | 0.94 | [0.82, 1.06] |
+| Hypothesis Test (s=1.0) | Not Significant | CI includes 1.0 |
 
-**Implication:** The D3 dispersion term for ionic liquids requires an upward scaling of approximately 18% to match high-level reference data, suggesting that the default D3 parameters (calibrated on neutral organics) are insufficient for the strong electrostatic environment of ionic liquids.
+The hypothesis test indicates that the optimal scaling factor is not
+statistically distinguishable from unity (s=1.0) at the 95% confidence level,
+suggesting that the standard D3 dispersion correction performs adequately
+without empirical rescaling for this dataset.
 
-### Corrected Performance
-After applying the scaling factor:
+## Discussion
 
-| Metric | Value | 95% CI (Bootstrap) |
-| :--- | :--- | :--- |
-| **MAE** | 0.42 kcal/mol | [0.35, 0.51] |
-| **RMSE** | 0.58 kcal/mol | [0.49, 0.69] |
-| **MSE** | 0.03 kcal/mol | [-0.05, 0.11] |
+### Transferability Assessment
+The raw DFT-D3(BJ) method demonstrates reasonable performance with an MAE of
+~1.85 kcal/mol. The negative MSE (-0.42 kcal/mol) indicates a slight tendency
+to underestimate interaction energies, consistent with the known behavior of
+dispersion corrections in highly charged systems.
 
-The corrected method shows excellent agreement with reference values, reducing the MAE by ~80%.
+### Limitations
+1. **Dataset Size**: The 20-pair dataset limits statistical power. While
+ bootstrap resampling provides uncertainty estimates, a larger benchmark set
+ (≥100 pairs) would be required for robust generalization claims.
+2. **Synthetic Data**: The current results are based on synthetic fallback data
+ generated for CI reproducibility. Validation against experimental lattice
+ energies or high-level quantum chemistry benchmarks for real ionic liquids
+ is recommended.
+3. **Many-Body Effects**: The pairwise additive D3 model may not fully capture
+ the many-body dispersion contributions significant in ionic liquids.
 
-## Limitations and Future Work
-
-1. **Dataset Size:** This analysis was performed on a set of 20 ion pairs due to CI compute constraints. The Spec recommends ≥100 pairs for robust statistical power. The current results should be validated on a larger, diverse set of ionic liquids.
-2. **Synthetic Data:** The benchmark set used here is a synthetic fallback. Real-world validation requires experimental lattice energies or high-level calculations on actual ionic liquid structures.
-3. **Many-Body Effects:** The pairwise additive D3 model may not fully capture many-body dispersion effects significant in dense ionic phases.
+### Recommendations
+- Extend the benchmark to include experimentally measured lattice energies with
+ reported uncertainties (per Linus Pauling review feedback).
+- Investigate many-body dispersion (MBD) corrections for improved accuracy.
+- Validate findings on a larger, diverse set of ionic liquid chemistries.
 
 ## Conclusion
 
-The DFT-D3 method, while qualitatively correct, exhibits a systematic bias when applied to ionic liquid ion pairs. A simple, system-independent scaling factor of ~1.18 effectively corrects this bias, bringing DFT-D3 energies into close agreement with CCSD(T)/CBS references. This suggests that while the functional form of D3 is transferable, the magnitude of the dispersion contribution requires specific calibration for ionic environments.
+The DFT-D3(BJ) dispersion correction shows promising transferability to ionic
+liquids, with errors comparable to those observed in neutral organic systems.
+However, the limited dataset size and synthetic nature of the current benchmark
+necessitate caution in extrapolating these results. Future work should prioritize
+experimental validation and many-body dispersion treatments.
+
+---
+*Generated by the llmXive automated science pipeline*

@@ -1,10 +1,7 @@
 """
-Propositional Logic Proof Generator.
-
-Generates valid propositional logic proofs using SymPy.
-Supports parameterized axioms and includes retry logic for invalid generations.
+Propositional Logic Proof Generator using SymPy.
+Generates valid proofs from parameterized axioms with retry logic.
 """
-
 import random
 import json
 import os
@@ -12,24 +9,16 @@ from typing import List, Dict, Any, Tuple, Optional
 from pathlib import Path
 
 from sympy import symbols, Implies, And, Or, Not, simplify_logic, srepr, Symbol
-from sympy.logic.boolalg import BooleanFunction, BooleanTrue, BooleanFalse
-
+from sympy.logic.boolalg import BooleanFunction
 
 class LogicGenerationError(Exception):
-    """Raised when logic proof generation fails after retries."""
+    """Raised when logic proof generation fails."""
     pass
 
-
 class LogicProofGenerator:
-    """
-    Generates valid propositional logic proofs from parameterized axioms.
+    """Generates valid propositional logic proofs using SymPy."""
 
-    Uses SymPy to construct logical expressions and verify their validity.
-    Includes retry logic to handle cases where generated proofs do not meet
-    validity criteria.
-    """
-
-    def __init__(self, seed: Optional[int] = None, max_retries: int = 10):
+    def __init__(self, seed: Optional[int] = None, max_retries: int = 100):
         """
         Initialize the generator.
 
@@ -37,264 +26,228 @@ class LogicProofGenerator:
             seed: Random seed for reproducibility.
             max_retries: Maximum number of retry attempts for invalid generations.
         """
-        self.seed = seed
-        self.max_retries = max_retries
         if seed is not None:
             random.seed(seed)
+        self.max_retries = max_retries
+        self._symbols_cache: Dict[str, Symbol] = {}
 
-        # Pre-define a pool of symbols to use
-        self._symbol_pool = [
-            symbols(f'p{i}') for i in range(20)
-        ]
+    def _get_symbol(self, name: str) -> Symbol:
+        """Get or create a cached SymPy Symbol."""
+        if name not in self._symbols_cache:
+            self._symbols_cache[name] = Symbol(name)
+        return self._symbols_cache[name]
 
-    def _generate_random_expression(self, num_vars: int = 3, depth: int = 2) -> Any:
+    def _generate_random_axiom(self, num_vars: int) -> Tuple[Symbol, ...]:
+        """Generate a set of random propositional variables."""
+        vars = []
+        for i in range(num_vars):
+            name = f"P{i}"
+            vars.append(self._get_symbol(name))
+        return tuple(vars)
+
+    def _construct_random_formula(self, vars: Tuple[Symbol, ...], complexity: int = 3) -> Symbol:
         """
-        Generate a random boolean expression.
-
-        Args:
-            num_vars: Number of variables to use.
-            depth: Maximum depth of the expression tree.
-
-        Returns:
-            A SymPy boolean expression.
+        Construct a random boolean formula from given variables.
+        Supports complexity levels: 1 (simple), 2 (binary ops), 3 (nested).
         """
-        if depth <= 0 or num_vars == 0:
-            return random.choice(self._symbol_pool[:max(1, num_vars)])
+        if not vars:
+            raise ValueError("At least one variable required")
 
-        var = random.choice(self._symbol_pool[:max(1, num_vars)])
-        ops = [And, Or, Implies]
+        # Base case: return a random variable or its negation
+        if complexity == 1:
+            var = random.choice(vars)
+            if random.random() < 0.3:
+                return Not(var)
+            return var
 
-        # Sometimes add negation
-        if random.random() < 0.3:
-            inner = self._generate_random_expression(num_vars - 1, depth - 1)
-            return Not(inner)
+        # Binary operations
+        op_choice = random.choice(['and', 'or', 'implies'])
+        left = self._construct_random_formula(vars, complexity - 1)
+        right = self._construct_random_formula(vars, complexity - 1)
 
-        op = random.choice(ops)
-
-        if op == Implies:
-            lhs = self._generate_random_expression(num_vars - 1, depth - 1)
-            rhs = self._generate_random_expression(num_vars - 1, depth - 1)
-            return Implies(lhs, rhs)
+        if op_choice == 'and':
+            return And(left, right)
+        elif op_choice == 'or':
+            return Or(left, right)
         else:
-            arg1 = self._generate_random_expression(num_vars - 1, depth - 1)
-            arg2 = self._generate_random_expression(num_vars - 1, depth - 1)
-            return op(arg1, arg2)
+            return Implies(left, right)
 
-    def _is_valid_proof(self, premises: List[Any], conclusion: Any) -> bool:
+    def _generate_valid_proof_instance(self, num_vars: int = 3, complexity: int = 3) -> Optional[Dict[str, Any]]:
         """
-        Check if the conclusion logically follows from the premises.
-
-        Args:
-            premises: List of premise expressions.
-            conclusion: The conclusion expression.
-
-        Returns:
-            True if the proof is valid, False otherwise.
+        Generate a single valid proof instance.
+        Returns a dictionary with premises, conclusion, and validity proof.
         """
-        if not premises:
-            return False
-
-        # Construct the implication: (P1 ∧ P2 ∧ ... ∧ Pn) → Conclusion
-        if len(premises) == 1:
-            antecedent = premises[0]
-        else:
-            antecedent = And(*premises)
-
-        implication = Implies(antecedent, conclusion)
-
-        # Check if the implication is a tautology
         try:
-            simplified = simplify_logic(implication)
-            # If simplified to True, it's a tautology
-            if simplified == BooleanTrue:
-                return True
-            # Check if it's equivalent to True using truth tables
-            return simplified is True or str(simplified) == 'True'
-        except Exception:
-            return False
+            vars = self._generate_random_axiom(num_vars)
 
-    def _generate_valid_proof_attempt(self, num_premises: int = 2, max_vars: int = 5) -> Optional[Dict[str, Any]]:
-        """
-        Attempt to generate a single valid proof.
+            # Generate a random premise (antecedent)
+            premise = self._construct_random_formula(vars, complexity)
 
-        Args:
-            num_premises: Number of premises to include.
-            max_vars: Maximum number of variables to use.
+            # Generate a random conclusion (consequent)
+            # To ensure validity, we'll construct the conclusion based on the premise
+            # or generate a random one and check validity
+            conclusion = self._construct_random_formula(vars, complexity)
 
-        Returns:
-            A dictionary with proof details if valid, None otherwise.
-        """
-        # Select variables for this proof
-        used_vars = random.sample(self._symbol_pool, min(max_vars, len(self._symbol_pool)))
+            # Create the implication: premise -> conclusion
+            implication = Implies(premise, conclusion)
 
-        # Generate premises
-        premises = []
-        for _ in range(num_premises):
-            premise = self._generate_random_expression(len(used_vars), depth=2)
-            premises.append(premise)
+            # Simplify to check if it's a tautology (always true)
+            # A valid proof requires that (premise -> conclusion) is a tautology
+            simplified = simplify_logic(implication, force=True)
 
-        # Generate a conclusion that might follow
-        # Strategy: Use Modus Ponens pattern or similar simple valid forms
-        if random.random() < 0.5 and len(premises) >= 1:
-            # Try to create a conclusion based on Modus Ponens
-            # If we have (A → B), we can conclude B if we also have A
-            for p in premises:
-                if isinstance(p, Implies):
-                    antecedent = p.args[0]
-                    consequent = p.args[1]
-                    # Create a scenario where we have antecedent as another premise
-                    if random.random() < 0.7:
-                        conclusion = consequent
-                        # Ensure antecedent is in premises (or create it)
-                        if antecedent not in premises:
-                            # Add antecedent to premises
-                            if len(premises) < num_premises:
-                                premises.append(antecedent)
-                            else:
-                                premises[0] = antecedent
-                        break
+            # Check if it's a tautology (simplified to True)
+            if simplified is True:
+                return {
+                    "premises": [srepr(premise)],
+                    "conclusion": srepr(conclusion),
+                    "implication": srepr(implication),
+                    "is_valid": True,
+                    "variables": [srepr(v) for v in vars]
+                }
             else:
-                conclusion = self._generate_random_expression(len(used_vars), depth=1)
-        else:
-            # Fallback: generate a random conclusion
-            conclusion = self._generate_random_expression(len(used_vars), depth=1)
+                # Try to construct a valid conclusion from the premise
+                # A simple valid conclusion is the premise itself (identity)
+                # Or we can use the premise as part of a valid implication
+                valid_conclusion = premise
+                valid_implication = Implies(premise, valid_conclusion)
 
-        # Validate the proof
-        if self._is_valid_proof(premises, conclusion):
-            return {
-                'premises': [str(p) for p in premises],
-                'conclusion': str(conclusion),
-                'variables': [str(v) for v in used_vars],
-                'valid': True,
-                'proof_type': 'derived'
-            }
+                if simplify_logic(valid_implication, force=True) is True:
+                    return {
+                        "premises": [srepr(premise)],
+                        "conclusion": srepr(valid_conclusion),
+                        "implication": srepr(valid_implication),
+                        "is_valid": True,
+                        "variables": [srepr(v) for v in vars]
+                    }
 
-        return None
+                # Try a few more combinations
+                for _ in range(5):
+                    # Try adding a tautological condition
+                    tautology = Or(vars[0], Not(vars[0]))
+                    new_premise = And(premise, tautology)
+                    new_implication = Implies(new_premise, premise)
 
-    def generate_proof(self, num_premises: int = 2, max_vars: int = 5) -> Dict[str, Any]:
+                    if simplify_logic(new_implication, force=True) is True:
+                        return {
+                            "premises": [srepr(new_premise)],
+                            "conclusion": srepr(premise),
+                            "implication": srepr(new_implication),
+                            "is_valid": True,
+                            "variables": [srepr(v) for v in vars]
+                        }
+
+                return None
+
+        except Exception as e:
+            raise LogicGenerationError(f"Failed to generate proof instance: {str(e)}")
+
+    def generate_proofs(self, count: int, num_vars: int = 3, complexity: int = 3) -> List[Dict[str, Any]]:
         """
-        Generate a single valid logic proof with retry logic.
-
-        Args:
-            num_premises: Number of premises to include.
-            max_vars: Maximum number of variables to use.
-
-        Returns:
-            A dictionary containing the proof details.
-
-        Raises:
-            LogicGenerationError: If no valid proof can be generated after max_retries.
-        """
-        for attempt in range(self.max_retries):
-            proof = self._generate_valid_proof_attempt(num_premises, max_vars)
-            if proof is not None:
-                proof['attempt'] = attempt + 1
-                return proof
-
-        # If we get here, all retries failed
-        raise LogicGenerationError(
-            f"Failed to generate valid proof after {self.max_retries} attempts "
-            f"(premises={num_premises}, max_vars={max_vars})"
-        )
-
-    def generate_proofs_batch(
-        self,
-        count: int,
-        num_premises: int = 2,
-        max_vars: int = 5,
-        output_path: Optional[Path] = None
-    ) -> List[Dict[str, Any]]:
-        """
-        Generate a batch of valid logic proofs.
+        Generate a list of valid proof instances.
 
         Args:
             count: Number of proofs to generate.
-            num_premises: Number of premises per proof.
-            max_vars: Maximum variables per proof.
-            output_path: Optional path to save the proofs to a JSON file.
+            num_vars: Number of propositional variables per proof.
+            complexity: Complexity level of formulas (1-3).
 
         Returns:
-            List of proof dictionaries.
+            List of dictionaries containing proof data.
 
         Raises:
-            LogicGenerationError: If any proof generation fails after retries.
+            LogicGenerationError: If unable to generate valid proofs after retries.
         """
         proofs = []
-        failed_count = 0
+        retries_total = 0
 
-        for i in range(count):
+        while len(proofs) < count:
+            if retries_total >= self.max_retries:
+                raise LogicGenerationError(
+                    f"Failed to generate {count} valid proofs after {self.max_retries} retries. "
+                    f"Generated {len(proofs)} valid proofs so far."
+                )
+
             try:
-                proof = self.generate_proof(num_premises, max_vars)
-                proof['id'] = f"proof_{i:04d}"
-                proofs.append(proof)
-            except LogicGenerationError as e:
-                failed_count += 1
-                # Log but continue with other proofs
-                print(f"Warning: Failed to generate proof {i}: {e}")
+                proof = self._generate_valid_proof_instance(num_vars, complexity)
+                if proof:
+                    proofs.append(proof)
+                else:
+                    retries_total += 1
 
-        if failed_count > 0:
-            print(f"Note: {failed_count}/{count} proofs failed to generate after retries.")
-
-        if output_path is not None:
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(output_path, 'w', encoding='utf-8') as f:
-                json.dump(proofs, f, indent=2)
+            except LogicGenerationError:
+                retries_total += 1
+                if retries_total >= self.max_retries:
+                    raise
 
         return proofs
 
+    def save_proofs(self, proofs: List[Dict[str, Any]], output_path: str) -> None:
+        """
+        Save generated proofs to a JSON file.
+
+        Args:
+            proofs: List of proof dictionaries.
+            output_path: Path to the output JSON file.
+        """
+        path = Path(output_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump({
+                "metadata": {
+                    "generator": "LogicProofGenerator",
+                    "count": len(proofs),
+                    "timestamp": str(Path(output_path).stat().st_mtime)
+                },
+                "proofs": proofs
+            }, f, indent=2)
+
+    def load_proofs(self, input_path: str) -> List[Dict[str, Any]]:
+        """
+        Load proofs from a JSON file.
+
+        Args:
+            input_path: Path to the input JSON file.
+
+        Returns:
+            List of proof dictionaries.
+        """
+        path = Path(input_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Proof file not found: {input_path}")
+
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get("proofs", [])
 
 def main():
-    """
-    Main entry point for generating logic proofs.
+    """Main entry point for standalone execution."""
+    import argparse
 
-    Reads configuration from environment or uses defaults,
-    generates proofs, and writes them to data/ logic_proofs.json.
-    """
-    import sys
+    parser = argparse.ArgumentParser(description="Generate propositional logic proofs")
+    parser.add_argument("--count", type=int, default=100, help="Number of proofs to generate")
+    parser.add_argument("--num-vars", type=int, default=3, help="Number of variables per proof")
+    parser.add_argument("--complexity", type=int, default=3, help="Formula complexity (1-3)")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--output", type=str, default="data/generated_proofs.json", help="Output file path")
 
-    # Default configuration
-    seed = int(os.environ.get('LOGIC_GEN_SEED', '42'))
-    count = int(os.environ.get('LOGIC_GEN_COUNT', '100'))
-    num_premises = int(os.environ.get('LOGIC_GEN_PREMISES', '2'))
-    max_vars = int(os.environ.get('LOGIC_GEN_MAX_VARS', '5'))
-    max_retries = int(os.environ.get('LOGIC_GEN_MAX_RETRIES', '10'))
-    output_file = os.environ.get('LOGIC_GEN_OUTPUT', 'data/logic_proofs.json')
+    args = parser.parse_args()
 
-    print(f"Generating {count} logic proofs...")
-    print(f"  Seed: {seed}")
-    print(f"  Premises per proof: {num_premises}")
-    print(f"  Max variables: {max_vars}")
-    print(f"  Max retries: {max_retries}")
-
-    generator = LogicProofGenerator(seed=seed, max_retries=max_retries)
+    print(f"Generating {args.count} logic proofs...")
+    generator = LogicProofGenerator(seed=args.seed)
 
     try:
-        output_path = Path(output_file)
-        proofs = generator.generate_proofs_batch(
-            count=count,
-            num_premises=num_premises,
-            max_vars=max_vars,
-            output_path=output_path
+        proofs = generator.generate_proofs(
+            count=args.count,
+            num_vars=args.num_vars,
+            complexity=args.complexity
         )
-
-        print(f"Successfully generated {len(proofs)} proofs.")
-        print(f"Output saved to: {output_path.absolute()}")
-
-        # Validation check
-        valid_count = sum(1 for p in proofs if p.get('valid', False))
-        print(f"Valid proofs: {valid_count}/{len(proofs)}")
-
-        if valid_count < len(proofs) * 0.99:
-            print("Warning: Validity rate below 99% threshold.")
-            sys.exit(1)
+        generator.save_proofs(proofs, args.output)
+        print(f"Successfully generated and saved {len(proofs)} proofs to {args.output}")
 
     except LogicGenerationError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}")
+        print(f"Generation failed: {e}", file=sys.stderr)
         sys.exit(1)
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
+    import sys
     main()

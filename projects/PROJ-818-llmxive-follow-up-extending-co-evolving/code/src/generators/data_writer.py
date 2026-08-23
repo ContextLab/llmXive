@@ -1,170 +1,171 @@
-"""
-Data writing logic for generated training datasets.
-Saves datasets to data/ and records checksums in data/checksums.json.
-"""
-
 import json
 import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import sys
 
-# Add project root to path if running as script
-if 'code' not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from src.utils.checksums import (
     compute_file_sha256,
     load_checksums,
     save_checksums,
-    update_checksum_for_file
+    update_checksum_for_file,
+    ChecksumError
 )
 from src.utils.config import load_config, Config
-from src.generators.logic_generator import LogicProofGenerator
-from src.generators.grid_generator import GridWorldGenerator
-from src.generators.test_generator import TestInstanceGenerator
-
 
 class DataWriteError(Exception):
-    """Custom exception for data writing errors."""
+    """Raised when data writing or checksum registration fails."""
     pass
 
-
-def write_dataset(data: List[Dict[str, Any]], output_path: Path) -> Path:
+def write_dataset(data: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Write a list of dataset items to a JSON file.
-
+    Writes a list of dataset records to a JSON file.
+    
     Args:
-        data: List of dictionaries representing dataset items
-        output_path: Path where the JSON file will be written
-
-    Returns:
-        Path to the written file
-
+        data: List of dictionaries representing dataset records.
+        output_path: Path where the JSON file will be saved.
+    
     Raises:
-        DataWriteError: If writing fails
+        DataWriteError: If writing fails.
     """
     try:
-        # Ensure parent directory exists
+        # Ensure directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
-
+        
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-
-        return output_path
-    except Exception as e:
+    except IOError as e:
         raise DataWriteError(f"Failed to write dataset to {output_path}: {e}")
 
-
-def register_checksum(file_path: Path, dataset_name: str, config: Config) -> None:
+def register_checksum(file_path: Path, checksums_path: Path) -> None:
     """
-    Compute SHA-256 checksum for a file and register it in data/checksums.json.
-
+    Computes the SHA-256 checksum of a file and registers it in the checksums manifest.
+    
     Args:
-        file_path: Path to the file to checksum
-        dataset_name: Name identifier for the dataset
-        config: Configuration object containing output paths
+        file_path: Path to the file to checksum.
+        checksums_path: Path to the checksums.json manifest.
+    
+    Raises:
+        DataWriteError: If checksum computation or saving fails.
     """
-    checksums_path = config.data_dir / "checksums.json"
-
-    # Load existing checksums
-    existing_checksums = load_checksums(checksums_path)
-
-    # Compute new checksum
-    checksum = compute_file_sha256(file_path)
-
-    # Update checksums dictionary
-    existing_checksums[dataset_name] = {
-        "file": str(file_path.relative_to(config.data_dir)),
-        "sha256": checksum,
-        "size_bytes": file_path.stat().st_size
-    }
-
-    # Save updated checksums
-    save_checksums(existing_checksums, checksums_path)
-
-
-def generate_and_save_training_data(config: Config) -> Dict[str, str]:
-    """
-    Generate training datasets for both logic proofs and grid worlds,
-    save them to data/, and register their checksums.
-
-    Args:
-        config: Configuration object with generation parameters
-
-    Returns:
-        Dictionary mapping dataset names to their file paths
-    """
-    generated_files = {}
-
-    # Initialize generators
-    logic_generator = LogicProofGenerator(config)
-    grid_generator = GridWorldGenerator(config)
-
-    # Generate logic proofs dataset
-    print(f"Generating {config.num_logic_proofs} logic proofs...")
-    logic_data = logic_generator.generate_proofs(config.num_logic_proofs)
-
-    if not logic_data:
-        raise DataWriteError("Failed to generate any logic proofs")
-
-    logic_output_path = config.data_dir / "logic_proofs_train.json"
-    write_dataset(logic_data, logic_output_path)
-    register_checksum(logic_output_path, "logic_proofs_train", config)
-    generated_files["logic_proofs_train"] = str(logic_output_path)
-    print(f"Saved logic proofs to {logic_output_path}")
-
-    # Generate grid worlds dataset
-    print(f"Generating {config.num_grid_worlds} grid worlds...")
-    grid_data = grid_generator.generate_grids(config.num_grid_worlds)
-
-    if not grid_data:
-        raise DataWriteError("Failed to generate any grid worlds")
-
-    grid_output_path = config.data_dir / "grid_worlds_train.json"
-    write_dataset(grid_data, grid_output_path)
-    register_checksum(grid_output_path, "grid_worlds_train", config)
-    generated_files["grid_worlds_train"] = str(grid_output_path)
-    print(f"Saved grid worlds to {grid_output_path}")
-
-    return generated_files
-
-
-def main():
-    """Main entry point for data generation and writing."""
     try:
-        # Load configuration
-        config_path = Path("config.json")
-        if not config_path.exists():
-            print("No config.json found, using defaults")
-            config = load_config()
-        else:
-            config = load_config(config_path)
+        checksum = compute_file_sha256(file_path)
+        update_checksum_for_file(str(file_path), checksum, checksums_path)
+    except ChecksumError as e:
+        raise DataWriteError(f"Failed to register checksum for {file_path}: {e}")
 
-        # Ensure data directory exists
-        config.data_dir.mkdir(parents=True, exist_ok=True)
+def generate_and_save_training_data(
+    logic_data: List[Dict[str, Any]],
+    grid_data: List[Dict[str, Any]],
+    config: Config,
+    output_dir: Optional[Path] = None
+) -> List[Path]:
+    """
+    Generates training data files for logic and grid domains, saves them,
+    and registers their checksums.
+    
+    Args:
+        logic_data: List of logic proof records.
+        grid_data: List of grid world records.
+        config: Configuration object containing paths and settings.
+        output_dir: Optional override for output directory. Defaults to config.data_dir.
+    
+    Returns:
+        List of paths to the written files.
+    
+    Raises:
+        DataWriteError: If writing or checksumming fails.
+    """
+    base_dir = output_dir or Path(config.data_dir)
+    checksums_path = base_dir / "checksums.json"
+    written_files = []
 
-        # Generate and save training data
-        generated_files = generate_and_save_training_data(config)
+    # Ensure base directory exists
+    base_dir.mkdir(parents=True, exist_ok=True)
 
-        print("\nData generation complete!")
-        print("Generated files:")
-        for name, path in generated_files.items():
-            print(f"  - {name}: {path}")
+    # Write Logic Dataset
+    logic_path = base_dir / "logic_training.json"
+    write_dataset(logic_data, logic_path)
+    register_checksum(logic_path, checksums_path)
+    written_files.append(logic_path)
 
-        # Verify checksums file was created
-        checksums_path = config.data_dir / "checksums.json"
-        if checksums_path.exists():
-            print(f"\nChecksums recorded in: {checksums_path}")
-        else:
-            raise DataWriteError("Checksums file was not created")
+    # Write Grid Dataset
+    grid_path = base_dir / "grid_training.json"
+    write_dataset(grid_data, grid_path)
+    register_checksum(grid_path, checksums_path)
+    written_files.append(grid_path)
 
-        return 0
+    return written_files
 
-    except Exception as e:
+def main() -> None:
+    """
+    CLI entry point for generating and saving training data.
+    Expects config to be loaded from environment or default path.
+    """
+    try:
+        config = load_config()
+        
+        # Note: In a real pipeline, data would be generated by the generators
+        # before calling this writer. For this task, we assume data is passed
+        # or generated here for demonstration of the writing logic.
+        # However, per constraints, we must not fabricate data.
+        # This script is designed to be called by the pipeline orchestration
+        # (e.g., cli.py) which passes the generated data.
+        
+        # If called directly without data, it should fail loudly as per constraints
+        # unless it's part of a larger flow. 
+        # To satisfy the "write real output" constraint for a standalone run:
+        # We will check if data files exist (from T011/T012) or raise error.
+        
+        # Since T011/T012 are marked as needing redo, we cannot rely on them
+        # existing yet. But T014's job is the *writing logic*.
+        # We will implement the logic to write IF data is provided via CLI args
+        # or environment, otherwise we assume the caller (cli.py) provides it.
+        
+        # For the purpose of this task implementation:
+        # The function `generate_and_save_training_data` is the core implementation.
+        # The main() here will load config and prepare, but actual data generation
+        # is assumed to be handled by the generators (T011/T012) before this is called.
+        # If we must run this script standalone to produce files, we need data.
+        # Given the constraints, we will assume this is a utility called by the pipeline.
+        
+        # To make this script runnable and produce output as per T014 requirement:
+        # We will check for existing generated files from T011/T012 if they exist.
+        # If not, we raise an error indicating data must be generated first.
+        
+        logic_path = Path(config.data_dir) / "logic_training.json"
+        grid_path = Path(config.data_dir) / "grid_training.json"
+        
+        if not logic_path.exists() or not grid_path.exists():
+            # In a real execution, we would call the generators here.
+            # Since T011/T012 are pending, we simulate the call structure
+            # but we cannot fabricate data.
+            # We will attempt to import generators to run them if available.
+            try:
+                from src.generators.logic_generator import LogicProofGenerator
+                from src.generators.grid_generator import GridWorldGenerator
+                
+                logic_gen = LogicProofGenerator(seed=config.seed)
+                logic_data = logic_gen.generate(count=config.num_logic_proofs)
+                
+                grid_gen = GridWorldGenerator(seed=config.seed + 1)
+                grid_data = grid_gen.generate(count=config.num_grid_worlds)
+                
+                generate_and_save_training_data(logic_data, grid_data, config)
+                print(f"Successfully wrote training data and checksums to {config.data_dir}")
+                
+            except ImportError as e:
+                raise DataWriteError(
+                    f"Generators not available (T011/T012 pending): {e}. "
+                    "Data generation must be completed before writing."
+                )
+        
+    except DataWriteError as e:
         print(f"Error: {e}", file=sys.stderr)
-        return 1
-
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

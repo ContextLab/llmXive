@@ -1,0 +1,29 @@
+T001a#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw/` and `data/derived/` directories is present\
+    \ in the provided artifacts; the claim lacks any file listings, screenshots, or\
+    \ other proof that the directories exist and are non\u2011empty. The next implementer\
+    \ must create the two directories and provide a verification artifact (e.g., a\
+    \ directory tree listing)."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration files, scripts, or documentation for managing dataset paths\
+    \ and random seeds are present in the provided evidence; the implementer did not\
+    \ supply the required environment\u2011configuration artifacts. The task therefore\
+    \ remains unfinished."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `scaling_factor.txt` file is present in the provided evidence, so the required
+    artifact does not exist (or is empty). Consequently the task of writing the optimal
+    scaling factor and its confidence interval has not been fulfilled.
+T060:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/benchmark_report.md`, `docs/correlation_report.md`, or `docs/review_response.md`
+    files were provided or referenced; without these actual documentation artifacts
+    present, the claimed documentation update cannot be verified as completed. The
+    next implementer should add the three markdown files in the `docs/` directory
+    with the appropriate content.

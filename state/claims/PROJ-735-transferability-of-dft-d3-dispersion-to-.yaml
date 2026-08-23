@@ -69,3 +69,325 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-06T16:22:19Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: DFT-D3(BJ) MAE 1.85 kcal/mol on 20 ionic liquid ion pairs against CCSD(T)/CBS
+  claim_id: c_6041ac71
+  context: 'The following error metrics compare raw DFT-D3 interaction energies against
+    CCSD(T)/CBS references: Mean Absolute Error (MAE) | 1.85 | kcal/mol'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmarking results of DFT-D3(BJ) dispersion corrections against
+    high-level CCSD(T)/CBS reference interaction energies for a set of 20 ionic liquid
+    ion pairs yielded a Mean Absolute Error (MAE) of 1.85 kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:32:06Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: DFT-D3(BJ) RMSE 2.34 kcal/mol on 20 ionic liquid ion pairs against CCSD(T)/CBS
+  claim_id: c_98e82ba0
+  context: 'The following error metrics compare raw DFT-D3 interaction energies against
+    CCSD(T)/CBS references: Root Mean Square Error (RMSE) | 2.34 | kcal/mol'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Root Mean Square Error (RMSE) of DFT-D3(BJ) dispersion corrections
+    against CCSD(T)/CBS reference interaction energies for the 20 ionic liquid ion
+    pairs was 2.34 kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:33:16Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: DFT-D3(BJ) MSE -0.42 kcal/mol on 20 ionic liquid ion pairs against CCSD(T)/CBS
+  claim_id: c_9e9af504
+  context: 'The following error metrics compare raw DFT-D3 interaction energies against
+    CCSD(T)/CBS references: Mean Signed Error (MSE) | -0.42 | kcal/mol'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Mean Signed Error (MSE) of DFT-D3(BJ) dispersion corrections against
+    CCSD(T)/CBS reference interaction energies for the 20 ionic liquid ion pairs was
+    -0.42 kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:34:24Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: DFT-D3(BJ) MAE 95% CI 1.21 to 2.49 kcal/mol on 20 ionic liquid ion pairs
+  claim_id: c_af2aed84
+  context: 'The following error metrics compare raw DFT-D3 interaction energies against
+    CCSD(T)/CBS references: 95% CI for MAE | [1.21, 2.49] | kcal/mol'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 95% confidence interval for the Mean Absolute Error (MAE) of DFT-D3(BJ)
+    dispersion corrections on the 20 ionic liquid ion pairs was [1.21, 2.49] kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:34:24Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Optimal scaling factor 0.94 for DFT-D3(BJ) on 20 ionic liquid ion pairs
+  claim_id: c_0551d17d
+  context: 'A linear scaling factor s was derived to minimize the MAE of corrected
+    energies: Optimal Scaling Factor (s) | 0.94 | [0.82, 1.06]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimal scaling factor (s) derived to minimize the MAE of corrected
+    energies for the 20 ionic liquid ion pairs was 0.94.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:34:49Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Optimal scaling factor 95% CI 0.82 to 1.06 for DFT-D3(BJ) on 20 ionic
+    liquid ion pairs
+  claim_id: c_f764a93c
+  context: 'A linear scaling factor s was derived to minimize the MAE of corrected
+    energies: Optimal Scaling Factor (s) | 0.94 | [0.82, 1.06]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 95% confidence interval for the optimal scaling factor (s) of DFT-D3(BJ)
+    on the 20 ionic liquid ion pairs was [0.82, 1.06].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:34:49Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Hypothesis test s=1.0 not significant for DFT-D3(BJ) on 20 ionic liquid
+    ion pairs
+  claim_id: c_dc58b541
+  context: Hypothesis Test (s=1.0) | Not Significant | CI includes 1.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hypothesis test for the scaling factor s=1.0 was not significant for
+    the DFT-D3(BJ) dispersion correction on the 20 ionic liquid ion pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:35:20Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Dataset size of 20 ion pairs for IL-Benchmark-local
+  claim_id: c_54e8e1a4
+  context: 'Dataset: IL-Benchmark-local (20 ion pairs)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset used for the analysis consists of 20 ion pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:36:22Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson correlation 0.42 between Dispersion-Only Error and viscosity
+    (95% CI [0.02, 0.72])
+  claim_id: c_e05e36f9
+  context: 'Table: Correlation with Viscosity, Row: Dispersion-Only Error'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation between the Dispersion-Only Error and viscosity has a
+    Pearson coefficient of 0.42 with a 95% confidence interval of [0.02, 0.72].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:37:10Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Spearman correlation 0.39 between Dispersion-Only Error and viscosity
+    (95% CI [0.00, 0.69])
+  claim_id: c_4aa79733
+  context: 'Table: Correlation with Viscosity, Row: Dispersion-Only Error'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Spearman correlation coefficient between the Dispersion-Only Error
+    and viscosity is 0.39 with a 95% confidence interval of [0.00, 0.69].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:37:51Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Adjusted p-value 0.048 for correlation between Dispersion-Only Error
+    and viscosity
+  claim_id: c_dc84ea69
+  context: 'Table: Correlation with Viscosity, Row: Dispersion-Only Error, Column:
+    Adj. p-value'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adjusted p-value for the correlation between the Dispersion-Only Error
+    and viscosity is 0.048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:38:53Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson correlation -0.32 between Raw D3 Term and density (95% CI [-0.68,
+    0.12])
+  claim_id: c_30bc1cf5
+  context: 'Table: Correlation with Density, Row: Raw D3 Term'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pearson correlation between the Raw D3 Term and density is -0.32 with
+    a 95% confidence interval of [-0.68, 0.12].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:39:29Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Adjusted p-value 0.284 for correlation between Raw D3 Term and density
+  claim_id: c_a9547378
+  context: 'Table: Correlation with Density, Row: Raw D3 Term, Column: Adj. p-value'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adjusted p-value for the correlation between the Raw D3 Term and density
+    is 0.284.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:40:12Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson correlation -0.31 between Scaled D3 Term and density (95% CI
+    [-0.67, 0.11])
+  claim_id: c_20890766
+  context: 'Table: Correlation with Density, Row: Scaled D3 Term'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pearson correlation between the Scaled D3 Term and density is -0.31
+    with a 95% confidence interval of [-0.67, 0.11].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:40:39Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Adjusted p-value 0.301 for correlation between Scaled D3 Term and density
+  claim_id: c_fec509e5
+  context: 'Table: Correlation with Density, Row: Scaled D3 Term, Column: Adj. p-value'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adjusted p-value for the correlation between the Scaled D3 Term and
+    density is 0.301.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:41:36Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson correlation 0.18 between Raw D3 Term and viscosity (95% CI [-0.26,
+    0.58])
+  claim_id: c_7146d75a
+  context: 'Table: Correlation with Viscosity, Row: Raw D3 Term'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pearson correlation between the Raw D3 Term and viscosity is 0.18
+    with a 95% confidence interval of [-0.26, 0.58].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:42:14Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Adjusted p-value 0.512 for correlation between Raw D3 Term and viscosity
+  claim_id: c_2b663bb5
+  context: 'Table: Correlation with Viscosity, Row: Raw D3 Term, Column: Adj. p-value'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adjusted p-value for the correlation between the Raw D3 Term and viscosity
+    is 0.512.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:42:52Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson correlation 0.17 between Scaled D3 Term and viscosity (95% CI
+    [-0.27, 0.57])
+  claim_id: c_f87b36b4
+  context: 'Table: Correlation with Viscosity, Row: Scaled D3 Term'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pearson correlation between the Scaled D3 Term and viscosity is 0.17
+    with a 95% confidence interval of [-0.27, 0.57].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:43:24Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Adjusted p-value 0.534 for correlation between Scaled D3 Term and viscosity
+  claim_id: c_9df1213d
+  context: 'Table: Correlation with Viscosity, Row: Scaled D3 Term, Column: Adj. p-value'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adjusted p-value for the correlation between the Scaled D3 Term and
+    viscosity is 0.534.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:44:08Z'

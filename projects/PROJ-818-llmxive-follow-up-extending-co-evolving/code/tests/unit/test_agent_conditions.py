@@ -1,252 +1,366 @@
 """
-Unit tests for bidirectional exchange logic in agent conditions.
+Unit tests for the bidirectional exchange logic in CoevolvingAgent.
 
-This module verifies that the Co-evolving agent correctly exchanges rule-sets
-between sub-populations (Logic and Grid) at every generation step, ensuring
-that:
-1. Rules flow from Logic -> Grid population.
-2. Rules flow from Grid -> Logic population.
-3. The exchange is bidirectional (both happen in the same step).
-4. The exchange does not corrupt the rule-set structure.
+This module verifies that:
+1. The CoevolvingAgent correctly manages sub-populations.
+2. Bidirectional exchange of rule-sets occurs between sub-populations.
+3. The exchange logic maintains population integrity and does not lose data.
+4. The exchange is truly bidirectional (both populations receive rules).
 """
+
 import pytest
 import sys
 import os
 from typing import List, Dict, Any, Set, Tuple
 from pathlib import Path
-
-# Add project root to path for imports if running directly
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from src.agents.coevolving_agent import CoevolvingAgent
 from src.utils.config import Config, get_default_config
 
+# Add project root to path if not already present
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 
 class MockRuleSet:
-    """Mock rule set for testing exchange logic."""
-    def __init__(self, source: str, rule_id: str, priority: float = 0.0):
-        self.source = source  # 'logic' or 'grid'
+    """
+    A simplified mock rule set for testing purposes.
+    In real usage, this would be a sympy expression or similar.
+    """
+    def __init__(self, rule_id: str, domain: str, complexity: int = 1):
         self.rule_id = rule_id
-        self.priority = priority
-        self.content = f"Rule {rule_id} from {source}"
+        self.domain = domain
+        self.complexity = complexity
+        self.performance_score = 0.5  # Default neutral score
 
     def __eq__(self, other):
         if not isinstance(other, MockRuleSet):
             return False
-        return (self.source == other.source and
-                self.rule_id == other.rule_id and
-                self.priority == other.priority)
+        return self.rule_id == other.rule_id and self.domain == other.domain
+
+    def __hash__(self):
+        return hash((self.rule_id, self.domain))
 
     def __repr__(self):
-        return f"MockRuleSet({self.source}, {self.rule_id}, {self.priority})"
+        return f"MockRuleSet(id={self.rule_id}, domain={self.domain}, score={self.performance_score})"
 
 
 class TestBidirectionalExchange:
-    """Tests for the bidirectional exchange logic in CoevolvingAgent."""
+    """
+    Unit tests for the bidirectional exchange logic in CoevolvingAgent.
+    """
 
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.config = get_default_config()
-        self.config['generation_count'] = 10
-        self.config['rule_evaluation_budget'] = 1000
-        self.config['seed'] = 42
+    @pytest.fixture
+    def mock_config(self):
+        """Create a minimal config for testing."""
+        config = get_default_config()
+        config["coevolving"] = {
+            "num_subpopulations": 2,
+            "exchange_rate": 0.3,
+            "exchange_interval": 1,  # Exchange every generation
+            "selection_pressure": 0.1
+        }
+        config["generation"] = {
+            "num_proofs": 10,
+            "num_grids": 10
+        }
+        config["seeds"] = {
+            "base_seed": 42
+        }
+        return config
 
-        # Initialize the agent
-        self.agent = CoevolvingAgent(self.config)
+    @pytest.fixture
+    def coevolving_agent(self, mock_config):
+        """Create a CoevolvingAgent with mock configuration."""
+        # We need to mock the data loading since we're testing exchange logic
+        # The agent should be initialized with two sub-populations
+        agent = CoevolvingAgent(mock_config)
+        return agent
 
-        # Mock the rule sets for both sub-populations
-        # Logic Population
-        self.agent.logic_population = [
-            MockRuleSet('logic', 'L1', 0.8),
-            MockRuleSet('logic', 'L2', 0.7),
-            MockRuleSet('logic', 'L3', 0.6)
+    def test_initialization_creates_subpopulations(self, coevolving_agent):
+        """Test that initialization creates the correct number of sub-populations."""
+        assert hasattr(coevolving_agent, 'sub_populations')
+        assert len(coevolving_agent.sub_populations) == 2
+        assert all(isinstance(pop, list) for pop in coevolving_agent.sub_populations.values())
+
+    def test_exchange_logic_is_bidirectional(self, coevolving_agent):
+        """
+        Test that the exchange logic is truly bidirectional.
+        Rules should flow from population A to B AND from B to A.
+        """
+        # Initialize with distinct rule sets for each population
+        # Population 0: Rules with IDs starting with "A"
+        # Population 1: Rules with IDs starting with "B"
+        coevolving_agent.sub_populations[0] = [
+            MockRuleSet(f"A_{i}", "logic", i) for i in range(5)
+        ]
+        coevolving_agent.sub_populations[1] = [
+            MockRuleSet(f"B_{i}", "grid", i) for i in range(5)
         ]
 
-        # Grid Population
-        self.agent.grid_population = [
-            MockRuleSet('grid', 'G1', 0.9),
-            MockRuleSet('grid', 'G2', 0.85),
-            MockRuleSet('grid', 'G3', 0.75)
+        # Store initial state
+        initial_pop0_ids = {r.rule_id for r in coevolving_agent.sub_populations[0]}
+        initial_pop1_ids = {r.rule_id for r in coevolving_agent.sub_populations[1]}
+
+        # Perform exchange
+        coevolving_agent._perform_bidirectional_exchange()
+
+        # Check that both populations now contain rules from the other
+        final_pop0_ids = {r.rule_id for r in coevolving_agent.sub_populations[0]}
+        final_pop1_ids = {r.rule_id for r in coevolving_agent.sub_populations[1]}
+
+        # Population 0 should have received some rules from Population 1
+        received_from_1 = final_pop0_ids - initial_pop0_ids
+        assert len(received_from_1) > 0, "Population 0 did not receive any rules from Population 1"
+
+        # Population 1 should have received some rules from Population 0
+        received_from_0 = final_pop1_ids - initial_pop1_ids
+        assert len(received_from_0) > 0, "Population 1 did not receive any rules from Population 0"
+
+    def test_exchange_respects_exchange_rate(self, coevolving_agent):
+        """
+        Test that the number of exchanged rules respects the configured exchange rate.
+        """
+        num_rules_per_pop = 10
+        exchange_rate = 0.3  # 30% exchange
+
+        # Initialize populations
+        coevolving_agent.sub_populations[0] = [
+            MockRuleSet(f"A_{i}", "logic", i) for i in range(num_rules_per_pop)
+        ]
+        coevolving_agent.sub_populations[1] = [
+            MockRuleSet(f"B_{i}", "grid", i) for i in range(num_rules_per_pop)
         ]
 
-    def test_initial_state_isolation(self):
-        """Verify that initially, populations have only their own rules."""
-        logic_sources = {r.source for r in self.agent.logic_population}
-        grid_sources = {r.source for r in self.agent.grid_population}
+        # Perform exchange
+        coevolving_agent._perform_bidirectional_exchange()
 
-        assert logic_sources == {'logic'}
-        assert grid_sources == {'grid'}
-        assert len(self.agent.logic_population) == 3
-        assert len(self.agent.grid_population) == 3
+        # Calculate expected number of exchanged rules
+        expected_min_exchanged = int(num_rules_per_pop * exchange_rate * 0.8)  # Allow some variance
+        expected_max_exchanged = int(num_rules_per_pop * exchange_rate * 1.2)
 
-    def test_exchange_method_exists(self):
-        """Verify that the exchange method exists and is callable."""
-        assert hasattr(self.agent, '_exchange_rule_sets')
-        assert callable(self.agent._exchange_rule_sets)
+        # Count how many rules from pop1 are now in pop0
+        pop0_rule_ids = {r.rule_id for r in coevolving_agent.sub_populations[0]}
+        exchanged_count = sum(1 for rule_id in pop0_rule_ids if rule_id.startswith("B_"))
 
-    def test_bidirectional_flow(self):
-        """Test that rules flow in both directions during exchange."""
-        # Record initial state
-        initial_logic_ids = {r.rule_id for r in self.agent.logic_population}
-        initial_grid_ids = {r.rule_id for r in self.agent.grid_population}
+        # The exchange should be within reasonable bounds of the expected rate
+        assert expected_min_exchanged <= exchanged_count <= expected_max_exchanged, \
+            f"Exchange count {exchanged_count} outside expected range [{expected_min_exchanged}, {expected_max_exchanged}]"
+
+    def test_no_data_loss_during_exchange(self, coevolving_agent):
+        """
+        Test that no rules are lost during the exchange process.
+        The total number of rules across both populations should remain constant.
+        """
+        # Initialize with distinct rule sets
+        coevolving_agent.sub_populations[0] = [
+            MockRuleSet(f"A_{i}", "logic", i) for i in range(5)
+        ]
+        coevolving_agent.sub_populations[1] = [
+            MockRuleSet(f"B_{i}", "grid", i) for i in range(5)
+        ]
+
+        initial_total = (
+            len(coevolving_agent.sub_populations[0]) +
+            len(coevolving_agent.sub_populations[1])
+        )
 
         # Perform exchange
-        self.agent._exchange_rule_sets()
+        coevolving_agent._perform_bidirectional_exchange()
 
-        # Check that Logic population now has some Grid rules
-        logic_sources = {r.source for r in self.agent.logic_population}
-        grid_sources = {r.source for r in self.agent.grid_population}
+        final_total = (
+            len(coevolving_agent.sub_populations[0]) +
+            len(coevolving_agent.sub_populations[1])
+        )
 
-        # Logic population should now contain 'grid' rules
-        assert 'grid' in logic_sources, "Logic population did not receive Grid rules"
+        assert initial_total == final_total, \
+            f"Rule count changed from {initial_total} to {final_total} during exchange"
 
-        # Grid population should now contain 'logic' rules
-        assert 'logic' in grid_sources, "Grid population did not receive Logic rules"
+    def test_exchange_maintains_population_size_constraints(self, coevolving_agent):
+        """
+        Test that the exchange maintains population sizes within reasonable bounds.
+        Neither population should become empty or excessively large.
+        """
+        # Initialize with equal populations
+        coevolving_agent.sub_populations[0] = [
+            MockRuleSet(f"A_{i}", "logic", i) for i in range(10)
+        ]
+        coevolving_agent.sub_populations[1] = [
+            MockRuleSet(f"B_{i}", "grid", i) for i in range(10)
+        ]
 
-    def test_exchange_preserves_rule_integrity(self):
-        """Test that exchanged rules maintain their original properties."""
-        # Get a rule from Grid population to track
-        original_grid_rule = self.agent.grid_population[0]
-        original_logic_rule = self.agent.logic_population[0]
-
-        # Perform exchange
-        self.agent._exchange_rule_sets()
-
-        # Find the same rule in the Logic population
-        transferred_grid_rule = None
-        for rule in self.agent.logic_population:
-            if rule.rule_id == original_grid_rule.rule_id:
-                transferred_grid_rule = rule
-                break
-
-        # Find the same rule in the Grid population
-        transferred_logic_rule = None
-        for rule in self.agent.grid_population:
-            if rule.rule_id == original_logic_rule.rule_id:
-                transferred_logic_rule = rule
-                break
-
-        # Verify the rules were transferred correctly
-        assert transferred_grid_rule is not None, "Grid rule was not transferred to Logic population"
-        assert transferred_logic_rule is not None, "Logic rule was not transferred to Grid population"
-
-        # Verify properties are preserved
-        assert transferred_grid_rule.source == 'grid'
-        assert transferred_grid_rule.rule_id == original_grid_rule.rule_id
-        assert transferred_grid_rule.priority == original_grid_rule.priority
-
-        assert transferred_logic_rule.source == 'logic'
-        assert transferred_logic_rule.rule_id == original_logic_rule.rule_id
-        assert transferred_logic_rule.priority == original_logic_rule.priority
-
-    def test_exchange_maintains_population_sizes(self):
-        """Test that exchange does not change population sizes."""
-        initial_logic_count = len(self.agent.logic_population)
-        initial_grid_count = len(self.agent.grid_population)
-
-        # Perform exchange multiple times
+        # Perform multiple exchanges
         for _ in range(5):
-            self.agent._exchange_rule_sets()
+            coevolving_agent._perform_bidirectional_exchange()
 
-        # Verify sizes are unchanged
-        assert len(self.agent.logic_population) == initial_logic_count
-        assert len(self.agent.grid_population) == initial_grid_count
+        # Check that both populations still have rules
+        assert len(coevolving_agent.sub_populations[0]) > 0, "Population 0 became empty"
+        assert len(coevolving_agent.sub_populations[1]) > 0, "Population 1 became empty"
 
-    def test_exchange_with_empty_population(self):
-        """Test exchange when one population is empty."""
-        # Clear one population
-        self.agent.logic_population = []
+        # Check that neither population is excessively large (should be roughly equal)
+        pop0_size = len(coevolving_agent.sub_populations[0])
+        pop1_size = len(coevolving_agent.sub_populations[1])
+        total_size = pop0_size + pop1_size
 
-        # Perform exchange
-        self.agent._exchange_rule_sets()
+        # Each population should be between 20% and 80% of total
+        assert 0.2 * total_size <= pop0_size <= 0.8 * total_size, \
+            f"Population 0 size {pop0_size} out of bounds [20%, 80%] of total {total_size}"
+        assert 0.2 * total_size <= pop1_size <= 0.8 * total_size, \
+            f"Population 1 size {pop1_size} out of bounds [20%, 80%] of total {total_size}"
 
-        # Logic population should now have some Grid rules
-        assert len(self.agent.logic_population) > 0
-        assert all(r.source == 'grid' for r in self.agent.logic_population)
-
-        # Grid population should remain unchanged (no rules to receive from Logic)
-        assert len(self.agent.grid_population) == 3
-        assert all(r.source == 'grid' for r in self.agent.grid_population)
-
-    def test_exchange_selection_strategy(self):
-        """Test that the exchange uses the configured selection strategy."""
-        # The exchange should select top-performing rules based on priority
-        # Set up a scenario where high-priority rules should be exchanged
-
-        # Clear and set up specific priorities
-        self.agent.logic_population = [
-            MockRuleSet('logic', 'L_low', 0.1),
-            MockRuleSet('logic', 'L_high', 0.9)
+    def test_exchange_selects_rules_based_on_performance(self, coevolving_agent, mock_config):
+        """
+        Test that the exchange logic considers rule performance when selecting rules.
+        Better performing rules should be more likely to be exchanged.
+        """
+        # Create rules with varying performance scores
+        # Population 0: High performance rules
+        coevolving_agent.sub_populations[0] = [
+            MockRuleSet(f"A_{i}", "logic", i) for i in range(5)
         ]
-        self.agent.grid_population = [
-            MockRuleSet('grid', 'G_low', 0.1),
-            MockRuleSet('grid', 'G_high', 0.9)
+        for rule in coevolving_agent.sub_populations[0]:
+            rule.performance_score = 0.9  # High score
+
+        # Population 1: Low performance rules
+        coevolving_agent.sub_populations[1] = [
+            MockRuleSet(f"B_{i}", "grid", i) for i in range(5)
+        ]
+        for rule in coevolving_agent.sub_populations[1]:
+            rule.performance_score = 0.1  # Low score
+
+        # Perform exchange
+        coevolving_agent._perform_bidirectional_exchange()
+
+        # Check that high-performing rules from pop0 made it to pop1
+        pop1_rule_ids = {r.rule_id for r in coevolving_agent.sub_populations[1]}
+        received_high_perf = any(rule_id.startswith("A_") for rule_id in pop1_rule_ids)
+
+        assert received_high_perf, "High-performing rules from Population 0 were not exchanged to Population 1"
+
+    def test_exchange_with_single_rule_population(self, coevolving_agent):
+        """
+        Test exchange behavior when one population has only one rule.
+        Should still work without errors.
+        """
+        coevolving_agent.sub_populations[0] = [MockRuleSet("A_0", "logic")]
+        coevolving_agent.sub_populations[1] = [
+            MockRuleSet(f"B_{i}", "grid", i) for i in range(5)
         ]
 
+        # Should not raise an exception
+        coevolving_agent._perform_bidirectional_exchange()
+
+        # Both populations should still have rules
+        assert len(coevolving_agent.sub_populations[0]) > 0
+        assert len(coevolving_agent.sub_populations[1]) > 0
+
+    def test_exchange_with_empty_population_raises_error(self, coevolving_agent):
+        """
+        Test that exchange fails gracefully when a population is empty.
+        This should raise a ValueError or similar.
+        """
+        coevolving_agent.sub_populations[0] = []
+        coevolving_agent.sub_populations[1] = [
+            MockRuleSet(f"B_{i}", "grid", i) for i in range(5)
+        ]
+
+        with pytest.raises(ValueError):
+            coevolving_agent._perform_bidirectional_exchange()
+
+    def test_exchange_preserves_rule_identity(self, coevolving_agent):
+        """
+        Test that rules maintain their identity (rule_id, domain) after exchange.
+        Rules should not be modified during the exchange process.
+        """
+        # Create rules with specific attributes
+        original_rules_pop0 = [
+            MockRuleSet(f"A_{i}", "logic", i) for i in range(5)
+        ]
+        original_rules_pop1 = [
+            MockRuleSet(f"B_{i}", "grid", i) for i in range(5)
+        ]
+
+        coevolving_agent.sub_populations[0] = original_rules_pop0
+        coevolving_agent.sub_populations[1] = original_rules_pop1
+
         # Perform exchange
-        self.agent._exchange_rule_sets()
+        coevolving_agent._perform_bidirectional_exchange()
 
-        # Check that high-priority rules were exchanged
-        logic_rule_ids = {r.rule_id for r in self.agent.logic_population}
-        grid_rule_ids = {r.rule_id for r in self.agent.grid_population}
+        # Check that all rules in both populations have valid identities
+        for rule in coevolving_agent.sub_populations[0]:
+            assert hasattr(rule, 'rule_id')
+            assert hasattr(rule, 'domain')
+            assert isinstance(rule.rule_id, str)
+            assert isinstance(rule.domain, str)
 
-        # The Logic population should contain the high-priority Grid rule
-        assert 'G_high' in logic_rule_ids, "High-priority Grid rule was not exchanged to Logic"
+        for rule in coevolving_agent.sub_populations[1]:
+            assert hasattr(rule, 'rule_id')
+            assert hasattr(rule, 'domain')
+            assert isinstance(rule.rule_id, str)
+            assert isinstance(rule.domain, str)
 
-        # The Grid population should contain the high-priority Logic rule
-        assert 'L_high' in grid_rule_ids, "High-priority Logic rule was not exchanged to Grid"
+    def test_exchange_is_deterministic_with_seed(self, mock_config):
+        """
+        Test that exchange is deterministic when using the same seed.
+        Running exchange twice with the same seed should produce identical results.
+        """
+        # Set a fixed seed in config
+        mock_config["seeds"]["base_seed"] = 12345
 
-    def test_multiple_generations_accumulate_exchange(self):
-        """Test that multiple generations continue to exchange rules."""
-        # Run multiple generations
-        for gen in range(3):
-            self.agent._exchange_rule_sets()
+        # Create two agents with the same config
+        agent1 = CoevolvingAgent(mock_config)
+        agent2 = CoevolvingAgent(mock_config)
 
-        # Both populations should contain a mix of rules from both sources
-        logic_sources = {r.source for r in self.agent.logic_population}
-        grid_sources = {r.source for r in self.agent.grid_population}
+        # Initialize with identical populations
+        agent1.sub_populations[0] = [MockRuleSet(f"A_{i}", "logic", i) for i in range(5)]
+        agent1.sub_populations[1] = [MockRuleSet(f"B_{i}", "grid", i) for i in range(5)]
+        agent2.sub_populations[0] = [MockRuleSet(f"A_{i}", "logic", i) for i in range(5)]
+        agent2.sub_populations[1] = [MockRuleSet(f"B_{i}", "grid", i) for i in range(5)]
 
-        assert 'logic' in logic_sources and 'grid' in logic_sources
-        assert 'logic' in grid_sources and 'grid' in grid_sources
+        # Perform exchange on both
+        agent1._perform_bidirectional_exchange()
+        agent2._perform_bidirectional_exchange()
 
-        # Verify that we have a diverse set of rules
-        assert len(self.agent.logic_population) > 1
-        assert len(self.agent.grid_population) > 1
+        # Compare results
+        pop0_ids_1 = {r.rule_id for r in agent1.sub_populations[0]}
+        pop0_ids_2 = {r.rule_id for r in agent2.sub_populations[0]}
+        pop1_ids_1 = {r.rule_id for r in agent1.sub_populations[1]}
+        pop1_ids_2 = {r.rule_id for r in agent2.sub_populations[1]}
 
-    def test_exchange_no_modification_of_originals(self):
-        """Test that the exchange creates new rule objects rather than moving references."""
-        # Store references to original rules
-        original_logic_rules = list(self.agent.logic_population)
-        original_grid_rules = list(self.agent.grid_population)
+        assert pop0_ids_1 == pop0_ids_2, "Population 0 exchange results differ between runs"
+        assert pop1_ids_1 == pop1_ids_2, "Population 1 exchange results differ between runs"
 
-        # Perform exchange
-        self.agent._exchange_rule_sets()
+    def test_exchange_integration_with_agent_lifecycle(self, coevolving_agent):
+        """
+        Test that exchange integrates properly with the agent's lifecycle.
+        Exchange should be callable multiple times as part of the training loop.
+        """
+        # Initialize populations
+        coevolving_agent.sub_populations[0] = [
+            MockRuleSet(f"A_{i}", "logic", i) for i in range(5)
+        ]
+        coevolving_agent.sub_populations[1] = [
+            MockRuleSet(f"B_{i}", "grid", i) for i in range(5)
+        ]
 
-        # Verify that the original lists were modified (they should be)
-        # But the new rules in the opposite population should be copies or new instances
-        # This test ensures we don't accidentally share mutable state
+        # Simulate multiple generations with exchange
+        for generation in range(3):
+            # In a real scenario, there would be evolution here
+            # For this test, we just check that exchange works repeatedly
+            coevolving_agent._perform_bidirectional_exchange()
 
-        # Check that we have mixed sources now
-        logic_sources = {r.source for r in self.agent.logic_population}
-        assert 'grid' in logic_sources
+            # Verify populations are still valid
+            assert len(coevolving_agent.sub_populations[0]) > 0
+            assert len(coevolving_agent.sub_populations[1]) > 0
 
-        grid_sources = {r.source for r in self.agent.grid_population}
-        assert 'logic' in grid_sources
+        # Final check: both populations should have rules from both domains
+        pop0_rule_ids = {r.rule_id for r in coevolving_agent.sub_populations[0]}
+        pop1_rule_ids = {r.rule_id for r in coevolving_agent.sub_populations[1]}
 
-    def test_exchange_with_single_rule(self):
-        """Test exchange when each population has only one rule."""
-        self.agent.logic_population = [MockRuleSet('logic', 'L1', 0.5)]
-        self.agent.grid_population = [MockRuleSet('grid', 'G1', 0.5)]
+        has_a_in_pop0 = any(rule_id.startswith("A_") for rule_id in pop0_rule_ids)
+        has_b_in_pop0 = any(rule_id.startswith("B_") for rule_id in pop0_rule_ids)
+        has_a_in_pop1 = any(rule_id.startswith("A_") for rule_id in pop1_rule_ids)
+        has_b_in_pop1 = any(rule_id.startswith("B_") for rule_id in pop1_rule_ids)
 
-        self.agent._exchange_rule_sets()
-
-        # Both should now have 2 rules (original + exchanged)
-        assert len(self.agent.logic_population) == 2
-        assert len(self.agent.grid_population) == 2
-
-        # Check for bidirectional presence
-        logic_ids = {r.rule_id for r in self.agent.logic_population}
-        grid_ids = {r.rule_id for r in self.agent.grid_population}
-
-        assert 'G1' in logic_ids
-        assert 'L1' in grid_ids
+        assert has_a_in_pop0 and has_b_in_pop0, "Population 0 should have rules from both domains"
+        assert has_a_in_pop1 and has_b_in_pop1, "Population 1 should have rules from both domains"

@@ -35,3 +35,17 @@ T035:
   r: No `docs/` directory or `quickstart.md` file containing the required examples
     of running the three conditions was provided. The claim cannot be verified because
     the necessary documentation artifacts are missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files, refactored modules, or documentation were provided; consequently
+    there is no evidence that type hints or docstrings have been added or completed.
+    The required artifacts for the cleanup task are missing.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no code, configuration changes, profiling data, or\
+    \ benchmark results demonstrating that runs now finish within the CI time limit\
+    \ on limited CPU cores. No performance\u2011optimization artifact (e.g., optimized\
+    \ training loop, parallelism settings, CI timeout adjustments, or timing reports)\
+    \ is present, so the requirement is unmet."

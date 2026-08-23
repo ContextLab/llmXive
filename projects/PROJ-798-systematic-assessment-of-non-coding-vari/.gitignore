@@ -1,50 +1,31 @@
-# Data directories (except checksums)
+# Data directories - exclude raw and derived data
 data/raw/*
 !data/raw/checksums.json
-!data/raw/source_log.txt
 data/derived/*
 
-# Python
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+.pytest_cache/
+.mypy_cache/
 
-# Virtual environments
-venv/
-ENV/
-env/
+# Environment files
+.env
+.env.*
 
-# IDE
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
-# OS
+# Logs and temporary files
+*.log
+.coverage
+htmlcov/
+
+# OS specific
 .DS_Store
 Thumbs.db
-
-# Environment
-.env
-.env.local
-
-# Logs
-*.log
-logs/

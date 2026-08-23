@@ -1,0 +1,462 @@
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Download common human SNPs with minor allele frequency greater than 1%
+    from dbSNP
+  claim_id: c_58219189
+  context: 'T010 [US1] Implement code/data_ingestion.py to download common human SNPs
+    (MAF > 1%) from dbSNP (primary source) using bcftools or FTP. URL: ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_common_human_SNPs_with_minor_allele_frequency_great
+  kind: magnitude
+  raw_text: Download common human SNPs (MAF > 1%) from dbSNP (primary source) using
+    bcftools or FTP.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:46:39Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Download 1000 Genomes Phase 3 VCF common SNPs as fallback
+  claim_id: c_52c619e4
+  context: 'T010a [US1] Implement code/data_ingestion.py to download Genomes Phase
+    3 VCF (common SNPs) as a fallback source. URL: Iterate over human autosomes using
+    the pattern ftp://ftp.1000genomes.ebi.ac.uk/ebi/ftp/1000_Genomes/release/20130502/ALL.chr{1..22}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz
+    to resolve specific file paths.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download Genomes Phase 3 VCF (common SNPs) as a fallback source.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:47:24Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Download JASPAR CORE collection PWMs for human transcription factors
+  claim_id: c_7d466459
+  context: 'T010b [US1] Implement code/data_ingestion.py to download JASPAR PWMs (CORE
+    collection) for human TFs. URL: Vertebrates_non-redundant_pfms_jaspar.txt. Save
+    to data/raw/jaspar_pwm.txt.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_JASPAR_CORE_collection_PWMs_for_human_transcription
+  kind: entity_fact
+  raw_text: Download JASPAR PWMs (CORE collection) for human TFs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:48:01Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Download ENCODE Roadmap promoter and enhancer BED files
+  claim_id: c_fd024c48
+  context: 'T011 [US1] Implement code/data_ingestion.py to download ENCODE/Roadmap
+    promoter and enhancer BED files. URL: (Promoter) and (Enhancer) or specific wgEnRegTss...bed.gz
+    patterns from ENCODE portal.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_ENCODE_Roadmap_promoter_and_enhancer_BED_files
+  kind: entity_fact
+  raw_text: Download ENCODE/Roadmap promoter and enhancer BED files.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:48:51Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Filter SNPs with minor allele frequency less than 1%
+  claim_id: c_5a2cfca8
+  context: T012 [US1] Implement filtering logic in code/data_ingestion.py to exclude
+    SNPs with MAF < 1% and non-ACGT alleles (handle N/indels).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_SNPs_with_minor_allele_frequency_less_than_1%25
+  kind: magnitude
+  raw_text: Filter SNPs to exclude those with MAF < 1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:49:27Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Intersect SNPs with regulatory regions with 1 base pair overlap minimum
+  claim_id: c_7dbee9f2
+  context: "T013 [US1] Implement overlap logic in code/data_ingestion.py using pybedtools\
+    \ to intersect SNPs with regulatory regions (\u22651bp overlap). Dependency: Requires\
+    \ T010 (or T010a) producing data/raw/snps_raw.vcf AND T011 producing data/raw/regulatory_regions.bed."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Intersect_SNPs_with_regulatory_regions_with_1_base_pair_over
+  kind: magnitude
+  raw_text: Intersect SNPs with regulatory regions with at least 1bp overlap.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:49:56Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Select GC matched control regions within 2 percent tolerance
+  claim_id: c_63c3752f
+  context: "T013b [US1] Implement code/data_ingestion.py to generate a GC-matched\
+    \ non-regulatory control set. Logic: Requires completion of T013 to obtain the\
+    \ full set of filtered regulatory SNPs. Calculate GC content of the regulatory\
+    \ set, then select random genomic regions matched for GC content (within \xB1\
+    2%) ensuring no overlap with regulatory regions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Select random genomic regions matched for GC content within \xB12%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:49:56Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Calculate delta score as alternate allele score minus reference allele
+    score
+  claim_id: c_da0413a0
+  context: "T020 [US2] Implement code/scoring.py to compute \u0394 Score = Score_{alt}\
+    \ - Score_{ref} for all valid SNP-TF pairs"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_delta_score_as_alternate_allele_score_minus_refere
+  kind: entity_fact
+  raw_text: "Calculate \u0394 Score = Score_alt - Score_ref for all valid SNP-TF pairs."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:50:50Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Flag large magnitude if absolute delta score is greater than or equal
+    to 2 bits
+  claim_id: c_29980e0a
+  context: "T020b [US2] Implement code/scoring.py to calculate and output a boolean\
+    \ flag is_large_magnitude where true if the absolute \u0394 Score is \u2265 2\
+    \ bits. This flag is for reporting purposes only and MUST NOT be used to filter\
+    \ the input data for statistical tests (per FR-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_large_magnitude_if_absolute_delta_score_is_greater_than
+  kind: magnitude
+  raw_text: "Flag is_large_magnitude as true if the absolute \u0394 Score is \u2265\
+    \ 2 bits."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:51:28Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Perform global label permutation test with 100 iterations
+  claim_id: c_2637527b
+  context: T024 [US3] Implement code/statistics.py to perform global label permutation
+    test (n=100) by shuffling the 'in-GWAS' or 'out-of-GWAS' status labels across
+    the entire dataset simultaneously (NOT within LD blocks) to generate null distributions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform global label permutation test with n=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:52:10Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Flag transcription factors with adjusted p-value less than 0.05
+  claim_id: c_eff23775
+  context: "T025 [US3] Implement code/statistics.py to calculate p-values for each\
+    \ TF's observed \u0394 Score distribution against its null distribution, apply\
+    \ multiple testing correction, and verify/flag TFs where adjusted p-value < 0.05\
+    \ (per SC-002)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_transcription_factors_with_adjusted_p-value_less_than_0
+  kind: magnitude
+  raw_text: Verify/flag TFs where adjusted p-value < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:52:55Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Download GWAS Catalog lead SNPs from EBI FTP repository
+  claim_id: c_62dbda89
+  context: T027 [US3] Implement code/statistics.py to download/load GWAS Catalog lead
+    SNPs (BED format) from ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/ (filtering
+    specifically for 'lead' variants) and calculate overlap enrichment ratios.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_GWAS_Catalog_lead_SNPs_from_EBI_FTP_repository
+  kind: magnitude
+  raw_text: Download GWAS Catalog lead SNPs (BED format) from ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:53:46Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: download common human SNPs with MAF greater than 1% from dbSNP and 1000
+    Genomes
+  claim_id: c_07abdb0a
+  context: 'Goal: Download common human SNPs from dbSNP (primary) and 1000 Genomes
+    (fallback) and filter them to those located within annotated regulatory regions
+    using ENCODE/Roadmap BED files.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_common_human_SNPs_with_MAF_greater_than_1%25_from_dbS
+  kind: magnitude
+  raw_text: download common human SNPs (MAF > 1%) from dbSNP (primary) and 1000 Genomes
+    (fallback)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:56:05Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: download JASPAR CORE collection PWMs for human transcription factors
+  claim_id: c_c308a134
+  context: T010b [US1] Implement code/data_ingestion.py to download JASPAR PWMs (CORE
+    collection) for human TFs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_JASPAR_CORE_collection_PWMs_for_human_transcription
+  kind: entity_fact
+  raw_text: download JASPAR PWMs (CORE collection) for human TFs
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:56:07Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: download ENCODE and Roadmap promoter and enhancer BED files
+  claim_id: c_9c453622
+  context: T011 [US1] Implement code/data_ingestion.py to download ENCODE/Roadmap
+    promoter and enhancer BED files.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_ENCODE_and_Roadmap_promoter_and_enhancer_BED_files
+  kind: entity_fact
+  raw_text: download ENCODE/Roadmap promoter and enhancer BED files
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:56:09Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: exclude SNPs with minor allele frequency less than 1% and non-ACGT alleles
+  claim_id: c_d65bcd20
+  context: T012 [US1] Implement filtering logic in code/data_ingestion.py to exclude
+    SNPs with MAF < 1% and non-ACGT alleles (handle N/indels).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_SNPs_with_minor_allele_frequency_less_than_1%25_and_no
+  kind: magnitude
+  raw_text: exclude SNPs with MAF < 1% and non-ACGT alleles
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:56:52Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: intersect SNPs with regulatory regions using at least 1bp overlap
+  claim_id: c_dfb99be8
+  context: "T013 [US1] Implement overlap logic in code/data_ingestion.py using pybedtools\
+    \ to intersect SNPs with regulatory regions (\u22651bp overlap)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Intersect_SNPs_with_regulatory_regions_using_at_least_1bp_ov
+  kind: magnitude
+  raw_text: "intersect SNPs with regulatory regions using \u22651bp overlap"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:57:23Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: select random genomic regions matched for GC content within plus or minus
+    2 percent
+  claim_id: c_a523dee9
+  context: "T013b [US1] Implement code/data_ingestion.py to generate a GC-matched\
+    \ non-regulatory control set. Logic: Requires completion of T013 to obtain the\
+    \ full set of filtered regulatory SNPs. Calculate GC content of the regulatory\
+    \ set, then select random genomic regions matched for GC content (within \xB1\
+    2%) ensuring no overlap with regulatory regions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "calculate GC content of the regulatory set, then select random genomic\
+    \ regions matched for GC content (within \xB12%)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:57:23Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: validate scoring module dynamically reads PWM length for window size
+  claim_id: c_bf14e7c7
+  context: T022b [US2] Implement tests/unit/test_scoring.py to validate that the scoring
+    module dynamically reads PWM length for window size, satisfying the requirement
+    defined in T005 and FR-002.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_scoring_module_dynamically_reads_PWM_length_for_win
+  kind: entity_fact
+  raw_text: validate that the scoring module dynamically reads PWM length for window
+    size
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:58:12Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: calculate boolean flag is_large_magnitude true if absolute delta score
+    is greater than or equal to 2 bits
+  claim_id: c_5d719598
+  context: "T020b [US2] Implement code/scoring.py to calculate and output a boolean\
+    \ flag is_large_magnitude where true if the absolute \u0394 Score is \u2265 2\
+    \ bits."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calculate_boolean_flag_is_large_magnitude_true_if_absolute_d
+  kind: magnitude
+  raw_text: "calculate and output a boolean flag is_large_magnitude where true if\
+    \ the absolute \u0394 Score is \u2265 2 bits"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:59:18Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: download GWAS Catalog lead SNPs in BED format from ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/
+  claim_id: c_33a1ac75
+  context: T027 [US3] Implement code/statistics.py to download/load GWAS Catalog lead
+    SNPs (BED format) from ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/ (filtering
+    specifically for 'lead' variants) and calculate overlap enrichment ratios.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_GWAS_Catalog_lead_SNPs_in_BED_format_from_ftp://ftp
+  kind: magnitude
+  raw_text: download/load GWAS Catalog lead SNPs (BED format) from ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T04:01:01Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: perform global label permutation test with n equals 100 by shuffling
+    GWAS status labels across entire dataset
+  claim_id: c_2baf6ece
+  context: T024 [US3] Implement code/statistics.py to perform global label permutation
+    test (n=100) by shuffling the 'in-GWAS' or 'out-of-GWAS' status labels across
+    the entire dataset simultaneously (NOT within LD blocks) to generate null distributions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform global label permutation test (n=100) by shuffling the 'in-GWAS'
+    or 'out-of-GWAS' status labels across the entire dataset simultaneously
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T04:01:26Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: verify and flag transcription factors where adjusted p-value is less
+    than 0.05
+  claim_id: c_45b564fb
+  context: "T025 [US3] Implement code/statistics.py to calculate p-values for each\
+    \ TF's observed \u0394 Score distribution against its null distribution, apply\
+    \ multiple testing correction, and verify/flag TFs where adjusted p-value < 0.05\
+    \ (per SC-002)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_and_flag_transcription_factors_where_adjusted_p-value
+  kind: magnitude
+  raw_text: verify/flag TFs where adjusted p-value < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T04:01:28Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: identify high-impact SNPs as top configurable percentage by absolute
+    delta score
+  claim_id: c_96bc6445
+  context: "T026 [US3] Implement code/statistics.py to identify high-impact SNPs (top\
+    \ configurable % by |\u0394 Score|) strictly for reporting purposes."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Identify_high-impact_SNPs_as_top_configurable_percentage_by
+  kind: entity_fact
+  raw_text: "identify high-impact SNPs (top configurable % by |\u0394 Score|)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T04:02:34Z'

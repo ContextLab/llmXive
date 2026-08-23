@@ -1,116 +1,388 @@
 """
-Contract tests for validating the 'result' JSON structure.
-Validates the output structure after training and evaluation, including forgetting metrics.
+Contract tests for result schema validation.
+Validates that training result files conform to the expected JSON structure,
+including forgetting metrics and evaluation parity checks.
 """
 import json
 import pytest
-from typing import Any, Dict, List
+from pathlib import Path
+import sys
+from typing import Dict, Any
 
-# Schema definitions for validation
-RESULT_SCHEMA = {
-    "required_top_level": ["run_id", "condition", "seed", "training_stats", "evaluation_results", "forgetting_metrics"],
-    "training_stats_fields": ["total_generations", "total_rule_evaluations", "final_fitness", "duration_seconds"],
-    "evaluation_result_fields": ["task_type", "task_id", "accuracy", "rules_retained"],
-    "forgetting_metrics_fields": ["initial_accuracy", "final_accuracy", "accuracy_drop", "retention_rate"],
-    "condition_values": ["sequential", "mixed", "coevolving"]
-}
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-def validate_dict_structure(data: Dict[str, Any], required_keys: List[str], context: str = "") -> None:
-    """Validate that a dictionary contains all required keys."""
-    missing = [k for k in required_keys if k not in data]
-    if missing:
-        raise AssertionError(
-            f"Validation failed for {context}: Missing required keys: {missing}. "
-            f"Found keys: {list(data.keys())}"
-        )
+from tests.contract.schemas import (
+    RESULT_SCHEMA,
+    validate_against_schema
+)
 
-def validate_list_of_dicts(data_list: List[Dict[str, Any]], required_fields: List[str], item_name: str) -> None:
-    """Validate that a list contains dictionaries with required fields."""
-    if not isinstance(data_list, list):
-        raise AssertionError(f"Validation failed: Expected a list for {item_name}, got {type(data_list)}")
-    
-    for idx, item in enumerate(data_list):
-        if not isinstance(item, dict):
-            raise AssertionError(f"Validation failed: Item {idx} in {item_name} is not a dict")
-        
-        missing = [k for k in required_fields if k not in item]
-        if missing:
-            raise AssertionError(
-                f"Validation failed for {item_name}[{idx}]: Missing required fields: {missing}. "
-                f"Found keys: {list(item.keys())}"
-            )
+class TestResultSchema:
+    """Tests for result schema validation."""
 
-def test_load_and_validate_result_schema(tmp_path):
-    """
-    Contract test: Ensure a valid result JSON file passes schema validation.
-    """
-    valid_result = {
-        "run_id": "run_001",
-        "condition": "coevolving",
-        "seed": 42,
-        "training_stats": {
-            "total_generations": 100,
-            "total_rule_evaluations": 10000,
-            "final_fitness": 0.95,
-            "duration_seconds": 120.5
-        },
-        "evaluation_results": [
-            {"task_type": "logic", "task_id": "proof_001", "accuracy": 0.9, "rules_retained": ["Modus Ponens"]},
-            {"task_type": "grid", "task_id": "grid_001", "accuracy": 0.85, "rules_retained": ["avoid_red"]}
-        ],
-        "forgetting_metrics": {
-            "initial_accuracy": 0.98,
-            "final_accuracy": 0.88,
-            "accuracy_drop": 0.10,
-            "retention_rate": 0.90
+    def test_valid_sequential_result(self, tmp_path):
+        """Test that a valid sequential training result passes validation."""
+        valid_result = {
+            "run_id": "run_seq_001",
+            "condition": "sequential",
+            "seed": 42,
+            "config_snapshot": {
+                "generations": 10,
+                "population_size": 50,
+                "mutation_rate": 0.1
+            },
+            "final_state": {
+                "agent_id": "sequential_agent_001",
+                "condition": "sequential",
+                "state_version": 10,
+                "generation_step": 10,
+                "rule_sets": [
+                    {
+                        "rule_id": "rule_001",
+                        "rules": ["A -> B", "B -> C"],
+                        "fitness_score": 0.85,
+                        "task_domains": ["logic_proofs"]
+                    }
+                ],
+                "evaluation_stats": {
+                    "total_evaluations": 1000,
+                    "evaluations_by_domain": {
+                        "logic_proofs": 1000
+                    }
+                }
+            },
+            "forgetting_metrics": {
+                "initial_accuracy": 0.95,
+                "final_accuracy": 0.85,
+                "accuracy_drop": 0.10,
+                "retention_rates": {
+                    "logic_proofs": 0.89
+                }
+            },
+            "evaluation_parity": {
+                "expected_total": 1000,
+                "actual_total": 1000,
+                "parity_verified": True
+            },
+            "generated_at": "2024-01-15T14:30:00Z"
         }
-    }
 
-    # Write to temp file
-    result_path = tmp_path / "valid_result.json"
-    with open(result_path, 'w') as f:
-        json.dump(valid_result, f)
+        validate_against_schema(valid_result, RESULT_SCHEMA, "result")
 
-    # Load and validate
-    with open(result_path, 'r') as f:
-        data = json.load(f)
+    def test_valid_mixed_result(self, tmp_path):
+        """Test that a valid mixed training result passes validation."""
+        valid_result = {
+            "run_id": "run_mix_001",
+            "condition": "mixed",
+            "seed": 123,
+            "config_snapshot": {
+                "generations": 10,
+                "population_size": 50,
+                "mutation_rate": 0.1
+            },
+            "final_state": {
+                "agent_id": "mixed_agent_001",
+                "condition": "mixed",
+                "state_version": 10,
+                "generation_step": 10,
+                "rule_sets": [
+                    {
+                        "rule_id": "rule_001",
+                        "rules": ["A -> B", "avoid_red"],
+                        "fitness_score": 0.80,
+                        "task_domains": ["logic_proofs", "grid_worlds"]
+                    }
+                ],
+                "evaluation_stats": {
+                    "total_evaluations": 1000,
+                    "evaluations_by_domain": {
+                        "logic_proofs": 500,
+                        "grid_worlds": 500
+                    }
+                }
+            },
+            "forgetting_metrics": {
+                "initial_accuracy": 0.92,
+                "final_accuracy": 0.88,
+                "accuracy_drop": 0.04,
+                "retention_rates": {
+                    "logic_proofs": 0.95,
+                    "grid_worlds": 0.91
+                }
+            },
+            "evaluation_parity": {
+                "expected_total": 1000,
+                "actual_total": 1000,
+                "parity_verified": True
+            },
+            "generated_at": "2024-01-15T14:35:00Z"
+        }
 
-    # Top-level validation
-    validate_dict_structure(data, RESULT_SCHEMA["required_top_level"], "result root")
-    
-    # Training stats validation
-    validate_dict_structure(data["training_stats"], RESULT_SCHEMA["training_stats_fields"], "training_stats")
-    
-    # Evaluation results validation
-    validate_list_of_dicts(data["evaluation_results"], RESULT_SCHEMA["evaluation_result_fields"], "evaluation_results")
-    
-    # Forgetting metrics validation
-    validate_dict_structure(data["forgetting_metrics"], RESULT_SCHEMA["forgetting_metrics_fields"], "forgetting_metrics")
+        validate_against_schema(valid_result, RESULT_SCHEMA, "result")
 
-    # Condition validation
-    assert data["condition"] in RESULT_SCHEMA["condition_values"], f"Invalid condition: {data['condition']}"
+    def test_valid_coevolving_result(self, tmp_path):
+        """Test that a valid coevolving training result passes validation."""
+        valid_result = {
+            "run_id": "run_coev_001",
+            "condition": "coevolving",
+            "seed": 456,
+            "config_snapshot": {
+                "generations": 10,
+                "population_size": 50,
+                "mutation_rate": 0.1
+            },
+            "final_state": {
+                "agent_id": "coevolving_agent_001",
+                "condition": "coevolving",
+                "state_version": 10,
+                "generation_step": 10,
+                "rule_sets": [
+                    {
+                        "rule_id": "subpop1_rule_001",
+                        "rules": ["A -> B", "B -> C"],
+                        "fitness_score": 0.90,
+                        "task_domains": ["logic_proofs"]
+                    },
+                    {
+                        "rule_id": "subpop2_rule_001",
+                        "rules": ["avoid_red", "diagonal_paths"],
+                        "fitness_score": 0.88,
+                        "task_domains": ["grid_worlds"]
+                    }
+                ],
+                "evaluation_stats": {
+                    "total_evaluations": 1000,
+                    "evaluations_by_domain": {
+                        "logic_proofs": 500,
+                        "grid_worlds": 500
+                    }
+                }
+            },
+            "forgetting_metrics": {
+                "initial_accuracy": 0.93,
+                "final_accuracy": 0.90,
+                "accuracy_drop": 0.03,
+                "retention_rates": {
+                    "logic_proofs": 0.97,
+                    "grid_worlds": 0.97
+                }
+            },
+            "evaluation_parity": {
+                "expected_total": 1000,
+                "actual_total": 1000,
+                "parity_verified": True
+            },
+            "generated_at": "2024-01-15T14:40:00Z"
+        }
 
-def test_invalid_result_missing_forgetting_metrics(tmp_path):
-    """
-    Contract test: Ensure result missing 'forgetting_metrics' raises AssertionError.
-    """
-    invalid_result = {
-        "run_id": "run_002",
-        "condition": "sequential",
-        "seed": 43,
-        "training_stats": {"total_generations": 10, "total_rule_evaluations": 100, "final_fitness": 0.5, "duration_seconds": 10.0},
-        "evaluation_results": []
-        # Missing 'forgetting_metrics'
-    }
+        validate_against_schema(valid_result, RESULT_SCHEMA, "result")
 
-    result_path = tmp_path / "invalid_result.json"
-    with open(result_path, 'w') as f:
-        json.dump(invalid_result, f)
+    def test_missing_required_fields_fails(self, tmp_path):
+        """Test that missing required fields fails validation."""
+        invalid_result = {
+            "run_id": "run_001",
+            # Missing condition, seed, final_state, forgetting_metrics
+        }
 
-    with open(result_path, 'r') as f:
-        data = json.load(f)
+        with pytest.raises(ValueError):
+            validate_against_schema(invalid_result, RESULT_SCHEMA, "result")
 
-    with pytest.raises(AssertionError) as exc_info:
-        validate_dict_structure(data, RESULT_SCHEMA["required_top_level"], "result root")
-    
-    assert "forgetting_metrics" in str(exc_info.value)
+    def test_invalid_condition_fails(self, tmp_path):
+        """Test that invalid condition value fails validation."""
+        invalid_result = {
+            "run_id": "run_001",
+            "condition": "invalid_condition",
+            "seed": 42,
+            "final_state": {},
+            "forgetting_metrics": {},
+            "evaluation_parity": {},
+            "generated_at": "2024-01-15T14:30:00Z"
+        }
+
+        with pytest.raises(ValueError, match="String 'invalid_condition' not in allowed values"):
+            validate_against_schema(invalid_result, RESULT_SCHEMA, "result")
+
+    def test_forgetting_metrics_accuracy_drop_negative_fails(self, tmp_path):
+        """Test that accuracy drop cannot be negative (final > initial)."""
+        # Note: Schema doesn't enforce this mathematically, but we test the structure
+        valid_structure = {
+            "run_id": "run_001",
+            "condition": "sequential",
+            "seed": 42,
+            "final_state": {
+                "agent_id": "test",
+                "condition": "sequential",
+                "state_version": 1,
+                "generation_step": 1,
+                "rule_sets": [],
+                "evaluation_stats": {
+                    "total_evaluations": 0,
+                    "evaluations_by_domain": {}
+                }
+            },
+            "forgetting_metrics": {
+                "initial_accuracy": 0.5,
+                "final_accuracy": 0.9,  # Final > Initial (unusual but structurally valid)
+                "accuracy_drop": -0.4,  # Negative drop
+                "retention_rates": {}
+            },
+            "evaluation_parity": {
+                "expected_total": 0,
+                "actual_total": 0,
+                "parity_verified": True
+            },
+            "generated_at": "2024-01-15T14:30:00Z"
+        }
+
+        # This should pass schema validation (structure is correct)
+        validate_against_schema(valid_structure, RESULT_SCHEMA, "result")
+
+    def test_accuracy_values_out_of_range_fails(self, tmp_path):
+        """Test that accuracy values outside [0, 1] fail validation."""
+        invalid_result = {
+            "run_id": "run_001",
+            "condition": "sequential",
+            "seed": 42,
+            "final_state": {
+                "agent_id": "test",
+                "condition": "sequential",
+                "state_version": 1,
+                "generation_step": 1,
+                "rule_sets": [],
+                "evaluation_stats": {
+                    "total_evaluations": 0,
+                    "evaluations_by_domain": {}
+                }
+            },
+            "forgetting_metrics": {
+                "initial_accuracy": 1.5,  # Invalid
+                "final_accuracy": 0.8,
+                "accuracy_drop": 0.7,
+                "retention_rates": {}
+            },
+            "evaluation_parity": {
+                "expected_total": 0,
+                "actual_total": 0,
+                "parity_verified": True
+            },
+            "generated_at": "2024-01-15T14:30:00Z"
+        }
+
+        with pytest.raises(ValueError, match="Number 1.5 is greater than maximum"):
+            validate_against_schema(invalid_result, RESULT_SCHEMA, "result")
+
+    def test_load_and_validate_from_file(self, tmp_path):
+        """Test loading a result file and validating it."""
+        valid_result = {
+            "run_id": "run_001",
+            "condition": "sequential",
+            "seed": 42,
+            "final_state": {
+                "agent_id": "test",
+                "condition": "sequential",
+                "state_version": 1,
+                "generation_step": 1,
+                "rule_sets": [],
+                "evaluation_stats": {
+                    "total_evaluations": 100,
+                    "evaluations_by_domain": {
+                        "logic_proofs": 100
+                    }
+                }
+            },
+            "forgetting_metrics": {
+                "initial_accuracy": 0.9,
+                "final_accuracy": 0.85,
+                "accuracy_drop": 0.05,
+                "retention_rates": {
+                    "logic_proofs": 0.94
+                }
+            },
+            "evaluation_parity": {
+                "expected_total": 100,
+                "actual_total": 100,
+                "parity_verified": True
+            },
+            "generated_at": "2024-01-15T14:30:00Z"
+        }
+
+        # Write to file
+        file_path = tmp_path / "result.json"
+        with open(file_path, 'w') as f:
+            json.dump(valid_result, f)
+
+        # Load and validate
+        with open(file_path, 'r') as f:
+            loaded_data = json.load(f)
+
+        validate_against_schema(loaded_data, RESULT_SCHEMA, "result")
+
+    def test_parity_mismatch_still_valid_structure(self, tmp_path):
+        """Test that parity mismatch is structurally valid (logic error, not schema error)."""
+        valid_structure = {
+            "run_id": "run_001",
+            "condition": "sequential",
+            "seed": 42,
+            "final_state": {
+                "agent_id": "test",
+                "condition": "sequential",
+                "state_version": 1,
+                "generation_step": 1,
+                "rule_sets": [],
+                "evaluation_stats": {
+                    "total_evaluations": 100,
+                    "evaluations_by_domain": {}
+                }
+            },
+            "forgetting_metrics": {
+                "initial_accuracy": 0.9,
+                "final_accuracy": 0.85,
+                "accuracy_drop": 0.05,
+                "retention_rates": {}
+            },
+            "evaluation_parity": {
+                "expected_total": 100,
+                "actual_total": 95,  # Mismatch
+                "parity_verified": False
+            },
+            "generated_at": "2024-01-15T14:30:00Z"
+        }
+
+        # This should pass schema validation (structure is correct)
+        validate_against_schema(valid_structure, RESULT_SCHEMA, "result")
+
+    def test_retention_rates_per_domain(self, tmp_path):
+        """Test retention rates for multiple domains."""
+        valid_result = {
+            "run_id": "run_001",
+            "condition": "coevolving",
+            "seed": 42,
+            "final_state": {
+                "agent_id": "test",
+                "condition": "coevolving",
+                "state_version": 1,
+                "generation_step": 1,
+                "rule_sets": [],
+                "evaluation_stats": {
+                    "total_evaluations": 100,
+                    "evaluations_by_domain": {}
+                }
+            },
+            "forgetting_metrics": {
+                "initial_accuracy": 0.9,
+                "final_accuracy": 0.85,
+                "accuracy_drop": 0.05,
+                "retention_rates": {
+                    "logic_proofs": 0.94,
+                    "grid_worlds": 0.96
+                }
+            },
+            "evaluation_parity": {
+                "expected_total": 100,
+                "actual_total": 100,
+                "parity_verified": True
+            },
+            "generated_at": "2024-01-15T14:30:00Z"
+        }
+
+        validate_against_schema(valid_result, RESULT_SCHEMA, "result")

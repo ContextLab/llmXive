@@ -1,1 +1,3 @@
-"""Contract tests package."""
+"""
+Contract tests to verify adherence to specifications and schemas.
+"""

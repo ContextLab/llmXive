@@ -1,30 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `data/raw/`, `data/derived/`,
-    `tests/`) is provided; the implementer did not supply any artifact showing that
-    the project structure has been created.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file was presented in the evidence, and therefore we cannot confirm
-    that a file exists containing the required exclusion patterns (`data/raw/*` except
-    checksums, `data/derived/*`, `__pycache__`, and `.env`). The implementer must
-    provide the actual `.gitignore` content showing these entries.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was presented showing that the `tests/unit/`, `tests/integration/`,\
-    \ and `tests/contract/` directories exist, nor that each contains an `__init__.py`\
-    \ file. The implementer\u2019s claim cannot be verified without these artifacts."
-T010:
-  c: false
-  h: 41d263da7fc7bdf8cc411734b9f9a0867c37e9a4a166e66bfe0079e725074cdd
-  r: "The provided `code/data_ingestion.py` contains generic helper functions but\
-    \ does not include logic to download the specific dbSNP VCF from the given FTP\
-    \ URL, filter for MAF\u202F>\u202F1%, or invoke a fallback (T010a) when unavailable.\
-    \ Moreover, the required log file `data/raw/source_log.txt` is absent. These missing\
-    \ pieces mean the task\u2019s core requirements are not satisfied."
 T010b:
   c: false
   h: 95f6a0ebd0e767f54b537901ae7c4d637f616a2f74b7d567a3cbc4ea0f76467b

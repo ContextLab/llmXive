@@ -1,3 +1,3 @@
 """
-Test suite for the Systematic Assessment of Non-Coding Variant Effects pipeline.
+Test suite for the llmXive automated science pipeline.
 """
