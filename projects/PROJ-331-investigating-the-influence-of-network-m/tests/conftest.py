@@ -1,263 +1,122 @@
-"""
-Pytest configuration and fixtures for CI-safe testing of the motif-rsfc pipeline.
-
-This module provides:
-- Real data fixtures generated on-the-fly using numpy (deterministic seed).
-- Mock paths that point to temporary directories created per test session.
-- Helpers to generate valid adjacency matrices and motif counts for unit tests.
-"""
 import os
+import sys
 import json
-import tempfile
-import shutil
-from pathlib import Path
-from typing import Dict, Any, List, Tuple
-
 import pytest
 import numpy as np
-import networkx as nx
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
-# Import project utilities to ensure consistency with the pipeline
-from utils import safe_mkdir, safe_write_json, safe_write_text, compute_sha256, ConfigurationError
-
-
-# --------------------------------------------------------------------------
-# Session-scoped fixtures for temporary directories
-# --------------------------------------------------------------------------
-
-@pytest.fixture(scope="session")
-def test_root() -> Path:
-    """Create a temporary root directory for all test artifacts."""
-    root = Path(tempfile.mkdtemp(prefix="motif_rsfc_test_"))
-    yield root
-    # Cleanup after all tests in the session
-    shutil.rmtree(root, ignore_errors=True)
-
-@pytest.fixture(scope="session")
-def data_raw_dir(test_root: Path) -> Path:
-    """Path to data/raw for test fixtures."""
-    d = test_root / "data" / "raw"
-    safe_mkdir(d)
-    return d
-
-@pytest.fixture(scope="session")
-def data_processed_dir(test_root: Path) -> Path:
-    """Path to data/processed for test fixtures."""
-    d = test_root / "data" / "processed"
-    safe_mkdir(d)
-    return d
-
-@pytest.fixture(scope="session")
-def data_logs_dir(test_root: Path) -> Path:
-    """Path to data/logs for test fixtures."""
-    d = test_root / "data" / "logs"
-    safe_mkdir(d)
-    return d
-
-@pytest.fixture(scope="session")
-def results_dir(test_root: Path) -> Path:
-    """Path to results for test fixtures."""
-    d = test_root / "results"
-    safe_mkdir(d)
-    return d
-
-# --------------------------------------------------------------------------
-# Data Generation Helpers (Deterministic)
-# --------------------------------------------------------------------------
-
-def _generate_binary_adjacency(n_nodes: int, density: float, seed: int = 42) -> np.ndarray:
-    """
-    Generate a random binary directed adjacency matrix with a target density.
-    Self-loops are excluded.
-    """
-    rng = np.random.default_rng(seed)
-    adj = rng.random((n_nodes, n_nodes)) < density
-    np.fill_diagonal(adj, False)
-    return adj.astype(float)
-
-def _generate_weighted_adjacency(binary_adj: np.ndarray, seed: int = 42) -> np.ndarray:
-    """
-    Generate a weighted adjacency matrix from a binary one.
-    Non-zero entries get a random weight between 1 and 100 (streamline count).
-    """
-    rng = np.random.default_rng(seed)
-    weights = rng.integers(1, 101, size=binary_adj.shape)
-    weighted = binary_adj * weights
-    return weighted.astype(float)
-
-def _generate_timeseries(n_nodes: int, n_timepoints: int, seed: int = 42) -> np.ndarray:
-    """
-    Generate synthetic BOLD-like time series for n_nodes.
-    Uses a simple autoregressive process to induce some correlation structure.
-    """
-    rng = np.random.default_rng(seed)
-    ts = rng.standard_normal((n_nodes, n_timepoints))
-    # Simple smoothing to mimic BOLD
-    for i in range(1, n_timepoints):
-        ts[:, i] = 0.5 * ts[:, i] + 0.5 * ts[:, i-1]
-    return ts
-
-# --------------------------------------------------------------------------
-# Fixtures for Common Test Data
-# --------------------------------------------------------------------------
-
-@pytest.fixture
-def small_binary_adj(test_root: Path) -> Path:
-    """
-    Fixture: A small (10x10) binary adjacency matrix saved as .npy.
-    Used for motif enumeration tests where speed is critical.
-    """
-    n = 10
-    density = 0.3
-    adj = _generate_binary_adjacency(n, density, seed=42)
-    path = test_root / "small_binary_adj.npy"
-    np.save(path, adj)
-    return path
-
-@pytest.fixture
-def small_weighted_adj(test_root: Path) -> Path:
-    """
-    Fixture: A small (10x10) weighted adjacency matrix saved as .npy.
-    Derived from small_binary_adj for consistency.
-    """
-    binary_path = test_root / "small_binary_adj.npy"
-    if not binary_path.exists():
-        # Generate on the fly if small_binary_adj wasn't created
-        binary_adj = _generate_binary_adjacency(10, 0.3, seed=42)
-        np.save(binary_path, binary_adj)
-    else:
-        binary_adj = np.load(binary_path)
-    
-    weighted = _generate_weighted_adjacency(binary_adj, seed=42)
-    path = test_root / "small_weighted_adj.npy"
-    np.save(path, weighted)
-    return path
-
-@pytest.fixture
-def mock_timeseries(test_root: Path) -> Path:
-    """
-    Fixture: Synthetic BOLD time series (10 regions x 200 timepoints) saved as .npy.
-    """
-    ts = _generate_timeseries(10, 200, seed=42)
-    path = test_root / "mock_timeseries.npy"
-    np.save(path, ts)
-    return path
-
-@pytest.fixture
-def mock_atlas_nii(test_root: Path) -> Path:
-    """
-    Fixture: A minimal mock atlas file (nii.gz) for parcellation tests.
-    Since we can't easily generate a real nii.gz without nibabel heavy deps in conftest,
-    we create a text placeholder that the test logic can verify existence of,
-    or we use a dummy numpy array saved as .nii.gz if nibabel is available.
-    
-    For this specific task (conftest setup), we ensure the path exists and is valid for
-    tests that check file existence or read metadata.
-    """
-    # Try to create a real nii.gz if nibabel is present, otherwise a dummy file
-    try:
-        import nibabel as nib
-        import numpy as np
-        data = np.zeros((20, 20, 20), dtype=np.int16)
-        # Assign some regions
-        data[5:10, 5:10, 5:10] = 1
-        data[10:15, 5:10, 5:10] = 2
-        img = nib.Nifti1Image(data, np.eye(4))
-        path = test_root / "mock_atlas.nii.gz"
-        nib.save(img, str(path))
-    except ImportError:
-        # Fallback: create a text file that tests can check for existence
-        # Tests using this fixture should handle the case where it's not a real nii
-        path = test_root / "mock_atlas.nii.gz"
-        safe_write_text(path, "MOCK_ATLAS_PLACEHOLDER")
-    
-    return path
-
-@pytest.fixture
-def mock_streamlines_trk(test_root: Path) -> Path:
-    """
-    Fixture: A mock streamlines file (trk).
-    Similar to mock_atlas, we create a placeholder or a minimal valid file.
-    """
-    try:
-        import dipy.io.streamline as dsi
-        import dipy.tracking.streamline as dts
-        import numpy as np
-        
-        # Create a few dummy streamlines
-        streamlines = [np.random.rand(10, 3).astype(np.float32) for _ in range(5)]
-        path = test_root / "mock_streamlines.trk"
-        
-        # dipy requires a header for .trk. We'll create a minimal one.
-        # Note: Creating a valid .trk header is complex, so we might just save a numpy array
-        # and have tests handle the "mock" nature, or use a simpler format if possible.
-        # For CI safety, we'll save a .npy of streamlines and rename it, 
-        # assuming the download/preprocess logic in tests can handle a "mock" flag or
-        # the test logic specifically checks for the file existence.
-        
-        # Better approach for a pure fixture: Save a simple numpy array that represents streamlines
-        # and let the test logic know it's a mock.
-        # However, the task asks for a .trk file.
-        # Let's try to write a minimal valid .trk if dipy is available.
-        # If not, we fall back to a text placeholder.
-        
-        # Minimal header creation is tricky without full dipy setup.
-        # We will save a numpy array of streamlines and rename it.
-        # Tests must be aware this is a mock.
-        np.save(str(path), streamlines) 
-        # Note: This is a workaround. A real .trk is binary.
-        # If tests strictly require a valid .trk header, this might fail, 
-        # but for "mock data fixtures for CI-safe testing" of logic that checks paths,
-        # this suffices.
-    except ImportError:
-        path = test_root / "mock_streamlines.trk"
-        safe_write_text(path, "MOCK_STREAMLINES_PLACEHOLDER")
-    
-    return path
-
-@pytest.fixture
-def mock_subject_data_json(test_root: Path) -> Path:
-    """
-    Fixture: A JSON file mapping subject IDs to their mock data paths.
-    """
-    data = {
-        "sub-001": {
-            "dwi_path": str(test_root / "mock_streamlines.trk"),
-            "rsfmri_path": str(test_root / "mock_timeseries.npy")
-        },
-        "sub-002": {
-            "dwi_path": str(test_root / "mock_streamlines.trk"),
-            "rsfmri_path": str(test_root / "mock_timeseries.npy")
-        }
-    }
-    path = test_root / "subject_manifest.json"
-    safe_write_json(path, data)
-    return path
-
-# --------------------------------------------------------------------------
-# Conftest specific configurations
-# --------------------------------------------------------------------------
-
-def pytest_configure(config):
-    """Register custom markers."""
-    config.addinivalue_line("markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')")
-    config.addinivalue_line("markers", "integration: marks tests as integration tests")
-
+# Add the code directory to the path for imports
 @pytest.fixture(autouse=True)
-def setup_env_vars(test_root: Path):
-    """
-    Automatically set environment variables for the test run to point to
-    the temporary test directories. This ensures the pipeline code uses
-    the correct paths without hardcoding.
-    """
-    old_env = os.environ.copy()
-    try:
-        os.environ["PROJECT_ROOT"] = str(test_root)
-        os.environ["DATA_RAW_DIR"] = str(test_root / "data" / "raw")
-        os.environ["DATA_PROCESSED_DIR"] = str(test_root / "data" / "processed")
-        os.environ["DATA_LOGS_DIR"] = str(test_root / "data" / "logs")
-        os.environ["RESULTS_DIR"] = str(test_root / "results")
-        yield
-    finally:
-        os.environ.clear()
-        os.environ.update(old_env)
+def setup_code_path():
+    """Ensure the code directory is in the Python path."""
+    code_dir = Path(__file__).parent.parent / 'code'
+    if str(code_dir) not in sys.path:
+        sys.path.insert(0, str(code_dir))
+    yield
+    if str(code_dir) in sys.path:
+        sys.path.remove(str(code_dir))
+
+@pytest.fixture
+def mock_config(tmp_path):
+    """Create a mock configuration with temporary directories."""
+    config_data = {
+        'DATA_RAW_DIR': str(tmp_path / 'data' / 'raw'),
+        'DATA_PROCESSED_DIR': str(tmp_path / 'data' / 'processed'),
+        'DATA_LOGS_DIR': str(tmp_path / 'data' / 'logs'),
+        'RESULTS_DIR': str(tmp_path / 'results'),
+        'FIGURES_DIR': str(tmp_path / 'figures'),
+        'DOCS_DIR': str(tmp_path / 'docs'),
+        'STATE_DIR': str(tmp_path / 'state'),
+        'SEED': 42,
+        'NUM_MOTIFS': 13,
+        'PERMUTATIONS': 1000,
+        'ALPHA': 0.05
+    }
+    
+    # Create directories
+    for dir_path in [
+        config_data['DATA_RAW_DIR'],
+        config_data['DATA_PROCESSED_DIR'],
+        config_data['DATA_LOGS_DIR'],
+        config_data['RESULTS_DIR'],
+        config_data['FIGURES_DIR'],
+        config_data['DOCS_DIR'],
+        config_data['STATE_DIR']
+    ]:
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
+    
+    # Create a mock checksums file
+    checksums_file = Path(config_data['DATA_RAW_DIR']) / '.checksums.json'
+    with open(checksums_file, 'w') as f:
+        json.dump({}, f)
+    
+    with patch('config.DATA_RAW_DIR', config_data['DATA_RAW_DIR']):
+        with patch('config.DATA_PROCESSED_DIR', config_data['DATA_PROCESSED_DIR']):
+            with patch('config.DATA_LOGS_DIR', config_data['DATA_LOGS_DIR']):
+                with patch('config.RESULTS_DIR', config_data['RESULTS_DIR']):
+                    with patch('config.FIGURES_DIR', config_data['FIGURES_DIR']):
+                        with patch('config.DOCS_DIR', config_data['DOCS_DIR']):
+                            with patch('config.STATE_DIR', config_data['STATE_DIR']):
+                                with patch('config.SEED', config_data['SEED']):
+                                    with patch('config.NUM_MOTIFS', config_data['NUM_MOTIFS']):
+                                        with patch('config.PERMUTATIONS', config_data['PERMUTATIONS']):
+                                            with patch('config.ALPHA', config_data['ALPHA']):
+                                                yield config_data
+
+@pytest.fixture
+def mock_logger(tmp_path):
+    """Create a mock logger that writes to a file."""
+    log_file = tmp_path / 'test.log'
+    
+    with patch('utils.get_logger') as mock_get_logger:
+        mock_logger = MagicMock()
+        mock_logger.info = lambda msg: log_file.write(f"INFO: {msg}\n")
+        mock_logger.warning = lambda msg: log_file.write(f"WARNING: {msg}\n")
+        mock_logger.error = lambda msg: log_file.write(f"ERROR: {msg}\n")
+        mock_logger.debug = lambda msg: log_file.write(f"DEBUG: {msg}\n")
+        mock_get_logger.return_value = mock_logger
+        yield mock_logger
+
+@pytest.fixture
+def sample_binary_adjacency():
+    """Create a sample binary adjacency matrix for testing."""
+    adj = np.array([
+        [0, 1, 1, 0, 1],
+        [1, 0, 1, 1, 0],
+        [1, 1, 0, 1, 1],
+        [0, 1, 1, 0, 1],
+        [1, 0, 1, 1, 0]
+    ], dtype=float)
+    return adj
+
+@pytest.fixture
+def sample_weighted_adjacency():
+    """Create a sample weighted adjacency matrix for testing."""
+    adj = np.array([
+        [0, 2.5, 3.1, 0, 1.8],
+        [2.5, 0, 4.2, 3.7, 0],
+        [3.1, 4.2, 0, 2.9, 5.1],
+        [0, 3.7, 2.9, 0, 4.0],
+        [1.8, 0, 5.1, 4.0, 0]
+    ], dtype=float)
+    return adj
+
+@pytest.fixture
+def sample_bold_data():
+    """Create sample BOLD time series data."""
+    # Shape: (time_points, regions)
+    n_timepoints = 200
+    n_regions = 10
+    np.random.seed(42)
+    bold_data = np.random.randn(n_timepoints, n_regions)
+    return bold_data
+
+@pytest.fixture
+def mock_hcp_access():
+    """Mock HCP S3 access to avoid actual AWS calls."""
+    with patch('download.boto3.client') as mock_boto:
+        mock_client = MagicMock()
+        mock_client.head_object.return_value = {'ContentLength': 100}
+        mock_boto.return_value = mock_client
+        yield mock_client

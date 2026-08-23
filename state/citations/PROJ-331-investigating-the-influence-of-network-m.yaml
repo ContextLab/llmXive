@@ -20,3 +20,26 @@
   verification_status: pending
   verified_against_url: https://openneuro.org/datasets/ds000222
   verified_at: '2026-08-21T21:04:57.273065Z'
+- artifact_hash: f5f254764b72ea5ec7f613feffdc5ca386afa07f6e466323bc1a30c5584f9c33
+  artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/docs/USAGE_GUIDE.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Connectome - Homepage
+  kind: url
+  value: https://www.humanconnectome.org/
+  verification_status: pending
+  verified_against_url: https://www.humanconnectome.org/
+  verified_at: '2026-08-23T02:15:25.539693Z'
+- artifact_hash: f5f254764b72ea5ec7f613feffdc5ca386afa07f6e466323bc1a30c5584f9c33
+  artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/docs/USAGE_GUIDE.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "CBIG/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal\
+    \ at master \xB7 ThomasYeoLab/CBIG \xB7 GitHub"
+  kind: url
+  value: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal
+  verification_status: pending
+  verified_against_url: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal
+  verified_at: '2026-08-23T02:15:25.539693Z'

@@ -1,26 +1,45 @@
+"""
+Configuration module for the motif-rsfc project.
+Defines paths, seeds, and constants used throughout the pipeline.
+"""
 import os
 from pathlib import Path
 
-# Project Root
+# Project root
 PROJECT_ROOT = Path(__file__).parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+DATA_DIR = PROJECT_ROOT / "data"
+RESULTS_DIR = PROJECT_ROOT / "results"
+STATE_DIR = PROJECT_ROOT / "state"
+LOGS_DIR = DATA_DIR / "logs"
+PROCESSED_DIR = DATA_DIR / "processed"
+RAW_DIR = DATA_DIR / "raw"
 
-# Directories
-DIRS = {
-    "code": PROJECT_ROOT / "code",
-    "tests": PROJECT_ROOT / "tests",
-    "data_raw": PROJECT_ROOT / "data" / "raw",
-    "data_processed": PROJECT_ROOT / "data" / "processed",
-    "data_logs": PROJECT_ROOT / "data" / "logs",
-    "results": PROJECT_ROOT / "results",
-    "state": PROJECT_ROOT / "state",
-}
+# Random seed for reproducibility
+RANDOM_SEED = 42
 
-# Constants
-SEED = 42
-DEFAULT_DENSITY_THRESHOLDS = [0.1, 0.2, 0.3]
+# Performance constraints
+MOTIF_TIMEOUT_SECONDS = 300  # SC-002: Max 300s per subject
+
+# Statistical parameters
+BONFERRONI_ALPHA = 0.05
+PERMUTATION_COUNT = 1000
+VIF_THRESHOLD = 5.0
 
 def ensure_dirs():
-    """Creates all required project directories if they don't exist."""
-    for dir_path in DIRS.values():
-        dir_path.mkdir(parents=True, exist_ok=True)
-    return DIRS
+    """Create all necessary directories if they don't exist."""
+    dirs = [
+        CODE_DIR,
+        DATA_DIR,
+        RESULTS_DIR,
+        STATE_DIR,
+        LOGS_DIR,
+        PROCESSED_DIR,
+        RAW_DIR
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+
+if __name__ == "__main__":
+    ensure_dirs()
+    print("Directories ensured.")

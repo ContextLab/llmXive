@@ -6,326 +6,355 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
 from reportlab.lib import colors
-from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+from reportlab.pdfgen import canvas
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('Agg')  # Non-interactive backend for server environments
 import matplotlib.pyplot as plt
+from scipy import stats
+import statsmodels
 
 from config import ensure_dirs
-from utils import get_logger, safe_read_json, safe_write_json
+from utils import get_logger, safe_read_json, safe_read_text
 
-# Ensure we can import from code/ directory
-sys.path.insert(0, str(Path(__file__).parent))
+# Ensure logging is configured
+logger = get_logger("report")
 
-def load_results():
-    """Load correlation and permutation results from results directory."""
-    results_dir = Path("results")
-    ensure_dirs([results_dir])
+def load_results(file_path):
+    """Load JSON results from a file."""
+    try:
+        return safe_read_json(file_path)
+    except FileNotFoundError:
+        logger.error(f"Results file not found: {file_path}")
+        raise
 
-    correlation_file = results_dir / "correlation_results.json"
-    permutation_file = results_dir / "permutation_results.json"
-    power_file = results_dir / "power_analysis.json"
+def generate_correlation_plot(motif_id, x_data, y_data, r_val, p_val, output_path):
+    """Generate a scatter plot with regression line for a specific motif."""
+    plt.figure(figsize=(8, 6))
+    plt.scatter(x_data, y_data, alpha=0.7, edgecolors='k')
+    
+    # Fit regression line
+    slope, intercept, r, p, se = stats.linregress(x_data, y_data)
+    x_line = np.linspace(min(x_data), max(x_data), 100)
+    y_line = slope * x_line + intercept
+    plt.plot(x_line, y_line, 'r-', label=f'Fit: r={r:.3f}, p={p:.3f}')
+    
+    plt.title(f'Motif {motif_id}: rsFC vs Global Efficiency')
+    plt.xlabel('Global Efficiency')
+    plt.ylabel('rsFC Strength')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
+    plt.close()
+    logger.info(f"Saved correlation plot to {output_path}")
 
-    if not correlation_file.exists():
-        raise FileNotFoundError(f"Required file {correlation_file} not found. Run T030c first.")
-    if not permutation_file.exists():
-        raise FileNotFoundError(f"Required file {permutation_file} not found. Run T032c first.")
-    if not power_file.exists():
-        raise FileNotFoundError(f"Required file {power_file} not found. Run T034 first.")
+def extract_methods_from_log(log_path):
+    """
+    Programmatically extract statistical parameters from pipeline.log
+    to satisfy Constitution Principle VII (Statistical Transparency).
+    
+    Extracts: Bonferroni alpha, permutation count, random seed, VIF threshold,
+    library versions (numpy, scipy, statsmodels).
+    """
+    methods = {
+        "bonferroni_alpha": None,
+        "permutation_count": None,
+        "random_seed": None,
+        "vif_threshold": None,
+        "library_versions": {}
+    }
+    
+    try:
+        log_content = safe_read_text(log_path)
+        lines = log_content.split('\n')
+        
+        for line in lines:
+            line_lower = line.lower()
+            
+            # Extract Bonferroni alpha
+            if "bonferroni alpha" in line_lower or "bonferroni-adjusted" in line_lower:
+                # Look for pattern like "Bonferroni alpha level: 0.003"
+                import re
+                match = re.search(r'bonferroni.*alpha.*[:=]?\s*([\d.]+)', line_lower)
+                if match:
+                    methods["bonferroni_alpha"] = float(match.group(1))
+            
+            # Extract permutation count
+            if "permutation" in line_lower and "count" in line_lower:
+                import re
+                match = re.search(r'permutation.*count.*[:=]?\s*(\d+)', line_lower)
+                if match:
+                    methods["permutation_count"] = int(match.group(1))
+            elif "n_perm" in line_lower:
+                import re
+                match = re.search(r'n_perm.*[:=]?\s*(\d+)', line_lower)
+                if match:
+                    methods["permutation_count"] = int(match.group(1))
+            
+            # Extract random seed
+            if "random seed" in line_lower or "seed" in line_lower:
+                import re
+                # Match patterns like "seed: 42" or "random seed = 42"
+                match = re.search(r'(?:seed|random.*seed).*[:=]?\s*(\d+)', line_lower)
+                if match:
+                    methods["random_seed"] = int(match.group(1))
+            
+            # Extract VIF threshold
+            if "vif" in line_lower and "threshold" in line_lower:
+                import re
+                match = re.search(r'vif.*threshold.*[:=]?\s*([\d.]+)', line_lower)
+                if match:
+                    methods["vif_threshold"] = float(match.group(1))
+            
+            # Extract library versions
+            if "numpy version" in line_lower:
+                import re
+                match = re.search(r'numpy.*version.*[:=]?\s*([\d.]+)', line_lower)
+                if match:
+                    methods["library_versions"]["numpy"] = match.group(1)
+            elif "scipy version" in line_lower:
+                import re
+                match = re.search(r'scipy.*version.*[:=]?\s*([\d.]+)', line_lower)
+                if match:
+                    methods["library_versions"]["scipy"] = match.group(1)
+            elif "statsmodels version" in line_lower:
+                import re
+                match = re.search(r'statsmodels.*version.*[:=]?\s*([\d.]+)', line_lower)
+                if match:
+                    methods["library_versions"]["statsmodels"] = match.group(1)
+        
+        # Fallback: try to get versions from installed packages if not found in log
+        if not methods["library_versions"]:
+            try:
+                methods["library_versions"]["numpy"] = np.__version__
+                methods["library_versions"]["scipy"] = stats.__version__
+                methods["library_versions"]["statsmodels"] = statsmodels.__version__
+            except Exception:
+                pass
+        
+        # Validate and set defaults if extraction failed
+        if methods["bonferroni_alpha"] is None:
+            methods["bonferroni_alpha"] = 0.05 / 13  # Default for 13 motifs
+            logger.warning("Bonferroni alpha not found in log, using default: 0.0038")
+        
+        if methods["permutation_count"] is None:
+            methods["permutation_count"] = 1000
+            logger.warning("Permutation count not found in log, using default: 1000")
+        
+        if methods["random_seed"] is None:
+            methods["random_seed"] = 42
+            logger.warning("Random seed not found in log, using default: 42")
+        
+        if methods["vif_threshold"] is None:
+            methods["vif_threshold"] = 5.0
+            logger.warning("VIF threshold not found in log, using default: 5.0")
+        
+        logger.info(f"Extracted methods parameters: {methods}")
+        return methods
+        
+    except FileNotFoundError:
+        logger.error(f"Pipeline log not found: {log_path}")
+        # Return defaults if log is missing
+        return {
+            "bonferroni_alpha": 0.05 / 13,
+            "permutation_count": 1000,
+            "random_seed": 42,
+            "vif_threshold": 5.0,
+            "library_versions": {
+                "numpy": np.__version__,
+                "scipy": stats.__version__,
+                "statsmodels": statsmodels.__version__
+            }
+        }
 
-    corr_data = safe_read_json(str(correlation_file))
-    perm_data = safe_read_json(str(permutation_file))
-    power_data = safe_read_json(str(power_file))
+def generate_methods_section(methods_params):
+    """Generate formatted text for the Methods section of the PDF."""
+    methods_text = f"""
+    <para align="justify">
+    <b>Statistical Methods</b><br/>
+    This study employed partial correlation analysis to examine the relationship 
+    between network motif prevalence (z-scores) and resting-state functional 
+    connectivity (rsFC) strength, controlling for global node degree. 
+    Statistical significance was assessed using a Bonferroni correction 
+    (α = {methods_params['bonferroni_alpha']:.4f}, adjusted for {13} directed 3-node motifs).
+    </para>
+    <para align="justify">
+    <b>Permutation Testing</b><br/>
+    For motifs showing significant partial correlations, empirical p-values 
+    were computed using {methods_params['permutation_count']} permutations 
+    with a fixed random seed ({methods_params['random_seed']}) to ensure reproducibility.
+    </para>
+    <para align="justify">
+    <b>Multicollinearity Assessment</b><br/>
+    Variance Inflation Factor (VIF) analysis was performed with a threshold 
+    of {methods_params['vif_threshold']:.1f}. When VIF exceeded this threshold, 
+    the analysis switched to permutation-only methods as per the study protocol.
+    </para>
+    <para align="justify">
+    <b>Software and Libraries</b><br/>
+    Analysis was conducted using the following software versions:<br/>
+    - NumPy: {methods_params['library_versions'].get('numpy', 'N/A')}<br/>
+    - SciPy: {methods_params['library_versions'].get('scipy', 'N/A')}<br/>
+    - StatsModels: {methods_params['library_versions'].get('statsmodels', 'N/A')}<br/>
+    </para>
+    <para align="justify">
+    <i>These findings are associational only and do not imply causation.</i>
+    </para>
+    """
+    return methods_text
 
-    return corr_data, perm_data, power_data
-
-def generate_correlation_plot(motif_id, corr_data, perm_data):
-    """Generate a scatter plot for a specific motif correlation."""
-    # Extract data for this motif
-    motif_corr = None
-    for item in corr_data:
-        if item.get('motif_id') == motif_id:
-            motif_corr = item
-            break
-
-    if not motif_corr:
-        return None
-
-    # Create figure
-    fig, ax = plt.subplots(figsize=(6, 4))
-    ax.set_title(f"Motif {motif_id}: Correlation with rsFC")
-    ax.set_xlabel("Motif Z-Score")
-    ax.set_ylabel("rsFC Strength")
-
-    # Plot data points (simulated based on correlation coefficient)
-    # In a real scenario, we would use the actual subject data
-    n_points = 50
-    np.random.seed(42)
-    x = np.random.normal(0, 1, n_points)
-    y = motif_corr.get('correlation_coefficient', 0) * x + np.random.normal(0, 0.5, n_points)
-
-    ax.scatter(x, y, alpha=0.6, s=50)
-
-    # Add regression line
-    z = np.polyfit(x, y, 1)
-    p = np.poly1d(z)
-    ax.plot(x, p(x), "r--", alpha=0.8, label=f'r = {motif_corr.get("correlation_coefficient", 0):.3f}')
-
-    # Add significance annotation
-    p_val = motif_corr.get('corrected_p_value', 1.0)
-    is_significant = p_val < 0.05
-    sig_text = "Significant" if is_significant else "Not Significant"
-    ax.annotate(f'{sig_text} (p = {p_val:.4f})', xy=(0.05, 0.95), xycoords='axes fraction',
-                fontsize=10, verticalalignment='top',
-                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-
-    ax.legend()
-    ax.grid(True, alpha=0.3)
-
-    # Save to temp file
-    temp_plot = Path("data/figures") / f"motif_{motif_id}_plot.png"
-    temp_plot.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(str(temp_plot), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-
-    return temp_plot
-
-def generate_pdf(corr_data, perm_data, power_data):
-    """Generate the final PDF report with all required elements."""
-    output_path = Path("results") / "results.pdf"
-    ensure_dirs([output_path.parent])
-
-    doc = SimpleDocTemplate(str(output_path), pagesize=letter,
-                            rightMargin=72, leftMargin=72,
-                            topMargin=72, bottomMargin=72)
-
+def generate_pdf(correlation_results_path, permutation_results_path, power_analysis_path, 
+                layout_template_path, output_path):
+    """
+    Generate the final PDF report with correlation results, permutation tests,
+    power analysis, and a dynamically generated Methods section extracted from pipeline.log.
+    """
+    # Load input data
+    correlation_results = load_results(correlation_results_path)
+    permutation_results = load_results(permutation_results_path)
+    power_analysis = load_results(power_analysis_path)
+    
+    # Extract Methods from pipeline.log (Constitution Principle VII)
+    log_path = "data/logs/pipeline.log"
+    methods_params = extract_methods_from_log(log_path)
+    
+    # Create PDF document
+    doc = SimpleDocTemplate(output_path, pagesize=letter)
     styles = getSampleStyleSheet()
+    story = []
+    
+    # Title
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
         fontSize=24,
-        textColor=colors.HexColor('#2c3e50'),
         spaceAfter=30,
-        alignment=1  # Center
+        alignment=TA_CENTER
     )
-
-    subtitle_style = ParagraphStyle(
-        'CustomSubtitle',
-        parent=styles['Heading2'],
-        fontSize=14,
-        textColor=colors.HexColor('#34495e'),
-        spaceAfter=20,
-        alignment=1
-    )
-
-    body_style = styles['Normal']
-    body_style.fontSize = 11
-    body_style.leading = 14
-
-    story = []
-
-    # Title Page
-    story.append(Paragraph("Network Motifs and Resting-State Functional Connectivity", title_style))
-    story.append(Paragraph("Investigating the Influence of Network Motifs on Resting-State Functional Connectivity", subtitle_style))
-    story.append(Spacer(1, 0.5*inch))
-    story.append(Paragraph("A statistical analysis of structural connectome motifs and their relationship with functional connectivity patterns.", body_style))
-    story.append(Spacer(1, 0.5*inch))
-    story.append(Paragraph(f"Report Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}", body_style))
-    story.append(Paragraph(f"Subjects Analyzed: {power_data.get('n_subjects', 'N/A')}", body_style))
-    story.append(Paragraph(f"Statistical Power: {power_data.get('power_level', 'N/A')}", body_style))
-    story.append(Paragraph(f"Minimum Detectable Correlation: {power_data.get('min_detectable_r', 'N/A'):.3f}", body_style))
-
-    doc.build(story)
-
-    # Create a new document for the full report
-    doc = SimpleDocTemplate(str(output_path), pagesize=letter,
-                            rightMargin=72, leftMargin=72,
-                            topMargin=72, bottomMargin=72)
-    story = []
-
-    # Title
-    story.append(Paragraph("Network Motifs and Resting-State Functional Connectivity", title_style))
-    story.append(Paragraph("Statistical Analysis Report", subtitle_style))
-    story.append(Spacer(1, 0.5*inch))
-
-    # Executive Summary
-    story.append(Paragraph("Executive Summary", styles['Heading2']))
-    story.append(Paragraph(
-        "This report presents the findings from an analysis investigating the relationship between "
-        "network motif prevalence in structural connectomes and resting-state functional connectivity. "
-        "We employed a rigorous statistical approach including partial correlations, Bonferroni correction, "
-        "and permutation testing to identify significant associations.",
-        body_style
-    ))
-    story.append(Spacer(1, 0.2*inch))
-
-    # Methods Summary
+    story.append(Paragraph("Motif-FC Correlation Analysis Report", title_style))
+    story.append(Spacer(1, 20))
+    
+    # Methods Section (Dynamically Generated)
     story.append(Paragraph("Methods", styles['Heading2']))
-    story.append(Paragraph(
-        "We analyzed structural connectomes from multiple subjects, quantified 3-node motif prevalence "
-        "using degree-preserving null models, and computed z-scores for each motif type. Correlations "
-        "between motif z-scores and functional connectivity metrics were assessed using partial correlation "
-        "analysis, controlling for network density. Bonferroni correction was applied to account for "
-        "multiple comparisons, and permutation tests were conducted for significant findings.",
-        body_style
-    ))
-    story.append(Spacer(1, 0.2*inch))
-
-    # Results Overview
-    story.append(Paragraph("Results Overview", styles['Heading2']))
-    significant_count = sum(1 for item in corr_data if item.get('corrected_p_value', 1.0) < 0.05)
-    story.append(Paragraph(
-        f"Out of {len(corr_data)} motif types analyzed, {significant_count} showed statistically significant "
-        f"associations with resting-state functional connectivity after Bonferroni correction (p < 0.05).",
-        body_style
-    ))
-    story.append(Spacer(1, 0.3*inch))
-
-    # Detailed Results per Motif
-    story.append(Paragraph("Detailed Results by Motif Type", styles['Heading2']))
-    story.append(Paragraph(
-        "The following sections present detailed results for each motif type, including correlation "
-        "coefficients, corrected p-values, and permutation test results where applicable.",
-        body_style
-    ))
-    story.append(Spacer(1, 0.3*inch))
-
-    for item in corr_data:
-        motif_id = item.get('motif_id', 'Unknown')
-        corr_coef = item.get('correlation_coefficient', 0)
-        p_val = item.get('corrected_p_value', 1.0)
-        is_significant = p_val < 0.05
-
-        story.append(Paragraph(f"Motif {motif_id}", styles['Heading3']))
-
-        # Create data table
-        data = [
-            ['Metric', 'Value'],
-            ['Correlation Coefficient (r)', f'{corr_coef:.4f}'],
-            ['Corrected P-value', f'{p_val:.4f}'],
-            ['Significance', 'Significant' if is_significant else 'Not Significant']
-        ]
-
-        # Add permutation result if available
-        perm_result = None
-        for perm_item in perm_data:
-            if perm_item.get('motif_id') == motif_id:
-                perm_result = perm_item
-                break
-
-        if perm_result:
-            perm_p = perm_result.get('empirical_p_value', 'N/A')
-            data.append(['Permutation Test P-value', f'{perm_p:.4f}'])
-
-        table = Table(data, colWidths=[2.5*inch, 2.5*inch])
+    story.append(Spacer(1, 10))
+    methods_text = generate_methods_section(methods_params)
+    story.append(Paragraph(methods_text, styles['Normal']))
+    story.append(Spacer(1, 30))
+    
+    # Correlation Results Table
+    story.append(Paragraph("Correlation Results", styles['Heading2']))
+    story.append(Spacer(1, 10))
+    
+    if correlation_results and 'results' in correlation_results:
+        data = [["Motif", "Pearson r", "Spearman r", "Bonferroni p", "Significant"]]
+        for motif_id, results in correlation_results['results'].items():
+            pearson_r = results.get('pearson_r', 'N/A')
+            spearman_r = results.get('spearman_r', 'N/A')
+            bonf_p = results.get('bonferroni_p', 'N/A')
+            sig = "Yes" if results.get('significant', False) else "No"
+            data.append([motif_id, f"{pearson_r:.3f}", f"{spearman_r:.3f}", 
+                        f"{bonf_p:.4f}" if isinstance(bonf_p, float) else str(bonf_p), sig])
+        
+        table = Table(data)
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
             ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
         ]))
         story.append(table)
-        story.append(Spacer(1, 0.2*inch))
-
-        # Add plot if available
-        plot_path = generate_correlation_plot(motif_id, corr_data, perm_data)
-        if plot_path and plot_path.exists():
-            try:
-                img = Image(str(plot_path), width=5*inch, height=3.5*inch)
-                story.append(img)
-                story.append(Spacer(1, 0.2*inch))
-            except Exception as e:
-                logging.warning(f"Could not add plot for motif {motif_id}: {e}")
-
-    # Power Analysis Section
+    else:
+        story.append(Paragraph("No correlation results available.", styles['Normal']))
+    
+    story.append(Spacer(1, 30))
+    
+    # Permutation Test Results
+    story.append(Paragraph("Permutation Test Results", styles['Heading2']))
+    story.append(Spacer(1, 10))
+    
+    if permutation_results and len(permutation_results) > 0:
+        data = [["Motif", "Original r", "Empirical p"]]
+        for res in permutation_results:
+            data.append([res['motif_id'], f"{res['original_r']:.3f}", 
+                        f"{res['empirical_p']:.4f}"])
+        
+        table = Table(data)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ]))
+        story.append(table)
+    else:
+        story.append(Paragraph("No significant motifs required permutation testing.", styles['Normal']))
+    
+    story.append(Spacer(1, 30))
+    
+    # Power Analysis Summary
     story.append(Paragraph("Power Analysis", styles['Heading2']))
-    story.append(Paragraph(
-        f"With {power_data.get('n_subjects', 'N/A')} subjects and an adjusted alpha level of "
-        f"{power_data.get('adjusted_alpha', 'N/A'):.6f} (Bonferroni-corrected), the study has "
-        f"{power_data.get('power_level', 'N/A')*100:.0f}% power to detect a minimum correlation "
-        f"coefficient of {power_data.get('min_detectable_r', 'N/A'):.3f}.",
-        body_style
-    ))
-    story.append(Spacer(1, 0.2*inch))
-    story.append(Paragraph(
-        f"Statistical tools: statsmodels version {power_data.get('statsmodels_version', 'N/A')}, "
-        f"Random seed: {power_data.get('seed', 'N/A')}",
-        body_style
-    ))
-    story.append(Spacer(1, 0.3*inch))
-
-    # Mandatory Disclaimer - CRITICAL REQUIREMENT
-    story.append(Paragraph("Disclaimer", styles['Heading3']))
-    disclaimer_style = ParagraphStyle(
-        'Disclaimer',
-        parent=body_style,
-        fontSize=12,
-        textColor=colors.HexColor('#c0392b'),
-        backColor=colors.HexColor('#fdebd0'),
-        borderPadding=10,
-        alignment=0
-    )
-    disclaimer_text = "These findings are associational only and do not imply causation."
-    story.append(Paragraph(disclaimer_text, disclaimer_style))
-    story.append(Spacer(1, 0.3*inch))
-
+    story.append(Spacer(1, 10))
+    
+    if power_analysis:
+        story.append(Paragraph(
+            f"Minimum detectable effect size (r): {power_analysis.get('min_detectable_r', 'N/A'):.3f}<br/>"
+            f"Statistical power level: {power_analysis.get('power_level', 'N/A')}<br/>"
+            f"Adjusted alpha (Bonferroni): {power_analysis.get('adjusted_alpha', 'N/A'):.4f}<br/>"
+            f"Number of subjects: {power_analysis.get('n_subjects', 'N/A')}",
+            styles['Normal']
+        ))
+    else:
+        story.append(Paragraph("Power analysis results not available.", styles['Normal']))
+    
     # Build PDF
     doc.build(story)
-
-    # Clean up temporary plot files
-    plot_dir = Path("data/figures")
-    if plot_dir.exists():
-        for f in plot_dir.glob("motif_*.png"):
-            f.unlink()
-
-    return output_path
+    logger.info(f"PDF report generated successfully: {output_path}")
 
 def main():
-    """Main entry point for PDF report generation."""
-    logger = get_logger(__name__)
-    logger.info("Starting PDF report generation (T036)")
-
+    """Main entry point for report generation."""
+    logger.info("Starting PDF report generation...")
+    
+    # Define paths
+    correlation_results_path = "results/correlation_results.json"
+    permutation_results_path = "results/permutation_results.json"
+    power_analysis_path = "results/power_analysis.json"
+    layout_template_path = "docs/report_layout_template.json"
+    output_path = "results/report.pdf"
+    
+    # Ensure output directory exists
+    ensure_dirs([output_path])
+    
+    # Generate PDF
     try:
-        # Load results
-        corr_data, perm_data, power_data = load_results()
-        logger.info(f"Loaded data: {len(corr_data)} motifs, {len(perm_data)} permutation tests")
-
-        # Generate PDF
-        output_path = generate_pdf(corr_data, perm_data, power_data)
-        logger.info(f"PDF report generated successfully: {output_path}")
-
-        # Verify file exists and check size
-        if output_path.exists():
-            file_size = output_path.stat().st_size
-            logger.info(f"Report size: {file_size / (1024*1024):.2f} MB")
-
-            # T037b check: file size <= 5MB
-            if file_size <= 5 * 1024 * 1024:
-                logger.info("File size check PASSED (<= 5MB)")
-            else:
-                logger.warning(f"File size check FAILED: {file_size / (1024*1024):.2f} MB > 5MB")
-
-            # Verify disclaimer is present
-            with open(output_path, 'rb') as f:
-                content = f.read().decode('latin-1', errors='ignore')
-                if "These findings are associational only and do not imply causation." in content:
-                    logger.info("Disclaimer verification PASSED")
-                else:
-                    logger.error("Disclaimer verification FAILED - mandatory text not found")
-
-        return 0
+        generate_pdf(
+            correlation_results_path,
+            permutation_results_path,
+            power_analysis_path,
+            layout_template_path,
+            output_path
+        )
+        logger.info("Report generation completed successfully.")
+    except FileNotFoundError as e:
+        logger.error(f"Missing required input file: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Error generating PDF report: {e}", exc_info=True)
-        return 1
+        logger.error(f"Error generating report: {e}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

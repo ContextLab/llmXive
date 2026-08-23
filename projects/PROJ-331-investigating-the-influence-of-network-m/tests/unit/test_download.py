@@ -1,112 +1,120 @@
-"""
-Unit tests for code/download.py
-"""
-import pytest
 import os
 import json
+import hashlib
+import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-from utils import DataNotFoundError, PipelineError
+from unittest.mock import patch, MagicMock, mock_open
 
-# Import the module to test
-# We assume the module is importable as 'download'
-import sys
-sys.path.insert(0, 'code')
-import download
+# Import the module under test using the API surface
+from download import (
+    download_subject_data,
+    compute_sha256_file,
+    verify_checksum,
+    check_hcp_availability
+)
+from config import ensure_dirs
 
-def test_download_subject_data_missing_data():
-    """
-    Contract: Verify download_subject_data(subject_id) raises FileNotFoundError 
-    (or DataNotFoundError) if missing.
-    """
-    subject_id = "999999" # Non-existent subject
-    # Ensure the raw directory does not have the files
-    raw_dir = Path("data/raw") / subject_id
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    # Remove any existing files
-    for f in raw_dir.glob("*"):
-        f.unlink()
-    
-    with pytest.raises(DataNotFoundError):
-        download.download_subject_data(subject_id)
+# Fixtures
+@pytest.fixture
+def mock_raw_dir(tmp_path):
+    raw_dir = tmp_path / "data" / "raw"
+    raw_dir.mkdir(parents=True)
+    # Create a mock checksum file
+    checksums = {
+        "sub-123_dwi.trk": "abc123",
+        "sub-123_rsfmri.nii.gz": "def456"
+    }
+    checksum_file = raw_dir / ".checksums.json"
+    with open(checksums_file, 'w') as f:
+        json.dump(checksums, f)
+    return raw_dir
 
-def test_download_subject_data_present_data():
-    """
-    Contract: Verify download_subject_data returns dict with keys 
-    {'dwi_path', 'rsfmri_path'} if files exist.
-    """
-    subject_id = "100106"
-    raw_dir = Path("data/raw") / subject_id
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Create dummy files
-    dwi_path = raw_dir / "dwi.trk"
-    rsfmr_path = raw_dir / "rs-fMRI.nii.gz"
-    dwi_path.touch()
-    rsfmr_path.touch()
-    
-    result = download.download_subject_data(subject_id)
-    
-    assert isinstance(result, dict)
-    assert "dwi_path" in result
-    assert "rsfmri_path" in result
-    assert result["dwi_path"] == str(dwi_path)
-    assert result["rsfmri_path"] == str(rsfmr_path)
-    
-    # Cleanup
-    dwi_path.unlink()
-    rsfmr_path.unlink()
+@pytest.fixture
+def mock_config(tmp_path):
+    # Ensure config paths point to our temp directory
+    with patch('config.DATA_RAW_DIR', str(tmp_path / "data" / "raw")):
+        yield
 
-def test_process_subjects_skips_missing():
-    """
-    Contract: Verify process_subjects logs warning for missing subjects
-    and continues.
-    """
-    subject_ids = ["100106", "999999"]
-    raw_dir_1 = Path("data/raw") / "100106"
-    raw_dir_2 = Path("data/raw") / "999999"
+def test_download_subject_data_returns_dict(mock_raw_dir, mock_config):
+    """Contract: Verify download_subject_data returns a dict with expected keys."""
+    subject_id = "sub-123"
     
-    # Setup existing data for first subject
-    raw_dir_1.mkdir(parents=True, exist_ok=True)
-    (raw_dir_1 / "dwi.trk").touch()
-    (raw_dir_1 / "rs-fMRI.nii.gz").touch()
-    
-    # Ensure second subject has no data
-    raw_dir_2.mkdir(parents=True, exist_ok=True)
-    
-    with patch.object(download, 'get_logger_module') as mock_logger:
-        mock_log_instance = MagicMock()
-        mock_logger.return_value = mock_log_instance
+    # Mock the actual download to avoid network calls
+    with patch('download.download_file') as mock_dl:
+        mock_dl.return_value = str(mock_raw_dir / f"{subject_id}_dwi.trk")
         
-        results = download.process_subjects(subject_ids)
+        # Create dummy files to simulate download
+        (mock_raw_dir / f"{subject_id}_dwi.trk").touch()
+        (mock_raw_dir / f"{subject_id}_rsfmri.nii.gz").touch()
         
-        # Should have one success and one skip
-        assert len(results) == 1
-        assert results[0]["subject_id"] == "100106"
+        result = download_subject_data(subject_id)
         
-        # Check that warning was logged for the missing subject
-        warning_calls = [call for call in mock_log_instance.warning.call_args_list if "Skipping" in str(call)]
-        assert len(warning_calls) > 0
+        assert isinstance(result, dict)
+        assert 'dwi_path' in result
+        assert 'rsfmri_path' in result
+        assert os.path.exists(result['dwi_path'])
+        assert os.path.exists(result['rsfmri_path'])
 
-def test_checksum_verification():
-    """
-    Contract: Verify checksum logic works.
-    """
-    # Create a temporary file with known content
-    test_file = Path("data/raw/test_checksum.txt")
-    test_file.parent.mkdir(parents=True, exist_ok=True)
-    test_file.write_text("test content")
+def test_download_subject_data_raises_file_not_found(mock_raw_dir, mock_config):
+    """Contract: Verify FileNotFoundError is raised if files are missing."""
+    subject_id = "sub-999"
     
-    # Compute checksum
-    checksum = download.compute_sha256_file(test_file)
-    assert isinstance(checksum, str)
-    assert len(checksum) == 64 # SHA256 hex length
+    with patch('download.download_file') as mock_dl:
+        mock_dl.side_effect = FileNotFoundError("Simulated missing file")
+        
+        with pytest.raises(FileNotFoundError):
+            download_subject_data(subject_id)
+
+def test_compute_sha256_file(mock_raw_dir):
+    """Verify SHA256 computation on a real file."""
+    test_file = mock_raw_dir / "test.txt"
+    test_content = b"test content for hashing"
+    test_file.write_bytes(test_content)
     
-    # Verify against itself
-    assert download.verify_checksum(test_file, checksum)
+    computed_hash = compute_sha256_file(str(test_file))
     
-    # Verify against wrong checksum
-    assert not download.verify_checksum(test_file, "wrong_checksum")
+    # Expected hash for "test content for hashing"
+    expected_hash = hashlib.sha256(test_content).hexdigest()
     
-    # Cleanup
-    test_file.unlink()
+    assert computed_hash == expected_hash
+
+def test_verify_checksum_success(mock_raw_dir):
+    """Verify checksum validation passes for matching files."""
+    test_file = mock_raw_dir / "test.txt"
+    test_content = b"valid content"
+    test_file.write_bytes(test_content)
+    
+    correct_hash = hashlib.sha256(test_content).hexdigest()
+    
+    assert verify_checksum(str(test_file), correct_hash) is True
+
+def test_verify_checksum_failure(mock_raw_dir):
+    """Verify checksum validation fails for mismatched files."""
+    test_file = mock_raw_dir / "test.txt"
+    test_file.write_bytes(b"content")
+    
+    wrong_hash = "0000000000000000000000000000000000000000000000000000000000000000"
+    
+    assert verify_checksum(str(test_file), wrong_hash) is False
+
+def test_check_hcp_availability_success():
+    """Verify HCP availability check returns True for valid bucket."""
+    # Mock the boto3 client to avoid actual AWS calls
+    with patch('download.boto3.client') as mock_boto:
+        mock_client = MagicMock()
+        mock_client.head_object.return_value = {'ContentLength': 100}
+        mock_boto.return_value = mock_client
+        
+        # This should return True without raising
+        result = check_hcp_availability("sub-123", "dwi")
+        assert result is True
+
+def test_check_hcp_availability_failure():
+    """Verify HCP availability check returns False for missing data."""
+    with patch('download.boto3.client') as mock_boto:
+        mock_client = MagicMock()
+        mock_client.head_object.side_effect = Exception("Not found")
+        mock_boto.return_value = mock_client
+        
+        result = check_hcp_availability("sub-999", "dwi")
+        assert result is False

@@ -1,149 +1,135 @@
-"""
-tests/unit/test_motifs.py
-
-Unit tests for motif enumeration and null model generation.
-"""
-
-import numpy as np
-import networkx as nx
-import pytest
-import sys
 import os
+import json
+import numpy as np
+import pytest
+from unittest.mock import patch, MagicMock
+import networkx as nx
 
-# Add code directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Import the module under test using the API surface
+from motifs import (
+    count_motifs,
+    generate_null_model,
+    compute_z_scores,
+    get_motif_id
+)
 
-from motifs import count_motifs, generate_null_model, compute_motif_z_scores
-
-def test_count_motifs_small_graph():
-    """Test motif counting on a small, known graph."""
-    # Create a simple graph: 0->1, 1->2, 2->0 (a directed triangle)
+@pytest.fixture
+def small_binary_graph():
+    """Create a small binary adjacency matrix for testing."""
+    # 4-node graph
     adj = np.array([
-        [0, 1, 0],
-        [0, 0, 1],
-        [1, 0, 0]
-    ])
-    
-    counts = count_motifs(adj)
-    
-    # A directed triangle is one specific motif.
-    # There should be exactly 1 motif found (the triangle itself).
-    assert len(counts) == 1
-    # The count should be 1
-    assert sum(counts.values()) == 1
+        [0, 1, 1, 0],
+        [0, 0, 1, 1],
+        [1, 0, 0, 1],
+        [0, 1, 0, 0]
+    ], dtype=float)
+    return adj
 
-def test_count_motifs_empty():
-    """Test motif counting on a graph with no edges."""
-    adj = np.zeros((4, 4), dtype=int)
-    counts = count_motifs(adj)
-    assert counts == {}
+def test_count_motifs_returns_dict_with_all_motifs(small_binary_graph):
+    """Contract: Verify count_motifs returns a dict with counts for all directed 3-node motifs."""
+    # There are 13 directed 3-node motifs
+    result = count_motifs(small_binary_graph)
+    
+    assert isinstance(result, dict)
+    # Check that all 13 motif types are present
+    for i in range(13):
+        motif_id = get_motif_id(i)
+        assert motif_id in result, f"Missing motif {motif_id}"
 
-def test_count_motifs_incomplete():
-    """Test on a graph with < 3 nodes."""
-    adj = np.array([[0, 1], [1, 0]])
-    counts = count_motifs(adj)
-    assert counts == {}
+def test_count_motifs_sum_equals_theoretical_total(small_binary_graph):
+    """Contract: Verify sum of counts equals theoretical total for complete graph."""
+    # For a complete directed graph with N nodes, number of 3-node subgraphs is C(N,3)
+    # But for a general graph, we count all induced 3-node subgraphs
+    n = small_binary_graph.shape[0]
+    
+    # The theoretical total number of 3-node subgraphs in a graph with n nodes is C(n, 3)
+    # However, count_motifs counts all possible 3-node combinations
+    from itertools import combinations
+    theoretical_combinations = len(list(combinations(range(n), 3)))
+    
+    result = count_motifs(small_binary_graph)
+    total_counted = sum(result.values())
+    
+    # Each 3-node combination should be counted exactly once
+    assert total_counted == theoretical_combinations
 
-def test_generate_null_model_preserves_degree():
-    """Test that Maslov-Sneppen preserves in/out degrees."""
-    # Create a graph with known degrees
-    adj = np.array([
-        [0, 1, 1],
-        [1, 0, 0],
-        [0, 1, 0]
-    ])
+def test_count_motifs_values_non_negative(small_binary_graph):
+    """Verify all motif counts are non-negative."""
+    result = count_motifs(small_binary_graph)
     
-    G = nx.DiGraph(adj)
-    in_deg_orig = dict(G.in_degree())
-    out_deg_orig = dict(G.out_degree())
-    
-    nulls = generate_null_model(adj, iterations=5)
-    assert len(nulls) == 5
-    
-    for null_adj in nulls:
-        G_null = nx.DiGraph(null_adj)
-        in_deg_null = dict(G_null.in_degree())
-        out_deg_null = dict(G_null.out_degree())
-        
-        assert in_deg_orig == in_deg_null
-        assert out_deg_orig == out_deg_null
+    for motif_id, count in result.items():
+        assert count >= 0, f"Negative count for {motif_id}"
 
-def test_compute_z_scores():
-    """Test z-score computation."""
-    observed = {"key1": 10}
-    # Create null models that have counts close to 10
-    # Mock null counts
-    null_counts = [
-        {"key1": 9},
-        {"key1": 11},
-        {"key1": 10}
-    ]
+def test_generate_null_model_preserves_degree_distribution(small_binary_graph):
+    """Contract: Verify generate_null_model preserves degree distribution."""
+    iterations = 100
     
-    # We need to pass adjacency matrices to compute_motif_z_scores?
-    # The function signature is compute_motif_z_scores(observed_counts, null_models, iterations)
-    # But it calls count_motifs on null_models.
-    # So we need to pass actual adjacency matrices, not counts.
-    # Let's create dummy matrices that produce the counts we want?
-    # That's hard.
-    # Let's adjust the test to use the function as designed.
-    # We will create a few simple graphs that have a specific motif count.
+    # Compute original degrees
+    original_in_degrees = np.sum(small_binary_graph, axis=0)
+    original_out_degrees = np.sum(small_binary_graph, axis=1)
     
-    # Graph 1: Triangle (1 count)
-    g1 = np.array([[0,1,0],[0,0,1],[1,0,0]])
-    # Graph 2: Triangle
-    g2 = np.array([[0,1,0],[0,0,1],[1,0,0]])
-    # Graph 3: Triangle
-    g3 = np.array([[0,1,0],[0,0,1],[1,0,0]])
+    # Generate null model
+    null_adj = generate_null_model(small_binary_graph, iterations=iterations)
     
-    # Observed: 10 triangles? No, we need a graph with 10 triangles.
-    # Let's just test the math with mocked counts if we refactor?
-    # No, we must test the real function.
-    # Let's create a graph with 10 triangles?
-    # A complete graph K4 has 4 triangles? No, 4 choose 3 = 4.
-    # K5 has 10 triangles.
-    adj_obs = np.ones((5,5)) - np.eye(5)
-    observed_counts = count_motifs(adj_obs)
-    # K5 has 10 directed triangles?
-    # In a complete directed graph (no self loops), every 3 nodes form a tournament.
-    # There are 2 types of tournaments on 3 nodes: transitive and cyclic.
-    # A complete graph has all edges.
-    # Number of 3-node subgraphs in K5 is 10.
-    # Each subgraph is a complete directed graph (3 edges in each direction? No, 1 edge per pair).
-    # Wait, our adj_obs is 1 for all i!=j.
-    # So every 3 nodes form a "complete" subgraph (3 edges, 3 reverse edges? No, 6 edges).
-    # Actually, our count_motifs counts induced subgraphs.
-    # In K5, every 3 nodes have 6 edges (complete bidirectional).
-    # So all 10 subgraphs are the same type.
-    # observed_counts will have 1 entry with value 10.
+    # Compute null degrees
+    null_in_degrees = np.sum(null_adj, axis=0)
+    null_out_degrees = np.sum(null_adj, axis=1)
     
-    null_models = [g1, g2, g3]
-    # Each g has 1 triangle.
-    
-    z_scores = compute_motif_z_scores(observed_counts, null_models, iterations=3)
-    
-    # Mean null = 1.0, Std null = 0.0 (all 1s)
-    # Observed = 10.
-    # Z = (10 - 1) / 0 -> inf
-    # Let's check if it handles inf
-    assert len(z_scores) == 1
-    # The value should be inf or a very large number if we handled it.
-    # Our implementation returns float('inf').
-    assert z_scores[list(z_scores.keys())[0]] == float('inf')
+    # Check that degrees are preserved (within floating point tolerance)
+    assert np.allclose(original_in_degrees, null_in_degrees, atol=1e-6)
+    assert np.allclose(original_out_degrees, null_out_degrees, atol=1e-6)
 
-def test_generate_null_model_empty():
-    """Test null model generation on empty graph."""
-    adj = np.zeros((3, 3))
-    nulls = generate_null_model(adj, iterations=5)
-    assert len(nulls) == 5
-    for n in nulls:
-        assert np.sum(n) == 0
+def test_generate_null_model_returns_binary_matrix(small_binary_graph):
+    """Verify null model returns a binary matrix."""
+    null_adj = generate_null_model(small_binary_graph, iterations=10)
+    
+    # Check that all values are 0 or 1
+    assert np.all((null_adj == 0) | (null_adj == 1))
+    assert null_adj.shape == small_binary_graph.shape
 
-def test_generate_null_model_single_edge():
-    """Test null model generation on graph with 1 edge."""
-    adj = np.zeros((3, 3))
-    adj[0, 1] = 1
-    nulls = generate_null_model(adj, iterations=5)
-    # With 1 edge, we cannot rewire (need 2 edges).
-    # So all nulls should be the same as original.
-    for n in nulls:
-        assert np.array_equal(n, adj)
+def test_compute_z_scores_correct_formula():
+    """Contract: Verify z-score formula: z = (observed - mean_null) / std_null."""
+    # Create mock counts
+    observed_counts = {
+        'motif_0': 10,
+        'motif_1': 5,
+        'motif_2': 8
+    }
+    
+    # Create mock null counts (multiple iterations)
+    null_counts = {
+        'motif_0': [8, 12, 9, 11, 10],
+        'motif_1': [4, 6, 5, 4, 5],
+        'motif_2': [7, 9, 8, 7, 9]
+    }
+    
+    result = compute_z_scores(observed_counts, null_counts)
+    
+    # Manually compute expected z-score for motif_0
+    # observed = 10, mean = (8+12+9+11+10)/5 = 10, std = sqrt(((8-10)^2 + ...)/4)
+    expected_mean = np.mean(null_counts['motif_0'])
+    expected_std = np.std(null_counts['motif_0'], ddof=1)  # Sample std
+    expected_z = (observed_counts['motif_0'] - expected_mean) / expected_std
+    
+    assert isinstance(result, dict)
+    assert 'motif_0' in result
+    assert np.isclose(result['motif_0'], expected_z)
+
+def test_compute_z_scores_returns_all_motifs():
+    """Verify z-scores are computed for all motifs."""
+    observed_counts = {f'motif_{i}': i for i in range(13)}
+    null_counts = {f'motif_{i}': [i] * 5 for i in range(13)}
+    
+    result = compute_z_scores(observed_counts, null_counts)
+    
+    assert len(result) == 13
+    for i in range(13):
+        assert f'motif_{i}' in result
+
+def test_get_motif_id_returns_valid_string():
+    """Verify get_motif_id returns a valid motif identifier."""
+    for i in range(13):
+        motif_id = get_motif_id(i)
+        assert isinstance(motif_id, str)
+        assert motif_id.startswith('motif_')
+        assert int(motif_id.split('_')[1]) == i

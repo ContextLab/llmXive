@@ -17,7 +17,7 @@ This project investigates whether specific 3-node network motif configurations i
 **Project Type**: scientific-research-pipeline
 **Performance Goals**: Motif enumeration ≤300s/subject (3-node only); full pipeline ≤6h; PDF generation ≤2min.
 **Constraints**: No GPU required (CPU-only); no external API keys beyond HCP public access; memory <7GB (streaming/lazy loading where possible); strict reproducibility (seed=42).
-**Scale/Scope**: 50 subjects, 100-node graphs, 13 possible 3-node motifs (undirected: several types), A sufficient number of permutation iterations.
+**Scale/Scope**: A cohort of subjects, -node graphs, possible 3-node motifs (undirected: several types), A sufficient number of permutation iterations.
 
 ## Constitution Check
 

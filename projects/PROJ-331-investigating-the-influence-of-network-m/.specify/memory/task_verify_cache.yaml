@@ -5,14 +5,6 @@ T012:
     \ not exist, and the expected log file `data/logs/pipeline.log` is also missing,\
     \ so no evidence that the pipeline was run or that the required assertions were\
     \ checked. The task\u2019s deliverables are absent."
-T014a:
-  c: false
-  h: fab65807f67acd7ea52afd354dbe6852e65dbf4e8950bc5e889a9d012eb9ec0e
-  r: "The repository contains a `code/preprocess.py` with a partially\u2011implemented\
-    \ `parcellate_streamlines` function, but the implementation is truncated and never\
-    \ writes the weighted adjacency matrix to `data/processed/weighted_adjacency.npy`.\
-    \ Moreover, the required output file does not exist. The task\u2019s core deliverable\
-    \ (the saved adjacency matrix) is missing."
 T014c:
   c: false
   h: 986d263acee5d78086c6fd983648209ec478865bf093d4b747c90878501f3a66
@@ -51,14 +43,6 @@ T032c:
     \ file; it is unrelated code about loading metrics and VIF checks and is truncated.\
     \ Moreover, the required output file `results/permutation_results.json` is missing\
     \ from the repository. The task\u2019s core requirement is therefore not satisfied."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation implementing zero\u2011variance detection\
-    \ or the VIF collinearity check was provided; the evidence contains no artifacts\
-    \ to verify that tests are skipped, flags are added to reports, or that a switch\
-    \ to Spearman correlation occurs when VIF\u202F>\u202F5. The required functionality\
-    \ is therefore missing."
 T035b:
   c: false
   h: 546c22827f6ae4aa21fb6e177fd74767fbc8c7632253cc13afb300e9d2076119
@@ -67,3 +51,30 @@ T035b:
     \ required input `results/permutation_results.json` is missing, causing the script\
     \ to raise a `FileNotFoundError`. Both the script and one of its required data\
     \ files need to be provided and completed."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README, usage guide, or any other documentation files were presented in the\
+    \ `docs/` directory, nor was any content provided showing that the required documentation\
+    \ updates were made. The evidence consists solely of a feature specification unrelated\
+    \ to documentation, so the task\u2019s deliverable is missing."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `tests/unit/` directory or any unit\u2011test files were presented; the claim\
+    \ provides no concrete artifacts showing additional unit tests were added. Consequently\
+    \ the required output is missing."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run was provided\u2014there are\
+    \ no logs, output files, or reports showing that the quickstart documentation\
+    \ was parsed, checked, and passed. The required artifact confirming successful\
+    \ validation is missing."
+T049:
+  c: false
+  h: 84a9dbf584554a8e6186194b59ef631a84f4b4c622614fbd265b002c3058f958
+  r: "The `scripts/verify_hcp_access.sh` script is present and appears functional,\
+    \ but the required `data/raw/.access_verified` flag file does not exist, so the\
+    \ task\u2019s core output is missing. The implementer must ensure the flag file\
+    \ is created (e.g., by running the script successfully) and committed."
