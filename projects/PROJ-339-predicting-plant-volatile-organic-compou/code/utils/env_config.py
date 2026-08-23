@@ -1,16 +1,9 @@
 """
-Environment variable management for data paths and random seeds.
+Environment variable management for data paths and seeds.
 
-This module provides a centralized configuration manager that loads
-environment variables from a .env file and provides typed accessors
-for all project paths and seed values.
-
-Usage:
-    from utils.env_config import get_config
-    
-    config = get_config()
-    data_path = config.data_root
-    seed = config.random_seed
+This module provides a robust configuration manager for the llmXive pipeline,
+handling environment variables for data paths, random seeds, and other
+critical runtime parameters.
 """
 import os
 import json
@@ -18,198 +11,153 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 
-# Load environment variables from .env file if it exists
-# This is called once at module import time
+# Load .env file if it exists (prior to any other config loading)
 load_dotenv()
 
 class EnvConfigError(Exception):
-    """Custom exception for environment configuration errors."""
+    """Raised when environment configuration is missing or invalid."""
     pass
 
 class EnvConfig:
     """
-    Centralized environment variable management for data paths and seeds.
+    Manages environment variable configuration for the project.
     
     Attributes:
-        project_root (Path): Root directory of the project.
-        data_root (Path): Root directory for all data.
-        data_raw (Path): Directory for raw data.
-        data_processed (Path): Directory for processed data.
-        data_results (Path): Directory for results and reports.
-        data_models (Path): Directory for model artifacts.
-        specs_root (Path): Root directory for specifications.
-        random_seed (int): Global random seed for reproducibility.
-        n_jobs (int): Number of parallel jobs for processing.
-        verbose (bool): Whether to print verbose output.
+        data_root (Path): Root directory for all data (default: ./data)
+        raw_data_dir (Path): Directory for raw data files
+        processed_data_dir (Path): Directory for processed data files
+        results_dir (Path): Directory for analysis results
+        models_dir (Path): Directory for trained model artifacts
+        seed (int): Random seed for reproducibility
+        log_level (str): Logging level (DEBUG, INFO, WARNING, ERROR)
     """
     
     def __init__(self):
-        # Load environment variables
-        load_dotenv()
-        
-        # Project root (parent of code/ directory)
-        self.project_root = Path(os.getenv('PROJECT_ROOT', str(Path(__file__).parent.parent.parent)))
-        
-        # Data directories
-        self.data_root = Path(os.getenv('DATA_ROOT', self.project_root / 'data'))
-        self.data_raw = Path(os.getenv('DATA_RAW', self.data_root / 'raw'))
-        self.data_processed = Path(os.getenv('DATA_PROCESSED', self.data_root / 'processed'))
-        self.data_results = Path(os.getenv('DATA_RESULTS', self.data_root / 'results'))
-        self.data_models = Path(os.getenv('DATA_MODELS', self.data_root / 'models'))
-        
-        # Specifications directory
-        self.specs_root = Path(os.getenv('_SPECS_ROOT', self.project_root / 'specs'))
-        
-        # Random seed for reproducibility
-        self.random_seed = int(os.getenv('RANDOM_SEED', '42'))
-        
-        # Parallel processing settings
-        self.n_jobs = int(os.getenv('N_JOBS', '-1'))
-        self.verbose = os.getenv('VERBOSE', 'false').lower() == 'true'
-        
-        # Validation
-        self._validate()
+        self._config: Dict[str, Any] = {}
+        self._load_config()
     
-    def _validate(self):
-        """Validate that all required directories exist."""
-        required_dirs = [
-            self.data_raw,
-            self.data_processed,
-            self.data_results,
-            self.data_models,
-            self.specs_root
-        ]
+    def _load_config(self) -> None:
+        """Load configuration from environment variables with defaults."""
+        # Data paths
+        self.data_root = Path(os.getenv("DATA_ROOT", "./data"))
+        self.raw_data_dir = self.data_root / "raw"
+        self.processed_data_dir = self.data_root / "processed"
+        self.results_dir = self.data_root / "results"
+        self.models_dir = self.data_root / "models"
         
-        for directory in required_dirs:
-            if not directory.exists():
-                raise EnvConfigError(
-                    f"Required directory does not exist: {directory}. "
-                    f"Please ensure project setup (T001a) has been completed."
-                )
+        # Random seed
+        seed_str = os.getenv("RANDOM_SEED", "42")
+        try:
+            self.seed = int(seed_str)
+        except ValueError:
+            raise EnvConfigError(f"RANDOM_SEED must be an integer, got: {seed_str}")
+        
+        # Logging level
+        self.log_level = os.getenv("LOG_LEVEL", "INFO")
+        
+        # Specific data file paths (optional overrides)
+        self.query_log_path = Path(os.getenv("QUERY_LOG_PATH", str(self.raw_data_dir / "query_log.json")))
+        self.synthetic_data_path = Path(os.getenv("SYNTHETIC_DATA_PATH", str(self.raw_data_dir / "synthetic_arabidopsis_v1.csv")))
+        self.merged_dataset_path = Path(os.getenv("MERGED_DATASET_PATH", str(self.processed_data_dir / "merged_dataset.csv")))
+        self.model_metrics_path = Path(os.getenv("MODEL_METRICS_PATH", str(self.results_dir / "model_metrics.json")))
+        self.model_artifact_path = Path(os.getenv("MODEL_ARTIFACT_PATH", str(self.models_dir / "random_forest.pkl")))
+        self.interpretation_report_path = Path(os.getenv("INTERPRETATION_REPORT_PATH", str(self.results_dir / "interpretation_report.json")))
+        self.feature_importance_pvalues_path = Path(os.getenv("FEATURE_IMPORTANCE_PVALUES_PATH", str(self.results_dir / "feature_importance_pvalues.json")))
+        self.shap_plot_path = Path(os.getenv("SHAP_PLOT_PATH", str(self.results_dir / "shap_summary.png")))
+        self.validation_report_path = Path(os.getenv("VALIDATION_REPORT_PATH", str(self.results_dir / "data_validation_report.json")))
+        self.stability_metrics_path = Path(os.getenv("STABILITY_METRICS_PATH", str(self.results_dir / "stability_metrics.json")))
+        self.overlap_report_path = Path(os.getenv("OVERLAP_REPORT_PATH", str(self.results_dir / "overlap_report.json")))
+        self.perf_metrics_path = Path(os.getenv("PERF_METRICS_PATH", str(self.results_dir / "perf_metrics.json")))
+        
+        self._config = {
+            "data_root": str(self.data_root),
+            "raw_data_dir": str(self.raw_data_dir),
+            "processed_data_dir": str(self.processed_data_dir),
+            "results_dir": str(self.results_dir),
+            "models_dir": str(self.models_dir),
+            "seed": self.seed,
+            "log_level": self.log_level,
+            "query_log_path": str(self.query_log_path),
+            "synthetic_data_path": str(self.synthetic_data_path),
+            "merged_dataset_path": str(self.merged_dataset_path),
+            "model_metrics_path": str(self.model_metrics_path),
+            "model_artifact_path": str(self.model_artifact_path),
+            "interpretation_report_path": str(self.interpretation_report_path),
+            "feature_importance_pvalues_path": str(self.feature_importance_pvalues_path),
+            "shap_plot_path": str(self.shap_plot_path),
+            "validation_report_path": str(self.validation_report_path),
+            "stability_metrics_path": str(self.stability_metrics_path),
+            "overlap_report_path": str(self.overlap_report_path),
+            "perf_metrics_path": str(self.perf_metrics_path),
+        }
     
-    def get_path(self, key: str) -> Path:
+    def validate(self) -> None:
         """
-        Get a path by key name.
-        
-        Args:
-            key: One of 'data_raw', 'data_processed', 'data_results', 'data_models', 'specs'
-        
-        Returns:
-            Path object for the requested directory
+        Validate that all required directories exist and are writable.
         
         Raises:
-            EnvConfigError: If the key is invalid
+            EnvConfigError: If any directory is missing or not writable.
         """
-        path_map = {
-            'data_raw': self.data_raw,
-            'data_processed': self.data_processed,
-            'data_results': self.data_results,
-            'data_models': self.data_models,
-            'specs': self.specs_root,
-            'data_root': self.data_root,
-            'project_root': self.project_root
-        }
+        required_dirs = [
+            self.raw_data_dir,
+            self.processed_data_dir,
+            self.results_dir,
+            self.models_dir,
+        ]
         
-        if key not in path_map:
-            raise EnvConfigError(f"Unknown path key: {key}")
-        
-        return path_map[key]
+        for dir_path in required_dirs:
+            if not dir_path.exists():
+                try:
+                    dir_path.mkdir(parents=True, exist_ok=True)
+                except OSError as e:
+                    raise EnvConfigError(f"Cannot create directory {dir_path}: {e}")
+            
+            if not os.access(dir_path, os.W_OK):
+                raise EnvConfigError(f"Directory {dir_path} is not writable")
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert configuration to dictionary for serialization."""
-        return {
-            'project_root': str(self.project_root),
-            'data_root': str(self.data_root),
-            'data_raw': str(self.data_raw),
-            'data_processed': str(self.data_processed),
-            'data_results': str(self.data_results),
-            'data_models': str(self.data_models),
-            'specs_root': str(self.specs_root),
-            'random_seed': self.random_seed,
-            'n_jobs': self.n_jobs,
-            'verbose': self.verbose
-        }
+        """Return configuration as a dictionary."""
+        return self._config.copy()
     
-    def save_to_json(self, path: Path) -> None:
-        """
-        Save configuration to a JSON file.
-        
-        Args:
-            path: Path to save the configuration JSON
-        """
-        with open(path, 'w') as f:
-            json.dump(self.to_dict(), f, indent=2)
-    
-    @classmethod
-    def from_json(cls, path: Path) -> 'EnvConfig':
-        """
-        Load configuration from a JSON file.
-        
-        Args:
-            path: Path to the configuration JSON file
-        
-        Returns:
-            EnvConfig instance
-        """
-        with open(path, 'r') as f:
-            config_data = json.load(f)
-        
-        # Set environment variables from config
-        for key, value in config_data.items():
-            if key == 'random_seed':
-                os.environ['RANDOM_SEED'] = str(value)
-            elif key == 'n_jobs':
-                os.environ['N_JOBS'] = str(value)
-            elif key == 'verbose':
-                os.environ['VERBOSE'] = str(value).lower()
-            else:
-                env_key = key.upper().replace('_', '_')
-                os.environ[env_key] = str(value)
-        
-        return cls()
+    def to_json(self, indent: int = 2) -> str:
+        """Return configuration as a JSON string."""
+        return json.dumps(self.to_dict(), indent=indent)
 
-# Global configuration instance (singleton pattern)
-_config: Optional[EnvConfig] = None
+# Singleton instance
+_config_instance: Optional[EnvConfig] = None
 
 def get_config() -> EnvConfig:
     """
-    Get the global configuration instance.
+    Get the singleton EnvConfig instance.
     
     Returns:
-        EnvConfig instance
+        EnvConfig: The global configuration instance.
     """
-    global _config
-    if _config is None:
-        _config = EnvConfig()
-    return _config
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = EnvConfig()
+    return _config_instance
 
 def reset_config() -> None:
-    """Reset the global configuration instance (useful for testing)."""
-    global _config
-    _config = None
+    """Reset the configuration singleton (useful for testing)."""
+    global _config_instance
+    _config_instance = None
 
-def main():
-    """Main entry point for command-line usage."""
-    import sys
-    
+def main() -> None:
+    """
+    CLI entry point to display current configuration.
+    """
     config = get_config()
+    print("Current Environment Configuration:")
+    print(config.to_json())
     
-    if len(sys.argv) > 1 and sys.argv[1] == '--json':
-        # Output as JSON for scripting
-        print(json.dumps(config.to_dict(), indent=2))
-    else:
-        # Human-readable output
-        print("Project Configuration:")
-        print(f"  Project Root: {config.project_root}")
-        print(f"  Data Root: {config.data_root}")
-        print(f"  Data Raw: {config.data_raw}")
-        print(f"  Data Processed: {config.data_processed}")
-        print(f"  Data Results: {config.data_results}")
-        print(f"  Data Models: {config.data_models}")
-        print(f"  Specs Root: {config.specs_root}")
-        print(f"  Random Seed: {config.random_seed}")
-        print(f"  N Jobs: {config.n_jobs}")
-        print(f"  Verbose: {config.verbose}")
+    # Validate configuration
+    try:
+        config.validate()
+        print("\n✓ All directories validated successfully.")
+    except EnvConfigError as e:
+        print(f"\n✗ Configuration validation failed: {e}")
+        raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

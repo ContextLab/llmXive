@@ -1,205 +1,177 @@
 """
-Tests for environment variable management configuration.
+Tests for environment variable management (T008).
 
-These tests verify that the EnvConfig class correctly:
-1. Loads environment variables from .env file
-2. Provides typed accessors for paths and seeds
-3. Validates directory existence
-4. Handles configuration errors appropriately
+This module tests the EnvConfig class to ensure proper handling of
+environment variables for data paths and seeds.
 """
 import os
 import tempfile
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from utils.env_config import EnvConfig, EnvConfigError, get_config, reset_config
 
-# Import the module under test
-from utils.env_config import (
-    EnvConfig,
-    EnvConfigError,
-    get_config,
-    reset_config
-)
+@pytest.fixture
+def clean_env():
+    """Fixture to clean environment variables before each test."""
+    # Store original values
+    original = {}
+    keys = ["DATA_ROOT", "RANDOM_SEED", "LOG_LEVEL", "QUERY_LOG_PATH", 
+            "SYNTHETIC_DATA_PATH", "MERGED_DATASET_PATH", "MODEL_METRICS_PATH",
+            "MODEL_ARTIFACT_PATH", "INTERPRETATION_REPORT_PATH",
+            "FEATURE_IMPORTANCE_PVALUES_PATH", "SHAP_PLOT_PATH",
+            "VALIDATION_REPORT_PATH", "STABILITY_METRICS_PATH",
+            "OVERLAP_REPORT_PATH", "PERF_METRICS_PATH"]
+    
+    for key in keys:
+        if key in os.environ:
+            original[key] = os.environ[key]
+            del os.environ[key]
+    
+    # Reset config singleton
+    reset_config()
+    
+    yield
+    
+    # Restore original values
+    for key, value in original.items():
+        os.environ[key] = value
+    reset_config()
 
+def test_default_configuration(clean_env):
+    """Test that default configuration values are set correctly."""
+    config = get_config()
+    
+    assert config.data_root == Path("./data")
+    assert config.raw_data_dir == Path("./data/raw")
+    assert config.processed_data_dir == Path("./data/processed")
+    assert config.results_dir == Path("./data/results")
+    assert config.models_dir == Path("./data/models")
+    assert config.seed == 42
+    assert config.log_level == "INFO"
 
-class TestEnvConfig:
-    """Test suite for EnvConfig class."""
-    
-    def test_default_initialization(self, tmp_path):
-        """Test that default values are set correctly when env vars are missing."""
-        # Create a temporary directory structure
-        with patch.dict(os.environ, {}, clear=True):
-            with patch('pathlib.Path.exists', return_value=True):
-                config = EnvConfig()
-                
-                assert config.random_seed == 42
-                assert config.n_jobs == -1
-                assert config.verbose is False
-                
-                # Check that paths are set (they will be mocked to exist)
-                assert config.data_root is not None
-                assert config.data_raw is not None
-    
-    def test_custom_seed(self):
-        """Test that custom random seed is loaded from environment."""
-        with patch.dict(os.environ, {'RANDOM_SEED': '123'}):
-            with patch('pathlib.Path.exists', return_value=True):
-                config = EnvConfig()
-                assert config.random_seed == 123
-    
-    def test_custom_n_jobs(self):
-        """Test that custom n_jobs is loaded from environment."""
-        with patch.dict(os.environ, {'N_JOBS': '4'}):
-            with patch('pathlib.Path.exists', return_value=True):
-                config = EnvConfig()
-                assert config.n_jobs == 4
-    
-    def test_verbose_true(self):
-        """Test that verbose flag is correctly parsed."""
-        with patch.dict(os.environ, {'VERBOSE': 'true'}):
-            with patch('pathlib.Path.exists', return_value=True):
-                config = EnvConfig()
-                assert config.verbose is True
-    
-    def test_verbose_false(self):
-        """Test that verbose flag defaults to False."""
-        with patch.dict(os.environ, {'VERBOSE': 'false'}):
-            with patch('pathlib.Path.exists', return_value=True):
-                config = EnvConfig()
-                assert config.verbose is False
-    
-    def test_path_getter(self):
-        """Test that get_path returns correct directories."""
-        with patch('pathlib.Path.exists', return_value=True):
-            config = EnvConfig()
-            
-            assert config.get_path('data_raw') == config.data_raw
-            assert config.get_path('data_processed') == config.data_processed
-            assert config.get_path('data_results') == config.data_results
-            assert config.get_path('data_models') == config.data_models
-            assert config.get_path('specs') == config.specs_root
-    
-    def test_invalid_path_key(self):
-        """Test that invalid path key raises EnvConfigError."""
-        with patch('pathlib.Path.exists', return_value=True):
-            config = EnvConfig()
-            
-            with pytest.raises(EnvConfigError, match="Unknown path key"):
-                config.get_path('invalid_key')
-    
-    def test_to_dict(self):
-        """Test that configuration can be converted to dictionary."""
-        with patch('pathlib.Path.exists', return_value=True):
-            config = EnvConfig()
-            config_dict = config.to_dict()
-            
-            assert 'project_root' in config_dict
-            assert 'data_root' in config_dict
-            assert 'random_seed' in config_dict
-            assert 'n_jobs' in config_dict
-            assert 'verbose' in config_dict
-            assert isinstance(config_dict['random_seed'], int)
-    
-    def test_save_and_load_json(self, tmp_path):
-        """Test saving and loading configuration from JSON file."""
-        with patch('pathlib.Path.exists', return_value=True):
-            config = EnvConfig()
-            
-            # Save to JSON
-            json_path = tmp_path / 'config.json'
-            config.save_to_json(json_path)
-            
-            assert json_path.exists()
-            
-            # Load from JSON
-            loaded_config = EnvConfig.from_json(json_path)
-            
-            assert loaded_config.random_seed == config.random_seed
-            assert loaded_config.n_jobs == config.n_jobs
-            assert loaded_config.verbose == config.verbose
-    
-    def test_missing_directory_validation(self):
-        """Test that missing required directories raise EnvConfigError."""
-        with patch('pathlib.Path.exists', return_value=False):
-            with pytest.raises(EnvConfigError, match="Required directory does not exist"):
-                EnvConfig()
-    
-    def test_singleton_pattern(self):
-        """Test that get_config returns the same instance."""
+def test_custom_data_root(clean_env):
+    """Test custom DATA_ROOT environment variable."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.environ["DATA_ROOT"] = tmpdir
         reset_config()
+        config = get_config()
         
-        config1 = get_config()
-        config2 = get_config()
-        
-        assert config1 is config2
+        assert config.data_root == Path(tmpdir)
+        assert config.raw_data_dir == Path(tmpdir) / "raw"
+        assert config.processed_data_dir == Path(tmpdir) / "processed"
+        assert config.results_dir == Path(tmpdir) / "results"
+        assert config.models_dir == Path(tmpdir) / "models"
+
+def test_custom_seed(clean_env):
+    """Test custom RANDOM_SEED environment variable."""
+    os.environ["RANDOM_SEED"] = "12345"
+    reset_config()
+    config = get_config()
     
-    def test_reset_config(self):
-        """Test that reset_config clears the singleton instance."""
+    assert config.seed == 12345
+
+def test_invalid_seed_raises_error(clean_env):
+    """Test that non-integer RANDOM_SEED raises EnvConfigError."""
+    os.environ["RANDOM_SEED"] = "not_a_number"
+    reset_config()
+    
+    with pytest.raises(EnvConfigError, match="RANDOM_SEED must be an integer"):
+        get_config()
+
+def test_custom_log_level(clean_env):
+    """Test custom LOG_LEVEL environment variable."""
+    os.environ["LOG_LEVEL"] = "DEBUG"
+    reset_config()
+    config = get_config()
+    
+    assert config.log_level == "DEBUG"
+
+def test_custom_file_paths(clean_env):
+    """Test custom file path environment variables."""
+    os.environ["QUERY_LOG_PATH"] = "/custom/query_log.json"
+    os.environ["MERGED_DATASET_PATH"] = "/custom/merged.csv"
+    os.environ["MODEL_METRICS_PATH"] = "/custom/metrics.json"
+    
+    reset_config()
+    config = get_config()
+    
+    assert config.query_log_path == Path("/custom/query_log.json")
+    assert config.merged_dataset_path == Path("/custom/merged.csv")
+    assert config.model_metrics_path == Path("/custom/metrics.json")
+
+def test_to_dict(clean_env):
+    """Test that to_dict returns a valid dictionary."""
+    config = get_config()
+    config_dict = config.to_dict()
+    
+    assert isinstance(config_dict, dict)
+    assert "data_root" in config_dict
+    assert "seed" in config_dict
+    assert config_dict["seed"] == 42
+
+def test_to_json(clean_env):
+    """Test that to_json returns a valid JSON string."""
+    import json
+    config = get_config()
+    json_str = config.to_json()
+    
+    # Should not raise an exception
+    parsed = json.loads(json_str)
+    assert isinstance(parsed, dict)
+    assert "data_root" in parsed
+
+def test_validate_creates_directories(clean_env):
+    """Test that validate() creates missing directories."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.environ["DATA_ROOT"] = tmpdir
         reset_config()
-        config1 = get_config()
+        config = get_config()
         
+        # Directories should not exist yet
+        assert not config.raw_data_dir.exists()
+        assert not config.processed_data_dir.exists()
+        
+        # Validate should create them
+        config.validate()
+        
+        assert config.raw_data_dir.exists()
+        assert config.processed_data_dir.exists()
+        assert config.results_dir.exists()
+        assert config.models_dir.exists()
+
+def test_validate_non_writable_directory(clean_env):
+    """Test that validate() raises error for non-writable directory."""
+    # This test is skipped on Windows as permission handling differs
+    if os.name == "nt":
+        pytest.skip("Permission handling differs on Windows")
+        
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.environ["DATA_ROOT"] = tmpdir
         reset_config()
-        config2 = get_config()
+        config = get_config()
         
-        assert config1 is not config2
+        # Create a directory and make it read-only
+        config.raw_data_dir.mkdir(parents=True, exist_ok=True)
+        config.raw_data_dir.chmod(0o444)
+        
+        try:
+            with pytest.raises(EnvConfigError, match="not writable"):
+                config.validate()
+        finally:
+            # Restore permissions for cleanup
+            config.raw_data_dir.chmod(0o755)
 
-
-class TestEnvConfigIntegration:
-    """Integration tests for environment configuration."""
+def test_singleton_pattern(clean_env):
+    """Test that get_config returns the same instance."""
+    config1 = get_config()
+    config2 = get_config()
     
-    def test_env_file_loading(self, tmp_path):
-        """Test that .env file is loaded correctly."""
-        env_content = """
-        RANDOM_SEED=999
-        N_JOBS=2
-        VERBOSE=true
-        """
-        
-        env_file = tmp_path / '.env'
-        env_file.write_text(env_content)
-        
-        # Create required directories
-        data_root = tmp_path / 'data'
-        data_root.mkdir()
-        (data_root / 'raw').mkdir()
-        (data_root / 'processed').mkdir()
-        (data_root / 'results').mkdir()
-        (data_root / 'models').mkdir()
-        (tmp_path / 'specs').mkdir()
-        
-        with patch.dict(os.environ, {'PROJECT_ROOT': str(tmp_path)}):
-            with patch('utils.env_config.load_dotenv') as mock_load_dotenv:
-                # Mock load_dotenv to actually read our file
-                from dotenv import load_dotenv as real_load_dotenv
-                real_load_dotenv(env_file)
-                
-                config = EnvConfig()
-                
-                assert config.random_seed == 999
-                assert config.n_jobs == 2
-                assert config.verbose is True
+    assert config1 is config2
+
+def test_reset_config(clean_env):
+    """Test that reset_config() clears the singleton."""
+    config1 = get_config()
+    reset_config()
+    config2 = get_config()
     
-    def test_path_construction(self, tmp_path):
-        """Test that paths are constructed correctly from environment."""
-        data_root = tmp_path / 'custom_data'
-        data_root.mkdir()
-        (data_root / 'raw').mkdir()
-        (data_root / 'processed').mkdir()
-        (data_root / 'results').mkdir()
-        (data_root / 'models').mkdir()
-        (tmp_path / 'custom_specs').mkdir()
-        
-        with patch.dict(os.environ, {
-            'PROJECT_ROOT': str(tmp_path),
-            'DATA_ROOT': str(data_root),
-            'SPECS_ROOT': str(tmp_path / 'custom_specs')
-        }):
-            with patch('pathlib.Path.exists', return_value=True):
-                config = EnvConfig()
-                
-                assert config.data_root == data_root
-                assert config.specs_root == tmp_path / 'custom_specs'
-
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+    assert config1 is not config2

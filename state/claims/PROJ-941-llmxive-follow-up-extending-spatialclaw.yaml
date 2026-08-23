@@ -1146,167 +1146,11 @@
   updated_at: '2026-08-23T03:17:04Z'
 - artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
   attempts: 1
-  canonical: 'Default power analysis parameters: effect_size 0.5, power 0.8, max_runtime
-    6 hours, n_runs 5, alpha 0.05'
-  claim_id: c_23e0ca48
-  context: Task T035a defines the power_config.yaml schema with concrete default numeric
-    values.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Use concrete default numeric values: effect_size: 0.5, power: 0.8, max_runtime_hours:
-    6, n_runs: 5, alpha: 0.05'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:13:38Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Side length bounds for synthetic data generation are 0.5 to 2.0
-  claim_id: c_cd8f6d85
-  context: Task T035a defines the power_config.yaml schema including side length bounds.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'side_length_bounds: [0.5, 2.0]'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:14:02Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Pilot set generation size is 10 tasks
-  claim_id: c_97011cfb
-  context: Task T006a describes the implementation of pilot generation with N=10.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Generate a pilot set (N=10) of the 'Synthetic SpatialClaw Proxy'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:14:31Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Depth estimation threshold sweep values are 0.1, 0.5, 1.0, and 2.0 meters
-  claim_id: c_d055fd53
-  context: Task T031 describes the sensitivity analysis implementation sweeping specific
-    threshold values.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'sweep depth-estimation threshold over defined values: [0.1, 0.5, 1.0,
-    2.0] (units: meters, normalized to scene scale)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:14:52Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Flat object epsilon tolerance values are 0.0, 0.01, 0.02, 0.05, and 0.1
-  claim_id: c_a16897aa
-  context: Task T058 describes the edge case sensitivity analysis varying epsilon
-    values.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Vary the tolerance for ''zero depth variance'' (epsilon) over explicit
-    values: [0.0, 0.01, 0.02, 0.05, 0.1]'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:15:31Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Shapiro-Wilk test alpha level is 0.05
-  claim_id: c_49a9b500
-  context: Task T057a specifies the alpha level for the Shapiro-Wilk test implementation.
-  evidence:
-    asserted: '0.05'
-    authority: math.pi (IEEE-754 double, Python stdlib)
-    constant: pi
-    corrected: true
-    mode: approximate
-    true_value: 3.141592653589793
-    url: https://en.wikipedia.org/wiki/Pi
-  kind: numeric
-  raw_text: 'Alpha: 0.05'
-  resolved_value: '3.14'
-  resolver: approximate
-  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
-  source_type: external
-  status: verified
-  updated_at: '2026-08-23T09:15:31Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Baseline determinism check runs on first 10 tasks sorted by task_id
-  claim_id: c_8aa70e1f
-  context: Task T060 describes the baseline re-run consistency check using a specific
-    subset of tasks.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: run the D baseline agent on a deterministic subset of tasks (first 10
-    tasks sorted by task_id) twice
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:17:29Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Default number of runs per task is 5
-  claim_id: c_37b39613
-  context: Task T046 describes the execution integrity check verifying the number
-    of runs per task.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: ensure that every task_id in the dataset has exactly n_runs (from config,
-    default 5) runs in the 2D agent results
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:17:51Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Full pipeline budget limit is 6 hours
-  claim_id: c_860f1517
-  context: Task T056 describes the budget compliance report measuring against a 6-hour
-    limit.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: measure and record the total wall-clock time of the full pipeline against
-    the 6-hour limit
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:18:25Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: 'Power analysis defaults: effect_size 0.5, power 0.8, max_runtime 6 hours,
-    n_runs 5, alpha 0.05, side_length_bounds 0.5 to 2.0'
-  claim_id: c_f983ade7
-  context: 'T035a [P] **Power Config Definition**: Create `data/power_config.yaml`.
-    **Schema**: ... **Requirement**: Use concrete default numeric values: `effect_size:
-    0.5`, `power: 0.8`, `max_runtime_hours: 6`, `n_runs: 5`, `alpha: 0.05`, `flat_object_ratio:
-    a representative low proportion`, `side_length_bounds: [0.5, 2.0]`.'
+  canonical: 'Default power config values: effect_size 0.5, power 0.8, max_runtime
+    6 hours, n_runs 5, alpha 0.05, side_length_bounds 0.5 to 2.0'
+  claim_id: c_af7e0da9
+  context: Task T035a defines the schema for data/power_config.yaml and specifies
+    concrete default numeric values for reproducibility.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -1318,13 +1162,13 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-23T09:20:11Z'
+  updated_at: '2026-08-23T09:23:55Z'
 - artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
   attempts: 1
-  canonical: Generate pilot set of 10 tasks for Synthetic SpatialClaw Proxy
-  claim_id: c_92176980
-  context: '- [X] T006a [US1] **Pilot Generation**: Implement `code/data/generator.py`
-    to generate a pilot set (N=10) of the ''Synthetic SpatialClaw Proxy''.'
+  canonical: Pilot generation set size N equals 10
+  claim_id: c_c81da4b5
+  context: Task T006a describes implementing a pilot generation algorithm with a specific
+    sample size.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -1334,187 +1178,14 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-23T09:20:12Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: 'Edge case sensitivity analysis epsilon values: 0.0, 0.01, 0.02, 0.05,
-    0.1'
-  claim_id: c_021eb562
-  context: '- [X] T058 [US3] [FR-006] **Edge Case Sensitivity Analysis**: Extend `code/stats/sensitivity.py`
-    to include a specific sensitivity sweep for the ''flat object'' edge case. Vary
-    the tolerance for ''zero depth variance'' (epsilon) over explicit values: `[0.0,
-    0.01, 0.02, 0.05, 0.1]`.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Vary the tolerance for ''zero depth variance'' (epsilon) over explicit
-    values: [0.0, 0.01, 0.02, 0.05, 0.1].'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:20:12Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: 'Sensitivity analysis depth-estimation threshold values: 0.1, 0.5, 1.0,
-    2.0 meters'
-  claim_id: c_79e91bf3
-  context: '- [X] T031 [US3] [FR-006] **Implement Sensitivity Analysis**: Implement
-    `code/stats/sensitivity.py` to sweep depth-estimation threshold over defined values:
-    `[0.1, 0.5, 1.0, 2.0]` (units: meters, normalized to scene scale).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Sweep depth-estimation threshold over defined values: [0.1, 0.5, 1.0,
-    2.0] (units: meters, normalized to scene scale).'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:20:12Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Validation requires at least 5 distinct runs per task instance
-  claim_id: c_35512022
-  context: '- [X] T017c [US1] **Validate Run Count**: Verify that N>=5 runs were executed
-    per task instance by checking `results/runs/` for at least 5 distinct `run_{id}.json`
-    files per `task_id`.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Validation_requires_at_least_5_distinct_runs_per_task_instan
-  kind: magnitude
-  raw_text: Verify that N>=5 runs were executed per task instance by checking `results/runs/`
-    for at least 5 distinct `run_{id}.json` files per `task_id`.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:20:35Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Restricted kernel allows shapely and numpy; blocks trimesh, pytorch3d,
-    and open3d
-  claim_id: c_78479671
-  context: '- [X] T004 Implement `code/kernel/blockers.py`: Define `RestrictedActionError`
-    and the whitelist/blacklist of libraries (allow: shapely, numpy; block: trimesh,
-    pytorch3d, open3d)'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Restricted_kernel_allows_shapely_and_numpy;_blocks_trimesh,
-  kind: entity_fact
-  raw_text: 'Allow: shapely, numpy; block: trimesh, pytorch3d, open3d.'
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:20:56Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Shapiro-Wilk test alpha threshold set to 0.05
-  claim_id: c_fd6a52e3
-  context: '- [X] T057a [US3] [FR-005] **Implement Shapiro-Wilk Check**: Implement
-    `code/stats/tests.py` to automatically detect if the distribution of latency differences
-    (2D vs 3D) violates normality assumptions (using Shapiro-Wilk test). **Alpha**:
-    0.05.'
-  evidence:
-    asserted: '0.05'
-    authority: math.pi (IEEE-754 double, Python stdlib)
-    constant: pi
-    corrected: true
-    mode: approximate
-    true_value: 3.141592653589793
-    url: https://en.wikipedia.org/wiki/Pi
-  kind: numeric
-  raw_text: 'Alpha: 0.05 for Shapiro-Wilk test.'
-  resolved_value: '3.14'
-  resolver: approximate
-  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
-  source_type: external
-  status: verified
-  updated_at: '2026-08-23T09:20:56Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Fallback default N is 50 if required sample size is missing
-  claim_id: c_bfd65917
-  context: '- [X] T006b [US1] **Full Data Generation**: ... **Fallback**: If `n_required`
-    is missing, default to N=50 and log a WARNING.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Default to N=50 if `n_required` is missing in power analysis summary.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:21:21Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Baseline determinism check requires negligible difference between duplicate
-    runs
-  claim_id: c_42d1404b
-  context: '- [X] T060 [US2] [FR-007] **Baseline Re-run Consistency Check**: ... **Acceptance
-    Criteria**: Negligible absolute difference in success rate and latency between
-    the two runs.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Baseline_determinism_check_requires_negligible_difference_be
-  kind: entity_fact
-  raw_text: 'Acceptance Criteria: Negligible absolute difference in success rate and
-    latency between the two runs.'
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:21:50Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: 'Default power analysis parameters: effect_size 0.5, power 0.8, max_runtime
-    6 hours, n_runs 5, alpha 0.05, side_length_bounds [0.5, 2.0]'
-  claim_id: c_b215444f
-  context: Task T035a requires creating data/power_config.yaml with specific schema
-    and constraints.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Use concrete default numeric values: effect_size: 0.5, power: 0.8, max_runtime_hours:
-    6, n_runs: 5, alpha: 0.05, flat_object_ratio: a representative low proportion,
-    side_length_bounds: [0.5, 2.0].'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:24:31Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Pilot generation set size N=10
-  claim_id: c_c6580d0d
-  context: Task T006a specifies implementing a pilot generator with a specific count.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Generate a pilot set (N=10) of the 'Synthetic SpatialClaw Proxy'.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:24:32Z'
+  updated_at: '2026-08-23T09:24:14Z'
 - artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
   attempts: 1
   canonical: 'Flat object sensitivity analysis epsilon values: 0.0, 0.01, 0.02, 0.05,
     0.1'
-  claim_id: c_1ffef041
-  context: Task T058 defines the range for edge case sensitivity analysis.
+  claim_id: c_93e376e0
+  context: Task T058 details a sensitivity sweep for the 'flat object' edge case using
+    specific epsilon thresholds.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -1525,12 +1196,13 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-23T09:24:32Z'
+  updated_at: '2026-08-23T09:24:46Z'
 - artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
   attempts: 1
   canonical: 'Depth estimation threshold sweep values: 0.1, 0.5, 1.0, 2.0 meters'
-  claim_id: c_c6f6019c
-  context: Task T031 specifies the values for sensitivity analysis on depth thresholds.
+  claim_id: c_932e84d4
+  context: Task T031 outlines the implementation of sensitivity analysis by sweeping
+    depth-estimation thresholds.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -1541,48 +1213,13 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-23T09:24:32Z'
+  updated_at: '2026-08-23T09:25:10Z'
 - artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
   attempts: 1
-  canonical: Pipeline designed for CPU-first execution
-  claim_id: c_d5b7a2fa
-  context: Notes section specifies compute constraints and GPU escape hatch conditions.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Pipeline_designed_for_CPU-first_execution
-  kind: entity_fact
-  raw_text: The entire pipeline is designed for CPU-first execution.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:25:17Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: SpatialClaw Benchmark defined as Synthetic SpatialClaw Proxy generated
-    by T006
-  claim_id: c_b08427d0
-  context: Project Data Definition section defines the benchmark scope for the project.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/SpatialClaw_Benchmark_defined_as_Synthetic_SpatialClaw_Proxy
-  kind: entity_fact
-  raw_text: The 'SpatialClaw Benchmark' is defined as the 'Synthetic SpatialClaw Proxy'
-    generated by T006a/T006b.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:26:06Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: Minimum run count per task instance is 5
-  claim_id: c_9d8496f2
-  context: Task T017c specifies the validation requirement for the number of runs.
+  canonical: Minimum execution runs per task instance is 5
+  claim_id: c_b0805d83
+  context: Task T017c defines the validation requirement for the number of runs executed
+    per task instance.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -1592,140 +1229,61 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-23T09:26:29Z'
+  updated_at: '2026-08-23T09:26:13Z'
 - artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
   attempts: 1
-  canonical: Pipeline budget limit is 6 hours
-  claim_id: c_7a9ed62d
-  context: Task T056 and T044 reference the 6-hour limit from the power config.
+  canonical: Baseline determinism check uses first 10 tasks sorted by task_id
+  claim_id: c_526cc9a1
+  context: Task T060 describes the acceptance criteria for verifying baseline determinism.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The budget limit for the full pipeline is 6 hours.
+  raw_text: Run the D baseline agent on a deterministic subset of tasks (first 10
+    tasks sorted by task_id) twice with the same seed.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-23T09:26:48Z'
+  updated_at: '2026-08-23T09:28:11Z'
 - artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
   attempts: 1
-  canonical: sweep depth-estimation threshold over 0.1, 0.5, 1.0, 2.0 meters
-  claim_id: c_66b0b9f8
-  context: Phase 5, Implementation for User Story 3, T031
+  canonical: Flat objects seeded by setting Z-coordinate to 0.0 and variance to 0.0
+  claim_id: c_4f8b063b
+  context: Task T006a details the algorithm for generating flat objects in the synthetic
+    dataset.
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
   kind: numeric
-  raw_text: 'Implement code/stats/sensitivity.py to sweep depth-estimation threshold
-    over defined values: [0.1, 0.5, 1.0, 2.0] (units: meters, normalized to scene
-    scale).'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
+  raw_text: Use a probabilistic approach (e.g., [deferred] chance per task) to seed
+    tasks with zero depth variance (flat objects) by setting Z-coordinate to 0.0 for
+    all vertices and variance to 0.0.
+  resolved_value: '0.0'
+  resolver: approximate
+  source_hash: 2a4da904198188677c72ca515da3526ec5409f1b4181423fdf0fd8e7f7ef2cca
   source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:30:53Z'
+  status: verified
+  updated_at: '2026-08-23T09:28:11Z'
 - artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
   attempts: 1
-  canonical: vary flat object zero depth variance epsilon over 0.0, 0.01, 0.02, 0.05,
-    0.1
-  claim_id: c_fc34f7a4
-  context: Phase 3.5, T058
+  canonical: Restricted kernel allows shapely and numpy; blocks trimesh, pytorch3d,
+    and open3d
+  claim_id: c_d70ec7bc
+  context: Task T004 defines the whitelist and blacklist of libraries for the restricted
+    kernel.
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Extend code/stats/sensitivity.py to include a specific sensitivity sweep
-    for the ''flat object'' edge case. Vary the tolerance for ''zero depth variance''
-    (epsilon) over explicit values: [0.0, 0.01, 0.02, 0.05, 0.1].'
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Restricted_kernel_allows_shapely_and_numpy;_blocks_trimesh,
+  kind: entity_fact
+  raw_text: 'Allow libraries: shapely, numpy; block: trimesh, pytorch3d, open3d.'
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-23T09:31:17Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: default power config values effect_size 0.5 power 0.8 max_runtime_hours
-    6 n_runs 5 alpha 0.05 side_length_bounds 0.5 to 2.0
-  claim_id: c_ddd719bf
-  context: Phase 2, T035a Power Config Definition
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Use concrete default numeric values: effect_size: 0.5, power: 0.8, max_runtime_hours:
-    6, n_runs: 5, alpha: 0.05, flat_object_ratio: a representative low proportion,
-    side_length_bounds: [0.5, 2.0].'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:31:18Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: generate pilot set of 10 synthetic spatialclaw proxy tasks
-  claim_id: c_4eba1b20
-  context: Phase 2, T006a Pilot Generation
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement `code/data/generator.py` to generate a pilot set (N=10) of the
-    'Synthetic SpatialClaw Proxy'.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:31:33Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: verify minimum 5 runs per task instance
-  claim_id: c_b5404d89
-  context: Phase 3, T017c Validate Run Count
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_minimum_5_runs_per_task_instance
-  kind: magnitude
-  raw_text: Verify that N>=5 runs were executed per task instance by checking results/runs/
-    for at least 5 distinct run_{id}.json files per task_id.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:31:35Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: kernel audit script must find exactly 0 blocked library imports
-  claim_id: c_da48ae0a
-  context: Phase O, T050 Implement Kernel Blockage Final Audit
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The script must exit with code 0 only if the count of such instances is
-    exactly 0.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:32:30Z'
-- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
-  attempts: 1
-  canonical: report reduced power if flat object count is less than 2
-  claim_id: c_70b6a81a
-  context: Phase 3.5, T058 Edge Case Sensitivity Analysis
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Report_reduced_power_if_flat_object_count_is_less_than_2
-  kind: magnitude
-  raw_text: If N_flat < 2, report N_flat and proceed with reduced power, noting the
-    limitation in output.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-23T09:32:54Z'
+  updated_at: '2026-08-23T09:28:32Z'

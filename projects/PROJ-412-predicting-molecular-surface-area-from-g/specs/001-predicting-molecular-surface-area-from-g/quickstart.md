@@ -2,10 +2,9 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- 7 GB+ RAM (recommended)
-- Internet connection (for dataset download)
+-   Python 3.10+
+-   Git
+-   (Optional) Docker for isolated environment testing
 
 ## Installation
 
@@ -15,7 +14,7 @@
     cd projects/PROJ-412-predicting-molecular-surface-area-from-g
     ```
 
-2.  **Create a virtual environment**:
+2.  **Create and activate virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -23,56 +22,61 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r requirements.txt
+    pip install -r code/requirements.txt
     ```
-    *Note: `requirements.txt` includes `torch` (CPU), `rdkit`, `pandas`, `scikit-learn`, `datasets`.*
+    *Note: `requirements.txt` includes PyTorch (CPU), PyTorch Geometric (CPU), RDKit, and HuggingFace datasets.*
 
-4.  **Verify installation**:
+## Data Preparation
+
+1.  **Download and Ingest**:
+    Run the ingestion script to fetch ZINC15 and generate checksums.
     ```bash
-    python -c "import rdkit; import torch; print('RDKit and PyTorch loaded successfully')"
+    python code/data/ingest.py
     ```
+    *Output*: `data/raw/zinc_processed.parquet`, `data/raw/checksums.json`.
 
-## Running the Pipeline
+2.  **Preprocess**:
+    Generate 2D graphs, 3D conformers, and surface area labels.
+    ```bash
+    python code/data/preprocess.py --max-atoms 100 --threshold 0.1
+    ```
+    *Output*: `data/processed/graphs_with_features.parquet`, `data/processed/conformer_params.json`.
 
-The pipeline is orchestrated via `code/main.py`.
+## Model Training
 
-### Step 1: Data Ingestion & Preprocessing
-Downloads ZINC15, generates 2D graphs and 3D conformers, and splits the data.
-```bash
-python code/main.py --stage preprocess
-```
-*Outputs*: `data/processed/paired_dataset.parquet`, `data/processed/conformer_params.json`.
+1.  **Train GCN**:
+    ```bash
+    python code/train/train_gcn.py --epochs 50 --patience 5
+    ```
+    *Output*: `results/models/gcn_model.pt`, `results/reports/training_log.json`.
 
-### Step 2: Model Training
-Trains the GCN and the 2D Topology Baseline.
-```bash
-python code/main.py --stage train
-```
-*Outputs*: `results/models/gcn_model.pt`, `results/models/baseline_model.pkl`.
+2.  **Run Geometry Baseline**:
+    ```bash
+    python code/train/train_baseline.py
+    ```
+    *Output*: `results/models/baseline_model.pkl`.
 
-### Step 3: Evaluation & Sensitivity Analysis
-Compares models, performs t-tests, and runs sensitivity analysis.
-```bash
-python code/main.py --stage eval
-```
-*Outputs*: `results/reports/evaluation_report.md`, `results/plots/sensitivity_curve.png`.
+## Evaluation
+
+1.  **Evaluate Models**:
+    ```bash
+    python code/eval/evaluate.py
+    ```
+    *Output*: `results/reports/comparison_report.json` (MAE, RMSE, R², t-test p-value).
+
+2.  **Sensitivity Analysis**:
+    ```bash
+    python code/eval/sensitivity.py --thresholds 1.0 5.0 10.0
+    ```
+    *Output*: `results/reports/sensitivity_analysis.json`, `results/plots/sensitivity_curve.png`.
 
 ## Verification
 
-To verify the pipeline ran correctly:
-1.  Check `data/raw/checksums.json` for valid checksums.
-2.  Inspect `results/reports/evaluation_report.md` for the paired t-test p-value.
-3.  Run unit tests:
+1.  **Run Tests**:
     ```bash
-    pytest tests/unit/ -v
+    pytest tests/ -v
     ```
-4.  Run contract tests:
-    ```bash
-    pytest tests/contract/ -v
-    ```
+    *Includes*: Unit tests for preprocessing, contract tests for schema validation, integration tests for the full pipeline.
 
-## Troubleshooting
-
-- **RAM Error**: If you encounter OOM errors, the dataset may be too large. The pipeline automatically streams data. If issues persist, reduce the `max_samples` parameter in `code/main.py`.
-- **3D Generation Failure**: If >10% of molecules fail 3D generation, check `data/processed/failure_report.csv`. This may indicate poor quality SMILES in the source.
-- **CUDA Error**: If you have a GPU but want to force CPU, set `CUDA_VISIBLE_DEVICES=""` before running.
+2.  **Check Reproducibility**:
+    Re-run the pipeline with `--seed 42` to verify identical results.

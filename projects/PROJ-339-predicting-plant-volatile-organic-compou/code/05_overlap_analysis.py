@@ -1,214 +1,253 @@
-"""
-T031: Implement overlap statistics calculation against known terpene synthase gene families.
-
-This module calculates the overlap between the top-ranked features from the 
-trained model and known terpene synthase (TPS) gene families.
-
-FR-008: Validate that top features correspond to known biological pathways.
-"""
 import os
 import sys
 import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import List, Dict, Set, Tuple, Any
+from typing import Dict, List, Tuple, Optional
 
-# Ensure we can import sibling modules
-sys.path.insert(0, str(Path(__file__).parent))
+# Constants
+SPEC_DIR = Path(__file__).parent.parent / "specs" / "001-predict-voc-profiles"
+DATA_DIR = Path(__file__).parent.parent / "data"
+RESULTS_DIR = DATA_DIR / "results"
+PROCESSED_DIR = DATA_DIR / "processed"
+MODELS_DIR = DATA_DIR / "models"
 
-from utils.config import get_config
-
-
-# Known TPS gene families for Arabidopsis thaliana (based on literature)
-# Source: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3300343/
+# Known Terpene Synthase (TPS) families for Arabidopsis thaliana
+# Based on literature (e.g., Tholl et al., 2005; Chen et al., 2011)
+# These are the standard TPS subfamilies found in Arabidopsis
 KNOWN_TPS_FAMILIES = {
-    'TPSa', 'TPSb', 'TPSc', 'TPSd', 'TPSe', 'TPSf', 'TPSg', 'TPSh', 
-    'TPSi', 'TPSj', 'TPSk', 'TPSl', 'TPSm', 'TPSn', 'TPSo', 'TPSp',
-    'TPSq', 'TPSr', 'TPSs', 'TPSt', 'TPSu', 'TPSv', 'TPSw', 'TPSx',
-    'TPSy', 'TPSz'
+    "TPSa", "TPSb", "TPSc", "TPSd", "TPSe", "TPSf", "TPSg", "TPSh", "TPSi"
 }
 
-# Mapping of pathway features to TPS families (derived from T016 aggregation)
-# In a real scenario, this would come from a curated database or mapping file
-# For this implementation, we assume the pathway features are named like 'pathway_TPSa', 'pathway_TPSb', etc.
-def _extract_tps_family(feature_name: str) -> str:
-    """Extract TPS family name from a pathway feature string."""
-    feature_lower = feature_name.lower()
-    for family in KNOWN_TPS_FAMILIES:
-        if family.lower() in feature_lower:
-            return family
-    return None
-
-
-def load_model_and_feature_importance(
-    metrics_path: Path, 
-    importance_path: Path
-) -> Tuple[Dict[str, float], List[str]]:
+def load_model_and_feature_importance(model_path: Path = None, importance_path: Path = None) -> Tuple[Dict, pd.DataFrame]:
     """
-    Load model metrics and feature importance data.
+    Load the trained model and feature importance data.
     
     Args:
-        metrics_path: Path to model_metrics.json
-        importance_path: Path to feature_importance_pvalues.json
+        model_path: Path to the trained model pickle file.
+        importance_path: Path to the feature importance JSON file (from T028/T030).
         
     Returns:
-        Tuple of (importance_dict, feature_names_list)
+        Tuple of (model, feature_importance_df)
     """
-    with open(metrics_path, 'r') as f:
-        metrics = json.load(f)
-    
+    if model_path is None:
+        model_path = MODELS_DIR / "random_forest.pkl"
+    if importance_path is None:
+        importance_path = RESULTS_DIR / "feature_importance_pvalues.json"
+        
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+    if not importance_path.exists():
+        raise FileNotFoundError(f"Feature importance file not found: {importance_path}")
+        
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
+        
     with open(importance_path, 'r') as f:
         importance_data = json.load(f)
-    
-    # Extract feature importance and names
-    importance_dict = importance_data.get('importance', {})
-    feature_names = list(importance_dict.keys())
-    
-    return importance_dict, feature_names
+        
+    # Convert to DataFrame for easier manipulation
+    df = pd.DataFrame(importance_data)
+    return model, df
 
-
-def calculate_overlap_statistics(
-    importance_dict: Dict[str, float],
-    top_n: int = 20
-) -> Dict[str, Any]:
+def load_pathway_mapping(mapping_path: Path = None) -> Dict[str, str]:
     """
-    Calculate overlap statistics between top features and known TPS families.
+    Load the gene-to-pathway mapping used in T016.
+    This mapping links individual genes to their pathway/family (e.g., TPSa, TPSb).
     
     Args:
-        importance_dict: Dictionary of feature names to importance scores
-        top_n: Number of top features to consider
+        mapping_path: Path to the gene-pathway mapping file.
         
     Returns:
-        Dictionary containing overlap statistics
+        Dictionary mapping gene names to pathway/family names.
     """
-    # Sort features by importance
-    sorted_features = sorted(importance_dict.items(), key=lambda x: x[1], reverse=True)
-    top_features = sorted_features[:top_n]
-    top_feature_names = [f[0] for f in top_features]
+    if mapping_path is None:
+        # Expected location based on T016 output
+        mapping_path = SPEC_DIR / "gene_pathway_mapping.json"
+        
+    if not mapping_path.exists():
+        # If the specific mapping file doesn't exist, try to infer from aggregated features
+        # This is a fallback for when we only have aggregated pathway features
+        return {}
+        
+    with open(mapping_path, 'r') as f:
+        return json.load(f)
+
+def calculate_overlap_statistics(feature_importance_df: pd.DataFrame, 
+                                 gene_to_pathway: Dict[str, str],
+                                 top_n: int = 20) -> Dict:
+    """
+    Calculate overlap statistics between top important features and known TPS families.
     
-    # Identify which top features are TPS-related
-    tps_features = []
-    non_tps_features = []
+    This implements FR-008: Validate that top predictive features overlap with 
+    known terpene synthase gene families.
     
-    for feature in top_feature_names:
-        family = _extract_tps_family(feature)
-        if family:
-            tps_features.append({
-                'feature': feature,
-                'family': family,
-                'importance': importance_dict[feature]
+    Args:
+        feature_importance_df: DataFrame with 'feature', 'importance', 'p_value', 'p_value_corrected'.
+        gene_to_pathway: Mapping of gene names to pathway/family names.
+        top_n: Number of top features to analyze.
+        
+    Returns:
+        Dictionary containing overlap statistics.
+    """
+    # Sort by corrected p-value (most significant first) or importance
+    # Using corrected p-value as primary sort, then importance
+    sorted_df = feature_importance_df.sort_values(
+        by=['p_value_corrected', 'importance'], 
+        ascending=[True, False]
+    )
+    
+    top_features = sorted_df.head(top_n)
+    
+    # Identify which top features belong to known TPS families
+    tps_hits = []
+    non_tps_hits = []
+    
+    for _, row in top_features.iterrows():
+        feature_name = row['feature']
+        # Extract gene name if feature is "pathway_gene" format, or use as is
+        # Assuming features might be named like "TPSa_Gene1" or just "Gene1"
+        gene_name = feature_name.split('_')[-1] if '_' in feature_name else feature_name
+        
+        pathway = gene_to_pathway.get(gene_name, None)
+        
+        if pathway and pathway in KNOWN_TPS_FAMILIES:
+            tps_hits.append({
+                'feature': feature_name,
+                'pathway': pathway,
+                'importance': row['importance'],
+                'p_value': row['p_value'],
+                'p_value_corrected': row['p_value_corrected']
             })
         else:
-            non_tps_features.append({
-                'feature': feature,
-                'importance': importance_dict[feature]
+            non_tps_hits.append({
+                'feature': feature_name,
+                'pathway': pathway,
+                'importance': row['importance'],
+                'p_value': row['p_value'],
+                'p_value_corrected': row['p_value_corrected']
             })
     
     # Calculate statistics
     total_top = len(top_features)
-    tps_count = len(tps_features)
-    non_tps_count = len(non_tps_features)
+    tps_count = len(tps_hits)
+    non_tps_count = len(non_tps_hits)
     
-    overlap_percentage = (tps_count / total_top * 100) if total_top > 0 else 0.0
+    overlap_percentage = (tps_count / total_top * 100) if total_top > 0 else 0
     
-    # Check for enrichment
-    # Expected: if features were random, what % would be TPS?
-    # We'll use a simple heuristic: if >50% of top features are TPS, it's enriched
-    is_enriched = overlap_percentage > 50.0
+    # Enrichment analysis: Compare observed vs expected
+    # Expected: proportion of TPS families in the entire feature set
+    all_features = feature_importance_df['feature'].tolist()
+    all_genes = [f.split('_')[-1] if '_' in f else f for f in all_features]
+    all_pathways = [gene_to_pathway.get(g, None) for g in all_genes]
+    total_tps_in_set = sum(1 for p in all_pathways if p in KNOWN_TPS_FAMILIES)
+    expected_percentage = (total_tps_in_set / len(all_pathways) * 100) if all_pathways else 0
     
-    # Calculate which TPS families are represented
-    represented_families = set(f['family'] for f in tps_features)
+    enrichment_ratio = (overlap_percentage / expected_percentage) if expected_percentage > 0 else float('inf')
+    
+    # Fisher's exact test approximation (simplified)
+    # Contingency table:
+    #                In Top N    Not in Top N
+    # TPS Family        a           b
+    # Not TPS Family    c           d
+    a = tps_count
+    c = total_tps_in_set - tps_count
+    b = non_tps_count
+    d = len(all_pathways) - total_tps_in_set - non_tps_count
+    
+    # Avoid division by zero
+    if (a + b) == 0 or (c + d) == 0 or (a + c) == 0 or (b + d) == 0:
+        odds_ratio = float('inf') if a > 0 and c == 0 else 0
+    else:
+        odds_ratio = (a * d) / (b * c) if (b * c) > 0 else float('inf')
     
     return {
         'top_n': top_n,
         'total_top_features': total_top,
-        'tps_features_count': tps_count,
-        'non_tps_features_count': non_tps_count,
+        'tps_hits_count': tps_count,
+        'non_tps_hits_count': non_tps_count,
         'overlap_percentage': round(overlap_percentage, 2),
-        'is_enriched': is_enriched,
-        'tps_features': tps_features,
-        'non_tps_features': non_tps_features,
-        'represented_families': sorted(list(represented_families)),
-        'all_tps_families': sorted(list(KNOWN_TPS_FAMILIES)),
-        'families_not_represented': sorted(list(KNOWN_TPS_FAMILIES - represented_families))
+        'expected_percentage': round(expected_percentage, 2),
+        'enrichment_ratio': round(enrichment_ratio, 2) if enrichment_ratio != float('inf') else "Inf",
+        'odds_ratio': round(odds_ratio, 2) if odds_ratio != float('inf') else "Inf",
+        'tps_hits': tps_hits,
+        'non_tps_hits': non_tps_hits,
+        'known_tps_families': list(KNOWN_TPS_FAMILIES)
     }
 
-
-def generate_overlap_report(
-    stats: Dict[str, Any],
-    output_path: Path
-) -> None:
+def generate_overlap_report(stats: Dict, output_path: Path = None) -> Path:
     """
-    Generate a detailed overlap report and save to JSON.
+    Generate a JSON report with overlap statistics.
     
     Args:
-        stats: Overlap statistics dictionary
-        output_path: Path to save the report
+        stats: Statistics dictionary from calculate_overlap_statistics.
+        output_path: Path for the output JSON file.
+        
+    Returns:
+        Path to the generated report.
     """
-    report = {
-        'task_id': 'T031',
-        'description': 'Overlap statistics calculation against known terpene synthase gene families',
-        'fr_reference': 'FR-008',
-        'timestamp': pd.Timestamp.now().isoformat(),
-        'statistics': stats,
-        'interpretation': {
-            'summary': f"Out of top {stats['top_n']} features, {stats['tps_features_count']} ({stats['overlap_percentage']}%) are associated with known TPS families.",
-            'enrichment': f"Feature overlap {'is' if stats['is_enriched'] else 'is not'} enriched for known TPS families.",
-            'represented_families': f"TPS families represented in top features: {', '.join(stats['represented_families']) if stats['represented_families'] else 'None'}",
-            'missing_families': f"TPS families not represented in top features: {', '.join(stats['families_not_represented']) if stats['families_not_represented'] else 'None'}"
-        }
-    }
-    
+    if output_path is None:
+        output_path = RESULTS_DIR / "overlap_statistics.json"
+        
     # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Save report
+    # Add metadata
+    report = {
+        'analysis_type': 'TPS Family Overlap Analysis',
+        'description': 'Overlap between top predictive features and known terpene synthase families',
+        'reference_families': list(KNOWN_TPS_FAMILIES),
+        'statistics': stats,
+        'disclaimer': 'Findings are associational due to observational data. Overlap does not imply causation.'
+    }
+    
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
-
+        
+    return output_path
 
 def main():
-    """Main entry point for T031."""
-    config = get_config()
+    """Main entry point for overlap analysis."""
+    print("Starting TPS family overlap analysis...")
     
-    # Define paths
-    project_root = Path(config.get('project_root', '.'))
-    metrics_path = project_root / 'data' / 'results' / 'model_metrics.json'
-    importance_path = project_root / 'data' / 'results' / 'feature_importance_pvalues.json'
-    output_path = project_root / 'data' / 'results' / 'overlap_statistics.json'
+    # Ensure directories exist
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     
-    # Check if required files exist
-    if not metrics_path.exists():
-        print(f"Error: Model metrics file not found at {metrics_path}")
-        print("Please ensure T024 and T030 have been completed.")
-        sys.exit(1)
-    
-    if not importance_path.exists():
-        print(f"Error: Feature importance file not found at {importance_path}")
-        print("Please ensure T030 has been completed.")
-        sys.exit(1)
-    
-    print("Loading model and feature importance data...")
-    importance_dict, feature_names = load_model_and_feature_importance(metrics_path, importance_path)
-    
-    print(f"Found {len(feature_names)} features in the model.")
-    
-    # Calculate overlap statistics
-    print("Calculating overlap statistics...")
-    stats = calculate_overlap_statistics(importance_dict, top_n=20)
-    
-    # Generate report
-    print(f"Generating overlap report at {output_path}...")
-    generate_overlap_report(stats, output_path)
-    
-    print("Overlap analysis completed successfully!")
-    print(f"  - TPS features in top 20: {stats['tps_features_count']}")
-    print(f"  - Overlap percentage: {stats['overlap_percentage']}%")
-    print(f"  - Enriched: {stats['is_enriched']}")
-    
-    return stats
+    try:
+        # Load data
+        print("Loading model and feature importance...")
+        model, importance_df = load_model_and_feature_importance()
+        
+        print("Loading gene-pathway mapping...")
+        gene_to_pathway = load_pathway_mapping()
+        
+        if not gene_to_pathway:
+            print("Warning: No gene-pathway mapping found. Using feature names directly.")
+            # Create a dummy mapping if none exists (features might already be pathways)
+            for feat in importance_df['feature']:
+                # Check if feature name starts with a known TPS family
+                for family in KNOWN_TPS_FAMILIES:
+                    if feat.startswith(family):
+                        gene_to_pathway[feat] = family
+                        break
+                else:
+                    gene_to_pathway[feat] = "Unknown"
+        
+        # Calculate statistics
+        print("Calculating overlap statistics...")
+        stats = calculate_overlap_statistics(importance_df, gene_to_pathway)
+        
+        # Generate report
+        print("Generating overlap report...")
+        report_path = generate_overlap_report(stats)
+        
+        print(f"Overlap analysis complete. Report saved to: {report_path}")
+        print(f"Top {stats['top_n']} features: {stats['tps_hits_count']} overlap with known TPS families ({stats['overlap_percentage']}%)")
+        
+    except Exception as e:
+        print(f"Error during overlap analysis: {e}")
+        raise
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

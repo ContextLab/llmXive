@@ -23,40 +23,7 @@ _kernel_instance: Optional['RestrictedKernel'] = None
 _policy_active: bool = False
 
 # Path for the blocked operations log
-BLOCKED_LOG_PATH = "results/logs/blocked_operations.log"
-
-
-def _ensure_log_directory():
-    """Ensure the results/logs directory exists."""
-    log_dir = os.path.dirname(BLOCKED_LOG_PATH)
-    if log_dir and not os.path.exists(log_dir):
-        os.makedirs(log_dir, exist_ok=True)
-
-
-def _log_blocked_operation(name: str, stack_trace: str):
-    """
-    Logs the blocked import attempt and its full stack trace to the dedicated log file.
-    """
-    _ensure_log_directory()
-    timestamp = logging.Formatter('%(asctime)s').format(logging.LogRecord(
-        name='root', level=logging.INFO, pathname='', lineno=0,
-        msg='', args=(), exc_info=None
-    ))
-    
-    log_entry = (
-        f"--- BLOCKED IMPORT ATTEMPT ---\n"
-        f"Timestamp: {timestamp}\n"
-        f"Blocked Module: {name}\n"
-        f"Call Stack:\n{stack_trace}\n"
-        f"-----------------------------\n"
-    )
-    
-    try:
-        with open(BLOCKED_LOG_PATH, 'a', encoding='utf-8') as f:
-            f.write(log_entry)
-        logger.warning(f"Blocked import '{name}' logged to {BLOCKED_LOG_PATH}")
-    except IOError as e:
-        logger.error(f"Failed to write blocked operation log: {e}")
+_BLOCKED_LOG_PATH = "results/logs/blocked_operations.log"
 
 
 class RestrictedImportHook:
@@ -81,7 +48,21 @@ class RestrictedImportHook:
             
             # Log to standard logger as well for immediate visibility
             logger.warning(f"BLOCKED IMPORT attempt: {name}")
-            logger.warning(f"Traceback at block:\n{stack_trace}")
+            
+            # Capture full call stack for debugging
+            stack_trace = ''.join(traceback.format_stack())
+            logger.warning(f"Traceback at block: {stack_trace}")
+            
+            # Append detailed stack trace to the specific log file
+            try:
+                os.makedirs(os.path.dirname(_BLOCKED_LOG_PATH), exist_ok=True)
+                with open(_BLOCKED_LOG_PATH, 'a') as log_file:
+                    log_file.write(f"--- Blocked Import: {name} ---\n")
+                    log_file.write(f"Timestamp: {traceback.format_time(time.time()) if 'time' in dir() else 'N/A'}\n")
+                    log_file.write(stack_trace)
+                    log_file.write("\n")
+            except Exception as e:
+                logger.error(f"Failed to write stack trace to log file: {e}")
             
             raise RestrictedActionError(
                 f"Import of '{name}' is blocked by the 2D spatial restriction policy. "

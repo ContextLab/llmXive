@@ -1,12 +1,10 @@
 status: none
-intent: ZINC15 PubChem SMILES surface area parquet RDKit python package dataset
+intent: download ZINC15 HuggingFace zhangh1990 zinc and PubChem python package dataset
 required_fields:
 - smiles
 - atom_features
 - bond_features
 - surface_area
-- molecular_weight
-- molecule_id
-cache_key: 6fef59a28c9ff2309817a61baa31988c7b62c5dc5c6b9239963e25e00375147a
-searched_at: '2026-08-15T00:53:24.330951+00:00'
+cache_key: 7100d1495a809611f19328152d772500c95390309915a1c48fb908f26d2e692c
+searched_at: '2026-08-23T09:54:37.406270+00:00'
 retry_count: 1

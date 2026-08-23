@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T11:12:49.766056Z'
-current_stage: tasked
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-941-llmxive-follow-up-extending-spatialclaw
-last_run_id: 68b07127-96a5-43a9-b620-d3077078ca0d
+last_run_id: 68daf2a4-63b4-43e8-a037-34173eb32ff3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw
 title: 'llmXive follow-up: extending "SpatialClaw: Rethinking Action Interface for
   Agentic Spatial Reasoning"'
-updated_at: '2026-08-23T10:00:24.042258Z'
+updated_at: '2026-08-23T09:28:50.969893Z'

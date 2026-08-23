@@ -1,12 +1,3 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `tests/contract/` directory, pytest configuration file (e.g., `pytest.ini`\
-    \ or `conftest.py`), or contract testing framework setup (e.g., schema validation\
-    \ utilities) was presented. Without these artifacts, the requirement to establish\
-    \ the testing framework cannot be verified as fulfilled. The next implementer\
-    \ must add the appropriate pytest config and contract\u2011testing scaffolding\
-    \ in `tests/contract/`, ensuring the schemas from T007 are present."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

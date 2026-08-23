@@ -1,53 +1,51 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Processed Molecular Dataset Schema"
-description: "Schema for data/processed/paired_dataset.parquet"
-type: "object"
+title: "Molecular Dataset Schema"
+description: "Schema for the processed molecular dataset (2D features + 3D SASA)"
+type: object
 properties:
   smiles:
-    type: "string"
-    description: "Canonical SMILES string of the molecule"
+    type: string
+    description: "Canonical SMILES string"
+    minLength: 1
   molecular_weight:
-    type: "number"
+    type: number
     description: "Molecular weight in g/mol"
-  num_atoms:
-    type: "integer"
-    description: "Number of atoms in the molecule"
-  num_bonds:
-    type: "integer"
-    description: "Number of bonds in the molecule"
+    minimum: 0
+  atom_count:
+    type: integer
+    description: "Number of atoms"
+    minimum: 1
+  node_features:
+    type: array
+    description: "Flattened atom feature vectors"
+    items:
+      type: number
+  edge_features:
+    type: array
+    description: "Flattened bond feature vectors"
+    items:
+      type: number
   sasa:
-    type: "number"
-    description: "Solvent Accessible Surface Area in Å² (computed from 3D conformer)"
-  atom_features:
-    type: "array"
-    description: "Flattened list of node features [Atomic Number, Degree, Hybridization, Charge, Aromaticity]"
-    items:
-      type: "number"
-  bond_features:
-    type: "array"
-    description: "Flattened list of edge features [Bond Type, Conjugated, Ring]"
-    items:
-      type: "number"
-  conformer_failed:
-    type: "boolean"
-    description: "True if 3D conformer generation failed"
+    type: number
+    description: "Computed 3D Surface Area in Å²"
+    minimum: 0
   conformer_params:
-    type: "object"
-    description: "RDKit parameters used for conformer generation"
-    properties:
-      numThreads:
-        type: "integer"
-      maxAttempts:
-        type: "integer"
-      energyMinSteps:
-        type: "integer"
-  scaffold_id:
-    type: "string"
-    description: "Bemis-Murcko scaffold identifier for splitting"
+    type: string
+    description: "JSON string of RDKit conformer generation parameters"
+  split:
+    type: string
+    enum:
+      - train
+      - test
+      - val
+    description: "Dataset split assignment"
 required:
   - smiles
+  - molecular_weight
+  - atom_count
+  - node_features
+  - edge_features
   - sasa
-  - num_atoms
-  - conformer_failed
-  - scaffold_id
+  - conformer_params
+  - split
 additionalProperties: false

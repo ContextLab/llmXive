@@ -77,8 +77,12 @@ def write_audit_report(report_path: str, total_count: int, findings: List[Tuple[
         if total_count == 0:
             f.write("AUDIT PASSED: 0 blocked operations found.\n\n")
             f.write("The following log files were scanned:\n")
-            for log_file in find_log_files():
-                f.write(f"  - {log_file}\n")
+            scanned_files = find_log_files()
+            if scanned_files:
+                for log_file in scanned_files:
+                    f.write(f"  - {log_file}\n")
+            else:
+                f.write("  (No log files found in the specified directory)\n")
         else:
             f.write(f"AUDIT FAILED: {total_count} blocked operations found.\n\n")
             f.write("Findings:\n")

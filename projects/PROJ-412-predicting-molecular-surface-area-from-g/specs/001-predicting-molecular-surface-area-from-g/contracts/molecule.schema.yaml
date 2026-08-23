@@ -43,6 +43,9 @@ properties:
       - "failed"
       - "minimized"
     description: "Status of 3D conformer generation."
+  conformer_params:
+    type: "string"
+    description: "JSON string of RDKit conformer generation parameters used."
   exclusion_reason:
     type: ["string", "null"]
     description: "Reason for exclusion if the molecule was filtered out."
@@ -56,4 +59,5 @@ required:
   - adjacency_matrix
   - surface_area
   - conformer_status
+  - conformer_params
 additionalProperties: false

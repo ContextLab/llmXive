@@ -197,17 +197,17 @@
 
 **Purpose**: Final verification of the entire pipeline execution and generation of the final research report artifacts.
 
-- [ ] T052_create [US1/2/3] **Implement Full Pipeline Runner**: Create `scripts/run_full_pipeline.py` that executes T006b, T023b, T017b, and T029 in sequence.
-- [ ] T052_exec [US1/2/3] **Execute Full Pipeline**: Run `scripts/run_full_pipeline.py` to generate all execution artifacts.
-- [X] T046 [US1] **Implement Execution Integrity Check**: Implement `code/utils/verify_run.py` that aggregates all `results/runs/*.json` files and `results/logs/baseline_run.json`.
-- [ ] T046_exec [US1] **Execute Integrity Check**: Run `code/utils/verify_run.py` to generate `results/analysis/run_integrity_report.json`.
-- [X] T047 [US2] **Final Paired Dataset Assembly**: Merge the 2D agent results and the 3D baseline results into a single canonical file `results/analysis/final_paired_dataset.csv`.
-- [ ] T047_exec [US2] **Execute Dataset Assembly**: Run the logic to generate `results/analysis/final_paired_dataset.csv`.
-- [ ] T048_create [US3] **Implement Statistical Report Generator**: Implement `code/stats/tests.py` and `code/stats/sensitivity.py` execution logic to generate `results/analysis/final_statistical_report.md`.
-- [ ] T048_exec [US3] **Execute Statistical Report Generation**: Run the logic to generate `results/analysis/final_statistical_report.md`.
-- [X] T049 [P] **Reproducibility Archive**: Create a tarball of `data/raw/`, `results/logs/`, `results/analysis/`, and the exact `requirements.txt` used.
-- [ ] T050 [US1] **Implement Kernel Blockage Final Audit**: Implement `code/utils/kernel_audit.py` to scan all logs in `results/logs/`. **Requirement**: Generate `results/analysis/kernel_audit.txt`. **Format**: If count of blocked operations is 0, write "AUDIT PASSED: 0 blocked operations found" and exit 0. If count > 0, write "AUDIT FAILED: X blocked operations found" and exit 1. **Dependency**: T005.
-- [X] T056 [US3] **Budget Compliance Report**: Implement `code/utils/budget_report.py` to measure and record the total wall-clock time of the full pipeline.
+- [ ] T052_create [US1/2/3] **Implement Full Pipeline Runner**: Create `scripts/run_full_pipeline.py` that executes T006b (Data Generation), T023b (3D Baseline), T017b (2D Agent), and T029 (Stats) in sequence. **Requirement**: This script must orchestrate the entire experiment flow. **Dependency**: T006b, T023b, T017b, T029. **Artifact**: `scripts/run_full_pipeline.py`.
+- [ ] T052_exec [US1/2/3] **Execute Full Pipeline**: Run `scripts/run_full_pipeline.py` to generate all execution artifacts (`results/runs/*.json`, `results/logs/baseline_run.json`, `results/logs/execution.log`). **Requirement**: This task MUST complete successfully before T046 can proceed. **Dependency**: T052_create. **Artifact**: All execution logs and results.
+- [ ] T046 [US1] **Implement Execution Integrity Check**: Implement `code/utils/verify_run.py` that aggregates all `results/runs/run_*.json` files and `results/logs/baseline_run.json`. **Requirement**: Verify that every `task_id` in the dataset has exactly `n_runs` (from config, default 5) runs in the 2D agent results and 1 run in the baseline results. **Failure Mode**: If missing runs are found, log to `results/analysis/run_integrity_report.json` with status `INCOMPLETE` and abort further analysis tasks. **Output Schema**: `{"total_tasks": int, "tasks_with_full_coverage": int, "missing_runs": [{"task_id": str, "expected": int, "actual": int}]}`. **Dependency**: **Implementation of T052**; Runs **AFTER T052_exec execution**. **Note**: This task requires writing the verification code, not just running it.
+- [ ] T046_exec [US1] **Execute Integrity Check**: Run `code/utils/verify_run.py` to generate `results/analysis/run_integrity_report.json`. **Dependency**: T052_exec, T046.
+- [X] T047 [US2] **Final Paired Dataset Assembly**: Merge the 2D agent results (aggregated across runs) and the 3D baseline results into a single canonical file `results/analysis/final_paired_dataset.csv`. **Schema**: `task_id`, `task_type`, `2d_success_rate`, `2d_mean_latency`, `3d_success`, `3d_latency`, `success_diff`, `latency_diff`. **Aggregation Logic**: Calculate mean of `success_flag` (treat as 0/1) and mean of `latency_ms` across the 5 runs per `task_id` before merging. **Verification**: Ensure the file is sorted by `task_id` and contains no null values in critical columns. **Dependency**: T046_exec.
+- [ ] T047_exec [US2] **Execute Dataset Assembly**: Run the logic to generate `results/analysis/final_paired_dataset.csv`. **Dependency**: T047.
+- [ ] T048_create [US3] **Implement Statistical Report Generator**: Implement `code/stats/tests.py` and `code/stats/sensitivity.py` execution logic to generate `results/analysis/final_statistical_report.md`. **Requirement**: Must explicitly state the conclusion regarding the "loss ceiling" hypothesis based on the p-values. **Dependency**: T047_exec, T060, T061.
+- [ ] T048_exec [US3] **Execute Statistical Report Generation**: Run the logic to generate `results/analysis/final_statistical_report.md`. **Dependency**: T048_create, T047_exec.
+- [X] T049 [P] **Reproducibility Archive**: Create a `results/archive/` directory containing a compressed tarball of `data/raw/`, `results/logs/`, `results/analysis/`, and the exact `requirements.txt` used. **Naming**: `spatialclaw_restriction_run_<timestamp>.tar.gz`. **Purpose**: Ensures the entire experiment state is preserved for future review. **Dependency**: T052_exec, T047_exec.
+- [ ] T050 [US1] **Implement Kernel Blockage Final Audit**: Implement `code/utils/kernel_audit.py` to scan all logs in `results/logs/` for any instance of `trimesh`, `pytorch3d`, or `open3d` being imported or instantiated. **Requirement**: The script must exit with code 0 only if the count of such instances is exactly 0. **Output**: `results/analysis/kernel_audit.txt` stating "AUDIT PASSED: 0 blocked operations found" or "AUDIT FAILED: X blocked operations found". **Dependency**: T052_exec.
+- [X] T056 [US3] **Budget Compliance Report**: Implement `code/utils/budget_report.py` to measure and record the total wall-clock time of the full pipeline (T052_exec) against the 6-hour limit. **Output**: `results/analysis/budget_compliance_report.json` containing `total_runtime_seconds`, `budget_limit_seconds`, `status` (PASS/FAIL). **Requirement**: Must be generated after T052_exec completes. **Dependency**: T052_exec.
 
 ---
 
@@ -215,9 +215,121 @@
 
 **Purpose**: Address specific reviewer concerns regarding data provenance, statistical rigor, and the handling of edge cases in the final report generation.
 
-- [X] T062 [US3] [FR-005] **Implement Post-Hoc Effect Size Reporting**: Implement `code/stats/tests.py` to calculate and report Cohen's d alongside p-values in `results/analysis/final_statistical_report.md`.
-- [ ] T063 [US3] [FR-005] **Implement Baseline Variance Visualization**: Generate a plot showing the distribution of latency and success rates for the 3D baseline.
-- [ ] T064 [US3] [FR-006] **Implement Call Stack Tracing**: Enhance `restricted_kernel.py` to log the full call stack when a `RestrictedActionError` is raised. **Requirement**: Write to `results/logs/blocked_operations.log`. **Format**: JSON lines with `{'timestamp': ..., 'error_type': 'RestrictedActionError', 'imported_module': ..., 'stack_trace': [...]}`. **Logic**: Capture stack trace before raising the error.
-- [ ] T065 [US3] [FR-006] **Implement Projection Loss Case Study Extraction**: Implement `code/stats/analyze_projection_loss.py` to extract and save geometric parameters for representative tasks where "projection loss" was the primary cause of failure. **Algorithm**: Select top 5 tasks by absolute error magnitude where `failure_type == "projection_loss"`. **Output**: `results/analysis/projection_loss_case_studies.json` with schema `{'task_id': str, 'error_magnitude': float, 'geometry': dict, 'reason': str}`.
-- [ ] T066 [US3] [FR-006] **Implement Sensitivity Analysis Visualization**: Generate a plot showing the variation in false-positive and false-negative rates across the tested threshold values. **Logic**: Use matplotlib to plot FPR and FNR vs threshold_value. X-axis: threshold_value, Y-axis: error_rate. Save as PNG. **Output**: `results/analysis/sensitivity_analysis_plot.png`.
-- [ ] T067 [US3] [FR-005] **Implement Final Methodology Audit**: Create `code/utils/final_audit.py` to verify that all statistical tests used were appropriate for the data distribution and sample size.
+- [X] T062 [US3] [FR-005] **Implement Post-Hoc Effect Size Reporting**: Update `code/stats/tests.py` to calculate and report Cohen's d (for t-tests) or rank-biserial correlation (for Wilcoxon) alongside p-values in `results/analysis/final_statistical_report.md`. **Requirement**: Must include a qualitative interpretation of the effect size (e.g., "small", "medium", "large") based on standard conventions. **Dependency**: T048_exec.
+- [ ] T063 [US2] [FR-007] **Implement Baseline Variance Visualization**: Generate a plot in `results/analysis/baseline_variance_plot.png` using matplotlib showing the distribution of latency and success rates for the 3D baseline across the 5 independent runs (if applicable) or the subset used in T060. **Requirement**: Must visually demonstrate that baseline variance is negligible compared to the 2D agent's variance. **Dependency**: T060.
+- [ ] T064 [US1] [FR-001] **Implement Blocked Library Call Stack Tracing**: Enhance `code/kernel/restricted_kernel.py` to log the full call stack (including line numbers and function names) when a `RestrictedActionError` is raised. **Output**: Append stack trace to `results/logs/blocked_operations.log`. **Requirement**: Must allow researchers to identify exactly where in the agent's code a 3D library was attempted, facilitating debugging of the 2D logic. **Dependency**: T005.
+- [ ] T065 [US3] [FR-006] **Implement "Projection Loss" Case Study Extraction**: Implement `code/stats/analyze_projection_loss.py` to extract and save the specific geometric parameters (D coords, dimensions) for a representative subset of tasks where "projection loss" was the primary cause of failure. **Output**: `results/analysis/projection_loss_case_studies.json`. **Requirement**: Must provide concrete examples to support the "loss ceiling" hypothesis. **Dependency**: T059.
+- [ ] T066 [US3] [FR-005] **Implement Sensitivity Analysis Visualization**: Generate a plot in `results/analysis/sensitivity_analysis_plot.png` using matplotlib showing the variation in false-positive and false-negative rates across the tested threshold values (from T031 and T058). **Requirement**: Must clearly show the "elbow" or stability region of the thresholds. **Dependency**: T031, T058.
+- [ ] T067 [US3] [FR-005] **Implement Final Methodology Audit**: Create `code/utils/final_audit.py` to verify that all statistical tests used (McNemar, Wilcoxon, Shapiro-Wilk) were appropriate for the data distribution and sample size, and that all corrections (Bonferroni) were applied correctly. **Output**: `results/analysis/methodology_audit_report.md`. **Requirement**: Must provide a "Green Light" or "Red Light" for the validity of the final statistical conclusions. **Dependency**: T048_exec, T057c, T061.
+
+---
+
+### Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Execution Verification (Phase O)**: Depends on all previous phases being complete and executed
+- **Review Resolution (Phase P)**: Depends on Phase O completion and final report generation
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T022 (Collector) which depends on US1 execution and T023 (Baseline Logic)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on results from US2
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services
+- Services before endpoints
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Unit test for RestrictedActionError in tests/unit/test_kernel.py"
+Task: "Unit test for RestrictedActionError in tests/unit/test_kernel.py"
+
+# Launch all models for User Story 1 together:
+Task: "Implement agent_2d.py in code/agents/agent_2d.py"
+Task: "Implement stochasticity control mechanism in code/utils/reproducibility.py"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently (verify 2D restriction works)
+5. Deploy/demo if ready
+
+### Incremental Delivery
+
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo (Paired comparison)
+4. Add User Story 3 → Test independently → Deploy/Demo (Statistical significance)
+5. Each story adds value without breaking previous stories
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+ - Developer A: User Story 1 (Restricted Kernel & Agent)
+ - Developer B: User Story 2 (Metrics & Baseline Re-run)
+ - Developer C: User Story 3 (Stats & Sensitivity)
+3. Stories complete and integrate independently
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Data Integrity**: The `loader.py` MUST fail loudly if the Synthetic SpatialClaw Proxy cannot be generated/loaded; no synthetic fallback allowed.
+- **Compute**: The entire pipeline is designed for CPU-first execution; GPU escape hatch only if baseline model requires CUDA (not expected for this restricted low-dimensional task).
+- **Memory Safety**: Streaming fallback (T007) is implemented in Phase 2 to prevent OOM crashes during baseline re-run or data loading.
+- **Data Definition**: The "SpatialClaw Benchmark" for this project is the "Synthetic SpatialClaw Proxy" generated by T006. Paired comparison is achieved by re-running baseline on the same generated instances.
+- **Execution Verification**: Phase O tasks (T046c-T056c) are mandatory to ensure the final results are complete, reproducible, and verifiable before the project is considered finished.
+- **Runtime Safety**: T051 ensures that if the baseline or agent execution exceeds the budget, the run is aborted cleanly rather than hanging or producing partial invalid data.
+- **Reproducibility**: Tasks T053, T054, and T055 are added to explicitly verify the deterministic nature of the experiment, the statistical validity of the sample size, and the correctness of the latency calculations, addressing common pitfalls in research benchmarks.
+- **Ordering**: Phase O tasks T052a (Implementation) and T052b (Execution) MUST run BEFORE T046c/T047c (Integrity/Assembly). Repair tasks (T046a, T050a) removed; replaced with implementation tasks.
+- **New Review Concerns**: The following tasks address specific reviewer concerns regarding the robustness of the statistical pipeline, the explicit handling of edge cases in the sensitivity analysis, and the verification of the "flat object" hypothesis.
+- **Budget Enforcement**: T044 (Budget Abort Gate) is now in Phase 2 to enforce the 6-hour limit BEFORE expensive data generation begins (after pilot generation).
+- **Phase P Integration**: Phase P tasks (T062-T067) are now integrated to address specific reviewer concerns regarding effect size reporting, variance visualization, and final methodology auditing.
+- **Critical Path**: T046 (Integrity Check) is the hard dependency for T047 (Final Dataset), which is the hard dependency for T048 (Statistical Report). All must be implemented and verified.
+- **Flat Object Guarantee**: T006a and T006b now use **probabilistic generation** for flat objects, with T006d validating the actual count. T058 handles cases where N_flat is low by reporting reduced power rather than failing.
+- **Verification Chain**: T060 and T061 must complete before T048 to ensure statistical validity.
+- **T057 Status**: BLOCKED until T046 is complete.
+- **Review Resolution**: Phase P tasks (T062-T067) are required to finalize the research report and ensure all statistical and methodological concerns are addressed before publication.
+- **Execution Flow**: T052_create -> T052_exec -> T046 -> T046_exec -> T047 -> T047_exec -> T048 -> T048_exec -> Phase P.

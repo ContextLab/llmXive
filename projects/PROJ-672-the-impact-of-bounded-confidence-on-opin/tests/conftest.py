@@ -1,55 +1,37 @@
 """
-Pytest configuration and shared fixtures for the Bounded Confidence project.
+Pytest configuration and shared fixtures for the project.
 """
 import os
 import sys
 import random
-from pathlib import Path
-
 import numpy as np
 import pytest
+from pathlib import Path
 
-# Add project root to path to ensure imports work from tests/
+# Add the project root to the path if not already present
+# This ensures imports like `from utils.metrics import ...` work in tests
 project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+code_path = project_root / "code"
+if str(code_path) not in sys.path:
+    sys.path.insert(0, str(code_path))
 
-# Global random seed for reproducibility (FR-001)
-# This seed is used by the main simulation scripts and can be overridden
-# via environment variable for testing purposes.
-BASE_SEED = int(os.getenv("PROJECT_BASE_SEED", "42"))
-
-
-@pytest.fixture(scope="session", autouse=True)
-def set_global_seeds():
+@pytest.fixture(scope="session")
+def global_seed():
     """
-    Fixture to set global random seeds at the start of the test session.
-    Ensures reproducibility across the entire test run.
+    Fixture providing a fixed global seed for reproducible experiments.
+    Used by network generation and simulation tasks.
     """
-    random.seed(BASE_SEED)
-    np.random.seed(BASE_SEED)
-    # Note: If using other libraries like torch, set their seeds here too.
+    return 42
 
-
-@pytest.fixture
-def project_root_path():
-    """Returns the Path to the project root directory."""
-    return project_root
-
-
-@pytest.fixture
-def data_dir(project_root_path):
-    """Returns the Path to the data directory."""
-    return project_root_path / "data"
-
-
-@pytest.fixture
-def contracts_dir(project_root_path):
-    """Returns the Path to the contracts directory."""
-    return project_root_path / "code" / "contracts"
-
-
-@pytest.fixture
-def temp_output_dir(tmp_path):
-    """Creates a temporary directory for test outputs."""
-    return tmp_path
+@pytest.fixture(scope="function")
+def set_seed(global_seed):
+    """
+    Fixture to set random seeds before each test function.
+    Ensures deterministic behavior for tests involving randomness.
+    """
+    random.seed(global_seed)
+    np.random.seed(global_seed)
+    yield
+    # Reset is optional as we set it again in next test, but good practice
+    random.seed(global_seed)
+    np.random.seed(global_seed)

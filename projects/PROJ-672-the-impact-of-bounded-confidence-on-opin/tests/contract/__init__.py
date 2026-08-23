@@ -1,3 +1,3 @@
 """
-Contract testing framework for validating JSON schemas against data artifacts.
+Contract testing package for validating data schemas.
 """

@@ -24,7 +24,7 @@ from stats.power_analysis import load_power_config
 logger = logging.getLogger(__name__)
 
 
-def load_start_time_marker(marker_path: str = "results/logs/pipeline_start_time.json") -> Optional[float]:
+def load_start_time_marker(marker_path: str) -> Optional[float]:
     """
     Attempts to find a start-time marker written by the pipeline runner.
     The runner (T052a) must write:
@@ -43,7 +43,7 @@ def load_start_time_marker(marker_path: str = "results/logs/pipeline_start_time.
             data = json.load(f)
         return float(data.get('start_time'))
     except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
-        logger.error(f"Failed to parse start time marker at {marker_path}: {e}")
+        logger.error(f"Failed to parse start time marker: {e}")
         return None
 
 
@@ -107,7 +107,7 @@ def run_budget_report(
     5. Write report.
     """
     # 1. Get start time
-    start_time = load_start_time_marker()
+    start_time = load_start_time_marker("results/logs/pipeline_start_time.json")
     
     # 2. Measure runtime
     total_seconds = measure_total_runtime(start_time)

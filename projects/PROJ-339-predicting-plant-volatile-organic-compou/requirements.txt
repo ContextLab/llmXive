@@ -8,3 +8,4 @@ pyyaml
 memory-profiler
 python-dotenv
 pytest
+matplotlib

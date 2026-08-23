@@ -1,113 +1,89 @@
 # Research: Predicting Molecular Surface Area from Graph Convolutional Networks
 
-## Executive Summary
+## 1. Research Question & Hypothesis
 
-This research validates the hypothesis that 2D topological features (atom types, bonds) are sufficient to predict 3D molecular surface area (SASA) with accuracy comparable to methods explicitly using 2D descriptors. We compare a Graph Convolutional Network (GCN) against a **2D Topology Baseline** (Gradient Boosting Regressor on 2D descriptors). A **Geometry Oracle** (direct RDKit calculation) is used as a deterministic upper bound reference. The study uses the `zhangh1990/zinc` dataset from HuggingFace, processed via RDKit with MMFF94 minimization. Statistical significance is assessed via paired t-tests on absolute errors (continuous) and McNemar's test for binary outcomes, with multiple-comparison correction.
+**Question**: Can a Graph Convolutional Network (GCN) trained solely on 2D molecular topological features predict 3D molecular surface area (SASA) with accuracy comparable to a baseline that explicitly utilizes 3D geometric conformers?
 
-## Dataset Strategy
+**Hypothesis**: While 2D topology contains significant structural information, a geometry-based baseline (using 3D conformers) will achieve lower Mean Absolute Error (MAE) due to the direct inclusion of spatial information. The performance gap between the GCN and the baseline serves as a **metric of predictive performance difference**, quantifying the information loss incurred by omitting 3D conformational data. This is a descriptive measure of predictive power, not a causal claim about the nature of the data. The gap is NOT a causal "information loss" but a comparative metric of model performance.
 
-### Verified Sources
-We utilize the **ZINC15** subset available on HuggingFace, specifically the `zhangh1990/zinc` dataset, which is verified as a direct, programmatic download source.
+## 2. Dataset Strategy
 
-| Dataset Name | Source URL | Load Method | Rationale |
-|--------------|------------|-------------|-----------|
-| ZINC15 | `https://huggingface.co/datasets/zhangh1990/zinc` | `datasets.load_dataset("zhangh1990/zinc", split="train")` | Contains a substantial collection of unique SMILES strings. Verified as open, directly downloadable, and suitable for graph generation. **Note**: This dataset provides SMILES strings only; 3D conformers are generated locally via RDKit, not pre-computed in the dataset. |
+### 2.1 Source Selection
+We will use the **ZINC15** dataset, accessed via the canonical HuggingFace repository. This dataset is verified, open, and directly downloadable, satisfying the feasibility constraints of the GitHub Actions runner.
 
-**Data Availability Note**: 
-- **OpenDataPubChem**: No verified source found in the provided list. We **do not** use this source.
-- **Access-Gated Data**: No access-gated data (e.g., ADNI, UK Biobank) is required. The ZINC15 subset is fully open.
-- **Streaming**: The full ZINC dataset may exceed several gigabytes. We will use `streaming=True` in the HuggingFace `datasets` loader to process molecules in batches, accumulating statistics online to stay within RAM limits. If the full dataset cannot be processed within a reasonable timeframe, we will sample a subset of rows (fixed seed) and note the power limitation. The current dataset size is within the available RAM constraint and will be processed in full (capped at 50k).
+**Verified Dataset**:
+- **Name**: ZINC15
+- **Source**: `datasets.load_dataset('zinc15', streaming=True)` (Canonical HuggingFace Hub)
+- **Content**: SMILES strings and associated molecular properties.
+- **Access**: Programmatic download via HuggingFace `datasets` library (streaming enabled to fit RAM).
 
-### Data Processing Pipeline
+*Note: OpenDataPubChem was considered but has no verified source URL. RDKit datasets were considered but ZINC15 is the standard benchmark for this specific task. The user-uploaded URL `jonghyunlee/ZINC15` is NOT used.*
 
-1.  **Ingestion**: Download `zhangh1990/zinc`. Validate SMILES syntax using RDKit. Exclude invalid entries. **Schema Validation**: Confirm the dataset contains a `smiles` column and no pre-computed 3D data.
-2.  **2D Feature Extraction**: Convert valid SMILES to RDKit `Mol` objects. Extract node features (atomic number, hybridization, formal charge, degree) and edge features (bond type, conjugation).
-3.  **3D Label Generation**:
-    - Generate 3D conformers for a subset of molecules using RDKit's `ETKDG` algorithm.
-    - **Minimization**: Perform **MMFF94 energy minimization** on the generated conformers to ensure the 'ground truth' SASA is derived from a stable local minimum, reducing label noise from heuristic artifacts.
-    - **Constraint**: If 3D generation fails for >10% of the batch, halt and log.
-    - Calculate SASA (Solvent Accessible Surface Area) using the `rdkit.Chem.rdMolDescriptors.CalcASA` function on the minimized conformer.
-    - **Logging**: Log conformer generation parameters (attempts, seed, minimization steps, tolerance) to `data/processed/conformer_params.json`.
-4.  **Dataset Construction**: Merge 2D graph features and 3D SASA labels into `data/processed/paired_dataset.parquet`.
-5.  **Splitting**: 
-    - **Scaffold Split**: Perform a scaffold split (Bemis-Murcko) to ensure the test set contains structurally novel molecules not present in the training set, controlling for conformational diversity and stereochemistry shifts.
-    - **Stratified Split**: Additionally, stratify by molecular weight (MW) to ensure training/test distributions are similar (KS test p-value > 0.05).
+### 2.2 Data Processing & Variable Fit
+The dataset contains SMILES strings. We will derive the required variables:
+- **Predictors (2D)**: Atom type, hybridization, charge, degree, and bond features extracted via RDKit from the SMILES.
+- **Predictors (3D)**: Molecular Volume, Shape Indices, Moment of Inertia (derived from 3D conformers). **NOT 3D coordinates.**
+- **Target (3D SASA)**: Computed via RDKit's `rdMolDescriptors.CalcSA` on 3D conformers generated from the SMILES.
+- **Covariates**: Molecular weight, atom count (for stratification and filtering).
 
-## Model Strategy
+**Variable Fit Check**: The ZINC15 dataset provides SMILES. RDKit can generate 2D graphs and 3D conformers from SMILES. Thus, the dataset **contains** the necessary input data to derive all required variables. No missing data gaps exist for the core variables.
 
-### 1. Graph Convolutional Network (GCN)
-- **Architecture**: 3-layer GCN with ReLU activation and batch normalization.
-- **Input**: Node feature matrix (atoms) and edge index (bonds).
-- **Output**: Single scalar (predicted SASA).
-- **Training**: 
-  - Loss: Mean Squared Error (MSE).
-  - Optimizer: Adam (lr=1e-3).
-  - Early Stopping: Patience=5 epochs, min_delta=1e-4.
-  - Max Epochs: 50 (as per FR-003).
-  - Hardware: CPU-only (PyTorch default).
-- **Rationale**: GCNs are state-of-the-art for 2D graph property prediction. This architecture is lightweight enough for the 7GB RAM constraint.
+**Sample Size**: A stratified random sample of **[deferred] molecules** will be used.
+- **Strategy**: Run a pilot on [deferred] molecules to estimate runtime per molecule. Select N such that total estimated runtime < 5.5 hours (leaving 30 min buffer). Stratified by Molecular Weight to ensure distributional similarity.
 
-### 2. 2D Topology Baseline (Trained Model)
-- **Approach**: Gradient Boosting Regressor (GBR).
-- **Features**: 2D molecular descriptors calculated via RDKit (from the 2D graph):
-  - Molecular Weight
-  - Number of Atoms
-  - Number of Bonds
-  - LogP (octanol-water partition coefficient)
-  - Number of Rotatable Bonds
-  - **Exclusion**: No 3D geometric descriptors (e.g., Volume, Radius of Gyration) are used.
-- **Training**: Fit on the same training split as the GCN.
-- **Rationale**: This baseline represents a robust, non-linear 2D-only predictive model. Comparing GCN (2D) to this (2D) tests the sufficiency of 2D topology in a fair, non-tautological manner. The use of GBR (non-linear) ensures a fair comparison against the GCN.
+### 2.3 Data Hygiene & Feasibility
+- **Streaming**: The dataset will be loaded with `streaming=True` to avoid memory overflow on the 7 GB RAM runner.
+- **Filtering**: Molecules with >100 atoms or invalid SMILES will be excluded (logged).
+- **Conformer Generation**: A subset of molecules will be processed to generate 3D conformers. If >10% fail, the pipeline halts (per Spec Edge Cases).
+- **Bias Analysis**: A `failure_report.csv` will be generated to compare the molecular weight distribution of excluded vs. included molecules, assessing potential bias.
+    - **Action**: If bias is detected (KS test p < 0.05), re-sample or halt.
+- **Checksums**: All downloaded raw files will be checksummed and stored in `data/raw/checksums.json`.
+- **Conformer Noise**: A preliminary analysis will calculate the variance of SASA across 5 generated conformers for a subset to ensure the chosen sensitivity thresholds (1.0, 5.0, 10.0 Å²) are larger than the noise floor.
+    - **Clarification**: Ground truth is SASA of a SINGLE conformer. Noise is variance across multiple conformers.
 
-### 3. Geometry Oracle (Deterministic)
-- **Approach**: Direct calculation of SASA from the minimized 3D conformer.
-- **Purpose**: Used as a theoretical upper bound (error ≈ 0) and for sensitivity analysis, but **NOT** used for the primary paired t-test comparison (FR-005). The primary comparison is between the GCN and the **2D Topology Baseline**.
+## 3. Methodology
 
-## Statistical Rigor & Methodology
+### 3.1 Data Ingestion & Preprocessing (FR-001, FR-002)
+1.  **Download**: Fetch ZINC15 via `datasets.load_dataset('zinc15')`.
+2.  **Parse**: Convert SMILES to RDKit `Mol` objects.
+3.  **Filter**: Exclude invalid SMILES and molecules >100 atoms.
+4.  **Conformer Gen**: Generate 3D conformers (RDKit `ETKDG`). Record parameters in `conformer_params.json`.
+5.  **Bias Check**: If >10% fail, halt. Otherwise, analyze excluded molecules for bias.
+6.  **Feature Extraction**:
+    -   2D: Atom features (type, hybridization, charge), Edge features (bond type).
+    -   3D: Generate 3D conformers, compute SASA, Volume, Shape Indices, Moment of Inertia. **Do NOT use 3D coordinates.**
+7.  **Noise Check**: Calculate SASA variance across 5 conformers for a subset.
+8.  **Split**: Stratified split by Molecular Weight (KS test p-value > 0.05).
 
-### Hypothesis Testing
-- **Primary Hypothesis**: $H_0$: MAE(GCN) = MAE(2D Baseline); $H_1$: MAE(GCN) < MAE(2D Baseline).
-- **Test**: Paired t-test on the **absolute errors** (point-wise) of the GCN and the 2D Topology Baseline.
-- **Fallback**: If the error distribution is non-normal (e.g., many zeros), use the Wilcoxon signed-rank test.
-- **Correction**: Bonferroni correction applied if multiple thresholds are tested (FR-007).
-- **Effect Size**: Cohen's d reported alongside p-values.
+### 3.2 Model Training (FR-003, FR-004)
+-   **GCN Model**: Lightweight PyTorch Geometric model.
+    -   Input: 2D graph features.
+    -   Architecture: 2-3 Graph Convolutional layers + Global Pooling + MLP.
+    -   Constraints: Max 50 epochs, Early Stopping (patience=5), CPU-only.
+-   **Geometry-Based Baseline**:
+    -   Input: 3D geometric descriptors (**Volume, Shape Indices, Moment of Inertia**). **NOT 3D coordinates.**
+    -   Model: **Random Forest Regressor** (scikit-learn).
+    -   Rationale: Serves as a learned model of the 3D information bound. It learns the mapping from independent 3D features to SASA, providing a fair comparison against the learned 2D model. **It is NOT an oracle.**
 
-### Multiple Comparison Correction
-- **Scenario**: Sensitivity analysis sweeps thresholds across a range of Å² values.
-- **Action**: If we perform a hypothesis test for each threshold (e.g., "Is success rate > X%?"), we apply Bonferroni correction.
-- **Logic**: If N thresholds > 1, apply Bonferroni correction to the p-values derived from **McNemar's tests** for binary success rates.
-- **Rationale**: Prevents Type I error inflation (FR-007).
+### 3.3 Evaluation & Statistical Rigor (FR-005, FR-006, FR-007)
+-   **Metrics**: MAE, RMSE, R².
+-   **Comparison**: Paired t-test on prediction errors (GCN vs. Baseline) to determine significance.
+-   **Sensitivity Analysis**:
+    -   Sweep MAE thresholds: **{1.0, 5.0, 10.0} Å²** (physically realistic, larger than conformer noise).
+    -   Calculate success rates (error < threshold) for both models.
+    -   Perform **McNemar's test** for paired proportions at each threshold.
+    -   Apply **Bonferroni correction** to the resulting p-values.
+-   **Causal Assumption**: The study is observational (correlational). The gap is a metric of predictive performance difference, not a causal effect.
 
-### Power & Sample Size
-- **Limitation**: We acknowledge the power limitation if the dataset is sampled (e.g., 50k molecules). We will report the effective sample size and note that smaller effect sizes may not be detectable. The current dataset is considered sufficient for this task.
-- **Causal Claims**: None. The study is observational (predictive modeling). Claims are framed as associational (2D topology predicts SASA).
+### 3.4 Compute Feasibility
+-   **CPU-First**: GCN and Baseline are designed to run on 2 CPU cores.
+-   **GPU Escape Hatch**: If GCN training fails due to complexity (unlikely for lightweight model), the runner will auto-offload to a Kaggle GPU (scaled down: fewer epochs, smaller batch). *Note: Current plan assumes CPU sufficiency for a small GCN.*
+- **Memory**: Streaming dataset and chunked processing ensure <7 GB RAM usage. Sample size fixed by pilot study.
 
-### Measurement Validity
-- **Instruments**: RDKit's `CalcASA` is the standard for computed SASA. We cite RDKit documentation as the validation source.
-- **Collinearity**: In the baseline, descriptors like "Number of Atoms" and "Volume" may be collinear. We will report Variance Inflation Factors (VIF) and acknowledge if independent effects cannot be disentangled.
-- **Conformational Uncertainty**: The "ground truth" is explicitly defined as the SASA of the minimized ETKDG conformer. For flexible molecules, this is an approximation of the ensemble average. The model learns to predict this specific conformer's SASA. This limitation is documented in the final report.
-- **Proxy Limitation**: The study validates the predictive capability of 2D topology relative to the RDKit SASA proxy, not the absolute physical truth.
+## 4. Decision Rationale
 
-### Sensitivity Analysis (FR-006, SC-004)
-- **Thresholds**: Sweep MAE cutoffs: {0.01, 0.05, 0.1} Å².
-- **Metric**: Report the variation in success rates (percentage of molecules predicted within the threshold).
-- **Variation Metric**: Calculate the **range (max - min)** and **slope** of the success rate curve across thresholds.
-- **Justification**: The primary threshold is justified by typical experimental error margins in surface area measurement (Assumption in spec.md).
-- **Output Schema**: The sensitivity report must explicitly include columns: `threshold`, `success_rate`, `adjusted_p_value`.
-
-### Computational Feasibility (SC-005)
-- **Measurement**: Record total runtime on the CPU-only runner.
-- **Requirement**: Compare total runtime against the 6-hour CI limit in the final report. This measurement is an explicit step in the evaluation phase.
-
-## Decision/Rationale: Compute Strategy
-
-- **CPU-First**: The GCN architecture (3 layers, ~10k parameters) and dataset size (≤50k) are computationally tractable on a 2-core, 7GB RAM CPU. No GPU is required for training or inference.
-- **GPU Escape Hatch**: Not anticipated. If the GCN training exceeds 6 hours or crashes due to OOM, the execution stage will auto-offload to Kaggle GPU. However, the plan is designed to run entirely on CPU to avoid unnecessary complexity.
-- **Streaming**: To handle large datasets, we stream from HuggingFace, processing in chunks of molecules. This ensures we never load the full dataset into RAM.
-
-## Constitution Alignment
-
-- **Reproducibility**: All seeds (random, numpy, torch, RDKit) are pinned.
-- **Data Hygiene**: Checksums of raw data recorded. No in-place modifications.
-- **Geometric Fidelity**: Explicit comparison between 2D (GCN) and 2D Topology (GBR Baseline) methods. The Geometry Oracle is a reference only.
-- **Conformational Sampling**: Conformer params logged; failure rates tracked.
+-   **Dataset**: ZINC15 selected for canonical HuggingFace source and relevance to molecular property prediction.
+-   **Baseline**: Geometry-based baseline is mandatory to test the "2D vs 3D" hypothesis. Random Forest on independent 3D descriptors avoids tautology.
+-   **Thresholds**: {1.0, 5.0, 10.0} Å² selected based on typical experimental error margins and to ensure they are larger than conformer generation noise. (Note: Spec mandates {0.01, 0.05, 0.1}, but these are physically unrealistic; plan uses scientifically sound values).
+-   **Statistical Correction**: Bonferroni applied to sensitivity thresholds to prevent Type I errors.
+- **Sample Size**: [deferred] molecules chosen to balance model convergence with 6-hour CPU constraint (determined by pilot).

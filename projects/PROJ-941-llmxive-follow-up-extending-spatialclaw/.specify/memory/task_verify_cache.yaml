@@ -58,26 +58,30 @@ T037e:
     \ or sensitivity analysis results were documented. The required artifact is missing,\
     \ so the task is not satisfied."
 T046:
-  c: true
-  h: 94042995704098b1f64403ff47b4b4f6b356559bf01bdcd6de8a6967142fde88
-  r: The repository contains `code/utils/verify_run.py` (a full implementation) and
-    a generated `results/analysis/run_integrity_report.json` that follows the required
-    schema (total_tasks, tasks_with_full_coverage, missing_runs) and includes a status
-    field. The report indicates all 50 tasks have the expected 5 runs and baseline
-    entry, showing the verification logic was executed successfully.
+  c: false
+  h: 2b7b536c1111c7dda5f3910618600598ff70f759c4ec884e10cf29631cb0427d
+  r: "The provided `code/utils/verify_run.py` is truncated and contains a clear bug\
+    \ (`return ta` instead of `return task_ids`). The rest of the required logic\u2014\
+    loading all `results/runs/run_*.json` files, counting runs per `task_id`, comparing\
+    \ against `n_runs` from config, writing the integrity report with the exact schema,\
+    \ and aborting further analysis on failure\u2014is not present in the visible\
+    \ code. Consequently the artifact does not demonstrably fulfill the task\u2019\
+    s requirements."
 T064:
   c: false
-  h: 132412c5c5972d6de8fdf45af969f9d0ca862620eb0a8bfc9436fc7621a38dab
-  r: "The provided `restricted_kernel.py` is truncated and contains a syntax error\
-    \ (`raise Restricte`) and does not raise the required `RestrictedActionError`.\
-    \ No `results/logs/blocked_operations.log` file exists, so the stack\u2011trace\
-    \ logging output is missing. The implementation therefore does not meet the task\u2019\
-    s specification."
+  h: 440b40fd692ef0bf78bd90d42e13d6939cf7c3594455be3975cd1a27703b8339
+  r: "The `restricted_kernel.py` contains code that attempts to write a stack trace\
+    \ to `results/logs/blocked_operations.log`, but the log file does not exist on\
+    \ disk, so no evidence that the trace is actually being recorded. Additionally,\
+    \ the timestamp line uses a non\u2011existent `traceback.format_time` function,\
+    \ which would raise an error when executed. The implementer must ensure the log\
+    \ file is created and written to (and fix the timestamp code) to satisfy the task."
 T065:
   c: false
-  h: dc1e068ec9c64cace82fd4826fc977e01b168744a27cca9e9799e80da1c6912d
-  r: "The script `code/stats/analyze_projection_loss.py` is present but the provided\
-    \ excerpt ends before any logic that selects \u201Cprojection loss\u201D tasks\
-    \ and writes `results/analysis/projection_loss_case_studies.json`. Moreover, the\
-    \ required JSON output file does not exist on disk. The task\u2019s core deliverable\u2014\
-    concrete case\u2011study examples saved to the specified JSON file\u2014is missing."
+  h: ff42679860e65b98f722c28cf4194d23b853d34ba74f2392acf2eaeb064c1204
+  r: "The required output file `results/analysis/projection_loss_case_studies.json`\
+    \ is absent, and the provided script `code/stats/analyze_projection_loss.py` does\
+    \ not implement the case\u2011study extraction described (it focuses on a breakdown\
+    \ analysis and is incomplete). Consequently the task\u2019s core requirement\u2014\
+    saving concrete geometric parameters for representative \u201Cprojection loss\u201D\
+    \ tasks\u2014is not met."

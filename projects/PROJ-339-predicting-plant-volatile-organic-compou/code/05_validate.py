@@ -4,171 +4,151 @@ import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-from datetime import datetime
+from typing import Dict, Any, List, Tuple
 
-# Import from local utils if available, otherwise define locally to ensure self-containment
-# The API surface lists `utils.validation` but we need to ensure we can run this task independently
-# or import correctly. Based on the surface:
-try:
-    from utils.validation import validate_data_types as utils_validate_types
-except ImportError:
-    utils_validate_types = None
+# Ensure parent directory is in path for relative imports if running as script
+# but standard project structure assumes imports work via PYTHONPATH or installed package.
+# We rely on the API surface provided.
 
-def load_merged_dataset(file_path: str) -> pd.DataFrame:
+def load_merged_dataset(path: Path) -> pd.DataFrame:
     """
-    Load the merged dataset from the specified path.
-    Raises FileNotFoundError if the file does not exist.
+    Loads the merged dataset from the specified path.
+    Raises FileNotFoundError if file does not exist.
     """
-    path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Merged dataset not found at {file_path}. "
-                                "Please run the pipeline up to T016 first.")
-    return pd.read_csv(path)
+        raise FileNotFoundError(f"Dataset file not found at {path}")
+    try:
+        df = pd.read_csv(path)
+        return df
+    except Exception as e:
+        raise RuntimeError(f"Failed to load dataset from {path}: {e}")
 
-def validate_numeric_columns(df: pd.DataFrame, report: Dict[str, Any]) -> None:
+def validate_numeric_columns(df: pd.DataFrame) -> Tuple[Dict[str, Any], List[str]]:
     """
-    Validate that all expected data columns are numeric and contain no non-numeric entries.
-    Updates the report dictionary in place with validation results.
+    Validates that all expected numeric columns are indeed numeric and contain no non-numeric entries.
+    
+    Returns:
+        summary: A dictionary containing validation statistics.
+        errors: A list of error messages for columns that failed validation.
     """
-    issues = []
-    columns_checked = 0
-    numeric_columns = 0
+    errors = []
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    non_numeric_cols = df.select_dtypes(exclude=[np.number]).columns.tolist()
+    
+    # Check for columns that should be numeric but are object/string
+    # Heuristic: If a column looks like it should be numeric (based on name or content) but is object, flag it.
+    # For this task, we strictly enforce that the 'merged_dataset.csv' should have numeric types for features/targets.
+    
+    # Identify potential numeric columns that are stored as objects (often due to mixed types)
+    potential_numeric_errors = []
+    for col in non_numeric_cols:
+        # Attempt to convert to numeric
+        try:
+            converted = pd.to_numeric(df[col], errors='raise')
+            # If successful, it means it was stored as object but is actually numeric
+            # We flag this as a type warning or error depending on strictness.
+            # Task requirement: "no non-numeric entries".
+            # If it converts successfully, it's fine, but the dtype is wrong.
+            potential_numeric_errors.append(col)
+        except (ValueError, TypeError):
+            # It truly contains non-numeric data
+            # Check if it's a known categorical column (e.g., 'sample_id', 'species')
+            # If it's a feature or target, this is an error.
+            # We assume columns not explicitly known as ID/Category are features.
+            # Without a strict schema here, we check if the column name suggests a feature.
+            # For safety, we report any object column that isn't obviously an ID.
+            if 'id' not in col.lower() and 'species' not in col.lower() and 'pathway' not in col.lower():
+                errors.append(f"Column '{col}' contains non-numeric entries and is not a known identifier.")
+    
+    # Check for NaN values in numeric columns (if strict numeric requirement implies no missing)
+    # The task says "no non-numeric entries", usually implies valid numbers. 
+    # NaN is a float, so it's technically numeric, but often invalid for modeling.
+    # We will report NaN counts but not flag as "non-numeric entry" unless specified.
+    
+    summary = {
+        "total_rows": len(df),
+        "total_columns": len(df.columns),
+        "numeric_columns": len(numeric_cols),
+        "non_numeric_columns": len(non_numeric_cols),
+        "potential_type_issues": potential_numeric_errors,
+        "columns_with_na": {col: int(df[col].isna().sum()) for col in numeric_cols if df[col].isna().any()}
+    }
+    
+    return summary, errors
 
-    # Identify potential feature/target columns (exclude ID columns)
-    # Assuming 'sample_id' or similar is the ID column
-    id_cols = [col for col in df.columns if 'id' in col.lower() or col == 'sample_id']
-    feature_cols = [col for col in df.columns if col not in id_cols]
-
-    report['total_columns'] = len(df.columns)
-    report['feature_columns'] = len(feature_cols)
-
-    for col in feature_cols:
-        columns_checked += 1
-        # Check if column is numeric
-        if not pd.api.types.is_numeric_dtype(df[col]):
-            # Try to convert to numeric to see if it's just a formatting issue
-            try:
-                converted = pd.to_numeric(df[col], errors='raise')
-                # If successful, check for NaNs introduced by conversion
-                if converted.isna().any() and df[col].notna().any():
-                    issues.append({
-                        'column': col,
-                        'issue': 'Non-numeric values present',
-                        'count': df[col].isna().sum(),
-                        'severity': 'error'
-                    })
-                else:
-                    # It was convertible but not originally numeric dtype
-                    issues.append({
-                        'column': col,
-                        'issue': 'Column is not numeric dtype but convertible',
-                        'severity': 'warning'
-                    })
-            except (ValueError, TypeError):
-                issues.append({
-                    'column': col,
-                    'issue': 'Contains non-numeric entries',
-                    'severity': 'error'
-                })
-        else:
-            numeric_columns += 1
-            # Check for infinite values which are not valid for most ML models
-            if np.isinf(df[col]).any():
-                issues.append({
-                    'column': col,
-                    'issue': 'Contains infinite values',
-                    'severity': 'error'
-                })
-            # Check for NaNs (depending on imputation strategy, this might be allowed,
-            # but T017 asks for "no non-numeric entries", implying clean data)
-            if df[col].isna().any():
-                issues.append({
-                    'column': col,
-                    'issue': 'Contains missing values (NaN)',
-                    'severity': 'warning' # Warning because imputation might be expected here
-                })
-
-    report['numeric_columns_count'] = numeric_columns
-    report['issues_found'] = len(issues)
-    report['issues'] = issues
-    report['is_valid'] = len([i for i in issues if i['severity'] == 'error']) == 0
-
-def generate_validation_report(df: pd.DataFrame, output_path: str) -> Dict[str, Any]:
+def generate_validation_report(summary: Dict[str, Any], errors: List[str], input_path: Path) -> Dict[str, Any]:
     """
-    Generate a comprehensive validation report for the dataset.
-    Saves the report to the specified JSON path.
+    Generates a structured validation report.
     """
     report = {
-        'validation_timestamp': datetime.now().isoformat(),
-        'source_file': str(output_path).replace('.json', '.csv'), # The source of validation
-        'status': 'unknown',
-        'summary': {},
-        'details': {}
+        "input_file": str(input_path),
+        "validation_status": "passed" if not errors else "failed",
+        "summary": summary,
+        "errors": errors,
+        "timestamp": pd.Timestamp.now().isoformat()
     }
-
-    # Basic stats
-    report['summary']['row_count'] = len(df)
-    report['summary']['column_count'] = len(df.columns)
-    report['summary']['columns'] = list(df.columns)
-
-    # Validate numeric columns
-    validate_numeric_columns(df, report['details'])
-
-    # Determine overall status
-    if report['details']['is_valid']:
-        report['status'] = 'passed'
-    else:
-        report['status'] = 'failed'
-
-    # Save report
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w') as f:
-        json.dump(report, f, indent=2, default=str)
-
     return report
 
 def main():
     """
-    Main entry point for T017: Validation of merged dataset.
+    Main entry point for T017:
     1. Loads data/processed/merged_dataset.csv
-    2. Validates types and numeric integrity
-    3. Generates data/results/data_validation_report.json
+    2. Validates types and numeric content.
+    3. Saves data/results/data_validation_report.json
     """
     # Define paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent
-    input_path = project_root / 'data' / 'processed' / 'merged_dataset.csv'
-    output_path = project_root / 'data' / 'results' / 'data_validation_report.json'
-
-    print(f"Starting validation for task T017...")
-    print(f"Input file: {input_path}")
-    print(f"Output file: {output_path}")
-
+    # Assuming the script is run from the project root or code/ directory
+    # We use a robust path resolution strategy.
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent
+    
+    input_path = project_root / "data" / "processed" / "merged_dataset.csv"
+    output_path = project_root / "data" / "results" / "data_validation_report.json"
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    print(f"Starting validation for {input_path}...")
+    
     if not input_path.exists():
-        print(f"ERROR: Input file not found. Please ensure T016 has been completed.")
+        print(f"Error: Input file not found at {input_path}.")
+        # Create a failure report
+        report = {
+            "input_file": str(input_path),
+            "validation_status": "failed",
+            "error": "Input file not found",
+            "timestamp": pd.Timestamp.now().isoformat()
+        }
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
         sys.exit(1)
-
+    
     try:
-        df = load_merged_dataset(str(input_path))
-        print(f"Loaded dataset with shape: {df.shape}")
-
-        report = generate_validation_report(df, str(output_path))
-
-        print(f"Validation completed. Status: {report['status']}")
-        print(f"Issues found: {report['details']['issues_found']}")
-
-        if report['status'] == 'failed':
-            print("CRITICAL ERRORS DETECTED:")
-            for issue in report['details']['issues']:
-                if issue['severity'] == 'error':
-                    print(f"  - {issue['column']}: {issue['issue']}")
-            sys.exit(1)
+        df = load_merged_dataset(input_path)
+        summary, errors = validate_numeric_columns(df)
+        report = generate_validation_report(summary, errors, input_path)
+        
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        print(f"Validation complete. Status: {report['validation_status']}")
+        if errors:
+            print(f"Errors found: {len(errors)}")
+            for err in errors:
+                print(f"  - {err}")
         else:
-            print("Validation passed. No critical errors found.")
-
+            print("No errors found.")
+            
     except Exception as e:
-        print(f"ERROR during validation: {str(e)}")
+        print(f"Validation failed with exception: {e}")
+        report = {
+            "input_file": str(input_path),
+            "validation_status": "failed",
+            "error": str(e),
+            "timestamp": pd.Timestamp.now().isoformat()
+        }
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
         sys.exit(1)
 
 if __name__ == "__main__":

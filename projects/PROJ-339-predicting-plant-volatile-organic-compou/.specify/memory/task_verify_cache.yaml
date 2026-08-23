@@ -1,37 +1,3 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration files, or documentation were provided to show that environment
-    variables for data paths and random seeds have been set up or managed. The claim
-    lacks any tangible artifact demonstrating the required configuration.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or data artifact showing that gene\u2011expression\
-    \ values were aggregated into pathway\u2011level (e.g., TPS family) features is\
-    \ present. The claim lacks any tangible implementation or output that demonstrates\
-    \ the required dimensionality\u2011reduction step."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, or configuration file is present that demonstrates imputation\
-    \ parameters being fitted exclusively on training folds; the claim is unsupported\
-    \ by any artifact. A concrete implementation (e.g., a preprocessing pipeline integrated\
-    \ with cross\u2011validation that fits the imputer inside each training split)\
-    \ is required to satisfy T022."
-T023:
-  c: false
-  h: 5e25857f24acce35c2b378109d8e9ba649eed5b450006c1b5852c13faa4d8191
-  r: "The required artifact `data/results/model_metrics.json` does not exist, so no\
-    \ R\xB2 or RMSE metrics are provided. The implementer must create this JSON file\
-    \ with the calculated metrics."
-T025:
-  c: false
-  h: 7009d5eabfd5e2d941a574c7855880dbacb658e7b940a23b01e8808f9db02ba3
-  r: "Both required files `data/results/model_metrics.json` and `data/results/interpretation_report.json`\
-    \ are missing, so the disclaimer cannot be present and the tests in `tests/test_model.py`\
-    \ would fail. The task\u2019s core requirement\u2014to inject the associational\
-    \ disclaimer into those JSON files\u2014is therefore not satisfied."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -43,3 +43,17 @@ def test_nested_cv_integration():
     # In real data, it might be low, but it should be a valid float.
     r2 = metrics.get('r2')
     assert -2.0 <= r2 <= 1.0, f"R² value {r2} is outside expected bounds for a valid regression model."
+
+def test_disclaimer_in_interpretation_report():
+    """
+    Test for T025: Verify interpretation_report.json contains the associational disclaimer.
+    """
+    report_path = Path("data/results/interpretation_report.json")
+    assert report_path.exists(), "interpretation_report.json not found. Run code/06_generate_report.py first."
+    
+    with open(report_path, 'r') as f:
+        data = json.load(f)
+    
+    assert 'disclaimer' in data, "Missing 'disclaimer' key in interpretation report."
+    assert "associational" in data['disclaimer'].lower(), "Disclaimer in interpretation report must mention 'associational'."
+    assert "observational" in data['disclaimer'].lower(), "Disclaimer in interpretation report must mention 'observational'."

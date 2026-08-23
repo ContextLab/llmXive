@@ -1,66 +1,36 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://llmxive.org/schemas/regression_result.json",
   "title": "RegressionResult",
-  "description": "Schema for the result of regressing scaling exponents against structural metrics or topology.",
+  "description": "Schema for the result of a regression analysis correlating gamma with structural metrics.",
   "type": "object",
-  "required": [
-    "regression_id",
-    "model_type",
-    "formula",
-    "coefficients",
-    "statistics",
-    "timestamp"
-  ],
   "properties": {
-    "regression_id": {
+    "model_id": {
       "type": "string",
-      "description": "Unique identifier for this regression analysis."
+      "description": "Unique identifier for this regression model."
     },
     "model_type": {
       "type": "string",
-      "enum": ["ModelA_TopologyOnly", "ModelB_StructuralWithinTopology"],
-      "description": "Type of regression model executed."
-    },
-    "formula": {
-      "type": "string",
-      "description": "String representation of the regression formula (e.g., 'gamma ~ Topology')."
+      "enum": ["Model A", "Model B"],
+      "description": "Type of regression model (A: Topology only, B: Structural metrics)."
     },
     "coefficients": {
       "type": "object",
-      "description": "Mapping of predictor variable names to their estimated coefficients.",
-      "additionalProperties": {
-        "type": "number"
-      }
+      "additionalProperties": { "type": "number" },
+      "description": "Regression coefficients."
     },
-    "statistics": {
+    "r_squared": {
+      "type": "number",
+      "description": "R-squared of the regression."
+    },
+    "p_values": {
       "type": "object",
-      "description": "Overall regression statistics.",
-      "required": ["r_squared", "adj_r_squared", "f_statistic", "p_value"],
-      "properties": {
-        "r_squared": {
-          "type": "number",
-          "description": "R-squared value."
-        },
-        "adj_r_squared": {
-          "type": "number",
-          "description": "Adjusted R-squared value."
-        },
-        "f_statistic": {
-          "type": "number",
-          "description": "F-statistic for the model."
-        },
-        "p_value": {
-          "type": "number",
-          "description": "P-value for the F-statistic."
-        }
-      }
+      "additionalProperties": { "type": "number" },
+      "description": "P-values for coefficients."
     },
-    "timestamp": {
-      "type": "string",
-      "format": "date-time",
-      "description": "ISO 8601 timestamp of analysis completion."
+    "sample_size": {
+      "type": "integer",
+      "description": "Number of observations used in the regression."
     }
   },
-  "additionalProperties": false
+  "required": ["model_id", "model_type", "coefficients", "r_squared", "sample_size"]
 }

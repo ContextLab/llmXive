@@ -108,7 +108,7 @@
 - [X] T020 [US2] Implement `code/03_train.py` using scikit-learn Random Forest Regressor (CPU only, no GPU/quantization).
 - [X] T021 [US2] Implement **Nested k-Fold Cross-Validation** (inner loop for tuning, outer loop for evaluation) in `code/03_train.py` as the primary strategy for FR-005.
 - [ ] T022 [US2] Ensure imputation parameters are fitted ONLY on training folds to prevent leakage. (Depends on T020, T021)
-- [ ] T023 [US2] Calculate and report R² and RMSE metrics in `data/results/model_metrics.json`.
+- [ ] T023 [US2] Calculate and report R² and RMSE metrics in `data/results/model_metrics.json`. <!-- ATOMIZE: requested -->
 - [ ] T024 [US2] Save trained model artifact to `data/models/random_forest.pkl`. (Depends on T020 completion)
 - [ ] T025 [US2] Inject associational disclaimer ("Findings are associational due to observational data") into `data/results/model_metrics.json` and `data/results/interpretation_report.json`. Verify via `tests/test_model.py`. (Depends on T024 completion) <!-- ATOMIZE: requested -->
 
@@ -131,7 +131,7 @@
 
 - [X] T028 [US3] Implement permutation feature importance calculation in `code/04_interpret.py`, generating p-values. (Depends on T024 completion) <!-- FAILED: unspecified -->
 - [X] T029 [US3] Generate SHAP value visualizations and save to `data/results/shap_summary.png`. (Depends on T024 completion)
-- [ ] T030 [US3] Apply Benjamini-Hochberg correction to p-values from T028 (permutation test) and save corrected values to `data/results/feature_importance_pvalues.json` (FR-010).
+- [X] T030 [US3] Apply Benjamini-Hochberg correction to p-values from T028 (permutation test) and save corrected values to `data/results/feature_importance_pvalues.json` (FR-010).
 - [ ] T031 [US3] Implement overlap statistics calculation against known terpene synthase gene families (FR-008) using the aggregated pathway features from T016.
 - [ ] T032 [US3] Generate final JSON report in `data/results/interpretation_report.json` with disclaimers and FDR values.
 - [ ] T033 [US3] Validate stability of feature importance rankings across CV folds by generating `data/results/stability_metrics.json` containing the standard deviation of feature ranks (SC-004). (Depends on T024 completion)
