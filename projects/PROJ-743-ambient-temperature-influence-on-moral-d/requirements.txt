@@ -9,4 +9,7 @@ matplotlib
 geopandas
 cdsapi
 huggingface_hub
-netCDF4
+polars
+rasterio
+h5netcdf
+xarray

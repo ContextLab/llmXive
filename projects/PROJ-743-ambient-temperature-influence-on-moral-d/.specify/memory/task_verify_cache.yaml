@@ -1,3 +1,27 @@
+T001b:
+  c: false
+  h: 4628bc381f8f8ab68f0295c73bacb70dd452c97caeedf80917d4402dc341fe65
+  r: "The `code/validate_era5.py` script is truncated and never completes the download,\
+    \ conversion to HDF5, or validation steps, and there is no execution that creates\
+    \ `data/raw/era_sample.h5` (the file is missing). The log file present records\
+    \ only a generic CDS API accessibility check, not the required success/failure\
+    \ of the sample fetch or validation. The task\u2019s core artifacts are therefore\
+    \ absent."
+T002:
+  c: false
+  h: 9be714bd982907e82e44e439b7b488135b9a5598dc210c4b9fe370a62a74c708
+  r: "The repository contains `code/derive_bbox.py`, but the script is truncated and\
+    \ we cannot verify that it actually computes and writes the bounding box. Moreover,\
+    \ the required output file `data/external/bounding_box.json` is missing. The task\u2019\
+    s core deliverable (the JSON bounding\u2011box file) is not present."
+T002c:
+  c: false
+  h: 5bcc236fb78a43261b823763d6db531d51e59d843f41d57e30aac9285db2d323
+  r: The required output file `data/raw/era5_full.h5` does not exist, and the provided
+    log `results/logs/data_validation_log.txt` contains only a CDS API accessibility
+    check (Task T001) rather than any success/failure entry for running `fetch_era_full.py`.
+    Consequently the fetch script was not demonstrated to have executed, merged data,
+    or saved the expected H5 file.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

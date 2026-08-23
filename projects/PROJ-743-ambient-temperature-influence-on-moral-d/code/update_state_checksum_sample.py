@@ -1,62 +1,79 @@
 import sys
 import logging
 from pathlib import Path
-
-# Import the core logic from the sibling module
 from update_state_checksum import main as compute_checksum_main
 from setup_logging import setup_logging, get_data_quality_logger
 
 def main():
     """
-    Entry point for T003: Compute and record the SHA-256 checksum of the downloaded
-    ERA5 sample file (data/raw/era5_sample.h5) in the project state YAML.
+    Entry point for T003: Checksum Sample.
+    Computes SHA-256 of data/raw/era5_sample.h5 and updates state YAML.
     """
-    logger = setup_logging()
-    logger.info("Starting T003: Checksum computation for ERA5 sample file.")
+    setup_logging()
+    logger = get_data_quality_logger()
+    logger.info("Starting T003: Checksum Sample computation and state update.")
 
-    # Define the specific input file path for the sample
-    input_file_path = Path("data/raw/era5_sample.h5")
-    
-    # Define the state file path
-    state_file_path = Path("state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml")
+    # Define paths relative to project root
+    # Assuming the script runs from the project root or the paths are absolute
+    # We construct absolute paths based on the standard project structure
+    project_root = Path(__file__).resolve().parent.parent
+    sample_file_path = project_root / "data" / "raw" / "era5_sample.h5"
+    state_file_path = project_root / "state" / "projects" / "PROJ-743-ambient-temperature-influence-on-moral-d.yaml"
 
-    if not input_file_path.exists():
-        logger.error(f"Input file not found: {input_file_path}. Task T003 cannot proceed.")
+    if not sample_file_path.exists():
+        logger.error(f"Sample file not found: {sample_file_path}. T003 cannot proceed.")
+        sys.exit(1)
+
+    if not state_file_path.exists():
+        logger.error(f"State file not found: {state_file_path}. T003 cannot proceed.")
         sys.exit(1)
 
     try:
-        # Call the generic main logic, passing specific arguments if the function signature allows,
-        # or rely on the generic function to handle the path if it's hardcoded or env-based.
-        # Since the existing API `update_state_checksum.main` likely takes no args or sys.argv,
-        # we will assume it handles the logic or we need to wrap it.
-        # Looking at the API surface: `from update_state_checksum import compute_sha256, update_state_file, main`
-        # The `main` function in `update_state_checksum` is likely the entry point for the full run.
-        # For T003, we need to target the *sample* file specifically.
-        # We will invoke the core functions directly to ensure the correct file is processed.
-        
-        # Compute checksum
-        checksum = compute_checksum_main(input_file_path) # Assuming main returns checksum or we use compute_sha256
-        # Actually, let's look at the imports again.
-        # `from update_state_checksum import main` -> likely a script runner.
-        # `from update_state_checksum import compute_sha256` -> likely the function.
-        
-        # Let's re-implement the specific logic here to ensure T003 requirements are met exactly,
-        # using the helper functions from `update_state_checksum`.
-        
-        checksum_value = compute_sha256(input_file_path)
-        logger.info(f"Computed SHA-256 for {input_file_path}: {checksum_value}")
+        # Import the core logic directly to ensure we use the correct implementation
+        # The function 'main' in update_state_checksum handles the checksum computation
+        # and file update. We pass the specific file path and state path.
+        # Note: The existing 'main' in update_state_checksum might need adaptation
+        # to accept specific file paths if it currently hardcodes them.
+        # However, looking at the API surface, 'update_state_checksum' has 'main'.
+        # Let's assume we need to call the logic specifically for this file.
+        # To be safe and strictly follow the "extend" rule without rewriting the whole module
+        # if it's not provided, we will implement the specific logic here using the
+        # helper 'compute_sha256' from utils if available, or re-implement the minimal logic
+        # if 'compute_sha256' is not in utils (it is listed in utils API).
 
-        # Update the state file
-        update_state_file(
-            state_file_path=state_file_path,
-            artifact_key="era5_sample",
-            checksum=checksum_value
-        )
-        
-        logger.info("T003 completed successfully. State file updated.")
-        
+        from utils import compute_sha256
+        import yaml
+        from datetime import datetime, timezone
+
+        checksum = compute_sha256(sample_file_path)
+        logger.info(f"Computed SHA-256 for {sample_file_path.name}: {checksum}")
+
+        # Load state file
+        with open(state_file_path, 'r') as f:
+            state_data = yaml.safe_load(f)
+
+        if state_data is None:
+            state_data = {}
+
+        # Ensure keys exist
+        if 'artifact_hashes' not in state_data:
+            state_data['artifact_hashes'] = {}
+
+        # Update checksum
+        state_data['artifact_hashes']['era5_sample'] = checksum
+
+        # Update timestamp (Constitution Principle V)
+        state_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+
+        # Write back
+        with open(state_file_path, 'w') as f:
+            yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+
+        logger.info(f"Updated state file: {state_file_path}")
+        logger.info("T003 completed successfully.")
+
     except Exception as e:
-        logger.error(f"Error during T003 execution: {e}")
+        logger.error(f"Error during T003 execution: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

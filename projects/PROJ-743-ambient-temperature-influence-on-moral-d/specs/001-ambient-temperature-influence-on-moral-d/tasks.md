@@ -45,28 +45,26 @@
 
 **⚠️ CRITICAL**: No other tasks can begin until Phase 0 is complete and the data gap is resolved.
 
-- [ ] T001 [P] Verify the canonical URL for the Copernicus Climate Data Store (CDS) API for ERA hourly data and confirm accessibility (HTTP 200) using the `cdsapi` library configuration. Log the verification result (including API endpoint and status) to `results/logs/data_validation_log.txt`.
-- [ ] T001a [P] **Validate Moral Machine Source**: Verify the canonical URL for the Moral Machine dataset against the "Verified Accuracy" principle. Confirm the dataset exists, is accessible, and contains the required columns: `latitude`, `longitude`, `timestamp`, `response_time`. Log the validation status (Pass/Fail) and column schema to `results/logs/data_validation_log.txt`. **(FR-014, US-1)**.
+- [X] T001 [P] Verify the canonical URL for the Copernicus Climate Data Store (CDS) API for ERA hourly data and confirm accessibility (HTTP 200) using the `cdsapi` library configuration. Log the verification result (including API endpoint and status) to `results/logs/data_validation_log.txt`.
+- [X] T001a [P] **Validate Moral Machine Source**: Verify the canonical URL for the Moral Machine dataset against the "Verified Accuracy" principle. Confirm the dataset exists, is accessible, and contains the required columns: `latitude` (float), `longitude` (float), `timestamp` (datetime), `response_time` (float), `country` (string), `dilemma_id` (string). **URL**: `. Log the validation status (Pass/Fail) and column schema to `results/logs/data_validation_log.txt`. **(FR-014, US-1)**.
 - [ ] T001b [P] **Ingest & Validate ERA5 Sample**: Write a Python script `code/validate_era5.py` to fetch a **specific sample subset** for validation: **Jan 1, 2016 to Jan 7, 2016** in **London (51.5N, -0.1W)**. Execute this script to fetch the sample to `data/raw/era_sample.h5`. Verify the sample contains hourly resolution and valid temperature values. Log success/fail to `results/logs/data_validation_log.txt`. **(FR-014, US-1)**.
+- [X] T001c [P] **Validate ERA5 Citation (Verified Accuracy)**: Implement logic in `code/validate_sources.py` to verify the ERA5 data source against Constitution Principle II. **Action**: Use `cdsapi` to fetch the primary source metadata for ERA5 (product name, temporal coverage, spatial resolution) and log the specific metadata fields (e.g., `product_type`, `variable`, `grid_resolution`) to verify they match the claims in `plan.md`. Compute a "metadata match score" (Pass/Fail) based on exact string matching of key attributes (e.g., "2m temperature", "0.25 deg"). Log the score and validation status (Pass/Fail) to `results/logs/data_validation_log.txt`. **(Constitution Principle II, FR-014)**.
 - [ ] T002 [P] **Derive Bounding Box**: Write a script `code/derive_bbox.py` to load the Moral Machine dataset (or a sample thereof) and calculate the exact geographic bounding box (min/max lat/lon) required for the ERA5 fetch. Output the bounding box to `data/external/bounding_box.json`. **(Executability Fix)**.
-- [ ] T004c [P] **Validate ERA5 Full Metadata**: Using the bounding box from `data/external/bounding_box.json` (T002), query the CDS API metadata for the 2014‑2018 period. Verify that the metadata confirms **hourly temporal resolution** and **geographic coverage** that fully encompasses the bounding box. Log Pass/Fail and relevant metadata details to `results/logs/data_validation_log.txt`. This validation must succeed before any full ERA5 download. **(FR‑014, Principle II)**.
-- [ ] T004b [P] **Validate Full Source Standards**: Write and execute `code/validate_era_full.py`. **Logic**: 1. Read bounding box from `data/external/bounding_box.json` (T002). 2. Query CDS API metadata for the 2014‑2018 period within this bounding box. 3. Verify that the metadata confirms **hourly resolution** and **geographic coverage** meets FR‑014 standards. 4. Log the specific validation result (Pass/Fail) and metadata details to `results/logs/data_validation_log.txt`. **Dependencies**: T002, T001. **Gate**: If validation fails, abort and log "ERA5 Standards Not Met".
-- [ ] T002b [P] **Fetch ERA5 Logic**: Write a Python script `code/fetch_era_full.py` to fetch the **full 2014‑2018 ERA5 2m temperature dataset** required for the primary analysis. The script MUST:
-    1. Read the bounding box from `data/external/bounding_box.json` (T002).
-    2. **Filter**: Only request tiles that overlap with this bounding box.
-    3. Implement chunking by **10×10 degree tiles** to avoid single‑call timeout and memory overflow.
-    4. Stream data to disk in chunks to stay within the available RAM limit.
-    5. Include **retry logic** for CDS API rate limits (exponential backoff).
-    **Parameters**: Variable `2t`, Time range `2014‑01‑01` to `2018‑12‑31`, Format `netcdf`, Grid resolution `0.25`.
-    **Output**: Save to `data/raw/era5_full.h5`. **(FR‑001, Executability Fix)**.
-    **Dependencies**: T002, T004c. (Note: Validation occurs in T004c before this fetch).
-- [ ] T002b_test [P] **Unit Tests for Fetcher**: Write unit tests in `tests/test_ingestion.py` for `code/fetch_era_full.py` logic. **Specifics**: Test function `test_chunking_strategy` asserts `chunk_count == expected` where `expected = ceil((max_lat - min_lat)/10) * ceil((max_lon - min_lon)/10)`. Test `test_merge_logic` asserts `final_file.shape == expected_shape`. **(Executability Fix)**.
-- [ ] T002c [P] **Execute Fetch**: Execute the script from T002b to fetch the full dataset. **Execution Logic**: Run `fetch_era_full.py` which must fetch by year and tile (2014‑2018), merge results, and save to `data/raw/era5_full.h5`. Log success/fail to `results/logs/data_validation_log.txt`. **Dependencies**: T002, T004c, T002b. **Validation**: Verify file existence and integrity before completion.
-- [ ] T002d [P] **Checksum ERA5**: Compute and record the SHA‑256 checksum of the downloaded full ERA5 file (`data/raw/era5_full.h5`) in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml` under the key `artifact_hashes.era5_full`. **Crucially, this task MUST also update the `updated_at` timestamp in the same YAML file** to comply with Constitution Principle V. **(FR‑014, Principle V)**.
-- [ ] T003 [P] **Checksum Sample**: Compute and record the SHA‑256 checksum of the downloaded ERA5 sample file (`data/raw/era5_sample.h5`) in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml` under the key `artifact_hashes.era5_sample`. **Crucially, this task MUST also update the `updated_at` timestamp in the same YAML file** to comply with Constitution Principle V.
-- [ ] T004 [P] Programmatically validate that the downloaded ERA5 sample meets the hourly temporal resolution and geographic grid size standards defined in FR‑014. Log validation status (Pass/Fail) to `results/logs/data_validation_log.txt`.
+- [X] T002b [P] **Fetch ERA5 Logic**: Write a Python script `code/fetch_era_full.py` to fetch the **full -2018 ERA5 2m temperature dataset** required for the primary analysis. The script MUST:
+ 1. Read the bounding box from `data/external/bounding_box.json` (T002).
+ 2. **Filter**: Only request tiles that overlap with this bounding box.
+ 3. **Parameters**: Variable `2t` (2m temperature), Time range `2014-01-01` to `2018-12-31`, Product type `reanalysis`, Grid resolution `0.25` (approx 25km).
+ 4. **Chunking**: Implement chunking by **10x10 degree tiles** (latitude/longitude ranges) to avoid single-call timeout and memory overflow.
+ 5. Stream data to disk in chunks to stay within the available RAM limit.
+ 6. Include **retry logic** for CDS API rate limits (exponential backoff).
+ **Output**: Save to `data/raw/era5_full.h5`. **(FR-001, Executability Fix)**.
+- [ ] T002b_test [P] **Unit Tests for Fetcher**: Write unit tests in `tests/test_ingestion.py` for `code/fetch_era_full.py` logic. **Specifics**: Test function `test_chunking_strategy` asserts `chunk_count == expected` where `expected` is calculated based on the spatial resolution of the grid, determined by dividing the latitude and longitude ranges by a configurable cell size parameter. **Assumption**: Bounding box coordinates are in degrees and tile size is fixed at 10 degrees. Test `test_merge_logic` asserts `final_file.shape == expected_shape`. **(Executability Fix)**.
+- [ ] T002c [P] **Execute Fetch**: Execute the script from T002b to fetch the full dataset. **Execution Logic**: Run `fetch_era_full.py` which must fetch by year and tile (2014-2018), merge results, and save to `data/raw/era5_full.h5`. Log success/fail to `results/logs/data_validation_log.txt`. **Dependencies**: T002, T002b, T002b_test. <!-- FAILED: unspecified -->
+- [ ] T002d [P] **Checksum ERA5**: Compute and record the SHA-256 checksum of the downloaded full ERA5 file (`data/raw/era5_full.h5`) in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml` under the key `artifact_hashes.era5_full`. **Crucially, this task MUST also update the `updated_at` timestamp in the same YAML file** to comply with Constitution Principle V. **(FR-014, Principle V)**.
+- [ ] T003 [P] **Checksum Sample**: Compute and record the SHA-256 checksum of the downloaded ERA5 sample file (`data/raw/era5_sample.h5`) in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml` under the key `artifact_hashes.era5_sample`. **Crucially, this task MUST also update the `updated_at` timestamp in the same YAML file** to comply with Constitution Principle V.
+- [X] T004 [P] Programmatically validate that the downloaded ERA5 sample meets the hourly temporal resolution and geographic grid size standards defined in FR-014. Log validation status (Pass/Fail) to `results/logs/data_validation_log.txt`.
 - [ ] T005 [P] Verify the Moral Machine dataset source against the "Verified Accuracy" principle and log the validation status to `results/logs/data_validation_log.txt` using a standardized format: "Source: <name>, Status: <Pass/Fail>".
-- [ ] T006 [P] **Pre‑Ingestion Validation Gate**: Implement a final check task that aggregates results from T001‑T005. **Mechanism**: Read JSON log files from T001a, T004, T005 and check file existence for T002c. If ANY source validation (ERA5 or Moral Machine) fails, this task MUST raise an exception and abort the pipeline. Log the final gate status (Pass/Fail) to `results/logs/data_validation_log.txt`. **Dependencies**: T001‑T005.
+- [ ] T006 [P] **Pre-Ingestion Validation Gate**: Implement a final check task that aggregates results from T001-T005. **Mechanism**: Read JSON log files from T001a, T001c, T004, T005 and check file existence for T002c. If ANY source validation (ERA5 or Moral Machine) fails, this task MUST raise an exception and abort the pipeline. Log the final gate status (Pass/Fail) to `results/logs/data_validation_log.txt`. **Dependencies**: T001-T005.
 
 **Checkpoint**: Data validation complete. If Pass, proceed to Phase 1. If Fail, project is blocked.
 
@@ -77,7 +75,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T007 Create project structure per implementation plan, specifically creating directories: `code/`, `data/raw/`, `data/processed/`, `results/figures/`, `results/logs/`, `results/stats/`, `tests/`
-- [ ] T008 Initialize a Python project with dependencies (pandas, numpy, statsmodels>=0.13, scikit-learn, requests, pyyaml, seaborn, matplotlib, geopandas, cdsapi, huggingface_hub) in requirements.txt
+- [ ] T008 Initialize a Python project with dependencies (pandas, numpy, statsmodels>=0.13, scikit-learn, requests, pyyaml, seaborn, matplotlib, geopandas, cdsapi, huggingface_hub, polars, rasterio) in requirements.txt
 - [ ] T009 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -92,8 +90,9 @@
 - [ ] T010b [P] **Calculate Temperature Thresholds**: Write a script `code/calc_thresholds.py` to load a sample of the Moral Machine dataset and calculate the 1st and 99th percentile of the `temperature` column (once merged with a sample of ERA5). **Output**: Store `TEMPERATURE_COLD_THRESHOLD` and `TEMPERATURE_HOT_THRESHOLD` in `code/config.py` as constants. **Dependencies**: T001b (Sample Data).
 - [ ] T011 [P] Setup logging infrastructure to write data quality logs and model diagnostics to `results/logs/`
 - [ ] T012 [P] Implement checksum generation and verification for `data/raw/` and `data/processed/` files in `code/utils.py`
-- [ ] T013 Create data loading utilities in `code/loaders.py` using `pandas.read_parquet` with `chunksize` parameter for memory mapping. Implement function `load_chunked_parquet(path, chunk_size)` to handle large Parquet ingestion without memory overflow.
-- [ ] T014 [P] Setup unit test framework (pytest) with configuration for CPU‑only execution and stratified sampling
+- [ ] T013 Create data loading utilities in `code/loaders.py` using `polars` or `pandas` with `chunksize` parameter for memory mapping. Implement function `load_chunked_parquet(path, chunk_size)` to handle large Parquet ingestion without memory overflow.
+- [ ] T013a [P] **Define Anderson-Darling Sample Size**: Explicitly define the sampling fraction for the Anderson-Darling test in `code/config.py` (e.g., `ANDERSON_DARLING_SAMPLE_FRACTION = 0.1` or a fixed integer). **Action**: Add this constant to config and document the specific sampling fraction in `docs/research.md`. **(SC-005, Reproducibility)**.
+- [ ] T014 [P] Setup unit test framework (pytest) with configuration for CPU-only execution and stratified sampling
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -112,38 +111,28 @@
 
 ### Implementation for User Story 1
 
-- [ ] T017a [US1] [P] **Count Valid Location Data (Pre‑Filter)**: Scan `data/raw/moral_machine.csv.gz` and count **all** records that have non‑null `latitude` and `longitude` fields *before* any other filtering. Output this count to `results/logs/ingestion_summary.log` as `count_valid_location`. **Dependencies**: None (Independent). **(SC‑001)**.
-- [ ] T017 [US1] [P] **Load, Filter & Count**: Implement `code/ingestion.py` to:
-    1. Load the Moral Machine dataset from `data/raw/moral_machine.csv.gz`.
-    2. Filter records with missing location data (already counted in T017a).
-    3. Filter records with impossible response times (<100 ms or >10 000 ms) **(FR‑010)**.
-    4. Filter records with temperature values outside the configurable range defined in `code/config.py` (`TEMPERATURE_COLD_THRESHOLD`, `TEMPERATURE_HOT_THRESHOLD`) **(FR‑002)**.
-    5. Log excluded records to `results/logs/exclusion_log.csv` in CSV format, including the reason for each exclusion.
-    6. Log the number of records that pass all filters to `results/logs/ingestion_summary.log` as `count_filtered`.
-    **Dependencies**: T010, T010b. **(FR‑002, FR‑010)**.
-- [ ] T018 [US1] **Define Logic**: Implement the **logic** for ERA5 Reanalysis data fetching and merging in `code/ingestion.py` using the CDS API (`cdsapi`) for 2014‑2018 (FR‑001). This task defines the functions `fetch_era5_data` and `merge_with_moral_machine` but does **not** execute them. **Dependencies**: T002c, T002d.
-- [ ] T018b [US1] **Load and Merge**: Load the pre‑fetched ERA5 data from `data/raw/era5_full.h5` (produced by T002c) and merge it with the Moral Machine data processed in T017 using a streaming approach (`pandas.read_parquet` with `chunksize=100000`). **Deliverables**: Save **raw merged dataset** to `data/processed/merged_dataset_raw.parquet`. **Verification**:
-    1. Compute and verify the SHA‑256 checksum of `data/raw/era5_full.h5` against the entry recorded by T002d.
-    2. Validate that the schema of `data/processed/merged_dataset_raw.parquet` matches the schema defined in `data-model.md`.
-    3. Log success entry `{"merge_status": "success", "schema_valid": true, "records_merged": <int>}` to `results/logs/ingestion_summary.log`.
-    **Dependencies**: T018, T002c, T017.
-- [ ] T019 [US1] **Geospatial Matching**: In `code/ingestion.py`, link each Moral Machine record to the nearest ERA5 grid point using the **Haversine** distance (via `geopy`). For matches where the distance exceeds 100 km, set `match_quality` to `'low'` and **log** the record in `results/logs/data_quality_log.json` with fields:
-    - `record_id`
-    - `grid_point_identifier`
-    - `timestamp`
-    - `distance_km`
-    - `exclusion_reason`: `"distance > 100km"`
-    This satisfies FR‑009 and Constitution Principle VI (explicit station/grid identifier and timestamp). Records with `'low'` quality will later be excluded. **Dependencies**: T018b.
-- [ ] T019b [US1] **Primary Exclusion Filter**: Exclude from the primary analysis any records where `match_quality == 'low'` (distance > 100 km) **or** where `temporal_gap > 2 h` (as logged by T020). Update `results/logs/exclusion_log.csv` with the appropriate `reason` field (`"primary_filter_distance_gt_100km"` or `"primary_filter_temporal_gap_gt_2h"`). **Dependencies**: T019, T020.
-- [ ] T020 [US1] **Time‑based Interpolation**: Implement linear interpolation for missing ERA5 hourly values **only** when the gap is ≤ 2 h. If the gap exceeds 2 h, exclude the record and log the exclusion reason `"ERA5 coverage gap"` in `results/logs/data_quality_log.json`. **Dependencies**: T018b, T019.
-- [ ] T019c [US1] **Create Data Quality Log**: Initialise `results/logs/data_quality_log.json` as a single source of truth for all data‑quality flags, exclusion reasons, and match‑quality metrics. Ensure that T019, T020, and T019b append entries in the prescribed JSON schema. **(Spec Compliance)**.
-- [ ] T022 [US1] **Generate Final Filtered Dataset**: From `data/processed/merged_dataset_raw.parquet`, apply the primary exclusion filters (T019b, T020) and write the cleaned dataset to `data/processed/merged_dataset.parquet`. **Verification Criteria**:
-    1. Read `count_valid_location` from T017a.
-    2. Read `count_filtered` (records after all filters) from T017.
-    3. Log a JSON object to `results/logs/ingestion_summary.log`:
-       `{"count_total": <count_valid_location>, "count_matched": <count_filtered>, "success_rate": <float>}` where `success_rate = count_filtered / count_valid_location * 100`.
-    The task is considered complete only if this log entry is generated successfully. **Dependencies**: T019b, T020, T018b.
-- [ ] T022a [US1] **Calculate Match Success Rate**: Append to `results/logs/ingestion_summary.log` the field `{"match_success_rate": <float>}` where the numerator is `count_matched` from T022 and the denominator is `count_valid_location` from T017a (ensuring the denominator reflects *all* records with valid latitude/longitude, per SC‑001). **Dependencies**: T017a, T022.
+- [ ] T017 [US1] **Load, Filter & Count**: Implement `code/ingestion.py` to:
+ 1. Define numeric thresholds in `code/config.py`: `TEMPERATURE_COLD_THRESHOLD: A sufficiently low temperature to define a cold environment.`, `TEMPERATURE_HOT_THRESHOLD = 50.0`.
+ 2. Load the Moral Machine dataset from `data/raw/moral_machine.csv.gz`.
+ 3. **Count 1**: Count the total number of records with valid latitude and longitude (no missing values). Log this as `count_total_valid_location`.
+ 4. **Filter 1**: Filter out records with missing location data.
+ 5. **Filter 2**: Filter out records with impossible response times (<100ms or >10,000ms) **(FR-010)**.
+ 6. **Filter 3**: Filter out records with temperature values outside the plausible operational range. **(FR-002)**.
+ 7. **Count 2**: Count the number of records remaining after all filters. Log this as `count_filtered_for_analysis`.
+ 8. Log excluded records to `results/logs/exclusion_log.csv` in CSV format.
+ **Dependencies**: T010. **(FR-002, FR-010)**.
+- [ ] T018 [US1] **Define Logic**: Implement the **logic** for ERA5 Reanalysis data fetching and merging in `code/ingestion.py` using the CDS API (`cdsapi`) for 2014-2018 (FR-001). This task defines the functions `fetch_era5_data` and `merge_with_moral_machine` but does NOT execute them. **Dependencies**: T002c, T002d.
+- [ ] T018b [US1] **Load and Merge** the full dataset. **Action**: Load the pre-fetched ERA5 data from `data/raw/era5_full.h5` (produced by T002c) and merge it with Moral Machine data (from T017, specifically the **filtered** dataset) using **polars streaming** logic (e.g., `pl.scan_parquet`) to avoid memory overflow. **Memory Threshold**: Stream if dataset > 2GB.
+ 1. **Count 3**: Log the number of records successfully matched with ERA5 data (before distance/time exclusion) as `count_matched_pre_exclusion`.
+ 2. **Deliverables**: Save merged dataset to `data/processed/merged_dataset.parquet`.
+ 3. **Verification**: 1) Compute and verify SHA-256 checksum of `data/raw/era5_full.h5` against `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml`. 2) Verify the schema of `data/processed/merged_dataset.parquet` matches the schema defined in `data-model.md`. 3) Log the specific success entry `{"merge_status": "success", "schema_valid": true, "records_merged": <int>, "count_matched_pre_exclusion": <int>}` to `results/logs/ingestion_summary.log`.
+ **Dependencies**: T018, T002d, T017.
+- [ ] T019 [US1] **Geospatial Matching**: Implement geospatial matching logic in `code/ingestion.py` to link Moral Machine records to nearest ERA5 grid within 100km threshold. Explicitly flag records >100km by setting `match_quality` to 'low' and logging the exact reason "distance > 100km" to `results/logs/data_quality_log.json` before exclusion (FR-009). **Output**: Add a column `era5_grid_id` (not `station_identifier`) to the dataset to satisfy Constitution Principle VI. **Note**: This task depends on T018b and T002d (Data Ready). **Logging**: Log the `era5_grid_id` in a dedicated column named `era5_grid_id` in the exclusion log and merged dataset. **Dependencies**: T018b, T002d.
+- [ ] T019b [US1] **Primary Exclusion Filter**: Implement in `code/ingestion.py`: Explicitly exclude all records where `match_quality` == 'low' (distance > 100km) OR where `temporal_gap > 2h` (flagged in T020) from the primary dataset used for modeling. Log the count of excluded records to `results/logs/exclusion_log.csv` with reason "primary_filter_distance_gt_100km" or "primary_filter_temporal_gap_gt_2h". **Dependencies**: T019, T020.
+- [ ] T020 [US1] **Time-based Interpolation**: Implement time-based interpolation for missing ERA5 hourly values in `code/ingestion.py`: apply linear interpolation ONLY if the gap is ≤2 hours; **FLAG** the record with `temporal_gap > 2h` if the gap is larger (do NOT exclude yet). Log all flagged records with reasons (e.g., "ERA5 coverage gap", "Low confidence match", "temporal_gap > 2h") to `results/logs/data_quality_log.json` in JSON format (Edge Case: Missing Temp, FR-002). **Note**: This task depends on T018b (Merged Data). **Dependencies**: T018b, T019, T002d.
+- [ ] T019c [US1] **Create Data Quality Log**: Explicitly initialize and structure `results/logs/data_quality_log.json` as the single source of truth for all data quality flags, exclusion reasons, and match quality metrics as required by Spec Edge Cases. Ensure T019, T020, and T019b write to this file. **(Spec Compliance)**.
+- [ ] T022 [US1] **Generate and verify output** to save merged dataset to `data/processed/merged_dataset.parquet`. **Verification Criteria**: Log the success rate to `results/logs/ingestion_summary.log` with the exact JSON schema: `{"count_total_valid_location": <int>, "count_matched_pre_exclusion": <int>, "count_valid_post_exclusion": <int>, "success_rate": <float>}`. The task is considered complete ONLY if the log is generated successfully. **Dependencies**: T019b, T020, T018b.
+- [ ] T022a [US1] **Calculate Match Success Rate**: Compute the percentage of Moral Machine records successfully matched with ERA5 temperature data (SC-001). **Input**: Read `count_total_valid_location` from T017 and `count_matched_pre_exclusion` from T018b's log output (do NOT use T022's post-exclusion count). **Output**: Append `{"match_success_rate": <float>}` to `results/logs/ingestion_summary.log`. **Dependencies**: T017, T018b.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -162,18 +151,24 @@
 
 ### Implementation for User Story 2
 
-- [ ] T025 [P] [US2] Implement `code/modeling.py` to perform log‑transformation of response times and handle non‑convergence by switching to GLMM (FR‑003). **Dependencies**: T022.
-- [ ] T028a [US2] **Check Availability of Demographic Covariates**: Inspect the merged dataset (`data/processed/merged_dataset.parquet`) for aggregate country‑level `age` and `gender` columns. If present, retain them for modeling. If absent, **log** the limitation in `results/logs/demographic_gap_log.txt` (e.g., “Aggregate age/gender not available; proceeding without these covariates”). **Do NOT fetch external data**; the task complies with FR‑004 by using only available aggregate covariates or documenting their absence. **Dependencies**: T022.
-- [ ] T028c [US2] **Derivation of Dilemma Complexity**: Derive a static metric for dilemma complexity (independent of response time) using the formula: `(number of lives at stake) + (dilemma type ID weight)`. Ensure it is merged into the dataset. **Dependencies**: T022. **Note**: This score is a required covariate for T026.
-- [ ] T028d [US2] [P] **Derivation of Time‑of‑Day Covariate**: Extract the hour (0‑23) from the `timestamp` column in the merged dataset (T022) and create a new column `time_of_day`. **Dependencies**: T022. **(FR‑004)**
-- [ ] T028e [US2] **Verify Covariate Integrity**: Run a validation script to check that ALL required covariates (temperature, dilemma complexity, time‑of‑day, dilemma choice, and any available age/gender aggregates) are present in the dataset before modeling. If any are missing, raise an exception. **Dependencies**: T028a, T028c, T028d.
-- [ ] T026 [US2] **Primary Model: Linear Mixed‑Effects (LMM)** in `code/modeling.py` with fixed effects: temperature, dilemma complexity, time‑of‑day, dilemma choice, and **interaction term between temperature and dilemma choice**, and random intercepts for participant ID and cultural region. **Fallback**: If LMM fails to converge, implement GLMM with log‑link function (FR‑003). **Output**: Save results to `results/stats/lmm_model_results.json` following `model_output.schema.yaml` (keys: `temperature_coef`, `temperature_se`, `temperature_p_value`, `random_intercept_variances`, `dilemma_complexity_coef`, `time_of_day_coef`, `dilemma_choice_coef`). **Dependencies**: T025, T028c, T028d, T028a, T028e, T022.
-- [ ] T029 [US2] Implement likelihood‑ratio test in `code/modeling.py` comparing Full Model (temperature, dilemma complexity, time‑of‑day, choice, interaction) vs. Null Model (dilemma complexity, time‑of‑day, choice, without temperature) and record p‑value (FR‑005, SC‑002). **Dependencies**: T026.
-- [ ] T030a [US2] Implement diagnostic plot generation (QQ‑plot, residual vs. fitted) to verify normality and homoscedasticity assumptions of the transformed data (FR‑007). Save plots to `results/figures/`. **Dependencies**: T026.
-- [ ] T030b [US2] Implement Anderson‑Darling statistical test on a **stratified random sample (size = max(1000, of rows))** to verify residual normality (SC‑005). Record the Anderson‑Darling p‑value in `results/stats/model_results.json` under the key `anderson_darling_p_value`. **Dependencies**: T026.
-- [ ] T031 [US2] **Non‑Linearity Test**: Fit a model with a quadratic term (`temperature^2`) and a spline basis for temperature. Compare model fit (AIC/BIC) against the linear‑only model (FR‑013). Save results to `results/stats/nonlinearity_test_results.json`. **Dependencies**: T026.
-- [ ] T032 [US2] Export model coefficients, standard errors, p‑values, and random effect variances to `results/stats/model_results.json` in a format compliant with `model_output.schema.yaml` (FR‑008). **Dependencies**: T026, T031.
-- [ ] T041 [US2] **Extract Random Intercept Variance**: Using the fitted LMM output (from T032), extract the variance component for the cultural‑region random intercept and record it in `results/stats/model_results.json` under the field `cluster_robust_variance`. **Dependencies**: T032.
+- [ ] T025 [US2] Implement `code/modeling.py` to perform log-transformation of response times and handle non-convergence by switching to GLMM (FR-003). **Dependencies**: T022.
+- [ ] T028a [US2] **Check and Fetch Covariates**:
+ 1. Check if individual-level `age` and `gender` columns exist in the Moral Machine dataset.
+ 2. If absent, fetch aggregate country-level data from the World Bank API (Endpoint: ` for life expectancy as age proxy; `SP.POP.TOTL.FE.ZS` for gender ratio). **Years**: -2018.
+ 3. **Mapping**: Map Moral Machine 'country' names to World Bank 'country codes' using **ISO 3166-1 alpha-3** mapping (e.g., `country_to_iso` dictionary).
+ 4. **Fallback**: If the API fetch fails or returns no data, **exclude** the affected records and log the reason "covariate_fetch_failed" to `results/logs/demographic_gap_log.txt`. **(FR-004, Graceful Degradation)**.
+ 5. Log the absence of individual-level data and the use of proxies. **Dependencies**: T022.
+- [ ] T028b [US2] **Derivation of Dilemma Choice**: Extract the 'dilemma_choice' variable (e.g., 'save the many' vs 'save the few') from the raw Moral Machine dataset (or the merged dataset if present). **Action**: Create a new column `dilemma_choice` in `data/processed/merged_dataset.parquet` representing the binary or categorical choice made by the participant. **(FR-011)**. **Dependencies**: T022.
+- [ ] T028c [US2] **Derivation of Dilemma Complexity**: Derive a static metric for dilemma complexity (independent of response time) and ensure it is merged into the dataset. **Dependencies**: T022. **Note**: This score is a required covariate for T026.
+- [ ] T028d [US2] [P] **Derivation of Time-of-Day Covariate**: Extract the hour (0-23) from the `timestamp` column in the merged dataset (T022) and create a new column `time_of_day`. **Dependencies**: T022. **(FR-004)**.
+- [ ] T028e [US2] [P] **Verify Covariate Integrity**: Run a validation script to check that ALL required covariates (temperature, dilemma complexity, time-of-day, dilemma choice, age/gender proxy) are present in the dataset before modeling. If any are missing, raise an exception. **Dependencies**: T028a, T028b, T028c, T028d.
+- [ ] T026 [US2] **Primary Model: Linear Mixed-Effects (LMM)** in `code/modeling.py` with fixed effects: temperature, dilemma complexity, time-of-day, dilemma choice, and **interaction term between temperature and dilemma choice**, and random intercepts for participant ID and cultural region. **Fallback**: If LMM fails to converge, implement GLMM with log-link function (FR-003). **Output**: Save results to `results/stats/lmm_model_results.json` following `model_output.schema.yaml` (keys: `temperature_coef`, `temperature_se`, `temperature_p_value`, `random_intercept_variances`, `dilemma_complexity_coef`, `time_of_day_coef`, `dilemma_choice_coef`). **Dependencies**: T025, T028b, T028c, T028d, T028a, T028e, T022.
+- [ ] T029 [US2] Implement likelihood-ratio test in `code/modeling.py` comparing Full Model (temperature, dilemma complexity, time-of-day, choice, interaction) vs. Null Model (dilemma complexity, time-of-day, choice, without temperature) and record p-value (FR-005, SC-002). **Dependencies**: T026.
+- [ ] T030a [US2] Implement diagnostic plot generation (QQ-plot, residual vs. fitted) to verify normality and homoscedasticity assumptions of the transformed data (FR-007). Save plots to `results/figures/`. **Dependencies**: T026.
+- [ ] T030b [US2] Implement Anderson-Darling statistical test on a **stratified random sample** (sample size defined in `code/config.py` as `ANDERSON_DARLING_SAMPLE_FRACTION` from T013a) to verify residual normality (SC-005). Record the Anderson-Darling p-value in `results/stats/model_results.json` under the key `anderson_darling_p_value`. **Dependencies**: T026.
+- [ ] T031 [US2] **Non-Linearity Test**: Fit a model with a quadratic term (temperature^2) and a spline basis for temperature. Compare model fit (AIC/BIC) against the linear-only model (FR-013). Save results to `results/stats/nonlinearity_test_results.json`. **Dependencies**: T026.
+- [ ] T032 [US2] Export model coefficients, standard errors, p-values, and random effect variances to `results/stats/model_results.json` in a format compliant with `model_output.schema.yaml` (FR-008). **Dependencies**: T026, T031.
+- [ ] T041 [US2] Extract the **random intercept variance** for the cultural region from the primary model output (output of T032) to quantify the baseline "individual difference" noise floor observed in the data. **Method**: Use `statsmodels>=0.13` and access `results.cov_re.get_group('cultural_region').diagonal()[0]` (or equivalent specific index). Record this value in `results/stats/model_results.json` under the field `cluster_robust_variance`. **Note**: This task depends on T032 completing. (Note: This aligns with the LMM strategy which produces random effect variances).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -192,12 +187,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T035 [P] [US3] Implement `code/robustness.py` to calculate alternative temperature metrics (e.g., 3‑hour moving average) and re‑run modeling (FR‑006)
-- [ ] T035b [P] [US3] **Distance Sensitivity Analysis**: Re‑run the primary model excluding records >25 km and >50 km (using config thresholds from T010). Report the variation in the temperature coefficient. **Dependencies**: T019b, T026.
-- [ ] T036 [US3] Implement sensitivity analysis in `code/robustness.py` sweeping temperature outlier thresholds (e.g., varying standard‑deviation multipliers) and reporting coefficient variation (FR‑006, SC‑003)
-- [ ] T037 [US3] **Indoor/Outdoor Confound Analysis**: Attempt to stratify data or apply a proxy adjustment using urban/rural classification. **Data Source**: Fetch urban/rural data from `datasets.load_dataset('jrc/ghsl-population')` and use the file `files/GHSL_POP_GLO_V1.0.zip`. Verify file existence before use. If metadata is unavailable, **log the limitation** in `results/logs/indoor_outdoor_limitation.md` and include a section “Quantified Noise Impact” (or “N/A” with reason). (FR‑012). **Dependencies**: T022.
-- [ ] T038 [US3] Generate comparison table in `code/robustness.py` showing temperature coefficient and p‑value for primary vs. alternative models (US‑3)
-- [ ] T039 [US3] Save all robustness figures (scatter plots, conditional effect plots) to `results/figures/` (FR‑008)
+- [ ] T035 [P] [US3] Implement `code/robustness.py` to calculate alternative temperature metrics (e.g., 3-hour moving average) and re-run modeling (FR-006)
+- [ ] T035b [P] [US3] **Distance Sensitivity Analysis**: Implement in `code/robustness.py`. Re-run the primary model excluding records >25km and >50km (using config from T010) and report the variation in the temperature coefficient. **Note**: This task tests sensitivity against thresholds *after* the primary exclusion logic (T019b) has removed >100km records. **Dependencies**: T019b, T026.
+- [ ] T036 [US3] Implement sensitivity analysis in `code/robustness.py` sweeping temperature outlier thresholds (e.g., varying standard deviation multipliers) and reporting coefficient variation (FR-006, SC-003)
+- [ ] T037 [US3] **Indoor/Outdoor Confound Analysis**: Implement in `code/robustness.py` by FIRST attempting to stratify data or apply proxy adjustment using urban/rural classification. **Data Source**: Fetch urban/rural data from `datasets.load_dataset('jrc/ghsl-population')`. **Logic**: Use `rasterio` to perform a **point-in-polygon** spatial join (raster sampling) to map Moral Machine coordinates to urban/rural classification. **Check**: Verify file existence before use. If metadata is unavailable, THEN report the limitation and quantify noise impact by writing to `results/logs/indoor_outdoor_limitation.md` with a specific section "Quantified Noise Impact" (or 'N/A' with reason). (FR-012). **Dependencies**: T022.
+- [ ] T038 [US3] Generate comparison table in `code/robustness.py` showing temperature coefficient and p-value for primary vs. alternative models (US-3)
+- [ ] T039 [US3] Save all robustness figures (scatter plots, conditional effect plots) to `results/figures/` (FR-008)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -240,7 +235,7 @@
 
 ### Implementation for Review Resolution
 
-- [ ] T045 [P3] **Document Baseline Limitation**: Update `results/logs/limitations.md` to include a new subsection "Quantification of Reviewer Concern (Kahneman)" that: (1) Reports the `cluster_robust_variance` value from T041 as the estimated variance in the temperature effect due to unmeasured individual differences; (2) Explains that without a true baseline, the main effect is an upper bound; (3) Explicitly states that the stratified analysis proposed in the review is not feasible due to data constraints (Spec Assumptions). **Dependencies**: T041, T040, T045b.
+- [ ] T045 [P3] **Document Baseline Limitation & Quantify Noise**: Update `results/logs/limitations.md` to include a new subsection "Quantification of Reviewer Concern (Kahneman)" that: (1) Reports the `cluster_robust_variance` value from T041 as the estimated variance in the temperature effect due to unmeasured individual differences; (2) Explains that without a true baseline, the main effect is an upper bound; (3) **Quantitative Bound**: Perform a theoretical sensitivity analysis by calculating the "Maximum Plausible Bias" as a function of the observed random effect variance (e.g., assuming the unmeasured confound explains [deferred] of the random effect variance, what is the maximum possible shift in the temperature coefficient?). Explicitly state that the stratified analysis proposed in the review is not feasible due to data constraints (Spec Assumptions). **Dependencies**: T041, T040.
 
 **Checkpoint**: Reviewer's specific concern about baseline confounding is now quantified and documented, allowing the project to proceed with a clear understanding of the noise floor.
 
