@@ -1,77 +1,67 @@
-# Quickstart: llmXive follow-up: extending "LoopCoder-v2"
+# Quickstart: llmXive follow-up
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to HuggingFace Hub (token for gated models if required, though CodeLlama-7b-Instruct-hf is public)
-- (Optional) Kaggle account for GPU offload (handled automatically by runtime)
+- **Python**: 3.10+
+- **GPU**: Access to a GPU with $\ge 16$ GB VRAM (e.g., T4, V100, A10). *Note: CPU-only execution is not supported for this feature due to model size.*
+- **HuggingFace Token**: Required to download `meta-llama/CodeLlama-7b-Instruct-hf`. Set `HF_TOKEN` environment variable.
+- **Kaggle Account**: Required for GPU offload (optional if running locally on GPU).
 
 ## Installation
 
 1. **Clone and Setup**:
    ```bash
-   git clone <repo-url>
-   cd projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2
-   ```
-
-2. **Create Virtual Environment**:
-   ```bash
+   git checkout 001-gene-regulation
+   cd projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   source venv/bin/activate
+   pip install -r requirements.txt
    ```
 
-3. **Install Dependencies**:
+2. **Environment Variables**:
    ```bash
-   pip install -r code/requirements.txt
+   export HF_TOKEN="your_huggingface_token"
+   export SEED=42
    ```
 
-## CPU Validation Mode (N=50)
+## Running the Pipeline
 
-Run a small-scale validation to verify the pipeline logic without requiring GPU resources.
+### Option A: Local GPU Execution
+Run the full pipeline on your local machine (requires GPU):
+```bash
+python -m src.run_pipeline --mode full
+```
+This will:
+1. Download datasets.
+2. Compute entropy.
+3. Run inference loops.
+4. Perform statistical analysis.
+5. Save results to `data/processed/`.
 
-1. **Configure**:
-   Edit `code/config.json` to set `max_samples = 50`, `max_mbpp_samples = 50`, and `device = "cpu"`.
+### Option B: Kaggle GPU Offload
+If local GPU is unavailable, use the Kaggle script:
+```bash
+./run_gpu.sh
+```
+This script:
+1. Detects CUDA requirements.
+2. Uploads code/data to a Kaggle kernel.
+3. Executes the pipeline.
+4. Downloads results to `data/processed/`.
 
-2. **Run Entropy & Convergence**:
-   ```bash
-   python code/src/entropy.py --mode validation
-   python code/src/inference.py --mode validation
-   ```
+## Verification
 
-3. **Run Router & Robustness**:
-   ```bash
-   python code/src/router.py
-   python code/src/robustness.py
-   ```
-
-4. **Verify Outputs**:
-   Check `data/processed/` for `entropy_results.csv`, `convergence_results_core.csv`, `router_model.pkl`.
-
-## GPU Full Analysis Mode
-
-Run the full scientific analysis on the complete dataset.
-
-1. **Configure**:
-   Edit `code/config.json` to set `max_samples = null` (full dataset), `max_mbpp_samples = 500`, and `device = "cuda"`.
-   Ensure `load_in_8bit = true` to fit 7B model in VRAM.
-
-2. **Run Pipeline**:
-   ```bash
-   python code/src/entropy.py --mode full
-   python code/src/inference.py --mode full
-   python code/src/router.py
-   python code/src/robustness.py
-   ```
-
-3. **GPU Offload (Automatic)**:
-   If running on GitHub Actions, the runtime detects CUDA requirements and offloads to Kaggle. No manual intervention needed.
-
-4. **Verify Outputs**:
-   Check `data/processed/` for all CSVs, JSONs, and model artifacts.
+After completion, verify artifacts:
+```bash
+python -m src.verify_artifacts
+```
+Expected outputs:
+- `data/processed/convergence_results_core.csv`
+- `data/processed/correlation_results_final.json`
+- `data/processed/router_model.pkl`
 
 ## Troubleshooting
 
-- **Memory Error**: Ensure `load_in_8bit` is enabled. If VRAM > 16GB, reduce `max_samples`.
-- **Dataset Download Fail**: Verify internet access and HuggingFace token.
-- **AST Clustering Error**: Ensure `ast` module is available (Python standard lib).
+- **OOM Errors**: Reduce `batch_size` in `config.py`.
+- **Model Download Failures**: Ensure `HF_TOKEN` is set and network is accessible.
+- **CUDA Mismatch**: Ensure `torch` version matches the system CUDA driver.

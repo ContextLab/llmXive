@@ -1,27 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "RouterMetrics Schema"
-description: "Schema for router simulation metrics"
+title: "RouterPrediction"
+description: "Schema for dynamic router predictions and metrics."
 type: "object"
 properties:
-  accuracy:
+  problem_id:
+    type: "string"
+    description: "Unique identifier for the problem."
+  predicted_k:
+    type: "integer"
+    description: "Predicted optimal loop count by the logistic regression model."
+    enum:
+      - 1
+      - 2
+      - 3
+  probability_k1:
     type: "number"
-    description: "Prediction accuracy of the logistic regression model"
-  flops_savings_percent:
+    description: "Probability that k=1 is sufficient."
+    minimum: 0
+    maximum: 1
+  flops_savings:
     type: "number"
-    description: "Percentage reduction in FLOPs compared to oracle"
-  accuracy_difference:
-    type: "number"
-    description: "Difference in accuracy vs. static baseline"
-  non_inferiority_passed:
-    type: "boolean"
-    description: "Whether accuracy difference is within delta=0.05"
-  p_value:
-    type: "number"
-    description: "P-value for the non-inferiority test"
+    description: "Estimated FLOPs savings relative to a static k=2 baseline."
 required:
-  - accuracy
-  - flops_savings_percent
-  - accuracy_difference
-  - non_inferiority_passed
-  - p_value
-additionalProperties: false
+  - problem_id
+  - predicted_k
+  - probability_k1
+  - flops_savings

@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResults"
+description: "Schema for final statistical analysis results."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the metric (e.g., 'spearman_rho', 'p_value')."
+  value:
+    type: "number"
+    description: "The computed value of the metric."
+  stratum:
+    type: ["string", "null"]
+    description: "Difficulty stratum if applicable, else null."
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% Confidence interval [lower, upper]."
+  significance_flag:
+    type: "boolean"
+    description: "True if p < 0.05 (or adjusted threshold)."
+required:
+  - metric_name
+  - value
+  - confidence_interval
+  - significance_flag

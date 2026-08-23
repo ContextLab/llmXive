@@ -1,67 +1,73 @@
-# Data Model: llmXive follow-up: extending "LoopCoder-v2"
+# Data Model: llmXive follow-up
 
 ## Overview
 
-This document defines the data structures, schemas, and transformation pipelines required for the project. All data is stored in `data/` (raw) and `data/processed/` (derivations).
+This document defines the schema for all data artifacts produced and consumed by the project. All data is stored in `data/` with strict checksumming.
 
 ## Entity Definitions
 
-### InputProblem
-Represents a code generation problem.
-- `problem_id`: Unique identifier (e.g., "HumanEval/0").
-- `prompt`: The problem description string.
-- `reference_solution`: The ground truth code string.
-- `difficulty_stratum`: Categorical label (e.g., "easy", "medium", "hard") based on baseline pass rates.
-- `dataset`: Source dataset name ("HumanEval" or "MBPP").
+### 1. InputProblem
+Represents a code generation or reasoning problem from HumanEval/MBPP, containing the prompt and the reference solution.
+- **Source**: HumanEval / MBPP raw parquet.
+- **Fields**:
+  - `problem_id`: Unique identifier for the problem.
+  - `prompt`: String (the input prompt).
+  - `canonical_solution`: String (reference solution, for verification).
+  - `test_suite`: String (code to execute tests).
+  - `difficulty_stratum`: String (pre-defined based on baseline pass@1 rates from literature).
 
-### ConvergenceTrajectory
-Represents the model's performance over loop counts.
-- `problem_id`: Link to `InputProblem`.
-- `loop_count`: Integer ($k$).
-- `output`: Generated code string.
-- `is_correct`: Boolean (1 if matches reference, 0 otherwise).
-- `converged`: Boolean (True if `is_correct` is True at this $k$ and previous were False).
-- `censored`: Boolean (True if $k=k_{max}$ and not converged).
+### 2. EntropyProxy
+Scalar uncertainty metric derived from $N=10$ samples.
+- **Source**: `code/src/entropy.py`.
+- **Fields**:
+  - `problem_id`: FK to InputProblem.
+  - `entropy_value`: Float (Shannon entropy).
+  - `num_clusters`: Integer (number of semantic clusters).
+  - `exclusion_flag`: Boolean (true if entropy undefined/excluded).
 
-### EntropyProxy
-Represents the semantic uncertainty metric.
-- `problem_id`: Link to `InputProblem`.
-- `num_samples`: Integer ($N$).
-- `cluster_ids`: List of integers (cluster assignment for each sample).
-- `entropy_value`: Float (Shannon entropy).
-- `exclusion_reason`: String (if excluded, e.g., "deterministic").
+### 3. ConvergenceTrajectory
+Step-by-step convergence data.
+- **Source**: `code/src/inference.py`.
+- **Fields**:
+  - `problem_id`: FK to InputProblem.
+  - `loop_count`: Integer ($k \in \{1, 2, 3\}$).
+  - `passed`: Boolean (did the output pass tests?).
+  - `is_censored`: Boolean (true if $k_{max}$ reached).
+  - `convergence_step`: Integer (first $k$ where `passed` is true, else null).
 
-### RuntimeMetrics
-Represents computational resource usage (SC-005).
-- `task_name`: String (e.g., "entropy_extraction", "convergence_tracking").
-- `duration_ms`: Integer (execution time in milliseconds).
-- `peak_memory_mb`: Float (peak RAM/VRAM usage in MB).
-- `device`: String ("cpu" or "cuda").
+### 4. RouterPrediction
+Output of the logistic regression model.
+- **Source**: `code/src/analysis.py`.
+- **Fields**:
+  - `problem_id`: FK to InputProblem.
+  - `predicted_k`: Integer (predicted optimal loop count).
+  - `probability_k1`: Float (probability of converging at $k=1$).
+  - `flops_savings`: Float (relative to static $k=2$).
 
-## Data Pipeline
+### 5. StatisticalResults
+Aggregated analysis results.
+- **Source**: `code/src/analysis.py` / `robustness.py`.
+- **Fields**:
+  - `metric_name`: String (e.g., 'spearman_rho', 'p_value', 'holm_adjusted_p').
+  - `value`: Float.
+  - `stratum`: String (if applicable).
+  - `confidence_interval`: List(Float, Float).
 
-1. **Ingestion**: Download HumanEval/MBPP from verified URLs. Parse into `InputProblem` objects.
-2. **Entropy Generation**: Run `code/src/entropy.py` -> `data/processed/entropy_results.csv`.
-3. **Convergence Generation**: Run `code/src/inference.py` -> `data/processed/convergence_results_core.csv` and `convergence_results_sensitivity.csv`.
-4. **Router Training**: Run `code/src/router.py` -> `data/processed/router_model.pkl`, `router_metrics.json`.
-5. **Robustness**: Run `code/src/robustness.py` -> `data/processed/sensitivity_sweep.json`.
-6. **Metrics Logging**: Run `code/src/utils.py` (logging) -> `data/processed/runtime_metrics.json`.
+## File Paths & Checksums
 
-## Data Hygiene & Checksums
+| File | Path | Format | Checksum Method |
+| :--- | :--- | :--- | :--- |
+| Raw HumanEval | `data/raw/humaneval.parquet` | Parquet | SHA-256 |
+| Raw MBPP | `data/raw/mbpp.parquet` | Parquet | SHA-256 |
+| Entropy Data | `data/processed/entropy_proxies.csv` | CSV | SHA-256 |
+| Convergence Data | `data/processed/convergence_results_core.csv` | CSV | SHA-256 |
+| Router Model | `data/processed/router_model.pkl` | Pickle | SHA-256 |
+| Final Results | `data/processed/correlation_results_final.json` | JSON | SHA-256 |
 
-- **Raw Data**: `data/raw/humaneval.parquet`, `data/raw/mbpp.jsonl`. Checksums recorded in `state/...yaml`.
-- **Processed Data**: All derived files are checksummed. No in-place modifications.
-- **PII**: None expected (code datasets are synthetic).
+## Data Flow
 
-## File Formats
-
-- **CSV**: Comma-separated, UTF-8, header row.
-- **Parquet**: Apache Parquet (for raw dataset).
-- **JSON**: Standard JSON for metrics and configuration.
-- **Pickle**: Python pickle (for model artifacts, versioned).
-
-## Configuration
-
-- `max_mbpp_samples`: Integer. Maximum number of MBPP samples to process. Default: 500.
-- `max_samples`: Integer. Maximum total samples (HumanEval + MBPP subset).
-- `k_max`: Integer. Maximum loop count for convergence (default 3).
+1. **Ingestion**: `data_loader.py` fetches raw parquet, validates checksums, writes to `data/raw/`.
+2. **Entropy**: `entropy.py` reads raw, generates `entropy_proxies.csv`.
+3. **Inference**: `inference.py` reads raw + entropy, runs loops, writes `convergence_results_core.csv`.
+4. **Analysis**: `analysis.py` reads both, produces `correlation_results_final.json` and `router_model.pkl`.
+5. **Robustness**: `robustness.py` reads results, produces `adjusted_pvalues.json`.

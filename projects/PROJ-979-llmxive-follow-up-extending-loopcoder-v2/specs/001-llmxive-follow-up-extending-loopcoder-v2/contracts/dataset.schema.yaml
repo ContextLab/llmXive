@@ -18,7 +18,7 @@ properties:
     minimum: 1
   num_samples:
     type: integer
-    description: "Number of samples generated (always 10)."
+    description: "A fixed number of samples will be generated."
     const: 10
   excluded:
     type: boolean

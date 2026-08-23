@@ -1,4 +1,4 @@
-- artifact_hash: 73d9b6f755cc4860ff596bc822c19577f208b6556ed10725b7ad2c27ee9f0512
+- artifact_hash: ca6c554a78e0676f018950932085576bb8292ab889383b12300abe80a538ae60
   artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,27 +7,28 @@
   kind: url
   value: https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181f06/19ddd404720790f95c7d65d0c801d9024ce7a6b69ea8fae939e635418afc6cfe?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1786489618&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZjA2LzE5ZGRkNDA0NzIwNzkwZjk1YzdkNjVkMGM4MDFkOTAyNGNlN2E2YjY5ZWE4ZmFlOTM5ZTYzNTQxOGFmYzZjZmVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODY0ODk2MTh9fX1dfQ__&Signature=MEUCIQDA51QTTnbnEZJK0D7JkRiUXcxJsLHhGhayzagOy0hd%7EwIgUs7U%7EOhgcdVD45kplw0akRzWDA9sy7YR55Rj2kWm%7EnA_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-11T22:06:57.997391Z'
-- artifact_hash: 73d9b6f755cc4860ff596bc822c19577f208b6556ed10725b7ad2c27ee9f0512
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181f06/19ddd404720790f95c7d65d0c801d9024ce7a6b69ea8fae939e635418afc6cfe?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1787528634&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZjA2LzE5ZGRkNDA0NzIwNzkwZjk1YzdkNjVkMGM4MDFkOTAyNGNlN2E2YjY5ZWE4ZmFlOTM5ZTYzNTQxOGFmYzZjZmVcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODc1Mjg2MzR9fX1dfQ__&Signature=MEQCIHppuv0wmDAyitepWDEz9sbN1EqSS8LtNnLNpFfl2DvJAiB4BQHtRLm0yo5r4iNTGTk7P2M%7ER42-9Eqm6jYrmkf46Q__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-23T22:43:54.505878Z'
+- artifact_hash: ca6c554a78e0676f018950932085576bb8292ab889383b12300abe80a538ae60
   artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: mbpp.jsonl
+  fetched_title: prompt-00000-of-00001.parquet
   kind: url
-  value: https://huggingface.co/datasets/Muennighoff/mbpp/resolve/main/data/mbpp.jsonl`
+  value: https://huggingface.co/datasets/google-research-datasets/mbpp/resolve/main/full/prompt-00000-of-00001.parquet`
   verification_status: pending
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Muennighoff/mbpp/d81b8291e5998f5726ab7f35a0a557e761532aac/data%2Fmbpp.jsonl?%2Fdatasets%2FMuennighoff%2Fmbpp%2Fresolve%2Fmain%2Fdata%2Fmbpp.jsonl=&etag=%2296e2dc2f7dd95b7b87b38dc46e42cbed444251bb%22
-  verified_at: '2026-08-11T22:06:57.997391Z'
-- artifact_hash: 73d9b6f755cc4860ff596bc822c19577f208b6556ed10725b7ad2c27ee9f0512
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181eb4/489f84bead3c356f29f099a12d4575d3ebf852073e6350b10a52c0cd9bd082cd?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27prompt-00000-of-00001.parquet%3B+filename%3D%22prompt-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1787528634&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZWI0LzQ4OWY4NGJlYWQzYzM1NmYyOWYwOTlhMTJkNDU3NWQzZWJmODUyMDczZTYzNTBiMTBhNTJjMGNkOWJkMDgyY2RcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3cHJvbXB0LTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJwcm9tcHQtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg3NTI4NjM0fX19XX0_&Signature=MEYCIQCjDgX3pOqW5sDH6dnuBeREtT394vWXbPThTultlLWBVgIhAPOlex2g%7EO2neRk7kEJvGyPos4OLNWloXzj9oBWKZu%7Eh&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-23T22:43:54.505878Z'
+- artifact_hash: ca6c554a78e0676f018950932085576bb8292ab889383b12300abe80a538ae60
   artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: Statistical significance - Wikipedia
+  fetched_title: "open-llm-leaderboard-old/details_codellama__CodeLlama-7b-Instruct-hf\
+    \ \xB7 Datasets at Hugging Face"
   kind: url
-  value: https://en.wikipedia.org/wiki/Statistical_significance
+  value: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-7b-Instruct-hf/...`
   verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Statistical_significance
-  verified_at: '2026-08-11T22:06:57.997391Z'
+  verified_against_url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-7b-Instruct-hf
+  verified_at: '2026-08-23T22:43:54.505878Z'

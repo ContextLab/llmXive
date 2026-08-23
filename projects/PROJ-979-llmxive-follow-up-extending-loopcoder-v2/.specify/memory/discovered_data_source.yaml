@@ -1,10 +1,12 @@
 status: none
-intent: HumanEval MBPP code generation benchmark python package dataset
+intent: download HumanEval and MBPP code generation datasets via HuggingFace datasets
+  python package dataset
 required_fields:
+- task_id
 - prompt
 - canonical_solution
 - test_cases
-- problem_id
-cache_key: f39ec1f9314ece0e8c443c7dd427c14857a78f8571a7d5f2bda506452d8d8933
-searched_at: '2026-08-11T22:01:18.232880+00:00'
+- entry_point
+cache_key: 42c486ab994a863f414b8479fd15cf682862d955d5d8e0cfba7ef12eaa750245
+searched_at: '2026-08-23T22:10:40.000789+00:00'
 retry_count: 1
