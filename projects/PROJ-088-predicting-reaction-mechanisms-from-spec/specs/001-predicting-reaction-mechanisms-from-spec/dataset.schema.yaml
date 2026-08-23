@@ -1,111 +1,117 @@
-%YAML 1.2
----
-# Schema for the processed reaction mechanism dataset
-# Used for validation of data ingestion and preprocessing outputs
-# Corresponds to US1: Data Ingestion and Preprocessing Pipeline
-
-$schema: "http://json-schema.org/draft-07/schema#"
-title: ReactionMechanismDataset
+$schema: http://json-schema.org/draft-07/schema#
+title: Spectral Fingerprint Dataset Schema
 description: >
-  A structured dataset containing spectroscopic fingerprints and reaction mechanism labels.
-  Data is derived from NIST WebBook and PubChem, filtered by provenance (kinetic studies only).
-
+  Schema for the unified spectral fingerprint dataset derived from
+  NIST IR and PubChem NMR data. Enforces strict provenance filtering
+  (kinetic studies only) and binned feature representation.
 type: object
 required:
   - metadata
   - data
-
 properties:
   metadata:
     type: object
-    description: Metadata about the dataset generation
     required:
       - version
-      - source
-      - provenance_filter_applied
       - created_at
+      - source_datasets
+      - provenance_filter
       - checksum
     properties:
       version:
         type: string
-        description: Schema version (e.g., "1.0.0")
-      source:
-        type: array
-        description: List of original data sources
-        items:
-          type: string
-          enum:
-            - "NIST_WebBook_IR"
-            - "PubChem_NMR"
-      provenance_filter_applied:
-        type: boolean
-        description: True if non-kinetic studies were excluded (FR-008)
+        description: Schema version identifier (e.g., "1.0.0")
       created_at:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of generation
+        description: ISO 8601 timestamp of dataset creation
+      source_datasets:
+        type: array
+        items:
+          type: string
+        description: List of source dataset identifiers (e.g., "NIST-WebBook", "PubChem-NMR")
+      provenance_filter:
+        type: object
+        required:
+          - allowed_categories
+          - excluded_categories
+        properties:
+          allowed_categories:
+            type: array
+            items:
+              type: string
+            description: Allowed provenance categories (e.g., "kinetic studies", "validated intermediates")
+          excluded_categories:
+            type: array
+            items:
+              type: string
+            description: Explicitly excluded categories (e.g., "product structure")
       checksum:
         type: string
-        description: SHA-256 checksum of the data payload (Principle III)
-      row_count:
-        type: integer
-        minimum: 0
-        description: Total number of valid records
-
+        description: SHA-256 checksum of the raw input files used to generate this dataset
   data:
     type: array
-    description: Array of reaction records
+    description: List of spectral fingerprint records
     items:
       type: object
       required:
-        - record_id
-        - spectrum
+        - sample_id
+        - fingerprint
         - label
         - provenance
+        - metadata
       properties:
-        record_id:
+        sample_id:
           type: string
-          description: Unique identifier for the record
-        spectrum:
+          description: Unique identifier for the sample (e.g., NIST ID or PubChem CID)
+        fingerprint:
           type: array
-          description: Binned and normalized spectrum (512 elements)
           items:
             type: number
-            format: float
           minItems: 512
           maxItems: 512
+          description: >
+            Binned spectral fingerprint vector (512 bins).
+            IR and NMR data merged and normalized into this fixed-size vector.
         label:
           type: string
-          description: Reaction mechanism class
           enum:
-            - "SN1"
-            - "SN2"
-            - "E1"
-            - "E2"
-            - "Unknown"
+            - SN1
+            - SN2
+            - E1
+          description: Reaction mechanism class label derived strictly from kinetic provenance
         provenance:
           type: string
-          description: Source of the label validation
-          enum:
-            - "kinetic_studies"
-            - "validated_intermediates"
-        original_source_id:
-          type: string
-          description: ID from the original database (NIST/PubChem)
-        frequency_range:
+          description: The specific provenance category of the source data (must be in allowed_categories)
+        metadata:
           type: object
-          description: Original frequency range of the spectrum
           required:
-            - min
-            - max
-            - unit
+            - source
+            - original_id
           properties:
-            min:
-              type: number
-            max:
-              type: number
-            unit:
+            source:
               type: string
-              enum: ["cm-1", "ppm"]
-
-additionalProperties: false
+              enum:
+                - NIST
+                - PubChem
+              description: Origin of the spectral data
+            original_id:
+              type: string
+              description: Original identifier in the source dataset
+            frequency_range:
+              type: object
+              properties:
+                min:
+                  type: number
+                max:
+                  type: number
+              description: Frequency range covered by the spectrum (cm-1 for IR, ppm for NMR)
+        validation:
+          type: object
+          properties:
+            has_nan:
+              type: boolean
+              description: Flag indicating if any NaN values exist in the fingerprint
+            is_outlier:
+              type: boolean
+              description: Flag indicating if the sample was flagged as an outlier

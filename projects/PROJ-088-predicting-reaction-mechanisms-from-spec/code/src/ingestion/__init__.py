@@ -1,3 +1,3 @@
 """
-Ingestion module for loading and preprocessing spectroscopic data.
+Data ingestion and preprocessing modules.
 """

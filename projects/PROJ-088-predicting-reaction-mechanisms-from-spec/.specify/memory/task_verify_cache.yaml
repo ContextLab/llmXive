@@ -1,13 +1,35 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`src/`, `tests/`, `specs/001-predicting-reaction-mechanisms/`,\
+    \ `data/`, `state/projects/`) is provided; the claim lacks any artifact listing\
+    \ or screenshots confirming their existence. The implementer must supply a directory\
+    \ listing or similar proof that these folders have been created and are non\u2011\
+    empty."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `__init__.py` files were presented or listed for any of the subdirectories
+    under `src/` or `tests/`; without concrete evidence of these files existing, the
+    requirement cannot be considered satisfied. The implementer must add and show
+    the `__init__.py` files in every subdirectory of both `src/` and `tests/`.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,\
+    \ `pyproject.toml` with Black settings) or setup scripts are present in the provided\
+    \ evidence, so the requirement to configure ruff/flake8 and Black has not been\
+    \ demonstrated. The implementer must add the appropriate config files and ensure\
+    \ they are non\u2011empty and correctly set up."
 T010:
   c: false
   h: ce4b84710aaa0388d36bc2c91d64b49a65d193da9751d41e317f278d1c59b0f4
   r: "The required file `tests/integration/test_ingestion_flow.py` does not exist\
     \ in the repository, so no integration test artifact is present to verify end\u2011\
     to\u2011end ingestion of a NIST sample. The task therefore remains unfinished."
-T013:
+T017:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code changes or files were presented for `src/ingestion/load_*.py`; thus\
-    \ there is no evidence that provenance\u2011filtering logic was added or that\
-    \ any fallback mechanism was removed. The required artifact (the updated ingestion\
-    \ scripts) is missing."
+  h: 08ab551fa1b83d6e349539b1fe36e9f1504d7972fbba8de2212de23a8fb64ffb
+  r: The required `data/checksums.json` file does not exist, and the `state/projects/PROJ-088-predicting-reaction-mechanisms-from-spec.yaml`
+    file is also missing, so no checksums were recorded nor was the `artifact_hashes`
+    map updated. The task therefore has not been fulfilled.

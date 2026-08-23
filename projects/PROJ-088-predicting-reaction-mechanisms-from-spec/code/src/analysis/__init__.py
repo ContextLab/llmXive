@@ -1,3 +1,3 @@
 """
-Analysis module for DFT calculations, feature importance, and validation.
+Analysis modules for spectroscopic data interpretation, DFT validation, and statistical significance testing.
 """

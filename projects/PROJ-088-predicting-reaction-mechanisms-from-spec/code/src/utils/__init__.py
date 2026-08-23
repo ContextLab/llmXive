@@ -1,3 +1,3 @@
 """
-Utility module for logging, I/O, and seeding.
+Utility functions for logging, I/O, seeding, and checksums.
 """

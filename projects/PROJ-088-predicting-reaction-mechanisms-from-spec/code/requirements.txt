@@ -1,4 +1,4 @@
-# Core dependencies
+# Existing dependencies
 scikit-learn
 xgboost
 pandas
@@ -8,4 +8,10 @@ pyyaml
 pytest
 pubchempy
 pyscf
-requests
+ruff
+black
+
+# Additional dependencies for T012 (if not already present)
+# The 'datasets' library is already listed, but ensuring it's present for the fetch logic.
+# parquet support is usually included with pandas or requires pyarrow
+pyarrow

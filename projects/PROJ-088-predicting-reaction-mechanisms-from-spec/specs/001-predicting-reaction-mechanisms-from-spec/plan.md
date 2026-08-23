@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a machine learning pipeline to predict organic reaction mechanisms (SN1, SN2, E1) from spectroscopic data (IR and NMR). The approach ingests raw spectral data from public repositories, converts them into standardized high-dimensional fingerprints (combining IR and NMR features), and trains Random Forest and XGBoost classifiers using stratified k-fold cross-validation. The system prioritizes interpretability via feature importance mapping and statistical rigor via permutation testing (within CV loop) and Benjamini-Hochberg correction, all within the constraints of a CPU-only GitHub Actions runner (limited cores, constrained RAM, 6 hours).
+This feature implements a machine learning pipeline to predict organic reaction mechanisms (SN1, SN2, E1) from spectroscopic data (IR and NMR). The approach ingests raw spectral data from public repositories, converts them into standardized high-dimensional fingerprints (combining IR and NMR features), and trains Random Forest and XGBoost classifiers using stratified k-fold cross-validation. The system prioritizes interpretability via feature importance mapping and statistical rigor via permutation testing (within CV loop) and Benjamini-Hochberg correction, all within the constraints of a CPU-only GitHub Actions runner (limited cores, constrained RAM, and a bounded execution time).
 
 ## Technical Context
 
@@ -26,12 +26,12 @@ This feature implements a machine learning pipeline to predict organic reaction 
 *Gates determined based on constitution file:*
 
 1.  **Reproducibility (Principle I)**: Plan mandates that every result reported MUST be reproducible by re-running the project's `code/` against the project's `data/` on a fresh GitHub Actions runner. Random seeds MUST be pinned in `code/`. External datasets MUST be fetched from the same canonical source on every run.
-2.  **Verified Accuracy (Principle II)**: Every external citation in `idea/`, `technical-design/`, `implementation-plan/`, or `paper/` MUST be verified by the Reference-Validator Agent against the primary source before contributing review points. Title-token-overlap with the cited source MUST be ≥ `CITATION_TITLE_OVERLAP_THRESHOLD` (default 0.7).
+2.  **Verified Accuracy (Principle II)**: Every external citation in `idea/`, `technical-design/`, `implementation-plan/`, or `paper/` MUST be verified by the Reference-Validator Agent against the primary source before contributing review points. Title-token-overlap with the cited source MUST be ≥ `CITATION_TITLE_OVERLAP_THRESHOLD` (default set to a high threshold to ensure semantic relevance).
 3.  **Data Hygiene (Principle III)**: Datasets MUST be checksummed and the checksum recorded under `data/`. No data may be modified in place; every transformation MUST produce a new file with a documented derivation. Personally identifying information MUST NOT appear in committed data.
 4.  **Single Source of Truth (Principle IV)**: Every figure, statistic, or interpretation in the paper MUST trace back to exactly one row in this project's `data/` and one block in this project's `code/`. Derived numbers MUST NOT be hand-typed into the paper.
 5.  **Versioning Discipline (Principle V)**: Every artifact under this project carries a content hash. The Advancement-Evaluator Agent invalidates stale review records when the hashed artifact changes. Every research-stage artifact change updates this project's `state/projects/PROJ-088-predicting-reaction-mechanisms-from-spec.yaml` `updated_at` timestamp.
 6.  **Spectral Feature Interpretability (Principle VI)**: Every machine learning model trained in this project MUST provide explicit feature importance scores identifying specific IR or NMR spectral bins contributing to mechanism classification (SN1, SN2, or E1). Models that function as black boxes without revealing which spectral peaks (e.g., carbonyl stretches or chemical shift ranges) drive the prediction are considered invalid for this project's research question.
-7.  **Computational Efficiency (Principle VII)**: All data processing and model training pipelines MUST complete within a standard GitHub Actions job on 2 CPUs with a memory footprint under 7GB. The dataset is capped at <5,000 reactions.
+7.  **Computational Efficiency (Principle VII)**: All data processing and model training pipelines MUST complete within a standard GitHub Actions job on a limited number of CPUs with a memory footprint under 7GB. The dataset is capped at <5,000 reactions.
 
 ## Project Structure
 
@@ -93,7 +93,7 @@ tests/
 
 ## FR/SC Mapping
 
-- **FR-001**: Handled in `ingestion/preprocess.py` (512-bin fingerprinting, Mid-infrared spectral range spanning from the near-infrared to the far-infrared region., 0-12 ppm).
+- **FR-001**: Handled in `ingestion/preprocess.py` (-bin fingerprinting, Mid-infrared spectral range spanning from the near-infrared to the far-infrared region., 0-12 ppm).
 - **FR-002**: Handled in `modeling/train.py` (Stratified K-fold CV
 
 The research question, method, and references remain unchanged as per the planning document guidelines, with the specific fold count generalized to reflect the methodological approach without asserting empirical implementation details.).

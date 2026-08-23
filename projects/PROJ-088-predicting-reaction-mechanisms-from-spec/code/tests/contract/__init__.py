@@ -1,3 +1,3 @@
 """
-Contract tests for schema validation.
+Contract tests for schema validation and interface compliance.
 """

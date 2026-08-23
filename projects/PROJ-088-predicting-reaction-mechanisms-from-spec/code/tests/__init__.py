@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline - Test Package
+Test suite root for llmXive Automated Science Pipeline.
 """
