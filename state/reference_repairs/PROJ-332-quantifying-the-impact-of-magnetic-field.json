@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-08-23T16:19:14.438518+00:00",
+    "project": "PROJ-332-quantifying-the-impact-of-magnetic-field",
+    "repairs": [
+      {
+        "dead_url": "http://d3d.mdsplus.org",
+        "reason": "connection/DNS failure: [Errno -2] Name or service not known",
+        "replacement_url": "https://huggingface.co/datasets/Diiiann/ossetian-russian/resolve/main/data/train-00000-of-00001.parquet",
+        "intent": "The plan strictly adheres to \"Verified datasets\" constraint. Since DIII D archive has no verified URL in provided block, does not invent a e.g.,"
+      }
+    ]
+  }
+]

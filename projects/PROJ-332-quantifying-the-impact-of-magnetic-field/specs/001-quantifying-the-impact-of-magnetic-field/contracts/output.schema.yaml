@@ -1,39 +1,58 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Correlation Results Schema"
-description: "Schema for the final statistical output including bootstrap CIs and effect sizes."
+title: "Correlation Analysis Results"
 type: "object"
 properties:
   metric_name:
     type: "string"
-    description: "Name of the topological metric (e.g., 'island_width')."
-  correlation_coefficient:
+    description: "Name of the topological metric analyzed"
+  mode:
+    type: "string"
+    description: "Confinement mode analyzed (e.g., 'all', 'L-mode', 'H-mode')"
+  spearman_r:
     type: "number"
-    description: "Spearman rank correlation coefficient (rho)."
-  p_value:
+    description: "Spearman correlation coefficient"
+    minimum: -1
+    maximum: 1
+  spearman_p:
     type: "number"
-    description: "P-value for the correlation test."
+    description: "Spearman p-value"
+    minimum: 0
+    maximum: 1
+  posterior_median_r:
+    type: "number"
+    description: "Posterior median of the correlation coefficient"
+    minimum: -1
+    maximum: 1
   ci_lower:
     type: "number"
-    description: "Lower bound of the 95% bootstrap confidence interval."
+    description: "Lower bound of the 95% Credible Interval"
+    minimum: -1
+    maximum: 1
   ci_upper:
     type: "number"
-    description: "Upper bound of the 95% bootstrap confidence interval."
-  effect_size_magnitude:
+    description: "Upper bound of the 95% Credible Interval"
+    minimum: -1
+    maximum: 1
+  power:
     type: "number"
-    description: "Absolute value of the correlation coefficient |r|."
-  hypothesis_supported:
-    type: "boolean"
-    description: "True if p < 0.05 AND r < -0.5."
-  sample_size:
-    type: "integer"
-    description: "Number of discharges used in this specific test."
+    description: "Statistical power to detect |r| = 0.5"
+    minimum: 0
+    maximum: 1
+  hypothesis_status:
+    type: "string"
+    enum:
+      - "supported"
+      - "inconclusive"
+      - "not supported"
+    description: "Status of the hypothesis test"
 required:
   - metric_name
-  - correlation_coefficient
-  - p_value
+  - mode
+  - spearman_r
+  - spearman_p
+  - posterior_median_r
   - ci_lower
   - ci_upper
-  - effect_size_magnitude
-  - hypothesis_supported
-  - sample_size
+  - power
+  - hypothesis_status
 additionalProperties: false

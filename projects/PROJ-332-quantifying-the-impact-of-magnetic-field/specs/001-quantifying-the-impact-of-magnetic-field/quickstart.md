@@ -3,86 +3,55 @@
 ## Prerequisites
 
 *   Python 3.11+
-*   `pip`
-*   `wget` (system utility)
-*   Access to the DIII-D public MDSplus archive.
+*   `mdsplus` library (installed via `conda` or `pip` as per DIII-D instructions)
+*   `numpy`, `scipy`, `pandas`, `matplotlib`, `pyyaml`, `pymc`
+*   Access to the DIII-D public MDSplus archive (network connectivity)
+*   GitHub Secrets configured for `D3D_USERNAME` and `D3D_PASSWORD`
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory:
+1.  **Clone the repository**:
     ```bash
+    git clone <repo-url>
     cd projects/PROJ-332-quantifying-the-impact-of-magnetic-field
     ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
+2.  **Install dependencies**:
     ```bash
     pip install -r requirements.txt
+    # Ensure mdsplus is installed separately if not in requirements.txt
+    # e.g., conda install -c mdsplus mdsplus
     ```
-    *Dependencies*: `numpy`, `pandas`, `scipy`, `matplotlib`, `requests`, `pyyaml`.
+
+3.  **Verify MDSplus connection**:
+    ```bash
+    python -c "import MDSplus; mds = MDSplus.Tree('d3d', 12345, 'readonly'); print('Connected')"
+    ```
 
 ## Running the Pipeline
 
-### Option A: Full CI Run (Recommended for Reproducibility)
+1.  **Prepare discharge list**:
+    Create a file `discharges.txt` with up to 10 valid DIII-D discharge numbers (one per line), or ensure the manifest download URL is configured.
 
-Run the pipeline as it would run in GitHub Actions (with limits):
-
-```bash
-python code/main.py
-```
-
-*   **Input**: Fetches data from DIII-D MDSplus. If unreachable, the pipeline will fail with an error message and exit.
-*   **Output**: `data/processed/unified_analysis.csv`, `data/processed/topology_vs_confinement.png`, `data/processed/summary_report.md`.
-*   **Limits**: Enforced 6h runtime / 7GB RAM via `code/utils/limits.py`.
-
-### Option B: Manual Step-by-Step
-
-1.  **Retrieve Data**:
+2.  **Set environment variables** (for local testing):
     ```bash
-    python code/data/retrieval.py --shots 123456,123457,123458
+    export D3D_USERNAME="your_username"
+    export D3D_PASSWORD="your_password"
     ```
-    *Downloads raw files to `data/raw/`.*
 
-2.  **Parse & Calculate**:
+3.  **Execute the main script**:
     ```bash
-    python code/data/parsing.py
-    python code/data/topology.py
+    python code/main.py --discharges discharges.txt
     ```
-    *Generates `data/processed/unified_analysis.csv`.*
 
-3.  **Analyze**:
-    ```bash
-    python code/analysis/correlation.py
-    ```
-    *Generates `data/processed/correlation_results.json` and the plot.*
-
-4.  **Report**:
-    ```bash
-    python code/reports/summary.py
-    ```
-    *Generates `data/processed/summary_report.md`.*
-
-## Testing
-
-Run the unit tests to verify logic:
-
-```bash
-pytest tests/unit/ -v
-```
-
-Run the integration test to verify the full flow (may fail if DIII-D is unreachable):
-
-```bash
-pytest tests/integration/ -v
-```
+4.  **Check outputs**:
+    *   `data/processed/analysis_ready.csv`: Validated dataset.
+    *   `results/topology_vs_confinement.png`: Scatter plot.
+    *   `results/correlation_results.json`: Statistical results.
 
 ## Troubleshooting
 
-*   **"MDSplus unreachable"**: The pipeline will log a warning and terminate execution. No fallback data source will be used.
-*   **"Memory Limit Exceeded"**: Verify `code/utils/limits.py` is imported in `main.py`. Check for large unnecessary arrays.
-*   **"Missing island width"**: Discharges without this data are excluded from the analysis and logged in `data/processed/exclusions.log`.
+*   **MDSplus Connection Error**: The script will retry 3 times with 10s intervals. If it fails, check network connectivity to `d3d.mdsplus.org` and ensure credentials are correct.
+*   **Authentication Error**: Ensure `D3D_USERNAME` and `D3D_PASSWORD` are set in the environment or GitHub Secrets.
+*   **Missing Data**: Discharges with missing island width or $\tau_E$ are automatically excluded. A warning is logged.
+*   **Low Power**: If the sample size is small (N < 5) or the effect size is weak, the result will be flagged as "Inconclusive due to low power".

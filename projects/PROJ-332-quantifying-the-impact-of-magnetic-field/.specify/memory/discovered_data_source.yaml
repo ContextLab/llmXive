@@ -1,13 +1,13 @@
 status: none
-intent: download DIII-D public MDSplus archive EFIT equilibria island widths confinement
-  time python package dataset
+intent: DIII-D MDSplus EFIT equilibrium island width confinement time python package
+  dataset
 required_fields:
 - discharge_number
-- efit_q_profile
-- island_width_q2
+- efit_equilibrium
+- island_width
 - confinement_time_tau_e
-- time_of_discharge
-- magnetic_topology_metrics
-cache_key: e847431f64a2d095aed65997235129512f9371c7d8a38767c999fbfbdadf80a3
-searched_at: '2026-08-08T10:46:08.546033+00:00'
+- magnetic_topology_metric
+- retrieval_timestamp
+cache_key: bf4d5736ae96762d5d4609511d321f1f5ab4772e15dcb9151fda5afdbf6f55ba
+searched_at: '2026-08-23T16:15:59.467009+00:00'
 retry_count: 1
