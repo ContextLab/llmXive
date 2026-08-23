@@ -1,19 +1,15 @@
 status: none
-intent: huggingface transformers Llama-3 Mistral BLOOM model weights unembedding matrix
-  download python package dataset, RedPajama token frequency English, Common Crawl
-  French German Spanish token frequency python package dataset
+intent: download Llama-3 Mistral BLOOM model weights unembedding matrix huggingface
+  hub python package dataset
 required_fields:
 - model_name
 - language
-- model_variant
-- source_repository
-- unembedding_matrix_path_or_url
-- unembedding_matrix_shape
-- token_frequency_distribution_path_or_url
-- token_frequency_distribution_language
-- token_frequency_distribution_statistics
-- dataset_version
-- file_format
-cache_key: 8790bc0d7c1a5d2d29e905c7a8e373ebba31216939b6dfb88f4a35b3be8cbb57
-searched_at: '2026-08-10T06:49:37.759521+00:00'
+- vocab_size
+- embedding_dim
+- unembedding_matrix
+- architecture
+- model_version
+- weights_download_url
+cache_key: 3b2b25a618090e1f42a143a4af0446f289aa75d05dca8d23e421b6f82e1f1fde
+searched_at: '2026-08-23T21:34:07.895715+00:00'
 retry_count: 1

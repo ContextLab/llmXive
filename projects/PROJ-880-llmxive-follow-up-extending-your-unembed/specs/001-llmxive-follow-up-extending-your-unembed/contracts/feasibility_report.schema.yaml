@@ -1,25 +1,54 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Feasibility Report"
-description: "Schema for the feasibility check report regarding SVD and memory constraints."
+title: Feasibility Report Schema
 type: object
-properties:
-  model_name:
-    type: string
-  memory_usage_mb:
-    type: number
-    description: "Peak memory usage in MB during SVD"
-  svd_time_seconds:
-    type: number
-    description: "Time taken for SVD in seconds"
-  is_feasible:
-    type: boolean
-    description: "True if memory usage < 6GB and time < 1 hour"
-  warning:
-    type: string
-    description: "Warning message if any"
 required:
-  - model_name
-  - memory_usage_mb
-  - svd_time_seconds
-  - is_feasible
+  - runtime_seconds
+  - peak_memory_gb
+  - cpu_usage_percent
+  - gpu_used
+  - abort_warnings
+  - dataset_verifications
+properties:
+  runtime_seconds:
+    type: number
+    description: "Total wall‑clock time of the pipeline (seconds)."
+  peak_memory_gb:
+    type: number
+    description: "Maximum RAM usage observed (GiB)."
+  cpu_usage_percent:
+    type: number
+    description: "Average CPU utilization percentage."
+  gpu_used:
+    type: boolean
+    description: "True if any step required CUDA (should be false for this plan)."
+  abort_warnings:
+    type: array
+    description: "List of any abort warnings emitted (e.g., permutation test time limit)."
+    items:
+      type: string
+  dataset_verifications:
+    type: array
+    description: "Verification records for each external dataset."
+    items:
+      type: object
+      required:
+        - name
+        - url
+        - sha256
+        - retrieved_at
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        sha256:
+          type: string
+        retrieved_at:
+          type: string
+          format: date-time
+  checksum:
+    type: string
+  generated_at:
+    type: string
+    format: date-time
 additionalProperties: false

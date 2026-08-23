@@ -55,3 +55,4 @@ properties:
       hardware_profile:
         type: string
         description: "CPU/RAM profile used."
+additionalProperties: false

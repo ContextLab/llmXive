@@ -1,47 +1,30 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Token Attribution"
-description: "Schema for token attribution results (token-wise projection)"
+title: Token Attribution Schema
 type: object
 required:
-  - language
   - model_id
   - top_tokens
 properties:
-  language:
-    type: string
-    description: "Language code (e.g., 'en', 'fr', 'zh')"
   model_id:
     type: string
-    description: "Model identifier"
+    description: "Model identifier."
   top_tokens:
     type: array
-    description: "Top‑k tokens with highest logit weight in the edge spectrum"
+    description: "List of tokens with highest logit weights in the edge spectrum."
     items:
       type: object
       required:
         - token_id
-        - token_text
         - logit_weight
-        - projected_vector
       properties:
         token_id:
           type: integer
-          description: "Token ID"
-        token_text:
-          type: string
-          description: "Token text"
+          description: "Token identifier in the model's vocabulary."
         logit_weight:
           type: number
-          description: "Logit weight in the subspace"
-        projected_vector:
-          type: array
-          description: "The projected vector onto the subspace"
-          items:
-            type: number
-  frequency_source:
-    type: string
-    description: "Source of frequency data (e.g., 'redpajama', 'oscar', 'wikipedia')"
-  mean_embedding_norm:
-    type: number
-    description: "L2 norm of the mean embedding vector (average of projected vectors)"
-additionalProperties: false
+          description: "Logit weight (scalar) projected onto the edge spectrum."
+  vocab_mapping:
+    type: object
+    description: "Optional mapping from source model token IDs to a shared vocabulary."
+    additionalProperties:
+      type: integer

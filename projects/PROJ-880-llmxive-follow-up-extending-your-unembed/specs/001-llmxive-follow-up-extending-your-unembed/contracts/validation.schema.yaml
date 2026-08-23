@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Validation Schema
+type: object
+required:
+  - language_pair
+  - wals_correlation
+  - senteval_correlation
+properties:
+  language_pair:
+    type: string
+    description: "Hyphen‑separated pair (e.g., 'en-fr')."
+  wals_correlation:
+    type: object
+    required:
+      - r
+      - ci_low
+      - ci_high
+      - p_value
+    properties:
+      r:
+        type: number
+        description: "Pearson correlation coefficient."
+      ci_low:
+        type: number
+        description: "Lower bound of 95 % confidence interval."
+      ci_high:
+        type: number
+        description: "Upper bound of 95 % confidence interval."
+      p_value:
+        type: number
+        description: "Two‑tailed p‑value."
+  senteval_correlation:
+    type: object
+    required:
+      - r
+      - ci_low
+      - ci_high
+      - p_value
+    properties:
+      r:
+        type: number
+      ci_low:
+        type: number
+      ci_high:
+        type: number
+      p_value:
+        type: number

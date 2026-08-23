@@ -9,9 +9,9 @@ properties:
     type: string
   overlap_ratio:
     type: number
-    minimum: 0
-    maximum: 1
-    description: "Ratio of shared tokens in top-k vocabulary"
+    description: "Ratio of shared tokens in top‑k vocabulary"
+    minimum: 0.0
+    maximum: 1.0
   warning_level:
     type: string
     enum: ["LOW", "MEDIUM", "HIGH"]

@@ -14,15 +14,15 @@ properties:
     minimum: 1
   observed_statistic:
     type: number
-    description: "The observed difference between native and cross-lingual similarity."
+    description: "The observed difference between native and cross‑lingual similarity."
   null_distribution:
     type: array
-    description: "List of statistics generated from label-permuted frequency vectors."
+    description: "List of statistics generated from label‑permuted frequency vectors."
     items:
       type: number
   p_value:
     type: number
-    description: "Calculated p-value for the observed statistic."
+    description: "Calculated p‑value for the observed statistic."
     minimum: 0
     maximum: 1
   sensitivity_sweep:
@@ -43,7 +43,7 @@ properties:
     description: "CPU cores and RAM used during execution."
   alignment_method:
     type: string
-    description: "Method used for cross-lingual alignment (e.g., 'procrustes_shared_vocab')."
+    description: "Method used for cross‑lingual alignment (e.g., 'procrustes_shared_vocab')."
     enum:
       - "procrustes_shared_vocab"
       - "none"
@@ -53,3 +53,4 @@ properties:
     enum:
       - "label_permutation"
     default: "label_permutation"
+additionalProperties: false

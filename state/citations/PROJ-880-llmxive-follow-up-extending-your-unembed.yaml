@@ -343,3 +343,15 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-crosslingual
   verified_at: '2026-08-05T18:08:38.905951Z'
+- artifact_hash: fab47414d43c60577d71ce1fef8d90ff93628ec2d515a32357e6c976185ce16a
+  artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - facebookresearch/SentEval: A python tool for evaluating\
+    \ the quality of sentence embeddings. \xB7 GitHub"
+  kind: url
+  value: https://github.com/facebookresearch/SentEval
+  verification_status: pending
+  verified_against_url: https://github.com/facebookresearch/SentEval
+  verified_at: '2026-08-23T21:31:09.295055Z'

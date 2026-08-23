@@ -20,7 +20,7 @@ properties:
     description: "The mean of the null distribution (random orthogonal bases)."
   null_std:
     type: number
-    description: "The standard deviation of the null distribution."
+    description: "Standard deviation of the null distribution."
   p_value:
     type: number
     description: "The calculated p-value from the bootstrap test."

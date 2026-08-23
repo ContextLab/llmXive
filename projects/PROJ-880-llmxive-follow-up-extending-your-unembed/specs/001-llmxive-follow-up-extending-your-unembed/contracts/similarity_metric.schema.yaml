@@ -1,43 +1,40 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Similarity Metric"
-description: "Schema for subspace similarity metrics"
+title: Similarity Metric Schema
 type: object
 required:
-  - subspace_a_id
-  - subspace_b_id
-  - cosine_similarity
-  - method
+  - model_pair
+  - similarity
+  - ci_95
 properties:
-  subspace_a_id:
+  model_pair:
     type: string
-    description: "Identifier of the first subspace"
-  subspace_b_id:
-    type: string
-    description: "Identifier of the second subspace"
-  cosine_similarity:
+    description: "Identifier of the model pair (e.g., 'llama3‑bloom')."
+  similarity:
     type: number
-    description: "Cosine similarity between subspaces"
-    minimum: a negative value
-    maximum: (to be defined during implementation)
-  method:
+    minimum: -1
+    maximum: 1
+    description: "Cosine similarity between edge‑spectrum bases."
+  ci_95:
+    type: object
+    required:
+      - lower
+      - upper
+    properties:
+      lower:
+        type: number
+        minimum: -1
+        maximum: 1
+      upper:
+        type: number
+        minimum: -1
+        maximum: 1
+    description: "A bootstrap confidence interval at a conventional confidence level."
+  adjusted_similarity:
+    type: number
+    description: "Similarity after control‑analysis adjustment (paired‑architecture)."
+  checksum:
     type: string
-    description: "Method used for similarity calculation (e.g., 'mean_cosine', 'procrustes')"
-  language_pair:
-    type: array
-    description: "Languages involved in the comparison"
-    items:
-      type: string
-  timestamp:
+  generated_at:
     type: string
     format: date-time
-    description: "Timestamp of the computation"
-  alignment_method:
-    type: string
-    description: "Method used for alignment (e.g., 'procrustes_shared_vocab')"
-  intersection_size:
-    type: integer
-    description: "Size of the shared vocabulary intersection used for calculation"
-  normalized_by_intersection:
-    type: boolean
-    description: "Whether the metric was normalized by the intersection size"
 additionalProperties: false

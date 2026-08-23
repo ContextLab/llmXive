@@ -34,3 +34,4 @@ properties:
   memory_usage_mb:
     type: number
     description: "Peak memory usage in MB"
+additionalProperties: false
