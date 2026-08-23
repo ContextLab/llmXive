@@ -1,12 +1,14 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 6 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T019` (rejected 1x): The repository contains `code/data/handle_missing_coords.py`, but the file is truncated before it writes the exclusion report, and no `data/reports/excluded_molecules.csv` file is present. Consequently the required CSV output with the specified columns is not generated.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- Tasks T402-T405 reference scripts (`download_data.py`, `train.py`, etc.) that the plan.md 'Project Structure' section explicitly defines as existing files. The tasks are framed as 'Reconcile run-book vs implementation' implying the files are missing, but the plan asserts they exist. This creates a stale tag/contradiction where the task logic (fix missing file) conflicts with the plan's definition of the artifact state.
+- T506 (Physics-Informed Loss) modifies `code/models/schnet_gnn.py`. T502 (Enhance SchNet) also modifies `code/models/schnet_gnn.py`. Both are marked [P] (parallel-safe). Modifying the same file (`schnet_gnn.py`) in parallel is a hidden shared state violation. T502 adds distance-based message passing; T506 adds a regularization term. These cannot be executed in parallel without a merge conflict or race condition. They must be sequential or split into distinct files.
+- T402-T405 are 'Reconcile' tasks. The Plan.md explicitly lists `download_data.py`, `train.py`, etc., as existing files in the Project Structure. The task description says 'the quickstart run-book invokes this script but it does not exist'. This is a contradiction between the Plan and the Task. An implementer cannot execute 'Reconcile' without knowing which side is wrong. The task should be split into: 'Create script X if missing' OR 'Update run-book to reference existing script Y'. The current phrasing assumes a state (missing file) that the Plan claims is false.
+- T506 implements a 'Physics-Informed Loss' with specific vector summation rules. The Spec (FR-004) only requires a 'lightweight SchNet-style GNN'. Adding a specific regularization term not defined in the spec or plan creates a scope creep. An implementer cannot execute this without violating the 'lightweight' constraint or the spec's defined architecture. This task must be removed or converted to a documentation task ('Document the theoretical benefit of physics-informed loss as a future work').
+- T506 implements a 'Physics-Informed Loss' with vector summation rules. This introduces a new architectural constraint (regularization term) not present in FR-004 (lightweight SchNet) or the Plan's technical approach, violating the 'no silent constitution drift' principle by altering the model's behavior beyond the spec's defined scope.
+- T019 is marked as incomplete (unchecked) and lacks the required `data/reports/excluded_molecules.csv` artifact. FR-002 and User Story 1 acceptance criteria explicitly require handling missing 3D coordinates and reporting excluded counts. The absence of this verified artifact means the task deliverable falls short of the FR it claims to satisfy.

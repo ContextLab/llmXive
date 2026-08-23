@@ -144,6 +144,6 @@ print("FIELDS=" + ",".join(fields))
 ## Statistical Power & Methodology (Critical Update)
 
 - **Power Analysis**: For a paired t-test with N=2,000 (test set size) and a medium effect size (Cohen's d=0.5), the power is >99%. The N=10,000 subset ensures a test set of [deferred], which is sufficient to detect the expected signal of 3D geometry.
-- **Hypothesis Testing Unit**: The paired t-test is performed on the distribution of **per-molecule absolute errors** (N [deferred]) for each seed. The 5 random seeds are used to compute 95% Confidence Intervals for the mean performance and to verify reproducibility (SC-005), not as the unit of the t-test itself.
+- **Hypothesis Testing Unit**: The paired t-test is performed on the distribution of **per-molecule absolute errors** (N [deferred]) for each seed. Multiple random seeds are used to compute 95% Confidence Intervals for the mean performance. and to verify reproducibility (SC-005), not as the unit of the t-test itself.
 - **Baseline Definition**: The Random Forest baseline uses **strictly 2D features** (Morgan Fingerprints, topological counts). It does **not** use Coulomb matrices or pairwise distances, which are 3D-derived. This ensures the baseline represents "2D connectivity" only, making the comparison valid for the research question.
 - **Target Variable**: Both models predict the scalar dipole moment magnitude (mu), not vector components.
