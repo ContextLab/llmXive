@@ -1,11 +1,11 @@
 T014:
   c: false
-  h: 88c7c4ca243417ecacfc361ebf1f876eb0be96b9b1143fe51f00ea362e370f12
-  r: The required output file `data/results/baseline.json` does not exist, and the
-    referenced schema file is missing. Moreover, the provided `code/main.py` is incomplete
-    (truncated) and does not show the logic for computing theoretical and empirical
-    power or saving results in the required JSON format. These essential artifacts
-    are absent, so the task is not genuinely completed.
+  h: 04110e7a966e06c488076d59e175d8fc0bb835c3afe7e06831a0b51f54f91382
+  r: "The `code/main.py` file is truncated and does not contain the full pipeline\
+    \ logic (e.g., it ends mid\u2011function and never writes the JSON output). The\
+    \ required output file `data/results/baseline.json` is absent, and the schema\
+    \ file `contracts/power_estimate.schema.yaml` (or `schema.yaml`) is also missing.\
+    \ Consequently the task\u2019s deliverables are not present or complete."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -32,17 +32,23 @@ T021b:
     \ functionality, so the task is not satisfied."
 T022:
   c: false
-  h: c6eec22ad988d4de9b4260c8e401821ddf52f53a32e1916a5dbc7c5685fff411
-  r: The provided `code/main.py` does not contain any logic for iterating over violation
-    configurations from T021b nor does it write or append results to `data/results/violations.json`.
-    Moreover, the required `data/results/violations.json` file is absent from the
-    repository. Both the code change and the output artifact are missing, so the task
-    is not fulfilled.
-T031b:
+  h: 85160db57a60960d235c53babe224250f25b125932196d06ccea0b1a147b8466
+  r: "The repository lacks the required `data/results/violations.json` file, and the\
+    \ provided `code/main.py` is truncated and does not show any logic that iterates\
+    \ over violation configurations or appends results to that JSON file. Consequently,\
+    \ the task\u2019s core requirement is not fulfilled."
+T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No execution logs, result files, or gating evidence for the Synthetic Ground\
-    \ Truth test (T031a) are present; the implementer did not provide any artifact\
-    \ showing the recovery rate calculation or a decision that blocks subsequent phases.\
-    \ Consequently, the requirement to run the test and enforce the 5\u202F% recovery\u2011\
-    rate gate is not demonstrated."
+  r: "No code changes, tests, or documentation were provided showing that conditional\
+    \ logic was added to detect non\u2011time\u2011ordered data, skip the autocorrelation\
+    \ injection, and emit a warning. Without any artifact to inspect, the requirement\
+    \ cannot be verified as met."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, test logs, or documentation were provided to demonstrate\
+    \ that the perturbation tasks have been refactored to run exclusively on CPU and\
+    \ that any GPU\u2011specific imports or calls have been removed. Without such\
+    \ artifacts (e.g., updated scripts, CI checks confirming absence of CUDA dependencies,\
+    \ or runtime logs showing CPU execution), the requirement cannot be verified."

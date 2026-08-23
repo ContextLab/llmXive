@@ -43,7 +43,7 @@ The system downloads resting-state fMRI data from OpenNeuro (ds) via the OpenNeu
 The current `spec.md` contains requirements that conflict with the feasible implementation plan:
 1.  **FR-001 / Assumptions**: Mandates halting if "Musical Creativity (TTCT/AUT)" scores are missing. **Resolution**: The Plan implements a fallback to **Fluid Intelligence** (available in ds000224). The Spec must be amended to remove the hard halt and allow fallback to available cognitive proxies.
 2.  **FR-005**: Mandates **FDR** correction. **Resolution**: Constitution Principle VII mandates **Bonferroni**. The Plan implements Bonferroni to satisfy the Constitution. The Spec must be amended to align with Bonferroni.
-3.  **SC-001 / SC-005**: Target N=50 and "≥90% success" for N=50. **Resolution**: CI run is limited to **N=10** for feasibility. Success criteria will be measured against the N=10 run. The Spec must be amended to reflect the feasibility study nature (N=10) for CI.
+3.  **SC-001 / SC-005**: Target N=50 and "≥% success" for N=50. **Resolution**: CI run is limited to **N=10** for feasibility. Success criteria will be measured against the N=10 run. The Spec must be amended to reflect the feasibility study nature (N=10) for CI.
 
 ## Project Structure
 

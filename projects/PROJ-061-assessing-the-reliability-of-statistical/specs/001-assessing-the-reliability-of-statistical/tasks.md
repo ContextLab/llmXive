@@ -34,7 +34,7 @@
 **⚠️ CRITICAL**: No user story work or real-data processing can begin until this phase is complete, including the Synthetic Ground Truth validation.
 
 - [X] T009 Setup directory structure: `data/raw/`, `data/processed/`, `data/results/`, `code/`, `tests/`
-- [X] T004a [P] **Select and list 10 diverse public datasets** (continuous, count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30. [UNRESOLVED-CLAIM: c_1fa9bf15 — status=not_enough_info] Save the specific dataset IDs, URLs, and outcome type to `code/config.py` as a JSON list.
+- [X] T004a [P] **Select and list 10 diverse public datasets** (continuous, count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30. [UNRESOLVED-CLAIM: c_a1bb9c70 — status=not_enough_info] Save the specific dataset IDs, URLs, and outcome type to `code/config.py` as a JSON list.
 - [X] T004 Implement `code/loaders.py`: Dataset fetching from UCI/OpenML using the list from T004a with checksum validation and PII scan. **Depends on T004a**.
 - [X] T005 [P] Implement `code/config.py`: Centralized configuration for random seeds (fixed), dataset lists (from T004a), and hyperparameters. **Depends on T004a**.
 - [X] T006 [P] Create `code/utils.py`: Logging, file I/O helpers, and checksum recording functions
@@ -98,8 +98,8 @@
 - [ ] T021b [US2] Implement **parameter configuration and sweep logic** for violation magnitudes (e.g., varying contamination rates, AR coefficients) to generate bias curves (SC-001). **Depends on T021**.
 - [ ] T022 [US2] Implement `code/main.py` extension to iterate over violation configurations (from T021b) and append results to `data/results/violations.json`. **Depends on T021**.
 - [X] T023 [US2] **Apply** verification logic from T008 in `code/validators.py` to check if injected AR(1) coefficient matches target and log achieved magnitude (FR-009). **Depends on T021**.
-- [~] T024 [US2] Add conditional logic to skip autocorrelation injection if data is not time-ordered, logging a warning
-- [~] T025 [US2] Ensure all perturbation tasks run on CPU-only logic (no GPU dependencies)
+- [ ] T024 [US2] Add conditional logic to skip autocorrelation injection if data is not time-ordered, logging a warning
+- [ ] T025 [US2] Ensure all perturbation tasks run on CPU-only logic (no GPU dependencies)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -114,7 +114,7 @@
 ### Tests for User Story 3
 
 - [X] T026 [P] [US3] Unit test for sensitivity analysis logic with varying thresholds in `tests/unit/test_validators.py`
-- [ ] T027 [P] [US3] Integration test for sensitivity report generation in `tests/integration/test_pipeline.py`
+- [X] T027 [P] [US3] Integration test for sensitivity report generation in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 3
 
@@ -135,7 +135,7 @@
 
 - [ ] T032 [Validation] **Profile and Enforce Runtime**: Profile execution time for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement **:
  1. **Prune** the 2 datasets with the largest N first.
- 2. If still > 6h, reduce bootstrap iterations to 500..
+ 2. If still > 6h, reduce bootstrap iterations to 500. [UNRESOLVED-CLAIM: c_e259f605 — status=not_enough_info].
  3. If still > 6h, **raise RuntimeError**.
  **Generate artifact**: `data/results/runtime_enforcement_report.json` documenting the actions taken.
 - [ ] T033 [Validation] (If not fully covered in T008) Add specific "Bootstrap Validity Check" invocation in `code/validators.py` to flag unreliable estimates if variance discrepancy exceeds threshold (FR-010) - *Note: Logic defined in T008, T033 ensures invocation in final pipeline*
