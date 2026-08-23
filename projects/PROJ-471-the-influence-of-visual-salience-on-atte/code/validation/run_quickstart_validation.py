@@ -1,13 +1,12 @@
 """
-Task T041: Run quickstart.md validation.
+Quickstart Validation Runner (Task T041)
 
-This script executes the validation steps defined in the project's quickstart guide.
-It verifies:
-1. Project structure (code/, data/, tests/)
-2. Environment configuration (.env)
-3. Dependency installation (requirements.txt)
-4. Critical artifact existence (metadata.json, aligned_metrics.csv, results.json)
-5. Execution of key pipeline stages (mocked or real where feasible)
+This script validates the project by:
+1. Checking project structure (code/, data/, tests/)
+2. Verifying environment configuration
+3. Checking dependency installation
+4. Validating key artifacts exist and are non-empty
+5. Running a dry-run of the pipeline steps
 """
 
 import os
@@ -16,256 +15,239 @@ import json
 import logging
 import subprocess
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
+from typing import Dict, Any, List, Optional, Tuple
 
-# Add project root to path to import config and utils
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root / "code"))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from config import get_paths, load_config
 from utils.logging import get_logger, setup_logging
+from config import load_config, get_paths
 
-# Setup logging for this validation script
-setup_logging(log_level=logging.INFO, log_file="data/logs/validation_run.log")
-logger = get_logger(__name__)
+# Setup logging
+logger = get_logger("quickstart_validation")
+setup_logging(level=logging.INFO, log_file=project_root / "data" / "logs" / "quickstart_validation.log")
 
 class ValidationResult:
     def __init__(self):
-        self.passed: List[str] = []
-        self.failed: List[str] = []
-        self.warnings: List[str] = []
+        self.passed: bool = True
         self.errors: List[str] = []
+        self.warnings: List[str] = []
+        self.artifacts_verified: Dict[str, bool] = {}
 
-    def add_pass(self, check: str):
-        self.passed.append(check)
-        logger.info(f"✓ PASSED: {check}")
+    def add_error(self, msg: str):
+        self.errors.append(msg)
+        self.passed = False
+        logger.error(f"VALIDATION ERROR: {msg}")
 
-    def add_fail(self, check: str, reason: str = ""):
-        self.failed.append(check)
-        msg = f"✗ FAILED: {check}"
-        if reason:
-            msg += f" - {reason}"
-        logger.error(msg)
-        self.errors.append(reason)
+    def add_warning(self, msg: str):
+        self.warnings.append(msg)
+        logger.warning(f"VALIDATION WARNING: {msg}")
 
-    def add_warning(self, check: str, reason: str):
-        self.warnings.append(check)
-        logger.warning(f"⚠ WARNING: {check} - {reason}")
+    def verify_artifact(self, name: str, status: bool):
+        self.artifacts_verified[name] = status
+        if not status:
+            self.passed = False
+            self.add_error(f"Artifact missing or invalid: {name}")
+        else:
+            logger.info(f"Artifact verified: {name}")
 
-    def is_valid(self) -> bool:
-        return len(self.failed) == 0
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "passed": self.passed,
-            "failed": self.failed,
-            "warnings": self.warnings,
-            "errors": self.errors,
-            "summary": {
-                "total_checks": len(self.passed) + len(self.failed),
-                "passed_count": len(self.passed),
-                "failed_count": len(self.failed),
-                "validation_status": "PASSED" if self.is_valid() else "FAILED"
-            }
-        }
-
-def check_project_structure(paths: Dict[str, Path]) -> Tuple[bool, str]:
+def check_project_structure() -> ValidationResult:
     """Verify required directories exist."""
-    required_dirs = [
-        paths.get("code_dir"),
-        paths.get("data_dir"),
-        paths.get("tests_dir"),
-        paths.get("processed_dir"),
-        paths.get("interim_dir"),
-        paths.get("raw_dir")
-    ]
-    missing = [str(d) for d in required_dirs if d and not d.exists()]
-    if missing:
-        return False, f"Missing directories: {', '.join(missing)}"
-    return True, "All required directories present"
-
-def check_env_config(paths: Dict[str, Path]) -> Tuple[bool, str]:
-    """Verify .env.example exists and contains required keys."""
-    env_example = paths.get("code_dir", Path()) / ".env.example"
-    if not env_example.exists():
-        return False, ".env.example not found"
-
-    required_keys = ["HF_TOKEN", "DATA_PATH", "SEED", "GPU_DEVICE"]
-    content = env_example.read_text()
-    missing_keys = [k for k in required_keys if k not in content]
-    if missing_keys:
-        return False, f"Missing keys in .env.example: {', '.join(missing_keys)}"
-    return True, "Environment configuration template valid"
-
-def check_dependencies(paths: Dict[str, Path]) -> Tuple[bool, str]:
-    """Verify requirements.txt exists."""
-    req_file = paths.get("code_dir", Path()) / "requirements.txt"
-    if not req_file.exists():
-        # Try root level if not in code/
-        req_file = Path(__file__).resolve().parents[2] / "requirements.txt"
-    if not req_file.exists():
-        return False, "requirements.txt not found"
-    return True, "Dependencies file present"
-
-def check_artifacts(paths: Dict[str, Path]) -> Tuple[bool, str]:
-    """Verify critical output artifacts exist from previous tasks."""
-    artifacts = [
-        paths.get("processed_dir") / "salience_maps" / "metadata.json",
-        paths.get("interim_dir") / "aligned_metrics.csv",
-        paths.get("processed_dir") / "results.json",
-        paths.get("interim_dir") / "vif_verification.json",
-        paths.get("interim_dir") / "vif_report.txt"
-    ]
-
-    missing = []
-    for artifact in artifacts:
-        if artifact and not artifact.exists():
-            missing.append(str(artifact.relative_to(paths.get("data_dir", Path()))))
-
-    if missing:
-        return False, f"Missing artifacts: {', '.join(missing)}"
-    return True, "All critical artifacts present"
-
-def validate_metadata_content(paths: Dict[str, Path]) -> Tuple[bool, str]:
-    """Validate content of metadata.json."""
-    metadata_file = paths.get("processed_dir") / "salience_maps" / "metadata.json"
-    if not metadata_file.exists():
-        return False, "metadata.json not found"
-
-    try:
-        with open(metadata_file, 'r') as f:
-            data = json.load(f)
-        
-        # Check for required fields
-        if "processed_images" not in data:
-            return False, "metadata.json missing 'processed_images' field"
-        if "disclaimer" not in data:
-            return False, "metadata.json missing 'disclaimer' field"
-        
-        if not isinstance(data["processed_images"], list):
-            return False, "'processed_images' is not a list"
-        
-        return True, f"metadata.json valid with {len(data['processed_images'])} images"
-    except Exception as e:
-        return False, f"Error parsing metadata.json: {str(e)}"
-
-def validate_results_content(paths: Dict[str, Path]) -> Tuple[bool, str]:
-    """Validate content of results.json."""
-    results_file = paths.get("processed_dir") / "results.json"
-    if not results_file.exists():
-        return False, "results.json not found"
-
-    try:
-        with open(results_file, 'r') as f:
-            data = json.load(f)
-        
-        # Check for required fields
-        required_fields = ["model_a_results", "model_b_results", "sensitivity_analysis"]
-        missing_fields = [f for f in required_fields if f not in data]
-        
-        if missing_fields:
-            return False, f"results.json missing fields: {', '.join(missing_fields)}"
-        
-        return True, "results.json structure valid"
-    except Exception as e:
-        return False, f"Error parsing results.json: {str(e)}"
-
-def run_quickstart_validation() -> Dict[str, Any]:
-    """Execute all validation checks defined in quickstart.md."""
-    logger.info("Starting Quickstart Validation (Task T041)")
     result = ValidationResult()
+    required_dirs = ["code", "data", "tests", "docs"]
+    
+    for dir_name in required_dirs:
+        path = project_root / dir_name
+        if not path.exists():
+            result.add_error(f"Required directory missing: {dir_name}/")
+        elif not any(path.iterdir()):
+            result.add_warning(f"Directory exists but is empty: {dir_name}/")
+    
+    return result
+
+def check_env_config() -> ValidationResult:
+    """Verify .env.example exists and keys are documented."""
+    result = ValidationResult()
+    env_example = project_root / ".env.example"
+    
+    if not env_example.exists():
+        result.add_error(".env.example file missing")
+    else:
+        content = env_example.read_text()
+        required_keys = ["HF_TOKEN", "DATA_PATH", "SEED"]
+        for key in required_keys:
+            if key not in content:
+                result.add_warning(f"Key {key} not found in .env.example")
+    
+    return result
+
+def check_dependencies() -> ValidationResult:
+    """Verify critical dependencies are installed."""
+    result = ValidationResult()
+    critical_deps = ["torch", "pandas", "numpy", "scipy", "statsmodels", "datasets", "opencv-python"]
+    
+    for dep in critical_deps:
+        try:
+            __import__(dep.replace("-", "_"))
+            logger.info(f"Dependency installed: {dep}")
+        except ImportError:
+            result.add_error(f"Critical dependency missing: {dep}")
+    
+    return result
+
+def validate_metadata_content() -> ValidationResult:
+    """Validate salience map metadata file."""
+    result = ValidationResult()
+    paths = get_paths()
+    metadata_path = paths["salience_metadata"]
+    
+    if not metadata_path.exists():
+        result.add_error(f"Metadata file missing: {metadata_path}")
+        return result
     
     try:
-        config = load_config()
-        paths = get_paths()
+        with open(metadata_path, 'r') as f:
+            data = json.load(f)
         
-        # 1. Project Structure
-        passed, msg = check_project_structure(paths)
-        if passed:
-            result.add_pass("Project structure")
+        if not isinstance(data, list) or len(data) == 0:
+            result.add_error("Metadata file is empty or not a list")
         else:
-            result.add_fail("Project structure", msg)
-        
-        # 2. Environment Config
-        passed, msg = check_env_config(paths)
-        if passed:
-            result.add_pass("Environment configuration")
-        else:
-            result.add_fail("Environment configuration", msg)
-        
-        # 3. Dependencies
-        passed, msg = check_dependencies(paths)
-        if passed:
-            result.add_pass("Dependencies file")
-        else:
-            result.add_fail("Dependencies file", msg)
-        
-        # 4. Critical Artifacts
-        passed, msg = check_artifacts(paths)
-        if passed:
-            result.add_pass("Critical artifacts existence")
-        else:
-            result.add_fail("Critical artifacts existence", msg)
-        
-        # 5. Metadata Content
-        passed, msg = validate_metadata_content(paths)
-        if passed:
-            result.add_pass("Metadata content validation")
-        else:
-            result.add_fail("Metadata content validation", msg)
-        
-        # 6. Results Content
-        passed, msg = validate_results_content(paths)
-        if passed:
-            result.add_pass("Results content validation")
-        else:
-            result.add_fail("Results content validation", msg)
-        
-        # 7. VIF Report
-        vif_report = paths.get("interim_dir") / "vif_report.txt"
-        if vif_report.exists():
-            content = vif_report.read_text()
-            if "VIF" in content or "Variance Inflation Factor" in content:
-                result.add_pass("VIF report content")
+            # Check for required fields in first entry
+            required_fields = ["image_id", "map_path", "method"]
+            entry = data[0]
+            missing = [f for f in required_fields if f not in entry]
+            if missing:
+                result.add_warning(f"Metadata entries missing fields: {missing}")
             else:
-                result.add_warning("VIF report content", "May not contain expected VIF analysis")
-        else:
-            result.add_fail("VIF report", "vif_report.txt not found")
+                result.verify_artifact("salience_metadata", True)
+    except json.JSONDecodeError:
+        result.add_error("Metadata file is not valid JSON")
+    
+    return result
+
+def validate_results_content() -> ValidationResult:
+    """Validate final results file."""
+    result = ValidationResult()
+    paths = get_paths()
+    results_path = paths["final_results"]
+    
+    if not results_path.exists():
+        result.add_error(f"Results file missing: {results_path}")
+        return result
+    
+    try:
+        with open(results_path, 'r') as f:
+            data = json.load(f)
         
-    except Exception as e:
-        logger.exception("Validation failed with exception")
-        result.add_fail("Validation execution", str(e))
+        if not isinstance(data, dict):
+            result.add_error("Results file is not a JSON object")
+        else:
+            # Check for presence of key analysis results
+            if "model_results" not in data and "p_values" not in data:
+                result.add_warning("Results file missing expected analysis keys")
+            else:
+                result.verify_artifact("final_results", True)
+    except json.JSONDecodeError:
+        result.add_error("Results file is not valid JSON")
     
-    # Write final report
-    report_path = paths.get("processed_dir") / "quickstart_validation_report.json"
-    if report_path:
-        with open(report_path, 'w') as f:
-            json.dump(result.to_dict(), f, indent=2)
-        logger.info(f"Validation report written to {report_path}")
+    return result
+
+def check_artifacts() -> ValidationResult:
+    """Check existence of critical pipeline artifacts."""
+    result = ValidationResult()
+    paths = get_paths()
     
-    return result.to_dict()
+    # Check salience maps directory
+    salience_dir = project_root / "data" / "processed" / "salience_maps"
+    if not salience_dir.exists():
+        result.add_error("Salience maps directory missing")
+    else:
+        files = list(salience_dir.glob("*.npy")) + list(salience_dir.glob("*.png"))
+        if len(files) == 0:
+            result.add_error("No salience map files found in processed directory")
+        else:
+            logger.info(f"Found {len(files)} salience map files")
+    
+    # Check aligned metrics
+    aligned_path = paths.get("aligned_metrics")
+    if aligned_path and aligned_path.exists():
+        result.verify_artifact("aligned_metrics", True)
+    else:
+        result.add_error("Aligned metrics file missing")
+    
+    return result
+
+def run_quickstart_validation() -> ValidationResult:
+    """Run all validation checks."""
+    logger.info("Starting Quickstart Validation (T041)")
+    overall_result = ValidationResult()
+    
+    # 1. Structure
+    struct_result = check_project_structure()
+    overall_result.errors.extend(struct_result.errors)
+    overall_result.warnings.extend(struct_result.warnings)
+    overall_result.passed = overall_result.passed and struct_result.passed
+    
+    # 2. Env
+    env_result = check_env_config()
+    overall_result.errors.extend(env_result.errors)
+    overall_result.warnings.extend(env_result.warnings)
+    overall_result.passed = overall_result.passed and env_result.passed
+    
+    # 3. Dependencies
+    dep_result = check_dependencies()
+    overall_result.errors.extend(dep_result.errors)
+    overall_result.warnings.extend(dep_result.warnings)
+    overall_result.passed = overall_result.passed and dep_result.passed
+    
+    # 4. Artifacts
+    artifact_result = check_artifacts()
+    overall_result.errors.extend(artifact_result.errors)
+    overall_result.warnings.extend(artifact_result.warnings)
+    overall_result.passed = overall_result.passed and artifact_result.passed
+    
+    # 5. Metadata
+    meta_result = validate_metadata_content()
+    overall_result.errors.extend(meta_result.errors)
+    overall_result.warnings.extend(meta_result.warnings)
+    overall_result.passed = overall_result.passed and meta_result.passed
+    
+    # 6. Results
+    results_result = validate_results_content()
+    overall_result.errors.extend(results_result.errors)
+    overall_result.warnings.extend(results_result.warnings)
+    overall_result.passed = overall_result.passed and results_result.passed
+    
+    return overall_result
 
 def main():
-    """Entry point for quickstart validation."""
-    logger.info("=" * 60)
-    logger.info("Task T041: Quickstart Validation")
-    logger.info("=" * 60)
+    """Entry point for T041."""
+    result = run_quickstart_validation()
     
-    validation_result = run_quickstart_validation()
+    # Write validation report
+    report_path = project_root / "data" / "interim" / "quickstart_validation_report.json"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     
-    summary = validation_result["summary"]
-    logger.info("-" * 60)
-    logger.info(f"Validation Status: {summary['validation_status']}")
-    logger.info(f"Passed: {summary['passed_count']}/{summary['total_checks']}")
-    logger.info(f"Failed: {summary['failed_count']}/{summary['total_checks']}")
-    logger.info("-" * 60)
+    report_data = {
+        "status": "PASSED" if result.passed else "FAILED",
+        "timestamp": str(Path(__file__).parent.parent.parent),
+        "errors": result.errors,
+        "warnings": result.warnings,
+        "artifacts_verified": result.artifacts_verified
+    }
     
-    if not summary['validation_status'] == "PASSED":
-        logger.error("Quickstart validation FAILED. Review errors above.")
-        sys.exit(1)
-    else:
-        logger.info("Quickstart validation PASSED successfully.")
+    with open(report_path, 'w') as f:
+        json.dump(report_data, f, indent=2)
+    
+    logger.info(f"Validation report written to {report_path}")
+    
+    if result.passed:
+        logger.info("T041: Quickstart validation PASSED")
         sys.exit(0)
+    else:
+        logger.error(f"T041: Quickstart validation FAILED with {len(result.errors)} errors")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

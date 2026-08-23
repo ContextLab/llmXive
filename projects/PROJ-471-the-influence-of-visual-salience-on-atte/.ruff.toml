@@ -1,3 +1,5 @@
-# Extend pyproject.toml if needed, or define overrides here.
-# Currently, all config is in pyproject.toml for a single source of truth.
+# Extending pyproject.toml for specific editor integrations if needed,
+# but primary config is in pyproject.toml.
+# This file ensures ruff can be invoked directly with `ruff check .`
+# without needing explicit arguments in some environments.
 extend = "pyproject.toml"

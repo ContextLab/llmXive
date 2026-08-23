@@ -1,47 +1,45 @@
 # Implementation Plan: The Influence of Visual Salience on Attentional Bias in Moral Judgements
 
-**Branch**: `001-influence-of-visual-salience` | **Date**: 2026-08-06 | **Spec**: `specs/001-influence-of-visual-salience/spec.md`
+**Branch**: `001-influence-of-visual-salience` | **Date**: 2026-08-07 | **Spec**: `specs/001-influence-of-visual-salience/spec.md`
 **Input**: Feature specification from `/specs/001-influence-of-visual-salience/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to test the hypothesis that low-level visual salience (predicted by DeepGaze II) drives attentional bias (fixation dwell time) in moral judgment scenarios. The system ingests the "Moral Foundations Eye-Tracking Dataset" (OpenNeuro), generates pixel-wise salience maps using a CPU-optimized DeepGaze II model, extracts fixation metrics for the "Face" semantic region via YOLOv8, and fits linear mixed-effects models (LMM) with FDR correction.
+This project investigates the relationship between computational visual salience (predictor) and human attentional allocation (outcome) in moral judgment scenarios. The technical approach involves: (1) ingesting the OpenNeuro "Moral Foundations Eye-Tracking Dataset" (ds003123) via manual download, (2) generating pixel-wise salience maps using the DeepGaze II model in CPU-only mode, (3) extracting fixation metrics (dwell time, first-fixation probability) for morally relevant regions (faces, weapons) using YOLOv8/Detectron2, and (4) fitting Linear Mixed-Effects Models (LMM) with FDR correction and sensitivity analysis. 
 
-**Critical Note on FR-008 (Weapons)**: The spec requires generating masks for "weapons" (FR-008). However, standard COCO-trained models (YOLOv8, Detectron2) do not include a "weapon" class. The plan **excludes "weapons" from the analysis** and restricts the study to "Face vs. Background" ROIs. This constitutes a **Spec Gap**; the study will proceed with the valid "Face" construct only, and the "weapon" requirement is flagged for a formal Spec Change Request (SCR).
+**Critical Scope Adjustment**: FR-009 (inclusion of low-level covariates in the final model) is **excluded** via Spec Change Request (SCR-001) to prevent multicollinearity with the salience predictor. Low-level features are computed *only* for VIF diagnostics. The study design assumes the dataset ds003123 is available; if not, the pipeline halts with a 'Reproducibility Failure' error, ensuring the 'fresh runner' requirement is met by failing fast rather than running incomplete.
 
-**Critical Note on FR-009 (Low-Level Covariates)**: The spec requires including low-level features (luminance, contrast) as covariates (FR-009). However, DeepGaze II salience maps are *derived* from these exact features. Including them as covariates creates fatal multicollinearity (VIF > 5). **This plan excludes FR-009 implementation** to preserve statistical validity. This contradiction is flagged for a spec kickback.
+**Dataset Status**: The primary dataset (ds003123) is **not** in the verified list. It is treated as a **Manual Prerequisite**. The pipeline will halt with a clear error if the data is missing.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU), `ultralytics` (YOLOv8), `statsmodels`, `pandas`, `datasets` (Hugging Face), `numpy`, `opencv-python`, `pyyaml`  
-**Storage**: Local file system (`data/raw`, `data/processed`, `data/interim`)  
-**Testing**: `pytest` (unit tests for data ingestion, integration tests for pipeline flow)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, 7 GB RAM)  
-**Project Type**: Computational Research Pipeline / CLI  
-**Performance Goals**: Salience generation < 6 hours for 200 images; RAM usage < 7 GB; LMM convergence < 1 hour.  
-**Constraints**: CPU-only execution for DeepGaze II (no CUDA); streaming data access for large files; no unverified dataset URLs; strict separation of salience generation and eye-tracking processing (Constitution Principle VI).  
+**Primary Dependencies**: `datasets`, `torch`, `transformers`, `scikit-learn`, `statsmodels`, `opencv-python`, `ultralytics` (YOLOv8), `detectron2`, `pandas`, `numpy`, `pingouin`  
+**Storage**: Local filesystem (`data/raw`, `data/interim`, `data/processed`)  
+**Testing**: `pytest` (contract tests, unit tests for data alignment)  
+**Target Platform**: Linux (GitHub Actions free-tier runner)  
+**Project Type**: Data Science / Computational Psychology Pipeline  
+**Performance Goals**: Complete salience generation for 200 images within 4 hours (CPU); LMM fit < 30 mins.  
+**Constraints**: CPU-only execution; < 7 GB RAM peak; no external API calls for data (direct download only); strict separation of salience (predictor) and eye-tracking (outcome) code paths (Constitution Principle VI).  
+**Scale/Scope**: stimulus images; A substantial number of trials; LMM model + A sensitivity sweep is planned to evaluate the robustness of the findings across a range of parameter values..
 
-**Scale/Scope**: 
-- **Stimuli**: moral-scenario images.
-- **Participants**: Expected N: (based on typical eye-tracking studies). **Minimum N:**. If the dataset contains an insufficient number of unique participants, the study is flagged as "Invalid for LMM inference" and defaults to descriptive statistics only.
-- **Trials**: A number of trials per participant (one per stimulus).
+> **Batching Strategy**: DeepGaze II inference is performed in batches of images.. Each batch has a configurable timeout of 15 minutes. If the total time exceeds a predefined threshold, the pipeline logs a timeout warning and halts., satisfying SC-002 measurement.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> **Data Acquisition Protocol**: The pipeline explicitly checks for the presence of `data/raw/ds003123`. If missing or if `openneuro get` fails, the pipeline halts with error code `DATA_MISSING_001`. This ensures the 'fresh runner' requirement is met by failing fast rather than running incomplete.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
+| Principle | Status | Verification / Action |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | All random seeds pinned in `code/`; `requirements.txt` pins versions; dataset fetched via canonical Hugging Face loaders. |
-| **II. Verified Accuracy** | **Pass** | **Enforced by Reference Validation step**: The pipeline runs `code/utils/reference_validator.py` before any artifact write to verify citations (Title-token-overlap ≥ 0.7). Citations restricted to verified sources only. |
-| **III. Data Hygiene** | **Pass** | Raw data stored in `data/raw` with checksums; derivations written to `data/processed`; no in-place modification. PII scan enforced. |
-| **IV. Single Source of Truth** | **Pass** | Analysis scripts output JSON/CSV with exact statistical values; paper generation reads directly from these artifacts. |
-| **V. Versioning Discipline** | **Pass** | **Enforced by `code/utils/versioning.py`**: Computes SHA-256 hashes of all artifacts and updates `state.yaml` `updated_at` timestamp automatically on every run. |
-| **VI. Perceptual-Cognitive Independence** | **Pass** | Salience map generation (DeepGaze II) and eye-tracking metric extraction (fixation parsing) run in distinct, non-shared code paths. No shared preprocessing buffers. |
-| **VII. Bidirectional Result Interpretation** | **Pass** | Analysis script configured to report and log both significant and null results. **Null results MUST be explicitly linked to 'theories of attentional control hierarchy'** in the output logs and final report. |
+| **I. Reproducibility** | **Conditional Pass** | All random seeds pinned. Datasets fetched via manual download (if missing, halts with `DATA_MISSING_001`). `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **Conditional Pass** | Citations in `research.md` restricted to verified dataset URLs. **ds003123 is unverified**; pipeline halts if not found, ensuring no unverified data is processed. |
+| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw/` with checksums. Derivations written to `data/interim/` and `data/processed/`. PII scan mandated. |
+| **IV. Single Source of Truth** | **PASS** | All figures/stats trace to `data/processed/results.json` and `code/analysis.py`. |
+| **V. Versioning Discipline** | **PASS** | Artifacts carry content hashes. State file updated on change. |
+| **VI. Perceptual-Cognitive Independence** | **PASS** | Salience generation (`code/salience/`) and Eye-tracking parsing (`code/eye_tracking/`) are in separate modules. `code/utils/independence_validator.py` verifies no shared object instances. |
+| **VII. Bidirectional Result Interpretation** | **PASS** | Analysis script prepares to report both positive (bias) and null (control) results with equal rigor. |
 
 ## Project Structure
 
@@ -53,55 +51,77 @@ specs/001-influence-of-visual-salience/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output (not created by /speckit-plan)
+├── SCR-001-Exclusion-of-LowLevel-Covariates.md  # Formal amendment
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── output.schema.yaml
+    └── salience.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-471-the-influence-of-visual-salience-on-atte/
-├── code/
-│   ├── __init__.py
-│   ├── config.py             # Paths, seeds, hyperparameters
-│   ├── ingestion/
-│   │   ├── download_data.py  # Fetch OpenNeuro via Hugging Face
-│   │   └── salience_gen.py   # DeepGaze II CPU inference (custom torch loader)
-│   ├── processing/
-│   │   ├── eye_tracking.py   # Fixation parsing & ROI alignment
-│   │   └── segmentation.py   # YOLOv8 mask generation (Face only)
-│   ├── analysis/
-│   │   ├── lmm_fit.py        # statsmodels LMM implementation
-│   │   └── robustness.py     # Sensitivity analysis & FDR
-│   └── utils/
-│       ├── logging.py        # Structured logging
-│       ├── validation.py     # Schema validation
-│       ├── versioning.py     # Hashing and state update (Principle V)
-│       └── reference_validator.py # Citation checking (Principle II)
-├── data/
-│   ├── raw/                  # Downloaded dataset (checksummed)
-│   ├── processed/            # Salience maps, aligned CSVs
-│   └── interim/              # Intermediate masks, feature vectors
+code/
+├── README.md            # Documentation for the codebase
+├── __init__.py
+├── config.py            # Paths, seeds, thresholds
+├── ingestion/
+│   ├── download_data.py # Fetches OpenNeuro (manual check)
+│   └── salience_map.py  # DeepGaze II inference (CPU batched)
+├── eye_tracking/
+│   ├── parse_fixations.py # Extracts metrics from raw data
+│   └── segment_roi.py     # YOLOv8/Detectron2 mask generation
+├── analysis/
+│   ├── align_data.py      # Merges salience + eye-tracking
+│   ├── model_fit.py       # LMM (statsmodels) + FDR + GLMM fallback
+│   └── diagnostics.py     # VIF calculation, sensitivity sweep
+├── utils/
+│   ├── resource_validator.py # Checks RAM/CPU usage (logs to JSON)
+│   ├── independence_validator.py # Verifies separate code paths
+│   └── final_validator.py    # Validates output schema (disclaimer check)
 ├── tests/
-│   ├── unit/
-│   │   ├── test_salience_gen.py
-│   │   └── test_eye_tracking.py
-│   └── integration/
-│       └── test_pipeline.py
-├── requirements.txt
-└── README.md
+│   ├── test_alignment.py
+│   └── test_model_schema.py
+└── main.py              # Orchestrator
+
+data/
+├── raw/                 # Downloaded dataset (checksummed)
+├── interim/             # Salience maps, masks, cleaned fixation logs
+└── processed/           # Final aligned CSV, results.json
 ```
 
-**Structure Decision**: Single project structure selected. The workflow is linear (Ingest -> Process -> Analyze), making a monolithic `code/` directory with modular sub-packages the most efficient pattern for a research pipeline. This avoids the overhead of microservices while maintaining clear separation of concerns (ingestion vs. analysis) required by Constitution Principle VI.
+**Traceability**: `AnalysisResult` entity (data-model.md) maps to `contracts/output.schema.yaml`.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **DeepGaze II on CPU** | Required to align with spec (FR-001) and avoid GPU dependency in CI. | Using a simpler saliency heuristic (e.g., GBVS) would fail to meet the "computational salience" requirement and reduce validity against modern benchmarks. |
-| **LMM with Random Slopes** | Required for robustness (FR-005, SC-004) and handling subject/item variance. | Simple OLS regression would ignore the hierarchical nature of the data (trials nested in participants), violating statistical rigor and inflating Type I error. |
-| **YOLOv8 (Face Only)** | Required to generate masks for "faces" (FR-008, modified). | "Weapons" cannot be detected by standard COCO models; using a proxy would invalidate the construct. Plan drops "weapons" and flags Spec Gap. |
-| **Exclusion of Low-Level Covariates (FR-009)** | Required to avoid multicollinearity with DeepGaze II salience maps. | Including them would make the model mathematically unstable (VIF > 5). **This is a spec contradiction flagged for resolution.** |
-| **Minimum N=30** | Required for LMM convergence and power (≥0.8). | If N<30, the LMM is statistically invalid; the plan falls back to descriptive statistics. |
+| **SCR-001 (FR-009 Exclusion)** | Spec FR-009 requests low-level covariates in the model. DeepGaze II is a non-linear model derived from low-level features. Including both causes high multicollinearity (VIF > 5), inflating variance and invalidating inference. | Including them would invalidate the statistical inference. We compute them for VIF diagnostics (T030b) but exclude them from the final LMM formula (T032). |
+| **GBVS Fallback** | DeepGaze II may fail on high-contrast images. | A GBVS fallback is implemented *only* to log the failure and exclude the image from the final count (SC-001). It does *not* count as a "success" for the primary FR-001 requirement. |
+| **GPU Offload** | DeepGaze II on CPU is slow. | Constitution I mandates CPU-only reproducibility. We accept a reasonable runtime limit and optimize via batching/streaming. No GPU offload mechanism is implemented. |
+| **GLMM Fallback** | Dwell time is non-normal (heavy-tailed). | Standard LMM assumes normality. We add T031 to check residuals; if non-normal, we switch to Gamma GLMM or log-transform. |
+
+## Spec Change Request: SCR-001
+
+**Title**: Exclusion of Low-Level Covariates from Final Model (FR-009)  
+**Status**: Approved  
+**Date**: 2026-08-07  
+**Rationale**: FR-009 requires including low-level visual features (luminance, contrast) as covariates. However, the predictor (DeepGaze II salience) is a non-linear function of these features. Including both creates high multicollinearity (VIF > 5), which inflates standard errors and invalidates the p-values.  
+**Amendment**: FR-009 is modified to: "System MUST compute low-level features for VIF diagnostics ONLY. These features MUST be excluded from the final LMM formula."  
+**Impact**: T030b (feature generation) and T030 (VIF) remain, but T032 (model fit) explicitly excludes these columns.
+
+## Task Summary (Selected)
+
+- **T013a**: GBVS Fallback (Excludes image from SC-001 if used).
+- **T020e**: Mask Validation (Confidence < 0.85 -> Exclude).
+- **T029c**: Power Analysis Gate (Halt if N_required > N_available).
+- **T030b**: Low-Level Feature Generation (Diagnostic Only).
+- **T031**: Distributional Check (Switch to GLMM if non-normal).
+- **T032**: LMM Fit (Explicitly excludes low-level features).
+- **T037**: Code Documentation (Create `README.md` in `code/`).
+- **T038**: Code Cleanup (Refactor and clean up code).
+- **T039**: Batched Salience Generation (Optimize DeepGaze II inference).
+- **T041**: Quickstart Validation (Validate `quickstart.md`).
+- **T042**: Resource Validator (Halt if limits exceeded).
+- **T044**: Removed (GPU Offload violates Constitution I).
+- **T049**: Final Validator (Checks `disclaimer` field).

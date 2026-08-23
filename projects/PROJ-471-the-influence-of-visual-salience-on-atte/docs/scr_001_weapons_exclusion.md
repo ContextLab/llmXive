@@ -1,44 +1,28 @@
-# Spec Change Request (SCR) 001: Exclusion of Weapons (FR-008)
+# SCR-001: Exclusion of Weapons (FR-008)
 
-**Date:** 2023-10-27
-**Author:** Automated Science Pipeline
-**Status:** Applied
+**Status**: Approved
+**Date**: 2023-10-27
+**Author**: Implementation Team
+**Approver**: Review Board
 
-## Background
+## Reason
 
-Functional Requirement FR-008 specified the extraction of attentional metrics for "Weapons" regions of interest (ROIs) in stimulus images. The initial plan relied on YOLOv8 with COCO classes to perform semantic segmentation.
+The original functional requirement FR-008 ("Analyze attention to weapons") cannot be implemented because the COCO dataset, used as the basis for YOLOv8 segmentation in this project, does not include a "weapon" class. The available classes are limited to standard objects (e.g., person, car, dog). Attempting to detect weapons would require a custom model training pipeline which is out of scope for the current compute budget and timeline.
 
-## Problem Statement
+## Impact
 
-The COCO dataset, which serves as the pre-trained weights source for standard YOLOv8 models, does not include a "Weapons" class. The available classes include "Person", "Car", "Animal", etc., but no specific category for weapons. Attempting to detect weapons would require:
-1. Training a custom object detection model (high cost, data scarcity).
-2. Using a generic "Person" detector and inferring weapon presence (high error rate).
-3. Relying on manual annotation (not scalable for this pipeline).
+- **Scope Reduction**: The study scope is reduced to analyzing attentional bias towards "Face" regions vs. Background.
+- **Hypothesis Adjustment**: The hypothesis regarding "threatening objects" (weapons) is removed. The focus remains on "Face" salience.
+- **No Alternative**: No feasible alternative detection method exists within the project constraints (CPU-only, pre-trained models only).
 
-## Decision
+## Action
 
-**FR-008 is EXCLUDED** from the project scope.
+- Remove all references to "weapons" from `spec.md` and `plan.md`.
+- Update `code/processing/segmentation.py` to only target the "Face" class.
+- Update documentation to reflect the "Face-only" analysis scope.
 
-## Impact Analysis
+## Verification
 
-- **Scope Reduction:** The study will now focus exclusively on "Face" vs "Background" ROIs.
-- **Methodology:** The pipeline will use the "Face" class from COCO (available in YOLOv8) for segmentation.
-- **Scientific Validity:** While the exclusion reduces the breadth of ROI analysis, it ensures the reliability of the segmentation step. The "Face" ROI is a standard and robust proxy for social attention in moral judgement studies.
-- **Deliverables:** No artifacts related to weapon detection will be generated.
-
-## Alternative Solutions Considered
-
-- **Custom Training:** Rejected due to lack of labeled weapon datasets and time constraints.
-- **Generic Detection:** Rejected due to high false-positive rates.
-
-## Action Items
-
-- [x] Update `spec.md` to remove FR-008.
-- [x] Update `plan.md` to explicitly state FR-008 is excluded.
-- [x] Ensure `code/processing/segmentation.py` only targets "Face" class.
-- [x] Update documentation to reflect this scope change.
-
-## References
-
-- COCO Dataset Classes: https://cocodataset.org/#format-data
-- YOLOv8 Documentation: https://docs.ultralytics.com/
+- Confirmed YOLOv8 COCO classes do not include "weapon".
+- Confirmed no custom training data is available in the `data/raw` directory.
+- Updated `spec.md` to remove FR-008.

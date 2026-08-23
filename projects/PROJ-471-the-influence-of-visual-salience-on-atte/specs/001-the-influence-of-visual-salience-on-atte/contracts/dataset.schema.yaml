@@ -1,54 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Aligned Trial Dataset Schema"
-type: object
+title: "Aligned Dataset Schema"
+description: "Schema for the merged salience and eye-tracking data"
+type: "object"
 properties:
   trial_id:
-    type: string
+    type: "string"
     description: "Unique identifier for the trial"
   participant_id:
-    type: string
-    description: "Anonymous participant identifier"
+    type: "string"
+    description: "Participant identifier"
   stimulus_id:
-    type: string
-    description: "Identifier for the stimulus image"
-  region_of_interest:
-    type: string
+    type: "string"
+    description: "Stimulus image identifier"
+  roi_type:
+    type: "string"
     enum:
       - "face"
-      - "control"
-      - "other"
-    description: "The semantic region being analyzed. 'weapon' is excluded."
+      - "weapon"
+      - "background"
+    description: "Region of Interest type"
   dwell_time_ms:
-    type: number
-    description: "Total fixation time on the ROI in milliseconds"
+    type: "number"
+    description: "Dwell time in milliseconds"
   first_fixation_prob:
-    type: number
+    type: "number"
     minimum: 0
     maximum: 1
-    description: "Probability of first fixation landing on ROI"
-  fixation_latency_ms:
-    type: number
-    description: "Time to first fixation on ROI"
-  global_salience:
-    type: number
-    description: "Mean salience value of the entire image (Primary Predictor)"
-  salience_score_roi:
-    type: number
-    description: "Mean salience value within the ROI (Diagnostic Only, Excluded from Model)"
+    description: "Probability of first fixation"
+  salience_score:
+    type: "number"
+    description: "Mean salience score in the ROI"
   luminance:
-    type: number
-    description: "Mean pixel intensity of the stimulus (Archived Only, Excluded from Model)"
+    type: "number"
+    description: "Average luminance (diagnostic only)"
   contrast:
-    type: number
-    description: "Standard deviation of pixel intensity (Archived Only, Excluded from Model)"
-  edge_density:
-    type: number
-    description: "Proportion of edge pixels (Archived Only, Excluded from Model)"
+    type: "number"
+    description: "Average contrast (diagnostic only)"
+  excluded:
+    type: "boolean"
+    description: "Whether the trial was excluded from analysis"
 required:
   - trial_id
   - participant_id
   - stimulus_id
-  - region_of_interest
+  - roi_type
   - dwell_time_ms
-  - global_salience
-additionalProperties: false
+  - first_fixation_prob
+  - salience_score
+  - excluded

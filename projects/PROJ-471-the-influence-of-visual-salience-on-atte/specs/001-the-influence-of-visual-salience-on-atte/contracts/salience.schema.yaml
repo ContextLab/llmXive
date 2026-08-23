@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Salience Map Metadata Schema"
+description: "Schema for salience map generation metadata"
+type: "object"
+properties:
+  stimulus_id:
+    type: "string"
+    description: "Stimulus image identifier"
+  map_path:
+    type: "string"
+    description: "Relative path to the .npy salience map"
+  resolution:
+    type: "object"
+    properties:
+      height:
+        type: "integer"
+        minimum: 1
+      width:
+        type: "integer"
+        minimum: 1
+    required:
+      - height
+      - width
+    description: "Spatial resolution of the map"
+  generation_method:
+    type: "string"
+    enum:
+      - "deepgaze_ii"
+      - "gbvs_fallback"
+    description: "Method used to generate the map"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "fallback_used"
+      - "failed"
+    description: "Status of the generation"
+  excluded_reason:
+    type: "string"
+    nullable: true
+    description: "Reason for exclusion if status is failed"
+required:
+  - stimulus_id
+  - map_path
+  - resolution
+  - generation_method
+  - status

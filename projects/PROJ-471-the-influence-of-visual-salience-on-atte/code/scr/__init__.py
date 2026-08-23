@@ -1,2 +1,3 @@
-# SCR (Spec Change Request) governance utilities
-pass
+"""
+Spec Change Request (SCR) module initialization.
+"""

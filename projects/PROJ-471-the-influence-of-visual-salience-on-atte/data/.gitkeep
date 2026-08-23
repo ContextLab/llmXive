@@ -1,2 +1,7 @@
-# This directory is for generated data artifacts.
-# Files here are tracked by the versioning system (state.yaml).
+# This directory stores all data artifacts.
+# Structure:
+# data/
+#   raw/          # Raw downloaded datasets (OpenNeuro/HF)
+#   interim/      # Intermediate processing outputs (salience maps, masks)
+#   processed/    # Final aligned datasets and analysis results
+#   figures/      # Generated plots and visualizations

@@ -1,3 +1,3 @@
 """
-Data package initialization.
+Data Package
 """

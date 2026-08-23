@@ -1,79 +1,33 @@
-- artifact_hash: 9a6587e19c5a438d389f67664d1125af4ebde3bced8055956711343ecea89c46
+- artifact_hash: d9de04d4afabc6ad7068f56bbaa13eee7df7823b752c440a76b4972b33315f41
   artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: train-00000-of-00035-db827267c66005a6.parquet
   kind: url
-  value: https://huggingface.co/datasets/openneuro/ds003123`
+  value: https://huggingface.co/datasets/qiuweihao/laion_4_to_3_deepgaze/resolve/main/data/train-00000-of-00035-db827267c66005a6.parquet`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/openneuro/ds003123
-  verified_at: '2026-08-22T12:32:36.595452Z'
-- artifact_hash: 9a6587e19c5a438d389f67664d1125af4ebde3bced8055956711343ecea89c46
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/680baf201c079546b2ee9de6/a93c93de57466fba3a88581473b4bea2e7d68f8bb3d1a48ca73d17d6115f6c14?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00035-db827267c66005a6.parquet%3B+filename%3D%22train-00000-of-00035-db827267c66005a6.parquet%22%3B&Expires=1787511293&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgwYmFmMjAxYzA3OTU0NmIyZWU5ZGU2L2E5M2M5M2RlNTc0NjZmYmEzYTg4NTgxNDczYjRiZWEyZTdkNjhmOGJiM2QxYTQ4Y2E3M2QxN2Q2MTE1ZjZjMTRcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMzUtZGI4MjcyNjdjNjYwMDVhNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMzUtZGI4MjcyNjdjNjYwMDVhNi5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODc1MTEyOTN9fX1dfQ__&Signature=MEUCIQDdQFoUVbtEBk1qjN29Rj2OFYRh7drsz6ZgqvGbZsEHgQIgSvCUjWzGcQJNXgIiWmXXsYLQYGr2ticMi33Tqu3kZ0Q_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-23T17:54:53.080511Z'
+- artifact_hash: d9de04d4afabc6ad7068f56bbaa13eee7df7823b752c440a76b4972b33315f41
   artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: split_name_to_num_samples.json
   kind: url
-  value: https://github.com/Eye-Tracking-Lab/DeepGaze`
-  verification_status: mismatch
-  verified_against_url: https://github.com/Eye-Tracking-Lab/DeepGaze
-  verified_at: '2026-08-22T12:32:36.595452Z'
-- artifact_hash: 9a6587e19c5a438d389f67664d1125af4ebde3bced8055956711343ecea89c46
+  value: https://huggingface.co/datasets/abdullahmeda/yolov8-table-detection/resolve/main/split_name_to_num_samples.json`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/abdullahmeda/yolov8-table-detection/c725f98e5fe030daddd84d74e5b4301c1747ed2f/split_name_to_num_samples.json?%2Fdatasets%2Fabdullahmeda%2Fyolov8-table-detection%2Fresolve%2Fmain%2Fsplit_name_to_num_samples.json=&etag=%227c5d4e6b34a2432aa86ad6965ffafa039a5b9167%22
+  verified_at: '2026-08-23T17:54:53.080511Z'
+- artifact_hash: d9de04d4afabc6ad7068f56bbaa13eee7df7823b752c440a76b4972b33315f41
   artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: "GitHub - ultralytics/ultralytics: Ultralytics YOLO26, YOLO11, YOLOv8\
-    \ \u2014 object detection, instance segmentation, semantic segmentation, image\
-    \ classification, pose estimation, object tracking \xB7 GitHub"
+  fetched_title: catseg_cocostuff_det2.tar.gz
   kind: url
-  value: https://github.com/ultralytics/ultralytics`
+  value: https://huggingface.co/datasets/xiaomoguhzz/catseg_detectron2_data/resolve/main/catseg_cocostuff_det2.tar.gz`
   verification_status: pending
-  verified_against_url: https://github.com/ultralytics/ultralytics
-  verified_at: '2026-08-22T12:32:36.595452Z'
-- artifact_hash: 4cca5786d44c46f0c735834434b4ffd7979b84e55d2b40dd94bda67bac780970
-  artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/scr_001_weapons_exclusion.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: COCO - Common Objects in Context
-  kind: url
-  value: https://cocodataset.org/#format-data
-  verification_status: pending
-  verified_against_url: https://cocodataset.org/#format-data
-  verified_at: '2026-08-23T04:36:06.383810Z'
-- artifact_hash: 4cca5786d44c46f0c735834434b4ffd7979b84e55d2b40dd94bda67bac780970
-  artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/scr_001_weapons_exclusion.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: YOLO Object Detection &amp; Segmentation | Ultralytics
-  kind: url
-  value: https://docs.ultralytics.com/
-  verification_status: pending
-  verified_against_url: https://docs.ultralytics.com/
-  verified_at: '2026-08-23T04:36:06.383810Z'
-- artifact_hash: b284b51903f604d98fba3682c327577ae36148c320fd55756205e35f2301a418
-  artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/scr_002_lowlevel_covariates_exclusion.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Multicollinearity - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Multicollinearity
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Multicollinearity
-  verified_at: '2026-08-23T04:36:09.955112Z'
-- artifact_hash: b284b51903f604d98fba3682c327577ae36148c320fd55756205e35f2301a418
-  artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/scr_002_lowlevel_covariates_exclusion.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.sciencedirect.com/science/article/pii/S105381191630038X
-  verification_status: pending
-  verified_against_url: https://www.sciencedirect.com/science/article/pii/S105381191630038X
-  verified_at: '2026-08-23T04:36:09.955112Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a39623788be326cdc9a1a74/edf65511f155ed04408d6fcf238ca2484d107b04c79dc09471d4c621e76aa1dc?X-Xet-Cas-Uid=public&response-content-type=application%2Fgzip&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27catseg_cocostuff_det2.tar.gz%3B+filename%3D%22catseg_cocostuff_det2.tar.gz%22%3B&user_id=public&Expires=1787511325&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEzOTYyMzc4OGJlMzI2Y2RjOWExYTc0L2VkZjY1NTExZjE1NWVkMDQ0MDhkNmZjZjIzOGNhMjQ4NGQxMDdiMDRjNzlkYzA5NDcxZDRjNjIxZTc2YWExZGNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZnemlwJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdjYXRzZWdfY29jb3N0dWZmX2RldDIudGFyLmd6JTNCK2ZpbGVuYW1lJTNEJTIyY2F0c2VnX2NvY29zdHVmZl9kZXQyLnRhci5neiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg3NTExMzI1fX19XX0_&Signature=MEUCIDQFzJ2k3%7ECxEIiZQW7zbFdXHfMy7LREtFcDX9pInvZ0AiEAo8P2e94-tEZIa4X5b%7E7an7HiTXHI3TsMbPx%7EVaVcBCA_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-23T17:54:53.080511Z'

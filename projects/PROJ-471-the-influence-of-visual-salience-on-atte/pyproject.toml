@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-influence-visual-salience"
 version = "0.1.0"
-description = "Investigating the influence of visual salience on attentional bias in moral judgments"
+description = "Automated science pipeline for visual salience influence on moral judgments"
 requires-python = ">=3.11"
 dependencies = [
     "torch",
@@ -18,15 +18,8 @@ dependencies = [
     "pyyaml",
     "scipy",
     "simr",
+    "psutil",
     "python-dotenv",
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
 ]
 
 [tool.black]
@@ -44,7 +37,6 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | __pycache__
 )/
 '''
 
@@ -63,7 +55,6 @@ exclude = [
     ".mypy_cache",
     ".nox",
     ".pants.d",
-    ".pytype",
     ".ruff_cache",
     ".svn",
     ".tox",
@@ -75,43 +66,34 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
-    "code/__pycache__",
-    "data",
-    "docs",
-    "tests/__pycache__",
 ]
 
-# Assume Python 3.11.
+# Assume Python 3.11
 [tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-    "UP", # pyupgrade
-    "N",  # pep8-naming
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`) codes by default.
+select = ["E4", "E7", "E9", "F", "I", "N", "UP", "B", "C4", "PIE", "RET", "SIM", "W"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[tool.ruff.lint.isort]
-known-first-party = ["code"]
-force-sort-within-sections = true
-combine-as-imports = true
-
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101", "D"] # Allow asserts in tests, ignore docstrings
-"code/utils/logging.py" = ["E501"] # Long lines in log formats
+"tests/*" = ["S101", "D1"]
+"code/ingestion/*" = ["E501"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["code"]
-addopts = "-v --tb=short"
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"

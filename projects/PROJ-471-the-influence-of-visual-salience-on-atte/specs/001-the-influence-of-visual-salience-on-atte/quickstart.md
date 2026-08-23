@@ -2,71 +2,64 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to Hugging Face (for dataset download)
-- 7 GB RAM (minimum)
+- **Python**: 3.11+
+- **System**: Linux (Ubuntu 22.04 recommended for CI compatibility)
+- **Dependencies**: `pip install -r code/requirements.txt`
+- **Data**: The "Moral Foundations Eye-Tracking Dataset" (ds003123) must be present in `data/raw/`.
+  - *Note*: This dataset is **not** in the verified list and requires **manual download**. If automated download fails, manually download from OpenNeuro and extract to `data/raw/ds003123/`. **If data is missing, the pipeline will halt with error `DATA_MISSING_001`.**
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-471-the-influence-of-visual-salience-on-atte
-   ```
+1.  **Clone Repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-471-the-influence-of-visual-salience-on-atte
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Install Dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+3.  **Verify Environment**:
+    ```bash
+    python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
+    # Expected: CUDA available: False (CPU-only mode)
+    ```
 
-## Running the Pipeline
+## Data Setup
 
-### Step 1: Download Data
-Fetch the OpenNeuro dataset (streaming mode to save disk):
+The pipeline expects the dataset in `data/raw/ds003123/`.
+If the dataset is not present, run the download script (if public access allows):
 ```bash
 python code/ingestion/download_data.py
 ```
-*This will create `data/raw/` with checksums.*
+*If this fails due to authentication, please manually download the dataset from OpenNeuro and place it in `data/raw/ds003123/`. If data is missing, the pipeline will halt with error `DATA_MISSING_001`.*
 
-### Step 2: Generate Salience Maps
-Run DeepGaze II on the stimulus images:
+## Running the Pipeline
+
+Execute the full pipeline:
 ```bash
-python code/ingestion/salience_gen.py --cpu
+python code/main.py
 ```
-*Output: `data/processed/salience_maps/`*
 
-### Step 3: Extract Fixation Metrics & Align
-Parse eye-tracking data and merge with salience:
-```bash
-python code/processing/eye_tracking.py
-python code/processing/segmentation.py  # If masks needed
-```
-*Output: `data/interim/aligned_trials.csv`*
+### Steps Executed:
+1.  **Ingestion**: Downloads/verifies data. (Halt if missing)
+2.  **Salience Generation**: Computes DeepGaze II maps (CPU batched).
+3.  **ROI Segmentation**: Generates face/weapon masks.
+4.  **Alignment**: Merges fixation data with salience scores.
+5.  **Analysis**: Fits LMM/GLMM, applies FDR, runs sensitivity analysis.
+6.  **Validation**: Checks output schema and resource usage.
 
-### Step 4: Statistical Analysis
-Fit LMM and perform sensitivity analysis:
-```bash
-python code/analysis/lmm_fit.py
-python code/analysis/robustness.py
-```
-*Output: `data/processed/analysis_results.json`*
+## Output
 
-## Verification
-
-Run the test suite to ensure integrity:
-```bash
-pytest tests/ -v
-```
+- **Aligned Data**: `data/processed/aligned_data.csv`
+- **Statistical Results**: `data/processed/results.json`
+- **Logs**: `logs/pipeline.log`
 
 ## Troubleshooting
 
-- **RAM Error**: If `MemoryError` occurs during salience generation, reduce the image resolution in `code/config.py` (e.g., `IMAGE_SIZE = 160`).
-- **CUDA Error**: If DeepGaze II attempts to use CUDA, ensure `--cpu` flag is set. The pipeline will automatically fall back to CPU.
-- **Missing Masks**: If YOLOv8 fails to detect "weapons", the script will log a warning and proceed with "other" or skip the ROI.
+- **CUDA Error**: The pipeline is CPU-only. If you see CUDA errors, check `code/config.py` for `device="cpu"`.
+- **Memory Error**: The pipeline batches images. If OOM occurs, reduce `BATCH_SIZE` in `code/config.py`.
+- **Dataset Missing**: If `ds003123` is not found, ensure it is manually placed in `data/raw/`. Error `DATA_MISSING_001` will be raised.
+- **Power Insufficient**: If power analysis fails, the pipeline halts with `POWER_INSUFFICIENT`.

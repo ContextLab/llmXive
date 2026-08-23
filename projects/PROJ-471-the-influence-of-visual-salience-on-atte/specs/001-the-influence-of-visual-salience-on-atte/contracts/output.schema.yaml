@@ -1,66 +1,63 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Result Schema"
-type: object
+title: "Analysis Results Schema"
+description: "Schema for the final statistical output"
+type: "object"
 properties:
   model_id:
-    type: string
-    description: "Identifier for the model (e.g., Model_A, Model_B)"
-  fixed_effect_salience:
-    type: number
-    description: "Coefficient estimate for salience predictor"
-  p_value_salience:
-    type: number
+    type: "string"
+    description: "Identifier for the model run"
+  fixed_effect_estimate:
+    type: "number"
+    description: "Fixed effect estimate for salience"
+  p_value:
+    type: "number"
     minimum: 0
     maximum: 1
-    description: "Raw p-value for salience predictor"
-  p_value_fdr:
-    type: number
+    description: "P-value for the fixed effect"
+  p_value_fdr_corrected:
+    type: "number"
     minimum: 0
     maximum: 1
-    description: "FDR-adjusted p-value"
-  confidence_interval_lower:
-    type: number
-    description: "Lower bound of 95% CI"
-  confidence_interval_upper:
-    type: number
-    description: "Upper bound of 95% CI"
-  random_intercepts_participant:
-    type: object
-    description: "Variance components for participant random intercepts"
-  random_intercepts_item:
-    type: object
-    description: "Variance components for stimulus random intercepts"
-  sensitivity_delta:
-    type: number
-    description: "Difference in effect size between Model A and B"
-  vif_salience:
-    type: number
-    description: "Variance Inflation Factor for salience predictor"
-  calculated_power:
-    type: number
-    description: "Calculated statistical power value"
-  effect_size_assumed:
-    type: number
-    description: "Effect size assumed for power calculation"
-  power_status:
-    type: string
-    enum:
-      - "sufficient"
-      - "insufficient"
-    description: "Power status based on threshold"
+    description: "FDR-corrected p-value"
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% Confidence Interval [lower, upper]"
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      model_a_estimate:
+        type: "number"
+        description: "Estimate from Model A (intercepts only)"
+      model_b_estimate:
+        type: "number"
+        description: "Estimate from Model B (intercepts + slopes)"
+      stability_metric:
+        type: "number"
+        description: "Change in effect size"
+    required:
+      - model_a_estimate
+      - model_b_estimate
+      - stability_metric
   disclaimer:
-    type: string
-    description: "Correlational only disclaimer if p < 0.05"
+    type: "string"
+    description: "Disclaimer block"
+    const: "correlational only"
+  power_status:
+    type: "string"
     enum:
-      - "correlational only"
-      - null
+      - "valid"
+      - "invalid"
+    description: "Power analysis status"
 required:
   - model_id
-  - fixed_effect_salience
-  - p_value_salience
-  - p_value_fdr
-  - vif_salience
-  - calculated_power
-  - effect_size_assumed
+  - fixed_effect_estimate
+  - p_value
+  - p_value_fdr_corrected
+  - confidence_interval
+  - sensitivity_analysis
+  - disclaimer
   - power_status
-additionalProperties: false

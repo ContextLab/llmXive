@@ -1,3 +1,3 @@
 """
-Unit tests initialization.
+Unit tests package initialization.
 """

@@ -1,16 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `code/`, `data/`, and `tests/` directories (or any
-    files within them) is provided; the implementer did not supply the project structure
-    artifacts needed to confirm the task was completed.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no configuration files, scripts, or documentation showing
-    that ruff linting and black formatting have been set up (e.g., no `pyproject.toml`,
-    `.ruff.toml`, or `black` config). Consequently, the required artifact for task
-    T003 is missing.
 T006:
   c: false
   h: d673fe0ffde8e179aee23d0bb0dcc33ff6e7b3cbaa6066921f180dbf846ec3d9
@@ -26,14 +13,6 @@ T009a:
     we cannot confirm that a file listing the required keys (`HF_TOKEN`, `DATA_PATH`,
     `SEED`, `GPU_DEVICE`) actually exists or contains the correct content. The implementer
     must add the file to the repository and show its contents.
-T016a:
-  c: false
-  h: 81df30931d139757e18383748aa6fdfadf92457bdd8b6e90664ae752fdbe7ec0
-  r: "The repository contains `code/ingestion/metadata_writer.py`, but the file is\
-    \ truncated and does not include any code that actually scans the salience\u2011\
-    map directory and writes `data/processed/salience_maps/metadata.json`. Moreover,\
-    \ the expected output file `metadata.json` is absent from the filesystem. The\
-    \ task therefore remains unfinished."
 T018a:
   c: false
   h: c375feeacb990fecbab06f4db8ea537dc8a73882fdba8f05be089fde0fe98031
@@ -114,3 +93,33 @@ T035:
     \ null results were recorded and explicitly linked to \u201Ctheories of attentional\
     \ control hierarchy.\u201D Consequently, the core requirement of task T035 (logging\
     \ null results with theoretical linkage) is missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or docs/ files were presented for inspection, and there is no evidence
+    that any documentation was actually updated. The required artifacts are missing,
+    so the task cannot be considered fulfilled.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, commit history, diff, or documentation showing that any cleanup or\
+    \ refactoring was performed is present; the only material shown relates to data\
+    \ ingestion, analysis, and modeling, not to a code\u2011cleanup deliverable. Consequently\
+    \ the required artifact for task T038 is missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, benchmarks, or documentation for a performance\u2011optimized,\
+    \ batched salience\u2011map generation pipeline were provided; the only evidence\
+    \ is the high\u2011level feature description, which does not demonstrate that\
+    \ the required artifact exists or works. The implementer must supply the actual\
+    \ implementation (e.g., a Python module or script that batches DeepGaze\u202F\
+    II inference, runs on CPU\u2011only CI, and produces matching salience map files)\
+    \ along with evidence of its correctness and performance."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation artifact (e.g., log, report, or updated `quickstart.md` status)
+    is present; the implementer provided no evidence that the `quickstart.md` file
+    was actually run through a validator or that it passed. Consequently the required
+    output for task T041 is missing.

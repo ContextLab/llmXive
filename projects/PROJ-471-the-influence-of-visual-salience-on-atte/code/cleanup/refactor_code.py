@@ -1,257 +1,501 @@
 """
-T038: Code cleanup and refactoring.
+Code Cleanup and Refactoring Module (Task T038)
 
-This module provides utility functions to identify and refactor common
-code smells across the project, including:
-1. Removing unused imports
-2. Consolidating duplicate logging setup
-3. Standardizing docstrings
-4. Removing dead code (unreachable blocks)
-5. Normalizing path handling
-
-It operates as a post-processing step to ensure code quality before final delivery.
+This module implements automated code cleanup and refactoring for the llmXive pipeline.
+It performs:
+1. Removal of unused imports
+2. Standardization of logging calls
+3. Consolidation of duplicate code patterns
+4. Removal of debug statements and TODO comments
+5. Enforcement of consistent docstring formats
+6. Optimization of redundant computations
 """
+
 import os
 import re
 import ast
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Set
+from typing import List, Dict, Any, Optional, Set, Tuple
+
+from utils.logging import get_logger, setup_logging
 from config import get_paths, load_config
-from utils.logging import get_logger
 
-# Configure logging for the cleanup task
-logger = get_logger("cleanup")
+# Configuration for refactoring rules
+REFACTORING_RULES = {
+    'remove_unused_imports': True,
+    'standardize_logging': True,
+    'remove_debug_statements': True,
+    'enforce_docstrings': False,  # Optional - can be noisy
+    'consolidate_redundant_imports': True,
+    'remove_todo_comments': True,
+}
 
-# Common patterns for refactoring
-UNUSED_IMPORT_PATTERN = re.compile(r'^\s*import\s+\w+.*$')
-UNUSED_FROM_PATTERN = re.compile(r'^\s*from\s+\w+\s+import\s+\w+.*$')
-DEAD_CODE_MARKERS = ['pass', 'raise NotImplementedError', 'TODO', 'FIXME']
+# Patterns to identify debug statements
+DEBUG_PATTERNS = [
+    r'\bprint\s*\(',
+    r'\blogging\.debug\s*\(',
+    r'\bbreakpoint\s*\(',
+    r'\bipdb\.set_trace\s*\(',
+    r'\bimport pdb\b',
+    r'\bimport ipdb\b',
+]
+
+# Patterns to identify TODO/FIXME comments
+TODO_PATTERNS = [
+    r'#\s*(TODO|FIXME|HACK|XXX|BUG):?\s*',
+    r'#\s*(todo|fixme|hack|xxx|bug):?\s*',
+]
+
+# Standard logging patterns
+LOGGING_PATTERNS = {
+    'info': r'\blogging\.info\s*\(',
+    'warning': r'\blogging\.warning\s*\(',
+    'error': r'\blogging\.error\s*\(',
+    'critical': r'\blogging\.critical\s*\(',
+    'debug': r'\blogging\.debug\s*\(',
+}
 
 class CodeRefactorer:
-    """Handles the refactoring of Python source files."""
+    """
+    Automated code refactoring tool for Python files.
 
-    def __init__(self, project_root: Path):
-        self.project_root = project_root
-        self.changes_made: Dict[str, List[str]] = {}
+    This class provides methods to analyze and refactor Python code files
+    according to a set of predefined rules.
+    """
 
-    def find_python_files(self) -> List[Path]:
-        """Recursively find all .py files in the code directory."""
-        code_dir = self.project_root / "code"
-        if not code_dir.exists():
-            logger.warning(f"Code directory not found at {code_dir}")
-            return []
-        
-        return list(code_dir.rglob("*.py"))
-
-    def remove_unused_imports(self, content: str, filename: str) -> tuple[str, bool]:
+    def __init__(self, logger: Optional[logging.Logger] = None):
         """
-        Attempt to remove unused imports by parsing the AST.
-        Returns (new_content, was_modified).
+        Initialize the refactoring tool.
+
+        Args:
+            logger: Optional logger instance. If None, a default logger is created.
+        """
+        self.logger = logger or get_logger('refactor')
+        self.stats = {
+            'files_processed': 0,
+            'files_modified': 0,
+            'imports_removed': 0,
+            'debug_statements_removed': 0,
+            'todo_comments_removed': 0,
+            'logging_calls_standardized': 0,
+            'errors': 0,
+        }
+
+    def find_python_files(self, base_path: Path) -> List[Path]:
+        """
+        Recursively find all Python files in the given directory.
+
+        Args:
+            base_path: Root directory to search.
+
+        Returns:
+            List of Path objects for all .py files found.
+        """
+        python_files = []
+        for root, _, files in os.walk(base_path):
+            # Skip hidden directories and common non-code directories
+            if any(part.startswith('.') for part in Path(root).parts):
+                continue
+            if any(part in ['__pycache__', 'venv', '.venv', 'node_modules'] for part in Path(root).parts):
+                continue
+
+            for file in files:
+                if file.endswith('.py'):
+                    python_files.append(Path(root) / file)
+
+        return python_files
+
+    def parse_ast(self, code: str) -> Optional[ast.AST]:
+        """
+        Parse Python code into an AST.
+
+        Args:
+            code: Python source code string.
+
+        Returns:
+            AST object or None if parsing fails.
         """
         try:
-            tree = ast.parse(content)
-        except SyntaxError:
-            logger.debug(f"Skipping {filename} due to syntax error")
-            return content, False
+            return ast.parse(code)
+        except SyntaxError as e:
+            self.logger.warning(f"Syntax error in code: {e}")
+            return None
 
-        # Get all names used in the module
-        used_names: Set[str] = set()
+    def get_used_names(self, tree: ast.AST) -> Set[str]:
+        """
+        Extract all names used in the AST.
+
+        Args:
+            tree: AST object.
+
+        Returns:
+            Set of all names referenced in the code.
+        """
+        used_names = set()
         for node in ast.walk(tree):
             if isinstance(node, ast.Name):
                 used_names.add(node.id)
             elif isinstance(node, ast.Attribute):
-                # Handle module.attribute usage
-                if isinstance(node.value, ast.Name):
-                    used_names.add(node.value.id)
+                # Handle attribute access like 'os.path'
+                current = node
+                parts = []
+                while isinstance(current, ast.Attribute):
+                    parts.append(current.attr)
+                    current = current.value
+                if isinstance(current, ast.Name):
+                    parts.append(current.id)
+                    used_names.add('.'.join(reversed(parts)))
+                    used_names.add(current.id)
+        return used_names
 
-        lines = content.splitlines(keepends=True)
+    def remove_unused_imports(self, code: str) -> Tuple[str, int]:
+        """
+        Remove unused imports from the code.
+
+        Args:
+            code: Python source code.
+
+        Returns:
+            Tuple of (refactored code, count of removed imports).
+        """
+        tree = self.parse_ast(code)
+        if tree is None:
+            return code, 0
+
+        lines = code.split('\n')
+        used_names = self.get_used_names(tree)
+        removed_count = 0
         new_lines = []
-        modified = False
+        skip_next = False
 
         for i, line in enumerate(lines):
-            # Check for import statements
-            if line.strip().startswith('import ') or line.strip().startswith('from '):
-                try:
-                    import_node = ast.parse(line.strip())
-                    if not import_node.body:
-                        new_lines.append(line)
-                        continue
-                    
-                    imp = import_node.body[0]
-                    names_to_keep = []
-                    
-                    if isinstance(imp, ast.Import):
-                        for alias in imp.names:
-                            name = alias.asname if alias.asname else alias.name
-                            if name in used_names or alias.name in used_names:
-                                names_to_keep.append(alias)
-                    elif isinstance(imp, ast.ImportFrom):
-                        for alias in imp.names:
-                            name = alias.asname if alias.asname else alias.name
-                            if name in used_names:
-                                names_to_keep.append(alias)
-                    
-                    if len(names_to_keep) != len(imp.names):
-                        # Reconstruct the import line
-                        if isinstance(imp, ast.Import):
-                            new_line = "import " + ", ".join(
-                                f"{a.name} as {a.asname}" if a.asname else a.name 
-                                for a in names_to_keep
-                            ) + "\n"
-                        else:
-                            new_line = f"from {imp.module} import " + ", ".join(
-                                f"{a.name} as {a.asname}" if a.asname else a.name 
-                                for a in names_to_keep
-                            ) + "\n"
-                        new_lines.append(new_line)
-                        modified = True
-                        logger.info(f"Removed unused import in {filename}: {line.strip()}")
-                    else:
-                        new_lines.append(line)
-                except SyntaxError:
-                    new_lines.append(line)
-            else:
-                new_lines.append(line)
+            # Check if this is an import line
+            import_match = re.match(r'^(import\s+\S+|from\s+\S+\s+import\s+\S+)', line)
 
-        return "".join(new_lines), modified
+            if import_match:
+                import_stmt = import_match.group(1)
 
-    def remove_dead_code(self, content: str, filename: str) -> tuple[str, bool]:
-        """
-        Remove simple dead code markers like standalone 'pass' or 'NotImplementedError'
-        if they are in functions that are clearly incomplete (heuristic).
-        For safety, we only remove 'pass' if it's the only content of a block
-        and the function has a docstring indicating it's a stub.
-        """
-        lines = content.splitlines(keepends=True)
-        new_lines = []
-        modified = False
-        
-        i = 0
-        while i < len(lines):
-            line = lines[i]
-            stripped = line.strip()
-            
-            # Check for 'pass' that might be a placeholder
-            if stripped == 'pass':
-                # Look back to see if this is a function/method definition
-                # and if it's the only thing in the body
-                # This is a simplified heuristic to avoid breaking logic
-                # In a real scenario, we'd use AST to check function bodies
-                if i > 0 and (lines[i-1].strip().endswith(':') or 
-                              (i > 1 and lines[i-2].strip().endswith(':'))):
-                    # Check if the previous line is a function def
-                    prev_line = lines[i-1].strip() if i > 0 else ""
-                    if prev_line.startswith('def ') or prev_line.startswith('class '):
-                        logger.warning(f"Found placeholder 'pass' in {filename} at line {i+1}. Keeping for safety.")
-                        # We keep it to avoid breaking the build, but log it
-                        new_lines.append(line)
-                    else:
-                        new_lines.append(line)
+                # Extract imported names
+                if import_stmt.startswith('import '):
+                    imported_name = import_stmt.split()[1].split('.')[0]
                 else:
-                    new_lines.append(line)
+                    # 'from X import Y'
+                    parts = import_stmt.split('import')
+                    if len(parts) > 1:
+                        imported_items = [item.strip().split(' as ')[0].strip() for item in parts[1].split(',')]
+                        imported_name = imported_items[0] if imported_items else None
+                    else:
+                        imported_name = None
+
+                # Check if the imported name is used
+                if imported_name and imported_name not in used_names:
+                    # Check if it's used as part of a longer name
+                    is_used = False
+                    for used in used_names:
+                        if used.startswith(imported_name + '.'):
+                            is_used = True
+                            break
+
+                    if not is_used:
+                        removed_count += 1
+                        continue  # Skip this line
+
+            new_lines.append(line)
+
+        return '\n'.join(new_lines), removed_count
+
+    def remove_debug_statements(self, code: str) -> Tuple[str, int]:
+        """
+        Remove debug statements from the code.
+
+        Args:
+            code: Python source code.
+
+        Returns:
+            Tuple of (refactored code, count of removed statements).
+        """
+        lines = code.split('\n')
+        new_lines = []
+        removed_count = 0
+
+        for line in lines:
+            is_debug = False
+            for pattern in DEBUG_PATTERNS:
+                if re.search(pattern, line):
+                    is_debug = True
+                    break
+
+            if is_debug:
+                removed_count += 1
+                self.logger.debug(f"Removing debug statement: {line.strip()}")
             else:
                 new_lines.append(line)
-            
-            i += 1
 
-        return "".join(new_lines), modified
+        return '\n'.join(new_lines), removed_count
 
-    def standardize_docstrings(self, content: str, filename: str) -> tuple[str, bool]:
+    def remove_todo_comments(self, code: str) -> Tuple[str, int]:
         """
-        Ensure docstrings use triple double quotes and are on their own lines.
-        This is a lightweight formatter for docstrings.
-        """
-        # Simple regex to find docstrings and ensure they are formatted correctly
-        # This is a heuristic and might not catch all edge cases
-        pattern = re.compile(r'"""(.*?)"""', re.DOTALL)
-        
-        def replace_docstring(match):
-            doc = match.group(1).strip()
-            if not doc:
-                return '""""""'
-            return f'"""\n{doc}\n"""'
-        
-        new_content = pattern.sub(replace_docstring, content)
-        modified = new_content != content
-        if modified:
-            logger.info(f"Standardized docstrings in {filename}")
-        
-        return new_content, modified
+        Remove TODO/FIXME comments from the code.
 
-    def process_file(self, filepath: Path) -> bool:
-        """Process a single file for refactoring."""
-        try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            original_content = content
-            filename = filepath.relative_to(self.project_root)
-            
-            # Apply refactors
-            content, modified_imports = self.remove_unused_imports(content, str(filename))
-            content, modified_dead = self.remove_dead_code(content, str(filename))
-            content, modified_docs = self.standardize_docstrings(content, str(filename))
-            
-            if modified_imports or modified_dead or modified_docs:
-                with open(filepath, 'w', encoding='utf-8') as f:
-                    f.write(content)
-                self.changes_made[str(filename)] = [
-                    "Unused imports removed" if modified_imports else None,
-                    "Dead code analyzed" if modified_dead else None,
-                    "Docstrings standardized" if modified_docs else None
-                ]
-                logger.info(f"Refactored {filename}")
-                return True
+        Args:
+            code: Python source code.
+
+        Returns:
+            Tuple of (refactored code, count of removed comments).
+        """
+        lines = code.split('\n')
+        new_lines = []
+        removed_count = 0
+
+        for line in lines:
+            # Check if line is only a TODO comment
+            is_todo = False
+            for pattern in TODO_PATTERNS:
+                if re.match(pattern, line.strip()):
+                    is_todo = True
+                    break
+
+            if is_todo:
+                removed_count += 1
+                self.logger.debug(f"Removing TODO comment: {line.strip()}")
             else:
-                logger.debug(f"No changes needed for {filename}")
-                return False
+                # Remove inline TODO comments but keep the rest of the line
+                cleaned_line = line
+                for pattern in TODO_PATTERNS:
+                    cleaned_line = re.sub(pattern, '', cleaned_line, flags=re.IGNORECASE)
+                new_lines.append(cleaned_line)
+
+        return '\n'.join(new_lines), removed_count
+
+    def standardize_logging(self, code: str) -> Tuple[str, int]:
+        """
+        Standardize logging calls to use the project's logging utilities.
+
+        Args:
+            code: Python source code.
+
+        Returns:
+            Tuple of (refactored code, count of standardized calls).
+        """
+        # This is a simplified version - a full implementation would
+        # replace direct logging calls with the project's get_logger() pattern
+        lines = code.split('\n')
+        new_lines = []
+        standardized_count = 0
+
+        for line in lines:
+            # Check for direct logging calls
+            for level, pattern in LOGGING_PATTERNS.items():
+                if re.search(pattern, line):
+                    # Replace with project logging pattern
+                    # logging.info(...) -> logger.info(...)
+                    new_line = re.sub(
+                        pattern,
+                        f'get_logger(__name__).{level}(',
+                        line,
+                        count=1
+                    )
+                    if new_line != line:
+                        standardized_count += 1
+                        line = new_line
+                        break
+            new_lines.append(line)
+
+        return '\n'.join(new_lines), standardized_count
+
+    def consolidate_redundant_imports(self, code: str) -> Tuple[str, int]:
+        """
+        Consolidate multiple import statements from the same module.
+
+        Args:
+            code: Python source code.
+
+        Returns:
+            Tuple of (refactored code, count of consolidations).
+        """
+        lines = code.split('\n')
+        new_lines = []
+        consolidations = 0
+
+        # Track imports by module
+        imports_by_module = {}
+
+        for line in lines:
+            if line.strip().startswith('from '):
+                match = re.match(r'^(from\s+\S+)\s+import\s+(.+)$', line)
+                if match:
+                    module = match.group(1)
+                    items = [item.strip() for item in match.group(2).split(',')]
+
+                    if module not in imports_by_module:
+                        imports_by_module[module] = []
+                    imports_by_module[module].extend(items)
+                    continue  # Skip this line, we'll add consolidated version later
+
+            new_lines.append(line)
+
+        # Add consolidated imports at the beginning
+        if imports_by_module:
+          # Find where to insert (after any existing imports)
+          insert_pos = 0
+          for i, line in enumerate(new_lines):
+              if not line.strip().startswith(('import ', 'from ', '#', '', '"""', "'''")):
+                  insert_pos = i
+                  break
+
+          consolidated_imports = []
+          for module, items in imports_by_module.items():
+              unique_items = list(dict.fromkeys(items))  # Preserve order, remove dups
+              if len(unique_items) != len(items):
+                  consolidations += 1
+              consolidated_imports.append(f"{module} import {', '.join(unique_items)}")
+
+          new_lines = consolidated_imports + new_lines
+
+        return '\n'.join(new_lines), consolidations
+
+    def refactor_file(self, file_path: Path) -> Dict[str, Any]:
+        """
+        Refactor a single Python file.
+
+        Args:
+            file_path: Path to the Python file.
+
+        Returns:
+            Dictionary with refactoring results.
+        """
+        result = {
+            'file': str(file_path),
+            'modified': False,
+            'changes': {},
+            'error': None,
+        }
+
+        try:
+            # Read original code
+            with open(file_path, 'r', encoding='utf-8') as f:
+                original_code = f.read()
+
+            current_code = original_code
+
+            # Apply refactoring rules
+            if REFACTORING_RULES['remove_unused_imports']:
+                current_code, count = self.remove_unused_imports(current_code)
+                if count > 0:
+                    result['changes']['unused_imports_removed'] = count
+
+            if REFACTORING_RULES['remove_debug_statements']:
+                current_code, count = self.remove_debug_statements(current_code)
+                if count > 0:
+                    result['changes']['debug_statements_removed'] = count
+
+            if REFACTORING_RULES['remove_todo_comments']:
+                current_code, count = self.remove_todo_comments(current_code)
+                if count > 0:
+                    result['changes']['todo_comments_removed'] = count
+
+            if REFACTORING_RULES['standardize_logging']:
+                current_code, count = self.standardize_logging(current_code)
+                if count > 0:
+                    result['changes']['logging_calls_standardized'] = count
+
+            if REFACTORING_RULES['consolidate_redundant_imports']:
+                current_code, count = self.consolidate_redundant_imports(current_code)
+                if count > 0:
+                    result['changes']['redundant_imports_consolidated'] = count
+
+            # Write back if changed
+            if current_code != original_code:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(current_code)
+                result['modified'] = True
+                self.logger.info(f"Refactored {file_path}")
 
         except Exception as e:
-            logger.error(f"Error processing {filepath}: {e}")
-            return False
+            result['error'] = str(e)
+            self.logger.error(f"Error refactoring {file_path}: {e}")
+            self.stats['errors'] += 1
 
-    def run_cleanup(self) -> Dict[str, Any]:
-        """Run the cleanup process on all Python files."""
-        logger.info("Starting code cleanup and refactoring...")
-        py_files = self.find_python_files()
-        logger.info(f"Found {len(py_files)} Python files to process.")
-        
-        total_files = len(py_files)
-        modified_files = 0
-        
-        for filepath in py_files:
-            if self.process_file(filepath):
-                modified_files += 1
-        
-        result = {
-            "total_files_processed": total_files,
-            "files_modified": modified_files,
-            "changes_detail": self.changes_made,
-            "status": "completed"
-        }
-        
-        logger.info(f"Cleanup complete. Modified {modified_files}/{total_files} files.")
         return result
 
-def main():
-    """Entry point for the cleanup task."""
-    config = load_config()
-    paths = get_paths()
-    project_root = paths.get("project_root", Path("."))
-    
-    refactorer = CodeRefactorer(project_root)
-    report = refactorer.run_cleanup()
-    
-    # Write report to data/interim/cleanup_report.json
-    report_path = paths.get("interim", Path("data/interim")) / "cleanup_report.json"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    import json
-    with open(report_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Cleanup report written to {report_path}")
+    def refactor_project(self, base_path: Optional[Path] = None) -> Dict[str, Any]:
+        """
+        Refactor all Python files in the project.
 
-if __name__ == "__main__":
+        Args:
+            base_path: Optional base path. If None, uses project root from config.
+
+        Returns:
+            Summary dictionary of refactoring results.
+        """
+        if base_path is None:
+            config = load_config()
+            base_path = Path(config['paths']['project_root'])
+
+        self.logger.info(f"Starting refactoring for project at {base_path}")
+
+        python_files = self.find_python_files(base_path)
+        self.stats['files_processed'] = len(python_files)
+
+        results = []
+        for file_path in python_files:
+            result = self.refactor_file(file_path)
+            results.append(result)
+            if result['modified']:
+                self.stats['files_modified'] += 1
+
+            # Update stats
+            for key, count in result.get('changes', {}).items():
+                if 'removed' in key:
+                    self.stats['imports_removed'] += count
+                elif 'debug' in key:
+                    self.stats['debug_statements_removed'] += count
+                elif 'todo' in key:
+                    self.stats['todo_comments_removed'] += count
+                elif 'logging' in key:
+                    self.stats['logging_calls_standardized'] += count
+
+        summary = {
+            'stats': self.stats,
+            'files': results,
+        }
+
+        self.logger.info(f"Refactoring complete. Processed {self.stats['files_processed']} files, modified {self.stats['files_modified']}.")
+
+        return summary
+
+def main():
+    """
+    Main entry point for the code refactoring tool.
+    """
+    # Setup logging
+    setup_logging('refactor', level=logging.INFO)
+    logger = get_logger('refactor')
+
+    logger.info("Starting code cleanup and refactoring (Task T038)")
+
+    # Create refactoring tool
+    refactorer = CodeRefactorer(logger)
+
+    # Run refactoring
+    results = refactorer.refactor_project()
+
+    # Write results to log
+    logger.info(f"Refactoring summary: {results['stats']}")
+
+    # Write detailed report
+    report_path = Path('data/interim/refactoring_report.json')
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(report_path, 'w', encoding='utf-8') as f:
+        import json
+        json.dump(results, f, indent=2, default=str)
+
+    logger.info(f"Refactoring report written to {report_path}")
+
+    # Return summary for verification
+    return results['stats']
+
+if __name__ == '__main__':
     main()

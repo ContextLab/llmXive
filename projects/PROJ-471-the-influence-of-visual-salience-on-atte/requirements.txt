@@ -1,24 +1,19 @@
-# Core Data & Processing
-torch>=2.0.0
-torchvision>=0.15.0
-ultralytics>=8.0.0
-opencv-python>=4.8.0
-numpy>=1.24.0
-pandas>=2.0.0
-datasets>=2.14.0
-huggingface_hub>=0.17.0
+# Existing dependencies
+torch
+ultralytics
+statsmodels
+pandas
+datasets
+numpy
+opencv-python
+pyyaml
+scipy
+simr
+psutil
+python-dotenv
+scikit-learn
 
-# Statistical Analysis
-statsmodels>=0.14.0
-scipy>=1.11.0
-simr>=1.0.6
-scikit-learn>=1.3.0
-
-# Utilities
-pyyaml>=6.0.0
-python-dotenv>=1.0.0
-ruff>=0.1.0
-black>=23.0.0
-pytest>=7.4.0
-matplotlib>=3.8.0
-seaborn>=0.13.0
+# New dependencies for T039 (Batching & Multiprocessing)
+# Note: multiprocessing is in stdlib, but psutil is already listed.
+# No new external packages required for basic batching logic.
+# If future optimizations require dask or ray, they would be added here.

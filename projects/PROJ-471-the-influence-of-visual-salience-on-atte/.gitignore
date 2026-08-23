@@ -20,9 +20,11 @@ parts/
 sdist/
 var/
 wheels/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # PyInstaller
 *.manifest
@@ -34,35 +36,18 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+.tox/
+.nox/
 .coverage
 .coverage.*
-coverage.xml
-*.cover
 .hypothesis/
 .pytest_cache/
 
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
+# Transient virtual environments
+.venv/
 venv/
 ENV/
-env.bak/
-venv.bak/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# Jupyter Notebook
-.ipynb_checkpoints
+env/
 
 # mypy
 .mypy_cache/
@@ -72,13 +57,29 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# pytype static type analyzer
+.pytype/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
 # OS
 .DS_Store
 Thumbs.db
 
 # Project specific
-data/processed/
-data/interim/
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
 figures/
-logs/
+*.log
+.env
 state.yaml
+docs/scr_*
