@@ -1,0 +1,7 @@
+T038b:
+  c: false
+  h: 4909440000729eb5175c3676c8c4c33cd263039067a4ae9975ca1066cfa451ab
+  r: "The required output file `data/derived/final_results.csv` does not exist on\
+    \ disk. Moreover, the provided `code/main.py` is truncated and shows no implementation\
+    \ of final report generation logic that would create the CSV. The task\u2019s\
+    \ core deliverable is therefore missing."
