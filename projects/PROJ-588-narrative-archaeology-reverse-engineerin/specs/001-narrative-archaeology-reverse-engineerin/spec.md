@@ -17,7 +17,7 @@ The researcher needs to automatically download the Natural Stories fMRI dataset 
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid OpenNeuro dataset ID, **When** the pipeline executes on a GitHub Actions ubuntu-latest runner with 4 workers, **Then** it downloads the raw data and runs fMRIPrep (version 23.1.0), completing preprocessing for a 2-subject subset within 6 hours.
+1. **Given** a valid OpenNeuro dataset ID, **When** the pipeline executes on a GitHub Actions ubuntu-latest runner with 4 workers, **Then** it downloads the raw data and runs fMRIPrep (version 23.x), completing preprocessing for a 2-subject subset within 6 hours.
 2. **Given** the preprocessed fMRI data, **When** the event segmentation module runs, **Then** it outputs a CSV file mapping timepoints to specific narrative elements (plot, character, theme) with ≤ 5% missing timepoints (calculated as percentage of total timepoints in the event window).
 3. **Given** the segmented data, **When** the researcher inspects the ROI masks, **Then** the masks for hippocampus, mPFC, PCC, and lateral temporal cortex are correctly aligned to the preprocessed space using the Harvard-Oxford atlas and linear interpolation.
 
@@ -29,12 +29,12 @@ The researcher needs to compare neural activity patterns between the encoding (l
 
 **Why this priority**: This addresses the core research question regarding the transformation of memory traces. It establishes the baseline for whether reconstruction is even theoretically possible.
 
-**Independent Test**: Can be fully tested by computing Representational Similarity Analysis (RSA) matrices for encoding and delayed task phases (or early vs. late encoding) and verifying that the dissimilarity between encoding-delayed task pairs is significantly higher than encoding-encoding pairs (p < 0.05 after 1000 permutation iterations).
+**Independent Test**: Can be fully tested by computing Representational Similarity Analysis (RSA) matrices for encoding and delayed task phases (or early vs. late encoding) and verifying that the dissimilarity between encoding-delayed task pairs is significantly higher than encoding-encoding pairs (p < 0.05 after A sufficient number of permutation iterations).
 
 **Acceptance Scenarios**:
 
 1. **Given** preprocessed timecourses for encoding and delayed task phases (or early vs. late encoding), **When** the RSA module computes dissimilarity matrices, **Then** it outputs a dissimilarity matrix showing distinct reconfiguration in the hippocampus compared to sensory cortices (p < 0.05 after 1000 permutation iterations).
-2. **Given** the dissimilarity matrices, **When** the system performs a permutation test with 1000 iterations and FDR correction (q < 0.05) across ROIs, **Then** it reports a p-value indicating whether the observed pattern dissimilarity difference is statistically significant.
+2. **Given** the dissimilarity matrices, **When** the system performs a permutation test with A sufficient number of iterations will be performed to ensure convergence. and FDR correction (q < 0.05) across ROIs, **Then** it reports a p-value indicating whether the observed pattern dissimilarity difference is statistically significant.
 3. **Given** the results, **When** the researcher visualizes the top differing ROIs, **Then** the mPFC and hippocampus are highlighted as having the largest divergence scores.
 
 ---
@@ -63,10 +63,10 @@ The researcher needs to train linear classifiers to predict specific narrative e
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and preprocess fMRI data from OpenNeuro ds000234 using fMRIPrep (version 23.1.0) on a GitHub Actions ubuntu-latest runner with 8-core parallelization, completing a 5-subject subset (first 5 subjects alphabetically by ID) within 6 hours, including checksum verification for downloaded data and exclusion of PII (See US-1).
+- **FR-001**: System MUST download and preprocess fMRI data from OpenNeuro ds000234 using fMRIPrep (version.0) on a GitHub Actions ubuntu-latest runner with -core parallelization, completing a -subject subset (first A small cohort of subjects alphabetically by ID) within 6 hours, including checksum verification for downloaded data and exclusion of PII (See US-1).
 - **FR-002**: System MUST segment the continuous story timeline into discrete events (plot, character, theme) and align these labels with the preprocessed BOLD signal timecourses using a canonical HRF convolution (double-gamma HRF), with ≤ 5% missing timepoints (calculated as percentage of total timepoints in the event window) (See US-1).
 - **FR-003**: System MUST extract timecourse data from specific Regions of Interest (hippocampus, mPFC, PCC, lateral temporal cortex) for both encoding phase and delayed behavioral task phase (or early vs. late encoding events if task data is unavailable) (See US-2).
-- **FR-004**: System MUST compute Representational Similarity Analysis (RSA) dissimilarity matrices to quantify the difference between encoding and delayed task (or early vs. late encoding) neural patterns and perform permutation testing for significance with 1000 iterations and alpha=0.05 (See US-2).
+- **FR-004**: System MUST compute Representational Similarity Analysis (RSA) dissimilarity matrices to quantify the difference between encoding and delayed task (or early vs. late encoding) neural patterns and perform permutation testing for significance with A sufficient number of iterations will be performed to ensure convergence and statistical stability. and alpha=0.05 (See US-2).
 - **FR-005**: System MUST train linear classifiers (ridge regression) to predict narrative elements from encoding patterns using semantic feature extraction and report cross-validated accuracy against a chance baseline (the inverse of the number of unique labels in the test fold) (See US-3).
 - **FR-006**: System MUST implement a multiple-comparison correction (FDR q < 0.05) when testing significance across multiple narrative categories and ROIs to control family-wise error (See US-3).
 - **FR-007**: System MUST extract semantic features using BERT-base-uncased to map fMRI data to semantic space before classification (See US-3).
@@ -93,18 +93,18 @@ The researcher needs to train linear classifiers to predict specific narrative e
 - **SC-001**: Decoding accuracy for narrative elements is measured against a null distribution generated by a sufficient number of permutations of event labels to establish statistical significance (See US-3).
 - **SC-002**: Pattern dissimilarity between encoding and delayed task (or early vs. late encoding) is measured against the dissimilarity within the same phase (encoding-encoding) to quantify memory reconfiguration (See US-2).
 - **SC-003**: The false-positive rate of the decoding model is measured against the expected chance level (1/N for N-class, where N equals the count of unique labels in the test fold) corrected for multiple comparisons (See US-3).
-- **SC-005**: Computational feasibility is measured against the constraint of completing the full analysis (preprocessing + decoding) for a 5-subject subset on a GitHub Actions free-tier runner (8 parallel workers) within 6 hours (See FR-001).
+- **SC-005**: Computational feasibility is measured against the constraint of completing the full analysis (preprocessing + decoding) for a -subject subset on a GitHub Actions free-tier runner (parallel workers) within 6 hours (See FR-001).
 
 ## Constraints
 
-- **C-001**: The full analysis must complete within 6 hours on a GitHub Actions free-tier runner (vCPU, 7GB RAM) with 8 parallel workers, processing a 5-subject subset.
+- **C-001**: The full analysis must complete within 6 hours on a GitHub Actions free-tier runner (vCPU, 7GB RAM) with parallel workers, processing a -subject subset.
 
 ## Assumptions
 
 - The OpenNeuro ds000234 dataset contains sufficient temporal resolution and signal-to-noise ratio to detect event-related patterns in the hippocampus and mPFC without requiring ultra-high-field scanners.
 - The provided story annotation files (event onset/duration) are accurate and sufficient to align with the fMRI timecourse without manual correction.
 - Linear models (ridge regression) are sufficient to capture the semantic structure of narrative memories when combined with pre-trained semantic feature extraction (BERT-base-uncased) and PCA alignment with a reduced set of components; non-linear deep learning approaches are excluded to ensure CPU feasibility and interpretability.
-- The fMRIPrep pipeline (version 23.1.0), when run on a GitHub Actions ubuntu-latest runner with 8 parallel workers, will complete preprocessing for a single subject within 1.2 hours, allowing the full 5-subject subset to be processed within the 6-hour CI job limit (5 subjects * 1.2h / 8 workers = 0.75h theoretical minimum, allowing margin for I/O).
+- The fMRIPrep pipeline (current stable version), when run on a GitHub Actions ubuntu-latest runner with parallel workers, will complete preprocessing for a single subject within 1.2 hours, allowing the full 5-subject subset to be processed within the -hour CI job limit (5 subjects * 1.2h / 8 workers = Theoretical minimum duration, allowing margin for I/O).
 - The distinction between "encoding" and "delayed task" (or "early" vs. "late" encoding) in the dataset is clearly demarcated in the metadata, allowing for separate extraction of neural patterns for each phase.
 - The Natural Stories dataset (ds000234) does NOT contain a free-recall fMRI phase; the analysis is scoped to "encoding vs. delayed task" or "early vs. late encoding" patterns.
 - The hypothesis that plot points are more reliably reconstructed than character details is a research question to be tested, not a fixed system requirement.

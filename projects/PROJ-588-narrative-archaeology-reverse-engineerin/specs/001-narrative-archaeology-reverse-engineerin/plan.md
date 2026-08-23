@@ -13,7 +13,7 @@ This project implements a reproducible pipeline to download the OpenNeuro Natura
 
 **Language/Version**: Python 3.11
 **Primary Dependencies**: `nibabel`, `nilearn`, `scikit-learn`, `pandas`, `numpy`, `torch` (CPU-only), `transformers` (for BERT feature extraction), `datasets` (Hugging Face), `openneuro-cli` (via Docker or subprocess), `fmriprep` (via Docker).
-**Storage**: Local `data/` directory for raw and processed files (streamed or sampled to fit ~14GB disk), `contracts/` for schemas.
+**Storage**: Local `data/` directory for raw and processed files (streamed or sampled to fit a limited disk capacity), `contracts/` for schemas.
 **Testing**: `pytest` with `pytest-cov`, `pytest-mock` for pipeline mocking.
 **Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).
 **Project Type**: Computational Neuroscience / Data Pipeline.
@@ -92,7 +92,7 @@ projects/PROJ-588-narrative-archaeology-reverse-engineerin/
 
 ### Phase 0: Data Ingestion & Preprocessing (US-1)
 *   **T001-DOWNLOAD**: Implement `code/data/download.py` to fetch `ds000234` (subset) from OpenNeuro/HF. Compute and verify checksums. **Hard Stop**: Run PII scan immediately after download. If PII is detected, halt pipeline and log error. Log PII scan results to `data/hygiene.log`.
-*   **T002-PREPROCESS**: Wrap fMRIPrep (v23.1.0) via Docker. Implement motion artifact detection (threshold >3mm). Skip subjects exceeding threshold, log to `data/errors.log` (JSON), proceeding with the remaining subjects rather than halting the entire pipeline. **Escalation**: If 2 subjects fail to complete within 6 hours, trigger a paid runner or Kaggle GPU to process 5 subjects as per FR-001.
+*   **T002-PREPROCESS**: Wrap fMRIPrep (v.0) via Docker. Implement motion artifact detection (threshold >3mm). Skip subjects exceeding threshold, log to `data/errors.log` (JSON), proceeding with the remaining subjects rather than halting the entire pipeline. **Escalation**: If 2 subjects fail to complete within 6 hours, trigger a paid runner or Kaggle GPU to process 5 subjects as per FR-001.
 *   **T003-INIT-ENV**: Initialize project directory structure, create `requirements.txt`, `pyproject.toml` (with black/flake8 config), and `.flake8` files.
 *   **T004-SEGMENT**: Align event annotations with BOLD signal using a canonical HRF convolution. **T004b-LABEL-DERIVE**: Derive 'plot', 'character', 'theme' labels from the official story script using a deterministic rule-based parser (keyword matching) to ensure ground truth independence from BERT features. Output `events_aligned.csv`.
 *   **T009-ERROR-HANDLING**: Implement `code/utils/logging.py` to detect motion artifacts, skip subjects, and write JSON entries to `data/errors.log` with fields: `{timestamp, subject_id, error_code, motion_mm}`.
