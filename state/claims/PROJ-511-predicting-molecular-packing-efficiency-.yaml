@@ -4124,22 +4124,6 @@
   updated_at: '2026-08-20T10:26:55Z'
 - artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
   attempts: 1
-  canonical: permutation test uses 10000 shuffles
-  claim_id: c_9c236186
-  context: T027 [US2] Implement code/evaluate.py to run a fixed two-sided permutation
-    test with 10000 shuffles (FR-006, FR-016).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run a fixed two-sided permutation test with 10000 shuffles
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-20T10:27:26Z'
-- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
-  attempts: 1
   canonical: sensitivity analysis sweeps thresholds 0.5, 0.6, and 0.7
   claim_id: c_76988ef7
   context: 'T033 [US3] Implement code/sensitivity.py to perform a comprehensive sensitivity
@@ -4155,23 +4139,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-20T10:27:53Z'
-- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
-  attempts: 1
-  canonical: Bonferroni correction multiplies p-value by 3 and caps at 1.0
-  claim_id: c_c0bdf8b2
-  context: 'T033 [US3] Implement code/sensitivity.py... 3) Apply Bonferroni correction:
-    multiply raw p-value by the number of tests (3) and cap at 1.0 (FR-008).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Apply Bonferroni correction: multiply raw p-value by the number of tests
-    (3) and cap at 1.0'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-20T10:28:27Z'
 - artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
   attempts: 1
   canonical: variation in r across thresholds is within 0.05
@@ -4708,3 +4675,514 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T09:41:21Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: pipeline outputs dataset with at least 500 rows
+  claim_id: c_dd4a87ff
+  context: "Independent Test: The pipeline can be run on a fresh CI runner and must\
+    \ output data/dataset.csv with \u2265500 rows, valid SMILES, and numeric packing\
+    \ coefficients."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_dataset_with_at_least_500_rows
+  kind: magnitude
+  raw_text: "The pipeline must output data/dataset.csv with \u2265500 rows, valid\
+    \ SMILES, and numeric packing coefficients."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:48:44Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 6 hours with 10000 shuffles
+  claim_id: c_99a68190
+  context: "T051 [P] Run full end-to-end pipeline on CI and verify runtime \u2264\
+    \ 6 hours (SC-005). Logic: The pipeline must complete within 6 hours using 10000\
+    \ permutation shuffles as mandated by FR-016."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours using 10000 permutation shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:49:04Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: permutation test uses 10000 shuffles
+  claim_id: c_dc6e5f22
+  context: "T027 [US2] Implement code/evaluate.py to run a fixed two-sided permutation\
+    \ test with 10000 shuffles (FR-006, FR-016). Logic: Shuffle labels 10000 times,\
+    \ compute correlation for each, calculate the two-sided p-value as the fraction\
+    \ of shuffled correlations with absolute value \u2265 observed absolute correlation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 10000 shuffles to compute the p-value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:49:24Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: model parameters limit 100000
+  claim_id: c_93f86d55
+  context: "T025 [US2] Implement code/train.py to train a multi-layer perceptron...\
+    \ Constraint: Total trainable parameters must be \u2264 100k as per FR-005."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The total trainable parameters of the multi-layer perceptron must be\
+    \ \u2264 100,000."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:49:25Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 0.5 0.6 0.7
+  claim_id: c_95517e12
+  context: 'T033 [US3] Implement code/sensitivity.py to perform a comprehensive sensitivity
+    analysis. Logic: 1) Sweep high-packing threshold over the specific set {0.5, 0.6,
+    0.7} (FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps high-packing thresholds over the specific
+    set {0.5, 0.6, 0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:49:48Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Adam optimizer learning rate 0.001 batch size 32
+  claim_id: c_62c06a88
+  context: 'T025 [US2] Implement code/train.py... Optimizer: Adam (lr=1e-3), Batch
+    Size 32.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Adam optimizer uses a learning rate of 1e-3 and a batch size of 32.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:50:16Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: SMILES encoding uses seyonec/ChemBERTa-zinc-base-v1
+  claim_id: c_0c7b915f
+  context: T024 [US2] Implement code/feature_assembly.py to encode SMILES using frozen
+    seyonec/ChemBERTa-zinc-base-v1 (CPU) and assemble the final feature matrix.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SMILES_encoding_uses_seyonec/ChemBERTa-zinc-base-v1
+  kind: entity_fact
+  raw_text: The model uses the seyonec/ChemBERTa-zinc-base-v1 model for SMILES encoding.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:50:39Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: dataset filtered for organic crystals with 50 or fewer non-H atoms
+  claim_id: c_7dbf75a0
+  context: "T012 [US1] Implement code/download_cif.py to fetch organic CIFs (\u2264\
+    50 non-H atoms) from COD with logging (FR-001, FR-017)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset filters for organic crystal structures with \u226450 non-H\
+    \ atoms."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:50:40Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 2
+  canonical: Bonferroni correction multiplies p-value by 3 and caps at 1.0
+  claim_id: c_c0bdf8b2
+  context: 'T033 [US3] Implement code/sensitivity.py... 3) Apply Bonferroni correction:
+    multiply raw p-value by the number of tests (3) and cap at 1.0 (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Apply Bonferroni correction: multiply raw p-value by the number of tests
+    (3) and cap at 1.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:51:06Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: principal_moments array requires 3 items
+  claim_id: c_a25bb519
+  context: 'Schema Content: principal_moments: type: array items: type: number minItems:
+    3 maxItems: 3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model requires a minimum of 3 principal moments in the principal_moments
+    array.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:51:29Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: fetch organic CIFs with 50 or fewer non-hydrogen atoms from COD
+  claim_id: c_230383a3
+  context: "- [X] T012 [US1] Implement code/download_cif.py to fetch organic CIFs\
+    \ (\u226450 non-H atoms) from COD with logging (FR-001, FR-017)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/download_cif.py to fetch organic CIFs (\u226450 non-H\
+    \ atoms) from COD with logging"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:53:22Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: CAPE calculation formula PC_raw divided by sum of V_vdW divided by N_atoms
+  claim_id: c_68e03121
+  context: 2. Calculate CAPE = PC_raw / (Sum(V_vdW) / N_atoms). This is the regression
+    target.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CAPE_calculation_formula_PC_raw_divided_by_sum_of_V_vdW_divi
+  kind: entity_fact
+  raw_text: Calculate CAPE = PC_raw / (Sum(V_vdW) / N_atoms)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:54:17Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: verify dataset_filtered.csv exists with at least 500 rows and no null
+    CAPE values
+  claim_id: c_96a4a597
+  context: 'Verification: Verify data/dataset_filtered.csv exists with N rows (N >=
+    500) and assert no rows with null CAPE values. Exit with error if N < 500.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_dataset_filtered.csv_exists_with_at_least_500_rows_an
+  kind: magnitude
+  raw_text: Verify data/dataset_filtered.csv exists with N rows (N >= 500) and assert
+    no rows with null CAPE values.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:55:09Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: fixed two-sided permutation test with 10000 shuffles
+  claim_id: c_ffc943b9
+  context: '- [X] T027 [US2] Implement code/evaluate.py to run a fixed two-sided permutation
+    test with 10000 shuffles (FR-006, FR-016).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a fixed two-sided permutation test with 10000 shuffles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:55:30Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: sweep high-packing threshold over set 0.5 0.6 0.7
+  claim_id: c_142d1f4b
+  context: 1) Sweep high-packing threshold over the specific set {0.5, 0.6, 0.7} (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep high-packing threshold over the specific set {0.5, 0.6, 0.7}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:55:52Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: verify variation in r is less than or equal to 0.05
+  claim_id: c_da6f6bb8
+  context: "4) Verify variation in r is \u2264 \xB10.05 (SC-004)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_variation_in_r_is_less_than_or_equal_to_0.05
+  kind: magnitude
+  raw_text: "Verify variation in r is \u2264 \xB10.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:57:09Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: use frozen seyonec/ChemBERTa-zinc-base-v1 model on CPU for feature assembly
+  claim_id: c_306f8f94
+  context: '- [ ] T024 [US2] Implement code/feature_assembly.py to encode SMILES using
+    frozen seyonec/ChemBERTa-zinc-base-v1 (CPU) and assemble the final feature matrix.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_frozen_seyonec/ChemBERTa-zinc-base-v1_model_on_CPU_for_f
+  kind: entity_fact
+  raw_text: Use frozen seyonec/ChemBERTa-zinc-base-v1 (CPU) and assemble the final
+    feature matrix
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:57:34Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 2
+  canonical: pipeline outputs dataset.csv with at least 500 rows valid SMILES and
+    numeric packing coefficients
+  claim_id: c_b50d9c14
+  context: "Independent Test: The pipeline can be run on a fresh CI runner and must\
+    \ output data/dataset.csv with \u2265500 rows, valid SMILES, and numeric packing\
+    \ coefficients."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_dataset.csv_with_at_least_500_rows_valid_SM
+  kind: magnitude
+  raw_text: "The pipeline can be run on a fresh CI runner and must output data/dataset.csv\
+    \ with \u2265500 rows, valid SMILES, and numeric packing coefficients."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:58:14Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit is 6 hours with 10000 permutation shuffles
+  claim_id: c_921216ec
+  context: "T051 [P] Run full end-to-end pipeline on CI and verify runtime \u2264\
+    \ 6 hours (SC-005). Logic: The pipeline must complete within 6 hours using 10000\
+    \ permutation shuffles as mandated by FR-016."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours using 10000 permutation shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:58:15Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps thresholds 0.5 0.6 0.7
+  claim_id: c_d4e494ce
+  context: 'Logic: 1) Sweep high-packing threshold over the specific set {0.5, 0.6,
+    0.7} (FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps high-packing threshold over the specific
+    set {0.5, 0.6, 0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:58:16Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 2
+  canonical: permutation test uses 10000 shuffles
+  claim_id: c_9c236186
+  context: T027 [US2] Implement code/evaluate.py to run a fixed two-sided permutation
+    test with 10000 shuffles (FR-006, FR-016).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a fixed two-sided permutation test with 10000 shuffles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:58:17Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: MLP total trainable parameters less than or equal to 100000
+  claim_id: c_08120126
+  context: "Constraint: Total trainable parameters must be \u2264 100k as per FR-005."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MLP_total_trainable_parameters_less_than_or_equal_to_100000
+  kind: magnitude
+  raw_text: "The total trainable parameters of the multi-layer perceptron must be\
+    \ \u2264 100k."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:58:52Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: MLP uses dropout rate 0.1
+  claim_id: c_aa44c2e4
+  context: 'Architecture: Two hidden layers with a moderate number of units each.,
+    ReLU activation, Dropout 0.1.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: p = 0.1
+      source_id: '2002.02247'
+      url: https://arxiv.org/abs/2002.02247
+      value: '0.1'
+    filled: true
+  kind: numeric
+  raw_text: The multi-layer perceptron uses a dropout rate of 0.1.
+  resolved_value: '0.1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T13:59:19Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: optimizer Adam learning rate 1e-3
+  claim_id: c_2728c38b
+  context: 'Optimizer: Adam (lr=1e-3), Batch Size 32.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimizer used is Adam with a learning rate of 1e-3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T13:59:49Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: dataset contains organic CIFs with at most 50 non-H atoms
+  claim_id: c_a4b1eb7b
+  context: "Implement code/download_cif.py to fetch organic CIFs (\u226450 non-H atoms)\
+    \ from COD with logging (FR-001, FR-017)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_organic_CIFs_with_at_most_50_non-H_atoms
+  kind: magnitude
+  raw_text: "The dataset must contain organic CIFs with \u226450 non-H atoms."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:00:22Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction multiplies p-value by 3
+  claim_id: c_d688b1ed
+  context: 'Apply Bonferroni correction: multiply raw p-value by the number of tests
+    (3) and cap at 1.0 (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction multiplies the raw p-value by the number of
+    tests (3).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:00:52Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: filtered dataset has at least 500 rows
+  claim_id: c_b7d785b7
+  context: Exit with error if N < 500. (FR-003, SC-001)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filtered_dataset_has_at_least_500_rows
+  kind: magnitude
+  raw_text: The dataset must have a minimum of 500 rows after filtering.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:01:50Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: variation in r across thresholds less than or equal to 0.05
+  claim_id: c_40021e43
+  context: "Verify variation in r is \u2264 \xB10.05 (SC-004)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variation_in_r_across_thresholds_less_than_or_equal_to_0.05
+  kind: magnitude
+  raw_text: "The variation in r across thresholds must be \u2264 \xB10.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:02:59Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: MLP architecture includes two hidden layers
+  claim_id: c_c52cbec2
+  context: 'Architecture: Two hidden layers with a moderate number of units each.,
+    ReLU activation, Dropout 0.1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MLP_architecture_includes_two_hidden_layers
+  kind: entity_fact
+  raw_text: The model architecture includes two hidden layers.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:03:28Z'

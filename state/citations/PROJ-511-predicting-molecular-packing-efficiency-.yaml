@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1021/j100785a001
   verified_at: '2026-08-17T11:50:05.305071Z'
-- artifact_hash: 04a483a10f5b3aef27df7405fc377cd742b79cc9316665a7df34e73f8730aa62
+- artifact_hash: f2dcad47fb270b1e15b533cfee783ebc94d4380816931a026cb4eb816e1bc696
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +52,8 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-08-21T09:41:21.843783Z'
-- artifact_hash: 04a483a10f5b3aef27df7405fc377cd742b79cc9316665a7df34e73f8730aa62
+  verified_at: '2026-08-23T13:57:38.733252Z'
+- artifact_hash: f2dcad47fb270b1e15b533cfee783ebc94d4380816931a026cb4eb816e1bc696
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,4 +63,4 @@
   value: https://en.wikipedia.org/wiki/Van_der_Waals_radius
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Van_der_Waals_radius
-  verified_at: '2026-08-21T09:41:21.843783Z'
+  verified_at: '2026-08-23T13:57:38.733252Z'

@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T018` (rejected 1x): The repository lacks the required `data/dataset_filtered.csv` and the resulting `data/dataset.csv` files, so the script cannot be run or produce the specified output columns. Moreover, the provided `add_3d_descriptors.py` is truncated and does not show implementation of asphericity calculation, CIF‑existence checks, or the final merge step. These missing artifacts and functionality mean the task is not genuinely completed.
+- `T016` (rejected 1x): The repository contains `code/filter_dataset.py`, but the required source data `data/dataset_with_metrics.csv` is absent, and the script has not produced the expected `data/dataset_filtered.csv`. Without the input file the filter cannot be executed, and the output artifact is missing.
 
 ## Required change
 

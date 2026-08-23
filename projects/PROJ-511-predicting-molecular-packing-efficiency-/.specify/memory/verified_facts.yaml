@@ -1,7 +1,5 @@
-'|bondi radii value':
-  quote: Arnold Bondi also conducted a study of this type, published in 1964, although
-    he also considered other methods of determining the van der Waals radius in coming
-    to his final estimates.
-  source_id: Van der Waals radius
-  url: https://en.wikipedia.org/wiki/Van_der_Waals_radius
-  value: '1964'
+'|dropout layer multi perceptron rate use':
+  quote: p = 0.1
+  source_id: '2002.02247'
+  url: https://arxiv.org/abs/2002.02247
+  value: '0.1'

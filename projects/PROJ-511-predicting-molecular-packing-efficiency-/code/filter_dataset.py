@@ -7,7 +7,7 @@ Writes: data/dataset_filtered.csv
 Filters out records where:
 1. SMILES is missing or invalid (empty string, NaN, or None)
 2. CAPE (Composition-Adjusted Packing Efficiency) is invalid (NaN, inf, or <= 0)
-3. Raw Packing Coefficient (PC) is invalid (NaN, inf, or <= 0)
+3. Raw Packing Coefficient (PC) is invalid (NaN, inf, or not in [0, 1])
 
 This task ensures only high-quality, complete records proceed to downstream
 analysis and modeling.
@@ -72,6 +72,27 @@ def validate_numeric_metric(value: float, metric_name: str) -> bool:
         return False
     return True
 
+def validate_raw_pc(value: float) -> bool:
+    """
+    Check if Raw Packing Coefficient is valid (not NaN, not inf, and in [0, 1]).
+
+    Args:
+        value: Numeric value to validate
+
+    Returns:
+        True if valid, False otherwise
+    """
+    if pd.isna(value):
+        logger.debug(f"Invalid Raw PC: NaN")
+        return False
+    if not np.isfinite(value):
+        logger.debug(f"Invalid Raw PC: not finite")
+        return False
+    if value < 0 or value > 1:
+        logger.debug(f"Invalid Raw PC: out of range [0, 1] ({value})")
+        return False
+    return True
+
 def filter_dataset(input_path: str, output_path: str) -> Tuple[int, int, dict]:
     """
     Filter dataset based on SMILES and metric validity.
@@ -112,8 +133,8 @@ def filter_dataset(input_path: str, output_path: str) -> Tuple[int, int, dict]:
     cape_valid = df['cape'].apply(lambda x: validate_numeric_metric(x, 'CAPE'))
     invalid_cape_mask = ~cape_valid
     
-    # Check Raw PC validity
-    raw_pc_valid = df['raw_pc'].apply(lambda x: validate_numeric_metric(x, 'Raw PC'))
+    # Check Raw PC validity (must be in [0, 1])
+    raw_pc_valid = df['raw_pc'].apply(validate_raw_pc)
     invalid_raw_pc_mask = ~raw_pc_valid
 
     # Combine masks and track reasons
@@ -175,6 +196,10 @@ def main():
         
         if filtered_count == 0:
             logger.error("No records remaining after filtering!")
+            return 1
+        
+        if filtered_count < 500:
+            logger.error(f"Filtered dataset has only {filtered_count} records, which is less than the required 500!")
             return 1
         
         logger.info(f"Successfully filtered dataset: {original_count} -> {filtered_count} records")
