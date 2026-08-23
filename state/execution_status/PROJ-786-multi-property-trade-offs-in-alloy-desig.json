@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-786-multi-property-trade-offs-in-alloy-desig",
+  "ok": false,
+  "reason": "2 command(s) failed: python code/data_ingestion.py (rc=1); python code/main.py (rc=1); 3 declared deliverable(s) absent: data/processed/encoded_alloys.csv; data/processed/model_validation_report.json; data/processed/sensitivity_analysis.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/data_ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/data_ingestion.py\", line 6, in <module>\n    from datasets import load_dataset\nModuleNotFoundError: No module named 'datasets'",
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/main.py\", line 8, in <module>\n    from config import parse_cli_args, load_environment, get_config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/config.py\", line 4, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-23T00:28:20Z"
+}

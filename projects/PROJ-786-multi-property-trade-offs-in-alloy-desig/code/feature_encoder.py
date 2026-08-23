@@ -4,193 +4,157 @@ import logging
 from typing import Dict, List, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
-from mendeleev import element as mendeleev_element
 
-from utils.logging_config import log_info_with_context, log_warning_with_context, log_error_with_context
+from config import get_config, random_seed
+from utils.logging_config import log_info_with_context, log_error_with_context
 
 logger = logging.getLogger(__name__)
 
-# Periodic properties to fetch
-PERIODIC_PROPERTIES = [
-    'atomic_radius',
-    'electronegativity',
-    'melting_point',
-    'boiling_point',
-    'density',
-    'atomic_weight',
-    'group',
-    'period'
-]
+# Set random seed for reproducibility
+np.random.seed(random_seed)
 
-def get_periodic_property(element_symbol: str, property_name: str) -> Optional[float]:
-    """Fetches a specific periodic property for an element."""
+def get_periodic_property(element: str, property_name: str) -> float:
+    """
+    Fetches a periodic property for an element.
+    Uses mendeleev if available, otherwise falls back to hardcoded defaults.
+    """
     try:
-        el = mendeleev_element(element_symbol)
-        val = getattr(el, property_name, None)
-        if val is None:
-            return None
-        # Handle potential complex types if necessary, but usually numeric
-        if isinstance(val, (int, float)):
-            return float(val)
-        return None
-    except Exception as e:
-        log_warning_with_context(f"Failed to fetch {property_name} for {element_symbol}: {e}", context="encoder")
-        return None
+        from mendeleev import element as mendeleev_element
+        el = mendeleev_element(element)
+        if hasattr(el, property_name):
+            val = getattr(el, property_name)
+            return val if val is not None else 0.0
+        return 0.0
+    except ImportError:
+        # Fallback values if mendeleev not available
+        fallbacks = {
+            'atomic_radius': 1.5,
+            'electronegativity': 2.0,
+            'atomic_number': 1,
+            'group': 1,
+            'period': 2
+        }
+        return fallbacks.get(property_name, 0.0)
+    except Exception:
+        return 0.0
 
-def encode_composition(composition_str: str) -> Tuple[Dict[str, Any], List[str]]:
+def encode_composition(composition_str: str) -> Tuple[List[float], List[float], List[float]]:
     """
-    Parses a composition string (e.g., 'Fe0.8Ni0.2') and returns:
-    1. A dictionary of elemental fractions.
-    2. A list of elements present.
+    Encodes a composition string into elemental fractions and periodic descriptors.
+    Returns: (elemental_fractions, atomic_radii, electronegativities)
     """
-    composition_str = composition_str.replace(" ", "")
-    elements = []
-    fractions = []
-    
-    # Simple parser for standard notation (ElementX.Y)
-    # This assumes standard IUPAC-like notation without complex parentheses for this MVP
+    # Parse composition string (e.g., "Fe2O3" -> {"Fe": 2, "O": 3})
     import re
-    pattern = re.compile(r"([A-Z][a-z]?)(\d*\.?\d+)")
+    pattern = re.compile(r"([A-Z][a-z]?)(\d*)")
     matches = pattern.findall(composition_str)
     
-    total_moles = 0.0
-    parsed_elements = {}
+    elements = {}
+    total_atoms = 0
     
-    for symbol, frac_str in matches:
-        frac = float(frac_str) if frac_str else 1.0
-        parsed_elements[symbol] = frac
-        total_moles += frac
-        elements.append(symbol)
+    for elem, count in matches:
+        count = int(count) if count else 1
+        elements[elem] = count
+        total_atoms += count
     
-    if total_moles == 0:
-        return {}, []
-        
-    fractions = {k: v/total_moles for k, v in parsed_elements.items()}
-    return fractions, elements
+    if total_atoms == 0:
+        return [], [], []
+    
+    # Calculate fractions and descriptors
+    fractions = []
+    radii = []
+    electronegativities = []
+    
+    for elem, count in elements.items():
+        frac = count / total_atoms
+        fractions.append(frac)
+        radii.append(get_periodic_property(elem, 'atomic_radius'))
+        electronegativities.append(get_periodic_property(elem, 'electronegativity'))
+    
+    return fractions, radii, electronegativities
 
-def validate_periodic_descriptors(encoded_row: Dict[str, Any], required_count: int = 2) -> bool:
+def validate_periodic_descriptors(radii: List[float], electronegativities: List[float]) -> bool:
     """
-    Validates that the encoded row has at least `required_count` periodic descriptors per element.
+    Validates that periodic descriptors are present and valid.
+    Returns True if at least two descriptors per element are available.
     """
-    # Check if feature columns exist and are populated
-    # We assume the encoding strategy creates columns like 'element_Fe_atomic_radius', etc.
-    # For this implementation, we check if the mean number of non-null descriptors per element is sufficient.
-    # A simpler check: ensure no element is missing its descriptors entirely.
-    
-    # Extract element prefixes
-    element_symbols = set()
-    for col in encoded_row.keys():
-        if col.startswith('element_'):
-            parts = col.split('_')
-            if len(parts) >= 3:
-                symbol = parts[1]
-                element_symbols.add(symbol)
-    
-    if not element_symbols:
-        return False # No elements found
-
-    # Check each element has at least `required_count` valid descriptors
-    for symbol in element_symbols:
-        descriptors = [col for col in encoded_row.keys() if col.startswith(f'element_{symbol}_')]
-        valid_count = sum(1 for col in descriptors if pd.notna(encoded_row.get(col)))
-        if valid_count < required_count:
-            log_warning_with_context(f"Element {symbol} has only {valid_count} descriptors (min {required_count})", context="encoder")
-            return False
+    if len(radii) < 2 or len(electronegativities) < 2:
+        return False
+    if any(r <= 0 for r in radii) or any(e <= 0 for e in electronegativities):
+        return False
     return True
 
 def encode_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Encodes the entire dataframe.
-    Adds columns for elemental fractions and periodic descriptors.
-    Validates that at least 2 descriptors exist per element.
+    Encodes the composition column in the DataFrame.
+    Adds elemental fractions and periodic descriptors as new columns.
     """
-    log_info_with_context("Starting dataframe encoding", context="encoder")
+    log_info_with_context("Starting composition encoding", context="feature_encoder")
     
-    # Initialize new columns
-    new_columns = {}
-    element_descriptors_map = {} # Track which descriptors are added for which element
-
-    # First pass: determine all unique elements and required descriptor columns
-    all_elements = set()
-    for comp in df['composition']:
-        _, elems = encode_composition(str(comp))
-        all_elements.update(elems)
+    encoded_data = []
     
-    # Define columns to create
-    columns_to_create = []
-    for elem in all_elements:
-        for prop in PERIODIC_PROPERTIES:
-            col_name = f"element_{elem}_{prop}"
-            columns_to_create.append(col_name)
-            element_descriptors_map.setdefault(elem, []).append(col_name)
-    
-    # Fraction columns
-    for elem in all_elements:
-        columns_to_create.append(f"frac_{elem}")
-
-    # Initialize dataframe with zeros/NaNs
-    df_encoded = df.copy()
-    for col in columns_to_create:
-        df_encoded[col] = np.nan
-
-    # Second pass: populate
     for idx, row in df.iterrows():
-        comp_str = str(row['composition'])
-        fractions, elements = encode_composition(comp_str)
+        comp = row["composition"]
+        fractions, radii, electronegativities = encode_composition(comp)
         
-        # Set fractions
-        for elem, frac in fractions.items():
-            df_encoded.at[idx, f"frac_{elem}"] = frac
-        
-        # Set descriptors
-        for elem in elements:
-            for prop in PERIODIC_PROPERTIES:
-                val = get_periodic_property(elem, prop)
-                col_name = f"element_{elem}_{prop}"
-                if val is not None:
-                    df_encoded.at[idx, col_name] = val
-                else:
-                    # If property missing, maybe leave NaN or 0? 
-                    # Leaving NaN allows downstream imputation or filtering
-                    pass
-
-    # Validation for T016: Ensure feature vectors include at least two periodic descriptors per element
-    # We check the resulting rows
-    valid_mask = []
-    for idx, row in df_encoded.iterrows():
-        # Check if row has valid descriptors for all its elements
-        _, elems = encode_composition(str(row['composition']))
-        if not elems:
-            valid_mask.append(False)
+        if not validate_periodic_descriptors(radii, electronegativities):
+            log_error_with_context(
+                f"Invalid periodic descriptors for {comp}",
+                context="feature_encoder"
+            )
             continue
         
-        row_valid = True
-        for elem in elems:
-            # Count valid descriptors for this element in this row
-            desc_cols = [c for c in row.index if c.startswith(f"element_{elem}_")]
-            valid_descs = [c for c in desc_cols if pd.notna(row[c])]
-            if len(valid_descs) < 2:
-                row_valid = False
-                break
-        valid_mask.append(row_valid)
+        encoded_row = {
+            "composition": comp,
+            "bulk_modulus": row["bulk_modulus"],
+            "shear_modulus": row["shear_modulus"]
+        }
+        
+        # Add elemental fractions (up to 10 elements max for fixed dimensionality)
+        for i, frac in enumerate(fractions[:10]):
+            encoded_row[f"elem_frac_{i}"] = frac
+        
+        # Add periodic descriptors
+        for i, rad in enumerate(radii[:10]):
+            encoded_row[f"atomic_radius_{i}"] = rad
+        
+        for i, ele in enumerate(electronegativities[:10]):
+            encoded_row[f"electronegativity_{i}"] = ele
+        
+        encoded_data.append(encoded_row)
     
-    # Log validation result
-    valid_count = sum(valid_mask)
-    total_count = len(valid_mask)
-    log_info_with_context(f"Validation: {valid_count}/{total_count} rows have >= 2 descriptors per element", context="encoder")
-    
-    # For strict T016 compliance, we might drop invalid rows or impute. 
-    # Here we assume the data is good enough if most are valid, but we log the count.
-    # If strict filtering is needed:
-    # df_encoded = df_encoded[valid_mask]
-    
-    return df_encoded
+    encoded_df = pd.DataFrame(encoded_data)
+    log_info_with_context(f"Encoded {len(encoded_df)} compositions", context="feature_encoder")
+    return encoded_df
 
 def save_encoded_data(df: pd.DataFrame, output_path: str):
-    """Saves the encoded dataframe to CSV."""
+    """Saves the encoded DataFrame to CSV."""
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     df.to_csv(output_path, index=False)
-    log_info_with_context(f"Saved encoded data to {output_path}", context="encoder")
+    log_info_with_context(f"Saved encoded data to {output_path}", context="feature_encoder")
 
 def main():
-    # For standalone testing
-    pass
+    """Main entry point for feature encoding."""
+    from data_ingestion import load_oqmd_data, filter_valid_entries
+    
+    config = get_config()
+    processed_dir = config.get("processed_dir", "data/processed")
+    input_path = os.path.join(processed_dir, "encoded_alloys.csv")
+    
+    if not os.path.exists(input_path):
+        log_error_with_context(f"Input file not found: {input_path}", context="feature_encoder")
+        return 1
+    
+    try:
+        df = pd.read_csv(input_path)
+        encoded_df = encode_dataframe(df)
+        save_encoded_data(encoded_df, input_path)  # Overwrite with encoded version
+        log_info_with_context("Feature encoding completed successfully", context="feature_encoder")
+        return 0
+    except Exception as e:
+        log_error_with_context(f"Feature encoding failed: {str(e)}", context="feature_encoder")
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -5,119 +5,161 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 
-from config import parse_cli_args, load_environment, get_config
+from config import get_config, verify_config
+from utils.logging_config import configure_root_logger, log_info_with_context, log_error_with_context
+
+# Import pipeline steps
 from data_ingestion import load_oqmd_data, filter_valid_entries, save_processed_data
 from feature_encoder import encode_dataframe, save_encoded_data
-from utils.logging_config import configure_root_logger, log_info_with_context
+from model_training import run_training_pipeline
+from model_validation import generate_validation_report, save_validation_report
+from cluster_analysis import run_sensitivity_analysis, save_results as save_cluster_results
+from pareto_optimization import run_nsgaII, save_results as save_pareto_results
+from metrics_calculation import calculate_dominance_metrics, main as calc_metrics_main
 
-def run_ingestion_step(config: dict) -> Path:
-    """
-    Executes the data ingestion pipeline:
-    1. Loads raw OQMD data.
-    2. Filters for valid Bulk and Shear Moduli.
-    3. Saves the filtered dataset.
-    """
-    logger = logging.getLogger(__name__)
-    log_info_with_context("Starting data ingestion step", context="ingestion")
+logger = logging.getLogger(__name__)
 
-    raw_data_path = config.get("raw_data_path")
-    processed_dir = Path(config.get("processed_dir"))
-    processed_dir.mkdir(parents=True, exist_ok=True)
-
-    # Load data
-    logger.info(f"Loading data from {config.get('data_source')}")
-    df_raw = load_oqmd_data(config.get("data_source"))
-    total_fetched = len(df_raw)
-    logger.info(f"Total records fetched: {total_fetched}")
-
-    # Filter
-    df_filtered = filter_valid_entries(df_raw)
-    filtered_count = len(df_filtered)
-    logger.info(f"Total records after filtering (Bulk/Shear > 0): {filtered_count}")
-
-    # Check minimum threshold
-    if filtered_count < 500:
-        logger.warning("Insufficient data for statistical analysis (N < 500)")
-        # Log specific warning as per T014 requirement
-        logger.warning("Insufficient data for statistical analysis (N < 500)")
-        # Save anyway for inspection, but exit cleanly
-        output_path = processed_dir / "encoded_alloys.csv" # Placeholder
-        df_filtered.to_csv(output_path, index=False)
-        logger.info(f"Saved filtered data to {output_path}")
-        return output_path
-
-    # Save intermediate
-    intermediate_path = processed_dir / "filtered_alloys.csv"
-    save_processed_data(df_filtered, intermediate_path)
-    logger.info(f"Saved filtered data to {intermediate_path}")
-
-    log_info_with_context("Ingestion step completed successfully", context="ingestion")
-    return intermediate_path
-
-def run_encoding_step(input_path: Path, config: dict) -> Path:
-    """
-    Executes the feature encoding pipeline:
-    1. Loads filtered data.
-    2. Encodes compositions using elemental fractions and periodic descriptors.
-    3. Validates descriptor count (>= 2 per element).
-    4. Saves the final encoded dataset.
-    """
-    logger = logging.getLogger(__name__)
-    log_info_with_context("Starting feature encoding step", context="encoding")
-
-    processed_dir = Path(config.get("processed_dir"))
-    processed_dir.mkdir(parents=True, exist_ok=True)
-
-    # Load
-    from pandas import read_csv
-    df_input = read_csv(input_path)
-    logger.info(f"Loaded {len(df_input)} records for encoding")
-
-    # Encode
-    # validate_periodic_descriptors is called internally by encode_dataframe or explicitly here
-    # Per T016: Ensure feature vectors include at least two periodic descriptors per element
-    df_encoded = encode_dataframe(df_input)
-
-    # Explicit validation for T016 requirement
-    # The encoder should ensure this, but we log the result
-    logger.info(f"Encoded {len(df_encoded)} records")
+def run_ingestion_step():
+    """Runs the data ingestion step."""
+    log_info_with_context("Starting data ingestion", context="main")
+    config = get_config()
     
-    # Check for nulls in key columns
-    if df_encoded.isnull().any().any():
-        logger.error("Encoded data contains null values. Aborting.")
-        raise ValueError("Encoded data contains null values.")
+    try:
+        df = load_oqmd_data()
+        valid_df = filter_valid_entries(df)
+        
+        if len(valid_df) < 500:
+            log_info_with_context(
+                f"Insufficient data for statistical analysis (N < 500). Found {len(valid_df)} rows.",
+                context="main"
+            )
+        
+        output_path = os.path.join(config["processed_dir"], "encoded_alloys.csv")
+        save_processed_data(valid_df, output_path)
+        log_info_with_context(f"Ingestion complete. Output: {output_path}", context="main")
+        return valid_df
+    except Exception as e:
+        log_error_with_context(f"Ingestion failed: {str(e)}", context="main")
+        raise
 
-    # Save
-    output_path = processed_dir / "encoded_alloys.csv"
-    save_encoded_data(df_encoded, output_path)
-    logger.info(f"Saved encoded data to {output_path}")
+def run_encoding_step(input_df):
+    """Runs the feature encoding step."""
+    log_info_with_context("Starting feature encoding", context="main")
+    
+    try:
+        encoded_df = encode_dataframe(input_df)
+        output_path = os.path.join(get_config()["processed_dir"], "encoded_alloys.csv")
+        save_encoded_data(encoded_df, output_path)
+        log_info_with_context(f"Encoding complete. Output: {output_path}", context="main")
+        return encoded_df
+    except Exception as e:
+        log_error_with_context(f"Encoding failed: {str(e)}", context="main")
+        raise
 
-    log_info_with_context("Encoding step completed successfully", context="encoding")
-    return output_path
+def run_training_step(encoded_df):
+    """Runs the model training step."""
+    log_info_with_context("Starting model training", context="main")
+    try:
+        metrics, models = run_training_pipeline(encoded_df)
+        log_info_with_context("Training complete", context="main")
+        return metrics, models
+    except Exception as e:
+        log_error_with_context(f"Training failed: {str(e)}", context="main")
+        raise
+
+def run_validation_step(models, encoded_df):
+    """Runs the model validation step."""
+    log_info_with_context("Starting model validation", context="main")
+    try:
+        report = generate_validation_report(models, encoded_df)
+        output_path = os.path.join(get_config()["processed_dir"], "model_validation_report.json")
+        save_validation_report(report, output_path)
+        log_info_with_context(f"Validation complete. Output: {output_path}", context="main")
+        return report
+    except Exception as e:
+        log_error_with_context(f"Validation failed: {str(e)}", context="main")
+        raise
+
+def run_pareto_step(models, encoded_df):
+    """Runs the Pareto optimization step."""
+    log_info_with_context("Starting Pareto optimization", context="main")
+    try:
+        frontier = run_nsgaII(models, encoded_df)
+        output_path = os.path.join(get_config()["processed_dir"], "pareto_frontier.csv")
+        save_pareto_results(frontier, output_path)
+        log_info_with_context(f"Pareto optimization complete. Output: {output_path}", context="main")
+        return frontier
+    except Exception as e:
+        log_error_with_context(f"Pareto optimization failed: {str(e)}", context="main")
+        raise
+
+def run_cluster_step(encoded_df):
+    """Runs the cluster analysis step."""
+    log_info_with_context("Starting cluster analysis", context="main")
+    try:
+        results = run_sensitivity_analysis(encoded_df)
+        output_path = os.path.join(get_config()["processed_dir"], "sensitivity_analysis.csv")
+        save_cluster_results(results, output_path)
+        log_info_with_context(f"Cluster analysis complete. Output: {output_path}", context="main")
+        return results
+    except Exception as e:
+        log_error_with_context(f"Cluster analysis failed: {str(e)}", context="main")
+        raise
+
+def run_metrics_step(frontier, encoded_df):
+    """Runs the metrics calculation step."""
+    log_info_with_context("Starting metrics calculation", context="main")
+    try:
+        metrics = calculate_dominance_metrics(frontier, encoded_df)
+        output_path = os.path.join(get_config()["processed_dir"], "dominance_metrics.json")
+        with open(output_path, 'w') as f:
+            import json
+            json.dump(metrics, f, indent=2)
+        log_info_with_context(f"Metrics calculation complete. Output: {output_path}", context="main")
+        return metrics
+    except Exception as e:
+        log_error_with_context(f"Metrics calculation failed: {str(e)}", context="main")
+        raise
 
 def main():
+    """Main orchestration entry point."""
     configure_root_logger()
-    args = parse_cli_args()
-    load_environment()
     config = get_config()
-
-    logger = logging.getLogger(__name__)
-    logger.info(f"Starting main pipeline at {datetime.now().isoformat()}")
-
+    verify_config(config)
+    
+    log_info_with_context("Starting Alloy Design Pipeline", context="main")
+    start_time = datetime.now()
+    
     try:
         # Step 1: Ingestion
-        filtered_path = run_ingestion_step(config)
+        raw_df = run_ingestion_step()
         
         # Step 2: Encoding
-        if filtered_path.exists():
-            final_output = run_encoding_step(filtered_path, config)
-            logger.info(f"Pipeline completed. Final output: {final_output}")
-        else:
-            logger.warning("Filtered path not found. Skipping encoding.")
-
+        encoded_df = run_encoding_step(raw_df)
+        
+        # Step 3: Training
+        metrics, models = run_training_step(encoded_df)
+        
+        # Step 4: Validation
+        validation_report = run_validation_step(models, encoded_df)
+        
+        # Step 5: Pareto Optimization
+        frontier = run_pareto_step(models, encoded_df)
+        
+        # Step 6: Cluster Analysis
+        cluster_results = run_cluster_step(encoded_df)
+        
+        # Step 7: Metrics Calculation
+        dominance_metrics = run_metrics_step(frontier, encoded_df)
+        
+        end_time = datetime.now()
+        duration = end_time - start_time
+        log_info_with_context(f"Pipeline completed successfully in {duration}", context="main")
+        return 0
+        
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        sys.exit(1)
+        log_error_with_context(f"Pipeline failed: {str(e)}", context="main")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

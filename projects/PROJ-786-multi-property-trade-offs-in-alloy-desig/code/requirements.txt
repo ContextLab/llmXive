@@ -1,6 +1,17 @@
-# Additional requirements for Cluster Analysis (T030)
-# Most are already in main requirements, but ensuring explicit list for this module
-scikit-learn>=1.3.0
-pandas>=2.0.0
-numpy>=1.24.0
-scipy>=1.11.0
+pandas==2.0.3
+scikit-learn==1.3.0
+numpy==1.24.3
+scipy==1.11.1
+deap==1.4.1
+matplotlib==3.7.2
+seaborn==0.12.2
+requests==2.31.0
+pyyaml==6.0.1
+pyarrow==12.0.1
+pymatgen==2023.8.10
+mendeleev==0.13.0
+python-dotenv==1.0.0
+datasets==2.14.5
+pytest==7.4.0
+ruff==0.0.285
+black==23.7.0

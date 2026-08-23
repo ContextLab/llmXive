@@ -24,15 +24,9 @@ def test_ingestion_pipeline_creates_file():
     
     output_file = processed_dir / "encoded_alloys.csv"
     
-    # If we can't reach OQMD, we might skip or mock the load step for the test structure
-    # But T000 requires real data. We will attempt to load, and if it fails, we skip.
-    # However, for the test to be valid, we need to ensure the pipeline logic works.
-    
+    # Attempt to load real data
     try:
-        # Load real data
-        # Note: This might take time or fail if network is down. 
-        # We assume the environment has internet access for the real run.
-        # For the test, we will try to load.
+        # Load real data from OQMD via HuggingFace
         df_raw = load_oqmd_data("OQMD/elastic_properties")
         
         if df_raw is None or len(df_raw) == 0:
@@ -70,5 +64,6 @@ def test_ingestion_pipeline_creates_file():
         assert df_result['shear_modulus'].isnull().sum() == 0, "shear_modulus has nulls"
         
     except Exception as e:
-        # If network fails, we skip, but the test structure is there
+        # If network fails or data is unreachable, skip the test
+        # This ensures the test structure is valid even if the environment lacks internet
         pytest.skip(f"Integration test skipped due to environment issue: {e}")

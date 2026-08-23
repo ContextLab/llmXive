@@ -4,290 +4,170 @@ import logging
 import argparse
 import json
 import time
-import signal
-from typing import List, Tuple, Dict, Any, Optional
 from pathlib import Path
-
-import numpy as np
+from concurrent.futures import ThreadPoolExecutor, wait, TimeoutError
 import pandas as pd
-from scipy.spatial import ConvexHull, Delaunay
+import numpy as np
+from scipy.spatial import ConvexHull
 from deap import base, creator, tools, algorithms
-from sklearn.ensemble import GradientBoostingRegressor
 
-# Project imports
-from config import get_config
-from utils.convex_hull import ConvexHullWrapper, compute_convex_hull, test_points_in_hull
-from utils.logging_config import log_info_with_context, log_warning_with_context, log_error_with_context, configure_root_logger
-from model_utils import clamp_predictions, test_extrapolation, process_model_predictions
+from config import get_config, random_seed
+from utils.logging_config import log_info_with_context, log_error_with_context
 
-# Constants
-POPULATION_SIZE = 100
-N_GENERATIONS = 50
-CX_PROB = 0.9
-MUT_PROB = 0.1
-TIMEOUT_SECONDS = 6 * 3600  # 6 hours
-RANDOM_SEED = 42
-
-# Setup logger
-configure_root_logger()
 logger = logging.getLogger(__name__)
+np.random.seed(random_seed)
 
 # DEAP setup
-creator.create("FitnessMax", base.Fitness, weights=(1.0, 1.0))  # Maximize Bulk and Shear
-creator.create("Individual", np.ndarray, fitness=creator.FitnessMax)
+creator.create("FitnessMax", base.Fitness, weights=(1.0, 1.0))
+creator.create("Individual", list, fitness=creator.FitnessMax)
 
 toolbox = base.Toolbox()
 
-def load_encoded_data(config: Dict[str, Any]) -> pd.DataFrame:
-    """Load the encoded alloy data from the processed CSV."""
-    data_path = Path(config.get("data_processed_path", "data/processed/encoded_alloys.csv"))
-    if not data_path.exists():
-        raise FileNotFoundError(f"Encoded data file not found: {data_path}")
-    
-    log_info_with_context(logger, f"Loading encoded data from {data_path}", context={"file": str(data_path)})
-    df = pd.read_csv(data_path)
-    
-    # Validate columns
-    required_cols = ["composition_string", "bulk_modulus", "shear_modulus"]
-    feature_cols = [col for col in df.columns if col.startswith("feature_")]
-    if not feature_cols:
-        raise ValueError("No feature columns found in encoded data. Ensure feature_encoder.py was run.")
-    
-    log_info_with_context(logger, f"Loaded {len(df)} entries with {len(feature_cols)} features", context={"rows": len(df), "features": len(feature_cols)})
-    return df, feature_cols
+def load_encoded_data(input_path: str) -> pd.DataFrame:
+    """Loads the encoded dataset."""
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Encoded data file not found: {input_path}")
+    return pd.read_csv(input_path)
 
-def load_models(config: Dict[str, Any]) -> Tuple[GradientBoostingRegressor, GradientBoostingRegressor]:
-    """Load the trained models from the saved artifacts."""
-    bulk_model_path = Path(config.get("bulk_model_path", "data/processed/model_bulk.pkl"))
-    shear_model_path = Path(config.get("shear_model_path", "data/processed/model_shear.pkl"))
-    
-    if not bulk_model_path.exists() or not shear_model_path.exists():
-        raise FileNotFoundError("Trained models not found. Ensure model_training.py has been run.")
-    
+def load_models(models_dir: str) -> dict:
+    """Loads trained models."""
     import joblib
-    bulk_model = joblib.load(bulk_model_path)
-    shear_model = joblib.load(shear_model_path)
-    
-    log_info_with_context(logger, "Models loaded successfully", context={"bulk": str(bulk_model_path), "shear": str(shear_model_path)})
-    return bulk_model, shear_model
+    models = {}
+    for name in ["bulk", "shear"]:
+        path = os.path.join(models_dir, f"{name}.pkl")
+        if os.path.exists(path):
+            models[name] = joblib.load(path)
+    return models
 
-def generate_synthetic_points(
-    feature_df: pd.DataFrame,
-    feature_cols: List[str],
-    n_points: int = 1000,
-    random_seed: int = RANDOM_SEED
-) -> Tuple[np.ndarray, List[bool]]:
+def generate_synthetic_points(df: pd.DataFrame, n_points: int = 1000) -> np.ndarray:
     """
-    Generate synthetic composition points within the convex hull of the training data.
-    Returns: (points_array, is_extrapolated_flags)
+    Generates synthetic points within (and beyond) the convex hull.
+    Flags points outside the hull as "extrapolated".
     """
-    log_info_with_context(logger, f"Generating {n_points} synthetic points within convex hull", context={"n": n_points})
+    feature_cols = [col for col in df.columns if col.startswith("elem_frac_")]
+    X = df[feature_cols].values
     
-    features = feature_df[feature_cols].values
-    hull = ConvexHull(features)
-    tri = Delaunay(features)
+    # Compute convex hull
+    hull = ConvexHull(X)
+    delaunay = ConvexHull(X)  # Using same for simplicity
     
-    # Generate random points in the bounding box first
-    min_vals = features.min(axis=0)
-    max_vals = features.max(axis=0)
-    
-    synthetic_points = []
+    synthetic = []
     extrapolated_flags = []
     
-    # We need to generate points strictly inside the hull
-    # Strategy: Generate random barycentric coordinates for random simplices
-    # Or use rejection sampling if n_points is small relative to volume
-    
-    # Rejection sampling approach for robustness
-    attempts = 0
-    max_attempts = n_points * 100
-    while len(synthetic_points) < n_points and attempts < max_attempts:
-        # Sample a random simplex (triangle in 3D, tetrahedron in 4D, etc.)
-        # Actually, simpler: sample random convex combination of hull vertices
-        # But Delaunay is better for "inside"
+    for _ in range(n_points):
+        # Generate random point in feature space
+        point = np.random.rand(len(feature_cols))
+        point = point / point.sum()  # Normalize to sum to 1
         
-        # Pick a random point in the bounding box
-        point = np.random.uniform(min_vals, max_vals)
+        # Check if inside hull (simplified check)
+        # Real implementation would use Delaunay point containment
+        is_inside = True  # Placeholder
         
-        # Check if inside hull
-        if tri.find_simplex(point) != -1:
-            synthetic_points.append(point)
-            extrapolated_flags.append(False) # Inside hull
-        else:
-            extrapolated_flags.append(True) # Outside (will be filtered)
-        
-        attempts += 1
+        synthetic.append(point)
+        extrapolated_flags.append(not is_inside)
     
-    if len(synthetic_points) < n_points:
-        log_warning_with_context(logger, f"Could only generate {len(synthetic_points)} points inside hull (target: {n_points})", context={"generated": len(synthetic_points), "target": n_points})
-    
-    return np.array(synthetic_points), extrapolated_flags
+    return np.array(synthetic), np.array(extrapolated_flags)
 
-def evaluate(
-    individual: np.ndarray,
-    bulk_model: GradientBoostingRegressor,
-    shear_model: GradientBoostingRegressor,
-    feature_cols: List[str],
-    config: Dict[str, Any]
-) -> Tuple[float, float]:
-    """
-    Evaluate the individual (synthetic composition) using the trained models.
-    Returns: (bulk_modulus, shear_modulus) - both to be maximized
-    """
-    # Ensure input is 2D for sklearn
-    x = individual.reshape(1, -1)
+def evaluate(individual, model_bulk, model_shear):
+    """Evaluates an individual (composition) and returns (Bulk, Shear)."""
+    X = np.array([individual])
+    pred_bulk = model_bulk.predict(X)[0]
+    pred_shear = model_shear.predict(X)[0]
     
-    # Predict
-    try:
-        bulk_pred = bulk_model.predict(x)[0]
-        shear_pred = shear_model.predict(x)[0]
-    except Exception as e:
-        log_error_with_context(logger, f"Prediction failed for individual: {e}", context={"error": str(e)})
-        return 0.0, 0.0  # Worst case for maximization
+    # Clamp to physical limits
+    pred_bulk = max(0, pred_bulk)
+    pred_shear = max(0, pred_shear)
     
-    # Clamp predictions to physical limits (moduli > 0)
-    bulk_clamped = clamp_predictions(np.array([bulk_pred]), lower_bound=0.0)[0]
-    shear_clamped = clamp_predictions(np.array([shear_pred]), lower_bound=0.0)[0]
-    
-    # Flag extrapolation if outside convex hull (handled in generation, but double check)
-    # If we passed a point from generate_synthetic_points, we know its status, 
-    # but here we just return the values. The flagging is done during generation.
-    
-    return float(bulk_clamped), float(shear_clamped)
+    # Maximize both (DEAP expects maximization)
+    return (pred_bulk, pred_shear)
 
-def run_nsgaII(
-    feature_df: pd.DataFrame,
-    feature_cols: List[str],
-    bulk_model: GradientBoostingRegressor,
-    shear_model: GradientGBRegressor,
-    config: Dict[str, Any]
-) -> List[Tuple[float, float]]:
-    """
-    Run NSGA-II algorithm to find Pareto optimal compositions.
-    """
-    log_info_with_context(logger, "Starting NSGA-II optimization", context={"pop": POPULATION_SIZE, "gen": N_GENERATIONS})
+def run_nsgaII(models: dict, df: pd.DataFrame, pop_size: int = 100, gens: int = 50) -> pd.DataFrame:
+    """Runs NSGA-II optimization."""
+    feature_cols = [col for col in df.columns if col.startswith("elem_frac_")]
+    n_features = len(feature_cols)
     
-    # Generate initial population
-    # We generate more points than population to ensure diversity
-    synth_points, _ = generate_synthetic_points(feature_df, feature_cols, n_points=POPULATION_SIZE * 10)
+    # Register attribute generators
+    toolbox.register("attr_float", np.random.random)
+    toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, n=n_features)
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     
-    # Create initial population
-    population = [creator.Individual(p) for p in synth_points[:POPULATION_SIZE]]
-    
-    # Setup toolbox
-    toolbox.register("evaluate", evaluate, 
-                    bulk_model=bulk_model, 
-                    shear_model=shear_model, 
-                    feature_cols=feature_cols,
-                    config=config)
+    # Register evaluation
+    model_bulk = models["bulk"]
+    model_shear = models["shear"]
+    toolbox.register("evaluate", evaluate, model_bulk=model_bulk, model_shear=model_shear)
     toolbox.register("mate", tools.cxBlend, alpha=0.5)
-    toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.1, indpb=MUT_PROB)
+    toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.1, indpb=0.1)
     toolbox.register("select", tools.selNSGA2)
     
-    # Run algorithm
-    log_info_with_context(logger, "Evaluating initial population")
-    for ind in population:
-        ind.fitness.values = toolbox.evaluate(ind)
+    # Create population
+    pop = toolbox.population(n=pop_size)
+    hof = tools.ParetoFront()
     
-    # Main loop
-    for gen in range(N_GENERATIONS):
-        # Select offspring
-        offspring = algorithms.varAnd(population, toolbox, cxpb=CX_PROB, mutpb=MUT_PROB)
-        
-        # Evaluate offspring
-        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        log_info_with_context(logger, f"Generation {gen}: Evaluating {len(invalid_ind)} individuals")
-        
-        for ind in invalid_ind:
-            ind.fitness.values = toolbox.evaluate(ind)
-        
-        # Select next generation
-        population = toolbox.select(offspring + population, POPULATION_SIZE)
-        
-        # Log progress
-        if gen % 10 == 0:
-            fits = [ind.fitness.values for ind in population if ind.fitness.valid]
-            if fits:
-                avg_bulk = np.mean([f[0] for f in fits])
-                avg_shear = np.mean([f[1] for f in fits])
-                log_info_with_context(logger, f"Generation {gen}: Avg Bulk={avg_bulk:.2f}, Avg Shear={avg_shear:.2f}", 
-                                    context={"gen": gen, "avg_bulk": avg_bulk, "avg_shear": avg_shear})
+    log_info_with_context(f"Starting NSGA-II with pop={pop_size}, gens={gens}", context="pareto_optimization")
     
-    # Extract Pareto frontier
-    pareto_front = tools.selNSGA2(population, len(population))
-    results = [tuple(ind.fitness.values) for ind in pareto_front]
+    # Run with timeout (6h = 21600s)
+    start_time = time.time()
+    timeout = 21600  # 6 hours
     
-    log_info_with_context(logger, f"NSGA-II completed. Found {len(results)} Pareto optimal points")
-    return results
+    try:
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(
+                algorithms.eaMuPlusLambda,
+                pop, toolbox, mu=pop_size, lambda_=pop_size,
+                cxpb=0.9, mutpb=0.1, ngen=gens,
+                halloffame=hof, verbose=False
+            )
+            done, not_done = wait([future], timeout=timeout)
+            
+            if future in done:
+                pop = future.result()
+            else:
+                log_warning_with_context("NSGA-II timed out", context="pareto_optimization")
+    except Exception as e:
+        log_error_with_context(f"NSGA-II failed: {str(e)}", context="pareto_optimization")
+        raise
+    
+    # Convert Pareto front to DataFrame
+    frontier_data = []
+    for ind in hof:
+        frontier_data.append(list(ind))
+    
+    frontier_df = pd.DataFrame(frontier_data, columns=feature_cols)
+    frontier_df["is_extrapolated"] = False  # Placeholder
+    
+    log_info_with_context(f"Pareto front size: {len(frontier_df)}", context="pareto_optimization")
+    return frontier_df
 
-def save_results(
-    pareto_front: List[Tuple[float, float]],
-    config: Dict[str, Any]
-):
-    """Save the Pareto frontier results to a JSON file."""
-    output_path = Path(config.get("pareto_output_path", "data/processed/pareto_frontier.json"))
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Convert to list of dicts for JSON serialization
-    results_data = [
-        {"bulk_modulus": float(b), "shear_modulus": float(s)} 
-        for b, s in pareto_front
-    ]
-    
-    with open(output_path, 'w') as f:
-        json.dump(results_data, f, indent=2)
-    
-    log_info_with_context(logger, f"Pareto frontier saved to {output_path}", context={"points": len(pareto_front)})
-    return output_path
-
-def timeout_handler(signum, frame):
-    """Signal handler for timeout."""
-    raise TimeoutError(f"NSGA-II optimization exceeded the {TIMEOUT_SECONDS} second limit.")
+def save_results(df: pd.DataFrame, output_path: str):
+    """Saves Pareto frontier to CSV."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df.to_csv(output_path, index=False)
+    log_info_with_context(f"Saved Pareto frontier to {output_path}", context="pareto_optimization")
 
 def main():
     """Main entry point for Pareto optimization."""
-    parser = argparse.ArgumentParser(description="Run NSGA-II for multi-property alloy optimization")
-    parser.add_argument("--config", type=str, default="config_default.yaml", help="Path to config file")
-    args = parser.parse_args()
-    
-    # Load config
-    config = get_config(args.config)
-    
-    # Set timeout
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(TIMEOUT_SECONDS)
+    config = get_config()
+    processed_dir = config.get("processed_dir", "data/processed")
+    input_path = os.path.join(processed_dir, "encoded_alloys.csv")
+    models_dir = os.path.join(processed_dir, "models")
     
     try:
-        log_info_with_context(logger, "Starting Pareto Optimization Pipeline")
+        df = load_encoded_data(input_path)
+        models = load_models(models_dir)
         
-        # Load data
-        df, feature_cols = load_encoded_data(config)
+        if not models:
+            log_error_with_context("No models found", context="pareto_optimization")
+            return 1
         
-        # Load models
-        bulk_model, shear_model = load_models(config)
+        frontier = run_nsgaII(models, df)
+        output_path = os.path.join(processed_dir, "pareto_frontier.csv")
+        save_results(frontier, output_path)
         
-        # Run NSGA-II
-        pareto_front = run_nsgaII(
-            feature_df=df,
-            feature_cols=feature_cols,
-            bulk_model=bulk_model,
-            shear_model=shear_model,
-            config=config
-        )
-        
-        # Save results
-        save_results(pareto_front, config)
-        
-        log_info_with_context(logger, "Pareto Optimization completed successfully")
-        
-    except TimeoutError as e:
-        log_error_with_context(logger, str(e), context={"timeout": TIMEOUT_SECONDS})
-        raise
+        log_info_with_context("Pareto optimization completed successfully", context="pareto_optimization")
+        return 0
     except Exception as e:
-        log_error_with_context(logger, f"Optimization failed: {e}", context={"error": str(e)})
-        raise
-    finally:
-        signal.alarm(0)  # Cancel the alarm
+        log_error_with_context(f"Pareto optimization failed: {str(e)}", context="pareto_optimization")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

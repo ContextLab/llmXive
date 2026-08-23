@@ -4,339 +4,327 @@ import logging
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
-import numpy as np
+from typing import Dict, List, Tuple, Any, Optional
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.model_selection import LeaveOneGroupOut, cross_val_predict
-from sklearn.metrics import r2_score, mean_squared_error
-from scipy.stats import sem
-import joblib
+from sklearn.model_selection import LeaveOneGroupOut
+from sklearn.metrics import r2_score
+import resource
 
-# Project imports based on API surface
-from config import get_config
+# Project local imports
+from config import get_config, load_environment
 from utils.logging_config import get_logger, log_info_with_context, log_warning_with_context, log_error_with_context
 from utils.convex_hull import ConvexHullWrapper
 
-# Setup logger
+# Initialize logger
 logger = get_logger(__name__)
 
-def load_encoded_data(filepath: str) -> pd.DataFrame:
-    """Load the encoded alloy data from CSV."""
-    if not os.path.exists(filepath):
-        log_error_with_context(f"Encoded data file not found: {filepath}", logger)
-        raise FileNotFoundError(f"Encoded data file not found: {filepath}")
+def load_encoded_data() -> pd.DataFrame:
+    """Load the encoded alloy data from the processed CSV."""
+    config = get_config()
+    data_path = Path(config.data_processed_dir) / "encoded_alloys.csv"
     
-    logger.info(f"Loading encoded data from {filepath}")
-    df = pd.read_csv(filepath)
+    if not data_path.exists():
+        log_error_with_context(f"Encoded data file not found: {data_path}", logger)
+        raise FileNotFoundError(f"Encoded data file not found: {data_path}")
+    
+    log_info_with_context(f"Loading encoded data from {data_path}", logger)
+    df = pd.read_csv(data_path)
     
     # Validate required columns
-    required_cols = ['bulk_modulus', 'shear_modulus']
-    # Feature columns are assumed to be numeric columns not in targets
-    targets = set(required_cols)
-    feature_cols = [col for col in df.columns if col not in targets and df[col].dtype in ['float64', 'int64']]
+    required_cols = ['composition', 'bulk_modulus', 'shear_modulus', 'system_id']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        log_error_with_context(f"Missing required columns in encoded data: {missing_cols}", logger)
+        raise ValueError(f"Missing required columns: {missing_cols}")
     
-    if not feature_cols:
-        log_error_with_context("No feature columns found in encoded data", logger)
-        raise ValueError("No feature columns found in encoded data")
-        
-    log_info_with_context(f"Loaded {len(df)} samples with {len(feature_cols)} features", logger)
-    return df, feature_cols
+    log_info_with_context(f"Loaded {len(df)} alloy entries", logger)
+    return df
 
-def prepare_features_targets(df: pd.DataFrame, feature_cols: List[str], target_col: str) -> Tuple[np.ndarray, np.ndarray]:
-    """Prepare feature matrix and target vector."""
+def prepare_features_targets(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Separate features and targets for Bulk and Shear moduli."""
+    feature_cols = [col for col in df.columns if col not in ['composition', 'bulk_modulus', 'shear_modulus', 'system_id']]
     X = df[feature_cols].values
-    y = df[target_col].values
-    
-    # Check for NaNs
-    if np.any(np.isnan(X)) or np.any(np.isnan(y)):
-        log_warning_with_context("NaN values detected in data. Dropping rows with NaNs.", logger)
-        mask = ~np.isnan(X).any(axis=1) & ~np.isnan(y)
-        X = X[mask]
-        y = y[mask]
-        
-    return X, y
+    y_bulk = df['bulk_modulus'].values
+    y_shear = df['shear_modulus'].values
+    groups = df['system_id'].values
+    return X, y_bulk, y_shear, groups
 
-def train_model(X: np.ndarray, y: np.ndarray, target_name: str, n_jobs: int = 2) -> GradientBoostingRegressor:
-    """Train a Gradient Boosting Regressor for a specific target."""
-    log_info_with_context(f"Training model for {target_name}", logger)
-    
+def train_model(X: np.ndarray, y: np.ndarray, n_jobs: int = 2) -> GradientBoostingRegressor:
+    """Train a GradientBoostingRegressor with memory-safe parameters."""
+    # Memory-safe parameters: limit depth and subsample to control memory usage
     model = GradientBoostingRegressor(
         n_estimators=100,
-        learning_rate=0.1,
         max_depth=5,
+        subsample=0.8,
+        learning_rate=0.1,
         random_state=42,
-        n_jobs=n_jobs,
-        max_features='sqrt'
+        n_jobs=n_jobs
     )
-    
     model.fit(X, y)
     
-    # Calculate training R2
-    y_pred = model.predict(X)
-    r2 = r2_score(y, y_pred)
-    log_info_with_context(f"Training R2 for {target_name}: {r2:.4f}", logger)
+    # Monitor memory usage
+    mem_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024  # Convert to MB
+    log_info_with_context(f"Model trained. Peak memory usage: {mem_usage:.2f} MB", logger)
+    
+    if mem_usage > 7000:  # 7GB limit
+        log_warning_with_context(f"Memory usage ({mem_usage:.2f} MB) exceeds recommended limit (7000 MB)", logger)
     
     return model
 
-def run_loso_cv(df: pd.DataFrame, feature_cols: List[str], target_col: str, n_jobs: int = 2) -> Dict[str, Any]:
+def run_loso_cv(X: np.ndarray, y_bulk: np.ndarray, y_shear: np.ndarray, groups: np.ndarray) -> Dict[str, Any]:
     """
-    Run Leave-One-System-Out Cross-Validation.
-    Assumes a 'system' column exists in the dataframe (e.g., binary system like 'Fe-C').
-    If 'system' column is missing, falls back to standard K-Fold (though LOSO is preferred).
+    Perform Leave-One-System-Out Cross-Validation.
+    Returns metrics, held-out test data, and system-level statistics.
     """
-    log_info_with_context(f"Running LOSO-CV for {target_col}", logger)
+    logo = LeaveOneGroupOut()
+    bulk_scores = []
+    shear_scores = []
+    test_indices = []
+    test_data_list = []
+    system_coverage = {}
     
-    X, y = prepare_features_targets(df, feature_cols, target_col)
+    log_info_with_context("Starting Leave-One-System-Out Cross-Validation", logger)
     
-    # Check for system column
-    if 'system' not in df.columns:
-        log_warning_with_context("No 'system' column found. Falling back to 5-fold CV for uncertainty estimation.", logger)
-        # Fallback to simple K-Fold if no system grouping is defined
-        from sklearn.model_selection import KFold
-        cv = KFold(n_splits=5, shuffle=True, random_state=42)
-        groups = None
-    else:
-        groups = df['system'].values
-        cv = LeaveOneGroupOut()
-    
-    # Run cross-validation to get predictions and scores
-    # We need to predict on the whole set to calculate residuals/uncertainty per sample
-    try:
-        y_pred = cross_val_predict(model=GradientBoostingRegressor(
-            n_estimators=100,
-            learning_rate=0.1,
-            max_depth=5,
-            random_state=42,
-            n_jobs=n_jobs
-        ), X=X, y=y, cv=cv, groups=groups)
+    for train_idx, test_idx in logo.split(X, y_bulk, groups):
+        system_id = groups[test_idx][0]
         
-        residuals = y - y_pred
-        mse = np.mean(residuals**2)
-        r2_cv = r2_score(y, y_pred)
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_bulk_train, y_bulk_test = y_bulk[train_idx], y_bulk[test_idx]
+        y_shear_train, y_shear_test = y_shear[train_idx], y_shear[test_idx]
         
-        log_info_with_context(f"LOSO-CV R2 for {target_col}: {r2_cv:.4f}, MSE: {mse:.4f}", logger)
+        # Train models
+        bulk_model = train_model(X_train, y_bulk_train, n_jobs=2)
+        shear_model = train_model(X_train, y_shear_train, n_jobs=2)
         
-        return {
-            "r2_cv": r2_cv,
-            "mse": mse,
-            "rmse": np.sqrt(mse),
-            "residuals": residuals,
-            "predictions": y_pred,
-            "actual": y
+        # Predict and score
+        y_bulk_pred = bulk_model.predict(X_test)
+        y_shear_pred = shear_model.predict(X_test)
+        
+        r2_bulk = r2_score(y_bulk_test, y_bulk_pred)
+        r2_shear = r2_score(y_shear_test, y_shear_pred)
+        
+        bulk_scores.append(r2_bulk)
+        shear_scores.append(r2_shear)
+        test_indices.append(test_idx)
+        
+        # Store test data for this fold
+        test_data = {
+            'system_id': system_id,
+            'composition': X[test_idx],
+            'bulk_modulus_true': y_bulk_test,
+            'bulk_modulus_pred': y_bulk_pred,
+            'shear_modulus_true': y_shear_test,
+            'shear_modulus_pred': y_shear_pred,
+            'r2_bulk': r2_bulk,
+            'r2_shear': r2_shear
         }
-    except Exception as e:
-        log_error_with_context(f"LOSO-CV failed for {target_col}: {str(e)}", logger)
-        # Return dummy stats if CV fails
-        return {
-            "r2_cv": 0.0,
-            "mse": 0.0,
-            "rmse": 0.0,
-            "residuals": np.zeros_like(y),
-            "predictions": np.zeros_like(y),
-            "actual": y
-        }
-
-def calculate_uncertainty(df: pd.DataFrame, feature_cols: List[str], target_col: str, n_jobs: int = 2, threshold: float = 0.1) -> pd.DataFrame:
-    """
-    Calculate uncertainty metrics for the model predictions.
-    Uses the variance of predictions from LOSO-CV as the uncertainty estimate.
-    Flags regions where uncertainty exceeds the threshold.
-    
-    Args:
-        df: Input dataframe
-        feature_cols: List of feature column names
-        target_col: Target column name (e.g., 'bulk_modulus')
-        n_jobs: Number of parallel jobs
-        threshold: Uncertainty threshold for flagging (default 0.1)
+        test_data_list.append(test_data)
         
-    Returns:
-        DataFrame with added uncertainty columns and flags
-    """
-    log_info_with_context(f"Calculating uncertainty for {target_col}", logger)
-    
-    X, y = prepare_features_targets(df, feature_cols, target_col)
-    
-    # Perform LOSO-CV to get predictions for each fold
-    # We use a custom loop to capture prediction variance if groups are available
-    if 'system' in df.columns:
-        groups = df['system'].values
-        cv = LeaveOneGroupOut()
-        
-        # Collect predictions from each fold
-        all_preds = np.zeros_like(y, dtype=float) * np.nan
-        
-        for train_idx, test_idx in cv.split(X, y, groups=groups):
-            model = GradientBoostingRegressor(
-                n_estimators=100,
-                learning_rate=0.1,
-                max_depth=5,
-                random_state=42,
-                n_jobs=n_jobs
-            )
-            model.fit(X[train_idx], y[train_idx])
-            all_preds[test_idx] = model.predict(X[test_idx])
-        
-        # Calculate variance of predictions (uncertainty)
-        # If a point was never in a test set (unlikely with LOSO unless groups are huge), handle it
-        valid_mask = ~np.isnan(all_preds)
-        if np.any(valid_mask):
-            pred_variance = np.var(all_preds, axis=0) # Variance across folds for each sample
-            # For LOSO, each sample is in exactly one test fold, so variance across "folds" for a single sample is 0.
-            # Instead, we use the residual variance from the model trained on the rest of the data.
-            # A better proxy for uncertainty in this context is the magnitude of the residual from the CV prediction.
-            # However, the task asks for "cross-validation variance". 
-            # In a strict LOSO, we can't calculate variance for a single point from one prediction.
-            # Alternative interpretation: Variance of the model coefficients or prediction distribution across systems?
-            # Standard approach for "uncertainty" in regression without ensembles is often the standard error of the residuals.
-            # Let's calculate the RMSE of the CV predictions as the global uncertainty, and flag based on that.
-            # Or, we can calculate the variance of the *target* within the training sets if we were doing Bayesian, but we are not.
-            
-            # Re-reading task: "Implement uncertainty calculation (cross-validation variance) ... and flag regions".
-            # If we interpret "variance" as the variance of the residuals across the CV folds for the *entire* dataset, that's just MSE.
-            # Perhaps it means: For each system, what is the variance of predictions when that system is left out?
-            # Let's calculate the Residual Standard Error (RSE) as the uncertainty metric for the whole model,
-            # and then flag individual points if their absolute residual exceeds a multiple of RSE.
-            
-            residuals = y - all_preds
-            rse = np.sqrt(np.mean(residuals**2))
-            log_info_with_context(f"Calculated RSE (Uncertainty Proxy) for {target_col}: {rse:.4f}", logger)
-            
-            # Create uncertainty column: Absolute Residual
-            uncertainty = np.abs(residuals)
-            
+        # Track system coverage
+        if system_id not in system_coverage:
+            system_coverage[system_id] = {'seen': False, 'held_out': True}
         else:
-            log_warning_with_context("Could not calculate uncertainty due to missing predictions", logger)
-            rse = 0.0
-            uncertainty = np.zeros_like(y)
-    else:
-        # Fallback: K-Fold CV
-        from sklearn.model_selection import KFold
-        cv = KFold(n_splits=5, shuffle=True, random_state=42)
-        y_pred = cross_val_predict(GradientBoostingRegressor(n_estimators=100, n_jobs=n_jobs), X, y, cv=cv)
-        residuals = y - y_pred
-        rse = np.sqrt(np.mean(residuals**2))
-        uncertainty = np.abs(residuals)
-        log_info_with_context(f"Calculated RSE (K-Fold Uncertainty Proxy) for {target_col}: {rse:.4f}", logger)
+            system_coverage[system_id]['seen'] = False  # This system was held out in this fold
+    
+    # Calculate aggregate metrics
+    mean_r2_bulk = np.mean(bulk_scores)
+    mean_r2_shear = np.mean(shear_scores)
+    std_r2_bulk = np.std(bulk_scores)
+    std_r2_shear = np.std(shear_scores)
+    
+    log_info_with_context(f"LOSO-CV Results - Bulk R²: {mean_r2_bulk:.4f} (±{std_r2_bulk:.4f})", logger)
+    log_info_with_context(f"LOSO-CV Results - Shear R²: {mean_r2_shear:.4f} (±{std_r2_shear:.4f})", logger)
+    
+    return {
+        'mean_r2_bulk': mean_r2_bulk,
+        'mean_r2_shear': mean_r2_shear,
+        'std_r2_bulk': std_r2_bulk,
+        'std_r2_shear': std_r2_shear,
+        'bulk_scores': bulk_scores,
+        'shear_scores': shear_scores,
+        'test_data': test_data_list,
+        'system_coverage': system_coverage,
+        'total_systems': len(set(groups))
+    }
 
-    # Add columns to dataframe
-    df = df.copy()
-    df[f'{target_col}_uncertainty'] = uncertainty
-    df[f'{target_col}_rse'] = rse
-    
-    # Flag regions exceeding threshold
-    # If threshold is relative (e.g., 10% of mean), adjust. Assuming absolute or relative to RSE?
-    # Task says "flag regions exceeding threshold". Let's assume threshold is an absolute value or a multiplier of RSE.
-    # We will flag if uncertainty > (threshold * RSE) if threshold is small, or > threshold if large.
-    # To be safe, let's treat threshold as a multiplier of the RSE if it's < 1.0, else absolute.
-    effective_threshold = rse * threshold if threshold < 1.0 else threshold
-    
-    df[f'{target_col}_high_uncertainty'] = uncertainty > effective_threshold
-    
-    high_unc_count = df[f'{target_col}_high_uncertainty'].sum()
-    log_info_with_context(f"Flagged {high_unc_count} samples as high uncertainty for {target_col}", logger)
-    
-    return df
+def calculate_uncertainty(loso_results: Dict[str, Any]) -> Dict[str, float]:
+    """Calculate uncertainty metrics from LOSO-CV results."""
+    uncertainty = {
+        'bulk_variance': np.var(loso_results['bulk_scores']),
+        'shear_variance': np.var(loso_results['shear_scores']),
+        'bulk_std': loso_results['std_r2_bulk'],
+        'shear_std': loso_results['std_r2_shear']
+    }
+    return uncertainty
 
-def save_metrics(metrics: Dict[str, Any], filepath: str):
-    """Save model metrics to JSON."""
-    # Convert numpy types to python types for JSON serialization
-    def convert(obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, (np.float64, np.float32)):
-            return float(obj)
-        elif isinstance(obj, (np.int64, np.int32)):
-            return int(obj)
-        elif isinstance(obj, dict):
-            return {k: convert(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
-            return [convert(i) for i in obj]
-        return obj
+def save_metrics(metrics: Dict[str, Any], output_path: Path):
+    """Save validation metrics to JSON."""
+    # Convert numpy types to Python types for JSON serialization
+    serializable_metrics = {}
+    for key, value in metrics.items():
+        if isinstance(value, (np.integer, np.floating)):
+            serializable_metrics[key] = float(value)
+        elif isinstance(value, np.ndarray):
+            serializable_metrics[key] = value.tolist()
+        elif isinstance(value, dict):
+            serializable_metrics[key] = {
+                k: float(v) if isinstance(v, (np.integer, np.floating)) else v 
+                for k, v in value.items()
+            }
+        else:
+            serializable_metrics[key] = value
     
-    metrics_serializable = convert(metrics)
+    with open(output_path, 'w') as f:
+        json.dump(serializable_metrics, f, indent=2)
     
-    with open(filepath, 'w') as f:
-        json.dump(metrics_serializable, f, indent=2)
-    log_info_with_context(f"Metrics saved to {filepath}", logger)
+    log_info_with_context(f"Validation metrics saved to {output_path}", logger)
 
-def save_models(models: Dict[str, GradientBoostingRegressor], filepath_prefix: str):
-    """Save trained models to disk."""
-    for name, model in models.items():
-        path = f"{filepath_prefix}_{name}.pkl"
-        joblib.dump(model, path)
-        log_info_with_context(f"Model {name} saved to {path}", logger)
-
-def run_training_pipeline(data_path: str, output_dir: str, n_jobs: int = 2, uncertainty_threshold: float = 0.1):
-    """Run the full training and uncertainty calculation pipeline."""
-    os.makedirs(output_dir, exist_ok=True)
+def save_models(bulk_model: GradientBoostingRegressor, shear_model: GradientBoostingRegressor, output_dir: Path):
+    """Save trained models using joblib (not included in requirements, so we'll save as pickle-compatible format)."""
+    import pickle
     
+    bulk_path = output_dir / "bulk_modulus_model.pkl"
+    shear_path = output_dir / "shear_modulus_model.pkl"
+    
+    with open(bulk_path, 'wb') as f:
+        pickle.dump(bulk_model, f)
+    with open(shear_path, 'wb') as f:
+        pickle.dump(shear_model, f)
+    
+    log_info_with_context(f"Models saved to {output_dir}", logger)
+
+def generate_loso_test_points_csv(test_data: List[Dict[str, Any]], output_path: Path):
+    """Generate CSV file containing held-out test data from LOSO-CV."""
+    rows = []
+    for fold_data in test_data:
+        system_id = fold_data['system_id']
+        for i in range(len(fold_data['composition'])):
+            row = {
+                'system_id': system_id,
+                'bulk_modulus_true': float(fold_data['bulk_modulus_true'][i]),
+                'bulk_modulus_pred': float(fold_data['bulk_modulus_pred'][i]),
+                'shear_modulus_true': float(fold_data['shear_modulus_true'][i]),
+                'shear_modulus_pred': float(fold_data['shear_modulus_pred'][i]),
+                'r2_bulk': float(fold_data['r2_bulk']),
+                'r2_shear': float(fold_data['r2_shear'])
+            }
+            rows.append(row)
+    
+    df = pd.DataFrame(rows)
+    df.to_csv(output_path, index=False)
+    log_info_with_context(f"LOSO test points saved to {output_path}", logger)
+
+def generate_validation_report(loso_results: Dict[str, Any], uncertainty: Dict[str, float]) -> Dict[str, Any]:
+    """Generate comprehensive validation report."""
+    # Determine if regions are unreliable based on R² threshold (0.6 as per spec)
+    mean_r2_bulk = loso_results['mean_r2_bulk']
+    mean_r2_shear = loso_results['mean_r2_shear']
+    
+    unreliable_bulk = mean_r2_bulk < 0.6
+    unreliable_shear = mean_r2_shear < 0.6
+    unreliable = unreliable_bulk or unreliable_shear
+    
+    # Calculate coverage stats
+    total_systems = loso_results['total_systems']
+    covered_systems = len(loso_results['system_coverage'])
+    
+    report = {
+        'validation_method': 'Leave-One-System-Out Cross-Validation',
+        'total_systems_evaluated': total_systems,
+        'mean_r2_bulk': float(mean_r2_bulk),
+        'mean_r2_shear': float(mean_r2_shear),
+        'std_r2_bulk': float(loso_results['std_r2_bulk']),
+        'std_r2_shear': float(loso_results['std_r2_shear']),
+        'variance_bulk': float(uncertainty['bulk_variance']),
+        'variance_shear': float(uncertainty['shear_variance']),
+        'system_coverage_rate': float(covered_systems / total_systems) if total_systems > 0 else 0.0,
+        'unreliable_regions_flag': unreliable,
+        'unreliable_bulk': unreliable_bulk,
+        'unreliable_shear': unreliable_shear,
+        'r2_threshold': 0.6,
+        'gating_passed': not unreliable
+    }
+    
+    return report
+
+def save_validation_report(report: Dict[str, Any], output_path: Path):
+    """Save validation report to JSON."""
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    log_info_with_context(f"Validation report saved to {output_path}", logger)
+
+def run_training_pipeline(config: Dict[str, Any]):
+    """Run the full training pipeline including LOSO-CV validation."""
     # Load data
-    df, feature_cols = load_encoded_data(data_path)
+    df = load_encoded_data()
+    X, y_bulk, y_shear, groups = prepare_features_targets(df)
     
-    models = {}
-    metrics = {}
+    log_info_with_context(f"Training on {len(X)} samples across {len(set(groups))} systems", logger)
     
-    targets = ['bulk_modulus', 'shear_modulus']
+    # Run LOSO-CV
+    loso_results = run_loso_cv(X, y_bulk, y_shear, groups)
     
-    for target in targets:
-        # Train model
-        X, y = prepare_features_targets(df, feature_cols, target)
-        model = train_model(X, y, target, n_jobs)
-        models[target] = model
-        
-        # Run LOSO-CV
-        cv_results = run_loso_cv(df, feature_cols, target, n_jobs)
-        
-        # Calculate Uncertainty
-        df = calculate_uncertainty(df, feature_cols, target, n_jobs, uncertainty_threshold)
-        
-        # Store metrics
-        metrics[target] = {
-            "r2_cv": cv_results['r2_cv'],
-            "mse": cv_results['mse'],
-            "rmse": cv_results['rmse'],
-            "high_uncertainty_count": int(df[f'{target}_high_uncertainty'].sum()),
-            "rse": float(df[f'{target}_rse'].iloc[0])
-        }
+    # Calculate uncertainty
+    uncertainty = calculate_uncertainty(loso_results)
     
-    # Save updated dataframe with uncertainty flags
-    output_csv = os.path.join(output_dir, "encoded_alloys_with_uncertainty.csv")
-    df.to_csv(output_csv, index=False)
-    log_info_with_context(f"Saved data with uncertainty flags to {output_csv}", logger)
+    # Generate outputs
+    output_dir = Path(config.data_processed_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Save models
-    model_prefix = os.path.join(output_dir, "model")
-    save_models(models, model_prefix)
+    # Save LOSO test points CSV
+    loso_test_points_path = output_dir / "loso_test_points.csv"
+    generate_loso_test_points_csv(loso_results['test_data'], loso_test_points_path)
+    
+    # Generate and save validation report
+    validation_report = generate_validation_report(loso_results, uncertainty)
+    validation_report_path = output_dir / "model_validation_report.json"
+    save_validation_report(validation_report, validation_report_path)
+    
+    # Train final models on full dataset
+    log_info_with_context("Training final models on full dataset", logger)
+    bulk_model = train_model(X, y_bulk, n_jobs=2)
+    shear_model = train_model(X, y_shear, n_jobs=2)
+    
+    # Save final models
+    save_models(bulk_model, shear_model, output_dir)
     
     # Save metrics
-    metrics_path = os.path.join(output_dir, "model_metrics.json")
-    save_metrics(metrics, metrics_path)
+    metrics_path = output_dir / "training_metrics.json"
+    save_metrics(loso_results, metrics_path)
     
-    return df, models, metrics
+    # Check gating condition (R² > 0.6)
+    if not validation_report['gating_passed']:
+        log_error_with_context(
+            f"LOSO-CV R² score ({validation_report['mean_r2_bulk']:.4f} bulk, {validation_report['mean_r2_shear']:.4f} shear) "
+            f"is below threshold (0.6). Pipeline halted.", 
+            logger
+        )
+        raise RuntimeError("Gating condition failed: R² score below 0.6")
+    
+    log_info_with_context("Training pipeline completed successfully", logger)
+    return validation_report
 
 def main():
-    parser = argparse.ArgumentParser(description="Train models and calculate uncertainty")
-    parser.add_argument("--data", type=str, default="data/processed/encoded_alloys.csv", help="Path to encoded data")
-    parser.add_argument("--output", type=str, default="data/processed", help="Output directory")
-    parser.add_argument("--n_jobs", type=int, default=2, help="Number of parallel jobs")
-    parser.add_argument("--uncertainty_threshold", type=float, default=0.1, help="Threshold for high uncertainty flagging")
+    """Main entry point for model training script."""
+    # Load environment
+    load_environment()
     
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Train alloy property models with LOSO-CV validation")
+    parser.add_argument("--config", type=str, default="config_default.yaml", help="Path to config file")
     args = parser.parse_args()
     
-    log_info_with_context("Starting model training and uncertainty calculation pipeline", logger)
+    # Load config
+    config = get_config()
     
     try:
-        df, models, metrics = run_training_pipeline(
-            args.data, 
-            args.output, 
-            args.n_jobs, 
-            args.uncertainty_threshold
-        )
-        log_info_with_context("Pipeline completed successfully", logger)
+        validation_report = run_training_pipeline(config)
+        print(json.dumps(validation_report, indent=2))
     except Exception as e:
-        log_error_with_context(f"Pipeline failed: {str(e)}", logger)
-        sys.exit(1)
+        log_error_with_context(f"Training pipeline failed: {str(e)}", logger)
+        raise
 
 if __name__ == "__main__":
     main()

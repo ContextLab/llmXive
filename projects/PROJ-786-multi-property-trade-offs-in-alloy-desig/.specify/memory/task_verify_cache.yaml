@@ -37,13 +37,22 @@ T006:
     \ for User Story\u202F1 (data extraction, filtering, and composition encoding)\
     \ and the subsequent stories are absent, so the task is not satisfied."
 T011:
-  c: true
-  h: b9a2b336210f604e76bf6a9a43ad2a50409c55d81448b4739772ab4e44b2af5a
-  r: "The `tests/integration/test_ingestion_pipeline.py` file is present (5\u202F\
-    KB) and contains code that loads mock data, runs the ingestion and encoding pipeline,\
-    \ and includes assertions that `data/processed/encoded_alloys.csv` exists and\
-    \ that it has the required columns. This satisfies the task\u2019s requirement\
-    \ for an integration test that checks the CSV\u2019s existence and schema."
+  c: false
+  h: 99b1f8b6fd906e37ab23b87e5d0140977e66685c29cc0a2fac44327c906e81cf
+  r: The integration test file `tests/integration/test_ingestion_pipeline.py` is present,
+    but the required output `data/processed/encoded_alloys.csv` does not exist, so
+    the test cannot verify the expected columns. The pipeline must actually create
+    this CSV (with the required columns and no nulls) for the integration test to
+    pass.
+T015:
+  c: false
+  h: 7096990e828fd42cc6d97aed469ad5443a6aea45d917cdf7c3dd236e911c41a1
+  r: The repository contains a `code/main.py` file, but it is truncated and does not
+    show a complete orchestration (e.g., a `if __name__ == "__main__":` block that
+    runs ingestion then encoding). Moreover, the required output file `data/processed/encoded_alloys.csv`
+    is absent, so the implementation has not demonstrably saved the results as specified.
+    The missing CSV and incomplete script need to be provided for the task to be considered
+    complete.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -53,17 +62,26 @@ T017:
     \ no artifact demonstrating such logging exists. The implementer must add the\
     \ logging statements (e.g., using Python\u2019s logging module) and supply the\
     \ updated script or module as evidence."
-T022b:
+T021:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, documentation, or test results were provided that implement\
-    \ the required logic to link LOSO\u2011CV results (T021) to the uncertainty metrics\
-    \ (FR\u2011006) and integrate FR\u2011008 coverage with uncertainty flagging.\
-    \ The claim lacks any tangible artifact demonstrating the implementation, so the\
-    \ task is not satisfied."
+  h: 36fc87d5388b2cdecb7a8ba5e824920e6a0acda7753714a0999dd09a44f063be
+  r: "The required output artifacts `data/processed/loso_test_points.csv` and `data/processed/model_validation_report.json`\
+    \ are not present on disk, and the provided `code/model_training.py` is truncated\
+    \ before any logic that would generate those files. Consequently the LOSO\u2011\
+    CV implementation does not fulfill the task\u2019s output requirements."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No code, tests, or documentation were provided showing that predictions are clamped
     to physical limits or that extrapolated points are flagged; the artifact list
     is empty, so the required logic cannot be verified.
+T032:
+  c: false
+  h: e1f9f86f2980101e2bc0ec5939889dccb3f67e3e8b32e2c480f9143982da566e
+  r: "The repository contains `code/cluster_analysis.py`, but the shown code only\
+    \ handles data loading, elbow\u2011method k selection, K\u2011Means clustering\
+    \ and a partially\u2011implemented correlation calculation; there is no function\
+    \ that sweeps correlation cutoffs, computes the required `robustness_score`, or\
+    \ writes `data/processed/sensitivity_analysis.csv`. Moreover, the expected CSV\
+    \ file is absent from the filesystem. The task\u2019s core requirement is therefore\
+    \ not met."

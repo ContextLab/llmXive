@@ -827,3 +827,170 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T03:14:33Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: fetch OQMD elastic properties from HuggingFace dataset OQMD/elastic_properties
+  claim_id: c_9fae0fac
+  context: Implement code/data_ingestion.py to fetch OQMD data via HuggingFace datasets.load_dataset('OQMD/elastic_properties'),
+    filter for entries with bulk_modulus and shear_modulus > 0, and exclude missing
+    data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_OQMD_elastic_properties_from_HuggingFace_dataset_OQMD/
+  kind: entity_fact
+  raw_text: fetch OQMD data via HuggingFace datasets.load_dataset('OQMD/elastic_properties')
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T00:39:18Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: train GradientBoostingRegressor models for Bulk and Shear moduli with
+    n_jobs=2
+  claim_id: c_6d058437
+  context: Implement code/model_training.py to train separate GradientBoostingRegressor
+    models for Bulk and Shear moduli using n_jobs=2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train separate GradientBoostingRegressor models for Bulk and Shear moduli
+    using n_jobs=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T00:39:33Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: enforce 6 hour runtime limit for NSGA-II evolution loop
+  claim_id: c_ac880f08
+  context: Include a concurrent.futures.wait with timeout wrapping the evolution loop
+    to enforce the 6h runtime limit (cross-platform compatible).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce the 6h runtime limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T00:39:52Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: 'NSGA-II parameters: population 100, generations 50, crossover probability
+    0.9, mutation probability 0.1'
+  claim_id: c_e6968dca
+  context: Implement NSGA-II logic in code/pareto_optimization.py using deap with
+    population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk, Shear].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: population=100, generations=50, cx_prob=0.9, mut_prob=0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T00:40:47Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: enforce memory usage less than 7 gigabytes during NSGA-II execution
+  claim_id: c_6df61d1e
+  context: Performance optimization (ensure memory usage < 7GB during NSGA-II).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Enforce_memory_usage_less_than_7_gigabytes_during_NSGA-II_ex
+  kind: magnitude
+  raw_text: memory usage < 7GB during NSGA-II
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T00:41:19Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: sweep correlation cutoff values from 0.5 to 0.95 for sensitivity analysis
+  claim_id: c_dc1a474e
+  context: Implement sensitivity analysis in code/cluster_analysis.py to sweep decoupling
+    threshold (correlation cutoff) values across a scientifically valid range (e.g.,
+    0.5 to 0.95).
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: sweep decoupling threshold (correlation cutoff) values across a scientifically
+    valid range (e.g., 0.5 to 0.95)
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T00:41:20Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: calculate inertia for k values from 2 to 10 to determine optimal k via
+    Elbow Method
+  claim_id: c_7a672a84
+  context: 'Step 1: Determine optimal k via the Elbow Method (calculate inertia for
+    k=2 to k=10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate inertia for k=2 to k=10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T00:41:25Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: log warning insufficient data for statistical analysis if input rows
+    less than 500
+  claim_id: c_de2fff76
+  context: Assert that when input has < 500 rows (generate a dummy CSV with 499 rows...),
+    the script logs the specific warning 'Insufficient data for statistical analysis
+    (N < 500)' and exits with code 0.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_insufficient_data_for_statistical_analysis_if_in
+  kind: magnitude
+  raw_text: input has < 500 rows... logs the specific warning 'Insufficient data for
+    statistical analysis (N < 500)'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T00:41:33Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: modeling tasks run on CPU with 2 cores and less than 7 gigabytes RAM
+  claim_id: c_76a590cf
+  context: 'Hardware Constraint: All modeling tasks MUST run on CPU (2 cores, <7GB
+    RAM). No CUDA, no 8-bit/4-bit quantization, no large LLMs.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Modeling_tasks_run_on_CPU_with_2_cores_and_less_than_7_gigab
+  kind: magnitude
+  raw_text: run on CPU (2 cores, <7GB RAM)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T00:41:40Z'
