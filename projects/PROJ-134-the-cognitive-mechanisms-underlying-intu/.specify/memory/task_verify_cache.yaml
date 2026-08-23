@@ -1,3 +1,19 @@
+T006:
+  c: false
+  h: 411017b817ef932c925c2a29f4facee9ace4fe633c65211a5c4e313c59e07997
+  r: "The provided `code/utils/hashing.py` is truncated (the `update_state_file` function\
+    \ ends abruptly with \u201Cwith o\u201D), so it does not actually write to `state/artifact_hashes.yaml`.\
+    \ Moreover, the required `data/processed/test.csv` and `state/artifact_hashes.yaml`\
+    \ files are absent, so the verification command cannot succeed. The task\u2019\
+    s deliverables are therefore not satisfied."
+T009:
+  c: false
+  h: ea3b9dd805c6026a6cf805d64cbe5bf9769c41b39f1f9d7790d6b3eb3936d0c2
+  r: "The provided `code/utils/logging.py` is truncated (ends mid\u2011definition\
+    \ of `LogEntry`) and does not contain a `get_logger` function or the helper logging\
+    \ calls required. Moreover, the expected log files `data/logs/ingest.log` and\
+    \ `data/logs/vr_mapping.log` are absent, so the verification step cannot succeed.\
+    \ The task\u2019s deliverables are therefore not fully implemented."
 T015:
   c: false
   h: 961e0f689872327f01a13473b7c8f9765aba0d95a8ee1e23fddab132bcd3224b
@@ -22,10 +38,3 @@ T040:
     is no evidence of running a `quickstart.md` validation, nor any checksum files
     or logs confirming that all artifacts have been checksummed. The required validation
     and checksum verification artifacts are missing.
-T046:
-  c: true
-  h: f57bd4ae52706e2dbe0e5ebce3d9b246d1ca3ca3c38667fd75cb5f2872aaf4c4
-  r: "The repository contains a non\u2011empty `code/analysis/validation.py` that\
-    \ reads `state/mdes_report.yaml`, checks that the provided simulated sample size\
-    \ equals 200, and raises a `ValueError` on mismatch (or `FileNotFoundError` if\
-    \ the YAML is absent). This fulfills the specified validation script requirement."

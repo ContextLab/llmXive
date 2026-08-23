@@ -3,14 +3,14 @@ intent: download Open Science Framework MFQ dataset and HuggingFace Moral Storie
   python package dataset
 required_fields:
 - participant_id
-- story_id
 - mfq_responses
-- moral_story_text
+- story_id
+- story_text
 - salience_label
+- vr_scene_id
 - vr_response_time
-- vr_gaze_data
+- gaze_metrics
 - vr_judgment_input
-- blend_shape_parameters
-cache_key: bedbf7dd4d581884916e9f9a051811646cd646c4612588f6fc750e9b72acb1d3
-searched_at: '2026-07-21T03:28:24.888766+00:00'
+cache_key: ba3af8d62e40f15a37f379f642fd72943dce8f076f789d26134477106edbd728
+searched_at: '2026-08-23T06:15:25.545148+00:00'
 retry_count: 1

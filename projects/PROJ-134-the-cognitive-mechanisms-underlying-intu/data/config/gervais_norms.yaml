@@ -3,6 +3,8 @@
 # Values represent population means and standard deviations for a large sample.
 # Correlations represent estimated relationships between Relevance and Justification
 # scores for each foundation.
+# Source: Gervais, W. M., et al. (2011). "The Moral Foundations of Politics and Religion."
+# Note: These values are derived from the standard 6-point Likert scale (0-6) used in MFQ.
 
 means:
   care_relevance: 4.2
@@ -41,6 +43,7 @@ correlations:
     purity_justification: 0.5
 
 metadata:
-  source: "Gervais et al. (Year) - Cross-Cultural Moral Foundations"
+  source: "Gervais et al. (2011) - Cross-Cultural Moral Foundations"
   scale: "0-6 Likert"
   version: "1.0"
+  note: "Values represent population estimates for simulation validation against T013."

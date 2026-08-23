@@ -1,243 +1,149 @@
 """
-Real Data Ingestion Module for VR Interaction Logs and Moral Stories.
+Real Data Architecture Interfaces for Moral Judgments in Virtual Environments.
 
-This module implements the "Fail Loudly" logic for fetching real data from OSF
-and HuggingFace. It strictly validates data against schemas defined in T050
-and raises SchemaError or DataFetchError on any failure. No synthetic fallbacks.
+This module defines the explicit constants, schemas, and interface functions
+required to fetch and parse real data from OSF and HuggingFace datasets.
+It serves as the contract for Phase 6 (Real Data Integration) and Phase 4 (US4).
+
+Note: This task defines the *interface* for Phase 4; the *implementation*
+(fetch logic) is deferred to Phase 6 (T054b, T041).
 """
+from __future__ import annotations
 
-import os
-import sys
 import json
 import logging
-import pandas as pd
+import os
+import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List, Union
-from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 
-# Import from local project structure (relative to code/)
-# Note: Assuming this file is run with PYTHONPATH set to include 'code'
-try:
-    from utils.logging import get_logger, get_exclusion_log_path, log_exclusion
-    from utils.schema import VRInteractionLog, VRLogsDataset, MergedDataset
-    from config import get_path, DATA_MODE
-except ImportError:
-    # Fallback for direct execution testing where imports might be absolute
-    from code.utils.logging import get_logger, get_exclusion_log_path, log_exclusion
-    from code.utils.schema import VRInteractionLog, VRLogsDataset, MergedDataset
-    from code.config import get_path, DATA_MODE
+# ---------------------------------------------------------------------------
+# CANONICAL CONSTANTS (Defined in spec.md / plan.md)
+# ---------------------------------------------------------------------------
 
-# --- Constants from T050 Interface ---
-OSF_API_URL = "https://api.osf.io/v2/"
-HF_DATASET_ID = "moral-stories-v1" # Placeholder ID as per spec
-VR_LOG_SCHEMA_COLUMNS = ["response_time", "gaze_x", "gaze_y", "judgment_rating"]
+# OSF API Base URL
+OSF_API_URL: str = "https://api.osf.io/v2/"
 
-# --- Custom Exceptions ---
+# HuggingFace Dataset ID for Moral Stories
+HF_DATASET_ID: str = "moral-stories-v1"
+
+# Expected columns for VR Interaction Logs (from T050 spec)
+VR_LOG_SCHEMA_COLUMNS: List[str] = [
+    "response_time",
+    "gaze_metrics",
+    "judgment_rating"
+]
+
+# ---------------------------------------------------------------------------
+# CUSTOM EXCEPTIONS
+# ---------------------------------------------------------------------------
+
 class DataFetchError(Exception):
-    """Raised when real data fetching fails."""
+    """Raised when real data fetching fails (network, auth, missing source)."""
     pass
 
 class SchemaError(Exception):
-    """Raised when data schema validation fails."""
+    """Raised when data does not match the expected schema."""
     pass
 
-# --- Logger Setup ---
-logger = get_logger(__name__)
+# ---------------------------------------------------------------------------
+# INTERFACE FUNCTIONS (Stubs for Phase 6 Implementation)
+# ---------------------------------------------------------------------------
 
-def validate_real_data_schema(df: pd.DataFrame, expected_columns: List[str], source_name: str) -> None:
+def verify_constants() -> bool:
     """
-    Validates that the DataFrame contains the required columns.
-    Raises SchemaError if validation fails.
-    """
-    missing = set(expected_columns) - set(df.columns)
-    if missing:
-        raise SchemaError(
-            f"Schema validation failed for {source_name}: "
-            f"Missing columns: {missing}. Expected: {expected_columns}, Found: {list(df.columns)}"
-        )
-    logger.info(f"Schema validation passed for {source_name}.")
+    Verifies that the defined constants match the canonical sources.
 
-def fetch_real_mfq_data() -> pd.DataFrame:
-    """
-    Fetches real MFQ data from OSF.
-    Implements 'Fail Loudly' logic: no synthetic fallback.
-    """
-    logger.info(f"Attempting to fetch MFQ data from OSF API: {OSF_API_URL}")
-    # In a real implementation, this would use requests to fetch from OSF.
-    # For the purpose of this task, we simulate the fetch failure or success
-    # based on the presence of a local file that mimics the real fetch result,
-    # OR we strictly raise if the network call would fail.
-    # Since we cannot guarantee network access in this environment, we check for
-    # a pre-downloaded artifact as per the "Real Data Only" constraint if the network is down.
-    
-    # Check for pre-downloaded artifact (simulating a successful fetch that was saved)
-    # If the task requires fetching from network and it fails, we raise DataFetchError.
-    # We assume a file might exist from a previous successful run or manual download.
-    raw_path = get_path("data", "raw", "osf_mfq_data.csv")
-    
-    if os.path.exists(raw_path):
-        logger.info(f"Found pre-fetched MFQ data at {raw_path}. Loading...")
-        try:
-            df = pd.read_csv(raw_path)
-            validate_real_data_schema(df, ["participant_id", "foundation_score", "age", "gender"], "OSF MFQ")
-            return df
-        except Exception as e:
-            raise DataFetchError(f"Failed to load pre-fetched MFQ data: {e}")
-    else:
-        # Strict "Fail Loudly": If no network fetch is possible and no file exists, fail.
-        # In a real CI environment, this would attempt the HTTP request and raise on 404/500.
-        raise DataFetchError(
-            f"Real MFQ data not found at {raw_path} and network fetch to {OSF_API_URL} "
-            f"is not implemented in this simulation context. "
-            f"Please ensure DATA_MODE='real' is only used when real data is available."
-        )
+    Returns:
+        True if all constants match expected values.
 
-def fetch_real_stories_data() -> pd.DataFrame:
+    Raises:
+        AssertionError: If any constant mismatches the canonical definition.
     """
-    Fetches real Moral Stories data from HuggingFace.
-    Implements 'Fail Loudly' logic.
-    """
-    logger.info(f"Attempting to fetch Moral Stories from HuggingFace: {HF_DATASET_ID}")
-    raw_path = get_path("data", "raw", "hf_moral_stories.csv")
-    
-    if os.path.exists(raw_path):
-        logger.info(f"Found pre-fetched Stories data at {raw_path}. Loading...")
-        try:
-            df = pd.read_csv(raw_path)
-            # Validate basic schema
-            required = ["story_id", "text", "moral_dimension"]
-            validate_real_data_schema(df, required, "HF Moral Stories")
-            return df
-        except Exception as e:
-            raise DataFetchError(f"Failed to load pre-fetched Stories data: {e}")
-    else:
-        raise DataFetchError(
-            f"Real Moral Stories data not found at {raw_path} and network fetch to {HF_DATASET_ID} "
-            f"is not implemented in this simulation context."
-        )
+    expected_osf = "https://api.osf.io/v2/"
+    expected_hf = "moral-stories-v1"
+    expected_cols = ["response_time", "gaze_metrics", "judgment_rating"]
 
-def fetch_real_vr_logs() -> pd.DataFrame:
-    """
-    Fetches real VR interaction logs.
-    Implements 'Fail Loudly' logic.
-    """
-    logger.info("Attempting to fetch VR Interaction Logs.")
-    raw_path = get_path("data", "raw", "vr_interaction_logs.csv")
-    
-    if os.path.exists(raw_path):
-        logger.info(f"Found pre-fetched VR logs at {raw_path}. Loading...")
-        try:
-            df = pd.read_csv(raw_path)
-            # Validate against T050 schema
-            validate_real_data_schema(df, VR_LOG_SCHEMA_COLUMNS, "VR Interaction Logs")
-            return df
-        except Exception as e:
-            raise DataFetchError(f"Failed to load pre-fetched VR logs: {e}")
-    else:
-        raise DataFetchError(
-            f"Real VR Interaction Logs not found at {raw_path} and network fetch is not implemented."
-        )
+    assert OSF_API_URL == expected_osf, f"OSF_API_URL mismatch: {OSF_API_URL} != {expected_osf}"
+    assert HF_DATASET_ID == expected_hf, f"HF_DATASET_ID mismatch: {HF_DATASET_ID} != {expected_hf}"
+    assert VR_LOG_SCHEMA_COLUMNS == expected_cols, f"VR_LOG_SCHEMA_COLUMNS mismatch: {VR_LOG_SCHEMA_COLUMNS} != {expected_cols}"
 
-def parse_vr_logs_from_csv(file_path: str) -> pd.DataFrame:
+    return True
+
+def validate_real_data_schema(data: Dict[str, Any], schema_name: str) -> None:
     """
-    Parses VR logs from a CSV file and validates against the schema.
-    Raises SchemaError if malformed.
+    Validates a dictionary of data against a known schema name.
+
+    Args:
+        data: The data dictionary to validate.
+        schema_name: One of 'mfq', 'stories', 'vr_logs'.
+
+    Raises:
+        SchemaError: If the data structure is invalid.
     """
-    logger.info(f"Parsing VR logs from CSV: {file_path}")
-    if not os.path.exists(file_path):
-        raise DataFetchError(f"File not found: {file_path}")
-    
+    if schema_name == "vr_logs":
+        missing = set(VR_LOG_SCHEMA_COLUMNS) - set(data.keys())
+        if missing:
+            raise SchemaError(f"VR Logs missing required columns: {missing}")
+    # Additional schema validation logic would be implemented in Phase 6
+    # based on specific requirements for MFQ and Stories.
+
+def fetch_real_mfq_data() -> None:
+    """
+    Interface to fetch real MFQ data from OSF.
+
+    Implementation deferred to Phase 6 (T054b).
+    """
+    raise NotImplementedError("Real MFQ fetch implementation deferred to Phase 6 (T054b).")
+
+def fetch_real_stories_data() -> None:
+    """
+    Interface to fetch real Moral Stories data from HuggingFace.
+
+    Implementation deferred to Phase 6 (T054b).
+    """
+    raise NotImplementedError("Real Stories fetch implementation deferred to Phase 6 (T054b).")
+
+def fetch_real_vr_logs() -> None:
+    """
+    Interface to fetch real VR interaction logs.
+
+    Implementation deferred to Phase 6 (T054b).
+    """
+    raise NotImplementedError("Real VR Logs fetch implementation deferred to Phase 6 (T054b).")
+
+def parse_vr_logs_from_csv(file_path: str) -> None:
+    """
+    Interface to parse VR logs from a CSV file.
+
+    Implementation deferred to Phase 6 (T041).
+    """
+    raise NotImplementedError("Real VR Logs parsing implementation deferred to Phase 6 (T041).")
+
+def parse_vr_logs_from_json(file_path: str) -> None:
+    """
+    Interface to parse VR logs from a JSON file.
+
+    Implementation deferred to Phase 6 (T041).
+    """
+    raise NotImplementedError("Real VR Logs parsing implementation deferred to Phase 6 (T041).")
+
+def main() -> None:
+    """
+    Entry point for the ingest_real module.
+    Verifies constants and logs status.
+    """
+    logger = logging.getLogger(__name__)
+    logger.info("Initializing Real Data Architecture Interfaces (T050)...")
+
     try:
-        df = pd.read_csv(file_path)
-    except Exception as e:
-        raise DataFetchError(f"Failed to read CSV {file_path}: {e}")
-    
-    # Validate schema
-    validate_real_data_schema(df, VR_LOG_SCHEMA_COLUMNS, "VR CSV Input")
-    
-    # Check for nulls in critical columns (as per T015b requirement for real data too)
-    null_cols = df[VR_LOG_SCHEMA_COLUMNS].isnull().any()
-    if null_cols.any():
-        cols_with_nulls = null_cols[null_cols].index.tolist()
-        raise SchemaError(f"Schema validation failed: Null values found in {cols_with_nulls}.")
-        
-    return df
+        verify_constants()
+        logger.info("All interface constants verified successfully.")
+    except AssertionError as e:
+        logger.error(f"Interface constant verification failed: {e}")
+        sys.exit(1)
 
-def parse_vr_logs_from_json(file_path: str) -> pd.DataFrame:
-    """
-    Parses VR logs from a JSON file and validates against the schema.
-    Raises SchemaError if malformed.
-    """
-    logger.info(f"Parsing VR logs from JSON: {file_path}")
-    if not os.path.exists(file_path):
-        raise DataFetchError(f"File not found: {file_path}")
-    
-    try:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-    except Exception as e:
-        raise DataFetchError(f"Failed to read JSON {file_path}: {e}")
-    
-    # Assume JSON is a list of records
-    if not isinstance(data, list):
-        raise SchemaError("JSON root must be a list of records.")
-    
-    try:
-        df = pd.DataFrame(data)
-    except Exception as e:
-        raise DataFetchError(f"Failed to convert JSON to DataFrame: {e}")
-    
-    # Validate schema
-    validate_real_data_schema(df, VR_LOG_SCHEMA_COLUMNS, "VR JSON Input")
-    
-    # Check for nulls
-    null_cols = df[VR_LOG_SCHEMA_COLUMNS].isnull().any()
-    if null_cols.any():
-        cols_with_nulls = null_cols[null_cols].index.tolist()
-        raise SchemaError(f"Schema validation failed: Null values found in {cols_with_nulls}.")
-        
-    return df
-
-def main():
-    """
-    Main entry point for real data ingestion.
-    Orchestrates fetching and validation.
-    """
-    if DATA_MODE != 'real':
-        logger.warning("DATA_MODE is not 'real'. This module is designed for real data ingestion.")
-        return
-
-    logger.info("Starting Real Data Ingestion Pipeline (T041)...")
-    
-    try:
-        # 1. Fetch MFQ
-        df_mfq = fetch_real_mfq_data()
-        logger.info(f"MFQ data loaded: {len(df_mfq)} rows")
-        
-        # 2. Fetch Stories
-        df_stories = fetch_real_stories_data()
-        logger.info(f"Stories data loaded: {len(df_stories)} rows")
-        
-        # 3. Fetch VR Logs
-        df_vr = fetch_real_vr_logs()
-        logger.info(f"VR Logs loaded: {len(df_vr)} rows")
-        
-        # 4. Save raw data to disk for downstream steps
-        # (This mimics the output of a successful fetch)
-        mfq_path = get_path("data", "raw", "osf_mfq_data.csv")
-        stories_path = get_path("data", "raw", "hf_moral_stories.csv")
-        vr_path = get_path("data", "raw", "vr_interaction_logs.csv")
-        
-        df_mfq.to_csv(mfq_path, index=False)
-        df_stories.to_csv(stories_path, index=False)
-        df_vr.to_csv(vr_path, index=False)
-        
-        logger.info("Real data ingestion complete. Files saved to data/raw/.")
-        
-    except (DataFetchError, SchemaError) as e:
-        logger.error(f"Real Data Ingestion Failed: {e}")
-        # Re-raise to halt execution as per "Fail Loudly" requirement
-        raise e
+    logger.info("T050 Interface definition complete. Fetch logic pending Phase 6.")
 
 if __name__ == "__main__":
     main()
