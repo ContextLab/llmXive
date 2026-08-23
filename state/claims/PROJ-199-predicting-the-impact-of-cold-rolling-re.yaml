@@ -1,0 +1,221 @@
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/MODEL_LIMITATIONS.md
+  attempts: 1
+  canonical: Data points with confidence less than 0.1 are discarded
+  claim_id: c_bea4802c
+  context: 'Data Quality Constraints. Confidence Index: Data points with confidence
+    < 0.1 are discarded. Sample Reliability: Samples with >50% data loss after filtering
+    are excluded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_points_with_confidence_less_than_0.1_are_discarded
+  kind: magnitude
+  raw_text: Data points with confidence < 0.1 are discarded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:16:57Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/MODEL_LIMITATIONS.md
+  attempts: 1
+  canonical: Samples with more than 50 percent data loss after filtering are excluded
+  claim_id: c_c19bf098
+  context: "Data Quality Constraints. Confidence Index: Data points with confidence\
+    \ < 0.1 are discarded. Sample Reliability: Samples with >50% data loss after filtering\
+    \ are excluded. Mass Balance: Samples failing the mass balance check (sum of components\
+    \ \u2260 1.0 \xB1 0.01) are excluded."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Samples_with_more_than_50_percent_data_loss_after_filtering
+  kind: magnitude
+  raw_text: Samples with >50% data loss after filtering are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:17:22Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/MODEL_LIMITATIONS.md
+  attempts: 1
+  canonical: Samples failing mass balance check with sum of components not equal to
+    1.0 plus or minus 0.01 are excluded
+  claim_id: c_3a283e2f
+  context: "Data Quality Constraints. Sample Reliability: Samples with >50% data loss\
+    \ after filtering are excluded. Mass Balance: Samples failing the mass balance\
+    \ check (sum of components \u2260 1.0 \xB1 0.01) are excluded. Implication: These\
+    \ strict filters may reduce the effective dataset size, potentially impacting\
+    \ model training for rare reduction levels or materials."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Samples failing the mass balance check (sum of components \u2260 1.0\
+    \ \xB1 0.01) are excluded."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:17:58Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/model_limitations.md
+  attempts: 1
+  canonical: Models trained on EBSD datasets for Aluminum, Copper, and Nickel
+  claim_id: c_d47a8fa9
+  context: 'Section 1: Data Domain Limitations describing the specific metals used
+    for training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Models_trained_on_EBSD_datasets_for_Aluminum,_Copper,_and_Ni
+  kind: entity_fact
+  raw_text: 'The models are trained on EBSD datasets for three specific FCC metals:
+    Aluminum (Al), Copper (Cu), and Nickel (Ni).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:28:27Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/model_limitations.md
+  attempts: 1
+  canonical: Training data covers cold rolling reductions from 0% to 80%
+  claim_id: c_3fab98da
+  context: 'Section 1: Data Domain Limitations specifying the reduction range of the
+    training data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training data covers cold rolling reductions from 0% to 80%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:28:27Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/model_limitations.md
+  attempts: 1
+  canonical: Predictions for reductions greater than 80% flagged with confidence penalty
+  claim_id: c_8ecf6e9c
+  context: 'Section 1: Data Domain Limitations discussing extrapolation risks above
+    80%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predictions_for_reductions_greater_than_80%25_flagged_with_con
+  kind: magnitude
+  raw_text: Predictions for reductions >80% are considered extrapolations and are
+    flagged with a confidence penalty.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:29:36Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/model_limitations.md
+  attempts: 1
+  canonical: Input feature vector includes reduction percentage and material type
+  claim_id: c_4a11b513
+  context: 'Section 2: Feature Set Constraints listing the specific input variables.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Input_feature_vector_includes_reduction_percentage_and_mater
+  kind: entity_fact
+  raw_text: The current input feature vector includes reduction_percentage and material_type.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:29:52Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/model_limitations.md
+  attempts: 1
+  canonical: Model does not explicitly enforce sum of volume fractions equals 1.0
+  claim_id: c_cc9ec17a
+  context: 'Section 3: Symmetry and Physical Constraints discussing mass balance limitations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model does not explicitly enforce that the sum of volume fractions
+    (Brass + Copper + S + Goss + Random) equals 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:31:56Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/model_limitations.md
+  attempts: 1
+  canonical: Predictions for reductions less than 0% are invalid
+  claim_id: c_332436e4
+  context: 'Section 4: Extrapolation Risks defining the lower bound of validity.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predictions_for_reductions_less_than_0%25_are_invalid
+  kind: magnitude
+  raw_text: Predictions for reductions < 0% are invalid.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:32:34Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/model_limitations.md
+  attempts: 1
+  canonical: Predictions for reductions greater than 90% are unreliable
+  claim_id: c_a4d5d8c3
+  context: 'Section 4: Extrapolation Risks defining the upper bound of reliability.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predictions_for_reductions_greater_than_90%25_are_unreliable
+  kind: magnitude
+  raw_text: Predictions for reductions significantly higher than the maximum in the
+    training set (e.g., >90%) are unreliable.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:33:27Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/model_limitations.md
+  attempts: 1
+  canonical: Samples with more than 50% of EBSD points filtered out excluded from
+    training and prediction
+  claim_id: c_084d83fd
+  context: 'Section 6: Known Edge Cases describing the exclusion criteria for low
+    reliability samples.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Samples_with_more_than_50%25_of_EBSD_points_filtered_out_exclu
+  kind: magnitude
+  raw_text: Samples where >50% of EBSD points are filtered out due to low confidence
+    are excluded from training and prediction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:34:08Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/model_limitations.md
+  attempts: 1
+  canonical: Processing EBSD datasets greater than 1 million points requires significant
+    RAM
+  claim_id: c_42cc04e8
+  context: 'Section 7: Computational Constraints discussing memory requirements for
+    large datasets.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Processing_EBSD_datasets_greater_than_1_million_points_requi
+  kind: magnitude
+  raw_text: Processing large EBSD datasets (>1M points) may require significant RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T05:34:25Z'

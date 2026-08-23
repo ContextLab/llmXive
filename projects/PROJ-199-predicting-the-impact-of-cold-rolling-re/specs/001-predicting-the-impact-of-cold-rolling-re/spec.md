@@ -82,7 +82,7 @@ A researcher needs to ensure that the predictive model remains stable and reliab
 - **FR-006**: The system MUST explicitly frame all findings as associational relationships, avoiding causal claims unless the dataset includes randomized assignment (which is not the case here). (See US-3)
 - **FR-007**: The system MUST implement a sensitivity analysis sweeping the reduction interpolation tolerance (defined as the maximum absolute difference in reduction percentage between a query point and the nearest available data point) over {0.01, 0.05, 0.1} to verify model stability, where stability is defined as an R² variation ≤ 0.02. (See US-4)
 - **FR-008**: The system MUST include 'Material Type' as a categorical feature in the joint model and report the residual variance attributed to missing microstructural variables (e.g., grain size, stacking fault energy) as a percentage of total variance. (See US-4)
-- **FR-009**: The system MUST flag any prediction made at reduction levels outside the lower-bound threshold as "extrapolated" and apply a confidence penalty factor of 2.0 to the standard error. (See US-4)
+- **FR-009**: The system MUST flag any prediction made at reduction levels outside the lower-bound threshold as "extrapolated" and apply a confidence penalty factor to the standard error. (See US-4)
 
 ### Key Entities
 
@@ -101,8 +101,8 @@ A researcher needs to ensure that the predictive model remains stable and reliab
 
 ## Assumptions
 
-- The Materials Project and MTData repositories contain sufficient EBSD data for Al, Cu, and Ni across the full 0-80% reduction range; if data is missing for a specific point, the model will interpolate or exclude that specific point rather than halting.
-- The `orix` Python package and its dependencies can be installed and executed within the GitHub Actions free-tier runner constraints (2 CPU, ~7 GB RAM) without exceeding the 6-hour time limit.
+- The Materials Project and MTData repositories contain sufficient EBSD data for Al, Cu, and Ni across the full reduction range.; if data is missing for a specific point, the model will interpolate or exclude that specific point rather than halting.
+- The `orix` Python package and its dependencies can be installed and executed within the GitHub Actions free-tier runner constraints (limited CPU and RAM resources) without exceeding the runner's time limit.
 - The crystallographic symmetry for all samples is strictly FCC; any samples with mixed phases or non-FCC structures will be excluded from the analysis.
 - The "cold-rolling reduction" percentage provided in the metadata is accurate and corresponds to the true plastic strain applied; no independent verification of the reduction percentage is performed.
 - The Gaussian Process regression model, when applied to the sampled dataset, will not require GPU acceleration and will converge within the CPU time limits.

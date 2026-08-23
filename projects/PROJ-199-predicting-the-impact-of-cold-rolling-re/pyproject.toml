@@ -1,13 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-project"
 version = "0.1.0"
-description = "Predicting the Impact of Cold Rolling Reduction on Texture Evolution"
-readme = "README.md"
-requires-python = ">=3.11"
+description = "Automated science pipeline for predicting cold rolling impact on texture evolution"
+requires-python = ">=3.9"
 dependencies = [
     "orix",
     "scikit-learn",
@@ -17,34 +16,46 @@ dependencies = [
     "pyyaml",
     "requests",
     "pytest",
-    "pydantic",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "black",
+    "pre-commit",
+    "isort",
+    "pytest",
+    "pytest-cov",
 ]
 
 [tool.black]
-line-length = 100
-target-version = ['py311']
-include = '\.pyi?$'
+line-length = 88
+target-version = ["py39", "py310", "py311"]
+include = "\\.pyi?$"
 exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
-    | docs
-    | \.eggs
-    | \.ipynb_checkpoints
-)/
+    (
+        \.git
+        | \.hg
+        | \.mypy_cache
+        | \.tox
+        | \.venv
+        | _build
+        | buck-out
+        | build
+        | dist
+        | \.eggs
+        | \.egg-info
+    )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 100
-known_first_party = ["analysis", "config", "data", "features", "models", "utils", "setup_linting"]
-known_third_party = ["orix", "sklearn", "shap", "pandas", "numpy", "yaml", "requests", "pytest", "pydantic"]
-skip = ["data", "docs", ".eggs", "build", "dist"]
+line_length = 88
+skip_glob = [
+    "*/.git/*",
+    "*/__pycache__/*",
+    "*/.eggs/*",
+    "*/build/*",
+    "*/dist/*",
+    "*/.venv/*",
+]

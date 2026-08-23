@@ -19,68 +19,73 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # Virtual Environments
 venv/
-ENV/
 env/
+ENV/
 .venv/
 
-# IDEs
-.vscode/
+# IDEs and Editors
 .idea/
+.vscode/
 *.swp
 *.swo
 *~
 .project
-.pydevproject
 .settings/
+.classpath
+.cache/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb_checkpoints
 
-# pytest
-.pytest_cache/
-.coverage
-htmlcov/
-coverage.xml
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Project specific: Data
-# Do not track raw data, large processed files, or model checkpoints
+# Data
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
 data/interim/*
-!data/interin/.gitkeep
-data/*.parquet
-data/*.csv
-data/*.h5
-data/*.nc
-data/*.mat
-data/*.zip
-data/*.tar.gz
+!data/interim/.gitkeep
+data/external/*
+!data/external/.gitkeep
+*.parquet
+*.csv
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+data/*.json
 
-# Project specific: Figures and Models
-figures/*.png
-figures/*.pdf
-figures/*.jpg
-models/*.pkl
-models/*.h5
-models/*.pt
-models/*.pth
+# Models and Artifacts
+models/
+.models/
+*.joblib
+*.pkl
+*.pt
+*.pth
 
 # Logs
-logs/
 *.log
+logs/
+.logs/
 
-# Configuration secrets (if any)
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Environment variables (if any)
 .env
 .env.local
-secrets.json
-config_secrets.yaml
+
+# Temporary files
+tmp/
+temp/
+*.tmp

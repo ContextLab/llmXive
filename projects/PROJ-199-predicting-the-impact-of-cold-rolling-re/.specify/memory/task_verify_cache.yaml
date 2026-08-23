@@ -7,13 +7,6 @@ T019:
     \ results, the requirement is not satisfied. The next implementer must provide\
     \ the actual function/module and evidence (e.g., unit test logs or example output)\
     \ showing the mass\u2011balance condition holds."
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, tests, or documentation showing that the `orix` library was
-    integrated and that FCC symmetry handling was added to correctly identify texture
-    components is present. The required artifact (e.g., updated pipeline code with
-    `orix` usage and verification of component identification) is missing.
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,14 +14,6 @@ T022:
     a validation step to flag samples whose texture evolution deviates from standard
     FCC trends. The required artifact (e.g., a function/module with unit tests or
     example output) is missing, so the task is not satisfied.
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, model file, or test output is provided showing that a \u201CMaterial\
-    \ Type\u201D categorical variable was added to the joint predictive model. The\
-    \ claim lacks any artifact (e.g., updated feature engineering script, model training\
-    \ log, or evaluation metrics) that demonstrates the feature\u2019s inclusion and\
-    \ its effect on model performance."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -38,16 +23,31 @@ T028:
     excerpt, with no concrete artifact to verify that the required functionality exists.
     The implementer must supply the actual implementation (e.g., a function/module,
     unit tests, or usage example) that performs the flagging and penalty logic.
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data files, or model artifacts were found on disk; the implementer provided
-    no concrete scripts, datasets, or results to demonstrate a data acquisition pipeline,
-    texture quantification, or predictive model as required by the user stories. Consequently
-    the task requirements are not satisfied.
 T031:
   c: false
   h: 290b1c52ba379ca7610ba8999b93813d8efeb521fca5607d0e37f2d76b83a858
   r: "The required file `tests/unit/test_robustness.py` does not exist in the repository,\
     \ so no unit test for the sensitivity analysis logic is present. The task\u2019\
     s deliverable is missing entirely."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of new unit test files in `tests/unit/` was provided; the claim lacks
+    any displayed test code covering missing data, extrapolation, or symmetry error
+    edge cases, so the required artifact is missing.
+T051:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file or any validation logs/output are present in the provided\
+    \ evidence, so we cannot confirm that the quickstart validation was executed or\
+    \ that end\u2011to\u2011end reproducibility was demonstrated. The required artifact\
+    \ is missing."
+T052:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No scripts, data files, model artifacts, or metric logs are present in the provided\
+    \ evidence; therefore we cannot confirm that any of the required artifacts were\
+    \ generated via an automated script as mandated by Constitution Principle\u202F\
+    IV. The implementer must supply the actual code and resulting outputs (e.g., acquisition\
+    \ script, pre\u2011processing logs, quantification results, model files, and evaluation\
+    \ metrics) to verify compliance."

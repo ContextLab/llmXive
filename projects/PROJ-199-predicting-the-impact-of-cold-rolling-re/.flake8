@@ -1,17 +1,25 @@
 [flake8]
-max-line-length = 100
-ignore = E203, E266, W503
-per-file-ignores =
-    __init__.py:F401
-    tests/*:E501
-exclude =
+# Maximum line length
+max-line-length = 88
+
+# Extensions to ignore
+extend-ignore = E203, E501, W503
+
+# Exclude directories
+exclude = 
     .git,
     __pycache__,
-    build,
-    dist,
     .eggs,
     *.egg-info,
-    data,
-    docs,
-    *.pyc,
-    .ipynb_checkpoints
+    build,
+    dist,
+    .venv,
+    venv
+
+# Per-file ignores
+per-file-ignores =
+    # Allow longer lines in test files for readability
+    tests/*: E501
+
+# Maximum complexity for cyclomatic complexity
+max-complexity = 10
