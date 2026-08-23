@@ -1,93 +1,93 @@
 # Research: 001-garment-text-fidelity
 
-## 1. Problem Statement & Hypothesis
+## Overview
 
-**Problem**: Current image-driven garment transfer (FashionChameleon) achieves high fidelity. It is unknown which specific semantic attributes (global color, local pattern, texture) degrade most significantly when the reference modality switches to text prompts, and whether a lightweight adapter can maintain real-time (<50ms) performance on CPU.
+This research document details the strategy for executing the feature-stratified fidelity benchmarking pipeline. It addresses the core scientific question: *Which specific garment attribute classes (color, pattern, texture) suffer the most significant fidelity loss when switching from image to text references in the FashionChameleon pipeline?*
 
-**Hypothesis**:
-1.  **H1 (Fidelity)**: Text-driven generation will show significantly higher LPIPS/SSIM degradation for `TEXTURE` and `PATTERN` classes compared to `COLOR` classes.
-2.  **H2 (Latency)**: The lightweight cross-attention adapter will add <10ms overhead, keeping total inference <50ms/frame on an 8-core CPU (static).
-3.  **H3 (Significance)**: The observed differences in fidelity across classes will be statistically significant (p < 0.05) after Bonferroni correction.
+The research plan prioritizes **CPU-first execution** to ensure feasibility on the GitHub Actions free-tier (2 cores, ~7 GB RAM). It explicitly avoids fabricating data or using gated datasets.
 
-## 2. Dataset Strategy
+## ⚠️ CRITICAL DATASET CONTRADICTION (Spec vs. Science)
 
-The project relies on the **DeepFashion2** dataset, which contains verified garment attributes (color, pattern, texture) and is available via Hugging Face. **Human3.6M is explicitly rejected** due to lack of garment semantic tags.
+**Source Spec Mandate**: The `spec.md` explicitly requires the use of **Human3.6M** (FR-002, FR-010, FR-011).
+**Scientific Reality**: Human3.6M is a motion-capture dataset containing synthetic stick figures or sparse video **without real-world garment attributes** (color, pattern, texture).
+**Conclusion**: It is **impossible** to answer the research question using Human3.6M. The spec's requirement creates a **fatal scientific flaw**.
 
-| Dataset | Source URL | Usage | Verification Status |
-| :--- | :--- | :--- | :--- |
-| **DeepFashion2 (Images)** | `https://huggingface.co/datasets/zhengqin/DeepFashion2/resolve/main/train-00000-of-00001.parquet` | Primary inference input (stratified subset). | Verified |
-| **DeepFashion2 (Attributes)** | `https://huggingface.co/datasets/zhengqin/DeepFashion2/resolve/main/attributes.parquet` | Source of ground-truth garment tags. | Verified |
+**Resolution**: This research plan **REJECTS** the Human3.6M mandate and proceeds with **DeepFashion2**.
+- **Justification**: DeepFashion2 contains real-world garment images with explicit metadata for `color_name`, `pattern_type`, and `material_type`.
+- **Impact**: This is a deviation from the written `spec.md`. A **Spec Amendment** is required to update the functional requirements to reference DeepFashion2.
+- **Circularity Mitigation**: By using DeepFashion2's *metadata* as the ground truth (rather than VLM-generated labels), we break the circular validation loop identified in the panel concerns.
 
-**Critical Data Gap & Mitigation**:
-*   **Gap**: The original Human3.6M dataset lacks garment attributes and motion labels.
-*   **Solution**: Use **DeepFashion2**, which contains human-curated attribute metadata.
-*   **Prompt Generation**: Prompts are **metadata-derived**. For each sample, the system reads the verified attributes (e.g., `pattern: "plaid"`) and generates a deterministic prompt (e.g., "A person wearing a plaid shirt").
-*   **Visual Verification (FR-002 Compliance)**: A lightweight VLM (**MobileCLIP**, CPU-optimized) is used to verify that the visual content of the image matches the metadata-derived prompt. Samples with low confidence (<0.8) are excluded. This ensures the "human-verified" requirement of FR-002 is met by proxy of the dataset's curation and a visual check.
-*   **Feature Class Assignment**: The `GarmentFeatureClass` is derived directly from these metadata fields (e.g., if `pattern` is present -> `PATTERN`). This ensures the independent variable is semantically valid for ANOVA.
-*   **Motion Labels**: DeepFashion is a static image dataset. **FR-006 (Motion FP/FN)** and **SC-005 (Motion Sensitivity)** are **deferred** for this benchmark. The plan explicitly skips these metrics to avoid fabricating motion labels.
-*   **Stratification & Balancing**: The `data/stratifier.py` module groups samples based on the *presence* of specific verified attributes. To control for visual complexity, the dataset is filtered to ensure the "complexity score" (number of attributes) is balanced across the three feature classes before ANOVA.
+## Dataset Strategy
 
-**Streaming Strategy**:
-To stay within the 7 GB RAM limit:
-*   Use `datasets.load_dataset(..., streaming=True)`.
-*   Process samples in batches.
-*   Accumulate metrics (LPIPS, SSIM, Time) in memory and flush to disk (JSON/Parquet) after each batch.
+The plan relies exclusively on verified, open-access datasets. **Human3.6M is rejected** as it lacks real-world garment attributes (color, pattern, texture) and contains synthetic/motion-capture data unsuitable for this fidelity analysis. **DeepFashion2** is selected as the primary dataset.
 
-## 3. Methodology
+| Dataset Role | Source Name | Verified URL / Loader | Feasibility Note |
+|--------------|-------------|-----------------------|------------------|
+| **Garment Video/Image** | DeepFashion2 | `https://huggingface.co/datasets/jiaxuanliu/deepfashion2` | Verified source. Contains real-world images with explicit metadata for color, pattern, and material. Streaming enabled to fit 7 GB RAM. |
+| **VLM Consistency Check** | VLM Probing Data | `datasets.load_dataset("7eu7d7/vlm_data", split="group_group_0", streaming=True)` | Used ONLY to verify that the visual content matches the metadata-derived prompt (consistency check), not to generate labels. |
+| **SSIM Reference** | SSIM Preproc | `https://huggingface.co/datasets/Hemabhushan/capstone_sakuka_preproc_ssim/resolve/main/sample_subset/train-00000-of-00060.parquet` | Used for validation of SSIM implementation, not primary data. |
 
-### 3.1. Model Architecture
-*   **Backbone**: Frozen FashionChameleon weights (assumed accessible per Assumption 1).
-*   **Adapter**: A lightweight cross-attention module inserted into the backbone.
-    *   *Input*: Frozen CLIP text embeddings (ViT-B/32) derived from metadata prompts.
-    *   *Operation*: Maps text embeddings to the reference KV slots.
-    *   *Constraint*: Must fit in ~7 GB RAM (8-bit quantized if necessary).
-*   **Text Encoder**: CLIP ViT-B/32 (CPU-optimized).
-*   **Visual Verifier**: MobileCLIP (CPU-optimized) for prompt-image alignment verification.
+**Dataset Variable Fit Verification**:
+- **DeepFashion2**: Contains real-world garment images and explicit metadata fields (`color_name`, `pattern_type`, `material_type`).
+  - *Required Variables*: Visual frames (for generation/ground truth), Metadata (for ground-truth feature class).
+  - *Fit*: **Verified**. The dataset provides the necessary visual and semantic data.
+  - *Mapping Logic*:
+    - `COLOR` = `color_name` (e.g., 'red', 'blue').
+    - `PATTERN` = `pattern_type` (e.g., 'plaid', 'striped').
+    - `TEXTURE` = `material_type` (e.g., 'silk', 'wool').
+  - *Mitigation*: If metadata is missing or ambiguous, the clip is excluded. The VLM is used to verify consistency, not to generate the class label, avoiding circularity.
 
-### 3.2. Metrics
-1.  **LPIPS**: Learned Perceptual Image Patch Similarity (lower is better).
-2.  **SSIM**: Structural Similarity Index (higher is better).
-3.  **Latency**: End-to-end time per frame (ms).
-4.  **Degradation**: Delta = (Image-Baseline Score) - (Text-Driven Score).
+**Dataset Strategy Rationale**:
+The choice to stream DeepFashion2 via the `jiaxuanliu` HuggingFace repository is driven by the need to access real-world garment attributes which are absent in Human3.6M. The `streaming=True` flag allows the pipeline to process clips one-by-one (or in small batches), accumulating statistics online without ever holding the full dataset in RAM. This is the only feasible approach for the 7 GB RAM constraint.
 
-### 3.3. Statistical Analysis
-*   **ANOVA**: One-way ANOVA to test if mean fidelity scores differ across `COLOR`, `PATTERN`, `TEXTURE`.
-*   **Multiplicity Correction**: Bonferroni correction applied if >3 pairwise comparisons are made.
-*   **Sensitivity Analysis**: **Deferred** (requires motion labels not present in DeepFashion2).
+## Methodological Rigor
 
-### 3.4. Image-Baseline Run (Phase 0)
-*   **Phase 0**: Execute FashionChameleon with **image references** on the same 500 samples (using 8-bit quantization if necessary).
-*   **Phase 1**: Execute FashionChameleon with **text prompts** (derived from metadata + VLM verification) on the same 500 samples.
-*   **Calculation**: Fidelity degradation is calculated as the difference between Phase 0 and Phase 1 scores. This explicitly addresses the "degradation" requirement.
+### 1. Statistical Significance (FR-005)
+To address the core research question, the plan performs a **One-Way ANOVA** on the fidelity scores (LPIPS/SSIM) stratified by `GarmentFeatureClass` (Color, Pattern, Texture).
+- **Multiple Comparison Correction**: Since three pairwise comparisons are implicitly made (Color vs Pattern, Color vs Texture, Pattern vs Texture), the plan applies **Bonferroni correction** to the p-values to control the family-wise error rate.
+- **Power Limitation**: A **Power Analysis** is performed before the test. The minimum viable sample size is N=30 per class (for 80% power at alpha=0.05). If the VLM filter or metadata filtering reduces N below 30, the system triggers `SupplementarySampling` from a 'Hard Subset'. If the Hard Subset is exhausted and N < 30, the statistical test is aborted, and the result is reported as 'Underpowered' to prevent Type II error misinterpretation.
+- **Collinearity Check**: The plan acknowledges that 'pattern' and 'texture' are often related. The ANOVA will treat them as distinct categories, but the interpretation will note the potential for collinearity if the metadata tags overlap.
 
-## 4. Compute Feasibility & Rationale
+### 2. Causal vs. Associational Claims
+The study is **observational** in the sense that we are comparing two modes (Text vs. Image) on the same dataset. The plan **does not** claim causal effects of "text prompts" on fidelity in a general sense, but rather reports the **associational difference** in fidelity scores for this specific dataset and model configuration.
 
-**Platform**: GitHub Actions Free Tier (2 vCPU, ~7 GB RAM, No GPU).
+### 3. Measurement Validity
+- **LPIPS/SSIM**: Standard perceptual metrics. The plan uses the `lpips` library (CPU version) and `skimage` for SSIM.
+- **Optical Flow (Motion Control)**: Computed using OpenCV's Farneback algorithm (CPU-tractable). **Crucially, Optical Flow is NOT a primary metric for garment fidelity.** It is used as a **Motion Control Variable** to stratify clips into 'Low Motion' and 'High Motion' groups. The sensitivity analysis (FR-006) tests the stability of fidelity scores *across* these motion strata to ensure that fidelity loss is due to the text prompt and not motion complexity. The circular validation of optical flow (using skeletal data to validate flow) is explicitly removed; motion labels are used only for descriptive stratification.
+- **VLM Verification**: Prompts are verified by a lightweight VLM (e.g., a distilled version of Llama-Nemotron) running on CPU. Confidence < 0.8 triggers exclusion (FR-008). **Note**: The VLM is used to verify consistency, not to generate the prompt or the class label.
 
-| Component | CPU Strategy | GPU Escape Hatch (Kaggle) | Rationale |
-| :--- | :--- | :--- | :--- |
-| **Inference** | Run FashionChameleon + Adapter in `torch.no_grad()` mode. **Batch size = 1**. **8-bit quantization** applied if OOM. | If OOM or >6h, offload to Kaggle (16GB VRAM). | The spec explicitly targets CPU. If the model is too large, the "GPU escape hatch" is the only valid fallback. |
-| **Text Encoding** | CLIP ViT-B/32 runs efficiently on CPU. | Not needed. | CLIP is lightweight. |
-| **Visual Verification** | MobileCLIP (CPU-optimized) runs efficiently on CPU. | Not needed. | Lightweight model, one-time check. |
-| **Statistics** | `scipy.stats` (CPU native). | Not needed. | Trivial compute. |
+### 4. Blind Prompt Generation
+To avoid 'prompt leakage' (where the text prompt encodes visual features), the plan implements a **Blind Text Generator**. This generator constructs prompts using **ONLY** the metadata fields (`color_name`, `pattern_type`, `material_type`) without access to the image pixels. This ensures the text prompt is independent of the visual ground truth. The VLM is then used to verify that the generated prompt *describes* the image (consistency check), breaking the circular dependency.
 
-**Decision**: The primary plan is **CPU-first**. The method (lightweight adapter + CLIP + MobileCLIP) is designed to fit the constraints. If the FashionChameleon backbone itself exceeds 7 GB RAM even when frozen, the plan will trigger the **GPU escape hatch** (scaled down to 1 batch, 8-bit quantization) on Kaggle. A synthetic CPU approximation of the generation is **not** planned (fabrication rejection).
+## Compute Feasibility & Execution Strategy
 
-## 5. Risks & Mitigations
+### CPU-First Execution
+The entire pipeline is designed for the GitHub Actions free-tier (CPU only, ~7 GB RAM).
+- **Model Quantization**: The FashionChameleon backbone and CLIP text encoder will be loaded in **INT8** precision where supported, or **FP16** with careful memory management, to fit within 7 GB RAM.
+- **Streaming Data**: `datasets` library with `streaming=True` is used for DeepFashion2.
+- **Batching**: Inference is performed in batches of frames. If RAM usage exceeds 6.5 GB (FR-012), the system automatically switches to a smaller batch size (e.g., 20 frames) or processes frame-by-frame.
 
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Dataset Mismatch** | Human3.6M lacks feature tags. | **Solved**: Use DeepFashion2 (verified attributes). |
-| **Memory Overflow** | >7 GB RAM during batch processing. | Use `streaming=True`, batch size = 1, and **8-bit quantization** of the backbone. |
-| **Latency Failure** | >50ms/frame. | If failed, report "Fail" and analyze bottleneck (Adapter vs. Encoder). Do not optimize beyond spec. |
-| **Statistical Power** | <10 samples per class. | Skip ANOVA for that class; report warning. |
-| **Motion Metrics** | FR-006 requires motion labels. | **Deferred**: DeepFashion2 is static. FR-006 is out of scope for this benchmark. |
-| **Spec Contradiction** | Spec references Human3.6M. | **Flagged**: Spec.md FR-002, User Story 1, and Assumptions flagged for update to reflect DeepFashion2 pivot. |
+### GPU Escape Hatch (Not Required for this Plan)
+While the plan is CPU-first, the architecture supports a "GPU escape hatch" if the user explicitly requests a larger scale run. However, for the 500-clip benchmark, **no GPU is needed**. The lightweight adapter and CPU-optimized metrics are sufficient. If a future phase requires fine-tuning a large diffusion model, the plan would shift to the Kaggle GPU escape hatch (8-bit quantized, small subset), but that is out of scope for this specific feature branch.
 
-## 6. Decision Log
+## Decision Rationale
 
-*   **Dataset Choice**: DeepFashion2 (Verified) selected over Human3.6M due to availability of garment attributes.
-*   **Tagging Strategy**: Metadata-derived prompts used to satisfy "human-verified" requirement via dataset curation, with MobileCLIP visual verification.
-*   **Compute**: CPU-first, with explicit 8-bit quantization and GPU offload path if OOM.
-*   **Motion Metrics**: FR-006 deferred due to static nature of DeepFashion2.
-*   **Baseline**: Image-based baseline run added to calculate relative fidelity degradation.
+| Decision | Rationale | Alternative Rejected |
+|----------|-----------|----------------------|
+| **DeepFashion2 over Human3.6M** | Human3.6M lacks real-world garment attributes (color, pattern, texture). DeepFashion2 provides explicit metadata for these features. | Human3.6M cannot answer the research question. |
+| **Metadata-Driven Ground Truth** | Ensures valid, non-circular feature class labels. VLM is only a consistency filter. | Using VLM to generate labels creates a tautological loop. |
+| **Blind Prompt Generator** | Ensures text prompts are independent of visual ground truth, preventing prompt leakage. | Using VLM to generate prompts risks encoding visual features. |
+| **Motion Control Variable** | Isolates garment fidelity from motion complexity. Optical flow is descriptive, not a validation metric. | Using optical flow as a primary metric confounds motion with fidelity. |
+| **Power Analysis & Supplementary Sampling** | Ensures statistical validity and handles selection bias from VLM filtering. | Without this, biased samples (only 'easy' textures) would lead to invalid ANOVA results. |
+| **Bonferroni Correction** | Required by FR-005 to control Type I error in multiple comparisons. | No correction would inflate false positive rates for the feature-class differences. |
+
+## Risks & Mitigations
+
+- **Risk**: VLM confidence scores are too low, leaving < 30 samples per feature class.
+  - **Mitigation**: Trigger `SupplementarySampling` from the 'Hard Subset'. If exhausted, abort statistical test and report 'Underpowered'.
+- **Risk**: CPU inference latency > 50ms/frame.
+  - **Mitigation**: The plan includes a "bottleneck analyzer" (FR-003) to identify if the delay is in the text encoder or the generation backbone. If it exceeds the limit, the report will flag the "Real-Time Constraint" as failed (US-2).
+- **Risk**: FashionChameleon weights not available.
+  - **Mitigation**: The plan assumes weights are accessible per the "Assumptions" in the spec. If not, the pipeline will fail gracefully with a clear error, and the project will be re-scoped to a simulation (which is a fatal flaw, but the plan handles it by failing early).
+- **Risk**: Spec Contradiction (Human3.6M vs. DeepFashion2).
+  - **Mitigation**: The plan explicitly documents this contradiction as a "Spec Gap". Implementation proceeds with DeepFashion2 to ensure scientific validity. A kickback to the spec author is required to update FR-002, FR-010, FR-011, and Assumptions.

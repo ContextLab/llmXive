@@ -1,61 +1,70 @@
 # Data Model: 001-garment-text-fidelity
 
-## 1. Conceptual Overview
+## Overview
 
-The data model tracks the flow from raw image samples to stratified inference results. The core entities are `GarmentFeatureClass`, `FidelityScore`, and `InferenceLog`.
+This document defines the data structures, schemas, and flows for the `001-garment-text-fidelity` feature. All data artifacts are versioned and checksummed as per Constitution Principle V.
 
-### Key Entities
+## Key Entities
 
-1.  **GarmentFeatureClass**: Enum (`COLOR`, `PATTERN`, `TEXTURE`). Represents the semantic attribute being tested, derived from DeepFashion2 metadata and verified by MobileCLIP.
-2.  **TextPrompt**: String. The natural language description generated from DeepFashion2 attributes (e.g., "A person wearing a plaid shirt").
-3.  **FidelityScore**: Float. The result of LPIPS or SSIM comparison.
-4.  **InferenceLog**: Structured record of a single sample's processing (latency, scores).
+### 1. GarmentFeatureClass
+An enumeration of the visual attributes being tested.
+- `COLOR`: Global color attributes.
+- `PATTERN`: Local pattern density (e.g., plaid, stripes).
+- `TEXTURE`: Surface roughness/material properties (e.g., silk, wool).
 
-## 2. Logical Schema
+### 2. FidelityScore
+A quantitative metric record for a single frame or clip.
+- `clip_id`: Unique identifier for the video clip.
+- `feature_class`: One of `COLOR`, `PATTERN`, `TEXTURE`.
+- `lpips_score`: Float (0.0 - 1.0). Lower is better.
+- `ssim_score`: Float (0.0 - 1.0). Higher is better.
+- `optical_flow_variance`: Float. Measures motion coherence.
+- `latency_ms`: Float. Inference time per frame.
+- `source_mode`: `TEXT` or `IMAGE` (baseline).
 
-### Input Data (Streaming)
-*   `image_id`: String (Unique identifier from DeepFashion2).
-*   `frame_index`: Integer (Always 0 for static images).
-*   `feature_class`: String (Derived from DeepFashion2 metadata: `COLOR` | `PATTERN` | `TEXTURE`).
-*   `text_prompt`: String (Generated from metadata).
-*   `ground_truth_frame`: Image tensor (from dataset).
-*   `visual_confirmed`: Boolean (True if MobileCLIP verifies prompt-image alignment).
+### 3. TextPrompt
+A natural language description with metadata.
+- `prompt_text`: The string description.
+- `feature_class`: The tag assigned by the VLM.
+- `vlm_confidence`: Float (0.0 - 1.0).
+- `is_verified`: Boolean (True if confidence >= 0.8).
 
-### Intermediate Results (Batched)
-*   `generated_frame`: Image tensor (output of model).
-*   `latency_ms`: Float.
+### 4. InferenceLog
+A record of the execution state.
+- `timestamp`: ISO8601 string.
+- `clip_id`: String.
+- `frame_id`: Integer.
+- `status`: `SUCCESS`, `FAIL`, `OOM`, `SKIP`.
+- `error_message`: String (if failed).
 
-### Output Aggregates
-*   `mean_lpips`: Float (per feature class).
-*   `mean_ssim`: Float (per feature class).
-*   `p_value`: Float (ANOVA result).
-*   `latency_pass`: Boolean (True if <= 50ms).
+### 5. MotionLabel
+Binary label derived from skeletal data.
+- `clip_id`: String.
+- `label`: `CORRECT` or `INCORRECT`.
+- `velocity_threshold`: Float (e.g., 0.5 m/s).
 
-## 3. Physical Data Layout
+## Data Flow
 
-```text
-data/
-├── raw/
-│   └── deepfashion2_stream/       # (Virtual stream, not stored)
-├── processed/
-│   ├── benchmark_subset.jsonl # (samples with metadata-derived tags + visual confirmation)
-│   └── inference_results/
-│       ├── batch_001.json
-│       ├── batch_002.json
-│       └── ...
-└── reports/
-    ├── fidelity_report.json   # Aggregated scores per class
-    ├── stats_report.json      # ANOVA results
-    └── latency_report.json    # Per-sample latency logs
-```
+1. **Ingestion**: `Human3.6M` (streamed) -> `Feasibility Filter` (VLM) -> `Stratified Subset`.
+2. **Processing**:
+   - Input: `TextPrompt` + `Video Frame`.
+   - Model: `FashionChameleon` (Text Adapter) -> `Generated Frame`.
+   - Metrics: `LPIPS`, `SSIM`, `Optical Flow` calculated against `Ground Truth Frame`.
+3. **Aggregation**: Metrics aggregated per `feature_class` and `source_mode`.
+4. **Analysis**: ANOVA, Sensitivity Sweep.
+5. **Output**: `fidelity_report.json`, `latency_log.csv`, `manifest.json`.
 
-## 4. Data Lineage & Hygiene
+## File Artifacts
 
-1.  **Source**: DeepFashion2 (Hugging Face).
-2.  **Transformation**: `stratifier.py` derives `feature_class` and `text_prompt` from metadata.
-3.  **Verification**: `stratifier.py` uses MobileCLIP to set `visual_confirmed`.
-4.  **Processing**: `runner.py` generates frames and computes metrics.
-5.  **Aggregation**: `stats.py` computes ANOVA.
-6.  **Checksums**: All `inference_results/*.json` files are checksummed and recorded in `data/manifest.json`.
+| Path | Description | Format |
+|------|-------------|--------|
+| `data/raw/h36m_stream_manifest.json` | Checksums and metadata for streamed shards | JSON |
+| `data/processed/fidelity_scores.parquet` | Aggregated metrics for all clips | Parquet |
+| `data/processed/latency_log.csv` | Per-frame latency measurements | CSV |
+| `data/processed/anova_results.json` | Statistical test results | JSON |
+| `data/processed/sensitivity_analysis.csv` | Threshold sweep results | CSV |
+| `data/manifest.json` | Content hashes for all artifacts | JSON |
 
-**Constraint**: No raw image frames are stored on disk; they are streamed, processed, and discarded to save space. Only metrics and logs are persisted.
+## Schema Definitions
+
+See `contracts/fidelity_report.schema.yaml` and `contracts/dataset_manifest.schema.yaml` for formal JSON Schema definitions.

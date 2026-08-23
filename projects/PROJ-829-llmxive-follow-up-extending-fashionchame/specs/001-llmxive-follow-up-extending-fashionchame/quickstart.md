@@ -2,66 +2,67 @@
 
 ## Prerequisites
 
-*   Python 3.10+
-*   Git
-*   Access to Hugging Face (for DeepFashion2)
-*   (Optional) Kaggle account for GPU offload (if CPU fails)
+- **Python**: 3.11+
+- **Hardware**: 8-core CPU, 8 GB+ RAM (Recommended for smooth operation; 7 GB minimum).
+- **Network**: Access to HuggingFace Hub.
 
-## 1. Environment Setup
+## Installation
 
+1. **Clone the repository** and navigate to the feature directory:
+   ```bash
+   git checkout 001-garment-text-fidelity
+   cd projects/PROJ-829-llmxive-follow-up-extending-fashionchame
+   ```
+
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+
+## Running the Benchmark
+
+### Step 1: Data Preparation (Streaming)
+The pipeline automatically streams data from **DeepFashion2** (not Human3.6M). No manual download is required.
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-pip install -r requirements.txt
+# This will trigger the feasibility filter and subset selection
+python code/run_benchmark.py --mode prepare
 ```
 
-*Note: `requirements.txt` pins `transformers`, `scikit-image`, `scipy`, `pandas`, `datasets`, `opencv-python`, `mobileclip`.*
-
-## 2. Data Preparation
-
-The dataset is loaded via streaming. No manual download is required.
-
+### Step 2: Execute the Benchmark
+Run the full pipeline on a representative clip subset.
 ```bash
-# Verify dataset access (optional)
-python -c "from datasets import load_dataset; ds = load_dataset('zhengqin/DeepFashion2', split='train', streaming=True); print(next(iter(ds)))"
+python code/run_benchmark.py --mode benchmark --subset-size 500
 ```
+*Note: This command will:*
+- *Load FashionChameleon weights (INT8).*
+- *Stream DeepFashion2 clips (replacing Human3.6M as per scientific necessity).*
+- *Generate/verify prompts via VLM.*
+- *Compute LPIPS/SSIM and Latency.*
+- *Perform ANOVA and Sensitivity Analysis.*
 
-## 3. Running the Benchmark
+### Step 3: Review Results
+Output files are saved in `data/processed/`:
+- `fidelity_scores.parquet`: Detailed metrics per clip.
+- `anova_results.json`: Statistical significance of feature-class differences.
+- `latency_log.csv`: Per-frame timing data.
+- `benchmark_report.md`: Human-readable summary.
 
-Execute the full pipeline on a representative subset of the samples.
+## Troubleshooting
 
+- **OOM Error**: If you encounter `MemoryError`, the pipeline should automatically switch to a smaller batch size. If it fails, reduce `--batch-size` in `config/settings.yaml` to 20.
+- **VLM Timeout**: If the VLM verification takes too long, ensure you have a stable internet connection. The default timeout is 30s per clip.
+- **Missing FashionChameleon Weights**: Ensure the weights are placed in `code/models/fashionchameleon/` as per the `requirements.txt` instructions.
+
+## Validation
+
+To verify the installation:
 ```bash
-# Run the benchmark
-python -m src.cli.main --subset-size 500 --batch-size 1 --output-dir data/reports
+pytest tests/unit/test_metrics.py -v
 ```
-
-**Flags**:
-*   `--subset-size`: Number of samples to process (default 500).
-*   `--batch-size`: Frames per batch (default 1 for CPU safety).
-*   `--output-dir`: Directory for results.
-
-## 4. Verifying Results
-
-Check the generated reports:
-
-```bash
-# View fidelity report
-cat data/reports/fidelity_report.json
-
-# View statistical analysis
-cat data/reports/stats_report.json
-
-# Check latency
-cat data/reports/latency_report.json
-```
-
-**Expected Output**:
-*   `fidelity_report.json`: Contains mean LPIPS/SSIM for `COLOR`, `PATTERN`, `TEXTURE`.
-*   `stats_report.json`: Contains ANOVA p-value and Bonferroni correction status.
-*   `latency_report.json`: Contains `pass` (True/False) based on 50ms threshold.
-
-**Note**: Motion-based metrics (FR-006) are deferred and will not appear in the output.
+This ensures LPIPS and SSIM calculations are working correctly before the full benchmark runs.

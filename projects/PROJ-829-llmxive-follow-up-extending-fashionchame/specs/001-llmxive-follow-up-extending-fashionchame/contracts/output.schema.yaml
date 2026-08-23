@@ -64,14 +64,22 @@ properties:
         description: "Whether Bonferroni correction was applied."
       motion_analysis:
         type: "object"
-        description: "Motion analysis results (deferred for static dataset)."
+        description: "Motion analysis results (descriptive stratification only)."
         properties:
           status:
             type: "string"
             enum:
-              - "deferred"
               - "completed"
-            description: "Status of motion analysis."
+            description: "Status of motion analysis (descriptive only)."
+          low_motion_fidelity:
+            type: "number"
+          high_motion_fidelity:
+            type: "number"
+          conclusion:
+            type: "string"
+            description: "Conclusion on whether motion confounds fidelity."
+    required:
+      - status
   latency_results:
     type: "object"
     description: "Latency performance."

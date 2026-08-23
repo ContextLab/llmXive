@@ -1,12 +1,13 @@
 status: none
-intent: download Human3.6M dataset with feature tags for color pattern texture python
-  package dataset
+intent: deepfashion attribute annotated fashion image dataset python package dataset
 required_fields:
-- clip_id
-- video_path
-- color_tag
-- pattern_tag
-- texture_tag
-cache_key: faabbdef358c38bfdc104c72b90fbd59616f2e1e16463f3a207540313096efaa
-searched_at: '2026-08-07T21:57:15.033488+00:00'
+- image_id
+- image_path
+- category
+- color_label
+- pattern_label
+- texture_label
+- bounding_box
+cache_key: 8158dc519ddb054a48e2d6da5d6479832a5ec4132a988e20a254b06800326c90
+searched_at: '2026-08-23T03:37:48.093108+00:00'
 retry_count: 1
