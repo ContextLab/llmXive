@@ -1,57 +1,42 @@
-"""
-Script to create the required project directory structure for llmXive.
-This script ensures all necessary directories exist for data, code, tests, and results.
-"""
 import os
 import sys
 
-# Define the root directory (assumed to be the project root)
-# We use the current working directory as the base
-BASE_DIR = os.getcwd()
-
-# List of directories to create relative to BASE_DIR
-DIRECTORIES = [
-    "code/data",
-    "code/models",
-    "code/analysis",
-    "code/utils",
-    "data/raw",
-    "data/processed",
-    "data/results",
-    "tests",
-    "tests/integration",
-]
-
-def ensure_dir(dir_path: str) -> bool:
-    """
-    Creates a directory if it does not exist.
-    Returns True if successful, False otherwise.
-    """
-    full_path = os.path.join(BASE_DIR, dir_path)
-    try:
-        os.makedirs(full_path, exist_ok=True)
-        print(f"Created/Verified: {full_path}")
-        return True
-    except OSError as e:
-        print(f"Error creating {full_path}: {e}")
-        return False
-
-def main():
-    """Main entry point to create all required directories."""
-    print(f"Project Root: {BASE_DIR}")
-    print("Creating required directory structure...")
-    
-    success = True
-    for dir_path in DIRECTORIES:
-        if not ensure_dir(dir_path):
-            success = False
-    
-    if success:
-        print("\nAll directories created successfully.")
-        sys.exit(0)
+def ensure_dir(path: str) -> None:
+    """Create directory if it does not exist."""
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print(f"Created directory: {path}")
     else:
-        print("\nSome directories failed to create.")
-        sys.exit(1)
+        print(f"Directory already exists: {path}")
+
+def main() -> None:
+    """Create the full project directory structure."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
+    # Define the required directory structure relative to the project root
+    directories = [
+        # Code modules
+        os.path.join(base_dir, "code", "data"),
+        os.path.join(base_dir, "code", "models"),
+        os.path.join(base_dir, "code", "analysis"),
+        os.path.join(base_dir, "code", "utils"),
+        
+        # Data storage
+        os.path.join(base_dir, "data", "raw"),
+        os.path.join(base_dir, "data", "processed"),
+        os.path.join(base_dir, "data", "results"),
+        
+        # Tests
+        os.path.join(base_dir, "tests"),
+        os.path.join(base_dir, "tests", "integration"),
+        os.path.join(base_dir, "tests", "unit"),
+    ]
+    
+    print("Setting up project directory structure...")
+    for directory in directories:
+        ensure_dir(directory)
+    
+    print("Directory structure setup complete.")
 
 if __name__ == "__main__":
     main()

@@ -1413,3 +1413,1258 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T09:54:13Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Default Target AUC Threshold is 0.75
+  claim_id: c_6d90959c
+  context: '**Note**: Per Plan.md (Research Section), this value is defined in the
+    research plan''s config section; 0.75 is the default placeholder.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default placeholder value for the Target AUC Threshold is 0.75.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:53:35Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: Subsampling triggers at >5000 nodes or >7GB memory
+  claim_id: c_026d1ab2
+  context: '**Subsampling Rule**: T008 strictly enforces ''Largest Connected Component
+    only'' ... with explicit logic to trigger on `node_count > 5000` OR `peak_memory
+    > 7GB`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The subsampling logic triggers if node count exceeds 5000 or peak memory
+    exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:53:56Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Distinct pattern defined as rank difference > 2 between GNN and RF
+  claim_id: c_2daccbea
+  context: '**Distinct Patterns**: T033b defines ''distinct'' as rank-diff > 2 or
+    presence in GNN Top-5 but not RF Top-5, with mandatory proxy-name alignment.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Distinct_pattern_defined_as_rank_difference_%3E_2_between_GNN_
+  kind: magnitude
+  raw_text: A pattern is defined as 'distinct' if its rank in the GNN list differs
+    by more than 2 positions from its rank in the RF list.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:54:46Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Hypothesis set requires 7 comparisons
+  claim_id: c_03006c18
+  context: '**P-Value Chain**: T032 explicitly generates p-values for the top 5 features
+    via permutation testing to satisfy the 7-comparison hypothesis set required by
+    FR-006 and T031b, with explicit JSON output format.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hypothesis set requires 7 comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:55:13Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Hypothesis set requires 7 comparisons
+  claim_id: c_1a9ed426
+  context: '**Small Sample Robustness**: T030 and T031 explicitly implement Permutation
+    Tests and BH correction to ensure validity given N < 13 scenarios, preserving
+    the 7-comparison hypothesis set.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hypothesis set requires 7 comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:55:13Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime required to be under 6 hours
+  claim_id: c_c5c95db5
+  context: '**Polish & Cross-Cutting Concerns**: ... Optimize graph construction loop
+    in `code/data/preprocess.py` to ensure end-to-end runtime < 6 hours'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The end-to-end runtime is required to be under 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:55:35Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN early stopping patience is 5
+  claim_id: c_a47fdd4b
+  context: 'Implement 2-layer GCN in `code/models/gcn.py`: CPU-only, a limited number
+    of epochs, early stopping (patience=5, delta=1e-4)'
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The GCN model training uses an early stopping patience of 5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T14:55:36Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN early stopping delta is 1e-4
+  claim_id: c_e6082b94
+  context: 'Implement 2-layer GCN in `code/models/gcn.py`: CPU-only, a limited number
+    of epochs, early stopping (patience=5, delta=1e-4)'
+  evidence:
+    asserted: '0.0001'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The GCN model training uses an early stopping delta of 1e-4.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T14:55:36Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR threshold is 0.05
+  claim_id: c_ca5f7e76
+  context: Write test skeleton for Benjamini-Hochberg correction in `tests/test_significance_tests.py`
+    (validates FDR < 0.05 threshold) [Depends on T031b]
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "are small and n\u2217 is relatively large. For example, when \u03B1\
+        \ = 0.05, \u03C00 = 0.2"
+      source_id: '1906.01701'
+      url: https://arxiv.org/abs/1906.01701
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The Benjamini-Hochberg correction validates an FDR threshold of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T14:56:58Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation Test alpha is 0.05
+  claim_id: c_84585dec
+  context: 'Implement Permutation Tests in `code/analysis/significance_tests.py`:
+    permutations, alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Permutation Test uses an alpha of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:57:20Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 3
+  canonical: Hypothesis set includes top 5 structural features vs null baseline
+  claim_id: c_65a72330
+  context: '**Hypothesis Set**: Must explicitly target the comparisons required by
+    FR-006: (1) GCN vs RF, (2) GCN vs XGB, and (3-7) Top 5 structural features vs
+    null baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hypothesis set includes comparisons for the top 5 structural features
+    versus a null baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:57:51Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN model is 2-layer
+  claim_id: c_2f77efd6
+  context: 'Implement 2-layer GCN in `code/models/gcn.py`: CPU-only, a limited number
+    of epochs, early stopping (patience=5, delta=1e-4)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GCN model is implemented as a 2-layer network.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:58:24Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: Distinct pattern defined as in GNN Top-5 but not RF Top-5
+  claim_id: c_436f2799
+  context: '**Distinct Patterns**: T033b defines ''distinct'' as rank-diff > 2 or
+    presence in GNN Top-5 but not RF Top-5, with mandatory proxy-name alignment.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distinct_pattern_defined_as_in_GNN_Top-5_but_not_RF_Top-5
+  kind: entity_fact
+  raw_text: A pattern is defined as 'distinct' if it appears in the GNN Top-5 but
+    not in the RF Top-5.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:58:58Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: Graph retained as-is if nodes <= 5000 and memory <= 7GB
+  claim_id: c_c5200431
+  context: '**4) If `node_count <= 5000` AND `peak_memory <= 7GB`**: Retain graph
+    as-is.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Graph_retained_as-is_if_nodes_%3C=_5000_and_memory_%3C=_7GB
+  kind: magnitude
+  raw_text: The subsampling logic retains the graph as-is if node count is less than
+    or equal to 5000 and peak memory is less than or equal to 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:59:22Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: Extract LCC if nodes > 5000 or memory > 7GB
+  claim_id: c_090c350e
+  context: '**Logic**: 1) Build graph. 2) Write raw graph to `data/processed/graph_{scenario}_prelim.graphml`.
+    3) **If `node_count > 5000` OR `peak_memory > 7GB`**: Extract Largest Connected
+    Component (LCC).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Extract_LCC_if_nodes_%3E_5000_or_memory_%3E_7GB
+  kind: magnitude
+  raw_text: The subsampling logic extracts the Largest Connected Component if node
+    count exceeds 5000 or peak memory exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T14:59:48Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: Subsample LCC if nodes > 5000 or memory > 7GB
+  claim_id: c_c5824864
+  context: If LCC node count > 5000 or memory still > 7GB, randomly subsample edges/nodes
+    within LCC to reach 5000 nodes and < 7GB.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subsample_LCC_if_nodes_%3E_5000_or_memory_%3E_7GB
+  kind: magnitude
+  raw_text: If the LCC node count is greater than 5000 or memory is still greater
+    than 7GB, the logic randomly subsamples edges/nodes within the LCC.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:00:30Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: Target subsampling to 5000 nodes and < 7GB memory
+  claim_id: c_d5ec4c8b
+  context: If LCC node count > 5000 or memory still > 7GB, randomly subsample edges/nodes
+    within LCC to reach 5000 nodes and < 7GB.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_subsampling_to_5000_nodes_and_%3C_7GB_memory
+  kind: magnitude
+  raw_text: The subsampling logic aims to reach 5000 nodes and less than 7GB memory.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:00:53Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN convergence test asserts <= 30 epochs
+  claim_id: c_1cf08fd4
+  context: "Write test skeleton for GCN convergence on CPU in `tests/test_models.py`\
+    \ (asserts no CUDA errors, converges \u226430 epochs) [Depends on T021]"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test skeleton for GCN convergence asserts convergence within 30 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:01:19Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: Hypothesis set includes GCN vs RF and GCN vs XGB
+  claim_id: c_cb49e3f7
+  context: '**Hypothesis Set**: Must explicitly target the comparisons required by
+    FR-006: (1) GCN vs RF, (2) GCN vs XGB, and (3-7) Top 5 structural features vs
+    null baseline.'
+  evidence:
+    entailment_evidence: Hypothesis set includes GCN vs RF and GCN vs XGB
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_set_includes_GCN_vs_RF_and_GCN_vs_XGB
+  kind: entity_fact
+  raw_text: The hypothesis set requires comparisons for GCN vs RF and GCN vs XGB.
+  resolved_value: Hypothesis set includes GCN vs RF and GCN vs XGB
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T15:01:49Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: CTU dataset downloaded from canonical URL
+  claim_id: c_c9ba3bf3
+  context: 'Download CTU dataset from canonical URL: ` and validate checksum'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CTU_dataset_downloaded_from_canonical_URL
+  kind: entity_fact
+  raw_text: The CTU dataset is downloaded from a canonical URL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:02:19Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: NF-BoT-IoT dataset downloaded from canonical URL
+  claim_id: c_1ea2c39d
+  context: Download the NF-BoT-IoT dataset from its canonical URL (`) and validate
+    the checksum (Fallback).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NF-BoT-IoT_dataset_downloaded_from_canonical_URL
+  kind: entity_fact
+  raw_text: The NF-BoT-IoT dataset is downloaded from its canonical URL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:02:38Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Graph builder defines Nodes=IPs, Edges=flows, Weights=packet counts
+  claim_id: c_15fc9f08
+  context: 'Implement graph builder in `code/data/preprocess.py`: Nodes=IPs, Edges=flows,
+    Weights=packet counts.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_builder_defines_Nodes=IPs,_Edges=flows,_Weights=packet
+  kind: entity_fact
+  raw_text: The graph builder defines Nodes as IPs, Edges as flows, and Weights as
+    packet counts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:03:00Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Memory monitor enforces 7GB limit
+  claim_id: c_cf922a6e
+  context: Write test skeleton for graph construction memory limit in `tests/test_memory_limits.py`
+    (asserts `tracemalloc` < 7GB) [Depends on T013]
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_monitor_enforces_7GB_limit
+  kind: entity_fact
+  raw_text: The memory monitor enforces a hard memory limit of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:03:23Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Graph construction test asserts nodes <= 5000
+  claim_id: c_13d1b761
+  context: "Write test skeleton for node count subsampling in `tests/test_graph_construction.py`\
+    \ (asserts nodes \u2264 5,000, LCC rule) [Depends on T008, T013]"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Graph_construction_test_asserts_nodes_%3C=_5000
+  kind: magnitude
+  raw_text: The graph construction test skeleton asserts node count is less than or
+    equal to 5000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:03:43Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Evaluation metrics include Precision, Recall, F1-Score, AUC-ROC
+  claim_id: c_55e19cd0
+  context: 'Independent Test: Train models on fixed split, evaluate on held-out test
+    set, record metrics (Precision, Recall, F1, AUC-ROC).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_metrics_include_Precision,_Recall,_F1-Score,_AUC-
+  kind: entity_fact
+  raw_text: The evaluation metrics include Precision, Recall, F1-Score, and AUC-ROC.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:04:07Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Evaluation metrics include Precision, Recall, F1-Score, AUC-ROC
+  claim_id: c_58930f9c
+  context: 'Implement evaluation metrics in `code/models/metrics.py`: Precision, Recall,
+    F1-Score, AUC-ROC calculation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_metrics_include_Precision,_Recall,_F1-Score,_AUC-
+  kind: entity_fact
+  raw_text: The evaluation metrics include Precision, Recall, F1-Score, and AUC-ROC.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:04:09Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: RF/XGBoost wrappers use degree, centrality, variance features
+  claim_id: c_d6f358bd
+  context: 'Implement Random Forest and XGBoost wrappers in `code/models/baselines.py`:
+    Use structural features (degree, centrality, variance)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RF/XGBoost_wrappers_use_degree,_centrality,_variance_feature
+  kind: entity_fact
+  raw_text: The Random Forest and XGBoost wrappers use structural features including
+    degree, centrality, and variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:04:36Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Integrated Gradients maps embeddings to structural proxies
+  claim_id: c_21671960
+  context: 'Implement Integrated Gradients for GNN in `code/analysis/attribution.py`:
+    Map embeddings to structural proxies.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integrated_Gradients_maps_embeddings_to_structural_proxies
+  kind: entity_fact
+  raw_text: The Integrated Gradients implementation maps embeddings to structural
+    proxies.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:04:57Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Distinct ranking requires mapping GNN to RF structural proxy names
+  claim_id: c_75304e77
+  context: '**Logic**: **Step 1**: Map GNN Integrated Gradients to the **same structural
+    proxy names** used by RF to ensure valid comparison.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distinct_ranking_requires_mapping_GNN_to_RF_structural_proxy
+  kind: entity_fact
+  raw_text: The distinct ranking artifact generation requires mapping GNN Integrated
+    Gradients to the same structural proxy names used by RF.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:05:15Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Correlation analysis compares degree-based vs temporal-based patterns
+  claim_id: c_ba70881c
+  context: 'Implement correlation analysis in `code/analysis/significance_tests.py`:
+    Degree-based vs temporal-based patterns'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_analysis_compares_degree-based_vs_temporal-based
+  kind: entity_fact
+  raw_text: The correlation analysis compares degree-based versus temporal-based patterns.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:05:46Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: BH correction applied to model pair and feature p-values
+  claim_id: c_05dc31b8
+  context: 'Construct the exact multi-comparison hypothesis set: **Input**: `data/results/model_pair_pvalues.json`
+    (Statistical significance assessment via p-values) + `data/results/feature_importance_ranking.json`
+    (p-values'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BH_correction_applied_to_model_pair_and_feature_p-values
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg correction is applied to a list of p-values from
+    model pair comparisons and feature importance rankings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:06:11Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Feature importance output includes subset of top features
+  claim_id: c_ada02479
+  context: 'Implement Random RF feature importance ranking in `code/analysis/attribution.py`.
+    **Logic**: 1) Extract top structural features by importance score. 2) **Output
+    Constraint**: Must write `data/results/feature_importance_ranking.json` containing
+    **a subset of the top features** in the format: `{"features": ["feat1",...], "importance_scores":
+    [val,...], "p_values": [val,...]}`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Feature_importance_output_includes_subset_of_top_features
+  kind: entity_fact
+  raw_text: The output format for feature importance ranking includes a subset of
+    the top features.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:06:32Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation test performed for each of top 5 features
+  claim_id: c_b1a594a3
+  context: 3) For each of these top 5 features, perform a Permutation Test against
+    a null baseline (shuffled labels) to generate a p-value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each of the top 5 features, a Permutation Test is performed against
+    a null baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:06:50Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: State manager updates artifact_hashes in PROJ-041 YAML
+  claim_id: c_274331e8
+  context: Function to read `data/processed/*.hash` sidecar files, verify hash against
+    source file, aggregate hashes into a JSON map, and update the `artifact_hashes`
+    map in `state/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo.yaml`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The state manager updates the artifact_hashes map in a specific YAML file.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:06:51Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Project initializes with torch, networkx, scikit-learn, xgboost, pandas,
+    numpy, matplotlib, seaborn, captum, pytest, pytest-memory-profiler
+  claim_id: c_bc46aad7
+  context: Initialize Python project with `requirements.txt` (pinning `torch` CPU
+    version, `networkx`, `scikit-learn`, `xgboost`, `pandas`, `numpy`, `matplotlib`,
+    `seaborn`, `captum`, `pytest`, `pytest-memory-profiler`)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_initializes_with_torch,_networkx,_scikit-learn,_xgbo
+  kind: entity_fact
+  raw_text: The project initializes with specific libraries including torch, networkx,
+    scikit-learn, xgboost, pandas, numpy, matplotlib, seaborn, captum, pytest, and
+    pytest-memory-profiler.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:07:26Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Project directory structure includes specific paths
+  claim_id: c_7b0141db
+  context: 'Create project directory structure: `code/data`, `code/models`, `code/analysis`,
+    `code/utils`, `data/raw`, `data/processed`, `data/results`, `tests`, `tests/integration`,
+    `tests/unit`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_directory_structure_includes_specific_paths
+  kind: entity_fact
+  raw_text: The project directory structure includes code/data, code/models, code/analysis,
+    code/utils, data/raw, data/processed, data/results, tests, tests/integration,
+    and tests/unit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:07:59Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Temporal holdout trains on first part, tests on remaining
+  claim_id: c_fbc1c004
+  context: Implement `code/data/splits.py` for Temporal Holdout validation strategy
+    (Train on first [deferred] of time-windowed flows, test on remaining [deferred],
+    configurable via `config.temporal_split_ratio`).
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Temporal_holdout_trains_on_first_part,_tests_on_remaining
+    source_value: https://en.wikipedia.org/wiki/Temporal_holdout_trains_on_first_part,_tests_on_remaining
+    subject: Temporal holdout trains on first part, tests on remaining
+  kind: relational
+  raw_text: The temporal holdout validation strategy trains on the first part of the
+    time-windowed flows and tests on the remaining part.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:08:39Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Temporal holdout outputs train_split.csv and test_split.csv
+  claim_id: c_69fdd05e
+  context: '**Output**: Write `data/processed/train_split.csv` and `data/processed/test_split.csv`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Temporal_holdout_outputs_train_split.csv_and_test_split.csv
+  kind: entity_fact
+  raw_text: The temporal holdout validation strategy outputs train_split.csv and test_split.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:08:57Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Graph builder writes raw graph to graph_{scenario}_raw.graphml
+  claim_id: c_9970eebd
+  context: 'Implement graph builder in `code/data/preprocess.py`: Nodes=IPs, Edges=flows,
+    Weights=packet counts. **Output**: Write raw graph to `data/processed/graph_{scenario}_raw.graphml`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_builder_writes_raw_graph_to_graph_%7Bscenario%7D_raw.graph
+  kind: entity_fact
+  raw_text: The graph builder writes the raw graph to graph_{scenario}_raw.graphml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:09:15Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Graph builder writes subsampled graph to graph_{scenario}_subsampled.graphml
+  claim_id: c_7cc7f9cc
+  context: '**Output**: Write final graph to `data/processed/graph_{scenario}_subsampled.graphml`
+    and write SHA256 hash to `data/processed/graph_{scenario}_subsampled.hash`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_builder_writes_subsampled_graph_to_graph_%7Bscenario%7D_su
+  kind: entity_fact
+  raw_text: The graph builder writes the subsampled graph to graph_{scenario}_subsampled.graphml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:09:32Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Graph builder writes SHA256 hash to sidecar file
+  claim_id: c_bff3bb52
+  context: '**Output**: Write final graph to `data/processed/graph_{scenario}_subsampled.graphml`
+    and write SHA256 hash to `data/processed/graph_{scenario}_subsampled.hash`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_builder_writes_SHA256_hash_to_sidecar_file
+  kind: entity_fact
+  raw_text: The graph builder writes a SHA256 hash to a sidecar file for the subsampled
+    graph.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:09:52Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Graph builder writes preliminary graph to graph_{scenario}_prelim.graphml
+  claim_id: c_f23d241e
+  context: 2) Write raw graph to `data/processed/graph_{scenario}_prelim.graphml`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_builder_writes_preliminary_graph_to_graph_%7Bscenario%7D_p
+  kind: entity_fact
+  raw_text: The graph builder writes the preliminary graph to graph_{scenario}_prelim.graphml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:10:09Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Model artifacts written to gcn_{seed}.pt and baseline_{seed}.pkl
+  claim_id: c_d1b6f25a
+  context: '**Output**: Write model artifacts to `data/models/gcn_{seed}.pt` and `data/models/baseline_{seed}.pkl`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_artifacts_written_to_gcn_%7Bseed%7D.pt_and_baseline_%7Bseed%7D
+  kind: entity_fact
+  raw_text: The model artifacts are written to gcn_{seed}.pt and baseline_{seed}.pkl.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:10:27Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Results written to metrics_{scenario}_{model}.json
+  claim_id: c_fe712163
+  context: Write results to `data/results/metrics_{scenario}_{model}.json`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Results_written_to_metrics_%7Bscenario%7D_%7Bmodel%7D.json
+  kind: entity_fact
+  raw_text: The results are written to metrics_{scenario}_{model}.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:10:43Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Model pair p-values written to model_pair_pvalues.json
+  claim_id: c_ad355e99
+  context: '**Output**: Write `data/results/model_pair_pvalues.json` containing p-values
+    for the model pair comparisons.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_pair_p-values_written_to_model_pair_pvalues.json
+  kind: entity_fact
+  raw_text: The model pair p-values are written to model_pair_pvalues.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:11:00Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Feature importance ranking written to feature_importance_ranking.json
+  claim_id: c_cb7daeaa
+  context: '**Output Constraint**: Must write `data/results/feature_importance_ranking.json`
+    containing **a subset of the top features** in the format: `{"features": ["feat1",...],
+    "importance_scores": [val,...], "p_values": [val,...]}`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Feature_importance_ranking_written_to_feature_importance_ran
+  kind: entity_fact
+  raw_text: The feature importance ranking is written to feature_importance_ranking.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:11:16Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: BH corrected p-values written to bh_corrected_pvalues.json
+  claim_id: c_d8d31274
+  context: '**Output**: Write `data/results/bh_corrected_pvalues.json`.'
+  evidence:
+    entailment_evidence: BH corrected p-values written to bh corrected pvalues.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/BH_corrected_p-values_written_to_bh_corrected_pvalues.json
+  kind: entity_fact
+  raw_text: The BH corrected p-values are written to bh_corrected_pvalues.json.
+  resolved_value: BH corrected p-values written to bh_corrected_pvalues.json
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T15:11:19Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GNN attribution written to gnn_attribution_{scenario}.json
+  claim_id: c_29509bdb
+  context: '**Output**: Write `data/results/gnn_attribution_{scenario}.json`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GNN_attribution_written_to_gnn_attribution_%7Bscenario%7D.json
+  kind: entity_fact
+  raw_text: The GNN attribution is written to gnn_attribution_{scenario}.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:11:40Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Distinct ranking artifact written to distinct_ranking.json
+  claim_id: c_ed669ba9
+  context: '**Output**: Write `data/results/distinct_ranking.json` listing only these
+    distinct patterns.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distinct_ranking_artifact_written_to_distinct_ranking.json
+  kind: entity_fact
+  raw_text: The distinct ranking artifact is written to distinct_ranking.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:11:57Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Final statistical report written to significance_report.json
+  claim_id: c_abf6f0cd
+  context: Write final statistical report to `data/results/significance_report.json`
+    and plots to `data/results/`
+  evidence:
+    entailment_evidence: Final statistical report written to significance report.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Final_statistical_report_written_to_significance_report.json
+  kind: entity_fact
+  raw_text: The final statistical report is written to significance_report.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-23T15:12:22Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: verify_hashes.py scans hashes and updates state YAML
+  claim_id: c_1a1fa048
+  context: 'Implement `code/utils/verify_hashes.py`: Script that scans `data/processed/*.hash`,
+    reads the hash, recalculates the file hash, compares them, and if valid, updates
+    `state/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo.yaml` `artifact_hashes`
+    map.'
+  evidence:
+    entailment_evidence: py scans hashes and updates state YAML
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Verify_hashes.py_scans_hashes_and_updates_state_YAML
+  kind: entity_fact
+  raw_text: The script verify_hashes.py scans data/processed/*.hash, reads the hash,
+    recalculates the file hash, compares them, and updates the state YAML file.
+  resolved_value: verify_hashes.py scans hashes and updates state YAML
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T15:12:24Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: T007c implements fallback to BoT-IoT if CTU missing
+  claim_id: c_a66f82cc
+  context: 'Implement fallback logic in `code/data/ingest_netflow.py`: Check CTU availability;
+    if missing, switch to BoT-IoT and log source'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T007c_implements_fallback_to_BoT-IoT_if_CTU_missing
+  kind: entity_fact
+  raw_text: The task T007c implements fallback logic to switch to BoT-IoT if CTU is
+    missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:12:49Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: T007d defines Target AUC Threshold in config.yaml
+  claim_id: c_0285a88d
+  context: 'Define `Target AUC Threshold` in `code/config.yaml` (key: `target_auc`,
+    default: a threshold value).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T007d_defines_Target_AUC_Threshold_in_config.yaml
+  kind: entity_fact
+  raw_text: The task T007d defines a Target AUC Threshold in code/config.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:13:09Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: T035b enforces Target AUC Threshold
+  claim_id: c_9d03b421
+  context: 'Enforce Target AUC Threshold in `code/models/metrics.py`: Read threshold
+    from `code/config.yaml` (key: `target_auc`, default a threshold value).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T035b_enforces_Target_AUC_Threshold
+  kind: entity_fact
+  raw_text: The task T035b enforces the Target AUC Threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:14:18Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T036a writes quickstart.md
+  claim_id: c_0927fa9b
+  context: Write `docs/quickstart.md` with setup and run instructions
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T036a_writes_quickstart.md
+  kind: entity_fact
+  raw_text: The task T036a writes quickstart.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:18:36Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T036b writes data_model.md
+  claim_id: c_bee670e6
+  context: Write `docs/data_model.md` with schema explanations
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T036b_writes_data_model.md
+  kind: entity_fact
+  raw_text: The task T036b writes data_model.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:18:38Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T037a refactors gcn.py and preprocess.py
+  claim_id: c_8ba7c59c
+  context: Refactor `code/models/gcn.py` and `code/data/preprocess.py` to remove unused
+    imports
+  evidence:
+    entailment_evidence: T037a refactors gcn.py and preprocess.py
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/T037a_refactors_gcn.py_and_preprocess.py
+  kind: entity_fact
+  raw_text: The task T037a refactors gcn.py and preprocess.py.
+  resolved_value: T037a refactors gcn.py and preprocess.py
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T15:18:40Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T037b optimizes memory usage in preprocess.py
+  claim_id: c_5cf163b7
+  context: Optimize memory usage in `code/data/preprocess.py` graph construction loop
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T037b_optimizes_memory_usage_in_preprocess.py
+  kind: entity_fact
+  raw_text: The task T037b optimizes memory usage in preprocess.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:18:42Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T038a profiles main.py
+  claim_id: c_3bea1698
+  context: Profile `code/main.py` to identify runtime bottlenecks
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T038a_profiles_main.py
+  kind: entity_fact
+  raw_text: The task T038a profiles main.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:18:45Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T038b optimizes graph construction loop for < 6 hours runtime
+  claim_id: c_1ad55ea5
+  context: Optimize graph construction loop in `code/data/preprocess.py` to ensure
+    end-to-end runtime < 6 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task T038b optimizes graph construction loop to ensure runtime < 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:18:46Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T002b implements verify_hashes.py
+  claim_id: c_c2ccbc79
+  context: 'Implement `code/utils/verify_hashes.py`: Script that scans `data/processed/*.hash`,
+    reads the hash, recalculates the file hash, compares them, and if valid, updates
+    `state/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo.yaml` `artifact_hashes`
+    map.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T002b_implements_verify_hashes.py
+  kind: entity_fact
+  raw_text: The task T002b implements verify_hashes.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:18:48Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T007a downloads CTU dataset
+  claim_id: c_782368ea
+  context: 'Download CTU dataset from canonical URL: ` and validate checksum'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T007a_downloads_CTU_dataset
+  kind: entity_fact
+  raw_text: The task T007a downloads the CTU dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:18:50Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T007b downloads NF-BoT-IoT dataset
+  claim_id: c_7acbe9ed
+  context: Download the NF-BoT-IoT dataset from its canonical URL (`) and validate
+    the checksum (Fallback).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T007b_downloads_NF-BoT-IoT_dataset
+  kind: entity_fact
+  raw_text: The task T007b downloads the NF-BoT-IoT dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:18:52Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T007c implements fallback logic
+  claim_id: c_abeff138
+  context: 'Implement fallback logic in `code/data/ingest_netflow.py`: Check CTU availability;
+    if missing, switch to BoT-IoT and log source'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T007c_implements_fallback_logic
+  kind: entity_fact
+  raw_text: The task T007c implements fallback logic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:18:54Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T007d defines Target AUC Threshold
+  claim_id: c_61ddcc5a
+  context: 'Define `Target AUC Threshold` in `code/config.yaml` (key: `target_auc`,
+    default: a threshold value).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T007d_defines_Target_AUC_Threshold
+  kind: entity_fact
+  raw_text: The task T007d defines the Target AUC Threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:18:57Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 3
+  canonical: T031b constructs exact multi-comparison hypothesis set
+  claim_id: c_2e08abc2
+  context: 'Construct the exact multi-comparison hypothesis set: **Input**: `data/results/model_pair_pvalues.json`
+    (Statistical significance assessment via p-values) + `data/results/feature_importance_ranking.json`
+    (p-values'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T031b_constructs_exact_multi-comparison_hypothesis_set
+  kind: entity_fact
+  raw_text: The task T031b constructs the exact multi-comparison hypothesis set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:18:59Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 3
+  canonical: T033b implements Distinct Ranking Artifact generation
+  claim_id: c_2752be05
+  context: 'Implement ''Distinct Ranking Artifact'' generation: **Input**: RF Top-5
+    (from T032) and GNN Top-5 (from T033). **Logic**: **Step 1**: Map GNN Integrated
+    Gradients to the **same structural proxy names** used by RF to ensure valid comparison.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T033b_implements_Distinct_Ranking_Artifact_generation
+  kind: entity_fact
+  raw_text: The task T033b implements 'Distinct Ranking Artifact' generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:19:02Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: T035b enforces Target AUC Threshold
+  claim_id: c_a15628f3
+  context: 'Enforce Target AUC Threshold in `code/models/metrics.py`: Read threshold
+    from `code/config.yaml` (key: `target_auc`, default a threshold value). **Note**:
+    Per Plan.md (Research Section), this value is defined in the research plan''s
+    config section; 0.75 is the default placeholder.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T035b_enforces_Target_AUC_Threshold
+  kind: entity_fact
+  raw_text: The task T035b enforces the Target AUC Threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:19:05Z'

@@ -129,3 +129,35 @@ def enforce_memory_limit(limit_mb: Optional[int] = None):
     """
     with memory_limit_context(limit_mb):
         yield
+
+def enforce_memory_limit_check(limit_mb: Optional[int] = None) -> None:
+    """
+    Synchronously check memory usage and raise immediately if exceeded.
+    
+    This is the core "memory guard" function required by T015.
+    It checks the current memory usage against the specified limit (or global default)
+    and raises a MemoryLimitExceededError if the limit is breached.
+    
+    Args:
+        limit_mb: Optional memory limit in MB. If None, uses the global limit.
+    
+    Raises:
+        MemoryLimitExceededError: If memory usage exceeds the limit.
+    """
+    global _monitoring_active, memory_limit
+    
+    # Ensure monitoring is active to get accurate readings
+    if not _monitoring_active:
+        start_monitoring()
+    
+    # Update limit if provided
+    if limit_mb is not None:
+        current_limit = limit_mb
+    else:
+        current_limit = memory_limit
+    
+    current_mb = get_memory_usage_mb()
+    if current_mb > current_limit:
+        raise MemoryLimitExceededError(
+            f"Memory limit exceeded: {current_mb:.2f} MB > {current_limit} MB"
+        )

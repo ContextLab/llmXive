@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No artifact showing that a `code/data` directory was created is provided; the evidence list is empty, so we cannot confirm the required directory exists. The implementer must add the directory (and optionally list its contents) to satisfy the task.
+- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`) or documentation of their integration into the project or CI pipeline are present. The claim lacks any concrete artifact demonstrating that `ruff` and `black` have been set up.
 
 ## Required change
 

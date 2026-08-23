@@ -1,144 +1,227 @@
 %YAML 1.2
 ---
-title: Network Traffic Graph Schema
-description: >
-  Defines the structure of the directed communication graph constructed
-  from NetFlow data. Nodes represent IP addresses, edges represent
-  communication flows.
-version: "1.0"
+# Schema for Graph Network artifacts
+# Defines the structure of graph objects (nodes, edges, attributes) 
+# generated during preprocessing for GNN training.
+#
+# This schema is used by:
+# - T008: Preprocessing output validation
+# - T013/T017: Graph construction validation
+# - T021: Model input validation
+#
+# The graph is stored in GraphML format, but this schema defines
+# the logical structure expected in the data.
 
-definitions:
-  NodeAttributes:
-    type: object
-    description: Attributes for a network node (IP address)
-    properties:
-      ip:
-        type: string
-        format: ipv4
-        description: IP address identifier
-      node_type:
-        type: string
-        enum: [internal, external]
-        description: Classification of the node based on IP range
-      total_bytes_in:
-        type: integer
-        minimum: 0
-        description: Total incoming bytes
-      total_bytes_out:
-        type: integer
-        minimum: 0
-        description: Total outgoing bytes
-      total_packets_in:
-        type: integer
-        minimum: 0
-        description: Total incoming packets
-      total_packets_out:
-        type: integer
-        minimum: 0
-        description: Total outgoing packets
-      is_anomaly:
-        type: boolean
-        description: Whether the node is associated with anomalous traffic
-      degree:
-        type: integer
-        minimum: 0
-        description: Degree of the node (for feature engineering)
-      centrality:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: Normalized centrality score (e.g., PageRank, Betweenness)
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Graph Network Schema"
+description: "Schema for network traffic graphs used in GNN anomaly detection"
 
-  EdgeAttributes:
-    type: object
-    description: Attributes for a communication edge (flow)
-    properties:
-      src_ip:
-        type: string
-        format: ipv4
-        description: Source IP
-      dst_ip:
-        type: string
-        format: ipv4
-        description: Destination IP
-      weight:
-        type: integer
-        minimum: 0
-        description: Number of packets in the flow (used as edge weight)
-      bytes:
-        type: integer
-        minimum: 0
-        description: Total bytes in the flow
-      duration:
-        type: number
-        minimum: 0
-        description: Total duration of flows between these nodes
-      is_anomaly:
-        type: boolean
-        description: Whether the edge represents anomalous communication
-      protocols:
-        type: array
-        items:
-          type: integer
-        description: List of protocols used on this edge
-
-  GraphMetadata:
-    type: object
-    description: Global graph properties
-    properties:
-      scenario:
-        type: string
-        description: Scenario identifier
-      lcc_size:
-        type: integer
-        minimum: 0
-        description: Size of the Largest Connected Component if subsampled
-      num_nodes:
-        type: integer
-        minimum: 0
-        description: Total number of nodes
-      num_edges:
-        type: integer
-        minimum: 0
-        description: Total number of edges
-      is_subsampled:
-        type: boolean
-        description: True if the graph is the LCC only
-      created_at:
-        type: string
-        format: date-time
-        description: Timestamp of graph creation
-
+type: object
 properties:
   metadata:
-    $ref: "#/definitions/GraphMetadata"
+    type: object
+    properties:
+      source_dataset:
+        type: string
+        description: "Source dataset name (e.g., 'CTU-13-Scenario1')"
+      preprocessing_step:
+        type: string
+        enum: ["raw", "lcc", "subsampled"]
+        description: "Type of graph processing applied"
+      node_count:
+        type: integer
+        minimum: 1
+        description: "Total number of nodes in the graph"
+      edge_count:
+        type: integer
+        minimum: 0
+        description: "Total number of edges in the graph"
+      max_node_degree:
+        type: integer
+        minimum: 0
+        description: "Maximum degree of any node"
+      is_connected:
+        type: boolean
+        description: "Whether the graph is connected"
+      lcc_ratio:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Ratio of nodes in the Largest Connected Component"
+      timestamp:
+        type: string
+        format: date-time
+        description: "Graph creation timestamp"
+    required:
+      - source_dataset
+      - preprocessing_step
+      - node_count
+      - edge_count
+
   nodes:
     type: array
+    description: "Node definitions with attributes"
     items:
       type: object
-      required: [id, attributes]
       properties:
         id:
           type: string
-          description: Unique node identifier (IP string)
+          description: "Unique node identifier (IP address)"
+        label:
+          type: string
+          enum: ["normal", "anomaly"]
+          description: "Node classification label"
         attributes:
-          $ref: "#/definitions/NodeAttributes"
+          type: object
+          properties:
+            total_bytes:
+              type: integer
+              minimum: 0
+            total_packets:
+              type: integer
+              minimum: 0
+            in_degree:
+              type: integer
+              minimum: 0
+            out_degree:
+              type: integer
+              minimum: 0
+            centrality:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+            is_anomaly_source:
+              type: boolean
+              description: "True if this node initiated anomalous flows"
+          required:
+            - total_bytes
+            - total_packets
+            - in_degree
+            - out_degree
+      required:
+        - id
+        - label
+
   edges:
     type: array
+    description: "Edge definitions with attributes"
     items:
       type: object
-      required: [source, target, attributes]
       properties:
         source:
           type: string
-          description: Source node ID
+          description: "Source node ID"
         target:
           type: string
-          description: Target node ID
+          description: "Target node ID"
+        weight:
+          type: integer
+          minimum: 0
+          description: "Edge weight (packet count or flow count)"
         attributes:
-          $ref: "#/definitions/EdgeAttributes"
+          type: object
+          properties:
+            total_bytes:
+              type: integer
+              minimum: 0
+            protocol:
+              type: string
+              enum: ["TCP", "UDP", "ICMP", "Mixed"]
+            is_anomalous:
+              type: boolean
+              description: "True if edge represents anomalous traffic"
+            start_time:
+              type: string
+              format: date-time
+            end_time:
+              type: string
+              format: date-time
+          required:
+            - total_bytes
+            - is_anomalous
+      required:
+        - source
+        - target
+        - weight
+
+  validation:
+    type: object
+    properties:
+      graphml_version:
+        type: string
+        description: "GraphML version used"
+      checksum:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+        description: "SHA256 checksum of the graph file"
+      schema_version:
+        type: string
+        description: "Schema version used for validation"
+      validation_status:
+        type: string
+        enum: ["valid", "invalid", "partial"]
+        description: "Result of schema validation"
+    required:
+      - checksum
+      - schema_version
+      - validation_status
 
 required:
   - metadata
   - nodes
   - edges
+  - validation
+
+examples:
+  - metadata:
+      source_dataset: "CTU-13-Scenario1"
+      preprocessing_step: "subsampled"
+      node_count: 4500
+      edge_count: 12000
+      max_node_degree: 150
+      is_connected: true
+      lcc_ratio: 0.95
+      timestamp: "2024-01-15T11:00:00Z"
+    nodes:
+      - id: "192.168.1.10"
+        label: "normal"
+        attributes:
+          total_bytes: 150000
+          total_packets: 1000
+          in_degree: 50
+          out_degree: 45
+          centrality: 0.12
+          is_anomaly_source: false
+      - id: "192.168.1.200"
+        label: "anomaly"
+        attributes:
+          total_bytes: 5000000
+          total_packets: 100000
+          in_degree: 5
+          out_degree: 200
+          centrality: 0.85
+          is_anomaly_source: true
+    edges:
+      - source: "192.168.1.10"
+        target: "192.168.1.1"
+        weight: 10
+        attributes:
+          total_bytes: 1500
+          protocol: "TCP"
+          is_anomalous: false
+          start_time: "2024-01-15T10:00:00Z"
+          end_time: "2024-01-15T10:00:01Z"
+      - source: "192.168.1.200"
+        target: "192.168.1.50"
+        weight: 500
+        attributes:
+          total_bytes: 50000
+          protocol: "TCP"
+          is_anomalous: true
+          start_time: "2024-01-15T10:00:05Z"
+          end_time: "2024-01-15T10:00:10Z"
+    validation:
+      graphml_version: "1.1"
+      checksum: "e5f6789012345678901234567890123456789012345678901234567890abcdef"
+      schema_version: "1.0.0"
+      validation_status: "valid"

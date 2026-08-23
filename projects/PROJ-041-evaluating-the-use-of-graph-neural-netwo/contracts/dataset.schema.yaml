@@ -1,104 +1,204 @@
 %YAML 1.2
 ---
-title: Network Traffic Dataset Schema
-description: >
-  Defines the structure of the raw and processed NetFlow datasets used for
-  Graph Neural Network anomaly detection. This schema aligns with the
-  CTU-13 and NF-BoT-IoT dataset formats.
-version: "1.0"
+# Schema for NetFlow dataset artifacts
+# Defines the structure of raw and processed flow data used in the GNN pipeline.
+#
+# This schema is used by:
+# - T007a/T007b: Validation of downloaded datasets
+# - T008: Preprocessing validation
+# - T012: Integration tests
+#
+# Source: Derived from CTU-13 and NF-BoT-IoT dataset specifications.
 
-definitions:
-  FlowRecord:
-    type: object
-    required:
-      - src_ip
-      - dst_ip
-      - src_port
-      - dst_port
-      - protocol
-      - start_time
-      - end_time
-      - duration
-      - bytes
-      - packets
-      - flags
-      - label
-    properties:
-      src_ip:
-        type: string
-        format: ipv4
-        description: Source IP address
-      dst_ip:
-        type: string
-        format: ipv4
-        description: Destination IP address
-      src_port:
-        type: integer
-        minimum: 0
-        maximum: 65535
-        description: Source port number
-      dst_port:
-        type: integer
-        minimum: 0
-        maximum: 65535
-        description: Destination port number
-      protocol:
-        type: integer
-        description: IP protocol number (e.g., 6 for TCP, 17 for UDP)
-      start_time:
-        type: string
-        format: date-time
-        description: Flow start timestamp (ISO 8601)
-      end_time:
-        type: string
-        format: date-time
-        description: Flow end timestamp (ISO 8601)
-      duration:
-        type: number
-        minimum: 0
-        description: Flow duration in seconds
-      bytes:
-        type: integer
-        minimum: 0
-        description: Total bytes transferred
-      packets:
-        type: integer
-        minimum: 0
-        description: Total packets transferred
-      flags:
-        type: string
-        description: TCP flags (e.g., 'S', 'F', 'R', 'A')
-      label:
-        type: integer
-        enum: [0, 1]
-        description: >
-          Anomaly label. 0 = Normal, 1 = Anomaly/Botnet.
-          Derived from dataset metadata or specific port/behavior rules.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NetFlow Dataset Schema"
+description: "Schema for network flow records used in anomaly detection"
 
+type: object
 properties:
   metadata:
     type: object
     properties:
       source:
         type: string
-        description: Dataset source name (e.g., 'CTU-13', 'NF-BoT-IoT')
+        description: "Dataset source (e.g., 'CTU-13', 'NF-BoT-IoT')"
+        enum: ["CTU-13", "NF-BoT-IoT", "Custom"]
       scenario:
         type: string
-        description: Specific scenario identifier (e.g., 'scenario_1', 'botnet_1')
-      download_date:
+        description: "Scenario identifier (e.g., 'Scenario1', 'Bot1')"
+      timestamp:
         type: string
         format: date-time
-        description: Date the dataset was ingested
-      checksum:
-        type: string
-        description: SHA256 checksum of the raw file
+        description: "Data generation timestamp"
+      total_records:
+        type: integer
+        minimum: 1
+        description: "Total number of flow records"
+      anomaly_ratio:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Ratio of anomalous flows in the dataset"
+    required:
+      - source
+      - scenario
+      - total_records
 
-  flows:
+  columns:
     type: array
     items:
-      $ref: "#/definitions/FlowRecord"
-    description: List of individual NetFlow records
+      type: string
+    description: "List of column names in the dataset"
+    minItems: 1
+
+  data:
+    type: array
+    description: "Array of flow records"
+    items:
+      type: object
+      properties:
+        # Core flow identification
+        src_ip:
+          type: string
+          format: ipv4
+          description: "Source IP address"
+        dst_ip:
+          type: string
+          format: ipv4
+          description: "Destination IP address"
+        src_port:
+          type: integer
+          minimum: 0
+          maximum: 65535
+          description: "Source port"
+        dst_port:
+          type: integer
+          minimum: 0
+          maximum: 65535
+          description: "Destination port"
+        protocol:
+          type: string
+          enum: ["TCP", "UDP", "ICMP"]
+          description: "Transport protocol"
+
+        # Flow statistics
+        start_time:
+          type: string
+          format: date-time
+          description: "Flow start timestamp"
+        duration:
+          type: number
+          minimum: 0.0
+          description: "Flow duration in seconds"
+        packets:
+          type: integer
+          minimum: 1
+          description: "Total packets in flow"
+        bytes:
+          type: integer
+          minimum: 0
+          description: "Total bytes in flow"
+        avg_packet_size:
+          type: number
+          minimum: 0.0
+          description: "Average packet size in bytes"
+
+        # Flags (TCP specific)
+        syn:
+          type: integer
+          minimum: 0
+          description: "SYN flag count"
+        ack:
+          type: integer
+          minimum: 0
+          description: "ACK flag count"
+        fin:
+          type: integer
+          minimum: 0
+          description: "FIN flag count"
+        rst:
+          type: integer
+          minimum: 0
+          description: "RST flag count"
+
+        # Label
+        label:
+          type: string
+          description: "Flow label (normal or attack type)"
+          enum: ["normal", "bot", "ddos", "dos", "scan", "bruteforce", "xss", "sql-injection"]
+
+      required:
+        - src_ip
+        - dst_ip
+        - src_port
+        - dst_port
+        - protocol
+        - start_time
+        - duration
+        - packets
+        - bytes
+        - label
+
+  validation:
+    type: object
+    properties:
+      checksum:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+        description: "SHA256 checksum of the dataset file"
+      schema_version:
+        type: string
+        description: "Schema version used for validation"
+      validation_status:
+        type: string
+        enum: ["valid", "invalid", "partial"]
+        description: "Result of schema validation"
+    required:
+      - checksum
+      - schema_version
+      - validation_status
 
 required:
   - metadata
-  - flows
+  - columns
+  - data
+  - validation
+
+examples:
+  - metadata:
+      source: "CTU-13"
+      scenario: "Scenario1"
+      timestamp: "2024-01-15T10:30:00Z"
+      total_records: 10000
+      anomaly_ratio: 0.15
+    columns:
+      - src_ip
+      - dst_ip
+      - src_port
+      - dst_port
+      - protocol
+      - start_time
+      - duration
+      - packets
+      - bytes
+      - label
+    data:
+      - src_ip: "192.168.1.10"
+        dst_ip: "192.168.1.1"
+        src_port: 45678
+        dst_port: 80
+        protocol: "TCP"
+        start_time: "2024-01-15T10:00:00Z"
+        duration: 1.5
+        packets: 10
+        bytes: 1500
+        avg_packet_size: 150.0
+        syn: 1
+        ack: 9
+        fin: 1
+        rst: 0
+        label: "normal"
+    validation:
+      checksum: "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd"
+      schema_version: "1.0.0"
+      validation_status: "valid"

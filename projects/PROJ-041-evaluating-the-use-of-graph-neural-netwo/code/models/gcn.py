@@ -94,7 +94,11 @@ def train_gcn(
         optimizer.zero_grad()
 
         out = model(data.x, data.edge_index)
-        loss = criterion(out[train_mask], data.y[train_mask].float())
+        # Ensure labels are float for BCELoss
+        y_train = data.y[train_mask].float()
+        out_train = out[train_mask].squeeze(-1)
+        
+        loss = criterion(out_train, y_train)
         loss.backward()
         optimizer.step()
 
@@ -104,7 +108,10 @@ def train_gcn(
         model.eval()
         with torch.no_grad():
             val_out = model(data.x, data.edge_index)
-            val_loss = criterion(val_out[val_mask], data.y[val_mask].float())
+            y_val = data.y[val_mask].float()
+            out_val = val_out[val_mask].squeeze(-1)
+            
+            val_loss = criterion(out_val, y_val)
             history['val_loss'].append(val_loss.item())
 
             if val_loss < best_val_loss:

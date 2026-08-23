@@ -1,30 +1,42 @@
-# LLMXive GNN Anomaly Detection Project
+# PROJ-041: Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic
 
-## Setup Linting and Formatting
+## Project Setup
 
-This project uses `ruff` for linting and `black` for formatting.
+This project uses a standardized directory structure for data science and machine learning research.
 
-### Installation
+### Directory Structure
 
-1. Install dependencies:
+- `code/`: Source code for the project
+ - `data/`: Data ingestion and preprocessing scripts
+ - `models/`: Model definitions and training scripts
+ - `analysis/`: Statistical analysis and attribution scripts
+ - `utils/`: Utility functions (seeding, memory monitoring, etc.)
+- `data/`: Data storage
+ - `raw/`: Raw downloaded datasets
+ - `processed/`: Preprocessed and subsampled graphs
+ - `results/`: Model outputs, metrics, and statistical reports
+- `tests/`: Test suites
+ - `integration/`: Integration tests
+ - `unit/`: Unit tests
+
+### Quick Start
+
+1. Ensure the directory structure exists:
+ ```bash
+ python code/scripts/setup_directories.py
+ ```
+
+2. Install dependencies:
  ```bash
  pip install -r requirements.txt
- pip install ruff black pre-commit
  ```
 
-2. Install pre-commit hooks:
+3. Run tests:
  ```bash
- pre-commit install
+ pytest tests/
  ```
 
-### Usage
+### Task T001: Project Directory Structure
 
-- **Lint**: Run `ruff check.`
-- **Format**: Run `black.`
-- **Check before commit**: `pre-commit run --all-files`
-
-## Configuration
-
-- **Black**: Configured in `pyproject.toml` (line-length: 88)
-- **Ruff**: Configured in `pyproject.toml` (select: E4, E7, E9, F, I, N, W)
-- **Pre-commit**: Configured in `.pre-commit-config.yaml`
+This task creates the foundational directory structure required for the project.
+Run `python code/scripts/setup_directories.py` to initialize all required folders.

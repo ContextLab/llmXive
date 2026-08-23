@@ -1,64 +1,12 @@
-T001b:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `code/models` directory actually exists; the
-    artifact list is empty and there is no confirmation (e.g., a directory listing,
-    screenshot, or file path) showing the required folder was created. The implementer
-    must create the `code/models` directory and provide proof of its existence.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented that a `code/analysis` directory exists; the artifact
-    list is empty, so the required directory was not shown to be created. The implementer
-    must add the directory (and optionally list its contents) to satisfy the task.
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence is provided that a `code/utils` directory exists in the repository;\
-    \ the \u201CActual artifacts / evidence on disk\u201D section is empty, so we\
-    \ cannot verify the required directory was created. The implementer must add the\
-    \ directory (and optionally populate it) and provide proof of its presence."
-T001e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/raw` directory is provided; the artifact list is empty,
-    so we cannot confirm that the required directory was created. The implementer
-    must create the `data/raw` folder (and show its presence) to satisfy the task.
-T001f:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/processed` directory was provided; the artifact list is
-    empty, so the required directory does not appear to exist. The implementer must
-    create the directory (and optionally show its presence) to satisfy the task.
-T001g:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/results` directory is provided; the artifact list is empty,
-    so the required directory has not been shown to exist. The implementer must create
-    the directory (and confirm its presence) to satisfy the task.
-T001h:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that a `tests` directory exists in the repository,\
-    \ nor any listing of its contents. Without confirming the presence (and non\u2011\
-    emptiness, if required) of the `tests` folder, the claim that the task \u201C\
-    Create directory `tests`\u201D is completed cannot be verified. The implementer\
-    \ must add the `tests` directory (and optionally populate it) and provide proof\
-    \ of its existence."
-T001i:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `tests/integration` directory exists in the repository
-    (e.g., a directory listing or file path). Without such proof, we cannot confirm
-    the required artifact was created. The implementer must add a visible confirmation
-    that the directory now exists.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.pre-commit-config.yaml`) or documentation of their integration into the project
-    or CI pipeline are present. The claim lacks any concrete artifact demonstrating
-    that `ruff` and `black` have been set up.
+  r: "No evidence of the required directory hierarchy (`code/data`, `code/models`,\
+    \ `code/analysis`, `code/utils`, `data/raw`, `data/processed`, `data/results`,\
+    \ `tests`, `tests/integration`, `tests/unit`) is present; the implementer did\
+    \ not provide any file\u2011system listing, screenshots, or manifest confirming\
+    \ that these folders exist and are non\u2011empty. The task therefore remains\
+    \ unfinished."
 T007a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -73,3 +21,10 @@ T007b:
     \ script/log) is present; the claim provides no evidence that the dataset was\
     \ retrieved or that its checksum was verified. The required download and checksum\
     \ validation steps are therefore missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No graph files `data/processed/graph_{scenario}_subsampled.graphml` or corresponding
+    hash sidecar files are present; the claim provides no actual artifacts to verify
+    that the graphs were written and hashes calculated. The required output files
+    are missing.
