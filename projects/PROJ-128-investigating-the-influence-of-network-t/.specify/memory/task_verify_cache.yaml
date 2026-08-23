@@ -21,12 +21,11 @@ T012:
     unfinished.
 T019:
   c: false
-  h: 407b162a93c2a60689802ae7d57ce53a7be2d2f888dae5241f47fc06b281f013
-  r: "The repository lacks the required output files `data/processed/structural_metrics.csv`\
-    \ and `data/processed/dynamic_metrics.csv`, and the referenced schema `contracts/output.schema.yaml`\
-    \ is missing. Moreover, `code/main.py` is truncated and does not contain the batch\u2011\
-    processing logic needed to aggregate metrics and write those CSVs. The task\u2019\
-    s core requirements are therefore not satisfied."
+  h: 53262d6b33e49003248c98699f5e47406b86b0520bfe611bf05631a5678745e3
+  r: The required output files `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`
+    are absent, and the referenced schema `contracts/output.schema.yaml` (or `schema.yaml`)
+    does not exist. Consequently the batch processing logic cannot be verified as
+    producing the correct aggregated CSVs per the task specification.
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,3 +38,21 @@ T040:
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of updated files in `docs/` or modifications to `README.md` was provided;
     the claim lacks any actual documentation artifacts to verify.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code artifacts, diff logs, or documentation were provided to demonstrate that
+    any cleanup or refactoring was performed, nor any evidence that GPU calls were
+    removed. Without tangible files or test results, the claim cannot be verified.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `quickstart.md` validation run, logs, or reproducibility output
+    is present; the required artifact confirming that the full pipeline was executed
+    and validated is missing.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No review document or report was provided; the implementer did not supply any
+    artifact demonstrating a final review of the reports for associational language
+    compliance. The required compliance review output is missing.

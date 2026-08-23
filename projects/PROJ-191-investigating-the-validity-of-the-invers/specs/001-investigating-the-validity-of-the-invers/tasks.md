@@ -57,7 +57,7 @@
 
 - [X] T004 [P] Implement versioning utility for atomic state updates in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/utils/versioning.py`.
 - [X] T005 [P] Setup logging infrastructure and configuration management in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/config.py`.
-- [ ] T006 [P] Create base data model for `HarmonizedDataset` in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/data/models.py`. **Alignment**: This aligns with the plan's "Project Structure" section which implies data models should reside in a dedicated model file (e.g., `models.py`) and the `data-model.md` phase output.
+- [X] T006 [P] Create base data model for `HarmonizedDataset` in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/data/models.py`. **Alignment**: This aligns with the plan's "Project Structure" section which implies data models should reside in a dedicated model file (e.g., `models.py`) and the `data-model.md` phase output.
 - [X] T007 [P] Ensure directory structure for `data/raw/`, `data/processed/`, and `data/results/` exists (use robust `mkdir -p` logic).
 
 **Checkpoint**: Foundation ready – user story implementation can now begin in parallel.
@@ -128,7 +128,7 @@
  1. If estimated runtime for full dataset > 5.5 hours: Generate `data/processed/data_config.json` with `mode: "subsample"`, `subset_indices`: [random N points], and `covariance_bandwidth`: 20.
  2. If estimated runtime < 5.5 hours: Generate `data/processed/data_config.json` with `mode: "full"`.
  3. **Output**: `data/processed/data_config.json`. **Dependency**: Must run after T022.
-- [ ] T023 [US2] Implement `emcee` runner: Run a minimum of 5000 steps. **Crucial**: Continue running in batches of steps until the Gelman-Rubin statistic < 1.01 **OR** a configurable maximum step limit (`MAX_MCMC_STEPS` in `config.py`) is reached. **Time Limit**: Enforce a hard wall-clock time limit of hours. If approached, **log a warning** "TIME_LIMIT_REACHED", **attempt to reduce step count in batches**, but **DO NOT stop early** unless convergence is achieved or 5000 steps reached. If time limit is exceeded, **flag the result as `TIME_LIMITED`** but do not discard partial convergence data. **Input**: Read `data/processed/data_config.json` (T027) to determine if subsampling is required. **Dependency**: Must run after T022 and T027-SUBSAMPLE.
+- [ ] T023 [US2] Implement `emcee` runner: Run a minimum of 5000 steps. **Crucial**: Continue running in batches of steps until the Gelman-Rubin statistic < 1.01 **OR** a configurable maximum step limit (`MAX_MCMC_STEPS` in `config.py`) is reached. **Time Limit**: Enforce a hard wall-clock time limit of hours. If approached, **log a warning** "TIME_LIMIT_REACHED", **attempt to reduce step count in batches**, but **DO NOT stop early** unless convergence is achieved or 5000 steps reached. If time limit is exceeded, **flag the result as `TIME_LIMITED`** but do not discard partial convergence data. **Input**: Read `data/processed/data_config.json` (T027) to determine if subsampling is required. **Dependency**: Must run after T022 and T027-SUBSAMPLE. <!-- ATOMIZE: requested -->
 - [X] T024 [US2] Implement `dynesty` nested sampler for both Newtonian and Yukawa models in `code/inference/nested.py`.
 - [ ] T025-INJECTION [US2] **Injection-Recovery Test**: Implement `code/robustness/injection.py`. **Logic**:
  1. Generate simulated data with a known non-zero α and realistic noise.
@@ -159,11 +159,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement leave‑one‑experiment‑out cross‑validation loop in `code/robustness/cross_val.py`. **Conditional logic**:
+- [X] T030 [US3] Implement leave‑one‑experiment‑out cross‑validation loop in `code/robustness/cross_val.py`. **Conditional logic**:
  1. If `USE_BOOTSTRAP` flag (from T013-CHECK-THRESHOLD) is false AND runs >= 3: Perform true leave-one-out (remove one run, re-infer).
  2. If `USE_BOOTSTRAP` flag is true OR runs < 3: **Implement bootstrap resampling**: Sample N rows **with replacement** from the dataset. For each bootstrap sample, extract the corresponding block-diagonal covariance sub-matrix and re-infer. **Algorithm**: Use `numpy.random.choice` with `replace=True` to select indices; re-calculate mean and covariance for the sample.
  3. Store each iteration's α upper‑limit (high percentile) for later analysis. **Dependency**: Must run after T013-CHECK-THRESHOLD.
-- [ ] T031 [US3] Implement systematic uncertainty inflation test in `code/robustness/uncertainty.py`. **Parameter**: Read the inflation factor from `code/config.py`. Apply it to the covariance matrix. Verify the Bayes factor changes by a negligible amount (e.g., < 0.1 log-units). **Dependency**: Must run after T023.
+- [X] T031 [US3] Implement systematic uncertainty inflation test in `code/robustness/uncertainty.py`. **Parameter**: Read the inflation factor from `code/config.py`. Apply it to the covariance matrix. Verify the Bayes factor changes by a negligible amount (e.g., < 0.1 log-units). **Dependency**: Must run after T023.
 - [ ] T032 [US3] Implement parallel execution of robustness iterations using `multiprocessing`.
 - [ ] T033 [US3] Calculate the **coefficient of variation (CV)** of the credible‑upper‑limits (95th percentile) across all robustness iterations, where **CV = (standard deviation ÷ mean) × 100 **. Log the CV percentage; if **CV > 15%**, **log a warning and flag the result** (do NOT raise an error) to match the spec's intent to "assess stability" and "log" results. **Dependency**: Must run after T030.
 - [ ] T038 [US2/US3] **Single Source of Truth & SC-002 Verification**: Compute the Bayes‑factor comparison metric. **Check 1**: Compare the primary Bayes factor K against the null-simulation baseline from `data/results/null_baseline_report.json` (T026) to ensure the result is not a systematic artifact. **Check 2**: Compare K against the **Kass–Raftery scale** (K > 3 indicates substantial evidence for the Yukawa model). **Output**: Log the result for SC‑002 reporting, including an explicit PASS/FAIL status if K <= 3 (insufficient evidence) or if the baseline comparison fails (result is likely an artifact). **Dependency**: Must run after T026 and T033.

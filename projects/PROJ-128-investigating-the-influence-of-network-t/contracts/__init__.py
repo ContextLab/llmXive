@@ -1,2 +1,2 @@
-# Contracts directory marker
-# Schemas: dataset.schema.yaml, output.schema.yaml
+# Contracts package initialization
+# Contains schema definitions for data validation

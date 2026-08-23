@@ -1,45 +1,57 @@
-# Schema for input dataset metadata and expected file structure
-# Used to validate downloaded HCP data before processing
 $schema: http://json-schema.org/draft-07/schema#
 title: HCP Dataset Schema
-description: Schema defining the expected structure of the HCP OpenNeuro dataset
+description: Schema for the raw and processed HCP brain imaging dataset structure.
 type: object
-required:
-  - subject_id
-  - modality
-  - file_paths
 properties:
-  subject_id:
-    type: string
-    description: Unique subject identifier (e.g., '100307')
-  modality:
-    type: string
-    enum:
-      - dMRI
-      - fMRI
-    description: Imaging modality
-  file_paths:
+  raw:
     type: object
+    description: Raw data directories
+    properties:
+      fmri:
+        type: string
+        description: Path to raw fMRI NIfTI files
+      dmri:
+        type: string
+        description: Path to raw dMRI NIfTI files
+      bval:
+        type: string
+        description: Path to dMRI b-values
+      bvec:
+        type: string
+        description: Path to dMRI b-vectors
     required:
-      - structural
-      - functional
-    properties:
-      structural:
-        type: string
-        description: Path to dMRI connectivity matrix or raw dMRI file
-      functional:
-        type: string
-        description: Path to fMRI time series file
-  metadata:
+      - fmri
+      - dmri
+  processed:
     type: object
+    description: Processed data artifacts
     properties:
-      acquisition_date:
+      structural_metrics:
         type: string
-        format: date-time
-      scanner:
+        description: Path to structural metrics CSV
+      dynamic_metrics:
         type: string
-        default: "Connectome Scanner"
-      protocol:
+        description: Path to dynamic metrics CSV
+      correlation_results:
         type: string
-        default: "HCP-1200"
-additionalProperties: true
+        description: Path to correlation results CSV
+      sensitivity_results:
+        type: string
+        description: Path to sensitivity analysis results
+    required:
+      - structural_metrics
+      - dynamic_metrics
+  logs:
+    type: object
+    description: Execution logs
+    properties:
+      exclusion_log:
+        type: string
+        description: Path to subject exclusion log JSON
+      resource_log:
+        type: string
+        description: Path to resource usage log
+required:
+  - raw
+  - processed
+  - logs

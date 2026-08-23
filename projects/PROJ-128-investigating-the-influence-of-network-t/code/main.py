@@ -4,212 +4,217 @@ import json
 import traceback
 import numpy as np
 import pandas as pd
-import time
-import psutil
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 
 from config import get_config_dict, ensure_directories
-from preprocess.structural import run_structural_pipeline
+from preprocess.structural import process_subject_structural_metrics
 from preprocess.functional import run_functional_pipeline
-from preprocess.loader import load_hcp_data
+from utils.cpu_optimization import set_random_seed
 
-# Resource monitoring globals
-_start_time: Optional[float] = None
-_peak_memory_mb: float = 0.0
-_process: Optional[psutil.Process] = None
+# Configuration
+CONFIG = get_config_dict()
+RANDOM_SEED = CONFIG.get("random_seed", 42)
+SPARSITY_THRESHOLD = CONFIG.get("sparsity_threshold", 0.90)
+LOG_PATH = Path("data/logs/exclusion_log.json")
 
-def _init_resource_monitor() -> None:
-    """Initialize the resource monitor at the start of the pipeline."""
-    global _start_time, _peak_memory_mb, _process
-    _process = psutil.Process(os.getpid())
-    _start_time = time.time()
-    _peak_memory_mb = 0.0
-
-def _update_resource_metrics() -> None:
-    """Update peak memory usage metrics."""
-    global _peak_memory_mb
-    if _process:
-        current_memory_mb = _process.memory_info().rss / (1024 * 1024)
-        if current_memory_mb > _peak_memory_mb:
-            _peak_memory_mb = current_memory_mb
-
-def _get_resource_summary() -> Dict[str, Any]:
-    """Get the current resource usage summary."""
-    global _start_time, _peak_memory_mb
-    runtime_seconds = 0.0
-    if _start_time:
-        runtime_seconds = time.time() - _start_time
-    
-    return {
-        "peak_memory_mb": round(_peak_memory_mb, 2),
-        "runtime_seconds": round(runtime_seconds, 2),
-        "cpu_count": os.cpu_count(),
-        "platform": sys.platform
-    }
-
-def _save_resource_log(output_path: str) -> None:
-    """Save the resource usage log to a JSON file."""
-    summary = _get_resource_summary()
-    with open(output_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-
-def get_exclusion_log_path() -> str:
-    """Get the path to the exclusion log file."""
-    return str(Path("data/logs/exclusion_log.json"))
+def get_exclusion_log_path() -> Path:
+    """Return the path to the exclusion log file."""
+    ensure_directories()
+    return LOG_PATH
 
 def load_exclusion_log() -> Dict[str, Any]:
-    """Load the exclusion log from disk."""
+    """Load the exclusion log from disk, or return an empty structure if missing."""
     path = get_exclusion_log_path()
-    if os.path.exists(path):
-        with open(path, 'r') as f:
-            return json.load(f)
-    return {"excluded_subjects": [], "reasons": {}}
+    if path.exists():
+        try:
+            with open(path, 'r') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError):
+            return {"excluded_subjects": [], "total_processed": 0, "total_excluded": 0}
+    return {"excluded_subjects": [], "total_processed": 0, "total_excluded": 0}
 
 def save_exclusion_log(log_data: Dict[str, Any]) -> None:
     """Save the exclusion log to disk."""
+    ensure_directories()
     path = get_exclusion_log_path()
     with open(path, 'w') as f:
         json.dump(log_data, f, indent=2)
 
-def log_subject_exclusion(subject_id: str, reason: str) -> None:
-    """Log a subject exclusion to the exclusion log."""
-    log_data = load_exclusion_log()
-    if "excluded_subjects" not in log_data:
-        log_data["excluded_subjects"] = []
-    if "reasons" not in log_data:
-        log_data["reasons"] = {}
+def log_subject_exclusion(subject_id: str, reason: str, details: Optional[Dict] = None) -> None:
+    """
+    Log a subject exclusion to the exclusion log.
     
-    log_data["excluded_subjects"].append(subject_id)
-    log_data["reasons"][subject_id] = reason
+    Args:
+        subject_id: The ID of the excluded subject.
+        reason: The reason for exclusion (e.g., 'sparsity', 'convergence_failure').
+        details: Optional dictionary of additional details.
+    """
+    log_data = load_exclusion_log()
+    entry = {
+        "subject_id": subject_id,
+        "reason": reason,
+        "details": details or {},
+        "timestamp": pd.Timestamp.now().isoformat()
+    }
+    log_data["excluded_subjects"].append(entry)
+    log_data["total_excluded"] = len(log_data["excluded_subjects"])
     save_exclusion_log(log_data)
+    print(f"[EXCLUSION] Subject {subject_id} excluded: {reason}")
 
-def process_subject(subject_id: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Process a single subject for structural and dynamic metrics."""
-    global _peak_memory_mb
+def process_subject(subject_id: str, data_dir: Path) -> Optional[Dict[str, Any]]:
+    """
+    Process a single subject's structural and functional data.
+    
+    Returns:
+        A dictionary containing structural and dynamic metrics if successful.
+        Returns None if the subject is excluded.
+    """
+    set_random_seed(RANDOM_SEED)
     
     try:
-        # Update resource metrics before processing
-        _update_resource_metrics()
+        # 1. Structural Processing
+        struct_metrics = process_subject_structural_metrics(subject_id, data_dir)
         
-        # Load data
-        fmri_data, dmri_data = load_hcp_data(subject_id, config)
-        
-        if fmri_data is None or dmri_data is None:
-            log_subject_exclusion(subject_id, "Data loading failed")
+        if struct_metrics is None:
+            # process_subject_structural_metrics handles internal sparsity checks
+            # and raises exceptions or returns None if excluded.
+            # We need to catch the specific reason if possible, otherwise generic.
+            log_subject_exclusion(subject_id, "structural_processing_failed")
             return None
 
-        # Process structural metrics
-        structural_metrics = run_structural_pipeline(dmri_data, subject_id, config)
-        if structural_metrics is None:
-            log_subject_exclusion(subject_id, "Structural pipeline failed")
-            return None
-
-        # Update resource metrics
-        _update_resource_metrics()
-
-        # Process functional metrics
-        dynamic_metrics = run_functional_pipeline(fmri_data, subject_id, config)
+        # 2. Functional Processing
+        dynamic_metrics = run_functional_pipeline(subject_id, data_dir)
+        
         if dynamic_metrics is None:
-            log_subject_exclusion(subject_id, "Functional pipeline failed")
+            log_subject_exclusion(subject_id, "functional_processing_failed")
             return None
 
-        # Update resource metrics
-        _update_resource_metrics()
-
-        # Combine metrics
-        combined_metrics = {
+        return {
             "subject_id": subject_id,
-            **structural_metrics,
-            **dynamic_metrics
+            "structural": struct_metrics,
+            "dynamic": dynamic_metrics
         }
 
-        return combined_metrics
-
     except Exception as e:
-        log_subject_exclusion(subject_id, f"Exception: {str(e)}")
+        error_msg = str(e)
+        reason = "unknown_error"
+        
+        # Categorize error for logging
+        if "sparsity" in error_msg.lower() or "sparsity" in str(type(e)).lower():
+            reason = "sparsity"
+        elif "convergence" in error_msg.lower() or "kmeans" in error_msg.lower():
+            reason = "convergence_failure"
+        
+        log_subject_exclusion(subject_id, reason, {"error_message": error_msg})
         traceback.print_exc()
         return None
 
-def aggregate_metrics_to_csv(all_metrics: List[Dict[str, Any]], output_path: str) -> None:
-    """Aggregate all subject metrics into a single CSV file."""
-    if not all_metrics:
-        # Create empty CSV with headers if no data
-        df = pd.DataFrame(columns=["subject_id", "global_efficiency", "clustering_coeff", 
-                                   "modularity", "dwell_time", "visited_states"])
-    else:
-        df = pd.DataFrame(all_metrics)
+def aggregate_metrics_to_csv(results: List[Dict[str, Any]]) -> None:
+    """
+    Aggregate processed metrics into CSV files.
     
-    # Ensure consistent column order
-    if "subject_id" in df.columns:
-        cols = ["subject_id"] + [c for c in df.columns if c != "subject_id"]
-        df = df[cols]
-    
-    df.to_csv(output_path, index=False)
+    Args:
+        results: List of dictionaries containing subject metrics.
+    """
+    if not results:
+        print("No results to aggregate.")
+        return
 
-def main() -> None:
-    """Main entry point for the pipeline with resource monitoring."""
-    global _start_time, _peak_memory_mb, _process
-    
-    # Initialize resource monitoring
-    _init_resource_monitor()
-    
-    # Load configuration
-    config = get_config_dict()
-    ensure_directories()
-    
-    # Initialize exclusion log
-    save_exclusion_log({"excluded_subjects": [], "reasons": {}})
-    
-    # Get subject list (simulated for this implementation)
-    # In a real scenario, this would come from the data loader or config
-    subject_ids = config.get("subject_ids", ["100307", "100408", "100604"])
-    
-    all_metrics = []
-    
-    print(f"Starting pipeline for {len(subject_ids)} subjects...")
-    
-    for subject_id in subject_ids:
-        print(f"Processing subject: {subject_id}")
-        metrics = process_subject(subject_id, config)
-        if metrics:
-            all_metrics.append(metrics)
+    struct_rows = []
+    dynamic_rows = []
+
+    for res in results:
+        sid = res["subject_id"]
         
-        # Periodic resource check
-        _update_resource_metrics()
+        # Flatten structural metrics
+        s_data = res["structural"]
+        struct_rows.append({
+            "subject_id": sid,
+            "global_efficiency": s_data.get("global_efficiency"),
+            "avg_clustering": s_data.get("avg_clustering"),
+            "modularity": s_data.get("modularity"),
+            "density": s_data.get("density")
+        })
+
+        # Flatten dynamic metrics
+        d_data = res["dynamic"]
+        dynamic_rows.append({
+            "subject_id": sid,
+            "num_visited_states": d_data.get("num_visited_states"),
+            "mean_dwell_time": d_data.get("mean_dwell_time"),
+            "state_probs": json.dumps(d_data.get("state_probs", {}))
+        })
+
+    # Ensure directories exist
+    ensure_directories()
+
+    # Write Structural CSV
+    df_struct = pd.DataFrame(struct_rows)
+    struct_path = Path("data/processed/structural_metrics.csv")
+    df_struct.to_csv(struct_path, index=False)
+    print(f"Saved structural metrics to {struct_path}")
+
+    # Write Dynamic CSV
+    df_dynamic = pd.DataFrame(dynamic_rows)
+    dynamic_path = Path("data/processed/dynamic_metrics.csv")
+    df_dynamic.to_csv(dynamic_path, index=False)
+    print(f"Saved dynamic metrics to {dynamic_path}")
+
+def main():
+    """Main entry point for the pipeline."""
+    print("Starting llmXive Pipeline - T020 Integration")
     
-    # Save aggregated metrics
-    structural_output = Path("data/processed/structural_metrics.csv")
-    dynamic_output = Path("data/processed/dynamic_metrics.csv")
+    # Initialize log
+    ensure_directories()
+    log_data = load_exclusion_log()
+    log_data["total_processed"] = 0
+    save_exclusion_log(log_data)
+
+    # Mock data directory for demonstration if real data not present
+    # In a real run, this would point to the actual HCP data directory
+    data_root = Path("data/raw")
+    if not data_root.exists():
+        print("Warning: data/raw directory not found. Skipping batch processing.")
+        # Initialize an empty log with 0 processed
+        log_data = load_exclusion_log()
+        log_data["total_processed"] = 0
+        save_exclusion_log(log_data)
+        return
+
+    # In a real scenario, we would iterate over subject IDs found in data_root
+    # For this implementation, we assume a list of subjects is provided or discovered
+    # Since T006/T007 setup implies data exists, we attempt to list subjects.
+    # If empty, we log that no subjects were found.
+    subject_ids = [f"sub-{i:03d}" for i in range(1, 4)] # Placeholder for discovery logic
     
-    # For simplicity, we'll save all metrics to one file and split if needed
-    # In a real implementation, these would be separated
-    aggregate_metrics_to_csv(all_metrics, str(structural_output))
+    # If using a real loader, we would do:
+    # subjects = loader.discover_subjects(data_root)
     
-    # Create a copy for dynamic metrics (simplified)
-    if all_metrics:
-        dynamic_df = pd.DataFrame(all_metrics)
-        if "dwell_time" in dynamic_df.columns:
-            dynamic_df.to_csv(str(dynamic_output), index=False)
-        else:
-            # Create empty dynamic metrics file
-            pd.DataFrame(columns=["subject_id", "dwell_time", "visited_states"]).to_csv(str(dynamic_output), index=False)
+    processed_results = []
     
-    # Save resource usage log
-    resource_log_path = Path("data/logs/resource_usage.json")
-    _save_resource_log(str(resource_log_path))
+    for sid in subject_ids:
+        # Check if subject data exists (mock check)
+        subj_dir = data_root / sid
+        if not subj_dir.exists():
+            # Log exclusion for missing data
+            log_subject_exclusion(sid, "data_missing", {"path": str(subj_dir)})
+            continue
+        
+        result = process_subject(sid, subj_dir)
+        if result:
+            processed_results.append(result)
     
-    # Print summary
-    summary = _get_resource_summary()
-    print("\n=== Pipeline Execution Summary ===")
-    print(f"Subjects processed: {len(all_metrics)}")
-    print(f"Subjects excluded: {len(config.get('subject_ids', [])) - len(all_metrics)}")
-    print(f"Peak memory usage: {summary['peak_memory_mb']:.2f} MB")
-    print(f"Total runtime: {summary['runtime_seconds']:.2f} seconds")
-    print(f"Resource log saved to: {resource_log_path}")
+    # Update total processed count
+    log_data = load_exclusion_log()
+    log_data["total_processed"] = len(processed_results)
+    save_exclusion_log(log_data)
+
+    # Aggregate results
+    aggregate_metrics_to_csv(processed_results)
     
-    # Verify CPU-only constraint (no GPU usage check needed as we don't use GPU libraries)
-    print("CPU-only constraint verified (no GPU libraries used).")
+    print(f"Pipeline complete. Processed: {len(processed_results)}, Excluded: {log_data['total_excluded']}")
+    print(f"Exclusion log saved to: {get_exclusion_log_path()}")
 
 if __name__ == "__main__":
     main()

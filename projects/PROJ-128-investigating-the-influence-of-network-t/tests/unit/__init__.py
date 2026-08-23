@@ -1,2 +1,1 @@
-# Unit tests directory
-pass
+# Unit tests package initialization

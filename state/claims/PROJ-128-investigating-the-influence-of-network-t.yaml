@@ -16,3 +16,33 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-24T04:21:36Z'
+- artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/README.md
+  attempts: 1
+  canonical: HCP 1200 Subjects dataset from OpenNeuro ds000224
+  claim_id: c_a2f95cef
+  context: Data Source section describing the origin of the dataset used in the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HCP 1200 Subjects dataset from OpenNeuro (ds000224).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:34:47Z'
+- artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/README.md
+  attempts: 1
+  canonical: 7 GB RAM and 14 GB disk space required for processing
+  claim_id: c_083f2d9e
+  context: Prerequisites section listing hardware requirements for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ~7 GB RAM, ~14 GB disk space for processing
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:35:05Z'

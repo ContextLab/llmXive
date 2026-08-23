@@ -76,7 +76,7 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T012 [P] [US1] Unit test for `code/preprocess/structural.py` graph metric calculation in `tests/unit/test_structural.py`.
+- [X] T012 [P] [US1] Unit test for `code/preprocess/structural.py` graph metric calculation in `tests/unit/test_structural.py`.
 - [X] T013 [P] [US1] Unit test for `code/preprocess/functional.py` k-means state extraction in `tests/unit/test_functional.py`.
 - [X] T014 [P] [US1] Integration test for single-subject pipeline in `tests/integration/test_single_subject.py`.
 
@@ -87,7 +87,7 @@
 - [X] T017 [US1] Implement **Leave-One-Out (LOO) K-Means (k=5)** clustering for dynamic states in `code/preprocess/functional.py`. **Algorithm**: For each subject `i`, centroids must be calculated by clustering the windowed matrices of **all subjects j != i** (excluding the target subject) to derive centroids, then assign subject `i`'s windows to these centroids. **Must run sequentially** to ensure strict subject isolation during centroid derivation and prevent circular correlation (Constitution Principle VI).
 - [X] T018 [US1] Implement per-subject dynamic metric calculation (number of visited states, mean dwell time) in `code/preprocess/functional.py`.
 - [ ] T019 [US1] Implement batch processing logic in `code/main.py` to aggregate metrics into `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`. **Dependency**: This task relies on the schema defined in `contracts/output.schema.yaml` (set up in Task T011 in Phase 2) to ensure correct CSV structure.
-- [ ] T020 [US1] Implement subject exclusion logging (convergence failure, sparsity) to `data/logs/exclusion_log.json`.
+- [X] T020 [US1] Implement subject exclusion logging (convergence failure, sparsity) to `data/logs/exclusion_log.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -145,9 +145,9 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T040 [P] Documentation updates in `docs/` and `README.md`.
-- [~] T041 Code cleanup and refactoring for CPU efficiency (ensure no GPU calls).
-- [~] T042 Run `quickstart.md` validation to ensure full pipeline reproducibility.
-- [~] T043 Final review of all reports for "associational" language compliance.
+- [ ] T041 Code cleanup and refactoring for CPU efficiency (ensure no GPU calls).
+- [ ] T042 Run `quickstart.md` validation to ensure full pipeline reproducibility.
+- [ ] T043 Final review of all reports for "associational" language compliance.
 
 ---
 

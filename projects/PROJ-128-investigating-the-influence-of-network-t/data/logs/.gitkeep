@@ -1,2 +1,2 @@
-# This directory holds execution logs and exclusion records.
-# Output files: exclusion_log.json, pipeline_run.log
+# Directory for execution logs and exclusion logs
+# Do not commit actual log files here

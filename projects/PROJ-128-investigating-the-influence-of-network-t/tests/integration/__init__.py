@@ -1,2 +1,1 @@
-# Integration tests directory
-pass
+# Integration tests package initialization

@@ -1,19 +1,33 @@
-# Standalone ruff configuration file for compatibility
-# This file mirrors the settings in pyproject.toml for tools that don't read pyproject.toml
-extend = "pyproject.toml"
+# Ruff configuration for llmXive project
+# Target Python 3.10+
+target-version = "py310"
+
+[lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I)
+select = ["E", "F", "I", "W", "UP"]
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific files/directories
+exclude = [
+    ".git",
+    "__pycache__",
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info"
+]
+
+# Line length for Black compatibility (default 88)
 line-length = 88
-target-version = "py311"
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
-    "UP",
-]
-ignore = [
-    "E501",
-    "B008",
-    "C901",
-]
+
+[lint.isort]
+known-first-party = ["config", "data", "models", "inference", "utils", "tools"]
+force-single-line = false
+lines-after-imports = 2

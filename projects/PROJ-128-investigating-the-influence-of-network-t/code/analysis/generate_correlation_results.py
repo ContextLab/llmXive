@@ -1,115 +1,202 @@
-"""
-T027 Implementation: Generate correlation_results.csv
-Reads aggregated structural and dynamic metrics, computes correlations,
-applies FDR, and writes the final results CSV.
-"""
 import os
 import sys
 import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# Add project root to path for imports if running as script
-_project_root = Path(__file__).resolve().parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
-
 from analysis.correlation import run_correlation_analysis, benjamini_hochberg_fdr
 from config import get_config_dict
 
-def load_metrics_data():
+def load_metrics_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Loads the aggregated structural and dynamic metrics CSVs produced by US1.
-    Merges them on subject_id to create the analysis dataframe.
+    Load the aggregated structural and dynamic metrics from CSV files.
+    
+    Returns:
+        Tuple of (structural_metrics_df, dynamic_metrics_df)
     """
     config = get_config_dict()
-    data_dir = Path(config['paths']['processed_data'])
+    processed_dir = Path(config['paths']['processed'])
     
-    struct_path = data_dir / "structural_metrics.csv"
-    dyn_path = data_dir / "dynamic_metrics.csv"
-
-    if not struct_path.exists():
-        raise FileNotFoundError(f"Structural metrics file not found at {struct_path}. "
-                                "Run US1 (T019) first.")
-    if not dyn_path.exists():
-        raise FileNotFoundError(f"Dynamic metrics file not found at {dyn_path}. "
-                                "Run US1 (T019) first.")
-
-    df_struct = pd.read_csv(struct_path)
-    df_dyn = pd.read_csv(dyn_path)
-
-    # Merge on subject_id
-    # Expected columns in struct: subject_id, global_efficiency, avg_clustering, modularity
-    # Expected columns in dyn: subject_id, visited_states, mean_dwell_time
-    df_merged = pd.merge(df_struct, df_dyn, on='subject_id', how='inner')
+    structural_path = processed_dir / 'structural_metrics.csv'
+    dynamic_path = processed_dir / 'dynamic_metrics.csv'
     
-    if df_merged.empty:
-        raise ValueError("Merged dataframe is empty. Check subject_id consistency.")
+    if not structural_path.exists():
+        raise FileNotFoundError(f"Structural metrics file not found: {structural_path}")
+    if not dynamic_path.exists():
+        raise FileNotFoundError(f"Dynamic metrics file not found: {dynamic_path}")
+    
+    structural_df = pd.read_csv(structural_path)
+    dynamic_df = pd.read_csv(dynamic_path)
+    
+    # Merge on subject_id to create a unified analysis dataframe
+    # Ensure consistent column names for merging
+    if 'subject_id' in structural_df.columns and 'subject_id' in dynamic_df.columns:
+        merged_df = pd.merge(structural_df, dynamic_df, on='subject_id', how='inner')
+    else:
+        # Fallback if column names differ slightly, assuming first column is ID
+        # In a robust system, we would check schema, but here we assume valid output from T019
+        raise ValueError("Missing 'subject_id' column in one of the metric files.")
+    
+    return merged_df, structural_df, dynamic_df
+
+def generate_correlation_results(output_path: str = None) -> pd.DataFrame:
+    """
+    Generate the correlation results CSV file containing r-values, raw p-values,
+    and FDR-corrected p-values.
+    
+    This function:
+    1. Loads the merged metrics data.
+    2. Identifies structural and dynamic metric columns.
+    3. Runs the correlation analysis (normality check, correlation calculation).
+    4. Applies Benjamini-Hochberg FDR correction.
+    5. Saves the results to `data/processed/correlation_results.csv`.
+    
+    Args:
+        output_path: Optional path to save the results. Defaults to config path.
+    
+    Returns:
+        The generated correlation results DataFrame.
+    """
+    config = get_config_dict()
+    processed_dir = Path(config['paths']['processed'])
+    
+    if output_path is None:
+        output_path = processed_dir / 'correlation_results.csv'
+    else:
+        output_path = Path(output_path)
+    
+    # Load data
+    merged_df, struct_df, dyn_df = load_metrics_data()
+    
+    # Identify metric columns (exclude subject_id and potentially non-metric cols)
+    # Structural metrics typically: global_efficiency, avg_clustering, modularity
+    # Dynamic metrics typically: dwell_time_mean, visited_states_count
+    # We assume the merged_df contains these specific columns based on T015-T018 implementation
+    # We filter out 'subject_id'
+    metric_cols = [col for col in merged_df.columns if col != 'subject_id']
+    
+    if len(metric_cols) < 2:
+        raise ValueError("Not enough metric columns found to perform correlation analysis.")
+    
+    # Separate structural and dynamic metrics for correlation
+    # Heuristic: columns containing 'efficiency', 'clustering', 'modularity' are structural
+    # Columns containing 'dwell', 'visited', 'state' are dynamic
+    # A more robust approach would use a schema, but we proceed with column name inference
+    # as per the pipeline design.
+    
+    # Define expected structural and dynamic columns based on task descriptions
+    structural_metrics = ['global_efficiency', 'avg_clustering', 'modularity']
+    dynamic_metrics = ['dwell_time_mean', 'visited_states_count']
+    
+    # Filter to only those that exist in the dataframe
+    struct_cols = [c for c in structural_metrics if c in merged_df.columns]
+    dyn_cols = [c for c in dynamic_metrics if c in merged_df.columns]
+    
+    if not struct_cols or not dyn_cols:
+        # Fallback: if explicit names aren't found, try to infer from all columns
+        # This handles cases where column names might differ slightly
+        struct_cols = [c for c in metric_cols if any(k in c.lower() for k in ['efficiency', 'clustering', 'modularity', 'path'])]
+        dyn_cols = [c for c in metric_cols if any(k in c.lower() for k in ['dwell', 'visited', 'state', 'switch'])]
         
-    return df_merged
+        # If still empty, take all remaining as dynamic against all structural?
+        # No, that's ambiguous. Raise error if we can't identify them.
+        if not struct_cols or not dyn_cols:
+            raise ValueError(f"Could not identify structural or dynamic metrics. Found: {metric_cols}")
 
-def generate_correlation_results():
-    """
-    Executes the correlation analysis and saves the results to data/processed/correlation_results.csv.
-    """
-    print("Loading aggregated metrics...")
-    df = load_metrics_data()
+    results_data = []
     
-    # Define metric pairs to correlate based on US2 requirements
-    # Structural: global_efficiency, avg_clustering, modularity
-    # Dynamic: visited_states, mean_dwell_time
-    struct_cols = ['global_efficiency', 'avg_clustering', 'modularity']
-    dyn_cols = ['visited_states', 'mean_dwell_time']
-    
-    # Filter columns that actually exist in the dataframe
-    available_struct = [c for c in struct_cols if c in df.columns]
-    available_dyn = [c for c in dyn_cols if c in df.columns]
-    
-    if not available_struct or not available_dyn:
-        raise ValueError(f"Missing required columns. Found Struct: {list(df.columns)}, Dyn: {list(df.columns)}")
-
-    results = []
-
-    print(f"Running correlations for {len(available_struct)} structural vs {len(available_dyn)} dynamic metrics...")
-    
-    for s_col in available_struct:
-        for d_col in available_dyn:
-            # Use the run_correlation_analysis helper which handles normality and selection
-            # It returns (r, p_value)
-            r, p_val = run_correlation_analysis(df[s_col], df[d_col])
+    for s_col in struct_cols:
+        for d_col in dyn_cols:
+            # Extract series
+            s_series = merged_df[s_col].dropna()
+            d_series = merged_df[d_col].dropna()
             
-            results.append({
+            # Align indices
+            common_idx = s_series.index.intersection(d_series.index)
+            s_vals = s_series.loc[common_idx]
+            d_vals = d_series.loc[common_idx]
+            
+            if len(common_idx) < 3:
+                # Not enough data points for correlation
+                results_data.append({
+                    'structural_metric': s_col,
+                    'dynamic_metric': d_col,
+                    'n': len(common_idx),
+                    'r': np.nan,
+                    'p_raw': np.nan,
+                    'fdr_corrected': np.nan,
+                    'significant': False
+                })
+                continue
+            
+            # Run correlation analysis (normality check + correlation)
+            # We reuse the logic from analysis.correlation but inline the specific pair calculation
+            # to avoid overhead of running the full batch analysis function if it's not designed for pairs.
+            # However, run_correlation_analysis is designed to take the full data.
+            # Let's use the helper functions directly.
+            
+            from scipy.stats import shapiro, pearsonr, spearmanr
+            from analysis.correlation import check_normality, calculate_correlation
+            
+            # Check normality
+            _, s_p = shapiro(s_vals)
+            _, d_p = shapiro(d_vals)
+            is_normal = (s_p > 0.05) and (d_p > 0.05)
+            
+            # Calculate correlation
+            r, p_raw = calculate_correlation(s_vals, d_vals, normal=is_normal)
+            
+            results_data.append({
                 'structural_metric': s_col,
                 'dynamic_metric': d_col,
-                'r_value': r,
-                'p_value_raw': p_val
+                'n': len(common_idx),
+                'r': r,
+                'p_raw': p_raw,
+                'fdr_corrected': np.nan, # To be filled
+                'significant': False     # To be filled
             })
     
-    df_results = pd.DataFrame(results)
+    if not results_data:
+        raise ValueError("No correlation pairs were generated.")
     
-    if df_results.empty:
-        raise RuntimeError("No correlation results generated.")
-
+    results_df = pd.DataFrame(results_data)
+    
     # Apply FDR correction
-    print("Applying Benjamini-Hochberg FDR correction...")
-    p_values = df_results['p_value_raw'].values
-    fdr_corrected = benjamini_hochberg_fdr(p_values, q=0.05)
+    p_values = results_df['p_raw'].values
+    if np.any(~np.isnan(p_values)):
+        # Filter out NaNs for FDR calculation
+        valid_indices = ~np.isnan(p_values)
+        valid_p = p_values[valid_indices]
+        
+        # Apply Benjamini-Hochberg
+        fdr_p = benjamini_hochberg_fdr(valid_p)
+        
+        # Map back to dataframe
+        results_df.loc[valid_indices, 'fdr_corrected'] = fdr_p
+    else:
+        results_df['fdr_corrected'] = np.nan
     
-    df_results['p_value_fdr'] = fdr_corrected
+    # Determine significance (FDR < 0.05)
+    results_df['significant'] = results_df['fdr_corrected'] < 0.05
     
-    # Determine significance
-    df_results['is_significant_fdr'] = df_results['p_value_fdr'] < 0.05
-
     # Save to CSV
-    config = get_config_dict()
-    output_path = Path(config['paths']['processed_data']) / "correlation_results.csv"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    results_df.to_csv(output_path, index=False)
     
-    df_results.to_csv(output_path, index=False)
-    print(f"Successfully wrote correlation results to {output_path}")
-    print(f"Significant findings (FDR < 0.05): {df_results['is_significant_fdr'].sum()}")
+    print(f"Correlation results saved to {output_path}")
+    print(f"Total pairs: {len(results_df)}")
+    print(f"Significant findings (FDR < 0.05): {results_df['significant'].sum()}")
     
-    return output_path
+    return results_df
+
+def main():
+    """
+    Main entry point to generate correlation results.
+    """
+    try:
+        generate_correlation_results()
+    except Exception as e:
+        print(f"Error generating correlation results: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    generate_correlation_results()
+    main()

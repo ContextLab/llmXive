@@ -1,2 +1,2 @@
-# Data directory marker
-# Subdirectories: raw/, processed/, logs/
+# Data directory initialization
+# Contains raw, processed, and logs subdirectories

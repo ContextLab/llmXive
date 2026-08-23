@@ -13,3 +13,26 @@ T025#1:
     zero\u202F\u03B1, run the Bayesian inference, and demonstrate that the injected\
     \ \u03B1 lies within the 95\u202F% credible interval. The required artifact is\
     \ missing, so the task is not satisfied."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing parallel execution of the robustness\u2011\
+    analysis iterations with `multiprocessing` was provided; the evidence section\
+    \ contains no artifact to inspect, so the requirement cannot be verified as met.\
+    \ The next implementer must add the actual implementation (e.g., a Python module\
+    \ or function that launches robustness runs in parallel using the `multiprocessing`\
+    \ library) and include it in the repository."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or computed CV value was provided; the required artifact\
+    \ (a calculation of the 95th\u2011percentile credible\u2011upper\u2011limits across\
+    \ robustness iterations, the resulting CV percentage, and the appropriate log/warning)\
+    \ is absent. The implementer must supply the implementation and its output to\
+    \ satisfy the task."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pipeline execution logs, output files, or the updated `state/projects/PROJ-191...yaml`\
+    \ are present. The claim lacks any concrete artifact demonstrating that the end\u2011\
+    to\u2011end validation was run and that the YAML file was correctly modified."

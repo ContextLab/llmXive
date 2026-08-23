@@ -1,92 +1,163 @@
 # Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns
 
-## Project Overview
+## Overview
 
-This project investigates whether topological properties of structural brain networks derived from diffusion MRI (dMRI) predict the prevalence, stability, and switching speed of recurrent activity patterns observed in resting-state functional MRI (fMRI).
+This project investigates whether topological properties of structural brain networks (derived from diffusion MRI) predict the prevalence, stability, and switching speed of recurrent activity patterns (derived from dynamic functional connectivity in fMRI).
 
-The analysis pipeline computes:
-- **Structural Graph Metrics**: Global efficiency, average clustering coefficient, and modularity from dMRI-derived connectivity matrices.
-- **Dynamic Functional Metrics**: Dwell time and number of visited states from fMRI data using a Leave-One-Out (LOO) k-means clustering approach.
-- **Structure-Function Correlations**: Statistical correlations between structural and dynamic metrics, corrected for multiple comparisons using the Benjamini-Hochberg procedure.
-- **Robustness Analysis**: Sensitivity checks on window length (30 TR vs 20 TR) and structural threshold density.
+## Project Structure
 
-## Research Question
-
-> Do topological properties of structural brain networks derived from diffusion MRI predict the prevalence, stability, and switching speed of recurrent activity patterns?
-
-## Data Source
-
-This pipeline uses the **HCP 1200 Subjects Release** from the Human Connectome Project, accessed via the OpenNeuro repository (ds000031).
-
-- **dMRI**: Diffusion-weighted images for structural connectivity.
-- **fMRI**: Resting-state fMRI data for dynamic functional connectivity.
+```
+.
+├── code/ # Source code
+│ ├── analysis/ # Correlation and robustness analysis
+│ ├── preprocess/ # Data loading and metric calculation
+│ ├── reports/ # Report generation and validation
+│ ├── utils/ # CPU optimization utilities
+│ ├── config.py # Configuration and paths
+│ ├── main.py # Main pipeline entry point
+│ └── validate_quickstart.py
+├── data/ # Data storage
+│ ├── raw/ # Raw HCP data (downloaded)
+│ ├── processed/ # Computed metrics (CSVs)
+│ └── logs/ # Exclusion logs
+├── contracts/ # Schema definitions
+│ ├── dataset.schema.yaml
+│ └── output.schema.yaml
+├── tests/ # Test suite
+│ ├── unit/ # Unit tests
+│ └── integration/ # Integration tests
+├── docs/ # Documentation
+│ └── README.md
+├── requirements.txt # Python dependencies
+└── quickstart.md # Reproducibility guide
+```
 
 ## Prerequisites
 
 - Python 3.9+
-- CPU-only execution (no GPU required)
-- Sufficient RAM (~7 GB) and disk space (~14 GB) for processing
+- CPU-only environment (no GPU required)
+- ~7 GB RAM, ~14 GB disk space for processing [UNRESOLVED-CLAIM: c_083f2d9e — status=not_enough_info]
+- Internet access to download HCP data from OpenNeuro
 
 ## Installation
 
-1. Clone the repository.
-2. Create a virtual environment:
+1. Clone the repository:
+ ```bash
+ git clone <repository-url>
+ cd PROJ-128-investigating-the-influence-of-network-t
+ ```
+
+2. Create a virtual environment and install dependencies:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. Install dependencies:
- ```bash
  pip install -r requirements.txt
  ```
 
-## Configuration
-
-The `code/config.py` file contains all configurable parameters:
-- **Sliding Window**: 30 TR baseline, 1 TR step (sensitivity check: 20 TR).
-- **Clustering**: k=5 states, Leave-One-Out (LOO) strategy.
-- **Statistical Thresholds**: α=0.05 for normality, q=0.05 for FDR correction.
-- **Graph Sparsity**: Exclude subjects with sparsity > 90%.
-
-## Pipeline Execution
+## Quickstart
 
 Run the full pipeline:
+
 ```bash
 python code/main.py
 ```
 
 This will:
-1. Download HCP data (if not already present).
-2. Preprocess dMRI/fMRI data.
-3. Compute structural and dynamic metrics.
-4. Perform correlation analysis.
-5. Generate robustness reports.
-6. Output final results to `data/processed/`.
+1. Download HCP data (if not present)
+2. Compute structural graph metrics (global efficiency, clustering, modularity)
+3. Compute dynamic functional metrics (dwell time, visited states) using LOO k-means
+4. Perform structure-function correlation analysis with FDR correction
+5. Run sensitivity analyses (20 TR vs 30 TR window, density threshold variation)
+6. Generate final report with "associational" framing
 
-## Output Artifacts
+Outputs:
+- `data/processed/structural_metrics.csv`
+- `data/processed/dynamic_metrics.csv`
+- `data/processed/correlation_results.csv`
+- `data/logs/exclusion_log.json`
+- `data/reports/final_report.json`
 
-| File | Description |
-|------|-------------|
-| `data/processed/structural_metrics.csv` | Graph metrics per subject (efficiency, clustering, modularity). |
-| `data/processed/dynamic_metrics.csv` | Dynamic metrics per subject (dwell time, visited states). |
-| `data/processed/correlation_results.csv` | Correlation matrix (r, p, FDR-corrected p). |
-| `data/logs/exclusion_log.json` | Log of excluded subjects and reasons. |
-| `data/processed/sensitivity_results.json` | Robustness analysis results (window length, density). |
-| `data/reports/final_report.json` | Comprehensive report with "associational" framing. |
+## Validation
 
-## Key Methodological Constraints
+Validate the pipeline reproducibility:
 
-- **LOO Clustering**: To prevent circular correlation, centroids are derived from all subjects *except* the target subject.
-- **Associational Framing**: All reports explicitly state that findings are correlational, not causal.
-- **CPU-Only**: No GPU acceleration; designed for limited compute environments.
-- **Real Data Only**: No synthetic or placeholder data is used. The pipeline fails loudly if real HCP data cannot be fetched.
+```bash
+python code/validate_quickstart.py
+```
 
-## Robustness Checks
+Audit reports for "associational" language compliance:
 
-- **Window Length**: Compares 30 TR baseline against 20 TR sensitivity check.
-- **Density Threshold**: Varies structural threshold by ±5%.
-- **Resource Monitoring**: Tracks peak RAM and runtime to ensure compliance with CPU constraints.
+```bash
+python code/reports/audit_associational_language.py
+```
 
- ## License
+Validate report against schema:
 
-This project is for research purposes only. Data usage must comply with HCP data use agreements.
+```bash
+python code/reports/validate_report.py
+```
+
+## Testing
+
+Run unit tests:
+
+```bash
+python -m pytest tests/unit/ -v
+```
+
+Run integration tests:
+
+```bash
+python -m pytest tests/integration/ -v
+```
+
+## Configuration
+
+Edit `code/config.py` to modify:
+- Sliding window length (default: 30 TR)
+- Sensitivity check window (default: 20 TR)
+- k-means clusters (default: k=5)
+- Density thresholds
+- Statistical alpha levels
+
+## Methodology
+
+### Structural Metrics
+- Graph construction from dMRI tractography
+- Global efficiency, average clustering coefficient, modularity
+- Sparsity filter: exclude networks with sparsity > 90%
+
+### Dynamic Functional Metrics
+- Sliding window correlation (30 TR window, 1 TR step)
+- Leave-One-Out (LOO) k-means clustering (k=5) to prevent circular correlation
+- Metrics: number of visited states, mean dwell time
+
+### Correlation Analysis
+- Normality testing (Shapiro-Wilk) to select Pearson vs Spearman
+- Benjamini-Hochberg FDR correction (q=0.05)
+- Explicit "associational" framing (no causal claims)
+
+### Sensitivity Analysis
+- Window length: 30 TR (baseline) vs 20 TR (sensitivity)
+- Density threshold: ±5% variation
+- Report absolute difference in correlation coefficients
+
+## Data Source
+
+HCP 1200 Subjects dataset from OpenNeuro (ds000224). [UNRESOLVED-CLAIM: c_a2f95cef — status=not_enough_info]
+Real data is downloaded at runtime; no synthetic data is used.
+
+## Constraints
+
+- CPU-only execution (no GPU)
+- Memory efficient processing (streaming for large datasets)
+- Strict subject isolation in LOO clustering
+- No fabricated or placeholder data
+
+## License
+
+[Insert License]
+
+## Contributing
+
+[Insert Contribution Guidelines]

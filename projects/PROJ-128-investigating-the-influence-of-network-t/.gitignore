@@ -20,7 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual Environments
 venv/
 ENV/
 env/
@@ -31,15 +31,19 @@ env/
 *.swp
 *.swo
 
-# Data (Keep raw/ and processed/ in git for small projects, or add to .gitignore if large)
-# data/raw/*
-# data/processed/*
+# Data (do not commit raw data)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
 data/logs/*
+!data/logs/.gitkeep
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Config
-.env
-.secret*

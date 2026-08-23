@@ -75,17 +75,6 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-08T05:45:09.535762Z'
-- artifact_hash: 67a98d31705a1b0cee3f8059d2f86e4dc97173b15def38d4905d0b2ea5ba5caa
-  artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '2106.08611'
-  kind: url
-  value: https://arxiv.org/e-print/2106.08611`
-  verification_status: pending
-  verified_against_url: https://arxiv.org/src/2106.08611
-  verified_at: '2026-08-19T10:00:15.867869Z'
 - artifact_hash: 67d6aff64dc37e3d039ec982bc6cd4cbae35a401fcbb182ee2d5a060d98c0907
   artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/research.md
   cite_id: c-002
@@ -108,7 +97,18 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-08-19T10:53:23.699040Z'
-- artifact_hash: 67a98d31705a1b0cee3f8059d2f86e4dc97173b15def38d4905d0b2ea5ba5caa
+- artifact_hash: ddd678c9546bf6fbf3b5273371a0b3c6be9a2057a6234903323d7da618f626ec
+  artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2106.08611'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-08-23T15:47:55.962287Z'
+- artifact_hash: ddd678c9546bf6fbf3b5273371a0b3c6be9a2057a6234903323d7da618f626ec
   artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -118,8 +118,8 @@
   value: '2305.06325'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-08-19T10:53:23.699040Z'
-- artifact_hash: 67a98d31705a1b0cee3f8059d2f86e4dc97173b15def38d4905d0b2ea5ba5caa
+  verified_at: '2026-08-23T15:47:55.962287Z'
+- artifact_hash: ddd678c9546bf6fbf3b5273371a0b3c6be9a2057a6234903323d7da618f626ec
   artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -129,4 +129,4 @@
   value: '1909.03356'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-08-19T10:53:23.699040Z'
+  verified_at: '2026-08-23T15:47:55.962287Z'

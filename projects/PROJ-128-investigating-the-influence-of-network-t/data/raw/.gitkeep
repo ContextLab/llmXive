@@ -1,1 +1,2 @@
-# Raw data downloaded from HCP/OpenNeuro will be stored here.
+# Directory for raw HCP data downloaded from OpenNeuro
+# Do not commit actual data files here

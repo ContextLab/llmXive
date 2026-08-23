@@ -1,154 +1,149 @@
+"""
+Data validation module for fMRI and behavioral data.
+Implements strict integrity checks, sample size validation, and variable fallback logic.
+"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 import pandas as pd
+import numpy as np
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class DataValidationError(Exception):
     """Custom exception for data validation failures."""
-    def __init__(self, message: str, code: str):
+    def __init__(self, message: str, code: str = "ERR_DATA_MISSING"):
         super().__init__(message)
         self.code = code
+        self.message = message
 
-def check_data_integrity(
-    raw_dir: str,
-    min_subjects: int = 85,
-    primary_var: str = 'musical_genre',
-    fallback_var: str = 'STOMP-R'
-) -> Tuple[List[str], List[str]]:
+def check_participants_file(dataset_dir: Path) -> Path:
     """
-    Perform comprehensive data integrity checks on the raw dataset.
-    
-    This function enforces the Plan's power requirement (N >= 85) as a hard gate.
-    It also checks for the presence of the primary behavioral variable or its fallback.
+    Verify that participants.tsv exists in the dataset directory.
     
     Args:
-        raw_dir: Path to the raw data directory containing BIDS datasets.
-        min_subjects: Minimum required number of subjects (default 85 per Plan).
-        primary_var: Name of the primary behavioral variable.
-        fallback_var: Name of the fallback variable if primary is missing.
-    
+        dataset_dir: Path to the BIDS dataset root.
+        
     Returns:
-        Tuple of (valid_subjects, excluded_subjects)
-    
+        Path to the participants.tsv file.
+        
     Raises:
-        DataValidationError: If N < 85 or if both primary and fallback variables are missing.
+        FileNotFoundError: If participants.tsv is missing.
     """
-    raw_path = Path(raw_dir)
-    if not raw_path.exists():
-        raise DataValidationError(f"Raw data directory not found: {raw_dir}", "ERR_PATH_MISSING")
-    
-    # Find participants.tsv files in subdirectories
-    participants_files = list(raw_path.rglob("participants.tsv"))
-    if not participants_files:
-        raise DataValidationError(
-            "No participants.tsv files found in raw data directory. "
-            "Ensure BIDS datasets are correctly downloaded.",
-            "ERR_FILE_MISSING"
+    participants_path = dataset_dir / "participants.tsv"
+    if not participants_path.exists():
+        raise FileNotFoundError(
+            f"CRITICAL: participants.tsv not found at {participants_path}. "
+            "Dataset may be incomplete or not in BIDS format."
         )
-    
-    valid_subjects = []
-    excluded_subjects = []
-    total_subjects = 0
-    missing_vars = []
-    
-    for p_file in participants_files:
-        logger.info(f"Validating: {p_file}")
-        try:
-            df = pd.read_csv(p_file, sep='\t')
-            subjects = df['participant_id'].tolist()
-            total_subjects += len(subjects)
-            
-            # Check for primary variable
-            has_primary = primary_var in df.columns
-            has_fallback = fallback_var in df.columns
-            
-            if not has_primary and not has_fallback:
-                missing_vars.append({
-                    "file": str(p_file),
-                    "missing": [primary_var, fallback_var]
-                })
-                logger.warning(f"Both '{primary_var}' and '{fallback_var}' missing in {p_file}")
-            elif not has_primary:
-                logger.warning(f"Primary variable '{primary_var}' missing in {p_file}, "
-                             f"using fallback '{fallback_var}'")
-            # If primary exists, we are good. If only fallback exists, we are also good (with warning).
-            
-            # For now, assume all subjects are valid unless motion/corruption checks are added
-            valid_subjects.extend(subjects)
-            
-        except Exception as e:
-            logger.error(f"Error processing {p_file}: {e}")
-            excluded_subjects.extend([s for s in df['participant_id'].tolist() if 'participant_id' in df.columns])
-    
-    # CRITICAL: Enforce Plan's power requirement (N >= 85)
-    if total_subjects < min_subjects:
-        raise DataValidationError(
-            f"Sample size N={total_subjects} is below the required minimum of {min_subjects}. "
-            f"Per the Plan, N=85 is the hard gate for statistical power. "
-            f"The Spec's assumption of N=50 is overridden. "
-            f"Execution halted to prevent underpowered analysis.",
-            "ERR_UNDERPOWERED"
-        )
-    
-    # Check for missing variables and raise if both are missing
-    if missing_vars:
-        missing_info = [f"{m['file']}: {m['missing']}" for m in missing_vars]
-        raise DataValidationError(
-            f"Behavioral variable missing in following datasets: {missing_info}. "
-            f"Required: '{primary_var}' or fallback '{fallback_var}'. "
-            f"Cannot proceed without valid behavioral data.",
-            "ERR_DATA_MISSING"
-        )
-    
-    logger.info(f"Data integrity check passed. Total subjects: {total_subjects}, "
-              f"Valid: {len(valid_subjects)}, Excluded: {len(excluded_subjects)}")
-    
-    return valid_subjects, excluded_subjects
+    return participants_path
 
-def exclude_subjects_by_missing_data(
-    confounds_df: pd.DataFrame,
-    threshold: float = 0.1
-) -> List[str]:
+def validate_sample_size(df: pd.DataFrame, min_n: int = 85) -> bool:
     """
-    Flag subjects with >10% corrupted fMRI volumes based on confounds.
+    Validate that the sample size meets the minimum power requirement.
     
     Args:
-        confounds_df: DataFrame containing confound regressors for all subjects.
-        threshold: Fraction of corrupted volumes to trigger exclusion.
+        df: DataFrame containing subject data.
+        min_n: Minimum required sample size (default 85 per Plan override).
+        
+    Returns:
+        True if sample size is sufficient.
+        
+    Raises:
+        DataValidationError: If N < min_n.
+    """
+    n = len(df)
+    if n < min_n:
+        raise DataValidationError(
+            f"ERR_UNDERPOWERED: Sample size N={n} is below the required minimum of {min_n}. "
+            f"The study is underpowered. Please ensure the dataset contains at least {min_n} subjects.",
+            code="ERR_UNDERPOWERED"
+        )
+    logger.info(f"Sample size validation passed: N={n} >= {min_n}")
+    return True
+
+def get_behavioral_variable(df: pd.DataFrame, primary_var: str = 'musical_genre', 
+                            fallback_var: str = 'STOMP-R') -> Tuple[str, bool]:
+    """
+    Attempt to locate the primary behavioral variable, with fallback to a proxy.
     
+    This implements the 'Fail Loudly' mechanism for missing data while preserving
+    the fallback logic for variable substitution.
+    
+    Args:
+        df: DataFrame containing subject data (participants.tsv).
+        primary_var: The primary variable name to check (e.g., 'musical_genre').
+        fallback_var: The fallback variable name to check if primary is missing (e.g., 'STOMP-R').
+        
+    Returns:
+        A tuple (variable_name, used_fallback).
+        
+    Raises:
+        DataValidationError: If neither variable is found.
+    """
+    columns = df.columns.tolist()
+    
+    # Check primary variable
+    if primary_var in columns:
+        logger.info(f"Found primary behavioral variable: '{primary_var}'")
+        return primary_var, False
+    
+    # Log warning for missing primary
+    logger.warning(f"Primary behavioral variable '{primary_var}' not found. "
+                   f"Attempting fallback to '{fallback_var}'...")
+    
+    # Check fallback variable
+    if fallback_var in columns:
+        logger.warning(f"Fallback variable '{fallback_var}' found. Using '{fallback_var}' as proxy.")
+        return fallback_var, True
+    
+    # Both missing - Fail Loudly
+    raise DataValidationError(
+        f"ERR_DATA_MISSING: Neither '{primary_var}' nor '{fallback_var}' found in participants.tsv. "
+        f"Available columns: {columns}. The pipeline cannot proceed without a valid behavioral measure.",
+        code="ERR_DATA_MISSING"
+    )
+
+def exclude_subjects_by_missing_data(confounds_df: pd.DataFrame, threshold: float = 0.1) -> List[str]:
+    """
+    Flag subjects with excessive missing data in confounds.
+    
+    Args:
+        confounds_df: DataFrame of confound regressors.
+        threshold: Fraction of missing values allowed (default 0.1).
+        
     Returns:
         List of subject IDs to exclude.
     """
     excluded = []
-    # Implementation depends on how confounds are structured
-    # Placeholder logic assuming 'corrupted' column exists or can be derived
-    if 'corrupted' in confounds_df.columns:
-        for subject in confounds_df['subject_id'].unique():
-            subj_data = confounds_df[confounds_df['subject_id'] == subject]
-            if (subj_data['corrupted'].sum() / len(subj_data)) > threshold:
-                excluded.append(subject)
+    # Assuming index or a column 'participant_id' exists
+    subjects = confounds_df.index if isinstance(confounds_df.index, pd.Index) else confounds_df['participant_id']
+    
+    for subj in subjects:
+        if isinstance(confounds_df.index, pd.Index):
+            row = confounds_df.loc[subj]
+        else:
+            row = confounds_df[confounds_df['participant_id'] == subj].iloc[0]
+        
+        missing_ratio = row.isna().mean()
+        if missing_ratio > threshold:
+            excluded.append(subj)
+            logger.warning(f"Excluding subject {subj}: {missing_ratio:.2%} missing confound data.")
+    
     return excluded
 
-def exclude_subjects_by_motion(
-    confounds_df: pd.DataFrame,
-    fd_threshold: float = 0.5
-) -> List[str]:
+def exclude_subjects_by_motion(confounds_df: pd.DataFrame, fd_threshold: float = 0.5) -> List[str]:
     """
-    Flag subjects with excessive head motion (mean FD > threshold).
+    Flag subjects with excessive head motion (FD > threshold).
     
     Args:
-        confounds_df: DataFrame containing framewise_displacement column.
-        fd_threshold: Maximum allowed mean FD in mm.
-    
+        confounds_df: DataFrame of confound regressors (must contain 'framewise_displacement').
+        fd_threshold: Maximum allowed mean FD (default 0.5mm).
+        
     Returns:
         List of subject IDs to exclude.
     """
@@ -157,50 +152,101 @@ def exclude_subjects_by_motion(
         logger.warning("framewise_displacement column not found in confounds. Skipping motion check.")
         return excluded
     
-    for subject in confounds_df['subject_id'].unique():
-        subj_data = confounds_df[confounds_df['subject_id'] == subject]
-        mean_fd = subj_data['framewise_displacement'].mean()
+    # Calculate mean FD per subject if multiple rows per subject, otherwise check mean
+    if 'participant_id' in confounds_df.columns:
+        mean_fd = confounds_df.groupby('participant_id')['framewise_displacement'].mean()
+        for subj, fd in mean_fd.items():
+            if fd > fd_threshold:
+                excluded.append(subj)
+                logger.warning(f"Excluding subject {subj}: Mean FD={fd:.3f}mm > {fd_threshold}mm.")
+    else:
+        # Assume single row per subject or aggregate
+        mean_fd = confounds_df['framewise_displacement'].mean()
         if mean_fd > fd_threshold:
-            excluded.append(subject)
-            logger.info(f"Excluding subject {subject} due to high mean FD: {mean_fd:.3f}mm")
+            logger.warning(f"Overall mean FD={mean_fd:.3f}mm > {fd_threshold}mm. Consider excluding all subjects.")
+            # In a real scenario, we'd list specific subjects, but here we assume aggregate or index-based
+            if isinstance(confounds_df.index, pd.Index):
+                excluded.extend(confounds_df.index.tolist())
     
     return excluded
 
+def check_data_integrity(dataset_dir: str, min_n: int = 85) -> List[str]:
+    """
+    Perform comprehensive data integrity checks.
+    
+    1. Verify participants.tsv exists.
+    2. Validate sample size N >= min_n.
+    3. Locate behavioral variable (primary or fallback).
+    4. (Placeholder for confounds checks if files available).
+    
+    Args:
+        dataset_dir: Path to the BIDS dataset root.
+        min_n: Minimum sample size requirement.
+        
+    Returns:
+        List of valid subject IDs (if confounds are available, otherwise empty list).
+        
+    Raises:
+        DataValidationError: If any critical check fails.
+    """
+    dataset_path = Path(dataset_dir)
+    valid_subjects = []
+    
+    # 1. File Existence Check
+    participants_path = check_participants_file(dataset_path)
+    df = pd.read_csv(participants_path, sep='\t')
+    
+    # 2. Power Check
+    validate_sample_size(df, min_n)
+    
+    # 3. Variable Validation (Primary + Fallback)
+    var_name, used_fallback = get_behavioral_variable(df, primary_var='musical_genre', fallback_var='STOMP-R')
+    if used_fallback:
+        logger.info(f"Proceeding with proxy variable: {var_name}")
+    
+    # 4. & 5. Confounds checks (if confounds files exist)
+    # Note: This step assumes confounds files are available in the dataset structure.
+    # In a real pipeline, we would iterate over subject directories to load confounds.
+    # For this validation task, we return the list of subjects from participants.tsv
+    # assuming they pass initial checks, pending specific confounds file validation.
+    if 'participant_id' in df.columns:
+        valid_subjects = df['participant_id'].tolist()
+    elif 'subject_id' in df.columns:
+        valid_subjects = df['subject_id'].tolist()
+    else:
+        # Fallback to index if no explicit ID column
+        valid_subjects = [str(i) for i in range(len(df))]
+    
+    logger.info(f"Data integrity check passed for {len(valid_subjects)} subjects.")
+    return valid_subjects
+
 def main():
     """
-    Main entry point for data validation script.
-    
-    Reads configuration, runs integrity checks, and outputs valid subject list.
+    CLI entry point for data validation.
+    Usage: python -m code.data.validate --dataset /path/to/ds000030
     """
-    import sys
-    from config import get_data_path
+    import argparse
     
-    raw_dir = get_data_path("raw")
-    logger.info(f"Starting data validation on: {raw_dir}")
+    parser = argparse.ArgumentParser(description="Validate fMRI dataset integrity.")
+    parser.add_argument("--dataset", type=str, required=True, help="Path to BIDS dataset")
+    parser.add_argument("--min-n", type=int, default=85, help="Minimum sample size")
+    
+    args = parser.parse_args()
     
     try:
-        valid_subs, excluded_subs = check_data_integrity(
-            raw_dir=raw_dir,
-            min_subjects=85,
-            primary_var='musical_genre',
-            fallback_var='STOMP-R'
-        )
-        
-        # Save valid subjects
-        valid_file = Path("data/processed/valid_subjects.json")
-        valid_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(valid_file, 'w') as f:
-            json.dump(valid_subs, f, indent=2)
-        
-        logger.info(f"Validation complete. {len(valid_subs)} subjects valid.")
-        return 0
-        
+        valid_subjects = check_data_integrity(args.dataset, min_n=args.min_n)
+        print(f"Validation successful. {len(valid_subjects)} subjects are valid.")
+        # In a real pipeline, we might write this to a state file or return it
+        return valid_subjects
     except DataValidationError as e:
-        logger.error(f"Validation failed with code {e.code}: {e}")
-        return 1
+        logger.error(f"Validation failed: {e.message} (Code: {e.code})")
+        raise
+    except FileNotFoundError as e:
+        logger.error(f"File error: {e}")
+        raise
     except Exception as e:
-        logger.exception(f"Unexpected error during validation: {e}")
-        return 2
+        logger.error(f"Unexpected error: {e}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

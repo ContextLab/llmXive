@@ -1180,3 +1180,101 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T10:51:11Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 0
+  canonical: fetch arXiv:2106.08611 and arXiv:2305.06325
+  claim_id: c_fa00a164
+  context: Implement code/data/download.py to fetch arXiv:2106.08611 and arXiv:2305.06325.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: fetch arXiv:2106.08611 and arXiv:2305.06325
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T15:38:13Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: fetch arXiv:1909.03356 as third independent run
+  claim_id: c_aa55ec61
+  context: Implement logic in code/data/download.py to fetch arXiv:1909.03356 (if
+    available) as the third independent run.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: fetch arXiv:1909.03356 (if available) as the third independent run
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:38:17Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Gelman-Rubin statistic < 1.01 within 6 hours
+  claim_id: c_6ae86841
+  context: "verify output includes posterior samples, Bayes factor, and Gelman\u2011\
+    Rubin < 1.01 within the 6\u2011hour limit."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gelman-Rubin statistic < 1.01 within the 6-hour limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:38:18Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Kass-Raftery scale K > 3 indicates substantial evidence for Yukawa model
+  claim_id: c_a090acb4
+  context: "Compare K against the Kass\u2013Raftery scale (K > 3 indicates substantial\
+    \ evidence for the Yukawa model)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: K > 3 indicates substantial evidence for the Yukawa model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:38:18Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Bayes factors and credible upper limit shifts stay < 15% across iterations
+  claim_id: c_050e7ca4
+  context: "verify Bayes factors and credible\u2011upper\u2011limit shifts stay <\
+    \ 15% across all iterations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bayes factors and credible\u2011upper\u2011limit shifts stay < 15% across\
+    \ all iterations"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:38:18Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: CV > 15% log warning and flag result
+  claim_id: c_fc575f0c
+  context: if CV > 15%, log a warning and flag the result (do NOT raise an error)
+    to match the spec's intent to 'assess stability' and 'log' results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CV > 15% log a warning and flag the result
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T15:38:18Z'

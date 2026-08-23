@@ -1,2 +1,2 @@
-# Tests directory marker
-# Subdirectories: unit/, integration/
+# Tests package initialization
+# Contains unit and integration tests
