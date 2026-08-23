@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-135-identifying-predictive-biomarkers-of-che
-last_run_id: ee7d9af9-da9b-46ca-8fbc-a4a3c8f862c6
+last_run_id: e067c7a6-aca0-4a53-a16a-045b65415aac
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che
 title: Identifying Predictive Biomarkers of Chemotherapy Response in Public Cancer
   Datasets
-updated_at: '2026-08-23T08:09:51.345723Z'
+updated_at: '2026-08-23T08:54:10.676395Z'

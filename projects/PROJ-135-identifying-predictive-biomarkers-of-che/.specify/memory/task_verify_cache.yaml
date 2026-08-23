@@ -71,10 +71,39 @@ T029:
     schema. Additionally, the test file is truncated, indicating it may be incomplete.
     The missing schema file must be added (and the test completed) for the requirement
     to be satisfied.
-T039b:
+T047:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, scripts, data files, or result outputs (e.g., `data/raw/`, `data/processed/`,
-    `results/meta_analysis/`, or `results/summary.md`) were supplied, so the required
-    pipelines, DE analysis, and model training artifacts are missing. The claim cannot
-    be verified without these concrete artifacts.
+  r: "No code, script, or documentation for an R\u2011native streaming data loader\
+    \ is present; the only material shown describes high\u2011level user stories for\
+    \ a biomarker discovery pipeline and contains no concrete implementation, files,\
+    \ or output. The required artifact (an R streaming loader that can ingest large\
+    \ datasets) is missing entirely."
+T048:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (scripts, data files, logs, or documentation) were provided to\
+    \ demonstrate that a strict data\u2011loading failure mechanism has been implemented.\
+    \ The claim contains only a textual specification of user stories without any\
+    \ code, tests, or output files, so the requirement is not satisfied."
+T049:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or result files were supplied to demonstrate that a meta\u2011\
+    analysis statistical power validation was performed (e.g., power calculations,\
+    \ simulation results, or documented power metrics). Consequently, the required\
+    \ artifact for validating the meta\u2011analysis power is missing."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only a high\u2011level description of biomarker discovery\
+    \ user stories and no concrete artifact (e.g., code, scripts, tests, or documentation)\
+    \ implementing \u201CRobust Class Imbalance Handling.\u201D No files, functions,\
+    \ or test results are present to verify that class imbalance is addressed, so\
+    \ the required deliverable is missing."
+T051:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, notebook, documentation, or any other artifact implementing
+    a DeLong test power analysis was provided. The claim contains only a placeholder
+    comment and no concrete output, so the required functionality is missing.

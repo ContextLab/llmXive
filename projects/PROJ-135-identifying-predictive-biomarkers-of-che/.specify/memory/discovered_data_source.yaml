@@ -1,18 +1,16 @@
 status: none
-intent: download TCGA RNAseq HTSeq counts and GEO GSE25055 GSE42752 expression python
-  package dataset
+intent: TCGA RNAseq HTSeq counts GEO GSE25055 GSE42752 download python package dataset
 required_fields:
 - sample_id
+- tumor_type
 - gene_symbol
+- ensembl_id
 - raw_count
 - normalized_expression
-- tumor_type
-- cohort
+- clinical_age
+- clinical_gender
 - clinical_stage
-- therapy_response
-- age
-- sex
-- platform
-cache_key: 5fe2a241de25774af52ed251ee31d54b7402c066bf19b691e6a9cacc0b9d07b9
-searched_at: '2026-08-23T07:23:28.213715+00:00'
+- chemotherapy_response
+cache_key: 581e696063251b90d00b12a368462bd5ee67fb0c152ce08e094fac6f4f1c07c5
+searched_at: '2026-08-23T08:12:38.033029+00:00'
 retry_count: 1

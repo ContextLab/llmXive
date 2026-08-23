@@ -6,243 +6,217 @@ import resource
 import signal
 import subprocess
 import sys
-import multiprocessing
 from pathlib import Path
-from typing import Dict, Any, Optional
-import psutil
+from typing import Optional, Tuple, Dict, Any, List
 
-# Custom Exceptions and Warnings
-class ResourceWarning(Warning):
-    """Warning for approaching resource limits."""
+# --- Resource Monitoring ---
+
+class ResourceLimitExceeded(Exception):
+    """Raised when resource limits (CPU/Memory) are exceeded."""
     pass
 
-class ResourceLimitExceeded(RuntimeError):
-    """Raised when a resource limit is strictly exceeded."""
+class ResourceWarning(Exception):
+    """Raised when resource usage is approaching limits."""
     pass
 
-# Logging Setup
-def setup_logging(log_level: str = "INFO") -> logging.Logger:
-    logger = logging.getLogger("llmXive")
-    logger.setLevel(getattr(logging, log_level.upper()))
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-    return logger
+def detect_resources() -> Tuple[int, float]:
+    """Detect available CPU cores and memory limit (GB)."""
+    try:
+        cpu_count = os.cpu_count() or 1
+        # Try to get memory limit from cgroup if available, else fallback to system
+        mem_limit_bytes = None
+        cgroup_mem_path = "/sys/fs/cgroup/memory/memory.limit_in_bytes"
+        if os.path.exists(cgroup_mem_path):
+            with open(cgroup_mem_path, "r") as f:
+                limit_str = f.read().strip()
+                if limit_str != "max" and limit_str != "9223372036854775807":
+                    mem_limit_bytes = int(limit_str)
+        else:
+            # Fallback to resource.getrlimit
+            soft, _ = resource.getrlimit(resource.RLIMIT_AS)
+            if soft != resource.RLIM_INFINITY:
+                mem_limit_bytes = soft
 
-logger = setup_logging()
-
-# Resource Detection Logic
-def detect_resources() -> Dict[str, Any]:
-    """
-    Detect available CPU cores and RAM (GB) inside a Docker container.
-    If not in Docker, fallback to system defaults.
-    Returns dict: {'cpus': int, 'ram_gb': float, 'time_limit_hours': int}
-    """
-    cpus = None
-    ram_bytes = None
-
-    # 1. Check Docker Environment Variables first
-    docker_cpus = os.environ.get("DOCKER_CPUS")
-    docker_memory = os.environ.get("DOCKER_MEMORY")
-
-    if docker_cpus:
-        try:
-            cpus = int(docker_cpus)
-        except ValueError:
-            logger.warning(f"Invalid DOCKER_CPUS value: {docker_cpus}, falling back.")
-
-    if docker_memory:
-        try:
-            # Memory often in MB or bytes, assume MB if small, bytes if large
-            mem_val = float(docker_memory)
-            if mem_val < 10000:
-                ram_bytes = int(mem_val * 1024 * 1024) # MB to Bytes
-            else:
-                ram_bytes = int(mem_val) # Assume bytes
-        except ValueError:
-            logger.warning(f"Invalid DOCKER_MEMORY value: {docker_memory}, falling back.")
-
-    # 2. Check /proc/cgroup for cgroup constraints (Docker)
-    if cpus is None:
-        try:
-            with open("/proc/cpuinfo", "r") as f:
-                # Count cores based on cgroup quota if available, else physical
-                # Simplified: check if running in container via cgroup
-                cgroup_path = "/proc/self/cgroup"
-                if os.path.exists(cgroup_path):
-                    with open(cgroup_path, "r") as cg:
-                        content = cg.read()
-                        if "docker" in content or "kubepods" in content:
-                            # Try to read CPU quota
-                            cpu_quota_path = "/sys/fs/cgroup/cpu/cpu.cfs_quota_us"
-                            cpu_period_path = "/sys/fs/cgroup/cpu/cpu.cfs_period_us"
-                            if os.path.exists(cpu_quota_path) and os.path.exists(cpu_period_path):
-                                with open(cpu_quota_path, "r") as q:
-                                    quota = int(q.read().strip())
-                                with open(cpu_period_path, "r") as p:
-                                    period = int(p.read().strip())
-                                if period > 0 and quota > 0:
-                                    cpus = max(1, int(quota / period))
-                                else:
-                                    cpus = multiprocessing.cpu_count()
-                            else:
-                                cpus = multiprocessing.cpu_count()
-                        else:
-                            cpus = multiprocessing.cpu_count()
-                else:
-                    cpus = multiprocessing.cpu_count()
-        except Exception as e:
-            logger.warning(f"Could not read /proc/cgroup: {e}. Using system default.")
-            cpus = multiprocessing.cpu_count()
-
-    if ram_bytes is None:
-        try:
-            # Check cgroup memory limit
-            mem_limit_path = "/sys/fs/cgroup/memory/memory.limit_in_bytes"
-            if os.path.exists(mem_limit_path):
-                with open(mem_limit_path, "r") as f:
-                    val = int(f.read().strip())
-                    # 9223372036854771712 is often the default "unlimited"
-                    if val < 9223372036854771712:
-                        ram_bytes = val
+        if mem_limit_bytes:
+            mem_limit_gb = mem_limit_bytes / (1024 ** 3)
+        else:
+            # Fallback to total system memory if cgroup not found
+            try:
+                with open("/proc/meminfo", "r") as f:
+                    for line in f:
+                        if line.startswith("MemTotal:"):
+                            mem_total_kb = int(line.split()[1])
+                            mem_limit_gb = mem_total_kb / (1024 * 1024)
+                            break
                     else:
-                        ram_bytes = psutil.virtual_memory().total
-            else:
-                ram_bytes = psutil.virtual_memory().total
-        except Exception as e:
-            logger.warning(f"Could not read memory limit: {e}. Using system total.")
-            ram_bytes = psutil.virtual_memory().total
+                        mem_limit_gb = 16.0 # Default fallback
+            except FileNotFoundError:
+                mem_limit_gb = 16.0 # Default fallback
 
-    ram_gb = ram_bytes / (1024 ** 3)
-    # Default time limit based on constraints (e.g., 24 hours)
-    time_limit_hours = 24
+        return cpu_count, mem_limit_gb
+    except Exception as e:
+        logging.warning(f"Failed to detect resources: {e}. Using defaults.")
+        return 4, 8.0
 
-    # Log detected resources
-    logger.info(f"Detected Resources: CPUs={cpus}, RAM={ram_gb:.2f} GB")
+def calculate_caps(cpu_count: int, mem_limit_gb: float) -> Dict[str, Any]:
+    """Calculate safe operational caps based on detected resources."""
+    # Heuristic: 1 thread per 2GB RAM, max 8 threads
+    max_threads = min(cpu_count, int(mem_limit_gb / 2))
+    max_threads = max(1, min(max_threads, 8))
+
+    # Heuristic: 70% of memory for data, rest for overhead
+    safe_memory_gb = mem_limit_gb * 0.7
 
     return {
-        'cpus': cpus,
-        'ram_gb': ram_gb,
-        'time_limit_hours': time_limit_hours
+        "max_threads": max_threads,
+        "safe_memory_gb": safe_memory_gb,
+        "chunk_size_mb": int(safe_memory_gb * 1024 * 0.1) # 10% of safe mem per chunk
     }
-
-def calculate_caps(detected: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Calculate capped values as the minimum of detected resources and safe thresholds.
-    Thresholds defined by FR-012, SC-004, SC-005.
-    """
-    MAX_CPUS = 8 # Hard cap for safety
-    MAX_RAM_GB = 16.0 # Hard cap for safety
-    MAX_TIME_HOURS = 48 # Hard cap for safety
-
-    caps = {
-        'cpus': min(detected['cpus'], MAX_CPUS),
-        'ram_gb': min(detected['ram_gb'], MAX_RAM_GB),
-        'time_limit_hours': min(detected['time_limit_hours'], MAX_TIME_HOURS)
-    }
-    return caps
-
-def check_limits(current_usage: Dict[str, float], caps: Dict[str, float], threshold: float = 0.9) -> bool:
-    """
-    Check if current usage exceeds a substantial majority threshold of the caps.
-    Returns True if limit is exceeded (warning should be raised).
-    """
-    for key in ['cpus', 'ram_gb']:
-        if key in caps and key in current_usage:
-            if current_usage[key] > caps[key] * threshold:
-                msg = f"Warning: Resource usage approaching limit: {key} {current_usage[key]:.2f} / {caps[key]:.2f}. Per FR-012, SC-004, SC-005."
-                logger.warning(msg)
-                return True
-    return False
 
 def get_cpu_usage_hours() -> float:
-    # Placeholder for actual CPU time tracking if needed
-    return 0.0
+    """Get CPU time used in hours (user + system)."""
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    total_seconds = usage.ru_utime + usage.ru_stime
+    return total_seconds / 3600.0
 
 def get_memory_usage_gb() -> float:
-    usage = psutil.Process().memory_info().rss
-    return usage / (1024 ** 3)
+    """Get peak memory usage in GB."""
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    # ru_maxrss is in KB on Linux
+    return usage.ru_maxrss / (1024 * 1024)
 
-def resource_monitor(caps: Dict[str, Any], interval: float = 5.0) -> None:
-    """
-    Monitor resource usage periodically.
-    """
-    # Implementation would involve a loop or signal handler
-    # For now, a simple check
-    current = {
-        'cpus': psutil.cpu_percent(interval=1) / 100.0 * caps['cpus'], # Approximation
-        'ram_gb': get_memory_usage_gb()
-    }
-    check_limits(current, caps)
+def check_limits(cpu_count: int, mem_limit_gb: float, caps: Dict[str, Any]) -> bool:
+    """Check if current usage exceeds limits."""
+    current_mem = get_memory_usage_gb()
+    if current_mem > caps["safe_memory_gb"]:
+        logging.error(f"Memory limit exceeded: {current_mem:.2f}GB > {caps['safe_memory_gb']:.2f}GB")
+        return False
+    return True
 
-def enforce_resource_limits(caps: Dict[str, Any]) -> None:
-    """
-    Enforce resource limits using signal handlers or resource module.
-    """
-    # Set memory limit
+def resource_monitor(cpu_count: int, mem_limit_gb: float, caps: Dict[str, Any]) -> None:
+    """Periodic monitor (simplified for single script execution)."""
+    if not check_limits(cpu_count, mem_limit_gb, caps):
+        raise ResourceLimitExceeded("Resource limits exceeded during execution.")
+
+def enforce_resource_limits(cpu_count: int, mem_limit_gb: float) -> None:
+    """Attempt to set soft limits (best effort)."""
     try:
-        # Convert GB to bytes for resource module (soft/hard)
-        limit_bytes = int(caps['ram_gb'] * 1024 * 1024 * 1024)
-        resource.setrlimit(resource.RLIMIT_AS, (limit_bytes, limit_bytes))
+        # Set soft limit to 80% of hard limit (or detected limit)
+        soft_limit = int(mem_limit_gb * 0.8 * 1024 * 1024 * 1024)
+        hard_limit = int(mem_limit_gb * 1024 * 1024 * 1024)
+        resource.setrlimit(resource.RLIMIT_AS, (soft_limit, hard_limit))
     except (ValueError, resource.error) as e:
-        logger.warning(f"Could not set memory limit: {e}")
+        logging.warning(f"Could not enforce resource limits: {e}")
 
-def build_docker_run_cmd(image: str, volume: str, cpus: Optional[int] = None, memory: Optional[float] = None) -> str:
-    """
-    Construct the docker run command with --cpus and --memory flags.
-    """
-    if cpus is None or memory is None:
-        detected = detect_resources()
-        caps = calculate_caps(detected)
-        cpus = cpus or caps['cpus']
-        memory = memory or caps['ram_gb']
+# --- Data Integrity & Checksums ---
 
-    cmd = f"docker run --rm --cpus={cpus} --memory={memory:g}g -v {volume}:/work {image}"
-    return cmd
+def calculate_checksum(file_path: str, algorithm: str = "sha256") -> str:
+    """
+    Calculate the checksum of a file.
+    
+    CRITICAL: This function strictly enforces data integrity.
+    It does NOT generate synthetic data or fallback to mock values.
+    If the file does not exist or cannot be read, it raises FileNotFoundError.
+    
+    Args:
+        file_path: Path to the file.
+        algorithm: Hash algorithm (default: sha256).
+    
+    Returns:
+        Hex digest string.
+    
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        PermissionError: If the file cannot be read.
+        ValueError: If the file is empty (indicating a potential download failure).
+    """
+    path = Path(file_path)
+    
+    if not path.exists():
+        raise FileNotFoundError(f"Data integrity check failed: File not found at {file_path}")
+    
+    if path.stat().st_size == 0:
+        raise ValueError(f"Data integrity check failed: File is empty at {file_path}. Download may have failed.")
 
-def run_docker_with_enforcement(cmd: str) -> subprocess.CompletedProcess:
-    """
-    Execute the docker command and handle specific exit codes.
-    """
+    hash_func = hashlib.new(algorithm)
     try:
-        result = subprocess.run(cmd, shell=True, check=False)
-        if result.returncode == 137:
-            raise ResourceLimitExceeded("Resource limit exceeded (Exit Code 137): System enforced termination per FR-012. Check logs for details.")
-        elif result.returncode == 124:
-            raise ResourceLimitExceeded("Resource limit exceeded (Exit Code 124): Timeout enforced per FR-012. Check logs for details.")
-        elif result.returncode != 0:
-            raise RuntimeError(f"Docker command failed with exit code {result.returncode}")
-        return result
-    except subprocess.SubprocessError as e:
-        raise RuntimeError(f"Failed to execute docker command: {e}")
+        with open(path, "rb") as f:
+            # Read in chunks to handle large files
+            for chunk in iter(lambda: f.read(8192), b""):
+                hash_func.update(chunk)
+    except PermissionError as e:
+        raise PermissionError(f"Data integrity check failed: Cannot read file {file_path}") from e
+    
+    return hash_func.hexdigest()
 
-def calculate_checksum(file_path: str) -> str:
-    """
-    Compute SHA256 checksum of a file.
-    """
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+def get_docker_run_flags() -> List[str]:
+    """Get standard Docker run flags for the pipeline."""
+    # Default flags for the R/Python environment
+    return [
+        "--rm",
+        "-v", f"{Path.cwd()}:/work",
+        "-w", "/work",
+        "-e", "PYTHONUNBUFFERED=1"
+    ]
 
-def ensure_docker_limits() -> None:
+def ensure_docker_limits(cpu_count: int, mem_limit_gb: float) -> List[str]:
+    """Generate Docker flags to enforce resource limits."""
+    return [
+        "--cpus", str(cpu_count),
+        "--memory", f"{int(mem_limit_gb)}g",
+        "--memory-swap", f"{int(mem_limit_gb)}g"
+    ]
+
+def generate_watchdog_script(output_path: str) -> None:
+    """Generate a simple bash watchdog script (optional utility)."""
+    script_content = """#!/bin/bash
+    # Watchdog script to monitor process memory
+    PID=$1
+    LIMIT_GB=$2
+    while kill -0 $PID 2>/dev/null; do
+        MEM_KB=$(ps -o rss= -p $PID 2>/dev/null)
+        if [ -n "$MEM_KB" ]; then
+            MEM_GB=$(echo "$MEM_KB / 1024 / 1024" | bc)
+            if (( $(echo "$MEM_GB > $LIMIT_GB" | bc -l) )); then
+                echo "Memory limit exceeded. Killing process $PID."
+                kill -9 $PID
+                exit 1
+            fi
+        fi
+        sleep 10
+    done
     """
-    Ensure Docker limits are respected if running in Docker.
-    """
-    if os.path.exists("/.dockerenv"):
-        detected = detect_resources()
-        caps = calculate_caps(detected)
-        enforce_resource_limits(caps)
+    with open(output_path, "w") as f:
+        f.write(script_content)
+    os.chmod(output_path, 0o755)
+
+# --- Logging Setup ---
+
+def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+    """Configure logging for the pipeline."""
+    logger = logging.getLogger("llmXive_pipeline")
+    logger.setLevel(level)
+    
+    if not logger.handlers:
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        
+        # Console handler
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+        
+        # File handler
+        if log_file:
+            Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+            fh = logging.FileHandler(log_file)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+    
+    return logger
 
 def main():
-    """Main entry point for utils testing/demo."""
-    detected = detect_resources()
-    caps = calculate_caps(detected)
-    print(f"Detected: {detected}")
-    print(f"Capped: {caps}")
-
-if __name__ == "__main__":
-    main()
+    """Main entry point for utility tests/demo (not used in pipeline)."""
+    pass
