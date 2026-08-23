@@ -65,7 +65,7 @@ The researcher needs to generate visualizations (heatmaps, Manhattan plots) of t
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download ATAC-seq and ChIP-seq peak files for specific cell types (GM12878, K562, HepG2, H1-hESC, IMR90) from ENCODE using HTTP GET requests, ensuring total raw download size does not exceed a manageable storage threshold, while allowing up to GB of temporary disk space for unpacked and indexed files. (See US-1)
+- **FR-001**: System MUST download ATAC-seq and ChIP-seq peak files for specific cell types (GM, K562, HepG2, H1-hESC, IMR90) from ENCODE using HTTP GET requests, ensuring total raw download size does not exceed a manageable storage threshold, while allowing up to GB of temporary disk space for unpacked and indexed files. (See US-1)
 - **FR-002**: System MUST parse BED-formatted Peak Region files and annotate genomic regions with gene symbols using the hg38 reference genome, storing intermediate results in a configurable directory (`TMP_DIR`, default `/tmp`) with a pre-flight check ensuring ≥ 14GB available space. (See US-1)
 - **FR-003**: System MUST scan accessible regions for TF motif matches using a CPU-only tool (FIMO or HOMER) against the JASPAR database, identifying matches with a p-value ≤ 0.0001. (See US-2)
 - **FR-004**: System MUST compute motif enrichment scores using Fisher's exact test for each motif-cell type combination, using Peak Regions from other cell types as the background model, and apply Benjamini-Hochberg correction for multiple testing across all motifs. (See US-2)
