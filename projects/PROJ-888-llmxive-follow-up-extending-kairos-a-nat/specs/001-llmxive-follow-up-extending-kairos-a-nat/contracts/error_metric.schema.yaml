@@ -8,7 +8,7 @@ properties:
     description: "Unique identifier for the independent run."
   bit_depth:
     type: "integer"
-    enum: [4, 8, 16]
+    enum: [4, 6, 8, 16]
     description: "Quantization bit depth used."
   noise_std:
     type: "number"
@@ -53,6 +53,9 @@ properties:
   is_untrained:
     type: "boolean"
     description: "True if model was trained from scratch due to missing weights."
+  stability_claim_framing:
+    type: "string"
+    description: "Field name for stability claim framing (e.g., 'mse_ratio')."
 required:
   - run_id
   - bit_depth
@@ -70,4 +73,5 @@ required:
   - ram_peak_mb
   - latency_per_step_ms
   - is_untrained
+  - stability_claim_framing
 additionalProperties: false

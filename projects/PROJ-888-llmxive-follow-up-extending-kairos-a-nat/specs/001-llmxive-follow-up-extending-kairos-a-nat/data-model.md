@@ -1,95 +1,63 @@
 # Data Model: llmXive follow-up: extending "Kairos: A Native World Model Stack for Physical AI"
 
-## Overview
+## 1. Entity Definitions
 
-This document defines the data structures used in the quantization pipeline, model training, and analysis phases. All data flows from the continuous LIBERO dataset through the quantization engine to the discrete state vectors, and finally to the error metrics and stability reports.
+### 1.1 DiscreteStateVector
+Represents the quantized state of the embodied agent at a single time step.
+- **Fields**:
+  - `timestamp` (float): Unix timestamp or relative step index.
+  - `position` (list[float] or list[int]): Quantized end-effector position.
+  - `orientation` (list[float] or list[int]): Quantized orientation (if applicable).
+  - `velocity` (list[float] or list[int]): Derived velocity (continuous derivation, then quantized). **Note**: Stored as `number` (float) for continuous baseline context, `integer` for discrete.
+  - `collision_flags` (list[int]): Binary flags for collision events.
+  - `is_dropped` (bool): True if state was dropped due to 1-bit collapse.
+  - `metadata` (dict): Source schema mapping info.
 
-## Core Entities
+### 1.2 PredictionHorizon
+Defines the forecasting scope.
+- **Values**: 100, 500, 1000 time steps.
 
-### 1. ContinuousStateVector
-*Source*: Raw LIBERO dataset (parquet).
-*Description*: The ground-truth continuous state of the embodied agent at a single time step.
+### 1.3 ErrorMetric
+Composite record for statistical analysis.
+- **Fields**:
+  - `mse_discrete` (float): Total MSE for discrete modality (normalized by D).
+  - `mse_continuous` (float): Total MSE for continuous baseline (normalized by D).
+  - `mse_ratio` (float): `mse_discrete / mse_continuous`.
+  - `cumulative_error_rate` (float): Slope of MSE vs. time.
+  - `p_value` (float): Statistical significance from LMM.
+  - `is_significant` (bool): True if p < 0.05.
+  - `stability_claim_framing` (string): "mse_ratio" or "relative_degradation".
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `episode_id` | `str` | Unique identifier for the episode. |
-| `timestep` | `int` | Time step index within the episode. |
-| `position` | `List[float]` | 3D position of the end-effector (derived from `observations.state[0:3]`). |
-| `orientation` | `List[float]` | Quaternion (derived from `observations.state[3:7]`). |
-| `joint_angles` | `List[float]` | Robot joint angles. |
-| `task_id` | `str` | Identifier for the specific task. |
+### 1.4 StabilityThreshold
+The identified boundary where stability is lost.
+- **Fields**:
+  - `quantization_level` (int): Bit depth (4, 6, 8, 16).
+  - `noise_level` (float): Standard deviation multiplier.
+  - `mse_ratio_ci_upper` (float): Upper bound of 95% CI.
+  - `threshold_reached` (bool): True if CI upper bound > 1.0.
 
-### 2. DiscreteStateVector
-*Source*: Output of `data/quantize.py`.
-*Description*: The quantized, JSON-serialized state vector with derived velocities and noise injection.
+### 1.5 PowerAnalysisResult
+Result of the a priori power analysis.
+- **Fields**:
+  - `effect_size` (float): Cohen's d (target 0.5).
+  - `power` (float): Target power (0.8).
+  - `alpha` (float): Significance level (0.05).
+  - `n_runs` (int): Calculated required number of runs.
+  - `method` (string): "LMM_simulation".
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `episode_id` | `str` | Inherited from source. |
-| `timestep` | `int` | Inherited from source. |
-| `bit_depth` | `int` | Quantization level (4, 8, or 16). |
-| `state_values` | `List[int]` | Discrete integer values in range $[0, 2^{bit\_depth} - 1]$. |
-| `velocity_values` | `List[int]` | Discrete velocity values derived from continuous data, then quantized. |
-| `noise_seed` | `int` | Random seed used for noise injection (for reproducibility). |
-| `quantization_error` | `float` | Theoretical noise floor for this bit depth (combined with injected noise). |
+## 2. Data Flow
 
-### 3. PredictionHorizon
-*Description*: Configuration for long-horizon prediction.
+1. **Raw Input**: `lerobot/libero_plus` (Parquet) -> `observations.positions`, `observations.ee_pos`.
+2. **Verification**: Check schema keys. Fail if missing.
+3. **Derivation**: Continuous velocity/acceleration calculated.
+4. **Noise Injection**: Gaussian noise added to continuous values.
+5. **Quantization**: Mapping to discrete integers.
+6. **Validation**: 1-bit collapse check.
+7. **Model Input**: Discrete JSON vectors fed to Kairos.
+8. **Output**: Predicted sequences -> MSE calculation (normalized) -> LMM analysis.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `horizon_length` | `int` | Number of future steps to predict (100, 250, 500, 1000). |
-| `input_context_length` | `int` | Number of past steps used as context. |
+## 3. Storage Format
 
-### 4. ErrorMetric
-*Source*: Output of `analysis/metrics.py`.
-*Description*: Composite record of error analysis for a specific run and bit depth.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `run_id` | `str` | Unique identifier for the independent run (includes noise seed). |
-| `bit_depth` | `int` | Quantization level tested. |
-| `horizon_length` | `int` | Prediction horizon used. |
-| `total_mse` | `float` | Mean Squared Error between prediction and ground truth. |
-| `quantization_noise_floor` | `float` | Theoretical noise floor calculated from combined noise distribution. |
-| `model_error` | `float` | **Total MSE** (not subtracted). |
-| `cumulative_growth_rate` | `float` | Slope of error accumulation over time. |
-| `baseline_continuous_error` | `float` | Error of the continuous baseline model (re-trained per-run). |
-| `degradation_ratio` | `float` | `model_error` / `baseline_continuous_error`. |
-| `is_stable` | `bool` | `True` if `degradation_ratio` < 1.20. |
-| `mse_normalized` | `float` | MSE divided by state space dimensionality. |
-| `entropy_score` | `float` | Entropy of the quantized distribution (validation metric). |
-| `ram_peak_mb` | `float` | Peak RAM usage in MB. |
-| `latency_per_step_ms` | `float` | Inference latency per step in milliseconds. |
-| `is_untrained` | `bool` | True if model was trained from scratch due to missing weights. |
-| `noise_std` | `float` | Standard deviation of injected noise. |
-
-### 5. StabilityReport
-*Source*: Output of `analysis/stats.py`.
-*Description*: Aggregated results across N=10 runs.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `bit_depth` | `int` | The quantization level analyzed. |
-| `n_runs` | `int` | Number of independent runs (≥10). |
-| `mean_model_error` | `float` | Average model error across runs. |
-| `std_model_error` | `float` | Standard deviation of model error. |
-| `p_value` | `float` | Result of mixed-effects model or block-bootstrap test vs. baseline. |
-| `is_significant` | `bool` | `True` if `p_value` < 0.05. |
-| `stability_threshold_met` | `bool` | `True` if mean degradation ratio < 1.20. |
-| `stability_claim_framing` | `str` | Text description of the relative degradation. |
-
-## Data Flow
-
-1.  **Raw Data**: `data/raw/*.parquet` (ContinuousStateVector)
-2.  **Quantization**: `data/processed/quantized/*.json` (DiscreteStateVector)
-    - *Transformation*: `quantize.py` (Finite differencing, binning, noise injection).
-3.  **Training/Inference**: `results/runs/<run_id>/` (Model checkpoints, predictions).
-4.  **Analysis**: `results/aggregate/stability_report.json` (ErrorMetric, StabilityReport).
-
-## Constraints & Validation
-
-- **DiscreteStateVector**: `state_values` must be integers in $[0, 2^{bit\_depth} - 1]$.
-- **ErrorMetric**: `model_error` must be non-negative. `degradation_ratio` must be > 0.
-- **StabilityReport**: `n_runs` must be ≥ 10.
-- **1-bit Collapse**: If `bit_depth` == 1 and `len(unique(state_values))` == 1, the run is flagged as "Invalid Data" and excluded from analysis.
+- **Raw Data**: Parquet (downloaded to `data/raw/`).
+- **Processed Data**: JSON Lines (`.jsonl`) or JSON arrays in `data/processed/`.
+- **Results**: JSON (`results/stats_results.json`, `results/power_analysis_report.json`).

@@ -12,6 +12,7 @@ properties:
       type: "integer"
       enum:
         - 4
+        - 6
         - 8
         - 16
     description: "List of quantization levels to test."

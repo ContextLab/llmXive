@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.15330",
+  "judged_at": "2026-08-23T14:41:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kairos: a native world model stack for physical ai\" computer science",
+  "rationale": "This paper belongs in the literature review because it provides an empirical baseline and canonical study for the \"Physical AI\" and \"World Model\" domain referenced in the user's question, specifically addressing the scaling of Vision-Language-Action (VLA) models with real-world trajectories (Category c and e). While it does not implement the specific \"Kairos\" stack, it represents the state-of-the-art in the same research area (Physical AI foundation models) that a reviewer would expect to see ci",
+  "relevant": true
+}

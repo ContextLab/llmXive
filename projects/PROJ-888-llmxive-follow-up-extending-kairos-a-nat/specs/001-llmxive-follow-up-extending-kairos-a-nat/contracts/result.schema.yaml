@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ErrorMetric"
+type: "object"
+properties:
+  mse_discrete:
+    type: "number"
+    description: "Total MSE for discrete modality."
+  mse_continuous:
+    type: "number"
+    description: "Total MSE for continuous baseline."
+  mse_ratio:
+    type: "number"
+    description: "Ratio of Discrete MSE to Continuous MSE."
+  cumulative_error_rate:
+    type: "number"
+    description: "Slope of MSE vs. time."
+  p_value:
+    type: "number"
+    description: "Statistical significance from LMM."
+  is_significant:
+    type: "boolean"
+    description: "True if p < 0.05."
+  stability_claim_framing:
+    type: "string"
+    description: "Field name for stability claim framing (e.g., 'mse_ratio')."
+  quantization_level:
+    type: "integer"
+    description: "Bit depth (4, 6, 8, 16)."
+  horizon:
+    type: "integer"
+    description: "Prediction horizon used."
+required:
+  - "mse_discrete"
+  - "mse_continuous"
+  - "mse_ratio"
+  - "p_value"
+  - "is_significant"
+  - "stability_claim_framing"
+additionalProperties: false

@@ -1,43 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "DiscreteStateVector"
-description: "Schema for the quantized state vectors generated from the LIBERO dataset."
 type: "object"
 properties:
-  episode_id:
-    type: "string"
-    description: "Unique identifier for the episode."
-  timestep:
-    type: "integer"
-    description: "Time step index within the episode."
-  bit_depth:
-    type: "integer"
-    enum:
-      - 4
-      - 8
-      - 16
-    description: "Quantization level used."
-  state_values:
-    type: "array"
-    items:
-      type: "integer"
-    description: "Discrete integer values in range [0, 2^bit_depth - 1]."
-  velocity_values:
-    type: "array"
-    items:
-      type: "integer"
-    description: "Discrete velocity values derived via finite differencing."
-  noise_seed:
-    type: "integer"
-    description: "Random seed used for noise injection."
-  quantization_error:
+  timestamp:
     type: "number"
-    description: "Theoretical noise floor for this bit depth."
+    description: "Relative step index or Unix timestamp."
+  position:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Quantized end-effector position."
+  orientation:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Quantized orientation values."
+  velocity:
+    type: "array"
+    items:
+      type: "number"
+    description: "Derived velocity (continuous derivation, then quantized)."
+  collision_flags:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Binary collision flags."
+  is_dropped:
+    type: "boolean"
+    description: "True if state was dropped due to 1-bit collapse."
+  metadata:
+    type: "object"
+    properties:
+      source_schema:
+        type: "string"
+        description: "Source schema mapping info (e.g., 'lerobot/libero_plus')."
+    required:
+      - "source_schema"
 required:
-  - episode_id
-  - timestep
-  - bit_depth
-  - state_values
-  - velocity_values
-  - noise_seed
-  - quantization_error
+  - "timestamp"
+  - "position"
+  - "velocity"
+  - "is_dropped"
+  - "metadata"
 additionalProperties: false

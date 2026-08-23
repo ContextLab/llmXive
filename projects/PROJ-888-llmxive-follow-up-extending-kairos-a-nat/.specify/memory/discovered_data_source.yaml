@@ -1,11 +1,16 @@
 status: none
-intent: download LIBERO benchmark dataset from Hugging Face python package dataset
+intent: download RLBench robotics dataset python package dataset
 required_fields:
+- episode_id
+- timestep
 - rgb_image
-- proprioceptive_state
 - joint_positions
-- object_positions
+- joint_velocities
+- joint_torques
+- end_effector_position
+- end_effector_orientation
+- action
 - timestamp
-cache_key: a182a2a999da1edf92dd8dd69240ba35197d4a364c2be2ca20dc79878eb8e616
-searched_at: '2026-08-08T09:25:12.953159+00:00'
+cache_key: 16f4367f0562b6a30b389f41ffc8d88de6e956336496d7f4fbdda97650fbab3a
+searched_at: '2026-08-23T14:55:51.842651+00:00'
 retry_count: 1

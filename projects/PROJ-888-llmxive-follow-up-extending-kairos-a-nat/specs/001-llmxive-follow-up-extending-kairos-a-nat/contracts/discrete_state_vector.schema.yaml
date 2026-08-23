@@ -13,6 +13,7 @@ properties:
     type: "integer"
     enum:
       - 4
+      - 6
       - 8
       - 16
     description: "Quantization level used."
@@ -24,8 +25,8 @@ properties:
   velocity_values:
     type: "array"
     items:
-      type: "integer"
-    description: "Discrete velocity values derived via finite differencing."
+      type: "number"
+    description: "Discrete velocity values derived via finite differencing. Stored as number to allow float representation for continuous baseline context."
   noise_seed:
     type: "integer"
     description: "Random seed used for noise injection."
