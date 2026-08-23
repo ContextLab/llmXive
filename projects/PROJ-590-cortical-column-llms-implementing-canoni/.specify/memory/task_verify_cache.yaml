@@ -1,3 +1,10 @@
+T008c:
+  c: false
+  h: 6552fe9cd0b5db395f90172cbf8f3fb6efe8efa1aa9a5886a95fcdc53ec31302
+  r: "The repository contains a partially\u2011written `generate_polynomial_test_data`\
+    \ function that is truncated and never writes any file, and the expected output\
+    \ file `data/results/test_data_polynomial.npy` is absent. Consequently the required\
+    \ test data is not generated nor saved."
 T014:
   c: false
   h: 1dd0c3bfe48ebbaad664e63d9d5237ae080baa1c91c71323b57bac7d7ca72867
@@ -31,15 +38,11 @@ T031:
     provided `tests/integration/test_gradient_stability.py` only checks logging of
     gradient norms and does not implement or verify the statistical stability test
     described in the task. These essential artifacts and functionality are missing.
-T049:
+T080:
   c: false
-  h: dad5ef7429162465e2341f99ac73ba7fae1927563f2ffc4f1dafa39a58232691
-  r: The required artifact `src/experiments/scaling.py` does not exist in the repository,
-    so the task of extending that file cannot have been fulfilled. The implementer
-    must add the missing file with the appropriate extensions.
-T050:
-  c: false
-  h: 832ec11fdf01e9411f02961f150a96464783611551d4a8cfc3aa23fc2c84150e
-  r: The required file `src/utils/scaling_analyzer.py` does not exist in the repository,
-    so the update cannot have been performed. The missing artifact must be added and
-    contain the appropriate updated code to satisfy the task.
+  h: ce523147bf84090d0d9c0409d5348637b3b8cc74290ab0e710b0decbc8307480
+  r: The provided `final_verification.py` is truncated and does not contain a complete
+    `verify_universal_approximation` implementation (e.g., `evaluate_model` ends abruptly
+    and the main verification logic is absent). Additionally, the required output
+    file `data/results/universal_approximation_report.md` is missing. Both the functional
+    code and the report artifact need to be added to satisfy the task.

@@ -5,69 +5,103 @@ import logging
 from pathlib import Path
 import numpy as np
 
-# Add project root to path to allow imports from src
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
-from src.data.benchmarks import generate_polynomial_surface_data, save_generated_data
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+from src.data.benchmarks import (
+    generate_training_data,
+    generate_polynomial_test_data,
+    generate_fourier_test_data,
+    verify_independence
 )
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def main():
     """
-    Generate independent test data using polynomial surfaces.
-    This data is distinct from the Lorenz attractor training data by design.
-    
-    Output: data/results/test_data_polynomial.npy
+    Main script to generate all benchmark datasets.
+
+    This script:
+    1. Generates Lorenz attractor training data
+    2. Generates polynomial test data (T008c requirement)
+    3. Generates Fourier test data (additional robustness)
+    4. Verifies independence between train and test sets
+    5. Saves all outputs to data/results/
     """
-    logger.info("Starting test data generation (T008c)...")
-    
-    # Ensure output directory exists
-    output_dir = project_root / "data" / "results"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "test_data_polynomial.npy"
-    
-    logger.info(f"Generating polynomial surface test data...")
-    logger.info("Using polynomial surfaces to ensure statistical independence from Lorenz training data.")
-    
-    # Generate test data using polynomial surfaces (distinct from Lorenz/Fourier training)
-    # Parameters chosen to provide a robust test set for generalization
-    test_data = generate_polynomial_surface_data(
-        n_samples=5000,
-        n_features=10,
-        max_degree=4,
-        noise_std=0.01,
-        seed=42
+    project_root = Path(__file__).parent.parent
+    data_dir = project_root / "data" / "results"
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    logger.info("Starting benchmark data generation...")
+
+    # 1. Generate training data (Lorenz attractor)
+    train_path = data_dir / "train_data_lorenz.npy"
+    logger.info(f"Generating Lorenz training data: {train_path}")
+    train_data = generate_training_data(
+        n_samples=10000,
+        seed=123,
+        output_path=str(train_path)
     )
-    
-    logger.info(f"Generated test data shape: {test_data.shape}")
-    
-    # Save the data
-    logger.info(f"Saving test data to {output_path}")
-    save_generated_data(test_data, str(output_path))
-    
-    # Verify the file was written
-    if output_path.exists():
-        file_size = output_path.stat().st_size
-        logger.info(f"Successfully wrote {file_size} bytes to {output_path}")
-        
-        # Load and verify integrity
-        loaded_data = np.load(output_path)
-        assert loaded_data.shape == test_data.shape, "Shape mismatch after save/load"
-        assert np.allclose(loaded_data, test_data), "Data integrity check failed"
-        logger.info("Data integrity verified.")
-    else:
-        logger.error("Failed to write output file!")
+    logger.info(f"Training data shape: {train_data.shape}")
+
+    # 2. Generate polynomial test data (T008c requirement)
+    poly_test_path = data_dir / "test_data_polynomial.npy"
+    logger.info(f"Generating polynomial test data: {poly_test_path}")
+    poly_test_data = generate_polynomial_test_data(
+        n_samples=1000,
+        n_features=5,
+        degree=3,
+        seed=42,
+        output_path=str(poly_test_path)
+    )
+    logger.info(f"Polynomial test data shape: {poly_test_data.shape}")
+
+    # 3. Generate Fourier test data (additional)
+    fourier_test_path = data_dir / "test_data_fourier.npy"
+    logger.info(f"Generating Fourier test data: {fourier_test_path}")
+    fourier_test_data = generate_fourier_test_data(
+        n_samples=500,
+        n_features=3,
+        max_freq=10,
+        seed=43,
+        output_path=str(fourier_test_path)
+    )
+    logger.info(f"Fourier test data shape: {fourier_test_data.shape}")
+
+    # 4. Verify independence
+    logger.info("Verifying independence between train and test sets...")
+    is_independent = verify_independence(train_data, poly_test_data)
+    if not is_independent:
+        logger.error("Independence verification failed!")
         sys.exit(1)
-    
-    logger.info("Test data generation completed successfully.")
+
+    # 5. Save metadata
+    metadata = {
+        "train": {
+            "path": str(train_path),
+            "shape": list(train_data.shape),
+            "generator": "lorenz_attractor",
+            "seed": 123
+        },
+        "test_polynomial": {
+            "path": str(poly_test_path),
+            "shape": list(poly_test_data.shape),
+            "generator": "polynomial_surface",
+            "seed": 42
+        },
+        "test_fourier": {
+            "path": str(fourier_test_path),
+            "shape": list(fourier_test_data.shape),
+            "generator": "fourier_series",
+            "seed": 43
+        },
+        "independence_verified": is_independent
+    }
+
+    metadata_path = data_dir / "dataset_metadata.json"
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+    logger.info(f"Saved metadata to {metadata_path}")
+
+    logger.info("Benchmark data generation completed successfully!")
     return 0
 
 if __name__ == "__main__":

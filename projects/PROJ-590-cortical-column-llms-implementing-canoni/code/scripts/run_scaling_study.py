@@ -6,45 +6,59 @@ from pathlib import Path
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root / "code"))
+sys.path.insert(0, str(project_root))
 
 from src.experiments.scaling import main as run_scaling_study_main
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
+
+logger = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(description="Run scaling study for cortical column LLMs")
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/results",
-        help="Output directory for results"
-    )
-    parser.add_argument(
-        "--epochs",
-        type=int,
-        default=5,
-        help="Number of training epochs per variant"
-    )
+    parser.add_argument("--base-columns", type=int, default=4, help="Base number of columns")
+    parser.add_argument("--multipliers", type=str, default="1,2,4", help="Comma-separated multipliers")
+    parser.add_argument("--output", type=str, default="data/results/scaling_law.csv", help="Output CSV path")
+    parser.add_argument("--train-size", type=int, default=5000, help="Training data size")
+    parser.add_argument("--test-size", type=int, default=1000, help="Test data size")
     
     args = parser.parse_args()
+
+    logger.info(f"Starting scaling study with base_columns={args.base_columns}")
+    logger.info(f"Multipliers: {args.multipliers}")
+    logger.info(f"Output: {args.output}")
+
+    # Parse multipliers
+    multipliers = [int(x) for x in args.multipliers.split(',')]
+
+    # Import and run the study
+    from src.experiments.scaling import run_scaling_study, create_scaling_configs, train_scaling_variant, save_scaling_results, verify_scaling_output
     
-    # Ensure output directory exists
-    os.makedirs(args.output_dir, exist_ok=True)
-    
-    logging.info(f"Starting scaling study with output directory: {args.output_dir}")
-    logging.info(f"Training epochs per variant: {args.epochs}")
-    
-    # Run scaling study
-    try:
-        run_scaling_study_main()
-        logging.info("Scaling study completed successfully")
-    except Exception as e:
-        logging.error(f"Scaling study failed: {e}")
+    # Generate data
+    from src.data.benchmarks import generate_training_data
+    train_data = generate_training_data(n_samples=args.train_size, seed=42)
+    test_data = generate_training_data(n_samples=args.test_size, seed=123)
+
+    configs = create_scaling_configs(args.base_columns, multipliers)
+    results = []
+
+    for config in configs:
+        result = train_scaling_variant(config, train_data, test_data)
+        results.append(result)
+
+    save_scaling_results(results, args.output)
+
+    if not verify_scaling_output(args.output):
+        logger.error("Scaling output verification failed!")
         sys.exit(1)
+
+    logger.info("Scaling study completed successfully")
 
 if __name__ == "__main__":
     main()

@@ -13,7 +13,7 @@ This project implements a hybrid neural architecture that replaces standard Tran
 **Primary Dependencies**: PyTorch (CPU-only wheel), numpy, scipy, pytest, psutil  
 **Storage**: Local filesystem (`data/`), in-memory tensors  
 **Testing**: `pytest` with `pytest-timeout` and a custom `conftest.py` (using `psutil`) for resource monitoring.  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: Multiple vCPU, 7GB RAM)  
 **Project Type**: Research Library / CLI  
 **Performance Goals**: Training < 6 hours for largest configuration; MAE < 0.05 for baseline; < 10% degradation for generalization.  
 **Constraints**: No GPU/CUDA; no spiking neural networks (rate-based only); parameter parity (±1%) between baseline and microcircuit models; strict excitatory/inhibitory ratio enforcement

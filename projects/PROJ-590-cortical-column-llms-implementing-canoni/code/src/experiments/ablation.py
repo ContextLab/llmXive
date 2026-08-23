@@ -4,346 +4,267 @@ import logging
 import time
 from dataclasses import dataclass, asdict
 from typing import List, Dict, Any, Optional
-
 import torch
 import torch.nn as nn
+import numpy as np
+from pathlib import Path
 
 from src.models.microcircuit import MicrocircuitColumn, create_microcircuit_column, MicrocircuitColumnConfig
 from src.models.hybrid_network import HybridNetwork, create_hybrid_network
-from src.training.homeostasis import HomeostasisConfig
+from src.training.trainer import run_training, TrainingConfig
+from src.data.benchmarks import generate_training_data, generate_polynomial_test_data
+from src.experiments.baseline_runner import ExperimentConfig, ExperimentResult, BaselineRunner
 
 logger = logging.getLogger(__name__)
 
 @dataclass
 class AblationConfig:
-    """Configuration for a specific ablation experiment."""
     name: str
     description: str
-    model_type: str  # 'microcircuit', 'hybrid', 'baseline'
-    ablation_type: str  # 'remove_l23', 'remove_l5', 'disable_homeostasis', 'random_connectivity', 'full'
-    microcircuit_config: Optional[Dict[str, Any]] = None
-    homeostasis_config: Optional[Dict[str, Any]] = None
-    expected_metric_impact: float = 0.0  # Optional: expected change in MAE
-    parameter_count: int = 0
+    disable_recurrence: bool = False
+    disable_inhibition: bool = False
+    disable_homeostasis: bool = False
+    disable_laminar_topology: bool = False
+    column_count: int = 1
 
 @dataclass
 class AblationResult:
-    """Result of an ablation experiment."""
     config_name: str
-    ablation_type: str
-    model_type: str
-    final_mae: float
-    initial_mae: float
+    description: str
+    training_mae: float
+    test_mae: float
     parameter_count: int
-    training_time_seconds: float
-    homeostasis_active: bool
-    timestamp: str
-    details: Dict[str, Any]
+    training_time_sec: float
+    success: bool
+    error_message: Optional[str] = None
 
-def generate_ablation_configs(
-    base_config: Optional[MicrocircuitColumnConfig] = None,
-    homeostasis_config: Optional[HomeostasisConfig] = None
-) -> List[AblationConfig]:
-    """
-    Generate a comprehensive set of ablation configurations for the microcircuit study.
-
-    This function implements the systematic ablation plan required for US3.
-    It creates configurations that:
-    1. Remove specific cortical layers (L2/3, L5, L6)
-    2. Disable homeostatic scaling
-    3. Replace structured connectivity with random connectivity
-    4. Test hybrid network variants
-    5. Include a full baseline (no ablation)
-
-    Args:
-        base_config: Optional base MicrocircuitColumnConfig to derive from.
-                     If None, defaults are used.
-        homeostasis_config: Optional HomeostasisConfig. If None, defaults used.
-
-    Returns:
-        List[AblationConfig]: A list of distinct ablation configurations.
-    """
-    configs = []
-
-    # Default configurations if not provided
-    if base_config is None:
-        base_config = MicrocircuitColumnConfig(
-            input_dim=128,
-            hidden_dim=256,
-            output_dim=64,
-            num_heads=4,
-            dropout=0.1
+def generate_ablation_configs() -> List[AblationConfig]:
+    """Generate a standard set of ablation configurations."""
+    configs = [
+        AblationConfig(
+            name="full_model",
+            description="Full microcircuit with all features",
+            disable_recurrence=False,
+            disable_inhibition=False,
+            disable_homeostasis=False,
+            disable_laminar_topology=False,
+            column_count=1
+        ),
+        AblationConfig(
+            name="no_recurrence",
+            description="Without recurrent connections",
+            disable_recurrence=True,
+            disable_inhibition=False,
+            disable_homeostasis=False,
+            disable_laminar_topology=False,
+            column_count=1
+        ),
+        AblationConfig(
+            name="no_inhibition",
+            description="Without inhibitory neurons",
+            disable_recurrence=False,
+            disable_inhibition=True,
+            disable_homeostasis=False,
+            disable_laminar_topology=False,
+            column_count=1
+        ),
+        AblationConfig(
+            name="no_homeostasis",
+            description="Without homeostatic scaling",
+            disable_recurrence=False,
+            disable_inhibition=False,
+            disable_homeostasis=True,
+            disable_laminar_topology=False,
+            column_count=1
+        ),
+        AblationConfig(
+            name="no_laminar_topology",
+            description="Without laminar connectivity constraints",
+            disable_recurrence=False,
+            disable_inhibition=False,
+            disable_homeostasis=False,
+            disable_laminar_topology=True,
+            column_count=1
+        ),
+        AblationConfig(
+            name="baseline_transformer",
+            description="Standard Transformer baseline (no microcircuit)",
+            disable_recurrence=False,
+            disable_inhibition=False,
+            disable_homeostasis=False,
+            disable_laminar_topology=False,
+            column_count=0  # Special flag for baseline
         )
-
-    if homeostasis_config is None:
-        homeostasis_config = HomeostasisConfig(
-            target_ei_ratio=4.0,
-            decay_rate=0.01,
-            scaling_window=100
-        )
-
-    # 1. Full Baseline (No ablation)
-    configs.append(AblationConfig(
-        name="full_baseline",
-        description="Full microcircuit with all layers and homeostasis enabled",
-        model_type="microcircuit",
-        ablation_type="full",
-        microcircuit_config=asdict(base_config),
-        homeostasis_config=asdict(homeostasis_config),
-        expected_metric_impact=0.0
-    ))
-
-    # 2. Ablate L2/3 Layer (Remove feedback/feedforward integration)
-    l23_ablated_config = asdict(base_config)
-    l23_ablated_config['l23_enabled'] = False
-    configs.append(AblationConfig(
-        name="ablate_l23",
-        description="Remove L2/3 layer to test role in top-down integration",
-        model_type="microcircuit",
-        ablation_type="remove_l23",
-        microcircuit_config=l23_ablated_config,
-        homeostasis_config=asdict(homeostasis_config),
-        expected_metric_impact=0.15
-    ))
-
-    # 3. Ablate L5 Layer (Remove output generation)
-    l5_ablated_config = asdict(base_config)
-    l5_ablated_config['l5_enabled'] = False
-    configs.append(AblationConfig(
-        name="ablate_l5",
-        description="Remove L5 layer to test role in output projection",
-        model_type="microcircuit",
-        ablation_type="remove_l5",
-        microcircuit_config=l5_ablated_config,
-        homeostasis_config=asdict(homeostasis_config),
-        expected_metric_impact=0.25
-    ))
-
-    # 4. Disable Homeostasis (Test E/I balance necessity)
-    no_homeo_config = asdict(base_config)
-    no_homeo_homeo = asdict(homeostasis_config)
-    no_homeo_homeo['enabled'] = False
-    configs.append(AblationConfig(
-        name="no_homeostasis",
-        description="Disable homeostatic scaling to test E/I balance importance",
-        model_type="microcircuit",
-        ablation_type="disable_homeostasis",
-        microcircuit_config=no_homeo_config,
-        homeostasis_config=no_homeo_homeo,
-        expected_metric_impact=0.10
-    ))
-
-    # 5. Random Connectivity (Test structured topology necessity)
-    random_conn_config = asdict(base_config)
-    random_conn_config['use_laminar_mask'] = False
-    configs.append(AblationConfig(
-        name="random_connectivity",
-        description="Replace laminar connectivity with random connections",
-        model_type="microcircuit",
-        ablation_type="random_connectivity",
-        microcircuit_config=random_conn_config,
-        homeostasis_config=asdict(homeostasis_config),
-        expected_metric_impact=0.20
-    ))
-
-    # 6. Hybrid Network (Compare with standard attention)
-    configs.append(AblationConfig(
-        name="hybrid_baseline",
-        description="Hybrid network with cortical-inspired attention",
-        model_type="hybrid",
-        ablation_type="full",
-        microcircuit_config=asdict(base_config),
-        homeostasis_config=asdict(homeostasis_config),
-        expected_metric_impact=0.05
-    ))
-
-    # 7. Partial Homeostasis (Only scaling, no E/I enforcement)
-    partial_homeo_config = asdict(homeostasis_config)
-    partial_homeo_config['enforce_ei_ratio'] = False
-    configs.append(AblationConfig(
-        name="partial_homeostasis",
-        description="Homeostatic scaling without strict E/I ratio enforcement",
-        model_type="microcircuit",
-        ablation_type="partial_homeostasis",
-        microcircuit_config=asdict(base_config),
-        homeostasis_config=partial_homeo_config,
-        expected_metric_impact=0.08
-    ))
-
-    logger.info(f"Generated {len(configs)} ablation configurations")
+    ]
     return configs
 
-def save_ablation_configs(configs: List[AblationConfig], output_path: str) -> None:
-    """Save ablation configurations to a JSON file."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+def save_ablation_configs(configs: List[AblationConfig], output_path: str):
+    """Save ablation configs to a JSON file."""
     data = [asdict(c) for c in configs]
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(data, f, indent=2)
-    logger.info(f"Saved ablation configs to {output_path}")
 
 def load_ablation_configs(input_path: str) -> List[AblationConfig]:
-    """Load ablation configurations from a JSON file."""
+    """Load ablation configs from a JSON file."""
     with open(input_path, 'r') as f:
         data = json.load(f)
-    configs = [AblationConfig(**item) for item in data]
-    logger.info(f"Loaded {len(configs)} ablation configs from {input_path}")
-    return configs
+    return [AblationConfig(**item) for item in data]
 
 def create_ablated_microcircuit_column(config: AblationConfig) -> MicrocircuitColumn:
-    """Create a MicrocircuitColumn based on an ablation configuration."""
-    if config.model_type != "microcircuit":
-        raise ValueError(f"Expected model_type 'microcircuit', got '{config.model_type}'")
-
-    if config.microcircuit_config is None:
-        raise ValueError("microcircuit_config is required for microcircuit model type")
-
-    model_config = MicrocircuitColumnConfig(**config.microcircuit_config)
+    """Create a microcircuit column with specified ablations."""
+    base_config = MicrocircuitColumnConfig()
     
-    # Handle homeostasis config
-    if config.homeostasis_config:
-        homeo_cfg = HomeostasisConfig(**config.homeostasis_config)
-    else:
-        homeo_cfg = HomeostasisConfig()
-
-    # Create the model
-    model = create_microcircuit_column(model_config, homeo_cfg)
+    # Apply ablations to the configuration
+    if config.disable_laminar_topology:
+        # Use a simplified connectivity (fully connected)
+        base_config.use_laminar_topology = False
     
-    # Count parameters
-    param_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    return model, param_count
-
-def create_ablated_hybrid_network(config: AblationConfig) -> HybridNetwork:
-    """Create a HybridNetwork based on an ablation configuration."""
-    if config.model_type != "hybrid":
-        raise ValueError(f"Expected model_type 'hybrid', got '{config.model_type}'")
-
-    if config.microcircuit_config is None:
-        raise ValueError("microcircuit_config is required for hybrid model type")
-
-    model_config = MicrocircuitColumnConfig(**config.microcircuit_config)
-    model = create_hybrid_network(model_config)
+    # Create the column
+    column = create_microcircuit_column(base_config)
     
-    param_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    return model, param_count
+    # For more complex ablations (recurrence, inhibition), we need to modify the module
+    if config.disable_recurrence or config.disable_inhibition:
+        # We'll handle this in the hybrid network creation by modifying the forward pass
+        # or by creating a custom wrapper. For now, we note this in the config.
+        column.ablation_flags = {
+            'disable_recurrence': config.disable_recurrence,
+            'disable_inhibition': config.disable_inhibition
+        }
+    
+    return column
+
+def create_ablated_hybrid_network(config: AblationConfig) -> nn.Module:
+    """Create a hybrid network with specified ablations."""
+    if config.column_count == 0:
+        # Return standard baseline transformer
+        from src.models.baseline_transformer import create_baseline_transformer
+        return create_baseline_transformer()
+    
+    # Create microcircuit columns
+    columns = []
+    for _ in range(config.column_count):
+        column = create_ablated_microcircuit_column(config)
+        columns.append(column)
+    
+    # Create the hybrid network
+    network = create_hybrid_network(
+        num_columns=config.column_count,
+        column_configs=[MicrocircuitColumnConfig() for _ in range(config.column_count)],
+        ablation_flags={
+            'disable_recurrence': config.disable_recurrence,
+            'disable_inhibition': config.disable_inhibition,
+            'disable_homeostasis': config.disable_homeostasis
+        }
+    )
+    
+    return network
 
 def run_ablation_experiment(
     config: AblationConfig,
-    train_data: torch.Tensor,
-    test_data: torch.Tensor,
-    device: str = "cpu"
+    train_data: np.ndarray,
+    test_data: np.ndarray,
+    training_config: Optional[TrainingConfig] = None
 ) -> AblationResult:
-    """
-    Run a single ablation experiment.
-
-    This is a placeholder for the actual training logic. In a real implementation,
-    this would train the model, evaluate it, and return metrics.
-    """
+    """Run a single ablation experiment."""
+    logger.info(f"Running ablation experiment: {config.name}")
     start_time = time.time()
     
-    # Create model
-    if config.model_type == "microcircuit":
-        model, param_count = create_ablated_microcircuit_column(config)
-    elif config.model_type == "hybrid":
-        model, param_count = create_ablated_hybrid_network(config)
-    else:
-        raise ValueError(f"Unsupported model type: {config.model_type}")
-
-    model.to(device)
-    model.train()
-
-    # Placeholder training loop (in real implementation, this would be the full training)
-    # We simulate a training run to return realistic-looking metrics
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-    criterion = nn.MSELoss()
-
-    # Simulate training for a few steps to get a "real" result
-    for _ in range(5):  # Just a few steps for the ablation config generation task
-        optimizer.zero_grad()
-        # Dummy forward pass
-        dummy_input = torch.randn(4, 10, train_data.shape[-1], device=device)
-        output = model(dummy_input)
-        loss = criterion(output, output)  # Dummy loss
-        loss.backward()
-        optimizer.step()
-
-    training_time = time.time() - start_time
-
-    # Simulate metrics (in real implementation, these would be actual results)
-    # The ablation_config generation task is about creating the CONFIGS, 
-    # not running the full study (that's T025b). 
-    # However, we return a result structure for completeness.
-    result = AblationResult(
-        config_name=config.name,
-        ablation_type=config.ablation_type,
-        model_type=config.model_type,
-        final_mae=0.0,  # Placeholder
-        initial_mae=0.0,  # Placeholder
-        parameter_count=param_count,
-        training_time_seconds=training_time,
-        homeostasis_active=config.homeostasis_config is not None and config.homeostasis_config.get('enabled', True),
-        timestamp=time.strftime("%Y-%m-%d %H:%M:%S"),
-        details={"status": "config_generated", "note": "Training not executed in config generation phase"}
-    )
-
-    return result
+    try:
+        # Create model
+        model = create_ablated_hybrid_network(config)
+        param_count = sum(p.numel() for p in model.parameters())
+        
+        # Set up training config
+        if training_config is None:
+            training_config = TrainingConfig(
+                epochs=10,
+                batch_size=32,
+                lr=0.001,
+                device='cpu'
+            )
+        
+        # Train model
+        training_result = run_training(
+            model=model,
+            train_data=train_data,
+            val_data=test_data,
+            config=training_config
+        )
+        
+        training_time = time.time() - start_time
+        
+        return AblationResult(
+            config_name=config.name,
+            description=config.description,
+            training_mae=training_result.train_mae,
+            test_mae=training_result.val_mae,
+            parameter_count=param_count,
+            training_time_sec=training_time,
+            success=True
+        )
+        
+    except Exception as e:
+        logger.error(f"Experiment {config.name} failed: {str(e)}")
+        return AblationResult(
+            config_name=config.name,
+            description=config.description,
+            training_mae=float('nan'),
+            test_mae=float('nan'),
+            parameter_count=0,
+            training_time_sec=time.time() - start_time,
+            success=False,
+            error_message=str(e)
+        )
 
 def run_ablation_study(
-    configs: List[AblationConfig],
-    train_data: torch.Tensor,
-    test_data: torch.Tensor,
-    output_dir: str = "data/results/ablation",
-    device: str = "cpu"
+    configs: Optional[List[AblationConfig]] = None,
+    output_dir: str = "data/results",
+    training_config: Optional[TrainingConfig] = None
 ) -> List[AblationResult]:
-    """Run the full ablation study."""
-    os.makedirs(output_dir, exist_ok=True)
+    """Run a full ablation study with multiple configurations."""
+    if configs is None:
+        configs = generate_ablation_configs()
+    
+    # Generate training and test data
+    logger.info("Generating training data (Lorenz attractor)...")
+    train_data = generate_training_data(n_samples=1000, seed=42)
+    
+    logger.info("Generating test data (polynomial surfaces)...")
+    test_data = generate_polynomial_test_data(n_samples=200, seed=123)
+    
     results = []
-
-    for i, config in enumerate(configs):
-        logger.info(f"Running ablation {i+1}/{len(configs)}: {config.name}")
-        try:
-            result = run_ablation_experiment(config, train_data, test_data, device)
-            results.append(result)
-        except Exception as e:
-            logger.error(f"Failed ablation {config.name}: {e}")
-            # Create a failed result
-            results.append(AblationResult(
-                config_name=config.name,
-                ablation_type=config.ablation_type,
-                model_type=config.model_type,
-                final_mae=-1.0,
-                initial_mae=-1.0,
-                parameter_count=0,
-                training_time_seconds=0.0,
-                homeostasis_active=False,
-                timestamp=time.strftime("%Y-%m-%d %H:%M:%S"),
-                details={"error": str(e)}
-            ))
-
+    for config in configs:
+        result = run_ablation_experiment(config, train_data, test_data, training_config)
+        results.append(result)
+        logger.info(f"Completed {config.name}: MAE={result.test_mae:.4f}, Params={result.parameter_count}")
+    
     # Save results
-    results_path = os.path.join(output_dir, "ablation_results.json")
-    with open(results_path, 'w') as f:
-        json.dump([asdict(r) for r in results], f, indent=2)
-
-    logger.info(f"Abalation study complete. Results saved to {results_path}")
+    output_path = os.path.join(output_dir, "ablation_results.json")
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    results_data = [asdict(r) for r in results]
+    with open(output_path, 'w') as f:
+        json.dump(results_data, f, indent=2)
+    
+    logger.info(f"Ablation study complete. Results saved to {output_path}")
     return results
 
 def main():
-    """Main entry point for ablation config generation."""
+    """Main entry point for running ablation study."""
     logging.basicConfig(level=logging.INFO)
     
-    # Generate configs
-    configs = generate_ablation_configs()
-    
-    # Save to default location
-    output_path = "data/configs/ablation_configs.json"
-    save_ablation_configs(configs, output_path)
-    
-    print(f"Generated {len(configs)} ablation configurations.")
-    print(f"Saved to: {output_path}")
+    # Run the study
+    results = run_ablation_study()
     
     # Print summary
-    for cfg in configs:
-        print(f"  - {cfg.name}: {cfg.description}")
+    print("\nAblation Study Summary:")
+    print("-" * 80)
+    for r in results:
+        status = "✓" if r.success else "✗"
+        print(f"{status} {r.config_name:20s} | MAE: {r.test_mae:.4f} | Params: {r.parameter_count:,}")
+    
+    return results
 
 if __name__ == "__main__":
     main()
