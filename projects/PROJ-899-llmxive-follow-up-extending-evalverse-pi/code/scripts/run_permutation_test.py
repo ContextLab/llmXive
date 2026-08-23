@@ -6,21 +6,15 @@ from src.models.metrics import main
 from src.utils import setup_logging
 
 def main_wrapper():
-    """
-    Wrapper script to run the permutation test (T020).
-    This script is invoked by the run-book to produce data/permutation_results.csv.
-    """
+    """Wrapper for the permutation test script."""
     setup_logging()
     logger = logging.getLogger(__name__)
-    
     try:
-        logger.info("Starting T020: Permutation-based multiple-comparison correction")
-        result_df = main()
-        logger.info("T020 completed successfully")
+        main()
         return 0
     except Exception as e:
-        logger.error(f"T020 failed with error: {e}", exc_info=True)
+        logger.error(f"Permutation test failed: {e}")
         return 1
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main_wrapper())

@@ -1,25 +1,56 @@
-T004b:
+T012:
   c: false
-  h: 3810770e78bd30fea941ac6e4f9c0830c7f4d45c1a0ebe4b4ad0160d2b0a6cc5
-  r: "The required file `src/data/verify_provenance.py` does not exist, so no provenance\u2011\
-    checking logic, JSON output, or exit\u2011code behavior is present. The task cannot\
-    \ be considered fulfilled until this script is created and implements the specified\
-    \ checks."
-T019:
+  h: 1d4abfeddd959561e6b924813546fb22e31cdd1a18c59baa735633739d0e9848
+  r: The `src/data/preprocess.py` file is truncated, contains syntax errors (e.g.,
+    `flow_m`), lacks HOG density extraction, does not set or record a `missing_data_flag`,
+    and does not write the required `data/processed/features_optical.csv`. Moreover,
+    the CSV output file is missing entirely. The task requirements are therefore not
+    met.
+T013:
   c: false
-  h: eabb17a767bc82e90eca3f28ed622c198762ebd8de51d3a87caae1f421bfd257
-  r: "The provided `src/models/evaluate.py` only defines generic MSE/RMSE helpers\
-    \ and a CSV writer, but it does not compute per\u2011dimension baseline results,\
-    \ does not calculate R\xB2, does not implement the validation against the best\
-    \ model from T015, nor does it exit with code\u202F1 on failure. Moreover, the\
-    \ required output file `data/baseline_results.csv` is missing. The task\u2019\
-    s core requirements are therefore unmet."
+  h: 4cc31f3dc8a6347e76044f056d508ed86845b1c9ecb9942d159e8f2d0b357d43
+  r: "The `src/data/preprocess.py` only contains a partial `extract_audio_features`\
+    \ that returns `None` on failure and does not set a `missing_data_flag` or log\
+    \ a warning as required, and the file `data/processed/features_audio.csv` is missing\
+    \ entirely. The task\u2019s output CSV and proper missing\u2011audio handling\
+    \ are not implemented."
+T020:
+  c: false
+  h: a5550a3fbd4880060afd997a3b675422f7dc4e09da8e3ab56dd1183bb55f90bd
+  r: "The provided `src/models/metrics.py` contains correlation and threshold\u2011\
+    sweep utilities but no implementation of a Westfall\u2011Young max\u2011T permutation\
+    \ correction (no function, no use of `n_permutations=10000`). Additionally, the\
+    \ required output file `data/permutation_results.csv` does not exist. Both the\
+    \ code artifact and the CSV output are missing, so the task is not fulfilled."
 T021:
   c: false
   h: e76cce29872375b6926a380b151300f1f027357e54838fc77c65c92c0b2987b4
   r: "The required artifact `tests/unit/test_profiles.py` does not exist in the repository,\
     \ so no unit test for the memory profiling logic is present. The task\u2019s core\
     \ deliverable is missing."
+T022#1:
+  c: false
+  h: a2153976c3ad093b2de5656e9d37d2824fa033a39fc59a9c36f5797c13896817
+  r: The repository lacks the required input file `data/processed/scores.csv` and
+    the expected output `data/processed/batch_stats.json`. Moreover, `src/cli/run_pipeline.py`
+    is truncated and does not contain a complete implementation that reads the scores,
+    processes N clips, and writes aggregated timing statistics to the JSON file. The
+    existing code only sketches clip handling and never writes the required `batch_stats.json`.
+T023b:
+  c: false
+  h: 19e43a8120058d3436554c67ee365c31b1c5aedf1221da4004809acaa4d98acc
+  r: "The provided `src/data/profiles.py` does not produce the required JSON schema\
+    \ (it logs `clip_path`, `memory_mb`, `time_seconds`, `cpu_time_seconds`, etc.,\
+    \ instead of `clip_id`, `cpu_time_sec`, `peak_memory_mb`, `status`) and the `save_profiling_results`\
+    \ function is incomplete. Moreover, the expected output file `data/profiling_logs.json`\
+    \ is missing. The implementation therefore fails to meet the task\u2019s specifications."
+T024:
+  c: false
+  h: 585d0ff5bb4fd36b32e33239096751cd53a350cec93b89ac15ea183d3b25437d
+  r: "The repository lacks the required `data/timing_profile.csv` file, and the shown\
+    \ `src/models/evaluate.py` is truncated before the implementation of the projection\
+    \ logic and any CSV writing. Consequently, the task\u2019s output artifact and\
+    \ full calculation logic are not present."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

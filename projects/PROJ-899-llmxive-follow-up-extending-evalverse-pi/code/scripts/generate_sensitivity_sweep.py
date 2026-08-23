@@ -1,38 +1,57 @@
+"""
+Script to generate T033 Sensitivity Sweep.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
 import pandas as pd
-import json
-from src.models.metrics import run_threshold_sweep
-from src.utils import get_logger
-from src.config import get_data_root
 
-def load_dimension_results() -> pd.DataFrame:
-    """Load dimension results from T016/T017."""
-    # Assuming a file exists from previous steps
-    path = os.path.join(get_data_root(), "dimension_metrics.csv")
-    if os.path.exists(path):
-        return pd.read_csv(path)
-    return pd.DataFrame()
+code_root = Path(__file__).parent.parent
+sys.path.insert(0, str(code_root))
+
+from src.config import get_processed_data_dir, get_data_root
+from src.utils import get_logger, ensure_directories, write_csv
+
+def load_dimension_results():
+    """Load correlation results from T016."""
+    path = os.path.join(get_processed_data_dir(), "correlations.csv")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Correlations file not found at {path}")
+    return pd.read_csv(path)
 
 def main():
-    """
-    Run threshold sweep (T026).
-    Generates data/sensitivity_sweep_raw.csv.
-    """
     logger = get_logger(__name__)
+    logger.info("Generating Sensitivity Sweep (T033)")
     
-    results = load_dimension_results()
-    if results.empty:
-        logger.warning("No dimension results found. Cannot run sweep.")
-        return 1
-    
-    # Run the sweep
-    sweep_df = run_threshold_sweep(results)
-    
-    logger.info(f"Generated sensitivity sweep with {len(sweep_df)} rows.")
-    return 0
+    try:
+        df = load_dimension_results()
+        
+        # Thresholds to sweep
+        thresholds = [0.80, 0.85, 0.90]
+        
+        results = []
+        for _, row in df.iterrows():
+            dim = row['dimension']
+            r_val = row['pearson_r']
+            
+            for t in thresholds:
+                status = "feature-sufficient" if r_val >= t else "VLM-required"
+                results.append({
+                    "dimension": dim,
+                    "threshold": t,
+                    "status": status
+                })
+        
+        df_res = pd.DataFrame(results)
+        out_path = os.path.join(get_data_root(), "sensitivity_sweep_raw.csv")
+        ensure_directories([out_path])
+        write_csv(df_res, out_path)
+        logger.info(f"Wrote sensitivity sweep to {out_path}")
+        
+    except Exception as e:
+        logger.error(f"Error in sensitivity sweep: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

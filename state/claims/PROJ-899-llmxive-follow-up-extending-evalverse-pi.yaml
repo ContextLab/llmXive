@@ -501,26 +501,6 @@
   updated_at: '2026-08-22T02:58:23Z'
 - artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
   attempts: 1
-  canonical: System outputs ranked dimensions with correlation coefficients and confidence
-    intervals
-  claim_id: c_837a7bb1
-  context: 'Independent Test: The system extracts features, trains models, and outputs
-    a ranked list of dimensions with correlation coefficients and confidence intervals.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/System_outputs_ranked_dimensions_with_correlation_coefficien
-  kind: entity_fact
-  raw_text: The system extracts features, trains models, and outputs a ranked list
-    of dimensions with correlation coefficients and confidence intervals.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-22T03:00:16Z'
-- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
-  attempts: 1
   canonical: Pipeline runs on multi-core CPU within 7GB RAM and processes 10k clips
     in less than 6 hours
   claim_id: c_8e34ec39
@@ -649,3 +629,269 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T03:02:03Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 2
+  canonical: System outputs ranked dimensions with correlation coefficients and confidence
+    intervals
+  claim_id: c_837a7bb1
+  context: 'Independent Test: The system extracts features, trains models, and outputs
+    a ranked list of dimensions with correlation coefficients and confidence intervals.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_outputs_ranked_dimensions_with_correlation_coefficien
+  kind: entity_fact
+  raw_text: The system extracts features, trains models, and outputs a ranked list
+    of dimensions with correlation coefficients and confidence intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:35:39Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline executed on representative subset of clips
+  claim_id: c_4e923833
+  context: 'The research question is to evaluate the end-to-end functionality of the
+    correlation pipeline. The method involves executing the pipeline on a representative
+    subset of clips. (Reference: Smith et al.,) in tests/integration/test_us1_pipeline.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_executed_on_representative_subset_of_clips
+  kind: entity_fact
+  raw_text: The method involves executing the pipeline on a representative subset
+    of clips.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:35:54Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Integration tests executed with batch sizes representative of high-throughput
+    scenarios
+  claim_id: c_de874182
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx). in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_tests_executed_with_batch_sizes_representative_o
+  kind: entity_fact
+  raw_text: The method involves executing integration tests with batch sizes representative
+    of high-throughput scenarios, as described in [Author, Year].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:36:26Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flip rate calculated as ratio of status changes to number of intervals
+  claim_id: c_d0332402
+  context: 'Output 2: data/sensitivity_flip_rate.csv. Schema for Output 2: [dimension,
+    flip_rate]. Formula: The flip rate is calculated as the ratio of the count of
+    status changes across thresholds to the number of intervals between those thresholds.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flip_rate_calculated_as_ratio_of_status_changes_to_number_of
+  kind: entity_fact
+  raw_text: The flip rate is calculated as the ratio of the count of status changes
+    across thresholds to the number of intervals between those thresholds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:36:55Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: system timing constraints hold under significant load
+  claim_id: c_613d62f2
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx). in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_timing_constraints_hold_under_significant_load
+  kind: entity_fact
+  raw_text: 'The research question remains: Do the system''s timing constraints hold
+    under significant load?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:39:35Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: execute integration tests with high-throughput batch sizes
+  claim_id: c_23f83e0a
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx). in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_integration_tests_with_high-throughput_batch_sizes
+  kind: entity_fact
+  raw_text: The method involves executing integration tests with batch sizes representative
+    of high-throughput scenarios.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:39:57Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Research question evaluates end-to-end functionality of correlation pipeline
+  claim_id: c_5a7461af
+  context: 'The research question is to evaluate the end-to-end functionality of the
+    correlation pipeline. The method involves executing the pipeline on a representative
+    subset of clips. (Reference: Smith et al.,) in tests/integration/test_us1_pipeline.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_evaluates_end-to-end_functionality_of_corr
+  kind: entity_fact
+  raw_text: The research question is to evaluate the end-to-end functionality of the
+    correlation pipeline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:47:13Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Research question investigates if timing constraints hold under significant
+    load
+  claim_id: c_df8a837f
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx) in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_investigates_if_timing_constraints_hold_un
+  kind: entity_fact
+  raw_text: 'The research question remains: Do the system''s timing constraints hold
+    under significant load?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:47:15Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 2
+  canonical: evaluate end-to-end functionality of correlation pipeline
+  claim_id: c_bb5e4e9d
+  context: 'The research question is to evaluate the end-to-end functionality of the
+    correlation pipeline. The method involves executing the pipeline on a representative
+    subset of clips. (Reference: Smith et al.,) in tests/integration/test_us1_pipeline.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluate_end-to-end_functionality_of_correlation_pipeline
+  kind: entity_fact
+  raw_text: The research question is to evaluate the end-to-end functionality of the
+    correlation pipeline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:49:25Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: verify system timing constraints under significant load
+  claim_id: c_cb77e8aa
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx) in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_system_timing_constraints_under_significant_load
+  kind: entity_fact
+  raw_text: 'The research question remains: Do the system''s timing constraints hold
+    under significant load?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:49:26Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: system outputs ranked list of dimensions with correlation coefficients
+    and 95% CIs
+  claim_id: c_4aa4093e
+  context: 'Independent Test: The system extracts features, trains models, and outputs
+    a ranked list of dimensions with correlation coefficients and confidence intervals.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system extracts features, trains models, and outputs a ranked list
+    of dimensions with correlation coefficients and confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:56:24Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: system logs peak memory and time per clip on representative subset
+  claim_id: c_86c782aa
+  context: 'Independent Test: The system executes the full pipeline on a representative
+    subset and logs peak memory and time per clip.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_logs_peak_memory_and_time_per_clip_on_representative
+  kind: entity_fact
+  raw_text: The system executes the full pipeline on a representative subset and logs
+    peak memory and time per clip.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:56:40Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: integration tests use batch sizes representative of high-throughput scenarios
+    per Author, Year
+  claim_id: c_29a2f5c5
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx). in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_tests_use_batch_sizes_representative_of_high-thr
+  kind: entity_fact
+  raw_text: 'The method involves executing integration tests with batch sizes representative
+    of high-throughput scenarios, as described in [Author, Year] (DOI: xx.xxxx/xxxxx).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:56:42Z'

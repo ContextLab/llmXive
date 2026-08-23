@@ -1,7 +1,10 @@
 """
-Script to run the provenance verification check.
-This script invokes the verify_provenance module and handles logging setup.
+Script to run the provenance verification check for the EvalVerse dataset.
+
+This script is invoked by the pipeline to verify that the downloaded dataset
+matches the expected DOI and URL configuration.
 """
+
 import os
 import sys
 from pathlib import Path
@@ -16,14 +19,13 @@ from src.utils import setup_logging
 
 def main_wrapper():
     """
-    Wrapper function to set up logging and run the provenance check.
+    Wrapper function for the provenance check script.
+    Sets up logging and calls the main verification function.
     """
-    # Set up logging
     setup_logging(level="INFO")
-    
-    # Run the provenance check
-    main()
+    return main()
 
 
 if __name__ == "__main__":
-    main_wrapper()
+    exit_code = main_wrapper()
+    sys.exit(exit_code)
