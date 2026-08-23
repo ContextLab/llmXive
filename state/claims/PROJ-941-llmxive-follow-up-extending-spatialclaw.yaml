@@ -1125,3 +1125,22 @@
   source_type: external
   status: verified
   updated_at: '2026-08-21T05:17:41Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
+  attempts: 1
+  canonical: 'Power analysis default values: effect_size 0.5, power 0.8, max_runtime_hours
+    6, n_runs 5, alpha 0.05'
+  claim_id: c_f9241bd0
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T035a Power Config Definition
+    task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T035a [P] **Power Config Definition**: Create `data/power_config.yaml`.
+    **Schema**: `...` **Requirement**: Use concrete default numeric values: `effect_size:
+    0.5`, `power: 0.8`, `max_runtime_hours: 6`, `n_runs: 5`, `alpha: 0.05`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T03:17:04Z'

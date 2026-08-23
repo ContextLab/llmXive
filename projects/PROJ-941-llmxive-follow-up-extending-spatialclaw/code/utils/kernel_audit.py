@@ -1,13 +1,3 @@
-"""
-Kernel Blockage Final Audit Script (T050).
-
-Scans all log files in results/logs/ for instances of blocked 3D libraries
-(trimesh, pytorch3d, open3d) being imported or instantiated.
-
-Requirement: Exit with code 0 ONLY if the count of such instances is exactly 0.
-Output: results/analysis/kernel_audit.txt
-"""
-
 import os
 import sys
 import logging
@@ -15,158 +5,111 @@ import argparse
 from typing import List, Tuple, Set
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Blocked libraries that must NOT appear in logs
+BLOCKED_LIBRARIES = {"trimesh", "pytorch3d", "open3d"}
 
-# Blocked libraries to search for
-BLOCKED_LIBRARIES = {
-    'trimesh',
-    'pytorch3d',
-    'open3d'
-}
-
-# Patterns to search for (case-insensitive logic handled in search)
-SEARCH_PATTERNS = [
-    'import trimesh',
-    'from trimesh',
-    'import pytorch3d',
-    'from pytorch3d',
-    'import open3d',
-    'from open3d',
-    # Also catch instantiation attempts if logged
-    'trimesh.',
-    'pytorch3d.',
-    'open3d.'
-]
-
-def find_log_files(log_dir: Path) -> List[Path]:
+def find_log_files(logs_dir: str = "results/logs") -> List[Path]:
     """Find all log files in the specified directory."""
-    if not log_dir.exists():
-        logger.warning(f"Log directory does not exist: {log_dir}")
+    logs_path = Path(logs_dir)
+    if not logs_path.exists():
+        logging.warning(f"Logs directory {logs_dir} does not exist.")
         return []
     
     log_files = []
-    # Search for .log and .txt files
-    for ext in ['*.log', '*.txt', '*.json']:
-        log_files.extend(log_dir.rglob(ext))
+    for ext in ["*.log", "*.txt", "*.json", "*.jsonl"]:
+        log_files.extend(logs_path.glob(ext))
     
-    return log_files
+    # Also check subdirectories
+    for subdir in logs_path.iterdir():
+        if subdir.is_dir():
+            for ext in ["*.log", "*.txt", "*.json", "*.jsonl"]:
+                log_files.extend(subdir.glob(ext))
+    
+    return list(set(log_files))
 
-def scan_file_for_blocked_ops(file_path: Path) -> List[Tuple[int, str]]:
-    """
-    Scan a single file for blocked library usage.
-    Returns a list of (line_number, line_content) for matches.
-    """
-    matches = []
+def scan_file_for_blocked_ops(file_path: Path) -> List[str]:
+    """Scan a single file for blocked library imports."""
+    found_ops = []
     try:
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            for line_num, line in enumerate(f, 1):
-                line_lower = line.lower()
-                for library in BLOCKED_LIBRARIES:
-                    # Check if the library name appears in a context suggesting import or usage
-                    # We look for the library name preceded by import/from or followed by .
-                    if f'import {library}' in line_lower or \
-                       f'from {library}' in line_lower or \
-                       f'{library}.' in line_lower:
-                        matches.append((line_num, line.strip()))
-                        break  # One match per line is enough
+            content = f.read().lower()
+            for lib in BLOCKED_LIBRARIES:
+                if lib in content:
+                    found_ops.append(lib)
     except Exception as e:
-        logger.error(f"Error reading file {file_path}: {e}")
+        logging.error(f"Error scanning {file_path}: {e}")
     
-    return matches
+    return found_ops
 
-def run_audit(log_dir: str, output_path: str) -> Tuple[int, List[str]]:
-    """
-    Run the full audit across all log files.
-    Returns (total_count, list_of_violations).
-    """
-    log_path = Path(log_dir)
-    log_files = find_log_files(log_path)
+def run_audit(logs_dir: str = "results/logs") -> Tuple[int, List[Tuple[Path, List[str]]]]:
+    """Run the full audit across all log files."""
+    log_files = find_log_files(logs_dir)
+    total_blocked_count = 0
+    findings = []
     
-    all_violations = []
-    total_count = 0
+    for log_file in log_files:
+        found = scan_file_for_blocked_ops(log_file)
+        if found:
+            findings.append((log_file, found))
+            total_blocked_count += len(found)
+            logging.warning(f"Found blocked ops in {log_file}: {found}")
+    
+    return total_blocked_count, findings
 
-    if not log_files:
-        logger.warning("No log files found to audit.")
-        return 0, []
-
-    logger.info(f"Scanning {len(log_files)} log files in {log_dir}...")
-
-    for file_path in log_files:
-        matches = scan_file_for_blocked_ops(file_path)
-        if matches:
-            logger.warning(f"Found {len(matches)} violation(s) in {file_path}")
-            for line_num, content in matches:
-                all_violations.append(f"{file_path}:{line_num}: {content}")
-                total_count += 1
-        else:
-            logger.debug(f"Clean: {file_path}")
-
-    return total_count, all_violations
-
-def write_audit_report(output_path: str, count: int, violations: List[str]) -> None:
+def write_audit_report(report_path: str, total_count: int, findings: List[Tuple[Path, List[str]]]) -> None:
     """Write the audit report to the specified file."""
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write("=" * 60 + "\n")
-        f.write("KERNEL BLOCKAGE FINAL AUDIT REPORT\n")
-        f.write("=" * 60 + "\n\n")
+    report_dir = os.path.dirname(report_path)
+    if report_dir and not os.path.exists(report_dir):
+        os.makedirs(report_dir, exist_ok=True)
+    
+    with open(report_path, 'w') as f:
+        f.write("Kernel Blockage Final Audit Report\n")
+        f.write("=" * 50 + "\n\n")
         
-        if count == 0:
+        if total_count == 0:
             f.write("AUDIT PASSED: 0 blocked operations found.\n\n")
-            f.write("No instances of trimesh, pytorch3d, or open3d were detected\n")
-            f.write("in the execution logs.\n")
+            f.write("The following log files were scanned:\n")
+            for log_file in find_log_files():
+                f.write(f"  - {log_file}\n")
         else:
-            f.write(f"AUDIT FAILED: {count} blocked operation(s) found.\n\n")
-            f.write("The following violations were detected:\n")
-            f.write("-" * 60 + "\n")
-            for v in violations:
-                f.write(f"{v}\n")
-            f.write("-" * 60 + "\n")
-            f.write("\nExecution of blocked 3D libraries detected. The pipeline\n")
-            f.write("restriction policy may have been violated.\n")
+            f.write(f"AUDIT FAILED: {total_count} blocked operations found.\n\n")
+            f.write("Findings:\n")
+            for file_path, ops in findings:
+                f.write(f"  File: {file_path}\n")
+                f.write(f"    Blocked libraries: {', '.join(ops)}\n")
+        
+        f.write("\nAudit completed.\n")
+    
+    logging.info(f"Audit report written to {report_path}")
 
-    logger.info(f"Audit report written to {output_path}")
-
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Audit logs for blocked 3D library usage (T050)."
-    )
-    parser.add_argument(
-        "--log-dir",
-        type=str,
-        default="results/logs",
-        help="Directory containing execution logs (default: results/logs)"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="results/analysis/kernel_audit.txt",
-        help="Path to write the audit report (default: results/analysis/kernel_audit.txt)"
-    )
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Audit logs for blocked 3D library usage.")
+    parser.add_argument("--logs-dir", type=str, default="results/logs",
+                      help="Directory containing log files to scan")
+    parser.add_argument("--output", type=str, default="results/analysis/kernel_audit.txt",
+                      help="Output path for the audit report")
     return parser.parse_args()
 
-def main():
+def main() -> int:
+    """Main entry point for the kernel audit."""
     args = parse_args()
     
-    count, violations = run_audit(args.log_dir, args.output)
-    write_audit_report(args.output, count, violations)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
     
-    logger.info(f"Audit complete. Blocked operations found: {count}")
+    logging.info(f"Starting kernel audit on {args.logs_dir}")
     
-    # Exit with code 0 only if count is exactly 0
-    if count == 0:
-        logger.info("AUDIT PASSED")
-        sys.exit(0)
+    total_count, findings = run_audit(args.logs_dir)
+    write_audit_report(args.output, total_count, findings)
+    
+    if total_count == 0:
+        logging.info("Audit passed successfully.")
+        return 0
     else:
-        logger.error("AUDIT FAILED")
-        sys.exit(1)
+        logging.error(f"Audit failed with {total_count} violations.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

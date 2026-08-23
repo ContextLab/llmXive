@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-941-llmxive-follow-up-extending-spatialclaw",
+  "tasks": [
+    {
+      "task_key": "T050",
+      "reject_count": 1,
+      "last_reason": "The script `code/utils/kernel_audit.py` exists but lacks a runnable entry point that exits with a specific code based on the count, and the required output file `results/analysis/kernel_audit.txt` is missing. The audit report file must be generated with the exact required line for the task to be considered complete.",
+      "first_seen": "2026-08-23T03:23:08.590874+00:00",
+      "last_seen": "2026-08-23T03:23:08.590874+00:00"
+    }
+  ],
+  "updated_at": "2026-08-23T03:23:08.590874+00:00"
+}
