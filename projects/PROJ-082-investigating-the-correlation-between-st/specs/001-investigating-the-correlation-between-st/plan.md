@@ -1,41 +1,40 @@
 # Implementation Plan: Investigating the Correlation Between Structural Brain Connectivity and Individual Music Preferences
 
-**Branch**: `001-gene-regulation` | **Date**: 2023-10-27 | **Spec**: `specs/001-gene-regulation/spec.md`
+**Branch**: `001-gene-regulation` | **Date**: 2026-07-02 | **Spec**: `specs/001-gene-regulation/spec.md`
 **Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
 
-This project implements a meta-analysis pipeline to quantify the correlation between structural brain connectivity (dMRI metrics like FA/MD) and individual music preferences. The system prioritizes a quantitative random-effects meta-analysis if ≥A set of eligible studies will be identified for inclusion in the analysis. are found, calculating pooled effect sizes, heterogeneity (I²), and publication bias (Egger's test). **Crucially, if <10 studies are found, or if studies lack explicit (r, n) pairs, the system strictly pivots to a narrative systematic review.** The implementation strictly adheres to the project constitution's reproducibility and statistical integrity principles, running entirely on CPU-only GitHub Actions runners.
+This project implements a meta-analysis pipeline to investigate the correlation between structural brain connectivity (dMRI metrics like FA/MD) and individual music preferences. The system extracts effect sizes (r, t, F) and sample sizes from literature, performs a random-effects meta-analysis, assesses heterogeneity (I²) and publication bias (Egger's), and generates visualizations (forest, funnel plots). 
 
-**Scientific Validity Note**: This project serves as a **Pipeline Validation** study. Synthetic data is used *only* to verify the code's ability to process statistical logic (recovery of known ground truth). The scientific conclusion regarding the real-world correlation is strictly conditional on the availability of real primary studies. If real data is insufficient, the output is a "Data Insufficient" narrative review, not a simulated correlation.
+**Critical Methodological Update**: To address the Unit of Analysis Error (multiple tracts per study), the plan implements a **Hybrid Approach**:
+1.  **Primary Analysis**: Applies **Bonferroni correction** for multiple tract comparisons (k >= 2) as mandated by FR-005 and SC-004.
+2.  **Robustness Check**: Performs a **Multilevel Meta-Analysis (MLM)** to account for the clustering of tracts within studies, validating the independence assumption.
+3.  **Dynamic Gate**: If fewer than a sufficient number of eligible studies are found, the system pivots to a narrative systematic review to satisfy FR-006 and SC-005.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`  
-**Storage**: CSV (input), JSON (output), PNG (visualizations)  
-**Testing**: `pytest` (unit tests on synthetic data, integration tests on mock meta-analysis)  
-**Target Platform**: Linux (GitHub Actions default runner)  
-**Project Type**: Data analysis library / CLI tool  
-**Performance Goals**: Complete analysis of Numerous studies in <15 minutes; memory <7GB; disk <14GB.  
-**Constraints**: No GPU; no deep learning; deterministic results via pinned random seeds; strict adherence to FR-001 (qualitative extraction) and FR-006 (narrative fallback).  
-**Scale/Scope**: Input: A set of study records (synthetic or real); Output: A JSON report, a small set of plots.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `lme4` (via `rpy2` or equivalent Python MLM library if available, otherwise `statsmodels` mixed linear models)  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/derived`)  
+**Testing**: `pytest` (unit tests for statistical calculations, integration tests for full pipeline, **specific test for N < 10 pivot**)  
+**Target Platform**: Linux (GitHub Actions runner: vCPU, 7GB RAM)  
+**Project Type**: CLI/Data Processing Pipeline  
+**Performance Goals**: Complete analysis of 10-50 studies in <15 minutes; memory usage <4GB.  
+**Constraints**: Must run on CPU only; no GPU required for statistical meta-analysis.  
+**Scale/Scope**: Analysis of literature data (synthetic or real CSV inputs); output JSON and PNG reports.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Strategy |
-|-----------|---------------------|
-| **I. Reproducibility** | All random seeds pinned in `code/`; `requirements.txt` pins exact versions; no external state changes. |
-| **II. Verified Accuracy** | Citations in `research.md` link ONLY to verified dataset URLs provided in the prompt; no fabricated sources. |
-| **III. Data Hygiene** | Input data is treated as immutable; derivations written to new files; PII scan via `Repository-Hygiene Agent`. |
-| **IV. Single Source of Truth** | All statistics in `paper/` generated programmatically from `data/` JSON; no hand-typed numbers. |
-| **V. Versioning Discipline** | Artifacts checksummed; `state/` updated on changes; `code/` versioned via git hash. |
-| **VI. Meta-Analysis Statistical Integrity** | Random-effects model (`statsmodels`); I² calculated to multiple decimal places.; Egger's test only if N≥10; Bonferroni applied if N≥10 and k≥2 (with limitation note). |
-| **VII. Systematic Review Fallback Protocol** | Code explicitly checks study count (N) before quantitative steps; if N<10, switches to narrative mode and skips aggregation. |
+- **I. Reproducibility**: The pipeline will use pinned `requirements.txt` and random seeds (`np.random.seed(42)`). All data transformations will be script-driven, ensuring re-runs produce identical outputs.
+- **II. Verified Accuracy**: Citations in `research.md` and `plan.md` will be validated against the provided "Verified datasets" list (if applicable) or the defined "Literature Extraction Protocol". No fabricated URLs will be used.
+- **III. Data Hygiene**: Input data will be checksummed upon ingestion. Raw data will never be modified; derived data (e.g., `study_count.json`) will be written to new files.
+- **IV. Single Source of Truth**: The `data/processed/study_count.json` file is the **SINGLE** artifact for the gate logic. T009 (Data Source Adapter) calculates checksums but **does NOT** update the state file; T000-verif is the sole updater of the state file.
+- **V. Versioning**: All artifacts (schemas, scripts) will carry content hashes in the state file upon completion.
+- **VI. Meta-Analysis Statistical Integrity**: The implementation will strictly use `statsmodels` for random-effects models, calculate I², and perform Egger's regression only when N ≥ 20 (with a caveat for N=10-19), applying Bonferroni correction for multiple tracts as required.
+- **VII. Systematic Review Fallback Protocol**: The code will explicitly check the study count (N) via `data/processed/study_count.json` before running quantitative steps. If N < 10, it will trigger the narrative synthesis mode and skip quantitative aggregation, satisfying FR-006.
 
 ## Project Structure
 
@@ -48,91 +47,48 @@ specs/001-gene-regulation/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── study_record.schema.yaml
-│   └── meta_analysis_result.schema.yaml
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-082-investigating-the-correlation-between-st/
-├── code/
-│   ├── __init__.py
-│   ├── requirements.txt
-│   ├── main.py                 # Entry point for CLI
-│   ├── extraction.py           # Data extraction (FR-001)
-│   ├── meta_analysis.py        # Core stats (FR-002, FR-003, FR-005)
-│   ├── visualization.py        # Plotting (FR-004, FR-006)
-│   ├── utils.py                # Helpers, seeds, file I/O
-│   └── fallback.py             # Narrative synthesis logic (FR-006)
+code/
 ├── data/
-│   ├── raw/                    # Input CSVs (mock or real)
-│   └── processed/              # Derived JSONs and PNGs
+│   ├── raw/             # Original CSV/JSON inputs (mock or real)
+│   ├── processed/       # Intermediate stats (study_count.json)
+│   └── derived/         # Final aggregated results
+├── scripts/
+│   ├── extract.py       # Data extraction logic (FR-001)
+│   ├── real_data_validator.py # Counts studies, writes study_count.json (T009b)
+│   ├── meta_analysis.py # Statistical core (FR-002, FR-003, FR-005, MLM)
+│   ├── visualize.py     # Plot generation (FR-004)
+│   ├── pivot_narrative.py # Fallback logic (FR-006)
+│   └── generate_mock_data.py # Mock data generator for CI
 ├── tests/
-│   ├── unit/
-│   │   ├── test_extraction.py
-│   │   ├── test_meta_analysis.py
-│   │   └── test_visualization.py
-│   └── integration/
-│       └── test_full_pipeline.py
-└── paper/
-    └── results.json            # Final report (Single Source of Truth)
+│   ├── test_meta.py     # Unit tests for statistical logic
+│   ├── test_pivot.py    # Tests for N < 10 logic (Gate Logic Test)
+│   └── test_bonferroni.py # Tests for k >= 2 correction
+├── utils/
+│   ├── checksum.py      # Data hygiene utilities
+│   └── config.py        # Configuration loading
+└── requirements.txt     # Pinned dependencies
 ```
 
-**Structure Decision**: Single project structure (DEFAULT) selected. The project is a self-contained analysis pipeline. No frontend/backend split is required. The `code/` directory contains all logic, `tests/` for verification, and `data/` for inputs/outputs. This minimizes complexity and aligns with the "lightweight" nature of the meta-analysis.
+**Structure Decision**: Single project structure chosen to minimize overhead for a data-processing pipeline. The `code/` directory contains all logic, separated by functional responsibility (extraction, analysis, visualization).
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **N/A** | No violations found. The plan strictly adheres to the spec and constitution. | N/A |
+| Hybrid Bonferroni + MLM | Required to satisfy FR-005 (Bonferroni) AND address Unit of Analysis Error (MLM). | A static Bonferroni ignores clustering; a pure MLM ignores the spec's mandate for Bonferroni. |
+| Dynamic Pivot Logic (N < 10) | Required by FR-006 and SC-005 to handle data scarcity. | A static pipeline would fail or produce invalid statistics on small datasets, violating "Statistical Integrity". |
+| Separate Narrative Module | Required to generate structured text summaries when quantitative analysis is impossible. | Hardcoding text generation in the analysis module would violate separation of concerns and make testing difficult. |
 
-## Phase Plan
+## Statistical Rigor & Feasibility
 
-### Phase 0: Research & Data Strategy
-- **Goal**: Identify verified datasets and define the extraction logic for qualitative descriptors.
-- **Tasks**:
-  - Review verified dataset list (PubMed, MRI) for relevance to dMRI + Music Preference.
-  - Define **specific regex/NLP logic** for extracting "qualitative descriptors" from abstract text (addressing T013).
-    - *Logic*: Search for tract names (e.g., "arcuate", "cingulum") in proximity to directional verbs ("increased", "decreased", "correlated").
-  - Confirm `statsmodels` random-effects implementation details.
-  - Define the **Narrative Synthesis Methodology** (coding scheme for thematic analysis) to ensure rigor if N < 10.
-
-### Phase 1: Data Model & Contracts
-- **Goal**: Define schemas for `StudyRecord` and `MetaAnalysisResult`.
-- **Tasks**:
-  - Create `contracts/study_record.schema.yaml` with fields for `author`, `year`, `tract`, `r`, `n`, `qualitative_desc`.
-  - Create `contracts/meta_analysis_result.schema.yaml` with fields for `pooled_r`, `ci_lower`, `ci_upper`, `i_squared`, `egger_p`, `egger_skipped_reason` (addressing T021).
-  - Define output schema for PNG files (size <5MB).
-
-### Phase 2: Implementation
-- **Goal**: Implement extraction, analysis, and visualization modules.
-- **Tasks**:
-  - Implement `extraction.py` with fallback to narrative mode if N<10 (FR-006).
-    - *Constraint*: If 'r' or 'n' missing, exclude from quantitative pool; include in narrative pool.
-  - Implement `meta_analysis.py` with I² (**2 decimal places**, addressing T019) and Egger's test (conditional on N≥10).
-    - *Constraint*: If N<10, output exact string: `"Skipped: Insufficient studies (N < 10) for Egger's regression."` (addressing T021).
-  - Implement Bonferroni correction logic (FR-005) only if N≥10 and k≥2.
-    - *Constraint*: Generate a mandatory "Limitations" note in the output report acknowledging that Bonferroni is conservative due to tract non-independence (addressing T022).
-  - Implement `visualization.py` with memory checks and file size validation (SC-003, T031).
-  - Implement `fallback.py` for narrative synthesis generation using the defined thematic coding scheme.
-
-### Phase 3: Testing & Validation
-- **Goal**: Verify all acceptance scenarios.
-- **Tasks**:
-  - Run unit tests on synthetic data (mock studies, missing values, bias scenarios).
-  - Verify I² precision (T019) and Egger's skip message (T021).
-  - **Verify PNG file sizes < 5MB** (SC-003, T031).
-  - Confirm Bonferroni logic vs. RVE contradiction (T022) is resolved by implementing Bonferroni as per spec FR-005 with a limitation note.
-  - Verify that if N < 10, the quantitative pooled estimate is suppressed or flagged as "unreliable" due to heterogeneity.
-
-### Phase 4: Documentation & Handoff
-- **Goal**: Finalize `quickstart.md` and `research.md`.
-- **Tasks**:
-  - Document setup, usage, and expected outputs.
-  - Ensure all citations in `research.md` match verified URLs.
-  - Document the "Pipeline Validation" nature of the synthetic data tests.
-
+- **Egger's Test**: The plan acknowledges that Egger's test has low power for N < 20. The gate is set to N >= 20 for reliable detection, but the system will report the result for N >= 10 with a "Low Power" warning.
+- **Bonferroni**: Applied strictly to the primary pooled results per tract (k >= 2) as per FR-005.
+- **MLM**: Used as a robustness check to validate the independence assumption. If MLM results diverge significantly from the Bonferroni-corrected results, the narrative report will highlight this discrepancy.
+- **CPU Feasibility**: Meta-analysis of <100 studies is computationally trivial on a 2-core CPU. `statsmodels` and `scipy` are lightweight and fit well within 7GB RAM.
+- **Mock Data**: Strictly for CI testing. The research question is only answerable if real data is extracted via the defined protocol.

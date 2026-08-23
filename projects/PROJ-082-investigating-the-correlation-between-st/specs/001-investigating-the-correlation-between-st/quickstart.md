@@ -2,72 +2,51 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip` or `conda`
-- Git
+-   Python 3.11+
+-   `pip` (package manager)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-082-investigating-the-correlation-between-st
-    ```
-
+1.  **Clone the repository** and navigate to the project root.
 2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-
 3.  **Install dependencies**:
     ```bash
     pip install -r code/requirements.txt
     ```
 
-## Usage
+## Running the Pipeline
 
-### 1. Prepare Input Data
+### Option A: With Real Data (if available)
+1.  Place your `studies.csv` in `code/data/raw/`.
+2.  Run the pipeline:
+    ```bash
+    python code/scripts/run_pipeline.py
+    ```
+3.  Check `code/data/processed/study_count.json` to see if the system entered "quantitative" or "narrative" mode.
 
-Place your study data in `data/raw/studies.csv` with the following columns:
-- `author`, `year`, `tract_name`, `metric`, `r`, `n`, `qualitative_desc`
-
-*Note: If you do not have real data, use the provided synthetic data generator in `tests/data/synthetic_data.py`.*
-
-### 2. Run the Analysis
-
-Execute the main script:
+### Option B: With Mock Data (For Testing)
+If no real data is available, the pipeline can generate synthetic data to demonstrate functionality. **Note: This mock data is for CI testing only and does not answer the research question.**
 ```bash
-python code/main.py --input data/raw/studies.csv --output data/processed/results.json
+python code/scripts/generate_mock_data.py --n-studies 15 --n-tracts 5 --output code/data/raw/studies.csv
+python code/scripts/run_pipeline.py
 ```
 
-### 3. Generate Visualizations
+## Expected Outputs
 
-The script automatically generates plots in `data/processed/plots/`:
-- `forest_plot.png`
-- `funnel_plot.png`
-- `correlation_plot.png`
+-   `code/data/derived/meta_result.json`: Statistical results (if N ≥ 10).
+-   `code/data/derived/narrative_summary.json`: Text summary (if N < 10).
+-   `code/data/derived/forest_plot.png`: Forest plot visualization.
+-   `code/data/derived/funnel_plot.png`: Funnel plot visualization.
+-   `code/data/processed/study_count.json`: Gate logic artifact (study count and tract count).
 
-### 4. Verify Results
+## Verification
 
-Check the output JSON (`data/processed/results.json`) for:
-- `synthesis_mode`: "quantitative" or "narrative"
-- `pooled_r` (if quantitative)
-- `i_squared` (must have 2 decimal places)
-- `egger_skipped_reason` (if N < 10)
-
-### 5. Run Tests
-
+To verify the statistical logic:
 ```bash
-pytest tests/ -v
+pytest code/tests/
 ```
-
-## Troubleshooting
-
-- **Memory Error**: Ensure you are not loading a massive dataset. The pipeline is designed for <100 studies.
-- **Egger's Test Error**: If N < 10, the test is skipped automatically. Check `egger_skipped_reason`.
-- **PNG Size**: If PNGs exceed 5MB, reduce DPI in `visualization.py` (default is set to a moderate magnitude).
-
-## Output Format
-
-The final output is a JSON file containing the meta-analysis results and paths to the generated plots. All statistics are reproducible via the pinned random seeds in `code/utils.py`.
+This runs unit tests for the random-effects model, I² calculation, Egger's test, and **the N < 10 pivot logic**.

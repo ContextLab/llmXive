@@ -1,82 +1,80 @@
 # Data Model: Investigating the Correlation Between Structural Brain Connectivity and Individual Music Preferences
 
-## Overview
-
-This document defines the data structures for the meta-analysis pipeline. It includes the input schema for study records, the output schema for meta-analysis results, and the schema for the narrative fallback.
-
-## Entities
+## Entity Definitions
 
 ### StudyRecord
-
-Represents a single literature entry.
-
-| Field | Type | Description | Required |
-|-------|------|-------------|----------|
-| `author` | string | First author name. | Yes |
-| `year` | integer | Publication year. | Yes |
-| `tract_name` | string | Name of the brain tract (e.g., "arcuate fasciculus"). | Yes |
-| `metric` | string | MRI metric (e.g., "FA", "MD"). | Yes |
-| `r` | float | Correlation coefficient. | Conditional |
-| `n` | integer | Sample size. | Conditional |
-| `t_value` | float | T-statistic (if r not available). | Conditional |
-| `qualitative_desc` | string | Extracted qualitative description (if no r/n). | Yes |
-| `source` | string | Source of the record (e.g., "PubMed", "Synthetic"). | Yes |
-
-**Constraints**:
-- `r` must be in [-1, 1].
-- `n` must be > 0.
-- If `r` and `n` are missing, `qualitative_desc` must be populated.
+Represents a single entry from the literature.
+-   `author_year`: string (e.g., "Smith2023") - Unique identifier for the study.
+-   `tract_name`: string (e.g., "Arcuate Fasciculus")
+-   `metric_type`: string (e.g., "FA", "MD")
+-   `effect_size`: float (Correlation coefficient `r`, or converted from t/F)
+-   `sample_size`: int (`n`)
+-   `source`: string (e.g., "PubMed", "Manual")
 
 ### MetaAnalysisResult
+Aggregated output of the statistical synthesis.
+-   `pooled_effect_size`: float (Weighted mean `r`)
+-   `ci_lower`: float
+-   `ci_upper`: float
+-   `heterogeneity_i2`: float
+-   `publication_bias_p`: float (or null if skipped)
+-   `study_count`: int
+-   `synthesis_mode`: string ("quantitative" or "narrative")
+-   `bonferroni_threshold`: float (or null if not applicable)
+-   `tract_count`: int (Number of distinct tracts, k)
 
-Represents the aggregated output.
+### NarrativeSummary
+Output for the fallback mode.
+-   `summary_text`: string
+-   `key_findings`: list of strings
+-   `limitations`: list of strings
+-   `qualitative_descriptors`: list of strings (Text snippets about neural circuitry)
 
-| Field | Type | Description | Required |
-|-------|------|-------------|----------|
-| `pooled_r` | float | Weighted mean correlation. | Conditional |
-| `ci_lower` | float | 95% CI lower bound. | Conditional |
-| `ci_upper` | float | 95% CI upper bound. | Conditional |
-| `i_squared` | float | Heterogeneity statistic (2 decimals). | Conditional |
-| `egger_intercept` | float | Egger's test intercept. | Conditional |
-| `egger_p` | float | Egger's test p-value. | Conditional |
-| `egger_skipped_reason` | string | Reason for skipping Egger's test (if N<10). | Conditional |
-| `synthesis_mode` | string | "quantitative" or "narrative". | Yes |
-| `study_count` | integer | Number of eligible studies. | Yes |
-| `tract_count` | integer | Number of distinct tracts. | Yes |
-| `bonferroni_adjusted_alpha` | float | Adjusted alpha if applied. | Conditional |
-| `qualitative_summary` | string | Narrative summary (if synthesis_mode="narrative"). | Conditional |
+## File Formats
 
-**Constraints**:
-- If `synthesis_mode` == "quantitative", `pooled_r`, `i_squared`, and `egger_skipped_reason` (if applicable) must be present.
-- If `synthesis_mode` == "narrative", `qualitative_summary` must be present.
-- `i_squared` must have at least 2 decimal places.
+### Input: `data/raw/studies.csv`
+CSV file with headers: `author_year, tract_name, metric_type, effect_size, sample_size`.
 
-### VisualizationOutput
+### Output: `data/processed/study_count.json`
+**Single Source of Truth for Gate Logic**.
+```json
+{
+  "count": 12,
+  "tract_count": 5,
+  "mode": "quantitative",
+  "timestamp": "2026-07-02T12:00:00Z"
+}
+```
+*Note: This file replaces the previously proposed `real_data_status.json` to consolidate the gate logic into a single artifact.*
 
-Represents generated plots.
+### Output: `data/derived/meta_result.json`
+```json
+{
+  "pooled_r": 0.25,
+  "ci_95": [0.10, 0.40],
+  "i2": 45.5,
+  "egger_p": 0.12,
+  "bonferroni_threshold": 0.01,
+  "tract_count": 5,
+  "mode": "quantitative"
+}
+```
 
-| Field | Type | Description | Required |
-|-------|------|-------------|----------|
-| `forest_plot_path` | string | Path to PNG file. | Yes |
-| `funnel_plot_path` | string | Path to PNG file. | Yes |
-| `correlation_plot_path` | string | Path to PNG file. | Yes |
-| `file_size_mb` | float | Size of each PNG in MB. | Yes |
-
-**Constraints**:
-- `file_size_mb` < 5.0 for all plots.
+### Output: `data/derived/narrative_summary.json`
+```json
+{
+  "summary_text": "The literature suggests a link between...",
+  "key_findings": ["Tract A is associated with...", "Tract B shows no correlation..."],
+  "limitations": ["Small sample size", "Heterogeneous methods"],
+  "qualitative_descriptors": ["Auditory cortex activation", "Reward pathway connectivity"]
+}
+```
 
 ## Data Flow
 
-1.  **Input**: `raw/studies.csv` (or JSONL from PubMed).
-2.  **Extraction**: `extraction.py` parses input -> `processed/study_records.json`.
-3.  **Analysis**: `meta_analysis.py` reads records -> `results/meta_analysis_result.json`.
-4.  **Visualization**: `visualization.py` reads result -> `results/plots/` (PNGs).
-5.  **Output**: Final JSON report and PNGs.
-
-## Validation Rules
-
-- **Study Count**: Must be >= 1 for any analysis.
-- **Tract Count**: Must be >= 1.
-- **Effect Size Range**: `r` must be [-1, 1].
-- **Precision**: `i_squared` must be formatted to 2 decimal places.
-- **Skip Logic**: If `study_count` < 10, `egger_p` must be null and `egger_skipped_reason` must be set.
+1.  **Ingestion**: `extract.py` reads `data/raw/studies.csv` (or generates mock data).
+2.  **Validation**: `real_data_validator.py` counts unique `author_year` pairs and distinct `tract_name` values. Writes `data/processed/study_count.json`.
+3.  **Gate**: If `count < 10`, `pivot_narrative.py` reads `study_count.json` and generates `data/derived/narrative_summary.json`.
+4.  **Analysis**: If `count >= 10`, `meta_analysis.py` runs statistical models.
+5.  **Correction**: If `count >= 10` and `tract_count >= 2`, Bonferroni correction is applied.
+6.  **Visualization**: `visualize.py` generates PNGs based on the result.

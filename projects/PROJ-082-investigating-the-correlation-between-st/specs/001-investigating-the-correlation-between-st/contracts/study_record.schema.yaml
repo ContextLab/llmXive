@@ -1,42 +1,30 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: StudyRecord
+description: Schema for a single study entry in the meta-analysis dataset.
 type: object
 properties:
-  author:
+  author_year:
     type: string
-    description: "First author name"
-  year:
-    type: integer
-    description: "Publication year"
+    description: "Unique identifier combining author and year (e.g., 'Smith2023')."
   tract_name:
     type: string
-    description: "Name of the brain tract (e.g., 'arcuate fasciculus')"
-  metric:
+    description: "Name of the brain tract (e.g., 'Arcuate Fasciculus')."
+  metric_type:
     type: string
-    description: "MRI metric (e.g., 'FA', 'MD')"
-  r:
+    description: "Type of dMRI metric (e.g., 'FA', 'MD')."
+  effect_size:
     type: number
-    minimum: -1.0
-    maximum: 1.0
-    description: "Correlation coefficient"
-  n:
+    description: "Correlation coefficient (r) or converted effect size."
+    minimum: -1
+    maximum: 1
+  sample_size:
     type: integer
+    description: "Number of participants in the study."
     minimum: 1
-    description: "Sample size"
-  t_value:
-    type: number
-    description: "T-statistic (if r not available)"
-  qualitative_desc:
-    type: string
-    description: "Extracted qualitative description (if no r/n)"
-  source:
-    type: string
-    description: "Source of the record (e.g., 'PubMed', 'Synthetic')"
 required:
-  - author
-  - year
+  - author_year
   - tract_name
-  - metric
-  - qualitative_desc
-  - source
+  - metric_type
+  - effect_size
+  - sample_size
 additionalProperties: false

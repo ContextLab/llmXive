@@ -1,48 +1,44 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: MetaAnalysisResult
+description: Schema for the aggregated meta-analysis output.
 type: object
 properties:
-  pooled_r:
+  pooled_effect_size:
     type: number
-    description: "Weighted mean correlation"
+    description: "Weighted mean correlation coefficient."
   ci_lower:
     type: number
-    description: "95% CI lower bound"
+    description: "Lower bound of the 95% confidence interval."
   ci_upper:
     type: number
-    description: "95% CI upper bound"
-  i_squared:
+    description: "Upper bound of the 95% confidence interval."
+  heterogeneity_i2:
     type: number
-    description: "Heterogeneity statistic (must have at least 2 decimal places)"
-  egger_intercept:
-    type: number
-    description: "Egger's test intercept"
-  egger_p:
-    type: number
-    description: "Egger's test p-value"
-  egger_skipped_reason:
-    type: string
-    description: "Reason for skipping Egger's test (if N<10). Must be 'Skipped: Insufficient studies (N < 10) for Egger's regression.'"
+    description: "I² statistic for heterogeneity (0-100%)."
+  publication_bias_p:
+    type: ["number", "null"]
+    description: "P-value from Egger's regression test. Null if N < 10."
+  study_count:
+    type: integer
+    description: "Total number of unique studies included."
   synthesis_mode:
     type: string
     enum:
       - quantitative
       - narrative
-    description: "Mode of synthesis"
-  study_count:
-    type: integer
-    description: "Number of eligible studies"
+    description: "Mode of synthesis based on study count."
+  bonferroni_threshold:
+    type: ["number", "null"]
+    description: "Adjusted significance threshold if applied. Null if not applicable."
   tract_count:
     type: integer
-    description: "Number of distinct tracts"
-  bonferroni_adjusted_alpha:
-    type: number
-    description: "Adjusted alpha if applied"
-  qualitative_summary:
-    type: string
-    description: "Narrative summary (if synthesis_mode='narrative')"
+    description: "Number of distinct tracts (k) included in the analysis."
 required:
-  - synthesis_mode
+  - pooled_effect_size
+  - ci_lower
+  - ci_upper
+  - heterogeneity_i2
   - study_count
+  - synthesis_mode
   - tract_count
 additionalProperties: false
