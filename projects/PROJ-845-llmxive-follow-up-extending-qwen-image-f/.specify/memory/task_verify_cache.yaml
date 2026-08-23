@@ -1,12 +1,3 @@
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or test output showing a contradiction\u2011detection step\
-    \ (e.g., a SAT\u2011based solvability check) is present. The provided artifacts\
-    \ only describe dataset generation and distillation pipelines; there is no implementation\
-    \ or evidence that unsolvable problems are identified and discarded. Implementer\
-    \ must add the SAT\u2011check logic and demonstrate it works (e.g., logs or unit\
-    \ tests)."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -67,10 +58,3 @@ T034:
     that should generate the conditional markdown report does not exist. While the
     `docs/research_report.md` file is present and contains the correct conditional
     phrase, the absence of the script means the task is not fully satisfied.
-T044:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, test, or documentation showing a hash\u2011based distinctness\
-    \ check was added to the generator is present. The required artifact (implementation\
-    \ of the distinctness verification and evidence it is used by T013) is missing,\
-    \ so the task is not satisfied."
