@@ -25,11 +25,11 @@ properties:
     type: string
     enum:
       - "correlation"
-      - "fisher_exact"
-    description: "Type of analysis performed (correlation or Fisher's Exact Test for bimodal data)."
+      - "t_test"
+    description: "Type of analysis performed (correlation or t-test for bimodal data)."
   note:
     type: string
-    description: "Additional notes (e.g., 'Bimodal data detected, used Fisher's Exact Test')."
+    description: "Additional notes (e.g., 'Bimodal data detected, used t-test')."
 required:
   - pearson_r
   - pearson_p_value

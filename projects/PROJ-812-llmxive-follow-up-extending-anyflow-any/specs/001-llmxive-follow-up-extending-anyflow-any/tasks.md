@@ -60,8 +60,10 @@
 - [ ] T008 [P] Create base schema definitions in `contracts/` (annotation, metric, result, sensitivity)
 - [ ] T009 [US1] Implement `code/data_curation/download_clips.py` to fetch clips from Kinetics (`datasets.load_dataset`) and UCF101 (`ucimlrepo`). **MUST implement a stratified sampling strategy**: calculate frame-difference MSE for all candidates, sort by MSE, and guarantee that at least 20% of the final curated set (N=500) are selected as 'cuts' (highest MSE) to satisfy FR-001. Output to `data/raw/clips/`.
 - [ ] T010 [US1] Implement `code/data_curation/download_ucf101_manual.py` as a fallback for manual download if `ucimlrepo` fails.
-- [ ] T011 [US1] Implement `code/data_curation/annotate.py` CLI tool using `rich` library. **MUST enforce strict blinding**: The UI must display ONLY pixel frames and MUST NOT display any model-derived metrics (optical flow, latent vectors, divergence scores). The annotator must record a score [0.0, 1.0] based solely on pixel-space visual inspection to satisfy FR-002. Output CSV `data/raw/annotations.csv` with columns: `video_id`, `file_path`, `score`, `annotator_id`.
-- [ ] T012 [US1] Implement `code/data_curation/validate_annotations.py` to ensure `data/raw/annotations.csv` has valid paths and scores in [0.0, 1.0] range.
+- [ ] T011a [US1] Implement `code/data_curation/annotate_pilot.py` to collect dual-annotator scores for a pilot subset (N=50). **MUST enforce strict blinding**: The UI must display ONLY pixel frames and MUST NOT display any model-derived metrics. Annotators record a score based solely on pixel-space visual inspection. Output `data/raw/calibration_scores.csv` with columns: `video_id`, `annotator_id`, `score`. (Satisfies FR-010 Dual-Annotator Pilot).
+- [ ] T011b [US1] Implement `code/data_curation/validate_kappa.py` to read `data/raw/calibration_scores.csv`, calculate Cohen's Kappa, and generate `data/processed/kappa_report.json`. **MUST implement hard halt**: If Kappa < 0.81, the script MUST exit with code 1 and print "Insufficient Annotation Agreement". (Satisfies FR-010 Reliability Gate).
+- [ ] T011 [US1] Implement `code/data_curation/annotate.py` CLI tool using `rich` library. **MUST enforce strict blinding**: The UI must display ONLY pixel frames and MUST NOT display any model-derived metrics. The annotator must record a score [0.0, 1.0] based solely on pixel-space visual inspection to satisfy FR-002. **MUST implement immutability**: Immediately after writing `data/raw/annotations.csv`, set file permissions to read-only (chmod 444) and generate a SHA-256 checksum lock file `data/raw/annotations.csv.sha256`. Output CSV `data/raw/annotations.csv` with columns: `video_id`, `file_path`, `score`, `annotator_id`. (Depends on T011b pass).
+- [ ] T012 [US1] Implement `code/data_curation/validate_annotations.py` to ensure `data/raw/annotations.csv` has valid paths and scores in [0.0, 1.0] range, and verify the checksum lock matches the file content. (Depends on T011b).
 - [ ] T013 [US1] Implement `code/data_curation/binarize_labels.py` to create binary labels (Continuous < 0.4, Discontinuous > 0.6) from `data/raw/annotations.csv` and output `data/processed/binary_labels.csv`. (Note: Used for auxiliary checks only, not primary sensitivity analysis).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -78,11 +80,11 @@
 
 - [ ] T014 [US2] Implement `code/metric_calculation/load_model.py` to load AnyFlow to ONNX, verify SHA-256 hash, and check layer count/input-output shapes against architecture spec.
 - [ ] T015 [US2] Implement `code/metric_calculation/extract_latents.py` to extract latent trajectories for 16-frame sequences using ONNX Runtime (CPU) and write to `data/processed/latents.npy`.
-- [ ] T016 [US2] Implement `code/metric_calculation/preflight_check.py` to run the first 5 clips, estimate total runtime, and enforce the time budget constraint
-
-The research question, method, and references remain unchanged as per the planning document requirements. (FR-009). **MUST implement fallback**: If projected runtime > 5.5h, reduce Euler steps to N=200 (if validated) instead of halting.
-- [ ] T017 [US2] Implement `code/metric_calculation/compute_divergence.py` to read `data/processed/latents.npy`, use a **custom Explicit Euler implementation** (x_{t+1} = x_t + h * f(x_t)) with fixed N=500 steps (or N=200 if determined by T016), calculate L2 distance, and write `data/processed/divergence_scores.csv` with columns `clip_id`, `divergence`. **Do NOT use `scipy.integrate.ode`**.
-- [ ] T018 [US2] Implement batch processing logic in `code/main.py` to iterate clips, clear memory after each, and log progress/errors without crashing. This task drives T017.
+- [ ] T016 [US2] Implement `code/metric_calculation/preflight_check.py` to run the first 5 clips, estimate total runtime, and enforce the time budget constraint (FR-009). **MUST implement fallback**: If projected runtime > 5.5h, reduce Euler steps to N=200 (if validated) instead of halting. Output `data/processed/runtime_estimate.json` with the selected N and estimated total time. (Satisfies FR-009).
+- [ ] T016a [US2] Implement `code/metric_calculation/runtime_enforcer.py` to wrap the full batch process with a hard -hour timeout. **MUST log actual duration** to `data/processed/runtime_log.json` upon completion or timeout. (Satisfies SC-002).
+- [ ] T017 [US2] Implement `code/metric_calculation/compute_divergence.py` to read `data/processed/latents.npy`, use a **custom Explicit Euler implementation** (x_{t+1} = x_t + h * f(x_t)) with N from `runtime_estimate.json` (default N=500), calculate L2 distance, and extract **temporal pattern features (kurtosis, temporal clustering)** from the divergence trajectory. Output `data/processed/divergence_features.csv` with columns `clip_id`, `divergence`, `kurtosis`, `temporal_clustering`. (Satisfies FR-004).
+- [ ] T017b [US2] Implement `code/metric_calculation/compute_multi_resolution.py` to re-run the divergence calculation for N in a set of representative magnitudes (or restricted set per FR-006) and aggregate results into `data/processed/divergence_multi_resolution.csv`. (Satisfies FR-006 N-Sweep).
+- [ ] T018 [US2] Implement batch processing logic in `code/main.py` to iterate clips, clear memory after each, and log progress/errors without crashing. This task drives T017 and T017b. (Depends on T016, T016a).
 - [ ] T019 [US2] Implement error handling for static images (assign baseline divergence) and corrupted files (skip and flag in `data/processed/error_log.csv`).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -93,16 +95,17 @@ The research question, method, and references remain unchanged as per the planni
 
 **Goal**: Perform Pearson/Spearman correlation between manual continuity scores and divergence metrics, and run sensitivity analysis on classification thresholds.
 
-**Independent Test**: A statistical script reads `data/raw/annotations.csv` (Manual Continuity Scores) and `data/processed/divergence_scores.csv`, outputs Pearson $r$, Spearman $\rho$, p-value, and a sensitivity report for thresholds {0.01, 0.05, 0.1}.
+**Independent Test**: A statistical script reads `data/raw/annotations.csv` (Manual Continuity Scores) and `data/processed/divergence_features.csv`, outputs Pearson $r$, Spearman $\rho$, p-value, and a sensitivity report for thresholds {0.01, 0.05, 0.1} AND N {500, 200, 100}.
 
 ### Implementation for User Story 3
 
-- [ ] T020 [US3] Implement `code/analysis/distribution.py` to calculate variance and histogram of manual scores from `data/raw/annotations.csv`; explicitly report variance (SC-004). Halt if variance < 0.05 (FR-010).
+- [ ] T020 [US3] Implement `code/analysis/distribution.py` to calculate variance and histogram of manual scores from `data/raw/annotations.csv`. **MUST implement Hartigan's Dip Test** for bimodality. If bimodal (p < 0.05) and N >= 50, flag for Fisher's Exact Test. If variance < 0.05 and not bimodal, halt with "Insufficient Variance". Output `data/processed/variance_report.csv`. (Satisfies FR-010 Bimodality/Variance Check).
 - [ ] T021 [US3] Implement `code/analysis/power_analysis.py` to calculate Minimum Detectable Effect Size (MDES) for N=500, power=0.8, alpha=0.05.
-- [ ] T022 [US3] Implement `code/analysis/correlation.py` to read `data/processed/divergence_scores.csv` (from T017) and `data/raw/annotations.csv` (from T011), compute Pearson $r$ and Spearman $\rho$ between **Internal Divergence** and **Manual Continuity Scores** (Ground Truth), and write `data/processed/correlation_results.json` with p-value. This task establishes the primary chain of evidence from T011 to T022, fulfilling FR-005 and SC-001.
-- [ ] T023 [US3] Implement `code/analysis/sensitivity.py` to read `data/raw/annotations.csv` (continuous scores) and `data/processed/divergence_scores.csv`, sweep thresholds {, 0.05, 0.1}, and report false-positive/negative rates (SC-003). **Do NOT rely on `data/processed/binary_labels.csv` from T013**.
-- [ ] T024 [US3] Implement `code/analysis/report.py` to generate final JSON report including Runtime Environment (SC-005), Provenance Declaration, explicit "CPU-only" statement, and the **mandatory injection** of the string: "The 'flow-map divergence' metric is a proxy for model instability and the correlation analysis tests the hypothesis that this instability correlates with semantic discontinuity." (FR-007, FR-008).
-- [ ] T025 [US3] Implement variance check enforcement in `code/main.py` to prevent correlation analysis (T022) and report generation (T024) if `variance_report.csv` indicates insufficient variance. This must run BEFORE T022 and T024.
+- [ ] T022 [US3] Implement `code/analysis/correlation.py` to read `data/processed/divergence_features.csv` (from T017) and `data/raw/annotations.csv` (from T011), compute Pearson $r$ and Spearman $\rho$ between **Divergence** and **Manual Continuity Scores** (Ground Truth), and write `data/processed/correlation_results.json` with p-value. (Satisfies FR-005 Primary Analysis).
+- [ ] T022a [US3] Implement `code/analysis/control_analysis.py` to perform Mann-Whitney U test (or t-test if normality holds) comparing divergence scores between continuous (Score < 0.5) and discontinuous (Score >= 0.5) groups. Output `data/processed/control_analysis_results.json`. (Satisfies FR-005 Control Analysis).
+- [ ] T023 [US3] Implement `code/analysis/sensitivity.py` to read `data/raw/annotations.csv` and `data/processed/divergence_multi_resolution.csv` (from T017b), sweep thresholds {, 0.05, 0.1} AND baseline resolutions N {500, 200, 100}, and report false-positive/negative rates for each combination in `data/processed/sensitivity_report.csv`. (Satisfies FR-006).
+- [ ] T024 [US3] Implement `code/analysis/report.py` to generate final JSON report including Runtime Environment (SC-005), Provenance Declaration, explicit "CPU-only" statement, the **mandatory injection** of the string: "The 'flow-map divergence' metric is a proxy for model instability and the correlation analysis tests the hypothesis that this instability correlates with semantic discontinuity." (FR-007, FR-008), and the results of the Control Analysis (T022a).
+- [ ] T025 [US3] Implement variance check enforcement in `code/main.py` to prevent correlation analysis (T022) and report generation (T024) if `variance_report.csv` indicates insufficient variance or failed Kappa gate. This must run BEFORE T022 and T024.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -113,9 +116,9 @@ The research question, method, and references remain unchanged as per the planni
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T026 [P] Documentation updates: Create `docs/quickstart.md` with installation steps and `docs/data-model.md` with new schema.
-- [ ] T027 Code cleanup and refactoring for memory efficiency
+- [ ] T027 [P] Code cleanup and refactoring for memory efficiency: Specifically target `code/metric_calculation/inference.py` and `code/data_curation/download_clips.py` to reduce peak RAM usage to <6GB. Verify success via memory profiling logs.
 - [ ] T028 Run full pipeline integration test on CI (verify ≤6h runtime)
-- [ ] T029 [P] Additional unit tests for metric logic in `tests/unit/`
+- [ ] T029 [P] Additional unit tests for metric logic: Implement `tests/unit/test_divergence.py` with specific tests `test_euler_step`, `test_l2_normalization`, and `test_feature_extraction`.
 - [ ] T030 [P] Verify `run_quickstart.sh` validates all artifacts
 
 ---
@@ -154,6 +157,16 @@ The research question, method, and references remain unchanged as per the planni
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
+### Critical Data Flow & Prerequisites
+
+- **T011a (Pilot)** -> **T011b (Kappa Gate)** -> **T011 (Full Annotation)** -> **T012 (Validation)**: The dual-annotator pilot MUST pass (Kappa >= 0.81) before full annotation and validation proceed.
+- **T016 (Preflight)** -> **T017 (Divergence)**: T017 consumes `runtime_estimate.json` from T016 to select N.
+- **T016a (Timeout)** -> **T018 (Batch)**: T018 is wrapped by T016a to enforce the 6-hour limit.
+- **T017 (Features)** -> **T022 (Correlation)**: T022 requires the feature columns (kurtosis, clustering) from T017.
+- **T017b (Multi-Res)** -> **T023 (Sensitivity)**: T023 requires the multi-resolution data from T017b.
+- **T022a (Control)** -> **T024 (Report)**: T024 requires the control analysis results from T022a.
+- **T020 (Distribution)** -> **T022/T024**: T022 and T024 cannot run if T020 halts due to insufficient variance or bimodality issues (unless Fisher's Exact branch is triggered).
+
 ---
 
 ## Parallel Example: User Story 1
@@ -176,8 +189,8 @@ Task: "Create [Entity2] model in src/models/[entity2].py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
+3. Complete Phase 3: User Story 1 (including T011a/T011b pilot)
+4. **STOP and VALIDATE**: Test User Story 1 independently (verify Kappa gate)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -194,9 +207,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+   - Developer A: User Story 1 (including Pilot/Kappa)
+   - Developer B: User Story 2 (including Preflight/Timeout)
+   - Developer C: User Story 3 (including Correlation/Sensitivity)
 3. Stories complete and integrate independently
 
 ---
@@ -213,4 +226,4 @@ With multiple developers:
 - **Critical Note on Plan vs. Spec**: The `plan.md` document currently contains a contradiction in its "Technical Approach" and "Phase 2" sections, suggesting correlation with "External Optical Flow Variance". The `spec.md` (FR-005) and `Constitution` (Principle VII) explicitly mandate correlation with **Manual Continuity Scores**. This `tasks.md` follows the `spec.md` and `Constitution` as the source of truth. The `plan.md` must be updated to reflect this correction: Optical Flow is an auxiliary metric, but Manual Scores are the ground truth for the primary hypothesis.
 - **Compute Feasibility**: All inference tasks (T014-T019) are strictly CPU-bound. No CUDA, no GPU quantization, no large model loading. The Euler baseline uses N=500 steps with a preflight check (T016) to fallback to N=200 if necessary to meet the 6-hour budget.
 - **Data Integrity**: T009 and T010 ensure real data from verified sources. T011 ensures ground truth is human-annotated and blinded to model metrics. No synthetic data or fake metrics are generated.
-- **Ordering**: T017 (Divergence) and T011 (Annotations) must complete before T022 (Correlation). T016 (Preflight) must run before T017. T025 (Variance Check) must run before T022 and T024.
+- **Ordering**: T017 (Divergence) and T011 (Annotations) must complete before T022 (Correlation). T016 (Preflight) must run before T017. T025 (Variance Check) must run before T022 and T024. **Crucially, T011a/T011b (Pilot/Kappa) must pass before T011 runs.**

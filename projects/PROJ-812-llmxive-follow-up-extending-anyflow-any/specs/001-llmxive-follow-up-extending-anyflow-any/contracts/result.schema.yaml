@@ -1,35 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Correlation Result Schema"
-description: "Schema for statistical analysis results (data/processed/correlation_results.json)"
-type: "object"
+title: "AnalysisResult Schema"
+description: "Schema for statistical analysis results."
+type: object
 properties:
   metric_type:
-    type: "string"
-    description: "Type of correlation metric"
-    enum: ["pearson", "spearman"]
-  coefficient:
-    type: "number"
-    description: "Correlation coefficient (r or rho)"
+    type: string
+    enum: ["Pearson", "Spearman", "Logistic", "Fisher"]
+    description: "Type of statistical test."
+  value:
+    type: number
+    description: "Correlation coefficient, accuracy, or odds ratio."
   p_value:
-    type: "number"
-    description: "Statistical significance p-value"
-  sample_size:
-    type: "integer"
-    description: "Number of valid pairs used in calculation"
-  framing:
-    type: "string"
-    description: "Explicit statement on causality"
-    const: "associational"
-  runtime_env:
-    type: "string"
-    description: "Explicit statement on execution environment"
-    const: "CPU-only (ONNX Runtime, no CUDA)"
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value for the test."
+  confidence_interval:
+    type: string
+    description: "95% Confidence Interval string."
+  threshold:
+    type: number
+    description: "Classification threshold used (if applicable)."
 required:
   - metric_type
-  - coefficient
+  - value
   - p_value
-  - sample_size
-  - framing
-  - runtime_env
 additionalProperties: false
-

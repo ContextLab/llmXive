@@ -36,10 +36,18 @@ properties:
     type: string
     description: "Error message if status is 'failed' or 'skipped'."
     nullable: true
+  model_version_hash:
+    type: string
+    description: "SHA-256 hash of the ONNX model used for this computation."
+  inference_time_ms:
+    type: number
+    description: "Time taken for inference in milliseconds."
 required:
   - video_id
   - divergence_value
   - baseline_n
   - features
   - status
+  - model_version_hash
+  - inference_time_ms
 additionalProperties: false

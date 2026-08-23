@@ -1,64 +1,59 @@
 # Research: llmXive follow-up: extending "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil"
 
-## Hypothesis & Methodology
-
-**Hypothesis**: The "flow-map divergence" (numerical integration error in the AnyFlow model's latent trajectory) is positively correlated with semantic temporal discontinuities (scene cuts) in video content. Specifically, clips with abrupt cuts will exhibit higher divergence scores than clips with continuous motion.
-
-**Methodology**:
-1. **Data Curation**: Download a representative set of short video clips from UCF101 and DAVIS 2017 using stratified sampling to ensure a mix of motion types.
-2. **Ground Truth (Calibration & Annotation)**:
- * **Calibration**: Annotators first score a set of synthetic clips (comprising both smooth and hard cuts) with known labels. Accuracy must be ≥ 90%. If accuracy < 90%, retraining is required.
- * **Pilot**: Dual annotation on a subset of the dataset to calculate Cohen's Kappa. If Kappa < 0.81, the pipeline halts.
- * **Full-Dataset Reliability**: A second annotator will score a random subset of the clips to calculate a final reliability coefficient. This coefficient is used to adjust the effective sample size in the power analysis.
- * **Main**: Single annotation on the remaining subset of clips using a 5-point Likert scale (0.0 to 1.0, mapped from 1-5).
-3. **Metric Calculation**: Load the frozen AnyFlow model in ONNX Runtime (CPU-only). For each clip, compute the divergence metric: sum of squared L2 distances between the model's predicted intermediate states and a high-resolution Euler baseline (N=500 steps), normalized by latent dimension.
-4. **Statistical Analysis**:
- * **Correlation**: Spearman ($\rho$) as primary metric; Pearson ($r$) as secondary (justified for 5-point scales via assumption of approximate interval scaling).
- * **Significance**: t-test on Pearson coefficient ($H_0: r=0$).
- * **Control**: Mann-Whitney U test comparing divergence scores between "continuous" and "discontinuous" groups.
- * **Model-Induced Stiffness Control**: Run the metric on a known stable video (static image) with a known unstable model configuration (if available) to distinguish video-induced vs. model-induced stiffness.
- * **Classification**: Multivariate logistic regression using divergence pattern features (kurtosis, clustering). VIF check for collinearity. If features are definitionally related, use only the primary divergence score.
- * **Robustness**: Sensitivity analysis sweeping thresholds {low, medium, high} and baseline resolutions {high, medium, low}. **Note**: The primary metric is fixed at N=500. The sweep tests the robustness of the *correlation* to the baseline resolution, acknowledging that the metric value itself is mathematically dependent on N.
- * **Bimodality Check**: If scores are bimodal (0.0/1.0) and N≥50, use Fisher's Exact Test. Binarization rule: Score >= 3 = 1 (discontinuous), < 3 = 0 (continuous). If data is skewed but not perfectly bimodal, use the **median** split (pre-registered).
- * **Stability**: Perturb latent inputs with noise; verify correlation stability within ±0.05 (Constitution VI).
+## Summary
+This research investigates the hypothesis that numerical instability in distilled flow-matching models (measured as "flow-map divergence") correlates with semantic temporal discontinuities (scene cuts) in video data. The study relies on a CPU-tractable pipeline to compute divergence metrics on real video clips and correlates them with human-annotated continuity scores.
 
 ## Dataset Strategy
 
-| Dataset | Source / URL | Usage | Verification |
-|---------|--------------|-------|--------------|
-| **UCF101 (Subset)** | ` | Primary source for continuous motion clips (e.g., sports, actions). | Verified Hugging Face URL. |
-| **UCF101 (ZIP)** | ` | Backup source if subset incomplete. | Verified Hugging Face URL. |
-| **DAVIS 2017 (Raw Video)** | `https://huggingface.co/datasets/DAVIS/2017/resolve/main/DAVIS-2017-TrainVal.zip` | Source for scene cuts and complex transitions. Contains raw video frames. | Verified Hugging Face URL (Official DAVIS). |
-| **AnyFlow Model** | `https://huggingface.co/AnyFlow/AnyFlow-Base/resolve/main/model.pt` | Direct download of PyTorch weights for CPU conversion. | Verified Hugging Face URL (Direct weight). |
-| **CPU-Optimized** | **Conversion Required** | The AnyFlow model weights are not pre-converted to ONNX. The plan includes a conversion step in `code/inference.py` to convert PyTorch weights to ONNX Runtime format for CPU inference. | N/A (Conversion required). |
+### Verified Datasets
+The following datasets are used, sourced strictly from the verified list provided:
 
-**Data Availability Note**: The AnyFlow model weights are not directly available in a CPU-optimized (ONNX) format in the verified list. The implementation will download the raw PyTorch weights (referenced via the direct URL) and perform a one-time conversion to ONNX Runtime format during the setup phase. This conversion is computationally expensive but performed once, not per clip. The inference step strictly uses the converted ONNX model on CPU. The DAVIS dataset URL has been updated to the official raw video archive to ensure clip extraction is feasible.
+| Dataset | Source URL | Usage in Plan |
+| :--- | :--- | :--- |
+| **UCF101** | `https://huggingface.co/datasets/ucf101` (via `datasets.load_dataset('ucf101')`) | Source for continuous motion clips. Sampled proportionally to natural distribution. |
+| **Kinetics-400** | `https://huggingface.co/datasets/kinetics-400` (via `datasets.load_dataset('kinetics-400')`) | Source for scene cut/discontinuous clips. Contains natural scene edits. |
+| **AnyFlow Model** | `https://huggingface.co/simbahuang/AnyFlow@v1.0.0` (stable repo, version pinned) | Reference for model checkpoint weights. Weights are downloaded by SHA256 hash to ensure version stability. |
 
-## Statistical Rigor & Feasibility
+*Note: DAVIS 2017 is primarily an object tracking dataset and does not natively contain 'scene cuts'. Kinetics-400 is used for cuts.*
 
-* **Multiple Comparisons**: The sensitivity analysis involves multiple threshold/resolution combinations. We will apply a Bonferroni correction to the p-values of the correlation tests if the number of comparisons exceeds 5, or report uncorrected values with a clear note of the exploratory nature.
-* **Power Analysis**: The sample size (N=500) is sufficient to detect a moderate correlation ($r \approx 0.3$) with >90% power at $\alpha=0.05$. The power analysis explicitly accounts for reliability attenuation due to measurement error (capped by $\sqrt{reliability}$), using the reliability coefficient calculated from the [deferred] full-dataset dual-annotation subset.
-* **Causal Inference**: The study is observational. The report will explicitly frame findings as "associational" (FR-007) and avoid causal claims. No randomization is involved.
-* **Measurement Validity**: The manual scoring rubric (5-point Likert) is standard for visual continuity assessment. The "flow-map divergence" is a proxy for numerical instability, validated against the hypothesis that instability increases at discontinuities. The calibration phase ensures annotators can distinguish cuts from motion.
-* **Collinearity**: The divergence metric is derived from the model's internal state. If multiple features (e.g., kurtosis, clustering) are used in regression, Variance Inflation Factor (VIF) will be checked. If predictors are definitionally related (VIF > 5), they will be dropped from the regression model to ensure interpretability.
-* **Baseline Independence**: The Euler baseline is a numerical integration of the *vector field* derived from the model. The metric measures the *relative* deviation of the distilled model's trajectory from this numerical approximation. The sensitivity sweep (N=500, 200, 100) tests the robustness of the correlation to the baseline resolution, ensuring the effect is not an artifact of a specific discretization. **Limitation**: The Euler baseline is an approximation of the model's own vector field, not an independent ground truth. The metric measures "deviation from Euler approximation" rather than "absolute ground truth".
-* **Model-Induced Stiffness Control**: A control analysis compares divergence error rates on continuous vs. discontinuous clips. Additionally, a specific control experiment will be performed using a known stable video (static image) with a known unstable model configuration (if available) to distinguish video-induced vs. model-induced stiffness.
+### Data Acquisition & Processing
+1.  **Download**: `code/data/download.py` fetches the UCF101 and Kinetics-400 datasets using canonical Hugging Face loaders.
+2.  **Extraction**: Clips are extracted as sequences of frames at a standard frame rate.
+3.  **Sampling**: A **simple random sample** is drawn **proportional to the natural distribution** of the source datasets (likely skewed towards continuous motion). This avoids the bias of artificial stratification.
+4.  **Annotation**: A human annotator reviews clips using a Likert scale (converted to 0.0–1.0). **Blinding Protocol**: Annotators receive clips with randomized IDs and **NO metadata** regarding the source dataset or the pre-computed 'cut' label. This process is manual and pixel-space only (FR-002).
+5.  **Disagreement Resolution**: If Cohen's Kappa < 0.81, the system halts. If Kappa >= 0.81 but individual clips disagree (diff > 1 point), ambiguous clips are discarded. The system **oversamples** initially (N=600) to ensure a final valid N >= 500 after discards.
 
-## Compute Feasibility (CPU-First)
+## Methodological Rigor
 
-* **Constraint**: 2 vCPU, 7GB RAM, 6 hours.
-* **Strategy**:
- 1. **Pilot Run (FR-009)**: Before full execution, run 30 clips with N=500. If projected total time > 5.5h, switch to N=200 and re-label metric as "flow-map divergence (N=200)".
- 2. **Memory Management**: Process clips in batches of a fixed size. Clear GPU cache (N/A) and Python garbage collection after each batch. Use `streaming=True` for dataset loading to avoid loading all videos into RAM.
- 3. **Model Format**: Use `onnxruntime` with `ExecutionProvider='CPUExecutionProvider'`. This avoids the overhead of PyTorch's CPU backend and is optimized for inference.
- 4. **No GPU Fabrication**: The plan does not simulate GPU performance. If the CPU run fails, the fallback is N=200 or N=100, not a GPU offload (as per spec constraints).
- 5. **Dependencies**: `ffmpeg` is required for video decoding. It will be installed via the system package manager in the CI runner.
+### Statistical Approach
+1.  **Correlation Analysis**:
+    *   **Pearson ($r$)**: Tests linear relationship between divergence and continuity.
+    *   **Spearman ($\rho$)**: Tests monotonic relationship (robust to non-linearity).
+    *   **Bimodality Check**: If scores are bimodal (0.0/1.0) and $N \ge 50$, an **Independent Samples t-test (Welch's)** is used to compare mean divergence of group 0 vs group 1. **Fisher's Exact Test** is used **only** as a protocol-mandated exception per Spec FR-005/US-1 for binary classification of the outcome variable, acknowledging the statistical limitation of using it with a continuous predictor.
+    *   **Variance Check**: Variance must be $\ge 0.05$ (FR-010).
+2.  **Multivariate Analysis**: **Logistic Regression** to predict discontinuity type (cut vs. continuous) using divergence features (kurtosis, clustering). **Inverse Probability Weighting (IPW)** is applied to correct for the natural class imbalance (skewed distribution) when estimating population-level accuracy.
+3.  **Sensitivity Analysis**: Thresholds $\{0.01, 0.05, 0.1\}$ and Euler steps $\{500, 200, 100\}$ are swept to assess robustness (FR-006).
+
+### Statistical Rigor & Assumptions
+*   **Multiple Comparisons**: Since multiple correlation tests (Pearson, Spearman) and threshold sweeps are performed, a Bonferroni correction or False Discovery Rate (FDR) control will be applied to p-values where appropriate, though the primary focus is on the magnitude of the correlation coefficient.
+*   **Sample Size/Power**: The sample size of 500 is estimated to provide sufficient power (>0.8) to detect a moderate correlation ($r \approx 0.12$) at $\alpha=0.05$. If the observed correlation is <0.12, the result will be reported as 'underpowered to detect weak effects' rather than a false negative.
+*   **Causal Inference**: The study is **observational**. No randomization of video content occurs. Claims are strictly framed as **associational** (FR-007). We test if numerical error *correlates* with semantic discontinuity, not if it *causes* it.
+*   **Measurement Validity**: The manual annotation relies on a 5-point Likert rubric. Inter-annotator agreement (Cohen's Kappa $\ge 0.81$) is verified on a subset before full deployment (FR-010). Ambiguous clips (disagreement > 1 point) are discarded.
+*   **Collinearity**: Divergence features (kurtosis, clustering) may be correlated. Variance Inflation Factor (VIF) will be checked; if high, only the primary divergence metric will be used in the logistic model.
+
+### Compute Feasibility (CPU-First)
+*   **Model Format**: AnyFlow weights will be converted to ONNX format for CPU inference using `onnxruntime`.
+*   **Euler Solver**: The baseline Euler rollout uses $N=500$ steps. If the pre-flight check (FR-009) indicates runtime > 5.5 hours, $N$ will be reduced to 200.
+*   **Memory**: Streaming video frames and processing one clip at a time ensures RAM usage stays < 7GB.
+*   **GPU Escape Hatch**: None required. The entire pipeline is designed for CPU execution. If the ONNX model fails to load on CPU (e.g., requires specific CUDA kernels), the project will halt with a "Feasibility Error" rather than fabricating a CPU approximation.
+*   **Real Data Only**: All divergence scores are computed via real ONNX inference on real video frames. No synthetic or simulated metrics are used.
 
 ## Decision/Rationale
-
-* **Why ONNX Runtime?** It provides the fastest CPU inference for frozen models, essential for meeting the 6-hour CI budget.
-* **Why N=500 baseline?** It ensures discretization error < 1e-3, providing a stable "ground truth" for the divergence metric. The sensitivity sweep (N=200, 100) validates robustness.
-* **Why Manual Annotation?** Automated metrics (e.g., optical flow) are biased by the model's own instability. Pixel-space human annotation is the only unbiased ground truth for "semantic discontinuity."
-* **Why Dual-Annotator Pilot?** To ensure ground truth reliability. Measurement error in the dependent variable (Continuity Score) attenuates correlation. A Kappa < 0.81 indicates the ground truth is too noisy to detect the hypothesized effect.
-* **Why Spearman Primary?** The ground truth is ordinal (Likert). Spearman is the statistically correct choice. Pearson is reported for completeness and comparability with prior literature, with the justification that 5-point scales often approximate interval data.
-* **Why Median Binarization?** To avoid post-hoc p-hacking. The threshold is pre-registered as the median for skewed data.
+*   **CPU-Only**: Chosen to strictly adhere to the GitHub Actions free-tier constraints (FR-002, US-2).
+*   **ONNX Runtime**: Selected as the standard for CPU-optimized inference of PyTorch models.
+*   **Manual Annotation**: Required to avoid circular logic (using model outputs to validate the model).
+*   **Euler Baseline**: Chosen as a deterministic, high-resolution numerical ground truth to measure "solver error" (FR-004). The baseline defines numerical error; the *correlation* with manual scores distinguishes semantic error.
+*   **Blinding Protocol**: Required to prevent confirmation bias during annotation.
+*   **Power Analysis**: Required to justify N=500 and interpret null results correctly.
+*   **t-test for Bimodal Data**: Required because Fisher's Exact Test is inappropriate for continuous predictors, but the spec mandates it for binary outcomes.
+*   **Natural Distribution**: Chosen to reflect real-world video streams. IPW is used to correct for bias in logistic regression.

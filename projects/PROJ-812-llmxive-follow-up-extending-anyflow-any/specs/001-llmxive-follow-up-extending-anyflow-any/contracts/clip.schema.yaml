@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "VideoClip Schema"
+description: "Schema for video clip metadata and file paths."
+type: object
+properties:
+  clip_id:
+    type: string
+    description: "Unique identifier for the clip."
+  source:
+    type: string
+    enum: ["UCF101", "DAVIS"]
+    description: "Source dataset."
+  file_path:
+    type: string
+    description: "Relative path to the video file or frame sequence."
+  frames:
+    type: integer
+    const: 16
+    description: "Number of frames (fixed at 16)."
+  fps:
+    type: integer
+    const: 30
+    description: "Frames per second (fixed at 30)."
+required:
+  - clip_id
+  - source
+  - file_path
+  - frames
+  - fps
+additionalProperties: false
