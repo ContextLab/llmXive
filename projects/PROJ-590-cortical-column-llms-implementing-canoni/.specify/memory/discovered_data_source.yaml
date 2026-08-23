@@ -1,0 +1,16 @@
+status: none
+intent: synthetic function regression dataset Lorenz Fourier series python package
+  dataset
+required_fields:
+- function_id
+- function_type
+- parameters
+- time_steps
+- inputs
+- targets
+- train_split
+- validation_split
+- test_split
+cache_key: 75ac3a095eb0242373114e2bb5fa47b982f390b82d14093ca0b4d6bdc2ca5d31
+searched_at: '2026-08-23T12:45:15.758083+00:00'
+retry_count: 1

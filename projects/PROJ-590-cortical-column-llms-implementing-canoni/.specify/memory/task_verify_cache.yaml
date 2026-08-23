@@ -1,18 +1,21 @@
-T008c:
+T011b:
+  c: true
+  h: 7665ec6ebdc3b6889a3be8a25687eb519f9bf6f9c9ba7a34047970e3ad862d23
+  r: The repository contains the required integration test file `tests/integration/test_baseline_training.py`,
+    which sets the log path to `data/logs/gradient_norms.json` under the project root
+    and includes logic to generate data, run a training step, invoke `log_gradient_norms`,
+    and assert that the JSON file exists and is valid. The missing `gradient_norms.json`
+    is a runtime artifact, not a repository requirement.
+T014a:
   c: false
-  h: 6552fe9cd0b5db395f90172cbf8f3fb6efe8efa1aa9a5886a95fcdc53ec31302
-  r: "The repository contains a partially\u2011written `generate_polynomial_test_data`\
-    \ function that is truncated and never writes any file, and the expected output\
-    \ file `data/results/test_data_polynomial.npy` is absent. Consequently the required\
-    \ test data is not generated nor saved."
-T014:
-  c: false
-  h: 1dd0c3bfe48ebbaad664e63d9d5237ae080baa1c91c71323b57bac7d7ca72867
-  r: The repository lacks the required `data/results/generalization_report.md` file,
-    and the provided `src/experiments/baseline_runner.py` excerpt does not show a
-    `validate_generalization` implementation (the file is truncated before any such
-    function). Both the output artifact and the specific function implementation are
-    missing, so the task is not satisfied.
+  h: 77657468b5a427b28fe64242ded6cdd2adc9fd1a9b987cca2a9598aff81992a3
+  r: "The repository lacks the required `data/results/test_data_polynomial.npy` file,\
+    \ and the `src/experiments/baseline_runner.py` source shown does not contain an\
+    \ implementation of the `load_test_data` function (or any code that loads that\
+    \ file). Consequently the task\u2019s core requirement\u2014providing a working\
+    \ `load_test_data` that returns `X_test, y_test` from the specified NumPy file\u2014\
+    is not satisfied. The missing data file and absent function must be added for\
+    \ the task to be complete."
 T025a:
   c: false
   h: 11e24d9cd6b1a4d6655a6f92dc049f098a4797a79065a8ef80906cbf28af139d
@@ -38,11 +41,17 @@ T031:
     provided `tests/integration/test_gradient_stability.py` only checks logging of
     gradient norms and does not implement or verify the statistical stability test
     described in the task. These essential artifacts and functionality are missing.
-T080:
+T050:
   c: false
-  h: ce523147bf84090d0d9c0409d5348637b3b8cc74290ab0e710b0decbc8307480
-  r: The provided `final_verification.py` is truncated and does not contain a complete
-    `verify_universal_approximation` implementation (e.g., `evaluate_model` ends abruptly
-    and the main verification logic is absent). Additionally, the required output
-    file `data/results/universal_approximation_report.md` is missing. Both the functional
-    code and the report artifact need to be added to satisfy the task.
+  h: 832ec11fdf01e9411f02961f150a96464783611551d4a8cfc3aa23fc2c84150e
+  r: The required file `src/utils/scaling_analyzer.py` does not exist in the repository,
+    so the update cannot have been performed. The missing artifact must be added and
+    contain the appropriate updated code to satisfy the task.
+T071:
+  c: false
+  h: 7d487d1a317f7e9c83b0f6bfbf96fc9b597d163ca45bec71e71b68ef4f2ca90d
+  r: "The `src/utils/statistics.py` file does not contain a `verify_gradient_distribution`\
+    \ implementation (the shown code only defines other functions), and the required\
+    \ input files `baseline_gradient_distributions.json` and `gradient_norms.json`\
+    \ as well as the output `gradient_distribution_report.md` are absent. Consequently\
+    \ the task\u2019s specifications are not met."

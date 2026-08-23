@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-590-cortical-column-llms-implementing-canoni",
+  "ok": false,
+  "reason": "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/scripts/run_baseline_training.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ents.baseline_runner. It generates synthetic data for training (Loren\u2026\u201d; code/scripts/run_baseline_training.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ed(args.seed)          # Generate synthetic datasets     logger.info\u2026\u201d; code/src/experiments/microcircuit_runner.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026e_data(self):         \"\"\"Generate synthetic training and test data.\"\u2026\u201d; 5 command(s) failed: python src/data/benchmarks.py --output data/raw_function_data.json --seed 42 (rc=2); python -m src.experiments.ablation --variant ablation_recurrence --output data/results/ablation_recurrence.json (rc=1); python -m src.experiments.scaling --variant scaling_2x --output data/results/scaling_2x.json (rc=1); 2 declared deliverable(s) absent: data/logs/gradient_norms.json; data/results/test_data_polynomial.npy",
+  "artifacts": [],
+  "failures": [
+    "python src/data/benchmarks.py --output data/raw_function_data.json --seed 42 -> rc=2\n    usage: benchmarks.py [-h] --type {lorenz,fourier,polynomial} [--seed SEED]\n                     [--n-samples N_SAMPLES] [--n-features N_FEATURES]\n                     [--noise NOISE] [--output-dir OUTPUT_DIR]\n                     [--prefix PREFIX]\nbenchmarks.py: error: the following arguments are required: --type",
+    "python -m src.experiments.ablation --variant ablation_recurrence --output data/results/ablation_recurrence.json -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-590-cortical-column-llms-implementing-canoni/src/experiments/ablation.py\", line 14, in <module>\n    from src.models.hybrid_network import HybridNetwork\nModuleNotFoundError: No module named 'src.models.hybrid_network'",
+    "python -m src.experiments.scaling --variant scaling_2x --output data/results/scaling_2x.json -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-590-cortical-column-llms-implementing-canoni/code/.venv/bin/python: No module named src.experiments.scaling",
+    "python -m src.experiments.scaling --variant scaling_4x --output data/results/scaling_4x.json -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-590-cortical-column-llms-implementing-canoni/code/.venv/bin/python: No module named src.experiments.scaling",
+    "python scripts/run_all_experiments.sh --seed 12345 -> rc=2\n    /home/runner/work/llmXive/llmXive/projects/PROJ-590-cortical-column-llms-implementing-canoni/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-590-cortical-column-llms-implementing-canoni/scripts/run_all_experiments.sh': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-23T12:43:25Z"
+}

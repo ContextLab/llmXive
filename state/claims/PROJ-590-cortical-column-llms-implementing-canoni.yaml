@@ -466,3 +466,105 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T12:31:21Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Lorenz attractor and polynomial surfaces used as distinct data generators
+  claim_id: c_ed9377fb
+  context: 'Implement src/data/benchmarks.py::verify_independence function... Logic:
+    Verify that the *generators* are distinct by construction (Lorenz vs Polynomials).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lorenz_attractor_and_polynomial_surfaces_used_as_distinct_da
+  kind: entity_fact
+  raw_text: Verify that the *generators* are distinct by construction (Lorenz vs Polynomials).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:48:54Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: 4:1 excitatory/inhibitory ratio enforced as dynamic constraint
+  claim_id: c_5342d5ec
+  context: 'Implement dynamic E/I ratio enforcement mechanism in src/training/homeostasis.py:
+    enforce the 4: ratio as a *dynamic constraint* maintained during training.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'enforce the 4: ratio as a *dynamic constraint* maintained during training'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:49:13Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Hybrid network parameter count within 1 percent of baseline
+  claim_id: c_61ccf74a
+  context: "Implement src/models/hybrid_network.py to instantiate the hybrid network...\
+    \ CRITICAL: Verify parameter count is within \xB11% of baseline and this verification\
+    \ is a BLOCKING prerequisite for T049 (Scaling)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify parameter count is within \xB11% of baseline"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:49:13Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: E/I ratio deviation threshold of 5 percent from 4 to 1
+  claim_id: c_32eddbd6
+  context: 'Test: Fail if any unexpected connections exist or if the E/I ratio deviates
+    from 4:1 by > 5%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: E/I ratio deviates from 4:1 by > 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:49:48Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Scaling analysis performed at 1x 2x and 4x column counts
+  claim_id: c_5a95af4a
+  context: Implement src/experiments/scaling.py::run_scaling_loop to orchestrate training
+    for column counts [1x, 2x, 4x].
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scaling_analysis_performed_at_1x_2x_and_4x_column_counts
+  kind: entity_fact
+  raw_text: orchestrate training for column counts [1x, 2x, 4x]
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:50:20Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Scaling exponent beta between negative 1 and 0 for error scaling
+  claim_id: c_418101a3
+  context: Implement tests/unit/test_scaling_law_interpretation.py to assert that
+    the calculated beta values are within physically plausible bounds (e.g., beta
+    between -1 and 0 for error scaling).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: beta between -1 and 0 for error scaling
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:51:01Z'

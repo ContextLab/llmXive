@@ -2,14 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T008c** — The repository contains a partially‑written `generate_polynomial_test_data` function that is truncated and never writes any file, and the expected output file `data/results/test_data_polynomial.npy` is absent. Consequently the required test data is not generated nor saved.
-- **T069** — declared artifact(s) missing/empty/invalid: src/utils/structure_verifier.py
-- **T048** — declared artifact(s) missing/empty/invalid: src/models/hybrid_network.py
-- **T049** — declared artifact(s) missing/empty/invalid: src/experiments/scaling.py, data/results/scaling_law.csv
-- **T050** — declared artifact(s) missing/empty/invalid: src/utils/scaling_analyzer.py, data/results/scaling_law_report.md
-- **T074** — declared artifact(s) missing/empty/invalid: src/utils/cost_curve_generator.py, data/results/cost_curve_data.csv
-- **T075** — declared artifact(s) missing/empty/invalid: src/utils/report_generator.py, data/results/cost_curve_report.md
-- **T076** — declared artifact(s) missing/empty/invalid: src/experiments/cost_analyzer.py, data/results/cost_metrics.json
-- **T080** — The provided `final_verification.py` is truncated and does not contain a complete `verify_universal_approximation` implementation (e.g., `evaluate_model` ends abruptly and the main verification logic is absent). Additionally, the required output file `data/results/universal_approximation_report.md` is missing. Both the functional code and the report artifact need to be added to satisfy the task.
-- **T081** — declared artifact(s) missing/empty/invalid: src/utils/report_generator.py, data/results/final_report.md
-- **T082** — declared artifact(s) missing/empty/invalid: scripts/run_final_report.sh
+- **T008c** — The repository lacks the required `generate_polynomial_test_data` implementation (no such function appears in `src/data/benchmarks.py`) and the expected output file `data/results/test_data_polynomial.npy` is absent. Both the code artifact and the generated data file are missing, so the task is not fulfilled.
+- **T010b** — The repository lacks a `log_gradient_norms` function in `src/training/homeostasis.py` (the file is truncated and does not define it), and the required output file `data/logs/gradient_norms.json` does not exist. Consequently the task’s core requirement is not satisfied.
+- **T014a** — The repository lacks the required `data/results/test_data_polynomial.npy` file, and the `src/experiments/baseline_runner.py` source shown does not contain an implementation of the `load_test_data` function (or any code that loads that file). Consequently the task’s core requirement—providing a working `load_test_data` that returns `X_test, y_test` from the specified NumPy file—is not satisfied. The missing data file and absent function must be added for the task to be complete.
+- **T071** — The `src/utils/statistics.py` file does not contain a `verify_gradient_distribution` implementation (the shown code only defines other functions), and the required input files `baseline_gradient_distributions.json` and `gradient_norms.json` as well as the output `gradient_distribution_report.md` are absent. Consequently the task’s specifications are not met.
