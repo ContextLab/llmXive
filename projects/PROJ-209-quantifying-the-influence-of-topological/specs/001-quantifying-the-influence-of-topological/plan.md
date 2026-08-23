@@ -26,7 +26,7 @@ The entire workflow is designed to run within GitHub Actions free-tier constrain
 **Project Type**: Computational Research / Data Analysis Pipeline.
 **Performance Goals**: Complete full analysis (data acquisition, modeling, inference) within 6 hours; memory usage < 7GB.
 **Constraints**: No GPU; strict data hygiene (checksums); synthetic data strictly for testing; no external validation if no public dataset exists.
-**Scale/Scope**: ~100-1000 defect entries (real or synthetic); target properties; A sufficient number of permutation iterations.
+**Scale/Scope**: A set of defect entries (real or synthetic); target properties; A sufficient number of permutation iterations.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

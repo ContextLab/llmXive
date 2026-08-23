@@ -1,16 +1,24 @@
 {
   "project_id": "PROJ-209-quantifying-the-influence-of-topological",
   "ok": false,
-  "reason": "14 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/01_data_acquisition.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026turn True  # --- Step 4: Synthetic Data Generation (T013) ---  d\u2026\u201d; code/01_data_acquisition.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026List[Dict]:     \"\"\"     Generates synthetic data rows based on conti\u2026\u201d; code/01_data_acquisition.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.info(f\"Starting synthetic data generation. Target: {n_t\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/run_workflow.py; 7 declared deliverable(s) absent: data/processed/features.csv; data/processed/targets.csv; data/raw/defect_dataset_2022.csv",
-  "artifacts": [],
-  "failures": [
-    "python code/run_workflow.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-209-quantifying-the-influence-of-topological/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-209-quantifying-the-influence-of-topological/code/run_workflow.py': [Errno 2] No such file or directory"
+  "reason": "14 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/01_data_acquisition.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026xdigest()  # --- Step 4: Synthetic Data Generation (T013) ---  d\u2026\u201d; code/01_data_acquisition.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\"     Implements T013: Synthetic Data Generation.     Reads da\u2026\u201d; code/01_data_acquisition.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026'pending_synthetic',     generates synthetic data based on continuum\u2026\u201d; 3 run-book script(s) missing (plan/impl path mismatch): python code/02_feature_engineering.py; python code/04_analysis.py; python code/run_pipeline.py; 1 command(s) failed: python code/03_modeling.py (rc=1); 6 declared deliverable(s) absent: data/processed/features.csv; data/processed/targets.csv; data/raw/defect_dataset_2022.csv",
+  "artifacts": [
+    "data/processed/training_metrics.json",
+    "data/raw/surrogate_noise_params.json",
+    "data/raw/synthetic_train.csv",
+    "data/state/synthetic_config.json"
   ],
-  "fix_rounds": 1,
+  "failures": [
+    "python code/02_feature_engineering.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-209-quantifying-the-influence-of-topological/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-209-quantifying-the-influence-of-topological/code/02_feature_engineering.py': [Errno 2] No such file or directory",
+    "python code/03_modeling.py -> rc=1\n    2026-08-23 19:22:51,990 - ERROR - Model training failed: Features file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-209-quantifying-the-influence-of-topological/data/processed/features.csv\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-209-quantifying-the-influence-of-topological/code/03_modeling.py\", line 378, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-209-quantifying-the-influence-of-topological/code/03_modeling.py\", line 348, in main\n    raise FileNotFoundErro",
+    "python code/04_analysis.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-209-quantifying-the-influence-of-topological/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-209-quantifying-the-influence-of-topological/code/04_analysis.py': [Errno 2] No such file or directory",
+    "python code/run_pipeline.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-209-quantifying-the-influence-of-topological/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-209-quantifying-the-influence-of-topological/code/run_pipeline.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-10T08:09:51Z"
+  "updated_at": "2026-08-23T19:22:54Z"
 }

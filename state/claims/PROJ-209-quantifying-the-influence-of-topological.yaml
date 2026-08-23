@@ -1408,25 +1408,6 @@
   updated_at: '2026-07-27T02:11:22Z'
 - artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
   attempts: 1
-  canonical: Apply Benjamini-Hochberg FDR control at q less than or equal to 0.05
-  claim_id: c_b99644a8
-  context: "T024 [S] [US2] Implement code/04_inference.py: FDR Correction. Action:\
-    \ Apply Benjamini-Hochberg FDR control at q \u2264 0.05 to p-values across all\
-    \ hypothesis tests."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_control_at_q_less_than_or_equal
-  kind: magnitude
-  raw_text: "Apply Benjamini-Hochberg FDR control at q \u2264 0.05."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-27T02:11:27Z'
-- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
-  attempts: 1
   canonical: Default number of permutations is 1000
   claim_id: c_f94cf8de
   context: 'T023 [S] [US2] Implement code/04_inference.py: Permutation Testing & p-value
@@ -4829,3 +4810,1169 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-12T08:53:43Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Query Materials Project REST API for at least 50 pristine graphene and
+    MoS2 structures
+  claim_id: c_f9ae6af9
+  context: 'T010a [S] [US1] Implement code/01_data_acquisition.py: Step 1a - Pristine
+    Structure API Query & Cache Fallback.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Query_Materials_Project_REST_API_for_at_least_50_pristine_gr
+  kind: magnitude
+  raw_text: "Query Materials Project REST API for \u226550 pristine graphene and MoS\u2082\
+    \ structures."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:25:57Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Materials Project REST API endpoint is https://next-gen.materialsproject.org/api/v2/structures
+  claim_id: c_8a30b06a
+  context: 'T010a [S] [US1] Implement code/01_data_acquisition.py: Step 1a - Pristine
+    Structure API Query & Cache Fallback.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_REST_API_endpoint_is_https://next-gen.mate
+  kind: entity_fact
+  raw_text: 'Endpoint: https://next-gen.materialsproject.org/api/v2/structures'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:26:27Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate synthetic rows until N_TARGET is reached
+  claim_id: c_cdde1970
+  context: 'T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic
+    Data Generation (Test Only). Parameters: N_TARGET=100.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_rows_until_N_TARGET_is_reached
+  kind: entity_fact
+  raw_text: Generate rows until N_TARGET is reached.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:26:51Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 2
+  canonical: Synthetic grain size generated with log-normal distribution mean 100nm
+    and std 50nm
+  claim_id: c_1cb6fbb8
+  context: 'T013b [S] [US1] Implement code/01_data_acquisition.py: Step 4b - Confounding
+    Field Generation. Logic: ...continuous distribution for grain size (log-normal
+    with parameters derived from typical 2D material synthesis: mean=100nm, std=50nm).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_grain_size_generated_with_log-normal_distribution
+  kind: entity_fact
+  raw_text: Generate synthetic values for grain size using a log-normal distribution
+    with mean=100nm and std=50nm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:27:11Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Train Random Forest regressors with train-test split seed 42
+  claim_id: c_41d61162
+  context: 'T021 [S] [US2] Implement code/03_modeling.py: Step 3 - Model Training.
+    Execute: Train Random Forest regressors... with a standard train-test split (seed=42)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest regressors with a standard train-test split (seed=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:27:29Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate p-values via 1000 fixed permutations
+  claim_id: c_c6905d21
+  context: 'T023 [S][US2] Implement code/04_inference.py: Permutation Testing & p-value
+    Generation. Action: Generate p-values via N_PERMUTATIONS=1000 (fixed, no dynamic
+    scaling) permutations...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate p-values via N_PERMUTATIONS=1000 (fixed, no dynamic scaling)
+    permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:29:45Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Evaluate final models on hold-out set
+  claim_id: c_e95265b7
+  context: 'T025 [S] [US2] Implement code/04_inference.py: Hold-Out Evaluation. Logic:
+    Read data/state/data_source.json... If source: real: Evaluate final models on
+    data/raw/real_holdout.csv (from T015).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluate_final_models_on_hold-out_set
+  kind: entity_fact
+  raw_text: Evaluate final models on the hold-out set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:30:57Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Calculate deciles of defect density
+  claim_id: c_22c82700
+  context: 'T027 [S] [US2/US3] Implement code/04_inference.py: Sensitivity Analysis.
+    Action: Sweep decision cutoffs: Step 1: MUST calculate deciles of defect density.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_deciles_of_defect_density
+  kind: entity_fact
+  raw_text: Calculate deciles of defect density.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:31:17Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 2
+  canonical: Ensure notebook runs within 6-hour runtime limit on GitHub Actions free-tier
+    with CPU and 7 GB RAM
+  claim_id: c_264ed7e5
+  context: "T033 [US3] Implement notebooks/01_full_workflow.ipynb: Ensure notebook\
+    \ runs within 6-hour runtime limit on GitHub Actions free-tier (CPU, \u22647 GB\
+    \ RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure notebook runs within 6-hour runtime limit on GitHub Actions free-tier\
+    \ (CPU, \u22647 GB RAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:31:35Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Query Materials Project API for 50 pristine graphene and MoS2 structures
+  claim_id: c_ff0a5b4e
+  context: "T010a [S] [US1] Implement code/01_data_acquisition.py: Step 1a - Pristine\
+    \ Structure API Query & Cache Fallback. Query Materials Project REST API for \u2265\
+    50 pristine graphene and MoS\u2082 structures."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Query Materials Project REST API for \u226550 pristine graphene and MoS\u2082\
+    \ structures."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:35:08Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate synthetic data until N_TARGET is reached
+  claim_id: c_495c775a
+  context: 'T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic
+    Data Generation (Test Only). Parameters: N_TARGET=100. Logic: Generate rows until
+    N_TARGET is reached.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_data_until_N_TARGET_is_reached
+  kind: entity_fact
+  raw_text: Generate rows until N_TARGET is reached.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:35:10Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate surrogate noise with variance 0.05 and mean 0.0
+  claim_id: c_cd98647e
+  context: 'T013 [S] [US1] ... Noise: Generate data/raw/surrogate_noise_params.json
+    if missing using default DFT-calibrated parameters (variance=0.05, mean=0.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate surrogate noise parameters using default DFT-calibrated parameters
+    (variance=0.05, mean=0.0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:35:21Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Synthetic grain size uses log-normal distribution with mean 100nm and
+    std 50nm
+  claim_id: c_080db336
+  context: 'T013b [S] [US1] ... generate synthetic values for these fields using a
+    categorical distribution ... and a continuous distribution for grain size (log-normal
+    with parameters derived from typical 2D material synthesis: mean=100nm, std=50nm).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_grain_size_uses_log-normal_distribution_with_mean
+  kind: entity_fact
+  raw_text: Use log-normal distribution with mean=100nm and std=50nm for synthetic
+    grain size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:35:40Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use seed 42 for random splits and permutations
+  claim_id: c_21a9e48e
+  context: 'T015 [S] [US1] ... split ... using seed=42. ... T023 [S][US2] ... Seed:
+    Use seed=42 for permutation shuffling to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42 for random splits and permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:35:58Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Compute stability using N_STABILITY_RUNS permutation runs
+  claim_id: c_a8744c54
+  context: T020a [S] [US2] ... Compute Permutation Importance Stability for ALL predictor
+    pairs by running N_STABILITY_RUNS (read from config.py, default 10) permutation
+    runs for each feature pair.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_stability_using_N_STABILITY_RUNS_permutation_runs
+  kind: entity_fact
+  raw_text: Compute Permutation Importance Stability by running N_STABILITY_RUNS permutation
+    runs for each feature pair.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:36:16Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate p-values via 1000 permutations
+  claim_id: c_27396701
+  context: T023 [S][US2] ... Generate p-values via N_PERMUTATIONS=1000 (fixed, no
+    dynamic scaling) permutations (shuffling target values) for every feature for
+    every target property.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate p-values via N_PERMUTATIONS=1000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:36:17Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Run pilot set of 100 permutations for convergence verification
+  claim_id: c_ce83d0d2
+  context: 'T023 [S][US2] ... Convergence Verification Step: Run a pilot set (N=100
+    permutations) to estimate variance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a pilot set of N=100 permutations to estimate variance for convergence
+    verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:36:38Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR control at q 0.05
+  claim_id: c_cbc4f415
+  context: "T024 [S] [US2] ... Apply Benjamini-Hochberg FDR control at q \u2264 0.05\
+    \ to p-values across all hypothesis tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Benjamini-Hochberg FDR control at q \u2264 0.05 to p-values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:36:39Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Verify at least 10 samples per bin for decile analysis
+  claim_id: c_2ccaf6de
+  context: 'T027 [S] [US2/US3] ... Feasibility Check: If dataset is too small (<10
+    samples per bin) to form valid deciles, HALT with [ERROR: Insufficient data for
+    decile-based sensitivity analysis per FR-007].'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_10_samples_per_bin_for_decile_analysis
+  kind: magnitude
+  raw_text: Verify dataset size is at least 10 samples per bin for decile-based sensitivity
+    analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:37:04Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Notebook runtime limit is 6 hours
+  claim_id: c_d6bdabca
+  context: "T033 [US3] ... Ensure notebook runs within 6-hour runtime limit on GitHub\
+    \ Actions free-tier (CPU, \u22647 GB RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure notebook runs within 6-hour runtime limit on GitHub Actions free-tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:37:05Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit is 7 GB
+  claim_id: c_da601272
+  context: "T033 [US3] ... Ensure notebook runs within 6-hour runtime limit on GitHub\
+    \ Actions free-tier (CPU, \u22647 GB RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Limit peak RAM usage to 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:37:25Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Calculate deciles of defect density
+  claim_id: c_81a0ef8d
+  context: 'T027 [S] [US2/US3] ... Step 1: MUST calculate deciles of defect density.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_deciles_of_defect_density
+  kind: entity_fact
+  raw_text: Calculate deciles of defect density for sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:37:48Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 0
+  canonical: Synthetic data generation target of 100 samples
+  claim_id: c_928c2375
+  context: 'T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic
+    Data Generation (Test Only). Parameters: N_TARGET=100.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 1000 44217183002083556481978121537538045804113921865913760691321361767263190032191626536814118417778115719990002145004286277616614906607779567071503379338537342846393585205078125
+      source_id: A046021
+      url: https://oeis.org/A046021
+      value: '44217183002083556481978121537538045804113921865913760691321361767263190032191626536814118417778115719990002145004286277616614906607779567071503379338537342846393585205078125'
+    filled: true
+  kind: numeric
+  raw_text: N_TARGET=100
+  resolved_value: '44217183002083556481978121537538045804113921865913760691321361767263190032191626536814118417778115719990002145004286277616614906607779567071503379338537342846393585205078125'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T19:38:21Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Materials Project API query for 50 pristine graphene and MoS2 structures
+  claim_id: c_3423c7ce
+  context: "T010a [S] [US1] Implement code/01_data_acquisition.py: Step 1a - Pristine\
+    \ Structure API Query & Cache Fallback. Query Materials Project REST API for \u2265\
+    50 pristine graphene and MoS\u2082 structures."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Query Materials Project REST API for \u226550 pristine graphene and MoS\u2082\
+    \ structures."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:38:31Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Log-normal grain size distribution with mean 100nm and standard deviation
+    50nm
+  claim_id: c_104288ca
+  context: 'T013b [S] [US1] ... continuous distribution for grain size (log-normal
+    with parameters derived from typical 2D material synthesis: mean=100nm, std=50nm).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log-normal_grain_size_distribution_with_mean_100nm_and_stand
+  kind: entity_fact
+  raw_text: mean=100nm, std=50nm
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:38:49Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Permutation testing using 1000 permutations
+  claim_id: c_1a143cca
+  context: T023 [S][US2] ... Generate p-values via N_PERMUTATIONS=1000 (fixed, no
+    dynamic scaling) permutations...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N_PERMUTATIONS=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:39:12Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Permutation importance stability runs with default count of 10
+  claim_id: c_fab79abd
+  context: T020a [S] [US2] ... running N_STABILITY_RUNS (read from config.py, default
+    10) permutation runs for each feature pair.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N_STABILITY_RUNS (default 10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:39:35Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: DFT-calibrated surrogate noise parameters with variance 0.05 and mean
+    0.0
+  claim_id: c_668a9922
+  context: T013 [S] [US1] ... Generate data/raw/surrogate_noise_params.json if missing
+    using default DFT-calibrated parameters (variance=0.05, mean=0.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: variance=0.05, mean=0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:40:10Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Workflow execution limited to 6 hours
+  claim_id: c_da52712d
+  context: T033 [US3] ... Ensure notebook runs within 6-hour runtime limit on GitHub
+    Actions free-tier...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 6-hour runtime limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:40:26Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Permutation testing pilot sample size of 100
+  claim_id: c_728a86ef
+  context: T023 [S][US2] ... Run a pilot set (N=100 permutations) to estimate variance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=100 pilot sample
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:42:04Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Data split ratio of 80 percent training and 20 percent testing
+  claim_id: c_a4c0cfc4
+  context: 'Independent Test: ... training the random forest models on a random split
+    (80/20, seed=42)...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: sample-wise curves at different training set sizes up to 80% of the data.
+        The
+      source_id: '2201.12150'
+      url: https://arxiv.org/abs/2201.12150
+      value: 80%
+    filled: true
+  kind: numeric
+  raw_text: 80/20 train-test split
+  resolved_value: 80%
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T19:42:31Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Confounding fields must have at least 3 distinct values for stratification
+  claim_id: c_9a0b9b4d
+  context: T022a [S] [US2] ... Check if 'synthesis_method' or 'grain_size' is present
+    ... and has >= 3 distinct values with sufficient sample size.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Confounding_fields_must_have_at_least_3_distinct_values_for
+  kind: magnitude
+  raw_text: "\u22653 distinct values"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:43:04Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis fails if fewer than 10 samples per decile bin
+  claim_id: c_c52e39d2
+  context: T027 [S] [US2/US3] ... If dataset is too small (<10 samples per bin) to
+    form valid deciles, HALT...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_fails_if_fewer_than_10_samples_per_deci
+  kind: magnitude
+  raw_text: <10 samples per bin
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:43:35Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Query Materials Project API for at least 50 pristine graphene and MoS2
+    structures
+  claim_id: c_c67cad34
+  context: "Implement code/01_data_acquisition.py: Step 1a - Pristine Structure API\
+    \ Query & Cache Fallback. Query Materials Project REST API for \u226550 pristine\
+    \ graphene and MoS\u2082 structures."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Query_Materials_Project_API_for_at_least_50_pristine_graphen
+  kind: magnitude
+  raw_text: "Query Materials Project REST API for \u226550 pristine graphene and MoS\u2082\
+    \ structures."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:44:16Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate synthetic data rows until N_TARGET is reached
+  claim_id: c_363422d8
+  context: 'Logic: Generate rows until N_TARGET is reached. Runtime Check: Estimate
+    time = N_TARGET * avg_time_per_sample (calculated from a pilot sample of 10 rows).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_data_rows_until_N_TARGET_is_reached
+  kind: entity_fact
+  raw_text: Generate rows until N_TARGET is reached.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:44:18Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate synthetic grain size with log-normal mean 100nm and std 50nm
+  claim_id: c_19c06606
+  context: 'Logic: Check if synthesis_method or grain_size fields exist... Generate
+    synthetic values for these fields... and a continuous distribution for grain size
+    (log-normal with parameters derived from typical 2D material synthesis: mean=100nm,
+    std=50nm).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_grain_size_with_log-normal_mean_100nm_and
+  kind: entity_fact
+  raw_text: Generate synthetic values for grain size using a log-normal distribution
+    with mean=100nm and std=50nm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:44:21Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Perform 1000 permutations for p-value generation
+  claim_id: c_3f4f5463
+  context: 'Action: Generate p-values via N_PERMUTATIONS=1000 (fixed, no dynamic scaling)
+    permutations (shuffling target values) for every feature for every target property.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 1000 permutations for every feature for every target property.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:44:40Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Run 100 pilot permutations for convergence check
+  claim_id: c_e966a5c6
+  context: 'Convergence Verification Step: Run a pilot set (N=100 permutations) to
+    estimate variance. If variance > threshold: FAIL with [ERROR: Permutation testing
+    variance too high for N=1000; cannot guarantee convergence within spec limits].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a pilot set of 100 permutations to estimate variance for convergence
+    verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:44:41Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Train Random Forest with seed 42 train-test split
+  claim_id: c_91fbb0eb
+  context: 'Execute: Train Random Forest regressors (conductivity, Young''s modulus,
+    fracture strength) with a standard train-test split (seed=42) using the final
+    feature set from T020c.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest regressors using a standard train-test split with
+    seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:44:59Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Calculate deciles of defect density for sensitivity analysis
+  claim_id: c_f59a18bc
+  context: 'Action: Sweep decision cutoffs: Step 1: MUST calculate deciles of defect
+    density. Step 2: Feasibility Check: If dataset is too small (<10 samples per bin)
+    to form valid deciles, HALT...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_deciles_of_defect_density_for_sensitivity_analysis
+  kind: entity_fact
+  raw_text: Compute deciles of defect density for sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:45:20Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Require at least 10 samples per bin for decile analysis
+  claim_id: c_0ef5fdd4
+  context: 'Feasibility Check: If dataset is too small (<10 samples per bin) to form
+    valid deciles, HALT with [ERROR: Insufficient data for decile-based sensitivity
+    analysis per FR-007].'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Require_at_least_10_samples_per_bin_for_decile_analysis
+  kind: magnitude
+  raw_text: Verify that the dataset has at least 10 samples per bin to form valid
+    deciles.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:45:44Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Workflow runtime limit is 6 hours
+  claim_id: c_61b20982
+  context: 'Independent Test: Can be fully tested by running the complete notebook
+    end-to-end on a CPU-only runner, verifying that all analyses complete within 6
+    hours...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The workflow must complete within 6 hours on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:46:10Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Workflow memory limit is 7 GB
+  claim_id: c_ccf7c831
+  context: "Implement scripts/run_ci_validation.sh: CI script to execute the full\
+    \ workflow and validate runtime constraints (\u22646h) and memory usage (\u2264\
+    7GB)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Workflow_memory_limit_is_7_GB
+  kind: magnitude
+  raw_text: The workflow must use no more than 7 GB of RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:46:40Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use synthetic noise variance 0.05 and mean 0.0
+  claim_id: c_d6280f5d
+  context: 'Noise: Generate data/raw/surrogate_noise_params.json if missing using
+    default DFT-calibrated parameters (variance=0.05, mean=0.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use default DFT-calibrated noise parameters with variance=0.05 and mean=0.0
+    for synthetic data generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:47:00Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Perform 10 stability runs per feature pair
+  claim_id: c_6df2cdb2
+  context: 'Action: Compute Permutation Importance Stability for ALL predictor pairs
+    by running N_STABILITY_RUNS (read from config.py, default 10) permutation runs
+    for each feature pair.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 10 stability runs for each feature pair to compute pairwise stability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:47:15Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Filter defect density less than or equal to zero or NaN
+  claim_id: c_7576f393
+  context: "Filter entries with defect density \u22640 or NaN; log count of excluded\
+    \ entries to data/state/exclusion_log.json (schema: {filtered_count: N, reason:\
+    \ 'density_leq_0_or_nan'})."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_defect_density_less_than_or_equal_to_zero_or_NaN
+  kind: magnitude
+  raw_text: Filter entries with defect density less than or equal to 0 or NaN.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:47:35Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Query Materials Project API for at least 50 pristine graphene and MoS2
+    structures
+  claim_id: c_db510789
+  context: "T010a [S] [US1] Implement code/01_data_acquisition.py: Step 1a - Pristine\
+    \ Structure API Query & Cache Fallback. Query Materials Project REST API for \u2265\
+    50 pristine graphene and MoS\u2082 structures."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Query_Materials_Project_API_for_at_least_50_pristine_graphen
+  kind: magnitude
+  raw_text: "Query Materials Project REST API for \u226550 pristine graphene and MoS\u2082\
+    \ structures."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:50:19Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use OEIS sequence A046021 for synthetic data generation parameters
+  claim_id: c_001b5917
+  context: 'T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic
+    Data Generation(Test Only). Parameters: {{claim:c_928c2375}} (OEIS A046021, https://oeis.org/A046021).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_OEIS_sequence_A046021_for_synthetic_data_generation_para
+  kind: entity_fact
+  raw_text: OEIS A046021
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:50:50Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate synthetic data rows until N_TARGET count is reached
+  claim_id: c_636b8eaa
+  context: 'T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic
+    Data Generation(Test Only). Logic: Generate rows until N_TARGET is reached.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_data_rows_until_N_TARGET_count_is_reached
+  kind: entity_fact
+  raw_text: Generate rows until N_TARGET is reached
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:50:53Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Estimate synthetic generation time using pilot sample of 10 rows
+  claim_id: c_59ec5657
+  context: 'T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic
+    Data Generation(Test Only). Runtime Check: Estimate time = N_TARGET * avg_time_per_sample
+    (calculated from a pilot sample of 10 rows).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate time = N_TARGET * avg_time_per_sample (calculated from a pilot
+    sample of 10 rows)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:51:30Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Fail build if synthetic generation for 100 rows exceeds 1 hour
+  claim_id: c_2edc9271
+  context: 'T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic
+    Data Generation(Test Only). If estimated time > 1 hour, FAIL THE BUILD with [ERROR:
+    N=100 synthetic generation exceeds runtime limit].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If estimated time > 1 hour, FAIL THE BUILD with [ERROR: N=100 synthetic
+    generation exceeds runtime limit]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:51:51Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use default DFT-calibrated noise parameters with variance 0.05 and mean
+    0.0
+  claim_id: c_69f02b9f
+  context: 'T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic
+    Data Generation(Test Only). Noise: Generate data/raw/surrogate_noise_params.json
+    if missing using default DFT-calibrated parameters (variance=0.05, mean=0.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: variance=0.05, mean=0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:51:52Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Verify synthetic train CSV contains at least 100 rows
+  claim_id: c_3a58849a
+  context: "T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic\
+    \ Data Generation(Test Only). Verification: MUST verify data/raw/synthetic_train.csv\
+    \ has \u2265100 rows..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_synthetic_train_CSV_contains_at_least_100_rows
+  kind: magnitude
+  raw_text: "MUST verify data/raw/synthetic_train.csv has \u2265100 rows"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:52:15Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use log-normal distribution for grain size with mean 100nm and std 50nm
+  claim_id: c_3ad9902e
+  context: 'T013b [S] [US1] Implement code/01_data_acquisition.py: Step 4b - Confounding
+    Field Generation. Logic: ...continuous distribution for grain size (log-normal
+    with parameters derived from typical 2D material synthesis: mean=100nm, std=50nm).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_log-normal_distribution_for_grain_size_with_mean_100nm_a
+  kind: entity_fact
+  raw_text: 'log-normal with parameters derived from typical 2D material synthesis:
+    mean=100nm, std=50nm'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:52:29Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Split dataset into train and hold-out using seed 42
+  claim_id: c_6576ab0e
+  context: 'T015 [S] [US1] Implement code/01_data_acquisition.py: Step 5 - Hold-Out
+    Set Generation (Real). Logic: Split data/raw/defect_dataset_2022.csv ... into
+    train and hold-out using seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: split data into train and hold-out using seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:52:45Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Evaluate model on test split with 80/20 ratio and seed 42
+  claim_id: c_47a2bed8
+  context: 'Independent Test for User Story 2: Can be fully tested by training the
+    random forest models on a random split (80/20, seed=42)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Evaluate on the test split ... (80/20, seed=42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:53:02Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Run 10 permutation runs for pairwise stability by default
+  claim_id: c_450bc19e
+  context: 'T020a [S] [US2] Implement code/03_modeling.py: Step 2a - Compute Pairwise
+    Stability. Action: Compute Permutation Importance Stability for ALL predictor
+    pairs by running N_STABILITY_RUNS (read from config.py, default 10) permutation
+    runs for each feature pair.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: running N_STABILITY_RUNS (read from config.py, default 10) permutation
+    runs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:53:19Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 3
+  canonical: Apply Benjamini-Hochberg FDR control at q less than or equal to 0.05
+  claim_id: c_b99644a8
+  context: "T024 [S] [US2] Implement code/04_inference.py: FDR Correction. Action:\
+    \ Apply Benjamini-Hochberg FDR control at q \u2264 0.05 to p-values across all\
+    \ hypothesis tests."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_control_at_q_less_than_or_equal
+  kind: magnitude
+  raw_text: "Apply Benjamini-Hochberg FDR control at q \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:53:21Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate p-values using fixed 1000 permutations
+  claim_id: c_fe9d55f7
+  context: 'T023 [S][US2] Implement code/04_inference.py: Permutation Testing & p-value
+    Generation. Action: Generate p-values via N_PERMUTATIONS=1000 (fixed, no dynamic
+    scaling) permutations...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate p-values via N_PERMUTATIONS=1000 (fixed, no dynamic scaling)
+    permutations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:53:22Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 2
+  canonical: Run pilot set of 100 permutations to estimate variance
+  claim_id: c_73325762
+  context: 'T023 [S][US2] Implement code/04_inference.py: Permutation Testing & p-value
+    Generation. Convergence Verification Step: Run a pilot set (N=100 permutations)
+    to estimate variance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a pilot set (N=100 permutations) to estimate variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:53:23Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Halt if dataset has fewer than 10 samples per bin for decile analysis
+  claim_id: c_0bcd222e
+  context: 'T027 [S] [US2/US3] Implement code/04_inference.py: Sensitivity Analysis.
+    Step 2: Feasibility Check: If dataset is too small (<10 samples per bin) to form
+    valid deciles, HALT...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_dataset_has_fewer_than_10_samples_per_bin_for_decile
+  kind: magnitude
+  raw_text: If dataset is too small (<10 samples per bin) to form valid deciles, HALT
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:53:39Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Ensure notebook runs within 6 hours and 7 GB RAM on GitHub Actions free
+    tier
+  claim_id: c_10f7750d
+  context: "T033 [US3] Implement notebooks/01_full_workflow.ipynb: Ensure notebook\
+    \ runs within 6-hour runtime limit on GitHub Actions free-tier (CPU, \u22647 GB\
+    \ RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure notebook runs within 6-hour runtime limit on GitHub Actions free-tier\
+    \ (CPU, \u22647 GB RAM)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:53:40Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Measure and record actual runtime and peak RAM usage
+  claim_id: c_dfbe59f1
+  context: 'T033 [US3] Implement notebooks/01_full_workflow.ipynb: Action: Measure
+    and record actual runtime and peak RAM usage during execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Measure_and_record_actual_runtime_and_peak_RAM_usage
+  kind: entity_fact
+  raw_text: measure and record actual runtime and peak RAM usage
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:54:00Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Validate runtime constraints of 6 hours and memory usage of 7 GB
+  claim_id: c_67eae3d2
+  context: "T034 [US3] Implement scripts/run_ci_validation.sh: CI script to execute\
+    \ the full workflow and validate runtime constraints (\u22646h) and memory usage\
+    \ (\u22647GB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validate runtime constraints (\u22646h) and memory usage (\u22647GB)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T19:54:01Z'

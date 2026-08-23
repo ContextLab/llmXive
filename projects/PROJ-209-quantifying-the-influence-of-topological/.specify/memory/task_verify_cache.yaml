@@ -1,12 +1,25 @@
+T010a:
+  c: false
+  h: 62c470e433ec6186cd85f7b4b678af228b7d1fdcbd5f10762f3025e7641ce28b
+  r: "The required file `data/raw/pristine_structures.csv` is absent (and thus no\
+    \ rows can be verified), and the existing `data/state/data_source.json` reports\
+    \ only 2 structures instead of the \u226550 required. Consequently the task\u2019\
+    s output and data\u2011quantity requirements are not satisfied."
+T011a:
+  c: false
+  h: 0b07d574984a2d5a7420d9de9a828408f2d2769b25b120d3fa1f87621e4de84e
+  r: The required `data/raw/defect_dataset_2022.csv` file does not exist, violating
+    the guarantee that the script must write this CSV (even if empty). The `source_validation.json`
+    is present and correctly formatted, but the missing CSV means the task is not
+    fully satisfied.
 T012:
   c: false
-  h: 5001772e57f0e1c9c67c8db0f4dff6a03e9b1e405f8009a9a07cfb64da3724f5
-  r: "The provided `code/01_data_acquisition.py` only contains utility functions and\
-    \ does not show any logic that reads `data/state/source_validation.json` (and\
-    \ optionally `generation_status.json`) and branches based on the validation result.\
-    \ Moreover, the required `data/state/generation_status.json` file is absent, so\
-    \ the script cannot demonstrate handling of that dependency. The task\u2019s core\
-    \ Step\u202F3 is not evidenced in the artifacts."
+  h: db5ae240672e33c5ec853e2a47ab2dfd4c2ec80ea132d2ae3e3bb466b098eca0
+  r: "The required `data/state/completion_signal.json` file is absent, so the script\
+    \ cannot read it as the task demands. Moreover, the provided portion of `code/01_data_acquisition.py`\
+    \ shows no implementation that loads `source_validation.json` or `completion_signal.json`\
+    \ and performs the required validity\u2011check branching. Both the missing artifact\
+    \ and the lack of corresponding code mean the task is not genuinely completed."
 T013:
   c: false
   h: d32aa5c2c7ff79761c19100866d512d7b8ea332ac1162412880c5cbe812fe5cb

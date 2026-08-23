@@ -1,6 +1,5 @@
 status: none
-intent: Materials Project graphene MoS2 defect dataset Materials Project Defect Database
-  python package dataset
+intent: Materials Project graphene MoS2 defect dataset download python package dataset
 required_fields:
 - material_id
 - composition
@@ -11,6 +10,6 @@ required_fields:
 - conductivity
 - elastic_tensor
 - fracture_energy
-cache_key: 7d4f112d78b1db431942efd523b6f42bd6ecbe2e66d0d93205d3e7be7cb369dc
-searched_at: '2026-08-22T06:46:13.336101+00:00'
+cache_key: c3f64ba9046e7151e5cec8e84a55e88074a993f74df2fafc9207298e318e616e
+searched_at: '2026-08-23T19:24:30.573993+00:00'
 retry_count: 1
