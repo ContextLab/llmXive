@@ -1,3 +1,3 @@
 """
-Data module for EBSD data processing and storage.
+Data storage and processing artifacts.
 """

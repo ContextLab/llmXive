@@ -19,73 +19,73 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Virtual Environments
 venv/
-env/
 ENV/
-.venv/
+env/
+.venv
 
-# IDEs and Editors
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 .project
+.pydevproject
 .settings/
-.classpath
-.cache/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb_checkpoints
-
-# Data
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/interim/*
-!data/interim/.gitkeep
-data/external/*
-!data/external/.gitkeep
-*.parquet
-*.csv
-*.h5
-*.hdf5
-*.pkl
-*.pickle
-data/*.json
-
-# Models and Artifacts
-models/
-.models/
-*.joblib
-*.pkl
-*.pt
-*.pth
-
-# Logs
-*.log
-logs/
-.logs/
-
-# OS
-.DS_Store
-Thumbs.db
 
 # Testing
 .coverage
 htmlcov/
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
+coverage.xml
+*.cover
+.hypothesis/
 
-# Environment variables (if any)
+# Data (Raw, Processed, Interim) - Do not commit large binary files
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/external/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
 .env
 .env.local
+.env.*.local
+*.pem
+*.key
+secrets/
+models/*.pkl
+models/*.h5
+models/*.pt
+models/*.pth
+figures/*.png
+figures/*.pdf
+figures/*.svg
+reports/
 
-# Temporary files
-tmp/
-temp/
-*.tmp
+# Jupyter
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# MyPy
+.mypy_cache
+
+# Ruff
+.ruff_cache

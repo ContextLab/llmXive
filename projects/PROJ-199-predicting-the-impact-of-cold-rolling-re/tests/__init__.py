@@ -1,3 +1,3 @@
 """
-Test suite for the cold rolling texture prediction project.
+Test package for the llmXive automated science pipeline.
 """

@@ -219,3 +219,490 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T05:34:25Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: sum of Brass, Copper, S, Goss, and random components equals 1.0 +/- 0.01
+  claim_id: c_aba2e704
+  context: "test_TextureDescriptor_mass_balance_check: Verify that the sum of Brass,\
+    \ Copper, S, Goss, and random components equals 1.0 \xB1 0.01; raise ValueError\
+    \ if the sum is outside this tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the sum of Brass, Copper, S, Goss, and random components\
+    \ equals 1.0 \xB1 0.01"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:10:59Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: flag samples with more than 50% filtered points as low reliability
+  claim_id: c_11c8c86a
+  context: If >50% of points are filtered in a sample, flag as 'low reliability' and
+    exclude (Edge Case).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_samples_with_more_than_50%25_filtered_points_as_low_relia
+  kind: magnitude
+  raw_text: flag samples where >50% of points are filtered as 'low reliability'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:11:17Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: calculated volume fractions match published values within +/- 0.05
+  claim_id: c_894772b6
+  context: "The quantification module can be tested by processing a known benchmark\
+    \ dataset and verifying that the calculated volume fractions match published values\
+    \ within \xB10.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the calculated volume fractions match published values within\
+    \ \xB10.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:11:33Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: sum of Brass, Copper, S, Goss and random fraction equals 1.0 +/- 0.01
+  claim_id: c_57244036
+  context: "Implement mass balance check: explicitly verify that the sum of major\
+    \ components (Brass, Copper, S, Goss) plus the 'random' fraction equals 1.0 \xB1\
+    \ 0.01 for every sample."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the sum of major components (Brass, Copper, S, Goss) plus\
+    \ the 'random' fraction equals 1.0 \xB1 0.01 for every sample"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:13:27Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: R-squared on held-out test set meets performance threshold
+  claim_id: c_6fb19fe3
+  context: "The model training and validation pipeline can be tested by splitting\
+    \ the dataset and verifying that the R\xB2 on the held-out test set meets a satisfactory\
+    \ performance threshold."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/R-squared_on_held-out_test_set_meets_performance_threshold
+  kind: entity_fact
+  raw_text: "verify that R\xB2 on the held-out test set meets a satisfactory performance\
+    \ threshold"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:13:59Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: R-squared variation less than or equal to 0.02 across tolerances 0.01,
+    0.05, and 0.1
+  claim_id: c_2a8c6592
+  context: "Verify R\xB2 variation remains \u2264 0.02 across the swept tolerances\
+    \ {0.01, 0.05, 0.1} using T030 output (US-4 Scenario 2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/R-squared_variation_less_than_or_equal_to_0.02_across_tolera
+  kind: magnitude
+  raw_text: "verify R\xB2 variation \u2264 0.02 across the swept tolerances {0.01,\
+    \ 0.05, 0.1}"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:14:32Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: EBSD Sample with confidence index less than 0.1 raises ValueError
+  claim_id: c_92d9ee20
+  context: 'test_EBSDSample_rejects_confidence_0.0: Verify that an EBSD Sample with
+    confidence index < 0.1 raises ValueError.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/EBSD_Sample_with_confidence_index_less_than_0.1_raises_Value
+  kind: magnitude
+  raw_text: Verify that an EBSD Sample with confidence index < 0.1 raises ValueError
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:18:35Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: hardcoded default reduction levels 0 10 20 30 40 50 60 70 80
+  claim_id: c_93587a84
+  context: 'Attempt 2 (Fallback): If research.md is missing, unreadable, or lacks
+    the key, use the hardcoded default list: [0, 10, 20, 30, 40, 50, 60, 70, 80].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use the hardcoded default list [0, 10, 20, 30, 40, 50, 60, 70, 80] for
+    reduction levels
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:18:54Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: flag samples where more than 50 percent of points are filtered as low
+    reliability
+  claim_id: c_42a35e7f
+  context: If >50% of points are filtered in a sample, flag as 'low reliability' and
+    exclude (Edge Case).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_samples_where_more_than_50_percent_of_points_are_filter
+  kind: magnitude
+  raw_text: Flag samples where >50% of points are filtered as low reliability and
+    exclude them
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:19:16Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: search window of plus or minus 5 degrees around central Euler values
+  claim_id: c_f8179b7e
+  context: "Note: Implement a search window of \xB15 degrees around these central\
+    \ values to account for lattice rotation spread."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement a search window of \xB15 degrees around central Euler values"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:19:36Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Brass Euler ranges phi1 35 to 45 Phi 55 to 65 phi2 0 to 90
+  claim_id: c_8db75383
+  context: 'Brass: [35, 45, 55, 65] (Approximate: phi1=35-45, Phi=55-65, phi2=0-90)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Brass Euler ranges are phi1=35-45, Phi=55-65, phi2=0-90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:19:52Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Copper Euler ranges phi1 39 Phi 39 phi2 0
+  claim_id: c_e85e848e
+  context: 'Copper: [39, 39, 0, 0] (Approximate: phi1=39, Phi=39, phi2=0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Copper Euler ranges are phi1=39, Phi=39, phi2=0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:20:08Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: S Euler ranges phi1 59 Phi 37 phi2 63
+  claim_id: c_897f051e
+  context: 'S: [59, 37, 63, 63] (Approximate: phi1=59, Phi=37, phi2=63)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: S Euler ranges are phi1=59, Phi=37, phi2=63
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:22:02Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Goss Euler ranges phi1 0 Phi 45 phi2 90
+  claim_id: c_1efbf305
+  context: 'Goss: [0, 45, 90, 0] (Approximate: phi1=0, Phi=45, phi2=90)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Goss Euler ranges are phi1=0, Phi=45, phi2=90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:22:17Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: GP length scale search space lower bound upper bound and Polynomial regularization
+    alpha in 1e-4 to 1e-2
+  claim_id: c_d8a8bef5
+  context: 'Hyperparameters: Use GP length_scale search space [lower bound, upper
+    bound]; Polynomial regularization (alpha) in [1e-4, 1e-2].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use GP length_scale search space [lower bound, upper bound] and Polynomial
+    regularization (alpha) in [1e-4, 1e-2]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:23:12Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: R squared variation remains less than or equal to 0.02 across tolerances
+    0.01 0.05 0.1
+  claim_id: c_ec7a1e95
+  context: "Verify R\xB2 variation remains \u2264 0.02 across the swept tolerances\
+    \ {0.01, 0.05, 0.1} using T030 output (US-4 Scenario 2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/R_squared_variation_remains_less_than_or_equal_to_0.02_acros
+  kind: magnitude
+  raw_text: "Verify R\xB2 variation remains \u2264 0.02 across swept tolerances {0.01,\
+    \ 0.05, 0.1}"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:23:39Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 2
+  canonical: sum of Brass Copper S Goss and random components equals 1.0 plus or minus
+    0.01
+  claim_id: c_dac558cf
+  context: "test_TextureDescriptor_mass_balance_check: Verify that the sum of Brass,\
+    \ Copper, S, Goss, and random components equals 1.0 \xB1 0.01; raise ValueError\
+    \ if the sum is outside this tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the sum of Brass, Copper, S, Goss, and random components\
+    \ equals 1.0 \xB1 0.01"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:41:03Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: exclude samples where more than 50 percent of points are filtered
+  claim_id: c_a87a19dc
+  context: If >50% of points are filtered in a sample, flag as 'low reliability' and
+    exclude (Edge Case).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_samples_where_more_than_50_percent_of_points_are_fil
+  kind: magnitude
+  raw_text: flag as 'low reliability' and exclude if >50% of points are filtered in
+    a sample
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:41:56Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: hardcoded default reduction levels list 0 10 20 30 40 50 60 70 80
+  claim_id: c_6464f5cf
+  context: 'If research.md is missing, unreadable, or lacks the key, use the hardcoded
+    default list: [0, 10, 20, 30, 40, 50, 60, 70, 80].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'use the hardcoded default list: [0, 10, 20, 30, 40, 50, 60, 70, 80] for
+    reduction levels'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:41:56Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 2
+  canonical: calculated volume fractions match published values within plus or minus
+    0.05
+  claim_id: c_7860b525
+  context: "The quantification module can be tested by processing a known benchmark\
+    \ dataset and verifying that the calculated volume fractions match published values\
+    \ within \xB10.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the calculated volume fractions match published values within\
+    \ \xB10.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:41:56Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: search window of plus or minus 5 degrees around central Euler values
+  claim_id: c_68f18de5
+  context: "Implement a search window of \xB15 degrees around these central values\
+    \ to account for lattice rotation spread."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "implement a search window of \xB15 degrees around central Euler values"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:41:56Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Euler ranges for Brass phi1 35 to 45 Phi 55 to 65 phi2 0 to 90
+  claim_id: c_685ffbe2
+  context: 'Brass: [35, 45, 55, 65] (Approximate: phi1=35-45, Phi=55-65, phi2=0-90)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler ranges for Brass are phi1=35-45, Phi=55-65, phi2=0-90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:41:56Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Euler ranges for Copper phi1 39 Phi 39 phi2 0
+  claim_id: c_48d4a082
+  context: 'Copper: [39, 39, 0, 0] (Approximate: phi1=39, Phi=39, phi2=0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler ranges for Copper are phi1=39, Phi=39, phi2=0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:41:56Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Euler ranges for S phi1 59 Phi 37 phi2 63
+  claim_id: c_051c3fff
+  context: 'S: [59, 37, 63, 63] (Approximate: phi1=59, Phi=37, phi2=63)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler ranges for S are phi1=59, Phi=37, phi2=63
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:41:56Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Euler ranges for Goss phi1 0 Phi 45 phi2 90
+  claim_id: c_b86b6563
+  context: 'Goss: [0, 45, 90, 0] (Approximate: phi1=0, Phi=45, phi2=90)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler ranges for Goss are phi1=0, Phi=45, phi2=90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:41:56Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: R squared on held out test set meets performance threshold
+  claim_id: c_60c0f7a9
+  context: "The model training and validation pipeline can be tested by splitting\
+    \ the dataset and verifying that the R\xB2 on the held-out test set meets a satisfactory\
+    \ performance threshold."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/R_squared_on_held_out_test_set_meets_performance_threshold
+  kind: entity_fact
+  raw_text: "verify that R\xB2 on the held-out test set meets a satisfactory performance\
+    \ threshold"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:41:59Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: R squared variation less than or equal to 0.02 across swept tolerances
+    0.01 0.05 0.1
+  claim_id: c_93cea8a1
+  context: "Verify R\xB2 variation remains \u2264 0.02 across the swept tolerances\
+    \ {0.01, 0.05, 0.1} using T030 output (US-4 Scenario 2)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/R_squared_variation_less_than_or_equal_to_0.02_across_swept
+  kind: magnitude
+  raw_text: "verify R\xB2 variation \u2264 0.02 across the swept tolerances {0.01,\
+    \ 0.05, 0.1}"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:42:01Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 2
+  canonical: sweep interpolation tolerance over set 0.01 0.05 0.1
+  claim_id: c_c9978ae9
+  context: Implement code/analysis/robustness.py to sweep interpolation tolerance
+    over the specific set {0.01, 0.05, 0.1} as mandated by FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep interpolation tolerance over the specific set {0.01, 0.05, 0.1}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T20:42:01Z'

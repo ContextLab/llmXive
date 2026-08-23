@@ -1,282 +1,217 @@
-"""
-Unit tests for error handling utilities.
-
-Tests the error handling functionality for missing reduction levels
-and corrupted EBSD files as implemented in code/data/error_handling.py.
-"""
 import pytest
-import logging
+import pandas as pd
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import pandas as pd
-import numpy as np
 
-from data.error_handling import (
+from code.data.error_handling import (
     validate_reduction_levels,
     check_file_integrity,
-    handle_corrupted_file,
     handle_missing_reduction,
+    calculate_reliability_metrics,
+    apply_exclusion_logic,
     process_with_error_handling
 )
-from config import ConfigurationError
 
 
 class TestValidateReductionLevels:
-    """Tests for validate_reduction_levels function."""
-    
-    def test_valid_reduction(self):
-        """Test validation of a valid reduction level."""
-        metadata = {'reduction': 0.2, 'material': 'Al'}
-        is_valid, error_msg = validate_reduction_levels(metadata)
-        assert is_valid is True
-        assert error_msg is None
-    
-    def test_missing_reduction(self):
-        """Test validation when reduction is missing."""
-        metadata = {'material': 'Al'}
-        is_valid, error_msg = validate_reduction_levels(metadata)
-        assert is_valid is False
-        assert "Missing 'reduction' field" in error_msg
-    
-    def test_none_reduction(self):
-        """Test validation when reduction is None."""
-        metadata = {'reduction': None, 'material': 'Al'}
-        is_valid, error_msg = validate_reduction_levels(metadata)
-        assert is_valid is False
-        assert "None or NaN" in error_msg
-    
-    def test_nan_reduction(self):
-        """Test validation when reduction is NaN."""
-        metadata = {'reduction': np.nan, 'material': 'Al'}
-        is_valid, error_msg = validate_reduction_levels(metadata)
-        assert is_valid is False
-        assert "None or NaN" in error_msg
-    
-    def test_invalid_type(self):
-        """Test validation when reduction has invalid type."""
-        metadata = {'reduction': 'invalid', 'material': 'Al'}
-        is_valid, error_msg = validate_reduction_levels(metadata)
-        assert is_valid is False
-        assert "Invalid reduction type" in error_msg
-    
-    def test_reduction_not_in_allowed_set(self):
-        """Test validation when reduction is not in allowed set."""
-        metadata = {'reduction': 0.5, 'material': 'Al'}
-        allowed_reductions = [0.1, 0.2, 0.3]
-        is_valid, error_msg = validate_reduction_levels(metadata, allowed_reductions)
-        assert is_valid is False
-        assert "not in allowed set" in error_msg
-    
-    def test_reduction_in_allowed_set(self):
-        """Test validation when reduction is in allowed set."""
-        metadata = {'reduction': 0.2, 'material': 'Al'}
-        allowed_reductions = [0.1, 0.2, 0.3]
-        is_valid, error_msg = validate_reduction_levels(metadata, allowed_reductions)
-        assert is_valid is True
-        assert error_msg is None
+    def test_all_levels_present(self):
+        available = [0, 10, 20, 30, 40, 50]
+        required = [0, 10, 20, 30, 40, 50]
+
+        valid, missing = validate_reduction_levels(available, required)
+
+        assert valid == required
+        assert missing == []
+
+    def test_some_levels_missing(self):
+        available = [0, 10, 30, 50]
+        required = [0, 10, 20, 30, 40, 50]
+
+        valid, missing = validate_reduction_levels(available, required)
+
+        assert valid == [0, 10, 30, 50]
+        assert missing == [20, 40]
+
+    def test_no_levels_present(self):
+        available = [100, 200]
+        required = [0, 10, 20]
+
+        valid, missing = validate_reduction_levels(available, required)
+
+        assert valid == []
+        assert missing == required
 
 
 class TestCheckFileIntegrity:
-    """Tests for check_file_integrity function."""
-    
-    def test_file_not_found(self, tmp_path):
-        """Test when file does not exist."""
-        file_path = tmp_path / "nonexistent.csv"
-        is_valid, error_msg = check_file_integrity(file_path)
-        assert is_valid is False
-        assert "File not found" in error_msg
-    
-    def test_path_is_directory(self, tmp_path):
-        """Test when path is a directory."""
-        is_valid, error_msg = check_file_integrity(tmp_path)
-        assert is_valid is False
-        assert "not a file" in error_msg
-    
-    def test_valid_csv_file(self, tmp_path):
-        """Test with a valid CSV file."""
-        file_path = tmp_path / "valid.csv"
-        df = pd.DataFrame({'col1': [1, 2, 3], 'col2': [4, 5, 6]})
-        df.to_csv(file_path, index=False)
-        
-        is_valid, error_msg = check_file_integrity(file_path)
-        assert is_valid is True
-        assert error_msg is None
-    
-    def test_valid_parquet_file(self, tmp_path):
-        """Test with a valid Parquet file."""
-        file_path = tmp_path / "valid.parquet"
-        df = pd.DataFrame({'col1': [1, 2, 3], 'col2': [4, 5, 6]})
-        df.to_parquet(file_path)
-        
-        is_valid, error_msg = check_file_integrity(file_path)
-        assert is_valid is True
-        assert error_msg is None
-    
-    def test_corrupted_file(self, tmp_path):
-        """Test with a corrupted/unreadable file."""
-        file_path = tmp_path / "corrupted.csv"
-        # Write binary data to a CSV file
-        with open(file_path, 'wb') as f:
-            f.write(b'\x00\x01\x02\x03')
-        
-        is_valid, error_msg = check_file_integrity(file_path)
-        assert is_valid is False
-        assert "corrupted or unreadable" in error_msg
+    def test_existing_valid_csv(self, tmp_path):
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("a,b\n1,2\n3,4")
 
+        assert check_file_integrity(csv_file) is True
 
-class TestHandleCorruptedFile:
-    """Tests for handle_corrupted_file function."""
-    
-    def test_skip_mode(self, caplog, tmp_path):
-        """Test that corrupted file is skipped in skip mode."""
-        file_path = tmp_path / "corrupted.csv"
-        error_msg = "Test error message"
-        
-        with caplog.at_level(logging.WARNING):
-            result = handle_corrupted_file(file_path, error_msg, skip_mode=True)
-        
-        assert result is True
-        assert "Corrupted file detected" in caplog.text
-        assert "Skipping corrupted file" in caplog.text
-    
-    def test_no_skip_mode(self, caplog, tmp_path):
-        """Test that error is raised when skip mode is False."""
-        file_path = tmp_path / "corrupted.csv"
-        error_msg = "Test error message"
-        
-        with caplog.at_level(logging.ERROR):
-            result = handle_corrupted_file(file_path, error_msg, skip_mode=False)
-        
-        assert result is False
-        assert "Cannot proceed with corrupted file" in caplog.text
+    def test_nonexistent_file(self, tmp_path):
+        non_existent = tmp_path / "does_not_exist.csv"
+        assert check_file_integrity(non_existent) is False
+
+    def test_empty_csv(self, tmp_path):
+        empty_file = tmp_path / "empty.csv"
+        empty_file.write_text("")
+
+        assert check_file_integrity(empty_file) is False
+
+    def test_corrupted_csv(self, tmp_path):
+        # Create a file that looks like CSV but has binary garbage
+        corrupted_file = tmp_path / "corrupted.csv"
+        corrupted_file.write_bytes(b'\x00\x01\x02\x03')
+
+        assert check_file_integrity(corrupted_file) is False
 
 
 class TestHandleMissingReduction:
-    """Tests for handle_missing_reduction function."""
-    
-    def test_skip_mode(self, caplog):
-        """Test that sample with missing reduction is skipped in skip mode."""
-        sample_id = "test_sample"
-        
-        with caplog.at_level(logging.WARNING):
-            result = handle_missing_reduction(sample_id, skip_mode=True)
-        
-        assert result is True
-        assert "missing reduction level" in caplog.text
-        assert "Skipping sample" in caplog.text
-    
-    def test_no_skip_mode(self, caplog):
-        """Test that error is raised when skip mode is False."""
-        sample_id = "test_sample"
-        
-        with caplog.at_level(logging.ERROR):
-            result = handle_missing_reduction(sample_id, skip_mode=False)
-        
+    def test_handles_missing_entry(self):
+        available_data = {
+            'Al': {0: 'data0', 10: 'data10', 20: 'data20'}
+        }
+
+        result = handle_missing_reduction('Al', 30, available_data)
+
         assert result is False
-        assert "Cannot proceed with sample" in caplog.text
+
+    def test_handles_missing_material(self):
+        available_data = {
+            'Al': {0: 'data0'}
+        }
+
+        result = handle_missing_reduction('Cu', 10, available_data)
+
+        assert result is False
+
+
+class TestCalculateReliabilityMetrics:
+    def test_no_filtering(self):
+        df = pd.DataFrame({
+            'confidence': [0.5, 0.6, 0.7, 0.8]
+        })
+
+        metrics = calculate_reliability_metrics(df, threshold=0.1)
+
+        assert metrics['total_points'] == 4
+        assert metrics['filtered_points'] == 4
+        assert metrics['filtered_ratio'] == 1.0
+        assert metrics['reliability_score'] == 1.0
+
+    def test_partial_filtering(self):
+        df = pd.DataFrame({
+            'confidence': [0.05, 0.15, 0.2, 0.08, 0.3]
+        })
+
+        metrics = calculate_reliability_metrics(df, threshold=0.1)
+
+        assert metrics['total_points'] == 5
+        assert metrics['filtered_points'] == 3
+        assert metrics['filtered_ratio'] == 0.6
+        assert metrics['reliability_score'] == 0.6
+
+    def test_all_filtered(self):
+        df = pd.DataFrame({
+            'confidence': [0.01, 0.02, 0.03]
+        })
+
+        metrics = calculate_reliability_metrics(df, threshold=0.1)
+
+        assert metrics['total_points'] == 3
+        assert metrics['filtered_points'] == 0
+        assert metrics['filtered_ratio'] == 0.0
+
+    def test_empty_dataframe(self):
+        df = pd.DataFrame(columns=['confidence'])
+
+        metrics = calculate_reliability_metrics(df, threshold=0.1)
+
+        assert metrics['total_points'] == 0
+        assert metrics['filtered_points'] == 0
+        assert metrics['filtered_ratio'] == 0.0
+
+
+class TestApplyExclusionLogic:
+    def test_acceptable_reliability(self):
+        metrics = {'filtered_ratio': 0.3}
+
+        should_exclude, reason = apply_exclusion_logic(metrics, exclusion_threshold=0.5)
+
+        assert should_exclude is False
+        assert "Reliability acceptable" in reason
+
+    def test_low_reliability_exceeds_threshold(self):
+        metrics = {'filtered_ratio': 0.7}
+
+        should_exclude, reason = apply_exclusion_logic(metrics, exclusion_threshold=0.5)
+
+        assert should_exclude is True
+        assert "Low reliability" in reason
+        assert "Exceeds threshold" in reason
+
+    def test_exactly_at_threshold(self):
+        metrics = {'filtered_ratio': 0.5}
+
+        should_exclude, reason = apply_exclusion_logic(metrics, exclusion_threshold=0.5)
+
+        assert should_exclude is False
+
+    def test_just_above_threshold(self):
+        metrics = {'filtered_ratio': 0.51}
+
+        should_exclude, reason = apply_exclusion_logic(metrics, exclusion_threshold=0.5)
+
+        assert should_exclude is True
 
 
 class TestProcessWithErrorHandling:
-    """Tests for process_with_error_handling function."""
-    
-    def test_all_valid(self, tmp_path):
-        """Test processing when all files are valid."""
-        # Create valid files
-        file1 = tmp_path / "valid1.csv"
-        file2 = tmp_path / "valid2.csv"
-        pd.DataFrame({'col': [1]}).to_csv(file1)
-        pd.DataFrame({'col': [2]}).to_csv(file2)
-        
-        metadata1 = {'sample_id': 's1', 'reduction': 0.2}
-        metadata2 = {'sample_id': 's2', 'reduction': 0.3}
-        
-        valid_files, valid_metadata, skipped_reasons = process_with_error_handling(
-            [file1, file2],
-            [metadata1, metadata2],
-            skip_corrupted=True,
-            skip_missing_reduction=True
-        )
-        
-        assert len(valid_files) == 2
-        assert len(valid_metadata) == 2
-        assert len(skipped_reasons) == 0
-    
-    def test_missing_reduction_skipped(self, tmp_path):
-        """Test that samples with missing reduction are skipped."""
-        file1 = tmp_path / "valid1.csv"
-        file2 = tmp_path / "valid2.csv"
-        pd.DataFrame({'col': [1]}).to_csv(file1)
-        pd.DataFrame({'col': [2]}).to_csv(file2)
-        
-        metadata1 = {'sample_id': 's1', 'reduction': 0.2}
-        metadata2 = {'sample_id': 's2'}  # Missing reduction
-        
-        valid_files, valid_metadata, skipped_reasons = process_with_error_handling(
-            [file1, file2],
-            [metadata1, metadata2],
-            skip_corrupted=True,
-            skip_missing_reduction=True
-        )
-        
-        assert len(valid_files) == 1
-        assert len(valid_metadata) == 1
-        assert len(skipped_reasons) == 1
-        assert "missing reduction" in skipped_reasons[0].lower()
-    
-    def test_corrupted_file_skipped(self, tmp_path):
-        """Test that corrupted files are skipped."""
-        file1 = tmp_path / "valid.csv"
-        file2 = tmp_path / "corrupted.csv"
-        pd.DataFrame({'col': [1]}).to_csv(file1)
-        # Create corrupted file
-        with open(file2, 'wb') as f:
-            f.write(b'\x00\x01\x02')
-        
-        metadata1 = {'sample_id': 's1', 'reduction': 0.2}
-        metadata2 = {'sample_id': 's2', 'reduction': 0.3}
-        
-        valid_files, valid_metadata, skipped_reasons = process_with_error_handling(
-            [file1, file2],
-            [metadata1, metadata2],
-            skip_corrupted=True,
-            skip_missing_reduction=True
-        )
-        
-        assert len(valid_files) == 1
-        assert len(valid_metadata) == 1
-        assert len(skipped_reasons) == 1
-        assert "corrupted" in skipped_reasons[0].lower()
-    
-    def test_mismatched_lengths_raises(self, tmp_path):
-        """Test that mismatched lengths raise ValueError."""
-        file1 = tmp_path / "valid.csv"
-        pd.DataFrame({'col': [1]}).to_csv(file1)
-        
-        with pytest.raises(ValueError):
-            process_with_error_handling(
-                [file1],
-                [{'sample_id': 's1', 'reduction': 0.2}, {'sample_id': 's2', 'reduction': 0.3}],
-                skip_corrupted=True,
-                skip_missing_reduction=True
-            )
-    
-    def test_config_error_handling(self, tmp_path):
-        """Test handling when config raises ConfigurationError."""
-        file1 = tmp_path / "valid.csv"
-        pd.DataFrame({'col': [1]}).to_csv(file1)
-        
-        metadata = {'sample_id': 's1', 'reduction': 0.2}
-        
-        # Patch get_reductions to raise ConfigurationError
-        with patch('data.error_handling.get_reductions', side_effect=ConfigurationError("Test error")):
-            valid_files, valid_metadata, skipped_reasons = process_with_error_handling(
-                [file1],
-                [metadata],
-                required_reductions=None,  # Force loading from config
-                skip_corrupted=True,
-                skip_missing_reduction=True
-            )
-        
-        # Should still process the valid file
-        assert len(valid_files) == 1
-        assert len(valid_metadata) == 1
+    def test_successful_processing(self):
+        def mock_process(data):
+            return data * 2
+
+        result, warnings = process_with_error_handling(5, mock_process)
+
+        assert result == 10
+        assert warnings == []
+
+    def test_file_not_found(self):
+        def mock_process(data):
+            raise FileNotFoundError("File not found")
+
+        result, warnings = process_with_error_handling(None, mock_process)
+
+        assert result is None
+        assert len(warnings) == 1
+        assert "File not found" in warnings[0]
+
+    def test_empty_data_error(self):
+        def mock_process(data):
+            raise pd.errors.EmptyDataError("No columns to parse")
+
+        result, warnings = process_with_error_handling(None, mock_process)
+
+        assert result is None
+        assert len(warnings) == 1
+        assert "empty" in warnings[0].lower()
+
+    def test_general_exception(self):
+        def mock_process(data):
+            raise ValueError("General error")
+
+        result, warnings = process_with_error_handling(None, mock_process)
+
+        assert result is None
+        assert len(warnings) == 1
+        assert "Unexpected error" in warnings[0]
+
+    def test_none_data_source(self):
+        def mock_process(data):
+            return data
+
+        result, warnings = process_with_error_handling(None, mock_process)
+
+        assert result is None
+        assert len(warnings) == 1
+        assert "Data source is None" in warnings[0]

@@ -1,10 +1,9 @@
 """
-Texture Descriptor Calculation Module.
+Texture Descriptor Calculation Module
 
-Calculates Texture Index and volume fractions of major FCC texture components
-(Brass, Copper, S, Goss) using MTEX-style search algorithms.
+Calculates Texture Index and volume fractions of major FCC rolling texture components
+(Brass, Copper, S, Goss) using MTEX-style search algorithms with defined Euler ranges.
 """
-
 import os
 import sys
 import logging
@@ -13,291 +12,250 @@ from typing import Dict, List, Tuple, Optional, Any
 
 import numpy as np
 import pandas as pd
-from orix.crystal_map import CrystalMap
-from orix.quaternion import Rotation
-from orix.sampling import sample_rotation_space
-from orix.scalar import Scalar
-from orix.vector import Vector3d
-from scipy.spatial.transform import Rotation as SciPyRotation
 
-# Import project utilities
-from utils.logging import get_logger
-from data.models import TextureDescriptor, MaterialType, Symmetry
-from config import get_reductions, get_seed, ConfigurationError
+# Import from project API surface
+from code.utils.logging import get_logger
+from code.data.models import TextureDescriptor, MaterialType
+from code.features.symmetry import align_orientations_to_fcc
 
 logger = get_logger(__name__)
 
-# Define Euler angle ranges (phi1, Phi, phi2) for major FCC components
-# Ranges are in degrees: [min_phi1, max_phi1, min_Phi, max_Phi, min_phi2, max_phi2]
-# Note: The task description had ambiguous ranges for Brass. Standard Brass is approx (0, 45, 0).
-# We define search windows around these ideal orientations.
+# Define Euler angle ranges (phi1, Phi, phi2) in degrees
+# Format: (center_phi1, center_Phi, center_phi2, window_size)
+# Window size defines the ± range around the center
 COMPONENT_RANGES = {
     "Brass": {
-        "ideal": (0, 45, 0),
-        "search": (0, 22.5, 35, 55, 0, 22.5), # Approximate search window
-        "tolerance": 15.0 # degrees
+        "center": (40.0, 60.0, 45.0),
+        "window": 5.0,
+        "description": "Approximate Brass component (phi1=35-45, Phi=55-65, phi2=0-90)"
     },
     "Copper": {
-        "ideal": (35, 45, 35),
-        "search": (20, 50, 30, 60, 20, 50),
-        "tolerance": 15.0
+        "center": (39.0, 39.0, 0.0),
+        "window": 5.0,
+        "description": "Approximate Copper component (phi1=39, Phi=39, phi2=0)"
     },
     "S": {
-        "ideal": (39, 37, 40),
-        "search": (25, 50, 25, 50, 25, 50),
-        "tolerance": 15.0
+        "center": (59.0, 37.0, 63.0),
+        "window": 5.0,
+        "description": "Approximate S component (phi1=59, Phi=37, phi2=63)"
     },
     "Goss": {
-        "ideal": (0, 45, 90),
-        "search": (0, 22.5, 35, 55, 75, 105),
-        "tolerance": 15.0
+        "center": (0.0, 45.0, 90.0),
+        "window": 5.0,
+        "description": "Approximate Goss component (phi1=0, Phi=45, phi2=90)"
     }
 }
 
-def calculate_orientation_distance(ori1: Tuple[float, float, float], ori2: Tuple[float, float, float]) -> float:
+def calculate_orientation_distance(
+    o1: Tuple[float, float, float],
+    o2: Tuple[float, float, float],
+    metric: str = "euclidean"
+) -> float:
     """
-    Calculate the misorientation angle between two Euler angles in degrees.
-    Uses the minimum misorientation considering FCC symmetry.
+    Calculate the angular distance between two orientations in Euler space.
+
+    Args:
+        o1: First orientation as (phi1, Phi, phi2) in degrees.
+        o2: Second orientation as (phi1, Phi, phi2) in degrees.
+        metric: Distance metric ('euclidean' or 'max').
+
+    Returns:
+        Angular distance in degrees.
     """
-    # Convert to radians
-    r1 = np.deg2rad(list(ori1))
-    r2 = np.deg2rad(list(ori2))
+    phi1_diff = abs(o1[0] - o2[0])
+    Phi_diff = abs(o1[1] - o2[1])
+    phi2_diff = abs(o1[2] - o2[2])
 
-    # Create Rotation objects
-    rot1 = SciPyRotation.from_euler('zxz', r1)
-    rot2 = SciPyRotation.from_euler('zxz', r2)
+    # Handle periodicity for phi1 and phi2 (0-360)
+    phi1_diff = min(phi1_diff, 360 - phi1_diff)
+    phi2_diff = min(phi2_diff, 360 - phi2_diff)
 
-    # Calculate misorientation
-    misorientation = rot1.inv() * rot2
-    angle = np.rad2deg(misorientation.magnitude)
+    if metric == "euclidean":
+        return np.sqrt(phi1_diff**2 + Phi_diff**2 + phi2_diff**2)
+    elif metric == "max":
+        return max(phi1_diff, Phi_diff, phi2_diff)
+    else:
+        raise ValueError(f"Unknown metric: {metric}")
 
-    # Apply FCC symmetry (simplified: checking common symmetry operators)
-    # In a full implementation, we would use orix's symmetry operators
-    # Here we approximate by checking a few key symmetric equivalents
-    # This is a placeholder for full symmetry handling which is complex
-    # For now, we return the direct misorientation which is a conservative estimate
-    return angle
-
-def calculate_texture_index(orientations: np.ndarray) -> float:
+def classify_orientation_to_component(
+    orientation: Tuple[float, float, float],
+    tolerance: float = 5.0
+) -> Tuple[Optional[str], float]:
     """
-    Calculate the Texture Index (J-index) for a set of orientations.
-    J = integral of f(g)^2 dg, approximated here by counting density.
+    Classify an orientation to the closest texture component within a tolerance.
 
-    Parameters
-    ----------
-    orientations : np.ndarray
-        Array of Euler angles (phi1, Phi, phi2) in degrees. Shape (N, 3).
+    Args:
+        orientation: Euler angles (phi1, Phi, phi2) in degrees.
+        tolerance: Maximum angular distance to consider a match (degrees).
 
-    Returns
-    -------
-    float
-        Texture Index value.
+    Returns:
+        Tuple of (component_name, distance) or (None, infinity) if no match.
     """
-    if orientations.size == 0:
-        return 0.0
+    min_distance = float('inf')
+    best_component = None
 
-    # Discretize orientation space (simplified approach)
-    # A more rigorous approach would use spherical harmonics or kernel density estimation
-    # Here we use a histogram-based approximation
-    n_points = len(orientations)
-    if n_points == 0:
-        return 0.0
+    for component_name, params in COMPONENT_RANGES.items():
+        center = params["center"]
+        window = params["window"]
+        
+        # Use the specific window for this component if provided, else default
+        comp_tolerance = window
 
-    # Normalize to unit sphere for density estimation
-    # This is a simplified J-index calculation
-    # Real J-index requires ODF integration which is computationally intensive
-    # We approximate by measuring clustering
+        distance = calculate_orientation_distance(orientation, center)
+        
+        if distance <= comp_tolerance:
+            if distance < min_distance:
+                min_distance = distance
+                best_component = component_name
 
-    # Convert to quaternions for better distance metrics
-    from orix.quaternion import Rotation
-    rotations = Rotation.from_euler(orientations, degrees=True)
-
-    # Calculate mean orientation
-    mean_rot = rotations.mean()
-    if mean_rot is None:
-        return 0.0
-
-    # Calculate distances to mean
-    distances = rotations.distance(mean_rot)
-    mean_distance = distances.mean()
-
-    # Texture Index is inversely related to dispersion
-    # Higher concentration -> higher J
-    # J ~ 1 / (dispersion + epsilon)
-    # Normalized to typical range
-    j_index = 1.0 / (mean_distance + 0.01)
-    
-    # Normalize to typical J-index range (1 for random, >1 for textured)
-    # This is a heuristic scaling
-    j_index = max(1.0, min(j_index / 10.0, 20.0)) # Clamp to reasonable range
-
-    return float(j_index)
+    return best_component, min_distance
 
 def calculate_component_volume_fractions(
-    orientations: np.ndarray,
-    material: MaterialType = MaterialType.FCC
+    orientations: pd.DataFrame
 ) -> Dict[str, float]:
     """
-    Calculate volume fractions of major texture components using MTEX-style
-    search algorithms with specified Euler angle ranges.
+    Calculate volume fractions of major texture components.
 
-    Parameters
-    ----------
-    orientations : np.ndarray
-        Array of Euler angles (phi1, Phi, phi2) in degrees. Shape (N, 3).
-    material : MaterialType
-        Material type for symmetry handling (default: FCC).
+    Args:
+        orientations: DataFrame with columns 'phi1', 'Phi', 'phi2' (in degrees).
+                     Must be pre-filtered and re-indexed to FCC symmetry.
 
-    Returns
-    -------
-    Dict[str, float]
+    Returns:
         Dictionary mapping component names to their volume fractions.
     """
-    if orientations.size == 0:
+    if orientations.empty:
         return {k: 0.0 for k in COMPONENT_RANGES.keys()}
 
-    component_volumes = {}
     total_points = len(orientations)
+    component_counts = {k: 0 for k in COMPONENT_RANGES.keys()}
+    
+    # Count points belonging to each component
+    for idx, row in orientations.iterrows():
+        orientation = (row['phi1'], row['Phi'], row['phi2'])
+        component, _ = classify_orientation_to_component(orientation)
+        
+        if component:
+            component_counts[component] += 1
 
-    # Convert to orix Rotation objects for symmetry handling
-    from orix.quaternion import Rotation
-    from orix.crystal_map import PhaseList, Phase
-    from orix.crystal_map import CrystalMap
+    # Convert counts to fractions
+    fractions = {}
+    for component, count in component_counts.items():
+        fractions[component] = count / total_points
 
-    # Create a simple crystal map for symmetry operations
-    # This is a simplified approach; full implementation would use proper crystal map
-    rotations = Rotation.from_euler(orientations, degrees=True)
+    return fractions
 
-    for comp_name, comp_params in COMPONENT_RANGES.items():
-        ideal = comp_params["ideal"]
-        tolerance = comp_params["tolerance"]
+def calculate_texture_index(
+    fractions: Dict[str, float]
+) -> float:
+    """
+    Calculate the Texture Index as the sum of squared volume fractions.
+    
+    This metric indicates the degree of texture development (1.0 = perfect 
+    single component, lower values = more random).
 
-        # Count points within tolerance of ideal orientation
-        count = 0
-        for i, ori in enumerate(orientations):
-            # Calculate misorientation to ideal
-            # For simplicity, we use direct Euler distance (should be improved with symmetry)
-            dist = calculate_orientation_distance(tuple(ori), ideal)
-            
-            # Check if within tolerance
-            if dist <= tolerance:
-                count += 1
+    Args:
+        fractions: Dictionary of volume fractions for major components.
 
-        volume_fraction = count / total_points
-        component_volumes[comp_name] = volume_fraction
-
-    return component_volumes
+    Returns:
+        Scalar texture index value.
+    """
+    # Sum of squares of fractions
+    # Note: This is a simplified index. In rigorous ODF analysis, 
+    # this involves integration over the orientation space.
+    return sum(f**2 for f in fractions.values())
 
 def calculate_descriptors(
-    df: pd.DataFrame,
-    material: MaterialType = MaterialType.FCC
-) -> pd.DataFrame:
+    input_data: pd.DataFrame,
+    sample_id: Optional[str] = None
+) -> TextureDescriptor:
     """
-    Calculate texture descriptors for a DataFrame of EBSD data.
+    Main entry point to calculate all texture descriptors for a dataset.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing EBSD data with columns:
-        - 'phi1', 'Phi', 'phi2': Euler angles in degrees
-        - 'sample_id': Sample identifier
-        - 'reduction': Cold rolling reduction percentage
-        - 'material': Material type
+    Args:
+        input_data: DataFrame containing orientation data with columns:
+                   'phi1', 'Phi', 'phi2' (in degrees), and optionally 
+                   'sample_id', 'material', 'reduction'.
+        sample_id: Optional sample identifier for the descriptor.
 
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame with calculated descriptors per sample.
+    Returns:
+        TextureDescriptor Pydantic model instance.
     """
-    if df.empty:
-        logger.warning("Empty input DataFrame provided to calculate_descriptors")
-        return pd.DataFrame()
+    logger.info(f"Calculating descriptors for {len(input_data)} orientations")
 
-    # Validate required columns
-    required_cols = ['phi1', 'Phi', 'phi2', 'sample_id', 'reduction', 'material']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
-
-    results = []
-
-    # Group by sample_id to calculate per-sample descriptors
-    for sample_id, group in df.groupby('sample_id'):
-        orientations = group[['phi1', 'Phi', 'phi2']].values
-
-        # Calculate Texture Index
-        j_index = calculate_texture_index(orientations)
-
-        # Calculate component volume fractions
-        volume_fracs = calculate_component_volume_fractions(orientations, material)
-
-        # Get sample metadata
-        sample_data = group.iloc[0]
-        reduction = sample_data['reduction']
-        material_type = sample_data['material']
-
-        # Create descriptor record
-        descriptor = {
-            'sample_id': sample_id,
-            'reduction': reduction,
-            'material': material_type,
-            'texture_index': j_index,
-            **{f'volume_fraction_{k}': v for k, v in volume_fracs.items()}
-        }
-
-        results.append(descriptor)
-
-    return pd.DataFrame(results)
+    # Ensure symmetry alignment (re-index to FCC)
+    # Note: In a real pipeline, this might be done in preprocess.py
+    # Here we assume the data is already aligned or we perform a quick check
+    # For this implementation, we proceed with the data as is, assuming
+    # it has been processed by T014 (reindex_to_fcc)
+    
+    # Calculate volume fractions
+    fractions = calculate_component_volume_fractions(input_data)
+    
+    # Calculate random fraction (1 - sum of major components)
+    sum_major = sum(fractions.values())
+    random_fraction = max(0.0, 1.0 - sum_major)
+    
+    # Calculate texture index
+    texture_index = calculate_texture_index(fractions)
+    
+    # Construct the descriptor
+    descriptor = TextureDescriptor(
+        sample_id=sample_id or "unknown",
+        brass_fraction=fractions["Brass"],
+        copper_fraction=fractions["Copper"],
+        s_fraction=fractions["S"],
+        goss_fraction=fractions["Goss"],
+        random_fraction=random_fraction,
+        texture_index=texture_index
+    )
+    
+    logger.info(f"Descriptors calculated: Texture Index = {texture_index:.4f}")
+    return descriptor
 
 def main():
     """
-    Main entry point for descriptor calculation.
-    Reads cleaned EBSD data, calculates descriptors, and outputs to CSV.
+    Main execution function for standalone testing or CLI usage.
+    Loads processed EBSD data and calculates descriptors.
     """
-    logger.info("Starting texture descriptor calculation")
-
-    # Check for configuration
-    try:
-        reductions = get_reductions()
-        seed = get_seed()
-        logger.info(f"Configuration loaded: reductions={reductions}, seed={seed}")
-    except ConfigurationError as e:
-        logger.error(f"Configuration error: {e}")
-        raise
-
-    # Define input/output paths
-    input_path = Path("data/processed/cleaned_ebsd.parquet")
+    # Define paths
+    processed_data_path = Path("data/processed/cleaned_ebsd.parquet")
     output_path = Path("data/processed/descriptors.csv")
-
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    logger.info(f"Reading data from {input_path}")
-    df = pd.read_parquet(input_path)
-
-    logger.info(f"Loaded {len(df)} records")
-
-    # Calculate descriptors
-    logger.info("Calculating texture descriptors")
-    descriptors_df = calculate_descriptors(df)
-
-    if descriptors_df.empty:
-        logger.warning("No descriptors calculated. Check input data.")
-        return
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save results
-    logger.info(f"Saving descriptors to {output_path}")
-    descriptors_df.to_csv(output_path, index=False)
-
-    logger.info(f"Successfully calculated descriptors for {len(descriptors_df)} samples")
-    logger.info(f"Output saved to: {output_path}")
-
-    # Print summary
-    logger.info("Descriptor Summary:")
-    logger.info(descriptors_df.describe())
+    
+    if not processed_data_path.exists():
+        logger.error(f"Processed data not found at {processed_data_path}")
+        logger.error("Please run the data pipeline (T012-T015) first.")
+        sys.exit(1)
+    
+    logger.info(f"Loading data from {processed_data_path}")
+    df = pd.read_parquet(processed_data_path)
+    
+    # Validate required columns
+    required_cols = ['phi1', 'Phi', 'phi2']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        logger.error(f"Missing required columns: {missing_cols}")
+        sys.exit(1)
+    
+    # Group by sample_id if available, otherwise process as one block
+    if 'sample_id' in df.columns:
+        groups = df.groupby('sample_id')
+        descriptors = []
+        
+        for sample_id, group_df in groups:
+            desc = calculate_descriptors(group_df, sample_id=sample_id)
+            descriptors.append(desc.model_dump())
+            logger.info(f"Processed sample {sample_id}: Texture Index = {desc.texture_index:.4f}")
+    else:
+        # Process entire dataset as one sample
+        desc = calculate_descriptors(df, sample_id="full_dataset")
+        descriptors = [desc.model_dump()]
+    
+    # Export to CSV
+    output_df = pd.DataFrame(descriptors)
+    output_df.to_csv(output_path, index=False)
+    logger.info(f"Descriptors exported to {output_path}")
+    
+    return output_path
 
 if __name__ == "__main__":
     main()

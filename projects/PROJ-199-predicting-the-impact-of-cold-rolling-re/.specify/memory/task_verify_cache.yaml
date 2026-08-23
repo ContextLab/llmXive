@@ -1,3 +1,12 @@
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log files, or any other artifact demonstrating error handling\
+    \ for missing reduction levels or corrupted files was provided. Without concrete\
+    \ implementation (e.g., a data\u2011ingestion pipeline that skips missing entries,\
+    \ logs warnings, and flags low\u2011reliability samples), the requirement cannot\
+    \ be verified as met. The next implementer must supply the actual script/module\
+    \ and example output/logs showing the described behavior."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -29,25 +38,3 @@ T031:
   r: "The required file `tests/unit/test_robustness.py` does not exist in the repository,\
     \ so no unit test for the sensitivity analysis logic is present. The task\u2019\
     s deliverable is missing entirely."
-T050:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of new unit test files in `tests/unit/` was provided; the claim lacks
-    any displayed test code covering missing data, extrapolation, or symmetry error
-    edge cases, so the required artifact is missing.
-T051:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file or any validation logs/output are present in the provided\
-    \ evidence, so we cannot confirm that the quickstart validation was executed or\
-    \ that end\u2011to\u2011end reproducibility was demonstrated. The required artifact\
-    \ is missing."
-T052:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No scripts, data files, model artifacts, or metric logs are present in the provided\
-    \ evidence; therefore we cannot confirm that any of the required artifacts were\
-    \ generated via an automated script as mandated by Constitution Principle\u202F\
-    IV. The implementer must supply the actual code and resulting outputs (e.g., acquisition\
-    \ script, pre\u2011processing logs, quantification results, model files, and evaluation\
-    \ metrics) to verify compliance."

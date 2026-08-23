@@ -1,251 +1,247 @@
-"""
-Error handling utilities for EBSD data processing pipeline.
-
-This module provides functions to validate reduction levels, check file integrity,
-and handle missing or corrupted data gracefully while logging appropriate warnings.
-"""
-
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-
 import pandas as pd
 
-from config import get_reductions, ConfigurationError
 from utils.logging import get_logger
-
+from config import get_reductions
 
 logger = get_logger(__name__)
 
 
 def validate_reduction_levels(
-    file_reduction: str,
-    required_reductions: Optional[List[float]] = None
-) -> Tuple[bool, str]:
+    available_levels: List[int],
+    required_levels: Optional[List[int]] = None
+) -> Tuple[List[int], List[int]]:
     """
-    Validate that a file's reduction level is in the allowed list.
+    Validates available reduction levels against required levels.
 
     Args:
-        file_reduction: The reduction level extracted from the filename or metadata.
-        required_reductions: List of allowed reduction levels. If None, reads from config.
+        available_levels: List of reduction levels found in the data source.
+        required_levels: List of reduction levels expected (from config/research.md).
+                       If None, uses default from config.
 
     Returns:
-        Tuple of (is_valid, message)
+        Tuple of (valid_levels, missing_levels)
     """
-    if required_reductions is None:
-        try:
-            required_reductions = get_reductions()
-        except ConfigurationError as e:
-            logger.error(f"Failed to load reduction levels from config: {e}")
-            return False, str(e)
+    if required_levels is None:
+        required_levels = get_reductions()
 
-    if not required_reductions:
-        error_msg = "No valid reduction levels found in configuration."
-        logger.error(error_msg)
-        return False, error_msg
+    valid_levels = [lvl for lvl in required_levels if lvl in available_levels]
+    missing_levels = [lvl for lvl in required_levels if lvl not in available_levels]
 
-    try:
-        reduction_value = float(file_reduction)
-    except (ValueError, TypeError):
-        error_msg = f"Invalid reduction level format: '{file_reduction}'. Expected numeric value."
-        logger.warning(error_msg)
-        return False, error_msg
-
-    if reduction_value not in required_reductions:
-        warning_msg = (
-            f"Reduction level {reduction_value} not in allowed list: {required_reductions}. "
-            "This file will be skipped."
+    if missing_levels:
+        logger.warning(
+            f"Missing reduction levels: {missing_levels}. "
+            f"Proceeding with available levels: {valid_levels}"
         )
-        logger.warning(warning_msg)
-        return False, warning_msg
 
-    logger.debug(f"Reduction level {reduction_value} validated successfully.")
-    return True, "Valid reduction level"
+    return valid_levels, missing_levels
 
 
-def check_file_integrity(file_path: Path) -> Tuple[bool, str]:
+def check_file_integrity(file_path: Path) -> bool:
     """
-    Check if a file exists and is readable.
+    Checks if a file exists and is not empty/corrupted.
 
     Args:
         file_path: Path to the file to check.
 
     Returns:
-        Tuple of (is_valid, message)
+        True if file is valid, False otherwise.
     """
     if not file_path.exists():
-        error_msg = f"File not found: {file_path}"
-        logger.error(error_msg)
-        return False, error_msg
-
-    if not file_path.is_file():
-        error_msg = f"Path is not a file: {file_path}"
-        logger.error(error_msg)
-        return False, error_msg
+        logger.error(f"File not found: {file_path}")
+        return False
 
     try:
-        # Attempt to open the file to verify readability
-        if file_path.suffix.lower() == '.csv':
+        # Attempt to read the file to check for corruption
+        if file_path.suffix == '.csv':
             pd.read_csv(file_path, nrows=1)
-        elif file_path.suffix.lower() in ['.parquet', '.pq']:
+        elif file_path.suffix == '.parquet':
             pd.read_parquet(file_path)
+        elif file_path.suffix == '.npy':
+            import numpy as np
+            np.load(file_path)
         else:
-            # Generic read attempt for other formats
-            with open(file_path, 'r') as f:
-                f.read(1)
+            # Generic read for other formats
+            with open(file_path, 'rb') as f:
+                f.read(1024)  # Read first 1KB
 
-        logger.debug(f"File integrity check passed: {file_path}")
-        return True, "File is valid and readable"
+        return True
     except Exception as e:
-        error_msg = f"File corruption or read error: {file_path}. Error: {str(e)}"
-        logger.warning(error_msg)
-        return False, error_msg
+        logger.error(f"File corrupted or unreadable: {file_path}. Error: {e}")
+        return False
 
 
-def handle_corrupted_file(file_path: Path, error: Exception) -> Dict[str, Any]:
+def handle_corrupted_file(file_path: Path) -> bool:
     """
-    Handle a corrupted file by logging the error and returning a skip status.
+    Handles a corrupted file by logging the error and returning False.
 
     Args:
         file_path: Path to the corrupted file.
-        error: The exception raised during processing.
 
     Returns:
-        Dict with status and details about the skipped file.
+        False indicating the file should be skipped.
     """
-    warning_msg = (
-        f"Skipping corrupted file {file_path.name}: {str(error)}"
-    )
-    logger.warning(warning_msg)
-
-    return {
-        "status": "skipped",
-        "file": str(file_path),
-        "reason": f"Corrupted: {str(error)}",
-        "action": "File excluded from processing"
-    }
+    logger.error(f"Skipping corrupted file: {file_path}")
+    return False
 
 
-def handle_missing_reduction(file_path: Path, file_reduction: str) -> Dict[str, Any]:
+def handle_missing_reduction(
+    material: str,
+    reduction: int,
+    available_data: Dict[str, Dict[int, Any]]
+) -> bool:
     """
-    Handle a file with a missing or invalid reduction level.
+    Handles missing metal/reduction combination.
 
     Args:
-        file_path: Path to the file.
-        file_reduction: The invalid or missing reduction value.
+        material: Material name (e.g., 'Al', 'Cu', 'Ni').
+        reduction: Reduction level that is missing.
+        available_data: Dictionary of available data to check against.
 
     Returns:
-        Dict with status and details about the skipped file.
+        False indicating this entry should be skipped.
     """
-    warning_msg = (
-        f"Skipping file {file_path.name}: Missing or invalid reduction level '{file_reduction}'. "
-        "Ensure reduction levels are defined in code/config.py."
+    logger.warning(
+        f"Missing data for {material} at {reduction}% reduction. "
+        "Skipping this entry and proceeding with available data."
     )
-    logger.warning(warning_msg)
+    return False
+
+
+def calculate_reliability_metrics(
+    df: pd.DataFrame,
+    confidence_col: str = 'confidence',
+    threshold: float = 0.1
+) -> Dict[str, float]:
+    """
+    Calculates reliability metrics for a dataset.
+
+    Args:
+        df: DataFrame containing orientation data.
+        confidence_col: Name of the confidence column.
+        threshold: Minimum confidence threshold.
+
+    Returns:
+        Dictionary with 'total_points', 'filtered_points', 'reliability_score'.
+    """
+    total_points = len(df)
+    filtered_points = len(df[df[confidence_col] >= threshold])
+    filtered_ratio = filtered_points / total_points if total_points > 0 else 0.0
 
     return {
-        "status": "skipped",
-        "file": str(file_path),
-        "reason": f"Missing/Invalid reduction: {file_reduction}",
-        "action": "File excluded from processing"
+        'total_points': total_points,
+        'filtered_points': filtered_points,
+        'filtered_ratio': filtered_ratio,
+        'reliability_score': filtered_ratio
     }
+
+
+def apply_exclusion_logic(
+    metrics: Dict[str, float],
+    exclusion_threshold: float = 0.5
+) -> Tuple[bool, str]:
+    """
+    Applies exclusion logic based on reliability metrics.
+
+    Args:
+        metrics: Reliability metrics from calculate_reliability_metrics.
+        exclusion_threshold: Threshold for filtering ratio above which
+                           samples are excluded (default 0.5 = 50%).
+
+    Returns:
+        Tuple of (should_exclude, reason)
+    """
+    filtered_ratio = metrics.get('filtered_ratio', 0.0)
+
+    if filtered_ratio > exclusion_threshold:
+        reason = (
+            f"Low reliability: {filtered_ratio:.2%} of points filtered out. "
+            f"Exceeds threshold of {exclusion_threshold:.0%}."
+        )
+        logger.warning(reason)
+        return True, reason
+
+    return False, "Reliability acceptable"
 
 
 def process_with_error_handling(
-    file_paths: List[Path],
-    processor_func,
-    **processor_kwargs
-) -> Tuple[List[pd.DataFrame], List[Dict[str, Any]]]:
+    data_source: Any,
+    process_func: Any,
+    *args,
+    **kwargs
+) -> Tuple[Optional[Any], List[str]]:
     """
-    Process a list of files with robust error handling.
-
-    This function iterates through file paths, validates reduction levels,
-    checks file integrity, and processes valid files. It logs warnings for
-    skipped files and returns both successful results and error logs.
+    Generic wrapper to process data with comprehensive error handling.
 
     Args:
-        file_paths: List of file paths to process.
-        processor_func: Function to call for each valid file. Should accept
-                        the file path and any additional kwargs.
-        **processor_kwargs: Additional arguments to pass to processor_func.
+        data_source: The data source to process.
+        process_func: The function to apply to the data.
+        *args: Additional arguments for process_func.
+        **kwargs: Additional keyword arguments for process_func.
 
     Returns:
-        Tuple of (list of successful DataFrames, list of error logs)
+        Tuple of (result, list_of_warnings)
     """
-    results = []
-    errors = []
+    warnings = []
 
-    for file_path in file_paths:
-        logger.info(f"Processing: {file_path.name}")
+    try:
+        if data_source is None:
+            raise ValueError("Data source is None")
 
-        # Step 1: Check file integrity
-        is_valid, msg = check_file_integrity(file_path)
-        if not is_valid:
-            error_log = handle_corrupted_file(file_path, Exception(msg))
-            errors.append(error_log)
-            continue
+        result = process_func(data_source, *args, **kwargs)
+        return result, warnings
 
-        # Step 2: Extract and validate reduction level
-        # Assuming reduction is part of filename or metadata; adjust logic as needed
-        file_reduction = file_path.stem.split('_')[-1] if '_' in file_path.stem else None
+    except FileNotFoundError as e:
+        warnings.append(f"File not found: {e}")
+        logger.error(f"Skipping data source due to missing file: {e}")
+        return None, warnings
 
-        if file_reduction is None:
-            error_log = handle_missing_reduction(file_path, "Unknown")
-            errors.append(error_log)
-            continue
+    except pd.errors.EmptyDataError:
+        warnings.append("File is empty or corrupted")
+        logger.error("Skipping empty/corrupted file")
+        return None, warnings
 
-        is_valid, msg = validate_reduction_levels(file_reduction)
-        if not is_valid:
-            error_log = handle_missing_reduction(file_path, file_reduction)
-            errors.append(error_log)
-            continue
-
-        # Step 3: Process the file
-        try:
-            result = processor_func(file_path, **processor_kwargs)
-            if result is not None:
-                results.append(result)
-                logger.info(f"Successfully processed: {file_path.name}")
-        except Exception as e:
-            error_log = handle_corrupted_file(file_path, e)
-            errors.append(error_log)
-            logger.exception(f"Unexpected error processing {file_path.name}")
-
-    return results, errors
+    except Exception as e:
+        warnings.append(f"Unexpected error: {e}")
+        logger.error(f"Error processing data: {e}", exc_info=True)
+        return None, warnings
 
 
 def main():
     """
-    Main entry point for error handling module demonstration.
+    Main entry point for error handling demonstrations.
+    This function demonstrates the error handling capabilities.
     """
-    setup_logging()
-    logger.info("Starting error handling module demonstration.")
+    logger.info("Starting error handling module demonstration")
 
-    # Example usage
-    sample_paths = [
-        Path("data/raw/sample_10.csv"),
-        Path("data/raw/sample_20.csv"),
-        Path("data/raw/missing_reduction.csv"),
-        Path("data/raw/corrupted.csv"),
-    ]
+    # Example: Validate reduction levels
+    available = [0, 10, 20, 30, 50, 60]
+    required = [0, 10, 20, 30, 40, 50, 60, 70, 80]
 
-    def dummy_processor(path, **kwargs):
-        logger.info(f"Dummy processing {path.name}")
-        return pd.DataFrame({"dummy": [1, 2, 3]})
+    valid, missing = validate_reduction_levels(available, required)
+    logger.info(f"Valid levels: {valid}")
+    logger.info(f"Missing levels: {missing}")
 
-    results, errors = process_with_error_handling(
-        sample_paths,
-        dummy_processor
-    )
+    # Example: Reliability metrics
+    sample_df = pd.DataFrame({
+        'confidence': [0.05, 0.15, 0.2, 0.08, 0.3, 0.12]
+    })
 
-    logger.info(f"Processed {len(results)} files successfully.")
-    logger.info(f"Skipped {len(errors)} files due to errors.")
+    metrics = calculate_reliability_metrics(sample_df)
+    logger.info(f"Reliability metrics: {metrics}")
 
-    for err in errors:
-        logger.warning(f"Skipped: {err['file']} - {err['reason']}")
+    should_exclude, reason = apply_exclusion_logic(metrics)
+    if should_exclude:
+        logger.warning(f"Sample excluded: {reason}")
+    else:
+        logger.info(f"Sample included: {reason}")
+
+    logger.info("Error handling module demonstration complete")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
